@@ -9,12 +9,6 @@ trigger:
     include:
     - v*
 
-pr:
-  autoCancel: true
-  branches:
-    include:
-    - master
-
 variables:
   AGENT_BIN: '$(Build.SourcesDirectory)\build\SignalFxAgent\bin\signalfx-agent.exe'
   GO111MODULE: 'on'

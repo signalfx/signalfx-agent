@@ -47,7 +47,11 @@ type MonitorMetadata struct {
 
 // PackageMetadata describes a package directory that may have one or more monitors.
 type PackageMetadata struct {
-	Monitors []MonitorMetadata
+	// Common is a section to allow multiple monitors to place shared data.
+	Common map[string]interface{}
+	// PackageDir is the directory to output the generated code if not the same directory as the metadata.yaml.
+	PackageDir string `json:"packageDir" yaml:"packageDir"`
+	Monitors   []MonitorMetadata
 	// Name of the package in go. If not set defaults to the directory name.
 	GoPackage *string `json:"goPackage" yaml:"goPackage"`
 	// Filesystem path to the package directory.

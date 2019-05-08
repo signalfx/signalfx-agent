@@ -11,6 +11,8 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"strings"
+	"unicode"
 
 	"github.com/signalfx/signalfx-agent/internal/selfdescribe"
 	log "github.com/sirupsen/logrus"
@@ -23,6 +25,10 @@ const (
 
 func buildOutputPath(pkg *selfdescribe.PackageMetadata) string {
 	outputDir := pkg.PackagePath
+	outputPackage := strings.TrimSpace(pkg.PackageDir)
+	if outputPackage != "" {
+		outputDir = path.Join(pkg.PackagePath, outputPackage)
+	}
 	return path.Join(outputDir, genMetadata)
 }
 
@@ -61,8 +67,23 @@ func generate(templateFile string, force bool) error {
 		return err
 	}
 
+	exportVars := false
+
 	tmpl, err := template.New(generatedMetadataTemplate).Option("missingkey=error").Funcs(template.FuncMap{
-		"formatVariable": formatVariable,
+		"formatVariable": func(s string) (string, error) {
+			formatted, err := formatVariable(s)
+
+			if err != nil {
+				return "", err
+			}
+
+			if exportVars {
+				runes := []rune(formatted)
+				runes[0] = unicode.ToUpper(runes[0])
+				formatted = string(runes)
+			}
+			return formatted, nil
+		},
 		"convertMetricType": func(metricType string) (output string, err error) {
 			switch metricType {
 			case "gauge":
@@ -117,9 +138,14 @@ func generate(templateFile string, force bool) error {
 			}
 		}
 
+		// Pretty gross, resets variable that template function references above.
+		exportVars = strings.TrimSpace(pkg.PackageDir) != ""
+
 		// Go package name can be overridden but default to the directory name.
 		var goPackage string
 		switch {
+		case exportVars:
+			goPackage = pkg.PackageDir
 		case pkg.GoPackage != nil:
 			goPackage = *pkg.GoPackage
 		default:
@@ -142,6 +168,10 @@ func generate(templateFile string, force bool) error {
 		}
 
 		outputFile := buildOutputPath(pkg)
+
+		if err := os.MkdirAll(path.Dir(outputFile), 0755); err != nil {
+			return err
+		}
 
 		if err := ioutil.WriteFile(outputFile, formatted, 0644); err != nil {
 			return err

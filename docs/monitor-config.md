@@ -104,6 +104,7 @@ These are all of the monitors included in the agent, along with their possible c
 - [kubernetes-volumes](./monitors/kubernetes-volumes.md)
 - [memory](./monitors/memory.md)
 - [net-io](./monitors/net-io.md)
+- [openshift-cluster](./monitors/openshift-cluster.md)
 - [postgresql](./monitors/postgresql.md)
 - [processlist](./monitors/processlist.md)
 - [prometheus-exporter](./monitors/prometheus-exporter.md)

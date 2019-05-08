@@ -21,38 +21,48 @@ monitors:
   metrics:
     # Taken from genericjmx monitor. If you want to change them update genericjmx and update
     # all other monitors that use genericjmx with this same notice.
+    ### BEGIN JVM METRICS ###
     gauge.jvm.threads.count:
       description: Number of JVM threads
+      group: jvm
       included: true
       type: gauge
     gauge.loaded_classes:
       description: Number of classes loaded in the JVM
+      group: jvm
       included: true
       type: gauge
     invocations:
       description: Total number of garbage collection events
+      group: jvm
       included: true
       type: cumulative
     jmx_memory.committed:
       description: Amount of memory guaranteed to be available in bytes
+      group: jvm
       included: true
       type: gauge
     jmx_memory.max:
       description: Maximum amount of memory that can be used in bytes
+      group: jvm
       included: true
       type: gauge
     jmx_memory.used:
       description: Current memory usage in bytes
+      group: jvm
       included: true
       type: gauge
     total_time_in_ms.collection_time:
       description: Amount of time spent garbage collecting in milliseconds
+      group: jvm
       included: true
       type: cumulative
     jmx_memory.init:
       description: Amount of initial memory at startup in bytes
+      group: jvm
       included: true
       type: gauge
+    ### END JVM METRICS ###
 
     counter.kafka-all-bytes-in:
       description: Number of bytes received per second across all topics

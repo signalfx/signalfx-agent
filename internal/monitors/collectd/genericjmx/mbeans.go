@@ -33,6 +33,14 @@ func (m MBeanMap) MBeanNames() []string {
 var DefaultMBeans MBeanMap
 
 const defaultMBeanYAML = `
+classes:
+  objectName: java.lang:type=ClassLoading
+  values:
+  - type: gauge
+    instancePrefix: loaded_classes
+    table: false
+    attribute: LoadedClassCount
+
 garbage_collector:
   objectName: "java.lang:type=GarbageCollector,*"
   instancePrefix: "gc-"
