@@ -1,3 +1,4 @@
+import time
 from functools import partial as p
 from textwrap import dedent
 
@@ -26,6 +27,8 @@ def test_solr_monitor_defaults():
         )
         assert wait_for(p(tcp_socket_open, host, 8983), 60), "service not listening on port"
         with Agent.run(config) as agent:
+            time.sleep(10)
+            assert agent.fake_services.datapoints
             # We don't get all default metrics but this ensures we don't get
             # any non-default metrics through with default config.
             verify_expected_is_superset(agent, METADATA.included_metrics)
