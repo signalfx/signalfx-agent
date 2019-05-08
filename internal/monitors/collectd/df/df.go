@@ -53,10 +53,10 @@ type Monitor struct {
 func (c *Config) GetExtraMetrics() []string {
 	var extraMetrics []string
 	if c.ReportInodes {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupReportInodes]...)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupInodes]...)
 	}
 	if c.ValuesPercentage {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupValuesPercentage]...)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupPercentage]...)
 	}
 	if c.ReportInodes && c.ValuesPercentage {
 		extraMetrics = append(extraMetrics, percentInodesFree, percentInodesReserved, percentInodesUsed)
@@ -69,10 +69,10 @@ func (m *Monitor) Configure(config *Config) error {
 	// conf is a config shallow copy that will be mutated and used to configure moni tor
 	conf := *config
 	// Setting group flags in conf for enable extra metrics
-	if m.Output.HasEnabledMetricInGroup(groupReportInodes) {
+	if m.Output.HasEnabledMetricInGroup(groupInodes) {
 		conf.ReportInodes = true
 	}
-	if m.Output.HasEnabledMetricInGroup(groupValuesPercentage) {
+	if m.Output.HasEnabledMetricInGroup(groupPercentage) {
 		conf.ValuesPercentage = true
 	}
 	if m.isReportInodesAndValuesPercentageMetric() {

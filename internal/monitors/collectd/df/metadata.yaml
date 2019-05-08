@@ -20,32 +20,32 @@ monitors:
       description: Number of inodes that are free.
       included: false
       type: gauge
-      group: report-inodes
+      group: inodes
     df_inodes.reserved:
       description: Number of inodes reserved for the super user.
       included: false
       type: gauge
-      group: report-inodes
+      group: inodes
     df_inodes.used:
       description: Number of inodes that are used.
       included: false
       type: gauge
-      group: report-inodes
+      group: inodes
     percent_bytes.free:
       description: Free disk space on the file system, expressed as a percentage.
       included: false
       type: gauge
-      group: values-percentage
+      group: percentage
     percent_bytes.reserved:
       description: Reserved disk space on the filesystem, expressed as a percentage.
       included: false
       type: gauge
-      group: values-percentage
+      group: percentage
     percent_bytes.used:
       description: Used disk space on the file system, expressed as a percentage.
       included: false
       type: gauge
-      group: values-percentage
+      group: percentage
     percent_inodes.free:
       description: Free inodes on the file system, expressed as a percentage.
       included: false

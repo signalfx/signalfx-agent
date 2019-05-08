@@ -31,8 +31,8 @@ def test_df_extra_metrics():
     verify_custom(agent_config, expected_metrics)
 
 
-def test_df_report_inodes_flag():
-    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["report-inodes"]
+def test_df_inodes_flag():
+    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["inodes"]
     agent_config = f"""
         monitors:
           - type: collectd/df
@@ -42,8 +42,8 @@ def test_df_report_inodes_flag():
     verify_custom(agent_config, expected_metrics)
 
 
-def test_df_values_percentage_flag():
-    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["values-percentage"]
+def test_df_percentage_flag():
+    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["percentage"]
     agent_config = f"""
         monitors:
           - type: collectd/df
@@ -53,7 +53,7 @@ def test_df_values_percentage_flag():
     verify_custom(agent_config, expected_metrics)
 
 
-def test_df_report_inodes_and_values_percentage_flags():
+def test_df_inodes_and_percentage_flags():
     expected_metrics = METADATA.all_metrics - {"df_complex.reserved"}
     agent_config = f"""
         monitors:
