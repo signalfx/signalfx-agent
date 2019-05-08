@@ -8,10 +8,48 @@ monitors:
     (the `cpu.utilization` metric).
 
     See https://collectd.org/wiki/index.php/Plugin:CPU
+  # There are no included metrics but shouldn't sendAll by default.
+  sendAll: false
   metrics:
-    cpu.utilization:
-      description: Percentage of total CPU used within the last metric interval cycle.
-      included: true
-      type: gauge
+    cpu.idle:
+      description:
+      group:
+      included: false
+      type: cumulative
+    cpu.interrupt:
+      description:
+      group:
+      included: false
+      type: cumulative
+    cpu.nice:
+      description:
+      group:
+      included: false
+      type: cumulative
+    cpu.softirq:
+      description:
+      group:
+      included: false
+      type: cumulative
+    cpu.steal:
+      description:
+      group:
+      included: false
+      type: cumulative
+    cpu.system:
+      description:
+      group:
+      included: false
+      type: cumulative
+    cpu.user:
+      description:
+      group:
+      included: false
+      type: cumulative
+    cpu.wait:
+      description:
+      group:
+      included: false
+      type: cumulative
   monitorType: collectd/cpu
   properties:
