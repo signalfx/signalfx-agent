@@ -1,24 +1,31 @@
-from functools import partial as p
+import sys
 
 import pytest
-
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_any_metric_or_dim, has_log_message
-from tests.helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_metrics_from_selfdescribe, wait_for
+from tests.helpers.assertions import has_log_message
+from tests.helpers.metadata import Metadata
+from tests.helpers.verify import verify
 
-pytestmark = [pytest.mark.collectd, pytest.mark.memory, pytest.mark.monitor_without_endpoints]
+pytestmark = [pytest.mark.windows, pytest.mark.memory, pytest.mark.monitor_without_endpoints]
+
+METADATA = Metadata.from_package("memory")
 
 
-def test_collectd_memory():
-    expected_metrics = get_monitor_metrics_from_selfdescribe("collectd/memory")
-    expected_dims = get_monitor_dims_from_selfdescribe("collectd/memory")
+def test_memory():
+    expected_metrics = ["memory.used", "memory.utilization"]
+    if sys.platform == "linux":
+        expected_metrics.extend(
+            ["memory.buffered", "memory.cached", "memory.free", "memory.slab_recl", "memory.slab_unrecl"]
+        )
     with Agent.run(
         """
     monitors:
-      - type: collectd/memory
+      - type: memory
     """
     ) as agent:
-        assert wait_for(
-            p(has_any_metric_or_dim, agent.fake_services, expected_metrics, expected_dims), timeout_seconds=60
-        ), "timed out waiting for metrics and/or dimensions!"
+        for met in expected_metrics:
+            assert met in METADATA.included_metrics
+
+        verify(agent, frozenset(expected_metrics))
+
         assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
