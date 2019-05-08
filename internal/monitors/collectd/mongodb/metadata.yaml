@@ -124,20 +124,52 @@ monitors:
       included: true
       type: cumulative
     counter.opcounters.delete:
-      description: Number of deletes per second
+      description: Number of deletes since last restart
       included: true
       type: cumulative
     counter.opcounters.insert:
-      description: Number of inserts per second
+      description: Number of inserts since last restart
       included: true
       type: cumulative
     counter.opcounters.query:
-      description: Number of queries per second
+      description: Number of queries since last restart
       included: true
       type: cumulative
     counter.opcounters.update:
-      description: Number of updates per second
+      description: Number of updates since last restart
       included: true
+      type: cumulative
+    counter.opcounters.getmore:
+      description: Number of getmore operations since last restart
+      included: false
+      type: cumulative
+    counter.opcounters.command:
+      description: Number of commands since last restart
+      included: false
+      type: cumulative
+    counter.opcountersRepl.delete:
+      description: Number of replicated deletes since last restart
+      included: false
+      type: cumulative
+    counter.opcountersRepl.insert:
+      description: Number of replicated inserts since last restart
+      included: false
+      type: cumulative
+    counter.opcountersRepl.query:
+      description: Number of replicated queries since last restart
+      included: false
+      type: cumulative
+    counter.opcountersRepl.update:
+      description: Number of replicated updates since last restart
+      included: false
+      type: cumulative
+    counter.opcountersRepl.getmore:
+      description: Number of replicated getmore operations since last restart
+      included: false
+      type: cumulative
+    counter.opcountersRepl.command:
+      description: Number of replicated commands since last restart
+      included: false
       type: cumulative
     gauge.backgroundFlushing.average_ms:
       description: Average time (ms) to write data to disk
@@ -188,6 +220,10 @@ monitors:
       description: Number of available incoming connections
       included: false
       type: gauge
+    gauge.connections.totalCreated:
+      description: Count of all incoming connections created to the server. This number includes connections that have since closed.
+      included: false
+      type: cumulative
     gauge.connections.current:
       description: Number of current client connections
       included: true
@@ -256,5 +292,38 @@ monitors:
       description: Uptime of this server in milliseconds
       included: true
       type: counter
+    counter.asserts.warning:
+      description: In MongoDB 3.x and earlier, the field returns the number of warnings raised since the MongoDB process started.  In MongodDB 4, this is always 0.
+      included: false
+      type: cumulative
+    counter.asserts.regular:
+      description: The number of regular assertions raised since the MongoDB process started. Check the log file for more information about these messages.
+      included: false
+      type: cumulative
+    gauge.numExtents:
+      description:
+      included: false
+      type: gauge
+    counter.lock.Global.acquireCount.write:
+      included: false
+      type: cumulative
+    counter.lock.Global.acquireCount.intentShared:
+      included: false
+      type: cumulative
+    counter.lock.Global.acquireCount.intentExclusive:
+      included: false
+      type: cumulative
+    counter.lock.Database.acquireCount.write:
+      included: false
+      type: cumulative
+    counter.lock.Database.acquireCount.intentExclusive:
+      included: false
+      type: cumulative
+    counter.lock.Database.acquireCount.read:
+      included: false
+      type: cumulative
+    counter.lock.Database.acquireCount.intentShared:
+      included: false
+      type: cumulative
   monitorType: collectd/mongodb
   properties:

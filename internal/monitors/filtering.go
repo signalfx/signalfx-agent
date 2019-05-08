@@ -63,6 +63,17 @@ func (mf *monitorFiltering) HasEnabledMetricInGroup(group string) bool {
 	return false
 }
 
+// HasAnyNonDefaultMetricEnabled returns true if there is any custom metric
+// enabled for this output instance.
+func (mf *monitorFiltering) HasAnyNonDefaultMetricEnabled() bool {
+	for _, m := range mf.EnabledMetrics() {
+		if !mf.metadata.IncludedMetrics[m] {
+			return true
+		}
+	}
+	return false
+}
+
 func buildFilterSet(metadata *Metadata, conf config.MonitorCustomConfig) (*dpfilters.FilterSet, error) {
 	coreConfig := conf.MonitorConfigCore()
 
