@@ -16,9 +16,10 @@ from signalfx.generated_protocol_buffers import signal_fx_protocol_buffers_pb2 a
 STOP = type("STOP", (), {})
 
 
-def free_tcp_socket(host="127.0.0.1"):
+def bind_tcp_socket(host="127.0.0.1", port=0):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind((host, 0))
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind((host, port))
 
     return (sock, sock.getsockname()[1])
 
@@ -86,7 +87,7 @@ def _make_fake_api(dims):
 # The fake servers will be stopped once the context manager block is exited.
 # pylint: disable=too-many-locals
 @contextmanager
-def start(ip_addr="127.0.0.1"):
+def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0):
     # Data structures are thread-safe due to the GIL
     _dp_upload_queue = Queue()
     _datapoints = []
@@ -99,8 +100,8 @@ def start(ip_addr="127.0.0.1"):
     ingest_app = _make_fake_ingest(_dp_upload_queue, _events, _spans)
     api_app = _make_fake_api(_dims)
 
-    [ingest_sock, _ingest_port] = free_tcp_socket(ip_addr)
-    [api_sock, _api_port] = free_tcp_socket(ip_addr)
+    [ingest_sock, _ingest_port] = bind_tcp_socket(ip_addr, ingest_port)
+    [api_sock, _api_port] = bind_tcp_socket(ip_addr, api_port)
 
     loop = asyncio.new_event_loop()
 
