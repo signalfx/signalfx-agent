@@ -2432,6 +2432,12 @@
           "group": null,
           "included": true
         },
+        "gauge.consul.rpc.query": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
         "gauge.consul.runtime.alloc_bytes": {
           "type": "gauge",
           "description": "Number of bytes allocated to Consul process on the node",
@@ -2455,6 +2461,12 @@
           "description": "Number of serf events processed",
           "group": null,
           "included": true
+        },
+        "gauge.consul.serf.events.consul:new-leader": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
         },
         "gauge.consul.serf.member.join": {
           "type": "gauge",
@@ -5696,6 +5708,12 @@
           "group": null,
           "included": false
         },
+        "gauge.queue_time_avg": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
         "gauge.request_rate": {
           "type": "gauge",
           "description": "Corresponds to HAProxy's `req_rate` metric -  HTTP requests per second over last elapsed second",
@@ -5705,6 +5723,12 @@
         "gauge.request_rate_max": {
           "type": "gauge",
           "description": "Max number of HTTP requests per second observed. Corresponds to HAProxy's \"req_rate_max\" metric.",
+          "group": null,
+          "included": false
+        },
+        "gauge.response_time_avg": {
+          "type": "gauge",
+          "description": "Average total session time in ms over the last 1024 requests. Corresponds to HAProxy's \"ttime\" metric.",
           "group": null,
           "included": false
         },
@@ -5726,6 +5750,12 @@
           "group": null,
           "included": true
         },
+        "gauge.session_rate_all": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
         "gauge.session_rate_limit": {
           "type": "gauge",
           "description": "Configured limit on number of new sessions per second. Corresponds to HAProxy's \"rate_lim\" metric.",
@@ -5741,6 +5771,12 @@
         "gauge.session_time_average": {
           "type": "gauge",
           "description": "Average total session time in ms over the last 1024 requests. Corresponds to HAProxy's \"ttime\" metric.",
+          "group": null,
+          "included": false
+        },
+        "gauge.session_time_avg": {
+          "type": "gauge",
+          "description": "",
           "group": null,
           "included": false
         },
@@ -5814,7 +5850,7 @@
           },
           {
             "yamlName": "excludedMetrics",
-            "doc": "",
+            "doc": "Deprecated.  Please use `datapointsToExclude` on the monitor config block instead.",
             "default": null,
             "required": false,
             "type": "slice",
@@ -5835,7 +5871,7 @@
     },
     {
       "monitorType": "collectd/health-checker",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "A simple Collectd Python-based monitor\nthat hits an endpoint and checks if the configured JSON value is returned in\nthe response body.\n",
       "groups": null,
@@ -12123,6 +12159,12 @@
           "group": null,
           "included": true
         },
+        "counter.solr.http_requests": {
+          "type": "counter",
+          "description": "Total number of http requests",
+          "group": null,
+          "included": true
+        },
         "counter.solr.jvm_classes_loaded": {
           "type": "counter",
           "description": "Number of JVM classes loaded",
@@ -12203,13 +12245,13 @@
         },
         "gauge.solr.core_max_docs": {
           "type": "gauge",
-          "description": "Total number of docs in Sor core",
+          "description": "Total number of docs in Solr core",
           "group": null,
           "included": true
         },
         "gauge.solr.core_num_docs": {
           "type": "gauge",
-          "description": "Total number of indexed docs in Sor core",
+          "description": "Total number of indexed docs in Solr core",
           "group": null,
           "included": true
         },
@@ -12368,6 +12410,12 @@
           "description": "Time to new searcher to warm up",
           "group": null,
           "included": true
+        },
+        "gauge.solr.shard_cumulative_docs": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
         },
         "gauge.solr.update_request_handler_response": {
           "type": "gauge",
@@ -18603,7 +18651,7 @@
     },
     {
       "monitorType": "kubernetes-cluster",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": {
         "kubernetes_name": {
           "description": "The name of the resource that the metric describes"
@@ -18637,103 +18685,103 @@
           "type": "gauge",
           "description": "Whether a container has passed its readiness probe (0 for no, 1 for yes)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.container_restart_count": {
           "type": "gauge",
           "description": "How many times the container has restarted in the recent past.  This value is pulled directly from [the K8s API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core) and the value can go indefinitely high and be reset to 0 at any time depending on how your [kubelet is configured to prune dead containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/). It is best to not depend too much on the exact value but rather look at it as either `== 0`, in which case you can conclude there were no restarts in the recent past, or `\u003e 0`, in which case you can conclude there were restarts in the recent past, and not try and analyze the value beyond that.",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.daemon_set.current_scheduled": {
           "type": "gauge",
           "description": "The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.daemon_set.desired_scheduled": {
           "type": "gauge",
           "description": "The total number of nodes that should be running the daemon pod (including nodes currently running the daemon pod)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.daemon_set.misscheduled": {
           "type": "gauge",
           "description": "The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.daemon_set.ready": {
           "type": "gauge",
           "description": "The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.deployment.available": {
           "type": "gauge",
           "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.deployment.desired": {
           "type": "gauge",
           "description": "Number of desired pods in this deployment",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.namespace_phase": {
           "type": "gauge",
           "description": "The current phase of namespaces (`1` for _active_ and `0` for _terminating_)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.node_ready": {
           "type": "gauge",
           "description": "Whether this node is ready (1), not ready (0) or in an unknown state (-1)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.pod_phase": {
           "type": "gauge",
           "description": "Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.replica_set.available": {
           "type": "gauge",
           "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this replica set",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.replica_set.desired": {
           "type": "gauge",
           "description": "Number of desired pods in this replica set",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.replication_controller.available": {
           "type": "gauge",
           "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller.",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.replication_controller.desired": {
           "type": "gauge",
           "description": "Number of desired pods",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.resource_quota_hard": {
           "type": "gauge",
           "description": "The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.resource_quota_used": {
           "type": "gauge",
           "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
           "group": null,
-          "included": true
+          "included": false
         }
       },
       "properties": {
@@ -19325,103 +19373,103 @@
           "type": "gauge",
           "description": "Whether a container has passed its readiness probe (0 for no, 1 for yes)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.container_restart_count": {
           "type": "gauge",
           "description": "How many times the container has restarted in the recent past.  This value is pulled directly from [the K8s API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core) and the value can go indefinitely high and be reset to 0 at any time depending on how your [kubelet is configured to prune dead containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/). It is best to not depend too much on the exact value but rather look at it as either `== 0`, in which case you can conclude there were no restarts in the recent past, or `\u003e 0`, in which case you can conclude there were restarts in the recent past, and not try and analyze the value beyond that.",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.daemon_set.current_scheduled": {
           "type": "gauge",
           "description": "The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.daemon_set.desired_scheduled": {
           "type": "gauge",
           "description": "The total number of nodes that should be running the daemon pod (including nodes currently running the daemon pod)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.daemon_set.misscheduled": {
           "type": "gauge",
           "description": "The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.daemon_set.ready": {
           "type": "gauge",
           "description": "The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.deployment.available": {
           "type": "gauge",
           "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.deployment.desired": {
           "type": "gauge",
           "description": "Number of desired pods in this deployment",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.namespace_phase": {
           "type": "gauge",
           "description": "The current phase of namespaces (`1` for _active_ and `0` for _terminating_)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.node_ready": {
           "type": "gauge",
           "description": "Whether this node is ready (1), not ready (0) or in an unknown state (-1)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.pod_phase": {
           "type": "gauge",
           "description": "Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.replica_set.available": {
           "type": "gauge",
           "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this replica set",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.replica_set.desired": {
           "type": "gauge",
           "description": "Number of desired pods in this replica set",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.replication_controller.available": {
           "type": "gauge",
           "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller.",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.replication_controller.desired": {
           "type": "gauge",
           "description": "Number of desired pods",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.resource_quota_hard": {
           "type": "gauge",
           "description": "The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.resource_quota_used": {
           "type": "gauge",
           "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
           "group": null,
-          "included": true
+          "included": false
         },
         "openshift.appliedclusterquota.cpu.hard": {
           "type": "gauge",
