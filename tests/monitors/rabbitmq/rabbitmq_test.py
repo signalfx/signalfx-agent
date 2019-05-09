@@ -3,8 +3,8 @@ from pathlib import Path
 from textwrap import dedent
 
 import pika
-
 import pytest
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, tcp_socket_open
 from tests.helpers.metadata import Metadata
