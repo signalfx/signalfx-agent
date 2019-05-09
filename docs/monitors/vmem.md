@@ -49,8 +49,9 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `vmpage_io.memory.out` | cumulative |  | (Linux Only) Page Outs for Memory |
 | `vmpage_io.swap.in` | cumulative | ✔ | (Linux Only) Page Ins for Swap |
 | `vmpage_io.swap.out` | cumulative | ✔ | (Linux Only) Page Outs for Swap |
-| `vmpage_number.free_pages` | cumulative |  | (Linux Only) Number of free memory pages |
-| `vmpage_number.mapped` | cumulative |  | (Linux Only) Number of mapped pages |
+| `vmpage_number.free_pages` | gauge |  | (Linux Only) Number of free memory pages |
+| `vmpage_number.mapped` | gauge |  | (Linux Only) Number of mapped pages |
+| `vmpage_number.shmem_pmdmapped` | gauge |  | (Linux Only) The amount of shared (shmem/tmpfs) memory backed by huge pages |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
@@ -76,6 +77,7 @@ metricsToInclude:
     - vmpage_io.memory.out
     - vmpage_number.free_pages
     - vmpage_number.mapped
+    - vmpage_number.shmem_pmdmapped
     monitorType: vmem
 ```
 
