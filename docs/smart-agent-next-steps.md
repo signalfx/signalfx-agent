@@ -81,6 +81,6 @@ yum install -y signalfx-agent
 You may also want to configure various monitors for your environment. See [Monitor Configuration](#https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html) for Linux and [Windows Setup](#https://docs.signalfx.com/en/latest/integrations/agent/windows.html) for Windows monitors.
 
 
-To learn more about Smart Agent, see the [15-Minute SingnalFx Smart Agent Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html#quick-start).
+To learn more about Smart Agent, see the [15-Minute SingnalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html#quick-start).
 
 

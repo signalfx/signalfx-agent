@@ -17,7 +17,7 @@ See [Smart Agent Quick Install](./docs/smart-agent-quick-install.md) for Steps 1
 
 ### Step 4: Deploy Smart Agent on multiple hosts.
 
-See [Smart Agent Next Steps](./docs/smart-agent-next-steps.md)
+See [Smart Agent Next Steps](./docs/smart-agent-next-steps.md).
 
 ### Step 5: Configure various monitors to output metrics to Smart Agent. 
 
@@ -28,15 +28,15 @@ See [Smart Agent Next Steps](./docs/smart-agent-next-steps.md)
 
 #### Configure optional metrics for your monitors.
 
-See individual monitor pages for your monitor from the lists in Step 5.
+See individual monitor pages for your monitor from the lists in Step 5 or see the [Integrations tab](https://app.signalfx.com/#/integrations) for information on Monitor Services.
 
 ### Step 6: Add a new observer to your agent configuration.
 
-- See [Observers](#observers)
+- See [Observers](#observers).
 
 ### Step 7: Explore Dashboards to display and compare data from the various sources.
 
-See [Dashboards](https://docs.signalfx.com/en/latest/dashboards/index.html)
+- See [Dashboards](https://docs.signalfx.com/en/latest/dashboards/index.html).
 
 
 If you would like to explore more about using SignalFx Smart Agent, see the [SignalFx 15-Minute Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html#quick-start).

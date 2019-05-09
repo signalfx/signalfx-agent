@@ -80,8 +80,6 @@ To determine if you are in a different realm and need to explicitly set the endp
 
 ## Next Steps
 
-To install Smart Agent on multiple hosts using configuration management tools or packages, go to the [Integrations page](https://app.signalfx.com/#/integrations), and then click the icon of the tool you want to use. 
-
 Additional information on configuration management tools and package installations is [here](/docs/smart-agent-next-steps.md).
 
 ## Other methods of Installation

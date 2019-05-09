@@ -73,7 +73,7 @@ single agent.
 ## Installation
 
 To get started deploying the Smart Agent on a single host for Windows or Linux, see the
-[Smart Agent Quick Install](./docs/smart-agent-quick-install.md) guide. Technical details for other methods of agent installation are discussed below.
+[Smart Agent Quick Install](./docs/smart-agent-quick-install.md) guide. For more information to help you set up Smart Agent on your network, see [Smart Agent Next Steps](./docs/smart-agent-next-steps). Technical details for other methods of agent installation are discussed below.
 
 ## Other methods of agent installation
 
@@ -82,77 +82,9 @@ In both forms the dependencies are completely bundled along with the
 agent, including a Java JRE runtime and a Python runtime, so there are no
 additional dependencies required. The agent works on any modern Linux distribution (kernel version 2.6+).  
 
-The agent is also available on Windows in standalone form.  It
-contains its own Python runtime, but has an external depencency on the
-[Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
-in order to operate.  The agent supports Windows Server 2008 and above.
+The agent is also available on Windows in standalone form.  
 
-### Configuration Management Tools
-We support the following deployment/configuration management tools to automate the
-installation process on multiple hosts. 
-
-#### Chef
-We offer a Chef cookbook to install and configure the agent.  See [the cookbook
-source](./deployments/chef) and [on the Chef
-Supermarket](https://supermarket.chef.io/cookbooks/signalfx_agent).
-
-#### Puppet
-We also offer a Puppet manifest to install and configure the agent on Linux.  See [the
-manifest source](./deployments/puppet) and [on the Puppet
-Forge](https://forge.puppet.com/signalfx/signalfx_agent/readme).
-
-#### Ansible
-We also offer an Ansible Role to install and configure the Smart Agent on Linux.  See [the
-role source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/ansible).
-
-#### Salt
-We also offer a Salt Formula to install and configure the Smart Agent on Linux.  See [the
-formula source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/salt).
-
-#### Docker Image
-See [Docker Deployment](./deployments/docker) for more information.
-
-#### Kubernetes
-See our [Kubernetes setup instructions](./docs/kubernetes-setup.md) and the
-documentation on [Monitoring
-Kubernetes](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
-for more information.
-
-#### AWS Elastic Container Service (ECS)
-See the [ECS directory](./deployments/ecs), which includes a sample
-config and task definition for the agent.
-
-### Packages
-We offer the agent in the following forms:
-
-#### Debian Package
-We provide a Debian package repository that you can make use of with the
-following commands:
-
-```sh
-curl -sSL https://dl.signalfx.com/debian.gpg > /etc/apt/trusted.gpg.d/signalfx.gpg
-echo 'deb https://dl.signalfx.com/debs/signalfx-agent/final /' > /etc/apt/sources.list.d/signalfx-agent.list
-apt-get update
-apt-get install -y signalfx-agent
-```
-
-#### RPM Package
-We provide a RHEL/RPM package repository that you can make use of with the
-following commands:
-
-```sh
-cat <<EOH > /etc/yum.repos.d/signalfx-agent.repo
-[signalfx-agent]
-name=SignalFx Agent Repository
-baseurl=https://dl.signalfx.com/rpms/signalfx-agent/final
-gpgcheck=1
-gpgkey=https://dl.signalfx.com/yum-rpm.key
-enabled=1
-EOH
-
-yum install -y signalfx-agent
-```
-
+Alternative installation to using the distribution package are shown below. Instructions for installing Smart Agent on multiple hosts is in [Next Steps](./docs/smart-agent-next-steps.md). 
 
 ### Linux Standalone tar.gz
 
