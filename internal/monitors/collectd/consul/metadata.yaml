@@ -199,6 +199,12 @@ monitors:
       description: Min time taken to complete the AppendEntries RPC
       included: false
       type: gauge
+    gauge.consul.rpc.query:
+      included: false
+      type: gauge
+    "gauge.consul.serf.events.consul:new-leader":
+      included: false
+      type: gauge
     gauge.consul.raft.state.candidate:
       description: Tracks the number of times given node enters the candidate state
       included: true

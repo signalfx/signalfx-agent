@@ -25,7 +25,8 @@ def test_signalfx_metadata():
         assert wait_for(p(has_datapoint, agent.fake_services, "disk_ops.total", {"plugin": "signalfx-metadata"}))
         assert wait_for(p(has_datapoint, agent.fake_services, "memory.utilization", {"plugin": "signalfx-metadata"}))
         assert ensure_always(
-            lambda: not has_datapoint(agent.fake_services, "cpu.utilization_per_core", {"plugin": "signalfx-metadata"})
+            lambda: not has_datapoint(agent.fake_services, "cpu.utilization_per_core", {"plugin": "signalfx-metadata"}),
+            timeout_seconds=5,
         )
         assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
@@ -39,8 +40,6 @@ def test_cpu_utilization_per_core():
         etcPath: /etc
         persistencePath: /var/run/signalfx-agent
         perCoreCPUUtil: true
-        extraMetrics:
-        - cpu.utilization_per_core
       - type: collectd/cpu
         """
     ) as agent:

@@ -34,6 +34,15 @@ type Config struct {
 	ExcludeMetrics []string `yaml:"excludeMetrics"`
 }
 
+func (c *Config) GetExtraMetrics() []string {
+	if c.EnhancedMetrics != nil && *c.EnhancedMetrics {
+		return []string{"*"}
+	}
+	return c.IncludeMetrics
+}
+
+var _ config.ExtraMetrics = &Config{}
+
 // PythonConfig returns the embedded python.Config struct from the interface
 func (c *Config) PythonConfig() *python.Config {
 	return c.pyConf

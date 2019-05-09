@@ -81,6 +81,16 @@ func (c *Config) Validate() error {
 	return nil
 }
 
+func (c *Config) GetExtraMetrics() []string {
+	var out []string
+	if c.PerCoreCPUUtil {
+		out = append(out, cpuUtilizationPerCore)
+	}
+	return out
+}
+
+var _ config.ExtraMetrics = &Config{}
+
 // Monitor is the main type that represents the monitor
 type Monitor struct {
 	collectd.MonitorCore

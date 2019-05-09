@@ -2432,6 +2432,12 @@
           "group": null,
           "included": true
         },
+        "gauge.consul.rpc.query": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
         "gauge.consul.runtime.alloc_bytes": {
           "type": "gauge",
           "description": "Number of bytes allocated to Consul process on the node",
@@ -2455,6 +2461,12 @@
           "description": "Number of serf events processed",
           "group": null,
           "included": true
+        },
+        "gauge.consul.serf.events.consul:new-leader": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
         },
         "gauge.consul.serf.member.join": {
           "type": "gauge",
@@ -3058,11 +3070,53 @@
       "doc": "This monitor collects cpu usage data using the\ncollectd `cpu` plugin.  It aggregates the per-core CPU data into a single\nmetric and sends it to the SignalFx Metadata plugin in collectd, where the\nraw jiffy counts from the `cpu` plugin are converted to percent utilization\n(the `cpu.utilization` metric).\n\nSee https://collectd.org/wiki/index.php/Plugin:CPU\n",
       "groups": null,
       "metrics": {
-        "cpu.utilization": {
-          "type": "gauge",
-          "description": "Percentage of total CPU used within the last metric interval cycle.",
+        "cpu.idle": {
+          "type": "cumulative",
+          "description": "",
           "group": null,
-          "included": true
+          "included": false
+        },
+        "cpu.interrupt": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "cpu.nice": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "cpu.softirq": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "cpu.steal": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "cpu.system": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "cpu.user": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "cpu.wait": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
         }
       },
       "properties": null,
@@ -3196,37 +3250,37 @@
         "df_inodes.free": {
           "type": "gauge",
           "description": "Number of inodes that are free.",
-          "group": null,
+          "group": "inodes",
           "included": false
         },
         "df_inodes.reserved": {
           "type": "gauge",
           "description": "Number of inodes reserved for the super user.",
-          "group": null,
+          "group": "inodes",
           "included": false
         },
         "df_inodes.used": {
           "type": "gauge",
           "description": "Number of inodes that are used.",
-          "group": null,
+          "group": "inodes",
           "included": false
         },
         "percent_bytes.free": {
           "type": "gauge",
           "description": "Free disk space on the file system, expressed as a percentage.",
-          "group": null,
+          "group": "percentage",
           "included": false
         },
         "percent_bytes.reserved": {
           "type": "gauge",
           "description": "Reserved disk space on the filesystem, expressed as a percentage.",
-          "group": null,
+          "group": "percentage",
           "included": false
         },
         "percent_bytes.used": {
           "type": "gauge",
           "description": "Used disk space on the file system, expressed as a percentage.",
-          "group": null,
+          "group": "percentage",
           "included": false
         },
         "percent_inodes.free": {
@@ -5714,6 +5768,12 @@
           "group": null,
           "included": false
         },
+        "gauge.queue_time_avg": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
         "gauge.request_rate": {
           "type": "gauge",
           "description": "Corresponds to HAProxy's `req_rate` metric -  HTTP requests per second over last elapsed second",
@@ -5723,6 +5783,12 @@
         "gauge.request_rate_max": {
           "type": "gauge",
           "description": "Max number of HTTP requests per second observed. Corresponds to HAProxy's \"req_rate_max\" metric.",
+          "group": null,
+          "included": false
+        },
+        "gauge.response_time_avg": {
+          "type": "gauge",
+          "description": "Average total session time in ms over the last 1024 requests. Corresponds to HAProxy's \"ttime\" metric.",
           "group": null,
           "included": false
         },
@@ -5744,6 +5810,12 @@
           "group": null,
           "included": true
         },
+        "gauge.session_rate_all": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
         "gauge.session_rate_limit": {
           "type": "gauge",
           "description": "Configured limit on number of new sessions per second. Corresponds to HAProxy's \"rate_lim\" metric.",
@@ -5759,6 +5831,12 @@
         "gauge.session_time_average": {
           "type": "gauge",
           "description": "Average total session time in ms over the last 1024 requests. Corresponds to HAProxy's \"ttime\" metric.",
+          "group": null,
+          "included": false
+        },
+        "gauge.session_time_avg": {
+          "type": "gauge",
+          "description": "",
           "group": null,
           "included": false
         },
@@ -5832,7 +5910,7 @@
           },
           {
             "yamlName": "excludedMetrics",
-            "doc": "",
+            "doc": "Deprecated.  Please use `datapointsToExclude` on the monitor config block instead.",
             "default": null,
             "required": false,
             "type": "slice",
@@ -5853,7 +5931,7 @@
     },
     {
       "monitorType": "collectd/health-checker",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": null,
       "doc": "A simple Collectd Python-based monitor\nthat hits an endpoint and checks if the configured JSON value is returned in\nthe response body.\n",
       "groups": null,
@@ -12159,6 +12237,12 @@
           "group": null,
           "included": true
         },
+        "counter.solr.http_requests": {
+          "type": "counter",
+          "description": "Total number of http requests",
+          "group": null,
+          "included": true
+        },
         "counter.solr.jvm_classes_loaded": {
           "type": "counter",
           "description": "Number of JVM classes loaded",
@@ -12239,13 +12323,13 @@
         },
         "gauge.solr.core_max_docs": {
           "type": "gauge",
-          "description": "Total number of docs in Sor core",
+          "description": "Total number of docs in Solr core",
           "group": null,
           "included": true
         },
         "gauge.solr.core_num_docs": {
           "type": "gauge",
-          "description": "Total number of indexed docs in Sor core",
+          "description": "Total number of indexed docs in Solr core",
           "group": null,
           "included": true
         },
@@ -12404,6 +12488,12 @@
           "description": "Time to new searcher to warm up",
           "group": null,
           "included": true
+        },
+        "gauge.solr.shard_cumulative_docs": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
         },
         "gauge.solr.update_request_handler_response": {
           "type": "gauge",
@@ -13574,7 +13664,254 @@
       "dimensions": null,
       "doc": "This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull\n`Real-Time/Live` video playing experience metrics from Conviva.\n\nOnly `Live` conviva metrics listed\n[here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)\nare supported. All metrics are gauges. The Conviva metrics are converted to SignalFx metrics with dimensions\nnamed account and filter. The account dimension is the name of the Conviva account and the filter dimension\nis the name of the Conviva filter applied to the metric. In the case of MetricLenses, the constituent\nMetricLens metrics and MetricLens dimensions are included. The values of the MetricLens dimensions are\nderived from the values of the associated MetricLens dimension entities.\n\nBelow is a sample YAML configuration showing the most basic configuration of the Conviva monitor\nusing only the required fields. For this configuration the monitor will default to fetching quality MetricLens\nmetrics for all dimensions from the default Conviva account using the `All Traffic` filter.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n```\n\nIndividual metrics are configured as a list of metricConfigs as shown in sample configuration below. The\nmetrics a fetched using the specified metricParameter. Find the list of metric parameters\n[here](https://github.com/signalfx/integrations/blob/master/conviva/docs/conviva_metrics.md).\nThe Conviva metrics reported to SignalFx are prefixed by `conviva.`, `conviva.quality_metriclens.` and\n`conviva.audience_metriclens.` accordingly. The metric names are the `titles` of the metrics\n[here](https://github.com/signalfx/integrations/tree/master/conviva/docs) which correspond to the Conviva\n`metric parameters` [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics).\nWhere an account is not provided the default account is fetched and used. Where no filters are specified the\n`All Traffic` filter is used. Where MetricLens dimensions are not specified all MetricLens dimensions\nare fetched and used. The `_ALL_` keyword means all. MetricLens dimension configuration applies only to MetricLenses.\nIf specified for a regular metric they will be ignored. MetricLens dimensions listed in `excludeMetricLensDimensions`\nwill be excluded.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n metricConfigs:\n   - account: c3.NBC\n     metricParameter: quality_metriclens\n     filters:\n       - All Traffic\n     metricLensDimensions:\n       - Cities\n   - metricParameter: avg_bitrate\n     maxFiltersPerRequest: 99\n     filters:\n       - _ALL_\n   - metricParameter: concurrent_plays\n   - metricParameter: audience_metriclens\n     filters:\n       - All Traffic\n     metricLensDimensions:\n       - _ALL_\n     excludeMetricLensDimensions:\n       - CDNs\n```\n\nAdd the extra dimension metric_source as shown in sample configuration below for the convenience of searching\nfor your metrics in SignalFx using the metric_source value you specify. Also, version 2.4 of the Conviva Experience\nInsights REST APIs limits the number of filters per request to 99. Specify the maximum number of filters per request\nusing `maxFiltersPerRequest` as shown in the example above in order to limit the number of filters per request.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n extraDimensions:\n   metric_source: conviva\n```\n",
       "groups": null,
-      "metrics": null,
+      "metrics": {
+        "conviva.attempts": {
+          "type": "gauge",
+          "description": "Attempts time-series",
+          "group": "attempts",
+          "included": true
+        },
+        "conviva.audience_metriclens.concurrent_plays": {
+          "type": "gauge",
+          "description": "Concurrent Plays",
+          "group": "audience_metriclens",
+          "included": true
+        },
+        "conviva.audience_metriclens.ended_plays": {
+          "type": "gauge",
+          "description": "Ended Plays",
+          "group": "audience_metriclens",
+          "included": true
+        },
+        "conviva.audience_metriclens.plays": {
+          "type": "gauge",
+          "description": "Plays",
+          "group": "audience_metriclens",
+          "included": true
+        },
+        "conviva.avg_bitrate": {
+          "type": "gauge",
+          "description": "Average bitrate time-series",
+          "group": "avg_bitrate",
+          "included": true
+        },
+        "conviva.concurrent_plays": {
+          "type": "gauge",
+          "description": "Concurrent plays time-series",
+          "group": "concurrent_plays",
+          "included": true
+        },
+        "conviva.connection_induced_rebuffering_ratio": {
+          "type": "gauge",
+          "description": "Connection induced rebuffering ratio simple-series",
+          "group": "connection_induced_rebuffering_ratio",
+          "included": true
+        },
+        "conviva.connection_induced_rebuffering_ratio_timeseries": {
+          "type": "gauge",
+          "description": "Connection induced rebuffering ratio time-series",
+          "group": "connection_induced_rebuffering_ratio_timeseries",
+          "included": true
+        },
+        "conviva.duration_connection_induced_rebuffering_ratio_distribution": {
+          "type": "gauge",
+          "description": "Duration vs. connection induced rebuffering ratio distribution label-series",
+          "group": "duration_connection_induced_rebuffering_ratio_distribution",
+          "included": true
+        },
+        "conviva.ended_plays": {
+          "type": "gauge",
+          "description": "Ended plays simple-series",
+          "group": "ended_plays",
+          "included": true
+        },
+        "conviva.ended_plays_timeseries": {
+          "type": "gauge",
+          "description": "Ended plays time-series",
+          "group": "ended_plays_timeseries",
+          "included": true
+        },
+        "conviva.exits_before_video_start": {
+          "type": "gauge",
+          "description": "Exits before video start time-series",
+          "group": "exits_before_video_start",
+          "included": true
+        },
+        "conviva.play_bitrate_distribution": {
+          "type": "gauge",
+          "description": "Play bitrate distribution label-series",
+          "group": "play_bitrate_distribution",
+          "included": true
+        },
+        "conviva.play_buffering_ratio_distribution": {
+          "type": "gauge",
+          "description": "Play buffering ratio distribution label-series",
+          "group": "play_buffering_ratio_distribution",
+          "included": true
+        },
+        "conviva.play_connection_induced_rebuffering_ratio_distribution": {
+          "type": "gauge",
+          "description": "Play connection induced rebuffering ratio distribution label-series",
+          "group": "play_connection_induced_rebuffering_ratio_distribution",
+          "included": true
+        },
+        "conviva.plays": {
+          "type": "gauge",
+          "description": "Plays time-series",
+          "group": "plays",
+          "included": true
+        },
+        "conviva.quality_metriclens.average_bitrate_kbps": {
+          "type": "gauge",
+          "description": "Average Bitrate (bps). This metric can be returned in kbps with the ab_units=kbps parameter. Unless this parameter is specified, average bitrate is bps",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.connection_induced_rebuffering_ratio_percent": {
+          "type": "gauge",
+          "description": "Connection Induced ReBuffering Ratio (%)",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.ended_plays": {
+          "type": "gauge",
+          "description": "Ended Plays",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.exits_before_video_start_percent": {
+          "type": "gauge",
+          "description": "Exits Before Video Starts (EBVS) (%)",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.plays_percent": {
+          "type": "gauge",
+          "description": "Plays (%)",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.rebuffering_ratio_percent": {
+          "type": "gauge",
+          "description": "Rebuffering Ratio (%)",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.total_attempts": {
+          "type": "gauge",
+          "description": "Attempts",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.video_playback_failures_percent": {
+          "type": "gauge",
+          "description": "Video Playback Failures (%)",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.video_restart_time": {
+          "type": "gauge",
+          "description": "Video Restart Time",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.video_start_failures_percent": {
+          "type": "gauge",
+          "description": "Video Start Failures(VSF) (%)",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.video_startup_time_sec": {
+          "type": "gauge",
+          "description": "Video Startup Time (sec)",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_summary": {
+          "type": "gauge",
+          "description": "Quality summary label-series",
+          "group": "quality_summary",
+          "included": true
+        },
+        "conviva.rebuffered_plays": {
+          "type": "gauge",
+          "description": "Rebuffered plays time-series",
+          "group": "rebuffered_plays",
+          "included": true
+        },
+        "conviva.rebuffering_ratio": {
+          "type": "gauge",
+          "description": "Rebuffering ratio time-series",
+          "group": "rebuffering_ratio",
+          "included": true
+        },
+        "conviva.top_assets_15_mins": {
+          "type": "gauge",
+          "description": "Top assets over last 15 minutes simple-table",
+          "group": "top_assets_15_mins",
+          "included": true
+        },
+        "conviva.top_assets_summary": {
+          "type": "gauge",
+          "description": "Top assets summary label-series",
+          "group": "top_assets_summary",
+          "included": true
+        },
+        "conviva.video_playback_failures": {
+          "type": "gauge",
+          "description": "Video playback failures simple-series",
+          "group": "video_playback_failures",
+          "included": true
+        },
+        "conviva.video_playback_failures_distribution": {
+          "type": "gauge",
+          "description": "Video playback failures distribution label-series",
+          "group": "video_playback_failures_distribution",
+          "included": true
+        },
+        "conviva.video_playback_failures_timeseries": {
+          "type": "gauge",
+          "description": "Video playback failures time-series",
+          "group": "video_playback_failures_timeseries",
+          "included": true
+        },
+        "conviva.video_restart_time": {
+          "type": "gauge",
+          "description": "Video restart time simple-series",
+          "group": "video_restart_time",
+          "included": true
+        },
+        "conviva.video_restart_time_distribution": {
+          "type": "gauge",
+          "description": "Video restart time distribution label-series",
+          "group": "video_restart_time_distribution",
+          "included": true
+        },
+        "conviva.video_restart_time_timeseries": {
+          "type": "gauge",
+          "description": "Video restart time time-series",
+          "group": "video_restart_time_timeseries",
+          "included": true
+        },
+        "conviva.video_start_failures": {
+          "type": "gauge",
+          "description": "Video start failures time-series",
+          "group": "video_start_failures",
+          "included": true
+        },
+        "conviva.video_start_failures_errornames": {
+          "type": "gauge",
+          "description": "Video start failures by error names simple-table",
+          "group": "video_start_failures_errornames",
+          "included": true
+        },
+        "conviva.video_startup_time": {
+          "type": "gauge",
+          "description": "Video startup time label-series",
+          "group": null,
+          "included": true
+        }
+      },
       "properties": null,
       "metricsExhaustive": false,
       "config": {
@@ -18639,7 +18976,7 @@
     },
     {
       "monitorType": "kubernetes-cluster",
-      "sendAll": false,
+      "sendAll": true,
       "dimensions": {
         "kubernetes_name": {
           "description": "The name of the resource that the metric describes"
@@ -18673,103 +19010,103 @@
           "type": "gauge",
           "description": "Whether a container has passed its readiness probe (0 for no, 1 for yes)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.container_restart_count": {
           "type": "gauge",
           "description": "How many times the container has restarted in the recent past.  This value is pulled directly from [the K8s API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core) and the value can go indefinitely high and be reset to 0 at any time depending on how your [kubelet is configured to prune dead containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/). It is best to not depend too much on the exact value but rather look at it as either `== 0`, in which case you can conclude there were no restarts in the recent past, or `\u003e 0`, in which case you can conclude there were restarts in the recent past, and not try and analyze the value beyond that.",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.daemon_set.current_scheduled": {
           "type": "gauge",
           "description": "The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.daemon_set.desired_scheduled": {
           "type": "gauge",
           "description": "The total number of nodes that should be running the daemon pod (including nodes currently running the daemon pod)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.daemon_set.misscheduled": {
           "type": "gauge",
           "description": "The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.daemon_set.ready": {
           "type": "gauge",
           "description": "The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.deployment.available": {
           "type": "gauge",
           "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.deployment.desired": {
           "type": "gauge",
           "description": "Number of desired pods in this deployment",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.namespace_phase": {
           "type": "gauge",
           "description": "The current phase of namespaces (`1` for _active_ and `0` for _terminating_)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.node_ready": {
           "type": "gauge",
           "description": "Whether this node is ready (1), not ready (0) or in an unknown state (-1)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.pod_phase": {
           "type": "gauge",
           "description": "Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.replica_set.available": {
           "type": "gauge",
           "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this replica set",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.replica_set.desired": {
           "type": "gauge",
           "description": "Number of desired pods in this replica set",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.replication_controller.available": {
           "type": "gauge",
           "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller.",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.replication_controller.desired": {
           "type": "gauge",
           "description": "Number of desired pods",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.resource_quota_hard": {
           "type": "gauge",
           "description": "The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.resource_quota_used": {
           "type": "gauge",
           "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
           "group": null,
-          "included": true
+          "included": false
         }
       },
       "properties": {
@@ -19361,103 +19698,103 @@
           "type": "gauge",
           "description": "Whether a container has passed its readiness probe (0 for no, 1 for yes)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.container_restart_count": {
           "type": "gauge",
           "description": "How many times the container has restarted in the recent past.  This value is pulled directly from [the K8s API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core) and the value can go indefinitely high and be reset to 0 at any time depending on how your [kubelet is configured to prune dead containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/). It is best to not depend too much on the exact value but rather look at it as either `== 0`, in which case you can conclude there were no restarts in the recent past, or `\u003e 0`, in which case you can conclude there were restarts in the recent past, and not try and analyze the value beyond that.",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.daemon_set.current_scheduled": {
           "type": "gauge",
           "description": "The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.daemon_set.desired_scheduled": {
           "type": "gauge",
           "description": "The total number of nodes that should be running the daemon pod (including nodes currently running the daemon pod)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.daemon_set.misscheduled": {
           "type": "gauge",
           "description": "The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.daemon_set.ready": {
           "type": "gauge",
           "description": "The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.deployment.available": {
           "type": "gauge",
           "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.deployment.desired": {
           "type": "gauge",
           "description": "Number of desired pods in this deployment",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.namespace_phase": {
           "type": "gauge",
           "description": "The current phase of namespaces (`1` for _active_ and `0` for _terminating_)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.node_ready": {
           "type": "gauge",
           "description": "Whether this node is ready (1), not ready (0) or in an unknown state (-1)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.pod_phase": {
           "type": "gauge",
           "description": "Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown)",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.replica_set.available": {
           "type": "gauge",
           "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this replica set",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.replica_set.desired": {
           "type": "gauge",
           "description": "Number of desired pods in this replica set",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.replication_controller.available": {
           "type": "gauge",
           "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller.",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.replication_controller.desired": {
           "type": "gauge",
           "description": "Number of desired pods",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.resource_quota_hard": {
           "type": "gauge",
           "description": "The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
           "group": null,
-          "included": true
+          "included": false
         },
         "kubernetes.resource_quota_used": {
           "type": "gauge",
           "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
           "group": null,
-          "included": true
+          "included": false
         },
         "openshift.appliedclusterquota.cpu.hard": {
           "type": "gauge",
