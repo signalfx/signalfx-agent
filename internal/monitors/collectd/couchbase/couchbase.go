@@ -57,6 +57,13 @@ type Monitor struct {
 	python.PyMonitor
 }
 
+func (c *Config) GetExtraMetrics() []string {
+	if c.CollectMode == "detailed" {
+		return []string{"*"}
+	}
+	return nil
+}
+
 // Validate will check the config for correctness.
 func (c *Config) Validate() error {
 	if c.CollectTarget == "BUCKET" && c.CollectBucket == "" {
@@ -87,6 +94,12 @@ func (m *Monitor) Configure(conf *Config) error {
 			"Username":      conf.Username,
 			"Password":      conf.Password,
 		},
+	}
+
+	if m.Output.HasAnyExtraMetrics() {
+		// If the user has enabled any nondefault metric turn on detailed for the monitor. Not all nondefault
+		// metrics require detailed but this is the safest assumption.
+		conf.pyConf.PluginConfig["CollectMode"] = "detailed"
 	}
 
 	return m.PyMonitor.Configure(conf)
