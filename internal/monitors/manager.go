@@ -333,7 +333,9 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 	}
 
 	metadata, ok := MonitorMetadatas[monitorType]
-	if !ok {
+	if !ok || metadata == nil {
+		// This indicates a programming error in not specifying metadata, not
+		// bad user input
 		panic(fmt.Sprintf("could not find monitor metadata of type %s", monitorType))
 	}
 

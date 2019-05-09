@@ -7,24 +7,9 @@ import (
 )
 
 func metricLensMetrics() map[string][]string {
-	return map[string][]string{"quality_metriclens": {
-		"conviva.quality_metriclens.total_attempts",
-		"conviva.quality_metriclens.video_start_failures_percent",
-		"conviva.quality_metriclens.exits_before_video_start_percent",
-		"conviva.quality_metriclens.plays_percent",
-		"conviva.quality_metriclens.video_startup_time_sec",
-		"conviva.quality_metriclens.rebuffering_ratio_percent",
-		"conviva.quality_metriclens.average_bitrate_kbps",
-		"conviva.quality_metriclens.video_playback_failures_percent",
-		"conviva.quality_metriclens.ended_plays",
-		"conviva.quality_metriclens.connection_induced_rebuffering_ratio_percent",
-		"conviva.quality_metriclens.video_restart_time",
-	},
-		"audience_metriclens": {
-			"conviva.audience_metriclens.concurrent_plays",
-			"conviva.audience_metriclens.plays",
-			"conviva.audience_metriclens.ended_plays",
-		},
+	return map[string][]string{
+		"quality_metriclens":  groupMetricsMap[groupQualityMetriclens],
+		"audience_metriclens": groupMetricsMap[groupAudienceMetriclens],
 	}
 }
 

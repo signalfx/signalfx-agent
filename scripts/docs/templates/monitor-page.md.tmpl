@@ -50,7 +50,9 @@ The following table lists the metrics available for this monitor. Metrics that a
 {{end}}
 {{end -}}
 
-{{if and .metrics (not .sendAll)}}
+{{- $noWhitelistMonitors := slice "elasticsearch" -}}
+
+{{if and .metrics (not .sendAll) (not (has $noWhitelistMonitors .monitorType))}}
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
 to the agent configuration, as shown in the code snippet below. The snippet
 lists all available custom metrics. You can copy and paste the snippet into

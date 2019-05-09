@@ -5,19 +5,30 @@ import time
 from pathlib import Path
 
 from tests.helpers.agent import Agent
+from signalfx.generated_protocol_buffers import signal_fx_protocol_buffers_pb2 as sf_pbuf
 
 sys.path.insert(0, str(Path(__file__).parent.parent.resolve()))
 
 
-def main(opts):
+def _get_metric_type(index):
+    for metric_type, idx in sf_pbuf.MetricType.items():
+        if int(index) == idx:
+            return metric_type
+    return str(index)
 
+
+def main(opts):
     config = Path(opts.config).read_text()
 
     with Agent.run(config, debug=False) as agent:
         time.sleep(opts.period)
         if opts.enable_metrics:
+            dps = [dp[0] for dp in agent.fake_services.datapoints_by_metric.values()]
+            metrics = {(dp.metric, _get_metric_type(dp.metricType)) for dp in dps}
+
             print("Metrics:")
-            print("\n".join(sorted(set(agent.fake_services.datapoints_by_metric))))
+            for metric, metric_type in sorted(metrics):
+                print(f"{metric_type:20} {metric}")
         if opts.enable_dimensions:
             if opts.enable_metrics:
                 print()
