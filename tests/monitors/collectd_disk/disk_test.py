@@ -2,7 +2,7 @@ import pytest
 
 from tests.helpers.agent import Agent
 from tests.helpers.metadata import Metadata
-from tests.helpers.verify import verify_included_metrics, verify_custom, verify_expected_is_subset
+from tests.helpers.verify import verify_included_metrics, verify_expected_is_subset
 
 pytestmark = [pytest.mark.collectd, pytest.mark.disk, pytest.mark.monitor_without_endpoints]
 
