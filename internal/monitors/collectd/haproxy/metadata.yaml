@@ -307,7 +307,16 @@ monitors:
       description: Max number of new sessions per second
       included: false
       type: gauge
+    gauge.session_rate_all:
+      description:
+      included: false
+      type: gauge
     gauge.session_time_average:
+      description: Average total session time in ms over the last 1024 requests. Corresponds
+        to HAProxy's "ttime" metric.
+      included: false
+      type: gauge
+    gauge.response_time_avg:
       description: Average total session time in ms over the last 1024 requests. Corresponds
         to HAProxy's "ttime" metric.
       included: false
@@ -336,6 +345,12 @@ monitors:
       type: gauge
     gauge.zlib_mem_usage:
       description: Corresponds to HAProxy's `ZlibMemUsage` metric.
+      included: false
+      type: gauge
+    gauge.session_time_avg:
+      included: false
+      type: gauge
+    gauge.queue_time_avg:
       included: false
       type: gauge
   monitorType: collectd/haproxy

@@ -48,6 +48,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `counter.solr.http_2xx_responses` | counter | ✔ | Total number of 2xx http responses |
 | `counter.solr.http_4xx_responses` | counter | ✔ | Total number of 4xx http responses |
 | `counter.solr.http_5xx_responses` | counter | ✔ | Total number of 5xx http responses |
+| `counter.solr.http_requests` | counter | ✔ | Total number of http requests |
 | `counter.solr.jvm_classes_loaded` | counter |  | Number of JVM classes loaded |
 | `counter.solr.node_collections_requests` | counter | ✔ | Number of collection level requets to Solr node |
 | `counter.solr.node_cores_requests` | counter | ✔ | Number of core level requets to Solr node |
@@ -61,8 +62,8 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `counter.solr.zookeeper_errors` | counter |  | Number of failures/error at Zookeeper |
 | `gauge.solr.core_deleted_docs` | gauge | ✔ | Number of deleted docs in Solr core |
 | `gauge.solr.core_index_size` | gauge | ✔ | Size of a core index |
-| `gauge.solr.core_max_docs` | gauge | ✔ | Total number of docs in Sor core |
-| `gauge.solr.core_num_docs` | gauge | ✔ | Total number of indexed docs in Sor core |
+| `gauge.solr.core_max_docs` | gauge | ✔ | Total number of docs in Solr core |
+| `gauge.solr.core_num_docs` | gauge | ✔ | Total number of indexed docs in Solr core |
 | `gauge.solr.core_totalspace` | gauge | ✔ | Total space allocated for core |
 | `gauge.solr.core_usablespace` | gauge | ✔ | Usable space available in core |
 | `gauge.solr.document_cache_cumulative_hitratio` | gauge | ✔ | Cummulative hit ration of document cache |
@@ -89,6 +90,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.solr.replication_handler_response` | gauge |  | Resplication handler response time |
 | `gauge.solr.search_query_response` | gauge | ✔ | Search query response time |
 | `gauge.solr.searcher_warmup` | gauge | ✔ | Time to new searcher to warm up |
+| `gauge.solr.shard_cumulative_docs` | gauge |  |  |
 | `gauge.solr.update_request_handler_response` | gauge | ✔ | Update request handler response time |
 | `gauge.solr.zookeeper_request_time` | gauge |  | Time to process a request at zookeeper |
 
@@ -119,6 +121,7 @@ metricsToInclude:
     - gauge.solr.jvm_mapped_memory_used
     - gauge.solr.node_metric_request_time
     - gauge.solr.replication_handler_response
+    - gauge.solr.shard_cumulative_docs
     - gauge.solr.zookeeper_request_time
     monitorType: collectd/solr
 ```

@@ -169,6 +169,7 @@ def test_docker_included():
             - type: docker-container-stats
             """,
             METADATA,
+            check_errors=False,
         )
 
 
@@ -217,4 +218,4 @@ def test_docker_enhanced():
               enableExtraNetworkMetrics: true
             """
         ) as agent:
-            verify_expected_is_subset(agent, ENHANCED_METRICS)
+            verify_expected_is_subset(agent, ENHANCED_METRICS, check_errors=False)

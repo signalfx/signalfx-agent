@@ -15,6 +15,10 @@ monitors:
       port: 8983
     ```
   metrics:
+    counter.solr.http_requests:
+      description: Total number of http requests
+      included: true
+      type: counter
     counter.solr.http_2xx_responses:
       description: Total number of 2xx http responses
       included: true
@@ -80,11 +84,11 @@ monitors:
       included: true
       type: gauge
     gauge.solr.core_max_docs:
-      description: Total number of docs in Sor core
+      description: Total number of docs in Solr core
       included: true
       type: gauge
     gauge.solr.core_num_docs:
-      description: Total number of indexed docs in Sor core
+      description: Total number of indexed docs in Solr core
       included: true
       type: gauge
     gauge.solr.core_totalspace:
@@ -197,6 +201,9 @@ monitors:
       type: gauge
     gauge.solr.zookeeper_request_time:
       description: Time to process a request at zookeeper
+      included: false
+      type: gauge
+    gauge.solr.shard_cumulative_docs:
       included: false
       type: gauge
   monitorType: collectd/solr

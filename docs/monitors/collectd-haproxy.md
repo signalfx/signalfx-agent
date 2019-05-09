@@ -22,7 +22,7 @@ Monitor Type: `collectd/haproxy`
 | `host` | **yes** | `string` |  |
 | `port` | no | `integer` |  (**default:** `0`) |
 | `proxiesToMonitor` | no | `list of strings` |  |
-| `excludedMetrics` | no | `list of strings` |  |
+| `excludedMetrics` | no | `list of strings` | Deprecated.  Please use `datapointsToExclude` on the monitor config block instead. |
 | `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
 
 
@@ -91,14 +91,18 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.queue_current` | gauge | ✔ | Corresponds to HAProxy's `qcur` metric -  Current queued requests. For the backend this reports the number queued without a server assigned. |
 | `gauge.queue_limit` | gauge |  | Configured max queue for the server, 0 being no limit. Corresponds to HAProxy's "qlimit" metric. |
 | `gauge.queue_max` | gauge |  | Max number of queued requests, queue_current, corresponds to HAProxy's 'qmax' metric. |
+| `gauge.queue_time_avg` | gauge |  |  |
 | `gauge.request_rate` | gauge | ✔ | Corresponds to HAProxy's `req_rate` metric -  HTTP requests per second over last elapsed second |
 | `gauge.request_rate_max` | gauge |  | Max number of HTTP requests per second observed. Corresponds to HAProxy's "req_rate_max" metric. |
+| `gauge.response_time_avg` | gauge |  | Average total session time in ms over the last 1024 requests. Corresponds to HAProxy's "ttime" metric. |
 | `gauge.run_queue` | gauge |  | Corresponds to HAProxy's `Run_queue` metric. |
 | `gauge.session_current` | gauge | ✔ | Corresponds to HAProxy's `scur` metric -  Current sessions |
 | `gauge.session_rate` | gauge | ✔ | Corresponds to HAProxy's `rate` metric -  Number of sessions per second over last elapsed second |
+| `gauge.session_rate_all` | gauge |  |  |
 | `gauge.session_rate_limit` | gauge |  | Configured limit on number of new sessions per second. Corresponds to HAProxy's "rate_lim" metric. |
 | `gauge.session_rate_max` | gauge |  | Max number of new sessions per second |
 | `gauge.session_time_average` | gauge |  | Average total session time in ms over the last 1024 requests. Corresponds to HAProxy's "ttime" metric. |
+| `gauge.session_time_avg` | gauge |  |  |
 | `gauge.ssl_backend_key_rate` | gauge |  | Corresponds to HAProxy's `SslBackendKeyRate` metric. |
 | `gauge.ssl_frontend_key_rate` | gauge |  | Corresponds to HAProxy's `SslFrontendKeyRate` metric. |
 | `gauge.ssl_rate` | gauge |  | Corresponds to HAProxy's `SslRate` metric. |
@@ -161,11 +165,15 @@ metricsToInclude:
     - gauge.pipes_used
     - gauge.queue_limit
     - gauge.queue_max
+    - gauge.queue_time_avg
     - gauge.request_rate_max
+    - gauge.response_time_avg
     - gauge.run_queue
+    - gauge.session_rate_all
     - gauge.session_rate_limit
     - gauge.session_rate_max
     - gauge.session_time_average
+    - gauge.session_time_avg
     - gauge.ssl_backend_key_rate
     - gauge.ssl_frontend_key_rate
     - gauge.ssl_rate

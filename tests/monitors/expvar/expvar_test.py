@@ -2,52 +2,67 @@
 Tests for the expvar monitor
 """
 
-import pytest
+from contextlib import contextmanager
 
+import pytest
+from tests.helpers.assertions import tcp_socket_open
 from tests.helpers.metadata import Metadata
-from tests.helpers.verify import verify_included_metrics, verify_all_metrics, verify_custom
+from tests.helpers.util import container_ip, run_service, wait_for
+from tests.helpers.verify import verify_all_metrics, verify_custom, verify_included_metrics
 
 pytestmark = [pytest.mark.expvar, pytest.mark.monitor_with_endpoints]
 
 METADATA = Metadata.from_package("expvar")
 
 
-def test_expvar_included(expvar_container_ip):
-    verify_included_metrics(
-        f"""
-        monitors:
-        - type: expvar
-          host: {expvar_container_ip}
-          port: 8080
-        """,
-        METADATA,
-    )
+@contextmanager
+def run_expvar():
+    """expvar container fixture"""
+    with run_service("expvar") as container:
+        host = container_ip(container)
+        assert wait_for(lambda: tcp_socket_open(host, 8080), 60), "service didn't start"
+        yield host
 
 
-def test_expvar_enhanced(expvar_container_ip):
-    verify_all_metrics(
-        f"""
-        monitors:
-        - type: expvar
-          host: {expvar_container_ip}
-          port: 8080
-          enhancedMetrics: true
-        """,
-        METADATA,
-    )
+def test_expvar_included():
+    with run_expvar() as expvar_container_ip:
+        verify_included_metrics(
+            f"""
+            monitors:
+            - type: expvar
+              host: {expvar_container_ip}
+              port: 8080
+            """,
+            METADATA,
+        )
 
 
-def test_expvar_custom_metric(expvar_container_ip):
+def test_expvar_enhanced():
+    with run_expvar() as expvar_container_ip:
+        verify_all_metrics(
+            f"""
+            monitors:
+            - type: expvar
+              host: {expvar_container_ip}
+              port: 8080
+              enhancedMetrics: true
+            """,
+            METADATA,
+        )
+
+
+def test_expvar_custom_metric():
     expected = METADATA.included_metrics | {"queues.count"}
-    verify_custom(
-        f"""
-        monitors:
-        - type: expvar
-          host: {expvar_container_ip}
-          port: 8080
-          metrics:
-          - JSONPath: queues.count
-            type: gauge
-        """,
-        expected,
-    )
+    with run_expvar() as expvar_container_ip:
+        verify_custom(
+            f"""
+            monitors:
+            - type: expvar
+              host: {expvar_container_ip}
+              port: 8080
+              metrics:
+              - JSONPath: queues.count
+                type: gauge
+            """,
+            expected,
+        )
