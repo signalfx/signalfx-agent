@@ -64,41 +64,24 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `kubernetes.container_ready` | gauge | ✔ | Whether a container has passed its readiness probe (0 for no, 1 for yes) |
-| `kubernetes.container_restart_count` | gauge | ✔ | How many times the container has restarted in the recent past.  This value is pulled directly from [the K8s API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core) and the value can go indefinitely high and be reset to 0 at any time depending on how your [kubelet is configured to prune dead containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/). It is best to not depend too much on the exact value but rather look at it as either `== 0`, in which case you can conclude there were no restarts in the recent past, or `> 0`, in which case you can conclude there were restarts in the recent past, and not try and analyze the value beyond that. |
-| `kubernetes.daemon_set.current_scheduled` | gauge | ✔ | The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod |
-| `kubernetes.daemon_set.desired_scheduled` | gauge | ✔ | The total number of nodes that should be running the daemon pod (including nodes currently running the daemon pod) |
-| `kubernetes.daemon_set.misscheduled` | gauge | ✔ | The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod |
-| `kubernetes.daemon_set.ready` | gauge | ✔ | The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready |
-| `kubernetes.deployment.available` | gauge | ✔ | Total number of available pods (ready for at least minReadySeconds) targeted by this deployment. |
-| `kubernetes.deployment.desired` | gauge | ✔ | Number of desired pods in this deployment |
-| `kubernetes.namespace_phase` | gauge | ✔ | The current phase of namespaces (`1` for _active_ and `0` for _terminating_) |
-| `kubernetes.node_ready` | gauge | ✔ | Whether this node is ready (1), not ready (0) or in an unknown state (-1) |
-| `kubernetes.pod_phase` | gauge | ✔ | Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown) |
-| `kubernetes.replica_set.available` | gauge | ✔ | Total number of available pods (ready for at least minReadySeconds) targeted by this replica set |
-| `kubernetes.replica_set.desired` | gauge | ✔ | Number of desired pods in this replica set |
-| `kubernetes.replication_controller.available` | gauge | ✔ | Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller. |
-| `kubernetes.replication_controller.desired` | gauge | ✔ | Number of desired pods |
-| `kubernetes.resource_quota_hard` | gauge | ✔ | The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores. |
-| `kubernetes.resource_quota_used` | gauge | ✔ | The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores. |
+| `kubernetes.container_ready` | gauge |  | Whether a container has passed its readiness probe (0 for no, 1 for yes) |
+| `kubernetes.container_restart_count` | gauge |  | How many times the container has restarted in the recent past.  This value is pulled directly from [the K8s API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core) and the value can go indefinitely high and be reset to 0 at any time depending on how your [kubelet is configured to prune dead containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/). It is best to not depend too much on the exact value but rather look at it as either `== 0`, in which case you can conclude there were no restarts in the recent past, or `> 0`, in which case you can conclude there were restarts in the recent past, and not try and analyze the value beyond that. |
+| `kubernetes.daemon_set.current_scheduled` | gauge |  | The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod |
+| `kubernetes.daemon_set.desired_scheduled` | gauge |  | The total number of nodes that should be running the daemon pod (including nodes currently running the daemon pod) |
+| `kubernetes.daemon_set.misscheduled` | gauge |  | The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod |
+| `kubernetes.daemon_set.ready` | gauge |  | The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready |
+| `kubernetes.deployment.available` | gauge |  | Total number of available pods (ready for at least minReadySeconds) targeted by this deployment. |
+| `kubernetes.deployment.desired` | gauge |  | Number of desired pods in this deployment |
+| `kubernetes.namespace_phase` | gauge |  | The current phase of namespaces (`1` for _active_ and `0` for _terminating_) |
+| `kubernetes.node_ready` | gauge |  | Whether this node is ready (1), not ready (0) or in an unknown state (-1) |
+| `kubernetes.pod_phase` | gauge |  | Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown) |
+| `kubernetes.replica_set.available` | gauge |  | Total number of available pods (ready for at least minReadySeconds) targeted by this replica set |
+| `kubernetes.replica_set.desired` | gauge |  | Number of desired pods in this replica set |
+| `kubernetes.replication_controller.available` | gauge |  | Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller. |
+| `kubernetes.replication_controller.desired` | gauge |  | Number of desired pods |
+| `kubernetes.resource_quota_hard` | gauge |  | The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores. |
+| `kubernetes.resource_quota_used` | gauge |  | The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores. |
 
-
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
-
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    monitorType: kubernetes-cluster
-```
 
 
 ## Dimensions

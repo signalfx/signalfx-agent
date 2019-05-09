@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/signalfx/golib/pointer"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -31,9 +32,22 @@ type Config struct {
 	Host                 string   `yaml:"host" validate:"required"`
 	Port                 uint16   `yaml:"port"`
 	ProxiesToMonitor     []string `yaml:"proxiesToMonitor"`
-	ExcludedMetrics      []string `yaml:"excludedMetrics"`
-	EnhancedMetrics      *bool    `yaml:"enhancedMetrics"`
+	// Deprecated.  Please use `datapointsToExclude` on the monitor config
+	// block instead.
+	ExcludedMetrics []string `yaml:"excludedMetrics"`
+	EnhancedMetrics *bool    `yaml:"enhancedMetrics"`
 }
+
+// GetExtraMetrics accounts for the EnhancedMetrics config
+func (c *Config) GetExtraMetrics() []string {
+	if c.EnhancedMetrics != nil && *c.EnhancedMetrics {
+		// More robust to just allow everything through in this case.
+		return []string{"*"}
+	}
+	return nil
+}
+
+var _ config.ExtraMetrics = &Config{}
 
 // PythonConfig returns the embedded python.Config struct from the interface
 func (c *Config) PythonConfig() *python.Config {
@@ -55,6 +69,10 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
+	if m.Output.HasAnyNonDefaultMetricEnabled() {
+		conf.EnhancedMetrics = pointer.Bool(true)
+	}
+
 	socket := conf.Host
 	if conf.Port != 0 {
 		socket += fmt.Sprintf(":%d", conf.Port)

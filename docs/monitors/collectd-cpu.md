@@ -30,7 +30,14 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `cpu.utilization` | gauge | ✔ | Percentage of total CPU used within the last metric interval cycle. |
+| `cpu.idle` | cumulative |  |  |
+| `cpu.interrupt` | cumulative |  |  |
+| `cpu.nice` | cumulative |  |  |
+| `cpu.softirq` | cumulative |  |  |
+| `cpu.steal` | cumulative |  |  |
+| `cpu.system` | cumulative |  |  |
+| `cpu.user` | cumulative |  |  |
+| `cpu.wait` | cumulative |  |  |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
@@ -47,6 +54,14 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
+    - cpu.idle
+    - cpu.interrupt
+    - cpu.nice
+    - cpu.softirq
+    - cpu.steal
+    - cpu.system
+    - cpu.user
+    - cpu.wait
     monitorType: collectd/cpu
 ```
 

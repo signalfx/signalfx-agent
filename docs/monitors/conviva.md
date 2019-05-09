@@ -110,6 +110,71 @@ The **nested** `metricConfigs` config object has the following fields:
 
 
 
+## Metrics
+
+The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+
+| Name | Type | Included | Description |
+| ---  | ---  | ---    | ---         |
+| `conviva.attempts` | gauge | ✔ | Attempts time-series |
+| `conviva.audience_metriclens.concurrent_plays` | gauge | ✔ | Concurrent Plays |
+| `conviva.audience_metriclens.ended_plays` | gauge | ✔ | Ended Plays |
+| `conviva.audience_metriclens.plays` | gauge | ✔ | Plays |
+| `conviva.avg_bitrate` | gauge | ✔ | Average bitrate time-series |
+| `conviva.concurrent_plays` | gauge | ✔ | Concurrent plays time-series |
+| `conviva.connection_induced_rebuffering_ratio` | gauge | ✔ | Connection induced rebuffering ratio simple-series |
+| `conviva.connection_induced_rebuffering_ratio_timeseries` | gauge | ✔ | Connection induced rebuffering ratio time-series |
+| `conviva.duration_connection_induced_rebuffering_ratio_distribution` | gauge | ✔ | Duration vs. connection induced rebuffering ratio distribution label-series |
+| `conviva.ended_plays` | gauge | ✔ | Ended plays simple-series |
+| `conviva.ended_plays_timeseries` | gauge | ✔ | Ended plays time-series |
+| `conviva.exits_before_video_start` | gauge | ✔ | Exits before video start time-series |
+| `conviva.play_bitrate_distribution` | gauge | ✔ | Play bitrate distribution label-series |
+| `conviva.play_buffering_ratio_distribution` | gauge | ✔ | Play buffering ratio distribution label-series |
+| `conviva.play_connection_induced_rebuffering_ratio_distribution` | gauge | ✔ | Play connection induced rebuffering ratio distribution label-series |
+| `conviva.plays` | gauge | ✔ | Plays time-series |
+| `conviva.quality_metriclens.average_bitrate_kbps` | gauge | ✔ | Average Bitrate (bps). This metric can be returned in kbps with the ab_units=kbps parameter. Unless this parameter is specified, average bitrate is bps |
+| `conviva.quality_metriclens.connection_induced_rebuffering_ratio_percent` | gauge | ✔ | Connection Induced ReBuffering Ratio (%) |
+| `conviva.quality_metriclens.ended_plays` | gauge | ✔ | Ended Plays |
+| `conviva.quality_metriclens.exits_before_video_start_percent` | gauge | ✔ | Exits Before Video Starts (EBVS) (%) |
+| `conviva.quality_metriclens.plays_percent` | gauge | ✔ | Plays (%) |
+| `conviva.quality_metriclens.rebuffering_ratio_percent` | gauge | ✔ | Rebuffering Ratio (%) |
+| `conviva.quality_metriclens.total_attempts` | gauge | ✔ | Attempts |
+| `conviva.quality_metriclens.video_playback_failures_percent` | gauge | ✔ | Video Playback Failures (%) |
+| `conviva.quality_metriclens.video_restart_time` | gauge | ✔ | Video Restart Time |
+| `conviva.quality_metriclens.video_start_failures_percent` | gauge | ✔ | Video Start Failures(VSF) (%) |
+| `conviva.quality_metriclens.video_startup_time_sec` | gauge | ✔ | Video Startup Time (sec) |
+| `conviva.quality_summary` | gauge | ✔ | Quality summary label-series |
+| `conviva.rebuffered_plays` | gauge | ✔ | Rebuffered plays time-series |
+| `conviva.rebuffering_ratio` | gauge | ✔ | Rebuffering ratio time-series |
+| `conviva.top_assets_15_mins` | gauge | ✔ | Top assets over last 15 minutes simple-table |
+| `conviva.top_assets_summary` | gauge | ✔ | Top assets summary label-series |
+| `conviva.video_playback_failures` | gauge | ✔ | Video playback failures simple-series |
+| `conviva.video_playback_failures_distribution` | gauge | ✔ | Video playback failures distribution label-series |
+| `conviva.video_playback_failures_timeseries` | gauge | ✔ | Video playback failures time-series |
+| `conviva.video_restart_time` | gauge | ✔ | Video restart time simple-series |
+| `conviva.video_restart_time_distribution` | gauge | ✔ | Video restart time distribution label-series |
+| `conviva.video_restart_time_timeseries` | gauge | ✔ | Video restart time time-series |
+| `conviva.video_start_failures` | gauge | ✔ | Video start failures time-series |
+| `conviva.video_start_failures_errornames` | gauge | ✔ | Video start failures by error names simple-table |
+| `conviva.video_startup_time` | gauge | ✔ | Video startup time label-series |
+
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    monitorType: conviva
+```
 
 
 

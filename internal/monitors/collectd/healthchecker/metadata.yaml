@@ -7,3 +7,4 @@ monitors:
   metrics:
   monitorType: collectd/health-checker
   properties:
+  sendAll: true
