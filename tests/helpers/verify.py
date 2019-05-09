@@ -1,5 +1,4 @@
 import pytest
-
 from tests.helpers import util
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_log_message
@@ -22,6 +21,13 @@ def verify_expected_is_subset(agent, expected_metrics, timeout=util.DEFAULT_TIME
             pytest.fail("error found in agent output!")
 
         assert expected_metrics <= frozenset(agent.fake_services.datapoints_by_metric)
+
+    wait_for_assertion(test, timeout_seconds=timeout)
+
+
+def verify_expected_is_superset(agent, expected_metrics, timeout=util.DEFAULT_TIMEOUT):
+    def test():
+        assert frozenset(agent.fake_services.datapoints_by_metric) <= frozenset(expected_metrics)
 
     wait_for_assertion(test, timeout_seconds=timeout)
 

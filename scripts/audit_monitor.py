@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 import argparse
-import sys
 import time
 from pathlib import Path
 
-from tests.helpers.agent import Agent
 from signalfx.generated_protocol_buffers import signal_fx_protocol_buffers_pb2 as sf_pbuf
 
-sys.path.insert(0, str(Path(__file__).parent.parent.resolve()))
+from tests.helpers.agent import Agent
 
 
 def _get_metric_type(index):

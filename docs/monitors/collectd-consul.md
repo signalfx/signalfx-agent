@@ -91,10 +91,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.consul.raft.replication.appendEntries.rpc.AGENT.min` | gauge |  | Min time taken to complete the AppendEntries RPC |
 | `gauge.consul.raft.state.candidate` | gauge | ✔ | Tracks the number of times given node enters the candidate state |
 | `gauge.consul.raft.state.leader` | gauge | ✔ | Tracks the number of leadership transitions per interval |
+| `gauge.consul.rpc.query` | gauge |  |  |
 | `gauge.consul.runtime.alloc_bytes` | gauge |  | Number of bytes allocated to Consul process on the node |
 | `gauge.consul.runtime.heap_objects` | gauge |  | Number of heap objects allocated to Consul |
 | `gauge.consul.runtime.num_goroutines` | gauge |  | Number of GO routines run by Consul process |
 | `gauge.consul.serf.events` | gauge | ✔ | Number of serf events processed |
+| `gauge.consul.serf.events.consul:new-leader` | gauge |  |  |
 | `gauge.consul.serf.member.join` | gauge | ✔ | Tracks successful node joins |
 | `gauge.consul.serf.member.left` | gauge | ✔ | Tracks successful node leaves |
 | `gauge.consul.serf.queue.Event.avg` | gauge | ✔ | Average number of serf events in queue yet to be processed |
@@ -133,9 +135,11 @@ metricsToInclude:
     - gauge.consul.raft.replication.appendEntries.rpc.AGENT.avg
     - gauge.consul.raft.replication.appendEntries.rpc.AGENT.max
     - gauge.consul.raft.replication.appendEntries.rpc.AGENT.min
+    - gauge.consul.rpc.query
     - gauge.consul.runtime.alloc_bytes
     - gauge.consul.runtime.heap_objects
     - gauge.consul.runtime.num_goroutines
+    - gauge.consul.serf.events.consul:new-leader
     - gauge.consul.serf.queue.Event.min
     - gauge.consul.serf.queue.Query.avg
     - gauge.consul.serf.queue.Query.max

@@ -49,7 +49,44 @@ type Monitor struct {
 	collectd.MonitorCore
 }
 
+// GetExtraMetrics returns additional metrics to allow through.
+func (c *Config) GetExtraMetrics() []string {
+	var extraMetrics []string
+	if c.ReportInodes {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupInodes]...)
+	}
+	if c.ValuesPercentage {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupPercentage]...)
+	}
+	if c.ReportInodes && c.ValuesPercentage {
+		extraMetrics = append(extraMetrics, percentInodesFree, percentInodesReserved, percentInodesUsed)
+	}
+	return extraMetrics
+}
+
 // Configure configures and runs the plugin in collectd
-func (m *Monitor) Configure(conf *Config) error {
-	return m.SetConfigurationAndRun(conf)
+func (m *Monitor) Configure(config *Config) error {
+	// conf is a config shallow copy that will be mutated and used to configure moni tor
+	conf := *config
+	// Setting group flags in conf for enable extra metrics
+	if m.Output.HasEnabledMetricInGroup(groupInodes) {
+		conf.ReportInodes = true
+	}
+	if m.Output.HasEnabledMetricInGroup(groupPercentage) {
+		conf.ValuesPercentage = true
+	}
+	if m.isReportInodesAndValuesPercentageMetric() {
+		conf.ReportInodes = true
+		conf.ValuesPercentage = true
+	}
+	return m.SetConfigurationAndRun(&conf)
+}
+
+func (m *Monitor) isReportInodesAndValuesPercentageMetric() bool {
+	for _, metric := range m.Output.EnabledMetrics() {
+		if metric == percentInodesFree || metric == percentInodesReserved || metric == percentInodesUsed {
+			return true
+		}
+	}
+	return false
 }

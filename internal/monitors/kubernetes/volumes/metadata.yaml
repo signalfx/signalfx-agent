@@ -38,11 +38,9 @@ monitors:
   metrics:
     kubernetes.volume_available_bytes:
       description: The number of available bytes in the volume
-      included: false
       type: gauge
     kubernetes.volume_capacity_bytes:
       description: The total capacity in bytes of the volume
-      included: false
       type: gauge
   monitorType: kubernetes-volumes
   properties:

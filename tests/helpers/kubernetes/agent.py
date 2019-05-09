@@ -43,6 +43,7 @@ class Agent:
         agent_conf.setdefault("monitors", [])
         agent_conf.setdefault("globalDimensions", {"kubernetes_cluster": self.namespace})
         agent_conf.setdefault("intervalSeconds", 5)
+        agent_conf.setdefault("enableBuiltInFiltering", True)
         agent_conf.setdefault("ingestUrl", f"http://{self.fake_services_pod_ip}:{self.fake_services.ingest_port}")
         agent_conf.setdefault("apiUrl", f"http://{self.fake_services_pod_ip}:{self.fake_services.api_port}")
         agent_conf.setdefault("internalStatusHost", get_unique_localhost())
@@ -105,6 +106,7 @@ class Agent:
 
                 daemonset_base = load_resource_yaml(AGENT_DAEMONSET_PATH)
                 daemonset_base["spec"]["template"]["spec"]["containers"][0]["image"] = self.agent_image_name
+                daemonset_base["spec"]["template"]["spec"]["containers"][0]["imagePullPolicy"] = "Always"
                 daemonset_base["spec"]["template"]["spec"]["containers"][0]["resources"] = {"requests": {"cpu": "50m"}}
                 daemonset = utils.create_daemonset(body=daemonset_base, namespace=self.namespace)
                 print(f"Created agent daemonset:\n{daemonset_base}")

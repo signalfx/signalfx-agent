@@ -1,67 +1,76 @@
 import pytest
 
-from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_log_message
 from tests.helpers.metadata import Metadata
-from tests.helpers.util import wait_for
+from tests.helpers.verify import verify_custom, verify_included_metrics, verify_all_metrics
 
 pytestmark = [pytest.mark.collectd, pytest.mark.df, pytest.mark.monitor_without_endpoints]
 
 METADATA = Metadata.from_package("collectd/df")
 
 
-def test_df():
-    with Agent.run(
-        """
+def test_df_included_metrics():
+    agent_config = """
         monitors:
           - type: collectd/df
             hostFSPath: /
         """
-    ) as agent:
-        _ = (
-            wait_for(lambda: set(agent.fake_services.datapoints_by_metric) == METADATA.included_metrics),
-            "timed out waiting for metrics and/or dimensions!",
-        )
-        assert set(agent.fake_services.datapoints_by_metric) == METADATA.included_metrics
-        assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
+    verify_included_metrics(agent_config, METADATA)
 
 
 def test_df_extra_metrics():
-    expected_metrics = METADATA.included_metrics | {"df_complex.reserved"}
-    with Agent.run(
-        """
+    df_complex_reserved, df_inodes_reserved = "df_complex.reserved", "df_inodes.reserved"
+    expected_metrics = METADATA.included_metrics | {df_complex_reserved, df_inodes_reserved}
+    agent_config = f"""
         monitors:
           - type: collectd/df
             hostFSPath: /
             extraMetrics:
-            - df_complex.reserved
+            - {df_complex_reserved}
+            - {df_inodes_reserved}
         """
-    ) as agent:
-        _ = (
-            wait_for(lambda: set(agent.fake_services.datapoints_by_metric) == expected_metrics),
-            "timed out waiting for metrics and/or dimensions!",
-        )
-        assert set(agent.fake_services.datapoints_by_metric) == expected_metrics
-        assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
+    verify_custom(agent_config, expected_metrics)
 
 
-def test_df_extra_metrics_all():
-    expected_metrics = METADATA.all_metrics
-    with Agent.run(
+def test_df_inodes_flag():
+    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["inodes"]
+    agent_config = f"""
+        monitors:
+          - type: collectd/df
+            hostFSPath: /
+            reportInodes: true
         """
+    verify_custom(agent_config, expected_metrics)
+
+
+def test_df_percentage_flag():
+    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["percentage"]
+    agent_config = f"""
         monitors:
           - type: collectd/df
             hostFSPath: /
             valuesPercentage: true
-            reportInodes: true
-            extraMetrics:
-            - df_*
-            - percent_*
         """
-    ) as agent:
-        _ = (
-            wait_for(lambda: set(agent.fake_services.datapoints_by_metric) == expected_metrics),
-            "timed out waiting for metrics and/or dimensions!",
-        )
-        assert set(agent.fake_services.datapoints_by_metric) == expected_metrics
-        assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
+    verify_custom(agent_config, expected_metrics)
+
+
+def test_df_inodes_and_percentage_flags():
+    expected_metrics = METADATA.all_metrics - {"df_complex.reserved"}
+    agent_config = f"""
+        monitors:
+          - type: collectd/df
+            hostFSPath: /
+            reportInodes: true
+            valuesPercentage: true
+        """
+    verify_custom(agent_config, expected_metrics)
+
+
+def test_df_extra_metrics_all():
+    agent_config = f"""
+        monitors:
+          - type: collectd/df
+            hostFSPath: /
+            extraMetrics:
+            - '*'
+        """
+    verify_all_metrics(agent_config, METADATA)
