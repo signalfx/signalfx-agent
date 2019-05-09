@@ -33,5 +33,13 @@ monitors:
       description: Count of packets transmitted by the interface
       included: false
       type: cumulative
+    if_dropped.rx:
+      description: Count of received packets dropped by the interface
+      included: false
+      type: cumulative
+    if_dropped.tx:
+      description: Count of transmitted packets dropped by the interface
+      included: false
+      type: cumulative
   monitorType: collectd/interface
   properties:

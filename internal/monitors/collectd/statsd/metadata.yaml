@@ -69,6 +69,7 @@ monitors:
        deleteSets: true
        timerPercentile: 90.0
     ```
+  sendAll: true
   metrics:
   monitorType: collectd/statsd
   properties:
