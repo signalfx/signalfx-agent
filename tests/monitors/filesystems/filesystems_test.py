@@ -1,9 +1,10 @@
+import sys
 from textwrap import dedent
 
 import pytest
 
 from tests.helpers.metadata import Metadata
-from tests.helpers.verify import verify_custom, verify_included_metrics, verify_all_metrics
+from tests.helpers.verify import verify_custom, verify_included_metrics
 
 pytestmark = [pytest.mark.windows, pytest.mark.filesystems, pytest.mark.monitor_without_endpoints]
 
@@ -62,7 +63,9 @@ def test_filesystems_logical_flag():
 
 
 def test_filesystems_inodes_flag():
-    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["inodes"]
+    expected_metrics = METADATA.included_metrics
+    if sys.platform == "linux":
+        expected_metrics = expected_metrics | METADATA.metrics_by_group["inodes"]
     agent_config = dedent(
         """
         procPath: /proc
@@ -91,6 +94,9 @@ def test_filesystems_extra_metrics():
 
 
 def test_filesystems_all_metrics():
+    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["logical"]
+    if sys.platform == "linux":
+        expected_metrics = METADATA.all_metrics
     agent_config = dedent(
         """
         procPath: /proc
@@ -100,4 +106,4 @@ def test_filesystems_all_metrics():
           reportInodes: true
         """
     )
-    verify_all_metrics(agent_config, METADATA)
+    verify_custom(agent_config, expected_metrics)
