@@ -13586,7 +13586,254 @@
       "dimensions": null,
       "doc": "This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull\n`Real-Time/Live` video playing experience metrics from Conviva.\n\nOnly `Live` conviva metrics listed\n[here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)\nare supported. All metrics are gauges. The Conviva metrics are converted to SignalFx metrics with dimensions\nnamed account and filter. The account dimension is the name of the Conviva account and the filter dimension\nis the name of the Conviva filter applied to the metric. In the case of MetricLenses, the constituent\nMetricLens metrics and MetricLens dimensions are included. The values of the MetricLens dimensions are\nderived from the values of the associated MetricLens dimension entities.\n\nBelow is a sample YAML configuration showing the most basic configuration of the Conviva monitor\nusing only the required fields. For this configuration the monitor will default to fetching quality MetricLens\nmetrics for all dimensions from the default Conviva account using the `All Traffic` filter.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n```\n\nIndividual metrics are configured as a list of metricConfigs as shown in sample configuration below. The\nmetrics a fetched using the specified metricParameter. Find the list of metric parameters\n[here](https://github.com/signalfx/integrations/blob/master/conviva/docs/conviva_metrics.md).\nThe Conviva metrics reported to SignalFx are prefixed by `conviva.`, `conviva.quality_metriclens.` and\n`conviva.audience_metriclens.` accordingly. The metric names are the `titles` of the metrics\n[here](https://github.com/signalfx/integrations/tree/master/conviva/docs) which correspond to the Conviva\n`metric parameters` [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics).\nWhere an account is not provided the default account is fetched and used. Where no filters are specified the\n`All Traffic` filter is used. Where MetricLens dimensions are not specified all MetricLens dimensions\nare fetched and used. The `_ALL_` keyword means all. MetricLens dimension configuration applies only to MetricLenses.\nIf specified for a regular metric they will be ignored. MetricLens dimensions listed in `excludeMetricLensDimensions`\nwill be excluded.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n metricConfigs:\n   - account: c3.NBC\n     metricParameter: quality_metriclens\n     filters:\n       - All Traffic\n     metricLensDimensions:\n       - Cities\n   - metricParameter: avg_bitrate\n     maxFiltersPerRequest: 99\n     filters:\n       - _ALL_\n   - metricParameter: concurrent_plays\n   - metricParameter: audience_metriclens\n     filters:\n       - All Traffic\n     metricLensDimensions:\n       - _ALL_\n     excludeMetricLensDimensions:\n       - CDNs\n```\n\nAdd the extra dimension metric_source as shown in sample configuration below for the convenience of searching\nfor your metrics in SignalFx using the metric_source value you specify. Also, version 2.4 of the Conviva Experience\nInsights REST APIs limits the number of filters per request to 99. Specify the maximum number of filters per request\nusing `maxFiltersPerRequest` as shown in the example above in order to limit the number of filters per request.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n extraDimensions:\n   metric_source: conviva\n```\n",
       "groups": null,
-      "metrics": null,
+      "metrics": {
+        "conviva.attempts": {
+          "type": "gauge",
+          "description": "Attempts time-series",
+          "group": "attempts",
+          "included": true
+        },
+        "conviva.audience_metriclens.concurrent_plays": {
+          "type": "gauge",
+          "description": "Concurrent Plays",
+          "group": "audience_metriclens",
+          "included": true
+        },
+        "conviva.audience_metriclens.ended_plays": {
+          "type": "gauge",
+          "description": "Ended Plays",
+          "group": "audience_metriclens",
+          "included": true
+        },
+        "conviva.audience_metriclens.plays": {
+          "type": "gauge",
+          "description": "Plays",
+          "group": "audience_metriclens",
+          "included": true
+        },
+        "conviva.avg_bitrate": {
+          "type": "gauge",
+          "description": "Average bitrate time-series",
+          "group": "avg_bitrate",
+          "included": true
+        },
+        "conviva.concurrent_plays": {
+          "type": "gauge",
+          "description": "Concurrent plays time-series",
+          "group": "concurrent_plays",
+          "included": true
+        },
+        "conviva.connection_induced_rebuffering_ratio": {
+          "type": "gauge",
+          "description": "Connection induced rebuffering ratio simple-series",
+          "group": "connection_induced_rebuffering_ratio",
+          "included": true
+        },
+        "conviva.connection_induced_rebuffering_ratio_timeseries": {
+          "type": "gauge",
+          "description": "Connection induced rebuffering ratio time-series",
+          "group": "connection_induced_rebuffering_ratio_timeseries",
+          "included": true
+        },
+        "conviva.duration_connection_induced_rebuffering_ratio_distribution": {
+          "type": "gauge",
+          "description": "Duration vs. connection induced rebuffering ratio distribution label-series",
+          "group": "duration_connection_induced_rebuffering_ratio_distribution",
+          "included": true
+        },
+        "conviva.ended_plays": {
+          "type": "gauge",
+          "description": "Ended plays simple-series",
+          "group": "ended_plays",
+          "included": true
+        },
+        "conviva.ended_plays_timeseries": {
+          "type": "gauge",
+          "description": "Ended plays time-series",
+          "group": "ended_plays_timeseries",
+          "included": true
+        },
+        "conviva.exits_before_video_start": {
+          "type": "gauge",
+          "description": "Exits before video start time-series",
+          "group": "exits_before_video_start",
+          "included": true
+        },
+        "conviva.play_bitrate_distribution": {
+          "type": "gauge",
+          "description": "Play bitrate distribution label-series",
+          "group": "play_bitrate_distribution",
+          "included": true
+        },
+        "conviva.play_buffering_ratio_distribution": {
+          "type": "gauge",
+          "description": "Play buffering ratio distribution label-series",
+          "group": "play_buffering_ratio_distribution",
+          "included": true
+        },
+        "conviva.play_connection_induced_rebuffering_ratio_distribution": {
+          "type": "gauge",
+          "description": "Play connection induced rebuffering ratio distribution label-series",
+          "group": "play_connection_induced_rebuffering_ratio_distribution",
+          "included": true
+        },
+        "conviva.plays": {
+          "type": "gauge",
+          "description": "Plays time-series",
+          "group": "plays",
+          "included": true
+        },
+        "conviva.quality_metriclens.average_bitrate_kbps": {
+          "type": "gauge",
+          "description": "Average Bitrate (bps). This metric can be returned in kbps with the ab_units=kbps parameter. Unless this parameter is specified, average bitrate is bps",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.connection_induced_rebuffering_ratio_percent": {
+          "type": "gauge",
+          "description": "Connection Induced ReBuffering Ratio (%)",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.ended_plays": {
+          "type": "gauge",
+          "description": "Ended Plays",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.exits_before_video_start_percent": {
+          "type": "gauge",
+          "description": "Exits Before Video Starts (EBVS) (%)",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.plays_percent": {
+          "type": "gauge",
+          "description": "Plays (%)",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.rebuffering_ratio_percent": {
+          "type": "gauge",
+          "description": "Rebuffering Ratio (%)",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.total_attempts": {
+          "type": "gauge",
+          "description": "Attempts",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.video_playback_failures_percent": {
+          "type": "gauge",
+          "description": "Video Playback Failures (%)",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.video_restart_time": {
+          "type": "gauge",
+          "description": "Video Restart Time",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.video_start_failures_percent": {
+          "type": "gauge",
+          "description": "Video Start Failures(VSF) (%)",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_metriclens.video_startup_time_sec": {
+          "type": "gauge",
+          "description": "Video Startup Time (sec)",
+          "group": "quality_metriclens",
+          "included": true
+        },
+        "conviva.quality_summary": {
+          "type": "gauge",
+          "description": "Quality summary label-series",
+          "group": "quality_summary",
+          "included": true
+        },
+        "conviva.rebuffered_plays": {
+          "type": "gauge",
+          "description": "Rebuffered plays time-series",
+          "group": "rebuffered_plays",
+          "included": true
+        },
+        "conviva.rebuffering_ratio": {
+          "type": "gauge",
+          "description": "Rebuffering ratio time-series",
+          "group": "rebuffering_ratio",
+          "included": true
+        },
+        "conviva.top_assets_15_mins": {
+          "type": "gauge",
+          "description": "Top assets over last 15 minutes simple-table",
+          "group": "top_assets_15_mins",
+          "included": true
+        },
+        "conviva.top_assets_summary": {
+          "type": "gauge",
+          "description": "Top assets summary label-series",
+          "group": "top_assets_summary",
+          "included": true
+        },
+        "conviva.video_playback_failures": {
+          "type": "gauge",
+          "description": "Video playback failures simple-series",
+          "group": "video_playback_failures",
+          "included": true
+        },
+        "conviva.video_playback_failures_distribution": {
+          "type": "gauge",
+          "description": "Video playback failures distribution label-series",
+          "group": "video_playback_failures_distribution",
+          "included": true
+        },
+        "conviva.video_playback_failures_timeseries": {
+          "type": "gauge",
+          "description": "Video playback failures time-series",
+          "group": "video_playback_failures_timeseries",
+          "included": true
+        },
+        "conviva.video_restart_time": {
+          "type": "gauge",
+          "description": "Video restart time simple-series",
+          "group": "video_restart_time",
+          "included": true
+        },
+        "conviva.video_restart_time_distribution": {
+          "type": "gauge",
+          "description": "Video restart time distribution label-series",
+          "group": "video_restart_time_distribution",
+          "included": true
+        },
+        "conviva.video_restart_time_timeseries": {
+          "type": "gauge",
+          "description": "Video restart time time-series",
+          "group": "video_restart_time_timeseries",
+          "included": true
+        },
+        "conviva.video_start_failures": {
+          "type": "gauge",
+          "description": "Video start failures time-series",
+          "group": "video_start_failures",
+          "included": true
+        },
+        "conviva.video_start_failures_errornames": {
+          "type": "gauge",
+          "description": "Video start failures by error names simple-table",
+          "group": "video_start_failures_errornames",
+          "included": true
+        },
+        "conviva.video_startup_time": {
+          "type": "gauge",
+          "description": "Video startup time label-series",
+          "group": null,
+          "included": true
+        }
+      },
       "properties": null,
       "metricsExhaustive": false,
       "config": {
