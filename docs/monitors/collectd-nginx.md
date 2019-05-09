@@ -41,6 +41,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
 | `connections.accepted` | cumulative | ✔ | Connections accepted by Nginx Web Server |
+| `connections.failed` | cumulative |  | Connections failed by the Nginx Web Server |
 | `connections.handled` | cumulative | ✔ | Connections handled by Nginx Web Server |
 | `nginx_connections.active` | gauge | ✔ | Connections active in Nginx Web Server |
 | `nginx_connections.reading` | gauge | ✔ | Connections being read by Nginx Web Server |
@@ -63,6 +64,7 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
+    - connections.failed
     monitorType: collectd/nginx
 ```
 

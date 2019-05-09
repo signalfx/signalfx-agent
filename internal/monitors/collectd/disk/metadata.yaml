@@ -48,5 +48,9 @@ monitors:
       description: Amount of time spent doing IO in ms
       included: false
       type: cumulative
+    pending_operations:
+      description: Number of pending operations
+      included: false
+      type: gauge
   monitorType: collectd/disk
   properties:
