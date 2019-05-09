@@ -30,7 +30,7 @@ def check_service_status(host):
     assert wait_for(p(http_status, url=f"http://{host}:9200/_nodes/_local", status=[200]), 180), "service didn't start"
 
 
-@pytest.mark.flaky(reruns=0)
+@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_without_cluster_option():
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
         host = container_ip(es_container)
@@ -46,7 +46,7 @@ def test_elasticsearch_without_cluster_option():
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
-@pytest.mark.flaky(reruns=0)
+@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_cluster_option():
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
         host = container_ip(es_container)
@@ -67,7 +67,7 @@ def test_elasticsearch_with_cluster_option():
 
 
 # To mimic the scenario where node is not up
-@pytest.mark.flaky(reruns=0)
+@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_without_cluster():
     # start the ES container without the service
     with run_service("elasticsearch/6.4.2", environment=ENV, entrypoint="sleep inf") as es_container:
@@ -84,7 +84,7 @@ def test_elasticsearch_without_cluster():
             ), "service didn't start"
 
 
-@pytest.mark.flaky(reruns=0)
+@pytest.mark.flaky(reruns=2)
 def test_with_default_config_6_6_1():
     with run_service("elasticsearch/6.6.1") as es_container:
         host = container_ip(es_container)
@@ -97,7 +97,7 @@ def test_with_default_config_6_6_1():
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
-@pytest.mark.flaky(reruns=0)
+@pytest.mark.flaky(reruns=2)
 def test_with_default_config_2_4_5():
     with run_service("elasticsearch/2.4.5") as es_container:
         host = container_ip(es_container)
@@ -110,7 +110,7 @@ def test_with_default_config_2_4_5():
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
-@pytest.mark.flaky(reruns=0)
+@pytest.mark.flaky(reruns=2)
 def test_with_default_config_2_0_2():
     with run_service("elasticsearch/2.0.2") as es_container:
         host = container_ip(es_container)
@@ -123,7 +123,7 @@ def test_with_default_config_2_0_2():
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
-@pytest.mark.flaky(reruns=0)
+@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_cluster_health_stats():
     expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["cluster"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
@@ -133,7 +133,7 @@ def test_elasticsearch_with_enhanced_cluster_health_stats():
         verify_custom(agent_config, expected_metrics)
 
 
-@pytest.mark.flaky(reruns=0)
+@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_http_stats():
     expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["node/http"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
@@ -143,7 +143,7 @@ def test_elasticsearch_with_enhanced_http_stats():
         verify_custom(agent_config, expected_metrics)
 
 
-@pytest.mark.flaky(reruns=0)
+@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_jvm_stats():
     expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["node/jvm"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
@@ -153,7 +153,7 @@ def test_elasticsearch_with_enhanced_jvm_stats():
         verify_custom(agent_config, expected_metrics)
 
 
-@pytest.mark.flaky(reruns=0)
+@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_process_stats():
     expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["node/process"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
@@ -163,7 +163,7 @@ def test_elasticsearch_with_enhanced_process_stats():
         verify_custom(agent_config, expected_metrics)
 
 
-@pytest.mark.flaky(reruns=0)
+@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_thread_pool_stats():
     expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["node/thread-pool"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
@@ -173,7 +173,7 @@ def test_elasticsearch_with_enhanced_thread_pool_stats():
         verify_custom(agent_config, expected_metrics)
 
 
-@pytest.mark.flaky(reruns=0)
+@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_transport_stats():
     expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["node/transport"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
@@ -183,71 +183,81 @@ def test_elasticsearch_with_enhanced_transport_stats():
         verify_custom(agent_config, expected_metrics)
 
 
-# TODO: fix this failing test
-# @pytest.mark.flaky(reruns=0)
-# def test_elasticsearch_all_metrics():
-#     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
-#         host = container_ip(es_container)
-#         check_service_status(host)
-#         config = dedent(
-#             f"""
-#             monitors:
-#             - type: elasticsearch
-#               host: {host}
-#               port: 9200
-#               username: elastic
-#               password: testing123
-#               indexStatsMasterOnly: false
-#               enableIndexStatsPrimaries: true
-#               enableEnhancedClusterHealthStats: true
-#               enableEnhancedHTTPStats: true
-#               enableEnhancedJVMStats: true
-#               enableEnhancedProcessStats: true
-#               enableEnhancedThreadPoolStats: true
-#               enableEnhancedTransportStats: true
-#             """
-#             #   enableEnhancedNodeIndicesStats:
-#             #   - docs
-#             #   - store
-#             #   - indexing
-#             #   - get
-#             #   - search
-#             #   - merges
-#             #   - refresh
-#             #   - flush
-#             #   - warmer
-#             #   - query_cache
-#             #   - filter_cache
-#             #   - fielddata
-#             #   - completion
-#             #   - segments
-#             #   - translog
-#             #   - request_cache
-#             #   - recovery
-#             #   - id_cache
-#             #   - suggest
-#             #   - percolate
-#             #   enableEnhancedIndexStatsForIndexGroups:
-#             #   - docs
-#             #   - store
-#             #   - indexing
-#             #   - get
-#             #   - search
-#             #   - merges
-#             #   - refresh
-#             #   - flush
-#             #   - warmer
-#             #   - query_cache
-#             #   - filter_cache
-#             #   - fielddata
-#             #   - completion
-#             #   - segments
-#             #   - translog
-#             #   - request_cache
-#             #   - recovery
-#             #   - id_cache
-#             #   - suggest
-#             #   - percolate
-#             # """
-#         )
-#         verify_all_metrics(config, METADATA)
+@pytest.mark.flaky(reruns=2)
+def test_elasticsearch_all_metrics():
+    with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
+        host = container_ip(es_container)
+        check_service_status(host)
+        es_6_4_2_expected_metrics = METADATA.all_metrics - {
+            "elasticsearch.indices.percolate.queries",
+            "elasticsearch.indices.percolate.total",
+            "elasticsearch.indices.percolate.time",
+            "elasticsearch.indices.filter-cache.memory-size",
+            "elasticsearch.indices.id-cache.memory-size",
+            "elasticsearch.indices.percolate.current",
+            "elasticsearch.indices.suggest.current",
+            "elasticsearch.indices.suggest.time",
+            "elasticsearch.indices.store.throttle-time",
+            "elasticsearch.indices.suggest.total",
+            "elasticsearch.indices.filter-cache.evictions",
+            "elasticsearch.indices.store.size",
+        }
+        config = dedent(
+            f"""
+            monitors:
+            - type: elasticsearch
+              host: {host}
+              port: 9200
+              username: elastic
+              password: testing123
+              enableEnhancedClusterHealthStats: true
+              enableEnhancedHTTPStats: true
+              enableEnhancedJVMStats: true
+              enableEnhancedProcessStats: true
+              enableEnhancedThreadPoolStats: true
+              enableEnhancedTransportStats: true
+              enableEnhancedNodeIndicesStats:
+              - docs
+              - store
+              - indexing
+              - get
+              - search
+              - merges
+              - refresh
+              - flush
+              - warmer
+              - query_cache
+              - filter_cache
+              - fielddata
+              - completion
+              - segments
+              - translog
+              - request_cache
+              - recovery
+              - id_cache
+              - suggest
+              - percolate
+              enableEnhancedIndexStatsForIndexGroups:
+              - docs
+              - store
+              - indexing
+              - get
+              - search
+              - merges
+              - refresh
+              - flush
+              - warmer
+              - query_cache
+              - filter_cache
+              - fielddata
+              - completion
+              - segments
+              - translog
+              - request_cache
+              - recovery
+              - id_cache
+              - suggest
+              - percolate
+            """
+        )
+        verify_custom(config, es_6_4_2_expected_metrics)

@@ -413,6 +413,9 @@ func (c *Config) GetExtraMetrics() []string {
 	if enhancedStatsForIndexGroups[client.PercolateStatsGroup] {
 		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesPercolate]...)
 	}
+	if enhancedStatsForIndexGroups[client.SegmentsStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesSegments]...)
+	}
 	return extraMetrics
 }
 

@@ -462,13 +462,18 @@ monitors:
       included: false
       type: cumulative
       group: indices/request-cache
-    elasticsearch.indices.refresh.time:
-      description: Total time spent on index refreshes
+    elasticsearch.indices.refresh.total:
+      description: Total number of index refreshes
       included: false
       type: cumulative
       group: indices/refresh
-    elasticsearch.indices.refresh.total:
-      description: Number of index refreshes
+#    elasticsearch.indices.refresh.time:
+#      description: Total time spent on index refreshes
+#      included: false
+#      type: cumulative
+#      group: indices/refresh
+    elasticsearch.indices.refresh.total-time:
+      description: Total time spent on index refreshes
       included: false
       type: cumulative
       group: indices/refresh
@@ -532,7 +537,12 @@ monitors:
       included: true
       type: cumulative
       group: indices/search
-    elasticsearch.indices.segments.version-map-memory:
+#    elasticsearch.indices.segments.version-map-memory:
+#      description: Memory used by segment version map (in bytes)
+#      included: false
+#      type: gauge
+#      group: indices/segments
+    elasticsearch.indices.segments.version-map-memory-size:
       description: Memory used by segment version map (in bytes)
       included: false
       type: gauge
@@ -707,7 +717,12 @@ monitors:
       included: false
       type: gauge
       group: indices/translog
-    elasticsearch.indices.segments.index-writer-max-size:
+#    elasticsearch.indices.segments.index-writer-max-size:
+#      description: Maximum memory used by the index writer
+#      included: false
+#      type: gauge
+#      group: indices/segments
+    elasticsearch.indices.segments.index-writer-memory-size:
       description: Maximum memory used by the index writer
       included: false
       type: gauge
@@ -717,7 +732,12 @@ monitors:
       included: false
       type: cumulative
       group: indices/get
-    elasticsearch.indices.segments.size:
+#    elasticsearch.indices.segments.size:
+#      description: Memory used by index segments (in bytes)
+#      included: false
+#      type: gauge
+#      group: indices/segments
+    elasticsearch.indices.segments.memory-size:
       description: Memory used by index segments (in bytes)
       included: false
       type: gauge
@@ -807,11 +827,11 @@ monitors:
       included: false
       type: gauge
       group: indices/translog
-    elasticsearch.indices.segments.index-writer-size:
-      description: Memory used by the index writer
-      included: false
-      type: gauge
-      group: indices/segments
+#    elasticsearch.indices.segments.index-writer-size:
+#      description: Memory used by the index writer
+#      included: false
+#      type: gauge
+#      group: indices/segments
     elasticsearch.indices.percolate.total:
       description: Total number of suggest requests
       included: false
@@ -882,7 +902,7 @@ monitors:
       included: false
       type: cumulative
       group: indices/search
-    elasticsearch.indices.flush.time:
+    elasticsearch.indices.flush.total-time:
       description: Time spent flushing the index to disk
       included: false
       type: cumulative

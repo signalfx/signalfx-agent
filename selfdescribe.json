@@ -15349,15 +15349,15 @@
           "group": "indices/flush",
           "included": false
         },
-        "elasticsearch.indices.flush.time": {
-          "type": "cumulative",
-          "description": "Time spent flushing the index to disk",
-          "group": "indices/flush",
-          "included": false
-        },
         "elasticsearch.indices.flush.total": {
           "type": "cumulative",
           "description": "Number of index flushes to disk",
+          "group": "indices/flush",
+          "included": false
+        },
+        "elasticsearch.indices.flush.total-time": {
+          "type": "cumulative",
+          "description": "Time spent flushing the index to disk",
           "group": "indices/flush",
           "included": false
         },
@@ -15613,15 +15613,15 @@
           "group": "indices/refresh",
           "included": false
         },
-        "elasticsearch.indices.refresh.time": {
+        "elasticsearch.indices.refresh.total": {
           "type": "cumulative",
-          "description": "Total time spent on index refreshes",
+          "description": "Total number of index refreshes",
           "group": "indices/refresh",
           "included": false
         },
-        "elasticsearch.indices.refresh.total": {
+        "elasticsearch.indices.refresh.total-time": {
           "type": "cumulative",
-          "description": "Number of index refreshes",
+          "description": "Total time spent on index refreshes",
           "group": "indices/refresh",
           "included": false
         },
@@ -15745,15 +15745,15 @@
           "group": "indices/segments",
           "included": false
         },
-        "elasticsearch.indices.segments.index-writer-max-size": {
+        "elasticsearch.indices.segments.index-writer-memory-size": {
           "type": "gauge",
           "description": "Maximum memory used by the index writer",
           "group": "indices/segments",
           "included": false
         },
-        "elasticsearch.indices.segments.index-writer-size": {
+        "elasticsearch.indices.segments.memory-size": {
           "type": "gauge",
-          "description": "Memory used by the index writer",
+          "description": "Memory used by index segments (in bytes)",
           "group": "indices/segments",
           "included": false
         },
@@ -15766,12 +15766,6 @@
         "elasticsearch.indices.segments.points-memory-size": {
           "type": "gauge",
           "description": "Memory used by points",
-          "group": "indices/segments",
-          "included": false
-        },
-        "elasticsearch.indices.segments.size": {
-          "type": "gauge",
-          "description": "Memory used by index segments (in bytes)",
           "group": "indices/segments",
           "included": false
         },
@@ -15793,7 +15787,7 @@
           "group": "indices/segments",
           "included": false
         },
-        "elasticsearch.indices.segments.version-map-memory": {
+        "elasticsearch.indices.segments.version-map-memory-size": {
           "type": "gauge",
           "description": "Memory used by segment version map (in bytes)",
           "group": "indices/segments",
