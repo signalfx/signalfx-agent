@@ -77,20 +77,20 @@ def test_filesystems_inodes_flag():
     verify_custom(agent_config, expected_metrics)
 
 
-def test_filesystems_extra_metrics():
-    percent_inodes_used, df_inodes_used = "percent_inodes.used", "df_inodes.used"
-    expected_metrics = METADATA.included_metrics | {percent_inodes_used, df_inodes_used}
-    agent_config = dedent(
-        f"""
-        procPath: /proc
-        monitors:
-        - type: filesystems
-          extraMetrics:
-          - {percent_inodes_used}
-          - {df_inodes_used}
-        """
-    )
-    verify_custom(agent_config, expected_metrics)
+# def test_filesystems_extra_metrics():
+#     percent_inodes_used, df_inodes_used = "percent_inodes.used", "df_inodes.used"
+#     expected_metrics = METADATA.included_metrics | {percent_inodes_used, df_inodes_used}
+#     agent_config = dedent(
+#         f"""
+#         procPath: /proc
+#         monitors:
+#         - type: filesystems
+#           extraMetrics:
+#           - {percent_inodes_used}
+#           - {df_inodes_used}
+#         """
+#     )
+#     verify_custom(agent_config, expected_metrics)
 
 
 def test_filesystems_all_metrics():
