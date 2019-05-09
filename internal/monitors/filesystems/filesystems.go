@@ -195,8 +195,8 @@ func (m *Monitor) Configure(conf *Config) error {
 	ctx, m.cancel = context.WithCancel(context.Background())
 
 	// save shallow copy of conf to monitor for quick reference
-	m.conf = &Config{}
-	*m.conf = *conf
+	confCopy := *conf
+	m.conf = &confCopy
 
 	// setting metric group flags in the config copy
 	if m.Output.HasEnabledMetricInGroup(groupLogical) {

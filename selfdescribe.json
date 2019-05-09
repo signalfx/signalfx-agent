@@ -16732,14 +16732,14 @@
         },
         "df_inodes.free": {
           "type": "gauge",
-          "description": "(Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `reportInodes` is set to `true`.",
-          "group": "reportInodes",
+          "description": "(Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `inodes` is set to `true`.",
+          "group": "inodes",
           "included": false
         },
         "df_inodes.used": {
           "type": "gauge",
-          "description": "(Linux Only) Number of inodes that are used.  This is only reported if the configuration option `reportInodes` is set to `true`.",
-          "group": "reportInodes",
+          "description": "(Linux Only) Number of inodes that are used.  This is only reported if the configuration option `inodes` is set to `true`.",
+          "group": "inodes",
           "included": false
         },
         "disk.summary_utilization": {
@@ -16757,25 +16757,25 @@
         "percent_bytes.free": {
           "type": "gauge",
           "description": "Free disk space on the file system, expressed as a percentage.",
-          "group": "includeLogical",
+          "group": "logical",
           "included": false
         },
         "percent_bytes.used": {
           "type": "gauge",
           "description": "Used disk space on the file system, expressed as a percentage.",
-          "group": "includeLogical",
+          "group": "logical",
           "included": false
         },
         "percent_inodes.free": {
           "type": "gauge",
-          "description": "(Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`.",
-          "group": "reportInodes",
+          "description": "(Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`.",
+          "group": "inodes",
           "included": false
         },
         "percent_inodes.used": {
           "type": "gauge",
-          "description": "(Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`.",
-          "group": "reportInodes",
+          "description": "(Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`.",
+          "group": "inodes",
           "included": false
         }
       },
