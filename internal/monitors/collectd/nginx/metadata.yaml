@@ -17,6 +17,10 @@ monitors:
       description: Connections handled by Nginx Web Server
       included: true
       type: cumulative
+    connections.failed:
+      description: Connections failed by the Nginx Web Server
+      included: false
+      type: cumulative
     nginx_connections.active:
       description: Connections active in Nginx Web Server
       included: true

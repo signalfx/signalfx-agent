@@ -3410,6 +3410,18 @@
       "doc": "This monitor collects information about the usage of\nphysical disks and logical disks (partitions).\n\nSee https://collectd.org/wiki/index.php/Plugin:Disk.\n",
       "groups": null,
       "metrics": {
+        "disk_io_time.io_time": {
+          "type": "cumulative",
+          "description": "Amount of time spent doing IO in ms",
+          "group": null,
+          "included": false
+        },
+        "disk_io_time.weighted_io_time": {
+          "type": "cumulative",
+          "description": "Amount of time spent doing IO in ms multiplied by the queue length",
+          "group": null,
+          "included": false
+        },
         "disk_merged.read": {
           "type": "cumulative",
           "description": "The number of disk reads merged into single physical disk access operations.",
@@ -3455,6 +3467,12 @@
         "disk_time.write": {
           "type": "cumulative",
           "description": "The average amount of time it took to do a write operation.",
+          "group": null,
+          "included": false
+        },
+        "pending_operations": {
+          "type": "gauge",
+          "description": "Number of pending operations",
           "group": null,
           "included": false
         }
@@ -6019,6 +6037,18 @@
       "doc": "Collectd stats about network interfaces on the\nsystem by using the [collectd interface\nplugin](https://collectd.org/wiki/index.php/Plugin:Interface).\n\nSee the [integrations\ndoc](https://github.com/signalfx/integrations/tree/master/collectd-interface)\nfor more information.\n",
       "groups": null,
       "metrics": {
+        "if_dropped.rx": {
+          "type": "cumulative",
+          "description": "Count of received packets dropped by the interface",
+          "group": null,
+          "included": false
+        },
+        "if_dropped.tx": {
+          "type": "cumulative",
+          "description": "Count of transmitted packets dropped by the interface",
+          "group": null,
+          "included": false
+        },
         "if_errors.rx": {
           "type": "cumulative",
           "description": "Count of receive errors on the interface",
@@ -9842,6 +9872,12 @@
           "description": "Connections accepted by Nginx Web Server",
           "group": null,
           "included": true
+        },
+        "connections.failed": {
+          "type": "cumulative",
+          "description": "Connections failed by the Nginx Web Server",
+          "group": null,
+          "included": false
         },
         "connections.handled": {
           "type": "cumulative",

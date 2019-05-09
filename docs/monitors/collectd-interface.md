@@ -30,6 +30,8 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
+| `if_dropped.rx` | cumulative |  | Count of received packets dropped by the interface |
+| `if_dropped.tx` | cumulative |  | Count of transmitted packets dropped by the interface |
 | `if_errors.rx` | cumulative | ✔ | Count of receive errors on the interface |
 | `if_errors.tx` | cumulative | ✔ | Count of transmit errors on the interface |
 | `if_octets.rx` | cumulative | ✔ | Count of bytes (octets) received on the interface |
@@ -52,6 +54,8 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
+    - if_dropped.rx
+    - if_dropped.tx
     - if_packets.rx
     - if_packets.tx
     monitorType: collectd/interface

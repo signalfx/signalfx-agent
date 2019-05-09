@@ -40,5 +40,17 @@ monitors:
       description: The average amount of time it took to do a write operation.
       included: false
       type: cumulative
+    disk_io_time.weighted_io_time:
+      description: Amount of time spent doing IO in ms multiplied by the queue length
+      included: false
+      type: cumulative
+    disk_io_time.io_time:
+      description: Amount of time spent doing IO in ms
+      included: false
+      type: cumulative
+    pending_operations:
+      description: Number of pending operations
+      included: false
+      type: gauge
   monitorType: collectd/disk
   properties:
