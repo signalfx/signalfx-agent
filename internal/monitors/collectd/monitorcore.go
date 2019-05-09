@@ -22,7 +22,7 @@ import (
 // this: StaticMonitorCore or ServiceMonitorCore.
 type MonitorCore struct {
 	Template *template.Template
-	Output   types.Output
+	Output   types.FilteringOutput
 	// Where to write the plugin config to on the filesystem
 	configFilename           string
 	config                   config.MonitorCustomConfig
