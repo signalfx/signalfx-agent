@@ -12,16 +12,13 @@ be used to plot Traefik memory usage. The entrypoint-related and backend-related
 of requests measured at entrypoints and backends. These metrics are used to compute measurements such as the average
 request duration.
 
-### REQUIREMENTS AND DEPENDENCIES
+## REQUIREMENTS AND DEPENDENCIES
 
 | Software          | Version        |
 |-------------------|----------------|
-| signalfx-agent    |     4.6.3+     |
+| signalfx-agent    |     4.7.0+     |
 
-### INSTALLATION
-
-### CONFIGURATION
-#### Traefik Configuration
+## Traefik Configuration
 
 Edit the Traefik configuration file, typically `traefik.toml`, to enable Traefik to expose prometheus metrics at an
 endpoint. The endpoint is on path `/metrics` by default. When running the Traefik binary, the configuration file is
@@ -40,7 +37,7 @@ to get started.
 
 See <a target="_blank" href="https://docs.traefik.io/">here</a> for complete Traefik docs.
 
-#### Smart Agent Configuration
+## Smart Agent Configuration
 
 The SignalFx Smart Agent must have network access to Traefik. This means for instance that, in a Docker environment,
 the agent container needs to be in a shared network with the Traefik container.
@@ -55,6 +52,7 @@ You will also need to set the `SFX_ACCESS_TOKEN` configuration option to your Si
 [Authentication documentation](https://developers.signalfx.com/basics/authentication.html).
 
 The Docker run command to start the agent may look as follows:
+
 ```
 docker run --rm \
 -e SFX_ACCESS_TOKEN=YOUR_SIGNALFX_API_TOKEN \
@@ -65,10 +63,9 @@ docker run --rm \
 quay.io/signalfx/signalfx-agent:<version>
 ```
 
-Find and edit the SignalFx Smart Agent configuration file `agent.yaml` to enable the Docker observer and configure
-this SignalFx Smart Agent traefik monitor. For example, the configuration below will cause the Smart Agent to query
-the Docker Engine API for running containers with port 8080 exposed, attach dimension `metric_source=traefik` to any
-Prometheus metrics at endpoint `<container ip>:8080/metrics` and export the metrics to SignalFx.
+Find and edit the SignalFx Smart Agent configuration file `agent.yaml` to enable this traefik monitor. For example,
+the configuration below enables the traefik monitor and which will scrape any Prometheus metrics in the default path
+`/metrics` on port 8080, attach dimension `metric_source=traefik` to metrics and export them to SignalFx.
 
 ```
 monitors:
