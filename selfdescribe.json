@@ -27362,6 +27362,390 @@
       "singleInstance": true
     },
     {
+      "monitorType": "traefik",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "Traefik is an open-source HTTP reverse proxy and load balancer. Traefik exports Prometheus metrics that can be\nscraped by the SignalFx Smart Agent. These metrics can be categorized into Traefik-related, entrypoint-related and\nbackend-related metrics. The Traefik-related metrics are prefixed by `go_` and `process_`. The entrypoint-related\nmetrics are prefixed by `traefik_entrypoint_` and the backend-related metrics prefixed by `traefik_backend_`.\n\nThe Traefik-related metrics are for monitoring Traefik itself. For instance, the `go_memstats_sys_bytes` metric can\nbe used to plot Traefik memory usage. The entrypoint-related and backend-related metrics are the number and duration\nof requests measured at entrypoints and backends. These metrics are used to compute measurements such as the average\nrequest duration.\n\n## Requirements and Dependencies\n\n| Software          | Version        |\n|-------------------|----------------|\n| signalfx-agent    |     4.7.0+     |\n\n## Traefik Configuration\n\nEdit the Traefik configuration file, typically `traefik.toml`, to enable Traefik to expose prometheus metrics at an\nendpoint. The endpoint is on path `/metrics` by default. When running the Traefik binary, the configuration file is\ntypically passed in as a command line argument. For example,\n\n`./traefik -c traefik.toml`\n\nHowever, when running the Traefik Docker image, the configuration file is mounted to volume\n`/etc/traefik/traefik.toml`. For example,\n\n`docker run -d -p 8080:8080 -p 80:80 -v $PWD/traefik.toml:/etc/traefik/traefik.toml`\n\nIf the Traefik configuration file is not available use the sample configuration file\n\u003ca target=\"_blank\" href=\"https://raw.githubusercontent.com/containous/traefik/master/traefik.sample.toml\"\u003ehere\u003c/a\u003e\nto get started.\n\nSee \u003ca target=\"_blank\" href=\"https://docs.traefik.io/\"\u003ehere\u003c/a\u003e for complete Traefik docs.\n\n## Smart Agent Configuration\n\nSignalFx Smart Agent docs can be found \u003ca target=\"_blank\" href=\"https://github.com/signalfx/signalfx-agent\"\u003ehere\u003c/a\u003e.\nChoose deployment specific configuration instruction\n\u003ca target=\"_blank\" href=\"https://github.com/signalfx/signalfx-agent/tree/master/deployments\"\u003ehere\u003c/a\u003e. The\nSignalFx Smart Agent must have network access to Traefik.\n\nBelow is an example configuration that enables the traefik monitor. For the given configuration below, the monitor\nwill scrape Prometheus metrics in the default path `/metrics` on port 8080, add dimension\n`metric_source=traefik` to the metrics and export them to SignalFx.\n\n```\nmonitors:\n- type: traefik\n  discoveryRule: port == 8080\n  extraDimensions:\n    metric_source: traefik\n```\n",
+      "groups": null,
+      "metrics": {
+        "go_gc_duration_seconds": {
+          "type": "cumulative",
+          "description": "A summary of the GC invocation durations.",
+          "group": null,
+          "included": false
+        },
+        "go_gc_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "A count of the GC invocation durations.",
+          "group": null,
+          "included": false
+        },
+        "go_gc_duration_seconds_sum": {
+          "type": "cumulative",
+          "description": "The sum of the GC invocation durations, in seconds.",
+          "group": null,
+          "included": false
+        },
+        "go_goroutines": {
+          "type": "cumulative",
+          "description": "Number of goroutines that currently exist.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_alloc_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes allocated and still in use.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_alloc_bytes_total": {
+          "type": "cumulative",
+          "description": "Total number of bytes allocated, even if freed.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_buck_hash_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used by the profiling bucket hash table.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_frees_total": {
+          "type": "cumulative",
+          "description": "Total number of frees.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_gc_cpu_fraction": {
+          "type": "gauge",
+          "description": "The fraction of this program's available CPU time used by the GC since the program started.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_gc_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for garbage collection system metadata.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_heap_alloc_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes allocated and still in use.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_heap_idle_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes waiting to be used.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_heap_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes that are in use.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_heap_objects": {
+          "type": "gauge",
+          "description": "Number of allocated objects.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_heap_released_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes released to OS.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_heap_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes obtained from system.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_last_gc_time_seconds": {
+          "type": "gauge",
+          "description": "Length of time since last garbage collection, in seconds since unix epoch.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_lookups_total": {
+          "type": "cumulative",
+          "description": "Total number of pointer lookups.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_mallocs_total": {
+          "type": "cumulative",
+          "description": "Total number of mallocs.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_mcache_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by mcache structures.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_mcache_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for mcache structures obtained from system.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_mspan_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by mspan structures.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_mspan_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for mspan structures obtained from system.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_next_gc_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes when next garbage collection will take place.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_other_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for other system allocations.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_stack_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by the stack allocator.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_stack_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes obtained from system for stack allocator.",
+          "group": null,
+          "included": false
+        },
+        "go_memstats_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes obtained from system.",
+          "group": null,
+          "included": false
+        },
+        "go_threads": {
+          "type": "gauge",
+          "description": "Number of OS threads created",
+          "group": null,
+          "included": false
+        },
+        "process_cpu_seconds_total": {
+          "type": "cumulative",
+          "description": "Total user and system CPU time spent, in seconds.",
+          "group": null,
+          "included": false
+        },
+        "process_max_fds": {
+          "type": "gauge",
+          "description": "Maximum number of open file descriptors.",
+          "group": null,
+          "included": false
+        },
+        "process_open_fds": {
+          "type": "gauge",
+          "description": "Number of open file descriptors.",
+          "group": null,
+          "included": false
+        },
+        "process_resident_memory_bytes": {
+          "type": "gauge",
+          "description": "Resident memory size in bytes.",
+          "group": null,
+          "included": false
+        },
+        "process_start_time_seconds": {
+          "type": "gauge",
+          "description": "Start time of the process since unix epoch in seconds.",
+          "group": null,
+          "included": true
+        },
+        "process_virtual_memory_bytes": {
+          "type": "gauge",
+          "description": "Virtual memory size in bytes.",
+          "group": null,
+          "included": false
+        },
+        "traefik_backend_open_connections": {
+          "type": "gauge",
+          "description": "How many open connections exist on a backend, partitioned by method and protocol.",
+          "group": null,
+          "included": true
+        },
+        "traefik_backend_request_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The sum of request durations that are within a configured time interval. The request durations are measured at a backend in seconds. This value is partitioned by status code, protocol, and method.",
+          "group": null,
+          "included": false
+        },
+        "traefik_backend_request_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "The number of request durations that were measured on a backend. The values are partitioned by status code, protocol, and method.",
+          "group": null,
+          "included": false
+        },
+        "traefik_backend_request_duration_seconds_sum": {
+          "type": "cumulative",
+          "description": "The sum of the request durations in seconds, measured on a backend, partitioned by status code, protocol, and method.",
+          "group": null,
+          "included": true
+        },
+        "traefik_backend_requests_total": {
+          "type": "cumulative",
+          "description": "How many HTTP requests were processed on a backend, partitioned by status code, protocol, and method.",
+          "group": null,
+          "included": true
+        },
+        "traefik_backend_server_up": {
+          "type": "gauge",
+          "description": "Backend server is up, described by gauge value of 0 (down) or 1 (up).",
+          "group": null,
+          "included": true
+        },
+        "traefik_config_last_reload_failure": {
+          "type": "gauge",
+          "description": "Last config reload failure",
+          "group": null,
+          "included": false
+        },
+        "traefik_config_last_reload_success": {
+          "type": "gauge",
+          "description": "Last config reload success",
+          "group": null,
+          "included": false
+        },
+        "traefik_config_reloads_failure_total": {
+          "type": "cumulative",
+          "description": "Total number of config reloads that failed",
+          "group": null,
+          "included": false
+        },
+        "traefik_config_reloads_total": {
+          "type": "cumulative",
+          "description": "Config reloads",
+          "group": null,
+          "included": false
+        },
+        "traefik_entrypoint_open_connections": {
+          "type": "gauge",
+          "description": "How many open connections exist on an entrypoint, partitioned by method and protocol.",
+          "group": null,
+          "included": true
+        },
+        "traefik_entrypoint_request_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The sum of request durations that are within a configured time interval. The request durations are measured at an entrypoint in seconds. This value is partitioned by status code, protocol, and method.",
+          "group": null,
+          "included": false
+        },
+        "traefik_entrypoint_request_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "The number of request durations that were measured on an entrypoint. The values are partitioned by status code, protocol, and method.",
+          "group": null,
+          "included": true
+        },
+        "traefik_entrypoint_request_duration_seconds_sum": {
+          "type": "cumulative",
+          "description": "The sum of the request durations in seconds measured on an entrypoint, partitioned by status code, protocol, and method.",
+          "group": null,
+          "included": true
+        },
+        "traefik_entrypoint_requests_total": {
+          "type": "cumulative",
+          "description": "How many HTTP requests processed on an entrypoint, partitioned by status code, protocol, and method.",
+          "group": null,
+          "included": true
+        }
+      },
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "internal/monitors/traefik",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "skipVerify",
+            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "metricPath",
+            "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
+            "default": "/metrics",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendAllMetrics",
+            "doc": "Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "vmem",
       "sendAll": false,
       "dimensions": null,
