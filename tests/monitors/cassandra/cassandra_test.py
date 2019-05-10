@@ -6,7 +6,7 @@ import pytest
 from tests.helpers.assertions import tcp_socket_open
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_service, wait_for
-from tests.helpers.verify import verify_included_metrics, verify_all_metrics
+from tests.helpers.verify import run_agent_verify_included_metrics, run_agent_verify_all_metrics
 
 pytestmark = [pytest.mark.collectd, pytest.mark.cassandra, pytest.mark.monitor_with_endpoints]
 
@@ -22,7 +22,7 @@ def test_cassandra_included():
 
         # Wait for the JMX port to be open in the container
         assert wait_for(p(tcp_socket_open, host, 7199)), "Cassandra JMX didn't start"
-        verify_included_metrics(
+        run_agent_verify_included_metrics(
             f"""
             monitors:
               - type: collectd/cassandra
@@ -42,7 +42,7 @@ def test_cassandra_all():
 
         # Wait for the JMX port to be open in the container
         assert wait_for(p(tcp_socket_open, host, 7199)), "Cassandra JMX didn't start"
-        verify_all_metrics(
+        run_agent_verify_all_metrics(
             f"""
             monitors:
               - type: collectd/cassandra

@@ -6,7 +6,7 @@ from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, http_status, tcp_socket_open
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_service, wait_for
-from tests.helpers.verify import verify_custom, verify_expected_is_subset
+from tests.helpers.verify import run_agent_verify, verify_expected_is_subset
 
 pytestmark = [pytest.mark.collectd, pytest.mark.jenkins, pytest.mark.monitor_with_endpoints]
 
@@ -83,7 +83,7 @@ def test_jenkins_included(version):
             p(http_status, url=f"http://{host}:8080/metrics/{METRICS_KEY}/ping/", status=[200]), 120
         ), "service didn't start"
 
-        verify_custom(config, ENHANCED_METRICS[version])
+        run_agent_verify(config, ENHANCED_METRICS[version])
 
 
 @pytest.mark.flaky(reruns=2)

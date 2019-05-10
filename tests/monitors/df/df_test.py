@@ -1,7 +1,7 @@
 import pytest
 
 from tests.helpers.metadata import Metadata
-from tests.helpers.verify import verify_custom, verify_included_metrics, verify_all_metrics
+from tests.helpers.verify import run_agent_verify, run_agent_verify_included_metrics, run_agent_verify_all_metrics
 
 pytestmark = [pytest.mark.collectd, pytest.mark.df, pytest.mark.monitor_without_endpoints]
 
@@ -14,7 +14,7 @@ def test_df_included_metrics():
           - type: collectd/df
             hostFSPath: /
         """
-    verify_included_metrics(agent_config, METADATA)
+    run_agent_verify_included_metrics(agent_config, METADATA)
 
 
 def test_df_extra_metrics():
@@ -28,7 +28,7 @@ def test_df_extra_metrics():
             - {df_complex_reserved}
             - {df_inodes_reserved}
         """
-    verify_custom(agent_config, expected_metrics)
+    run_agent_verify(agent_config, expected_metrics)
 
 
 def test_df_inodes_flag():
@@ -39,7 +39,7 @@ def test_df_inodes_flag():
             hostFSPath: /
             reportInodes: true
         """
-    verify_custom(agent_config, expected_metrics)
+    run_agent_verify(agent_config, expected_metrics)
 
 
 def test_df_percentage_flag():
@@ -50,7 +50,7 @@ def test_df_percentage_flag():
             hostFSPath: /
             valuesPercentage: true
         """
-    verify_custom(agent_config, expected_metrics)
+    run_agent_verify(agent_config, expected_metrics)
 
 
 def test_df_inodes_and_percentage_flags():
@@ -62,7 +62,7 @@ def test_df_inodes_and_percentage_flags():
             reportInodes: true
             valuesPercentage: true
         """
-    verify_custom(agent_config, expected_metrics)
+    run_agent_verify(agent_config, expected_metrics)
 
 
 def test_df_extra_metrics_all():
@@ -73,4 +73,4 @@ def test_df_extra_metrics_all():
             extraMetrics:
             - '*'
         """
-    verify_all_metrics(agent_config, METADATA)
+    run_agent_verify_all_metrics(agent_config, METADATA)

@@ -9,7 +9,7 @@ from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, tcp_socket_open
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_container, wait_for
-from tests.helpers.verify import verify_custom
+from tests.helpers.verify import run_agent_verify
 
 pytestmark = [pytest.mark.collectd, pytest.mark.rabbitmq, pytest.mark.monitor_with_endpoints]
 
@@ -90,7 +90,7 @@ def test_rabbitmq_included():
 
         publish_test_message(host)
 
-        verify_custom(config, INCLUDED_METRICS)
+        run_agent_verify(config, INCLUDED_METRICS)
 
 
 # Not testing enhanced metrics. Too many metrics are not coming in (over 70)

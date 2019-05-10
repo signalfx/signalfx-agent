@@ -6,11 +6,10 @@ from functools import partial as p
 from pathlib import Path
 
 import pytest
-
 from tests.helpers.assertions import tcp_socket_open
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_service, wait_for
-from tests.helpers.verify import verify_included_metrics, verify_all_metrics
+from tests.helpers.verify import run_agent_verify_all_metrics, run_agent_verify_included_metrics
 
 pytestmark = [pytest.mark.collectd, pytest.mark.activemq, pytest.mark.monitor_with_endpoints]
 
@@ -51,8 +50,7 @@ def test_activemq_included():
           password: {JMX_PASSWORD}
         """
 
-        # Broker is still reporting as down from unknown reason when agent starts.
-        verify_included_metrics(config, METADATA, check_errors=False)
+        run_agent_verify_included_metrics(config, METADATA)
 
 
 def test_activemq_all():
@@ -68,5 +66,4 @@ def test_activemq_all():
           extraMetrics: ["*"]
         """
 
-        # Broker is still reporting as down from unknown reason when agent starts.
-        verify_all_metrics(config, METADATA, check_errors=False)
+        run_agent_verify_all_metrics(config, METADATA)
