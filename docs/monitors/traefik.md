@@ -12,7 +12,7 @@ be used to plot Traefik memory usage. The entrypoint-related and backend-related
 of requests measured at entrypoints and backends. These metrics are used to compute measurements such as the average
 request duration.
 
-## REQUIREMENTS AND DEPENDENCIES
+## Requirements and Dependencies
 
 | Software          | Version        |
 |-------------------|----------------|
