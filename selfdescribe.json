@@ -15815,9 +15815,15 @@
           "group": "indices/segments",
           "included": false
         },
-        "elasticsearch.indices.segments.index-writer-memory-size": {
+        "elasticsearch.indices.segments.index-writer-max-memory-size": {
           "type": "gauge",
           "description": "Maximum memory used by the index writer",
+          "group": "indices/segments",
+          "included": false
+        },
+        "elasticsearch.indices.segments.index-writer-memory-size": {
+          "type": "gauge",
+          "description": "Memory used by the index writer",
           "group": "indices/segments",
           "included": false
         },

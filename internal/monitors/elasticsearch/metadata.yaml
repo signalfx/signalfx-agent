@@ -1,3 +1,4 @@
+packageDir: client
 monitors:
 - dimensions:
     plugin_instance:
@@ -139,6 +140,7 @@ monitors:
     For more information on the built-in content we have for Elasticsearch,
     [see
     here](https://github.com/signalfx/integrations/tree/master/elasticsearch)
+  monitorType: elasticsearch
   metrics:
     elasticsearch.cluster.initializing-shards:
       description: Number of shards being initialized
@@ -717,13 +719,13 @@ monitors:
       included: false
       type: gauge
       group: indices/translog
-#    elasticsearch.indices.segments.index-writer-max-size:
-#      description: Maximum memory used by the index writer
-#      included: false
-#      type: gauge
-#      group: indices/segments
-    elasticsearch.indices.segments.index-writer-memory-size:
+    elasticsearch.indices.segments.index-writer-max-memory-size:
       description: Maximum memory used by the index writer
+      included: false
+      type: gauge
+      group: indices/segments
+    elasticsearch.indices.segments.index-writer-memory-size:
+      description: Memory used by the index writer
       included: false
       type: gauge
       group: indices/segments
@@ -968,7 +970,6 @@ monitors:
       included: false
       type: gauge
       group: indices/search
-  monitorType: elasticsearch
   properties:
 
 

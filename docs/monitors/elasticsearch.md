@@ -260,7 +260,8 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `elasticsearch.indices.segments.count` | gauge | ✔ | Number of segments in an index shard |
 | `elasticsearch.indices.segments.doc-values-memory-size` | gauge |  | Memory used by doc values |
 | `elasticsearch.indices.segments.fixed-bit-set-memory-size` | gauge |  | Memory used by fixed bit set |
-| `elasticsearch.indices.segments.index-writer-memory-size` | gauge |  | Maximum memory used by the index writer |
+| `elasticsearch.indices.segments.index-writer-max-memory-size` | gauge |  | Maximum memory used by the index writer |
+| `elasticsearch.indices.segments.index-writer-memory-size` | gauge |  | Memory used by the index writer |
 | `elasticsearch.indices.segments.memory-size` | gauge |  | Memory used by index segments (in bytes) |
 | `elasticsearch.indices.segments.norms-memory-size` | gauge |  | Memory used by norms (in bytes) |
 | `elasticsearch.indices.segments.points-memory-size` | gauge |  | Memory used by points |

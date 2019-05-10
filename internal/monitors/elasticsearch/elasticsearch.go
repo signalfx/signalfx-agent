@@ -82,7 +82,7 @@ type Monitor struct {
 }
 
 func init() {
-	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&client.MonitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 type sharedInfo struct {
@@ -143,28 +143,28 @@ func (sinfo *sharedInfo) getAllSharedInfo() (map[string]string, map[string]strin
 
 // Configure monitor
 func (m *Monitor) Configure(c *Config) error {
-	m.logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType}), 20*time.Second)
+	m.logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": client.MonitorType}), 20*time.Second)
 
 	// conf is a config shallow copy that will be mutated and used to configure monitor
 	conf := &Config{}
 	*conf = *c
 	// Setting metric group flags in conf for configured extra metrics
-	if m.Output.HasEnabledMetricInGroup(groupCluster) {
+	if m.Output.HasEnabledMetricInGroup(client.GroupCluster) {
 		conf.EnableEnhancedClusterHealthStats = true
 	}
-	if m.Output.HasEnabledMetricInGroup(groupNodeHTTP) {
+	if m.Output.HasEnabledMetricInGroup(client.GroupNodeHTTP) {
 		conf.EnableEnhancedHTTPStats = true
 	}
-	if m.Output.HasEnabledMetricInGroup(groupNodeJvm) {
+	if m.Output.HasEnabledMetricInGroup(client.GroupNodeJvm) {
 		conf.EnableEnhancedJVMStats = true
 	}
-	if m.Output.HasEnabledMetricInGroup(groupNodeProcess) {
+	if m.Output.HasEnabledMetricInGroup(client.GroupNodeProcess) {
 		conf.EnableEnhancedProcessStats = true
 	}
-	if m.Output.HasEnabledMetricInGroup(groupNodeThreadPool) {
+	if m.Output.HasEnabledMetricInGroup(client.GroupNodeThreadPool) {
 		conf.EnableEnhancedThreadPoolStats = true
 	}
-	if m.Output.HasEnabledMetricInGroup(groupNodeTransport) {
+	if m.Output.HasEnabledMetricInGroup(client.GroupNodeTransport) {
 		conf.EnableEnhancedTransportStats = true
 	}
 
@@ -285,7 +285,7 @@ func prepareDefaultDimensions(userProvidedClusterName string, queriedClusterName
 	// "plugin_instance" dimension is added to maintain backwards compatibility with built-in content
 	dims["plugin_instance"] = clusterName
 	dims["cluster"] = clusterName
-	dims["plugin"] = monitorType
+	dims["plugin"] = client.MonitorType
 
 	return dims, nil
 }
@@ -341,80 +341,80 @@ func (m *Monitor) sendDatapoints(dps []*datapoint.Datapoint) {
 func (c *Config) GetExtraMetrics() []string {
 	var extraMetrics []string
 	if c.EnableEnhancedClusterHealthStats {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupCluster]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupCluster]...)
 	}
 	if c.EnableEnhancedHTTPStats {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupNodeHTTP]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupNodeHTTP]...)
 	}
 	if c.EnableEnhancedJVMStats {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupNodeJvm]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupNodeJvm]...)
 	}
 	if c.EnableEnhancedProcessStats {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupNodeProcess]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupNodeProcess]...)
 	}
 	if c.EnableEnhancedThreadPoolStats {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupNodeThreadPool]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupNodeThreadPool]...)
 	}
 	if c.EnableEnhancedTransportStats {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupNodeTransport]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupNodeTransport]...)
 	}
 	enhancedStatsForIndexGroups := utils.StringSliceToMap(append(c.EnableEnhancedNodeStatsForIndexGroups, c.EnableEnhancedIndexStatsForIndexGroups...))
 	if enhancedStatsForIndexGroups[client.StoreStatsGroup] {
-		extraMetrics = append(extraMetrics, elasticsearchIndicesStoreThrottleTime)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesStore]...)
 	}
 	if enhancedStatsForIndexGroups[client.IndexingStatsGroup] {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesIndexing]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesIndexing]...)
 	}
 	if enhancedStatsForIndexGroups[client.GetStatsGroup] {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesGet]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesGet]...)
 	}
 	if enhancedStatsForIndexGroups[client.SearchStatsGroup] {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesSearch]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesSearch]...)
 	}
 	if enhancedStatsForIndexGroups[client.MergesStatsGroup] {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesMerges]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesMerges]...)
 	}
 	if enhancedStatsForIndexGroups[client.RefreshStatsGroup] {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesRefresh]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesRefresh]...)
 	}
 	if enhancedStatsForIndexGroups[client.FlushStatsGroup] {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesFlush]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesFlush]...)
 	}
 	if enhancedStatsForIndexGroups[client.WarmerStatsGroup] {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesWarmer]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesWarmer]...)
 	}
 	if enhancedStatsForIndexGroups[client.QueryCacheStatsGroup] {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesQueryCache]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesQueryCache]...)
 	}
 	if enhancedStatsForIndexGroups[client.FilterCacheStatsGroup] {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesFilterCache]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesFilterCache]...)
 	}
 	if enhancedStatsForIndexGroups[client.FieldDataStatsGroup] {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesFielddata]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesFielddata]...)
 	}
 	if enhancedStatsForIndexGroups[client.CompletionStatsGroup] {
-		extraMetrics = append(extraMetrics, elasticsearchIndicesCompletionSize)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesCompletion]...)
 	}
 	if enhancedStatsForIndexGroups[client.TranslogStatsGroup] {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesTranslog]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesTranslog]...)
 	}
 	if enhancedStatsForIndexGroups[client.RequestCacheStatsGroup] {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesRequestCache]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesRequestCache]...)
 	}
 	if enhancedStatsForIndexGroups[client.RecoveryStatsGroup] {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesRecovery]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesRecovery]...)
 	}
 	if enhancedStatsForIndexGroups[client.IDCacheStatsGroup] {
-		extraMetrics = append(extraMetrics, elasticsearchIndicesIDCacheMemorySize)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesIDCache]...)
 	}
 	if enhancedStatsForIndexGroups[client.SuggestStatsGroup] {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesSuggest]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesSuggest]...)
 	}
 	if enhancedStatsForIndexGroups[client.PercolateStatsGroup] {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesPercolate]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesPercolate]...)
 	}
 	if enhancedStatsForIndexGroups[client.SegmentsStatsGroup] {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesSegments]...)
+		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesSegments]...)
 	}
 	return extraMetrics
 }

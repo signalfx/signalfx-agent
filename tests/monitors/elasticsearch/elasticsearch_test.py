@@ -200,7 +200,7 @@ def test_elasticsearch_all_metrics():
             "elasticsearch.indices.store.throttle-time",
             "elasticsearch.indices.suggest.total",
             "elasticsearch.indices.filter-cache.evictions",
-            "elasticsearch.indices.store.size",
+            "elasticsearch.indices.segments.index-writer-max-memory-size",
         }
         config = dedent(
             f"""
