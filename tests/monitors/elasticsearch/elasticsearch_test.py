@@ -7,7 +7,7 @@ from tests.helpers.agent import Agent
 from tests.helpers.assertions import any_metric_has_any_dim_key, has_datapoint_with_dim, has_log_message, http_status
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_service, wait_for
-from tests.helpers.verify import verify_custom
+from tests.helpers.verify import run_agent_verify
 
 pytestmark = [pytest.mark.collectd, pytest.mark.elasticsearch, pytest.mark.monitor_with_endpoints]
 
@@ -130,7 +130,7 @@ def test_elasticsearch_with_enhanced_cluster_health_stats():
         host = container_ip(es_container)
         check_service_status(host)
         agent_config = AGENT_CONFIG_TEMPLATE.format(host=host, flag="enableEnhancedClusterHealthStats: true")
-        verify_custom(agent_config, expected_metrics)
+        run_agent_verify(agent_config, expected_metrics)
 
 
 @pytest.mark.flaky(reruns=2)
@@ -140,7 +140,7 @@ def test_elasticsearch_with_enhanced_http_stats():
         host = container_ip(es_container)
         check_service_status(host)
         agent_config = AGENT_CONFIG_TEMPLATE.format(host=host, flag="enableEnhancedHTTPStats: true")
-        verify_custom(agent_config, expected_metrics)
+        run_agent_verify(agent_config, expected_metrics)
 
 
 @pytest.mark.flaky(reruns=2)
@@ -150,7 +150,7 @@ def test_elasticsearch_with_enhanced_jvm_stats():
         host = container_ip(es_container)
         check_service_status(host)
         agent_config = AGENT_CONFIG_TEMPLATE.format(host=host, flag="enableEnhancedJVMStats: true")
-        verify_custom(agent_config, expected_metrics)
+        run_agent_verify(agent_config, expected_metrics)
 
 
 @pytest.mark.flaky(reruns=2)
@@ -160,7 +160,7 @@ def test_elasticsearch_with_enhanced_process_stats():
         host = container_ip(es_container)
         check_service_status(host)
         agent_config = AGENT_CONFIG_TEMPLATE.format(host=host, flag="enableEnhancedProcessStats: true")
-        verify_custom(agent_config, expected_metrics)
+        run_agent_verify(agent_config, expected_metrics)
 
 
 @pytest.mark.flaky(reruns=2)
@@ -170,7 +170,7 @@ def test_elasticsearch_with_enhanced_thread_pool_stats():
         host = container_ip(es_container)
         check_service_status(host)
         agent_config = AGENT_CONFIG_TEMPLATE.format(host=host, flag="enableEnhancedThreadPoolStats: true")
-        verify_custom(agent_config, expected_metrics)
+        run_agent_verify(agent_config, expected_metrics)
 
 
 @pytest.mark.flaky(reruns=2)
@@ -180,7 +180,7 @@ def test_elasticsearch_with_enhanced_transport_stats():
         host = container_ip(es_container)
         check_service_status(host)
         agent_config = AGENT_CONFIG_TEMPLATE.format(host=host, flag="enableEnhancedTransportStats: true")
-        verify_custom(agent_config, expected_metrics)
+        run_agent_verify(agent_config, expected_metrics)
 
 
 @pytest.mark.flaky(reruns=2)
@@ -260,4 +260,4 @@ def test_elasticsearch_all_metrics():
               - percolate
             """
         )
-        verify_custom(config, es_6_4_2_expected_metrics)
+        run_agent_verify(config, es_6_4_2_expected_metrics)
