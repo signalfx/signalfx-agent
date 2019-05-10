@@ -138,6 +138,7 @@ These are all of the monitors included in the agent, along with their possible c
 - [telegraf/win_perf_counters](./monitors/telegraf-win_perf_counters.md)
 - [telegraf/win_services](./monitors/telegraf-win_services.md)
 - [trace-forwarder](./monitors/trace-forwarder.md)
+- [traefik](./monitors/traefik.md)
 - [vmem](./monitors/vmem.md)
 - [windows-iis](./monitors/windows-iis.md)
 - [windows-legacy](./monitors/windows-legacy.md)

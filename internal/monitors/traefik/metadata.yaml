@@ -7,13 +7,13 @@ monitors:
     metrics as prometheus metrics at an endpoint. Install the
     <a target="_blank" href="https://github.com/signalfx/signalfx-agent">SignalFx Smart Agent</a>
     and configure it to access SignalFx and use the
-    <a target="_blank" href="https://github.com/signalfx/signalfx-agent/blob/9feb3f77fdf6de46dc476f62568ad4f9b725660c/docs/monitors/prometheus-exporter.md">prometheus-exporter</a> monitor.
+    <a target="_blank" href="https://github.com/signalfx/signalfx-agent/blob/master/docs/monitors/traefik.md">traefik</a> monitor.
 
     ### REQUIREMENTS AND DEPENDENCIES
 
     | Software          | Version        |
     |-------------------|----------------|
-    | signalfx-agent    |     3.4+       |
+    | signalfx-agent    |     4.6.3+     |
 
     ### INSTALLATION
 
@@ -66,8 +66,8 @@ monitors:
     #### Smart Agent Configuration
 
     Find and edit the Smart Agent configuration file `agent.yaml` to enable the Docker observer and configure the
-    prometheus-exporter monitor as described
-    <a target="_blank" href="https://github.com/signalfx/signalfx-agent/blob/9feb3f77fdf6de46dc476f62568ad4f9b725660c/docs/monitors/prometheus-exporter.md">here</a>.
+    traefik monitor as described
+    <a target="_blank" href="https://github.com/signalfx/signalfx-agent/blob/master/docs/monitors/traefik.md">here</a>.
     For example, the configuration below will cause the Smart Agent to query the Docker Engine API for all running
     containers with port 8080 exposed and export Prometheus metrics from endpoint `<container ip>:8080/metrics`.
 
@@ -75,10 +75,10 @@ monitors:
     observers:
     - type: docker
     monitors:
-    - type: prometheus-exporter
+    - type: traefik
       discoveryRule: port == 8080
-    extraDimensions:
-      metric_source: traefik
+      extraDimensions:
+        metric_source: traefik
     ```
     Also, metrics can be excluded by configuring the `metricsToExclude` section of the Smart Agent configuration file.
 
