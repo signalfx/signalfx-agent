@@ -6,5 +6,5 @@ import (
 )
 
 func init() {
-	monitors.Register(&monitorMetadata, func() interface{} {return &pe.Monitor{}}, &pe.Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &pe.Monitor{} }, &pe.Config{})
 }
