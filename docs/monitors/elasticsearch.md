@@ -169,7 +169,7 @@ Monitor Type: `elasticsearch`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `elasticsearch.cluster.active-primary-shards` | gauge | ✔ | Number of active primary shards |
 | `elasticsearch.cluster.active-shards` | gauge | ✔ | Number of active shards |
@@ -335,6 +335,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 
 
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 ## Dimensions
 
 The following dimensions may occur on metrics emitted by this monitor.  Some

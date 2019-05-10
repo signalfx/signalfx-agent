@@ -71,5 +71,3 @@ The **nested** `whitelistedEvents` config object has the following fields:
 
 
 
-
-

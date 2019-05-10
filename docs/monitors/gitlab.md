@@ -171,7 +171,7 @@ Monitor Type: `gitlab`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `ci_stale_builds` | gauge |  | ci_stale_builds metric |
 | `gitlab_cache_misses_total` | cumulative |  |  |
@@ -227,67 +227,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `sidekiq_queue_size` | gauge | ✔ | sidekiq_queue_size metric |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - ci_stale_builds
-    - gitlab_cache_misses_total
-    - gitlab_database_rows
-    - gitlab_projects_with_jid
-    - gitlab_projects_without_jid
-    - gitlab_stuck_import_jobs_worker_runs_total
-    - http_request_duration_seconds
-    - http_request_duration_seconds_bucket
-    - http_request_duration_seconds_count
-    - pg_stat_table_n_dead_tup
-    - pg_stat_table_n_tup_hot_upd
-    - pg_stat_table_seq_scan
-    - process_age_seconds
-    - process_memory_bytes
-    - ruby_file_descriptors
-    - ruby_gc_duration_seconds_total
-    - ruby_gc_stat_count
-    - ruby_gc_stat_heap_allocatable_pages
-    - ruby_gc_stat_heap_allocated_pages
-    - ruby_gc_stat_heap_available_slots
-    - ruby_gc_stat_heap_eden_pages
-    - ruby_gc_stat_heap_final_slots
-    - ruby_gc_stat_heap_free_slots
-    - ruby_gc_stat_heap_live_slots
-    - ruby_gc_stat_heap_marked_slots
-    - ruby_gc_stat_heap_sorted_length
-    - ruby_gc_stat_heap_tomb_pages
-    - ruby_gc_stat_major_gc_count
-    - ruby_gc_stat_malloc_increase_bytes
-    - ruby_gc_stat_malloc_increase_bytes_limit
-    - ruby_gc_stat_minor_gc_count
-    - ruby_gc_stat_old_objects
-    - ruby_gc_stat_old_objects_limit
-    - ruby_gc_stat_oldmalloc_increase_bytes
-    - ruby_gc_stat_oldmalloc_increase_bytes_limit
-    - ruby_gc_stat_remembered_wb_unprotected_objects
-    - ruby_gc_stat_remembered_wb_unprotected_objects_limit
-    - ruby_gc_stat_total_allocated_objects
-    - ruby_gc_stat_total_allocated_pages
-    - ruby_gc_stat_total_freed_objects
-    - ruby_gc_stat_total_freed_pages
-    - ruby_memory_bytes
-    - ruby_sampler_duration_seconds_total
-    - sidekiq_dead_jobs_total
-    monitorType: gitlab
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 

@@ -66,7 +66,7 @@ Monitor Type: `collectd/systemd`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `gauge.active_state.activating` | gauge |  | Indicates that the systemd unit/service has previously been inactive but is currently in the process of entering an active state |
 | `gauge.active_state.active` | gauge |  | Indicates that the systemd unit/service is active |
@@ -84,7 +84,8 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.substate.running` | gauge | ✔ | Indicates that the systemd unit/service is running |
 
 
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 ## Dimensions
 
 The following dimensions may occur on metrics emitted by this monitor.  Some

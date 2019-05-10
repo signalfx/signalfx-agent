@@ -78,7 +78,7 @@ Monitor Type: `telegraf/sqlserver`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `sqlserver_database_io.read_bytes` | gauge | ✔ | Bytes read by the database. |
 | `sqlserver_database_io.read_latency_ms` | gauge | ✔ | Latency in milliseconds reading from the database. |
@@ -202,122 +202,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `sqlserver_waitstats.waiting_tasks_count` | gauge |  | Time in milliseconds |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - sqlserver_memory_clerks.size_kb.bound_trees
-    - sqlserver_memory_clerks.size_kb.buffer_pool
-    - sqlserver_memory_clerks.size_kb.connection_pool
-    - sqlserver_memory_clerks.size_kb.general
-    - sqlserver_memory_clerks.size_kb.in-memory_oltp
-    - sqlserver_memory_clerks.size_kb.log_pool
-    - sqlserver_memory_clerks.size_kb.memoryclerk_sqltrace
-    - sqlserver_memory_clerks.size_kb.schema_manager_user_store
-    - sqlserver_memory_clerks.size_kb.sos_node
-    - sqlserver_memory_clerks.size_kb.sql_optimizer
-    - sqlserver_memory_clerks.size_kb.sql_plans
-    - sqlserver_memory_clerks.size_kb.sql_reservations
-    - sqlserver_memory_clerks.size_kb.sql_storage_engine
-    - sqlserver_memory_clerks.size_kb.system_rowset_store
-    - sqlserver_performance.active_memory_grant_amount_kb
-    - sqlserver_performance.active_temp_tables
-    - sqlserver_performance.background_writer_pages_sec
-    - sqlserver_performance.backup_restore_throughput_sec
-    - sqlserver_performance.blocked_tasks
-    - sqlserver_performance.bytes_received_from_replica_sec
-    - sqlserver_performance.bytes_sent_to_replica_sec
-    - sqlserver_performance.bytes_sent_to_transport_sec
-    - sqlserver_performance.checkpoint_pages_sec
-    - sqlserver_performance.cpu_limit_violation_count
-    - sqlserver_performance.cpu_usage_pct
-    - sqlserver_performance.cpu_usage_time
-    - sqlserver_performance.data_file_size_kb
-    - sqlserver_performance.disk_read_bytes_sec
-    - sqlserver_performance.disk_read_io_sec
-    - sqlserver_performance.disk_write_bytes_sec
-    - sqlserver_performance.disk_write_io_sec
-    - sqlserver_performance.errors_sec
-    - sqlserver_performance.flow_control_sec
-    - sqlserver_performance.flow_control_time_ms_sec
-    - sqlserver_performance.forwarded_records_sec
-    - sqlserver_performance.free_list_stalls_sec
-    - sqlserver_performance.free_space_in_tempdb_kb
-    - sqlserver_performance.full_scans_sec
-    - sqlserver_performance.index_searches_sec
-    - sqlserver_performance.latch_waits_sec
-    - sqlserver_performance.lazy_writes_sec
-    - sqlserver_performance.lock_timeouts_sec
-    - sqlserver_performance.lock_wait_time
-    - sqlserver_performance.lock_waits_sec
-    - sqlserver_performance.log_apply_pending_queue
-    - sqlserver_performance.log_apply_ready_queue
-    - sqlserver_performance.log_bytes_flushed_sec
-    - sqlserver_performance.log_bytes_received_sec
-    - sqlserver_performance.log_file_size_kb
-    - sqlserver_performance.log_file_used_size_kb
-    - sqlserver_performance.log_flush_wait_time
-    - sqlserver_performance.log_flushes_sec
-    - sqlserver_performance.log_send_queue
-    - sqlserver_performance.logins_sec
-    - sqlserver_performance.logouts_sec
-    - sqlserver_performance.memory_broker_clerk_size
-    - sqlserver_performance.memory_grants_outstanding
-    - sqlserver_performance.memory_grants_pending
-    - sqlserver_performance.number_of_deadlocks_sec
-    - sqlserver_performance.page_life_expectancy
-    - sqlserver_performance.page_lookups_sec
-    - sqlserver_performance.page_reads_sec
-    - sqlserver_performance.page_splits_sec
-    - sqlserver_performance.page_writes_sec
-    - sqlserver_performance.pct_log_used
-    - sqlserver_performance.query
-    - sqlserver_performance.queued_request_count
-    - sqlserver_performance.queued_requests
-    - sqlserver_performance.readahead_pages_sec
-    - sqlserver_performance.receives_from_replica_sec
-    - sqlserver_performance.recovery_queue
-    - sqlserver_performance.redone_bytes_sec
-    - sqlserver_performance.reduced_memory_grant_count
-    - sqlserver_performance.request_count
-    - sqlserver_performance.requests_completed_sec
-    - sqlserver_performance.resent_messages_sec
-    - sqlserver_performance.sends_to_replica_sec
-    - sqlserver_performance.sends_to_transport_sec
-    - sqlserver_performance.target_server_memory_kb
-    - sqlserver_performance.temp_tables_creation_rate
-    - sqlserver_performance.temp_tables_for_destruction
-    - sqlserver_performance.total_server_memory_kb
-    - sqlserver_performance.transaction_delay
-    - sqlserver_performance.transactions_sec
-    - sqlserver_performance.used_memory_kb
-    - sqlserver_performance.version_store_size_kb
-    - sqlserver_performance.write_transactions_sec
-    - sqlserver_performance.xtp_memory_used_kb
-    - sqlserver_server_properties.available_storage_mb
-    - sqlserver_server_properties.cpu_count
-    - sqlserver_server_properties.engine_edition
-    - sqlserver_server_properties.server_memory
-    - sqlserver_server_properties.total_storage_mb
-    - sqlserver_server_properties.uptime
-    - sqlserver_waitstats.max_wait_time_ms
-    - sqlserver_waitstats.resource_wait_ms
-    - sqlserver_waitstats.signal_wait_time_ms
-    - sqlserver_waitstats.wait_time_ms
-    - sqlserver_waitstats.waiting_tasks_count
-    monitorType: telegraf/sqlserver
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 

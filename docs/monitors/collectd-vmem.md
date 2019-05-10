@@ -25,7 +25,7 @@ This monitor has no configuration options.
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `vmpage_faults.majflt` | cumulative |  | Number of major page faults on the system |
 | `vmpage_faults.minflt` | cumulative |  | Number of minor page faults on the system |
@@ -38,30 +38,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `vmpage_number.shmem_pmdmapped` | gauge |  | The amount of shared (shmem/tmpfs) memory backed by huge pages |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - vmpage_faults.majflt
-    - vmpage_faults.minflt
-    - vmpage_io.memory.in
-    - vmpage_io.memory.out
-    - vmpage_number.free_pages
-    - vmpage_number.mapped
-    - vmpage_number.shmem_pmdmapped
-    monitorType: collectd/vmem
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 

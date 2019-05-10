@@ -35,7 +35,7 @@ Monitor Type: `collectd/memcached`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `connections.opened` | cumulative |  | Number of connections opened since server began running |
 | `df.cache.free` | gauge | ✔ | Unused storage bytes |
@@ -63,36 +63,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `total_events.listen_disabled` | cumulative |  | Number of times connection limit has been exceeded |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - connections.opened
-    - memcached_command.flush
-    - memcached_command.touch
-    - memcached_ops.decr_hits
-    - memcached_ops.decr_misses
-    - memcached_ops.delete_hits
-    - memcached_ops.delete_misses
-    - memcached_ops.incr_hits
-    - memcached_ops.incr_misses
-    - ps_count.threads
-    - ps_cputime.syst
-    - ps_cputime.user
-    - total_events.listen_disabled
-    monitorType: collectd/memcached
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 

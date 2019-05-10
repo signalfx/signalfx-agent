@@ -43,38 +43,27 @@ This monitor has no configuration options.
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 {{ range $metric, $info := . -}}
 | `{{$metric}}`{{if has $info "alias"}}<br>_or_ `{{$info.alias}}`{{end}} | {{$info.type}} | {{if $info.default}}✔{{end}} | {{$info.description | strings.TrimSpace}} |
 {{end}}
 {{end -}}
 
-{{- $noWhitelistMonitors := slice "elasticsearch" -}}
+{{ if .sendAll }}
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
+{{ end -}}
 
-{{if and .metrics (not .sendAll) (not (has $noWhitelistMonitors .monitorType))}}
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+{{ if and .metrics (not .sendAll) }}
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-{{- range $metric, $info := .metrics -}}
-{{if not $info.default}}
-    - {{ $metric }}
-{{- end -}}
-{{end}}
-    monitorType: {{.monitorType}}
-```
-{{end}}
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
+{{ end -}}
 
 {{with .dimensions -}}
 ## Dimensions

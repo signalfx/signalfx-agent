@@ -43,7 +43,7 @@ Monitor Type: `windows-legacy`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `logicaldisk.disk_read_bytes_sec` | gauge |  | The number of bytes read from disk per second. |
 | `logicaldisk.disk_reads_sec` | gauge | ✔ | The number of read operations per second. |
@@ -78,41 +78,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `system.system_calls_sec` | gauge |  | The number of system calls being serviced by the CPU per second. |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - logicaldisk.disk_read_bytes_sec
-    - logicaldisk.disk_transfers_sec
-    - logicaldisk.disk_write_bytes_sec
-    - network_interface.current_bandwidth
-    - network_interface.packets_outbound_discarded
-    - network_interface.packets_received_discarded
-    - network_interface.packets_received_sec
-    - network_interface.packets_sent_sec
-    - paging_file.pct_usage_peak
-    - physicaldisk.avg_disk_sec_read
-    - physicaldisk.avg_disk_sec_transfer
-    - physicaldisk.avg_disk_sec_write
-    - processor.interrupts_sec
-    - processor.pct_privileged_time
-    - processor.pct_user_time
-    - system.context_switches_sec
-    - system.processor_queue_length
-    - system.system_calls_sec
-    monitorType: windows-legacy
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 

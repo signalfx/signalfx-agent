@@ -60,7 +60,7 @@ The **nested** `values` config object has the following fields:
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `counter.cassandra.ClientRequest.RangeSlice.Latency.Count` | cumulative | ✔ | Count of range slice operations since server start |
 | `counter.cassandra.ClientRequest.RangeSlice.Timeouts.Count` | cumulative | ✔ | Count of range slice timeouts since server start |
@@ -95,27 +95,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `total_time_in_ms.collection_time` | cumulative | ✔ | Amount of time spent garbage collecting in milliseconds |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - counter.cassandra.Compaction.TotalCompactionsCompleted.Count
-    - gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile
-    - gauge.cassandra.ClientRequest.RangeSlice.Latency.Max
-    - gauge.cassandra.Storage.TotalHints.Count
-    monitorType: collectd/cassandra
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 

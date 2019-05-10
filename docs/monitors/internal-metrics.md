@@ -40,7 +40,7 @@ Monitor Type: `internal-metrics`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `sfxagent.active_monitors` | gauge |  | The total number of monitor instances actively working |
 | `sfxagent.active_observers` | gauge |  | The number of observers configured and running |
@@ -76,6 +76,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `sfxgent.go_num_goroutine` | gauge |  | Number of goroutines in the agent |
 
 
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

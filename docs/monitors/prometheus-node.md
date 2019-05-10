@@ -37,7 +37,7 @@ Monitor Type: `prometheus/node`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `node_arp_entries` | gauge |  | ARP entries by device |
 | `node_boot_time_seconds` | gauge |  | Node boot time, in unixtime |
@@ -199,6 +199,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `node_vmstat_pswpout` | gauge |  | /proc/vmstat information field pswpout |
 
 
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

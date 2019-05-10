@@ -30,7 +30,7 @@ Monitor Type: `collectd/disk`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `disk_io_time.io_time` | cumulative |  | Amount of time spent doing IO in ms |
 | `disk_io_time.weighted_io_time` | cumulative |  | Amount of time spent doing IO in ms multiplied by the queue length |
@@ -45,32 +45,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `pending_operations` | gauge |  | Number of pending operations |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - disk_io_time.io_time
-    - disk_io_time.weighted_io_time
-    - disk_merged.read
-    - disk_merged.write
-    - disk_octets.read
-    - disk_octets.write
-    - disk_time.read
-    - disk_time.write
-    - pending_operations
-    monitorType: collectd/disk
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 

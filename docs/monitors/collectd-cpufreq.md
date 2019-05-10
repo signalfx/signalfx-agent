@@ -25,11 +25,12 @@ This monitor has no configuration options.
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `cpufreq.<N>` | gauge |  | The processor frequency in Hertz for the <N>th processor on the system. |
 
 
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

@@ -37,7 +37,7 @@ Monitor Type: `prometheus/prometheus`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `net_conntrack_dialer_conn_attempted_total` | cumulative |  | Total number of connections attempted by the given dialer a given name |
 | `net_conntrack_dialer_conn_closed_total` | cumulative |  | Total number of connections closed which originated from the dialer of a given name |
@@ -183,6 +183,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `promhttp_metric_handler_requests_total` | cumulative |  | Total number of scrapes by HTTP status code |
 
 
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

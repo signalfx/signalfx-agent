@@ -39,7 +39,7 @@ Monitor Type: `prometheus/go`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `go_gc_duration_seconds` | cumulative |  | A summary of the GC invocation durations |
 | `go_gc_duration_seconds_bucket` | cumulative |  | A summary of the GC invocation durations |
@@ -80,59 +80,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `process_virtual_memory_max_bytes` | gauge |  | Maximum amount of virtual memory available in bytes |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - go_gc_duration_seconds
-    - go_gc_duration_seconds_bucket
-    - go_gc_duration_seconds_count
-    - go_goroutines
-    - go_info
-    - go_memstats_alloc_bytes
-    - go_memstats_alloc_bytes_total
-    - go_memstats_buck_hash_sys_bytes
-    - go_memstats_frees_total
-    - go_memstats_gc_cpu_fraction
-    - go_memstats_gc_sys_bytes
-    - go_memstats_heap_alloc_bytes
-    - go_memstats_heap_idle_bytes
-    - go_memstats_heap_inuse_bytes
-    - go_memstats_heap_objects
-    - go_memstats_heap_released_bytes
-    - go_memstats_heap_sys_bytes
-    - go_memstats_last_gc_time_seconds
-    - go_memstats_lookups_total
-    - go_memstats_mallocs_total
-    - go_memstats_mcache_inuse_bytes
-    - go_memstats_mcache_sys_bytes
-    - go_memstats_mspan_inuse_bytes
-    - go_memstats_mspan_sys_bytes
-    - go_memstats_next_gc_bytes
-    - go_memstats_other_sys_bytes
-    - go_memstats_stack_inuse_bytes
-    - go_memstats_stack_sys_bytes
-    - go_memstats_sys_bytes
-    - go_threads
-    - process_cpu_seconds_total
-    - process_max_fds
-    - process_open_fds
-    - process_resident_memory_bytes
-    - process_virtual_memory_bytes
-    - process_virtual_memory_max_bytes
-    monitorType: prometheus/go
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 

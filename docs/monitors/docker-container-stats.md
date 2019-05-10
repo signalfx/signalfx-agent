@@ -50,7 +50,7 @@ Monitor Type: `docker-container-stats`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `blkio.io_merged_recursive.async` | cumulative |  |  |
 | `blkio.io_merged_recursive.read` | cumulative |  |  |
@@ -143,104 +143,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `network.usage.tx_packets` | cumulative |  | Network packets sent by the container via its network interface |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - blkio.io_merged_recursive.async
-    - blkio.io_merged_recursive.read
-    - blkio.io_merged_recursive.sync
-    - blkio.io_merged_recursive.total
-    - blkio.io_merged_recursive.write
-    - blkio.io_queue_recursive.async
-    - blkio.io_queue_recursive.read
-    - blkio.io_queue_recursive.sync
-    - blkio.io_queue_recursive.total
-    - blkio.io_queue_recursive.write
-    - blkio.io_service_bytes_recursive.async
-    - blkio.io_service_bytes_recursive.sync
-    - blkio.io_service_bytes_recursive.total
-    - blkio.io_service_time_recursive.async
-    - blkio.io_service_time_recursive.read
-    - blkio.io_service_time_recursive.sync
-    - blkio.io_service_time_recursive.total
-    - blkio.io_service_time_recursive.write
-    - blkio.io_serviced_recursive.async
-    - blkio.io_serviced_recursive.read
-    - blkio.io_serviced_recursive.sync
-    - blkio.io_serviced_recursive.total
-    - blkio.io_serviced_recursive.write
-    - blkio.io_time_recursive.async
-    - blkio.io_time_recursive.read
-    - blkio.io_time_recursive.sync
-    - blkio.io_time_recursive.total
-    - blkio.io_time_recursive.write
-    - blkio.io_wait_time_recursive.async
-    - blkio.io_wait_time_recursive.read
-    - blkio.io_wait_time_recursive.sync
-    - blkio.io_wait_time_recursive.total
-    - blkio.io_wait_time_recursive.write
-    - cpu.percent
-    - cpu.percpu.usage
-    - cpu.throttling_data.periods
-    - cpu.throttling_data.throttled_periods
-    - cpu.throttling_data.throttled_time
-    - cpu.usage.kernelmode
-    - cpu.usage.usermode
-    - memory.percent
-    - memory.stats.active_anon
-    - memory.stats.active_file
-    - memory.stats.cache
-    - memory.stats.dirty
-    - memory.stats.hierarchical_memory_limit
-    - memory.stats.hierarchical_memsw_limit
-    - memory.stats.inactive_anon
-    - memory.stats.inactive_file
-    - memory.stats.mapped_file
-    - memory.stats.pgfault
-    - memory.stats.pgmajfault
-    - memory.stats.pgpgin
-    - memory.stats.pgpgout
-    - memory.stats.rss
-    - memory.stats.rss_huge
-    - memory.stats.swap
-    - memory.stats.total_active_anon
-    - memory.stats.total_active_file
-    - memory.stats.total_cache
-    - memory.stats.total_dirty
-    - memory.stats.total_inactive_anon
-    - memory.stats.total_inactive_file
-    - memory.stats.total_mapped_file
-    - memory.stats.total_pgfault
-    - memory.stats.total_pgmajfault
-    - memory.stats.total_pgpgin
-    - memory.stats.total_pgpgout
-    - memory.stats.total_rss
-    - memory.stats.total_rss_huge
-    - memory.stats.total_unevictable
-    - memory.stats.total_writeback
-    - memory.stats.unevictable
-    - memory.stats.writeback
-    - memory.usage.max
-    - network.usage.rx_dropped
-    - network.usage.rx_errors
-    - network.usage.rx_packets
-    - network.usage.tx_dropped
-    - network.usage.tx_errors
-    - network.usage.tx_packets
-    monitorType: docker-container-stats
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 

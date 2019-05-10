@@ -123,7 +123,7 @@ The **nested** `values` config object has the following fields:
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `counter.hadoop-datanode-blocks-read` | cumulative |  |  |
 | `counter.hadoop-datanode-blocks-written` | cumulative |  |  |
@@ -188,50 +188,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `total_time_in_ms.collection_time` | cumulative | ✔ | Amount of time spent garbage collecting in milliseconds |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - counter.hadoop-datanode-blocks-read
-    - counter.hadoop-datanode-blocks-written
-    - counter.hadoop-datanode-bytes-read
-    - counter.hadoop-datanode-bytes-written
-    - counter.hadoop-namenode-files-total
-    - counter.hadoop-nodeManager-containers-failed
-    - counter.hadoop-nodeManager-containers-launched
-    - gauge.hadoop-datanode-info-xceiver
-    - gauge.hadoop-datanode-jvm-non-heap-used
-    - gauge.hadoop-namenode-blocks-with-corrupt-replicas
-    - gauge.hadoop-namenode-capacity-remaining
-    - gauge.hadoop-namenode-corrupt-blocks
-    - gauge.hadoop-namenode-missing-blocks
-    - gauge.hadoop-namenode-percent-dfs-used
-    - gauge.hadoop-namenode-stale-datanodes
-    - gauge.hadoop-nodeManager-allocated-memory
-    - gauge.hadoop-nodeManager-allocated-vcores
-    - gauge.hadoop-nodeManager-available-memory
-    - gauge.hadoop-nodeManager-available-vcores
-    - gauge.hadoop-resourceManager-active-apps
-    - gauge.hadoop-resourceManager-active-nms
-    - gauge.hadoop-resourceManager-active-users
-    - gauge.hadoop-resourceManager-allocated-containers
-    - gauge.hadoop-resourceManager-allocated-memory
-    - gauge.hadoop-resourceManager-available-memory
-    - gauge.hadoop-resourceManager-heap-max
-    - gauge.hadoop-resourceManager-heap-used
-    monitorType: collectd/hadoopjmx
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 

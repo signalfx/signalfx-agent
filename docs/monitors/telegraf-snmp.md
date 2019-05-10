@@ -107,6 +107,7 @@ The **nested** `field` config object has the following fields:
 
 
 
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

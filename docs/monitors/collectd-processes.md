@@ -53,7 +53,7 @@ Monitor Type: `collectd/processes`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `disk_octets.read` | cumulative |  |  |
 | `disk_octets.write` | cumulative |  |  |
@@ -81,6 +81,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `ps_vm` | gauge |  |  |
 
 
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

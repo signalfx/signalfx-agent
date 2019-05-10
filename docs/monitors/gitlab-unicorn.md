@@ -52,7 +52,7 @@ Monitor Type: `gitlab-unicorn`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `gitlab_auth_user_authenticated_total` | cumulative |  |  |
 | `gitlab_auth_user_unauthenticated_total` | cumulative |  |  |
@@ -86,52 +86,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `user_session_logins_total` | cumulative |  |  |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - gitlab_auth_user_authenticated_total
-    - gitlab_auth_user_unauthenticated_total
-    - gitlab_banzai_cacheless_render_real_duration_seconds
-    - gitlab_banzai_cacheless_render_real_duration_seconds_bucket
-    - gitlab_banzai_cacheless_render_real_duration_seconds_count
-    - gitlab_cache_misses_total
-    - gitlab_cache_operation_duration_seconds
-    - gitlab_cache_operation_duration_seconds_bucket
-    - gitlab_cache_operation_duration_seconds_count
-    - gitlab_rails_queue_duration_seconds
-    - gitlab_rails_queue_duration_seconds_bucket
-    - gitlab_rails_queue_duration_seconds_count
-    - gitlab_sql_duration_seconds
-    - gitlab_sql_duration_seconds_bucket
-    - gitlab_sql_duration_seconds_count
-    - gitlab_transaction_cache_read_hit_count_total
-    - gitlab_transaction_cache_read_miss_count_total
-    - gitlab_transaction_duration_seconds
-    - gitlab_transaction_duration_seconds_bucket
-    - gitlab_transaction_duration_seconds_count
-    - gitlab_transaction_new_redis_connections_total
-    - gitlab_transaction_rails_queue_duration_total
-    - gitlab_transaction_view_duration_total
-    - http_requests_total
-    - job_register_attempts_failed_total
-    - job_register_attempts_total
-    - unicorn_active_connections
-    - unicorn_queued_connections
-    - user_session_logins_total
-    monitorType: gitlab-unicorn
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 

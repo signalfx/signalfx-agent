@@ -38,7 +38,7 @@ Monitor Type: `disk-io`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `disk_merged.read` | cumulative |  | (Linux Only) The number of disk reads merged into single physical disk access operations. |
 | `disk_merged.write` | cumulative |  | (Linux Only) The number of disk writes merged into single physical disk access operations. |
@@ -56,6 +56,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `disk_time.write` | cumulative |  | (Linux Only) The average amount of time it took to do a write operation. |
 
 
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

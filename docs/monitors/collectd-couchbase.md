@@ -49,7 +49,7 @@ Monitor Type: `collectd/couchbase`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `gauge.bucket.basic.dataUsed` | gauge |  | Size of user data within buckets of the specified state that are resident in RAM (%) |
 | `gauge.bucket.basic.diskFetches` | gauge |  | Number of disk fetches |
@@ -116,55 +116,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.storage.ram.usedByData` | gauge |  | Ram used by the data in the cluster (bytes) |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - gauge.bucket.basic.dataUsed
-    - gauge.bucket.basic.diskFetches
-    - gauge.bucket.basic.memUsed
-    - gauge.bucket.op.curr_items
-    - gauge.bucket.op.disk_write_queue
-    - gauge.bucket.op.ep_mem_low_wat
-    - gauge.bucket.op.ops
-    - gauge.bucket.quota.ram
-    - gauge.bucket.quota.rawRAM
-    - gauge.nodes.couch_spatial_data_size
-    - gauge.nodes.couch_spatial_disk_size
-    - gauge.nodes.couch_views_actual_disk_size
-    - gauge.nodes.couch_views_data_size
-    - gauge.nodes.curr_items
-    - gauge.nodes.get_hits
-    - gauge.nodes.mcdMemoryAllocated
-    - gauge.nodes.mcdMemoryReserved
-    - gauge.nodes.memoryFree
-    - gauge.nodes.memoryTotal
-    - gauge.nodes.vb_replica_curr_items
-    - gauge.storage.hdd.free
-    - gauge.storage.hdd.quotaTotal
-    - gauge.storage.hdd.total
-    - gauge.storage.hdd.used
-    - gauge.storage.hdd.usedByData
-    - gauge.storage.ram.quotaTotal
-    - gauge.storage.ram.quotaTotalPerNode
-    - gauge.storage.ram.quotaUsed
-    - gauge.storage.ram.quotaUsedPerNode
-    - gauge.storage.ram.total
-    - gauge.storage.ram.used
-    - gauge.storage.ram.usedByData
-    monitorType: collectd/couchbase
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 

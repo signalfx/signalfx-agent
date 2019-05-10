@@ -55,7 +55,7 @@ Monitor Type: `collectd/spark`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `counter.HiveExternalCatalog.fileCacheHits` | counter |  | Total number of file level cache hits occurred |
 | `counter.HiveExternalCatalog.filesDiscovered` | counter |  | Total number of files discovered |
@@ -149,57 +149,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.worker.memUsed_MB` | gauge | ✔ | Memory used by a particular worker process |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - counter.HiveExternalCatalog.fileCacheHits
-    - counter.HiveExternalCatalog.filesDiscovered
-    - counter.HiveExternalCatalog.hiveClientCalls
-    - counter.HiveExternalCatalog.parallelListingJobCount
-    - counter.HiveExternalCatalog.partitionsFetched
-    - counter.spark.driver.completed_tasks
-    - counter.spark.driver.failed_tasks
-    - counter.spark.driver.total_duration
-    - counter.spark.executor.completed_tasks
-    - counter.spark.executor.failed_tasks
-    - counter.spark.executor.total_duration
-    - counter.spark.executor.total_tasks
-    - gauge.jvm.MarkSweepCompact.count
-    - gauge.jvm.MarkSweepCompact.time
-    - gauge.jvm.pools.Code-Cache.committed
-    - gauge.jvm.pools.Code-Cache.used
-    - gauge.jvm.pools.Compressed-Class-Space.committed
-    - gauge.jvm.pools.Compressed-Class-Space.used
-    - gauge.jvm.pools.Eden-Space.committed
-    - gauge.jvm.pools.Eden-Space.used
-    - gauge.jvm.pools.Metaspace.committed
-    - gauge.jvm.pools.Metaspace.used
-    - gauge.jvm.pools.Survivor-Space.committed
-    - gauge.jvm.pools.Survivor-Space.used
-    - gauge.jvm.pools.Tenured-Gen.committed
-    - gauge.jvm.pools.Tenured-Gen.used
-    - gauge.spark.driver.active_tasks
-    - gauge.spark.driver.rdd_blocks
-    - gauge.spark.executor.active_tasks
-    - gauge.spark.executor.rdd_blocks
-    - gauge.spark.stage.shuffle_read_bytes
-    - gauge.spark.stage.shuffle_read_records
-    - gauge.spark.stage.shuffle_write_bytes
-    - gauge.spark.stage.shuffle_write_records
-    monitorType: collectd/spark
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 

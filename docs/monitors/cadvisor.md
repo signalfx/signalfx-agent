@@ -38,7 +38,7 @@ Monitor Type: `cadvisor`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `container_cpu_cfs_periods` | cumulative |  | Total number of elapsed CFS enforcement intervals |
 | `container_cpu_cfs_throttled_periods` | cumulative |  | Total number of times tasks in the cgroup have been throttled |
@@ -87,57 +87,13 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `pod_network_transmit_packets_total` | cumulative |  | Cumulative count of packets transmitted |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - container_cpu_cfs_periods
-    - container_cpu_cfs_throttled_periods
-    - container_cpu_cfs_throttled_time
-    - container_cpu_percent
-    - container_cpu_system_seconds_total
-    - container_cpu_usage_seconds_total
-    - container_cpu_user_seconds_total
-    - container_cpu_utilization_per_core
-    - container_fs_io_current
-    - container_fs_io_time_seconds_total
-    - container_fs_io_time_weighted_seconds_total
-    - container_fs_limit_bytes
-    - container_fs_read_seconds_total
-    - container_fs_reads_merged_total
-    - container_fs_reads_total
-    - container_fs_sector_reads_total
-    - container_fs_sector_writes_total
-    - container_fs_usage_bytes
-    - container_fs_write_seconds_total
-    - container_fs_writes_merged_total
-    - container_fs_writes_total
-    - container_last_seen
-    - container_memory_failcnt
-    - container_memory_working_set_bytes
-    - container_spec_cpu_shares
-    - container_spec_memory_swap_limit_bytes
-    - container_start_time_seconds
-    - container_tasks_state
-    - machine_cpu_frequency_khz
-    - pod_network_receive_packets_dropped_total
-    - pod_network_receive_packets_total
-    - pod_network_transmit_packets_dropped_total
-    - pod_network_transmit_packets_total
-    monitorType: cadvisor
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 ## Dimensions
 
 The following dimensions may occur on metrics emitted by this monitor.  Some

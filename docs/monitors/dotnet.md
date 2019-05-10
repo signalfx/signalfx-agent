@@ -53,7 +53,7 @@ Monitor Type: `dotnet`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `net_clr_exceptions.num_exceps_thrown_sec` | gauge |  | The number of exceptions thrown by .NET applications. |
 | `net_clr_locksandthreads.contention_rate_sec` | gauge |  | The rate of thread of thread contention per second for .NET applications. |
@@ -68,6 +68,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `net_clr_memory.pct_time_in_gc` | gauge |  | The percentage of time spent garbage collecting by .NET applications. |
 
 
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

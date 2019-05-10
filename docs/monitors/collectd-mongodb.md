@@ -40,7 +40,7 @@ Monitor Type: `collectd/mongodb`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `counter.asserts.regular` | cumulative |  | The number of regular assertions raised since the MongoDB process started. Check the log file for more information about these messages. |
 | `counter.asserts.warning` | cumulative |  | In MongoDB 3.x and earlier, the field returns the number of warnings raised since the MongoDB process started.  In MongodDB 4, this is always 0. |
@@ -119,74 +119,13 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.uptime` | counter | ✔ | Uptime of this server in milliseconds |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - counter.asserts.regular
-    - counter.asserts.warning
-    - counter.collection.commandsCount
-    - counter.collection.commandsTime
-    - counter.collection.getmoreCount
-    - counter.collection.getmoreTime
-    - counter.collection.index.accesses.ops
-    - counter.collection.insertCount
-    - counter.collection.insertTime
-    - counter.collection.queriesCount
-    - counter.collection.queriesTime
-    - counter.collection.readLockCount
-    - counter.collection.readLockTime
-    - counter.collection.removeCount
-    - counter.collection.removeTime
-    - counter.collection.totalCount
-    - counter.collection.totalTime
-    - counter.collection.updateCount
-    - counter.collection.updateTime
-    - counter.collection.writeLockCount
-    - counter.collection.writeLockTime
-    - counter.lock.Database.acquireCount.intentExclusive
-    - counter.lock.Database.acquireCount.intentShared
-    - counter.lock.Database.acquireCount.read
-    - counter.lock.Database.acquireCount.write
-    - counter.lock.Global.acquireCount.intentExclusive
-    - counter.lock.Global.acquireCount.intentShared
-    - counter.lock.Global.acquireCount.write
-    - counter.opcounters.command
-    - counter.opcounters.getmore
-    - counter.opcountersRepl.command
-    - counter.opcountersRepl.delete
-    - counter.opcountersRepl.getmore
-    - counter.opcountersRepl.insert
-    - counter.opcountersRepl.query
-    - counter.opcountersRepl.update
-    - gauge.collection.avgObjSize
-    - gauge.collection.count
-    - gauge.collection.indexSize
-    - gauge.collection.max
-    - gauge.collection.maxSize
-    - gauge.collection.size
-    - gauge.collection.storageSize
-    - gauge.collections
-    - gauge.connections.available
-    - gauge.connections.totalCreated
-    - gauge.globalLock.activeClients.total
-    - gauge.globalLock.currentQueue.total
-    - gauge.indexes
-    - gauge.numExtents
-    monitorType: collectd/mongodb
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 ## Dimensions
 
 The following dimensions may occur on metrics emitted by this monitor.  Some

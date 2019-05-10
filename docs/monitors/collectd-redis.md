@@ -64,7 +64,7 @@ The **nested** `sendListLengths` config object has the following fields:
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `bytes.used_memory` | gauge | ✔ | Number of bytes allocated by Redis |
 | `bytes.used_memory_lua` | gauge |  | Number of bytes used by the Lua engine |
@@ -106,45 +106,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.uptime_in_seconds` | gauge |  | Number of seconds up |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - bytes.used_memory_lua
-    - bytes.used_memory_peak
-    - counter.connections_received
-    - counter.lru_clock
-    - counter.used_cpu_sys_children
-    - counter.used_cpu_user_children
-    - gauge.changes_since_last_save
-    - gauge.client_biggest_input_buf
-    - gauge.client_longest_output_list
-    - gauge.connected_slaves
-    - gauge.db0_avg_ttl
-    - gauge.db0_expires
-    - gauge.db0_keys
-    - gauge.instantaneous_ops_per_sec
-    - gauge.key_llen
-    - gauge.latest_fork_usec
-    - gauge.master_last_io_seconds_ago
-    - gauge.mem_fragmentation_ratio
-    - gauge.rdb_bgsave_in_progress
-    - gauge.repl_backlog_first_byte_offset
-    - gauge.uptime_in_days
-    - gauge.uptime_in_seconds
-    monitorType: collectd/redis
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 

@@ -37,7 +37,7 @@ Monitor Type: `prometheus/redis`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `redis_aof_current_rewrite_duration_sec` | gauge |  | aof_current_rewrite_duration_sec metric |
 | `redis_aof_enabled` | gauge |  | aof_enabled metric |
@@ -100,6 +100,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `redis_used_cpu_user_children` | gauge |  | used_cpu_user_children metric |
 
 
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

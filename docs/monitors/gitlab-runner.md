@@ -44,7 +44,7 @@ Monitor Type: `gitlab-runner`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `gitlab_runner_api_request_statuses_total` | cumulative |  | The total number of API requests, partitioned by runner, endpoint and status |
 | `gitlab_runner_autoscaling_machine_creation_duration_seconds` | cumulative |  | Histogram of machine creation time |
@@ -59,32 +59,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gitlab_runner_version_info` | gauge |  | A metric with a constant '1' value labeled by different build stats fields |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - gitlab_runner_api_request_statuses_total
-    - gitlab_runner_autoscaling_machine_creation_duration_seconds
-    - gitlab_runner_autoscaling_machine_creation_duration_seconds_bucket
-    - gitlab_runner_autoscaling_machine_creation_duration_seconds_count
-    - gitlab_runner_autoscaling_machine_states
-    - gitlab_runner_concurrent
-    - gitlab_runner_limit
-    - gitlab_runner_request_concurrency_exceeded_total
-    - gitlab_runner_version_info
-    monitorType: gitlab-runner
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 

@@ -52,7 +52,7 @@ Monitor Type: `telegraf/procstat`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `procstat.cpu_time` | gauge |  | Amount of cpu time consumed by the process. |
 | `procstat.cpu_usage` | gauge |  | CPU used by the process. |
@@ -97,6 +97,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `procstat_lookup.pid_count` | gauge |  | The number of pids. This metric emits with the plugin dimension set to "procstat_lookup". |
 
 
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

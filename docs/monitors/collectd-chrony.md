@@ -28,5 +28,3 @@ Monitor Type: `collectd/chrony`
 
 
 
-
-

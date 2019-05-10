@@ -193,7 +193,7 @@ The **nested** `dimensions` config object has the following fields:
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `memstats.alloc` | gauge |  | Bytes of allocated heap objects. Same as memstats.heap_alloc |
 | `memstats.buck_hash_sys` | gauge | ✔ | Bytes of memory in profiling bucket hash tables |
@@ -231,29 +231,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `memstats.total_alloc` | counter | ✔ | Cumulative bytes allocated for heap objects |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - memstats.alloc
-    - memstats.by_size.frees
-    - memstats.by_size.mallocs
-    - memstats.by_size.size
-    - memstats.debug_gc
-    - memstats.heap_sys
-    monitorType: expvar
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 

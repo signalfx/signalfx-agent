@@ -30,5 +30,3 @@ Monitor Type: `trace-forwarder`
 
 
 
-
-

@@ -45,7 +45,7 @@ Monitor Type: `aspdotnet`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `asp_net.application_restarts` | gauge |  | Count of ASP.NET application restarts. |
 | `asp_net.applications_running` | gauge |  | Number of running ASP.NET applications. |
@@ -64,6 +64,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `asp_net_applications.sessions_active` | gauge |  | Number of active sessions in the ASP.NET application. |
 
 
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

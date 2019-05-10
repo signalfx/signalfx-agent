@@ -42,7 +42,7 @@ Monitor Type: `filesystems`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Included | Description |
+| Name | Type | Default (non-custom) | Description |
 | ---  | ---  | ---    | ---         |
 | `df_complex.free` | gauge | ✔ | Free disk space in bytes |
 | `df_complex.used` | gauge | ✔ | Used disk space in bytes |
@@ -56,29 +56,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `percent_inodes.used` | gauge |  | (Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`. |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - df_inodes.free
-    - df_inodes.used
-    - percent_bytes.free
-    - percent_bytes.used
-    - percent_inodes.free
-    - percent_inodes.used
-    monitorType: filesystems
-```
-
-
+### Built in filtering
+This monitor will perform built-in filtering if you are using agent version
+4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
+of your agent config.  See
+[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
+for more information.
 
 
