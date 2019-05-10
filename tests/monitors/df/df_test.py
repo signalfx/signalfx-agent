@@ -12,7 +12,6 @@ def test_df_included_metrics():
     agent_config = """
         monitors:
           - type: collectd/df
-            hostFSPath: /
         """
     run_agent_verify_included_metrics(agent_config, METADATA)
 
@@ -23,7 +22,6 @@ def test_df_extra_metrics():
     agent_config = f"""
         monitors:
           - type: collectd/df
-            hostFSPath: /
             extraMetrics:
             - {df_complex_reserved}
             - {df_inodes_reserved}
@@ -36,7 +34,6 @@ def test_df_inodes_flag():
     agent_config = f"""
         monitors:
           - type: collectd/df
-            hostFSPath: /
             reportInodes: true
         """
     run_agent_verify(agent_config, expected_metrics)
@@ -47,7 +44,6 @@ def test_df_percentage_flag():
     agent_config = f"""
         monitors:
           - type: collectd/df
-            hostFSPath: /
             valuesPercentage: true
         """
     run_agent_verify(agent_config, expected_metrics)
@@ -58,7 +54,6 @@ def test_df_inodes_and_percentage_flags():
     agent_config = f"""
         monitors:
           - type: collectd/df
-            hostFSPath: /
             reportInodes: true
             valuesPercentage: true
         """
@@ -69,7 +64,6 @@ def test_df_extra_metrics_all():
     agent_config = f"""
         monitors:
           - type: collectd/df
-            hostFSPath: /
             extraMetrics:
             - '*'
         """
