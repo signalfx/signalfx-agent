@@ -33,6 +33,10 @@ parse_args_and_release() {
   local allow_uncommitted=no
   local github_username="${GITHUB_USERNAME-}"
   local github_token="${GITHUB_TOKEN-}"
+  local github_release=no
+  local new_image=
+  local image_base=
+  local image_digest=
 
   while [ -n "${1-}" ]; do
     case $1 in
@@ -85,6 +89,7 @@ parse_args_and_release() {
           deployments) build_deployments=yes build_all=no ;;
           windows) push_windows=yes build_all=no ;;
           pypi) build_pypi=yes build_all=no ;;
+          github) github_release=yes build_all=no ;;
           *) echo "component "$1" not recognized, quitting" >&2 && exit 1 ;;
         esac
         shift 1
@@ -100,6 +105,39 @@ parse_args_and_release() {
 
   if [[ -z "$stage" ]]; then
     stage=$(stage_from_version $new_version)
+  fi
+
+  image_base="$(docker_repo_from_stage $stage)"
+  new_image="$image_base:$new_version"
+
+  # fail immediately if releasing to Github and either the username or token is not set
+  if [[ "$push" == "yes" ]] && [[ "$stage" == "final" ]] && [[ "$build_all" == "yes" || "$github_release" == "yes" || "$build_bundle" == "yes" || "$push_windows" == "yes" ]]; then
+    if [[ -z "$github_username" ]]; then
+      echo "Github username is required when releasing to Github." >&2
+      echo "Set the GITHUB_USERNAME env var or use the '--github-user <username>' option." >&2
+      exit 1
+    fi
+    if [[ -z "$github_token" ]]; then
+      echo "Github token is required when releasing to Github." >&2
+      echo "Set the GITHUB_TOKEN env var or use the '--github-token <token>' option." >&2
+      exit 1
+    fi
+  fi
+
+  # exit/fail immediately if only creating a Github release and the requirements are not met
+  if [[ "$github_release" == "yes" ]]; then
+    if [[ "$push" == "no" ]]; then
+      echo "Nothing to do"
+      exit 0
+    fi
+    if [[ "$stage" != "final" ]]; then
+      echo "Release stage must be 'final' in order to create a Github release." >&2
+      exit 1
+    fi
+    if ! docker pull $new_image; then
+      echo "$new_image must already be built and pushed in order to create a Github release." >&2
+      exit 1
+    fi
   fi
 
   if [[ "$stage" != "test" ]] && ! git diff --exit-code && [[ "$allow_uncommitted" != "yes" ]]; then
@@ -120,25 +158,14 @@ parse_args_and_release() {
     exit 0
   fi
 
-  if [[ "$stage" != "test" ]] && [[ "$($SCRIPT_DIR/current-version)" != "$new_version" ]]; then
-    create_and_push_tag $new_version
-  fi
-
-  if [[ "$stage" == "final" ]]; then
-    ensure_github_release "v$new_version" "$github_username" "$github_token"
-  fi
-
   if [[ "$build_all" == "yes" ]] || [[ "$build_docker_image" == "yes" ]]; then
     echo "Building docker image..."
     build_docker_image "$stage" "$new_version"
     if [[ "$push" == "yes" ]]; then
       echo "Pushing docker image"
-      image_base="$(docker_repo_from_stage $stage)"
-      new_image="$image_base:$new_version"
       docker push $new_image
       if [[ "$stage" == "final" ]]; then
         update_floating_docker_tags "$new_version" "$new_image" "$image_base"
-        add_digest_to_release "v$new_version" "$new_image" "$image_base" "$github_username" "$github_token"
       fi
     fi
   fi
@@ -155,6 +182,16 @@ parse_args_and_release() {
     echo "Building and pushing rpm package"
     build_and_push_package "rpm" "$stage" "$push"
     $SCRIPT_DIR/invalidate-cloudfront "/rpms/signalfx-agent/$stage/*"
+  fi
+
+  if [[ "$stage" != "test" ]] && [[ "$($SCRIPT_DIR/current-version)" != "$new_version" ]]; then
+    create_and_push_tag $new_version
+  fi
+
+  if [[ "$stage" == "final" ]] && [[ "$build_all" == "yes" || "$github_release" == "yes" ]]; then
+    image_digest=$(get_image_digest $new_image)
+    ensure_github_release "v$new_version" "$github_username" "$github_token"
+    add_digest_to_release "v$new_version" "$new_image" "$image_digest" "$github_username" "$github_token"
   fi
 
   if [[ "$build_all" == "yes" ]] || [[ "$build_bundle" == "yes" ]]; then
@@ -195,7 +232,9 @@ Options:
 
   --new-version <version>                    The new version to release.  If not specified, will be inferred from the latest git tag
                                              Note that the version should not include a leading 'v'!
-  --component docker|deb|rpm|bundle|windows  Releases only the selected component if specified, otherwise does everything except windows
+  --component <component>                    <component> can be docker, deb, rpm, bundle, github, or windows
+                                             Releases only the selected component if specified, otherwise does everything except windows
+                                             If "github" is selected, the release stage must be "final", and the agent docker image must already be built and pushed
   --[no-]push                                Whether to push the components to remote sources or not (default, yes)
   --force                                    Ignore checks for uncommited local changes and package repo confirmation
   --allow-uncommitted-files                  Whether to ignore uncommitted files in the current directory
@@ -312,10 +351,17 @@ push_bundle_to_github() {
   local new_version="$1"
   local username="$2"
   local token="$3"
+  local tag="v$new_version"
 
   local bundle_path="$SCRIPT_DIR/../signalfx-agent-${new_version}.tar.gz"
 
   . $SCRIPT_DIR/github-releases.sh
+
+  if ! get_github_release "$tag" "$username" "$token"; then
+    echo "Github release $tag not found!"
+    exit 1
+  fi
+
   upload_asset_to_release v$new_version $bundle_path application/gzip $username $token
 }
 
@@ -395,40 +441,49 @@ release_python_to_pypi() {
   popd
 }
 
+get_image_digest() {
+  local image=$1
+  local digest=
+
+  digest=$(docker inspect --format='{{.RepoDigests}}' $image | sed "s|\[.*@\(sha256:.*\)\]|\1|")
+  if [[ ! "$digest" =~ ^sha256:[A-Fa-f0-9]{64}$ ]]; then
+    echo "Failed to get manifest digest for $image!" >&2
+    return 1
+  fi
+
+  echo $digest
+}
+
 add_digest_to_release() {
   local tag=$1
-  local new_image=$2
-  local image_base=$3
+  local image=$2
+  local digest=$3
   local username=$4
   local token=$5
-  local digest=$(docker inspect --format='{{.RepoDigests}}' $new_image | sed "s|\[${image_base}@\(sha256:.*\)\]|\1|")
-
-  if [[ ! "$digest" =~ ^sha256:[A-Fa-f0-9]{64}$ ]]; then
-    echo "Failed to get manifest digest for $new_image!"
-    exit 1
-  fi
+  local release_id=
+  local body=
 
   . $SCRIPT_DIR/github-releases.sh
 
   release_id=$(github_request "$username" "$token" "GET" "releases" | jq --arg tag "$tag" '.[] | select(.tag_name==$tag) | .id')
   if [[ ! "$release_id" =~ ^[0-9]+$ ]]; then
-    echo "Failed to get release id for $tag!"
+    echo "Failed to get release id for $tag!" >&2
     exit 1
   fi
 
   # get original release message and append the agent image digest
   body=$(github_request "$username" "$token" "GET" "releases" | jq --argjson id $release_id '.[] | select(.id==$id) | .body' | tr -d '"')
   if [[ -z "$body" ]]; then
-    echo "Failed to get release message for $tag!"
+    echo "Failed to get release message for $tag!" >&2
     exit 1
   fi
 
   body="""$(echo -en $body)
 
-> Docker Image: \`$new_image\` (digest: \`$digest\`)
+> Docker Image: \`$image\` (digest: \`$digest\`)
 """
 
-  tmpfile=$(mktemp)
+  local tmpfile=$(mktemp)
   echo "$tmpfile"
   cat <<EOH > $tmpfile
     {
