@@ -57,7 +57,7 @@ def test_built_in_filtering_disabled_no_whitelist_for_monitor():
 
 def test_built_in_filtering_disabled_whitelisted_monitor():
     """
-    Test a monitor that doesn't have any entries in whitelist.json
+    Test a monitor that is in whitelist.json.
     """
     metadata = Metadata.from_package("collectd/redis")
 
