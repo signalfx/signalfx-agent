@@ -28,7 +28,7 @@ This monitor has no configuration options.
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `protocol_counter.ActiveOpens` | cumulative | ✔ | The number of times TCP connections transitioned from the CLOSED state to the SYN-SENT state. |
 | `protocol_counter.CurrEstab` | cumulative |  | The number of TCP connections currently in either ESTABLISHED or CLOSE-WAIT state. |

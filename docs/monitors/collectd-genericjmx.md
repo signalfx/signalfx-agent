@@ -142,7 +142,7 @@ The **nested** `values` config object has the following fields:
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `gauge.jvm.threads.count` | gauge | ✔ | Number of JVM threads |
 | `gauge.loaded_classes` | gauge | ✔ | Number of classes loaded in the JVM |

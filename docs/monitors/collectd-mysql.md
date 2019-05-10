@@ -72,7 +72,7 @@ The **nested** `databases` config object has the following fields:
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `cache_result.cache_size` | gauge |  | MySQL Qcache Size |
 | `cache_result.qcache-hits` | cumulative | ✔ | The number of hits on MySQL query cache. |

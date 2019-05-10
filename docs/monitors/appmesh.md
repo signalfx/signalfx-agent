@@ -61,7 +61,7 @@ Monitor Type: `appmesh`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `circuit_breakers.<priority>.cx_open` | gauge |  | Whether the connection circuit breaker is closed (0) or open (1) |
 | `circuit_breakers.<priority>.cx_pool_open` | gauge |  | Whether the connection pool circuit breaker is closed (0) or open (1) |

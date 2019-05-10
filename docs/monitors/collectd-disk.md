@@ -30,7 +30,7 @@ Monitor Type: `collectd/disk`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `disk_io_time.io_time` | cumulative |  | Amount of time spent doing IO in ms |
 | `disk_io_time.weighted_io_time` | cumulative |  | Amount of time spent doing IO in ms multiplied by the queue length |

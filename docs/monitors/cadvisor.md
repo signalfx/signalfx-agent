@@ -38,7 +38,7 @@ Monitor Type: `cadvisor`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `container_cpu_cfs_periods` | cumulative |  | Total number of elapsed CFS enforcement intervals |
 | `container_cpu_cfs_throttled_periods` | cumulative |  | Total number of times tasks in the cgroup have been throttled |

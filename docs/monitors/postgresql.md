@@ -85,7 +85,7 @@ Monitor Type: `postgresql`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `postgres_block_hit_ratio` | gauge | ✔ | The proportion (between 0 and 1, inclusive) of block reads that used the cache and did not have to go to the disk.  Is sent for `table`, `index`, and the `database` as a whole. |
 | `postgres_database_size` | gauge | ✔ | Size in bytes of the database on disk |

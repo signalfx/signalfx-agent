@@ -32,7 +32,7 @@ Monitor Type: `collectd/haproxy`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `counter.connection_total` | counter |  | Cumulative number of connections (frontend). This corresponds to HAProxy's "conn_tot" metric. |
 | `counter.server_selected_total` | counter | ✔ | Number of times a server was selected, either for new sessions or when re-dispatching. This corresponds to HAProxy's "lbtot" metric. |

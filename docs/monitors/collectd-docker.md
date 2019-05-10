@@ -36,7 +36,7 @@ Monitor Type: `collectd/docker`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `blkio.io_service_bytes_recursive.async` | cumulative | ✔ | Volume, in bytes, of asynchronous block I/O |
 | `blkio.io_service_bytes_recursive.read` | cumulative | ✔ | Volume, in bytes, of reads from block devices |

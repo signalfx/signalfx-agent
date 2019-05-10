@@ -46,7 +46,7 @@ Monitor Type: `collectd/elasticsearch`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `bytes.indices.primaries.merges.total-size` | gauge |  |  |
 | `bytes.indices.total.merges.total-size` | gauge |  |  |

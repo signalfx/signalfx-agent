@@ -32,7 +32,7 @@ This monitor has no configuration options.
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `memory.available` | gauge |  | (Windows Only) Bytes of memory available for use. |
 | `memory.buffered` | gauge | ✔ | (Linux Only) Bytes of memory used for buffering I/O. |

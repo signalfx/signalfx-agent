@@ -33,7 +33,7 @@ Monitor Type: `gitlab-sidekiq`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `gitaly_controller_action_duration_seconds` | cumulative |  |  |
 | `gitaly_controller_action_duration_seconds_bucket` | cumulative |  |  |
