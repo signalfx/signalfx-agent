@@ -1,0 +1,36 @@
+#!/usr/bin/env python3
+
+# Run a fake backend and dump datapoints as json output for later processing.
+# Point the agent to this backend with these settings:
+#
+# signalFxAccessToken: test
+# ingestUrl: http://localhost:4567
+# apiUrl: http://localhost:4568
+
+# Processing examples:
+#
+# Get all unique metric names:
+# $ scripts/collect-datapoints | jq 'unique_by(.metric)[] | .metric'
+
+import sys
+import time
+
+from google.protobuf import json_format
+from tests.helpers.fake_backend import start
+
+
+def run(collect_time_seconds=30):
+    with start(ingest_port=4567, api_port=4568) as fake_backend:
+        print("Waiting for first datapoint on %s" % (fake_backend.ingest_url,), file=sys.stderr)
+        while True:
+            if fake_backend.datapoints:
+                break
+            time.sleep(1)
+        print("Waiting %d seconds for datapoints" % (collect_time_seconds,), file=sys.stderr)
+        time.sleep(collect_time_seconds)
+        print("[" + ",".join([json_format.MessageToJson(m) for m in fake_backend.datapoints]) + "]")
+        print("Done", file=sys.stderr)
+
+
+if __name__ == "__main__":
+    run()

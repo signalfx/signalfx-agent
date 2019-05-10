@@ -53,10 +53,14 @@ monitors:
     vmpage_number.free_pages:
       description: (Linux Only) Number of free memory pages
       included: false
-      type: cumulative
+      type: gauge
     vmpage_number.mapped:
       description: (Linux Only) Number of mapped pages
       included: false
-      type: cumulative
+      type: gauge
+    vmpage_number.shmem_pmdmapped:
+      description: (Linux Only) The amount of shared (shmem/tmpfs) memory backed by huge pages
+      included: false
+      type: gauge
   monitorType: vmem
   properties:

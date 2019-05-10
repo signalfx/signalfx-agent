@@ -59,7 +59,8 @@ func parseRuleText(text string) (*govaluate.EvaluableExpression, error) {
 	return govaluate.NewEvaluableExpressionWithFunctions(text, ruleFunctions)
 }
 
-func evaluateRule(si Endpoint, ruleText string, errorOnMissing bool, doValidation bool) (interface{}, error) {
+// EvaluateRule executes a govaluate expression against an endpoint
+func EvaluateRule(si Endpoint, ruleText string, errorOnMissing bool, doValidation bool) (interface{}, error) {
 	rule, err := parseRuleText(ruleText)
 	if err != nil {
 		return nil, errors.WithMessage(err, "Could not parse rule")
@@ -86,7 +87,7 @@ func evaluateRule(si Endpoint, ruleText string, errorOnMissing bool, doValidatio
 // DoesServiceMatchRule returns true if service endpoint satisfies the rule
 // given
 func DoesServiceMatchRule(si Endpoint, ruleText string, doValidation bool) bool {
-	ret, err := evaluateRule(si, ruleText, false, doValidation)
+	ret, err := EvaluateRule(si, ruleText, false, doValidation)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"discoveryRule":   ruleText,

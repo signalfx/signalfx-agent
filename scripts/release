@@ -116,7 +116,7 @@ parse_args_and_release() {
   [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Cancelling release" && exit 1
 
   if [[ "$push_windows" == "yes" ]]; then
-    push_windows_bundle "$new_version" "$stage" "$push"
+    push_windows_bundle "$new_version" "$stage" "$push" "$github_username" "$github_token"
     exit 0
   fi
 
@@ -322,11 +322,15 @@ push_windows_bundle() {
   local new_version="$1"
   local stage="$2"
   local push="$3"
+  local username="$4"
+  local token="$5"
   local src_dir="$SCRIPT_DIR/../build"
   local dest_dir="s3://public-downloads--signalfuse-com/windows/$stage/zip"
+  local bundle_path="$src_dir/SignalFxAgent-${new_version}-win64.zip"
+  local tag="v$new_version"
 
-  if [[ ! -f "$src_dir/SignalFxAgent-${new_version}-win64.zip" ]]; then
-    echo "$src_dir/SignalFxAgent-${new_version}-win64.zip not found!"
+  if [[ ! -f "$bundle_path" ]]; then
+    echo "$bundle_path not found!"
     echo "The $new_version Windows agent bundle must be manually built."
     exit 1
   fi
@@ -335,11 +339,20 @@ push_windows_bundle() {
   echo -n "$new_version" > "$src_dir/latest.txt"
 
   if [[ "$push" == "yes" ]]; then
+    if [[ "$stage" == "final" ]]; then
+      . $SCRIPT_DIR/github-releases.sh
+      if ! get_github_release "$tag" "$username" "$token"; then
+        echo "Github release $tag not found!"
+        echo "You must release the other components before releasing the Windows bundle."
+        exit 1
+      fi
+      upload_asset_to_release "$tag" "$bundle_path" "application/zip" "$username" "$token"
+    fi
     if aws s3 ls "$dest_dir/SignalFxAgent-${new_version}-win64.zip"; then
       read -p "SignalFxAgent-${new_version}-win64.zip already exists in $dest_dir. Overwrite? [y/N] "
       [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Not pushing windows bundle" >&2 && return 1
     fi
-    aws s3 cp "$src_dir/SignalFxAgent-${new_version}-win64.zip" "$dest_dir/SignalFxAgent-${new_version}-win64.zip"
+    aws s3 cp "$bundle_path" "$dest_dir/SignalFxAgent-${new_version}-win64.zip"
     aws s3 cp "$src_dir/latest.txt" "${dest_dir}/latest/latest.txt"
     $SCRIPT_DIR/invalidate-cloudfront "/windows/$stage/zip/*"
   else

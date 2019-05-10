@@ -1,8 +1,8 @@
 import sys
 
 import pytest
+
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_log_message
 from tests.helpers.metadata import Metadata
 from tests.helpers.verify import verify
 
@@ -12,20 +12,18 @@ METADATA = Metadata.from_package("memory")
 
 
 def test_memory():
-    expected_metrics = ["memory.used", "memory.utilization"]
+    expected_metrics = {"memory.used", "memory.utilization"}
     if sys.platform == "linux":
-        expected_metrics.extend(
-            ["memory.buffered", "memory.cached", "memory.free", "memory.slab_recl", "memory.slab_unrecl"]
+        expected_metrics.update(
+            {"memory.buffered", "memory.cached", "memory.free", "memory.slab_recl", "memory.slab_unrecl"}
         )
     with Agent.run(
         """
-    monitors:
-      - type: memory
-    """
+        monitors:
+          - type: memory
+        """
     ) as agent:
         for met in expected_metrics:
             assert met in METADATA.included_metrics
 
-        verify(agent, frozenset(expected_metrics))
-
-        assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
+        verify(agent, expected_metrics)

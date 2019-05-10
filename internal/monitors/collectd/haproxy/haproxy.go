@@ -69,7 +69,7 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	if m.Output.HasAnyNonDefaultMetricEnabled() {
+	if m.Output.HasAnyExtraMetrics() {
 		conf.EnhancedMetrics = pointer.Bool(true)
 	}
 

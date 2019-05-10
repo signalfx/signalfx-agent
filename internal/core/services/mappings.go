@@ -19,7 +19,7 @@ var _ config.CustomConfigurable = &ConfigEndpointMapping{}
 // ExtraConfig evaluates the rule and returns a map that can be merged into the
 // final monitor config
 func (cem *ConfigEndpointMapping) ExtraConfig() (map[string]interface{}, error) {
-	val, err := evaluateRule(cem.Endpoint, cem.Rule, true, true)
+	val, err := EvaluateRule(cem.Endpoint, cem.Rule, true, true)
 	if err != nil {
 		return nil, err
 	}
