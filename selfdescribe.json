@@ -1588,96 +1588,96 @@
           "description": "Set to whatever you set in the `name` config option."
         }
       },
-      "doc": "Monitors Apache webservice instances using\nthe information provided by `mod_status`.\n\nSee https://github.com/signalfx/integrations/tree/master/collectd-apache\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: collectd/apache\n   host: localhost\n   port: 80\n```\n\nIf `mod_status` is exposed on an endpoint other than `/mod_status`, you can\nuse the `url` config option to specify the path:\n\n```\nmonitors:\n - type: collectd/apache\n   host: localhost\n   port: 80\n   url: \"http://{{.Host}}:{{.Port}}/server-status?auto\"\n```\n",
+      "doc": "Monitors Apache webservice instances using the information provided by\n`mod_status`.\n\nTo configure Apache to expose status metrics:\n\n1. Enable the \u003ca target=\"_blank\" href=\"http://httpd.apache.org/docs/2.4/mod/mod_status.html\"\u003emod_status\u003c/a\u003e module in your Apache server.\n2. Add the following configuration to your Apache server:\n\n   ```\n    ExtendedStatus on\n    \u003cLocation /mod_status\u003e\n    SetHandler server-status\n    \u003c/Location\u003e\n   ```\n3. Restart Apache.\n\n_Note_: Make sure that the URL you provide for your `mod_status` module\nends in `?auto`. This returns the status page as `text/plain`, which this\nplugin requires.\n\nExample configuration in the Smart Agent:\n\n```\nmonitors:\n - type: collectd/apache\n   host: localhost\n   port: 80\n```\n\nIf `mod_status` is exposed on an endpoint other than `/mod_status`, you can\nuse the `url` config option to specify the path:\n\n```\nmonitors:\n - type: collectd/apache\n   host: localhost\n   port: 80\n   url: \"http://{{.Host}}:{{.Port}}/server-status?auto\"\n```\n\n## Worker states\nApache worker threads can be in one of the following states:\n\n| State        | Remark                                  |\n|--------------|-----------------------------------------|\n| Open         | Open (unused) slot - no process         |\n| Waiting      | Idle and waiting for request            |\n| Sending      | Serving response                        |\n| KeepAlive    | Kept alive for possible next request    |\n| Idle_cleanup | Idle and marked for cleanup             |\n| Closing      | Closing connection                      |\n| Logging      | Writing to log file                     |\n| Reading      | Reading request                         |\n| Finishing    | Finishing as part of graceful shutdown  |\n| Starting     | Starting up to serve                    |\n",
       "groups": null,
       "metrics": {
         "apache_bytes": {
           "type": "cumulative",
-          "description": "Bytes served by Apache",
+          "description": "Amount of data served by Apache, in bytes.",
           "group": null,
           "default": true
         },
         "apache_connections": {
           "type": "gauge",
-          "description": "Connections served by Apache",
+          "description": "The number of connections that are being served by Apache.  This is also equal to the number of busy worker threads, where 'busy' means any worker thread which has been started successfully and is not slated for idle cleanup.\n",
           "group": null,
           "default": true
         },
         "apache_idle_workers": {
           "type": "gauge",
-          "description": "Apache workers that are idle",
+          "description": "The number of Apache workers that are idling. If this number is consistently low, then your server may be too busy and you may have to increase the number of threads.  If it is consistently high, then the system may be under-utilized.\n",
           "group": null,
           "default": true
         },
         "apache_requests": {
           "type": "cumulative",
-          "description": "Requests served by Apache",
+          "description": "The number of requests that have been served by Apache. This metric is useful to know total requests and the rate at which Apache is able to serve them.\n",
           "group": null,
           "default": true
         },
         "apache_scoreboard.closing": {
           "type": "gauge",
-          "description": "Number of workers in the process of closing connections",
+          "description": "This metric shows how many worker threads are in the process of closing TCP connections after serving a response. If this number is consistently high, then there might be a network issue or errant client preventing TCP tear-down.\n",
           "group": null,
           "default": false
         },
         "apache_scoreboard.dnslookup": {
           "type": "gauge",
-          "description": "Number of workers performing DNS lookup",
+          "description": "This metric counts the number of worker threads that are performing a DNS lookup. If this number is too high, check if there is a DNS resolution problem at your server. This can affect Apache server performance.\n",
           "group": null,
           "default": false
         },
         "apache_scoreboard.finishing": {
           "type": "gauge",
-          "description": "Number of workers that are finishing",
+          "description": "The number of worker threads that are finishing as part of graceful server shutdown.",
           "group": null,
           "default": false
         },
         "apache_scoreboard.idle_cleanup": {
           "type": "gauge",
-          "description": "Number of idle threads ready for cleanup",
+          "description": "The number of worker threads that are idle and ready for clean-up.",
           "group": null,
           "default": false
         },
         "apache_scoreboard.keepalive": {
           "type": "gauge",
-          "description": "Number of keep-alive connections",
+          "description": "The number of worker threads that are maintaining keep-alive connections: keeping the connection \"alive\" after serving a response, in the expectation that another HTTP request will come on the same connection. At the end of the keep-alive interval, the connection is closed.\n",
           "group": null,
           "default": false
         },
         "apache_scoreboard.logging": {
           "type": "gauge",
-          "description": "Number of workers writing to log file",
+          "description": "This metric shows how many worker threads are busy writing to the log file.  If this number is consistently high, your logging level may be too high or one or more modules may be too verbose.\n",
           "group": null,
           "default": false
         },
         "apache_scoreboard.open": {
           "type": "gauge",
-          "description": "Number of worker thread slots that are open",
+          "description": "This metric shows how many worker slots are open.  The slots do not have a worker thread yet, but they can be spun up based on incoming requests.\n",
           "group": null,
           "default": true
         },
         "apache_scoreboard.reading": {
           "type": "gauge",
-          "description": "Number of workers reading requests",
+          "description": "This metric shows how many workers are in the process of receiving requests (headers or body).  If this number is consistently high, clients may be sending large headers or uploading large files.\n",
           "group": null,
           "default": false
         },
         "apache_scoreboard.sending": {
           "type": "gauge",
-          "description": "Number of workers sending responses",
+          "description": "This metric shows how many workers are sending responses.  It is normal for this to be a large number when measuring sites that serve large downloads.\n",
           "group": null,
           "default": false
         },
         "apache_scoreboard.starting": {
           "type": "gauge",
-          "description": "Number of workers starting up",
+          "description": "This metric shows how many workers are being started up.  If this number is consistently high, then the system may be overloaded.\n",
           "group": null,
           "default": false
         },
         "apache_scoreboard.waiting": {
           "type": "gauge",
-          "description": "Number of workers waiting for requests",
+          "description": "This metric shows how many worker threads are ready and waiting for requests to come in.",
           "group": null,
           "default": false
         }

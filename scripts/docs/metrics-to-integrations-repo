@@ -17,6 +17,7 @@ INTEGRATIONS_REPO = os.environ.get("INTEGRATIONS_REPO", (AGENT_ROOT / "../integr
 # including the `docs/` path suffix).
 MONITORS_TO_INTEGRATIONS_DIR = {
     "internal/monitors/collectd/activemq:collectd/activemq": "activemq",
+    "internal/monitors/collectd/apache:collectd/apache": "apache",
     "internal/monitors/elasticsearch:elasticsearch": "elasticsearch",
 }
 
@@ -60,7 +61,7 @@ def generate_metric_markdown(mon):
             METRIC_MARKDOWN_TEMPLATE.substitute(
                 {
                     "title": name,
-                    "brief": metric.get("description"),
+                    "brief": " ".join(metric.get("description").splitlines()),
                     "metric_type": metric["type"],
                     "description": metric.get("description"),
                     "custom": "true" if custom else "false",

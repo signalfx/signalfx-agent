@@ -2,12 +2,27 @@
 
 # collectd/apache
 
-Monitors Apache webservice instances using
-the information provided by `mod_status`.
+Monitors Apache webservice instances using the information provided by
+`mod_status`.
 
-See https://github.com/signalfx/integrations/tree/master/collectd-apache
+To configure Apache to expose status metrics:
 
-Sample YAML configuration:
+1. Enable the <a target="_blank" href="http://httpd.apache.org/docs/2.4/mod/mod_status.html">mod_status</a> module in your Apache server.
+2. Add the following configuration to your Apache server:
+
+   ```
+    ExtendedStatus on
+    <Location /mod_status>
+    SetHandler server-status
+    </Location>
+   ```
+3. Restart Apache.
+
+_Note_: Make sure that the URL you provide for your `mod_status` module
+ends in `?auto`. This returns the status page as `text/plain`, which this
+plugin requires.
+
+Example configuration in the Smart Agent:
 
 ```
 monitors:
@@ -26,6 +41,22 @@ monitors:
    port: 80
    url: "http://{{.Host}}:{{.Port}}/server-status?auto"
 ```
+
+## Worker states
+Apache worker threads can be in one of the following states:
+
+| State        | Remark                                  |
+|--------------|-----------------------------------------|
+| Open         | Open (unused) slot - no process         |
+| Waiting      | Idle and waiting for request            |
+| Sending      | Serving response                        |
+| KeepAlive    | Kept alive for possible next request    |
+| Idle_cleanup | Idle and marked for cleanup             |
+| Closing      | Closing connection                      |
+| Logging      | Writing to log file                     |
+| Reading      | Reading request                         |
+| Finishing    | Finishing as part of graceful shutdown  |
+| Starting     | Starting up to serve                    |
 
 
 Monitor Type: `collectd/apache`
@@ -61,21 +92,21 @@ are marked as _Default_ in the table below.
 
 | Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
-| `apache_bytes` | cumulative | ✔ | Bytes served by Apache |
-| `apache_connections` | gauge | ✔ | Connections served by Apache |
-| `apache_idle_workers` | gauge | ✔ | Apache workers that are idle |
-| `apache_requests` | cumulative | ✔ | Requests served by Apache |
-| `apache_scoreboard.closing` | gauge |  | Number of workers in the process of closing connections |
-| `apache_scoreboard.dnslookup` | gauge |  | Number of workers performing DNS lookup |
-| `apache_scoreboard.finishing` | gauge |  | Number of workers that are finishing |
-| `apache_scoreboard.idle_cleanup` | gauge |  | Number of idle threads ready for cleanup |
-| `apache_scoreboard.keepalive` | gauge |  | Number of keep-alive connections |
-| `apache_scoreboard.logging` | gauge |  | Number of workers writing to log file |
-| `apache_scoreboard.open` | gauge | ✔ | Number of worker thread slots that are open |
-| `apache_scoreboard.reading` | gauge |  | Number of workers reading requests |
-| `apache_scoreboard.sending` | gauge |  | Number of workers sending responses |
-| `apache_scoreboard.starting` | gauge |  | Number of workers starting up |
-| `apache_scoreboard.waiting` | gauge |  | Number of workers waiting for requests |
+| `apache_bytes` | cumulative | ✔ | Amount of data served by Apache, in bytes. |
+| `apache_connections` | gauge | ✔ | The number of connections that are being served by Apache.  This is also equal to the number of busy worker threads, where 'busy' means any worker thread which has been started successfully and is not slated for idle cleanup. |
+| `apache_idle_workers` | gauge | ✔ | The number of Apache workers that are idling. If this number is consistently low, then your server may be too busy and you may have to increase the number of threads.  If it is consistently high, then the system may be under-utilized. |
+| `apache_requests` | cumulative | ✔ | The number of requests that have been served by Apache. This metric is useful to know total requests and the rate at which Apache is able to serve them. |
+| `apache_scoreboard.closing` | gauge |  | This metric shows how many worker threads are in the process of closing TCP connections after serving a response. If this number is consistently high, then there might be a network issue or errant client preventing TCP tear-down. |
+| `apache_scoreboard.dnslookup` | gauge |  | This metric counts the number of worker threads that are performing a DNS lookup. If this number is too high, check if there is a DNS resolution problem at your server. This can affect Apache server performance. |
+| `apache_scoreboard.finishing` | gauge |  | The number of worker threads that are finishing as part of graceful server shutdown. |
+| `apache_scoreboard.idle_cleanup` | gauge |  | The number of worker threads that are idle and ready for clean-up. |
+| `apache_scoreboard.keepalive` | gauge |  | The number of worker threads that are maintaining keep-alive connections: keeping the connection "alive" after serving a response, in the expectation that another HTTP request will come on the same connection. At the end of the keep-alive interval, the connection is closed. |
+| `apache_scoreboard.logging` | gauge |  | This metric shows how many worker threads are busy writing to the log file.  If this number is consistently high, your logging level may be too high or one or more modules may be too verbose. |
+| `apache_scoreboard.open` | gauge | ✔ | This metric shows how many worker slots are open.  The slots do not have a worker thread yet, but they can be spun up based on incoming requests. |
+| `apache_scoreboard.reading` | gauge |  | This metric shows how many workers are in the process of receiving requests (headers or body).  If this number is consistently high, clients may be sending large headers or uploading large files. |
+| `apache_scoreboard.sending` | gauge |  | This metric shows how many workers are sending responses.  It is normal for this to be a large number when measuring sites that serve large downloads. |
+| `apache_scoreboard.starting` | gauge |  | This metric shows how many workers are being started up.  If this number is consistently high, then the system may be overloaded. |
+| `apache_scoreboard.waiting` | gauge |  | This metric shows how many worker threads are ready and waiting for requests to come in. |
 
 
 
