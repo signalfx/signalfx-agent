@@ -195,6 +195,14 @@
         "elementKind": ""
       },
       {
+        "yamlName": "dimensionTransformations",
+        "doc": "A map from dimension names emitted by the monitor to the desired dimension name that will be emitted in the datapoint that goes to SignalFx.  This can be useful if you have custom metrics from your applications and want to make the dimensions from a monitor match those. Also can be useful when scraping free-form metrics, say with the `prometheus-exporter` monitor.  Right now, only static key/value transformations are supported.  Note that filtering by dimensions will be done on the *original* dimension name and not the new name.",
+        "default": null,
+        "required": false,
+        "type": "map",
+        "elementKind": "string"
+      },
+      {
         "yamlName": "extraMetrics",
         "doc": "Extra metrics to enable besides the default included ones.",
         "default": null,
@@ -29362,6 +29370,14 @@
               "required": false,
               "type": "bool",
               "elementKind": ""
+            },
+            {
+              "yamlName": "dimensionTransformations",
+              "doc": "A map from dimension names emitted by the monitor to the desired dimension name that will be emitted in the datapoint that goes to SignalFx.  This can be useful if you have custom metrics from your applications and want to make the dimensions from a monitor match those. Also can be useful when scraping free-form metrics, say with the `prometheus-exporter` monitor.  Right now, only static key/value transformations are supported.  Note that filtering by dimensions will be done on the *original* dimension name and not the new name.",
+              "default": null,
+              "required": false,
+              "type": "map",
+              "elementKind": "string"
             },
             {
               "yamlName": "extraMetrics",
