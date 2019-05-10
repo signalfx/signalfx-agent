@@ -8,7 +8,7 @@ import pytest
 from tests.helpers.assertions import tcp_socket_open
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_container, wait_for
-from tests.helpers.verify import verify_custom
+from tests.helpers.verify import run_agent_verify
 
 pytestmark = [pytest.mark.cadvisor, pytest.mark.monitor_without_endpoints]
 
@@ -33,7 +33,7 @@ def run(config, metrics):
     ):
         host = container_ip(cadvisor_container)
         assert wait_for(p(tcp_socket_open, host, 8080), 60), "service didn't start"
-        verify_custom(config.format(host=host), metrics)
+        run_agent_verify(config.format(host=host), metrics)
 
 
 def test_cadvisor_included():

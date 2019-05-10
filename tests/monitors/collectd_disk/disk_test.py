@@ -2,7 +2,7 @@ import pytest
 
 from tests.helpers.agent import Agent
 from tests.helpers.metadata import Metadata
-from tests.helpers.verify import verify_included_metrics, verify_expected_is_subset
+from tests.helpers.verify import run_agent_verify_included_metrics, verify_expected_is_subset
 
 pytestmark = [pytest.mark.collectd, pytest.mark.disk, pytest.mark.monitor_without_endpoints]
 
@@ -10,7 +10,7 @@ METADATA = Metadata.from_package("collectd/disk")
 
 
 def test_disk_included():
-    verify_included_metrics(
+    run_agent_verify_included_metrics(
         """
         monitors:
         - type: collectd/disk

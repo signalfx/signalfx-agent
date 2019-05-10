@@ -6,7 +6,7 @@ from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, tcp_socket_open
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_container, wait_for
-from tests.helpers.verify import verify_custom, verify_expected_is_subset
+from tests.helpers.verify import run_agent_verify, verify_expected_is_subset
 
 pytestmark = [pytest.mark.collectd, pytest.mark.etcd, pytest.mark.monitor_with_endpoints]
 
@@ -57,7 +57,7 @@ def test_etcd_monitor_included():
         config = ETCD_CONFIG.substitute(host=host)
         assert wait_for(p(tcp_socket_open, host, 2379), 60), "service didn't start"
 
-        verify_custom(config, INCLUDED_METRICS)
+        run_agent_verify(config, INCLUDED_METRICS)
 
 
 ENHANCED_METRICS = METADATA.all_metrics - {

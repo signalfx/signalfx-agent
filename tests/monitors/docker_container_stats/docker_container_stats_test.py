@@ -6,7 +6,7 @@ from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import ensure_always, run_service, wait_for
-from tests.helpers.verify import verify_expected_is_subset, verify_included_metrics
+from tests.helpers.verify import run_agent_verify_included_metrics, verify_expected_is_subset
 
 pytestmark = [pytest.mark.docker_container_stats, pytest.mark.monitor_without_endpoints]
 
@@ -163,13 +163,12 @@ def test_docker_included():
     with run_service(
         "elasticsearch/6.6.1"
     ):  # just get a container that does some block io running so we have some stats
-        verify_included_metrics(
+        run_agent_verify_included_metrics(
             f"""
             monitors:
             - type: docker-container-stats
             """,
             METADATA,
-            check_errors=False,
         )
 
 
@@ -218,4 +217,4 @@ def test_docker_enhanced():
               enableExtraNetworkMetrics: true
             """
         ) as agent:
-            verify_expected_is_subset(agent, ENHANCED_METRICS, check_errors=False)
+            verify_expected_is_subset(agent, ENHANCED_METRICS)

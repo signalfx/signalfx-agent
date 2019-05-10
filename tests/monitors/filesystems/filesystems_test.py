@@ -2,9 +2,8 @@ import sys
 from textwrap import dedent
 
 import pytest
-
 from tests.helpers.metadata import Metadata
-from tests.helpers.verify import verify_custom, verify_included_metrics
+from tests.helpers.verify import run_agent_verify, run_agent_verify_included_metrics
 
 pytestmark = [pytest.mark.windows, pytest.mark.filesystems, pytest.mark.monitor_without_endpoints]
 
@@ -18,7 +17,7 @@ def test_filesystems_included_metrics():
         - type: filesystems
         """
     )
-    verify_included_metrics(agent_config, METADATA)
+    run_agent_verify_included_metrics(agent_config, METADATA)
 
 
 def test_filesystems_mountpoint_filter():
@@ -32,7 +31,7 @@ def test_filesystems_mountpoint_filter():
           - "!*"
         """
     )
-    verify_custom(agent_config, expected_metrics)
+    run_agent_verify(agent_config, expected_metrics)
 
 
 def test_filesystems_fstype_filter():
@@ -46,7 +45,7 @@ def test_filesystems_fstype_filter():
           - "!*"
         """
     )
-    verify_custom(agent_config, expected_metrics)
+    run_agent_verify(agent_config, expected_metrics)
 
 
 def test_filesystems_logical_flag():
@@ -59,7 +58,7 @@ def test_filesystems_logical_flag():
           includeLogical: true
         """
     )
-    verify_custom(agent_config, expected_metrics)
+    run_agent_verify(agent_config, expected_metrics)
 
 
 def test_filesystems_inodes_flag():
@@ -74,7 +73,7 @@ def test_filesystems_inodes_flag():
           reportInodes: true
         """
     )
-    verify_custom(agent_config, expected_metrics)
+    run_agent_verify(agent_config, expected_metrics)
 
 
 # def test_filesystems_extra_metrics():
@@ -90,7 +89,7 @@ def test_filesystems_inodes_flag():
 #           - {df_inodes_used}
 #         """
 #     )
-#     verify_custom(agent_config, expected_metrics)
+#     run_agent_verify(agent_config, expected_metrics)
 
 
 def test_filesystems_all_metrics():
@@ -106,4 +105,4 @@ def test_filesystems_all_metrics():
           reportInodes: true
         """
     )
-    verify_custom(agent_config, expected_metrics)
+    run_agent_verify(agent_config, expected_metrics)
