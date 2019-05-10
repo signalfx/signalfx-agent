@@ -27423,14 +27423,20 @@
           "included": true
         },
         "vmpage_number.free_pages": {
-          "type": "cumulative",
+          "type": "gauge",
           "description": "(Linux Only) Number of free memory pages",
           "group": null,
           "included": false
         },
         "vmpage_number.mapped": {
-          "type": "cumulative",
+          "type": "gauge",
           "description": "(Linux Only) Number of mapped pages",
+          "group": null,
+          "included": false
+        },
+        "vmpage_number.shmem_pmdmapped": {
+          "type": "gauge",
+          "description": "(Linux Only) The amount of shared (shmem/tmpfs) memory backed by huge pages",
           "group": null,
           "included": false
         }
