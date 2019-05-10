@@ -66,6 +66,14 @@ func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) 
 		am.output.AddExtraDimension(k, v)
 	}
 
+	for k, v := range monConfig.MonitorConfigCore().ExtraDimensionsFromEndpoint {
+		val, err := services.EvaluateRule(am.endpoint, v, true, true)
+		if err != nil {
+			return err
+		}
+		am.output.AddExtraDimension(k, fmt.Sprintf("%v", val))
+	}
+
 	if err := validateConfig(monConfig); err != nil {
 		return err
 	}

@@ -32,6 +32,12 @@ type MonitorConfig struct {
 	// monitor(s) created from this configuration. To specify metrics from this
 	// monitor should be high-resolution, add the dimension `sf_hires: 1`
 	ExtraDimensions map[string]string `yaml:"extraDimensions" json:"extraDimensions"`
+	// A mapping of extra dimension names to a [discovery rule
+	// expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html)
+	// that is used to derive the value of the dimension.  For example, to use
+	// a certain container label as a dimension, you could use something like this
+	// in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`
+	ExtraDimensionsFromEndpoint map[string]string `yaml:"extraDimensionsFromEndpoint" json:"extraDimensionsFromEndpoint"`
 	// A set of mappings from a configuration option on this monitor to
 	// attributes of a discovered endpoint.  The keys are the config option on
 	// this monitor and the value can be any valid expression used in discovery
