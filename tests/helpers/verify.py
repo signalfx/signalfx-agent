@@ -27,11 +27,12 @@ def verify_expected_is_superset(agent, expected_metrics, timeout=util.DEFAULT_TI
 def run_agent_verify(config, metrics, timeout=util.DEFAULT_TIMEOUT):
     with Agent.run(config) as agent:
         verify(agent, metrics, timeout=timeout)
+        return agent
 
 
 def run_agent_verify_included_metrics(config, metadata, timeout=util.DEFAULT_TIMEOUT):
-    run_agent_verify(config, metadata.included_metrics, timeout=timeout)
+    return run_agent_verify(config, metadata.included_metrics, timeout=timeout)
 
 
 def run_agent_verify_all_metrics(config, metadata, timeout=util.DEFAULT_TIMEOUT):
-    run_agent_verify(config, metadata.all_metrics, timeout=timeout)
+    return run_agent_verify(config, metadata.all_metrics, timeout=timeout)

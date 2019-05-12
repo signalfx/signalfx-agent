@@ -38,5 +38,9 @@ monitors:
       description: Number of mapped pages
       included: false
       type: cumulative
+    vmpage_number.shmem_pmdmapped:
+      description: The amount of shared (shmem/tmpfs) memory backed by huge pages
+      included: false
+      type: gauge
   monitorType: collectd/vmem
   properties:

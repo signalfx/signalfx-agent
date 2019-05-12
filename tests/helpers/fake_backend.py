@@ -1,8 +1,10 @@
 import asyncio
 import gzip
+import json
 import socket
+import sys
 import threading
-from collections import defaultdict
+from collections import defaultdict, OrderedDict
 from contextlib import contextmanager
 from queue import Queue
 
@@ -12,6 +14,7 @@ from signalfx.generated_protocol_buffers import signal_fx_protocol_buffers_pb2 a
 
 # This module collects metrics from the agent and can echo them back out for
 # making assertions on the collected metrics.
+from tests.helpers.formatting import get_metric_type
 
 STOP = type("STOP", (), {})
 
@@ -85,7 +88,7 @@ def _make_fake_api(dims):
 # Starts up a new set of backend services that will run on a random port.  The
 # returned object will have properties on it for datapoints, events, and dims.
 # The fake servers will be stopped once the context manager block is exited.
-# pylint: disable=too-many-locals
+# pylint: disable=too-many-locals,too-many-statements
 @contextmanager
 def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0):
     # Data structures are thread-safe due to the GIL
@@ -145,6 +148,14 @@ def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0):
         events = _events
         spans = _spans
         dims = _dims
+
+        def dump_json(self):
+            out = OrderedDict()
+            dps = [dp[0] for dp in self.datapoints_by_metric.values()]
+            metrics = {(dp.metric, dp.metricType) for dp in dps}
+            out["metrics"] = {metric: {"type": get_metric_type(metric_type)} for metric, metric_type in sorted(metrics)}
+            out["dimensions"] = sorted(set(self.datapoints_by_dim))
+            json.dump(out, sys.stdout, indent=2)
 
         def reset_datapoints(self):
             self.datapoints.clear()
