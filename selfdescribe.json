@@ -10926,6 +10926,12 @@
           "group": null,
           "included": false
         },
+        "protocol_counter.OutSegs": {
+          "type": "cumulative",
+          "description": "The total number of segments that have been sent, including those on current connections but excluding those containing only retransmitted octets.\n",
+          "group": null,
+          "included": false
+        },
         "protocol_counter.PassiveOpens": {
           "type": "cumulative",
           "description": "The number of times that a server opened a connection, due to receiving a TCP SYN packet.",
@@ -13573,6 +13579,12 @@
         "vmpage_number.mapped": {
           "type": "cumulative",
           "description": "Number of mapped pages",
+          "group": null,
+          "included": false
+        },
+        "vmpage_number.shmem_pmdmapped": {
+          "type": "gauge",
+          "description": "The amount of shared (shmem/tmpfs) memory backed by huge pages",
           "group": null,
           "included": false
         }

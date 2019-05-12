@@ -36,5 +36,11 @@ monitors:
       description: The total number of segments retransmitted
       included: false
       type: cumulative
+    protocol_counter.OutSegs:
+      description: >
+        The total number of segments that have been sent, including those on current
+        connections but excluding those containing only retransmitted octets.
+      included: false
+      type: cumulative
   monitorType: collectd/protocols
   properties:
