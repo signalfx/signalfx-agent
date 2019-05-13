@@ -36,17 +36,20 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
+| `counter.zk_fsync_threshold_exceed_count` | cumulative |  | Number of times fsync duration has exceeded warning threshold |
 | `counter.zk_packets_received` | cumulative | ✔ | Count of the number of ZooKeeper packets received by a server |
 | `counter.zk_packets_sent` | cumulative | ✔ | Count of the number of ZooKeeper packets sent from a server |
 | `gauge.zk_approximate_data_size` | gauge | ✔ | Size of data in bytes that a ZooKeeper server has in its data tree |
 | `gauge.zk_avg_latency` | gauge | ✔ | Average time in milliseconds for requests to be processed |
 | `gauge.zk_ephemerals_count` | gauge | ✔ | Number of ephemeral nodes that a ZooKeeper server has in its data tree |
+| `gauge.zk_is_leader` | gauge |  | 1 if the node is a leader, 0 if the node is a follower |
 | `gauge.zk_max_file_descriptor_count` | gauge | ✔ | Maximum number of file descriptors that a ZooKeeper server can open |
 | `gauge.zk_max_latency` | gauge |  | Maximum time in milliseconds for a request to be processed |
 | `gauge.zk_min_latency` | gauge |  | Minimum time in milliseconds for a request to be processed |
 | `gauge.zk_num_alive_connections` | gauge | ✔ | Number of active clients connected to a ZooKeeper server |
 | `gauge.zk_open_file_descriptor_count` | gauge | ✔ | Number of file descriptors that a ZooKeeper server has open |
 | `gauge.zk_outstanding_requests` | gauge |  | Number of currently executing requests |
+| `gauge.zk_service_health` | gauge |  | 1 if server is running, otherwise 0 |
 | `gauge.zk_watch_count` | gauge | ✔ | Number of watches placed on Z-Nodes on a ZooKeeper server |
 | `gauge.zk_znode_count` | gauge | ✔ | Number of z-nodes that a ZooKeeper server has in its data tree |
 
@@ -65,9 +68,12 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
+    - counter.zk_fsync_threshold_exceed_count
+    - gauge.zk_is_leader
     - gauge.zk_max_latency
     - gauge.zk_min_latency
     - gauge.zk_outstanding_requests
+    - gauge.zk_service_health
     monitorType: collectd/zookeeper
 ```
 

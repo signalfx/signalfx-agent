@@ -13607,6 +13607,12 @@
       "doc": "Monitors an Apache Zookeeper instance.\n\nSee the [Python plugin\nsource](https://github.com/signalfx/collectd-zookeeper) and the\n[integrations repo\npage](https://github.com/signalfx/integrations/tree/master/collectd-zookeeper)\nfor more information.\n",
       "groups": null,
       "metrics": {
+        "counter.zk_fsync_threshold_exceed_count": {
+          "type": "cumulative",
+          "description": "Number of times fsync duration has exceeded warning threshold",
+          "group": null,
+          "included": false
+        },
         "counter.zk_packets_received": {
           "type": "cumulative",
           "description": "Count of the number of ZooKeeper packets received by a server",
@@ -13636,6 +13642,12 @@
           "description": "Number of ephemeral nodes that a ZooKeeper server has in its data tree",
           "group": null,
           "included": true
+        },
+        "gauge.zk_is_leader": {
+          "type": "gauge",
+          "description": "1 if the node is a leader, 0 if the node is a follower",
+          "group": null,
+          "included": false
         },
         "gauge.zk_max_file_descriptor_count": {
           "type": "gauge",
@@ -13670,6 +13682,12 @@
         "gauge.zk_outstanding_requests": {
           "type": "gauge",
           "description": "Number of currently executing requests",
+          "group": null,
+          "included": false
+        },
+        "gauge.zk_service_health": {
+          "type": "gauge",
+          "description": "1 if server is running, otherwise 0",
           "group": null,
           "included": false
         },
