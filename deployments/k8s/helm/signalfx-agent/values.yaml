@@ -1,6 +1,6 @@
 # Version of the signalfx-agent to deploy.  This will be the default for the
 # docker image tag if not overridden with imageTag
-agentVersion: 4.6.2
+agentVersion: 4.6.3
 
 # The access token for SignalFx.  REQUIRED
 signalFxAccessToken: ""
@@ -135,6 +135,7 @@ gatherDockerMetrics: true
 # cAdvisor metrics that cause a large increase in DPM for little value for most
 # customers.
 metricsToExclude:
+ - {"#from": "/lib/whitelist.json", flatten: true}
 
 
 # The path to the 'etc' directory of the underlying K8s node.  This allows the
