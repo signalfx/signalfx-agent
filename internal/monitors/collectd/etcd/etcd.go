@@ -1,6 +1,8 @@
 package etcd
 
 import (
+	"strconv"
+
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -28,12 +30,17 @@ type Config struct {
 	Port                 uint16 `yaml:"port" validate:"required"`
 	// An arbitrary name of the etcd cluster to make it easier to group
 	// together and identify instances.
-	ClusterName       string `yaml:"clusterName" validate:"required"`
-	SSLKeyFile        string `yaml:"sslKeyFile"`
-	SSLCertificate    string `yaml:"sslCertificate"`
-	SSLCACerts        string `yaml:"sslCACerts"`
-	SkipSSLValidation *bool  `yaml:"skipSSLValidation"`
-	EnhancedMetrics   *bool  `yaml:"enhancedMetrics"`
+	ClusterName string `yaml:"clusterName" validate:"required"`
+	// Client private key if using client certificate authentication.
+	SSLKeyFile string `yaml:"sslKeyFile"`
+	// Client public key if using client certificate authentication.
+	SSLCertificate string `yaml:"sslCertificate"`
+	// Certificate authority or host certificate to trust.
+	SSLCACerts string `yaml:"sslCACerts"`
+	// If `true`, etcd's SSL certificate will not be verified. Enabling this option
+	// results in the `sslCACerts` option being ignored.
+	SkipSSLValidation bool `yaml:"skipSSLValidation"`
+	EnhancedMetrics   bool `yaml:"enhancedMetrics"`
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface
@@ -56,11 +63,15 @@ func (m *Monitor) Configure(conf *Config) error {
 		ModulePaths:   []string{collectd.MakePythonPluginPath("etcd")},
 		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
-			"Host":                conf.Host,
-			"Port":                conf.Port,
-			"Interval":            conf.IntervalSeconds,
-			"Cluster":             conf.ClusterName,
-			"ssl_cert_validation": conf.SkipSSLValidation,
+			"Host":     conf.Host,
+			"Port":     conf.Port,
+			"Interval": conf.IntervalSeconds,
+			"Cluster":  conf.ClusterName,
+			// Format as a string because collectd passes through bools as strings whereas
+			// we pass them through as bools so the logic currently used in collectd-etcd
+			// does not work correctly with bools. Maybe pyrunner should be changed to
+			// behave the same as collectd?
+			"ssl_cert_validation": strconv.FormatBool(!conf.SkipSSLValidation),
 			"EnhancedMetrics":     conf.EnhancedMetrics,
 			"ssl_keyfile":         conf.SSLKeyFile,
 			"ssl_certificate":     conf.SSLCertificate,
@@ -73,7 +84,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 // GetExtraMetrics returns additional metrics that should be allowed through.
 func (c *Config) GetExtraMetrics() []string {
-	if c.EnhancedMetrics != nil && *c.EnhancedMetrics {
+	if c.EnhancedMetrics {
 		return monitorMetadata.NonIncludedMetrics()
 	}
 	return nil

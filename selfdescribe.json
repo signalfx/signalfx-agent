@@ -4294,7 +4294,7 @@
           },
           {
             "yamlName": "sslKeyFile",
-            "doc": "",
+            "doc": "Client private key if using client certificate authentication.",
             "default": "",
             "required": false,
             "type": "string",
@@ -4302,7 +4302,7 @@
           },
           {
             "yamlName": "sslCertificate",
-            "doc": "",
+            "doc": "Client public key if using client certificate authentication.",
             "default": "",
             "required": false,
             "type": "string",
@@ -4310,7 +4310,7 @@
           },
           {
             "yamlName": "sslCACerts",
-            "doc": "",
+            "doc": "Certificate authority or host certificate to trust.",
             "default": "",
             "required": false,
             "type": "string",
@@ -4318,8 +4318,8 @@
           },
           {
             "yamlName": "skipSSLValidation",
-            "doc": "",
-            "default": "false",
+            "doc": "If `true`, etcd's SSL certificate will not be verified. Enabling this option results in the `sslCACerts` option being ignored.",
+            "default": false,
             "required": false,
             "type": "bool",
             "elementKind": ""
@@ -4327,7 +4327,7 @@
           {
             "yamlName": "enhancedMetrics",
             "doc": "",
-            "default": "false",
+            "default": false,
             "required": false,
             "type": "bool",
             "elementKind": ""
@@ -19061,7 +19061,7 @@
           "description": "The k8s resource that the quota applies to"
         }
       },
-      "doc": "*If you are using OpenShift there is an [`openshift-cluster`](openshift-cluster.md)\nmonitor to be used instead of this monitor that contains additional OpenShift metrics.*\n\nCollects cluster-level metrics from the Kubernetes API server.  It uses the\n_watch_ functionality of the K8s API to listen for updates about the cluster\nand maintains a cache of metrics that get sent on a regular interval.\n\nSince the agent is generally running in multiple places in a K8s cluster and\nsince it is generally more convenient to share the same configuration across\nall agent instances, this monitor by default makes use of a leader election\nprocess to ensure that it is the only agent sending metrics in a cluster.\nAll of the agents running in the same namespace that have this monitor\nconfigured will decide amongst themselves which should send metrics for this\nmonitor, and the rest will stand by ready to activate if the leader agent\ndies.  You can override leader election by setting the config option\n`alwaysClusterReporter` to true, which will make the monitor always report\nmetrics.\n\nThis monitor is similar to\n[kube-state-metrics](https://github.com/kubernetes/kube-state-metrics), and\nsends many of the same metrics, but in a way that is less verbose and better\nfitted for the SignalFx backend.\n",
+      "doc": "*If you are using OpenShift there is an* [openshift-cluster](openshift-cluster.md)\n*monitor to be used instead of this monitor that contains additional OpenShift metrics.*\n\nCollects cluster-level metrics from the Kubernetes API server.  It uses the\n_watch_ functionality of the K8s API to listen for updates about the cluster\nand maintains a cache of metrics that get sent on a regular interval.\n\nSince the agent is generally running in multiple places in a K8s cluster and\nsince it is generally more convenient to share the same configuration across\nall agent instances, this monitor by default makes use of a leader election\nprocess to ensure that it is the only agent sending metrics in a cluster.\nAll of the agents running in the same namespace that have this monitor\nconfigured will decide amongst themselves which should send metrics for this\nmonitor, and the rest will stand by ready to activate if the leader agent\ndies.  You can override leader election by setting the config option\n`alwaysClusterReporter` to true, which will make the monitor always report\nmetrics.\n\nThis monitor is similar to\n[kube-state-metrics](https://github.com/kubernetes/kube-state-metrics), and\nsends many of the same metrics, but in a way that is less verbose and better\nfitted for the SignalFx backend.\n",
       "groups": null,
       "metrics": {
         "kubernetes.container_ready": {
@@ -19749,7 +19749,7 @@
           "description": "The k8s resource that the quota applies to"
         }
       },
-      "doc": "This monitor is for use with an OpenShift cluster. It includes all metrics\nfrom the [`kubernetes-cluster`](kubernetes-cluster.md) monitor with additional\nOpenShift-specific metrics. You only need to use one monitor or the other.\n\nCollects cluster-level metrics from the Kubernetes API server.  It uses the\n_watch_ functionality of the K8s API to listen for updates about the cluster\nand maintains a cache of metrics that get sent on a regular interval.\n\nSince the agent is generally running in multiple places in a K8s cluster and\nsince it is generally more convenient to share the same configuration across\nall agent instances, this monitor by default makes use of a leader election\nprocess to ensure that it is the only agent sending metrics in a cluster.\nAll of the agents running in the same namespace that have this monitor\nconfigured will decide amongst themselves which should send metrics for this\nmonitor, and the rest will stand by ready to activate if the leader agent\ndies.  You can override leader election by setting the config option\n`alwaysClusterReporter` to true, which will make the monitor always report\nmetrics.\n\nThis monitor is similar to\n[kube-state-metrics](https://github.com/kubernetes/kube-state-metrics), and\nsends many of the same metrics, but in a way that is less verbose and better\nfitted for the SignalFx backend.\n",
+      "doc": "This monitor is for use with an OpenShift cluster. It includes all metrics\nfrom the [kubernetes-cluster](kubernetes-cluster.md) monitor with additional\nOpenShift-specific metrics. You only need to use one monitor or the other.\n\nCollects cluster-level metrics from the Kubernetes API server.  It uses the\n_watch_ functionality of the K8s API to listen for updates about the cluster\nand maintains a cache of metrics that get sent on a regular interval.\n\nSince the agent is generally running in multiple places in a K8s cluster and\nsince it is generally more convenient to share the same configuration across\nall agent instances, this monitor by default makes use of a leader election\nprocess to ensure that it is the only agent sending metrics in a cluster.\nAll of the agents running in the same namespace that have this monitor\nconfigured will decide amongst themselves which should send metrics for this\nmonitor, and the rest will stand by ready to activate if the leader agent\ndies.  You can override leader election by setting the config option\n`alwaysClusterReporter` to true, which will make the monitor always report\nmetrics.\n\nThis monitor is similar to\n[kube-state-metrics](https://github.com/kubernetes/kube-state-metrics), and\nsends many of the same metrics, but in a way that is less verbose and better\nfitted for the SignalFx backend.\n",
       "groups": null,
       "metrics": {
         "kubernetes.container_ready": {
@@ -23551,7 +23551,7 @@
         },
         "prometheus_engine_query_duration_seconds_count": {
           "type": "cumulative",
-          "description": "Query timings",
+          "description": "Query timings (count)",
           "group": null,
           "included": false
         },
@@ -23563,13 +23563,13 @@
         },
         "prometheus_http_request_duration_seconds_bucket": {
           "type": "cumulative",
-          "description": "Histogram of latencies for HTTP requests",
+          "description": "Histogram of latencies for HTTP requests (bucket)",
           "group": null,
           "included": false
         },
         "prometheus_http_request_duration_seconds_count": {
           "type": "cumulative",
-          "description": "Histogram of latencies for HTTP requests",
+          "description": "Histogram of latencies for HTTP requests (count)",
           "group": null,
           "included": false
         },
@@ -23581,7 +23581,7 @@
         },
         "prometheus_http_response_size_bytes_bucket": {
           "type": "cumulative",
-          "description": "Histogram of response size for HTTP requests",
+          "description": "Histogram of response size for HTTP requests (bucket)",
           "group": null,
           "included": false
         },
@@ -23623,7 +23623,7 @@
         },
         "prometheus_rule_evaluation_duration_seconds_count": {
           "type": "cumulative",
-          "description": "The duration for a rule to execute",
+          "description": "The duration for a rule to execute (count)",
           "group": null,
           "included": false
         },
@@ -23641,7 +23641,7 @@
         },
         "prometheus_rule_group_duration_seconds_count": {
           "type": "cumulative",
-          "description": "The duration of rule group evaluations",
+          "description": "The duration of rule group evaluations (count)",
           "group": null,
           "included": false
         },
@@ -23677,7 +23677,7 @@
         },
         "prometheus_sd_azure_refresh_duration_seconds_count": {
           "type": "cumulative",
-          "description": "The duration of a Azure-SD refresh in seconds",
+          "description": "The duration of a Azure-SD refresh in seconds (count)",
           "group": null,
           "included": false
         },
@@ -23701,7 +23701,7 @@
         },
         "prometheus_sd_consul_rpc_duration_seconds_count": {
           "type": "cumulative",
-          "description": "The duration of a Consul RPC call in seconds",
+          "description": "The duration of a Consul RPC call in seconds (count)",
           "group": null,
           "included": false
         },
@@ -23737,7 +23737,7 @@
         },
         "prometheus_sd_ec2_refresh_duration_seconds_count": {
           "type": "cumulative",
-          "description": "The duration of a EC2-SD refresh in seconds",
+          "description": "The duration of a EC2-SD refresh in seconds (count)",
           "group": null,
           "included": false
         },
@@ -23761,7 +23761,7 @@
         },
         "prometheus_sd_file_scan_duration_seconds_count": {
           "type": "cumulative",
-          "description": "The duration of the File-SD scan in seconds",
+          "description": "The duration of the File-SD scan in seconds (count)",
           "group": null,
           "included": false
         },
@@ -23773,7 +23773,7 @@
         },
         "prometheus_sd_gce_refresh_duration_count": {
           "type": "cumulative",
-          "description": "The duration of a GCE-SD refresh in seconds",
+          "description": "The duration of a GCE-SD refresh in seconds (count)",
           "group": null,
           "included": false
         },
@@ -23797,7 +23797,7 @@
         },
         "prometheus_sd_kubernetes_cache_list_duration_seconds_count": {
           "type": "cumulative",
-          "description": "Duration of a Kubernetes API call in seconds",
+          "description": "Duration of a Kubernetes API call in seconds (count)",
           "group": null,
           "included": false
         },
@@ -23809,7 +23809,7 @@
         },
         "prometheus_sd_kubernetes_cache_list_items_count": {
           "type": "cumulative",
-          "description": "Count of items in a list from the Kubernetes API",
+          "description": "Count of items in a list from the Kubernetes API (count)",
           "group": null,
           "included": false
         },
@@ -23833,7 +23833,7 @@
         },
         "prometheus_sd_kubernetes_cache_watch_duration_seconds_count": {
           "type": "cumulative",
-          "description": "Duration of watches on the Kubernetes API",
+          "description": "Duration of watches on the Kubernetes API (count)",
           "group": null,
           "included": false
         },
@@ -23845,7 +23845,7 @@
         },
         "prometheus_sd_kubernetes_cache_watch_events_count": {
           "type": "cumulative",
-          "description": "Number of items in watches on the Kubernetes API",
+          "description": "Number of items in watches on the Kubernetes API (count)",
           "group": null,
           "included": false
         },
@@ -24037,13 +24037,13 @@
         },
         "prometheus_tsdb_compaction_chunk_range_seconds_bucket": {
           "type": "cumulative",
-          "description": "Final time range of chunks on their first compaction",
+          "description": "Final time range of chunks on their first compaction (bucket)",
           "group": null,
           "included": false
         },
         "prometheus_tsdb_compaction_chunk_range_seconds_count": {
           "type": "cumulative",
-          "description": "Final time range of chunks on their first compaction",
+          "description": "Final time range of chunks on their first compaction (count)",
           "group": null,
           "included": false
         },
@@ -24055,13 +24055,13 @@
         },
         "prometheus_tsdb_compaction_chunk_samples_bucket": {
           "type": "cumulative",
-          "description": "Final number of samples on their first compaction",
+          "description": "Final number of samples on their first compaction (bucket)",
           "group": null,
           "included": false
         },
         "prometheus_tsdb_compaction_chunk_samples_count": {
           "type": "cumulative",
-          "description": "Final number of samples on their first compaction",
+          "description": "Final number of samples on their first compaction (count)",
           "group": null,
           "included": false
         },
@@ -24073,7 +24073,7 @@
         },
         "prometheus_tsdb_compaction_chunk_size_bytes_bucket": {
           "type": "cumulative",
-          "description": "Final size of chunks on their first compaction",
+          "description": "Final size of chunks on their first compaction (bucket)",
           "group": null,
           "included": false
         },
@@ -24091,13 +24091,13 @@
         },
         "prometheus_tsdb_compaction_duration_seconds_bucket": {
           "type": "cumulative",
-          "description": "Duration of compaction runs",
+          "description": "Duration of compaction runs (bucket)",
           "group": null,
           "included": false
         },
         "prometheus_tsdb_compaction_duration_seconds_count": {
           "type": "cumulative",
-          "description": "Duration of compaction runs",
+          "description": "Duration of compaction runs (count)",
           "group": null,
           "included": false
         },
@@ -24151,7 +24151,7 @@
         },
         "prometheus_tsdb_head_gc_duration_seconds_count": {
           "type": "cumulative",
-          "description": "Runtime of garbage collection in the head block",
+          "description": "Runtime of garbage collection in the head block (count)",
           "group": null,
           "included": false
         },
@@ -24253,13 +24253,13 @@
         },
         "prometheus_tsdb_tombstone_cleanup_seconds_bucket": {
           "type": "cumulative",
-          "description": "The time taken to recompact blocks to remove tombstones",
+          "description": "The time taken to recompact blocks to remove tombstones (bucket)",
           "group": null,
           "included": false
         },
         "prometheus_tsdb_tombstone_cleanup_seconds_count": {
           "type": "cumulative",
-          "description": "The time taken to recompact blocks to remove tombstones",
+          "description": "The time taken to recompact blocks to remove tombstones (count)",
           "group": null,
           "included": false
         },
@@ -24277,7 +24277,7 @@
         },
         "prometheus_tsdb_wal_fsync_duration_seconds_count": {
           "type": "cumulative",
-          "description": "Duration of WAL fsync",
+          "description": "Duration of WAL fsync (count)",
           "group": null,
           "included": false
         },
@@ -24295,7 +24295,7 @@
         },
         "prometheus_tsdb_wal_truncate_duration_seconds_count": {
           "type": "cumulative",
-          "description": "Duration of WAL truncation",
+          "description": "Duration of WAL truncation (count)",
           "group": null,
           "included": false
         },
