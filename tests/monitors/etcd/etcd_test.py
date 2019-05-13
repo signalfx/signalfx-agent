@@ -48,7 +48,7 @@ ENHANCED_METRICS = METADATA.all_metrics - EXCLUDED_METRICS
 
 
 @contextmanager
-def run_etcd(tls=False):
+def run_etcd(tls=False, **kwargs):
     if tls:
         cmd = """
             --listen-client-urls https://0.0.0.0:2379
@@ -61,11 +61,10 @@ def run_etcd(tls=False):
         # NOTE: If running in a container this will only work if the container is running in host
         # networking mode. We need to be able to connect to "localhost" since it is the CN in the
         # certificate.
-        with run_service("etcd", command=cmd, ports={"2379/tcp": None}) as container:
-            host = "localhost"
-            port = int(container.attrs["NetworkSettings"]["Ports"]["2379/tcp"][0]["HostPort"])
-            assert wait_for(p(tcp_socket_open, host, port), 60), "service didn't start"
-            yield host, port
+        with run_service("etcd", command=cmd, **kwargs) as container:
+            host = container_ip(container)
+            assert wait_for(p(tcp_socket_open, host, 2379), 60), "service didn't start"
+            yield container
     else:
         cmd = """
             --listen-client-urls http://0.0.0.0:2379,http://0.0.0.0:4001
@@ -79,14 +78,17 @@ def run_etcd(tls=False):
 
 @pytest.mark.requires_host_networking
 def test_etcd_tls_skip_validation():
-    with run_etcd(tls=True) as (host, port):
-        config = ETCD_TLS_CONFIG.format(host=host, port=port, skipValidation="true", testServices=TEST_SERVICES_DIR)
+    with run_etcd(tls=True) as container:
+        host = container_ip(container)
+        config = ETCD_TLS_CONFIG.format(host=host, port=2379, skipValidation="true", testServices=TEST_SERVICES_DIR)
         run_agent_verify(config, INCLUDED_METRICS)
 
 
 @pytest.mark.requires_host_networking
 def test_etcd_tls_validate():
-    with run_etcd(tls=True) as (host, port):
+    with run_etcd(tls=True, ports={"2379/tcp": None}) as container:
+        host = "localhost"
+        port = int(container.attrs["NetworkSettings"]["Ports"]["2379/tcp"][0]["HostPort"])
         config = ETCD_TLS_CONFIG.format(host=host, port=port, skipValidation="false", testServices=TEST_SERVICES_DIR)
         run_agent_verify(config, INCLUDED_METRICS)
 
