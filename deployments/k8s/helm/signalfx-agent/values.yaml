@@ -135,7 +135,6 @@ gatherDockerMetrics: true
 # cAdvisor metrics that cause a large increase in DPM for little value for most
 # customers.
 metricsToExclude:
- - {"#from": "/lib/whitelist.json", flatten: true}
 
 
 # The path to the 'etc' directory of the underlying K8s node.  This allows the
