@@ -2,8 +2,8 @@
 
 # kubernetes-cluster
 
-*If you are using OpenShift there is an [`openshift-cluster`](openshift-cluster.md)
-monitor to be used instead of this monitor that contains additional OpenShift metrics.*
+*If you are using OpenShift there is an* [openshift-cluster](openshift-cluster.md)
+*monitor to be used instead of this monitor that contains additional OpenShift metrics.*
 
 Collects cluster-level metrics from the Kubernetes API server.  It uses the
 _watch_ functionality of the K8s API to listen for updates about the cluster

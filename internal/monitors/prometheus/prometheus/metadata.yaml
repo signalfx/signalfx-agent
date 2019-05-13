@@ -38,11 +38,11 @@ monitors:
       included:
       type: cumulative
     prometheus_engine_query_duration_seconds_count:
-      description: Query timings
+      description: Query timings (count)
       included:
       type: cumulative
     prometheus_http_request_duration_seconds_bucket:
-      description: Histogram of latencies for HTTP requests
+      description: Histogram of latencies for HTTP requests in the respective bucket
       included:
       type: cumulative
     prometheus_http_request_duration_seconds:
@@ -50,11 +50,11 @@ monitors:
       included:
       type: cumulative
     prometheus_http_request_duration_seconds_count:
-      description: Histogram of latencies for HTTP requests
+      description: Histogram of latencies for HTTP requests (count)
       included:
       type: cumulative
     prometheus_http_response_size_bytes_bucket:
-      description: Histogram of response size for HTTP requests
+      description: Histogram of response size for HTTP requests in the respective bucket
       included:
       type: cumulative
     prometheus_http_response_size_bytes:
@@ -86,7 +86,7 @@ monitors:
       included:
       type: cumulative
     prometheus_rule_evaluation_duration_seconds_count:
-      description: The duration for a rule to execute
+      description: The duration for a rule to execute (count)
       included:
       type: cumulative
     prometheus_rule_evaluation_failures_total:
@@ -98,7 +98,7 @@ monitors:
       included:
       type: cumulative
     prometheus_rule_group_duration_seconds_count:
-      description: The duration of rule group evaluations
+      description: The duration of rule group evaluations (count)
       included:
       type: cumulative
     prometheus_rule_group_interval_seconds:
@@ -124,7 +124,7 @@ monitors:
       included:
       type: cumulative
     prometheus_sd_azure_refresh_duration_seconds_count:
-      description: The duration of a Azure-SD refresh in seconds
+      description: The duration of a Azure-SD refresh in seconds (count)
       included:
       type: cumulative
     prometheus_sd_azure_refresh_failures_total:
@@ -141,7 +141,7 @@ monitors:
       included:
       type: cumulative
     prometheus_sd_consul_rpc_duration_seconds_count:
-      description: The duration of a Consul RPC call in seconds
+      description: The duration of a Consul RPC call in seconds (count)
       included:
       type: cumulative
     prometheus_sd_consul_rpc_failures_total:
@@ -165,7 +165,7 @@ monitors:
       included:
       type: cumulative
     prometheus_sd_ec2_refresh_duration_seconds_count:
-      description: The duration of a EC2-SD refresh in seconds
+      description: The duration of a EC2-SD refresh in seconds (count)
       included:
       type: cumulative
     prometheus_sd_ec2_refresh_failures_total:
@@ -181,7 +181,7 @@ monitors:
       included:
       type: cumulative
     prometheus_sd_file_scan_duration_seconds_count:
-      description: The duration of the File-SD scan in seconds
+      description: The duration of the File-SD scan in seconds (count)
       included:
       type: cumulative
     prometheus_sd_gce_refresh_duration:
@@ -189,7 +189,7 @@ monitors:
       included:
       type: cumulative
     prometheus_sd_gce_refresh_duration_count:
-      description: The duration of a GCE-SD refresh in seconds
+      description: The duration of a GCE-SD refresh in seconds (count)
       included:
       type: cumulative
     prometheus_sd_gce_refresh_failures_total:
@@ -205,7 +205,7 @@ monitors:
       included:
       type: cumulative
     prometheus_sd_kubernetes_cache_list_duration_seconds_count:
-      description: Duration of a Kubernetes API call in seconds
+      description: Duration of a Kubernetes API call in seconds (count)
       included:
       type: cumulative
     prometheus_sd_kubernetes_cache_list_items:
@@ -213,7 +213,7 @@ monitors:
       included:
       type: cumulative
     prometheus_sd_kubernetes_cache_list_items_count:
-      description: Count of items in a list from the Kubernetes API
+      description: Count of items in a list from the Kubernetes API (count)
       included:
       type: cumulative
     prometheus_sd_kubernetes_cache_list_total:
@@ -229,7 +229,7 @@ monitors:
       included:
       type: cumulative
     prometheus_sd_kubernetes_cache_watch_duration_seconds_count:
-      description: Duration of watches on the Kubernetes API
+      description: Duration of watches on the Kubernetes API (count)
       included:
       type: cumulative
     prometheus_sd_kubernetes_cache_watch_events:
@@ -237,7 +237,7 @@ monitors:
       included:
       type: cumulative
     prometheus_sd_kubernetes_cache_watch_events_count:
-      description: Number of items in watches on the Kubernetes API
+      description: Number of items in watches on the Kubernetes API (count)
       included:
       type: cumulative
     prometheus_sd_kubernetes_cache_watches_total:
@@ -364,7 +364,7 @@ monitors:
       included:
       type: cumulative
     prometheus_tsdb_compaction_chunk_range_seconds_bucket:
-      description: Final time range of chunks on their first compaction
+      description: Final time range of chunks on their first compaction in the respective bucket
       included:
       type: cumulative
     prometheus_tsdb_compaction_chunk_range_seconds:
@@ -372,11 +372,11 @@ monitors:
       included:
       type: cumulative
     prometheus_tsdb_compaction_chunk_range_seconds_count:
-      description: Final time range of chunks on their first compaction
+      description: Final time range of chunks on their first compaction (count)
       included:
       type: cumulative
     prometheus_tsdb_compaction_chunk_samples_bucket:
-      description: Final number of samples on their first compaction
+      description: Final number of samples on their first compaction in the respective bucket
       included:
       type: cumulative
     prometheus_tsdb_compaction_chunk_samples:
@@ -384,11 +384,11 @@ monitors:
       included:
       type: cumulative
     prometheus_tsdb_compaction_chunk_samples_count:
-      description: Final number of samples on their first compaction
+      description: Final number of samples on their first compaction (count)
       included:
       type: cumulative
     prometheus_tsdb_compaction_chunk_size_bytes_bucket:
-      description: Final size of chunks on their first compaction
+      description: Final size of chunks on their first compaction in the respective bucket
       included:
       type: cumulative
     prometheus_tsdb_compaction_chunk_size_bytes:
@@ -400,7 +400,7 @@ monitors:
       included:
       type: cumulative
     prometheus_tsdb_compaction_duration_seconds_bucket:
-      description: Duration of compaction runs
+      description: Duration of compaction runs in the respective bucket
       included:
       type: cumulative
     prometheus_tsdb_compaction_duration_seconds:
@@ -408,7 +408,7 @@ monitors:
       included:
       type: cumulative
     prometheus_tsdb_compaction_duration_seconds_count:
-      description: Duration of compaction runs
+      description: Duration of compaction runs (count)
       included:
       type: cumulative
     prometheus_tsdb_compactions_failed_total:
@@ -444,7 +444,7 @@ monitors:
       included:
       type: cumulative
     prometheus_tsdb_head_gc_duration_seconds_count:
-      description: Runtime of garbage collection in the head block
+      description: Runtime of garbage collection in the head block (count)
       included:
       type: cumulative
     prometheus_tsdb_head_max_time:
@@ -509,7 +509,7 @@ monitors:
       included:
       type: gauge
     prometheus_tsdb_tombstone_cleanup_seconds_bucket:
-      description: The time taken to recompact blocks to remove tombstones
+      description: The time taken to recompact blocks to remove tombstones in the respective bucket
       included:
       type: cumulative
     prometheus_tsdb_tombstone_cleanup_seconds:
@@ -517,7 +517,7 @@ monitors:
       included:
       type: cumulative
     prometheus_tsdb_tombstone_cleanup_seconds_count:
-      description: The time taken to recompact blocks to remove tombstones
+      description: The time taken to recompact blocks to remove tombstones (count)
       included:
       type: cumulative
     prometheus_tsdb_wal_completed_pages_total:
@@ -529,7 +529,7 @@ monitors:
       included:
       type: cumulative
     prometheus_tsdb_wal_fsync_duration_seconds_count:
-      description: Duration of WAL fsync
+      description: Duration of WAL fsync (count)
       included:
       type: cumulative
     prometheus_tsdb_wal_page_flushes_total:
@@ -541,7 +541,7 @@ monitors:
       included:
       type: cumulative
     prometheus_tsdb_wal_truncate_duration_seconds_count:
-      description: Duration of WAL truncation
+      description: Duration of WAL truncation (count)
       included:
       type: cumulative
     prometheus_tsdb_wal_truncations_failed_total:
