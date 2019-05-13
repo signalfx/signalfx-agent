@@ -1,0 +1,1 @@
+This is a server and client key and cert that expire well into the future. The server cert has a CN of localhost for testing purposes. The client key is signed by the server key (there's no intermediate CA).

@@ -4294,7 +4294,7 @@
           },
           {
             "yamlName": "sslKeyFile",
-            "doc": "",
+            "doc": "Client private key if using client certificate authentication.",
             "default": "",
             "required": false,
             "type": "string",
@@ -4302,7 +4302,7 @@
           },
           {
             "yamlName": "sslCertificate",
-            "doc": "",
+            "doc": "Client public key if using client certificate authentication.",
             "default": "",
             "required": false,
             "type": "string",
@@ -4310,7 +4310,7 @@
           },
           {
             "yamlName": "sslCACerts",
-            "doc": "",
+            "doc": "Certificate authority or host certificate to trust.",
             "default": "",
             "required": false,
             "type": "string",
@@ -4318,8 +4318,8 @@
           },
           {
             "yamlName": "skipSSLValidation",
-            "doc": "",
-            "default": "false",
+            "doc": "If `true`, etcd's SSL certificate will not be verified. Enabling this option results in the `sslCACerts` option being ignored.",
+            "default": false,
             "required": false,
             "type": "bool",
             "elementKind": ""
@@ -4327,7 +4327,7 @@
           {
             "yamlName": "enhancedMetrics",
             "doc": "",
-            "default": "false",
+            "default": false,
             "required": false,
             "type": "bool",
             "elementKind": ""
