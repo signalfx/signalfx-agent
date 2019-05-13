@@ -194,8 +194,8 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `elasticsearch.indices.filter-cache.evictions` | cumulative |  | Number of evicttions from filter cache |
 | `elasticsearch.indices.filter-cache.memory-size` | gauge |  | Filter cache size (in bytes) |
 | `elasticsearch.indices.flush.periodic` | gauge |  | How long to wait before triggering a flush regardless of translog size |
-| `elasticsearch.indices.flush.time` | cumulative |  | Time spent flushing the index to disk |
 | `elasticsearch.indices.flush.total` | cumulative |  | Number of index flushes to disk |
+| `elasticsearch.indices.flush.total-time` | cumulative |  | Time spent flushing the index to disk |
 | `elasticsearch.indices.get.current` | gauge |  | Number of get requests running |
 | `elasticsearch.indices.get.exists-time` | cumulative |  | Time spent on get requests where the document existed |
 | `elasticsearch.indices.get.exists-total` | cumulative |  | Number of get requests where the document existed |
@@ -208,18 +208,21 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `elasticsearch.indices.indexing.delete-time` | cumulative |  | Time spent deleting documents from an index |
 | `elasticsearch.indices.indexing.delete-total` | cumulative |  | Number of documents deleted from an index |
 | `elasticsearch.indices.indexing.index-current` | gauge |  | Number of documents currently being indexed to an index |
+| `elasticsearch.indices.indexing.index-failed` | gauge |  | Number of failed indices |
 | `elasticsearch.indices.indexing.index-time` | cumulative |  | Time spent indexing documents to an index |
 | `elasticsearch.indices.indexing.index-total` | cumulative | ✔ | Total number of documents indexed to an index |
+| `elasticsearch.indices.indexing.noop-update-total` | cumulative |  | Number of noop updates |
+| `elasticsearch.indices.indexing.throttle-time` | cumulative |  | Throttle time |
 | `elasticsearch.indices.merges.auto-throttle-size` | cumulative |  | Merging throttled due to auto-throttling (in bytes) |
 | `elasticsearch.indices.merges.current` | gauge | ✔ | Number of currently active segment merges |
 | `elasticsearch.indices.merges.current-docs` | gauge |  | Number of docs currently being merged |
 | `elasticsearch.indices.merges.current-size` | gauge |  | Size of the segments currently being merged |
 | `elasticsearch.indices.merges.stopped-time` | cumulative |  | Total time merges were stopped for |
 | `elasticsearch.indices.merges.throttle-time` | cumulative |  | Total time merges spent waiting due to throttling |
-| `elasticsearch.indices.merges.time` | cumulative |  | Total time spent on merging |
 | `elasticsearch.indices.merges.total` | cumulative | ✔ | Number of segment merges |
 | `elasticsearch.indices.merges.total-docs` | cumulative |  | Number of merged docs across merged segments |
 | `elasticsearch.indices.merges.total-size` | cumulative |  | Total size of merged segments |
+| `elasticsearch.indices.merges.total-time` | cumulative |  | Total time spent on merging |
 | `elasticsearch.indices.percolate.current` | gauge |  | Number of percolator queries currently running |
 | `elasticsearch.indices.percolate.queries` | cumulative |  | Number of percolator queries |
 | `elasticsearch.indices.percolate.time` | cumulative |  | Total time spent on percolate requests |
@@ -235,8 +238,8 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `elasticsearch.indices.recovery.current-as-target` | gauge |  | Number of ongoing recoveries for which a shard serves as a target |
 | `elasticsearch.indices.recovery.throttle-time` | cumulative |  | Total time recoveries waited due to throttling |
 | `elasticsearch.indices.refresh.listeners` | gauge |  | Number of listeners waiting for a refresh |
-| `elasticsearch.indices.refresh.time` | cumulative |  | Total time spent on index refreshes |
-| `elasticsearch.indices.refresh.total` | cumulative |  | Number of index refreshes |
+| `elasticsearch.indices.refresh.total` | cumulative |  | Total number of index refreshes |
+| `elasticsearch.indices.refresh.total-time` | cumulative |  | Total time spent on index refreshes |
 | `elasticsearch.indices.request-cache.evictions` | cumulative |  | Number of request cache evictions |
 | `elasticsearch.indices.request-cache.hit-count` | cumulative |  | Number of request cache hits |
 | `elasticsearch.indices.request-cache.memory-size` | gauge |  | Memory used by request cache (in bytes) |
@@ -244,6 +247,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `elasticsearch.indices.search.fetch-current` | gauge |  | Number of query fetches currently running |
 | `elasticsearch.indices.search.fetch-time` | cumulative |  | Total time spent on query fetches |
 | `elasticsearch.indices.search.fetch-total` | cumulative |  | Total number of query feches |
+| `elasticsearch.indices.search.open-contexts` | gauge |  | Number of open contexts |
 | `elasticsearch.indices.search.query-current` | gauge |  | Number of currently active queries |
 | `elasticsearch.indices.search.query-time` | cumulative | ✔ | Total time spent querying on the primary |
 | `elasticsearch.indices.search.query-total` | cumulative | ✔ | Total number of queries |
@@ -256,15 +260,15 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `elasticsearch.indices.segments.count` | gauge | ✔ | Number of segments in an index shard |
 | `elasticsearch.indices.segments.doc-values-memory-size` | gauge |  | Memory used by doc values |
 | `elasticsearch.indices.segments.fixed-bit-set-memory-size` | gauge |  | Memory used by fixed bit set |
-| `elasticsearch.indices.segments.index-writer-max-size` | gauge |  | Maximum memory used by the index writer |
-| `elasticsearch.indices.segments.index-writer-size` | gauge |  | Memory used by the index writer |
+| `elasticsearch.indices.segments.index-writer-max-memory-size` | gauge |  | Maximum memory used by the index writer |
+| `elasticsearch.indices.segments.index-writer-memory-size` | gauge |  | Memory used by the index writer |
+| `elasticsearch.indices.segments.memory-size` | gauge |  | Memory used by index segments (in bytes) |
 | `elasticsearch.indices.segments.norms-memory-size` | gauge |  | Memory used by norms (in bytes) |
 | `elasticsearch.indices.segments.points-memory-size` | gauge |  | Memory used by points |
-| `elasticsearch.indices.segments.size` | gauge |  | Memory used by index segments (in bytes) |
 | `elasticsearch.indices.segments.stored-field-memory-size` | gauge |  | Memory used by stored fields (in bytes) |
 | `elasticsearch.indices.segments.term-vectors-memory-size` | gauge |  | Memory used by term vectors (in bytes) |
 | `elasticsearch.indices.segments.terms-memory-size` | gauge |  | Memory used by terms (in bytes) |
-| `elasticsearch.indices.segments.version-map-memory` | gauge |  | Memory used by segment version map (in bytes) |
+| `elasticsearch.indices.segments.version-map-memory-size` | gauge |  | Memory used by segment version map (in bytes) |
 | `elasticsearch.indices.store.size` | gauge |  | Total size (in bytes) |
 | `elasticsearch.indices.store.throttle-time` | cumulative |  | Total time requests are throttled for |
 | `elasticsearch.indices.suggest.current` | gauge |  | Number of currently active suggest requests |

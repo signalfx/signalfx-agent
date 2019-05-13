@@ -73,7 +73,7 @@ var {{"groupMetricsMap" | formatVariable}} = map[string][]string {
 var {{if gt (len $.monitors) 1 -}}
 {{- (printf "%s.%s" .MonitorType "monitorMetadata") | formatVariable -}}
 {{else -}}
-monitorMetadata{{end}} = monitors.Metadata{
+{{"monitorMetadata" | formatVariable}}{{end}} = monitors.Metadata{
 	MonitorType: "{{.MonitorType}}",
 	IncludedMetrics: {{"includedMetrics" | formatVariable}},
 	Metrics: {{"metricSet" | formatVariable}},

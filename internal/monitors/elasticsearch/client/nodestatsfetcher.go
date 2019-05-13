@@ -197,8 +197,8 @@ func (docs *Docs) getDocsStats(_ bool, defaultDims map[string]string) []*datapoi
 	var out []*datapoint.Datapoint
 
 	out = append(out, []*datapoint.Datapoint{
-		prepareGaugeHelper(indicesDocsCount, defaultDims, docs.Count),
-		prepareGaugeHelper(indicesDocsDeleted, defaultDims, docs.Deleted),
+		prepareGaugeHelper(ElasticsearchIndicesDocsCount, defaultDims, docs.Count),
+		prepareGaugeHelper(ElasticsearchIndicesDocsDeleted, defaultDims, docs.Deleted),
 	}...)
 
 	return out
@@ -209,12 +209,12 @@ func (store *Store) getStoreStats(enhanced bool, defaultDims map[string]string) 
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareCumulativeHelper(indicesStoreThrottleTime, defaultDims, store.ThrottleTimeInMillis),
+			prepareCumulativeHelper(ElasticsearchIndicesStoreThrottleTime, defaultDims, store.ThrottleTimeInMillis),
 		}...)
 	}
 
 	out = append(out, []*datapoint.Datapoint{
-		prepareGaugeHelper(indicesStoreSize, defaultDims, store.SizeInBytes),
+		prepareGaugeHelper(ElasticsearchIndicesStoreSize, defaultDims, store.SizeInBytes),
 	}...)
 
 	return out
@@ -225,19 +225,19 @@ func (indexing Indexing) getIndexingStats(enhanced bool, defaultDims map[string]
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesIndexingIndexCurrent, defaultDims, indexing.IndexCurrent),
-			prepareGaugeHelper(indicesIndexingIndexFailed, defaultDims, indexing.IndexFailed),
-			prepareGaugeHelper(indicesIndexingDeleteCurrent, defaultDims, indexing.DeleteCurrent),
-			prepareCumulativeHelper(indicesIndexingDeleteTotal, defaultDims, indexing.DeleteTotal),
-			prepareCumulativeHelper(indicesIndexingDeleteTime, defaultDims, indexing.DeleteTimeInMillis),
-			prepareCumulativeHelper(indicesIndexingNoopUpdateTotal, defaultDims, indexing.NoopUpdateTotal),
-			prepareCumulativeHelper(indicesIndexingThrottledTime, defaultDims, indexing.ThrottleTimeInMillis),
+			prepareGaugeHelper(ElasticsearchIndicesIndexingIndexCurrent, defaultDims, indexing.IndexCurrent),
+			prepareGaugeHelper(ElasticsearchIndicesIndexingIndexFailed, defaultDims, indexing.IndexFailed),
+			prepareGaugeHelper(ElasticsearchIndicesIndexingDeleteCurrent, defaultDims, indexing.DeleteCurrent),
+			prepareCumulativeHelper(ElasticsearchIndicesIndexingDeleteTotal, defaultDims, indexing.DeleteTotal),
+			prepareCumulativeHelper(ElasticsearchIndicesIndexingDeleteTime, defaultDims, indexing.DeleteTimeInMillis),
+			prepareCumulativeHelper(ElasticsearchIndicesIndexingNoopUpdateTotal, defaultDims, indexing.NoopUpdateTotal),
+			prepareCumulativeHelper(ElasticsearchIndicesIndexingThrottleTime, defaultDims, indexing.ThrottleTimeInMillis),
 		}...)
 	}
 
 	out = append(out, []*datapoint.Datapoint{
-		prepareCumulativeHelper(indicesIndexingIndexTotal, defaultDims, indexing.IndexTotal),
-		prepareCumulativeHelper(indicesIndexingIndexTime, defaultDims, indexing.IndexTimeInMillis),
+		prepareCumulativeHelper(ElasticsearchIndicesIndexingIndexTotal, defaultDims, indexing.IndexTotal),
+		prepareCumulativeHelper(ElasticsearchIndicesIndexingIndexTime, defaultDims, indexing.IndexTimeInMillis),
 	}...)
 
 	return out
@@ -248,17 +248,17 @@ func (get *Get) getGetStats(enhanced bool, defaultDims map[string]string) []*dat
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesGetCurrent, defaultDims, get.Current),
-			prepareCumulativeHelper(indicesGetTime, defaultDims, get.TimeInMillis),
-			prepareCumulativeHelper(indicesGetExistsTotal, defaultDims, get.ExistsTotal),
-			prepareCumulativeHelper(indicesGetExistsTime, defaultDims, get.ExistsTimeInMillis),
-			prepareCumulativeHelper(indicesGetMissingTotal, defaultDims, get.MissingTotal),
-			prepareCumulativeHelper(indicesGetMissingTime, defaultDims, get.MissingTimeInMillis),
+			prepareGaugeHelper(ElasticsearchIndicesGetCurrent, defaultDims, get.Current),
+			prepareCumulativeHelper(ElasticsearchIndicesGetTime, defaultDims, get.TimeInMillis),
+			prepareCumulativeHelper(ElasticsearchIndicesGetExistsTotal, defaultDims, get.ExistsTotal),
+			prepareCumulativeHelper(ElasticsearchIndicesGetExistsTime, defaultDims, get.ExistsTimeInMillis),
+			prepareCumulativeHelper(ElasticsearchIndicesGetMissingTotal, defaultDims, get.MissingTotal),
+			prepareCumulativeHelper(ElasticsearchIndicesGetMissingTime, defaultDims, get.MissingTimeInMillis),
 		}...)
 	}
 
 	out = append(out, []*datapoint.Datapoint{
-		prepareCumulativeHelper(indicesGetTotal, defaultDims, get.Total),
+		prepareCumulativeHelper(ElasticsearchIndicesGetTotal, defaultDims, get.Total),
 	}...)
 
 	return out
@@ -269,23 +269,23 @@ func (search *Search) getSearchStats(enhanced bool, defaultDims map[string]strin
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesSearchQueryCurrent, defaultDims, search.QueryCurrent),
-			prepareGaugeHelper(indicesSearchFetchCurrent, defaultDims, search.FetchCurrent),
-			prepareGaugeHelper(indicesSearchScrollCurrent, defaultDims, search.ScrollCurrent),
-			prepareGaugeHelper(indicesSearchSuggestCurrent, defaultDims, search.SuggestCurrent),
-			prepareGaugeHelper(indicesSearchOpenContexts, defaultDims, search.SuggestCurrent),
-			prepareCumulativeHelper(indicesSearchFetchTime, defaultDims, search.FetchTimeInMillis),
-			prepareCumulativeHelper(indicesSearchFetchTotal, defaultDims, search.FetchTotal),
-			prepareCumulativeHelper(indicesSearchScrollTime, defaultDims, search.ScrollTimeInMillis),
-			prepareCumulativeHelper(indicesSearchScrollTotal, defaultDims, search.ScrollTotal),
-			prepareCumulativeHelper(indicesSearchSuggestTime, defaultDims, search.SuggestTimeInMillis),
-			prepareCumulativeHelper(indicesSearchSuggestTotal, defaultDims, search.SuggestTotal),
+			prepareGaugeHelper(ElasticsearchIndicesSearchQueryCurrent, defaultDims, search.QueryCurrent),
+			prepareGaugeHelper(ElasticsearchIndicesSearchFetchCurrent, defaultDims, search.FetchCurrent),
+			prepareGaugeHelper(ElasticsearchIndicesSearchScrollCurrent, defaultDims, search.ScrollCurrent),
+			prepareGaugeHelper(ElasticsearchIndicesSearchSuggestCurrent, defaultDims, search.SuggestCurrent),
+			prepareGaugeHelper(ElasticsearchIndicesSearchOpenContexts, defaultDims, search.SuggestCurrent),
+			prepareCumulativeHelper(ElasticsearchIndicesSearchFetchTime, defaultDims, search.FetchTimeInMillis),
+			prepareCumulativeHelper(ElasticsearchIndicesSearchFetchTotal, defaultDims, search.FetchTotal),
+			prepareCumulativeHelper(ElasticsearchIndicesSearchScrollTime, defaultDims, search.ScrollTimeInMillis),
+			prepareCumulativeHelper(ElasticsearchIndicesSearchScrollTotal, defaultDims, search.ScrollTotal),
+			prepareCumulativeHelper(ElasticsearchIndicesSearchSuggestTime, defaultDims, search.SuggestTimeInMillis),
+			prepareCumulativeHelper(ElasticsearchIndicesSearchSuggestTotal, defaultDims, search.SuggestTotal),
 		}...)
 	}
 
 	out = append(out, []*datapoint.Datapoint{
-		prepareCumulativeHelper(indicesSearchQueryTime, defaultDims, search.QueryTimeInMillis),
-		prepareCumulativeHelper(indicesSearchQueryTotal, defaultDims, search.QueryTotal),
+		prepareCumulativeHelper(ElasticsearchIndicesSearchQueryTime, defaultDims, search.QueryTimeInMillis),
+		prepareCumulativeHelper(ElasticsearchIndicesSearchQueryTotal, defaultDims, search.QueryTotal),
 	}...)
 
 	return out
@@ -296,20 +296,20 @@ func (merges *Merges) getMergesStats(enhanced bool, defaultDims map[string]strin
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesMergesCurrentDocs, defaultDims, merges.CurrentDocs),
-			prepareGaugeHelper(indicesMergesCurrentSizeInBytes, defaultDims, merges.CurrentSizeInBytes),
-			prepareCumulativeHelper(indicesMergesTotalDocs, defaultDims, merges.TotalDocs),
-			prepareCumulativeHelper(indicesMergesTotalSizeInBytes, defaultDims, merges.TotalSizeInBytes),
-			prepareCumulativeHelper(indicesMergesTotalStoppedTime, defaultDims, merges.TotalStoppedTimeInMillis),
-			prepareCumulativeHelper(indicesMergesTotalThrottledTime, defaultDims, merges.TotalThrottledTimeInMillis),
-			prepareCumulativeHelper(indicesMergesTotalAutoThrottleInBytes, defaultDims, merges.TotalAutoThrottleInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesMergesCurrentDocs, defaultDims, merges.CurrentDocs),
+			prepareGaugeHelper(ElasticsearchIndicesMergesCurrentSize, defaultDims, merges.CurrentSizeInBytes),
+			prepareCumulativeHelper(ElasticsearchIndicesMergesTotalDocs, defaultDims, merges.TotalDocs),
+			prepareCumulativeHelper(ElasticsearchIndicesMergesTotalSize, defaultDims, merges.TotalSizeInBytes),
+			prepareCumulativeHelper(ElasticsearchIndicesMergesStoppedTime, defaultDims, merges.TotalStoppedTimeInMillis),
+			prepareCumulativeHelper(ElasticsearchIndicesMergesThrottleTime, defaultDims, merges.TotalThrottledTimeInMillis),
+			prepareCumulativeHelper(ElasticsearchIndicesMergesAutoThrottleSize, defaultDims, merges.TotalAutoThrottleInBytes),
 		}...)
 	}
 
 	out = append(out, []*datapoint.Datapoint{
-		prepareGaugeHelper(indicesMergesCurrent, defaultDims, merges.Current),
-		prepareCumulativeHelper(indicesMergesTotal, defaultDims, merges.Total),
-		prepareCumulativeHelper(indicesMergesTotalTime, defaultDims, merges.TotalTimeInMillis),
+		prepareGaugeHelper(ElasticsearchIndicesMergesCurrent, defaultDims, merges.Current),
+		prepareCumulativeHelper(ElasticsearchIndicesMergesTotal, defaultDims, merges.Total),
+		prepareCumulativeHelper(ElasticsearchIndicesMergesTotalTime, defaultDims, merges.TotalTimeInMillis),
 	}...)
 
 	return out
@@ -320,9 +320,9 @@ func (refresh *Refresh) getRefreshStats(enhanced bool, defaultDims map[string]st
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesRefreshListeners, defaultDims, refresh.Listeners),
-			prepareCumulativeHelper(indicesRefreshTotal, defaultDims, refresh.Total),
-			prepareCumulativeHelper(indicesRefreshTotalTime, defaultDims, refresh.TotalTimeInMillis),
+			prepareGaugeHelper(ElasticsearchIndicesRefreshListeners, defaultDims, refresh.Listeners),
+			prepareCumulativeHelper(ElasticsearchIndicesRefreshTotal, defaultDims, refresh.Total),
+			prepareCumulativeHelper(ElasticsearchIndicesRefreshTotalTime, defaultDims, refresh.TotalTimeInMillis),
 		}...)
 	}
 
@@ -334,9 +334,9 @@ func (flush *Flush) getFlushStats(enhanced bool, defaultDims map[string]string) 
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesFlushPeriodic, defaultDims, flush.Periodic),
-			prepareCumulativeHelper(indicesFlushTotal, defaultDims, flush.Total),
-			prepareCumulativeHelper(indicesFlushTotalTime, defaultDims, flush.TotalTimeInMillis),
+			prepareGaugeHelper(ElasticsearchIndicesFlushPeriodic, defaultDims, flush.Periodic),
+			prepareCumulativeHelper(ElasticsearchIndicesFlushTotal, defaultDims, flush.Total),
+			prepareCumulativeHelper(ElasticsearchIndicesFlushTotalTime, defaultDims, flush.TotalTimeInMillis),
 		}...)
 	}
 
@@ -348,9 +348,9 @@ func (warmer *Warmer) getWarmerStats(enhanced bool, defaultDims map[string]strin
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesWarmerCurrent, defaultDims, warmer.Current),
-			prepareCumulativeHelper(indicesWarmerTotal, defaultDims, warmer.Total),
-			prepareCumulativeHelper(indicesWarmerTotalTime, defaultDims, warmer.TotalTimeInMillis),
+			prepareGaugeHelper(ElasticsearchIndicesWarmerCurrent, defaultDims, warmer.Current),
+			prepareCumulativeHelper(ElasticsearchIndicesWarmerTotal, defaultDims, warmer.Total),
+			prepareCumulativeHelper(ElasticsearchIndicesWarmerTotalTime, defaultDims, warmer.TotalTimeInMillis),
 		}...)
 	}
 
@@ -362,16 +362,16 @@ func (queryCache *QueryCache) getQueryCacheStats(enhanced bool, defaultDims map[
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesQuerycacheCacheSize, defaultDims, queryCache.CacheSize),
-			prepareGaugeHelper(indicesQuerycacheCacheCount, defaultDims, queryCache.CacheCount),
-			prepareCumulativeHelper(indicesQuerycacheEvictions, defaultDims, queryCache.Evictions),
-			prepareCumulativeHelper(indicesQuerycacheHitCount, defaultDims, queryCache.HitCount),
-			prepareCumulativeHelper(indicesQuerycacheMissCount, defaultDims, queryCache.MissCount),
-			prepareCumulativeHelper(indicesQuerycacheTotalCount, defaultDims, queryCache.TotalCount),
+			prepareGaugeHelper(ElasticsearchIndicesQueryCacheCacheSize, defaultDims, queryCache.CacheSize),
+			prepareGaugeHelper(ElasticsearchIndicesQueryCacheCacheCount, defaultDims, queryCache.CacheCount),
+			prepareCumulativeHelper(ElasticsearchIndicesQueryCacheEvictions, defaultDims, queryCache.Evictions),
+			prepareCumulativeHelper(ElasticsearchIndicesQueryCacheHitCount, defaultDims, queryCache.HitCount),
+			prepareCumulativeHelper(ElasticsearchIndicesQueryCacheMissCount, defaultDims, queryCache.MissCount),
+			prepareCumulativeHelper(ElasticsearchIndicesQueryCacheTotalCount, defaultDims, queryCache.TotalCount),
 		}...)
 	}
 	out = append(out, []*datapoint.Datapoint{
-		prepareGaugeHelper(indicesQuerycacheMemorySizeInBytes, defaultDims, queryCache.MemorySizeInBytes),
+		prepareGaugeHelper(ElasticsearchIndicesQueryCacheMemorySize, defaultDims, queryCache.MemorySizeInBytes),
 	}...)
 
 	return out
@@ -382,11 +382,11 @@ func (filterCache *FilterCache) getFilterCacheStats(enhanced bool, defaultDims m
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareCumulativeHelper(indicesFiltercacheEvictions, defaultDims, filterCache.Evictions),
+			prepareCumulativeHelper(ElasticsearchIndicesFilterCacheEvictions, defaultDims, filterCache.Evictions),
 		}...)
 
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesFiltercacheMemorySizeInBytes, defaultDims, filterCache.MemorySizeInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesFilterCacheMemorySize, defaultDims, filterCache.MemorySizeInBytes),
 		}...)
 	}
 
@@ -398,12 +398,12 @@ func (fielddata *Fielddata) getFielddataStats(enhanced bool, defaultDims map[str
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareCumulativeHelper(indicesFielddataEvictions, defaultDims, fielddata.Evictions),
+			prepareCumulativeHelper(ElasticsearchIndicesFielddataEvictions, defaultDims, fielddata.Evictions),
 		}...)
 	}
 
 	out = append(out, []*datapoint.Datapoint{
-		prepareGaugeHelper(indicesFielddataMemorySizeInBytes, defaultDims, fielddata.MemorySizeInBytes),
+		prepareGaugeHelper(ElasticsearchIndicesFielddataMemorySize, defaultDims, fielddata.MemorySizeInBytes),
 	}...)
 
 	return out
@@ -414,7 +414,7 @@ func (completion *Completion) getCompletionStats(enhanced bool, defaultDims map[
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesCompletionSizeInBytes, defaultDims, completion.SizeInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesCompletionSize, defaultDims, completion.SizeInBytes),
 		}...)
 	}
 
@@ -426,22 +426,22 @@ func (segments *Segments) getSegmentsStats(enhanced bool, defaultDims map[string
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesSegmentsMemory, defaultDims, segments.MemoryInBytes),
-			prepareGaugeHelper(indicesSegmentsIndexWriterMemory, defaultDims, segments.IndexWriterMemoryInBytes),
-			prepareGaugeHelper(indicesSegmentsMaxIndexWriterMemory, defaultDims, segments.IndexWriterMaxMemoryInBytes),
-			prepareGaugeHelper(indicesSegmentsVersionMapMemory, defaultDims, segments.VersionMapMemoryInBytes),
-			prepareGaugeHelper(indicesSegmentsTermsMemory, defaultDims, segments.TermsMemoryInBytes),
-			prepareGaugeHelper(indicesSegmentsStoredFieldMemory, defaultDims, segments.StoredFieldsMemoryInBytes),
-			prepareGaugeHelper(indicesSegmentsTermVectorsMemory, defaultDims, segments.TermVectorsMemoryInBytes),
-			prepareGaugeHelper(indicesSegmentsNormsMemory, defaultDims, segments.NormsMemoryInBytes),
-			prepareGaugeHelper(indicesSegmentsPointsMemory, defaultDims, segments.PointsMemoryInBytes),
-			prepareGaugeHelper(indicesSegmentsDocValuesMemory, defaultDims, segments.DocValuesMemoryInBytes),
-			prepareGaugeHelper(indicesSegmentsFixedBitSetMemory, defaultDims, segments.FixedBitSetMemoryInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesSegmentsMemorySize, defaultDims, segments.MemoryInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesSegmentsIndexWriterMemorySize, defaultDims, segments.IndexWriterMemoryInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesSegmentsIndexWriterMaxMemorySize, defaultDims, segments.IndexWriterMaxMemoryInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesSegmentsVersionMapMemorySize, defaultDims, segments.VersionMapMemoryInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesSegmentsTermsMemorySize, defaultDims, segments.TermsMemoryInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesSegmentsStoredFieldMemorySize, defaultDims, segments.StoredFieldsMemoryInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesSegmentsTermVectorsMemorySize, defaultDims, segments.TermVectorsMemoryInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesSegmentsNormsMemorySize, defaultDims, segments.NormsMemoryInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesSegmentsPointsMemorySize, defaultDims, segments.PointsMemoryInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesSegmentsDocValuesMemorySize, defaultDims, segments.DocValuesMemoryInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesSegmentsFixedBitSetMemorySize, defaultDims, segments.FixedBitSetMemoryInBytes),
 		}...)
 	}
 
 	out = append(out, []*datapoint.Datapoint{
-		prepareGaugeHelper(indicesSegmentsCount, defaultDims, segments.Count),
+		prepareGaugeHelper(ElasticsearchIndicesSegmentsCount, defaultDims, segments.Count),
 	}...)
 
 	return out
@@ -452,11 +452,11 @@ func (translog *Translog) getTranslogStats(enhanced bool, defaultDims map[string
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesTranslogUncommittedOperations, defaultDims, translog.UncommittedOperations),
-			prepareGaugeHelper(indicesTranslogUncommittedSizeInBytes, defaultDims, translog.UncommittedSizeInBytes),
-			prepareGaugeHelper(indicesTranslogEarliestLastModifiedAge, defaultDims, translog.EarliestLastModifiedAge),
-			prepareGaugeHelper(indicesTranslogOperations, defaultDims, translog.Operations),
-			prepareGaugeHelper(indicesTranslogSize, defaultDims, translog.SizeInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesTranslogUncommittedOperations, defaultDims, translog.UncommittedOperations),
+			prepareGaugeHelper(ElasticsearchIndicesTranslogUncommittedSizeInBytes, defaultDims, translog.UncommittedSizeInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesTranslogEarliestLastModifiedAge, defaultDims, translog.EarliestLastModifiedAge),
+			prepareGaugeHelper(ElasticsearchIndicesTranslogOperations, defaultDims, translog.Operations),
+			prepareGaugeHelper(ElasticsearchIndicesTranslogSize, defaultDims, translog.SizeInBytes),
 		}...)
 	}
 
@@ -468,13 +468,13 @@ func (requestCache *RequestCache) getRequestCacheStats(enhanced bool, defaultDim
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareCumulativeHelper(indicesRequestcacheEvictions, defaultDims, requestCache.Evictions),
-			prepareCumulativeHelper(indicesRequestcacheHitCount, defaultDims, requestCache.HitCount),
-			prepareCumulativeHelper(indicesRequestcacheMissCount, defaultDims, requestCache.MissCount),
+			prepareCumulativeHelper(ElasticsearchIndicesRequestCacheEvictions, defaultDims, requestCache.Evictions),
+			prepareCumulativeHelper(ElasticsearchIndicesRequestCacheHitCount, defaultDims, requestCache.HitCount),
+			prepareCumulativeHelper(ElasticsearchIndicesRequestCacheMissCount, defaultDims, requestCache.MissCount),
 		}...)
 	}
 
-	out = append(out, prepareGaugeHelper(indicesRequestcacheMemorySizeInBytes, defaultDims, requestCache.MemorySizeInBytes))
+	out = append(out, prepareGaugeHelper(ElasticsearchIndicesRequestCacheMemorySize, defaultDims, requestCache.MemorySizeInBytes))
 
 	return out
 }
@@ -484,9 +484,9 @@ func (recovery *Recovery) getRecoveryStats(enhanced bool, defaultDims map[string
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesRecoveryCurrentAsSource, defaultDims, recovery.CurrentAsSource),
-			prepareGaugeHelper(indicesRecoveryCurrentAsTarget, defaultDims, recovery.CurrentAsTarget),
-			prepareCumulativeHelper(indicesRecoveryThrottleTime, defaultDims, recovery.ThrottleTimeInMillis),
+			prepareGaugeHelper(ElasticsearchIndicesRecoveryCurrentAsSource, defaultDims, recovery.CurrentAsSource),
+			prepareGaugeHelper(ElasticsearchIndicesRecoveryCurrentAsTarget, defaultDims, recovery.CurrentAsTarget),
+			prepareCumulativeHelper(ElasticsearchIndicesRecoveryThrottleTime, defaultDims, recovery.ThrottleTimeInMillis),
 		}...)
 	}
 
@@ -498,7 +498,7 @@ func (idCache *IDCache) getIDCacheStats(enhanced bool, defaultDims map[string]st
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesIdcacheMemorySizeInBytes, defaultDims, idCache.MemorySizeInBytes),
+			prepareGaugeHelper(ElasticsearchIndicesIDCacheMemorySize, defaultDims, idCache.MemorySizeInBytes),
 		}...)
 	}
 
@@ -510,9 +510,9 @@ func (suggest *Suggest) getSuggestStats(enhanced bool, defaultDims map[string]st
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesSuggestCurrent, defaultDims, suggest.Current),
-			prepareCumulativeHelper(indicesSuggestTime, defaultDims, suggest.TimeInMillis),
-			prepareCumulativeHelper(indicesSuggestTotal, defaultDims, suggest.Total),
+			prepareGaugeHelper(ElasticsearchIndicesSuggestCurrent, defaultDims, suggest.Current),
+			prepareCumulativeHelper(ElasticsearchIndicesSuggestTime, defaultDims, suggest.TimeInMillis),
+			prepareCumulativeHelper(ElasticsearchIndicesSuggestTotal, defaultDims, suggest.Total),
 		}...)
 	}
 
@@ -524,10 +524,10 @@ func (percolate *Percolate) getPercolateStats(enhanced bool, defaultDims map[str
 
 	if enhanced {
 		out = append(out, []*datapoint.Datapoint{
-			prepareGaugeHelper(indicesPercolateCurrent, defaultDims, percolate.Current),
-			prepareCumulativeHelper(indicesPercolateTotal, defaultDims, percolate.Total),
-			prepareCumulativeHelper(indicesPercolateQueries, defaultDims, percolate.Queries),
-			prepareCumulativeHelper(indicesPercolateTime, defaultDims, percolate.TimeInMillis),
+			prepareGaugeHelper(ElasticsearchIndicesPercolateCurrent, defaultDims, percolate.Current),
+			prepareCumulativeHelper(ElasticsearchIndicesPercolateTotal, defaultDims, percolate.Total),
+			prepareCumulativeHelper(ElasticsearchIndicesPercolateQueries, defaultDims, percolate.Queries),
+			prepareCumulativeHelper(ElasticsearchIndicesPercolateTime, defaultDims, percolate.TimeInMillis),
 		}...)
 	}
 
