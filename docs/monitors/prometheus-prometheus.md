@@ -52,56 +52,56 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `prometheus_engine_queries` | gauge |  | The current number of queries being executed or waiting |
 | `prometheus_engine_queries_concurrent_max` | gauge |  | The max number of concurrent queries |
 | `prometheus_engine_query_duration_seconds` | cumulative |  | Query timings |
-| `prometheus_engine_query_duration_seconds_count` | cumulative |  | Query timings |
+| `prometheus_engine_query_duration_seconds_count` | cumulative |  | Query timings (count) |
 | `prometheus_http_request_duration_seconds` | cumulative |  | Histogram of latencies for HTTP requests |
-| `prometheus_http_request_duration_seconds_bucket` | cumulative |  | Histogram of latencies for HTTP requests |
-| `prometheus_http_request_duration_seconds_count` | cumulative |  | Histogram of latencies for HTTP requests |
+| `prometheus_http_request_duration_seconds_bucket` | cumulative |  | Histogram of latencies for HTTP requests in the respective bucket |
+| `prometheus_http_request_duration_seconds_count` | cumulative |  | Histogram of latencies for HTTP requests (count) |
 | `prometheus_http_response_size_bytes` | cumulative |  | Histogram of response size for HTTP requests |
-| `prometheus_http_response_size_bytes_bucket` | cumulative |  | Histogram of response size for HTTP requests |
+| `prometheus_http_response_size_bytes_bucket` | cumulative |  | Histogram of response size for HTTP requests in the respective bucket |
 | `prometheus_http_response_size_bytes_count` | cumulative |  | Histogram of response size for HTTP requests |
 | `prometheus_notifications_alertmanagers_discovered` | gauge |  | The number of alertmanagers discovered and active |
 | `prometheus_notifications_dropped_total` | cumulative |  | Total number of alerts dropped due to errors when sending to Alertmanager |
 | `prometheus_notifications_queue_capacity` | gauge |  | The capacity of the alert notifications queue |
 | `prometheus_notifications_queue_length` | gauge |  | The number of alert notifications in the queue |
 | `prometheus_rule_evaluation_duration_seconds` | cumulative |  | The duration for a rule to execute |
-| `prometheus_rule_evaluation_duration_seconds_count` | cumulative |  | The duration for a rule to execute |
+| `prometheus_rule_evaluation_duration_seconds_count` | cumulative |  | The duration for a rule to execute (count) |
 | `prometheus_rule_evaluation_failures_total` | cumulative |  | The total number of rule evaluation failures |
 | `prometheus_rule_group_duration_seconds` | cumulative |  | The duration of rule group evaluations |
-| `prometheus_rule_group_duration_seconds_count` | cumulative |  | The duration of rule group evaluations |
+| `prometheus_rule_group_duration_seconds_count` | cumulative |  | The duration of rule group evaluations (count) |
 | `prometheus_rule_group_interval_seconds` | gauge |  | The interval of a rule group |
 | `prometheus_rule_group_iterations_missed_total` | cumulative |  | The total number of rule group evaluations missed due to slow rule group evaluation |
 | `prometheus_rule_group_iterations_total` | cumulative |  | The total number of scheduled rule group evaluations, whether executed or missed |
 | `prometheus_rule_group_last_duration_seconds` | gauge |  | The duration of the last rule group evaluation |
 | `prometheus_sd_azure_refresh_duration_seconds` | cumulative |  | The duration of a Azure-SD refresh in seconds |
-| `prometheus_sd_azure_refresh_duration_seconds_count` | cumulative |  | The duration of a Azure-SD refresh in seconds |
+| `prometheus_sd_azure_refresh_duration_seconds_count` | cumulative |  | The duration of a Azure-SD refresh in seconds (count) |
 | `prometheus_sd_azure_refresh_failures_total` | cumulative |  | Number of Azure-SD refresh failures |
 | `prometheus_sd_configs_failed_total` | cumulative |  | Total number of service discovery configurations that failed to load |
 | `prometheus_sd_consul_rpc_duration_seconds` | cumulative |  | The duration of a Consul RPC call in seconds |
-| `prometheus_sd_consul_rpc_duration_seconds_count` | cumulative |  | The duration of a Consul RPC call in seconds |
+| `prometheus_sd_consul_rpc_duration_seconds_count` | cumulative |  | The duration of a Consul RPC call in seconds (count) |
 | `prometheus_sd_consul_rpc_failures_total` | cumulative |  | The number of Consul RPC call failures |
 | `prometheus_sd_discovered_targets` | gauge |  | Current number of discovered targets |
 | `prometheus_sd_dns_lookup_failures_total` | cumulative |  | The number of DNS-SD lookup failures |
 | `prometheus_sd_dns_lookups_total` | cumulative |  | The number of DNS-SD lookups |
 | `prometheus_sd_ec2_refresh_duration_seconds` | cumulative |  | The duration of a EC2-SD refresh in seconds |
-| `prometheus_sd_ec2_refresh_duration_seconds_count` | cumulative |  | The duration of a EC2-SD refresh in seconds |
+| `prometheus_sd_ec2_refresh_duration_seconds_count` | cumulative |  | The duration of a EC2-SD refresh in seconds (count) |
 | `prometheus_sd_ec2_refresh_failures_total` | cumulative |  | The number of EC2-SD scrape failures |
 | `prometheus_sd_file_read_errors_total` | cumulative |  | The number of File-SD read errors |
 | `prometheus_sd_file_scan_duration_seconds` | cumulative |  | The duration of the File-SD scan in seconds |
-| `prometheus_sd_file_scan_duration_seconds_count` | cumulative |  | The duration of the File-SD scan in seconds |
+| `prometheus_sd_file_scan_duration_seconds_count` | cumulative |  | The duration of the File-SD scan in seconds (count) |
 | `prometheus_sd_gce_refresh_duration` | cumulative |  | The duration of a GCE-SD refresh in seconds |
-| `prometheus_sd_gce_refresh_duration_count` | cumulative |  | The duration of a GCE-SD refresh in seconds |
+| `prometheus_sd_gce_refresh_duration_count` | cumulative |  | The duration of a GCE-SD refresh in seconds (count) |
 | `prometheus_sd_gce_refresh_failures_total` | cumulative |  | The number of GCE-SD refresh failures |
 | `prometheus_sd_kubernetes_cache_last_resource_version` | gauge |  | Last resource version from the Kubernetes API |
 | `prometheus_sd_kubernetes_cache_list_duration_seconds` | cumulative |  | Duration of a Kubernetes API call in seconds |
-| `prometheus_sd_kubernetes_cache_list_duration_seconds_count` | cumulative |  | Duration of a Kubernetes API call in seconds |
+| `prometheus_sd_kubernetes_cache_list_duration_seconds_count` | cumulative |  | Duration of a Kubernetes API call in seconds (count) |
 | `prometheus_sd_kubernetes_cache_list_items` | cumulative |  | Count of items in a list from the Kubernetes API |
-| `prometheus_sd_kubernetes_cache_list_items_count` | cumulative |  | Count of items in a list from the Kubernetes API |
+| `prometheus_sd_kubernetes_cache_list_items_count` | cumulative |  | Count of items in a list from the Kubernetes API (count) |
 | `prometheus_sd_kubernetes_cache_list_total` | cumulative |  | Total number of list operations |
 | `prometheus_sd_kubernetes_cache_short_watches_total` | cumulative |  | Total number of short watch operations |
 | `prometheus_sd_kubernetes_cache_watch_duration_seconds` | cumulative |  | Duration of watches on the Kubernetes API |
-| `prometheus_sd_kubernetes_cache_watch_duration_seconds_count` | cumulative |  | Duration of watches on the Kubernetes API |
+| `prometheus_sd_kubernetes_cache_watch_duration_seconds_count` | cumulative |  | Duration of watches on the Kubernetes API (count) |
 | `prometheus_sd_kubernetes_cache_watch_events` | cumulative |  | Number of items in watches on the Kubernetes API |
-| `prometheus_sd_kubernetes_cache_watch_events_count` | cumulative |  | Number of items in watches on the Kubernetes API |
+| `prometheus_sd_kubernetes_cache_watch_events_count` | cumulative |  | Number of items in watches on the Kubernetes API (count) |
 | `prometheus_sd_kubernetes_cache_watches_total` | cumulative |  | Total number of watch operations |
 | `prometheus_sd_kubernetes_events_total` | cumulative |  | The number of Kubernetes events handled |
 | `prometheus_sd_marathon_refresh_duration_seconds` | cumulative |  | The duration of a Marathon-SD refresh in seconds |
@@ -133,17 +133,17 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `prometheus_tsdb_checkpoint_deletions_failed_total` | cumulative |  | Total number of checkpoint deletions that failed |
 | `prometheus_tsdb_checkpoint_deletions_total` | cumulative |  | Total number of checkpoint deletions attempted |
 | `prometheus_tsdb_compaction_chunk_range_seconds` | cumulative |  | Final time range of chunks on their first compaction |
-| `prometheus_tsdb_compaction_chunk_range_seconds_bucket` | cumulative |  | Final time range of chunks on their first compaction |
-| `prometheus_tsdb_compaction_chunk_range_seconds_count` | cumulative |  | Final time range of chunks on their first compaction |
+| `prometheus_tsdb_compaction_chunk_range_seconds_bucket` | cumulative |  | Final time range of chunks on their first compaction in the respective bucket |
+| `prometheus_tsdb_compaction_chunk_range_seconds_count` | cumulative |  | Final time range of chunks on their first compaction (count) |
 | `prometheus_tsdb_compaction_chunk_samples` | cumulative |  | Final number of samples on their first compaction |
-| `prometheus_tsdb_compaction_chunk_samples_bucket` | cumulative |  | Final number of samples on their first compaction |
-| `prometheus_tsdb_compaction_chunk_samples_count` | cumulative |  | Final number of samples on their first compaction |
+| `prometheus_tsdb_compaction_chunk_samples_bucket` | cumulative |  | Final number of samples on their first compaction in the respective bucket |
+| `prometheus_tsdb_compaction_chunk_samples_count` | cumulative |  | Final number of samples on their first compaction (count) |
 | `prometheus_tsdb_compaction_chunk_size_bytes` | cumulative |  | Final size of chunks on their first compaction |
-| `prometheus_tsdb_compaction_chunk_size_bytes_bucket` | cumulative |  | Final size of chunks on their first compaction |
+| `prometheus_tsdb_compaction_chunk_size_bytes_bucket` | cumulative |  | Final size of chunks on their first compaction in the respective bucket |
 | `prometheus_tsdb_compaction_chunk_size_bytes_count` | cumulative |  | Final size of chunks on their first compaction |
 | `prometheus_tsdb_compaction_duration_seconds` | cumulative |  | Duration of compaction runs |
-| `prometheus_tsdb_compaction_duration_seconds_bucket` | cumulative |  | Duration of compaction runs |
-| `prometheus_tsdb_compaction_duration_seconds_count` | cumulative |  | Duration of compaction runs |
+| `prometheus_tsdb_compaction_duration_seconds_bucket` | cumulative |  | Duration of compaction runs in the respective bucket |
+| `prometheus_tsdb_compaction_duration_seconds_count` | cumulative |  | Duration of compaction runs (count) |
 | `prometheus_tsdb_compactions_failed_total` | cumulative |  | Total number of compactions that failed for the partition |
 | `prometheus_tsdb_compactions_total` | cumulative |  | Total number of compactions that were executed for the partition |
 | `prometheus_tsdb_compactions_triggered_total` | cumulative |  | Total number of triggered compactions for the partition |
@@ -152,7 +152,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `prometheus_tsdb_head_chunks_created_total` | cumulative |  | Total number of chunks created in the head |
 | `prometheus_tsdb_head_chunks_removed_total` | cumulative |  | Total number of chunks removed in the head |
 | `prometheus_tsdb_head_gc_duration_seconds` | cumulative |  | Runtime of garbage collection in the head block |
-| `prometheus_tsdb_head_gc_duration_seconds_count` | cumulative |  | Runtime of garbage collection in the head block |
+| `prometheus_tsdb_head_gc_duration_seconds_count` | cumulative |  | Runtime of garbage collection in the head block (count) |
 | `prometheus_tsdb_head_max_time` | gauge |  | Maximum timestamp of the head block |
 | `prometheus_tsdb_head_min_time` | gauge |  | Minimum time bound of the head block |
 | `prometheus_tsdb_head_samples_appended_total` | cumulative |  | Total number of appended samples |
@@ -169,14 +169,14 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `prometheus_tsdb_retention_cutoffs_total` | cumulative |  | Number of times the database cut off block data from disk |
 | `prometheus_tsdb_symbol_table_size_bytes` | gauge |  | Size of symbol table on disk (in bytes) |
 | `prometheus_tsdb_tombstone_cleanup_seconds` | cumulative |  | The time taken to recompact blocks to remove tombstones |
-| `prometheus_tsdb_tombstone_cleanup_seconds_bucket` | cumulative |  | The time taken to recompact blocks to remove tombstones |
-| `prometheus_tsdb_tombstone_cleanup_seconds_count` | cumulative |  | The time taken to recompact blocks to remove tombstones |
+| `prometheus_tsdb_tombstone_cleanup_seconds_bucket` | cumulative |  | The time taken to recompact blocks to remove tombstones in the respective bucket |
+| `prometheus_tsdb_tombstone_cleanup_seconds_count` | cumulative |  | The time taken to recompact blocks to remove tombstones (count) |
 | `prometheus_tsdb_wal_completed_pages_total` | cumulative |  | Total number of completed pages |
 | `prometheus_tsdb_wal_fsync_duration_seconds` | cumulative |  | Duration of WAL fsync |
-| `prometheus_tsdb_wal_fsync_duration_seconds_count` | cumulative |  | Duration of WAL fsync |
+| `prometheus_tsdb_wal_fsync_duration_seconds_count` | cumulative |  | Duration of WAL fsync (count) |
 | `prometheus_tsdb_wal_page_flushes_total` | cumulative |  | Total number of page flushes |
 | `prometheus_tsdb_wal_truncate_duration_seconds` | cumulative |  | Duration of WAL truncation |
-| `prometheus_tsdb_wal_truncate_duration_seconds_count` | cumulative |  | Duration of WAL truncation |
+| `prometheus_tsdb_wal_truncate_duration_seconds_count` | cumulative |  | Duration of WAL truncation (count) |
 | `prometheus_tsdb_wal_truncations_failed_total` | cumulative |  | Total number of WAL truncations that failed |
 | `prometheus_tsdb_wal_truncations_total` | cumulative |  | Total number of WAL truncations attempted |
 | `promhttp_metric_handler_requests_in_flight` | gauge |  | Current number of scrapes being served |
