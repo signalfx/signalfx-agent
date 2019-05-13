@@ -23,10 +23,10 @@ Monitor Type: `collectd/etcd`
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `clusterName` | **yes** | `string` | An arbitrary name of the etcd cluster to make it easier to group together and identify instances. |
-| `sslKeyFile` | no | `string` |  |
-| `sslCertificate` | no | `string` |  |
-| `sslCACerts` | no | `string` |  |
-| `skipSSLValidation` | no | `bool` |  (**default:** `false`) |
+| `sslKeyFile` | no | `string` | Client private key if using client certificate authentication. |
+| `sslCertificate` | no | `string` | Client public key if using client certificate authentication. |
+| `sslCACerts` | no | `string` | Certificate authority or host certificate to trust. |
+| `skipSSLValidation` | no | `bool` | If `true`, etcd's SSL certificate will not be verified. Enabling this option results in the `sslCACerts` option being ignored. (**default:** `false`) |
 | `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
 
 
