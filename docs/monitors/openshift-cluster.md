@@ -3,7 +3,7 @@
 # openshift-cluster
 
 This monitor is for use with an OpenShift cluster. It includes all metrics
-from the [`kubernetes-cluster`](kubernetes-cluster.md) monitor with additional
+from the [kubernetes-cluster](kubernetes-cluster.md) monitor with additional
 OpenShift-specific metrics. You only need to use one monitor or the other.
 
 Collects cluster-level metrics from the Kubernetes API server.  It uses the
