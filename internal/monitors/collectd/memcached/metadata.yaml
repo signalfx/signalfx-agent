@@ -37,10 +37,6 @@ monitors:
       description: Current number of open connections
       included: true
       type: gauge
-    memcached_connections.listen_disabled:
-      description: Number of times connection limit has been exceeded
-      included: false
-      type: gauge
     memcached_items.current:
       description: Current number of items stored by this instance
       included: true
@@ -59,6 +55,22 @@ monitors:
       type: cumulative
     memcached_ops.decr_misses:
       description: Number of decr requests against missing keys
+      included: false
+      type: cumulative
+    memcached_ops.delete_hits:
+      description: Number of successful delete requests
+      included: false
+      type: cumulative
+    memcached_ops.delete_misses:
+      description: Number of delete requests against missing keys
+      included: false
+      type: cumulative
+    total_events.listen_disabled:
+      description: Number of times connection limit has been exceeded
+      included: false
+      type: cumulative
+    connections.opened:
+      description: Number of connections opened since server began running
       included: false
       type: cumulative
     memcached_ops.evictions:
