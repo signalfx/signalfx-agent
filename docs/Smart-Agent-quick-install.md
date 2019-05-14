@@ -57,7 +57,7 @@ The response you will see is __(need content)__
 To confirm the SignalFx Smart Agent installation is functional, for Windows enter:
 
 ```sh
-something
+C:\Program Files\SignalFx\SignaFxAgent\bin\signalfx-agent.exe status
 ```
 
 The response you will see is __(need content)__
