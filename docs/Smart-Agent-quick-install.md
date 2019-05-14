@@ -68,7 +68,6 @@ __Now login to SignalFx to see your data!__
 
 To troubleshoot the configuration of the agent, use the `signalfx-agent status config` command and view the log files to resolve any misconfigurations.
 
-To troubleshoot the Windows installation __(need content)__ 
 
 ###Realm
 
