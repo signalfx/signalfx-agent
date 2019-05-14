@@ -6,7 +6,11 @@ from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import ensure_always, run_service, wait_for
-from tests.helpers.verify import run_agent_verify_included_metrics, verify_expected_is_subset, run_agent_verify_all_metrics
+from tests.helpers.verify import (
+    run_agent_verify_included_metrics,
+    verify_expected_is_subset,
+    run_agent_verify_all_metrics,
+)
 
 pytestmark = [pytest.mark.docker_container_stats, pytest.mark.monitor_without_endpoints]
 
@@ -27,7 +31,9 @@ def test_docker_included():
             METADATA,
         )
 
+
 ENHANCED_METRICS = METADATA.all_metrics
+
 
 def test_docker_enhanced():
     with run_service(
@@ -39,4 +45,6 @@ def test_docker_enhanced():
             - type: collectd/docker
               dockerURL: unix:///var/run/docker.sock
               collectNetworkStats: true
-            """, METADATA)
+            """,
+            METADATA,
+        )

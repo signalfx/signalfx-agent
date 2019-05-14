@@ -15,7 +15,7 @@ from tests.helpers.verify import (
     run_agent_verify_all_metrics,
 )
 
-pytestmark = [pytest.mark.mysql, pytest.mark.monitor_without_endpoints]
+pytestmark = [pytest.mark.docker_container_stats, pytest.mark.monitor_without_endpoints]
 
 ENV = {
     "MYSQL_DATABASE": "testdb",
