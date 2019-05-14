@@ -87,13 +87,12 @@ kafka-leader-election-rate:
     instancePrefix: "kafka-leader-election-rate"
 
 kafka-unclean-elections:
-  objectName: "kafka.controller:type=ControllerStats,name=LeaderElectionRateAndTimeMs"
+  objectName: "kafka.controller:type=ControllerStats,name=UncleanLeaderElectionsPerSec"
   values:
   - type: "counter"
     table: false
     attribute: "Count"
     instancePrefix: "kafka-unclean-elections-rate"
-
 
 kafka-request-queue:
   objectName: "kafka.network:type=RequestChannel,name=RequestQueueSize"
@@ -150,4 +149,20 @@ kafka.produce.total-time:
     table: false
     attribute: "99thPercentile"
     instancePrefix: "kafka.produce.total-time.99th"
+
+kafka.log.flush:
+  objectName: "kafka.log:type=LogFlushStats,name=LogFlushRateAndTimeMs"
+  values:
+  - type: counter
+    table: false
+    attribute: Count
+    instancePrefix: kafka-log-flushes
+  - type: gauge
+    table: false
+    attribute: Mean
+    instancePrefix: kafka-log-flush-time-ms
+  - type: gauge
+    table: false
+    attribute: 95thPercentile
+    instancePrefix: kafka-log-flush-time-ms-p95
 `

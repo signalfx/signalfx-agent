@@ -1,5 +1,6 @@
 import io
 import os
+import random
 import re
 import socket
 import subprocess
@@ -116,6 +117,11 @@ def print_lines(msg):
 def container_ip(container):
     container.reload()
     return container.attrs["NetworkSettings"]["IPAddress"]
+
+
+def container_hostname(container):
+    container.reload()
+    return container.attrs["Config"]["Hostname"]
 
 
 # Ensure a unique internal status server host address.  This supports up to
@@ -274,3 +280,8 @@ def pull_from_reader_in_background(reader):
         return output.getvalue().decode("utf-8")
 
     return get_output
+
+
+def random_hex(bits=64):
+    """Return random hex number as a string with the given number of bits (default 64)"""
+    return hex(random.getrandbits(bits))[2:]
