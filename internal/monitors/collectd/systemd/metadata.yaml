@@ -8,7 +8,7 @@ monitors:
         in the SignalFx app
   doc: |
     This [SignalFx Smart Agent](https://github.com/signalfx/signalfx-agent) monitor collects metrics about the state of
-    configured systemd services using the [collectd-systemd](https://github.com/signalfx/integrations/tree/master/collectd-systemd)
+    configured systemd services using the [collectd-systemd](https://github.com/signalfx/collectd-systemd)
     plugin. A service is in the state that a metric represents if the metric value is 1 and not in that state if the
     metric value is 0. The name of the service that the metric is reporiting about is assigned to dimension
     `systemd_service`.
