@@ -54,7 +54,7 @@ sudo signalfx-agent status
 
 The response you will see is __(need content)__
 
-To confirm the SignalFx Smart Agent installation is functional, for Windows enter:
+To confirm the SignalFx Smart Agent installation is functional, for Windows in Powershell enter:
 
 ```sh
 C:\Program Files\SignalFx\SignaFxAgent\bin\signalfx-agent.exe status
