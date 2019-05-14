@@ -60,7 +60,7 @@ To confirm the SignalFx Smart Agent installation is functional, for Windows in P
 C:\Program Files\SignalFx\SignaFxAgent\bin\signalfx-agent.exe status
 ```
 
-The response you will see is __(need content)__
+The output you should see will look something like:
 
 __Now login to SignalFx to see your data!__
 
