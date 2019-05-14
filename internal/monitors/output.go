@@ -24,6 +24,7 @@ type monitorOutput struct {
 	spanChan                  chan<- *trace.Span
 	dimPropChan               chan<- *types.DimProperties
 	extraDims                 map[string]string
+	dimensionTransformations  map[string]string
 }
 
 var _ types.Output = &monitorOutput{}
@@ -32,6 +33,7 @@ var _ types.Output = &monitorOutput{}
 func (mo *monitorOutput) Copy() types.Output {
 	o := *mo
 	o.extraDims = utils.CloneStringMap(mo.extraDims)
+	o.dimensionTransformations = utils.CloneStringMap(mo.dimensionTransformations)
 	o.filterSet = &(*mo.filterSet)
 	return &o
 }
@@ -59,6 +61,13 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 	// on.
 	if mo.monitorFiltering != nil && mo.monitorFiltering.filterSet.Matches(dp) {
 		return
+	}
+
+	for origName, newName := range mo.dimensionTransformations {
+		if v, ok := dp.Dimensions[origName]; ok {
+			dp.Dimensions[newName] = v
+			delete(dp.Dimensions, origName)
+		}
 	}
 
 	mo.dpChan <- dp

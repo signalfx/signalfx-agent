@@ -71,6 +71,15 @@ type MonitorConfig struct {
 	// is useful when you have an endpoint whose identity is not particularly
 	// important since it acts largely as a proxy or adapter for other metrics.
 	DisableEndpointDimensions bool `yaml:"disableEndpointDimensions" json:"disableEndpointDimensions"`
+	// A map from dimension names emitted by the monitor to the desired
+	// dimension name that will be emitted in the datapoint that goes to
+	// SignalFx.  This can be useful if you have custom metrics from your
+	// applications and want to make the dimensions from a monitor match those.
+	// Also can be useful when scraping free-form metrics, say with the
+	// `prometheus-exporter` monitor.  Right now, only static key/value
+	// transformations are supported.  Note that filtering by dimensions will
+	// be done on the *original* dimension name and not the new name.
+	DimensionTransformations map[string]string `yaml:"dimensionTransformations" json:"dimensionTransformations"`
 	// Extra metrics to enable besides the default included ones.
 	ExtraMetrics []string `yaml:"extraMetrics" json:"extraMetrics"`
 	// Extra metric groups to enable besides the metrics that are included by default.
