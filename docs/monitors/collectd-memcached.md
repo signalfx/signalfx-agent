@@ -37,6 +37,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
+| `connections.opened` | cumulative |  | Number of connections opened since server began running |
 | `df.cache.free` | gauge | ✔ | Unused storage bytes |
 | `df.cache.used` | gauge | ✔ | Current number of bytes used to store items |
 | `memcached_command.flush` | cumulative |  | Number of flush requests |
@@ -44,12 +45,13 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `memcached_command.set` | cumulative | ✔ | Number of storage requests |
 | `memcached_command.touch` | cumulative |  | Number of touch requests |
 | `memcached_connections.current` | gauge | ✔ | Current number of open connections |
-| `memcached_connections.listen_disabled` | gauge |  | Number of times connection limit has been exceeded |
 | `memcached_items.current` | gauge | ✔ | Current number of items stored by this instance |
 | `memcached_octets.rx` | cumulative | ✔ | Total network bytes read by this server |
 | `memcached_octets.tx` | cumulative | ✔ | Total network bytes written by this server |
 | `memcached_ops.decr_hits` | cumulative |  | Number of successful Decr requests |
 | `memcached_ops.decr_misses` | cumulative |  | Number of decr requests against missing keys |
+| `memcached_ops.delete_hits` | cumulative |  | Number of successful delete requests |
+| `memcached_ops.delete_misses` | cumulative |  | Number of delete requests against missing keys |
 | `memcached_ops.evictions` | cumulative | ✔ | Number of valid items removed from cache |
 | `memcached_ops.hits` | cumulative | ✔ | Number of keys that have been requested and found present |
 | `memcached_ops.incr_hits` | cumulative |  | Number of successful incr requests |
@@ -58,6 +60,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `ps_count.threads` | gauge |  | Number of worker threads requested |
 | `ps_cputime.syst` | cumulative |  | Total system time for this instance |
 | `ps_cputime.user` | cumulative |  | Total user time for this instance |
+| `total_events.listen_disabled` | cumulative |  | Number of times connection limit has been exceeded |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
@@ -74,16 +77,19 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
+    - connections.opened
     - memcached_command.flush
     - memcached_command.touch
-    - memcached_connections.listen_disabled
     - memcached_ops.decr_hits
     - memcached_ops.decr_misses
+    - memcached_ops.delete_hits
+    - memcached_ops.delete_misses
     - memcached_ops.incr_hits
     - memcached_ops.incr_misses
     - ps_count.threads
     - ps_cputime.syst
     - ps_cputime.user
+    - total_events.listen_disabled
     monitorType: collectd/memcached
 ```
 

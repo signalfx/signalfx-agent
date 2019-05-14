@@ -7945,6 +7945,12 @@
       "doc": "Monitors an instance of memcached using the\n[collectd memcached\nplugin](https://collectd.org/wiki/index.php/Plugin:memcached).\n\nSee the [integrations\ndoc](https://github.com/signalfx/integrations/tree/master/collectd-memcached)\nfor more information.\n",
       "groups": null,
       "metrics": {
+        "connections.opened": {
+          "type": "cumulative",
+          "description": "Number of connections opened since server began running",
+          "group": null,
+          "included": false
+        },
         "df.cache.free": {
           "type": "gauge",
           "description": "Unused storage bytes",
@@ -7987,12 +7993,6 @@
           "group": null,
           "included": true
         },
-        "memcached_connections.listen_disabled": {
-          "type": "gauge",
-          "description": "Number of times connection limit has been exceeded",
-          "group": null,
-          "included": false
-        },
         "memcached_items.current": {
           "type": "gauge",
           "description": "Current number of items stored by this instance",
@@ -8020,6 +8020,18 @@
         "memcached_ops.decr_misses": {
           "type": "cumulative",
           "description": "Number of decr requests against missing keys",
+          "group": null,
+          "included": false
+        },
+        "memcached_ops.delete_hits": {
+          "type": "cumulative",
+          "description": "Number of successful delete requests",
+          "group": null,
+          "included": false
+        },
+        "memcached_ops.delete_misses": {
+          "type": "cumulative",
+          "description": "Number of delete requests against missing keys",
           "group": null,
           "included": false
         },
@@ -8068,6 +8080,12 @@
         "ps_cputime.user": {
           "type": "cumulative",
           "description": "Total user time for this instance",
+          "group": null,
+          "included": false
+        },
+        "total_events.listen_disabled": {
+          "type": "cumulative",
+          "description": "Number of times connection limit has been exceeded",
           "group": null,
           "included": false
         }
