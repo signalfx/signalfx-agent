@@ -71,7 +71,7 @@ To troubleshoot the configuration of the agent, use the `signalfx-agent status c
 
 ### Realm
 
-By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to explicitly set the signalFxRealm option in your config like this:
+By default, the Smart Agent will send data to the us0 realm. A realm is a self-contained deployment of SignalFx in which your organization is hosted. Different realms have different API endpoints (e.g. the endpoint for sending data is ingest.us1.signalfx.com for the us1 realm, and ingest.eu0.signalfx.com for the eu0 realm). If you are not in this realm, you will need to explicitly set the signalFxRealm option in your config like this:
 ```sh
 signalFxRealm: YOUR_SIGNALFX_REALM
 ```
