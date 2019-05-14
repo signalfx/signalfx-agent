@@ -69,7 +69,7 @@ __Now login to SignalFx to see your data!__
 To troubleshoot the configuration of the agent, use the `signalfx-agent status config` command and view the log files to resolve any misconfigurations.
 
 
-###Realm
+### Realm
 
 By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to explicitly set the signalFxRealm option in your config like this:
 ```sh
