@@ -8803,6 +8803,12 @@
       "doc": "Monitors a MySQL database server using collectd's\n[MySQL plugin](https://collectd.org/wiki/index.php/Plugin:MySQL).\n\nOn Unix, MySQL programs treat the host name `localhost` specially, in a way\nthat is likely different from what is expected compared to other\nnetwork-based programs. For connections to `localhost`, MySQL programs\nattempt to connect to the local server by using a Unix socket file. To ensure\nthat the client makes a TCP/IP connection to the local server specify a host\nname value of `127.0.0.1`, or the IP address or name of the local server.\n\nYou have to specify each database you want to monitor individually under the\n`databases` key.  If you have a common authentication to all databases being\nmonitored, you can specify that in the top-level `username`/`password`\noptions, otherwise they can be specified at the database level.\n\n**Note:** The MySQL monitor supports MySQL versions 5.x or later.\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: collectd/mysql\n   host: 127.0.0.1\n   port: 3306\n   databases:\n     - name: dbname\n     - name: securedb\n       username: admin\n       password: s3cr3t\n   username: dbuser\n   password: passwd\n```\n",
       "groups": null,
       "metrics": {
+        "cache_result.cache_size": {
+          "type": "gauge",
+          "description": "MySQL Qcache Size",
+          "group": null,
+          "included": false
+        },
         "cache_result.qcache-hits": {
           "type": "cumulative",
           "description": "The number of hits on MySQL query cache.",
@@ -8815,19 +8821,13 @@
           "group": null,
           "included": true
         },
-        "cache_results.cache_size": {
-          "type": "gauge",
-          "description": "MySQL Qcache Size",
-          "group": null,
-          "included": false
-        },
-        "cache_results.qcache-not_cached": {
+        "cache_result.qcache-not_cached": {
           "type": "cumulative",
           "description": "The number of MySQL queries that were not cacheable or not cached.",
           "group": null,
           "included": false
         },
-        "cache_results.qcache-prunes": {
+        "cache_result.qcache-prunes": {
           "type": "cumulative",
           "description": "The number of queries that were pruned from query cache because of low-memory condition.",
           "group": null,
@@ -8840,901 +8840,907 @@
           "included": true
         },
         "mysql_commands.admin_commands": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ADMIN commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_db": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER DB commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_db_upgrade": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER DB UPGRADE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_event": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER EVENT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_function": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER FUNCTION commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_procedure": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER PROCEDURE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_server": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER SERVER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_table": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER TABLE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_tablespace": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER TABLESPACE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_user": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER USER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.analyze": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ANALYZE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.assign_to_keycache": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ASSIGN TO KEYCACHE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.begin": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL BEGIN commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.binlog": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL BINLOG commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.call_procedure": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CALL PROCEDURE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.change_db": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CHANGE DB commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.change_master": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CHANGE MASTER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.check": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CHECK commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.checksum": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CHECKSUM commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.commit": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL COMMIT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_db": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE DB commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_event": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE EVENT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_function": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE FUNCTION commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_index": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE INDEX commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_procedure": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE PROCEDURE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_server": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE SERVER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_table": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE TABLE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_trigger": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE TRIGGER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_udf": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE UDF commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_user": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE USER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_view": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE VIEW commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.dealloc_sql": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DEALLOC SQL commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.delete": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DELETE commands executed",
           "group": null,
           "included": true
         },
         "mysql_commands.delete_multi": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DELETE MULTI commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.do": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DO commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_db": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP DB commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_event": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP EVENT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_function": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP FUNCTION commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_index": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP INDEX commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_procedure": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP PROCEDURE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_server": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP SERVER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_table": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP TABLE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_trigger": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP TRIGGER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_user": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP USER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_view": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP VIEW commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.empty_query": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL EMPTY QUERY commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.execute_sql": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL EXECUTE SQL commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.flush": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL FLUSH commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.get_diagnostics": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL GET DIAGNOSTICS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.grant": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL GRANT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.ha_close": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL HA CLOSE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.ha_open": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL HA OPEN commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.ha_read": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL HA READ commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.help": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL HELP commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.insert": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL INSERT commands executed",
           "group": null,
           "included": true
         },
         "mysql_commands.insert_select": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL INSERT SELECT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.install_plugin": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL INSTALL PLUGIN commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.kill": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL KILL commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.load": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL LOAD commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.lock_tables": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL LOCK TABLES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.optimize": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL OPTIMIZE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.preload_keys": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL PRELOAD KEYS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.prepare_sql": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL PREPARE SQL commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.purge": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL PURGE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.purge_before_date": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL PURGE BEFORE DATE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.release_savepoint": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL RELEASE SAVEPOINT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.rename_table": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL RENAME TABLE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.rename_user": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL RENAME USER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.repair": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL REPAIR commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.replace": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL REPLACE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.replace_select": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL REPLACE SELECT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.reset": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL RESET commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.resignal": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL RESIGNAL commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.revoke": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL REVOKE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.revoke_all": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL REVOKE ALL commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.rollback": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ROLLBACK commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.rollback_to_savepoint": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ROLLBACK TO SAVEPOINT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.savepoint": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SAVEPOINT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.select": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SELECT commands executed",
           "group": null,
           "included": true
         },
         "mysql_commands.set_option": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SET OPTION commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_binlog_events": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW BINLOG EVENTS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_binlogs": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW BINLOGS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_charsets": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW CHARSETS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_collations": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW COLLATIONS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_create_db": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW CREATE DB commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_create_event": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW CREATE EVENT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_create_func": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW CREATE FUNC commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_create_proc": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW CREATE PROC commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_create_table": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW CREATE TABLE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_create_trigger": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW CREATE TRIGGER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_databases": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW DATABASES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_engine_logs": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW ENGINE LOGS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_engine_mutex": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW ENGINE MUTEX commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_engine_status": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW ENGINE STATUS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_errors": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW ERRORS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_events": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW EVENTS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_fields": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW FIELDS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_function_code": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW FUNCTION CODE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_function_status": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW FUNCTION STATUS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_grants": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW GRANTS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_keys": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW KEYS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_master_status": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW MASTER STATUS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_open_tables": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW OPEN TABLES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_plugins": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW PLUGINS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_privileges": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW PRIVILEGES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_procedure_code": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW PROCEDURE CODE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_procedure_status": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW PROCEDURE STATUS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_processlist": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW PROCESSLIST commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_profile": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW PROFILE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_profiles": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW PROFILES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_relaylog_events": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW RELAYLOG EVENTS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_slave_hosts": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW SLAVE HOSTS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_slave_status": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW SLAVE STATUS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_status": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW STATUS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_storage_engines": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW STORAGE ENGINES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_table_status": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW TABLE STATUS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_tables": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW TABLES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_triggers": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW TRIGGERS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_variables": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW VARIABLES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_warnings": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW WARNINGS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.signal": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SIGNAL commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.slave_start": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SLAVE START commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.slave_stop": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SLAVE STOP commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.truncate": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL TRUNCATE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.uninstall_plugin": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL UNINSTALL PLUGIN commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.unlock_tables": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL UNLOCK TABLES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.update": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL UPDATE commands executed",
           "group": null,
           "included": true
         },
         "mysql_commands.update_multi": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL UPDATE MULTI commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.xa_commit": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL XA COMMIT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.xa_end": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL XA END commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.xa_prepare": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL XA PREPARE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.xa_recover": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL XA RECOVER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.xa_rollback": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL XA ROLLBACK commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.xa_start": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL XA START commands executed",
           "group": null,
           "included": false
         },
         "mysql_handler.commit": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of internal COMMIT statements.",
           "group": null,
           "included": false
         },
         "mysql_handler.delete": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of times rows have been deleted from tables.",
           "group": null,
           "included": false
         },
+        "mysql_handler.external_lock": {
+          "type": "cumulative",
+          "description": "The number of external_lock occurences.",
+          "group": null,
+          "included": false
+        },
         "mysql_handler.prepare": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of times \"Prepare\" phase was executed in the two-phase commit operations.",
           "group": null,
           "included": false
         },
         "mysql_handler.read_first": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of times the first entry in an index was read.",
           "group": null,
           "included": false
         },
         "mysql_handler.read_key": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of times a row was read based on a key.",
           "group": null,
           "included": false
         },
         "mysql_handler.read_next": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests to read the next row in key order.",
           "group": null,
           "included": false
         },
         "mysql_handler.read_prev": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests to read the previous row in key order.",
           "group": null,
           "included": false
         },
         "mysql_handler.read_rnd": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests that read a random fixed position in the data file.",
           "group": null,
           "included": false
         },
         "mysql_handler.read_rnd_next": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests for the next row in the data file.",
           "group": null,
           "included": false
         },
         "mysql_handler.rollback": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests for a rollback operation on the storage engine.",
           "group": null,
           "included": false
         },
         "mysql_handler.savepoint": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests to place a savepoint on the storage engine.  This can be used to roll back later.",
           "group": null,
           "included": false
         },
         "mysql_handler.savepoint_rollback": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests to roll back to a savepoint.",
           "group": null,
           "included": false
         },
         "mysql_handler.update": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests to update a row in a table.",
           "group": null,
           "included": false
         },
         "mysql_handler.write": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests to insert a row in a table.",
           "group": null,
           "included": false
         },
         "mysql_locks.immediate": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL table locks which were granted immediately.",
           "group": null,
           "included": true
         },
         "mysql_locks.waited": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL table locks which had to wait before being granted.",
           "group": null,
           "included": true
@@ -9752,50 +9758,62 @@
           "included": true
         },
         "mysql_select.full_join": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of joins that perform full table scans.",
           "group": null,
           "included": false
         },
         "mysql_select.full_range_join": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of joins that used a range search on a reference table.",
           "group": null,
           "included": false
         },
         "mysql_select.range": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of joins that used a range on the first table.",
           "group": null,
           "included": false
         },
         "mysql_select.range_check": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of joins without keys that check for key usage after each row.",
           "group": null,
           "included": false
         },
-        "mysql_sort.merge_passes": {
-          "type": "counter",
-          "description": "The number of merge passes done by the sorting algorithm.",
+        "mysql_select.scan": {
+          "type": "cumulative",
+          "description": "The number of joins that did a full scan of the first table.",
+          "group": null,
+          "included": false
+        },
+        "mysql_slow_queries": {
+          "type": "cumulative",
+          "description": "The number of queries that have taken more than long_query_time seconds.",
           "group": null,
           "included": false
         },
         "mysql_sort.range": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of sorts that were done using ranges.",
           "group": null,
           "included": false
         },
-        "mysql_sort.rows": {
-          "type": "counter",
-          "description": "The number of rows that were sorted.",
+        "mysql_sort.scan": {
+          "type": "cumulative",
+          "description": "The number of sorts that were done by scanning the table.",
           "group": null,
           "included": false
         },
-        "mysql_sort.scan": {
-          "type": "counter",
-          "description": "The number of sorts that were done by scanning the table.",
+        "mysql_sort_merge_passes": {
+          "type": "cumulative",
+          "description": "The number of merge passes done by the sorting algorithm.",
+          "group": null,
+          "included": false
+        },
+        "mysql_sort_rows": {
+          "type": "cumulative",
+          "description": "The number of rows that were sorted.",
           "group": null,
           "included": false
         },
