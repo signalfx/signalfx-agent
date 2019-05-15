@@ -64,7 +64,7 @@ func (m *Monitor) Configure(conf *Config) error {
 					"% Usage Peak",
 				},
 				Instances:     []string{"*"},
-				Measurement:   "pagingfile",
+				Measurement:   "paging_file",
 				IncludeTotal:  true,
 				WarnOnMissing: true,
 			},
