@@ -4,7 +4,8 @@
                          bundle, lint, vendor, unit_test, integration_test)
 #>
 param(
-    [Parameter(Mandatory=$true)][string]$Target
+    [Parameter(Mandatory=$true)][string]$Target,
+    [Parameter(Mandatory=$false, ValueFromRemainingArguments=$true)]$Remaining
 )
 
 Set-PSDebug -Trace 1
@@ -165,4 +166,4 @@ function integration_test() {
     pytest -n auto -m 'windows or windows_only' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
 }
 
-&$Target
+&$Target $Remaining
