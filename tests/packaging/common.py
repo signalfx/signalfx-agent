@@ -1,10 +1,7 @@
-import os
 import subprocess
-import tarfile
 import threading
 import time
 from contextlib import contextmanager
-from io import BytesIO
 from pathlib import Path
 
 import docker
@@ -138,39 +135,6 @@ def socat_https_proxy(container, target_host, target_port, source_host, bind_add
         proc.kill()
 
 
-def copy_file_content_into_container(content, container, target_path):
-    copy_file_object_into_container(
-        BytesIO(content.encode("utf-8")), container, target_path, size=len(content.encode("utf-8"))
-    )
-
-
-# This is more convoluted that it should be but seems to be the simplest way in
-# the face of docker-in-docker environments where volume bind mounting is hard.
-def copy_file_object_into_container(fd, container, target_path, size=None):
-    tario = BytesIO()
-    tar = tarfile.TarFile(fileobj=tario, mode="w")
-
-    info = tarfile.TarInfo(name=target_path)
-    if size is None:
-        size = os.fstat(fd.fileno()).st_size
-    info.size = size
-
-    tar.addfile(info, fd)
-
-    tar.close()
-
-    container.put_archive("/", tario.getvalue())
-    # Apparently when the above `put_archive` call returns, the file isn't
-    # necessarily fully written in the container, so wait a bit to ensure it
-    # is.
-    time.sleep(2)
-
-
-def copy_file_into_container(path, container, target_path):
-    with open(path, "rb") as fd:
-        copy_file_object_into_container(fd, container, target_path)
-
-
 @contextmanager
 def run_init_system_image(
     base_image,
@@ -225,13 +189,3 @@ def is_agent_running_as_non_root(container):
     code, output = container.exec_run("pgrep -u signalfx-agent signalfx-agent")
     print("pgrep check: %s" % output)
     return code == 0
-
-
-def path_exists_in_container(container, path):
-    code, _ = container.exec_run("test -e %s" % path)
-    return code == 0
-
-
-def get_container_file_content(container, path):
-    assert path_exists_in_container(container, path), "File %s does not exist!" % path
-    return container.exec_run("cat %s" % path)[1].decode("utf-8")

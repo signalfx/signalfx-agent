@@ -4,9 +4,16 @@ from textwrap import dedent
 import pytest
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint
-from tests.helpers.util import container_ip, print_lines, run_service, wait_for
+from tests.helpers.util import (
+    container_ip,
+    print_lines,
+    run_service,
+    wait_for,
+    copy_file_content_into_container,
+    copy_file_into_container,
+)
 
-from .common import copy_file_content_into_container, copy_file_into_container, run_init_system_image
+from .common import run_init_system_image
 
 pytestmark = pytest.mark.bundle
 
