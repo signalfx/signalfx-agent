@@ -176,7 +176,7 @@ Dashboards in which the default metrics from this monitor display are shown belo
 
 ## How To
 
-<Examples of how to use the monitor, dashboards, and metrics analysis for a meaningful task.>
+<Examples of how to use the monitor, dashboards, and metrics for a meaningful task.>
 
 
 ## Sample code for the how to
