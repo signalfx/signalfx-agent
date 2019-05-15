@@ -24,7 +24,7 @@ pytestmark = [pytest.mark.collectd, pytest.mark.kafka, pytest.mark.monitor_with_
 KAFKA_METADATA = Metadata.from_package("collectd/kafka")
 PRODUCER_METADATA = Metadata.from_package("collectd/kafkaproducer")
 CONSUMER_METADATA = Metadata.from_package("collectd/kafkaconsumer")
-VERSIONS = ["0.9.0.0", "0.10.0.0", "0.11.0.0", "1.0.0", "1.0.1", "1.1.1", "2.0.0"]
+VERSIONS = ["0.9.0.0", "0.10.0.0", "0.11.0.0", "1.0.0", "1.1.1", "2.0.0"]
 
 
 @contextmanager
