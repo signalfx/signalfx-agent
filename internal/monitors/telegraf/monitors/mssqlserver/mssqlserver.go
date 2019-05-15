@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
+
 	"github.com/influxdata/telegraf"
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/sqlserver"
@@ -14,7 +16,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
-	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/sirupsen/logrus"
@@ -87,8 +88,12 @@ func (m *Monitor) Configure(conf *Config) error {
 	// configured measurement name as plugin and that is confusing.
 	emit.AddTag("plugin", strings.Replace(monitorType, "/", "-", -1))
 
-	// replacer sanitizes metrics according to our PCR reporter rules
-	replacer := winperfcounters.NewPCRReplacer()
+	// replacer sanitizes metrics according to our PCR reporter rules (ours have to come first).
+	replacer := strings.NewReplacer(append([]string{"%", "pct", "(s)", "_"}, winperfcounters.MetricReplacements...)...)
+
+	emit.AddMetricNameTransformation(func(metric string) string {
+		return strings.Trim(replacer.Replace(strings.ToLower(metric)), "_")
+	})
 
 	emit.AddMeasurementTransformation(
 		func(ms telegraf.Metric) error {
