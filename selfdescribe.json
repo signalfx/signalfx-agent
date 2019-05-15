@@ -6334,12 +6334,6 @@
           "group": null,
           "included": false
         },
-        "counter.kafka-log-flushes": {
-          "type": "cumulative",
-          "description": "Number of log flushes per second",
-          "group": null,
-          "included": false
-        },
         "counter.kafka-messages-in": {
           "type": "cumulative",
           "description": "Number of messages received per second across all topics",
@@ -6364,6 +6358,12 @@
           "group": null,
           "included": false
         },
+        "counter.kafka.logs.flush-time.count": {
+          "type": "cumulative",
+          "description": "Number of log flushes",
+          "group": null,
+          "included": false
+        },
         "counter.kafka.produce.total-time.count": {
           "type": "cumulative",
           "description": "Number of producer requests",
@@ -6381,18 +6381,6 @@
           "description": "Specifies if the broker an active controller",
           "group": null,
           "included": true
-        },
-        "gauge.kafka-log-flush-time-ms": {
-          "type": "gauge",
-          "description": "Average number of milliseconds to flush a log",
-          "group": null,
-          "included": false
-        },
-        "gauge.kafka-log-flush-time-ms-p95": {
-          "type": "gauge",
-          "description": "95th percentile of log flush time in milliseconds",
-          "group": null,
-          "included": false
         },
         "gauge.kafka-max-lag": {
           "type": "gauge",
@@ -6441,6 +6429,18 @@
           "description": "Median time it takes to process a fetch request from follower",
           "group": null,
           "included": true
+        },
+        "gauge.kafka.logs.flush-time.99th": {
+          "type": "gauge",
+          "description": "99th percentile of time in milliseconds to flush logs",
+          "group": null,
+          "included": false
+        },
+        "gauge.kafka.logs.flush-time.median": {
+          "type": "gauge",
+          "description": "Median time it takes to flush logs",
+          "group": null,
+          "included": false
         },
         "gauge.kafka.produce.total-time.99th": {
           "type": "gauge",
