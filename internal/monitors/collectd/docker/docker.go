@@ -51,6 +51,5 @@ func (c *Config) GetExtraMetrics() []string {
 	if c.CollectNetworkStats {
 		extraMetrics = append(extraMetrics, groupMetricsMap[groupNetwork]...)
 	}
-
 	return extraMetrics
 }
