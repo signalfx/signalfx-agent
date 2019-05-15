@@ -28180,7 +28180,7 @@
           "group": null,
           "included": false
         },
-        "network_interface.outbound_discarded": {
+        "network_interface.packets_outbound_discarded": {
           "type": "gauge",
           "description": "The number of outbound packets discarded",
           "group": null,
@@ -28191,6 +28191,12 @@
           "description": "The number of packets sent that encountered an error.",
           "group": null,
           "included": true
+        },
+        "network_interface.packets_received_discarded": {
+          "type": "gauge",
+          "description": "The number of received packets discarded.",
+          "group": null,
+          "included": false
         },
         "network_interface.packets_received_errors": {
           "type": "gauge",
@@ -28207,12 +28213,6 @@
         "network_interface.packets_sent_sec": {
           "type": "gauge",
           "description": "The number of packets sent per second.",
-          "group": null,
-          "included": false
-        },
-        "network_interface.received_discarded": {
-          "type": "gauge",
-          "description": "The number of received packets discarded.",
           "group": null,
           "included": false
         },
