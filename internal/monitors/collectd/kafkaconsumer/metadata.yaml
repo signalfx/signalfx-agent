@@ -73,33 +73,33 @@ monitors:
       type: gauge
     ### END JVM METRICS ###
 
-    kafka.consumer.bytes-consumed-rate:
+    gauge.kafka.consumer.bytes-consumed-rate:
       description: Average number of bytes consumed per second. This metric has either
         client-id dimension or, both client-id and topic dimensions. The former is
         an aggregate across all topics of the latter.
-      included: false
+      included: true
       type: gauge
-    kafka.consumer.fetch-rate:
+    gauge.kafka.consumer.fetch-rate:
       description: Number of records consumed per second.
-      included: false
+      included: true
       type: gauge
-    kafka.consumer.fetch-size-avg:
+    gauge.kafka.consumer.fetch-size-avg:
       description: Average number of bytes fetched per request. This metric has either
         client-id dimension or, both client-id and topic dimensions. The former is
         an aggregate across all topics of the latter.
-      included: false
+      included: true
       type: gauge
-    kafka.consumer.records-consumed-rate:
+    gauge.kafka.consumer.records-consumed-rate:
       description: Average number of records consumed per second. This metric has
         either client-id dimension or, both client-id and topic dimensions. The former
         is an aggregate across all topics of the latter.
-      included: false
+      included: true
       type: gauge
-    kafka.consumer.records-lag-max:
+    gauge.kafka.consumer.records-lag-max:
       description: Maximum lag in of records for any partition in this window. An
         increasing value over time is your best indication that the consumer group
         is not keeping up with the producers.
-      included: false
+      included: true
       type: gauge
   monitorType: collectd/kafka_consumer
   properties:

@@ -6304,27 +6304,45 @@
       "doc": "Monitors a Kafka instance using collectd's\nGenericJMX plugin.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka/mbeans.go)\nfor which it pulls metrics from Kafka's JMX endpoint.\n\nNote that this monitor supports Kafka v0.8.2.x and above. For Kafka v1.x.x and above,\napart from the list of default metrics, kafka.server:type=ZooKeeperClientMetrics,name=ZooKeeperRequestLatencyMs\nis a good metric to monitor since it gives an understanding of how long brokers wait for\nrequests to Zookeeper to be completed. Since Zookeeper is an integral part of a Kafka cluster,\nmonitoring it using the [Zookeeper\nmonitor] (https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-zookeeper.html)\nis recommended. It is also a good idea to monitor disk utilization and network metrics of\nthe underlying host.\n\nSee https://github.com/signalfx/integrations/tree/master/collectd-kafka.\n",
       "groups": null,
       "metrics": {
-        "counter.kafka-all-bytes-in": {
+        "counter.kafka-bytes-in": {
           "type": "cumulative",
           "description": "Number of bytes received per second across all topics",
           "group": null,
-          "included": false
+          "included": true
         },
-        "counter.kafka-all-bytes-out": {
+        "counter.kafka-bytes-out": {
           "type": "cumulative",
           "description": "Number of bytes transmitted per second across all topics",
           "group": null,
-          "included": false
+          "included": true
         },
-        "counter.kafka-log-flushes": {
+        "counter.kafka-isr-expands": {
           "type": "cumulative",
-          "description": "Number of log flushes per second",
+          "description": "When a broker is brought up after a failure, it starts catching up by reading from the leader. Once it is caught up, it gets added back to the ISR.",
+          "group": null,
+          "included": true
+        },
+        "counter.kafka-isr-shrinks": {
+          "type": "cumulative",
+          "description": "When a broker goes down, ISR for some of partitions will shrink. When that broker is up again, ISR will be expanded once the replicas are fully caught up. Other than that, the expected value for both ISR shrink rate and expansion rate is 0.",
+          "group": null,
+          "included": true
+        },
+        "counter.kafka-leader-election-rate": {
+          "type": "cumulative",
+          "description": "Number of leader elections",
           "group": null,
           "included": false
         },
         "counter.kafka-messages-in": {
           "type": "cumulative",
           "description": "Number of messages received per second across all topics",
+          "group": null,
+          "included": true
+        },
+        "counter.kafka-unclean-elections-rate": {
+          "type": "cumulative",
+          "description": "Number of unclean leader elections. This happens when a leader goes down and an out-of-sync replica is chosen to be the leader",
           "group": null,
           "included": true
         },
@@ -6340,9 +6358,9 @@
           "group": null,
           "included": false
         },
-        "counter.kafka.produce.total-time.99th": {
-          "type": "gauge",
-          "description": "99th percentile of time in milliseconds to process produce requests",
+        "counter.kafka.logs.flush-time.count": {
+          "type": "cumulative",
+          "description": "Number of log flushes",
           "group": null,
           "included": false
         },
@@ -6351,12 +6369,6 @@
           "description": "Number of producer requests",
           "group": null,
           "included": true
-        },
-        "counter.kafka.produce.total-time.median": {
-          "type": "gauge",
-          "description": "Median time it takes to process a produce request",
-          "group": null,
-          "included": false
         },
         "gauge.jvm.threads.count": {
           "type": "gauge",
@@ -6370,17 +6382,17 @@
           "group": null,
           "included": true
         },
-        "gauge.kafka-log-flush-time-ms": {
+        "gauge.kafka-max-lag": {
           "type": "gauge",
-          "description": "Average number of milliseconds to flush a log",
+          "description": "Maximum lag in messages between the follower and leader replicas",
           "group": null,
-          "included": false
+          "included": true
         },
-        "gauge.kafka-log-flush-time-ms-p95": {
+        "gauge.kafka-offline-partitions-count": {
           "type": "gauge",
-          "description": "95th percentile of log flush time in milliseconds",
+          "description": "Number of partitions that don’t have an active leader and are hence not writable or readable",
           "group": null,
-          "included": false
+          "included": true
         },
         "gauge.kafka-request-queue": {
           "type": "gauge",
@@ -6415,6 +6427,30 @@
         "gauge.kafka.fetch-follower.total-time.median": {
           "type": "gauge",
           "description": "Median time it takes to process a fetch request from follower",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.logs.flush-time.99th": {
+          "type": "gauge",
+          "description": "99th percentile of time in milliseconds to flush logs",
+          "group": null,
+          "included": false
+        },
+        "gauge.kafka.logs.flush-time.median": {
+          "type": "gauge",
+          "description": "Median time it takes to flush logs",
+          "group": null,
+          "included": false
+        },
+        "gauge.kafka.produce.total-time.99th": {
+          "type": "gauge",
+          "description": "99th percentile of time in milliseconds to process produce requests",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.produce.total-time.median": {
+          "type": "gauge",
+          "description": "Median time it takes to process a produce request",
           "group": null,
           "included": true
         },
@@ -6453,42 +6489,6 @@
           "description": "Current memory usage in bytes",
           "group": "jvm",
           "included": true
-        },
-        "kafka-isr-expands": {
-          "type": "cumulative",
-          "description": "When a broker is brought up after a failure, it starts catching up by reading from the leader. Once it is caught up, it gets added back to the ISR.",
-          "group": null,
-          "included": false
-        },
-        "kafka-isr-shrinks": {
-          "type": "cumulative",
-          "description": "When a broker goes down, ISR for some of partitions will shrink. When that broker is up again, ISR will be expanded once the replicas are fully caught up. Other than that, the expected value for both ISR shrink rate and expansion rate is 0.",
-          "group": null,
-          "included": false
-        },
-        "kafka-leader-election-rate": {
-          "type": "cumulative",
-          "description": "Number of leader elections",
-          "group": null,
-          "included": false
-        },
-        "kafka-max-lag": {
-          "type": "gauge",
-          "description": "Maximum lag in messages between the follower and leader replicas",
-          "group": null,
-          "included": false
-        },
-        "kafka-offline-partitions-count": {
-          "type": "gauge",
-          "description": "Number of partitions that don’t have an active leader and are hence not writable or readable",
-          "group": null,
-          "included": false
-        },
-        "kafka-unclean-elections": {
-          "type": "cumulative",
-          "description": "Number of unclean leader elections. This happens when a leader goes down and an out-of-sync replica is chosen to be the leader",
-          "group": null,
-          "included": false
         },
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
@@ -6720,6 +6720,36 @@
           "group": "jvm",
           "included": true
         },
+        "gauge.kafka.consumer.bytes-consumed-rate": {
+          "type": "gauge",
+          "description": "Average number of bytes consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.consumer.fetch-rate": {
+          "type": "gauge",
+          "description": "Number of records consumed per second.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.consumer.fetch-size-avg": {
+          "type": "gauge",
+          "description": "Average number of bytes fetched per request. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.consumer.records-consumed-rate": {
+          "type": "gauge",
+          "description": "Average number of records consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.consumer.records-lag-max": {
+          "type": "gauge",
+          "description": "Maximum lag in of records for any partition in this window. An increasing value over time is your best indication that the consumer group is not keeping up with the producers.",
+          "group": null,
+          "included": true
+        },
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
@@ -6755,36 +6785,6 @@
           "description": "Current memory usage in bytes",
           "group": "jvm",
           "included": true
-        },
-        "kafka.consumer.bytes-consumed-rate": {
-          "type": "gauge",
-          "description": "Average number of bytes consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.",
-          "group": null,
-          "included": false
-        },
-        "kafka.consumer.fetch-rate": {
-          "type": "gauge",
-          "description": "Number of records consumed per second.",
-          "group": null,
-          "included": false
-        },
-        "kafka.consumer.fetch-size-avg": {
-          "type": "gauge",
-          "description": "Average number of bytes fetched per request. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.",
-          "group": null,
-          "included": false
-        },
-        "kafka.consumer.records-consumed-rate": {
-          "type": "gauge",
-          "description": "Average number of records consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.",
-          "group": null,
-          "included": false
-        },
-        "kafka.consumer.records-lag-max": {
-          "type": "gauge",
-          "description": "Maximum lag in of records for any partition in this window. An increasing value over time is your best indication that the consumer group is not keeping up with the producers.",
-          "group": null,
-          "included": false
         },
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
@@ -7008,6 +7008,66 @@
           "group": "jvm",
           "included": true
         },
+        "gauge.kafka.producer.byte-rate": {
+          "type": "gauge",
+          "description": "Average number of bytes sent per second for a topic. This metric has client-id and topic dimensions.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.compression-rate": {
+          "type": "gauge",
+          "description": "Average compression rate of record batches for a topic. This metric has client-id and topic dimensions.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.io-wait-time-ns-avg": {
+          "type": "gauge",
+          "description": "Average length of time the I/O thread spent waiting for a socket ready for reads or writes in nanoseconds. This metric has client-id dimension.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.outgoing-byte-rate": {
+          "type": "gauge",
+          "description": "Average number of outgoing bytes sent per second to all servers. This metric has client-id dimension.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.record-error-rate": {
+          "type": "gauge",
+          "description": "Average per-second number of record sends that resulted in errors for a topic. This metric has client-id and topic dimensions.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.record-retry-rate": {
+          "type": "gauge",
+          "description": "Average per-second number of retried record sends for a topic. This metric has client-id and topic dimensions.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.record-send-rate": {
+          "type": "gauge",
+          "description": "Average number of records sent per second for a topic. This metric has client-id and topic dimensions.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.request-latency-avg": {
+          "type": "gauge",
+          "description": "Average request latency in ms. Time it takes on average for the producer to get responses from the broker. This metric has client-id dimension.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.request-rate": {
+          "type": "gauge",
+          "description": "Average number of requests sent per second. This metric has client-id dimension.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.response-rate": {
+          "type": "gauge",
+          "description": "Average number of responses received per second. This metric has client-id dimension.",
+          "group": null,
+          "included": true
+        },
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
@@ -7043,66 +7103,6 @@
           "description": "Current memory usage in bytes",
           "group": "jvm",
           "included": true
-        },
-        "kafka.producer.byte-rate": {
-          "type": "gauge",
-          "description": "Average number of bytes sent per second for a topic. This metric has client-id and topic dimensions.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.compression-rate": {
-          "type": "gauge",
-          "description": "Average compression rate of record batches for a topic. This metric has client-id and topic dimensions.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.io-wait-time-ns-avg": {
-          "type": "gauge",
-          "description": "Average length of time the I/O thread spent waiting for a socket ready for reads or writes in nanoseconds. This metric has client-id dimension.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.outgoing-byte-rate": {
-          "type": "gauge",
-          "description": "Average number of outgoing bytes sent per second to all servers. This metric has client-id dimension.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.record-error-rate": {
-          "type": "gauge",
-          "description": "Average per-second number of record sends that resulted in errors for a topic. This metric has client-id and topic dimensions.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.record-retry-rate": {
-          "type": "gauge",
-          "description": "Average per-second number of retried record sends for a topic. This metric has client-id and topic dimensions.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.record-send-rate": {
-          "type": "gauge",
-          "description": "Average number of records sent per second for a topic. This metric has client-id and topic dimensions.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.request-latency-avg": {
-          "type": "gauge",
-          "description": "Average request latency in ms. Time it takes on average for the producer to get responses from the broker. This metric has client-id dimension.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.request-rate": {
-          "type": "gauge",
-          "description": "Average number of requests sent per second. This metric has client-id dimension.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.response-rate": {
-          "type": "gauge",
-          "description": "Average number of responses received per second. This metric has client-id dimension.",
-          "group": null,
-          "included": false
         },
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
