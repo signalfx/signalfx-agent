@@ -43,3 +43,13 @@ func (rm *Monitor) Configure(conf *Config) error {
 	log.Warn("The collectd/docker monitor is deprecated in favor of the docker-container-stats monitor.")
 	return rm.SetConfigurationAndRun(conf)
 }
+
+// GetExtraMetrics returns additional metrics that should be allowed through.
+func (c *Config) GetExtraMetrics() []string {
+	var extraMetrics []string
+
+	if c.CollectNetworkStats {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupNetwork]...)
+	}
+	return extraMetrics
+}
