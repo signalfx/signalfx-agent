@@ -14,6 +14,9 @@ jobs:
   steps:
   - template: 'extract-bundle.yml'
   - template: 'install-choco.yml'
+  # Install IIS for windows-iis integration test.
+  - powershell: |
+      choco install -y --source windowsfeatures IIS-WebServerRole
   - powershell: |
       if ((Get-Command "conda.exe" -ErrorAction SilentlyContinue) -eq $null) {
           choco install -y --no-progress --limitoutput miniconda3

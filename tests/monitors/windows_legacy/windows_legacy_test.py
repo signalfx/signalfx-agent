@@ -6,6 +6,7 @@ import pytest
 
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_any_metric_or_dim, has_log_message
+from tests.helpers.metadata import Metadata
 from tests.helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_metrics_from_selfdescribe, wait_for
 
 pytestmark = [
@@ -14,10 +15,10 @@ pytestmark = [
     pytest.mark.windowslegacy,
 ]
 
+METADATA = Metadata.from_package("windows")
+
 
 def test_windowslegacy():
-    expected_metrics = get_monitor_metrics_from_selfdescribe("windows-legacy")
-    expected_dims = get_monitor_dims_from_selfdescribe("windows-legacy")
     config = dedent(
         """
         monitors:

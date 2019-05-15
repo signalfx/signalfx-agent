@@ -52,7 +52,7 @@ jobs:
       } else {
           $env:AGENT_VERSION = "$(Build.SourceVersion)"
       }
-      & { . ./scripts/windows/make.ps1; signalfx-agent }
+      & ./scripts/windows/make.ps1 -Target signalfx-agent
     displayName: 'Run go build'
   - task: PublishBuildArtifacts@1
     inputs:
@@ -67,7 +67,7 @@ jobs:
     parameters:
       packages: 'github.com/tebeka/go2xunit'
   - powershell: |
-      & { . ./scripts/windows/make.ps1; unit_test }
+      & ./scripts/windows/make.ps1 -Target unit_test
     displayName: 'Run go test'
     ignoreLASTEXITCODE: true
   - task: PublishTestResults@2
@@ -91,7 +91,7 @@ jobs:
       } else {
           $env:AGENT_VERSION = "$(Build.SourceVersion)"
       }
-      & { . ./scripts/windows/make.ps1; bundle }
+      & ./scripts/windows/make.ps1 -Target bundle
     displayName: 'Build bundle'
   - task: CopyFiles@2
     inputs:
