@@ -4,7 +4,7 @@
                          bundle, lint, vendor, unit_test, integration_test)
 #>
 param(
-    [Parameter(Mandatory=$true)][string]$Target,
+    [Parameter(Mandatory=$true, Position=1)][string]$Target,
     [Parameter(Mandatory=$false, ValueFromRemainingArguments=$true)]$Remaining
 )
 
@@ -62,7 +62,6 @@ function bundle (
         [string]$PFX_PATH="",
         [string]$PFX_PASSWORD="",
         [string]$AGENT_NAME="SignalFxAgent") {
-
     if ($AGENT_VERSION -Eq ""){
         $AGENT_VERSION = getGitTag
     }
@@ -166,4 +165,8 @@ function integration_test() {
     pytest -n auto -m 'windows or windows_only' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
 }
 
-&$Target $Remaining
+if ($REMAINING.length -gt 0) {
+    &$Target $Remaining
+} else {
+    &$Target
+}

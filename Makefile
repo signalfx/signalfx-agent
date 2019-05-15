@@ -20,7 +20,7 @@ code-gen: $(MONITOR_CODE_GEN)
 
 $(MONITOR_CODE_GEN): $(wildcard cmd/monitorcodegen/*.go) cmd/monitorcodegen/genmetadata.tmpl
 ifeq ($(OS),Windows_NT)
-	powershell $(CURDIR)/scripts/windows/make.ps1 -Target monitor-code-gen
+	powershell $(CURDIR)/scripts/windows/make.ps1 monitor-code-gen
 else
 	go build -mod vendor -o $@ ./cmd/monitorcodegen
 endif
@@ -28,7 +28,7 @@ endif
 .PHONY: test
 test: compileDeps
 ifeq ($(OS),Windows_NT)
-	powershell $(CURDIR)/scripts/windows/make.ps1 -Target test
+	powershell $(CURDIR)/scripts/windows/make.ps1 test
 else
 	CGO_ENABLED=0 go test -mod vendor -p $(NUM_CORES) ./... | grep -v '\[no test files\]'
 endif
@@ -45,7 +45,7 @@ vetall: compileDeps
 .PHONY: lint
 lint:
 ifeq ($(OS),Windows_NT)
-	powershell $(CURDIR)/scripts/windows/make.ps1 -Target lint
+	powershell $(CURDIR)/scripts/windows/make.ps1 lint
 else
 	CGO_ENABLED=0 golint -set_exit_status ./cmd/... ./internal/...
 endif
@@ -66,14 +66,14 @@ image:
 .PHONY: vendor
 vendor:
 ifeq ($(OS), Windows_NT)
-	powershell $(CURDIR)/scripts/windows/make.ps1 -Target vendor
+	powershell $(CURDIR)/scripts/windows/make.ps1 vendor
 else
 	go mod tidy && go mod vendor
 endif
 
 internal/core/common/constants/versions.go: FORCE
 ifeq ($(OS),Windows_NT)
-	powershell $(CURDIR)/scripts/windows/make.ps1 -Target versions_go
+	powershell $(CURDIR)/scripts/windows/make.ps1 versions_go
 else
 	AGENT_VERSION=$(AGENT_VERSION) COLLECTD_VERSION=$(COLLECTD_VERSION) BUILD_TIME=$(BUILD_TIME) scripts/make-versions
 endif
@@ -81,7 +81,7 @@ endif
 signalfx-agent: compileDeps
 	echo "building SignalFx agent for operating system: $(GOOS)"
 ifeq ($(OS),Windows_NT)
-	powershell $(CURDIR)/scripts/windows/make.ps1 -Target signalfx-agent $(AGENT_VERSION)
+	powershell $(CURDIR)/scripts/windows/make.ps1 signalfx-agent $(AGENT_VERSION)
 else
 	CGO_ENABLED=0 go build \
 		-mod vendor \
@@ -92,7 +92,7 @@ endif
 .PHONY: bundle
 bundle:
 ifeq ($(OS),Windows_NT)
-	powershell $(CURDIR)/scripts/windows/make.ps1 -Target bundle $(COLLECTD_COMMIT)
+	powershell $(CURDIR)/scripts/windows/make.ps1 bundle $(COLLECTD_COMMIT)
 else
 	BUILD_BUNDLE=true COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) scripts/build
 endif
