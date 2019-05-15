@@ -32,15 +32,17 @@ def run_kafka(version, **kwargs):
     """
     Runs a kafka container with zookeeper
     """
+    args = dict(kwargs)
+    args.setdefault("name", f"kafka-broker-{random_hex()}")
+
     with run_container("zookeeper:3.5") as zookeeper:
         zkhost = container_ip(zookeeper)
         assert wait_for(p(tcp_socket_open, zkhost, 2181), 60), "zookeeper didn't start"
         with run_service(
             "kafka",
-            name=f"kafka-broker-{random_hex()}",
             environment={f"KAFKA_ZOOKEEPER_CONNECT": f"{zkhost}:2181", "START_AS": "broker"},
             buildargs={"KAFKA_VERSION": version},
-            **kwargs,
+            **args,
         ) as kafka_container:
             kafka_host = container_ip(kafka_container)
             assert wait_for(p(tcp_socket_open, kafka_host, 9092), 60), "kafka broker didn't start"
@@ -108,6 +110,8 @@ def run_all(version, metrics, extra_metrics=""):
 
         image = kafka.image.id
 
+        # We add the Kafka broker host:ip as an extra_host because by default the Kafka broker advertises itself with
+        # its hostname and without this the producer and consumer wouldn't be able to resolve the broker hostname.
         with run_producer(image, kafka_host, extra_hosts={kafka_host: kafka_ip}) as kafkaproducerhost, run_consumer(
             image, kafka_host, extra_hosts={kafka_host: kafka_ip}
         ) as kafkaconsumerhost, Agent.run(
