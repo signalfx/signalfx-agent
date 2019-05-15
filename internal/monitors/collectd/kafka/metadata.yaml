@@ -100,16 +100,16 @@ monitors:
       description: Specifies if the broker an active controller
       included: true
       type: gauge
-    counter.kafka-log-flushes:
-      description: Number of log flushes per second
-      included: false
-      type: cumulative
-    gauge.kafka-log-flush-time-ms:
-      description: Average number of milliseconds to flush a log
+    gauge.kafka.logs.flush-time.99th:
+      description: 99th percentile of time in milliseconds to flush logs
       included: false
       type: gauge
-    gauge.kafka-log-flush-time-ms-p95:
-      description: 95th percentile of log flush time in milliseconds
+    counter.kafka.logs.flush-time.count:
+      description: Number of log flushes
+      included: false
+      type: cumulative
+    gauge.kafka.logs.flush-time.median:
+      description: Median time it takes to flush logs
       included: false
       type: gauge
     gauge.kafka-request-queue:

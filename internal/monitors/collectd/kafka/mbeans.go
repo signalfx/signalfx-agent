@@ -156,13 +156,13 @@ kafka.log.flush:
   - type: counter
     table: false
     attribute: Count
-    instancePrefix: kafka-log-flushes
+    instancePrefix: kafka.logs.flush-time.count
   - type: gauge
     table: false
-    attribute: Mean
-    instancePrefix: kafka-log-flush-time-ms
+    attribute: 50thPercentile
+    instancePrefix: kafka.logs.flush-time.median
   - type: gauge
     table: false
-    attribute: 95thPercentile
-    instancePrefix: kafka-log-flush-time-ms-p95
+    attribute: 99thPercentile
+    instancePrefix: kafka.logs.flush-time.99th
 `

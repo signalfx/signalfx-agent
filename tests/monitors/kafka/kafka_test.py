@@ -144,7 +144,7 @@ def run_all(version, metrics, extra_metrics=""):
             ), "Didn't get client-id dimension from kafka_consumer datapoints"
 
 
-# @pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("version", VERSIONS)
 def test_kafka_monitors_included(version):
     run_all(
@@ -153,7 +153,7 @@ def test_kafka_monitors_included(version):
     )
 
 
-# @pytest.mark.flaky(reruns=2)
+@pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("version", VERSIONS)
 def test_kafka_monitors_all(version):
     run_all(
