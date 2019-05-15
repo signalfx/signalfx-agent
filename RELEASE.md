@@ -162,7 +162,7 @@ point but for now the process is manual.
 
    ```
    $ cd c:\users\vagrant\signalfx-agent
-   $ & { . ./scripts/windows/make.ps1; bundle -AGENT_VERSION "<X.Y.Z>" -PFX_PATH "<PFX_PATH>" -PFX_PASSWORD "<PFX_PASSWORD>" }
+   $ scripts/windows/make.ps1 bundle -AGENT_VERSION "<X.Y.Z>" -PFX_PATH "<PFX_PATH>" -PFX_PASSWORD "<PFX_PASSWORD>"
    ```
 
    Where `<X.Y.Z>` is the release version, `<PFX_PATH>` is the path to `SFX_Windows.pfx`

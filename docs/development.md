@@ -287,4 +287,4 @@ The vagrant box should have enough dependencies installed that you can build the
 
     $ cd C:\Users\vagrant\signalfx-agent
 
-    $ & { . ./scripts/windows/make.ps1; bundle }
+    $ scripts/windows/make.ps1 bundle
