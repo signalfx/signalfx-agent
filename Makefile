@@ -254,5 +254,9 @@ run-devstack:
 run-chef-tests:
 	pytest -v -n auto -m chef --html=test_output/chef_results.html --self-contained-html tests/deployments
 
+.PHONY: check-links
+check-links:
+	docker build -t check-links test-services/check-links
+	docker run --rm -v $(CURDIR):/usr/src/signalfx-agent:ro check-links
 
 FORCE:

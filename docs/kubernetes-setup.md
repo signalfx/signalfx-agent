@@ -297,9 +297,11 @@ after you complete step 3 in [Installation](#installation).
 
 If the Rancher nodes are behind a proxy, ensure that the Docker engine has the
 proxy configured so that it can pull the signalfx-agent Docker image from
-quay.io. See the [Rancher
-documentation](https://docs.rancher.com/os/networking/proxy-settings/) for
-details on how to configure the proxy.
+quay.io. See the [Rancher v1.6
+documentation](https://rancher.com/docs/rancher/v1.6/en/hosts/#hosts-behind-an-http-proxy)
+or [Rancher v2.x
+documentation](https://rancher.com/docs/rancher/v2.x/en/installation/single-node/proxy/)
+for details on how to configure the proxy.
 
 Use the following configuration for the cadvisor monitor:
 
