@@ -42,12 +42,52 @@ monitors:
       description: Maximum volume resources available at cinder component for project
       included: true
       type: gauge
+    gauge.openstack.cinder.limit.maxTotalSnapshots:
+      description: Total available snapshots at cinder component for project
+      included: true
+      type: gauge
     gauge.openstack.cinder.limit.totalGigabytesUsed:
       description: Total block storage used at cinder component for project
       included: true
       type: gauge
     gauge.openstack.cinder.limit.totalVolumesUsed:
       description: Volume resources used at cinder component for project
+      included: true
+      type: gauge
+    gauge.openstack.cinder.limit.totalSnapshotsUsed:
+      description: Total snapshots used at cinder component for project
+      included: true
+      type: gauge
+    gauge.openstack.cinder.limit.maxTotalBackupGigabytes:
+      description: Maximum backup space available at cinder component for project in Gigabytes
+      included: true
+      type: gauge
+    gauge.openstack.cinder.limit.totalBackupGigabytesUsed:
+      description: Total backup space used at cinder component for project in Gigabytes
+      included: true
+      type: gauge
+    gauge.openstack.cinder.limit.totalBackupsUsed:
+      description: Total backups used at cinder component for project
+      included: true
+      type: gauge
+    gauge.openstack.cinder.limit.maxTotalBackups:
+      description: Total available backups used at cinder component for project
+      included: true
+      type: gauge
+    gauge.openstack.cinder.snapshot.size:
+      description: Total snapshot size at cinder component for project
+      included: true
+      type: gauge
+    gauge.openstack.cinder.snapshot.count:
+      description: Total number of snapshots at cinder component for project
+      included: true
+      type: gauge
+    gauge.openstack.cinder.volume.size:
+      description: Total volume size at cinder component for project
+      included: true
+      type: gauge
+    gauge.openstack.cinder.volume.count:
+      description: Total number of volumes at cinder component for project
       included: true
       type: gauge
     gauge.openstack.neutron.floatingip.count:
@@ -76,6 +116,10 @@ monitors:
       type: gauge
     gauge.openstack.nova.hypervisor.free_disk_gb:
       description: Maximum free disk space available in Gigabyte
+      included: true
+      type: gauge
+    gauge.openstack.nova.hypervisor.free_ram_mb:
+      description: Maximum free ram space available in Megabyte
       included: true
       type: gauge
     gauge.openstack.nova.hypervisor.load_average:
@@ -110,6 +154,10 @@ monitors:
       description: Used virtual CPUs used
       included: true
       type: gauge
+    gauge.openstack.nova.hypervisor.current_workload:
+      description: Total current active hypervisor tasks in project
+      included: true
+      type: gauge
     gauge.openstack.nova.limit.maxSecurityGroups:
       description: Maximum available security groups for project
       included: true
@@ -130,6 +178,14 @@ monitors:
       description: Maximum available RAM size for project
       included: true
       type: gauge
+    gauge.openstack.nova.limit.maxTotalKeypairs:
+      description: Maximum available keypairs for project
+      included: true
+      type: gauge
+    gauge.openstack.nova.limit.maxImageMeta:
+      description: Maximum number of metadata items associated with an image for project
+      included: true
+      type: gauge
     gauge.openstack.nova.limit.totalCoresUsed:
       description: Total cores used in the project
       included: true
@@ -138,7 +194,15 @@ monitors:
       description: Total instances used in the project
       included: true
       type: gauge
+    gauge.openstack.nova.limit.totalFloatingIpsUsed:
+      description: Total floating IPs used in the project
+      included: true
+      type: gauge
     gauge.openstack.nova.limit.totalRAMUsed:
+      description: Total RAM used in the project
+      included: true
+      type: gauge
+    gauge.openstack.nova.limit.totalSecurityGroupsUsed:
       description: Total RAM used in the project
       included: true
       type: gauge
