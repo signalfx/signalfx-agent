@@ -38,19 +38,26 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `blkio.io_service_bytes_recursive.read` | cumulative | ✔ |  |
-| `blkio.io_service_bytes_recursive.write` | cumulative | ✔ |  |
-| `cpu.idle` | gauge | ✔ |  |
-| `cpu.usage.system` | gauge | ✔ |  |
-| `cpu.usage.total` | gauge | ✔ |  |
-| `memory.buffered` | gauge | ✔ |  |
-| `memory.cached` | gauge | ✔ |  |
-| `memory.free` | gauge | ✔ |  |
-| `memory.usage.limit` | gauge | ✔ |  |
-| `memory.usage.total` | gauge | ✔ |  |
-| `memory.used` | gauge | ✔ |  |
-| `network.usage.rx_bytes` | cumulative | ✔ |  |
-| `network.usage.tx_bytes` | cumulative | ✔ |  |
+| `blkio.io_service_bytes_recursive.async` | cumulative | ✔ | Volume, in bytes, of asynchronous block I/O |
+| `blkio.io_service_bytes_recursive.read` | cumulative | ✔ | Volume, in bytes, of reads from block devices |
+| `blkio.io_service_bytes_recursive.sync` | cumulative | ✔ | Volume, in bytes, of synchronous block I/O |
+| `blkio.io_service_bytes_recursive.total` | cumulative | ✔ | Total volume, in bytes, of all block I/O |
+| `blkio.io_service_bytes_recursive.write` | cumulative | ✔ | Volume, in bytes, of writes to block devices |
+| `cpu.usage.kernelmode` | cumulative | ✔ | Jiffies of CPU time spent in kernel mode by the container |
+| `cpu.usage.system` | gauge | ✔ | Jiffies of CPU time used by the system |
+| `cpu.usage.total` | gauge | ✔ | Jiffies of CPU time used by the container |
+| `cpu.usage.usermode` | cumulative | ✔ | Jiffies of CPU time spent in user mode by the container |
+| `memory.usage.limit` | gauge | ✔ | Memory usage limit of the container, in bytes |
+| `memory.usage.max` | gauge | ✔ | Maximum measured memory usage of the container, in bytes |
+| `memory.usage.total` | gauge | ✔ | Bytes of memory used by the container |
+| `network.usage.rx_bytes` | cumulative |  | Bytes received by the container via its network interface |
+| `network.usage.rx_dropped` | cumulative |  | Number of inbound network packets dropped by the container |
+| `network.usage.rx_errors` | cumulative |  | Errors receiving network packets |
+| `network.usage.rx_packets` | cumulative |  | Network packets received by the container via its network interface |
+| `network.usage.tx_bytes` | cumulative |  | Bytes sent by the container via its network interface |
+| `network.usage.tx_dropped` | cumulative |  | Number of outbound network packets dropped by the container |
+| `network.usage.tx_errors` | cumulative |  | Errors sending network packets |
+| `network.usage.tx_packets` | cumulative |  | Network packets sent by the container via its network interface |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
@@ -67,6 +74,14 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
+    - network.usage.rx_bytes
+    - network.usage.rx_dropped
+    - network.usage.rx_errors
+    - network.usage.rx_packets
+    - network.usage.tx_bytes
+    - network.usage.tx_dropped
+    - network.usage.tx_errors
+    - network.usage.tx_packets
     monitorType: collectd/docker
 ```
 

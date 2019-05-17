@@ -162,7 +162,7 @@ as long as they are public, so you can make one.
 
 [Helm](https://github.com/kubernetes/helm) makes it easy to deploy the agent as
 well as services to monitor on K8s.  There is a Helm values file for
-development [in this repo](../deployments/k8s/helm-dev-values.yaml) that will use
+development [in this repo](../deployments/k8s/helm/dev-values.yaml) that will use
 the quay.io private repo.
 
 ## Running tests
@@ -212,7 +212,7 @@ restart the vm.
 #### Base Box
 
 If you have a valid Windows Vagrant base box,
-set the box name in the windows [Vagrant File](./scripts/windows/Vagrantfile).
+set the box name in the windows [Vagrant File](../scripts/windows/vagrant/server_2008/Vagrantfile).
 
 If you do not have a base box, the makefile target `win-vagrant-base-box` will
 checkout the [Windows Boxcutter Project](https://github.com/boxcutter/windows) and build
@@ -287,4 +287,4 @@ The vagrant box should have enough dependencies installed that you can build the
 
     $ cd C:\Users\vagrant\signalfx-agent
 
-    $ & { . ./scripts/windows/make.ps1; bundle }
+    $ scripts/windows/make.ps1 bundle

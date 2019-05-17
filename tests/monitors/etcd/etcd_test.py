@@ -58,9 +58,6 @@ def run_etcd(tls=False, **kwargs):
             --key-file /opt/testing/certs/server.key
             --client-cert-auth
         """
-        # NOTE: If running in a container this will only work if the container is running in host
-        # networking mode. We need to be able to connect to "localhost" since it is the CN in the
-        # certificate.
         with run_service("etcd", command=cmd, **kwargs) as container:
             host = container_ip(container)
             assert wait_for(p(tcp_socket_open, host, 2379), 60), "service didn't start"
@@ -76,7 +73,6 @@ def run_etcd(tls=False, **kwargs):
             yield container
 
 
-@pytest.mark.requires_host_networking
 def test_etcd_tls_skip_validation():
     with run_etcd(tls=True) as container:
         host = container_ip(container)
@@ -86,6 +82,9 @@ def test_etcd_tls_skip_validation():
 
 @pytest.mark.requires_host_networking
 def test_etcd_tls_validate():
+    # NOTE: If running in a container this will only work if the container is running in host
+    # networking mode. We need to be able to connect to "localhost" since it is the CN in the
+    # certificate.
     with run_etcd(tls=True, ports={"2379/tcp": None}) as container:
         host = "localhost"
         port = int(container.attrs["NetworkSettings"]["Ports"]["2379/tcp"][0]["HostPort"])

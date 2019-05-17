@@ -122,7 +122,7 @@ monitors:
 
 For more information on the built-in content we have for Elasticsearch,
 [see
-here](https://github.com/signalfx/integrations/tree/master/elasticsearch)
+here](https://github.com/signalfx/integrations/tree/master/collectd-elasticsearch)
 
 
 Monitor Type: `elasticsearch`

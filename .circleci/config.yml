@@ -524,6 +524,19 @@ jobs:
           (make lint-$TARGET && git diff --exit-code $TARGET_DIR ) || \
               (echo "Pylint/black issue(s) found in $TARGET_DIR directory. Run \`make lint-$TARGET\` in the dev image, resolve the issues, and commit the changes." && exit 1)
 
+  check_links:
+    executor: machine_image
+    steps:
+      - checkout
+      - run: |
+          if [ "$CIRCLE_BRANCH" != "master" ]; then
+              if ! scripts/changes-include-dir $(find . -iname "*.md" -not -path "./vendor/*" | sed 's|^\./||'); then
+                  echo "No markdown doc changes, skipping test."
+                  exit 0
+              fi
+          fi
+          make check-links
+
   update_stage_cache:
     docker:
       - image: docker:18.09
@@ -618,6 +631,8 @@ workflows:
           name: "python_lint"
           target: "python"
       - helm_check
+      - check_links
+
   stage_cache_job:
     jobs:
       - update_stage_cache

@@ -6,13 +6,7 @@ from pathlib import Path
 from signalfx.generated_protocol_buffers import signal_fx_protocol_buffers_pb2 as sf_pbuf
 
 from tests.helpers.agent import Agent
-
-
-def _get_metric_type(index):
-    for metric_type, idx in sf_pbuf.MetricType.items():
-        if int(index) == idx:
-            return metric_type
-    return str(index)
+from tests.helpers.formatting import get_metric_type
 
 
 def main(opts):
@@ -22,7 +16,7 @@ def main(opts):
         time.sleep(opts.period)
         if opts.enable_metrics:
             dps = [dp[0] for dp in agent.fake_services.datapoints_by_metric.values()]
-            metrics = {(dp.metric, _get_metric_type(dp.metricType)) for dp in dps}
+            metrics = {(dp.metric, get_metric_type(dp.metricType)) for dp in dps}
 
             print("Metrics:")
             for metric, metric_type in sorted(metrics):

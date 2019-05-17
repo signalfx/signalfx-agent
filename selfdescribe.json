@@ -195,6 +195,14 @@
         "elementKind": ""
       },
       {
+        "yamlName": "dimensionTransformations",
+        "doc": "A map from dimension names emitted by the monitor to the desired dimension name that will be emitted in the datapoint that goes to SignalFx.  This can be useful if you have custom metrics from your applications and want to make the dimensions from a monitor match those. Also can be useful when scraping free-form metrics, say with the `prometheus-exporter` monitor.  Right now, only static key/value transformations are supported.  Note that filtering by dimensions will be done on the *original* dimension name and not the new name.",
+        "default": null,
+        "required": false,
+        "type": "map",
+        "elementKind": "string"
+      },
+      {
         "yamlName": "extraMetrics",
         "doc": "Extra metrics to enable besides the default included ones.",
         "default": null,
@@ -3521,85 +3529,140 @@
       "sendAll": false,
       "dimensions": null,
       "doc": "Pulls container stats from the Docker Engine.  We\nstrongly recommend using the\n[docker-container-stats](./docker-container-stats.md) monitor instead, as it\nwill scale to large number of containers much better.\n\nSee https://github.com/signalfx/docker-collectd-plugin.\n",
-      "groups": null,
+      "groups": {
+        "blkio": {
+          "description": "BlockIO metrics"
+        },
+        "cpu": {
+          "description": "CPU metrics"
+        },
+        "memory": {
+          "description": "Memory metrics"
+        },
+        "network": {
+          "description": "Network metrics"
+        }
+      },
       "metrics": {
+        "blkio.io_service_bytes_recursive.async": {
+          "type": "cumulative",
+          "description": "Volume, in bytes, of asynchronous block I/O",
+          "group": "blkio",
+          "included": true
+        },
         "blkio.io_service_bytes_recursive.read": {
           "type": "cumulative",
-          "description": "",
-          "group": null,
+          "description": "Volume, in bytes, of reads from block devices",
+          "group": "blkio",
+          "included": true
+        },
+        "blkio.io_service_bytes_recursive.sync": {
+          "type": "cumulative",
+          "description": "Volume, in bytes, of synchronous block I/O",
+          "group": "blkio",
+          "included": true
+        },
+        "blkio.io_service_bytes_recursive.total": {
+          "type": "cumulative",
+          "description": "Total volume, in bytes, of all block I/O",
+          "group": "blkio",
           "included": true
         },
         "blkio.io_service_bytes_recursive.write": {
           "type": "cumulative",
-          "description": "",
-          "group": null,
+          "description": "Volume, in bytes, of writes to block devices",
+          "group": "blkio",
           "included": true
         },
-        "cpu.idle": {
-          "type": "gauge",
-          "description": "",
-          "group": null,
+        "cpu.usage.kernelmode": {
+          "type": "cumulative",
+          "description": "Jiffies of CPU time spent in kernel mode by the container",
+          "group": "cpu",
           "included": true
         },
         "cpu.usage.system": {
           "type": "gauge",
-          "description": "",
-          "group": null,
+          "description": "Jiffies of CPU time used by the system",
+          "group": "cpu",
           "included": true
         },
         "cpu.usage.total": {
           "type": "gauge",
-          "description": "",
-          "group": null,
+          "description": "Jiffies of CPU time used by the container",
+          "group": "cpu",
           "included": true
         },
-        "memory.buffered": {
-          "type": "gauge",
-          "description": "",
-          "group": null,
-          "included": true
-        },
-        "memory.cached": {
-          "type": "gauge",
-          "description": "",
-          "group": null,
-          "included": true
-        },
-        "memory.free": {
-          "type": "gauge",
-          "description": "",
-          "group": null,
+        "cpu.usage.usermode": {
+          "type": "cumulative",
+          "description": "Jiffies of CPU time spent in user mode by the container",
+          "group": "cpu",
           "included": true
         },
         "memory.usage.limit": {
           "type": "gauge",
-          "description": "",
-          "group": null,
+          "description": "Memory usage limit of the container, in bytes",
+          "group": "memory",
+          "included": true
+        },
+        "memory.usage.max": {
+          "type": "gauge",
+          "description": "Maximum measured memory usage of the container, in bytes",
+          "group": "memory",
           "included": true
         },
         "memory.usage.total": {
           "type": "gauge",
-          "description": "",
-          "group": null,
-          "included": true
-        },
-        "memory.used": {
-          "type": "gauge",
-          "description": "",
-          "group": null,
+          "description": "Bytes of memory used by the container",
+          "group": "memory",
           "included": true
         },
         "network.usage.rx_bytes": {
           "type": "cumulative",
-          "description": "",
-          "group": null,
-          "included": true
+          "description": "Bytes received by the container via its network interface",
+          "group": "network",
+          "included": false
+        },
+        "network.usage.rx_dropped": {
+          "type": "cumulative",
+          "description": "Number of inbound network packets dropped by the container",
+          "group": "network",
+          "included": false
+        },
+        "network.usage.rx_errors": {
+          "type": "cumulative",
+          "description": "Errors receiving network packets",
+          "group": "network",
+          "included": false
+        },
+        "network.usage.rx_packets": {
+          "type": "cumulative",
+          "description": "Network packets received by the container via its network interface",
+          "group": "network",
+          "included": false
         },
         "network.usage.tx_bytes": {
           "type": "cumulative",
-          "description": "",
-          "group": null,
-          "included": true
+          "description": "Bytes sent by the container via its network interface",
+          "group": "network",
+          "included": false
+        },
+        "network.usage.tx_dropped": {
+          "type": "cumulative",
+          "description": "Number of outbound network packets dropped by the container",
+          "group": "network",
+          "included": false
+        },
+        "network.usage.tx_errors": {
+          "type": "cumulative",
+          "description": "Errors sending network packets",
+          "group": "network",
+          "included": false
+        },
+        "network.usage.tx_packets": {
+          "type": "cumulative",
+          "description": "Network packets sent by the container via its network interface",
+          "group": "network",
+          "included": false
         }
       },
       "properties": null,
@@ -4599,7 +4662,7 @@
       "monitorType": "collectd/hadoop",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Collects metrics about a Hadoop cluster using the\n[collectd Hadoop Python plugin](https://github.com/signalfx/collectd-hadoop).\nAlso see\nhttps://github.com/signalfx/integrations/tree/master/collectd-hadoop.\n\nThe `collectd/hadoop` monitor will collect metrics from the Resource Manager\nREST API for the following:\n- Cluster Metrics\n- Cluster Scheduler\n- Cluster Applications\n- Cluster Nodes\n- MapReduce Jobs\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/hadoop\n  host: 127.0.0.1\n  port: 8088\n```\n\nIf a remote JMX port is exposed in the hadoop cluster, then\nyou may also configure the [collectd/hadoopjmx](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd/hadoopjmx)\nmonitor to collect additional metrics about the hadoop cluster.\n",
+      "doc": "Collects metrics about a Hadoop cluster using the\n[collectd Hadoop Python plugin](https://github.com/signalfx/collectd-hadoop).\nAlso see\nhttps://github.com/signalfx/integrations/tree/master/collectd-hadoop.\n\nThe `collectd/hadoop` monitor will collect metrics from the Resource Manager\nREST API for the following:\n- Cluster Metrics\n- Cluster Scheduler\n- Cluster Applications\n- Cluster Nodes\n- MapReduce Jobs\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/hadoop\n  host: 127.0.0.1\n  port: 8088\n```\n\nIf a remote JMX port is exposed in the hadoop cluster, then\nyou may also configure the [collectd/hadoopjmx](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoopjmx.md)\nmonitor to collect additional metrics about the hadoop cluster.\n",
       "groups": null,
       "metrics": {
         "gauge.hadoop.cluster.metrics.active_nodes": {
@@ -4841,7 +4904,7 @@
       "monitorType": "collectd/hadoopjmx",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Collects metrics about a Hadoop cluster using using collectd's GenericJMX plugin.\n\nAlso see https://github.com/signalfx/integrations/tree/master/collectd-hadoop.\n\nTo enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively\n\n**hadoop-env.sh:**\n```sh\nexport HADOOP_NAMENODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5677 $HADOOP_NAMENODE_OPTS\"\nexport HADOOP_DATANODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5679 $HADOOP_DATANODE_OPTS\"\n```\n\n**yarn-env.sh:**\n```sh\nexport YARN_NODEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=8002 $YARN_NODEMANAGER_OPTS\"\nexport YARN_RESOURCEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5680 $YARN_RESOURCEMANAGER_OPTS\"\n```\n\nThis monitor has a set of built in MBeans configured for:\n  - [Name Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nameNodeMBeans.go)\n  - [Resource Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/resourceManagerMBeans.go)\n  - [Node Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nodeManagerMBeans.go)\n  - [Data Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/dataNodeMBeans.go)\n\nSample YAML configuration:\n\nName Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5677\n  nodeType: nameNode\n```\n\nResource Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5680\n  nodeType: resourceManager\n```\n\nNode Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 8002\n  nodeType: nodeManager\n```\n\nData Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5679\n  nodeType: dataNode\n```\n\nYou may also configure the [collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd/hadoop)\nmonitor to collect additional metrics about the hadoop cluster from the REST API\n",
+      "doc": "Collects metrics about a Hadoop cluster using using collectd's GenericJMX plugin.\n\nAlso see https://github.com/signalfx/integrations/tree/master/collectd-hadoop.\n\nTo enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively\n\n**hadoop-env.sh:**\n```sh\nexport HADOOP_NAMENODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5677 $HADOOP_NAMENODE_OPTS\"\nexport HADOOP_DATANODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5679 $HADOOP_DATANODE_OPTS\"\n```\n\n**yarn-env.sh:**\n```sh\nexport YARN_NODEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=8002 $YARN_NODEMANAGER_OPTS\"\nexport YARN_RESOURCEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5680 $YARN_RESOURCEMANAGER_OPTS\"\n```\n\nThis monitor has a set of built in MBeans configured for:\n  - [Name Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nameNodeMBeans.go)\n  - [Resource Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/resourceManagerMBeans.go)\n  - [Node Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nodeManagerMBeans.go)\n  - [Data Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/dataNodeMBeans.go)\n\nSample YAML configuration:\n\nName Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5677\n  nodeType: nameNode\n```\n\nResource Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5680\n  nodeType: resourceManager\n```\n\nNode Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 8002\n  nodeType: nodeManager\n```\n\nData Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5679\n  nodeType: dataNode\n```\n\nYou may also configure the [collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoop.md)\nmonitor to collect additional metrics about the hadoop cluster from the REST API\n",
       "groups": {
         "data-node": {
           "description": "Metrics for DataNodes containing HDFS files"
@@ -6296,27 +6359,45 @@
       "doc": "Monitors a Kafka instance using collectd's\nGenericJMX plugin.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka/mbeans.go)\nfor which it pulls metrics from Kafka's JMX endpoint.\n\nNote that this monitor supports Kafka v0.8.2.x and above. For Kafka v1.x.x and above,\napart from the list of default metrics, kafka.server:type=ZooKeeperClientMetrics,name=ZooKeeperRequestLatencyMs\nis a good metric to monitor since it gives an understanding of how long brokers wait for\nrequests to Zookeeper to be completed. Since Zookeeper is an integral part of a Kafka cluster,\nmonitoring it using the [Zookeeper\nmonitor] (https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-zookeeper.html)\nis recommended. It is also a good idea to monitor disk utilization and network metrics of\nthe underlying host.\n\nSee https://github.com/signalfx/integrations/tree/master/collectd-kafka.\n",
       "groups": null,
       "metrics": {
-        "counter.kafka-all-bytes-in": {
+        "counter.kafka-bytes-in": {
           "type": "cumulative",
           "description": "Number of bytes received per second across all topics",
           "group": null,
-          "included": false
+          "included": true
         },
-        "counter.kafka-all-bytes-out": {
+        "counter.kafka-bytes-out": {
           "type": "cumulative",
           "description": "Number of bytes transmitted per second across all topics",
           "group": null,
-          "included": false
+          "included": true
         },
-        "counter.kafka-log-flushes": {
+        "counter.kafka-isr-expands": {
           "type": "cumulative",
-          "description": "Number of log flushes per second",
+          "description": "When a broker is brought up after a failure, it starts catching up by reading from the leader. Once it is caught up, it gets added back to the ISR.",
+          "group": null,
+          "included": true
+        },
+        "counter.kafka-isr-shrinks": {
+          "type": "cumulative",
+          "description": "When a broker goes down, ISR for some of partitions will shrink. When that broker is up again, ISR will be expanded once the replicas are fully caught up. Other than that, the expected value for both ISR shrink rate and expansion rate is 0.",
+          "group": null,
+          "included": true
+        },
+        "counter.kafka-leader-election-rate": {
+          "type": "cumulative",
+          "description": "Number of leader elections",
           "group": null,
           "included": false
         },
         "counter.kafka-messages-in": {
           "type": "cumulative",
           "description": "Number of messages received per second across all topics",
+          "group": null,
+          "included": true
+        },
+        "counter.kafka-unclean-elections-rate": {
+          "type": "cumulative",
+          "description": "Number of unclean leader elections. This happens when a leader goes down and an out-of-sync replica is chosen to be the leader",
           "group": null,
           "included": true
         },
@@ -6332,9 +6413,9 @@
           "group": null,
           "included": false
         },
-        "counter.kafka.produce.total-time.99th": {
-          "type": "gauge",
-          "description": "99th percentile of time in milliseconds to process produce requests",
+        "counter.kafka.logs.flush-time.count": {
+          "type": "cumulative",
+          "description": "Number of log flushes",
           "group": null,
           "included": false
         },
@@ -6343,12 +6424,6 @@
           "description": "Number of producer requests",
           "group": null,
           "included": true
-        },
-        "counter.kafka.produce.total-time.median": {
-          "type": "gauge",
-          "description": "Median time it takes to process a produce request",
-          "group": null,
-          "included": false
         },
         "gauge.jvm.threads.count": {
           "type": "gauge",
@@ -6362,17 +6437,17 @@
           "group": null,
           "included": true
         },
-        "gauge.kafka-log-flush-time-ms": {
+        "gauge.kafka-max-lag": {
           "type": "gauge",
-          "description": "Average number of milliseconds to flush a log",
+          "description": "Maximum lag in messages between the follower and leader replicas",
           "group": null,
-          "included": false
+          "included": true
         },
-        "gauge.kafka-log-flush-time-ms-p95": {
+        "gauge.kafka-offline-partitions-count": {
           "type": "gauge",
-          "description": "95th percentile of log flush time in milliseconds",
+          "description": "Number of partitions that don’t have an active leader and are hence not writable or readable",
           "group": null,
-          "included": false
+          "included": true
         },
         "gauge.kafka-request-queue": {
           "type": "gauge",
@@ -6407,6 +6482,30 @@
         "gauge.kafka.fetch-follower.total-time.median": {
           "type": "gauge",
           "description": "Median time it takes to process a fetch request from follower",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.logs.flush-time.99th": {
+          "type": "gauge",
+          "description": "99th percentile of time in milliseconds to flush logs",
+          "group": null,
+          "included": false
+        },
+        "gauge.kafka.logs.flush-time.median": {
+          "type": "gauge",
+          "description": "Median time it takes to flush logs",
+          "group": null,
+          "included": false
+        },
+        "gauge.kafka.produce.total-time.99th": {
+          "type": "gauge",
+          "description": "99th percentile of time in milliseconds to process produce requests",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.produce.total-time.median": {
+          "type": "gauge",
+          "description": "Median time it takes to process a produce request",
           "group": null,
           "included": true
         },
@@ -6445,42 +6544,6 @@
           "description": "Current memory usage in bytes",
           "group": "jvm",
           "included": true
-        },
-        "kafka-isr-expands": {
-          "type": "cumulative",
-          "description": "When a broker is brought up after a failure, it starts catching up by reading from the leader. Once it is caught up, it gets added back to the ISR.",
-          "group": null,
-          "included": false
-        },
-        "kafka-isr-shrinks": {
-          "type": "cumulative",
-          "description": "When a broker goes down, ISR for some of partitions will shrink. When that broker is up again, ISR will be expanded once the replicas are fully caught up. Other than that, the expected value for both ISR shrink rate and expansion rate is 0.",
-          "group": null,
-          "included": false
-        },
-        "kafka-leader-election-rate": {
-          "type": "cumulative",
-          "description": "Number of leader elections",
-          "group": null,
-          "included": false
-        },
-        "kafka-max-lag": {
-          "type": "gauge",
-          "description": "Maximum lag in messages between the follower and leader replicas",
-          "group": null,
-          "included": false
-        },
-        "kafka-offline-partitions-count": {
-          "type": "gauge",
-          "description": "Number of partitions that don’t have an active leader and are hence not writable or readable",
-          "group": null,
-          "included": false
-        },
-        "kafka-unclean-elections": {
-          "type": "cumulative",
-          "description": "Number of unclean leader elections. This happens when a leader goes down and an out-of-sync replica is chosen to be the leader",
-          "group": null,
-          "included": false
         },
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
@@ -6712,6 +6775,36 @@
           "group": "jvm",
           "included": true
         },
+        "gauge.kafka.consumer.bytes-consumed-rate": {
+          "type": "gauge",
+          "description": "Average number of bytes consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.consumer.fetch-rate": {
+          "type": "gauge",
+          "description": "Number of records consumed per second.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.consumer.fetch-size-avg": {
+          "type": "gauge",
+          "description": "Average number of bytes fetched per request. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.consumer.records-consumed-rate": {
+          "type": "gauge",
+          "description": "Average number of records consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.consumer.records-lag-max": {
+          "type": "gauge",
+          "description": "Maximum lag in of records for any partition in this window. An increasing value over time is your best indication that the consumer group is not keeping up with the producers.",
+          "group": null,
+          "included": true
+        },
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
@@ -6747,36 +6840,6 @@
           "description": "Current memory usage in bytes",
           "group": "jvm",
           "included": true
-        },
-        "kafka.consumer.bytes-consumed-rate": {
-          "type": "gauge",
-          "description": "Average number of bytes consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.",
-          "group": null,
-          "included": false
-        },
-        "kafka.consumer.fetch-rate": {
-          "type": "gauge",
-          "description": "Number of records consumed per second.",
-          "group": null,
-          "included": false
-        },
-        "kafka.consumer.fetch-size-avg": {
-          "type": "gauge",
-          "description": "Average number of bytes fetched per request. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.",
-          "group": null,
-          "included": false
-        },
-        "kafka.consumer.records-consumed-rate": {
-          "type": "gauge",
-          "description": "Average number of records consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.",
-          "group": null,
-          "included": false
-        },
-        "kafka.consumer.records-lag-max": {
-          "type": "gauge",
-          "description": "Maximum lag in of records for any partition in this window. An increasing value over time is your best indication that the consumer group is not keeping up with the producers.",
-          "group": null,
-          "included": false
         },
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
@@ -7000,6 +7063,66 @@
           "group": "jvm",
           "included": true
         },
+        "gauge.kafka.producer.byte-rate": {
+          "type": "gauge",
+          "description": "Average number of bytes sent per second for a topic. This metric has client-id and topic dimensions.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.compression-rate": {
+          "type": "gauge",
+          "description": "Average compression rate of record batches for a topic. This metric has client-id and topic dimensions.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.io-wait-time-ns-avg": {
+          "type": "gauge",
+          "description": "Average length of time the I/O thread spent waiting for a socket ready for reads or writes in nanoseconds. This metric has client-id dimension.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.outgoing-byte-rate": {
+          "type": "gauge",
+          "description": "Average number of outgoing bytes sent per second to all servers. This metric has client-id dimension.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.record-error-rate": {
+          "type": "gauge",
+          "description": "Average per-second number of record sends that resulted in errors for a topic. This metric has client-id and topic dimensions.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.record-retry-rate": {
+          "type": "gauge",
+          "description": "Average per-second number of retried record sends for a topic. This metric has client-id and topic dimensions.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.record-send-rate": {
+          "type": "gauge",
+          "description": "Average number of records sent per second for a topic. This metric has client-id and topic dimensions.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.request-latency-avg": {
+          "type": "gauge",
+          "description": "Average request latency in ms. Time it takes on average for the producer to get responses from the broker. This metric has client-id dimension.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.request-rate": {
+          "type": "gauge",
+          "description": "Average number of requests sent per second. This metric has client-id dimension.",
+          "group": null,
+          "included": true
+        },
+        "gauge.kafka.producer.response-rate": {
+          "type": "gauge",
+          "description": "Average number of responses received per second. This metric has client-id dimension.",
+          "group": null,
+          "included": true
+        },
         "gauge.loaded_classes": {
           "type": "gauge",
           "description": "Number of classes loaded in the JVM",
@@ -7035,66 +7158,6 @@
           "description": "Current memory usage in bytes",
           "group": "jvm",
           "included": true
-        },
-        "kafka.producer.byte-rate": {
-          "type": "gauge",
-          "description": "Average number of bytes sent per second for a topic. This metric has client-id and topic dimensions.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.compression-rate": {
-          "type": "gauge",
-          "description": "Average compression rate of record batches for a topic. This metric has client-id and topic dimensions.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.io-wait-time-ns-avg": {
-          "type": "gauge",
-          "description": "Average length of time the I/O thread spent waiting for a socket ready for reads or writes in nanoseconds. This metric has client-id dimension.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.outgoing-byte-rate": {
-          "type": "gauge",
-          "description": "Average number of outgoing bytes sent per second to all servers. This metric has client-id dimension.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.record-error-rate": {
-          "type": "gauge",
-          "description": "Average per-second number of record sends that resulted in errors for a topic. This metric has client-id and topic dimensions.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.record-retry-rate": {
-          "type": "gauge",
-          "description": "Average per-second number of retried record sends for a topic. This metric has client-id and topic dimensions.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.record-send-rate": {
-          "type": "gauge",
-          "description": "Average number of records sent per second for a topic. This metric has client-id and topic dimensions.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.request-latency-avg": {
-          "type": "gauge",
-          "description": "Average request latency in ms. Time it takes on average for the producer to get responses from the broker. This metric has client-id dimension.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.request-rate": {
-          "type": "gauge",
-          "description": "Average number of requests sent per second. This metric has client-id dimension.",
-          "group": null,
-          "included": false
-        },
-        "kafka.producer.response-rate": {
-          "type": "gauge",
-          "description": "Average number of responses received per second. This metric has client-id dimension.",
-          "group": null,
-          "included": false
         },
         "total_time_in_ms.collection_time": {
           "type": "cumulative",
@@ -7945,6 +8008,12 @@
       "doc": "Monitors an instance of memcached using the\n[collectd memcached\nplugin](https://collectd.org/wiki/index.php/Plugin:memcached).\n\nSee the [integrations\ndoc](https://github.com/signalfx/integrations/tree/master/collectd-memcached)\nfor more information.\n",
       "groups": null,
       "metrics": {
+        "connections.opened": {
+          "type": "cumulative",
+          "description": "Number of connections opened since server began running",
+          "group": null,
+          "included": false
+        },
         "df.cache.free": {
           "type": "gauge",
           "description": "Unused storage bytes",
@@ -7987,12 +8056,6 @@
           "group": null,
           "included": true
         },
-        "memcached_connections.listen_disabled": {
-          "type": "gauge",
-          "description": "Number of times connection limit has been exceeded",
-          "group": null,
-          "included": false
-        },
         "memcached_items.current": {
           "type": "gauge",
           "description": "Current number of items stored by this instance",
@@ -8020,6 +8083,18 @@
         "memcached_ops.decr_misses": {
           "type": "cumulative",
           "description": "Number of decr requests against missing keys",
+          "group": null,
+          "included": false
+        },
+        "memcached_ops.delete_hits": {
+          "type": "cumulative",
+          "description": "Number of successful delete requests",
+          "group": null,
+          "included": false
+        },
+        "memcached_ops.delete_misses": {
+          "type": "cumulative",
+          "description": "Number of delete requests against missing keys",
           "group": null,
           "included": false
         },
@@ -8068,6 +8143,12 @@
         "ps_cputime.user": {
           "type": "cumulative",
           "description": "Total user time for this instance",
+          "group": null,
+          "included": false
+        },
+        "total_events.listen_disabled": {
+          "type": "cumulative",
+          "description": "Number of times connection limit has been exceeded",
           "group": null,
           "included": false
         }
@@ -8748,6 +8829,12 @@
       "doc": "Monitors a MySQL database server using collectd's\n[MySQL plugin](https://collectd.org/wiki/index.php/Plugin:MySQL).\n\nOn Unix, MySQL programs treat the host name `localhost` specially, in a way\nthat is likely different from what is expected compared to other\nnetwork-based programs. For connections to `localhost`, MySQL programs\nattempt to connect to the local server by using a Unix socket file. To ensure\nthat the client makes a TCP/IP connection to the local server specify a host\nname value of `127.0.0.1`, or the IP address or name of the local server.\n\nYou have to specify each database you want to monitor individually under the\n`databases` key.  If you have a common authentication to all databases being\nmonitored, you can specify that in the top-level `username`/`password`\noptions, otherwise they can be specified at the database level.\n\n**Note:** The MySQL monitor supports MySQL versions 5.x or later.\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: collectd/mysql\n   host: 127.0.0.1\n   port: 3306\n   databases:\n     - name: dbname\n     - name: securedb\n       username: admin\n       password: s3cr3t\n   username: dbuser\n   password: passwd\n```\n",
       "groups": null,
       "metrics": {
+        "cache_result.cache_size": {
+          "type": "gauge",
+          "description": "MySQL Qcache Size",
+          "group": null,
+          "included": false
+        },
         "cache_result.qcache-hits": {
           "type": "cumulative",
           "description": "The number of hits on MySQL query cache.",
@@ -8760,19 +8847,13 @@
           "group": null,
           "included": true
         },
-        "cache_results.cache_size": {
-          "type": "gauge",
-          "description": "MySQL Qcache Size",
-          "group": null,
-          "included": false
-        },
-        "cache_results.qcache-not_cached": {
+        "cache_result.qcache-not_cached": {
           "type": "cumulative",
           "description": "The number of MySQL queries that were not cacheable or not cached.",
           "group": null,
           "included": false
         },
-        "cache_results.qcache-prunes": {
+        "cache_result.qcache-prunes": {
           "type": "cumulative",
           "description": "The number of queries that were pruned from query cache because of low-memory condition.",
           "group": null,
@@ -8785,901 +8866,907 @@
           "included": true
         },
         "mysql_commands.admin_commands": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ADMIN commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_db": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER DB commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_db_upgrade": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER DB UPGRADE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_event": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER EVENT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_function": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER FUNCTION commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_procedure": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER PROCEDURE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_server": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER SERVER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_table": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER TABLE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_tablespace": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER TABLESPACE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.alter_user": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ALTER USER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.analyze": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ANALYZE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.assign_to_keycache": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ASSIGN TO KEYCACHE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.begin": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL BEGIN commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.binlog": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL BINLOG commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.call_procedure": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CALL PROCEDURE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.change_db": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CHANGE DB commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.change_master": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CHANGE MASTER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.check": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CHECK commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.checksum": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CHECKSUM commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.commit": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL COMMIT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_db": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE DB commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_event": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE EVENT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_function": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE FUNCTION commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_index": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE INDEX commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_procedure": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE PROCEDURE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_server": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE SERVER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_table": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE TABLE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_trigger": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE TRIGGER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_udf": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE UDF commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_user": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE USER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.create_view": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL CREATE VIEW commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.dealloc_sql": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DEALLOC SQL commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.delete": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DELETE commands executed",
           "group": null,
           "included": true
         },
         "mysql_commands.delete_multi": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DELETE MULTI commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.do": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DO commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_db": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP DB commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_event": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP EVENT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_function": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP FUNCTION commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_index": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP INDEX commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_procedure": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP PROCEDURE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_server": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP SERVER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_table": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP TABLE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_trigger": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP TRIGGER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_user": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP USER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.drop_view": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL DROP VIEW commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.empty_query": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL EMPTY QUERY commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.execute_sql": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL EXECUTE SQL commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.flush": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL FLUSH commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.get_diagnostics": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL GET DIAGNOSTICS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.grant": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL GRANT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.ha_close": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL HA CLOSE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.ha_open": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL HA OPEN commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.ha_read": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL HA READ commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.help": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL HELP commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.insert": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL INSERT commands executed",
           "group": null,
           "included": true
         },
         "mysql_commands.insert_select": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL INSERT SELECT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.install_plugin": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL INSTALL PLUGIN commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.kill": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL KILL commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.load": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL LOAD commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.lock_tables": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL LOCK TABLES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.optimize": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL OPTIMIZE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.preload_keys": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL PRELOAD KEYS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.prepare_sql": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL PREPARE SQL commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.purge": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL PURGE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.purge_before_date": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL PURGE BEFORE DATE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.release_savepoint": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL RELEASE SAVEPOINT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.rename_table": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL RENAME TABLE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.rename_user": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL RENAME USER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.repair": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL REPAIR commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.replace": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL REPLACE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.replace_select": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL REPLACE SELECT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.reset": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL RESET commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.resignal": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL RESIGNAL commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.revoke": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL REVOKE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.revoke_all": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL REVOKE ALL commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.rollback": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ROLLBACK commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.rollback_to_savepoint": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL ROLLBACK TO SAVEPOINT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.savepoint": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SAVEPOINT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.select": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SELECT commands executed",
           "group": null,
           "included": true
         },
         "mysql_commands.set_option": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SET OPTION commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_binlog_events": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW BINLOG EVENTS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_binlogs": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW BINLOGS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_charsets": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW CHARSETS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_collations": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW COLLATIONS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_create_db": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW CREATE DB commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_create_event": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW CREATE EVENT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_create_func": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW CREATE FUNC commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_create_proc": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW CREATE PROC commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_create_table": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW CREATE TABLE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_create_trigger": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW CREATE TRIGGER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_databases": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW DATABASES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_engine_logs": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW ENGINE LOGS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_engine_mutex": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW ENGINE MUTEX commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_engine_status": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW ENGINE STATUS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_errors": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW ERRORS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_events": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW EVENTS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_fields": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW FIELDS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_function_code": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW FUNCTION CODE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_function_status": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW FUNCTION STATUS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_grants": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW GRANTS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_keys": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW KEYS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_master_status": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW MASTER STATUS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_open_tables": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW OPEN TABLES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_plugins": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW PLUGINS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_privileges": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW PRIVILEGES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_procedure_code": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW PROCEDURE CODE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_procedure_status": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW PROCEDURE STATUS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_processlist": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW PROCESSLIST commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_profile": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW PROFILE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_profiles": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW PROFILES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_relaylog_events": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW RELAYLOG EVENTS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_slave_hosts": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW SLAVE HOSTS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_slave_status": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW SLAVE STATUS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_status": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW STATUS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_storage_engines": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW STORAGE ENGINES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_table_status": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW TABLE STATUS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_tables": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW TABLES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_triggers": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW TRIGGERS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_variables": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW VARIABLES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.show_warnings": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SHOW WARNINGS commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.signal": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SIGNAL commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.slave_start": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SLAVE START commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.slave_stop": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL SLAVE STOP commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.truncate": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL TRUNCATE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.uninstall_plugin": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL UNINSTALL PLUGIN commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.unlock_tables": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL UNLOCK TABLES commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.update": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL UPDATE commands executed",
           "group": null,
           "included": true
         },
         "mysql_commands.update_multi": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL UPDATE MULTI commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.xa_commit": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL XA COMMIT commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.xa_end": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL XA END commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.xa_prepare": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL XA PREPARE commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.xa_recover": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL XA RECOVER commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.xa_rollback": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL XA ROLLBACK commands executed",
           "group": null,
           "included": false
         },
         "mysql_commands.xa_start": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL XA START commands executed",
           "group": null,
           "included": false
         },
         "mysql_handler.commit": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of internal COMMIT statements.",
           "group": null,
           "included": false
         },
         "mysql_handler.delete": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of times rows have been deleted from tables.",
           "group": null,
           "included": false
         },
+        "mysql_handler.external_lock": {
+          "type": "cumulative",
+          "description": "The number of external_lock occurences.",
+          "group": null,
+          "included": false
+        },
         "mysql_handler.prepare": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of times \"Prepare\" phase was executed in the two-phase commit operations.",
           "group": null,
           "included": false
         },
         "mysql_handler.read_first": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of times the first entry in an index was read.",
           "group": null,
           "included": false
         },
         "mysql_handler.read_key": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of times a row was read based on a key.",
           "group": null,
           "included": false
         },
         "mysql_handler.read_next": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests to read the next row in key order.",
           "group": null,
           "included": false
         },
         "mysql_handler.read_prev": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests to read the previous row in key order.",
           "group": null,
           "included": false
         },
         "mysql_handler.read_rnd": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests that read a random fixed position in the data file.",
           "group": null,
           "included": false
         },
         "mysql_handler.read_rnd_next": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests for the next row in the data file.",
           "group": null,
           "included": false
         },
         "mysql_handler.rollback": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests for a rollback operation on the storage engine.",
           "group": null,
           "included": false
         },
         "mysql_handler.savepoint": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests to place a savepoint on the storage engine.  This can be used to roll back later.",
           "group": null,
           "included": false
         },
         "mysql_handler.savepoint_rollback": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests to roll back to a savepoint.",
           "group": null,
           "included": false
         },
         "mysql_handler.update": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests to update a row in a table.",
           "group": null,
           "included": false
         },
         "mysql_handler.write": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of requests to insert a row in a table.",
           "group": null,
           "included": false
         },
         "mysql_locks.immediate": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL table locks which were granted immediately.",
           "group": null,
           "included": true
         },
         "mysql_locks.waited": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of MySQL table locks which had to wait before being granted.",
           "group": null,
           "included": true
@@ -9697,50 +9784,62 @@
           "included": true
         },
         "mysql_select.full_join": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of joins that perform full table scans.",
           "group": null,
           "included": false
         },
         "mysql_select.full_range_join": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of joins that used a range search on a reference table.",
           "group": null,
           "included": false
         },
         "mysql_select.range": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of joins that used a range on the first table.",
           "group": null,
           "included": false
         },
         "mysql_select.range_check": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of joins without keys that check for key usage after each row.",
           "group": null,
           "included": false
         },
-        "mysql_sort.merge_passes": {
-          "type": "counter",
-          "description": "The number of merge passes done by the sorting algorithm.",
+        "mysql_select.scan": {
+          "type": "cumulative",
+          "description": "The number of joins that did a full scan of the first table.",
+          "group": null,
+          "included": false
+        },
+        "mysql_slow_queries": {
+          "type": "cumulative",
+          "description": "The number of queries that have taken more than long_query_time seconds.",
           "group": null,
           "included": false
         },
         "mysql_sort.range": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of sorts that were done using ranges.",
           "group": null,
           "included": false
         },
-        "mysql_sort.rows": {
-          "type": "counter",
-          "description": "The number of rows that were sorted.",
+        "mysql_sort.scan": {
+          "type": "cumulative",
+          "description": "The number of sorts that were done by scanning the table.",
           "group": null,
           "included": false
         },
-        "mysql_sort.scan": {
-          "type": "counter",
-          "description": "The number of sorts that were done by scanning the table.",
+        "mysql_sort_merge_passes": {
+          "type": "cumulative",
+          "description": "The number of merge passes done by the sorting algorithm.",
+          "group": null,
+          "included": false
+        },
+        "mysql_sort_rows": {
+          "type": "cumulative",
+          "description": "The number of rows that were sorted.",
           "group": null,
           "included": false
         },
@@ -10905,6 +11004,12 @@
         "protocol_counter.InDestUnreachs": {
           "type": "cumulative",
           "description": "The number of ICMP Destination Unreachable messages received",
+          "group": null,
+          "included": false
+        },
+        "protocol_counter.OutSegs": {
+          "type": "cumulative",
+          "description": "The total number of segments that have been sent, including those on current connections but excluding those containing only retransmitted octets.\n",
           "group": null,
           "included": false
         },
@@ -13336,7 +13441,7 @@
           "description": "The name of the systemd service that the reported metric applies to"
         }
       },
-      "doc": "This [SignalFx Smart Agent](https://github.com/signalfx/signalfx-agent) monitor collects metrics about the state of\nconfigured systemd services using the [collectd-systemd](https://github.com/signalfx/integrations/tree/master/collectd-systemd)\nplugin. A service is in the state that a metric represents if the metric value is 1 and not in that state if the\nmetric value is 0. The name of the service that the metric is reporiting about is assigned to dimension\n`systemd_service`.\n\nThe collectd-systemd plugin reads the status of systemd services from host location `/var/run/dbus/system_bus_socket`.\nThis means that the host location must be mounted to the container in which the SignalFx Smart Agent is running.\nThe agent container must also run in privilege mode. Below is an excerpt of the docker run command.\n```yaml\ndocker run ...\\\n  --privileged \\\n  -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro \\\n...\n```\nBelow is a sample SignalFx Smart Agent YAML configuration for monitoring the state of `docker` and `ubuntu-fan`\nservices. See [here](https://github.com/signalfx/signalfx-agent#configuration) for SignalFx Smart Agent\nconfiguration details.\n```yaml\nmonitors:\n- type: collectd/systemd\n  intervalSeconds: 10\n  services:\n    - docker\n    - ubuntu-fan\n```\nOnly the metric `gauge.substate.running`, which indicates whether a service is running or not, gets reported by default.\nThe other metrics must be configure explicitly using the `sendActiveState`, `sendSubState` and `sendLoadState`\nconfiguration flags (see below). The metrics are grouped into `ActiveState`, `SubState` and `LoadState` groups.\n```\nmonitors:\n- type: collectd/systemd\n  intervalSeconds: 10\n  services:\n    - docker\n    - ubuntu-fan\n  sendActiveState: true\n```\n",
+      "doc": "This [SignalFx Smart Agent](https://github.com/signalfx/signalfx-agent) monitor collects metrics about the state of\nconfigured systemd services using the [collectd-systemd](https://github.com/signalfx/collectd-systemd)\nplugin. A service is in the state that a metric represents if the metric value is 1 and not in that state if the\nmetric value is 0. The name of the service that the metric is reporiting about is assigned to dimension\n`systemd_service`.\n\nThe collectd-systemd plugin reads the status of systemd services from host location `/var/run/dbus/system_bus_socket`.\nThis means that the host location must be mounted to the container in which the SignalFx Smart Agent is running.\nThe agent container must also run in privilege mode. Below is an excerpt of the docker run command.\n```yaml\ndocker run ...\\\n  --privileged \\\n  -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro \\\n...\n```\nBelow is a sample SignalFx Smart Agent YAML configuration for monitoring the state of `docker` and `ubuntu-fan`\nservices. See [here](https://github.com/signalfx/signalfx-agent#configuration) for SignalFx Smart Agent\nconfiguration details.\n```yaml\nmonitors:\n- type: collectd/systemd\n  intervalSeconds: 10\n  services:\n    - docker\n    - ubuntu-fan\n```\nOnly the metric `gauge.substate.running`, which indicates whether a service is running or not, gets reported by default.\nThe other metrics must be configure explicitly using the `sendActiveState`, `sendSubState` and `sendLoadState`\nconfiguration flags (see below). The metrics are grouped into `ActiveState`, `SubState` and `LoadState` groups.\n```\nmonitors:\n- type: collectd/systemd\n  intervalSeconds: 10\n  services:\n    - docker\n    - ubuntu-fan\n  sendActiveState: true\n```\n",
       "groups": {
         "ActiveState": {
           "description": "Metrics which indicate whether a service is currently active or not"
@@ -13557,6 +13662,12 @@
           "description": "Number of mapped pages",
           "group": null,
           "included": false
+        },
+        "vmpage_number.shmem_pmdmapped": {
+          "type": "gauge",
+          "description": "The amount of shared (shmem/tmpfs) memory backed by huge pages",
+          "group": null,
+          "included": false
         }
       },
       "properties": null,
@@ -13577,6 +13688,12 @@
       "doc": "Monitors an Apache Zookeeper instance.\n\nSee the [Python plugin\nsource](https://github.com/signalfx/collectd-zookeeper) and the\n[integrations repo\npage](https://github.com/signalfx/integrations/tree/master/collectd-zookeeper)\nfor more information.\n",
       "groups": null,
       "metrics": {
+        "counter.zk_fsync_threshold_exceed_count": {
+          "type": "cumulative",
+          "description": "Number of times fsync duration has exceeded warning threshold",
+          "group": null,
+          "included": false
+        },
         "counter.zk_packets_received": {
           "type": "cumulative",
           "description": "Count of the number of ZooKeeper packets received by a server",
@@ -13606,6 +13723,12 @@
           "description": "Number of ephemeral nodes that a ZooKeeper server has in its data tree",
           "group": null,
           "included": true
+        },
+        "gauge.zk_is_leader": {
+          "type": "gauge",
+          "description": "1 if the node is a leader, 0 if the node is a follower",
+          "group": null,
+          "included": false
         },
         "gauge.zk_max_file_descriptor_count": {
           "type": "gauge",
@@ -13640,6 +13763,12 @@
         "gauge.zk_outstanding_requests": {
           "type": "gauge",
           "description": "Number of currently executing requests",
+          "group": null,
+          "included": false
+        },
+        "gauge.zk_service_health": {
+          "type": "gauge",
+          "description": "1 if server is running, otherwise 0",
           "group": null,
           "included": false
         },
@@ -15278,7 +15407,7 @@
           "description": "Name of thread pool (only on thread pool mertics)"
         }
       },
-      "doc": "This monitor collects stats from Elasticsearch. It collects node, cluster\nand index level stats. This monitor is compatible with the current collectd\nplugin found [here] (https://github.com/signalfx/collectd-elasticsearch) in\nterms of metric naming.\n\nThis monitor collects cluster level and index level stats only from the current master\nin an Elasticsearch cluster by default. It is possible to override this with the\n`clusterHealthStatsMasterOnly` and `indexStatsMasterOnly` config options respectively.\n\nA simple configuration that collects only default (non-custom) metrics\nlooks like the following:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n```\n\n## Enhanced (custom) metrics\n\nThe monitor collects a subset of node stats of JVM, process, HTTP,\ntransport, indices and thread pool stats. It is possible to enable\nenhanced stats for each stat group separately.  Note that these metrics\nget categorized under the _custom_ group if you are on host-based\npricing. Here's an example:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n  enableEnhancedHTTPStats: true\n  enableEnhancedJVMStats: true\n  enableEnhancedProcessStats: true\n  enableEnhancedThreadPoolStats: true\n  enableEnhancedTransportStats: true\n  enableEnhancedNodeIndicesStats:\n   - indexing\n   - warmer\n   - get\n\n```\n\nThe `enableEnhancedNodeIndicesStats` option takes a list of index stats groups\nfor which enhanced stats will be collected. A comprehensive list of all\nsuch available groups can be found [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-stats.html#node-indices-stats).\n\nNote that the `enableEnhancedIndexStatsForIndexGroups` is similar to\n`enableEnhancedNodeIndicesStats`, but for index level stats.\n\n## Thread Pools\n\nBy default thread pool stats from the \"search\" and \"index\" thread pools are collected. To collect\nstats from other thread pools specify the `threadPools` config option:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n  threadPools:\n  - bulk\n  - warmer\n  - listener\n```\n\nHere is a list of valid thread pools by Elasticsearch version:\n\n| thread pool name | ES 1.x | ES 2.0 | ES 2.1+ |\n|------------------|--------|--------|--------|\n| merge            | \u0026#x2713;      |        |        |\n| optimize         |\u0026#x2713;     |        |        |\n| bulk             |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| flush            |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| generic          |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| get              |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| snapshot         |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| warmer           |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| refresh          |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| fetch\\_shard\\_started|      |\u0026#x2713;     |\u0026#x2713;     |\n| fetch\\_shard\\_store|        |\u0026#x2713;     |\u0026#x2713;     |\n| listener         |        |\u0026#x2713;     |\u0026#x2713;     |\n| management       |        |\u0026#x2713;     |\u0026#x2713;     |\n| percolate        |        |\u0026#x2713;     |\u0026#x2713;     |\n| suggest          |        |\u0026#x2713;     |\u0026#x2713;     |\n| force\\_merge      |        |        |\u0026#x2713;     |\n\n\n## Collecting index statistics\n\nBy default, the configuration parameter `indexes` is empty, which means\ncollect stats on all indexes. To collect statistics from a subset of\nindexes, set the configuration parameter `indexes` to a list of the index\nnames you want to collect stats for.\n\nThe call to collect index statistics can be CPU-intensive. For this reason\nSignalFx recommends using the `indexStatsIntervalSeconds` configuration\nparameter to decrease the reporting interval for nodes that report index\nstatistics.\n\n### Primaries vs total\nBy default the monitor collects a subset of index stats of total aggregation\ntype (see docs for details). It is possible to enable index stats of primaries\naggregation type too. Total for an index stat aggregates across all shards.\nWhereas, Primaries only reflect the stats from primary shards. An example\nconfiguration to enable index stats from Primary shards too:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n  enableIndexStatsPrimaries: true\n```\n\n## Built-in content\n\nFor more information on the built-in content we have for Elasticsearch,\n[see\nhere](https://github.com/signalfx/integrations/tree/master/elasticsearch)\n",
+      "doc": "This monitor collects stats from Elasticsearch. It collects node, cluster\nand index level stats. This monitor is compatible with the current collectd\nplugin found [here] (https://github.com/signalfx/collectd-elasticsearch) in\nterms of metric naming.\n\nThis monitor collects cluster level and index level stats only from the current master\nin an Elasticsearch cluster by default. It is possible to override this with the\n`clusterHealthStatsMasterOnly` and `indexStatsMasterOnly` config options respectively.\n\nA simple configuration that collects only default (non-custom) metrics\nlooks like the following:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n```\n\n## Enhanced (custom) metrics\n\nThe monitor collects a subset of node stats of JVM, process, HTTP,\ntransport, indices and thread pool stats. It is possible to enable\nenhanced stats for each stat group separately.  Note that these metrics\nget categorized under the _custom_ group if you are on host-based\npricing. Here's an example:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n  enableEnhancedHTTPStats: true\n  enableEnhancedJVMStats: true\n  enableEnhancedProcessStats: true\n  enableEnhancedThreadPoolStats: true\n  enableEnhancedTransportStats: true\n  enableEnhancedNodeIndicesStats:\n   - indexing\n   - warmer\n   - get\n\n```\n\nThe `enableEnhancedNodeIndicesStats` option takes a list of index stats groups\nfor which enhanced stats will be collected. A comprehensive list of all\nsuch available groups can be found [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-stats.html#node-indices-stats).\n\nNote that the `enableEnhancedIndexStatsForIndexGroups` is similar to\n`enableEnhancedNodeIndicesStats`, but for index level stats.\n\n## Thread Pools\n\nBy default thread pool stats from the \"search\" and \"index\" thread pools are collected. To collect\nstats from other thread pools specify the `threadPools` config option:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n  threadPools:\n  - bulk\n  - warmer\n  - listener\n```\n\nHere is a list of valid thread pools by Elasticsearch version:\n\n| thread pool name | ES 1.x | ES 2.0 | ES 2.1+ |\n|------------------|--------|--------|--------|\n| merge            | \u0026#x2713;      |        |        |\n| optimize         |\u0026#x2713;     |        |        |\n| bulk             |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| flush            |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| generic          |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| get              |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| snapshot         |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| warmer           |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| refresh          |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| fetch\\_shard\\_started|      |\u0026#x2713;     |\u0026#x2713;     |\n| fetch\\_shard\\_store|        |\u0026#x2713;     |\u0026#x2713;     |\n| listener         |        |\u0026#x2713;     |\u0026#x2713;     |\n| management       |        |\u0026#x2713;     |\u0026#x2713;     |\n| percolate        |        |\u0026#x2713;     |\u0026#x2713;     |\n| suggest          |        |\u0026#x2713;     |\u0026#x2713;     |\n| force\\_merge      |        |        |\u0026#x2713;     |\n\n\n## Collecting index statistics\n\nBy default, the configuration parameter `indexes` is empty, which means\ncollect stats on all indexes. To collect statistics from a subset of\nindexes, set the configuration parameter `indexes` to a list of the index\nnames you want to collect stats for.\n\nThe call to collect index statistics can be CPU-intensive. For this reason\nSignalFx recommends using the `indexStatsIntervalSeconds` configuration\nparameter to decrease the reporting interval for nodes that report index\nstatistics.\n\n### Primaries vs total\nBy default the monitor collects a subset of index stats of total aggregation\ntype (see docs for details). It is possible to enable index stats of primaries\naggregation type too. Total for an index stat aggregates across all shards.\nWhereas, Primaries only reflect the stats from primary shards. An example\nconfiguration to enable index stats from Primary shards too:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n  enableIndexStatsPrimaries: true\n```\n\n## Built-in content\n\nFor more information on the built-in content we have for Elasticsearch,\n[see\nhere](https://github.com/signalfx/integrations/tree/master/collectd-elasticsearch)\n",
       "groups": null,
       "metrics": {
         "elasticsearch.cluster.active-primary-shards": {
@@ -16963,7 +17092,7 @@
       "monitorType": "gitlab",
       "sendAll": false,
       "dimensions": null,
-      "doc": "GitLab is an open-source web-based git repository manager developed by\nGitLab Inc. GitLab has built-in features for creating wiki pages,\nissue-tracking and CI/CD pipelines. GitLab is bundled with [Prometheus\nexporters](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html)\nthat can be configured to export performance metrics of itself and that of\nthe bundled software that GitLab depends on. These exporters publish\nPrometheus metrics at endpoints are scraped by this monitor.\n\n### REQUIREMENTS AND DEPENDENCIES\n\n| Software | Version |\n|----------|---------|\n| GitLab   | 9.3+    |\n\n### INSTALLATION\n\n### CONFIGURATION\n#### GitLab Configuration\n\nFollow the instructions\n[here](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html)\nto configure the GitLab's Prometheus exporters to expose metric endpoint\ntargets. For GitLab Runner monitoring configuration go\n[here](https://docs.gitlab.com/runner/monitoring/README.html).\n\nNote that configuring GitLab by editing `/etc/gitlab/gitlab.rb` should be\naccompanied by running the command `gitlab-ctl reconfigure` in order for\nthe changes to take effect.\n\nAlso, configuring Nginx by editing the file\n`/var/opt/gitlab/nginx/conf/nginx-status.conf`, for instance, should be\naccompanied by running command `gitlab-ctl restart`. Note that changes to\nthe configuration file `/var/opt/gitlab/nginx/conf/nginx-status.conf` in\nparticular are erased by subsequent runs of command `gitlab-ctl\nreconfigure` because `gitlab-ctl reconfigure` restores the original\nconfiguration file.\n\nBelow is a list of some of the Prometheus endpoint targets with links to\ntheir respective configuration pages. Note that target `gitlab_monitor`\nmetrics are just targets `gitlab_monitor_database`,\n`gitlab_monitor_process` and `gitlab_monitor_sidekiq` metrics combined.\n\n| Agent Monitor Type    |     Gitlab Doc                           | Standard Port | Standard Path |\n|-----------------------|------------------------------------------|---------------|---------------|\n| gitlab | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_monitor_exporter.html) | 9168 | /metrics |\n| [gitlab-gitaly](gitlab-gitaly.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/gitaly/#doc-nav) | 9236 | /metrics |\n| [gitlab-sidekiq](gitlab-sidekiq.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8082 | /metrics |\n| [gitlab-unicorn](gitlab-unicorn.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_metrics.html#unicorn-metrics-available) | 8080 | /-/metrics |\n| [gitlab-workhorse](gitlab-workhorse.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9229 | /metrics |\n| [prometheus/nginx-vts](prometheus-nginx-vtx.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8060 | /metrics |\n| [prometheus/node](prometheus-node.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/node_exporter.html) | 9100 | /metrics |\n| [promteheus/postgres](prometheus-postgres.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/postgres_exporter.html) | 9187 | /metrics |\n| [prometheus/prometheus](prometheus-prometheus.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9090 | /metrics |\n| [prometheus/redis](prometheus-redis.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/redis_exporter.html) | 9121 | /metrics |\n| [gitlab-runner](gitlab-runner.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9252 | /metrics |\n\nGitLab Prometheus exporters, Nginx and GitLab Runner must be configured to\nlisten to IP address(es) that include the IP address of the host or docker\ncontainer of the SignalFx Smart Agent. For example, the configuration below\nin `/etc/gitlab/gitlab.rb` configures the GitLab Postgres Prometheus\nexporter to allow network connections on port `9187` from any IP address.\n\n```\npostgres_exporter['listen_address'] = '0.0.0.0:9187'\n```\n\nThe above configuration can also be written as:\n\n```\npostgres_exporter['listen_address'] = ':9187'\n```\n\nBelow is part of file `/var/opt/gitlab/nginx/conf/nginx-status.conf`\nshowing the `location /metrics` block for metric related configuration.\nThis file configures Nginx. The statement `allow 172.17.0.0/16;` allows\nnetwork connection in the `172.17.0.0/16` IP range. The assumption is that\nthe IP address associated with the SignalFx Smart Agent is in that IP\nrange.\n\n```\nserver {\n    ...\n    location /metrics {\n    ...\n    allow 172.17.0.0/16;\n    deny all;\n    }\n}\n```\n\nBelow is part of the global section of `/etc/gitlab-runner/config.toml`. This file configures GitLab Runner. The statement below configures GitLab Runner's Prometheus metrics HTTP server to allows network connection on port `9252` from any IP address.\n\n```\nlisten_address = \"0.0.0.0:9252\"\n...\n\n```\n\n#### Sample Config\n\nTo monitor everything we support in Gitlab, use the following configuration in the Smart Agent config:\n\n```\nmonitors:\n - type: gitlab-unicorn\n   host: localhost\n   port: 8080\n\n - type: gitlab\n   host: localhost\n   port: 9168\n\n - type: gitlab-runner\n   host: localhost\n   port: 9252\n\n - type: gitlab-workhorse\n   host: localhost\n   port: 9229\n\n - type: gitlab-sidekiq\n   host: localhost\n   port: 8082\n\n - type: gitlab-gitaly\n   host: localhost\n   port: 9236\n   \n - type: prometheus/postgres\n   host: localhost\n   port: 9187\n\n - type: prometheus/nginx-vts\n   host: localhost\n   port: 8060\n\n```\n\nYou can, of course, use auto-discovery by specifying a `discoveryRule` instead of `host` and `port`.\n",
+      "doc": "GitLab is an open-source web-based git repository manager developed by\nGitLab Inc. GitLab has built-in features for creating wiki pages,\nissue-tracking and CI/CD pipelines. GitLab is bundled with [Prometheus\nexporters](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html)\nthat can be configured to export performance metrics of itself and that of\nthe bundled software that GitLab depends on. These exporters publish\nPrometheus metrics at endpoints are scraped by this monitor.\n\n### REQUIREMENTS AND DEPENDENCIES\n\n| Software | Version |\n|----------|---------|\n| GitLab   | 9.3+    |\n\n### INSTALLATION\n\n### CONFIGURATION\n#### GitLab Configuration\n\nFollow the instructions\n[here](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html)\nto configure the GitLab's Prometheus exporters to expose metric endpoint\ntargets. For GitLab Runner monitoring configuration go\n[here](https://docs.gitlab.com/runner/monitoring/README.html).\n\nNote that configuring GitLab by editing `/etc/gitlab/gitlab.rb` should be\naccompanied by running the command `gitlab-ctl reconfigure` in order for\nthe changes to take effect.\n\nAlso, configuring Nginx by editing the file\n`/var/opt/gitlab/nginx/conf/nginx-status.conf`, for instance, should be\naccompanied by running command `gitlab-ctl restart`. Note that changes to\nthe configuration file `/var/opt/gitlab/nginx/conf/nginx-status.conf` in\nparticular are erased by subsequent runs of command `gitlab-ctl\nreconfigure` because `gitlab-ctl reconfigure` restores the original\nconfiguration file.\n\nBelow is a list of some of the Prometheus endpoint targets with links to\ntheir respective configuration pages. Note that target `gitlab_monitor`\nmetrics are just targets `gitlab_monitor_database`,\n`gitlab_monitor_process` and `gitlab_monitor_sidekiq` metrics combined.\n\n| Agent Monitor Type    |     Gitlab Doc                           | Standard Port | Standard Path |\n|-----------------------|------------------------------------------|---------------|---------------|\n| gitlab | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_monitor_exporter.html) | 9168 | /metrics |\n| [gitlab-gitaly](gitlab-gitaly.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/gitaly/#doc-nav) | 9236 | /metrics |\n| [gitlab-sidekiq](gitlab-sidekiq.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8082 | /metrics |\n| [gitlab-unicorn](gitlab-unicorn.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_metrics.html#unicorn-metrics-available) | 8080 | /-/metrics |\n| [gitlab-workhorse](gitlab-workhorse.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9229 | /metrics |\n| [prometheus/nginx-vts](prometheus-nginx-vts.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8060 | /metrics |\n| [prometheus/node](prometheus-node.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/node_exporter.html) | 9100 | /metrics |\n| [promteheus/postgres](prometheus-postgres.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/postgres_exporter.html) | 9187 | /metrics |\n| [prometheus/prometheus](prometheus-prometheus.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9090 | /metrics |\n| [prometheus/redis](prometheus-redis.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/redis_exporter.html) | 9121 | /metrics |\n| [gitlab-runner](gitlab-runner.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9252 | /metrics |\n\nGitLab Prometheus exporters, Nginx and GitLab Runner must be configured to\nlisten to IP address(es) that include the IP address of the host or docker\ncontainer of the SignalFx Smart Agent. For example, the configuration below\nin `/etc/gitlab/gitlab.rb` configures the GitLab Postgres Prometheus\nexporter to allow network connections on port `9187` from any IP address.\n\n```\npostgres_exporter['listen_address'] = '0.0.0.0:9187'\n```\n\nThe above configuration can also be written as:\n\n```\npostgres_exporter['listen_address'] = ':9187'\n```\n\nBelow is part of file `/var/opt/gitlab/nginx/conf/nginx-status.conf`\nshowing the `location /metrics` block for metric related configuration.\nThis file configures Nginx. The statement `allow 172.17.0.0/16;` allows\nnetwork connection in the `172.17.0.0/16` IP range. The assumption is that\nthe IP address associated with the SignalFx Smart Agent is in that IP\nrange.\n\n```\nserver {\n    ...\n    location /metrics {\n    ...\n    allow 172.17.0.0/16;\n    deny all;\n    }\n}\n```\n\nBelow is part of the global section of `/etc/gitlab-runner/config.toml`. This file configures GitLab Runner. The statement below configures GitLab Runner's Prometheus metrics HTTP server to allows network connection on port `9252` from any IP address.\n\n```\nlisten_address = \"0.0.0.0:9252\"\n...\n\n```\n\n#### Sample Config\n\nTo monitor everything we support in Gitlab, use the following configuration in the Smart Agent config:\n\n```\nmonitors:\n - type: gitlab-unicorn\n   host: localhost\n   port: 8080\n\n - type: gitlab\n   host: localhost\n   port: 9168\n\n - type: gitlab-runner\n   host: localhost\n   port: 9252\n\n - type: gitlab-workhorse\n   host: localhost\n   port: 9229\n\n - type: gitlab-sidekiq\n   host: localhost\n   port: 8082\n\n - type: gitlab-gitaly\n   host: localhost\n   port: 9236\n   \n - type: prometheus/postgres\n   host: localhost\n   port: 9187\n\n - type: prometheus/nginx-vts\n   host: localhost\n   port: 8060\n\n```\n\nYou can, of course, use auto-discovery by specifying a `discoveryRule` instead of `host` and `port`.\n",
       "groups": null,
       "metrics": {
         "ci_stale_builds": {
@@ -28124,7 +28253,7 @@
           "group": null,
           "included": false
         },
-        "network_interface.outbound_discarded": {
+        "network_interface.packets_outbound_discarded": {
           "type": "gauge",
           "description": "The number of outbound packets discarded",
           "group": null,
@@ -28135,6 +28264,12 @@
           "description": "The number of packets sent that encountered an error.",
           "group": null,
           "included": true
+        },
+        "network_interface.packets_received_discarded": {
+          "type": "gauge",
+          "description": "The number of received packets discarded.",
+          "group": null,
+          "included": false
         },
         "network_interface.packets_received_errors": {
           "type": "gauge",
@@ -28151,12 +28286,6 @@
         "network_interface.packets_sent_sec": {
           "type": "gauge",
           "description": "The number of packets sent per second.",
-          "group": null,
-          "included": false
-        },
-        "network_interface.received_discarded": {
-          "type": "gauge",
-          "description": "The number of received packets discarded.",
           "group": null,
           "included": false
         },
@@ -29770,6 +29899,14 @@
               "required": false,
               "type": "bool",
               "elementKind": ""
+            },
+            {
+              "yamlName": "dimensionTransformations",
+              "doc": "A map from dimension names emitted by the monitor to the desired dimension name that will be emitted in the datapoint that goes to SignalFx.  This can be useful if you have custom metrics from your applications and want to make the dimensions from a monitor match those. Also can be useful when scraping free-form metrics, say with the `prometheus-exporter` monitor.  Right now, only static key/value transformations are supported.  Note that filtering by dimensions will be done on the *original* dimension name and not the new name.",
+              "default": null,
+              "required": false,
+              "type": "map",
+              "elementKind": "string"
             },
             {
               "yamlName": "extraMetrics",

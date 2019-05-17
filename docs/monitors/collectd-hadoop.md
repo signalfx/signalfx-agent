@@ -25,7 +25,7 @@ monitors:
 ```
 
 If a remote JMX port is exposed in the hadoop cluster, then
-you may also configure the [collectd/hadoopjmx](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd/hadoopjmx)
+you may also configure the [collectd/hadoopjmx](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoopjmx.md)
 monitor to collect additional metrics about the hadoop cluster.
 
 

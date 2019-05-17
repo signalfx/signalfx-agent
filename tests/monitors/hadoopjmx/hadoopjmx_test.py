@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from functools import partial as p
 
 import pytest
@@ -39,7 +40,8 @@ monitors:
 """
 
 
-def run(version, node_type, metrics, extra_metrics=""):
+@contextmanager
+def run_node(node_type, version):
     """
     Any new versions of hadoop should be manually built, tagged, and pushed to quay.io, i.e.
     docker build \
@@ -69,7 +71,11 @@ def run(version, node_type, metrics, extra_metrics=""):
 
         # wait for jmx to be available
         assert wait_for(p(tcp_socket_open, host, port)), f"JMX service not listening on port {port}"
+        yield host, port
 
+
+def run(version, node_type, metrics, extra_metrics=""):
+    with run_node(node_type, version) as (host, port):
         # start the agent with hadoopjmx config
         config = HADOOPJMX_CONFIG.format(host=host, port=port, nodeType=node_type, extraMetrics=extra_metrics)
         with Agent.run(config) as agent:

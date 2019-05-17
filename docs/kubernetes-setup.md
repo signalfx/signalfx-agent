@@ -10,6 +10,13 @@ you are setup.
 
 ## Installation
 
+### Helm
+
+If you use [Helm](https://github.com/kubernetes/helm), you can use [our chart](https://github.com/signalfx/signalfx-agent/tree/master/deployments/k8s/helm/signalfx-agent). Instructions for how to add our Helm repostiory to your Helm instance and deploy a release is in that directory.
+   
+
+### Kubernetes
+
 Follow these instructions to install the SignalFx agent on your Kubernetes
 cluster and configure it to auto-discover SignalFx-supported integrations to
 monitor.
@@ -21,10 +28,7 @@ monitor.
     $ kubectl create secret generic --from-literal access-token=MY_ACCESS_TOKEN signalfx-agent
    ```
 
-2. If you use [Helm](https://github.com/kubernetes/helm), you can use [our
-   chart](https://github.com/signalfx/signalfx-agent/tree/master/deployments/k8s/helm/signalfx-agent).
-   Instructions for how to add our own Helm repostiory to your Helm instance is
-   in that directory.  Otherwise, download the following files from SignalFx's
+2.   Otherwise, download the following files from SignalFx's
    Github repository to the machine you usually run `kubectl` from, and modify
    them as indicated.
 
@@ -293,9 +297,11 @@ after you complete step 3 in [Installation](#installation).
 
 If the Rancher nodes are behind a proxy, ensure that the Docker engine has the
 proxy configured so that it can pull the signalfx-agent Docker image from
-quay.io. See the [Rancher
-documentation](https://docs.rancher.com/os/networking/proxy-settings/) for
-details on how to configure the proxy.
+quay.io. See the [Rancher v1.6
+documentation](https://rancher.com/docs/rancher/v1.6/en/hosts/#hosts-behind-an-http-proxy)
+or [Rancher v2.x
+documentation](https://rancher.com/docs/rancher/v2.x/en/installation/single-node/proxy/)
+for details on how to configure the proxy.
 
 Use the following configuration for the cadvisor monitor:
 
