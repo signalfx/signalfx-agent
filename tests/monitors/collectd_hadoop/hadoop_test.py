@@ -3,10 +3,11 @@ from pathlib import Path
 
 import pytest
 
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_datapoint_with_dim, http_status, tcp_socket_open
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, print_lines, run_container, wait_for
-from tests.helpers.verify import run_agent_verify
+from tests.helpers.verify import verify
 
 pytestmark = [pytest.mark.collectd, pytest.mark.hadoop, pytest.mark.monitor_with_endpoints]
 
@@ -96,8 +97,13 @@ def test_hadoop_included(version):
                 port: 8088
                 verbose: true
             """
-        agent = run_agent_verify(config, METADATA.included_metrics - EXCLUDED)
-        assert has_datapoint_with_dim(agent.fake_services, "plugin", "apache_hadoop"), "Didn't get hadoop datapoints"
-        assert has_datapoint(
-            agent.fake_services, "gauge.hadoop.cluster.metrics.active_nodes", {}, 1
-        ), "expected 1 hadoop worker node"
+        with Agent.run(config) as agent:
+            verify(agent, METADATA.included_metrics - EXCLUDED)
+            # Need to run the agent manually because we want to wait for this metric to become 1 but it may
+            # be 0 at first.
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, "gauge.hadoop.cluster.metrics.active_nodes", {}, 1)
+            ), "expected 1 hadoop worker node"
+            assert has_datapoint_with_dim(
+                agent.fake_services, "plugin", "apache_hadoop"
+            ), "Didn't get hadoop datapoints"
