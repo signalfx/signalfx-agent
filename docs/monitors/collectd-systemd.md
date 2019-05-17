@@ -66,7 +66,7 @@ Monitor Type: `collectd/systemd`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `gauge.active_state.activating` | gauge |  | Indicates that the systemd unit/service has previously been inactive but is currently in the process of entering an active state |
 | `gauge.active_state.active` | gauge |  | Indicates that the systemd unit/service is active |

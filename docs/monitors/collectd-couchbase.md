@@ -49,7 +49,7 @@ Monitor Type: `collectd/couchbase`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `gauge.bucket.basic.dataUsed` | gauge |  | Size of user data within buckets of the specified state that are resident in RAM (%) |
 | `gauge.bucket.basic.diskFetches` | gauge |  | Number of disk fetches |

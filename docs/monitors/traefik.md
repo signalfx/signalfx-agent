@@ -85,7 +85,7 @@ Monitor Type: `traefik`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `go_gc_duration_seconds` | cumulative |  | A summary of the GC invocation durations. |
 | `go_gc_duration_seconds_count` | cumulative |  | A count of the GC invocation durations. |

@@ -45,7 +45,7 @@ Monitor Type: `aspdotnet`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `asp_net.application_restarts` | gauge |  | Count of ASP.NET application restarts. |
 | `asp_net.applications_running` | gauge |  | Number of running ASP.NET applications. |

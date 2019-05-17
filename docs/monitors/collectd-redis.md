@@ -64,7 +64,7 @@ The **nested** `sendListLengths` config object has the following fields:
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `bytes.used_memory` | gauge | ✔ | Number of bytes allocated by Redis |
 | `bytes.used_memory_lua` | gauge |  | Number of bytes used by the Lua engine |

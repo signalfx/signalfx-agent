@@ -78,7 +78,7 @@ Monitor Type: `telegraf/sqlserver`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `sqlserver_database_io.read_bytes` | gauge | ✔ | Bytes read by the database. |
 | `sqlserver_database_io.read_latency_ms` | gauge | ✔ | Latency in milliseconds reading from the database. |

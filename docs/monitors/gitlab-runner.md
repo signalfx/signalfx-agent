@@ -44,7 +44,7 @@ Monitor Type: `gitlab-runner`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `gitlab_runner_api_request_statuses_total` | cumulative |  | The total number of API requests, partitioned by runner, endpoint and status |
 | `gitlab_runner_autoscaling_machine_creation_duration_seconds` | cumulative |  | Histogram of machine creation time |

@@ -47,7 +47,7 @@ Monitor Type: `collectd/rabbitmq`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `counter.channel.message_stats.ack` | counter |  | The number of acknowledged messages |
 | `counter.channel.message_stats.confirm` | counter |  | Count of messages confirmed. |

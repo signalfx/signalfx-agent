@@ -57,7 +57,7 @@ Monitor Type: `collectd/marathon`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `gauge.marathon-api-metric` | gauge |  | Metrics reported by the Marathon Metrics API |
 | `gauge.marathon.app.cpu.allocated` | gauge | ✔ | Number of CPUs allocated to an application |

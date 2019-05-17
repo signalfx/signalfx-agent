@@ -45,7 +45,7 @@ Monitor Type: `windows-iis`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `process.handle_count` | gauge |  | The total number of handles currently open by this process. This number is equal to the sum of the handles currently open by each thread in this process. |
 | `process.id_process` | gauge |  | The unique identifier of this process. ID Process numbers are reused, so they only identify a process for the lifetime of that process. |

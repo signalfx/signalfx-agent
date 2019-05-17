@@ -42,7 +42,7 @@ Monitor Type: `collectd/openstack`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `counter.openstack.nova.server.cpu_time` | counter |  | Virtual CPU time consumed in nanoseconds |
 | `counter.openstack.nova.server.rx` | counter | ✔ | Size of network packet received in bytes |

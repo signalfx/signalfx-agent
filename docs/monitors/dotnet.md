@@ -53,7 +53,7 @@ Monitor Type: `dotnet`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `net_clr_exceptions.num_exceps_thrown_sec` | gauge |  | The number of exceptions thrown by .NET applications. |
 | `net_clr_locksandthreads.contention_rate_sec` | gauge |  | The rate of thread of thread contention per second for .NET applications. |

@@ -34,7 +34,7 @@ to connect to PostgreSQL using the `params` map that allows you to pull
 out the username and password individually from Vault and interpolate
 them into the `connectionString` config option.
 
-```
+```yaml
 monitors:
  - type: postgresql
    connectionString: 'sslmode=disable user={{.username}} password={{.password}}'
@@ -85,18 +85,14 @@ Monitor Type: `postgresql`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `postgres_block_hit_ratio` | gauge | ✔ | The proportion (between 0 and 1, inclusive) of block reads that used the cache and did not have to go to the disk.  Is sent for `table`, `index`, and the `database` as a whole. |
 | `postgres_database_size` | gauge | ✔ | Size in bytes of the database on disk |
 | `postgres_deadlocks` | cumulative | ✔ | Total number of deadlocks detected by the system |
 | `postgres_index_scans` | cumulative | ✔ | Total number of index scans on the `table`. |
 | `postgres_live_rows` | gauge | ✔ | Number of rows live (not deleted) in the `table`. |
-| `postgres_query_count` | cumulative | ✔ | Total number of queries executed on the `database`, broken down by
-`user`.  Note that the accuracy of this metric depends on the
-PostgreSQL [pg_stat_statements.max config
-option](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631)
-being large enough to hold all queries. |
+| `postgres_query_count` | cumulative | ✔ | Total number of queries executed on the `database`, broken down by `user`.  Note that the accuracy of this metric depends on the PostgreSQL [pg_stat_statements.max config option](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631) being large enough to hold all queries. |
 | `postgres_query_time` | cumulative | ✔ | Total time taken to execute queries on the `database`, broken down by `user`. |
 | `postgres_rows_deleted` | cumulative | ✔ | Number of rows deleted from the `table`. |
 | `postgres_rows_inserted` | cumulative | ✔ | Number of rows inserted into the `table`. |

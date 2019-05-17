@@ -60,7 +60,7 @@ The **nested** `values` config object has the following fields:
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `counter.cassandra.ClientRequest.RangeSlice.Latency.Count` | cumulative | ✔ | Count of range slice operations since server start |
 | `counter.cassandra.ClientRequest.RangeSlice.Timeouts.Count` | cumulative | ✔ | Count of range slice timeouts since server start |

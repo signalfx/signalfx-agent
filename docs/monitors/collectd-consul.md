@@ -46,7 +46,7 @@ Monitor Type: `collectd/consul`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `consul.dns.stale_queries` | gauge |  | Number of times an agent serves a DNS query with stale information |
 | `consul.memberlist.msg.suspect` | gauge |  | Number of suspect messages received per interval |

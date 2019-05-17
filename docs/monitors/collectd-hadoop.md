@@ -52,7 +52,7 @@ Monitor Type: `collectd/hadoop`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `counter.hadoop.cluster.metrics.total_mb` | cumulative |  |  |
 | `counter.hadoop.cluster.metrics.total_nodes` | cumulative |  |  |

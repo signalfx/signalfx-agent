@@ -36,7 +36,7 @@ Monitor Type: `collectd/etcd`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `counter.etcd.leader.counts.fail` | counter | ✔ | Total number of failed rpc requests to with a follower |
 | `counter.etcd.leader.counts.success` | counter | ✔ | Total number of successful rpc requests to with a follower |

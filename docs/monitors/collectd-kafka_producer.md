@@ -76,7 +76,7 @@ The **nested** `values` config object has the following fields:
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `gauge.jvm.threads.count` | gauge | ✔ | Number of JVM threads |
 | `gauge.kafka.producer.byte-rate` | gauge | ✔ | Average number of bytes sent per second for a topic. This metric has client-id and topic dimensions. |

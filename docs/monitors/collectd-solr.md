@@ -43,7 +43,7 @@ Monitor Type: `collectd/solr`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `counter.solr.http_2xx_responses` | counter | ✔ | Total number of 2xx http responses |
 | `counter.solr.http_4xx_responses` | counter | ✔ | Total number of 4xx http responses |

@@ -28,7 +28,7 @@ This monitor has no configuration options.
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `if_dropped.rx` | cumulative |  | Count of received packets dropped by the interface |
 | `if_dropped.tx` | cumulative |  | Count of transmitted packets dropped by the interface |

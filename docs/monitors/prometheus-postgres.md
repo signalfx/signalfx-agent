@@ -37,7 +37,7 @@ Monitor Type: `prometheus/postgres`
 
 The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
 
-| Name | Type | Default (non-custom) | Description |
+| Name | Type | [Bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `pg_exporter_last_scrape_duration_seconds` | gauge |  | Duration of the last scrape of metrics from PostgresSQL. |
 | `pg_exporter_last_scrape_error` | gauge |  | Whether the last scrape of metrics from PostgreSQL resulted in an error (1 for error, 0 for success). |
