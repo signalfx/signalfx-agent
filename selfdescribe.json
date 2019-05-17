@@ -26004,7 +26004,7 @@
     },
     {
       "monitorType": "telegraf/sqlserver",
-      "sendAll": true,
+      "sendAll": false,
       "dimensions": null,
       "doc": "This monitor reports metrics about Microsoft SQL servers.\nThis monitor is based on the telegraf sqlserver plugin.  More information about the telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/sqlserver).\n\nYou will need to create a login on the SQL server for the monitor to use.  You can create this login by\nexecuting the following commands in an a SQL client while logged in as an administrator.\n\n```\nUSE master;\nGO\nCREATE LOGIN [signalfxagent] WITH PASSWORD = N'\u003cYOUR PASSWORD HERE\u003e';\nGO\nGRANT VIEW SERVER STATE TO [signalfxagent];\nGO\nGRANT VIEW ANY DEFINITION TO [signalfxagent];\nGO\n```\n\nTroubleshooting:\n\nOn some Windows based SQL server distributions TCP/IP has been disabled by default.  This behavior\nhas been observed on Azure SQL server instances.  You may need to explicitly turn on TCP/IP for the\nSQL server if you see error messages simillar to the following.\n\n```\nCannot read handshake packet: read tcp: wsarecv: An existing connection was forcibly closed by the remote host.\n```\n\n1. Verify agent configurations are correct.\n2. Ensure TCP/IP is enabled for the SQL server by going to `Start` -\u003e `Administrative Tools` -\u003e `Computer Management`\n3. In the `Computer Management` side bar, drill down to `Services and Applications` -\u003e `SQL Server Configuration Manager` -\u003e `SQL Server Network Configuration`\n4. Select `Protocols for \u003cYOUR SQL SERVER NAME\u003e`.\n5. In the protocol list to the right, right-click on the `TCP/IP` protocol and `enable` it.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/sqlserver\n   host: hostname\n   port: 1433\n   userID: sa\n   password: P@ssw0rd!\n   appName: signalfxagent\n```\n",
       "groups": null,
@@ -26013,37 +26013,37 @@
           "type": "gauge",
           "description": "Bytes read by the database.",
           "group": null,
-          "included": false
+          "included": true
         },
         "sqlserver_database_io.read_latency_ms": {
           "type": "gauge",
           "description": "Latency in milliseconds reading from the database.",
           "group": null,
-          "included": false
+          "included": true
         },
         "sqlserver_database_io.reads": {
           "type": "gauge",
           "description": "Number of reads from the database.",
           "group": null,
-          "included": false
+          "included": true
         },
         "sqlserver_database_io.write_bytes": {
           "type": "gauge",
           "description": "Bytes written to the database.",
           "group": null,
-          "included": false
+          "included": true
         },
         "sqlserver_database_io.write_latency_ms": {
           "type": "gauge",
           "description": "Latency in milliseconds writing to the database.",
           "group": null,
-          "included": false
+          "included": true
         },
         "sqlserver_database_io.writes": {
           "type": "gauge",
           "description": "Number of writes to the database.",
           "group": null,
-          "included": false
+          "included": true
         },
         "sqlserver_memory_clerks.size_kb.bound_trees": {
           "type": "gauge",
@@ -26141,23 +26141,23 @@
           "group": null,
           "included": false
         },
-        "sqlserver_performance.background_writer_pages_persec": {
+        "sqlserver_performance.background_writer_pages_sec": {
           "type": "gauge",
           "description": "Rate per second of pages written in the background.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.backup/restore_throughput_persec": {
+        "sqlserver_performance.backup_restore_throughput_sec": {
           "type": "gauge",
           "description": "Rate per second of backup/restore throughput.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.batch_requests_persec": {
+        "sqlserver_performance.batch_requests_sec": {
           "type": "gauge",
           "description": "Rate per second of batch requests.",
           "group": null,
-          "included": false
+          "included": true
         },
         "sqlserver_performance.blocked_tasks": {
           "type": "gauge",
@@ -26169,27 +26169,27 @@
           "type": "gauge",
           "description": "Buffer cache hit ration.",
           "group": null,
-          "included": false
+          "included": true
         },
-        "sqlserver_performance.bytes_received_from_replica_persec": {
+        "sqlserver_performance.bytes_received_from_replica_sec": {
           "type": "gauge",
           "description": "Rate per second of bytes received from replicas.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.bytes_sent_to_replica_persec": {
+        "sqlserver_performance.bytes_sent_to_replica_sec": {
           "type": "gauge",
           "description": "Rate per second of bytes sent to replicas.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.bytes_sent_to_transport_persec": {
+        "sqlserver_performance.bytes_sent_to_transport_sec": {
           "type": "gauge",
           "description": "Rate per second of bytes sent to transports.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.checkpoint_pages_persec": {
+        "sqlserver_performance.checkpoint_pages_sec": {
           "type": "gauge",
           "description": "Rate per second of checkpoint pages.",
           "group": null,
@@ -26201,7 +26201,7 @@
           "group": null,
           "included": false
         },
-        "sqlserver_performance.cpu_usage_percent": {
+        "sqlserver_performance.cpu_usage_pct": {
           "type": "gauge",
           "description": "CPU usage percentage.",
           "group": null,
@@ -26213,73 +26213,73 @@
           "group": null,
           "included": false
         },
-        "sqlserver_performance.data_files_size_kb": {
+        "sqlserver_performance.data_file_size_kb": {
           "type": "gauge",
           "description": "Size in KB of data files.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.disk_read_bytes_persec": {
+        "sqlserver_performance.disk_read_bytes_sec": {
           "type": "gauge",
           "description": "Rate per second of bytes from disk.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.disk_read_io_persec": {
+        "sqlserver_performance.disk_read_io_sec": {
           "type": "gauge",
           "description": "Rate per second of read operations from disk.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.disk_read_io_throttled_persec": {
+        "sqlserver_performance.disk_read_io_throttled_sec": {
           "type": "gauge",
           "description": "Rate per second of throttled read operations.",
           "group": null,
-          "included": false
+          "included": true
         },
-        "sqlserver_performance.disk_write_bytes_persec": {
+        "sqlserver_performance.disk_write_bytes_sec": {
           "type": "gauge",
           "description": "Rate per second of bytes written to disk.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.disk_write_io_persec": {
+        "sqlserver_performance.disk_write_io_sec": {
           "type": "gauge",
           "description": "Rate per second of write operations to disk.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.disk_write_io_throttled_persec": {
+        "sqlserver_performance.disk_write_io_throttled_sec": {
           "type": "gauge",
           "description": "Rate per second of write operations throttled.",
           "group": null,
-          "included": false
+          "included": true
         },
-        "sqlserver_performance.errors_persec": {
+        "sqlserver_performance.errors_sec": {
           "type": "gauge",
           "description": "Rate of errors per second.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.flow_control_persec": {
+        "sqlserver_performance.flow_control_sec": {
           "type": "gauge",
           "description": "Rate per second of flow control.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.flow_control_time_ms_persec": {
+        "sqlserver_performance.flow_control_time_ms_sec": {
           "type": "gauge",
           "description": "Rate per second of ms of flow control time.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.forwarded_records_persec": {
+        "sqlserver_performance.forwarded_records_sec": {
           "type": "gauge",
           "description": "Rate per second of record forwarding.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.free_list_stalls_persec": {
+        "sqlserver_performance.free_list_stalls_sec": {
           "type": "gauge",
           "description": "Rate per second of stalled free list.",
           "group": null,
@@ -26291,31 +26291,31 @@
           "group": null,
           "included": false
         },
-        "sqlserver_performance.full_scans_persec": {
+        "sqlserver_performance.full_scans_sec": {
           "type": "gauge",
           "description": "Rate per second of full scans.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.index_searches_persec": {
+        "sqlserver_performance.index_searches_sec": {
           "type": "gauge",
           "description": "Rate per second of index searches.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.latch_waits_persec": {
+        "sqlserver_performance.latch_waits_sec": {
           "type": "gauge",
           "description": "Rate per second of latch waits.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.lazy_writes_persec": {
+        "sqlserver_performance.lazy_writes_sec": {
           "type": "gauge",
           "description": "Rate per second of lazy writes.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.lock_timeouts_persec": {
+        "sqlserver_performance.lock_timeouts_sec": {
           "type": "gauge",
           "description": "Rate per second of lock timeouts.",
           "group": null,
@@ -26325,7 +26325,7 @@
           "type": "gauge",
           "description": "Number of lock waits.",
           "group": null,
-          "included": false
+          "included": true
         },
         "sqlserver_performance.lock_wait_time": {
           "type": "gauge",
@@ -26333,7 +26333,7 @@
           "group": null,
           "included": false
         },
-        "sqlserver_performance.lock_waits_persec": {
+        "sqlserver_performance.lock_waits_sec": {
           "type": "gauge",
           "description": "Rate per second of lock waits.",
           "group": null,
@@ -26351,25 +26351,25 @@
           "group": null,
           "included": false
         },
-        "sqlserver_performance.log_bytes_flushed_persec": {
+        "sqlserver_performance.log_bytes_flushed_sec": {
           "type": "gauge",
           "description": "Rate per second of log bytes flushed.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.log_bytes_received_persec": {
+        "sqlserver_performance.log_bytes_received_sec": {
           "type": "gauge",
           "description": "Rate per second of log bytes received.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.log_files_size_kb": {
+        "sqlserver_performance.log_file_size_kb": {
           "type": "gauge",
           "description": "Size in KB of log file.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.log_files_used_size_kb": {
+        "sqlserver_performance.log_file_used_size_kb": {
           "type": "gauge",
           "description": "Size in KB of log file used.",
           "group": null,
@@ -26381,7 +26381,7 @@
           "group": null,
           "included": false
         },
-        "sqlserver_performance.log_flushes_persec": {
+        "sqlserver_performance.log_flushes_sec": {
           "type": "gauge",
           "description": "Rate per second of log flushes.",
           "group": null,
@@ -26393,13 +26393,13 @@
           "group": null,
           "included": false
         },
-        "sqlserver_performance.logins_persec": {
+        "sqlserver_performance.logins_sec": {
           "type": "gauge",
           "description": "Rate of logins per second.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.logouts_persec": {
+        "sqlserver_performance.logouts_sec": {
           "type": "gauge",
           "description": "Rate of logouts per second.",
           "group": null,
@@ -26423,7 +26423,7 @@
           "group": null,
           "included": false
         },
-        "sqlserver_performance.number_of_deadlocks_persec": {
+        "sqlserver_performance.number_of_deadlocks_sec": {
           "type": "gauge",
           "description": "Rate of deadlocks per second.",
           "group": null,
@@ -26435,31 +26435,31 @@
           "group": null,
           "included": false
         },
-        "sqlserver_performance.page_lookups_persec": {
+        "sqlserver_performance.page_lookups_sec": {
           "type": "gauge",
           "description": "Rate of page look ups per second.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.page_reads_persec": {
+        "sqlserver_performance.page_reads_sec": {
           "type": "gauge",
           "description": "Rate of page reads per second.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.page_splits_persec": {
+        "sqlserver_performance.page_splits_sec": {
           "type": "gauge",
           "description": "Rate of page splits per second.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.page_writes_persec": {
+        "sqlserver_performance.page_writes_sec": {
           "type": "gauge",
           "description": "Rate of page writes per second.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.percent_log_used": {
+        "sqlserver_performance.pct_log_used": {
           "type": "gauge",
           "description": "Percentage of log used.",
           "group": null,
@@ -26468,6 +26468,12 @@
         "sqlserver_performance.processes_blocked": {
           "type": "gauge",
           "description": "Number of blocked processes.",
+          "group": null,
+          "included": true
+        },
+        "sqlserver_performance.query": {
+          "type": "gauge",
+          "description": "[User settable](https://docs.microsoft.com/en-us/sql/relational-databases/performance-monitor/sql-server-user-settable-object?view=sql-server-2017) performance counters\n",
           "group": null,
           "included": false
         },
@@ -26483,13 +26489,13 @@
           "group": null,
           "included": false
         },
-        "sqlserver_performance.readahead_pages_persec": {
+        "sqlserver_performance.readahead_pages_sec": {
           "type": "gauge",
           "description": "Rate per second of read ahead pages.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.receives_from_replica_persec": {
+        "sqlserver_performance.receives_from_replica_sec": {
           "type": "gauge",
           "description": "Rate receives from replicas per second.",
           "group": null,
@@ -26501,7 +26507,7 @@
           "group": null,
           "included": false
         },
-        "sqlserver_performance.redone_bytes_persec": {
+        "sqlserver_performance.redone_bytes_sec": {
           "type": "gauge",
           "description": "Rate of redone bytes per second.",
           "group": null,
@@ -26519,41 +26525,41 @@
           "group": null,
           "included": false
         },
-        "sqlserver_performance.requests_completed_persec": {
+        "sqlserver_performance.requests_completed_sec": {
           "type": "gauge",
           "description": "Rate of completed requests per second.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.resent_messages_persec": {
+        "sqlserver_performance.resent_messages_sec": {
           "type": "gauge",
           "description": "Rate of resent messages per second.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.sends_to_replica_persec": {
+        "sqlserver_performance.sends_to_replica_sec": {
           "type": "gauge",
           "description": "Rate of sends to replicas per second.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.sends_to_transport_persec": {
+        "sqlserver_performance.sends_to_transport_sec": {
           "type": "gauge",
           "description": "Rate of sends to transports per second.",
           "group": null,
           "included": false
         },
-        "sqlserver_performance.sql_compilations_persec": {
+        "sqlserver_performance.sql_compilations_sec": {
           "type": "gauge",
           "description": "Rate of sql compilations per second.",
           "group": null,
-          "included": false
+          "included": true
         },
-        "sqlserver_performance.sql_re-compilations_persec": {
+        "sqlserver_performance.sql_re-compilations_sec": {
           "type": "gauge",
           "description": "Rate of sql recompilations per sec.",
           "group": null,
-          "included": false
+          "included": true
         },
         "sqlserver_performance.target_server_memory_kb": {
           "type": "gauge",
@@ -26585,7 +26591,7 @@
           "group": null,
           "included": false
         },
-        "sqlserver_performance.transactions_persec": {
+        "sqlserver_performance.transactions_sec": {
           "type": "gauge",
           "description": "Rate of transactions per second.",
           "group": null,
@@ -26601,7 +26607,7 @@
           "type": "gauge",
           "description": "Number of user connections.",
           "group": null,
-          "included": false
+          "included": true
         },
         "sqlserver_performance.version_store_size_kb": {
           "type": "gauge",
@@ -26609,7 +26615,7 @@
           "group": null,
           "included": false
         },
-        "sqlserver_performance.write_transactions_persec": {
+        "sqlserver_performance.write_transactions_sec": {
           "type": "gauge",
           "description": "Rate of write transactions per second.",
           "group": null,
@@ -26637,37 +26643,37 @@
           "type": "gauge",
           "description": "Number of offline databases.",
           "group": null,
-          "included": false
+          "included": true
         },
         "sqlserver_server_properties.db_online": {
           "type": "gauge",
           "description": "Number of online databases.",
           "group": null,
-          "included": false
+          "included": true
         },
         "sqlserver_server_properties.db_recovering": {
           "type": "gauge",
           "description": "Number of databases recovering.",
           "group": null,
-          "included": false
+          "included": true
         },
-        "sqlserver_server_properties.db_recoveryPending": {
+        "sqlserver_server_properties.db_recoverypending": {
           "type": "gauge",
           "description": "Number of databases pending recovery.",
           "group": null,
-          "included": false
+          "included": true
         },
         "sqlserver_server_properties.db_restoring": {
           "type": "gauge",
           "description": "Number of databases restoring.",
           "group": null,
-          "included": false
+          "included": true
         },
         "sqlserver_server_properties.db_suspect": {
           "type": "gauge",
           "description": "Number of suspect databases.",
           "group": null,
-          "included": false
+          "included": true
         },
         "sqlserver_server_properties.engine_edition": {
           "type": "gauge",
