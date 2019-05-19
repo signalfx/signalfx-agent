@@ -35,6 +35,10 @@ var configMetricMap = map[string]string{}
 var log = logrus.WithField("monitorType", monitorType)
 
 func init() {
+	if len(metricConfigMap) != len(metricSet) {
+		panic("kong metricConfigMap is missing entries")
+	}
+
 	for key, val := range metricConfigMap {
 		configMetricMap[val] = key
 	}
