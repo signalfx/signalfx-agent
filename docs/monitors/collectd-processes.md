@@ -51,34 +51,36 @@ Monitor Type: `collectd/processes`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+This monitor emits all metrics by default; however, **none are categorized as [container/host/bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)**.
 
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `disk_octets.read` | cumulative |  |  |
-| `disk_octets.write` | cumulative |  |  |
-| `fork_rate` | cumulative |  |  |
-| `io_octets.rx` | cumulative |  |  |
-| `io_octets.tx` | cumulative |  |  |
-| `io_ops.read` | cumulative |  |  |
-| `io_ops.write` | cumulative |  |  |
-| `ps_code` | gauge |  |  |
-| `ps_count.processes` | gauge |  |  |
-| `ps_count.threads` | gauge |  |  |
-| `ps_cputime.syst` | cumulative |  |  |
-| `ps_cputime.user` | cumulative |  |  |
-| `ps_data` | gauge |  |  |
-| `ps_pagefaults.majflt` | cumulative |  |  |
-| `ps_pagefaults.minflt` | cumulative |  |  |
-| `ps_rss` | gauge |  |  |
-| `ps_stacksize` | gauge |  |  |
-| `ps_state.blocked` | gauge |  |  |
-| `ps_state.paging` | gauge |  |  |
-| `ps_state.running` | gauge |  |  |
-| `ps_state.sleeping` | gauge |  |  |
-| `ps_state.stopped` | gauge |  |  |
-| `ps_state.zombies` | gauge |  |  |
-| `ps_vm` | gauge |  |  |
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `disk_octets.read` | cumulative |  |
+| `disk_octets.write` | cumulative |  |
+| `fork_rate` | cumulative |  |
+| `io_octets.rx` | cumulative |  |
+| `io_octets.tx` | cumulative |  |
+| `io_ops.read` | cumulative |  |
+| `io_ops.write` | cumulative |  |
+| `ps_code` | gauge |  |
+| `ps_count.processes` | gauge |  |
+| `ps_count.threads` | gauge |  |
+| `ps_cputime.syst` | cumulative |  |
+| `ps_cputime.user` | cumulative |  |
+| `ps_data` | gauge |  |
+| `ps_pagefaults.majflt` | cumulative |  |
+| `ps_pagefaults.minflt` | cumulative |  |
+| `ps_rss` | gauge |  |
+| `ps_stacksize` | gauge |  |
+| `ps_state.blocked` | gauge |  |
+| `ps_state.paging` | gauge |  |
+| `ps_state.running` | gauge |  |
+| `ps_state.sleeping` | gauge |  |
+| `ps_state.stopped` | gauge |  |
+| `ps_state.zombies` | gauge |  |
+| `ps_vm` | gauge |  |
 
 
 The agent does not do any built-in filtering of metrics coming out of this

@@ -50,51 +50,53 @@ Monitor Type: `telegraf/procstat`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+This monitor emits all metrics by default; however, **none are categorized as [container/host/bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)**.
 
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `procstat.cpu_time` | gauge |  | Amount of cpu time consumed by the process. |
-| `procstat.cpu_usage` | gauge |  | CPU used by the process. |
-| `procstat.involuntary_context_switches` | gauge |  | Number of involuntary context switches. |
-| `procstat.memory_data` | gauge |  | VMData memory used by the process. |
-| `procstat.memory_locked` | gauge |  | VMLocked memory used by the process. |
-| `procstat.memory_rss` | gauge |  | VMRSS memory used by the process. |
-| `procstat.memory_stack` | gauge |  | VMStack memory used by the process. |
-| `procstat.memory_swap` | gauge |  | VMSwap memory used by the process. |
-| `procstat.memory_vms` | gauge |  | VMS memory used by the process. |
-| `procstat.nice_priority` | gauge |  | Nice priority number of the process. |
-| `procstat.num_fds` | gauge |  | Number of file descriptors.  This may require the agent to be running as root. |
-| `procstat.num_threads` | gauge |  | Number of threads used by the process. |
-| `procstat.read_bytes` | gauge |  | Number of bytes read by the process.  This may require the agent to be running as root. |
-| `procstat.read_count` | gauge |  | Number of read operations by the process.  This may require the agent to be running as root. |
-| `procstat.realtime_priority` | gauge |  | Real time priority of the process. |
-| `procstat.rlimit_cpu_time_hard` | gauge |  | The hard cpu rlimit. |
-| `procstat.rlimit_cpu_time_soft` | gauge |  | The soft cpu rlimit. |
-| `procstat.rlimit_file_locks_hard` | gauge |  | The hard file lock rlimit. |
-| `procstat.rlimit_file_locks_soft` | gauge |  | The soft file lock rlimit. |
-| `procstat.rlimit_memory_data_hard` | gauge |  | The hard data memory rlimit. |
-| `procstat.rlimit_memory_data_soft` | gauge |  | The soft data memory rlimit. |
-| `procstat.rlimit_memory_locked_hard` | gauge |  | The hard locked memory rlimit. |
-| `procstat.rlimit_memory_locked_soft` | gauge |  | The soft locked memory rlimit. |
-| `procstat.rlimit_memory_rss_hard` | gauge |  | The hard rss memory rlimit. |
-| `procstat.rlimit_memory_rss_soft` | gauge |  | The soft rss memory rlimit. |
-| `procstat.rlimit_memory_stack_hard` | gauge |  | The hard stack memory rlimit. |
-| `procstat.rlimit_memory_stack_soft` | gauge |  | The soft stack memory rlimit. |
-| `procstat.rlimit_memory_vms_hard` | gauge |  | The hard vms memory rlimit. |
-| `procstat.rlimit_memory_vms_soft` | gauge |  | The soft vms memory rlimit. |
-| `procstat.rlimit_nice_priority_hard` | gauge |  | The hard nice priority rlimit. |
-| `procstat.rlimit_nice_priority_soft` | gauge |  | The soft nice priority rlimit. |
-| `procstat.rlimit_num_fds_hard` | gauge |  | The hard file descriptor rlimit. |
-| `procstat.rlimit_num_fds_soft` | gauge |  | The soft file descriptor rlimit. |
-| `procstat.rlimit_realtime_priority_hard` | gauge |  | The hard realtime priority rlimit. |
-| `procstat.rlimit_realtime_priority_soft` | gauge |  | The soft realtime priority rlimit. |
-| `procstat.rlimit_signals_pending_hard` | gauge |  | The hard pending signal rlimit. |
-| `procstat.rlimit_signals_pending_soft` | gauge |  | The soft pendidng signal rlimit. |
-| `procstat.signals_pending` | gauge |  | The number of signals pending. |
-| `procstat.write_bytes` | gauge |  | Number of bytes written by the process.  This may require the agent to be running as root. |
-| `procstat.write_count` | gauge |  | Number of write operations by the process.  This may require the agent to be running as root. |
-| `procstat_lookup.pid_count` | gauge |  | The number of pids. This metric emits with the plugin dimension set to "procstat_lookup". |
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `procstat.cpu_time` | gauge | Amount of cpu time consumed by the process. |
+| `procstat.cpu_usage` | gauge | CPU used by the process. |
+| `procstat.involuntary_context_switches` | gauge | Number of involuntary context switches. |
+| `procstat.memory_data` | gauge | VMData memory used by the process. |
+| `procstat.memory_locked` | gauge | VMLocked memory used by the process. |
+| `procstat.memory_rss` | gauge | VMRSS memory used by the process. |
+| `procstat.memory_stack` | gauge | VMStack memory used by the process. |
+| `procstat.memory_swap` | gauge | VMSwap memory used by the process. |
+| `procstat.memory_vms` | gauge | VMS memory used by the process. |
+| `procstat.nice_priority` | gauge | Nice priority number of the process. |
+| `procstat.num_fds` | gauge | Number of file descriptors.  This may require the agent to be running as root. |
+| `procstat.num_threads` | gauge | Number of threads used by the process. |
+| `procstat.read_bytes` | gauge | Number of bytes read by the process.  This may require the agent to be running as root. |
+| `procstat.read_count` | gauge | Number of read operations by the process.  This may require the agent to be running as root. |
+| `procstat.realtime_priority` | gauge | Real time priority of the process. |
+| `procstat.rlimit_cpu_time_hard` | gauge | The hard cpu rlimit. |
+| `procstat.rlimit_cpu_time_soft` | gauge | The soft cpu rlimit. |
+| `procstat.rlimit_file_locks_hard` | gauge | The hard file lock rlimit. |
+| `procstat.rlimit_file_locks_soft` | gauge | The soft file lock rlimit. |
+| `procstat.rlimit_memory_data_hard` | gauge | The hard data memory rlimit. |
+| `procstat.rlimit_memory_data_soft` | gauge | The soft data memory rlimit. |
+| `procstat.rlimit_memory_locked_hard` | gauge | The hard locked memory rlimit. |
+| `procstat.rlimit_memory_locked_soft` | gauge | The soft locked memory rlimit. |
+| `procstat.rlimit_memory_rss_hard` | gauge | The hard rss memory rlimit. |
+| `procstat.rlimit_memory_rss_soft` | gauge | The soft rss memory rlimit. |
+| `procstat.rlimit_memory_stack_hard` | gauge | The hard stack memory rlimit. |
+| `procstat.rlimit_memory_stack_soft` | gauge | The soft stack memory rlimit. |
+| `procstat.rlimit_memory_vms_hard` | gauge | The hard vms memory rlimit. |
+| `procstat.rlimit_memory_vms_soft` | gauge | The soft vms memory rlimit. |
+| `procstat.rlimit_nice_priority_hard` | gauge | The hard nice priority rlimit. |
+| `procstat.rlimit_nice_priority_soft` | gauge | The soft nice priority rlimit. |
+| `procstat.rlimit_num_fds_hard` | gauge | The hard file descriptor rlimit. |
+| `procstat.rlimit_num_fds_soft` | gauge | The soft file descriptor rlimit. |
+| `procstat.rlimit_realtime_priority_hard` | gauge | The hard realtime priority rlimit. |
+| `procstat.rlimit_realtime_priority_soft` | gauge | The soft realtime priority rlimit. |
+| `procstat.rlimit_signals_pending_hard` | gauge | The hard pending signal rlimit. |
+| `procstat.rlimit_signals_pending_soft` | gauge | The soft pendidng signal rlimit. |
+| `procstat.signals_pending` | gauge | The number of signals pending. |
+| `procstat.write_bytes` | gauge | Number of bytes written by the process.  This may require the agent to be running as root. |
+| `procstat.write_count` | gauge | Number of write operations by the process.  This may require the agent to be running as root. |
+| `procstat_lookup.pid_count` | gauge | The number of pids. This metric emits with the plugin dimension set to "procstat_lookup". |
 
 
 The agent does not do any built-in filtering of metrics coming out of this

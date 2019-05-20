@@ -43,25 +43,27 @@ Monitor Type: `aspdotnet`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+This monitor emits all metrics by default; however, **none are categorized as [container/host/bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)**.
 
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `asp_net.application_restarts` | gauge |  | Count of ASP.NET application restarts. |
-| `asp_net.applications_running` | gauge |  | Number of running ASP.NET applications. |
-| `asp_net.requests_current` | gauge |  | Current number of ASP.NET requests. |
-| `asp_net.requests_queue` | gauge |  | Number of queued ASP.NET requests. |
-| `asp_net.requests_rejected` | gauge |  | Count of rejected ASP.NET requests. |
-| `asp_net.worker_process_restarts` | gauge |  | Count of ASP.NET worker process restarts. |
-| `asp_net.worker_processes_running` | gauge |  | Number of running ASP.NET worker processes. |
-| `asp_net_applications.errors_during_execution` | gauge |  | Count of errors encountered by ASP.NET application durring execution. |
-| `asp_net_applications.errors_total_sec` | gauge |  | Error rate per second for the given ASP.NET application. |
-| `asp_net_applications.errors_unhandled_during_execution_sec` | gauge |  | Unhandled error rate per second countered while an ASP.NET application is running. |
-| `asp_net_applications.pipeline_instance_count` | gauge |  | Number of instances in the ASP.NET application pipeline. |
-| `asp_net_applications.requests_failed` | gauge |  | Count of failed requests in the ASP.NET application |
-| `asp_net_applications.requests_sec` | gauge |  | Rate of requests in the ASP.NET application per second. |
-| `asp_net_applications.session_sql_server_connections_total` | gauge |  | Number of connections to microsoft sql server by an ASP.NET application. |
-| `asp_net_applications.sessions_active` | gauge |  | Number of active sessions in the ASP.NET application. |
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `asp_net.application_restarts` | gauge | Count of ASP.NET application restarts. |
+| `asp_net.applications_running` | gauge | Number of running ASP.NET applications. |
+| `asp_net.requests_current` | gauge | Current number of ASP.NET requests. |
+| `asp_net.requests_queue` | gauge | Number of queued ASP.NET requests. |
+| `asp_net.requests_rejected` | gauge | Count of rejected ASP.NET requests. |
+| `asp_net.worker_process_restarts` | gauge | Count of ASP.NET worker process restarts. |
+| `asp_net.worker_processes_running` | gauge | Number of running ASP.NET worker processes. |
+| `asp_net_applications.errors_during_execution` | gauge | Count of errors encountered by ASP.NET application durring execution. |
+| `asp_net_applications.errors_total_sec` | gauge | Error rate per second for the given ASP.NET application. |
+| `asp_net_applications.errors_unhandled_during_execution_sec` | gauge | Unhandled error rate per second countered while an ASP.NET application is running. |
+| `asp_net_applications.pipeline_instance_count` | gauge | Number of instances in the ASP.NET application pipeline. |
+| `asp_net_applications.requests_failed` | gauge | Count of failed requests in the ASP.NET application |
+| `asp_net_applications.requests_sec` | gauge | Rate of requests in the ASP.NET application per second. |
+| `asp_net_applications.session_sql_server_connections_total` | gauge | Number of connections to microsoft sql server by an ASP.NET application. |
+| `asp_net_applications.sessions_active` | gauge | Number of active sessions in the ASP.NET application. |
 
 
 The agent does not do any built-in filtering of metrics coming out of this

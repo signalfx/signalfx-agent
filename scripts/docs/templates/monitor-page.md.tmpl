@@ -16,6 +16,7 @@ The **nested** `{{.yamlName}}` config object has the following fields:
 {{- end -}}
 
 {{ with ds "monitor" }}
+{{ $sendAll := .sendAll -}}
 {{ $doc_types := .doc_types -}}
 
 # {{.monitorType}}
@@ -41,16 +42,22 @@ This monitor has no configuration options.
 {{with .metrics -}}
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+{{ if not $sendAll -}}
+Metrics that are categorized as [container/host/bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
+{{- else -}}
+This monitor emits all metrics by default; however, **none are categorized as [container/host/bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)**.
+{{end}}
 
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
+| Name | Type {{if not $sendAll}}| [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) {{end}}| Description |
+| ---  | ---  {{if not $sendAll}}| ---    {{end}}| ---         |
 {{ range $metric, $info := . -}}
-| `{{$metric}}`{{if has $info "alias"}}<br>_or_ `{{$info.alias}}`{{end}} | {{$info.type}} | {{if $info.default}}✔{{end}} | {{$info.description | strings.TrimSpace}} |
+| `{{$metric}}`{{if has $info "alias"}}<br>_or_ `{{$info.alias}}`{{end}} | {{$info.type}} {{if not $sendAll}}| {{if $info.default}}✔{{end}} {{end}}| {{$info.description | strings.TrimSpace}} |
 {{end}}
 {{end -}}
 
-{{ if .sendAll }}
+{{ if $sendAll }}
 The agent does not do any built-in filtering of metrics coming out of this
 monitor.
 {{ end -}}

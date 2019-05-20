@@ -35,168 +35,170 @@ Monitor Type: `prometheus/node`
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+This monitor emits all metrics by default; however, **none are categorized as [container/host/bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)**.
 
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `node_arp_entries` | gauge |  | ARP entries by device |
-| `node_boot_time_seconds` | gauge |  | Node boot time, in unixtime |
-| `node_context_switches_total` | cumulative |  | Total number of context switches |
-| `node_cpu_guest_seconds_total` | cumulative |  | Seconds the cpus spent in guests (VMs) for each mode |
-| `node_cpu_seconds_total` | cumulative |  | Seconds the cpus spent in each mode |
-| `node_disk_io_now` | gauge |  | The number of I/Os currently in progress |
-| `node_disk_io_time_seconds_total` | cumulative |  | Total seconds spent doing I/Os |
-| `node_disk_io_time_weighted_seconds_total` | cumulative |  | The weighted number of seconds spent doing I/Os. See https://www.kernel.org/doc/Documentation/iostats.txt |
-| `node_disk_read_bytes_total` | cumulative |  | The total number of bytes read successfully |
-| `node_disk_read_time_seconds_total` | cumulative |  | The total number of milliseconds spent by all reads |
-| `node_disk_reads_completed_total` | cumulative |  | The total number of reads completed successfully |
-| `node_disk_reads_merged_total` | cumulative |  | The total number of reads merged. See https://www.kernel.org/doc/Documentation/iostats.txt |
-| `node_disk_write_time_seconds_total` | cumulative |  | This is the total number of seconds spent by all writes |
-| `node_disk_writes_completed_total` | cumulative |  | The total number of writes completed successfully |
-| `node_disk_writes_merged_total` | cumulative |  | The number of writes merged. See https://www.kernel.org/doc/Documentation/iostats.txt |
-| `node_disk_written_bytes_total` | cumulative |  | The total number of bytes written successfully |
-| `node_entropy_available_bits` | gauge |  | Bits of available entropy |
-| `node_exporter_build_info` | gauge |  | A metric with a constant '1' value labeled by version, revision, branch, and goversion from which node_exporter was built |
-| `node_filefd_allocated` | gauge |  | File descriptor statistics: allocated |
-| `node_filefd_maximum` | gauge |  | File descriptor statistics: maximum |
-| `node_filesystem_avail_bytes` | gauge |  | Filesystem space available to non-root users in bytes |
-| `node_filesystem_device_error` | gauge |  | Whether an error occurred while getting statistics for the given device |
-| `node_filesystem_files` | gauge |  | Filesystem total file nodes |
-| `node_filesystem_files_free` | gauge |  | Filesystem total free file nodes |
-| `node_filesystem_free_bytes` | gauge |  | Filesystem free space in bytes |
-| `node_filesystem_readonly` | gauge |  | Filesystem read-only status |
-| `node_filesystem_size_bytes` | gauge |  | Filesystem size in bytes |
-| `node_forks_total` | cumulative |  | Total number of forks |
-| `node_intr_total` | cumulative |  | Total number of interrupts serviced |
-| `node_ipvs_connections_total` | cumulative |  | The total number of connections made |
-| `node_ipvs_incoming_bytes_total` | cumulative |  | The total amount of incoming data |
-| `node_ipvs_incoming_packets_total` | cumulative |  | The total number of incoming packets |
-| `node_ipvs_outgoing_bytes_total` | cumulative |  | The total amount of outgoing data |
-| `node_ipvs_outgoing_packets_total` | cumulative |  | The total number of outgoing packets |
-| `node_load1` | gauge |  | 1m load average |
-| `node_load15` | gauge |  | 15m load average |
-| `node_load5` | gauge |  | 5m load average |
-| `node_memory_Active_anon_bytes` | gauge |  | Memory information field Active_anon_bytes |
-| `node_memory_Active_bytes` | gauge |  | Memory information field Active_bytes |
-| `node_memory_Active_file_bytes` | gauge |  | Memory information field Active_file_bytes |
-| `node_memory_AnonHugePages_bytes` | gauge |  | Memory information field AnonHugePages_bytes |
-| `node_memory_AnonPages_bytes` | gauge |  | Memory information field AnonPages_bytes |
-| `node_memory_Bounce_bytes` | gauge |  | Memory information field Bounce_bytes |
-| `node_memory_Buffers_bytes` | gauge |  | Memory information field Buffers_bytes |
-| `node_memory_Cached_bytes` | gauge |  | Memory information field Cached_bytes |
-| `node_memory_CommitLimit_bytes` | gauge |  | Memory information field CommitLimit_bytes |
-| `node_memory_Committed_AS_bytes` | gauge |  | Memory information field Committed_AS_bytes |
-| `node_memory_DirectMap1G_bytes` | gauge |  | Memory information field DirectMap1G_bytes |
-| `node_memory_DirectMap2M_bytes` | gauge |  | Memory information field DirectMap2M_bytes |
-| `node_memory_DirectMap4k_bytes` | gauge |  | Memory information field DirectMap4k_bytes |
-| `node_memory_Dirty_bytes` | gauge |  | Memory information field Dirty_bytes |
-| `node_memory_HugePages_Free` | gauge |  | Memory information field HugePages_Free |
-| `node_memory_HugePages_Rsvd` | gauge |  | Memory information field HugePages_Rsvd |
-| `node_memory_HugePages_Surp` | gauge |  | Memory information field HugePages_Surp |
-| `node_memory_HugePages_Total` | gauge |  | Memory information field HugePages_Total |
-| `node_memory_Hugepagesize_bytes` | gauge |  | Memory information field Hugepagesize_bytes |
-| `node_memory_Inactive_anon_bytes` | gauge |  | Memory information field Inactive_anon_bytes |
-| `node_memory_Inactive_bytes` | gauge |  | Memory information field Inactive_bytes |
-| `node_memory_Inactive_file_bytes` | gauge |  | Memory information field Inactive_file_bytes |
-| `node_memory_KernelStack_bytes` | gauge |  | Memory information field KernelStack_bytes |
-| `node_memory_Mapped_bytes` | gauge |  | Memory information field Mapped_bytes |
-| `node_memory_MemAvailable_bytes` | gauge |  | Memory information field MemAvailable_bytes |
-| `node_memory_MemFree_bytes` | gauge |  | Memory information field MemFree_bytes |
-| `node_memory_MemTotal_bytes` | gauge |  | Memory information field MemTotal_bytes |
-| `node_memory_Mlocked_bytes` | gauge |  | Memory information field Mlocked_bytes |
-| `node_memory_NFS_Unstable_bytes` | gauge |  | Memory information field NFS_Unstable_bytes |
-| `node_memory_PageTables_bytes` | gauge |  | Memory information field PageTables_bytes |
-| `node_memory_SReclaimable_bytes` | gauge |  | Memory information field SReclaimable_bytes |
-| `node_memory_SUnreclaim_bytes` | gauge |  | Memory information field SUnreclaim_bytes |
-| `node_memory_ShmemHugePages_bytes` | gauge |  | Memory information field ShmemHugePages_bytes |
-| `node_memory_ShmemPmdMapped_bytes` | gauge |  | Memory information field ShmemPmdMapped_bytes |
-| `node_memory_Shmem_bytes` | gauge |  | Memory information field Shmem_bytes |
-| `node_memory_Slab_bytes` | gauge |  | Memory information field Slab_bytes |
-| `node_memory_SwapCached_bytes` | gauge |  | Memory information field SwapCached_bytes |
-| `node_memory_SwapFree_bytes` | gauge |  | Memory information field SwapFree_bytes |
-| `node_memory_SwapTotal_bytes` | gauge |  | Memory information field SwapTotal_bytes |
-| `node_memory_Unevictable_bytes` | gauge |  | Memory information field Unevictable_bytes |
-| `node_memory_VmallocChunk_bytes` | gauge |  | Memory information field VmallocChunk_bytes |
-| `node_memory_VmallocTotal_bytes` | gauge |  | Memory information field VmallocTotal_bytes |
-| `node_memory_VmallocUsed_bytes` | gauge |  | Memory information field VmallocUsed_bytes |
-| `node_memory_WritebackTmp_bytes` | gauge |  | Memory information field WritebackTmp_bytes |
-| `node_memory_Writeback_bytes` | gauge |  | Memory information field Writeback_bytes |
-| `node_netstat_Icmp6_InErrors` | gauge |  | Statistic Icmp6InErrors |
-| `node_netstat_Icmp6_InMsgs` | gauge |  | Statistic Icmp6InMsgs |
-| `node_netstat_Icmp6_OutMsgs` | gauge |  | Statistic Icmp6OutMsgs |
-| `node_netstat_Icmp_InErrors` | gauge |  | Statistic IcmpInErrors |
-| `node_netstat_Icmp_InMsgs` | gauge |  | Statistic IcmpInMsgs |
-| `node_netstat_Icmp_OutMsgs` | gauge |  | Statistic IcmpOutMsgs |
-| `node_netstat_Ip6_InOctets` | gauge |  | Statistic Ip6InOctets |
-| `node_netstat_Ip6_OutOctets` | gauge |  | Statistic Ip6OutOctets |
-| `node_netstat_IpExt_InOctets` | gauge |  | Statistic IpExtInOctets |
-| `node_netstat_IpExt_OutOctets` | gauge |  | Statistic IpExtOutOctets |
-| `node_netstat_Ip_Forwarding` | gauge |  | Statistic IpForwarding |
-| `node_netstat_TcpExt_ListenDrops` | gauge |  | Statistic TcpExtListenDrops |
-| `node_netstat_TcpExt_ListenOverflows` | gauge |  | Statistic TcpExtListenOverflows |
-| `node_netstat_TcpExt_SyncookiesFailed` | gauge |  | Statistic TcpExtSyncookiesFailed |
-| `node_netstat_TcpExt_SyncookiesRecv` | gauge |  | Statistic TcpExtSyncookiesRecv |
-| `node_netstat_TcpExt_SyncookiesSent` | gauge |  | Statistic TcpExtSyncookiesSent |
-| `node_netstat_Tcp_ActiveOpens` | gauge |  | Statistic TcpActiveOpens |
-| `node_netstat_Tcp_CurrEstab` | gauge |  | Statistic TcpCurrEstab |
-| `node_netstat_Tcp_InErrs` | gauge |  | Statistic TcpInErrs |
-| `node_netstat_Tcp_PassiveOpens` | gauge |  | Statistic TcpPassiveOpens |
-| `node_netstat_Tcp_RetransSegs` | gauge |  | Statistic TcpRetransSegs |
-| `node_netstat_Udp6_InDatagrams` | gauge |  | Statistic Udp6InDatagrams |
-| `node_netstat_Udp6_InErrors` | gauge |  | Statistic Udp6InErrors |
-| `node_netstat_Udp6_NoPorts` | gauge |  | Statistic Udp6NoPorts |
-| `node_netstat_Udp6_OutDatagrams` | gauge |  | Statistic Udp6OutDatagrams |
-| `node_netstat_UdpLite6_InErrors` | gauge |  | Statistic UdpLite6InErrors |
-| `node_netstat_UdpLite_InErrors` | gauge |  | Statistic UdpLiteInErrors |
-| `node_netstat_Udp_InDatagrams` | gauge |  | Statistic UdpInDatagrams |
-| `node_netstat_Udp_InErrors` | gauge |  | Statistic UdpInErrors |
-| `node_netstat_Udp_NoPorts` | gauge |  | Statistic UdpNoPorts |
-| `node_netstat_Udp_OutDatagrams` | gauge |  | Statistic UdpOutDatagrams |
-| `node_network_receive_bytes_total` | cumulative |  | Network device statistic receive_bytes |
-| `node_network_receive_compressed_total` | cumulative |  | Network device statistic receive_compressed |
-| `node_network_receive_drop_total` | cumulative |  | Network device statistic receive_drop |
-| `node_network_receive_errs_total` | cumulative |  | Network device statistic receive_errs |
-| `node_network_receive_fifo_total` | cumulative |  | Network device statistic receive_fifo |
-| `node_network_receive_frame_total` | cumulative |  | Network device statistic receive_frame |
-| `node_network_receive_multicast_total` | cumulative |  | Network device statistic receive_multicast |
-| `node_network_receive_packets_total` | cumulative |  | Network device statistic receive_packets |
-| `node_network_transmit_bytes_total` | cumulative |  | Network device statistic transmit_bytes |
-| `node_network_transmit_carrier_total` | cumulative |  | Network device statistic transmit_carrier |
-| `node_network_transmit_colls_total` | cumulative |  | Network device statistic transmit_colls |
-| `node_network_transmit_compressed_total` | cumulative |  | Network device statistic transmit_compressed |
-| `node_network_transmit_drop_total` | cumulative |  | Network device statistic transmit_drop |
-| `node_network_transmit_errs_total` | cumulative |  | Network device statistic transmit_errs |
-| `node_network_transmit_fifo_total` | cumulative |  | Network device statistic transmit_fifo |
-| `node_network_transmit_packets_total` | cumulative |  | Network device statistic transmit_packets |
-| `node_nf_conntrack_entries` | gauge |  | Number of currently allocated flow entries for connection tracking |
-| `node_nf_conntrack_entries_limit` | gauge |  | Maximum size of connection tracking table |
-| `node_procs_blocked` | gauge |  | Number of processes blocked waiting for I/O to complete |
-| `node_procs_running` | gauge |  | Number of processes in runnable state |
-| `node_scrape_collector_duration_seconds` | gauge |  | Duration of a collector scrape |
-| `node_scrape_collector_success` | gauge |  | Whether a collector succeeded |
-| `node_sockstat_FRAG_inuse` | gauge |  | Number of FRAG sockets in state inuse |
-| `node_sockstat_FRAG_memory` | gauge |  | Number of FRAG sockets in state memory |
-| `node_sockstat_RAW_inuse` | gauge |  | Number of RAW sockets in state inuse |
-| `node_sockstat_TCP_alloc` | gauge |  | Number of TCP sockets in state alloc |
-| `node_sockstat_TCP_inuse` | gauge |  | Number of TCP sockets in state inuse |
-| `node_sockstat_TCP_mem` | gauge |  | Number of TCP sockets in state mem |
-| `node_sockstat_TCP_mem_bytes` | gauge |  | Number of TCP sockets in state mem_bytes |
-| `node_sockstat_TCP_orphan` | gauge |  | Number of TCP sockets in state orphan |
-| `node_sockstat_TCP_tw` | gauge |  | Number of TCP sockets in state tw |
-| `node_sockstat_UDPLITE_inuse` | gauge |  | Number of UDPLITE sockets in state inuse |
-| `node_sockstat_UDP_inuse` | gauge |  | Number of UDP sockets in state inuse |
-| `node_sockstat_UDP_mem` | gauge |  | Number of UDP sockets in state mem |
-| `node_sockstat_UDP_mem_bytes` | gauge |  | Number of UDP sockets in state mem_bytes |
-| `node_sockstat_sockets_used` | gauge |  | Number of sockets sockets in state used |
-| `node_textfile_scrape_error` | gauge |  | 1 if there was an error opening or reading a file, 0 otherwise |
-| `node_time_seconds` | gauge |  | System time in seconds since epoch (1970) |
-| `node_uname_info` | gauge |  | Labeled system information as provided by the uname system call |
-| `node_vmstat_pgfault` | gauge |  | /proc/vmstat information field pgfault |
-| `node_vmstat_pgmajfault` | gauge |  | /proc/vmstat information field pgmajfault |
-| `node_vmstat_pgpgin` | gauge |  | /proc/vmstat information field pgpgin |
-| `node_vmstat_pgpgout` | gauge |  | /proc/vmstat information field pgpgout |
-| `node_vmstat_pswpin` | gauge |  | /proc/vmstat information field pswpin |
-| `node_vmstat_pswpout` | gauge |  | /proc/vmstat information field pswpout |
+
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `node_arp_entries` | gauge | ARP entries by device |
+| `node_boot_time_seconds` | gauge | Node boot time, in unixtime |
+| `node_context_switches_total` | cumulative | Total number of context switches |
+| `node_cpu_guest_seconds_total` | cumulative | Seconds the cpus spent in guests (VMs) for each mode |
+| `node_cpu_seconds_total` | cumulative | Seconds the cpus spent in each mode |
+| `node_disk_io_now` | gauge | The number of I/Os currently in progress |
+| `node_disk_io_time_seconds_total` | cumulative | Total seconds spent doing I/Os |
+| `node_disk_io_time_weighted_seconds_total` | cumulative | The weighted number of seconds spent doing I/Os. See https://www.kernel.org/doc/Documentation/iostats.txt |
+| `node_disk_read_bytes_total` | cumulative | The total number of bytes read successfully |
+| `node_disk_read_time_seconds_total` | cumulative | The total number of milliseconds spent by all reads |
+| `node_disk_reads_completed_total` | cumulative | The total number of reads completed successfully |
+| `node_disk_reads_merged_total` | cumulative | The total number of reads merged. See https://www.kernel.org/doc/Documentation/iostats.txt |
+| `node_disk_write_time_seconds_total` | cumulative | This is the total number of seconds spent by all writes |
+| `node_disk_writes_completed_total` | cumulative | The total number of writes completed successfully |
+| `node_disk_writes_merged_total` | cumulative | The number of writes merged. See https://www.kernel.org/doc/Documentation/iostats.txt |
+| `node_disk_written_bytes_total` | cumulative | The total number of bytes written successfully |
+| `node_entropy_available_bits` | gauge | Bits of available entropy |
+| `node_exporter_build_info` | gauge | A metric with a constant '1' value labeled by version, revision, branch, and goversion from which node_exporter was built |
+| `node_filefd_allocated` | gauge | File descriptor statistics: allocated |
+| `node_filefd_maximum` | gauge | File descriptor statistics: maximum |
+| `node_filesystem_avail_bytes` | gauge | Filesystem space available to non-root users in bytes |
+| `node_filesystem_device_error` | gauge | Whether an error occurred while getting statistics for the given device |
+| `node_filesystem_files` | gauge | Filesystem total file nodes |
+| `node_filesystem_files_free` | gauge | Filesystem total free file nodes |
+| `node_filesystem_free_bytes` | gauge | Filesystem free space in bytes |
+| `node_filesystem_readonly` | gauge | Filesystem read-only status |
+| `node_filesystem_size_bytes` | gauge | Filesystem size in bytes |
+| `node_forks_total` | cumulative | Total number of forks |
+| `node_intr_total` | cumulative | Total number of interrupts serviced |
+| `node_ipvs_connections_total` | cumulative | The total number of connections made |
+| `node_ipvs_incoming_bytes_total` | cumulative | The total amount of incoming data |
+| `node_ipvs_incoming_packets_total` | cumulative | The total number of incoming packets |
+| `node_ipvs_outgoing_bytes_total` | cumulative | The total amount of outgoing data |
+| `node_ipvs_outgoing_packets_total` | cumulative | The total number of outgoing packets |
+| `node_load1` | gauge | 1m load average |
+| `node_load15` | gauge | 15m load average |
+| `node_load5` | gauge | 5m load average |
+| `node_memory_Active_anon_bytes` | gauge | Memory information field Active_anon_bytes |
+| `node_memory_Active_bytes` | gauge | Memory information field Active_bytes |
+| `node_memory_Active_file_bytes` | gauge | Memory information field Active_file_bytes |
+| `node_memory_AnonHugePages_bytes` | gauge | Memory information field AnonHugePages_bytes |
+| `node_memory_AnonPages_bytes` | gauge | Memory information field AnonPages_bytes |
+| `node_memory_Bounce_bytes` | gauge | Memory information field Bounce_bytes |
+| `node_memory_Buffers_bytes` | gauge | Memory information field Buffers_bytes |
+| `node_memory_Cached_bytes` | gauge | Memory information field Cached_bytes |
+| `node_memory_CommitLimit_bytes` | gauge | Memory information field CommitLimit_bytes |
+| `node_memory_Committed_AS_bytes` | gauge | Memory information field Committed_AS_bytes |
+| `node_memory_DirectMap1G_bytes` | gauge | Memory information field DirectMap1G_bytes |
+| `node_memory_DirectMap2M_bytes` | gauge | Memory information field DirectMap2M_bytes |
+| `node_memory_DirectMap4k_bytes` | gauge | Memory information field DirectMap4k_bytes |
+| `node_memory_Dirty_bytes` | gauge | Memory information field Dirty_bytes |
+| `node_memory_HugePages_Free` | gauge | Memory information field HugePages_Free |
+| `node_memory_HugePages_Rsvd` | gauge | Memory information field HugePages_Rsvd |
+| `node_memory_HugePages_Surp` | gauge | Memory information field HugePages_Surp |
+| `node_memory_HugePages_Total` | gauge | Memory information field HugePages_Total |
+| `node_memory_Hugepagesize_bytes` | gauge | Memory information field Hugepagesize_bytes |
+| `node_memory_Inactive_anon_bytes` | gauge | Memory information field Inactive_anon_bytes |
+| `node_memory_Inactive_bytes` | gauge | Memory information field Inactive_bytes |
+| `node_memory_Inactive_file_bytes` | gauge | Memory information field Inactive_file_bytes |
+| `node_memory_KernelStack_bytes` | gauge | Memory information field KernelStack_bytes |
+| `node_memory_Mapped_bytes` | gauge | Memory information field Mapped_bytes |
+| `node_memory_MemAvailable_bytes` | gauge | Memory information field MemAvailable_bytes |
+| `node_memory_MemFree_bytes` | gauge | Memory information field MemFree_bytes |
+| `node_memory_MemTotal_bytes` | gauge | Memory information field MemTotal_bytes |
+| `node_memory_Mlocked_bytes` | gauge | Memory information field Mlocked_bytes |
+| `node_memory_NFS_Unstable_bytes` | gauge | Memory information field NFS_Unstable_bytes |
+| `node_memory_PageTables_bytes` | gauge | Memory information field PageTables_bytes |
+| `node_memory_SReclaimable_bytes` | gauge | Memory information field SReclaimable_bytes |
+| `node_memory_SUnreclaim_bytes` | gauge | Memory information field SUnreclaim_bytes |
+| `node_memory_ShmemHugePages_bytes` | gauge | Memory information field ShmemHugePages_bytes |
+| `node_memory_ShmemPmdMapped_bytes` | gauge | Memory information field ShmemPmdMapped_bytes |
+| `node_memory_Shmem_bytes` | gauge | Memory information field Shmem_bytes |
+| `node_memory_Slab_bytes` | gauge | Memory information field Slab_bytes |
+| `node_memory_SwapCached_bytes` | gauge | Memory information field SwapCached_bytes |
+| `node_memory_SwapFree_bytes` | gauge | Memory information field SwapFree_bytes |
+| `node_memory_SwapTotal_bytes` | gauge | Memory information field SwapTotal_bytes |
+| `node_memory_Unevictable_bytes` | gauge | Memory information field Unevictable_bytes |
+| `node_memory_VmallocChunk_bytes` | gauge | Memory information field VmallocChunk_bytes |
+| `node_memory_VmallocTotal_bytes` | gauge | Memory information field VmallocTotal_bytes |
+| `node_memory_VmallocUsed_bytes` | gauge | Memory information field VmallocUsed_bytes |
+| `node_memory_WritebackTmp_bytes` | gauge | Memory information field WritebackTmp_bytes |
+| `node_memory_Writeback_bytes` | gauge | Memory information field Writeback_bytes |
+| `node_netstat_Icmp6_InErrors` | gauge | Statistic Icmp6InErrors |
+| `node_netstat_Icmp6_InMsgs` | gauge | Statistic Icmp6InMsgs |
+| `node_netstat_Icmp6_OutMsgs` | gauge | Statistic Icmp6OutMsgs |
+| `node_netstat_Icmp_InErrors` | gauge | Statistic IcmpInErrors |
+| `node_netstat_Icmp_InMsgs` | gauge | Statistic IcmpInMsgs |
+| `node_netstat_Icmp_OutMsgs` | gauge | Statistic IcmpOutMsgs |
+| `node_netstat_Ip6_InOctets` | gauge | Statistic Ip6InOctets |
+| `node_netstat_Ip6_OutOctets` | gauge | Statistic Ip6OutOctets |
+| `node_netstat_IpExt_InOctets` | gauge | Statistic IpExtInOctets |
+| `node_netstat_IpExt_OutOctets` | gauge | Statistic IpExtOutOctets |
+| `node_netstat_Ip_Forwarding` | gauge | Statistic IpForwarding |
+| `node_netstat_TcpExt_ListenDrops` | gauge | Statistic TcpExtListenDrops |
+| `node_netstat_TcpExt_ListenOverflows` | gauge | Statistic TcpExtListenOverflows |
+| `node_netstat_TcpExt_SyncookiesFailed` | gauge | Statistic TcpExtSyncookiesFailed |
+| `node_netstat_TcpExt_SyncookiesRecv` | gauge | Statistic TcpExtSyncookiesRecv |
+| `node_netstat_TcpExt_SyncookiesSent` | gauge | Statistic TcpExtSyncookiesSent |
+| `node_netstat_Tcp_ActiveOpens` | gauge | Statistic TcpActiveOpens |
+| `node_netstat_Tcp_CurrEstab` | gauge | Statistic TcpCurrEstab |
+| `node_netstat_Tcp_InErrs` | gauge | Statistic TcpInErrs |
+| `node_netstat_Tcp_PassiveOpens` | gauge | Statistic TcpPassiveOpens |
+| `node_netstat_Tcp_RetransSegs` | gauge | Statistic TcpRetransSegs |
+| `node_netstat_Udp6_InDatagrams` | gauge | Statistic Udp6InDatagrams |
+| `node_netstat_Udp6_InErrors` | gauge | Statistic Udp6InErrors |
+| `node_netstat_Udp6_NoPorts` | gauge | Statistic Udp6NoPorts |
+| `node_netstat_Udp6_OutDatagrams` | gauge | Statistic Udp6OutDatagrams |
+| `node_netstat_UdpLite6_InErrors` | gauge | Statistic UdpLite6InErrors |
+| `node_netstat_UdpLite_InErrors` | gauge | Statistic UdpLiteInErrors |
+| `node_netstat_Udp_InDatagrams` | gauge | Statistic UdpInDatagrams |
+| `node_netstat_Udp_InErrors` | gauge | Statistic UdpInErrors |
+| `node_netstat_Udp_NoPorts` | gauge | Statistic UdpNoPorts |
+| `node_netstat_Udp_OutDatagrams` | gauge | Statistic UdpOutDatagrams |
+| `node_network_receive_bytes_total` | cumulative | Network device statistic receive_bytes |
+| `node_network_receive_compressed_total` | cumulative | Network device statistic receive_compressed |
+| `node_network_receive_drop_total` | cumulative | Network device statistic receive_drop |
+| `node_network_receive_errs_total` | cumulative | Network device statistic receive_errs |
+| `node_network_receive_fifo_total` | cumulative | Network device statistic receive_fifo |
+| `node_network_receive_frame_total` | cumulative | Network device statistic receive_frame |
+| `node_network_receive_multicast_total` | cumulative | Network device statistic receive_multicast |
+| `node_network_receive_packets_total` | cumulative | Network device statistic receive_packets |
+| `node_network_transmit_bytes_total` | cumulative | Network device statistic transmit_bytes |
+| `node_network_transmit_carrier_total` | cumulative | Network device statistic transmit_carrier |
+| `node_network_transmit_colls_total` | cumulative | Network device statistic transmit_colls |
+| `node_network_transmit_compressed_total` | cumulative | Network device statistic transmit_compressed |
+| `node_network_transmit_drop_total` | cumulative | Network device statistic transmit_drop |
+| `node_network_transmit_errs_total` | cumulative | Network device statistic transmit_errs |
+| `node_network_transmit_fifo_total` | cumulative | Network device statistic transmit_fifo |
+| `node_network_transmit_packets_total` | cumulative | Network device statistic transmit_packets |
+| `node_nf_conntrack_entries` | gauge | Number of currently allocated flow entries for connection tracking |
+| `node_nf_conntrack_entries_limit` | gauge | Maximum size of connection tracking table |
+| `node_procs_blocked` | gauge | Number of processes blocked waiting for I/O to complete |
+| `node_procs_running` | gauge | Number of processes in runnable state |
+| `node_scrape_collector_duration_seconds` | gauge | Duration of a collector scrape |
+| `node_scrape_collector_success` | gauge | Whether a collector succeeded |
+| `node_sockstat_FRAG_inuse` | gauge | Number of FRAG sockets in state inuse |
+| `node_sockstat_FRAG_memory` | gauge | Number of FRAG sockets in state memory |
+| `node_sockstat_RAW_inuse` | gauge | Number of RAW sockets in state inuse |
+| `node_sockstat_TCP_alloc` | gauge | Number of TCP sockets in state alloc |
+| `node_sockstat_TCP_inuse` | gauge | Number of TCP sockets in state inuse |
+| `node_sockstat_TCP_mem` | gauge | Number of TCP sockets in state mem |
+| `node_sockstat_TCP_mem_bytes` | gauge | Number of TCP sockets in state mem_bytes |
+| `node_sockstat_TCP_orphan` | gauge | Number of TCP sockets in state orphan |
+| `node_sockstat_TCP_tw` | gauge | Number of TCP sockets in state tw |
+| `node_sockstat_UDPLITE_inuse` | gauge | Number of UDPLITE sockets in state inuse |
+| `node_sockstat_UDP_inuse` | gauge | Number of UDP sockets in state inuse |
+| `node_sockstat_UDP_mem` | gauge | Number of UDP sockets in state mem |
+| `node_sockstat_UDP_mem_bytes` | gauge | Number of UDP sockets in state mem_bytes |
+| `node_sockstat_sockets_used` | gauge | Number of sockets sockets in state used |
+| `node_textfile_scrape_error` | gauge | 1 if there was an error opening or reading a file, 0 otherwise |
+| `node_time_seconds` | gauge | System time in seconds since epoch (1970) |
+| `node_uname_info` | gauge | Labeled system information as provided by the uname system call |
+| `node_vmstat_pgfault` | gauge | /proc/vmstat information field pgfault |
+| `node_vmstat_pgmajfault` | gauge | /proc/vmstat information field pgmajfault |
+| `node_vmstat_pgpgin` | gauge | /proc/vmstat information field pgpgin |
+| `node_vmstat_pgpgout` | gauge | /proc/vmstat information field pgpgout |
+| `node_vmstat_pswpin` | gauge | /proc/vmstat information field pswpin |
+| `node_vmstat_pswpout` | gauge | /proc/vmstat information field pswpout |
 
 
 The agent does not do any built-in filtering of metrics coming out of this
