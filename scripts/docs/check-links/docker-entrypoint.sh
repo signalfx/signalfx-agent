@@ -1,7 +1,7 @@
 #!/bin/bash
 
 AGENT_DIR="/usr/src/signalfx-agent"
-CONFIG="$AGENT_DIR/test-services/check-links/config.json"
+CONFIG="$AGENT_DIR/scripts/docs/check-links/config.json"
 
 if [ $# -eq 0 ]; then
     if [ -z "$(ls -A $AGENT_DIR)" ]; then
@@ -19,5 +19,5 @@ if [ $# -eq 0 ]; then
         exit 1
     fi
 else
-    exec $@
+    exec "$@"
 fi

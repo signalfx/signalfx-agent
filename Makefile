@@ -256,7 +256,7 @@ run-chef-tests:
 
 .PHONY: check-links
 check-links:
-	docker build -t check-links test-services/check-links
+	docker build -t check-links scripts/docs/check-links
 	docker run --rm -v $(CURDIR):/usr/src/signalfx-agent:ro check-links
 
 FORCE:
