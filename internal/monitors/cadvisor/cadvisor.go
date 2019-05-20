@@ -11,12 +11,8 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 )
 
-const (
-	cadvisorType = "cadvisor"
-)
-
 func init() {
-	monitors.Register(cadvisorType, func() interface{} { return &Cadvisor{} }, &CHTTPConfig{})
+	monitors.Register(&cadvisorMonitorMetadata, func() interface{} { return &Cadvisor{} }, &CHTTPConfig{})
 }
 
 // CHTTPConfig is the monitor-specific config for cAdvisor

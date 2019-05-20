@@ -5,7 +5,18 @@
 
 Monitors gather metrics from the host and from running applications.  They are
 configured in a list called `monitors` in the [main agent config
-file](./config-schema.md).
+file](./config-schema.md).  For example:
+
+```yaml
+monitors:
+ - type: elasticsearch
+   discoveryRule: 'port == 9200 && container_image =~ "elasticsearch"'
+ - type: cpu
+ - type: docker-container-stats
+   dockerURL: tcp://localhost:2379
+```
+
+[See here for a list of available monitors](#monitor-list)
 
 ## Common Configuration
 

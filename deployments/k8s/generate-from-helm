@@ -6,7 +6,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 AGENT_CHART_DIR="$SCRIPT_DIR/helm/signalfx-agent"
 
-AGENT_VERSION=${AGENT_VERSION-$($SCRIPT_DIR/../../scripts/latest-final-release)}
+AGENT_RELEASE_VERSION=${AGENT_RELEASE_VERSION-$($SCRIPT_DIR/../../scripts/latest-final-release)}
 
 templates="configmap.yaml daemonset.yaml clusterrole.yaml clusterrolebinding.yaml serviceaccount.yaml"
 for f in $templates; do
@@ -15,7 +15,7 @@ for f in $templates; do
     --set signalFxAccessToken=MY_TOKEN \
     --set clusterName=MY-CLUSTER \
     --set fullnameOverride=signalfx-agent \
-    --set agentVersion=$AGENT_VERSION \
+    --set agentVersion=$AGENT_RELEASE_VERSION \
     -x ${AGENT_CHART_DIR%/}/templates/$f \
     $AGENT_CHART_DIR | \
       sed -e 's/[[:space:]]*$//' | \

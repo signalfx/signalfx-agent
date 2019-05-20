@@ -4,15 +4,28 @@ from textwrap import dedent
 
 import pytest
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_datapoint, tcp_socket_open
+from tests.helpers.assertions import tcp_socket_open
+from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_container, wait_for
+from tests.helpers.verify import verify
 
 pytestmark = [pytest.mark.collectd, pytest.mark.mongodb, pytest.mark.monitor_with_endpoints]
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 
+METADATA = Metadata.from_package("collectd/mongodb")
 
-def test_mongo():
+EXPECTED_DEFAULTS = METADATA.included_metrics - {
+    # These metrics only occur on MMAP storage engines.
+    "gauge.backgroundFlushing.average_ms",
+    "gauge.backgroundFlushing.last_ms",
+    "counter.backgroundFlushing.flushes",
+    # This one seems to be missing on newer mongo versions
+    "gauge.extra_info.heap_usage_bytes",
+}
+
+
+def test_mongo_basic():
     with run_container("mongo:3.6") as mongo_cont:
         host = container_ip(mongo_cont)
         config = dedent(
@@ -27,9 +40,7 @@ def test_mongo():
         assert wait_for(p(tcp_socket_open, host, 27017), 60), "service didn't start"
 
         with Agent.run(config) as agent:
-            assert wait_for(
-                p(has_datapoint, agent.fake_services, dimensions={"plugin": "mongo"})
-            ), "Didn't get mongo datapoints"
+            verify(agent, EXPECTED_DEFAULTS)
 
 
 def test_mongo_enhanced_metrics():
@@ -49,9 +60,9 @@ def test_mongo_enhanced_metrics():
         assert wait_for(p(tcp_socket_open, host, 27017), 60), "service didn't start"
 
         with Agent.run(config) as agent:
-            assert wait_for(
-                p(has_datapoint, agent.fake_services, metric_name="gauge.collection.size"), 60
-            ), "Did not get datapoint from SendCollectionMetrics config"
-            assert wait_for(
-                p(has_datapoint, agent.fake_services, metric_name="counter.collection.commandsTime"), 60
-            ), "Did not get datapoint from SendCollectionTopMetrics config"
+            verify(
+                agent,
+                METADATA.metrics_by_group["collection"]
+                | METADATA.metrics_by_group["collection-top"]
+                | EXPECTED_DEFAULTS,
+            )

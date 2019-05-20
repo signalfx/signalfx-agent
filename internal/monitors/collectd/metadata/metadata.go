@@ -17,7 +17,7 @@ import (
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			MonitorCore: *collectd.NewMonitorCore(CollectdTemplate),
 		}
@@ -80,6 +80,16 @@ func (c *Config) Validate() error {
 	}
 	return nil
 }
+
+func (c *Config) GetExtraMetrics() []string {
+	var out []string
+	if c.PerCoreCPUUtil {
+		out = append(out, cpuUtilizationPerCore)
+	}
+	return out
+}
+
+var _ config.ExtraMetrics = &Config{}
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {

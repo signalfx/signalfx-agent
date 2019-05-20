@@ -4,6 +4,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/signalfx/signalfx-agent/internal/core/config/validation"
+
+	"github.com/signalfx/golib/datapoint"
+
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 )
 
@@ -23,8 +27,20 @@ type Config struct {
 	// If true, sends metrics memstats.alloc, memstats.by_size.size, memstats.by_size.mallocs and memstats.by_size.frees
 	EnhancedMetrics bool `yaml:"enhancedMetrics"`
 	// Metrics configurations
-	MetricConfigs []*MetricConfig `yaml:"metrics"`
+	MetricConfigs []MetricConfig `yaml:"metrics"`
 }
+
+// GetExtraMetrics handles the legacy enhancedMetrics option.
+func (c *Config) GetExtraMetrics() []string {
+	if c.EnhancedMetrics {
+		// Returning everything is more future-proof than trying to enumerate
+		// each one.
+		return []string{"*"}
+	}
+	return nil
+}
+
+var _ config.ExtraMetrics = &Config{}
 
 // MetricConfig for metric configuration
 type MetricConfig struct {
@@ -33,15 +49,24 @@ type MetricConfig struct {
 	// JSON path of the metric value
 	JSONPath string `yaml:"JSONPath" validate:"required"`
 	// SignalFx metric type. Possible values are "gauge" or "cumulative"
-	Type string `yaml:"type" validate:"required"`
+	Type string `yaml:"type" validate:"required,oneof=gauge cumulative"`
 	// Metric dimensions
-	DimensionConfigs []*DimensionConfig `yaml:"dimensions"`
+	DimensionConfigs []DimensionConfig `yaml:"dimensions"`
+}
+
+func (mc *MetricConfig) metricType() datapoint.MetricType {
+	switch mc.Type {
+	case "cumulative":
+		return datapoint.Counter
+	default:
+		return datapoint.Gauge
+	}
 }
 
 // DimensionConfig for metric dimension configuration
 type DimensionConfig struct {
 	// Dimension name
-	Name string `yaml:"name"`
+	Name string `yaml:"name" validate:"required,excludes=0x20"`
 	// JSON path of the dimension value
 	JSONPath string `yaml:"JSONPath"`
 	// Dimension value
@@ -49,23 +74,18 @@ type DimensionConfig struct {
 }
 
 // Validate validates configuration
-func (conf *Config) Validate() error {
-	if conf.MetricConfigs != nil {
-		for _, mConf := range conf.MetricConfigs {
-			// Validating metric type configuration
-			metricTypeString := strings.TrimSpace(strings.ToLower(mConf.Type))
-			if metricTypeString != gauge && metricTypeString != cumulative {
-				return fmt.Errorf("unsupported metric type %s. Supported metric types are: %s, %s", mConf.Type, gauge, cumulative)
+func (c *Config) Validate() error {
+	if c.MetricConfigs != nil {
+		for _, mConf := range c.MetricConfigs {
+			if err := validation.ValidateStruct(mConf); err != nil {
+				return err
 			}
+
 			// Validating dimension configuration
 			for _, dConf := range mConf.DimensionConfigs {
 				switch {
-				case dConf == nil:
-					continue
-				case dConf.Name == "" || strings.ReplaceAll(dConf.Name, " ", "") != dConf.Name:
-					return fmt.Errorf("dimension name cannot be blank or have whitespaces")
-				case dConf.JSONPath != "" && dConf.Value != "":
-					return fmt.Errorf("dimension path %s and dimension value %s cannot be configure simultaneously", dConf.JSONPath, dConf.Value)
+				case (dConf.JSONPath != "") == (dConf.Value != ""):
+					return fmt.Errorf("exactly one of dimension path %s and dimension value %s should be set", dConf.JSONPath, dConf.Value)
 				case dConf.JSONPath != "" && !strings.HasPrefix(mConf.JSONPath, dConf.JSONPath):
 					return fmt.Errorf("dimension path %s must be shorter than metric path %s and start from the same root", dConf.JSONPath, mConf.JSONPath)
 				}
@@ -75,9 +95,38 @@ func (conf *Config) Validate() error {
 	return nil
 }
 
-func (mConf *MetricConfig) name() string {
-	if strings.TrimSpace(mConf.Name) == "" {
-		return toSnakeCase(mConf.JSONPath)
+func (c *Config) getAllMetricConfigs() []MetricConfig {
+	configs := append([]MetricConfig{}, c.MetricConfigs...)
+
+	memstatsMetricPathsGauge := []string{
+		"memstats.HeapAlloc", "memstats.HeapIdle", "memstats.HeapInuse", "memstats.HeapReleased",
+		"memstats.HeapObjects", "memstats.StackInuse", "memstats.StackSys", "memstats.MSpanInuse", "memstats.MSpanSys",
+		"memstats.MCacheInuse", "memstats.MCacheSys", "memstats.BuckHashSys", "memstats.GCSys", "memstats.OtherSys",
+		"memstats.Sys", "memstats.NextGC", "memstats.LastGC", "memstats.GCCPUFraction", "memstats.EnableGC",
+		memstatsPauseNsMetricPath, memstatsPauseEndMetricPath,
 	}
-	return mConf.Name
+	memstatsMetricPathsCumulative := []string{
+		"memstats.TotalAlloc", "memstats.Lookups", "memstats.Mallocs", "memstats.Frees", "memstats.PauseTotalNs",
+		memstatsNumGCMetricPath, "memstats.NumForcedGC",
+	}
+
+	if c.EnhancedMetrics {
+		memstatsMetricPathsGauge = append(memstatsMetricPathsGauge, "memstats.HeapSys", "memstats.DebugGC", "memstats.Alloc")
+		memstatsMetricPathsCumulative = append(memstatsMetricPathsCumulative, memstatsBySizeSizeMetricPath, memstatsBySizeMallocsMetricPath, memstatsBySizeFreesMetricPath)
+	}
+	for _, path := range memstatsMetricPathsGauge {
+		configs = append(configs, MetricConfig{Name: toSnakeCase(path), JSONPath: path, Type: "gauge", DimensionConfigs: []DimensionConfig{{}}})
+	}
+	for _, path := range memstatsMetricPathsCumulative {
+		configs = append(configs, MetricConfig{Name: toSnakeCase(path), JSONPath: path, Type: "cumulative", DimensionConfigs: []DimensionConfig{{}}})
+	}
+
+	return configs
+}
+
+func (mc *MetricConfig) name() string {
+	if strings.TrimSpace(mc.Name) == "" {
+		return toSnakeCase(mc.JSONPath)
+	}
+	return mc.Name
 }

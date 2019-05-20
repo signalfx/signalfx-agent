@@ -49,17 +49,29 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `counter.openstack.nova.server.rx_packets` | counter | ✔ | Received packets at an instance |
 | `counter.openstack.nova.server.tx` | counter | ✔ | Size of network packet transmitted in bytes |
 | `counter.openstack.nova.server.tx_packets` | counter | ✔ | Transmitted packets at an instance |
+| `gauge.openstack.cinder.limit.maxTotalBackupGigabytes` | gauge | ✔ | Maximum backup space available at cinder component for project in Gigabytes |
+| `gauge.openstack.cinder.limit.maxTotalBackups` | gauge | ✔ | Total available backups used at cinder component for project |
+| `gauge.openstack.cinder.limit.maxTotalSnapshots` | gauge | ✔ | Total available snapshots at cinder component for project |
 | `gauge.openstack.cinder.limit.maxTotalVolumeGigabytes` | gauge | ✔ | Total available block storage at cinder component for project |
 | `gauge.openstack.cinder.limit.maxTotalVolumes` | gauge | ✔ | Maximum volume resources available at cinder component for project |
+| `gauge.openstack.cinder.limit.totalBackupGigabytesUsed` | gauge | ✔ | Total backup space used at cinder component for project in Gigabytes |
+| `gauge.openstack.cinder.limit.totalBackupsUsed` | gauge | ✔ | Total backups used at cinder component for project |
 | `gauge.openstack.cinder.limit.totalGigabytesUsed` | gauge | ✔ | Total block storage used at cinder component for project |
+| `gauge.openstack.cinder.limit.totalSnapshotsUsed` | gauge | ✔ | Total snapshots used at cinder component for project |
 | `gauge.openstack.cinder.limit.totalVolumesUsed` | gauge | ✔ | Volume resources used at cinder component for project |
+| `gauge.openstack.cinder.snapshot.count` | gauge | ✔ | Total number of snapshots at cinder component for project |
+| `gauge.openstack.cinder.snapshot.size` | gauge | ✔ | Total snapshot size at cinder component for project |
+| `gauge.openstack.cinder.volume.count` | gauge | ✔ | Total number of volumes at cinder component for project |
+| `gauge.openstack.cinder.volume.size` | gauge | ✔ | Total volume size at cinder component for project |
 | `gauge.openstack.neutron.floatingip.count` | gauge | ✔ | Overall floating IPs used across projects |
 | `gauge.openstack.neutron.network.count` | gauge | ✔ | Overall Network resources used across projects |
 | `gauge.openstack.neutron.router.count` | gauge | ✔ | Overall router resources used across projects |
 | `gauge.openstack.neutron.securitygroup.count` | gauge | ✔ | Overall securitygroup resources used across projects |
 | `gauge.openstack.neutron.subnet.count` | gauge | ✔ | Overall subnet resources used in all projects |
+| `gauge.openstack.nova.hypervisor.current_workload` | gauge | ✔ | Total current active hypervisor tasks in project |
 | `gauge.openstack.nova.hypervisor.disk_available_least` | gauge | ✔ | Minimum free disk space available in Gigabyte |
 | `gauge.openstack.nova.hypervisor.free_disk_gb` | gauge | ✔ | Maximum free disk space available in Gigabyte |
+| `gauge.openstack.nova.hypervisor.free_ram_mb` | gauge | ✔ | Maximum free ram space available in Megabyte |
 | `gauge.openstack.nova.hypervisor.load_average` | gauge |  | Average CPU load on the hypervisor |
 | `gauge.openstack.nova.hypervisor.local_gb` | gauge | ✔ | Maximum available local disk space in Gigabyte |
 | `gauge.openstack.nova.hypervisor.local_gb_used` | gauge | ✔ | Total disk space used in Gigabyte |
@@ -68,14 +80,18 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.openstack.nova.hypervisor.running_vms` | gauge | ✔ | Total running VMs at hypervisor |
 | `gauge.openstack.nova.hypervisor.vcpus` | gauge | ✔ | Available physical cores at hypervisor |
 | `gauge.openstack.nova.hypervisor.vcpus_used` | gauge | ✔ | Used virtual CPUs used |
+| `gauge.openstack.nova.limit.maxImageMeta` | gauge | ✔ | Maximum number of metadata items associated with an image for project |
 | `gauge.openstack.nova.limit.maxSecurityGroups` | gauge | ✔ | Maximum available security groups for project |
 | `gauge.openstack.nova.limit.maxTotalCores` | gauge | ✔ | Maximum available VCPUs in project |
 | `gauge.openstack.nova.limit.maxTotalFloatingIps` | gauge | ✔ | Maximum available floating IPs for project |
 | `gauge.openstack.nova.limit.maxTotalInstances` | gauge | ✔ | Maximum available instances in project |
+| `gauge.openstack.nova.limit.maxTotalKeypairs` | gauge | ✔ | Maximum available keypairs for project |
 | `gauge.openstack.nova.limit.maxTotalRAMSize` | gauge | ✔ | Maximum available RAM size for project |
 | `gauge.openstack.nova.limit.totalCoresUsed` | gauge | ✔ | Total cores used in the project |
+| `gauge.openstack.nova.limit.totalFloatingIpsUsed` | gauge | ✔ | Total floating IPs used in the project |
 | `gauge.openstack.nova.limit.totalInstancesUsed` | gauge | ✔ | Total instances used in the project |
 | `gauge.openstack.nova.limit.totalRAMUsed` | gauge | ✔ | Total RAM used in the project |
+| `gauge.openstack.nova.limit.totalSecurityGroupsUsed` | gauge | ✔ | Total RAM used in the project |
 | `gauge.openstack.nova.server.memory` | gauge | ✔ | Memory provisioned at an instance |
 | `gauge.openstack.nova.server.memory-actual` | gauge | ✔ | Actual memory used at an instance |
 | `gauge.openstack.nova.server.memory-rss` | gauge | ✔ | Memory used not including disk pages at an instance |

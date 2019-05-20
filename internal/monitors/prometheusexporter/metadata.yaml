@@ -52,5 +52,6 @@ monitors:
          metric_source: prometheus
     ```
   metrics:
+  sendAll: true
   monitorType: prometheus-exporter
   properties:

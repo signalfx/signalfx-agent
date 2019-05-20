@@ -5,7 +5,6 @@ import (
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/golib/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
-	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
@@ -13,11 +12,11 @@ import (
 
 // The default implementation of Output
 type monitorOutput struct {
+	*monitorFiltering
 	monitorType               string
 	monitorID                 types.MonitorID
 	notHostSpecific           bool
 	disableEndpointDimensions bool
-	filterSet                 *dpfilters.FilterSet
 	configHash                uint64
 	endpoint                  services.Endpoint
 	dpChan                    chan<- *datapoint.Datapoint
@@ -25,6 +24,7 @@ type monitorOutput struct {
 	spanChan                  chan<- *trace.Span
 	dimPropChan               chan<- *types.DimProperties
 	extraDims                 map[string]string
+	dimensionTransformations  map[string]string
 }
 
 var _ types.Output = &monitorOutput{}
@@ -33,13 +33,14 @@ var _ types.Output = &monitorOutput{}
 func (mo *monitorOutput) Copy() types.Output {
 	o := *mo
 	o.extraDims = utils.CloneStringMap(mo.extraDims)
+	o.dimensionTransformations = utils.CloneStringMap(mo.dimensionTransformations)
 	o.filterSet = &(*mo.filterSet)
 	return &o
 }
 
 func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 	if dp.Meta == nil {
-		dp.Meta = make(map[interface{}]interface{})
+		dp.Meta = map[interface{}]interface{}{}
 	}
 
 	dp.Meta[dpmeta.MonitorIDMeta] = mo.monitorID
@@ -58,8 +59,15 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 	dp.Dimensions = utils.MergeStringMaps(dp.Dimensions, mo.extraDims, endpointDims)
 	// Defer filtering until here so we have the full dimension set to match
 	// on.
-	if mo.filterSet.Matches(dp) {
+	if mo.monitorFiltering != nil && mo.monitorFiltering.filterSet.Matches(dp) {
 		return
+	}
+
+	for origName, newName := range mo.dimensionTransformations {
+		if v, ok := dp.Dimensions[origName]; ok {
+			dp.Dimensions[newName] = v
+			delete(dp.Dimensions, origName)
+		}
 	}
 
 	mo.dpChan <- dp
@@ -97,10 +105,4 @@ func (mo *monitorOutput) AddExtraDimension(key, value string) {
 // This method is not thread-safe!
 func (mo *monitorOutput) RemoveExtraDimension(key string) {
 	delete(mo.extraDims, key)
-}
-
-// AddDatapointExclusionFilter to the monitor's filter set.  Make sure you do this
-// before any datapoints are sent as it is not thread-safe with SendDatapoint.
-func (mo *monitorOutput) AddDatapointExclusionFilter(filter dpfilters.DatapointFilter) {
-	mo.filterSet.ExcludeFilters = append(mo.filterSet.ExcludeFilters, filter)
 }

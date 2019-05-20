@@ -25,7 +25,7 @@ const (
 )
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
 				MonitorCore: pyrunner.New("sfxcollectd"),
@@ -54,6 +54,16 @@ type Config struct {
 func (c *Config) PythonConfig() *python.Config {
 	return c.pyConf
 }
+
+func (c *Config) GetExtraMetrics() []string {
+	if (c.EnhancedMetrics != nil && *c.EnhancedMetrics) ||
+		(c.CollectApplicationMetrics != nil && *c.CollectApplicationMetrics) {
+		return []string{"*"}
+	}
+	return nil
+}
+
+var _ config.ExtraMetrics = &Config{}
 
 // Validate will check the config for correctness.
 func (c *Config) Validate() error {

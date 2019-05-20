@@ -85,6 +85,16 @@ type Config struct {
 	Logging LogConfig `yaml:"logging" default:"{}"`
 	// Configuration of the managed collectd subprocess
 	Collectd CollectdConfig `yaml:"collectd" default:"{}"`
+	// If true, the agent will inherently filter non-bundled metrics
+	// without having to rely on the `whitelist.json` filter that was
+	// previously included under `metricsToExclude`.  Whether a metric is
+	// bundled or not is documented in each monitor's documentation.  Now every
+	// monitor's default configuration (i.e. the minimum amount of
+	// configuration to make it work) will only send bundled metrics, but if
+	// you enable certain flags or config options on the monitor, non-bundled
+	// metrics will also be sent without having to modify the whitelist via
+	// `metricsToInclude`.
+	EnableBuiltInFiltering bool `yaml:"enableBuiltInFiltering" default:"false"`
 	// A list of metric filters that will whitelist/include metrics.  These
 	// filters take priority over the filters specified in `metricsToExclude`.
 	MetricsToInclude []MetricFilter `yaml:"metricsToInclude" default:"[]"`

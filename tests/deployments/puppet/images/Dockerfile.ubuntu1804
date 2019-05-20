@@ -6,7 +6,7 @@ RUN apt-get update &&\
 RUN wget https://apt.puppetlabs.com/puppet-release-bionic.deb && \
     dpkg -i puppet-release-bionic.deb && \
     apt-get update && \
-    apt-get install -y puppet-agent
+    apt-get install -y puppet
 
 ENV PATH=/opt/puppetlabs/bin:$PATH
 
@@ -21,7 +21,7 @@ RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
 RUN systemctl set-default multi-user.target
 ENV init /lib/systemd/systemd
 
-COPY deployments/puppet /etc/puppetlabs/code/modules/signalfx_agent
+COPY deployments/puppet /etc/puppet/code/modules/signalfx_agent
 
 VOLUME [ "/sys/fs/cgroup" ]
 

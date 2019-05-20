@@ -20,7 +20,7 @@ code-gen: $(MONITOR_CODE_GEN)
 
 $(MONITOR_CODE_GEN): $(wildcard cmd/monitorcodegen/*.go) cmd/monitorcodegen/genmetadata.tmpl
 ifeq ($(OS),Windows_NT)
-	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; monitor-code-gen }"
+	powershell $(CURDIR)/scripts/windows/make.ps1 monitor-code-gen
 else
 	go build -mod vendor -o $@ ./cmd/monitorcodegen
 endif
@@ -28,9 +28,9 @@ endif
 .PHONY: test
 test: compileDeps
 ifeq ($(OS),Windows_NT)
-	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; test }"
+	powershell $(CURDIR)/scripts/windows/make.ps1 test
 else
-	CGO_ENABLED=0 go test -mod vendor -p $(NUM_CORES) ./...
+	CGO_ENABLED=0 go test -mod vendor -p $(NUM_CORES) ./... | grep -v '\[no test files\]'
 endif
 
 .PHONY: vet
@@ -45,7 +45,7 @@ vetall: compileDeps
 .PHONY: lint
 lint:
 ifeq ($(OS),Windows_NT)
-	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; lint }"
+	powershell $(CURDIR)/scripts/windows/make.ps1 lint
 else
 	CGO_ENABLED=0 golint -set_exit_status ./cmd/... ./internal/...
 endif
@@ -66,14 +66,14 @@ image:
 .PHONY: vendor
 vendor:
 ifeq ($(OS), Windows_NT)
-	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; vendor }"
+	powershell $(CURDIR)/scripts/windows/make.ps1 vendor
 else
 	go mod tidy && go mod vendor
 endif
 
 internal/core/common/constants/versions.go: FORCE
 ifeq ($(OS),Windows_NT)
-	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; versions_go }"
+	powershell $(CURDIR)/scripts/windows/make.ps1 versions_go
 else
 	AGENT_VERSION=$(AGENT_VERSION) COLLECTD_VERSION=$(COLLECTD_VERSION) BUILD_TIME=$(BUILD_TIME) scripts/make-versions
 endif
@@ -81,7 +81,7 @@ endif
 signalfx-agent: compileDeps
 	echo "building SignalFx agent for operating system: $(GOOS)"
 ifeq ($(OS),Windows_NT)
-	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; signalfx-agent $(AGENT_VERSION)}"
+	powershell $(CURDIR)/scripts/windows/make.ps1 signalfx-agent $(AGENT_VERSION)
 else
 	CGO_ENABLED=0 go build \
 		-mod vendor \
@@ -92,7 +92,7 @@ endif
 .PHONY: bundle
 bundle:
 ifeq ($(OS),Windows_NT)
-	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; bundle $(COLLECTD_COMMIT)}"
+	powershell $(CURDIR)/scripts/windows/make.ps1 bundle $(COLLECTD_COMMIT)
 else
 	BUILD_BUNDLE=true COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) scripts/build
 endif
@@ -150,7 +150,6 @@ run-dev-image-commands:
 .PHONY: run-integration-tests
 run-integration-tests: MARKERS ?= integration
 run-integration-tests:
-	AGENT_BIN=/bundle/bin/signalfx-agent \
 	pytest \
 		-m "$(MARKERS)" \
 		-n auto \
@@ -255,5 +254,9 @@ run-devstack:
 run-chef-tests:
 	pytest -v -n auto -m chef --html=test_output/chef_results.html --self-contained-html tests/deployments
 
+.PHONY: check-links
+check-links:
+	docker build -t check-links test-services/check-links
+	docker run --rm -v $(CURDIR):/usr/src/signalfx-agent:ro check-links
 
 FORCE:

@@ -82,7 +82,7 @@ type Monitor struct {
 }
 
 func init() {
-	monitors.Register(meta.MonitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&meta.KubernetesClusterMonitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // Configure is called by the plugin framework when configuration changes

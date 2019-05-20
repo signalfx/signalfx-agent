@@ -26,3 +26,4 @@ monitors:
   metrics:
   monitorType: telegraf/statsd
   properties:
+  sendAll: true

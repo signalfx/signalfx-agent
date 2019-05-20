@@ -24,7 +24,10 @@ const (
 )
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{Monitor: metadata.Monitor{}, startTime: time.Now()} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} {
+		return &Monitor{Monitor: metadata.Monitor{},
+			startTime: time.Now()}
+	}, &Config{})
 }
 
 // Config for this monitor

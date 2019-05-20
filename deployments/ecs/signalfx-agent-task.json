@@ -21,7 +21,7 @@
                 },
                 {
                     "name": "CONFIG_URL",
-                    "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/master/deployments/ecs/agent.yaml"
+                    "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/v4.6.4/deployments/ecs/agent.yaml"
                 }
             ],
             "ulimits": null,

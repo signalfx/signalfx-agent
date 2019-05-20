@@ -34,6 +34,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `protocol_counter.CurrEstab` | cumulative |  | The number of TCP connections currently in either ESTABLISHED or CLOSE-WAIT state. |
 | `protocol_counter.DelayedACKs` | cumulative |  | The number of acknowledgements delayed by TCP Delayed Acknowledgement |
 | `protocol_counter.InDestUnreachs` | cumulative |  | The number of ICMP Destination Unreachable messages received |
+| `protocol_counter.OutSegs` | cumulative |  | The total number of segments that have been sent, including those on current connections but excluding those containing only retransmitted octets. |
 | `protocol_counter.PassiveOpens` | cumulative |  | The number of times that a server opened a connection, due to receiving a TCP SYN packet. |
 | `protocol_counter.RetransSegs` | cumulative |  | The total number of segments retransmitted |
 
@@ -55,6 +56,7 @@ metricsToInclude:
     - protocol_counter.CurrEstab
     - protocol_counter.DelayedACKs
     - protocol_counter.InDestUnreachs
+    - protocol_counter.OutSegs
     - protocol_counter.PassiveOpens
     - protocol_counter.RetransSegs
     monitorType: collectd/protocols

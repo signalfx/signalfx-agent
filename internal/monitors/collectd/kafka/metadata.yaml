@@ -21,50 +21,56 @@ monitors:
   metrics:
     # Taken from genericjmx monitor. If you want to change them update genericjmx and update
     # all other monitors that use genericjmx with this same notice.
+    ### BEGIN JVM METRICS ###
     gauge.jvm.threads.count:
       description: Number of JVM threads
+      group: jvm
       included: true
       type: gauge
     gauge.loaded_classes:
       description: Number of classes loaded in the JVM
+      group: jvm
       included: true
       type: gauge
     invocations:
       description: Total number of garbage collection events
+      group: jvm
       included: true
       type: cumulative
     jmx_memory.committed:
       description: Amount of memory guaranteed to be available in bytes
+      group: jvm
       included: true
       type: gauge
     jmx_memory.max:
       description: Maximum amount of memory that can be used in bytes
+      group: jvm
       included: true
       type: gauge
     jmx_memory.used:
       description: Current memory usage in bytes
+      group: jvm
       included: true
       type: gauge
     total_time_in_ms.collection_time:
       description: Amount of time spent garbage collecting in milliseconds
+      group: jvm
       included: true
       type: cumulative
     jmx_memory.init:
       description: Amount of initial memory at startup in bytes
+      group: jvm
       included: true
       type: gauge
+    ### END JVM METRICS ###
 
-    counter.kafka-all-bytes-in:
+    counter.kafka-bytes-in:
       description: Number of bytes received per second across all topics
-      included: false
+      included: true
       type: cumulative
-    counter.kafka-all-bytes-out:
+    counter.kafka-bytes-out:
       description: Number of bytes transmitted per second across all topics
-      included: false
-      type: cumulative
-    counter.kafka-log-flushes:
-      description: Number of log flushes per second
-      included: false
+      included: true
       type: cumulative
     counter.kafka-messages-in:
       description: Number of messages received per second across all topics
@@ -78,28 +84,32 @@ monitors:
       description: Number of fetch requests from followers per second across all partitions
       included: false
       type: cumulative
-    counter.kafka.produce.total-time.99th:
+    gauge.kafka.produce.total-time.99th:
       description: 99th percentile of time in milliseconds to process produce requests
-      included: false
+      included: true
       type: gauge
     counter.kafka.produce.total-time.count:
       description: Number of producer requests
       included: true
       type: cumulative
-    counter.kafka.produce.total-time.median:
+    gauge.kafka.produce.total-time.median:
       description: Median time it takes to process a produce request
-      included: false
+      included: true
       type: gauge
     gauge.kafka-active-controllers:
       description: Specifies if the broker an active controller
       included: true
       type: gauge
-    gauge.kafka-log-flush-time-ms:
-      description: Average number of milliseconds to flush a log
+    gauge.kafka.logs.flush-time.99th:
+      description: 99th percentile of time in milliseconds to flush logs
       included: false
       type: gauge
-    gauge.kafka-log-flush-time-ms-p95:
-      description: 95th percentile of log flush time in milliseconds
+    counter.kafka.logs.flush-time.count:
+      description: Number of log flushes
+      included: false
+      type: cumulative
+    gauge.kafka.logs.flush-time.median:
+      description: Median time it takes to flush logs
       included: false
       type: gauge
     gauge.kafka-request-queue:
@@ -129,36 +139,36 @@ monitors:
       description: Median time it takes to process a fetch request from follower
       included: true
       type: gauge
-    kafka-isr-expands:
+    counter.kafka-isr-expands:
       description: When a broker is brought up after a failure, it starts catching
         up by reading from the leader. Once it is caught up, it gets added back to
         the ISR.
-      included: false
+      included: true
       type: cumulative
-    kafka-isr-shrinks:
+    counter.kafka-isr-shrinks:
       description: When a broker goes down, ISR for some of partitions will shrink.
         When that broker is up again, ISR will be expanded once the replicas are fully
         caught up. Other than that, the expected value for both ISR shrink rate and
         expansion rate is 0.
-      included: false
+      included: true
       type: cumulative
-    kafka-leader-election-rate:
+    counter.kafka-leader-election-rate:
       description: Number of leader elections
       included: false
       type: cumulative
-    kafka-max-lag:
+    gauge.kafka-max-lag:
       description: Maximum lag in messages between the follower and leader replicas
-      included: false
+      included: true
       type: gauge
-    kafka-offline-partitions-count:
+    gauge.kafka-offline-partitions-count:
       description: Number of partitions that don’t have an active leader and are hence
         not writable or readable
-      included: false
+      included: true
       type: gauge
-    kafka-unclean-elections:
+    counter.kafka-unclean-elections-rate:
       description: Number of unclean leader elections. This happens when a leader
         goes down and an out-of-sync replica is chosen to be the leader
-      included: false
+      included: true
       type: cumulative
   monitorType: collectd/kafka
   properties:

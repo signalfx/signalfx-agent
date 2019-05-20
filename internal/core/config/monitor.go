@@ -32,6 +32,12 @@ type MonitorConfig struct {
 	// monitor(s) created from this configuration. To specify metrics from this
 	// monitor should be high-resolution, add the dimension `sf_hires: 1`
 	ExtraDimensions map[string]string `yaml:"extraDimensions" json:"extraDimensions"`
+	// A mapping of extra dimension names to a [discovery rule
+	// expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html)
+	// that is used to derive the value of the dimension.  For example, to use
+	// a certain container label as a dimension, you could use something like this
+	// in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`
+	ExtraDimensionsFromEndpoint map[string]string `yaml:"extraDimensionsFromEndpoint" json:"extraDimensionsFromEndpoint"`
 	// A set of mappings from a configuration option on this monitor to
 	// attributes of a discovered endpoint.  The keys are the config option on
 	// this monitor and the value can be any valid expression used in discovery
@@ -65,6 +71,19 @@ type MonitorConfig struct {
 	// is useful when you have an endpoint whose identity is not particularly
 	// important since it acts largely as a proxy or adapter for other metrics.
 	DisableEndpointDimensions bool `yaml:"disableEndpointDimensions" json:"disableEndpointDimensions"`
+	// A map from dimension names emitted by the monitor to the desired
+	// dimension name that will be emitted in the datapoint that goes to
+	// SignalFx.  This can be useful if you have custom metrics from your
+	// applications and want to make the dimensions from a monitor match those.
+	// Also can be useful when scraping free-form metrics, say with the
+	// `prometheus-exporter` monitor.  Right now, only static key/value
+	// transformations are supported.  Note that filtering by dimensions will
+	// be done on the *original* dimension name and not the new name.
+	DimensionTransformations map[string]string `yaml:"dimensionTransformations" json:"dimensionTransformations"`
+	// Extra metrics to enable besides the default included ones.
+	ExtraMetrics []string `yaml:"extraMetrics" json:"extraMetrics"`
+	// Extra metric groups to enable besides the metrics that are included by default.
+	ExtraGroups []string `yaml:"extraGroups" json:"extraGroups"`
 	// OtherConfig is everything else that is custom to a particular monitor
 	OtherConfig map[string]interface{} `yaml:",inline" neverLog:"omit"`
 	// ValidationError is where a message concerning validation issues can go
@@ -148,4 +167,9 @@ func (mc *MonitorConfig) Hash() uint64 {
 // appear in the MonitorConfig struct.
 type MonitorCustomConfig interface {
 	MonitorConfigCore() *MonitorConfig
+}
+
+// ExtraMetrics interface for monitors that support generating additional metrics to allow through.
+type ExtraMetrics interface {
+	GetExtraMetrics() []string
 }

@@ -1,3 +1,13 @@
+<#
+.PARAMETER Target
+    Build target to run (compile_deps, versions_go, signalfx-agent, monitor-code-gen,
+                         bundle, lint, vendor, unit_test, integration_test)
+#>
+param(
+    [Parameter(Mandatory=$true, Position=1)][string]$Target,
+    [Parameter(Mandatory=$false, ValueFromRemainingArguments=$true)]$Remaining
+)
+
 Set-PSDebug -Trace 1
 $env:CGO_ENABLED = 0
 $ErrorActionPreference = "Stop"
@@ -52,7 +62,6 @@ function bundle (
         [string]$PFX_PATH="",
         [string]$PFX_PASSWORD="",
         [string]$AGENT_NAME="SignalFxAgent") {
-
     if ($AGENT_VERSION -Eq ""){
         $AGENT_VERSION = getGitTag
     }
@@ -154,4 +163,10 @@ function unit_test() {
 
 function integration_test() {
     pytest -n auto -m 'windows or windows_only' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
+}
+
+if ($REMAINING.length -gt 0) {
+    &$Target $Remaining
+} else {
+    &$Target
 }

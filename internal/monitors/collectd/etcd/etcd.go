@@ -13,7 +13,7 @@ import (
 )
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
 				MonitorCore: pyrunner.New("sfxcollectd"),
@@ -80,4 +80,12 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	return m.PyMonitor.Configure(conf)
+}
+
+// GetExtraMetrics returns additional metrics that should be allowed through.
+func (c *Config) GetExtraMetrics() []string {
+	if c.EnhancedMetrics {
+		return monitorMetadata.NonIncludedMetrics()
+	}
+	return nil
 }

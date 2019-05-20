@@ -53,7 +53,7 @@ var _ = Describe("Monitor Manager", func() {
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		Expect(len(getMonitors())).To(Equal(1))
 		for _, mon := range getMonitors() {
@@ -70,7 +70,7 @@ var _ = Describe("Monitor Manager", func() {
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		Expect(len(getMonitors())).To(Equal(1))
 
@@ -79,7 +79,7 @@ var _ = Describe("Monitor Manager", func() {
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		Expect(len(getMonitors())).To(Equal(0))
 	})
@@ -93,7 +93,7 @@ var _ = Describe("Monitor Manager", func() {
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		Expect(len(getMonitors())).To(Equal(1))
 
@@ -114,7 +114,7 @@ var _ = Describe("Monitor Manager", func() {
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		service := newService("my-service", 5000)
 		manager.EndpointAdded(service)
@@ -145,7 +145,7 @@ var _ = Describe("Monitor Manager", func() {
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		service := newService("my-service", 5000)
 		service2 := newService("my-service", 5001)
@@ -186,7 +186,7 @@ var _ = Describe("Monitor Manager", func() {
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 		}
-		manager.Configure(goodConfig, &config.CollectdConfig{}, 10)
+		manager.Configure(goodConfig, &config.CollectdConfig{}, 10, true)
 
 		manager.EndpointAdded(newService("my-service", 5000))
 
@@ -202,12 +202,12 @@ var _ = Describe("Monitor Manager", func() {
 				DiscoveryRule: `container_image =~ "my-service"`,
 				OtherConfig:   map[string]interface{}{"invalid": true},
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(0))
 
-		manager.Configure(goodConfig, &config.CollectdConfig{}, 10)
+		manager.Configure(goodConfig, &config.CollectdConfig{}, 10, true)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
@@ -219,7 +219,7 @@ var _ = Describe("Monitor Manager", func() {
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "their-service"`,
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		manager.EndpointAdded(newService("my-service", 5000))
 
@@ -231,7 +231,7 @@ var _ = Describe("Monitor Manager", func() {
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
@@ -243,7 +243,7 @@ var _ = Describe("Monitor Manager", func() {
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		manager.EndpointAdded(newService("my-service", 5000))
 
@@ -255,7 +255,7 @@ var _ = Describe("Monitor Manager", func() {
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "their-service"`,
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(0))
@@ -270,7 +270,7 @@ var _ = Describe("Monitor Manager", func() {
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		manager.EndpointAdded(newService("my-service", 5000))
 
@@ -289,7 +289,7 @@ var _ = Describe("Monitor Manager", func() {
 				Type:          "dynamic2",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
@@ -307,7 +307,7 @@ var _ = Describe("Monitor Manager", func() {
 				Type:          "dynamic2",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
@@ -328,7 +328,7 @@ var _ = Describe("Monitor Manager", func() {
 					// Port is missing but required
 				},
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons := findMonitorsByType(getMonitors(), "dynamic2")
 		Expect(len(mons)).To(Equal(0))
@@ -344,7 +344,7 @@ var _ = Describe("Monitor Manager", func() {
 					"port": 80,
 				},
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic2")
 		Expect(len(mons)).To(Equal(1))
@@ -355,7 +355,7 @@ var _ = Describe("Monitor Manager", func() {
 			{
 				Type: "static1",
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		endpoint := newService("my-service", 5000)
 		endpoint.Core().MonitorType = "dynamic1"
@@ -379,7 +379,7 @@ var _ = Describe("Monitor Manager", func() {
 					"password": "s3cr3t",
 				},
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		endpoint := newService("my-service", 5000)
 		endpoint.Core().Configuration = map[string]interface{}{
@@ -399,7 +399,7 @@ var _ = Describe("Monitor Manager", func() {
 			{
 				Type: "static1",
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		endpoint := newService("my-service", 5000)
 		endpoint.Core().MonitorType = "dynamic1"
@@ -417,7 +417,7 @@ var _ = Describe("Monitor Manager", func() {
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons := findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
@@ -437,7 +437,7 @@ var _ = Describe("Monitor Manager", func() {
 			{
 				Type: "static1",
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		endpoint := newService("my-service", 5000)
 		endpoint.Core().MonitorType = "dynamic1"
@@ -455,7 +455,7 @@ var _ = Describe("Monitor Manager", func() {
 				Type:          "dynamic2",
 				DiscoveryRule: `container_image =~ "not-my-service"`,
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons := findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
@@ -467,7 +467,7 @@ var _ = Describe("Monitor Manager", func() {
 			{
 				Type: "static1",
 			},
-		}, &config.CollectdConfig{}, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		endpoint := newService("my-service", 5000)
 		endpoint.Core().MonitorType = "dynamic1"

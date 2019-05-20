@@ -3,6 +3,7 @@ black==18.9b0
 docker==3.5.0
 hvac==0.7.2
 kubernetes==9.0.0
+mysql-connector-python==8.0.16
 netifaces==0.10.8
 protobuf==3.5.1
 psutil==5.6.1
@@ -16,3 +17,4 @@ requests==2.21.0
 sanic==18.12.0
 semver==2.8.0
 signalfx==1.0.19
+pika==1.0.1

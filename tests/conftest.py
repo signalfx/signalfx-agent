@@ -20,6 +20,8 @@ def pytest_collection_modifyitems(items):
                 item.add_marker("integration")
 
 
+pytest.register_assert_rewrite("tests.helpers.verify")
+
 # pylint: disable=line-too-long
 def pytest_addoption(parser):
     parser.addoption(

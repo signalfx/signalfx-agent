@@ -8,11 +8,10 @@ from pathlib import Path
 import pytest
 
 from tests.helpers.assertions import has_datapoint_with_dim
-from tests.helpers.util import print_lines, wait_for
+from tests.helpers.util import print_lines, wait_for, copy_file_into_container
 from tests.packaging.common import (
     INIT_SYSTEMD,
     INIT_UPSTART,
-    copy_file_into_container,
     get_agent_logs,
     is_agent_running_as_non_root,
     run_init_system_image,

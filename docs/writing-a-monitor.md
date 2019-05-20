@@ -33,7 +33,7 @@ import (
 )
 
 func init() {
-	monitors.Register("my-monitor",
+	monitors.RegisterWithMetadata(&monitorMetadata,
 		func() interface{} { return &Monitor{} },
 		&Config{})
 }

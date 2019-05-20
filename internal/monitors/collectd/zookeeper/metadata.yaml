@@ -51,8 +51,20 @@ monitors:
       description: Number of file descriptors that a ZooKeeper server has open
       included: true
       type: gauge
+    gauge.zk_is_leader:
+      description: 1 if the node is a leader, 0 if the node is a follower
+      included: false
+      type: gauge
     gauge.zk_outstanding_requests:
       description: Number of currently executing requests
+      included: false
+      type: gauge
+    counter.zk_fsync_threshold_exceed_count:
+      description: Number of times fsync duration has exceeded warning threshold
+      included: false
+      type: cumulative
+    gauge.zk_service_health:
+      description: 1 if server is running, otherwise 0
       included: false
       type: gauge
     gauge.zk_watch_count:

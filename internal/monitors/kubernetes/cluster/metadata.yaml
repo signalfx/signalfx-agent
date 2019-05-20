@@ -180,7 +180,6 @@ monitors:
     sends many of the same metrics, but in a way that is less verbose and better
     fitted for the SignalFx backend.
   monitorType: openshift-cluster
-  sendAll: true
   dimensions:
     metric_source:
       description: This is always set to `openshift`
@@ -188,113 +187,113 @@ monitors:
   metrics:
     openshift.appliedclusterquota.cpu.hard:
       description: Hard limit for number of cpu by namespace
-      included: false
+      included: true
       type: gauge
     openshift.appliedclusterquota.cpu.used:
       description: Consumed number of cpu by namespace
-      included: false
+      included: true
       type: gauge
     openshift.appliedclusterquota.memory.hard:
       description: Hard limit for amount of memory by namespace
-      included: false
+      included: true
       type: gauge
     openshift.appliedclusterquota.memory.used:
       description: Consumed amount of memory by namespace
-      included: false
+      included: true
       type: gauge
     openshift.appliedclusterquota.persistentvolumeclaims.hard:
       description: Hard limit for number of persistentvolumeclaims by namespace
-      included: false
+      included: true
       type: gauge
     openshift.appliedclusterquota.persistentvolumeclaims.used:
       description: Consumed number of persistentvolumeclaims by namespace
-      included: false
+      included: true
       type: gauge
     openshift.appliedclusterquota.pods.hard:
       description: Hard limit for number of pods by namespace
-      included: false
+      included: true
       type: gauge
     openshift.appliedclusterquota.pods.used:
       description: Consumed number of pods by namespace
-      included: false
+      included: true
       type: gauge
     openshift.appliedclusterquota.services.hard:
       description: Hard limit for number of services by namespace
-      included: false
+      included: true
       type: gauge
     openshift.appliedclusterquota.services.loadbalancers.hard:
       description: Hard limit for number of services.loadbalancers by namespace
-      included: false
+      included: true
       type: gauge
     openshift.appliedclusterquota.services.loadbalancers.used:
       description: Consumed number of services.loadbalancers by namespace
-      included: false
+      included: true
       type: gauge
     openshift.appliedclusterquota.services.nodeports.hard:
       description: Hard limit for number of services.nodeports by namespace
-      included: false
+      included: true
       type: gauge
     openshift.appliedclusterquota.services.nodeports.used:
       description: Consumed number of services.nodeports by namespace
-      included: false
+      included: true
       type: gauge
     openshift.appliedclusterquota.services.used:
       description: Consumed number of services by namespace
-      included: false
+      included: true
       type: gauge
     openshift.clusterquota.cpu.hard:
       description: Hard limit for number of cpu across all namespaces
-      included: false
+      included: true
       type: gauge
     openshift.clusterquota.cpu.used:
       description: Consumed number of cpu across all namespaces
-      included: false
+      included: true
       type: gauge
     openshift.clusterquota.memory.hard:
       description: Hard limit for amount of memory across all namespaces
-      included: false
+      included: true
       type: gauge
     openshift.clusterquota.memory.used:
       description: Consumed amount of memory across all namespaces
-      included: false
+      included: true
       type: gauge
     openshift.clusterquota.persistentvolumeclaims.hard:
       description: Hard limit for number of persistentvolumeclaims across all namespaces
-      included: false
+      included: true
       type: gauge
     openshift.clusterquota.persistentvolumeclaims.used:
       description: Consumed number of persistentvolumeclaims across all namespaces
-      included: false
+      included: true
       type: gauge
     openshift.clusterquota.pods.hard:
       description: Hard limit for number of pods across all namespaces
-      included: false
+      included: true
       type: gauge
     openshift.clusterquota.pods.used:
       description: Consumed number of pods across all namespaces
-      included: false
+      included: true
       type: gauge
     openshift.clusterquota.services.hard:
       description: Hard limit for number of services across all namespaces
-      included: false
+      included: true
       type: gauge
     openshift.clusterquota.services.loadbalancers.hard:
       description: Hard limit for number of services.loadbalancers across all namespaces
-      included: false
+      included: true
       type: gauge
     openshift.clusterquota.services.loadbalancers.used:
       description: Consumed number of services.loadbalancers across all namespaces
-      included: false
+      included: true
       type: gauge
     openshift.clusterquota.services.nodeports.hard:
       description: Hard limit for number of services.nodeports across all namespaces
-      included: false
+      included: true
       type: gauge
     openshift.clusterquota.services.nodeports.used:
       description: Consumed number of services.nodeports across all namespaces
-      included: false
+      included: true
       type: gauge
     openshift.clusterquota.services.used:
       description: Consumed number of services across all namespaces
-      included: false
+      included: true
       type: gauge

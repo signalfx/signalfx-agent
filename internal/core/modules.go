@@ -62,6 +62,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winservices"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/traceforwarder"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/traefik"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/vmem"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/windowsiis"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/windowslegacy"

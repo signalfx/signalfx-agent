@@ -23,7 +23,7 @@ type ActiveMonitor struct {
 	id         types.MonitorID
 	configHash uint64
 	agentMeta  *meta.AgentMeta
-	output     types.Output
+	output     types.FilteringOutput
 	config     config.MonitorCustomConfig
 	endpoint   services.Endpoint
 	// Is the monitor marked for deletion?
@@ -66,6 +66,14 @@ func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) 
 		am.output.AddExtraDimension(k, v)
 	}
 
+	for k, v := range monConfig.MonitorConfigCore().ExtraDimensionsFromEndpoint {
+		val, err := services.EvaluateRule(am.endpoint, v, true, true)
+		if err != nil {
+			return err
+		}
+		am.output.AddExtraDimension(k, fmt.Sprintf("%v", val))
+	}
+
 	if err := validateConfig(monConfig); err != nil {
 		return err
 	}
@@ -88,7 +96,12 @@ func (am *ActiveMonitor) injectOutputIfNeeded() bool {
 		reflect.TypeOf((*types.Output)(nil)).Elem())
 
 	if !outputValue.IsValid() {
-		return false
+		// Try and find FilteringOutput type
+		outputValue = utils.FindFieldWithEmbeddedStructs(am.instance, "Output",
+			reflect.TypeOf((*types.FilteringOutput)(nil)).Elem())
+		if !outputValue.IsValid() {
+			return false
+		}
 	}
 
 	outputValue.Set(reflect.ValueOf(am.output))

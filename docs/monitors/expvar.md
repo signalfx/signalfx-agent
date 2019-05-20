@@ -182,7 +182,7 @@ The **nested** `dimensions` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `name` | no | `string` | Dimension name |
+| `name` | **yes** | `string` | Dimension name |
 | `JSONPath` | no | `string` | JSON path of the dimension value |
 | `value` | no | `string` | Dimension value |
 

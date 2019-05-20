@@ -75,7 +75,7 @@ monitors:
         network interface in bits per second (BPS).
       included: false
       type: gauge
-    network_interface.outbound_discarded:
+    network_interface.packets_outbound_discarded:
       description: The number of outbound packets discarded
       included: false
       type: gauge
@@ -96,7 +96,7 @@ monitors:
       description: The number of packets sent per second.
       included: false
       type: gauge
-    network_interface.received_discarded:
+    network_interface.packets_received_discarded:
       description: The number of received packets discarded.
       included: false
       type: gauge

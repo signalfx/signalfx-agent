@@ -30,7 +30,7 @@ import (
 const messageTypeValueList pyrunner.MessageType = 100
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &PyMonitor{
 			MonitorCore: pyrunner.New("sfxcollectd"),
 		}
@@ -75,7 +75,7 @@ func (c *Config) PythonConfig() *Config {
 type PyMonitor struct {
 	*pyrunner.MonitorCore
 
-	Output types.Output
+	Output types.FilteringOutput
 }
 
 // Configure starts the subprocess and configures the plugin

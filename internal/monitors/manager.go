@@ -10,7 +10,6 @@ import (
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/golib/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/core/meta"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
@@ -40,8 +39,9 @@ type MonitorManager struct {
 
 	// TODO: AgentMeta is rather hacky so figure out a better way to share agent
 	// metadata with monitors
-	agentMeta       *meta.AgentMeta
-	intervalSeconds int
+	agentMeta              *meta.AgentMeta
+	intervalSeconds        int
+	enableBuiltInFiltering bool
 
 	idGenerator func() string
 }
@@ -61,11 +61,12 @@ func NewMonitorManager(agentMeta *meta.AgentMeta) *MonitorManager {
 // Configure receives a list of monitor configurations.  It will start up any
 // static monitors and watch discovered services to see if any match dynamic
 // monitors.
-func (mm *MonitorManager) Configure(confs []config.MonitorConfig, collectdConf *config.CollectdConfig, intervalSeconds int) {
+func (mm *MonitorManager) Configure(confs []config.MonitorConfig, collectdConf *config.CollectdConfig, intervalSeconds int, enableBuiltInFiltering bool) {
 	mm.lock.Lock()
 	defer mm.lock.Unlock()
 
 	mm.intervalSeconds = intervalSeconds
+	mm.enableBuiltInFiltering = enableBuiltInFiltering
 	for i := range confs {
 		confs[i].IntervalSeconds = utils.FirstNonZero(confs[i].IntervalSeconds, intervalSeconds)
 	}
@@ -317,44 +318,52 @@ func (mm *MonitorManager) findConfigForMonitorAndRun(endpoint services.Endpoint)
 // endpoint may be nil for static monitors
 func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCustomConfig, endpoint services.Endpoint) error {
 	id := types.MonitorID(mm.idGenerator())
+	coreConfig := config.MonitorConfigCore()
+	monitorType := coreConfig.Type
 
 	log.WithFields(log.Fields{
-		"monitorType":   config.MonitorConfigCore().Type,
-		"discoveryRule": config.MonitorConfigCore().DiscoveryRule,
+		"monitorType":   monitorType,
+		"discoveryRule": coreConfig.DiscoveryRule,
 		"monitorID":     id,
 	}).Info("Creating new monitor")
 
 	instance := newMonitor(config.MonitorConfigCore().Type)
 	if instance == nil {
-		return errors.Errorf("Could not create new monitor of type %s", config.MonitorConfigCore().Type)
+		return errors.Errorf("Could not create new monitor of type %s", monitorType)
+	}
+
+	metadata, ok := MonitorMetadatas[monitorType]
+	if !ok || metadata == nil {
+		// This indicates a programming error in not specifying metadata, not
+		// bad user input
+		panic(fmt.Sprintf("could not find monitor metadata of type %s", monitorType))
 	}
 
 	configHash := config.MonitorConfigCore().Hash()
-	oldFilter, err := config.MonitorConfigCore().OldFilterSet()
-	if err != nil {
-		return err
-	}
 
-	newFilter, err := config.MonitorConfigCore().NewFilterSet()
-	if err != nil {
-		return err
+	var monFiltering *monitorFiltering
+	if mm.enableBuiltInFiltering {
+		var err error
+		monFiltering, err = newMonitorFiltering(config, metadata)
+		if err != nil {
+			return err
+		}
 	}
 
 	output := &monitorOutput{
-		monitorType:               config.MonitorConfigCore().Type,
+		monitorType:               coreConfig.Type,
 		monitorID:                 id,
-		notHostSpecific:           config.MonitorConfigCore().DisableHostDimensions,
-		disableEndpointDimensions: config.MonitorConfigCore().DisableEndpointDimensions,
-		filterSet: &dpfilters.FilterSet{
-			ExcludeFilters: []dpfilters.DatapointFilter{oldFilter, newFilter},
-		},
-		configHash:  configHash,
-		endpoint:    endpoint,
-		dpChan:      mm.DPs,
-		eventChan:   mm.Events,
-		dimPropChan: mm.DimensionProps,
-		spanChan:    mm.TraceSpans,
-		extraDims:   map[string]string{},
+		notHostSpecific:           coreConfig.DisableHostDimensions,
+		disableEndpointDimensions: coreConfig.DisableEndpointDimensions,
+		configHash:                configHash,
+		endpoint:                  endpoint,
+		dpChan:                    mm.DPs,
+		eventChan:                 mm.Events,
+		dimPropChan:               mm.DimensionProps,
+		spanChan:                  mm.TraceSpans,
+		extraDims:                 map[string]string{},
+		dimensionTransformations:  coreConfig.DimensionTransformations,
+		monitorFiltering:          monFiltering,
 	}
 
 	am := &ActiveMonitor{

@@ -32,6 +32,8 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
+| `disk_io_time.io_time` | cumulative |  | Amount of time spent doing IO in ms |
+| `disk_io_time.weighted_io_time` | cumulative |  | Amount of time spent doing IO in ms multiplied by the queue length |
 | `disk_merged.read` | cumulative |  | The number of disk reads merged into single physical disk access operations. |
 | `disk_merged.write` | cumulative |  | The number of disk writes merged into single physical disk access operations. |
 | `disk_octets.read` | cumulative |  | The number of bytes (octets) read from a disk. |
@@ -40,6 +42,7 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `disk_ops.write` | cumulative | ✔ | The number of disk write operations. |
 | `disk_time.read` | cumulative |  | The average amount of time it took to do a read operation. |
 | `disk_time.write` | cumulative |  | The average amount of time it took to do a write operation. |
+| `pending_operations` | gauge |  | Number of pending operations |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
@@ -56,12 +59,15 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
+    - disk_io_time.io_time
+    - disk_io_time.weighted_io_time
     - disk_merged.read
     - disk_merged.write
     - disk_octets.read
     - disk_octets.write
     - disk_time.read
     - disk_time.write
+    - pending_operations
     monitorType: collectd/disk
 ```
 

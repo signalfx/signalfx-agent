@@ -10,9 +10,12 @@ from tests.helpers.assertions import (
     has_log_message,
     http_status,
 )
-from tests.helpers.util import container_ip, run_service, wait_for
+from tests.helpers.metadata import Metadata
+from tests.helpers.util import run_service, container_ip, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.elasticsearch, pytest.mark.monitor_with_endpoints]
+
+METADATA = Metadata.from_package("collectd/elasticsearch")
 
 
 @pytest.mark.flaky(reruns=2)
@@ -153,8 +156,8 @@ def test_elasticsearch_with_additional_metrics():
               username: elastic
               password: testing123
               additionalMetrics:
-               - cluster.initializing-shards
-               - thread_pool.threads
+              - cluster.initializing-shards
+              - thread_pool.threads
             """
         )
         with Agent.run(config) as agent:

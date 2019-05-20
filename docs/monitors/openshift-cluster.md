@@ -82,35 +82,52 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `kubernetes.replication_controller.desired` | gauge | ✔ | Number of desired pods |
 | `kubernetes.resource_quota_hard` | gauge | ✔ | The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores. |
 | `kubernetes.resource_quota_used` | gauge | ✔ | The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores. |
-| `openshift.appliedclusterquota.cpu.hard` | gauge |  | Hard limit for number of cpu by namespace |
-| `openshift.appliedclusterquota.cpu.used` | gauge |  | Consumed number of cpu by namespace |
-| `openshift.appliedclusterquota.memory.hard` | gauge |  | Hard limit for amount of memory by namespace |
-| `openshift.appliedclusterquota.memory.used` | gauge |  | Consumed amount of memory by namespace |
-| `openshift.appliedclusterquota.persistentvolumeclaims.hard` | gauge |  | Hard limit for number of persistentvolumeclaims by namespace |
-| `openshift.appliedclusterquota.persistentvolumeclaims.used` | gauge |  | Consumed number of persistentvolumeclaims by namespace |
-| `openshift.appliedclusterquota.pods.hard` | gauge |  | Hard limit for number of pods by namespace |
-| `openshift.appliedclusterquota.pods.used` | gauge |  | Consumed number of pods by namespace |
-| `openshift.appliedclusterquota.services.hard` | gauge |  | Hard limit for number of services by namespace |
-| `openshift.appliedclusterquota.services.loadbalancers.hard` | gauge |  | Hard limit for number of services.loadbalancers by namespace |
-| `openshift.appliedclusterquota.services.loadbalancers.used` | gauge |  | Consumed number of services.loadbalancers by namespace |
-| `openshift.appliedclusterquota.services.nodeports.hard` | gauge |  | Hard limit for number of services.nodeports by namespace |
-| `openshift.appliedclusterquota.services.nodeports.used` | gauge |  | Consumed number of services.nodeports by namespace |
-| `openshift.appliedclusterquota.services.used` | gauge |  | Consumed number of services by namespace |
-| `openshift.clusterquota.cpu.hard` | gauge |  | Hard limit for number of cpu across all namespaces |
-| `openshift.clusterquota.cpu.used` | gauge |  | Consumed number of cpu across all namespaces |
-| `openshift.clusterquota.memory.hard` | gauge |  | Hard limit for amount of memory across all namespaces |
-| `openshift.clusterquota.memory.used` | gauge |  | Consumed amount of memory across all namespaces |
-| `openshift.clusterquota.persistentvolumeclaims.hard` | gauge |  | Hard limit for number of persistentvolumeclaims across all namespaces |
-| `openshift.clusterquota.persistentvolumeclaims.used` | gauge |  | Consumed number of persistentvolumeclaims across all namespaces |
-| `openshift.clusterquota.pods.hard` | gauge |  | Hard limit for number of pods across all namespaces |
-| `openshift.clusterquota.pods.used` | gauge |  | Consumed number of pods across all namespaces |
-| `openshift.clusterquota.services.hard` | gauge |  | Hard limit for number of services across all namespaces |
-| `openshift.clusterquota.services.loadbalancers.hard` | gauge |  | Hard limit for number of services.loadbalancers across all namespaces |
-| `openshift.clusterquota.services.loadbalancers.used` | gauge |  | Consumed number of services.loadbalancers across all namespaces |
-| `openshift.clusterquota.services.nodeports.hard` | gauge |  | Hard limit for number of services.nodeports across all namespaces |
-| `openshift.clusterquota.services.nodeports.used` | gauge |  | Consumed number of services.nodeports across all namespaces |
-| `openshift.clusterquota.services.used` | gauge |  | Consumed number of services across all namespaces |
+| `openshift.appliedclusterquota.cpu.hard` | gauge | ✔ | Hard limit for number of cpu by namespace |
+| `openshift.appliedclusterquota.cpu.used` | gauge | ✔ | Consumed number of cpu by namespace |
+| `openshift.appliedclusterquota.memory.hard` | gauge | ✔ | Hard limit for amount of memory by namespace |
+| `openshift.appliedclusterquota.memory.used` | gauge | ✔ | Consumed amount of memory by namespace |
+| `openshift.appliedclusterquota.persistentvolumeclaims.hard` | gauge | ✔ | Hard limit for number of persistentvolumeclaims by namespace |
+| `openshift.appliedclusterquota.persistentvolumeclaims.used` | gauge | ✔ | Consumed number of persistentvolumeclaims by namespace |
+| `openshift.appliedclusterquota.pods.hard` | gauge | ✔ | Hard limit for number of pods by namespace |
+| `openshift.appliedclusterquota.pods.used` | gauge | ✔ | Consumed number of pods by namespace |
+| `openshift.appliedclusterquota.services.hard` | gauge | ✔ | Hard limit for number of services by namespace |
+| `openshift.appliedclusterquota.services.loadbalancers.hard` | gauge | ✔ | Hard limit for number of services.loadbalancers by namespace |
+| `openshift.appliedclusterquota.services.loadbalancers.used` | gauge | ✔ | Consumed number of services.loadbalancers by namespace |
+| `openshift.appliedclusterquota.services.nodeports.hard` | gauge | ✔ | Hard limit for number of services.nodeports by namespace |
+| `openshift.appliedclusterquota.services.nodeports.used` | gauge | ✔ | Consumed number of services.nodeports by namespace |
+| `openshift.appliedclusterquota.services.used` | gauge | ✔ | Consumed number of services by namespace |
+| `openshift.clusterquota.cpu.hard` | gauge | ✔ | Hard limit for number of cpu across all namespaces |
+| `openshift.clusterquota.cpu.used` | gauge | ✔ | Consumed number of cpu across all namespaces |
+| `openshift.clusterquota.memory.hard` | gauge | ✔ | Hard limit for amount of memory across all namespaces |
+| `openshift.clusterquota.memory.used` | gauge | ✔ | Consumed amount of memory across all namespaces |
+| `openshift.clusterquota.persistentvolumeclaims.hard` | gauge | ✔ | Hard limit for number of persistentvolumeclaims across all namespaces |
+| `openshift.clusterquota.persistentvolumeclaims.used` | gauge | ✔ | Consumed number of persistentvolumeclaims across all namespaces |
+| `openshift.clusterquota.pods.hard` | gauge | ✔ | Hard limit for number of pods across all namespaces |
+| `openshift.clusterquota.pods.used` | gauge | ✔ | Consumed number of pods across all namespaces |
+| `openshift.clusterquota.services.hard` | gauge | ✔ | Hard limit for number of services across all namespaces |
+| `openshift.clusterquota.services.loadbalancers.hard` | gauge | ✔ | Hard limit for number of services.loadbalancers across all namespaces |
+| `openshift.clusterquota.services.loadbalancers.used` | gauge | ✔ | Consumed number of services.loadbalancers across all namespaces |
+| `openshift.clusterquota.services.nodeports.hard` | gauge | ✔ | Hard limit for number of services.nodeports across all namespaces |
+| `openshift.clusterquota.services.nodeports.used` | gauge | ✔ | Consumed number of services.nodeports across all namespaces |
+| `openshift.clusterquota.services.used` | gauge | ✔ | Consumed number of services across all namespaces |
 
+
+To specify custom metrics you want to monitor, add a `metricsToInclude` filter
+to the agent configuration, as shown in the code snippet below. The snippet
+lists all available custom metrics. You can copy and paste the snippet into
+your configuration file, then delete any custom metrics that you do not want
+sent.
+
+Note that some of the custom metrics require you to set a flag as well as add
+them to the list. Check the monitor configuration file to see if a flag is
+required for gathering additional metrics.
+
+```yaml
+
+metricsToInclude:
+  - metricNames:
+    monitorType: openshift-cluster
+```
 
 
 ## Dimensions

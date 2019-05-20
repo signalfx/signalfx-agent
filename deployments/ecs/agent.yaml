@@ -58,9 +58,9 @@ monitors:
   - {"#from": "env:EXTRA_MONITOR_CONFIG", default: [], flatten: true}
 
 metricsToExclude:
-  - {"#from": "/lib/whitelist.json", flatten: true}
   - {"#from": "env:METRICS_TO_EXCLUDE", default: [], flatten: true}
 
+enableBuiltInFiltering: true
 
 # This allows any config above to be completely overridden.  CONFIG_OVERRIDE
 # must be given as a YAML/JSON object.
