@@ -128,6 +128,8 @@ point but for now the process is manual.
    $ scripts/release-redhat <X.Y.Z> <OSPID>
    ```
 
+1. Wait for the RedHat build to complete and then publish it.
+
 1. Test out the new release by deploying it to a test environment and ensuring
    it works.
 
