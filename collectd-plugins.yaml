@@ -50,7 +50,7 @@
   repo: signalfx/collectd-marathon
 
 - name: mongodb
-  version: v1.2.2
+  version: v1.2.3
   repo: signalfx/collectd-mongodb
   pip_packages:
     - pymongo[tls]==3.3.1
