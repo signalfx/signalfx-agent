@@ -56,8 +56,7 @@ func (c *Config) PythonConfig() *python.Config {
 }
 
 func (c *Config) GetExtraMetrics() []string {
-	if (c.EnhancedMetrics != nil && *c.EnhancedMetrics) ||
-		(c.CollectApplicationMetrics != nil && *c.CollectApplicationMetrics) {
+	if c.EnhancedMetrics || c.CollectApplicationMetrics {
 		return []string{"*"}
 	}
 	return nil
