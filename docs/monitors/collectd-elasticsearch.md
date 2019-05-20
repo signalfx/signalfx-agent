@@ -48,26 +48,95 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
+| `bytes.indices.primaries.merges.total-size` | gauge |  |  |
+| `bytes.indices.total.merges.total-size` | gauge |  |  |
+| `counter.http.total_open` | cumulative |  |  |
+| `counter.indices.cache.field.eviction` | cumulative |  |  |
+| `counter.indices.cache.filter.cache-count` | cumulative |  |  |
+| `counter.indices.cache.filter.evictions` | cumulative |  |  |
+| `counter.indices.cache.filter.hit-count` | cumulative |  |  |
+| `counter.indices.cache.filter.miss-count` | cumulative |  |  |
+| `counter.indices.cache.filter.total-count` | cumulative |  |  |
+| `counter.indices.flush.time` | cumulative |  |  |
+| `counter.indices.flush.total` | cumulative |  |  |
+| `counter.indices.get.exists-time` | cumulative |  |  |
+| `counter.indices.get.exists-total` | cumulative |  |  |
+| `counter.indices.get.missing-time` | cumulative |  |  |
+| `counter.indices.get.missing-total` | cumulative |  |  |
+| `counter.indices.get.time` | cumulative |  |  |
 | `counter.indices.get.total` | cumulative | ✔ | The total number of get requests since node startup |
+| `counter.indices.indexing.delete-time` | cumulative |  |  |
+| `counter.indices.indexing.delete-total` | cumulative |  |  |
+| `counter.indices.indexing.index-time` | cumulative |  |  |
 | `counter.indices.indexing.index-total` | cumulative | ✔ | The total number of index requests since node startup |
+| `counter.indices.merges.time` | cumulative |  |  |
 | `counter.indices.merges.total` | cumulative | ✔ | Total number of merges since node startup |
+| `counter.indices.merges.total-size` | cumulative |  |  |
+| `counter.indices.primaries.fielddata.evictions` | cumulative |  |  |
+| `counter.indices.primaries.flush.total` | cumulative |  |  |
+| `counter.indices.primaries.flush.total-time` | cumulative |  |  |
+| `counter.indices.primaries.get.exists-time` | cumulative |  |  |
+| `counter.indices.primaries.get.exists-total` | cumulative |  |  |
+| `counter.indices.primaries.get.missing-time` | cumulative |  |  |
+| `counter.indices.primaries.get.missing-total` | cumulative |  |  |
+| `counter.indices.primaries.get.time` | cumulative |  |  |
+| `counter.indices.primaries.indexing.delete-time` | cumulative |  |  |
+| `counter.indices.primaries.indexing.delete-total` | cumulative |  |  |
+| `counter.indices.primaries.indexing.index-time` | cumulative |  |  |
+| `counter.indices.primaries.indexing.index-total` | cumulative |  |  |
+| `counter.indices.primaries.merges.total` | cumulative |  |  |
+| `counter.indices.primaries.merges.total-docs` | cumulative |  |  |
+| `counter.indices.primaries.merges.total-time` | cumulative |  |  |
+| `counter.indices.primaries.refresh.total` | cumulative |  |  |
+| `counter.indices.primaries.refresh.total-time` | cumulative |  |  |
+| `counter.indices.primaries.search.fetch-time` | cumulative |  |  |
+| `counter.indices.primaries.search.fetch-total` | cumulative |  |  |
+| `counter.indices.primaries.search.query-time` | cumulative |  |  |
+| `counter.indices.primaries.search.query-total` | cumulative |  |  |
+| `counter.indices.primaries.segments.count` | cumulative |  |  |
+| `counter.indices.primaries.translog.operations` | cumulative |  |  |
+| `counter.indices.primaries.warmer.total` | cumulative |  |  |
+| `counter.indices.primaries.warmer.total.primaries.warmer.total-time` | cumulative |  |  |
+| `counter.indices.refresh.time` | cumulative |  |  |
+| `counter.indices.refresh.total` | cumulative |  |  |
+| `counter.indices.search.fetch-time` | cumulative |  |  |
+| `counter.indices.search.fetch-total` | cumulative |  |  |
 | `counter.indices.search.query-time` | cumulative | ✔ | Total time spent in search queries (milliseconds) |
 | `counter.indices.search.query-total` | cumulative | ✔ | The total number of search requests since node startup |
+| `counter.indices.search.scroll-time` | cumulative |  |  |
+| `counter.indices.search.scroll.total` | cumulative |  |  |
+| `counter.indices.total.fielddata.evictions` | cumulative |  |  |
+| `counter.indices.total.flush.periodic` | cumulative |  |  |
+| `counter.indices.total.get.exists-time` | cumulative |  |  |
+| `counter.indices.total.get.exists-total` | cumulative |  |  |
+| `counter.indices.total.get.missing-time` | cumulative |  |  |
+| `counter.indices.total.get.missing-total` | cumulative |  |  |
+| `counter.indices.total.get.time` | cumulative |  |  |
+| `counter.indices.total.get.total` | cumulative |  |  |
+| `counter.indices.total.indexing.delete-time` | cumulative |  |  |
+| `counter.indices.total.indexing.delete-total` | cumulative |  |  |
+| `counter.indices.total.indexing.index-time` | cumulative |  |  |
 | `counter.indices.total.indexing.index-total` | cumulative | ✔ | The total number of index requests per cluster |
 | `counter.indices.total.merges.total` | cumulative | ✔ | Total number of merges per cluster |
+| `counter.indices.total.merges.total-docs` | cumulative |  |  |
+| `counter.indices.total.merges.total-time` | cumulative |  |  |
+| `counter.indices.total.search.fetch-total` | cumulative |  |  |
+| `counter.indices.total.search.query-time` | cumulative |  |  |
 | `counter.indices.total.search.query-total` | cumulative | ✔ | The total number of search requests per cluster |
+| `counter.indices.total.translog.earliest_last_modified_age` | cumulative |  |  |
+| `counter.indices.total.translog.uncommitted_operations` | cumulative |  |  |
+| `counter.indices.total.translog.uncommitted_size_in_bytes` | cumulative |  |  |
+| `counter.jvm.gc.count` | cumulative |  |  |
+| `counter.jvm.gc.old-count` | cumulative |  |  |
+| `counter.jvm.gc.old-time` | cumulative |  |  |
 | `counter.jvm.gc.time` | cumulative | ✔ | Total garbage collection time (milliseconds) |
-| `counter.thread_pool.bulk.rejected` | cumulative | ✔ | Number of rejected bulk requests |
-| `counter.thread_pool.flush.rejected` | cumulative | ✔ | Number of rejected flush requests |
-| `counter.thread_pool.generic.rejected` | cumulative | ✔ | Number of rejected generic requests |
-| `counter.thread_pool.get.rejected` | cumulative | ✔ | Number of rejected get requests |
-| `counter.thread_pool.index.rejected` | cumulative | ✔ | Number of rejected index requests |
-| `counter.thread_pool.merge.rejected` | cumulative | ✔ | Number of rejected merge requests |
-| `counter.thread_pool.optimize.rejected` | cumulative | ✔ | Number of rejected optimize requests |
-| `counter.thread_pool.refresh.rejected` | cumulative | ✔ | Number of rejected refresh requests |
+| `counter.jvm.uptime` | cumulative |  |  |
+| `counter.thread_pool.completed` | cumulative |  |  |
 | `counter.thread_pool.rejected` | cumulative | ✔ | Number of rejected thread pool requests |
-| `counter.thread_pool.search.rejected` | cumulative | ✔ | Number of rejected search requests |
-| `counter.thread_pool.snapshot.rejected` | cumulative | ✔ | Number of rejected snapshot requests |
+| `counter.transport.rx.count` | cumulative |  |  |
+| `counter.transport.rx.size` | cumulative |  |  |
+| `counter.transport.tx.count` | cumulative |  |  |
+| `counter.transport.tx.size` | cumulative |  |  |
 | `gauge.cluster.active-primary-shards` | gauge | ✔ | The number of active primary shards |
 | `gauge.cluster.active-shards` | gauge | ✔ | The number of active shards |
 | `gauge.cluster.initializing-shards` | gauge |  | The number of currently initializing shards |
@@ -76,22 +145,82 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.cluster.relocating-shards` | gauge | ✔ | The number of shards that are currently being relocated |
 | `gauge.cluster.status` | gauge |  | The health status of the cluster |
 | `gauge.cluster.unassigned-shards` | gauge | ✔ | The number of shards that are currently unassigned |
+| `gauge.http.current_open` | gauge |  |  |
 | `gauge.indices.cache.field.size` | gauge | ✔ | Field data size (bytes) |
 | `gauge.indices.cache.filter.size` | gauge | ✔ | Filter cache size (bytes) |
 | `gauge.indices.docs.count` | gauge | ✔ | Number of documents on this node |
 | `gauge.indices.docs.deleted` | gauge | ✔ | Number of deleted documents on this node |
+| `gauge.indices.get.current` | gauge |  |  |
+| `gauge.indices.indexing.delete-current` | gauge |  |  |
+| `gauge.indices.indexing.index-current` | gauge |  |  |
 | `gauge.indices.merges.current` | gauge | ✔ | Number of active merges |
+| `gauge.indices.merges.current-docs` | gauge |  |  |
+| `gauge.indices.merges.current-size` | gauge |  |  |
+| `gauge.indices.merges.total-docs` | gauge |  |  |
+| `gauge.indices.primaries.completion.size` | gauge |  |  |
+| `gauge.indices.primaries.docs.count` | gauge |  |  |
+| `gauge.indices.primaries.docs.deleted` | gauge |  |  |
+| `gauge.indices.primaries.fielddata.memory-size` | gauge |  |  |
+| `gauge.indices.primaries.flush.periodic` | gauge |  |  |
+| `gauge.indices.primaries.get.current` | gauge |  |  |
+| `gauge.indices.primaries.indexing.delete-current` | gauge |  |  |
+| `gauge.indices.primaries.indexing.index-current` | gauge |  |  |
+| `gauge.indices.primaries.merges.current` | gauge |  |  |
+| `gauge.indices.primaries.merges.current-docs` | gauge |  |  |
+| `gauge.indices.primaries.merges.current-size` | gauge |  |  |
+| `gauge.indices.primaries.search.fetch-current` | gauge |  |  |
+| `gauge.indices.primaries.search.open-contexts` | gauge |  |  |
+| `gauge.indices.primaries.search.query-current` | gauge |  |  |
+| `gauge.indices.primaries.segments.index-writer-memory` | gauge |  |  |
+| `gauge.indices.primaries.segments.memory` | gauge |  |  |
+| `gauge.indices.primaries.segments.version-map-memory` | gauge |  |  |
+| `gauge.indices.primaries.store.size` | gauge |  |  |
+| `gauge.indices.primaries.translog.earliest_last_modified_age` | gauge |  |  |
+| `gauge.indices.primaries.translog.size` | gauge |  |  |
+| `gauge.indices.primaries.translog.uncommitted_operations` | gauge |  |  |
+| `gauge.indices.primaries.translog.uncommitted_size_in_bytes` | gauge |  |  |
+| `gauge.indices.primaries.warmer.current` | gauge |  |  |
+| `gauge.indices.search.fetch-current` | gauge |  |  |
+| `gauge.indices.search.open-contexts` | gauge |  |  |
+| `gauge.indices.search.query-current` | gauge |  |  |
+| `gauge.indices.search.scroll.current` | gauge |  |  |
 | `gauge.indices.segments.count` | gauge | ✔ | Number of segments on this node |
+| `gauge.indices.segments.index-writer-size` | gauge |  |  |
+| `gauge.indices.segments.size` | gauge |  |  |
+| `gauge.indices.store.size` | gauge |  |  |
 | `gauge.indices.total.docs.count` | gauge | ✔ | Number of documents in the cluster |
+| `gauge.indices.total.docs.deleted` | gauge |  |  |
 | `gauge.indices.total.fielddata.memory-size` | gauge | ✔ | Field data size (bytes) |
 | `gauge.indices.total.filter-cache.memory-size` | gauge | ✔ | Filter cache size (bytes) |
+| `gauge.indices.total.get.current` | gauge |  |  |
+| `gauge.indices.total.indexing.delete-current` | gauge |  |  |
+| `gauge.indices.total.indexing.index-current` | gauge |  |  |
+| `gauge.indices.total.merges.current` | gauge |  |  |
+| `gauge.indices.total.merges.current-docs` | gauge |  |  |
+| `gauge.indices.total.merges.current-size` | gauge |  |  |
+| `gauge.indices.total.search.open-contexts` | gauge |  |  |
+| `gauge.indices.total.search.query-current` | gauge |  |  |
+| `gauge.indices.total.store.size` | gauge |  |  |
+| `gauge.indices.translog.uncommitted_operations` | gauge |  |  |
+| `gauge.indices.translog.uncommitted_size_in_bytes` | gauge |  |  |
 | `gauge.jvm.mem.heap-committed` | gauge | ✔ | Total heap committed by the process (bytes) |
 | `gauge.jvm.mem.heap-used` | gauge | ✔ | Total heap used (bytes) |
+| `gauge.jvm.mem.non-heap-committed` | gauge |  |  |
+| `gauge.jvm.mem.non-heap-used` | gauge |  |  |
+| `gauge.jvm.mem.pools.old.max_in_bytes` | gauge |  |  |
+| `gauge.jvm.mem.pools.old.used_in_bytes` | gauge |  |  |
+| `gauge.jvm.mem.pools.young.max_in_bytes` | gauge |  |  |
+| `gauge.jvm.mem.pools.young.used_in_bytes` | gauge |  |  |
+| `gauge.jvm.threads.count` | gauge |  |  |
+| `gauge.jvm.threads.peak` | gauge |  |  |
+| `gauge.process.cpu.percent` | gauge |  |  |
 | `gauge.process.open_file_descriptors` | gauge | ✔ | Number of currently open file descriptors |
 | `gauge.thread_pool.active` | gauge |  | Number of active threads |
 | `gauge.thread_pool.largest` | gauge |  | Highest active threads in thread pool |
 | `gauge.thread_pool.queue` | gauge |  | Number of Tasks in thread pool |
 | `gauge.thread_pool.threads` | gauge |  | Number of Threads in thread pool |
+| `gauge.transport.server_open` | gauge |  |  |
+| `percent.jvm.mem.heap-used-percent` | gauge |  |  |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
@@ -108,12 +237,151 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
+    - bytes.indices.primaries.merges.total-size
+    - bytes.indices.total.merges.total-size
+    - counter.http.total_open
+    - counter.indices.cache.field.eviction
+    - counter.indices.cache.filter.cache-count
+    - counter.indices.cache.filter.evictions
+    - counter.indices.cache.filter.hit-count
+    - counter.indices.cache.filter.miss-count
+    - counter.indices.cache.filter.total-count
+    - counter.indices.flush.time
+    - counter.indices.flush.total
+    - counter.indices.get.exists-time
+    - counter.indices.get.exists-total
+    - counter.indices.get.missing-time
+    - counter.indices.get.missing-total
+    - counter.indices.get.time
+    - counter.indices.indexing.delete-time
+    - counter.indices.indexing.delete-total
+    - counter.indices.indexing.index-time
+    - counter.indices.merges.time
+    - counter.indices.merges.total-size
+    - counter.indices.primaries.fielddata.evictions
+    - counter.indices.primaries.flush.total
+    - counter.indices.primaries.flush.total-time
+    - counter.indices.primaries.get.exists-time
+    - counter.indices.primaries.get.exists-total
+    - counter.indices.primaries.get.missing-time
+    - counter.indices.primaries.get.missing-total
+    - counter.indices.primaries.get.time
+    - counter.indices.primaries.indexing.delete-time
+    - counter.indices.primaries.indexing.delete-total
+    - counter.indices.primaries.indexing.index-time
+    - counter.indices.primaries.indexing.index-total
+    - counter.indices.primaries.merges.total
+    - counter.indices.primaries.merges.total-docs
+    - counter.indices.primaries.merges.total-time
+    - counter.indices.primaries.refresh.total
+    - counter.indices.primaries.refresh.total-time
+    - counter.indices.primaries.search.fetch-time
+    - counter.indices.primaries.search.fetch-total
+    - counter.indices.primaries.search.query-time
+    - counter.indices.primaries.search.query-total
+    - counter.indices.primaries.segments.count
+    - counter.indices.primaries.translog.operations
+    - counter.indices.primaries.warmer.total
+    - counter.indices.primaries.warmer.total.primaries.warmer.total-time
+    - counter.indices.refresh.time
+    - counter.indices.refresh.total
+    - counter.indices.search.fetch-time
+    - counter.indices.search.fetch-total
+    - counter.indices.search.scroll-time
+    - counter.indices.search.scroll.total
+    - counter.indices.total.fielddata.evictions
+    - counter.indices.total.flush.periodic
+    - counter.indices.total.get.exists-time
+    - counter.indices.total.get.exists-total
+    - counter.indices.total.get.missing-time
+    - counter.indices.total.get.missing-total
+    - counter.indices.total.get.time
+    - counter.indices.total.get.total
+    - counter.indices.total.indexing.delete-time
+    - counter.indices.total.indexing.delete-total
+    - counter.indices.total.indexing.index-time
+    - counter.indices.total.merges.total-docs
+    - counter.indices.total.merges.total-time
+    - counter.indices.total.search.fetch-total
+    - counter.indices.total.search.query-time
+    - counter.indices.total.translog.earliest_last_modified_age
+    - counter.indices.total.translog.uncommitted_operations
+    - counter.indices.total.translog.uncommitted_size_in_bytes
+    - counter.jvm.gc.count
+    - counter.jvm.gc.old-count
+    - counter.jvm.gc.old-time
+    - counter.jvm.uptime
+    - counter.thread_pool.completed
+    - counter.transport.rx.count
+    - counter.transport.rx.size
+    - counter.transport.tx.count
+    - counter.transport.tx.size
     - gauge.cluster.initializing-shards
     - gauge.cluster.status
+    - gauge.http.current_open
+    - gauge.indices.get.current
+    - gauge.indices.indexing.delete-current
+    - gauge.indices.indexing.index-current
+    - gauge.indices.merges.current-docs
+    - gauge.indices.merges.current-size
+    - gauge.indices.merges.total-docs
+    - gauge.indices.primaries.completion.size
+    - gauge.indices.primaries.docs.count
+    - gauge.indices.primaries.docs.deleted
+    - gauge.indices.primaries.fielddata.memory-size
+    - gauge.indices.primaries.flush.periodic
+    - gauge.indices.primaries.get.current
+    - gauge.indices.primaries.indexing.delete-current
+    - gauge.indices.primaries.indexing.index-current
+    - gauge.indices.primaries.merges.current
+    - gauge.indices.primaries.merges.current-docs
+    - gauge.indices.primaries.merges.current-size
+    - gauge.indices.primaries.search.fetch-current
+    - gauge.indices.primaries.search.open-contexts
+    - gauge.indices.primaries.search.query-current
+    - gauge.indices.primaries.segments.index-writer-memory
+    - gauge.indices.primaries.segments.memory
+    - gauge.indices.primaries.segments.version-map-memory
+    - gauge.indices.primaries.store.size
+    - gauge.indices.primaries.translog.earliest_last_modified_age
+    - gauge.indices.primaries.translog.size
+    - gauge.indices.primaries.translog.uncommitted_operations
+    - gauge.indices.primaries.translog.uncommitted_size_in_bytes
+    - gauge.indices.primaries.warmer.current
+    - gauge.indices.search.fetch-current
+    - gauge.indices.search.open-contexts
+    - gauge.indices.search.query-current
+    - gauge.indices.search.scroll.current
+    - gauge.indices.segments.index-writer-size
+    - gauge.indices.segments.size
+    - gauge.indices.store.size
+    - gauge.indices.total.docs.deleted
+    - gauge.indices.total.get.current
+    - gauge.indices.total.indexing.delete-current
+    - gauge.indices.total.indexing.index-current
+    - gauge.indices.total.merges.current
+    - gauge.indices.total.merges.current-docs
+    - gauge.indices.total.merges.current-size
+    - gauge.indices.total.search.open-contexts
+    - gauge.indices.total.search.query-current
+    - gauge.indices.total.store.size
+    - gauge.indices.translog.uncommitted_operations
+    - gauge.indices.translog.uncommitted_size_in_bytes
+    - gauge.jvm.mem.non-heap-committed
+    - gauge.jvm.mem.non-heap-used
+    - gauge.jvm.mem.pools.old.max_in_bytes
+    - gauge.jvm.mem.pools.old.used_in_bytes
+    - gauge.jvm.mem.pools.young.max_in_bytes
+    - gauge.jvm.mem.pools.young.used_in_bytes
+    - gauge.jvm.threads.count
+    - gauge.jvm.threads.peak
+    - gauge.process.cpu.percent
     - gauge.thread_pool.active
     - gauge.thread_pool.largest
     - gauge.thread_pool.queue
     - gauge.thread_pool.threads
+    - gauge.transport.server_open
+    - percent.jvm.mem.heap-used-percent
     monitorType: collectd/elasticsearch
 ```
 
