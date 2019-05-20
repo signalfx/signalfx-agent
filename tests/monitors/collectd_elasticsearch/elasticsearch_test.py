@@ -140,7 +140,9 @@ def test_elasticsearch_with_cluster_option():
 
 def test_elasticsearch_without_cluster():
     # start the ES container without the service
-    with run_elasticsearch(environment={"cluster.name": "testCluster"}, entrypoint="sleep inf") as es_container:
+    with run_service(
+        "elasticsearch/6.4.2", environment={"cluster.name": "testCluster"}, entrypoint="sleep inf"
+    ) as es_container:
         host = container_ip(es_container)
         config = f"""
             monitors:
@@ -165,8 +167,10 @@ def test_elasticsearch_without_cluster():
 
 
 def test_elasticsearch_with_threadpool():
-    with run_elasticsearch(environment={"cluster.name": "testCluster"}) as es_container:
+    with run_service("elasticsearch/6.2.0", environment={"cluster.name": "testCluster"}) as es_container:
         host = container_ip(es_container)
+        url = f"http://{host}:9200"
+        assert wait_for(p(http_status, url=f"{url}/_nodes/_local", status=[200]), 180), "service didn't start"
         config = f"""
             monitors:
             - type: collectd/elasticsearch
