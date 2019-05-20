@@ -132,7 +132,7 @@ RUN wget -O /tmp/Python-${PYTHON_VERSION}.tgz https://www.python.org/ftp/python/
     make && make install
 
 RUN echo "$PYTHONHOME/lib" > /etc/ld.so.conf.d/python.conf && \
-    ldconfig
+    ldconfig $PYTHONHOME/lib
 ENV PATH=$PYTHONHOME/bin:$PATH
 
 RUN wget -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py && \
