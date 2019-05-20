@@ -4,10 +4,12 @@ import random
 import re
 import socket
 import subprocess
+import tarfile
 import threading
 import time
 from contextlib import contextmanager
 from functools import partial as p
+from io import BytesIO
 from typing import Dict, List
 
 import docker
@@ -152,17 +154,26 @@ def run_subprocess(command: List[str], env: Dict[any, any] = None):
 
 @contextmanager
 def run_container(image_name, wait_for_ip=True, print_logs=True, **kwargs):
+    files = kwargs.pop("files", [])
     client = get_docker_client()
-    container = retry(lambda: client.containers.run(image_name, detach=True, **kwargs), docker.errors.DockerException)
 
-    def has_ip_addr():
-        container.reload()
-        return container.attrs["NetworkSettings"]["IPAddress"]
+    if not image_name.startswith("sha256"):
+        container = client.images.pull(image_name)
+    container = retry(lambda: client.containers.create(image_name, **kwargs), docker.errors.DockerException)
 
-    if wait_for_ip:
-        wait_for(has_ip_addr, timeout_seconds=5)
+    for src, dst in files:
+        copy_file_into_container(src, container, dst)
+
     try:
-        yield container
+        container.start()
+
+        def has_ip_addr():
+            container.reload()
+            return container.attrs["NetworkSettings"]["IPAddress"]
+
+        if wait_for_ip:
+            wait_for(has_ip_addr, timeout_seconds=5)
+            yield container
     finally:
         try:
             if print_logs:
@@ -285,3 +296,46 @@ def pull_from_reader_in_background(reader):
 def random_hex(bits=64):
     """Return random hex number as a string with the given number of bits (default 64)"""
     return hex(random.getrandbits(bits))[2:]
+
+
+def copy_file_content_into_container(content, container, target_path):
+    copy_file_object_into_container(
+        BytesIO(content.encode("utf-8")), container, target_path, size=len(content.encode("utf-8"))
+    )
+
+
+# This is more convoluted that it should be but seems to be the simplest way in
+# the face of docker-in-docker environments where volume bind mounting is hard.
+def copy_file_object_into_container(fd, container, target_path, size=None):
+    tario = BytesIO()
+    tar = tarfile.TarFile(fileobj=tario, mode="w")
+
+    info = tarfile.TarInfo(name=target_path)
+    if size is None:
+        size = os.fstat(fd.fileno()).st_size
+    info.size = size
+
+    tar.addfile(info, fd)
+
+    tar.close()
+
+    container.put_archive("/", tario.getvalue())
+    # Apparently when the above `put_archive` call returns, the file isn't
+    # necessarily fully written in the container, so wait a bit to ensure it
+    # is.
+    time.sleep(2)
+
+
+def copy_file_into_container(path, container, target_path):
+    with open(path, "rb") as fd:
+        copy_file_object_into_container(fd, container, target_path)
+
+
+def path_exists_in_container(container, path):
+    code, _ = container.exec_run("test -e %s" % path)
+    return code == 0
+
+
+def get_container_file_content(container, path):
+    assert path_exists_in_container(container, path), "File %s does not exist!" % path
+    return container.exec_run("cat %s" % path)[1].decode("utf-8")

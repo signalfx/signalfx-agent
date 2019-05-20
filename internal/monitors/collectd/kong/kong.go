@@ -2,6 +2,7 @@ package kong
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
+	"github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 
@@ -10,7 +11,38 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
+// metricConfigMap is a map of metric names to the metric configuration name
+// the Python plugin uses.
+var metricConfigMap = map[string]string{
+	counterKongConnectionsAccepted: "connections_accepted",
+	counterKongConnectionsHandled:  "connections_handled",
+	counterKongKongLatency:         "kong_latency",
+	counterKongRequestsCount:       "total_requests",
+	counterKongRequestsLatency:     "request_latency",
+	counterKongRequestsSize:        "request_size",
+	counterKongResponsesCount:      "response_count",
+	counterKongResponsesSize:       "response_size",
+	counterKongUpstreamLatency:     "upstream_latency",
+	gaugeKongConnectionsActive:     "connections_active",
+	gaugeKongConnectionsReading:    "connections_reading",
+	gaugeKongConnectionsWaiting:    "connections_waiting",
+	gaugeKongConnectionsWriting:    "connections_writing",
+	gaugeKongDatabaseReachable:     "database_reachable",
+}
+
+// configMetricMap is the reverse of the above map.
+var configMetricMap = map[string]string{}
+var log = logrus.WithField("monitorType", monitorType)
+
 func init() {
+	if len(metricConfigMap) != len(metricSet) {
+		panic("kong metricConfigMap is missing entries")
+	}
+
+	for key, val := range metricConfigMap {
+		configMetricMap[val] = key
+	}
+
 	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
@@ -120,8 +152,50 @@ type Monitor struct {
 	python.PyMonitor
 }
 
+// GetExtraMetrics returns additional metrics to allow through based on monitor metric configuration
+func (c *Config) GetExtraMetrics() []string {
+	// if configured in Metrics then add to extra metrics
+	var extraMetrics []string
+
+	for _, metricConfig := range c.Metrics {
+		if metricConfig.ReportBool {
+			if metric, ok := configMetricMap[metricConfig.MetricName]; ok {
+				extraMetrics = append(extraMetrics, metric)
+			} else {
+				log.Warnf("Unknown metric name %s", metric)
+			}
+		}
+	}
+
+	return extraMetrics
+}
+
 // Configure configures and runs the plugin in collectd
-func (m *Monitor) Configure(conf *Config) error {
+func (m *Monitor) Configure(c *Config) error {
+	conf := *c
+	conf.Metrics = append([]Metric(nil), c.Metrics...)
+
+	// Track if the user has already configured the metric.
+	configuredMetrics := map[string]bool{}
+
+	for _, metricConfig := range c.Metrics {
+		configuredMetrics[metricConfig.MetricName] = true
+	}
+
+	// For enabled metrics configure the Python metric name unless the user
+	// already has.
+	for _, metric := range m.Output.EnabledMetrics() {
+		metricConfig := metricConfigMap[metric]
+		if metricConfig == "" {
+			log.Warnf("Unable to determine metric configuration name for %s", metric)
+			continue
+		}
+
+		if !configuredMetrics[metricConfig] {
+			conf.Metrics = append(conf.Metrics, Metric{metricConfig, true})
+		}
+	}
+
 	conf.pyConf = &python.Config{
 		MonitorConfig: conf.MonitorConfig,
 		Host:          conf.Host,
@@ -220,5 +294,5 @@ func (m *Monitor) Configure(conf *Config) error {
 		}
 	}
 
-	return m.PyMonitor.Configure(conf)
+	return m.PyMonitor.Configure(&conf)
 }
