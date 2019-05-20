@@ -8,7 +8,7 @@ from tests.helpers.assertions import tcp_socket_open, has_datapoint_with_dim
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_container, wait_for
 from tests.helpers.verify import verify
-from tests.monitors.hadoop.hadoop_test import start_hadoop
+from tests.monitors.collectd_hadoop.hadoop_test import start_hadoop
 
 pytestmark = [pytest.mark.collectd, pytest.mark.hadoopjmx, pytest.mark.monitor_with_endpoints]
 

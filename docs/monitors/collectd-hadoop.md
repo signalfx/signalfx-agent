@@ -54,15 +54,23 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
+| `counter.hadoop.cluster.metrics.total_mb` | cumulative |  |  |
+| `counter.hadoop.cluster.metrics.total_nodes` | cumulative |  |  |
+| `counter.hadoop.cluster.metrics.total_virtual_cores` | cumulative |  |  |
 | `gauge.hadoop.cluster.metrics.active_nodes` | gauge | ✔ |  |
 | `gauge.hadoop.cluster.metrics.allocated_mb` | gauge | ✔ |  |
 | `gauge.hadoop.cluster.metrics.allocated_virtual_cores` | gauge | ✔ |  |
 | `gauge.hadoop.cluster.metrics.apps_completed` | gauge | ✔ |  |
 | `gauge.hadoop.cluster.metrics.apps_failed` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.apps_killed` | gauge |  |  |
+| `gauge.hadoop.cluster.metrics.apps_pending` | gauge |  |  |
 | `gauge.hadoop.cluster.metrics.apps_running` | gauge | ✔ |  |
 | `gauge.hadoop.cluster.metrics.apps_submitted` | gauge | ✔ |  |
 | `gauge.hadoop.cluster.metrics.available_mb` | gauge | ✔ |  |
 | `gauge.hadoop.cluster.metrics.available_virtual_cores` | gauge | ✔ |  |
+| `gauge.hadoop.cluster.metrics.containers_allocated` | gauge |  |  |
+| `gauge.hadoop.cluster.metrics.containers_pending` | gauge |  |  |
+| `gauge.hadoop.cluster.metrics.containers_reserved` | gauge |  |  |
 | `gauge.hadoop.cluster.metrics.decommissioned_nodes` | gauge | ✔ |  |
 | `gauge.hadoop.cluster.metrics.lost_nodes` | gauge | ✔ |  |
 | `gauge.hadoop.cluster.metrics.rebooted_nodes` | gauge | ✔ |  |
@@ -86,7 +94,128 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.hadoop.resource.manager.apps.queueUsagePercentage` | gauge | ✔ |  |
 | `gauge.hadoop.resource.manager.apps.runningContainers` | gauge | ✔ |  |
 | `gauge.hadoop.resource.manager.apps.vcoreSeconds` | gauge | ✔ |  |
+| `gauge.hadoop.resource.manager.nodes.availMemoryMB` | gauge |  |  |
+| `gauge.hadoop.resource.manager.nodes.availableVirtualCores` | gauge |  |  |
+| `gauge.hadoop.resource.manager.nodes.numContainers` | gauge |  |  |
+| `gauge.hadoop.resource.manager.nodes.usedMemoryMB` | gauge |  |  |
+| `gauge.hadoop.resource.manager.nodes.usedVirtualCores` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteCapacity` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteMaxCapacity` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteUsedCapacity` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.allocatedContainers` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.capacity` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.maxApplications` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.maxApplicationsPerUser` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.maxCapacity` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.numActiveApplications` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.numApplications` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.numContainers` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.numPendingApplications` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.pendingContainers` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.reservedContainers` | gauge |  |  |
 | `gauge.hadoop.resource.manager.scheduler.leaf.queue.usedCapacity` | gauge | ✔ |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.userLimit` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.leaf.queue.userLimitFactor` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.root.queue.capacity` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.root.queue.maxCapacity` | gauge |  |  |
+| `gauge.hadoop.resource.manager.scheduler.root.queue.usedCapacity` | gauge |  |  |
+| `hadoop.cluster.metrics.active_nodes` | gauge |  |  |
+| `hadoop.cluster.metrics.allocated_mb` | gauge |  |  |
+| `hadoop.cluster.metrics.allocated_virtual_cores` | gauge |  |  |
+| `hadoop.cluster.metrics.apps_completed` | gauge |  |  |
+| `hadoop.cluster.metrics.apps_failed` | gauge |  |  |
+| `hadoop.cluster.metrics.apps_killed` | gauge |  |  |
+| `hadoop.cluster.metrics.apps_pending` | gauge |  |  |
+| `hadoop.cluster.metrics.apps_running` | gauge |  |  |
+| `hadoop.cluster.metrics.apps_submitted` | gauge |  |  |
+| `hadoop.cluster.metrics.available_mb` | gauge |  |  |
+| `hadoop.cluster.metrics.available_virtual_cores` | gauge |  |  |
+| `hadoop.cluster.metrics.containers_allocated` | gauge |  |  |
+| `hadoop.cluster.metrics.containers_pending` | gauge |  |  |
+| `hadoop.cluster.metrics.containers_reserved` | gauge |  |  |
+| `hadoop.cluster.metrics.decommissioned_nodes` | gauge |  |  |
+| `hadoop.cluster.metrics.lost_nodes` | gauge |  |  |
+| `hadoop.cluster.metrics.rebooted_nodes` | gauge |  |  |
+| `hadoop.cluster.metrics.reserved_mb` | gauge |  |  |
+| `hadoop.cluster.metrics.reserved_virtual_cores` | gauge |  |  |
+| `hadoop.cluster.metrics.total_mb` | counter |  |  |
+| `hadoop.cluster.metrics.total_nodes` | counter |  |  |
+| `hadoop.cluster.metrics.total_virtual_cores` | counter |  |  |
+| `hadoop.cluster.metrics.unhealthy_nodes` | gauge |  |  |
+| `hadoop.mapreduce.job.elapsedTime` | gauge |  |  |
+| `hadoop.mapreduce.job.failedMapAttempts` | gauge |  |  |
+| `hadoop.mapreduce.job.failedReduceAttempts` | gauge |  |  |
+| `hadoop.mapreduce.job.killedMapAttempts` | gauge |  |  |
+| `hadoop.mapreduce.job.killedReduceAttempts` | gauge |  |  |
+| `hadoop.mapreduce.job.mapsCompleted` | gauge |  |  |
+| `hadoop.mapreduce.job.mapsPending` | gauge |  |  |
+| `hadoop.mapreduce.job.mapsRunning` | gauge |  |  |
+| `hadoop.mapreduce.job.mapsTotal` | gauge |  |  |
+| `hadoop.mapreduce.job.newMapAttempts` | gauge |  |  |
+| `hadoop.mapreduce.job.newReduceAttempts` | gauge |  |  |
+| `hadoop.mapreduce.job.reducesCompleted` | gauge |  |  |
+| `hadoop.mapreduce.job.reducesPending` | gauge |  |  |
+| `hadoop.mapreduce.job.reducesTotal` | gauge |  |  |
+| `hadoop.mapreduce.job.runningMapAttempts` | gauge |  |  |
+| `hadoop.mapreduce.job.runningReduceAttempts` | gauge |  |  |
+| `hadoop.mapreduce.job.successfulMapAttempts` | gauge |  |  |
+| `hadoop.mapreduce.job.successfulReduceAttempts` | gauge |  |  |
+| `hadoop.resource.manager.apps.allocatedMB` | gauge |  |  |
+| `hadoop.resource.manager.apps.allocatedVCores` | gauge |  |  |
+| `hadoop.resource.manager.apps.clusterUsagePercentage` | gauge |  |  |
+| `hadoop.resource.manager.apps.memorySeconds` | gauge |  |  |
+| `hadoop.resource.manager.apps.numAMContainerPreempted` | gauge |  |  |
+| `hadoop.resource.manager.apps.numNonAMContainerPreempted` | gauge |  |  |
+| `hadoop.resource.manager.apps.preemptedResourceMB` | gauge |  |  |
+| `hadoop.resource.manager.apps.preemptedResourceVCores` | gauge |  |  |
+| `hadoop.resource.manager.apps.priority` | gauge |  |  |
+| `hadoop.resource.manager.apps.progress` | gauge |  |  |
+| `hadoop.resource.manager.apps.queueUsagePercentage` | gauge |  |  |
+| `hadoop.resource.manager.apps.runningContainers` | gauge |  |  |
+| `hadoop.resource.manager.apps.vcoreSeconds` | gauge |  |  |
+| `hadoop.resource.manager.node.nodeCPUUsage` | gauge |  |  |
+| `hadoop.resource.manager.node.nodePhysicalMemoryMB` | gauge |  |  |
+| `hadoop.resource.manager.node.nodeVirtualMemoryMB` | gauge |  |  |
+| `hadoop.resource.manager.nodes.availMemoryMB` | gauge |  |  |
+| `hadoop.resource.manager.nodes.availableVirtualCores` | gauge |  |  |
+| `hadoop.resource.manager.nodes.numContainers` | gauge |  |  |
+| `hadoop.resource.manager.nodes.usedMemoryMB` | gauge |  |  |
+| `hadoop.resource.manager.nodes.usedVirtualCores` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.fifo.availNodeCapacity` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.fifo.capacity` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.fifo.maxQueueMemoryCapacity` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.fifo.minQueueMemoryCapacity` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.fifo.numContainers` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.fifo.numNodes` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.fifo.totalNodeCapacity` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.fifo.usedCapacity` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.fifo.usedNodeCapacity` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.absoluteCapacity` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.absoluteMaxCapacity` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.absoluteUsedCapacity` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.allocatedContainers` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.capacity` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.maxActiveApplications` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.maxActiveApplicationsPerUser` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.maxApplications` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.maxApplicationsPerUser` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.maxCapacity` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.numActiveApplications` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.numApplications` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.numContainers` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.numPendingApplications` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.pendingContainers` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.reservedContainers` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.usedCapacity` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.userLimit` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.leaf.queue.userLimitFactor` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.queue.resource.memory` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.queue.resource.vCores` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.queue.users.numActiveApplications` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.queue.users.numPendingApplications` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.root.queue.capacity` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.root.queue.maxCapacity` | gauge |  |  |
+| `hadoop.resource.manager.scheduler.root.queue.usedCapacity` | gauge |  |  |
 
 
 To specify custom metrics you want to monitor, add a `metricsToInclude` filter
@@ -103,6 +232,135 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
+    - counter.hadoop.cluster.metrics.total_mb
+    - counter.hadoop.cluster.metrics.total_nodes
+    - counter.hadoop.cluster.metrics.total_virtual_cores
+    - gauge.hadoop.cluster.metrics.apps_killed
+    - gauge.hadoop.cluster.metrics.apps_pending
+    - gauge.hadoop.cluster.metrics.containers_allocated
+    - gauge.hadoop.cluster.metrics.containers_pending
+    - gauge.hadoop.cluster.metrics.containers_reserved
+    - gauge.hadoop.resource.manager.nodes.availMemoryMB
+    - gauge.hadoop.resource.manager.nodes.availableVirtualCores
+    - gauge.hadoop.resource.manager.nodes.numContainers
+    - gauge.hadoop.resource.manager.nodes.usedMemoryMB
+    - gauge.hadoop.resource.manager.nodes.usedVirtualCores
+    - gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteCapacity
+    - gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteMaxCapacity
+    - gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteUsedCapacity
+    - gauge.hadoop.resource.manager.scheduler.leaf.queue.allocatedContainers
+    - gauge.hadoop.resource.manager.scheduler.leaf.queue.capacity
+    - gauge.hadoop.resource.manager.scheduler.leaf.queue.maxApplications
+    - gauge.hadoop.resource.manager.scheduler.leaf.queue.maxApplicationsPerUser
+    - gauge.hadoop.resource.manager.scheduler.leaf.queue.maxCapacity
+    - gauge.hadoop.resource.manager.scheduler.leaf.queue.numActiveApplications
+    - gauge.hadoop.resource.manager.scheduler.leaf.queue.numApplications
+    - gauge.hadoop.resource.manager.scheduler.leaf.queue.numContainers
+    - gauge.hadoop.resource.manager.scheduler.leaf.queue.numPendingApplications
+    - gauge.hadoop.resource.manager.scheduler.leaf.queue.pendingContainers
+    - gauge.hadoop.resource.manager.scheduler.leaf.queue.reservedContainers
+    - gauge.hadoop.resource.manager.scheduler.leaf.queue.userLimit
+    - gauge.hadoop.resource.manager.scheduler.leaf.queue.userLimitFactor
+    - gauge.hadoop.resource.manager.scheduler.root.queue.capacity
+    - gauge.hadoop.resource.manager.scheduler.root.queue.maxCapacity
+    - gauge.hadoop.resource.manager.scheduler.root.queue.usedCapacity
+    - hadoop.cluster.metrics.active_nodes
+    - hadoop.cluster.metrics.allocated_mb
+    - hadoop.cluster.metrics.allocated_virtual_cores
+    - hadoop.cluster.metrics.apps_completed
+    - hadoop.cluster.metrics.apps_failed
+    - hadoop.cluster.metrics.apps_killed
+    - hadoop.cluster.metrics.apps_pending
+    - hadoop.cluster.metrics.apps_running
+    - hadoop.cluster.metrics.apps_submitted
+    - hadoop.cluster.metrics.available_mb
+    - hadoop.cluster.metrics.available_virtual_cores
+    - hadoop.cluster.metrics.containers_allocated
+    - hadoop.cluster.metrics.containers_pending
+    - hadoop.cluster.metrics.containers_reserved
+    - hadoop.cluster.metrics.decommissioned_nodes
+    - hadoop.cluster.metrics.lost_nodes
+    - hadoop.cluster.metrics.rebooted_nodes
+    - hadoop.cluster.metrics.reserved_mb
+    - hadoop.cluster.metrics.reserved_virtual_cores
+    - hadoop.cluster.metrics.total_mb
+    - hadoop.cluster.metrics.total_nodes
+    - hadoop.cluster.metrics.total_virtual_cores
+    - hadoop.cluster.metrics.unhealthy_nodes
+    - hadoop.mapreduce.job.elapsedTime
+    - hadoop.mapreduce.job.failedMapAttempts
+    - hadoop.mapreduce.job.failedReduceAttempts
+    - hadoop.mapreduce.job.killedMapAttempts
+    - hadoop.mapreduce.job.killedReduceAttempts
+    - hadoop.mapreduce.job.mapsCompleted
+    - hadoop.mapreduce.job.mapsPending
+    - hadoop.mapreduce.job.mapsRunning
+    - hadoop.mapreduce.job.mapsTotal
+    - hadoop.mapreduce.job.newMapAttempts
+    - hadoop.mapreduce.job.newReduceAttempts
+    - hadoop.mapreduce.job.reducesCompleted
+    - hadoop.mapreduce.job.reducesPending
+    - hadoop.mapreduce.job.reducesTotal
+    - hadoop.mapreduce.job.runningMapAttempts
+    - hadoop.mapreduce.job.runningReduceAttempts
+    - hadoop.mapreduce.job.successfulMapAttempts
+    - hadoop.mapreduce.job.successfulReduceAttempts
+    - hadoop.resource.manager.apps.allocatedMB
+    - hadoop.resource.manager.apps.allocatedVCores
+    - hadoop.resource.manager.apps.clusterUsagePercentage
+    - hadoop.resource.manager.apps.memorySeconds
+    - hadoop.resource.manager.apps.numAMContainerPreempted
+    - hadoop.resource.manager.apps.numNonAMContainerPreempted
+    - hadoop.resource.manager.apps.preemptedResourceMB
+    - hadoop.resource.manager.apps.preemptedResourceVCores
+    - hadoop.resource.manager.apps.priority
+    - hadoop.resource.manager.apps.progress
+    - hadoop.resource.manager.apps.queueUsagePercentage
+    - hadoop.resource.manager.apps.runningContainers
+    - hadoop.resource.manager.apps.vcoreSeconds
+    - hadoop.resource.manager.node.nodeCPUUsage
+    - hadoop.resource.manager.node.nodePhysicalMemoryMB
+    - hadoop.resource.manager.node.nodeVirtualMemoryMB
+    - hadoop.resource.manager.nodes.availMemoryMB
+    - hadoop.resource.manager.nodes.availableVirtualCores
+    - hadoop.resource.manager.nodes.numContainers
+    - hadoop.resource.manager.nodes.usedMemoryMB
+    - hadoop.resource.manager.nodes.usedVirtualCores
+    - hadoop.resource.manager.scheduler.fifo.availNodeCapacity
+    - hadoop.resource.manager.scheduler.fifo.capacity
+    - hadoop.resource.manager.scheduler.fifo.maxQueueMemoryCapacity
+    - hadoop.resource.manager.scheduler.fifo.minQueueMemoryCapacity
+    - hadoop.resource.manager.scheduler.fifo.numContainers
+    - hadoop.resource.manager.scheduler.fifo.numNodes
+    - hadoop.resource.manager.scheduler.fifo.totalNodeCapacity
+    - hadoop.resource.manager.scheduler.fifo.usedCapacity
+    - hadoop.resource.manager.scheduler.fifo.usedNodeCapacity
+    - hadoop.resource.manager.scheduler.leaf.queue.absoluteCapacity
+    - hadoop.resource.manager.scheduler.leaf.queue.absoluteMaxCapacity
+    - hadoop.resource.manager.scheduler.leaf.queue.absoluteUsedCapacity
+    - hadoop.resource.manager.scheduler.leaf.queue.allocatedContainers
+    - hadoop.resource.manager.scheduler.leaf.queue.capacity
+    - hadoop.resource.manager.scheduler.leaf.queue.maxActiveApplications
+    - hadoop.resource.manager.scheduler.leaf.queue.maxActiveApplicationsPerUser
+    - hadoop.resource.manager.scheduler.leaf.queue.maxApplications
+    - hadoop.resource.manager.scheduler.leaf.queue.maxApplicationsPerUser
+    - hadoop.resource.manager.scheduler.leaf.queue.maxCapacity
+    - hadoop.resource.manager.scheduler.leaf.queue.numActiveApplications
+    - hadoop.resource.manager.scheduler.leaf.queue.numApplications
+    - hadoop.resource.manager.scheduler.leaf.queue.numContainers
+    - hadoop.resource.manager.scheduler.leaf.queue.numPendingApplications
+    - hadoop.resource.manager.scheduler.leaf.queue.pendingContainers
+    - hadoop.resource.manager.scheduler.leaf.queue.reservedContainers
+    - hadoop.resource.manager.scheduler.leaf.queue.usedCapacity
+    - hadoop.resource.manager.scheduler.leaf.queue.userLimit
+    - hadoop.resource.manager.scheduler.leaf.queue.userLimitFactor
+    - hadoop.resource.manager.scheduler.queue.resource.memory
+    - hadoop.resource.manager.scheduler.queue.resource.vCores
+    - hadoop.resource.manager.scheduler.queue.users.numActiveApplications
+    - hadoop.resource.manager.scheduler.queue.users.numPendingApplications
+    - hadoop.resource.manager.scheduler.root.queue.capacity
+    - hadoop.resource.manager.scheduler.root.queue.maxCapacity
+    - hadoop.resource.manager.scheduler.root.queue.usedCapacity
     monitorType: collectd/hadoop
 ```
 

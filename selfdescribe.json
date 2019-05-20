@@ -4663,8 +4663,57 @@
       "sendAll": false,
       "dimensions": null,
       "doc": "Collects metrics about a Hadoop cluster using the\n[collectd Hadoop Python plugin](https://github.com/signalfx/collectd-hadoop).\nAlso see\nhttps://github.com/signalfx/integrations/tree/master/collectd-hadoop.\n\nThe `collectd/hadoop` monitor will collect metrics from the Resource Manager\nREST API for the following:\n- Cluster Metrics\n- Cluster Scheduler\n- Cluster Applications\n- Cluster Nodes\n- MapReduce Jobs\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/hadoop\n  host: 127.0.0.1\n  port: 8088\n```\n\nIf a remote JMX port is exposed in the hadoop cluster, then\nyou may also configure the [collectd/hadoopjmx](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoopjmx.md)\nmonitor to collect additional metrics about the hadoop cluster.\n",
-      "groups": null,
+      "groups": {
+        "applications": {
+          "description": ""
+        },
+        "cluster": {
+          "description": ""
+        },
+        "fifo-scheduler": {
+          "description": ""
+        },
+        "leaf-queue": {
+          "description": ""
+        },
+        "mapreduce-jobs": {
+          "description": ""
+        },
+        "node-resources": {
+          "description": ""
+        },
+        "nodes": {
+          "description": ""
+        },
+        "queue-users": {
+          "description": ""
+        },
+        "resource-objects": {
+          "description": ""
+        },
+        "root-queue": {
+          "description": ""
+        }
+      },
       "metrics": {
+        "counter.hadoop.cluster.metrics.total_mb": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "counter.hadoop.cluster.metrics.total_nodes": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "counter.hadoop.cluster.metrics.total_virtual_cores": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "included": false
+        },
         "gauge.hadoop.cluster.metrics.active_nodes": {
           "type": "gauge",
           "description": "",
@@ -4695,6 +4744,18 @@
           "group": null,
           "included": true
         },
+        "gauge.hadoop.cluster.metrics.apps_killed": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.cluster.metrics.apps_pending": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
         "gauge.hadoop.cluster.metrics.apps_running": {
           "type": "gauge",
           "description": "",
@@ -4718,6 +4779,24 @@
           "description": "",
           "group": null,
           "included": true
+        },
+        "gauge.hadoop.cluster.metrics.containers_allocated": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.cluster.metrics.containers_pending": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.cluster.metrics.containers_reserved": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
         },
         "gauge.hadoop.cluster.metrics.decommissioned_nodes": {
           "type": "gauge",
@@ -4857,11 +4936,737 @@
           "group": null,
           "included": true
         },
+        "gauge.hadoop.resource.manager.nodes.availMemoryMB": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.nodes.availableVirtualCores": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.nodes.numContainers": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.nodes.usedMemoryMB": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.nodes.usedVirtualCores": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteMaxCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteUsedCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.allocatedContainers": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.capacity": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.maxApplications": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.maxApplicationsPerUser": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.maxCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.numActiveApplications": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.numApplications": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.numContainers": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.numPendingApplications": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.pendingContainers": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.reservedContainers": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
         "gauge.hadoop.resource.manager.scheduler.leaf.queue.usedCapacity": {
           "type": "gauge",
           "description": "",
           "group": null,
           "included": true
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.userLimit": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.leaf.queue.userLimitFactor": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.root.queue.capacity": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.root.queue.maxCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "gauge.hadoop.resource.manager.scheduler.root.queue.usedCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "included": false
+        },
+        "hadoop.cluster.metrics.active_nodes": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.allocated_mb": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.allocated_virtual_cores": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.apps_completed": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.apps_failed": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.apps_killed": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.apps_pending": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.apps_running": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.apps_submitted": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.available_mb": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.available_virtual_cores": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.containers_allocated": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.containers_pending": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.containers_reserved": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.decommissioned_nodes": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.lost_nodes": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.rebooted_nodes": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.reserved_mb": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.reserved_virtual_cores": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.total_mb": {
+          "type": "counter",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.total_nodes": {
+          "type": "counter",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.total_virtual_cores": {
+          "type": "counter",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.cluster.metrics.unhealthy_nodes": {
+          "type": "gauge",
+          "description": "",
+          "group": "cluster",
+          "included": false
+        },
+        "hadoop.mapreduce.job.elapsedTime": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.failedMapAttempts": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.failedReduceAttempts": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.killedMapAttempts": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.killedReduceAttempts": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.mapsCompleted": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.mapsPending": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.mapsRunning": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.mapsTotal": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.newMapAttempts": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.newReduceAttempts": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.reducesCompleted": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.reducesPending": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.reducesTotal": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.runningMapAttempts": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.runningReduceAttempts": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.successfulMapAttempts": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.mapreduce.job.successfulReduceAttempts": {
+          "type": "gauge",
+          "description": "",
+          "group": "mapreduce-jobs",
+          "included": false
+        },
+        "hadoop.resource.manager.apps.allocatedMB": {
+          "type": "gauge",
+          "description": "",
+          "group": "applications",
+          "included": false
+        },
+        "hadoop.resource.manager.apps.allocatedVCores": {
+          "type": "gauge",
+          "description": "",
+          "group": "applications",
+          "included": false
+        },
+        "hadoop.resource.manager.apps.clusterUsagePercentage": {
+          "type": "gauge",
+          "description": "",
+          "group": "applications",
+          "included": false
+        },
+        "hadoop.resource.manager.apps.memorySeconds": {
+          "type": "gauge",
+          "description": "",
+          "group": "applications",
+          "included": false
+        },
+        "hadoop.resource.manager.apps.numAMContainerPreempted": {
+          "type": "gauge",
+          "description": "",
+          "group": "applications",
+          "included": false
+        },
+        "hadoop.resource.manager.apps.numNonAMContainerPreempted": {
+          "type": "gauge",
+          "description": "",
+          "group": "applications",
+          "included": false
+        },
+        "hadoop.resource.manager.apps.preemptedResourceMB": {
+          "type": "gauge",
+          "description": "",
+          "group": "applications",
+          "included": false
+        },
+        "hadoop.resource.manager.apps.preemptedResourceVCores": {
+          "type": "gauge",
+          "description": "",
+          "group": "applications",
+          "included": false
+        },
+        "hadoop.resource.manager.apps.priority": {
+          "type": "gauge",
+          "description": "",
+          "group": "applications",
+          "included": false
+        },
+        "hadoop.resource.manager.apps.progress": {
+          "type": "gauge",
+          "description": "",
+          "group": "applications",
+          "included": false
+        },
+        "hadoop.resource.manager.apps.queueUsagePercentage": {
+          "type": "gauge",
+          "description": "",
+          "group": "applications",
+          "included": false
+        },
+        "hadoop.resource.manager.apps.runningContainers": {
+          "type": "gauge",
+          "description": "",
+          "group": "applications",
+          "included": false
+        },
+        "hadoop.resource.manager.apps.vcoreSeconds": {
+          "type": "gauge",
+          "description": "",
+          "group": "applications",
+          "included": false
+        },
+        "hadoop.resource.manager.node.nodeCPUUsage": {
+          "type": "gauge",
+          "description": "",
+          "group": "node-resources",
+          "included": false
+        },
+        "hadoop.resource.manager.node.nodePhysicalMemoryMB": {
+          "type": "gauge",
+          "description": "",
+          "group": "node-resources",
+          "included": false
+        },
+        "hadoop.resource.manager.node.nodeVirtualMemoryMB": {
+          "type": "gauge",
+          "description": "",
+          "group": "node-resources",
+          "included": false
+        },
+        "hadoop.resource.manager.nodes.availMemoryMB": {
+          "type": "gauge",
+          "description": "",
+          "group": "nodes",
+          "included": false
+        },
+        "hadoop.resource.manager.nodes.availableVirtualCores": {
+          "type": "gauge",
+          "description": "",
+          "group": "nodes",
+          "included": false
+        },
+        "hadoop.resource.manager.nodes.numContainers": {
+          "type": "gauge",
+          "description": "",
+          "group": "nodes",
+          "included": false
+        },
+        "hadoop.resource.manager.nodes.usedMemoryMB": {
+          "type": "gauge",
+          "description": "",
+          "group": "nodes",
+          "included": false
+        },
+        "hadoop.resource.manager.nodes.usedVirtualCores": {
+          "type": "gauge",
+          "description": "",
+          "group": "nodes",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.fifo.availNodeCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": "fifo-scheduler",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.fifo.capacity": {
+          "type": "gauge",
+          "description": "",
+          "group": "fifo-scheduler",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.fifo.maxQueueMemoryCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": "fifo-scheduler",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.fifo.minQueueMemoryCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": "fifo-scheduler",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.fifo.numContainers": {
+          "type": "gauge",
+          "description": "",
+          "group": "fifo-scheduler",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.fifo.numNodes": {
+          "type": "gauge",
+          "description": "",
+          "group": "fifo-scheduler",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.fifo.totalNodeCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": "fifo-scheduler",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.fifo.usedCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": "fifo-scheduler",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.fifo.usedNodeCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": "fifo-scheduler",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.absoluteCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.absoluteMaxCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.absoluteUsedCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.allocatedContainers": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.capacity": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.maxActiveApplications": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.maxActiveApplicationsPerUser": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.maxApplications": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.maxApplicationsPerUser": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.maxCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.numActiveApplications": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.numApplications": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.numContainers": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.numPendingApplications": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.pendingContainers": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.reservedContainers": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.usedCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.userLimit": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.leaf.queue.userLimitFactor": {
+          "type": "gauge",
+          "description": "",
+          "group": "leaf-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.queue.resource.memory": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-objects",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.queue.resource.vCores": {
+          "type": "gauge",
+          "description": "",
+          "group": "resource-objects",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.queue.users.numActiveApplications": {
+          "type": "gauge",
+          "description": "",
+          "group": "queue-users",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.queue.users.numPendingApplications": {
+          "type": "gauge",
+          "description": "",
+          "group": "queue-users",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.root.queue.capacity": {
+          "type": "gauge",
+          "description": "",
+          "group": "root-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.root.queue.maxCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": "root-queue",
+          "included": false
+        },
+        "hadoop.resource.manager.scheduler.root.queue.usedCapacity": {
+          "type": "gauge",
+          "description": "",
+          "group": "root-queue",
+          "included": false
         }
       },
       "properties": null,

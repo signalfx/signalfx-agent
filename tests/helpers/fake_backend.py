@@ -155,6 +155,13 @@ def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0):
             metrics = {(dp.metric, dp.metricType) for dp in dps}
             out["metrics"] = {metric: {"type": get_metric_type(metric_type)} for metric, metric_type in sorted(metrics)}
             out["dimensions"] = sorted(set(self.datapoints_by_dim))
+            out["common_dimensions"] = []
+
+            # Set dimensions that are present on all datapoints.
+            for dim, dps in self.datapoints_by_dim.items():
+                if len({dp.metric for dp in dps}) == len(metrics):
+                    out["common_dimensions"].append(dim)
+
             json.dump(out, sys.stdout, indent=2)
 
         def reset_datapoints(self):
