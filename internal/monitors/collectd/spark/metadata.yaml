@@ -27,7 +27,7 @@ monitors:
         collectApplicationMetrics: true
     ```
   metrics:
-    counter.HiveExternalCatalog.counter.HiveClientCalls:
+    counter.HiveExternalCatalog.hiveClientCalls:
       description: Total number of client calls sent to Hive for query processing
       included: false
       type: counter
