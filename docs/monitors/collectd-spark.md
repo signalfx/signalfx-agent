@@ -57,9 +57,9 @@ The following table lists the metrics available for this monitor. Metrics that a
 
 | Name | Type | Included | Description |
 | ---  | ---  | ---    | ---         |
-| `counter.HiveExternalCatalog.counter.HiveClientCalls` | counter |  | Total number of client calls sent to Hive for query processing |
 | `counter.HiveExternalCatalog.fileCacheHits` | counter |  | Total number of file level cache hits occurred |
 | `counter.HiveExternalCatalog.filesDiscovered` | counter |  | Total number of files discovered |
+| `counter.HiveExternalCatalog.hiveClientCalls` | counter |  | Total number of client calls sent to Hive for query processing |
 | `counter.HiveExternalCatalog.parallelListingJobCount` | counter |  | Total number of Hive-specific jobs running in parallel |
 | `counter.HiveExternalCatalog.partitionsFetched` | counter |  | Total number of partitions fetched |
 | `counter.spark.driver.completed_tasks` | counter |  | Total number of completed tasks in driver mapped to a particular application |
@@ -163,9 +163,9 @@ required for gathering additional metrics.
 
 metricsToInclude:
   - metricNames:
-    - counter.HiveExternalCatalog.counter.HiveClientCalls
     - counter.HiveExternalCatalog.fileCacheHits
     - counter.HiveExternalCatalog.filesDiscovered
+    - counter.HiveExternalCatalog.hiveClientCalls
     - counter.HiveExternalCatalog.parallelListingJobCount
     - counter.HiveExternalCatalog.partitionsFetched
     - counter.spark.driver.completed_tasks
