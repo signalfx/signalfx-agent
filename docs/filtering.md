@@ -20,7 +20,7 @@ and negation (see [overridable filtering](#overridable-filtering)). The table
 of metrics under each monitor's documentation shows whether a metric is custom
 or not.
 
-If a metric is emitted that is not documented (for example you might specify a custom metric namein the
+If a metric is emitted that is not documented (for example you might specify a custom metric name in the
 [expvar](monitors/expvar.md) monitor) that metric will be emitted without having to add it
 to `extraMetrics`.
 
