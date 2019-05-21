@@ -11,7 +11,7 @@ from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_service, wait_for
 from tests.helpers.verify import verify
 
-pytestmark = [pytest.mark.collectd, pytest.mark.spark, pytest.mark.monitor_with_endpoints]
+pytestmark = [pytest.mark.collectd, pytest.mark.spark, pytest.mark.monitor_with_endpoints, pytest.mark.flaky(reruns=2)]
 
 METADATA = Metadata.from_package("collectd/spark")
 

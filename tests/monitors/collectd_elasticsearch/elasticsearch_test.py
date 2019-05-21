@@ -75,10 +75,7 @@ def test_elasticsearch_all():
               extraMetrics: ["*"]
             """
         with Agent.run(config) as agent:
-            try:
-                verify(agent, METADATA.all_metrics - EXCLUDED)
-            finally:
-                agent.fake_services.dump_json()
+            verify(agent, METADATA.all_metrics - EXCLUDED)
             assert has_datapoint_with_dim(
                 agent.fake_services, "plugin", "elasticsearch"
             ), "Didn't get elasticsearch datapoints"
