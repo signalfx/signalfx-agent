@@ -5,18 +5,17 @@ from contextlib import contextmanager
 from functools import partial as p
 
 import pytest
-
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name, tcp_socket_open
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import (
+    DEFAULT_TIMEOUT,
+    container_hostname,
     container_ip,
+    random_hex,
     run_container,
     run_service,
     wait_for,
-    DEFAULT_TIMEOUT,
-    random_hex,
-    container_hostname,
 )
 from tests.helpers.verify import verify
 
@@ -146,10 +145,9 @@ def run_all(version, metrics, extra_metrics=""):
 
 @pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("version", VERSIONS)
-def test_kafka_monitors_included(version):
+def test_kafka_monitors_default(version):
     run_all(
-        version,
-        KAFKA_METADATA.included_metrics | PRODUCER_METADATA.included_metrics | CONSUMER_METADATA.included_metrics,
+        version, KAFKA_METADATA.default_metrics | PRODUCER_METADATA.default_metrics | CONSUMER_METADATA.default_metrics
     )
 
 

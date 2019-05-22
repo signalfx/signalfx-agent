@@ -11,7 +11,7 @@ from tests.helpers.util import container_ip, ensure_always, run_container, wait_
 from tests.helpers.verify import (
     verify,
     verify_expected_is_subset,
-    run_agent_verify_included_metrics,
+    run_agent_verify_default_metrics,
     run_agent_verify_all_metrics,
 )
 
@@ -27,14 +27,14 @@ ENV = {
 METADATA = Metadata.from_package("collectd/mysql")
 
 
-def test_mysql_included():
+def test_mysql_default():
     with run_container("mysql:5.7", environment=ENV) as mysql:
         host_ip = container_ip(mysql)
         assert wait_for(p(tcp_socket_open, host_ip, 3306), 60), "service didn't start"
 
         create_db_activity(host_ip)
 
-        run_agent_verify_included_metrics(
+        run_agent_verify_default_metrics(
             f"""
             monitors:
             - type: collectd/mysql

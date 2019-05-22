@@ -2,15 +2,15 @@ import pytest
 
 from tests.helpers.assertions import has_log_message
 from tests.helpers.metadata import Metadata
-from tests.helpers.verify import run_agent_verify_included_metrics, run_agent_verify_all_metrics
+from tests.helpers.verify import run_agent_verify_default_metrics, run_agent_verify_all_metrics
 
 pytestmark = [pytest.mark.collectd, pytest.mark.vmem, pytest.mark.monitor_without_endpoints]
 
 METADATA = Metadata.from_package("collectd/vmem")
 
 
-def test_collectd_vmem_included():
-    agent = run_agent_verify_included_metrics(
+def test_collectd_vmem_default():
+    agent = run_agent_verify_default_metrics(
         """
         monitors:
         - type: collectd/vmem

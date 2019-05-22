@@ -173,9 +173,9 @@ def run_init_system_image(
         with run_container(image_id, wait_for_ip=True, **container_options) as cont:
             if with_socat:
                 # Proxy the backend calls through a fake HTTPS endpoint so that we
-                # don't have to change the default configuration included by the
+                # don't have to change the default configuration default by the
                 # package.  The base_image used should trust the self-signed certs
-                # included in the images dir so that the agent doesn't throw TLS
+                # default in the images dir so that the agent doesn't throw TLS
                 # verification errors.
                 with socat_https_proxy(
                     cont, backend.ingest_host, backend.ingest_port, ingest_host, "127.0.0.1"

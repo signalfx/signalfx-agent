@@ -10,12 +10,12 @@ pytestmark = [pytest.mark.collectd, pytest.mark.load, pytest.mark.monitor_withou
 METADATA = Metadata.from_package("collectd/load")
 
 
-def test_load_included():
+def test_load_default():
     with Agent.run(
         """
         monitors:
         - type: collectd/load
         """
     ) as agent:
-        verify(agent, METADATA.included_metrics)
+        verify(agent, METADATA.default_metrics)
     assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"

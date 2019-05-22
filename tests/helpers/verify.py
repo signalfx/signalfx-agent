@@ -30,8 +30,8 @@ def run_agent_verify(config, metrics, timeout=util.DEFAULT_TIMEOUT):
         return agent
 
 
-def run_agent_verify_included_metrics(config, metadata, timeout=util.DEFAULT_TIMEOUT):
-    return run_agent_verify(config, metadata.included_metrics, timeout=timeout)
+def run_agent_verify_default_metrics(config, metadata, timeout=util.DEFAULT_TIMEOUT):
+    return run_agent_verify(config, metadata.default_metrics, timeout=timeout)
 
 
 def run_agent_verify_all_metrics(config, metadata, timeout=util.DEFAULT_TIMEOUT):

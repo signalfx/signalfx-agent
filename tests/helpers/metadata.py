@@ -7,11 +7,11 @@ from tests.paths import REPO_ROOT_DIR
 class Metadata:
     """Metadata information like metrics and dimensions for a monitor"""
 
-    def __init__(self, monitor_type, included_metrics, nonincluded_metrics, metrics_by_group, dims):
+    def __init__(self, monitor_type, default_metrics, nondefault_metrics, metrics_by_group, dims):
         self.monitor_type = monitor_type
-        self.included_metrics = included_metrics
-        self.nonincluded_metrics = nonincluded_metrics
-        self.all_metrics = self.included_metrics | self.nonincluded_metrics
+        self.default_metrics = default_metrics
+        self.nondefault_metrics = nondefault_metrics
+        self.all_metrics = self.default_metrics | self.nondefault_metrics
         self.metrics_by_group = metrics_by_group
         self.dims = dims
 
@@ -31,8 +31,8 @@ class Metadata:
 
             return cls(
                 monitor_type=monitor["monitorType"],
-                included_metrics=frozenset(_get_monitor_metrics(monitor, included=True)),
-                nonincluded_metrics=frozenset(_get_monitor_metrics(monitor, included=False)),
+                default_metrics=frozenset(_get_monitor_metrics(monitor, default=True)),
+                nondefault_metrics=frozenset(_get_monitor_metrics(monitor, default=False)),
                 metrics_by_group=metrics_by_group,
                 dims=frozenset(_get_monitor_dims(doc, mon_type)),
             )
@@ -52,9 +52,9 @@ def _find_monitor(monitors, mon_type):
     raise ValueError(f"mon_type {mon_type} was not found")
 
 
-def _get_monitor_metrics(monitor, included):
+def _get_monitor_metrics(monitor, default):
     for metric, info in (monitor.get("metrics") or {}).items():
-        if info["included"] == included:
+        if info["default"] == default:
             yield metric
 
 

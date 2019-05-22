@@ -27,7 +27,7 @@ def run(config, metrics):
             assert has_datapoint_with_dim(agent.fake_services, "plugin", "apache"), "Didn't get apache datapoints"
 
 
-def test_apache_included():
+def test_apache_default():
     run(
         """
         monitors:
@@ -35,7 +35,7 @@ def test_apache_included():
           host: {host}
           port: 80
         """,
-        METADATA.included_metrics,
+        METADATA.default_metrics,
     )
 
 

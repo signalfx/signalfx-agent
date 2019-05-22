@@ -66,7 +66,7 @@ def test_jenkins(version):
 
 @pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("version", JENKINS_VERSIONS)
-def test_jenkins_included(version):
+def test_jenkins_default(version):
     with run_service("jenkins", buildargs={"JENKINS_VERSION": version, "JENKINS_PORT": "8080"}) as jenkins_container:
         host = container_ip(jenkins_container)
         config = dedent(

@@ -73,7 +73,7 @@ def start_hadoop(hadoop_master, hadoop_worker1):
 
 @pytest.mark.flaky(reruns=2, reruns_delay=5)
 @pytest.mark.parametrize("version", ["2.9.1", "3.0.3"])
-def test_hadoop_included(version):
+def test_hadoop_default(version):
     """
     Any new versions of hadoop should be manually built, tagged, and pushed to quay.io, i.e.
     docker build \
@@ -98,7 +98,7 @@ def test_hadoop_included(version):
                 verbose: true
             """
         with Agent.run(config) as agent:
-            verify(agent, METADATA.included_metrics - EXCLUDED)
+            verify(agent, METADATA.default_metrics - EXCLUDED)
             # Need to run the agent manually because we want to wait for this metric to become 1 but it may
             # be 0 at first.
             assert wait_for(

@@ -31,4 +31,4 @@ def test_solr_monitor_defaults():
             assert agent.fake_services.datapoints
             # We don't get all default metrics but this ensures we don't get
             # any non-default metrics through with default config.
-            verify_expected_is_superset(agent, METADATA.included_metrics)
+            verify_expected_is_superset(agent, METADATA.default_metrics)

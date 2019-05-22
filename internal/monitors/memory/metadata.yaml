@@ -15,38 +15,38 @@ monitors:
   metrics:
     memory.available:
       description: (Windows Only) Bytes of memory available for use.
-      included: false
+      default: false
       type: gauge
     memory.buffered:
       description: (Linux Only) Bytes of memory used for buffering I/O.
-      included: true
+      default: true
       type: gauge
     memory.cached:
       description: (Linux Only) Bytes of memory used for disk caching.
-      included: true
+      default: true
       type: gauge
     memory.free:
       description: (Linux Only) Bytes of memory available for use.
-      included: true
+      default: true
       type: gauge
     memory.slab_recl:
       description: (Linux Only) Bytes of memory, used for SLAB-allocation of kernel
         objects, that can be reclaimed.
-      included: true
+      default: true
       type: gauge
     memory.slab_unrecl:
       description: (Linux Only) Bytes of memory, used for SLAB-allocation of kernel
         objects, that can't be reclaimed.
-      included: true
+      default: true
       type: gauge
     memory.used:
       description: Bytes of memory in use by the system.
-      included: true
+      default: true
       type: gauge
     memory.utilization:
       description: Percent of memory in use on this host. This metric reports with
         plugin dimension set to "signalfx-metadata".
-      included: true
+      default: true
       type: gauge
   monitorType: memory
   properties:

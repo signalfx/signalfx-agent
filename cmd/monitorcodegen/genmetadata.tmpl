@@ -48,9 +48,9 @@ var {{"metricSet" | formatVariable}} = map[string]monitors.MetricInfo {
 {{- end}}
 }
 
-var {{"includedMetrics" | formatVariable}} = map[string]bool {
+var {{"defaultMetrics" | formatVariable}} = map[string]bool {
 {{- range $metric, $info := .metrics}}
-{{- if $info.Included}}
+{{- if $info.Default}}
 	{{$metric | formatVariable}}: true,
 {{- with $info.Alias}}
 	{{. | formatVariable}}: true,
@@ -75,7 +75,7 @@ var {{if gt (len $.monitors) 1 -}}
 {{else -}}
 {{"monitorMetadata" | formatVariable}}{{end}} = monitors.Metadata{
 	MonitorType: "{{.MonitorType}}",
-	IncludedMetrics: {{"includedMetrics" | formatVariable}},
+	DefaultMetrics: {{"defaultMetrics" | formatVariable}},
 	Metrics: {{"metricSet" | formatVariable}},
 	MetricsExhaustive: {{.MetricsExhaustive}},
 	Groups: {{"groupSet" | formatVariable}},

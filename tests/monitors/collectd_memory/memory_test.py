@@ -1,15 +1,15 @@
 import pytest
 
 from tests.helpers.metadata import Metadata
-from tests.helpers.verify import run_agent_verify_included_metrics
+from tests.helpers.verify import run_agent_verify_default_metrics
 
 pytestmark = [pytest.mark.collectd, pytest.mark.memory, pytest.mark.monitor_without_endpoints]
 
 METADATA = Metadata.from_package("collectd/memory")
 
 
-def test_collectd_memory_included():
-    run_agent_verify_included_metrics(
+def test_collectd_memory_default():
+    run_agent_verify_default_metrics(
         """
         monitors:
         - type: collectd/memory
@@ -18,4 +18,4 @@ def test_collectd_memory_included():
     )
 
 
-# Only has included metrics so no test for all metrics.
+# Only has default metrics so no test for all metrics.

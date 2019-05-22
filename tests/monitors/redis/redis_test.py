@@ -45,7 +45,7 @@ def test_redis(image):
     with run_redis(image) as [hostname, _]:
         config = MONITOR_CONFIG.substitute(host=hostname)
         with Agent.run(config) as agent:
-            verify(agent, METADATA.included_metrics - {"gauge.slave_repl_offset"})
+            verify(agent, METADATA.default_metrics - {"gauge.slave_repl_offset"})
 
 
 def test_redis_key_lengths():

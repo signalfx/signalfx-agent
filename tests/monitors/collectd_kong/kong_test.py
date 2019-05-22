@@ -115,7 +115,7 @@ def run_kong(kong_version):
 
 
 @pytest.mark.parametrize("kong_version", VERSIONS)
-def test_kong_included(kong_version):
+def test_kong_default(kong_version):
     with run_kong(kong_version) as kong_ip:
         config = f"""
         monitors:
@@ -125,7 +125,7 @@ def test_kong_included(kong_version):
         """
 
         with Agent.run(config) as agent:
-            verify(agent, METADATA.included_metrics)
+            verify(agent, METADATA.default_metrics)
             assert has_datapoint_with_dim(agent.fake_services, "plugin", "kong"), "Didn't get Kong dimension"
 
 
@@ -160,7 +160,7 @@ def test_kong_extra_metric():
         """
 
         with Agent.run(config) as agent:
-            verify(agent, METADATA.included_metrics | {"counter.kong.connections.handled"})
+            verify(agent, METADATA.default_metrics | {"counter.kong.connections.handled"})
             assert has_datapoint_with_dim(agent.fake_services, "plugin", "kong"), "Didn't get Kong dimension"
 
 
@@ -177,5 +177,5 @@ def test_kong_metric_config():
             report: true
         """
         with Agent.run(config) as agent:
-            verify(agent, METADATA.included_metrics | {"counter.kong.connections.accepted"})
+            verify(agent, METADATA.default_metrics | {"counter.kong.connections.accepted"})
             assert has_datapoint_with_dim(agent.fake_services, "plugin", "kong"), "Didn't get Kong dimension"

@@ -6,18 +6,18 @@ import pytest
 
 from tests.helpers.assertions import has_log_message
 from tests.helpers.metadata import Metadata
-from tests.helpers.verify import run_agent_verify_included_metrics, run_agent_verify_all_metrics
+from tests.helpers.verify import run_agent_verify_default_metrics, run_agent_verify_all_metrics
 
 pytestmark = [pytest.mark.collectd, pytest.mark.protocols, pytest.mark.monitor_without_endpoints]
 
 METADATA = Metadata.from_package("collectd/protocols")
 
 
-def test_protocols_included():
+def test_protocols_default():
     """
-    Test that we get all included metrics
+    Test that we get all default metrics
     """
-    agent = run_agent_verify_included_metrics(
+    agent = run_agent_verify_default_metrics(
         """
         monitors:
         - type: collectd/protocols

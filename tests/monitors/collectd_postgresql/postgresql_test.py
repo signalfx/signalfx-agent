@@ -48,7 +48,7 @@ def test_postgresql_defaults():
                       sslMode: disable
                 """
         ) as agent:
-            verify(agent, METADATA.included_metrics)
+            verify(agent, METADATA.default_metrics)
 
 
 def test_postgresql_enhanced():
@@ -57,7 +57,7 @@ def test_postgresql_enhanced():
         assert wait_for(p(tcp_socket_open, host, 5432), 60), "service didn't start"
 
         target_metric = "pg_blks.toast_hit"
-        assert target_metric in METADATA.nonincluded_metrics
+        assert target_metric in METADATA.nondefault_metrics
 
         with Agent.run(
             f"""

@@ -38,10 +38,10 @@ def test_postgresql(version):
                 """
             )
         ) as agent:
-            for metric in METADATA.included_metrics:
+            for metric in METADATA.default_metrics:
                 assert wait_for(
                     p(has_datapoint, agent.fake_services, metric_name=metric, dimensions={"database": "dvdrental"})
-                ), f"Didn't get included postgresql metric {metric} for database dvdrental"
+                ), f"Didn't get default postgresql metric {metric} for database dvdrental"
 
             assert wait_for(
                 p(has_datapoint, agent.fake_services, dimensions={"database": "postgres"})
@@ -67,10 +67,10 @@ def test_postgresql_database_filter():
                 """
             )
         ) as agent:
-            for metric in METADATA.included_metrics:
+            for metric in METADATA.default_metrics:
                 assert wait_for(
                     p(has_datapoint, agent.fake_services, metric_name=metric, dimensions={"database": "dvdrental"})
-                ), f"Didn't get included postgresql metric {metric} for database dvdrental"
+                ), f"Didn't get default postgresql metric {metric} for database dvdrental"
 
             assert ensure_always(
                 lambda: not has_datapoint(agent.fake_services, dimensions={"database": "postgres"})

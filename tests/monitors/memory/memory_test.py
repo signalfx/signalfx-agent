@@ -24,6 +24,6 @@ def test_memory():
         """
     ) as agent:
         for met in expected_metrics:
-            assert met in METADATA.included_metrics
+            assert met in METADATA.default_metrics
 
         verify(agent, expected_metrics)

@@ -17,7 +17,7 @@ type MetricMetadata struct {
 	Type        string  `json:"type"`
 	Description string  `json:"description"`
 	Group       *string `json:"group"`
-	Included    bool    `json:"included" default:"false"`
+	Default     bool    `json:"default" default:"false"`
 }
 
 // PropMetadata contains a property's metadata.

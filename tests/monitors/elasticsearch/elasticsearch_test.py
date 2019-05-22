@@ -92,7 +92,7 @@ def test_with_default_config_6_6_1():
         agent_config = AGENT_CONFIG_TEMPLATE.format(host=host, flag="")
         with Agent.run(agent_config) as agent:
             assert wait_for(
-                p(any_metric_has_any_dim_key, agent.fake_services, METADATA.included_metrics, METADATA.dims)
+                p(any_metric_has_any_dim_key, agent.fake_services, METADATA.default_metrics, METADATA.dims)
             ), "Didn't get all default dimensions"
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
@@ -105,7 +105,7 @@ def test_with_default_config_2_4_5():
         agent_config = AGENT_CONFIG_TEMPLATE.format(host=host, flag="")
         with Agent.run(agent_config) as agent:
             assert wait_for(
-                p(any_metric_has_any_dim_key, agent.fake_services, METADATA.included_metrics, METADATA.dims)
+                p(any_metric_has_any_dim_key, agent.fake_services, METADATA.default_metrics, METADATA.dims)
             ), "Didn't get all default dimensions"
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
@@ -118,14 +118,14 @@ def test_with_default_config_2_0_2():
         agent_config = AGENT_CONFIG_TEMPLATE.format(host=host, flag="")
         with Agent.run(agent_config) as agent:
             assert wait_for(
-                p(any_metric_has_any_dim_key, agent.fake_services, METADATA.included_metrics, METADATA.dims)
+                p(any_metric_has_any_dim_key, agent.fake_services, METADATA.default_metrics, METADATA.dims)
             ), "Didn't get all default dimensions"
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
 @pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_cluster_health_stats():
-    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["cluster"]
+    expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["cluster"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
         host = container_ip(es_container)
         check_service_status(host)
@@ -135,7 +135,7 @@ def test_elasticsearch_with_enhanced_cluster_health_stats():
 
 @pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_http_stats():
-    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["node/http"]
+    expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["node/http"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
         host = container_ip(es_container)
         check_service_status(host)
@@ -145,7 +145,7 @@ def test_elasticsearch_with_enhanced_http_stats():
 
 @pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_jvm_stats():
-    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["node/jvm"]
+    expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["node/jvm"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
         host = container_ip(es_container)
         check_service_status(host)
@@ -155,7 +155,7 @@ def test_elasticsearch_with_enhanced_jvm_stats():
 
 @pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_process_stats():
-    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["node/process"]
+    expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["node/process"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
         host = container_ip(es_container)
         check_service_status(host)
@@ -165,7 +165,7 @@ def test_elasticsearch_with_enhanced_process_stats():
 
 @pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_thread_pool_stats():
-    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["node/thread-pool"]
+    expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["node/thread-pool"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
         host = container_ip(es_container)
         check_service_status(host)
@@ -175,7 +175,7 @@ def test_elasticsearch_with_enhanced_thread_pool_stats():
 
 @pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_transport_stats():
-    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["node/transport"]
+    expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["node/transport"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
         host = container_ip(es_container)
         check_service_status(host)

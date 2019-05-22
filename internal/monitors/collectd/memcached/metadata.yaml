@@ -11,99 +11,99 @@ monitors:
   metrics:
     df.cache.free:
       description: Unused storage bytes
-      included: true
+      default: true
       type: gauge
     df.cache.used:
       description: Current number of bytes used to store items
-      included: true
+      default: true
       type: gauge
     memcached_command.flush:
       description: Number of flush requests
-      included: false
+      default: false
       type: cumulative
     memcached_command.get:
       description: Number of retrieval requests
-      included: true
+      default: true
       type: cumulative
     memcached_command.set:
       description: Number of storage requests
-      included: true
+      default: true
       type: cumulative
     memcached_command.touch:
       description: Number of touch requests
-      included: false
+      default: false
       type: cumulative
     memcached_connections.current:
       description: Current number of open connections
-      included: true
+      default: true
       type: gauge
     memcached_items.current:
       description: Current number of items stored by this instance
-      included: true
+      default: true
       type: gauge
     memcached_octets.rx:
       description: Total network bytes read by this server
-      included: true
+      default: true
       type: cumulative
     memcached_octets.tx:
       description: Total network bytes written by this server
-      included: true
+      default: true
       type: cumulative
     memcached_ops.decr_hits:
       description: Number of successful Decr requests
-      included: false
+      default: false
       type: cumulative
     memcached_ops.decr_misses:
       description: Number of decr requests against missing keys
-      included: false
+      default: false
       type: cumulative
     memcached_ops.delete_hits:
       description: Number of successful delete requests
-      included: false
+      default: false
       type: cumulative
     memcached_ops.delete_misses:
       description: Number of delete requests against missing keys
-      included: false
+      default: false
       type: cumulative
     total_events.listen_disabled:
       description: Number of times connection limit has been exceeded
-      included: false
+      default: false
       type: cumulative
     connections.opened:
       description: Number of connections opened since server began running
-      included: false
+      default: false
       type: cumulative
     memcached_ops.evictions:
       description: Number of valid items removed from cache
-      included: true
+      default: true
       type: cumulative
     memcached_ops.hits:
       description: Number of keys that have been requested and found present
-      included: true
+      default: true
       type: cumulative
     memcached_ops.incr_hits:
       description: Number of successful incr requests
-      included: false
+      default: false
       type: cumulative
     memcached_ops.incr_misses:
       description: Number of incr requests against missing keys
-      included: false
+      default: false
       type: cumulative
     memcached_ops.misses:
       description: Number of items that have been requested and not found
-      included: true
+      default: true
       type: cumulative
     ps_count.threads:
       description: Number of worker threads requested
-      included: false
+      default: false
       type: gauge
     ps_cputime.syst:
       description: Total system time for this instance
-      included: false
+      default: false
       type: cumulative
     ps_cputime.user:
       description: Total user time for this instance
-      included: false
+      default: false
       type: cumulative
   monitorType: collectd/memcached
   properties:

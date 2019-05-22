@@ -9,7 +9,7 @@ from tests.paths import REPO_ROOT_DIR
 def test_extra_metrics_passthrough():
     """
     The specified extraMetrics should be allowed through even though they are
-    not included by default.
+    not by default.
     """
     metadata = Metadata.from_package("expvar")
 
@@ -25,8 +25,8 @@ def test_extra_metrics_passthrough():
                     - memstats.by_size.mallocs
                """
         ) as agent:
-            assert "memstats.by_size.mallocs" in metadata.nonincluded_metrics
-            verify(agent, metadata.included_metrics | {"memstats.by_size.mallocs"})
+            assert "memstats.by_size.mallocs" in metadata.nondefault_metrics
+            verify(agent, metadata.default_metrics | {"memstats.by_size.mallocs"})
 
 
 def test_built_in_filtering_disabled_no_whitelist_for_monitor():
@@ -81,11 +81,11 @@ def test_built_in_filtering_disabled_whitelisted_monitor():
                """
         ) as agent:
             key_llen_metric = "gauge.key_llen"
-            assert key_llen_metric not in metadata.included_metrics
-            verify(agent, metadata.included_metrics - {"gauge.slave_repl_offset"})
+            assert key_llen_metric not in metadata.default_metrics
+            verify(agent, metadata.default_metrics - {"gauge.slave_repl_offset"})
 
             # Add a non-default metric to the whitelist via metricsToInclude
             # and make sure it comes through
             agent.config["metricsToInclude"] = [{"monitorType": "collectd/redis", "metricName": key_llen_metric}]
             agent.write_config()
-            verify(agent, metadata.included_metrics - {"gauge.slave_repl_offset"} | {key_llen_metric})
+            verify(agent, metadata.default_metrics - {"gauge.slave_repl_offset"} | {key_llen_metric})

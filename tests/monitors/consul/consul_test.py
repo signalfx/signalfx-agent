@@ -11,7 +11,7 @@ pytestmark = [pytest.mark.collectd, pytest.mark.consul, pytest.mark.monitor_with
 
 METADATA = Metadata.from_package("collectd/consul")
 
-EXPECTED_DEFAULTS = METADATA.included_metrics - {
+EXPECTED_DEFAULTS = METADATA.default_metrics - {
     # We don't get these with the test service of consul for
     # some reason, maybe investigate why.
     "gauge.consul.network.node.latency.avg",
@@ -60,7 +60,7 @@ def test_consul_enhanced():
          """
         ) as agent:
             target_metric = "gauge.consul.serf.events.consul:new-leader"
-            assert target_metric in METADATA.nonincluded_metrics
+            assert target_metric in METADATA.nondefault_metrics
 
             def test():
                 assert has_datapoint(agent.fake_services, metric_name=target_metric)

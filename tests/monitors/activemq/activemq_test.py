@@ -9,7 +9,7 @@ import pytest
 from tests.helpers.assertions import tcp_socket_open
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_service, wait_for
-from tests.helpers.verify import run_agent_verify_all_metrics, run_agent_verify_included_metrics
+from tests.helpers.verify import run_agent_verify_all_metrics, run_agent_verify_default_metrics
 
 pytestmark = [pytest.mark.collectd, pytest.mark.activemq, pytest.mark.monitor_with_endpoints]
 
@@ -38,7 +38,7 @@ def run_activemq():
         yield host
 
 
-def test_activemq_included():
+def test_activemq_default():
     with run_activemq() as host:
         config = f"""
         monitors:
@@ -50,7 +50,7 @@ def test_activemq_included():
           password: {JMX_PASSWORD}
         """
 
-        run_agent_verify_included_metrics(config, METADATA)
+        run_agent_verify_default_metrics(config, METADATA)
 
 
 def test_activemq_all():

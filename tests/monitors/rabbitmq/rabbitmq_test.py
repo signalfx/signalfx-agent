@@ -69,10 +69,10 @@ def test_rabbitmq_broker_name():
 
 
 METADATA = Metadata.from_package("collectd/rabbitmq")
-INCLUDED_METRICS = METADATA.included_metrics - {"counter.queue.message_stats.deliver", "gauge.channel.number"}
+DEFAULT_METRICS = METADATA.default_metrics - {"counter.queue.message_stats.deliver", "gauge.channel.number"}
 
 
-def test_rabbitmq_included():
+def test_rabbitmq_default():
     with run_container("rabbitmq:3.6-management") as rabbitmq_cont:
         host = container_ip(rabbitmq_cont)
         config = dedent(
@@ -90,7 +90,7 @@ def test_rabbitmq_included():
 
         publish_test_message(host)
 
-        run_agent_verify(config, INCLUDED_METRICS)
+        run_agent_verify(config, DEFAULT_METRICS)
 
 
 # Not testing enhanced metrics. Too many metrics are not coming in (over 70)

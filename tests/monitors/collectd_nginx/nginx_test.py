@@ -26,7 +26,7 @@ def run_nginx():
         yield host
 
 
-def test_nginx_included():
+def test_nginx_default():
     with run_nginx() as host, Agent.run(
         f"""
         monitors:
@@ -35,7 +35,7 @@ def test_nginx_included():
           port: 80
         """
     ) as agent:
-        verify(agent, METADATA.included_metrics)
+        verify(agent, METADATA.default_metrics)
         assert has_datapoint_with_dim(agent.fake_services, "plugin", "nginx"), "Didn't get nginx datapoints"
 
 

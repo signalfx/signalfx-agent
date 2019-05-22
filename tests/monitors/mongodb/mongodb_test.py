@@ -15,7 +15,7 @@ SCRIPT_DIR = Path(__file__).parent.resolve()
 
 METADATA = Metadata.from_package("collectd/mongodb")
 
-EXPECTED_DEFAULTS = METADATA.included_metrics - {
+EXPECTED_DEFAULTS = METADATA.default_metrics - {
     # These metrics only occur on MMAP storage engines.
     "gauge.backgroundFlushing.average_ms",
     "gauge.backgroundFlushing.last_ms",

@@ -7,7 +7,7 @@ from tests.helpers.verify import run_agent_verify
 pytestmark = [pytest.mark.collectd, pytest.mark.openstack, pytest.mark.monitor_without_endpoints]
 
 METADATA = Metadata.from_package("collectd/openstack")
-INCLUDED_METRICS = METADATA.included_metrics - {
+DEFAULT_METRICS = METADATA.default_metrics - {
     "gauge.openstack.nova.server.vda_write",
     "gauge.openstack.nova.server.memory-actual",
     "gauge.openstack.nova.server.vda_read_req",
@@ -24,7 +24,7 @@ INCLUDED_METRICS = METADATA.included_metrics - {
 
 
 @pytest.mark.flaky(reruns=1)
-def test_openstacki_included(devstack):
+def test_openstacki_default(devstack):
     host = container_ip(devstack)
     run_agent_verify(
         f"""
@@ -34,5 +34,5 @@ def test_openstacki_included(devstack):
               username: admin
               password: testing123
         """,
-        INCLUDED_METRICS,
+        DEFAULT_METRICS,
     )

@@ -89,11 +89,11 @@ def run(version, node_type, metrics, extra_metrics=""):
 @pytest.mark.flaky(reruns=2, reruns_delay=5)
 @pytest.mark.parametrize("version", VERSIONS)
 @pytest.mark.parametrize("node_type", NODETYPE_PORT.keys())
-def test_hadoopjmx_included(version, node_type):
-    included = (
+def test_hadoopjmx_default(version, node_type):
+    default = (
         METADATA.metrics_by_group[NODETYPE_GROUP[node_type]] | METADATA.metrics_by_group["jvm"]
-    ) & METADATA.included_metrics
-    run(version, node_type, included)
+    ) & METADATA.default_metrics
+    run(version, node_type, default)
 
 
 @pytest.mark.flaky(reruns=2, reruns_delay=5)

@@ -19,12 +19,12 @@ def test_netio_defaults():
       - type: net-io
     """
     ) as agent:
-        verify(agent, METADATA.included_metrics)
+        verify(agent, METADATA.default_metrics)
         assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
 def test_netio_filter():
-    forbidden_metrics = METADATA.included_metrics - {"network.total"}
+    forbidden_metrics = METADATA.default_metrics - {"network.total"}
 
     with Agent.run(
         """
