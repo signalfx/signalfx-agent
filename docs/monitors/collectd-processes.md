@@ -39,14 +39,16 @@ Monitor Type: `collectd/processes`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `processes` | no | `list of strings` | A list of process names to match |
 | `processMatch` | no | `map of strings` | A map with keys specifying the `plugin_instance` value to be sent for the values which are regexes that match process names.  See example in description. |
 | `collectContextSwitch` | no | `bool` | Collect metrics on the number of context switches made by the process (**default:** `false`) |
 | `procFSPath` | no | `string` | (Deprecated) Please set the agent configuration `procPath` instead of this monitor configuration option. The path to the proc filesystem -- useful to override if the agent is running in a container. |
-
-
 
 
 ## Metrics

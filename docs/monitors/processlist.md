@@ -23,8 +23,10 @@ Monitor Type: `processlist`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 This monitor has no configuration options.
-
-
 
 

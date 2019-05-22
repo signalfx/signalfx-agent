@@ -153,6 +153,10 @@ Monitor Type: `gitlab`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host of the exporter |
@@ -163,8 +167,6 @@ Monitor Type: `gitlab`
 | `skipVerify` | no | `bool` | If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified. (**default:** `false`) |
 | `metricPath` | no | `string` | Path to the metrics endpoint on the exporter server, usually `/metrics` (the default). (**default:** `/metrics`) |
 | `sendAllMetrics` | no | `bool` | Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors. (**default:** `false`) |
-
-
 
 
 ## Metrics
@@ -230,11 +232,40 @@ are marked as _Default_ in the table below.
 
 
 
-### Built in filtering
-This monitor will perform built-in filtering if you are using agent version
-4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
-of your agent config.  See
-[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
-for more information.
+This monitor does not send all metrics by default.  The metrics that are
+emitted without any non-required config options set are marked under the
+_Default_ column of the table above.
+
+### Non-default metrics (version 4.7.0+)
+
+**The following information applies to the agent version 4.7.0+ and has
+`enableBuiltInFiltering: true` set on the top level of the agent config and
+also any references to `whitelist.json` removed from `metricsToExclude` at the
+top-level of the agent config.**
+
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
+
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
+
 
 

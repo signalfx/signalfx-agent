@@ -53,6 +53,10 @@ Monitor Type: `statsd`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `listenAddress` | no | `string` | The host/address on which to bind the UDP listener that accepts statsd datagrams (**default:** `localhost`) |
@@ -67,8 +71,6 @@ The **nested** `converters` config object has the following fields:
 | --- | --- | --- | --- |
 | `pattern` | no | `string` | A pattern to match against StatsD metric names |
 | `metricName` | no | `string` | A format to compose a metric name to report to SignalFx |
-
-
 
 
 

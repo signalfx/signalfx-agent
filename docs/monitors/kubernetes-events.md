@@ -41,6 +41,10 @@ Monitor Type: `kubernetes-events`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `kubernetesAPI` | no | `object (see below)` | Configuration of the Kubernetes API client |
@@ -65,8 +69,6 @@ The **nested** `whitelistedEvents` config object has the following fields:
 | --- | --- | --- | --- |
 | `reason` | no | `string` |  |
 | `involvedObjectKind` | no | `string` |  |
-
-
 
 
 

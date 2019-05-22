@@ -32,6 +32,10 @@ Monitor Type: `telegraf/logparser`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `files` | **yes** | `list of strings` | Paths to files to be tailed |
@@ -43,8 +47,6 @@ Monitor Type: `telegraf/logparser`
 | `customPatterns` | no | `string` | Custom grok patterns. (`grok` only) |
 | `customPatternFiles` | no | `list of strings` | List of paths to custom grok pattern files. |
 | `timezone` | no | `string` | Specifies the timezone.  The default is UTC time.  Other options are `Local` for the local time on the machine, `UTC`, and `Canada/Eastern` (unix style timezones). |
-
-
 
 
 

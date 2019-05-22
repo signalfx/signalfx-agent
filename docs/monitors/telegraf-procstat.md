@@ -33,6 +33,10 @@ Monitor Type: `telegraf/procstat`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `exe` | no | `string` | The name of an executable to monitor.  (ie: `exe: "signalfx-agent*"`) |
@@ -44,8 +48,6 @@ Monitor Type: `telegraf/procstat`
 | `pidTag` | no | `bool` | Whether to add PID as a dimension instead of part of the metric name (**default:** `false`) |
 | `cGroup` | no | `string` | The name of the cgroup to monitor.  This cgroup name will be appended to the configured `sysPath`.  See the agent config schema for more information about the `sysPath` agent configuration. |
 | `WinService` | no | `string` | The name of a windows service to report procstat information on. |
-
-
 
 
 ## Metrics

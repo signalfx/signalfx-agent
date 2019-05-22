@@ -25,6 +25,10 @@ Monitor Type: `kubernetes-volumes`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `kubeletAPI` | no | `object (see below)` | Kubelet kubeletClient configuration |
@@ -53,8 +57,6 @@ The **nested** `kubernetesAPI` config object has the following fields:
 | `clientCertPath` | no | `string` | The path to the TLS client cert on the pod's filesystem, if using `tls` auth. |
 | `clientKeyPath` | no | `string` | The path to the TLS client key on the pod's filesystem, if using `tls` auth. |
 | `caCertPath` | no | `string` | Path to a CA certificate to use when verifying the API server's TLS cert.  Generally this is provided by K8s alongside the service account token, which will be picked up automatically, so this should rarely be necessary to specify. |
-
-
 
 
 ## Metrics

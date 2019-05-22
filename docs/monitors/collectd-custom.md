@@ -56,6 +56,10 @@ Monitor Type: `collectd/custom`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | no | `string` | This should generally not be set manually, but will be filled in by the agent if using service discovery. It can be accessed in the provided config template with `{{.Host}}`.  It will be set to the hostname or IP address of the discovered service. If you aren't using service discovery, you can just hardcode the host/port in the config template and ignore these fields. |
@@ -64,8 +68,6 @@ Monitor Type: `collectd/custom`
 | `template` | no | `string` | A config template for collectd.  You can include as many plugin blocks as you want in this value.  It is rendered as a standard Go template, so be mindful of the delimiters `{{` and `}}`. |
 | `templates` | no | `list of strings` | A list of templates, but otherwise equivalent to the above `template` option.  This enables you to have a single directory with collectd configuration files and load them all by using a globbed remote config value: |
 | `collectdReadThreads` | no | `integer` | The number of read threads to use in collectd.  Will default to the number of templates provided, capped at 10, but if you manually specify it there is no limit. (**default:** `0`) |
-
-
 
 
 

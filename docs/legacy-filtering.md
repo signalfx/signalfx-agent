@@ -11,6 +11,11 @@ such.  If you upgrade to 4.7.0 or later, you will continue to need the
 true` in your config.  You should **remove** the reference to `whitelist.json` in
 your config at the same time you set that flag.
 
+Essentially the effect of setting `enableBuiltInFiltering: true` and removing
+the reference to `whitelist.json` is to make the monitors inherently emit the
+metrics that were in `whitelist.json` by default, which making it significantly
+easier to configure monitors to emit additional metrics in a single step.
+
 We recommend going ahead and upgrading the agent to at least 4.7.0 and setting
 the `enableBuiltInFitlering: true` flag, as it is much easier to configure and
 understand than the old `metricsToExlude`/`metricsToInclude` mechanism.  The

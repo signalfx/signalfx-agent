@@ -26,6 +26,10 @@ Monitor Type: `filesystems`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `hostFSPath` | no | `string` | Path to the root of the host filesystem.  Useful when running in a container and the host filesystem is mounted in some subdirectory under /. |
@@ -36,34 +40,64 @@ Monitor Type: `filesystems`
 | `reportInodes` | no | `bool` | (Linux Only) If true metrics will be reported about inodes. (**default:** `false`) |
 
 
-
-
 ## Metrics
 
 The following table lists the metrics available for this monitor.
 Metrics that are categorized as [container/host/bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
 are marked as _Default_ in the table below.
 
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `df_complex.free` | gauge | ✔ | Free disk space in bytes |
-| `df_complex.used` | gauge | ✔ | Used disk space in bytes |
-| `df_inodes.free` | gauge |  | (Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `inodes` is set to `true`. |
-| `df_inodes.used` | gauge |  | (Linux Only) Number of inodes that are used.  This is only reported if the configuration option `inodes` is set to `true`. |
-| `disk.summary_utilization` | gauge | ✔ | Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to "signalfx-metadata". |
-| `disk.utilization` | gauge | ✔ | Percent of disk used on this volume. This metric reports with plugin dimension set to "signalfx-metadata". |
-| `percent_bytes.free` | gauge |  | Free disk space on the file system, expressed as a percentage. |
-| `percent_bytes.used` | gauge |  | Used disk space on the file system, expressed as a percentage. |
-| `percent_inodes.free` | gauge |  | (Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`. |
-| `percent_inodes.used` | gauge |  | (Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`. |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | [Group](#groups) | Description |
+| ---  | ---  | ---    | --- | ---         |
+| `df_complex.free` | gauge | ✔ |  | Free disk space in bytes |
+| `df_complex.used` | gauge | ✔ |  | Used disk space in bytes |
+| `df_inodes.free` | gauge |  | inodes | (Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `inodes` is set to `true`. |
+| `df_inodes.used` | gauge |  | inodes | (Linux Only) Number of inodes that are used.  This is only reported if the configuration option `inodes` is set to `true`. |
+| `disk.summary_utilization` | gauge | ✔ |  | Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to "signalfx-metadata". |
+| `disk.utilization` | gauge | ✔ |  | Percent of disk used on this volume. This metric reports with plugin dimension set to "signalfx-metadata". |
+| `percent_bytes.free` | gauge |  | logical | Free disk space on the file system, expressed as a percentage. |
+| `percent_bytes.used` | gauge |  | logical | Used disk space on the file system, expressed as a percentage. |
+| `percent_inodes.free` | gauge |  | inodes | (Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`. |
+| `percent_inodes.used` | gauge |  | inodes | (Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`. |
 
 
 
-### Built in filtering
-This monitor will perform built-in filtering if you are using agent version
-4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
-of your agent config.  See
-[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
-for more information.
+This monitor does not send all metrics by default.  The metrics that are
+emitted without any non-required config options set are marked under the
+_Default_ column of the table above.
+
+### Non-default metrics (version 4.7.0+)
+
+**The following information applies to the agent version 4.7.0+ and has
+`enableBuiltInFiltering: true` set on the top level of the agent config and
+also any references to `whitelist.json` removed from `metricsToExclude` at the
+top-level of the agent config.**
+
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
+
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+#### Groups
+You can enable an entire group of metrics by specifying the `extraGroups` config
+option in your monitor config.  The value is a list of group names to enable.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
+
 
 

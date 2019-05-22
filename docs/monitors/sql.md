@@ -74,6 +74,10 @@ Monitor Type: `sql`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | no | `string` |  |
@@ -102,8 +106,6 @@ The **nested** `metrics` config object has the following fields:
 | `valueColumn` | **yes** | `string` | The column name that holds the datapoint value |
 | `dimensionColumns` | no | `list of strings` | The names of the columns that should make up the dimensions of the datapoint. |
 | `isCumulative` | no | `bool` | Whether the value is a cumulative counters (true) or gauge (false).  If you set this to the wrong value and send in your first datapoint for the metric name with the wrong type, you will have to manually change the type in SignalFx, as it is set in the system based on the first type seen. (**default:** `false`) |
-
-
 
 
 

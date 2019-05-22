@@ -36,6 +36,10 @@ Monitor Type: `telegraf/win_perf_counters`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `objects` | no | `list of objects (see below)` |  |
@@ -56,8 +60,6 @@ The **nested** `objects` config object has the following fields:
 | `warnOnMissing` | no | `bool` | Log a warning if the perf counter object is missing (**default:** `false`) |
 | `failOnMissing` | no | `bool` | Panic if the performance counter object is missing (this will stop the agent) (**default:** `false`) |
 | `includeTotal` | no | `bool` | Include the total instance when collecting performance counter metrics (**default:** `false`) |
-
-
 
 
 

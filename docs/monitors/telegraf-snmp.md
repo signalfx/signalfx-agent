@@ -46,6 +46,10 @@ Monitor Type: `telegraf/snmp`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | no | `string` | Host and port will be concatenated and appended to the list of SNMP agents to connect to. |
@@ -102,8 +106,6 @@ The **nested** `field` config object has the following fields:
 | `oidIndexLength` | no | `integer` | The index length after the table OID.  The index will be truncated after this length in order to remove length index suffixes or non-fixed values. (**default:** `0`) |
 | `isTag` | no | `bool` | Whether to output the field as a tag. (**default:** `false`) |
 | `conversion` | no | `string` | Controls the type conversion applied to the value: `"float(X)"`, `"float"`, `"int"`, `"hwaddr"`, `"ipaddr"` or `""` (default). |
-
-
 
 
 

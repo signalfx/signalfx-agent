@@ -52,14 +52,16 @@ Monitor Type: `collectd/systemd`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `services` | **yes** | `list of strings` | Systemd services to report on |
 | `sendActiveState` | no | `bool` | Flag for sending metrics about the state of systemd services (**default:** `false`) |
 | `sendSubState` | no | `bool` | Flag for sending more detailed metrics about the state of systemd services (**default:** `false`) |
 | `sendLoadState` | no | `bool` | Flag for sending metrics about the load state of systemd services (**default:** `false`) |
-
-
 
 
 ## Metrics

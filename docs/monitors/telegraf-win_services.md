@@ -31,11 +31,13 @@ Monitor Type: `telegraf/win_services`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `serviceNames` | no | `list of strings` | Names of services to monitor.  All services will be monitored if none are specified. |
-
-
 
 
 ## Metrics

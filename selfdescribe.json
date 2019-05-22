@@ -204,7 +204,7 @@
       },
       {
         "yamlName": "extraMetrics",
-        "doc": "Extra metrics to enable besides the default included ones.",
+        "doc": "Extra metrics to enable besides the default included ones.  This is an [overridable filter](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filtering).",
         "default": null,
         "required": false,
         "type": "slice",
@@ -31599,7 +31599,7 @@
             },
             {
               "yamlName": "extraMetrics",
-              "doc": "Extra metrics to enable besides the default included ones.",
+              "doc": "Extra metrics to enable besides the default included ones.  This is an [overridable filter](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filtering).",
               "default": null,
               "required": false,
               "type": "slice",

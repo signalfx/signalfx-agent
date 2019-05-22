@@ -46,6 +46,10 @@ Monitor Type: `telegraf/tail`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `files` | **yes** | `list of strings` | Paths to files to be tailed |
@@ -97,8 +101,6 @@ The **nested** `telegrafParser` config object has the following fields:
 | `CSVHeaderRowCount` | no | `integer` | The number of rows that are headers.  By default no rows are treated as headers.  (`csv` only) (**default:** `0`) |
 | `CSVSkipRows` | no | `integer` | The number of rows to ignore before looking for headers. (`csv` only) (**default:** `0`) |
 | `CSVSkipColumns` | no | `integer` | The number of columns to ignore before parsing data on a given row. (`csv` only) (**default:** `0`) |
-
-
 
 
 

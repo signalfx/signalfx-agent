@@ -17,6 +17,10 @@ Monitor Type: `collectd/health-checker`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
@@ -28,8 +32,6 @@ Monitor Type: `collectd/health-checker`
 | `useHTTPS` | no | `bool` | If true, the endpoint will be connected to on HTTPS instead of plain HTTP.  It is invalid to specify this if `tcpCheck` is true. (**default:** `false`) |
 | `skipSecurity` | no | `bool` | If true, and `useHTTPS` is true, the server's SSL/TLS cert will not be verified. (**default:** `false`) |
 | `tcpCheck` | no | `bool` | If true, the plugin will verify that it can connect to the given host/port value. JSON checking is not supported. (**default:** `false`) |
-
-
 
 
 

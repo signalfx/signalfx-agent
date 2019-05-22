@@ -18,9 +18,11 @@ Monitor Type: `collectd/cpufreq`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 This monitor has no configuration options.
-
-
 ## Metrics
 
 The following table lists the metrics available for this monitor.

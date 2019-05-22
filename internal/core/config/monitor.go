@@ -80,9 +80,11 @@ type MonitorConfig struct {
 	// transformations are supported.  Note that filtering by dimensions will
 	// be done on the *original* dimension name and not the new name.
 	DimensionTransformations map[string]string `yaml:"dimensionTransformations" json:"dimensionTransformations"`
-	// Extra metrics to enable besides the default included ones.
+	// Extra metrics to enable besides the default included ones.  This is an
+	// [overridable filter](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filtering).
 	ExtraMetrics []string `yaml:"extraMetrics" json:"extraMetrics"`
-	// Extra metric groups to enable besides the metrics that are included by default.
+	// Extra metric groups to enable besides the metrics that are included by
+	// default.
 	ExtraGroups []string `yaml:"extraGroups" json:"extraGroups"`
 	// OtherConfig is everything else that is custom to a particular monitor
 	OtherConfig map[string]interface{} `yaml:",inline" neverLog:"omit"`

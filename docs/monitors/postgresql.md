@@ -69,6 +69,10 @@ Monitor Type: `postgresql`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | no | `string` |  |
@@ -77,8 +81,6 @@ Monitor Type: `postgresql`
 | `params` | no | `map of strings` | Parameters to the connection string that can be templated into the connection string with the syntax `{{.key}}`. |
 | `databases` | no | `list of strings` | List of databases to send database-specific metrics about.  If omitted, metrics about all databases will be sent.  This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). (**default:** `[*]`) |
 | `databasePollIntervalSeconds` | no | `integer` | How frequently to poll for new/deleted databases in the DB server. Defaults to the same as `intervalSeconds` if not set. (**default:** `0`) |
-
-
 
 
 ## Metrics
@@ -105,12 +107,41 @@ are marked as _Default_ in the table below.
 
 
 
-### Built in filtering
-This monitor will perform built-in filtering if you are using agent version
-4.7.0+ and have the `enableBuiltInFiltering: true` option set at the top-level
-of your agent config.  See
-[Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html)
-for more information.
+This monitor does not send all metrics by default.  The metrics that are
+emitted without any non-required config options set are marked under the
+_Default_ column of the table above.
+
+### Non-default metrics (version 4.7.0+)
+
+**The following information applies to the agent version 4.7.0+ and has
+`enableBuiltInFiltering: true` set on the top level of the agent config and
+also any references to `whitelist.json` removed from `metricsToExclude` at the
+top-level of the agent config.**
+
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
+
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
+
 ## Dimensions
 
 The following dimensions may occur on metrics emitted by this monitor.  Some

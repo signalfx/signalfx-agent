@@ -74,6 +74,10 @@ Monitor Type: `python-monitor`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | no | `string` | Host will be filled in by auto-discovery if this monitor has a discovery rule. |
@@ -81,8 +85,6 @@ Monitor Type: `python-monitor`
 | `scriptFilePath` | no | `string` | Path to the Python script that implements the monitoring logic. |
 | `pythonBinary` | no | `string` | By default, the agent will use its bundled Python runtime (version 2.7). If you wish to use a Python runtime that already exists on the system, specify the full path to the `python` binary here, e.g. `/usr/bin/python3`. |
 | `pythonPath` | no | `list of strings` | The PYTHONPATH that will be used when importing the script specified at `scriptFilePath`.  The directory of `scriptFilePath` will always be included in the path. |
-
-
 
 
 

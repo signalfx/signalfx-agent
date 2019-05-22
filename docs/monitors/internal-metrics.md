@@ -27,13 +27,15 @@ Monitor Type: `internal-metrics`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | no | `string` | Defaults to the top-level `internalStatusHost` option |
 | `port` | no | `integer` | Defaults to the top-level `internalStatusPort` option |
 | `path` | no | `string` | The HTTP request path to use to retrieve the metrics (**default:** `/metrics`) |
-
-
 
 
 ## Metrics
