@@ -1,3 +1,5 @@
+// +build windows
+
 package main
 
 import (
@@ -71,11 +73,11 @@ func (p *program) Stop(s service.Service) error {
 	return nil
 }
 
-// runAgentWindows is responsible for wrapping the agent in a windows service structure.
+// runAgentPlatformSpecific is responsible for wrapping the agent in a windows service structure.
 // This structure is used even when the agent is not registered as a service.
 // The original runAgent function is invoked as part of the method program.Start() which itself
 // is invoked by service.Service.Run()
-func runAgentWindows(flags *flags, interruptCh chan os.Signal) {
+func runAgentPlatformSpecific(flags *flags, interruptCh chan os.Signal, exitCh chan struct{}) {
 	initializeWMI()
 
 	config := &service.Config{
