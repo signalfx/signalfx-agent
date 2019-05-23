@@ -52,7 +52,7 @@ def test_elasticsearch_included():
               password: testing123
             """
         with Agent.run(config) as agent:
-            verify(agent, METADATA.included_metrics - EXCLUDED)
+            verify(agent, METADATA.default_metrics - EXCLUDED)
             assert has_datapoint_with_dim(
                 agent.fake_services, "plugin", "elasticsearch"
             ), "Didn't get elasticsearch datapoints"
