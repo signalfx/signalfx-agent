@@ -148,133 +148,133 @@ monitors:
   metrics:
     memstats.alloc:
       description: Bytes of allocated heap objects. Same as memstats.heap_alloc
-      included: false
+      default: false
       type: gauge
     memstats.heap_alloc:
       description: Bytes of allocated heap objects
-      included: true
+      default: true
       type: gauge
     memstats.heap_sys:
       description: Bytes of heap memory obtained from the OS
-      included: false
+      default: false
       type: gauge
     memstats.heap_idle:
       description: Bytes in idle (unused) spans
-      included: true
+      default: true
       type: gauge
     memstats.heap_inuse:
       description: Bytes in in-use spans
-      included: true
+      default: true
       type: gauge
     memstats.heap_released:
       description: Bytes of physical memory returned to the OS
-      included: true
+      default: true
       type: gauge
     memstats.heap_objects:
       description: Number of allocated heap objects
-      included: true
+      default: true
       type: gauge
     memstats.stack_inuse:
       description: Bytes in stack spans
-      included: true
+      default: true
       type: gauge
     memstats.stack_sys:
       description: Bytes of stack memory obtained from the OS
-      included: true
+      default: true
       type: gauge
     memstats.m_span_inuse:
       description: Bytes of allocated mspan structures
-      included: true
+      default: true
       type: gauge
     memstats.m_span_sys:
       description: Bytes of memory obtained from the OS for mspan
-      included: true
+      default: true
       type: gauge
     memstats.m_cache_inuse:
       description: Bytes of allocated mcache structures
-      included: true
+      default: true
       type: gauge
     memstats.m_cache_sys:
       description: Bytes of memory obtained from the OS for mcache structures
-      included: true
+      default: true
       type: gauge
     memstats.buck_hash_sys:
       description: Bytes of memory in profiling bucket hash tables
-      included: true
+      default: true
       type: gauge
     memstats.gc_sys:
       description: Bytes of memory in garbage collection metadata
-      included: true
+      default: true
       type: gauge
     memstats.other_sys:
       description: Bytes of memory in miscellaneous off-heap runtime allocations
-      included: true
+      default: true
       type: gauge
     memstats.sys:
       description: total bytes of memory obtained from the OS
-      included: true
+      default: true
       type: gauge
     memstats.next_gc:
       description: Target heap size of the next GC cycle
-      included: true
+      default: true
       type: gauge
     memstats.last_gc:
       description: The time the last garbage collection finished, as nanoseconds since
         1970 (the UNIX epoch)
-      included: true
+      default: true
       type: gauge
     memstats.gccpu_fraction:
       description: The fraction of this program's available CPU time used by the GC
         since the program started
-      included: true
+      default: true
       type: gauge
     memstats.enable_gc:
       description: Boolean that indicates that GC is enabled. It is always true, even
         if GOGC=off
-      included: true
+      default: true
       type: gauge
     memstats.debug_gc:
       description: memstats.debug_gc is currently unused
-      included: false
+      default: false
       type: gauge
     memstats.most_recent_gc_pause_ns:
       description: Most recent GC stop-the-world pause time in nanoseconds
-      included: true
+      default: true
       type: gauge
     memstats.most_recent_gc_pause_end:
       description: Most recent GC pause end time, as nanoseconds since 1970 (the UNIX
         epoch)
-      included: true
+      default: true
       type: gauge
     memstats.total_alloc:
       description: Cumulative bytes allocated for heap objects
-      included: true
+      default: true
       type: counter
     memstats.lookups:
       description: Number of pointer lookups performed by the runtime
-      included: true
+      default: true
       type: counter
     memstats.mallocs:
       description: Cumulative count of heap objects allocated
-      included: true
+      default: true
       type: counter
     memstats.frees:
       description: Cumulative count of heap objects freed
-      included: true
+      default: true
       type: counter
     memstats.pause_total_ns:
       description: Cumulative nanoseconds in GC stop-the-world pauses since the program
         started
-      included: true
+      default: true
       type: counter
     memstats.num_gc:
       description: Number of completed GC cycles
-      included: true
+      default: true
       type: counter
     memstats.num_forced_gc:
       description: Number of GC cycles that were forced by the application calling
         the GC function
-      included: true
+      default: true
       type: counter
     memstats.by_size.size:
       description: The maximum byte size of a class as identified by dimension class.
@@ -283,17 +283,17 @@ monitors:
         class values. The lower limit of a class is the upper limit of the consecutive
         class below. Metrics memstats.by_size.size, memstats.by_size.mallocs and memstats.by_size.frees
         of the same class are related
-      included: false
+      default: false
       type: counter
     memstats.by_size.mallocs:
       description: Cumulative count of heap objects allocated in a class. The class
         is identified by dimension class and it is as described for metric memstats.by_size.size
-      included: false
+      default: false
       type: counter
     memstats.by_size.frees:
       description: Cumulative count of heap objects freed in a class. The class is
         identified by dimension class and it is as described for metric memstats.by_size.size
-      included: false
+      default: false
       type: counter
   monitorType: expvar
   properties:

@@ -43,7 +43,7 @@ EXCLUDED_METRICS = {
     "gauge.etcd.leader.latency.stddev",
     "gauge.etcd.leader.latency.min",
 }
-INCLUDED_METRICS = METADATA.included_metrics - EXCLUDED_METRICS
+DEFAULT_METRICS = METADATA.default_metrics - EXCLUDED_METRICS
 ENHANCED_METRICS = METADATA.all_metrics - EXCLUDED_METRICS
 
 
@@ -77,7 +77,7 @@ def test_etcd_tls_skip_validation():
     with run_etcd(tls=True) as container:
         host = container_ip(container)
         config = ETCD_TLS_CONFIG.format(host=host, port=2379, skipValidation="true", testServices=TEST_SERVICES_DIR)
-        run_agent_verify(config, INCLUDED_METRICS)
+        run_agent_verify(config, DEFAULT_METRICS)
 
 
 @pytest.mark.requires_host_networking
@@ -89,7 +89,7 @@ def test_etcd_tls_validate():
         host = "localhost"
         port = int(container.attrs["NetworkSettings"]["Ports"]["2379/tcp"][0]["HostPort"])
         config = ETCD_TLS_CONFIG.format(host=host, port=port, skipValidation="false", testServices=TEST_SERVICES_DIR)
-        run_agent_verify(config, INCLUDED_METRICS)
+        run_agent_verify(config, DEFAULT_METRICS)
 
 
 def test_etcd_monitor():
@@ -103,11 +103,11 @@ def test_etcd_monitor():
             ), "Didn't get etcd datapoints"
 
 
-def test_etcd_monitor_included():
+def test_etcd_monitor_default():
     with run_etcd() as etcd_cont:
         host = container_ip(etcd_cont)
         config = ETCD_CONFIG.format(host=host)
-        run_agent_verify(config, INCLUDED_METRICS)
+        run_agent_verify(config, DEFAULT_METRICS)
 
 
 def test_etcd_monitor_enhanced():

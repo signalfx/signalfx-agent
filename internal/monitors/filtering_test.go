@@ -10,8 +10,8 @@ import (
 
 func testMetadata(metricsExhaustive bool) *Metadata {
 	return &Metadata{
-		MonitorType:     "test-monitor",
-		IncludedMetrics: utils.StringSet("cpu.idle", "cpu.min", "cpu.max", "mem.used"),
+		MonitorType:    "test-monitor",
+		DefaultMetrics: utils.StringSet("cpu.idle", "cpu.min", "cpu.max", "mem.used"),
 		Metrics: map[string]MetricInfo{
 			"cpu.idle":      {Type: datapoint.Gauge},
 			"cpu.min":       {Type: datapoint.Gauge},
@@ -34,12 +34,12 @@ func testMetadata(metricsExhaustive bool) *Metadata {
 var exhaustiveMetadata = testMetadata(true)
 var nonexhaustiveMetadata = testMetadata(false)
 
-func TestIncludedMetrics(t *testing.T) {
+func TestDefaultMetrics(t *testing.T) {
 	if filter, err := newMetricsFilter(exhaustiveMetadata, nil, nil); err != nil {
 		t.Error(err)
 	} else {
 		// All included metrics should be sent.
-		for metric := range exhaustiveMetadata.IncludedMetrics {
+		for metric := range exhaustiveMetadata.DefaultMetrics {
 			localMetric := metric
 			t.Run(fmt.Sprintf("included metric %s should send", metric), func(t *testing.T) {
 				dp := &datapoint.Datapoint{

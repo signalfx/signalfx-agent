@@ -14,14 +14,14 @@ pytestmark = [pytest.mark.collectd, pytest.mark.cpu, pytest.mark.monitor_without
 METDATA = Metadata.from_package("collectd/cpu")
 
 
-def test_collectd_cpu_included():
+def test_collectd_cpu_default():
     with Agent.run(
         """
         monitors:
         - type: collectd/cpu
         """
     ) as agent:
-        # There aren't any included.
+        # There aren't any default.
         time.sleep(15)
         assert not agent.fake_services.datapoints
 

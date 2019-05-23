@@ -85,7 +85,7 @@ func (m *Monitor) Configure(conf *Config) error {
 // GetExtraMetrics returns additional metrics that should be allowed through.
 func (c *Config) GetExtraMetrics() []string {
 	if c.EnhancedMetrics {
-		return monitorMetadata.NonIncludedMetrics()
+		return monitorMetadata.NonDefaultMetrics()
 	}
 	return nil
 }

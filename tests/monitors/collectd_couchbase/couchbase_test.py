@@ -52,7 +52,7 @@ def run_couchbase(tag):
 
 @pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("tag", VERSIONS)
-def test_couchbase_included(tag):
+def test_couchbase_default(tag):
     with run_couchbase(tag) as host, Agent.run(
         f"""
         monitors:
@@ -64,7 +64,7 @@ def test_couchbase_included(tag):
             password: password
         """
     ) as agent:
-        verify(agent, (METADATA.metrics_by_group["nodes"] & METADATA.included_metrics) - EXCLUDED)
+        verify(agent, (METADATA.metrics_by_group["nodes"] & METADATA.default_metrics) - EXCLUDED)
         assert has_datapoint_with_dim(agent.fake_services, "plugin", "couchbase"), "Didn't get couchbase datapoints"
 
 

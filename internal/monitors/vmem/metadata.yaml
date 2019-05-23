@@ -16,51 +16,51 @@ monitors:
   metrics:
     vmpage.swap.in_per_second:
       description: (Windows Only)
-      included: false
+      default: false
       type: gauge
     vmpage.swap.out_per_second:
       description: (Windows Only)
-      included: false
+      default: false
       type: gauge
     vmpage.swap.total.per_second:
       description: (Windows Only)
-      included: false
+      default: false
       type: gauge
     vmpage_faults.majflt:
       description: (Linux Only) Number of major page faults on the system
-      included: false
+      default: false
       type: cumulative
     vmpage_faults.minflt:
       description: (Linux Only) Number of minor page faults on the system
-      included: false
+      default: false
       type: cumulative
     vmpage_io.memory.in:
       description: (Linux Only) Page Ins for Memory
-      included: false
+      default: false
       type: cumulative
     vmpage_io.memory.out:
       description: (Linux Only) Page Outs for Memory
-      included: false
+      default: false
       type: cumulative
     vmpage_io.swap.in:
       description: (Linux Only) Page Ins for Swap
-      included: true
+      default: true
       type: cumulative
     vmpage_io.swap.out:
       description: (Linux Only) Page Outs for Swap
-      included: true
+      default: true
       type: cumulative
     vmpage_number.free_pages:
       description: (Linux Only) Number of free memory pages
-      included: false
+      default: false
       type: gauge
     vmpage_number.mapped:
       description: (Linux Only) Number of mapped pages
-      included: false
+      default: false
       type: gauge
     vmpage_number.shmem_pmdmapped:
       description: (Linux Only) The amount of shared (shmem/tmpfs) memory backed by huge pages
-      included: false
+      default: false
       type: gauge
   monitorType: vmem
   properties:

@@ -1,24 +1,24 @@
 import pytest
 
 from tests.helpers.metadata import Metadata
-from tests.helpers.verify import run_agent_verify, run_agent_verify_included_metrics, run_agent_verify_all_metrics
+from tests.helpers.verify import run_agent_verify, run_agent_verify_default_metrics, run_agent_verify_all_metrics
 
 pytestmark = [pytest.mark.collectd, pytest.mark.df, pytest.mark.monitor_without_endpoints]
 
 METADATA = Metadata.from_package("collectd/df")
 
 
-def test_df_included_metrics():
+def test_df_default_metrics():
     agent_config = """
         monitors:
           - type: collectd/df
         """
-    run_agent_verify_included_metrics(agent_config, METADATA)
+    run_agent_verify_default_metrics(agent_config, METADATA)
 
 
 def test_df_extra_metrics():
     df_complex_reserved, df_inodes_reserved = "df_complex.reserved", "df_inodes.reserved"
-    expected_metrics = METADATA.included_metrics | {df_complex_reserved, df_inodes_reserved}
+    expected_metrics = METADATA.default_metrics | {df_complex_reserved, df_inodes_reserved}
     agent_config = f"""
         monitors:
           - type: collectd/df
@@ -30,7 +30,7 @@ def test_df_extra_metrics():
 
 
 def test_df_inodes_flag():
-    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["inodes"]
+    expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["inodes"]
     agent_config = f"""
         monitors:
           - type: collectd/df
@@ -40,7 +40,7 @@ def test_df_inodes_flag():
 
 
 def test_df_percentage_flag():
-    expected_metrics = METADATA.included_metrics | METADATA.metrics_by_group["percentage"]
+    expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["percentage"]
     agent_config = f"""
         monitors:
           - type: collectd/df

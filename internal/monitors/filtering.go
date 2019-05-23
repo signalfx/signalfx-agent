@@ -187,7 +187,7 @@ func newMetricsFilter(metadata *Metadata, extraMetrics, extraGroups []string) (*
 		}
 
 		// If the user specified a metric that's already included no need to add it.
-		if !metadata.IncludedMetrics[metric] {
+		if !metadata.DefaultMetrics[metric] {
 			filterItems = append(filterItems, metric)
 		}
 	}
@@ -220,7 +220,7 @@ func newMetricsFilter(metadata *Metadata, extraMetrics, extraGroups []string) (*
 }
 
 func (mf *extraMetricsFilter) Matches(dp *datapoint.Datapoint) bool {
-	if mf.metadata.HasIncludedMetric(dp.Metric) || !mf.metadata.HasMetric(dp.Metric) {
+	if mf.metadata.HasDefaultMetric(dp.Metric) || !mf.metadata.HasMetric(dp.Metric) {
 		// It's an included metric or is totally unknown so send by default.
 		return true
 	}

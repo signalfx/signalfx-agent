@@ -8,39 +8,39 @@ monitors:
   metrics:
     vmpage_faults.majflt:
       description: Number of major page faults on the system
-      included: false
+      default: false
       type: cumulative
     vmpage_faults.minflt:
       description: Number of minor page faults on the system
-      included: false
+      default: false
       type: cumulative
     vmpage_io.memory.in:
       description: Page Ins for Memory
-      included: false
+      default: false
       type: cumulative
     vmpage_io.memory.out:
       description: Page Outs for Memory
-      included: false
+      default: false
       type: cumulative
     vmpage_io.swap.in:
       description: Page Ins for Swap
-      included: true
+      default: true
       type: cumulative
     vmpage_io.swap.out:
       description: Page Outs for Swap
-      included: true
+      default: true
       type: cumulative
     vmpage_number.free_pages:
       description: Number of free memory pages
-      included: false
+      default: false
       type: cumulative
     vmpage_number.mapped:
       description: Number of mapped pages
-      included: false
+      default: false
       type: cumulative
     vmpage_number.shmem_pmdmapped:
       description: The amount of shared (shmem/tmpfs) memory backed by huge pages
-      included: false
+      default: false
       type: gauge
   monitorType: collectd/vmem
   properties:

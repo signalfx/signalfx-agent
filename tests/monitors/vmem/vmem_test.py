@@ -29,13 +29,13 @@ elif sys.platform == "win32" or sys.platform == "cygwin":
     METRICS.update({"vmpage.swap.in_per_second", "vmpage.swap.out_per_second", "vmpage.swap.total_per_second"})
 
 
-def test_vmem_included():
+def test_vmem_default():
     agent = run_agent_verify(
         """
         monitors:
         - type: vmem
         """,
-        METRICS & METADATA.included_metrics,
+        METRICS & METADATA.default_metrics,
     )
     assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 

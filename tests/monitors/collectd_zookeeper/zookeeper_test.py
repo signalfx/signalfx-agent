@@ -4,7 +4,7 @@ from functools import partial as p
 from tests.helpers.assertions import tcp_socket_open
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import run_container, container_ip, wait_for
-from tests.helpers.verify import run_agent_verify_included_metrics, run_agent_verify_all_metrics
+from tests.helpers.verify import run_agent_verify_default_metrics, run_agent_verify_all_metrics
 
 METADATA = Metadata.from_package("collectd/zookeeper")
 
@@ -19,7 +19,7 @@ def run_zookeeper():
 
 def test_zookeeeper():
     with run_zookeeper() as host:
-        run_agent_verify_included_metrics(
+        run_agent_verify_default_metrics(
             f"""
             monitors:
             - type: collectd/zookeeper

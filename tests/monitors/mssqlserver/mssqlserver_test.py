@@ -13,7 +13,7 @@ VERSIONS = ["mcr.microsoft.com/mssql/server:2017-latest-ubuntu"]
 
 
 EXCLUDED = {
-    # These aren't coming through and I can't find them running SQLServer manually. Maybe included on Windows
+    # These aren't coming through and I can't find them running SQLServer manually. Maybe default on Windows
     # version, should test.
     "sqlserver_server_properties.total_storage_mb",
     "sqlserver_server_properties.available_storage_mb",
@@ -21,7 +21,7 @@ EXCLUDED = {
 
 
 @pytest.mark.parametrize("image", VERSIONS)
-def test_sql_included(image):
+def test_sql_default(image):
     with run_container(
         image, environment={"ACCEPT_EULA": "Y", "MSSQL_PID": "Developer", "SA_PASSWORD": "P@ssw0rd!"}
     ) as test_container:
@@ -38,7 +38,7 @@ def test_sql_included(image):
               password: P@ssw0rd!
               log: 0
             """,
-            METADATA.included_metrics - EXCLUDED,
+            METADATA.default_metrics - EXCLUDED,
         )
 
         # TODO: there is a race that happens when the mssql user account can be logged in

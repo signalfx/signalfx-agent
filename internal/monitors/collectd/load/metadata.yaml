@@ -6,15 +6,15 @@ monitors:
   metrics:
     load.longterm:
       description: Average CPU load per core over the last 15 minutes
-      included: true
+      default: true
       type: gauge
     load.midterm:
       description: Average CPU load per core over the last five minutes
-      included: true
+      default: true
       type: gauge
     load.shortterm:
       description: Average CPU load per core over the last one minute
-      included: true
+      default: true
       type: gauge
   monitorType: collectd/load
   properties:

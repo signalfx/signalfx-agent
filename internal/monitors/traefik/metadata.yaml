@@ -58,201 +58,201 @@ monitors:
   metrics:
     go_gc_duration_seconds:
       description: A summary of the GC invocation durations.
-      included: false
+      default: false
       type: cumulative
     go_gc_duration_seconds_count:
       description: A count of the GC invocation durations.
-      included: false
+      default: false
       type: cumulative
     go_gc_duration_seconds_sum:
       description: The sum of the GC invocation durations, in seconds.
-      included: false
+      default: false
       type: cumulative
     go_memstats_alloc_bytes_total:
       description: Total number of bytes allocated, even if freed.
-      included: false
+      default: false
       type: cumulative
     go_memstats_frees_total:
       description: Total number of frees.
-      included: false
+      default: false
       type: cumulative
     go_memstats_lookups_total:
       description: Total number of pointer lookups.
-      included: false
+      default: false
       type: cumulative
     go_memstats_mallocs_total:
       description: Total number of mallocs.
-      included: false
+      default: false
       type: cumulative
     process_cpu_seconds_total:
       description: Total user and system CPU time spent, in seconds.
-      included: false
+      default: false
       type: cumulative
     traefik_backend_request_duration_seconds_bucket:
       description: The sum of request durations that are within a configured time interval. The request durations are measured at a backend in seconds. This value is partitioned by status code, protocol, and method.
-      included: false
+      default: false
       type: cumulative
     traefik_backend_request_duration_seconds_count:
       description: The number of request durations that were measured on a backend. The values are partitioned by status code, protocol, and method.
-      included: false
+      default: false
       type: cumulative
     traefik_backend_request_duration_seconds_sum:
       description: The sum of the request durations in seconds, measured on a backend, partitioned by status code, protocol, and method.
-      included: true
+      default: true
       type: cumulative
     traefik_backend_requests_total:
       description: How many HTTP requests were processed on a backend, partitioned by status code, protocol, and method.
-      included: true
+      default: true
       type: cumulative
     traefik_config_reloads_failure_total:
       description: Total number of config reloads that failed
-      included: false
+      default: false
       type: cumulative
     traefik_config_reloads_total:
       description: Config reloads
-      included: false
+      default: false
       type: cumulative
     traefik_entrypoint_request_duration_seconds_bucket:
       description: The sum of request durations that are within a configured time interval. The request durations are measured at an entrypoint in seconds. This value is partitioned by status code, protocol, and method.
-      included: false
+      default: false
       type: cumulative
     traefik_entrypoint_request_duration_seconds_count:
       description: The number of request durations that were measured on an entrypoint. The values are partitioned by status code, protocol, and method.
-      included: true
+      default: true
       type: cumulative
     traefik_entrypoint_request_duration_seconds_sum:
       description: The sum of the request durations in seconds measured on an entrypoint, partitioned by status code, protocol, and method.
-      included: true
+      default: true
       type: cumulative
     traefik_entrypoint_requests_total:
       description: How many HTTP requests processed on an entrypoint, partitioned by status code, protocol, and method.
-      included: true
+      default: true
       type: cumulative
     go_goroutines:
       description: Number of goroutines that currently exist.
-      included: false
+      default: false
       type: cumulative
     go_memstats_alloc_bytes:
       description: Number of bytes allocated and still in use.
-      included: false
+      default: false
       type: gauge
     go_memstats_buck_hash_sys_bytes:
       description: Number of bytes used by the profiling bucket hash table.
-      included: false
+      default: false
       type: gauge
     go_memstats_gc_cpu_fraction:
       description: The fraction of this program's available CPU time used by the GC since the program started.
-      included: false
+      default: false
       type: gauge
     go_memstats_gc_sys_bytes:
       description: Number of bytes used for garbage collection system metadata.
-      included: false
+      default: false
       type: gauge
     go_memstats_heap_alloc_bytes:
       description: Number of heap bytes allocated and still in use.
-      included: false
+      default: false
       type: gauge
     go_memstats_heap_idle_bytes:
       description: Number of heap bytes waiting to be used.
-      included: false
+      default: false
       type: gauge
     go_memstats_heap_inuse_bytes:
       description: Number of heap bytes that are in use.
-      included: false
+      default: false
       type: gauge
     go_memstats_heap_objects:
       description: Number of allocated objects.
-      included: false
+      default: false
       type: gauge
     go_memstats_heap_released_bytes:
       description: Number of heap bytes released to OS.
-      included: false
+      default: false
       type: gauge
     go_memstats_heap_sys_bytes:
       description: Number of heap bytes obtained from system.
-      included: false
+      default: false
       type: gauge
     go_memstats_last_gc_time_seconds:
       description: Length of time since last garbage collection, in seconds since unix epoch.
-      included: false
+      default: false
       type: gauge
     go_memstats_mcache_inuse_bytes:
       description: Number of bytes in use by mcache structures.
-      included: false
+      default: false
       type: gauge
     go_memstats_mcache_sys_bytes:
       description: Number of bytes used for mcache structures obtained from system.
-      included: false
+      default: false
       type: gauge
     go_memstats_mspan_inuse_bytes:
       description: Number of bytes in use by mspan structures.
-      included: false
+      default: false
       type: gauge
     go_memstats_mspan_sys_bytes:
       description: Number of bytes used for mspan structures obtained from system.
-      included: false
+      default: false
       type: gauge
     go_memstats_next_gc_bytes:
       description: Number of heap bytes when next garbage collection will take place.
-      included: false
+      default: false
       type: gauge
     go_memstats_other_sys_bytes:
       description: Number of bytes used for other system allocations.
-      included: false
+      default: false
       type: gauge
     go_memstats_stack_inuse_bytes:
       description: Number of bytes in use by the stack allocator.
-      included: false
+      default: false
       type: gauge
     go_memstats_stack_sys_bytes:
       description: Number of bytes obtained from system for stack allocator.
-      included: false
+      default: false
       type: gauge
     go_memstats_sys_bytes:
       description: Number of bytes obtained from system.
-      included: false
+      default: false
       type: gauge
     go_threads:
       description: Number of OS threads created
-      included: false
+      default: false
       type: gauge
     process_max_fds:
       description: Maximum number of open file descriptors.
-      included: false
+      default: false
       type: gauge
     process_open_fds:
       description: Number of open file descriptors.
-      included: false
+      default: false
       type: gauge
     process_resident_memory_bytes:
       description: Resident memory size in bytes.
-      included: false
+      default: false
       type: gauge
     process_start_time_seconds:
       description: Start time of the process since unix epoch in seconds.
-      included: true
+      default: true
       type: gauge
     process_virtual_memory_bytes:
       description: Virtual memory size in bytes.
-      included: false
+      default: false
       type: gauge
     traefik_backend_open_connections:
       description: How many open connections exist on a backend, partitioned by method and protocol.
-      included: true
+      default: true
       type: gauge
     traefik_backend_server_up:
       description: Backend server is up, described by gauge value of 0 (down) or 1 (up).
-      included: true
+      default: true
       type: gauge
     traefik_config_last_reload_failure:
       description: Last config reload failure
-      included: false
+      default: false
       type: gauge
     traefik_config_last_reload_success:
       description: Last config reload success
-      included: false
+      default: false
       type: gauge
     traefik_entrypoint_open_connections:
       description: How many open connections exist on an entrypoint, partitioned by method and protocol.
-      included: true
+      default: true
       type: gauge

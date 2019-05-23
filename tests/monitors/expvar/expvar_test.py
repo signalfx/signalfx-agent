@@ -8,7 +8,7 @@ import pytest
 from tests.helpers.assertions import tcp_socket_open
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_service, wait_for
-from tests.helpers.verify import run_agent_verify_all_metrics, run_agent_verify, run_agent_verify_included_metrics
+from tests.helpers.verify import run_agent_verify_all_metrics, run_agent_verify, run_agent_verify_default_metrics
 
 pytestmark = [pytest.mark.expvar, pytest.mark.monitor_with_endpoints]
 
@@ -24,9 +24,9 @@ def run_expvar():
         yield host
 
 
-def test_expvar_included():
+def test_expvar_default():
     with run_expvar() as expvar_container_ip:
-        run_agent_verify_included_metrics(
+        run_agent_verify_default_metrics(
             f"""
             monitors:
             - type: expvar
@@ -52,7 +52,7 @@ def test_expvar_enhanced():
 
 
 def test_expvar_custom_metric():
-    expected = METADATA.included_metrics | {"queues.count"}
+    expected = METADATA.default_metrics | {"queues.count"}
     with run_expvar() as expvar_container_ip:
         run_agent_verify(
             f"""

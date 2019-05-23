@@ -14,42 +14,42 @@ monitors:
     cpu.idle:
       description:
       group:
-      included: false
+      default: false
       type: cumulative
     cpu.interrupt:
       description:
       group:
-      included: false
+      default: false
       type: cumulative
     cpu.nice:
       description:
       group:
-      included: false
+      default: false
       type: cumulative
     cpu.softirq:
       description:
       group:
-      included: false
+      default: false
       type: cumulative
     cpu.steal:
       description:
       group:
-      included: false
+      default: false
       type: cumulative
     cpu.system:
       description:
       group:
-      included: false
+      default: false
       type: cumulative
     cpu.user:
       description:
       group:
-      included: false
+      default: false
       type: cumulative
     cpu.wait:
       description:
       group:
-      included: false
+      default: false
       type: cumulative
   monitorType: collectd/cpu
   properties:

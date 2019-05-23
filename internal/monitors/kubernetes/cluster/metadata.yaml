@@ -25,7 +25,7 @@ common:
     kubernetes.container_ready:
       description: Whether a container has passed its readiness probe (0 for no, 1
         for yes)
-      included: true
+      default: true
       type: gauge
     kubernetes.container_restart_count:
       description: How many times the container has restarted in the recent past.  This
@@ -36,80 +36,80 @@ common:
         as either `== 0`, in which case you can conclude there were no restarts in
         the recent past, or `> 0`, in which case you can conclude there were restarts
         in the recent past, and not try and analyze the value beyond that.
-      included: true
+      default: true
       type: gauge
     kubernetes.daemon_set.current_scheduled:
       description: The number of nodes that are running at least 1 daemon pod and
         are supposed to run the daemon pod
-      included: true
+      default: true
       type: gauge
     kubernetes.daemon_set.desired_scheduled:
       description: The total number of nodes that should be running the daemon pod
         (including nodes currently running the daemon pod)
-      included: true
+      default: true
       type: gauge
     kubernetes.daemon_set.misscheduled:
       description: The number of nodes that are running the daemon pod, but are not
         supposed to run the daemon pod
-      included: true
+      default: true
       type: gauge
     kubernetes.daemon_set.ready:
       description: The number of nodes that should be running the daemon pod and have
         one or more of the daemon pod running and ready
-      included: true
+      default: true
       type: gauge
     kubernetes.deployment.available:
       description: Total number of available pods (ready for at least minReadySeconds)
         targeted by this deployment.
-      included: true
+      default: true
       type: gauge
     kubernetes.deployment.desired:
       description: Number of desired pods in this deployment
-      included: true
+      default: true
       type: gauge
     kubernetes.namespace_phase:
       description: The current phase of namespaces (`1` for _active_ and `0` for _terminating_)
-      included: true
+      default: true
       type: gauge
     kubernetes.node_ready:
       description: Whether this node is ready (1), not ready (0) or in an unknown
         state (-1)
-      included: true
+      default: true
       type: gauge
     kubernetes.pod_phase:
       description: Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded,
         4 - Failed, 5 - Unknown)
-      included: true
+      default: true
       type: gauge
     kubernetes.replica_set.available:
       description: Total number of available pods (ready for at least minReadySeconds)
         targeted by this replica set
-      included: true
+      default: true
       type: gauge
     kubernetes.replica_set.desired:
       description: Number of desired pods in this replica set
-      included: true
+      default: true
       type: gauge
     kubernetes.replication_controller.available:
       description: Total number of available pods (ready for at least minReadySeconds)
         targeted by this replication controller.
-      included: true
+      default: true
       type: gauge
     kubernetes.replication_controller.desired:
       description: Number of desired pods
-      included: true
+      default: true
       type: gauge
     kubernetes.resource_quota_hard:
       description: The upper limit for a particular resource in a specific namespace.  Will
         only be sent if a quota is specified.  CPU requests/limits will be sent as
         millicores.
-      included: true
+      default: true
       type: gauge
     kubernetes.resource_quota_used:
       description: The usage for a particular resource in a specific namespace.  Will
         only be sent if a quota is specified.  CPU requests/limits will be sent as
         millicores.
-      included: true
+      default: true
       type: gauge
   properties:
     <node label>:
@@ -187,113 +187,113 @@ monitors:
   metrics:
     openshift.appliedclusterquota.cpu.hard:
       description: Hard limit for number of cpu by namespace
-      included: true
+      default: true
       type: gauge
     openshift.appliedclusterquota.cpu.used:
       description: Consumed number of cpu by namespace
-      included: true
+      default: true
       type: gauge
     openshift.appliedclusterquota.memory.hard:
       description: Hard limit for amount of memory by namespace
-      included: true
+      default: true
       type: gauge
     openshift.appliedclusterquota.memory.used:
       description: Consumed amount of memory by namespace
-      included: true
+      default: true
       type: gauge
     openshift.appliedclusterquota.persistentvolumeclaims.hard:
       description: Hard limit for number of persistentvolumeclaims by namespace
-      included: true
+      default: true
       type: gauge
     openshift.appliedclusterquota.persistentvolumeclaims.used:
       description: Consumed number of persistentvolumeclaims by namespace
-      included: true
+      default: true
       type: gauge
     openshift.appliedclusterquota.pods.hard:
       description: Hard limit for number of pods by namespace
-      included: true
+      default: true
       type: gauge
     openshift.appliedclusterquota.pods.used:
       description: Consumed number of pods by namespace
-      included: true
+      default: true
       type: gauge
     openshift.appliedclusterquota.services.hard:
       description: Hard limit for number of services by namespace
-      included: true
+      default: true
       type: gauge
     openshift.appliedclusterquota.services.loadbalancers.hard:
       description: Hard limit for number of services.loadbalancers by namespace
-      included: true
+      default: true
       type: gauge
     openshift.appliedclusterquota.services.loadbalancers.used:
       description: Consumed number of services.loadbalancers by namespace
-      included: true
+      default: true
       type: gauge
     openshift.appliedclusterquota.services.nodeports.hard:
       description: Hard limit for number of services.nodeports by namespace
-      included: true
+      default: true
       type: gauge
     openshift.appliedclusterquota.services.nodeports.used:
       description: Consumed number of services.nodeports by namespace
-      included: true
+      default: true
       type: gauge
     openshift.appliedclusterquota.services.used:
       description: Consumed number of services by namespace
-      included: true
+      default: true
       type: gauge
     openshift.clusterquota.cpu.hard:
       description: Hard limit for number of cpu across all namespaces
-      included: true
+      default: true
       type: gauge
     openshift.clusterquota.cpu.used:
       description: Consumed number of cpu across all namespaces
-      included: true
+      default: true
       type: gauge
     openshift.clusterquota.memory.hard:
       description: Hard limit for amount of memory across all namespaces
-      included: true
+      default: true
       type: gauge
     openshift.clusterquota.memory.used:
       description: Consumed amount of memory across all namespaces
-      included: true
+      default: true
       type: gauge
     openshift.clusterquota.persistentvolumeclaims.hard:
       description: Hard limit for number of persistentvolumeclaims across all namespaces
-      included: true
+      default: true
       type: gauge
     openshift.clusterquota.persistentvolumeclaims.used:
       description: Consumed number of persistentvolumeclaims across all namespaces
-      included: true
+      default: true
       type: gauge
     openshift.clusterquota.pods.hard:
       description: Hard limit for number of pods across all namespaces
-      included: true
+      default: true
       type: gauge
     openshift.clusterquota.pods.used:
       description: Consumed number of pods across all namespaces
-      included: true
+      default: true
       type: gauge
     openshift.clusterquota.services.hard:
       description: Hard limit for number of services across all namespaces
-      included: true
+      default: true
       type: gauge
     openshift.clusterquota.services.loadbalancers.hard:
       description: Hard limit for number of services.loadbalancers across all namespaces
-      included: true
+      default: true
       type: gauge
     openshift.clusterquota.services.loadbalancers.used:
       description: Consumed number of services.loadbalancers across all namespaces
-      included: true
+      default: true
       type: gauge
     openshift.clusterquota.services.nodeports.hard:
       description: Hard limit for number of services.nodeports across all namespaces
-      included: true
+      default: true
       type: gauge
     openshift.clusterquota.services.nodeports.used:
       description: Consumed number of services.nodeports across all namespaces
-      included: true
+      default: true
       type: gauge
     openshift.clusterquota.services.used:
       description: Consumed number of services across all namespaces
-      included: true
+      default: true
       type: gauge

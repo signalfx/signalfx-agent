@@ -12,7 +12,7 @@ pytestmark = [pytest.mark.collectd, pytest.mark.haproxy, pytest.mark.monitor_wit
 
 METADATA = Metadata.from_package("collectd/haproxy")
 
-EXPECTED_DEFAULTS = METADATA.included_metrics
+EXPECTED_DEFAULTS = METADATA.default_metrics
 
 
 @pytest.mark.parametrize("version", ["1.9", "latest"])
@@ -51,7 +51,7 @@ def test_haproxy_extra_metrics_enables_enhanced_metrics():
            """
         ) as agent:
             target_metric = "gauge.tasks"
-            assert target_metric in METADATA.nonincluded_metrics
+            assert target_metric in METADATA.nondefault_metrics
 
             def test():
                 assert has_datapoint(agent.fake_services, metric_name=target_metric)
@@ -74,7 +74,7 @@ def test_haproxy_enhanced_metrics_enables_filter_passthrough():
            """
         ) as agent:
             target_metric = "gauge.tasks"
-            assert target_metric in METADATA.nonincluded_metrics
+            assert target_metric in METADATA.nondefault_metrics
 
             def test():
                 assert has_datapoint(agent.fake_services, metric_name=target_metric)

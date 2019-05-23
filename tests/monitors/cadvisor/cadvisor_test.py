@@ -36,14 +36,14 @@ def run(config, metrics):
         run_agent_verify(config.format(host=host), metrics)
 
 
-def test_cadvisor_included():
+def test_cadvisor_default():
     run(
         """
         monitors:
           - type: cadvisor
             cadvisorURL: http://{host}:8080
         """,
-        METADATA.included_metrics,
+        METADATA.default_metrics,
     )
 
 

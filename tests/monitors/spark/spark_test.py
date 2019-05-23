@@ -58,7 +58,7 @@ def run(config, metrics):
                 ), "Didn't get spark datapoints"
 
 
-def test_spark_included():
+def test_spark_default():
     run(
         """
         monitors:
@@ -74,7 +74,7 @@ def test_spark_included():
           clusterType: Standalone
           isMaster: false
         """,
-        METADATA.included_metrics,
+        METADATA.default_metrics,
     )
 
 

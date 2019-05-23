@@ -6,57 +6,57 @@ monitors:
   metrics:
     df_complex.free:
       description: Free disk space in bytes
-      included: true
+      default: true
       type: gauge
     df_complex.reserved:
       description: Reserved disk space in bytes
-      included: false
+      default: false
       type: gauge
     df_complex.used:
       description: Used disk space in bytes
-      included: true
+      default: true
       type: gauge
     df_inodes.free:
       description: Number of inodes that are free.
-      included: false
+      default: false
       type: gauge
       group: inodes
     df_inodes.reserved:
       description: Number of inodes reserved for the super user.
-      included: false
+      default: false
       type: gauge
       group: inodes
     df_inodes.used:
       description: Number of inodes that are used.
-      included: false
+      default: false
       type: gauge
       group: inodes
     percent_bytes.free:
       description: Free disk space on the file system, expressed as a percentage.
-      included: false
+      default: false
       type: gauge
       group: percentage
     percent_bytes.reserved:
       description: Reserved disk space on the filesystem, expressed as a percentage.
-      included: false
+      default: false
       type: gauge
       group: percentage
     percent_bytes.used:
       description: Used disk space on the file system, expressed as a percentage.
-      included: false
+      default: false
       type: gauge
       group: percentage
     percent_inodes.free:
       description: Free inodes on the file system, expressed as a percentage.
-      included: false
+      default: false
       type: gauge
     percent_inodes.reserved:
       description: Reserved inodes on the file system, expressed as a percentage.
-      included: false
+      default: false
       type: gauge
     percent_inodes.used:
       description: Used inodes on the file system, expressed as a percentage.
-      included: false
+      default: false
       type: gauge
   monitorType: collectd/df
   properties:

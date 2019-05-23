@@ -8,6 +8,10 @@ MONITOR_CODE_GEN := ./monitor-code-gen
 endif
 NUM_CORES ?= $(shell getconf _NPROCESSORS_ONLN)
 
+.PHONY: clean
+clean:
+	find internal -name "genmetadata.go" -delete
+
 .PHONY: check
 check: lint vet test
 

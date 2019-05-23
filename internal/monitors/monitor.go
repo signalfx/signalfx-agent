@@ -43,7 +43,7 @@ type MetricInfo struct {
 type Metadata struct {
 	MonitorType       string
 	SendAll           bool
-	IncludedMetrics   map[string]bool
+	DefaultMetrics    map[string]bool
 	Metrics           map[string]MetricInfo
 	MetricsExhaustive bool
 	Groups            map[string]bool
@@ -56,9 +56,9 @@ func (metadata *Metadata) HasMetric(metric string) bool {
 	return ok
 }
 
-// HasIncludedMetric returns whether the metric is an included metric.
-func (metadata *Metadata) HasIncludedMetric(metric string) bool {
-	return metadata.IncludedMetrics[metric]
+// HasDefaultMetric returns whether the metric is an included metric.
+func (metadata *Metadata) HasDefaultMetric(metric string) bool {
+	return metadata.DefaultMetrics[metric]
 }
 
 // HasGroup returns whether the group exists or not.
@@ -66,13 +66,13 @@ func (metadata *Metadata) HasGroup(group string) bool {
 	return metadata.Groups[group]
 }
 
-// NonIncludedMetrics returns list of metrics that are non-included.
+// NonDefaultMetrics returns list of metrics that are non-included.
 // Note that it is not that efficient so cache calls if necessary or change
 // implementation.
-func (metadata *Metadata) NonIncludedMetrics() []string {
+func (metadata *Metadata) NonDefaultMetrics() []string {
 	var metrics []string
 	for metric := range metadata.Metrics {
-		if !metadata.HasIncludedMetric(metric) {
+		if !metadata.HasDefaultMetric(metric) {
 			metrics = append(metrics, metric)
 		}
 	}

@@ -10,7 +10,7 @@ monitors:
     cpufreq.<N>:
       description: The processor frequency in Hertz for the <N>th processor on the
         system.
-      included: false
+      default: false
       type: gauge
   monitorType: collectd/cpufreq
   properties:

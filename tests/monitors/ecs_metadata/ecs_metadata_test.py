@@ -35,7 +35,7 @@ def test_ecs_container_stats():
                 p(has_datapoint_with_metric_name, agent.fake_services, "memory.percent")
             ), "Didn't get docker memory datapoints"
             assert wait_for(
-                # container_id is included in stats.json file in ecsmeta app
+                # container_id is default in stats.json file in ecsmeta app
                 # because stats data don't come directly from the docker container but from ecs metadata api
                 p(
                     has_datapoint_with_dim,
@@ -109,7 +109,7 @@ def test_ecs_container_stats_without_container_metadata():
             % (ecsmeta_ip, redis_ip, ecsmeta_ip)
         ) as agent:
             assert wait_for(
-                # container_id is included in stats.json file in ecsmeta app
+                # container_id is default in stats.json file in ecsmeta app
                 # because stats data don't come directly from the docker container but from ecs metadata api
                 p(
                     has_datapoint_with_dim,

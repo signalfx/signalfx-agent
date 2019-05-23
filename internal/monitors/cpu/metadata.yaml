@@ -16,12 +16,12 @@ monitors:
     cpu.utilization:
       description: Percent of CPU used on this host. This metric is emitted with a
         plugin dimension set to "signalfx-metadata".
-      included: true
+      default: true
       type: gauge
     cpu.utilization_per_core:
       description: Percent of CPU used on each core. This metric is emitted with the
         plugin dimension set to "signalfx-metadata"
-      included: false
+      default: false
       type: gauge
   monitorType: cpu
   properties:

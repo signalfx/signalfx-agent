@@ -23,248 +23,248 @@ monitors:
   metrics:
     consul.dns.stale_queries:
       description: Number of times an agent serves a DNS query with stale information
-      included: false
+      default: false
       type: gauge
     consul.memberlist.msg.suspect:
       description: Number of suspect messages received per interval
-      included: false
+      default: false
       type: gauge
     consul.serf.member.flap:
       description: Tracks flapping agents
-      included: false
+      default: false
       type: gauge
     gauge.consul.catalog.nodes.total:
       description: Number of nodes in the Consul datacenter
-      included: true
+      default: true
       type: gauge
     gauge.consul.catalog.nodes_by_service:
       description: Number of nodes providing a given service
-      included: true
+      default: true
       type: gauge
     gauge.consul.catalog.services.total:
       description: Total number of services registered with Consul in the given datacenter
-      included: true
+      default: true
       type: gauge
     gauge.consul.catalog.services_by_node:
       description: Number of services registered with a node
-      included: true
+      default: true
       type: gauge
     gauge.consul.consul.dns.domain_query.AGENT.avg:
       description: Average time to complete a forward DNS query
-      included: false
+      default: false
       type: gauge
     gauge.consul.consul.dns.domain_query.AGENT.max:
       description: Max time to complete a forward DNS query
-      included: false
+      default: false
       type: gauge
     gauge.consul.consul.dns.domain_query.AGENT.min:
       description: Min time to complete a forward DNS query
-      included: false
+      default: false
       type: gauge
     gauge.consul.consul.dns.ptr_query.AGENT.avg:
       description: Average time to complete a Reverse DNS query
-      included: false
+      default: false
       type: gauge
     gauge.consul.consul.dns.ptr_query.AGENT.max:
       description: Max time to complete a Reverse DNS query
-      included: false
+      default: false
       type: gauge
     gauge.consul.consul.dns.ptr_query.AGENT.min:
       description: Min time to complete a Reverse DNS query
-      included: false
+      default: false
       type: gauge
     gauge.consul.consul.leader.reconcile.avg:
       description: Leader time to reconcile the differences between Serf membership
         and Consul's store
-      included: true
+      default: true
       type: gauge
     gauge.consul.health.nodes.critical:
       description: Number of nodes for which health checks are reporting Critical
         state
-      included: true
+      default: true
       type: gauge
     gauge.consul.health.nodes.passing:
       description: Number of nodes for which health checks are reporting Passing state
-      included: true
+      default: true
       type: gauge
     gauge.consul.health.nodes.warning:
       description: Number of nodes for which health checks are reporting Warning state
-      included: true
+      default: true
       type: gauge
     gauge.consul.health.services.critical:
       description: Number of services for which health checks are reporting Critical
         state
-      included: true
+      default: true
       type: gauge
     gauge.consul.health.services.passing:
       description: Number of services for which health checks are reporting Passing
         state
-      included: true
+      default: true
       type: gauge
     gauge.consul.health.services.warning:
       description: Number of services for which health checks are reporting Warning
         state
-      included: true
+      default: true
       type: gauge
     gauge.consul.is_leader:
       description: Metric to map consul server's in leader or follower state
-      included: true
+      default: true
       type: gauge
     gauge.consul.network.dc.latency.avg:
       description: Average network latency between 2 datacenters
-      included: true
+      default: true
       type: gauge
     gauge.consul.network.dc.latency.max:
       description: Maximum network latency between 2 datacenters
-      included: false
+      default: false
       type: gauge
     gauge.consul.network.dc.latency.min:
       description: Minimum network latency between 2 datacenters
-      included: false
+      default: false
       type: gauge
     gauge.consul.network.node.latency.avg:
       description: Average network latency between given node and other nodes in the
         datacenter
-      included: true
+      default: true
       type: gauge
     gauge.consul.network.node.latency.max:
       description: Minimum network latency between given node and other nodes in the
         datacenter
-      included: true
+      default: true
       type: gauge
     gauge.consul.network.node.latency.min:
       description: Minimum network latency between given node and other nodes in the
         datacenter
-      included: true
+      default: true
       type: gauge
     gauge.consul.peers:
       description: Number of Raft peers in Consul datacenter
-      included: true
+      default: true
       type: gauge
     gauge.consul.raft.apply:
       description: Number of raft transactions
-      included: true
+      default: true
       type: gauge
     gauge.consul.raft.commitTime.avg:
       description: Average of the time it takes to commit an entry on the leader
-      included: true
+      default: true
       type: gauge
     gauge.consul.raft.commitTime.max:
       description: Max of the time it takes to commit an entry on the leader
-      included: true
+      default: true
       type: gauge
     gauge.consul.raft.commitTime.min:
       description: Minimum of the time it takes to commit an entry on the leader
-      included: true
+      default: true
       type: gauge
     gauge.consul.raft.leader.dispatchLog.avg:
       description: Average of the time it takes for the leader to write log entries
         to disk
-      included: true
+      default: true
       type: gauge
     gauge.consul.raft.leader.dispatchLog.max:
       description: Maximum of the time it takes for the leader to write log entries
         to disk
-      included: true
+      default: true
       type: gauge
     gauge.consul.raft.leader.dispatchLog.min:
       description: Minimum of the time it takes for the leader to write log entries
         to disk
-      included: true
+      default: true
       type: gauge
     gauge.consul.raft.leader.lastContact.avg:
       description: Mean of the time since the leader was last able to contact follower
         nodes
-      included: true
+      default: true
       type: gauge
     gauge.consul.raft.leader.lastContact.max:
       description: Max of the time since the leader was last able to contact follower
         nodes
-      included: true
+      default: true
       type: gauge
     gauge.consul.raft.leader.lastContact.min:
       description: Min of the time since the leader was last able to contact follower
         nodes
-      included: true
+      default: true
       type: gauge
     gauge.consul.raft.replication.appendEntries.rpc.AGENT.avg:
       description: Mean time taken to complete the AppendEntries RPC
-      included: false
+      default: false
       type: gauge
     gauge.consul.raft.replication.appendEntries.rpc.AGENT.max:
       description: Max time taken to complete the AppendEntries RPC
-      included: false
+      default: false
       type: gauge
     gauge.consul.raft.replication.appendEntries.rpc.AGENT.min:
       description: Min time taken to complete the AppendEntries RPC
-      included: false
+      default: false
       type: gauge
     gauge.consul.rpc.query:
-      included: false
+      default: false
       type: gauge
     "gauge.consul.serf.events.consul:new-leader":
-      included: false
+      default: false
       type: gauge
     gauge.consul.raft.state.candidate:
       description: Tracks the number of times given node enters the candidate state
-      included: true
+      default: true
       type: gauge
     gauge.consul.raft.state.leader:
       description: Tracks the number of leadership transitions per interval
-      included: true
+      default: true
       type: gauge
     gauge.consul.runtime.alloc_bytes:
       description: Number of bytes allocated to Consul process on the node
-      included: false
+      default: false
       type: gauge
     gauge.consul.runtime.heap_objects:
       description: Number of heap objects allocated to Consul
-      included: false
+      default: false
       type: gauge
     gauge.consul.runtime.num_goroutines:
       description: Number of GO routines run by Consul process
-      included: false
+      default: false
       type: gauge
     gauge.consul.serf.events:
       description: Number of serf events processed
-      included: true
+      default: true
       type: gauge
     gauge.consul.serf.member.join:
       description: Tracks successful node joins
-      included: true
+      default: true
       type: gauge
     gauge.consul.serf.member.left:
       description: Tracks successful node leaves
-      included: true
+      default: true
       type: gauge
     gauge.consul.serf.queue.Event.avg:
       description: Average number of serf events in queue yet to be processed
-      included: true
+      default: true
       type: gauge
     gauge.consul.serf.queue.Event.max:
       description: Maximum number of serf events in queue yet to be processed during
         the interval
-      included: true
+      default: true
       type: gauge
     gauge.consul.serf.queue.Event.min:
       description: Minimum number of serf events in queue yet to be processed during
         the interval
-      included: false
+      default: false
       type: gauge
     gauge.consul.serf.queue.Query.avg:
       description: Average number of serf queries in queue yet to be processed during
         the interval
-      included: false
+      default: false
       type: gauge
     gauge.consul.serf.queue.Query.max:
       description: Maximum number of serf queries in queue yet to be processed during
         the interval
-      included: false
+      default: false
       type: gauge
     gauge.consul.serf.queue.Query.min:
       description: Minimum number of serf queries in queue yet to be processed during
         the interval
-      included: false
+      default: false
       type: gauge
   monitorType: collectd/consul
   properties:

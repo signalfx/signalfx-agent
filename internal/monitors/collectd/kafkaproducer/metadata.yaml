@@ -26,94 +26,94 @@ monitors:
     gauge.jvm.threads.count:
       description: Number of JVM threads
       group: jvm
-      included: true
+      default: true
       type: gauge
     gauge.loaded_classes:
       description: Number of classes loaded in the JVM
       group: jvm
-      included: true
+      default: true
       type: gauge
     invocations:
       description: Total number of garbage collection events
       group: jvm
-      included: true
+      default: true
       type: cumulative
     jmx_memory.committed:
       description: Amount of memory guaranteed to be available in bytes
       group: jvm
-      included: true
+      default: true
       type: gauge
     jmx_memory.max:
       description: Maximum amount of memory that can be used in bytes
       group: jvm
-      included: true
+      default: true
       type: gauge
     jmx_memory.used:
       description: Current memory usage in bytes
       group: jvm
-      included: true
+      default: true
       type: gauge
     total_time_in_ms.collection_time:
       description: Amount of time spent garbage collecting in milliseconds
       group: jvm
-      included: true
+      default: true
       type: cumulative
     jmx_memory.init:
       description: Amount of initial memory at startup in bytes
       group: jvm
-      included: true
+      default: true
       type: gauge
     ### END JVM METRICS ###
 
     gauge.kafka.producer.byte-rate:
       description: Average number of bytes sent per second for a topic. This metric
         has client-id and topic dimensions.
-      included: true
+      default: true
       type: gauge
     gauge.kafka.producer.compression-rate:
       description: Average compression rate of record batches for a topic. This metric
         has client-id and topic dimensions.
-      included: true
+      default: true
       type: gauge
     gauge.kafka.producer.io-wait-time-ns-avg:
       description: Average length of time the I/O thread spent waiting for a socket
         ready for reads or writes in nanoseconds. This metric has client-id dimension.
-      included: true
+      default: true
       type: gauge
     gauge.kafka.producer.outgoing-byte-rate:
       description: Average number of outgoing bytes sent per second to all servers.
         This metric has client-id dimension.
-      included: true
+      default: true
       type: gauge
     gauge.kafka.producer.record-error-rate:
       description: Average per-second number of record sends that resulted in errors
         for a topic. This metric has client-id and topic dimensions.
-      included: true
+      default: true
       type: gauge
     gauge.kafka.producer.record-retry-rate:
       description: Average per-second number of retried record sends for a topic.
         This metric has client-id and topic dimensions.
-      included: true
+      default: true
       type: gauge
     gauge.kafka.producer.record-send-rate:
       description: Average number of records sent per second for a topic. This metric
         has client-id and topic dimensions.
-      included: true
+      default: true
       type: gauge
     gauge.kafka.producer.request-latency-avg:
       description: Average request latency in ms. Time it takes on average for the
         producer to get responses from the broker. This metric has client-id dimension.
-      included: true
+      default: true
       type: gauge
     gauge.kafka.producer.request-rate:
       description: Average number of requests sent per second. This metric has client-id
         dimension.
-      included: true
+      default: true
       type: gauge
     gauge.kafka.producer.response-rate:
       description: Average number of responses received per second. This metric has
         client-id dimension.
-      included: true
+      default: true
       type: gauge
   monitorType: collectd/kafka_producer
   properties:
