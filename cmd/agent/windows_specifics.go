@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 
+	"github.com/StackExchange/wmi"
 	"github.com/kardianos/service"
 	log "github.com/sirupsen/logrus"
 )
@@ -75,6 +76,8 @@ func (p *program) Stop(s service.Service) error {
 // The original runAgent function is invoked as part of the method program.Start() which itself
 // is invoked by service.Service.Run()
 func runAgentWindows(flags *flags, interruptCh chan os.Signal) {
+	initializeWMI()
+
 	config := &service.Config{
 		Name:        "signalfx-agent",
 		DisplayName: "SignalFx Smart Agent",
@@ -121,4 +124,16 @@ func runAgentWindows(flags *flags, interruptCh chan os.Signal) {
 	if err != nil {
 		log.WithError(err).Error("Failed to control the service")
 	}
+}
+
+// See https://github.com/StackExchange/wmi/issues/27#issuecomment-309578576.
+// This might prevent memory leaks.
+func initializeWMI() {
+	log.Info("Initializing WMI SWbemServices")
+	s, err := wmi.InitializeSWbemServices(wmi.DefaultClient)
+	if err != nil {
+		log.WithError(err).Error("Could not initialize WMI properly")
+		return
+	}
+	wmi.DefaultClient.SWbemServicesClient = s
 }
