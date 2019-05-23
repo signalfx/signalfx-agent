@@ -12,6 +12,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/internal/core"
@@ -186,7 +187,7 @@ func runAgent(flags *flags, interruptCh chan os.Signal, exit chan struct{}) {
 	var shutdown context.CancelFunc
 	var shutdownComplete <-chan struct{}
 	init := func() {
-		log.Info("Starting up agent version " + constants.Version)
+		logrus.Info("Starting up agent version " + constants.Version)
 		shutdown, shutdownComplete = core.Startup(flags.configPath)
 	}
 
@@ -194,13 +195,13 @@ func runAgent(flags *flags, interruptCh chan os.Signal, exit chan struct{}) {
 
 	go func() {
 		<-interruptCh
-		log.Info("Interrupt signal received, stopping agent")
+		logrus.Info("Interrupt signal received, stopping agent")
 		shutdown()
 		select {
 		case <-shutdownComplete:
 			break
 		case <-time.After(10 * time.Second):
-			log.Error("Shutdown timed out, forcing process down")
+			logrus.Error("Shutdown timed out, forcing process down")
 			break
 		}
 		close(exit)
@@ -210,7 +211,7 @@ func runAgent(flags *flags, interruptCh chan os.Signal, exit chan struct{}) {
 	signal.Notify(hupCh, syscall.SIGHUP)
 	go func() {
 		for range hupCh {
-			log.Info("Forcing agent reset")
+			logrus.Info("Forcing agent reset")
 			shutdown()
 			<-shutdownComplete
 			init()
@@ -269,15 +270,11 @@ func main() {
 		signal.Notify(interruptCh, os.Interrupt)
 		signal.Notify(interruptCh, syscall.SIGTERM)
 
+		// create the exit channel that will block until agent is shutdown
+		exitCh := make(chan struct{}, 1)
 		// On windows we start the agent through the package github.com/kardianos/service.
 		// The package provides hooks for installing and managing the agent as a windows service.
-		if runtime.GOOS == windowsOS {
-			runAgentWindows(flags, interruptCh)
-		} else {
-			// create the exit channel that will block until agent is shutdown
-			exitCh := make(chan struct{}, 1)
-			runAgent(flags, interruptCh, exitCh)
-		}
+		runAgentPlatformSpecific(flags, interruptCh, exitCh)
 	}
 
 	os.Exit(0)
