@@ -83,8 +83,9 @@ type MonitorConfig struct {
 	// Extra metrics to enable besides the default included ones.  This is an
 	// [overridable filter](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filtering).
 	ExtraMetrics []string `yaml:"extraMetrics" json:"extraMetrics"`
-	// Extra metric groups to enable besides the metrics that are included by
-	// default.
+	// Extra metric groups to enable in addition to the metrics that are
+	// emitted by default.  A metric group is simply a collection of metrics,
+	// and they are defined in each monitor's documentation.
 	ExtraGroups []string `yaml:"extraGroups" json:"extraGroups"`
 	// OtherConfig is everything else that is custom to a particular monitor
 	OtherConfig map[string]interface{} `yaml:",inline" neverLog:"omit"`

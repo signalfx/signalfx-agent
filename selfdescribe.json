@@ -212,7 +212,7 @@
       },
       {
         "yamlName": "extraGroups",
-        "doc": "Extra metric groups to enable besides the metrics that are included by default.",
+        "doc": "Extra metric groups to enable in addition to the metrics that are emitted by default.  A metric group is simply a collection of metrics, and they are defined in each monitor's documentation.",
         "default": null,
         "required": false,
         "type": "slice",
@@ -31607,7 +31607,7 @@
             },
             {
               "yamlName": "extraGroups",
-              "doc": "Extra metric groups to enable besides the metrics that are included by default.",
+              "doc": "Extra metric groups to enable in addition to the metrics that are emitted by default.  A metric group is simply a collection of metrics, and they are defined in each monitor's documentation.",
               "default": null,
               "required": false,
               "type": "slice",
@@ -31911,7 +31911,7 @@
       },
       {
         "yamlName": "enableBuiltInFiltering",
-        "doc": "If true, the agent will inherently filter out [custom metrics](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) without having to rely on the `whitelist.json` filter that was previously configured under `metricsToExclude`.  Whether a metric is custom or not is documented in each monitor's documentation.  Now every monitor's default configuration (i.e. the minimum amount of configuration to make it work) will only send non-custom metrics, but if you enable certain flags or config options on the monitor, custom metrics will also be sent without having to modify the whitelist via `metricsToInclude`.  If this option is set to `true`, the `whitelist.json` entry under `metricToExclude` should be removed, if it was present.",
+        "doc": "If true, the agent will filter out [custom metrics](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) without having to rely on the `whitelist.json` filter that was previously configured under `metricsToExclude`.  Whether a metric is custom or not is documented in each monitor's documentation.  If `true`, every monitor's default configuration (i.e. the minimum amount of configuration to make it work) will only send non-custom metrics.  In order to send out custom metrics from a monitor, certain config flags on the monitor must be set _or_ you can specify the metric in the `extraMetrics` config option on each monitor if you know the specific metric name.  You would not have to modify the whitelist via `metricsToInclude` as before.  If you set this option to `true`, the `whitelist.json` entry under `metricToExclude` should be removed, if it is present -- otherwise custom metrics won't be emitted.",
         "default": false,
         "required": false,
         "type": "bool",

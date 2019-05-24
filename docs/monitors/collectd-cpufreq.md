@@ -26,7 +26,7 @@ This monitor has no configuration options.
 ## Metrics
 
 The following table lists the metrics available for this monitor.
-This monitor emits all metrics by default; however, **none are categorized as [container/host/bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)**.
+This monitor emits all metrics by default; however, **none are categorized as [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) -- they are all custom**.
 
 
 | Name | Type | Description |

@@ -77,7 +77,8 @@ The **nested** `values` config object has the following fields:
 ## Metrics
 
 The following table lists the metrics available for this monitor.
-Metrics that are categorized as [container/host/bundled](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
 are marked as _Default_ in the table below.
 
 | Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | [Group](#groups) | Description |
@@ -117,16 +118,10 @@ are marked as _Default_ in the table below.
 
 
 
-This monitor does not send all metrics by default.  The metrics that are
-emitted without any non-required config options set are marked under the
-_Default_ column of the table above.
-
 ### Non-default metrics (version 4.7.0+)
 
-**The following information applies to the agent version 4.7.0+ and has
-`enableBuiltInFiltering: true` set on the top level of the agent config and
-also any references to `whitelist.json` removed from `metricsToExclude` at the
-top-level of the agent config.**
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
