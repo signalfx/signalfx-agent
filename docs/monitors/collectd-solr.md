@@ -27,6 +27,10 @@ Monitor Type: `collectd/solr`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
@@ -37,13 +41,14 @@ Monitor Type: `collectd/solr`
 | `excludeMetrics` | no | `list of strings` | ExcludeMetrics metric names from the /admin/metrics endpoint to exclude (valid when EnhancedMetrics is "true") |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
 
-| Name | Type | Included | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `counter.solr.http_2xx_responses` | counter | ✔ | Total number of 2xx http responses |
 | `counter.solr.http_4xx_responses` | counter | ✔ | Total number of 4xx http responses |
@@ -95,37 +100,35 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.solr.zookeeper_request_time` | gauge |  | Time to process a request at zookeeper |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - counter.solr.jvm_classes_loaded
-    - counter.solr.node_metric_request_count
-    - counter.solr.openFileDescriptorCount
-    - counter.solr.replication_handler_requests
-    - counter.solr.zookeeper_errors
-    - gauge.solr.http_active_requests
-    - gauge.solr.jetty_get_request_latency
-    - gauge.solr.jetty_post_request_latency
-    - gauge.solr.jvm_mapped_memory_capacity
-    - gauge.solr.jvm_mapped_memory_used
-    - gauge.solr.node_metric_request_time
-    - gauge.solr.replication_handler_response
-    - gauge.solr.shard_cumulative_docs
-    - gauge.solr.zookeeper_request_time
-    monitorType: collectd/solr
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

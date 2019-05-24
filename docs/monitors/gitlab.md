@@ -153,6 +153,10 @@ Monitor Type: `gitlab`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host of the exporter |
@@ -165,13 +169,14 @@ Monitor Type: `gitlab`
 | `sendAllMetrics` | no | `bool` | Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors. (**default:** `false`) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
 
-| Name | Type | Included | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `ci_stale_builds` | gauge |  | ci_stale_builds metric |
 | `gitlab_cache_misses_total` | cumulative |  |  |
@@ -227,67 +232,35 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `sidekiq_queue_size` | gauge | ✔ | sidekiq_queue_size metric |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - ci_stale_builds
-    - gitlab_cache_misses_total
-    - gitlab_database_rows
-    - gitlab_projects_with_jid
-    - gitlab_projects_without_jid
-    - gitlab_stuck_import_jobs_worker_runs_total
-    - http_request_duration_seconds
-    - http_request_duration_seconds_bucket
-    - http_request_duration_seconds_count
-    - pg_stat_table_n_dead_tup
-    - pg_stat_table_n_tup_hot_upd
-    - pg_stat_table_seq_scan
-    - process_age_seconds
-    - process_memory_bytes
-    - ruby_file_descriptors
-    - ruby_gc_duration_seconds_total
-    - ruby_gc_stat_count
-    - ruby_gc_stat_heap_allocatable_pages
-    - ruby_gc_stat_heap_allocated_pages
-    - ruby_gc_stat_heap_available_slots
-    - ruby_gc_stat_heap_eden_pages
-    - ruby_gc_stat_heap_final_slots
-    - ruby_gc_stat_heap_free_slots
-    - ruby_gc_stat_heap_live_slots
-    - ruby_gc_stat_heap_marked_slots
-    - ruby_gc_stat_heap_sorted_length
-    - ruby_gc_stat_heap_tomb_pages
-    - ruby_gc_stat_major_gc_count
-    - ruby_gc_stat_malloc_increase_bytes
-    - ruby_gc_stat_malloc_increase_bytes_limit
-    - ruby_gc_stat_minor_gc_count
-    - ruby_gc_stat_old_objects
-    - ruby_gc_stat_old_objects_limit
-    - ruby_gc_stat_oldmalloc_increase_bytes
-    - ruby_gc_stat_oldmalloc_increase_bytes_limit
-    - ruby_gc_stat_remembered_wb_unprotected_objects
-    - ruby_gc_stat_remembered_wb_unprotected_objects_limit
-    - ruby_gc_stat_total_allocated_objects
-    - ruby_gc_stat_total_allocated_pages
-    - ruby_gc_stat_total_freed_objects
-    - ruby_gc_stat_total_freed_pages
-    - ruby_memory_bytes
-    - ruby_sampler_duration_seconds_total
-    - sidekiq_dead_jobs_total
-    monitorType: gitlab
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

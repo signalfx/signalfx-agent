@@ -64,6 +64,10 @@ Monitor Type: `prometheus-exporter`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host of the exporter |
@@ -77,8 +81,7 @@ Monitor Type: `prometheus-exporter`
 
 
 
-
-
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

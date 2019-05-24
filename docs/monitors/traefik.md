@@ -67,6 +67,10 @@ Monitor Type: `traefik`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host of the exporter |
@@ -79,13 +83,14 @@ Monitor Type: `traefik`
 | `sendAllMetrics` | no | `bool` | Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors. (**default:** `false`) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
 
-| Name | Type | Included | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `go_gc_duration_seconds` | cumulative |  | A summary of the GC invocation durations. |
 | `go_gc_duration_seconds_count` | cumulative |  | A count of the GC invocation durations. |
@@ -139,64 +144,35 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `traefik_entrypoint_requests_total` | cumulative | ✔ | How many HTTP requests processed on an entrypoint, partitioned by status code, protocol, and method. |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - go_gc_duration_seconds
-    - go_gc_duration_seconds_count
-    - go_gc_duration_seconds_sum
-    - go_goroutines
-    - go_memstats_alloc_bytes
-    - go_memstats_alloc_bytes_total
-    - go_memstats_buck_hash_sys_bytes
-    - go_memstats_frees_total
-    - go_memstats_gc_cpu_fraction
-    - go_memstats_gc_sys_bytes
-    - go_memstats_heap_alloc_bytes
-    - go_memstats_heap_idle_bytes
-    - go_memstats_heap_inuse_bytes
-    - go_memstats_heap_objects
-    - go_memstats_heap_released_bytes
-    - go_memstats_heap_sys_bytes
-    - go_memstats_last_gc_time_seconds
-    - go_memstats_lookups_total
-    - go_memstats_mallocs_total
-    - go_memstats_mcache_inuse_bytes
-    - go_memstats_mcache_sys_bytes
-    - go_memstats_mspan_inuse_bytes
-    - go_memstats_mspan_sys_bytes
-    - go_memstats_next_gc_bytes
-    - go_memstats_other_sys_bytes
-    - go_memstats_stack_inuse_bytes
-    - go_memstats_stack_sys_bytes
-    - go_memstats_sys_bytes
-    - go_threads
-    - process_cpu_seconds_total
-    - process_max_fds
-    - process_open_fds
-    - process_resident_memory_bytes
-    - process_virtual_memory_bytes
-    - traefik_backend_request_duration_seconds_bucket
-    - traefik_backend_request_duration_seconds_count
-    - traefik_config_last_reload_failure
-    - traefik_config_last_reload_success
-    - traefik_config_reloads_failure_total
-    - traefik_config_reloads_total
-    - traefik_entrypoint_request_duration_seconds_bucket
-    monitorType: traefik
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

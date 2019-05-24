@@ -48,6 +48,10 @@ Monitor Type: `appmesh`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `listenAddress` | no | `string` | The host/address on which to bind the UDP listener that accepts statsd datagrams (**default:** `localhost`) |
@@ -55,13 +59,14 @@ Monitor Type: `appmesh`
 | `metricPrefix` | no | `string` | A prefix in metric names that needs to be removed before metric name conversion |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
 
-| Name | Type | Included | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `circuit_breakers.<priority>.cx_open` | gauge |  | Whether the connection circuit breaker is closed (0) or open (1) |
 | `circuit_breakers.<priority>.cx_pool_open` | gauge |  | Whether the connection pool circuit breaker is closed (0) or open (1) |
@@ -131,80 +136,35 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `upstream_rq_tx_reset` | cumulative |  | Total requests that were reset locally |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - circuit_breakers.<priority>.cx_open
-    - circuit_breakers.<priority>.cx_pool_open
-    - circuit_breakers.<priority>.remaining_cx
-    - circuit_breakers.<priority>.remaining_pending
-    - circuit_breakers.<priority>.remaining_retries
-    - circuit_breakers.<priority>.remaining_rq
-    - circuit_breakers.<priority>.rq_open
-    - circuit_breakers.<priority>.rq_pending_open
-    - circuit_breakers.<priority>.rq_retry_open
-    - external.upstream_rq_<_>
-    - external.upstream_rq_<_xx>
-    - external.upstream_rq_completed
-    - external.upstream_rq_time
-    - internal.upstream_rq_<_>
-    - internal.upstream_rq_<_xx>
-    - internal.upstream_rq_completed
-    - internal.upstream_rq_time
-    - membership_change
-    - membership_degraded
-    - upstream_cx_active
-    - upstream_cx_close_notify
-    - upstream_cx_connect_attempts_exceeded
-    - upstream_cx_connect_fail
-    - upstream_cx_connect_ms
-    - upstream_cx_connect_timeout
-    - upstream_cx_destroy
-    - upstream_cx_destroy_local
-    - upstream_cx_destroy_local_with_active_rq
-    - upstream_cx_destroy_remote
-    - upstream_cx_destroy_remote_with_active_rq
-    - upstream_cx_destroy_with_active_rq
-    - upstream_cx_http1_total
-    - upstream_cx_http2_total
-    - upstream_cx_idle_timeout
-    - upstream_cx_length_ms
-    - upstream_cx_max_requests
-    - upstream_cx_none_healthy
-    - upstream_cx_overflow
-    - upstream_cx_pool_overflow
-    - upstream_cx_protocol_error
-    - upstream_cx_rx_bytes_buffered
-    - upstream_cx_total
-    - upstream_cx_tx_bytes_buffered
-    - upstream_cx_tx_bytes_total
-    - upstream_rq_active
-    - upstream_rq_cancelled
-    - upstream_rq_maintenance_mode
-    - upstream_rq_pending_active
-    - upstream_rq_pending_failure_eject
-    - upstream_rq_pending_overflow
-    - upstream_rq_pending_total
-    - upstream_rq_per_try_timeout
-    - upstream_rq_retry_overflow
-    - upstream_rq_rx_reset
-    - upstream_rq_timeout
-    - upstream_rq_total
-    - upstream_rq_tx_reset
-    monitorType: appmesh
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

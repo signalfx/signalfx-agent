@@ -204,7 +204,7 @@
       },
       {
         "yamlName": "extraMetrics",
-        "doc": "Extra metrics to enable besides the default included ones.",
+        "doc": "Extra metrics to enable besides the default included ones.  This is an [overridable filter](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filtering).",
         "default": null,
         "required": false,
         "type": "slice",
@@ -212,7 +212,7 @@
       },
       {
         "yamlName": "extraGroups",
-        "doc": "Extra metric groups to enable besides the metrics that are included by default.",
+        "doc": "Extra metric groups to enable in addition to the metrics that are emitted by default.  A metric group is simply a collection of metrics, and they are defined in each monitor's documentation.",
         "default": null,
         "required": false,
         "type": "slice",
@@ -21963,7 +21963,7 @@
           "description": "For query metrics, the user name of the user that executed the queries."
         }
       },
-      "doc": "This monitor pulls metrics from all PostgreSQL databases from a specific\nPostgres server instance.  It pulls basic information that is applicable\nto any database.\n\n## Metrics about Queries\n\nIn order to get metrics about query execution time, you must enable the\n`pg_stat_statements` extension.  This extension must be specified in the\n`shared_preload_libraries` config option in the main PostgreSQL\nconfiguration at server start up.  Then the extension must be enabled for\neach database by running `CREATE EXTENSION IF NOT EXISTS\npg_stat_statements;` on each database.\n\nNote that in order to get consistent and accurate query execution time\nmetrics, you must set the [pg_stat_statements.max config\noption](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631)\nto larger than the number of distinct queries on the server.\n\nHere is a [sample configuration of Postgres to enable statement tracking](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631).\n\nTested with PostgreSQL 9.2+.\n\nIf you want to collect additional metrics about PostgreSQL, use the [sql monitor](./sql.md).\n\n## Example Configuration\n\nThis example uses the [Vault remote config\nsource](https://github.com/signalfx/signalfx-agent/blob/master/docs/remote-config.md#nested-values-vault-only)\nto connect to PostgreSQL using the `params` map that allows you to pull\nout the username and password individually from Vault and interpolate\nthem into the `connectionString` config option.\n\n```\nmonitors:\n - type: postgresql\n   connectionString: 'sslmode=disable user={{.username}} password={{.password}}'\n   params: \u0026psqlParams\n     username: {\"#from\": \"vault:secret/my-database[username]\"}\n     password: {\"#from\": \"vault:secret/my-database[password]\"}\n   discoveryRule: 'container_image =~ \"postgres\" \u0026\u0026 port == 5432'\n\n # This monitor will monitor additional queries from PostgreSQL using the\n # provided SQL queries.\n - type: sql\n   dbDriver: postgres\n   connectionString: 'sslmode=disable user={{.username}} password={{.password}}'\n   # This is a YAML reference to avoid duplicating the above config.\n   params: *psqlParams\n   queries:\n     - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'\n       metrics:\n         - metricName: \"customers\"\n           valueColumn: \"count\"\n           dimensionColumns: [\"country\", \"status\"]\n```\n",
+      "doc": "This monitor pulls metrics from all PostgreSQL databases from a specific\nPostgres server instance.  It pulls basic information that is applicable\nto any database.\n\n## Metrics about Queries\n\nIn order to get metrics about query execution time, you must enable the\n`pg_stat_statements` extension.  This extension must be specified in the\n`shared_preload_libraries` config option in the main PostgreSQL\nconfiguration at server start up.  Then the extension must be enabled for\neach database by running `CREATE EXTENSION IF NOT EXISTS\npg_stat_statements;` on each database.\n\nNote that in order to get consistent and accurate query execution time\nmetrics, you must set the [pg_stat_statements.max config\noption](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631)\nto larger than the number of distinct queries on the server.\n\nHere is a [sample configuration of Postgres to enable statement tracking](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631).\n\nTested with PostgreSQL 9.2+.\n\nIf you want to collect additional metrics about PostgreSQL, use the [sql monitor](./sql.md).\n\n## Example Configuration\n\nThis example uses the [Vault remote config\nsource](https://github.com/signalfx/signalfx-agent/blob/master/docs/remote-config.md#nested-values-vault-only)\nto connect to PostgreSQL using the `params` map that allows you to pull\nout the username and password individually from Vault and interpolate\nthem into the `connectionString` config option.\n\n```yaml\nmonitors:\n - type: postgresql\n   connectionString: 'sslmode=disable user={{.username}} password={{.password}}'\n   params: \u0026psqlParams\n     username: {\"#from\": \"vault:secret/my-database[username]\"}\n     password: {\"#from\": \"vault:secret/my-database[password]\"}\n   discoveryRule: 'container_image =~ \"postgres\" \u0026\u0026 port == 5432'\n\n # This monitor will monitor additional queries from PostgreSQL using the\n # provided SQL queries.\n - type: sql\n   dbDriver: postgres\n   connectionString: 'sslmode=disable user={{.username}} password={{.password}}'\n   # This is a YAML reference to avoid duplicating the above config.\n   params: *psqlParams\n   queries:\n     - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'\n       metrics:\n         - metricName: \"customers\"\n           valueColumn: \"count\"\n           dimensionColumns: [\"country\", \"status\"]\n```\n",
       "groups": null,
       "metrics": {
         "postgres_block_hit_ratio": {
@@ -21998,7 +21998,7 @@
         },
         "postgres_query_count": {
           "type": "cumulative",
-          "description": "Total number of queries executed on the `database`, broken down by\n`user`.  Note that the accuracy of this metric depends on the\nPostgreSQL [pg_stat_statements.max config\noption](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631)\nbeing large enough to hold all queries.\n",
+          "description": "Total number of queries executed on the `database`, broken down by `user`.  Note that the accuracy of this metric depends on the PostgreSQL [pg_stat_statements.max config option](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631) being large enough to hold all queries.\n",
           "group": null,
           "default": true
         },
@@ -22034,7 +22034,7 @@
         },
         "postgres_sessions": {
           "type": "gauge",
-          "description": "Number of sessions currently on the server instance.  The `state` dimension will specify which which type of session (see `state` row of [pg_stat_activity](https://www.postgresql.org/docs/9.2/monitoring-stats.html#PG-STAT-ACTIVITY-VIEW)).",
+          "description": "Number of sessions currently on the server instance.  The `state` dimension will specify which which type of session (see `state` row of [pg_stat_activity](https://www.postgresql.org/docs/9.2/monitoring-stats.html#PG-STAT-ACTIVITY-VIEW)).\n",
           "group": null,
           "default": true
         },
@@ -31599,7 +31599,7 @@
             },
             {
               "yamlName": "extraMetrics",
-              "doc": "Extra metrics to enable besides the default included ones.",
+              "doc": "Extra metrics to enable besides the default included ones.  This is an [overridable filter](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filtering).",
               "default": null,
               "required": false,
               "type": "slice",
@@ -31607,7 +31607,7 @@
             },
             {
               "yamlName": "extraGroups",
-              "doc": "Extra metric groups to enable besides the metrics that are included by default.",
+              "doc": "Extra metric groups to enable in addition to the metrics that are emitted by default.  A metric group is simply a collection of metrics, and they are defined in each monitor's documentation.",
               "default": null,
               "required": false,
               "type": "slice",
@@ -31911,7 +31911,7 @@
       },
       {
         "yamlName": "enableBuiltInFiltering",
-        "doc": "If true, the agent will inherently filter non-bundled metrics without having to rely on the `whitelist.json` filter that was previously included under `metricsToExclude`.  Whether a metric is bundled or not is documented in each monitor's documentation.  Now every monitor's default configuration (i.e. the minimum amount of configuration to make it work) will only send bundled metrics, but if you enable certain flags or config options on the monitor, non-bundled metrics will also be sent without having to modify the whitelist via `metricsToInclude`.",
+        "doc": "If true, the agent will filter out [custom metrics](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) without having to rely on the `whitelist.json` filter that was previously configured under `metricsToExclude`.  Whether a metric is custom or not is documented in each monitor's documentation.  If `true`, every monitor's default configuration (i.e. the minimum amount of configuration to make it work) will only send non-custom metrics.  In order to send out custom metrics from a monitor, certain config flags on the monitor must be set _or_ you can specify the metric in the `extraMetrics` config option on each monitor if you know the specific metric name.  You would not have to modify the whitelist via `metricsToInclude` as before.  If you set this option to `true`, the `whitelist.json` entry under `metricToExclude` should be removed, if it is present -- otherwise custom metrics won't be emitted.",
         "default": false,
         "required": false,
         "type": "bool",

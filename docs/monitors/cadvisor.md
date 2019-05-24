@@ -27,18 +27,23 @@ Monitor Type: `cadvisor`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `cadvisorURL` | no | `string` | Where to find cAdvisor (**default:** `http://localhost:4194`) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
 
-| Name | Type | Included | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `container_cpu_cfs_periods` | cumulative |  | Total number of elapsed CFS enforcement intervals |
 | `container_cpu_cfs_throttled_periods` | cumulative |  | Total number of times tasks in the cgroup have been throttled |
@@ -87,56 +92,35 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `pod_network_transmit_packets_total` | cumulative |  | Cumulative count of packets transmitted |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - container_cpu_cfs_periods
-    - container_cpu_cfs_throttled_periods
-    - container_cpu_cfs_throttled_time
-    - container_cpu_percent
-    - container_cpu_system_seconds_total
-    - container_cpu_usage_seconds_total
-    - container_cpu_user_seconds_total
-    - container_cpu_utilization_per_core
-    - container_fs_io_current
-    - container_fs_io_time_seconds_total
-    - container_fs_io_time_weighted_seconds_total
-    - container_fs_limit_bytes
-    - container_fs_read_seconds_total
-    - container_fs_reads_merged_total
-    - container_fs_reads_total
-    - container_fs_sector_reads_total
-    - container_fs_sector_writes_total
-    - container_fs_usage_bytes
-    - container_fs_write_seconds_total
-    - container_fs_writes_merged_total
-    - container_fs_writes_total
-    - container_last_seen
-    - container_memory_failcnt
-    - container_memory_working_set_bytes
-    - container_spec_cpu_shares
-    - container_spec_memory_swap_limit_bytes
-    - container_start_time_seconds
-    - container_tasks_state
-    - machine_cpu_frequency_khz
-    - pod_network_receive_packets_dropped_total
-    - pod_network_receive_packets_total
-    - pod_network_transmit_packets_dropped_total
-    - pod_network_transmit_packets_total
-    monitorType: cadvisor
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 ## Dimensions
 

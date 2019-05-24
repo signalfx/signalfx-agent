@@ -16,6 +16,7 @@ The **nested** `{{.yamlName}}` config object has the following fields:
 {{- end -}}
 
 {{ with ds "monitor" }}
+{{ $sendAll := .sendAll -}}
 {{ $doc_types := .doc_types -}}
 
 # {{.monitorType}}
@@ -32,49 +33,79 @@ Monitor Type: `{{.monitorType}}`
 **Multiple Instances Allowed**: {{if .singleInstance}}**No**{{else}}Yes{{end}}
 
 ## Configuration
+
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
 {{ with .config.fields }}
 {{ template "configTable" . -}}
 {{ else }}
 This monitor has no configuration options.
 {{ end }}
 
+{{- $hasGroups := false }}
+{{- range $info := .metrics }}{{ if $info.group }}{{ $hasGroups = true }}{{end}}{{end -}}
+
 {{with .metrics -}}
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+{{ if not $sendAll -}}
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
+{{- else -}}
+This monitor emits all metrics by default; however, **none are categorized as [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) -- they are all custom**.
+{{end}}
 
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
+| Name | Type {{if not $sendAll}}| [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) {{end}}{{if $hasGroups}}| [Group](#groups) {{end}}| Description |
+| ---  | ---  {{if not $sendAll}}| ---    {{end}}{{if $hasGroups}}| --- {{end}}| ---         |
 {{ range $metric, $info := . -}}
-| `{{$metric}}`{{if has $info "alias"}}<br>_or_ `{{$info.alias}}`{{end}} | {{$info.type}} | {{if $info.default}}✔{{end}} | {{$info.description | strings.TrimSpace}} |
+| `{{$metric}}`{{if has $info "alias"}}<br>_or_ `{{$info.alias}}`{{end}} | {{$info.type}} {{if not $sendAll}}| {{if $info.default}}✔{{end}} {{end}}{{if $hasGroups}}| {{$info.group | default ""}} {{end}}| {{$info.description | strings.TrimSpace}} |
 {{end}}
 {{end -}}
 
-{{- $noWhitelistMonitors := slice "elasticsearch" -}}
+{{ if $sendAll }}
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
+{{ end -}}
 
-{{if and .metrics (not .sendAll) (not (has $noWhitelistMonitors .monitorType))}}
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+{{ if and .metrics (not .sendAll) }}
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-{{- range $metric, $info := .metrics -}}
-{{if not $info.default}}
-    - {{ $metric }}
-{{- end -}}
-{{end}}
-    monitorType: {{.monitorType}}
-```
-{{end}}
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
+
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+{{ if $hasGroups }}
+#### Groups
+You can enable an entire group of metrics by specifying the `extraGroups` config
+option in your monitor config.  The value is a list of group names to enable.
+{{- end }}
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
+
+{{ end -}}
 
 {{with .dimensions -}}
 ## Dimensions

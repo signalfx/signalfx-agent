@@ -74,6 +74,10 @@ Monitor Type: `sql`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | no | `string` |  |
@@ -105,8 +109,7 @@ The **nested** `metrics` config object has the following fields:
 
 
 
-
-
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

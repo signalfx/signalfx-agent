@@ -29,6 +29,10 @@ Monitor Type: `gitlab-workhorse`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host of the exporter |
@@ -41,13 +45,14 @@ Monitor Type: `gitlab-workhorse`
 | `sendAllMetrics` | no | `bool` | Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors. (**default:** `false`) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
 
-| Name | Type | Included | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `gitlab_workhorse_builds_register_handler_open` | gauge |  | Describes how many requests is currently open in given state |
 | `gitlab_workhorse_builds_register_handler_requests` | cumulative |  | Describes how many requests in different states hit a register handler |
@@ -77,44 +82,35 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gitlab_workhorse_static_error_responses` | cumulative |  | How many HTTP responses have been changed to a static error page, by HTTP status code. |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - gitlab_workhorse_builds_register_handler_open
-    - gitlab_workhorse_builds_register_handler_requests
-    - gitlab_workhorse_http_in_flight_requests
-    - gitlab_workhorse_http_request_duration_seconds_bucket
-    - gitlab_workhorse_http_request_size_bytes_bucket
-    - gitlab_workhorse_http_requests_total
-    - gitlab_workhorse_http_time_to_write_header_seconds
-    - gitlab_workhorse_http_time_to_write_header_seconds_bucket
-    - gitlab_workhorse_http_time_to_write_header_seconds_count
-    - gitlab_workhorse_internal_api_failure_response_bytes
-    - gitlab_workhorse_keywatcher_keywatchers
-    - gitlab_workhorse_keywather_total_messages
-    - gitlab_workhorse_object_storage_upload_bytes
-    - gitlab_workhorse_object_storage_upload_open
-    - gitlab_workhorse_object_storage_upload_requests
-    - gitlab_workhorse_redis_errors
-    - gitlab_workhorse_redis_total_connections
-    - gitlab_workhorse_send_url_bytes
-    - gitlab_workhorse_send_url_open_requests
-    - gitlab_workhorse_send_url_requests
-    - gitlab_workhorse_static_error_responses
-    monitorType: gitlab-workhorse
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

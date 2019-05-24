@@ -20,6 +20,10 @@ Monitor Type: `collectd/docker`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `dimensions` | no | `map of strings` | A set of dimensions to add to container metrics (see https://github.com/signalfx/docker-collectd-plugin#extracting-additional-dimensions). |
@@ -30,61 +34,69 @@ Monitor Type: `collectd/docker`
 | `collectNetworkStats` | no | `bool` |  (**default:** `false`) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
 
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `blkio.io_service_bytes_recursive.async` | cumulative | ✔ | Volume, in bytes, of asynchronous block I/O |
-| `blkio.io_service_bytes_recursive.read` | cumulative | ✔ | Volume, in bytes, of reads from block devices |
-| `blkio.io_service_bytes_recursive.sync` | cumulative | ✔ | Volume, in bytes, of synchronous block I/O |
-| `blkio.io_service_bytes_recursive.total` | cumulative | ✔ | Total volume, in bytes, of all block I/O |
-| `blkio.io_service_bytes_recursive.write` | cumulative | ✔ | Volume, in bytes, of writes to block devices |
-| `cpu.usage.kernelmode` | cumulative | ✔ | Jiffies of CPU time spent in kernel mode by the container |
-| `cpu.usage.system` | gauge | ✔ | Jiffies of CPU time used by the system |
-| `cpu.usage.total` | gauge | ✔ | Jiffies of CPU time used by the container |
-| `cpu.usage.usermode` | cumulative | ✔ | Jiffies of CPU time spent in user mode by the container |
-| `memory.usage.limit` | gauge | ✔ | Memory usage limit of the container, in bytes |
-| `memory.usage.max` | gauge | ✔ | Maximum measured memory usage of the container, in bytes |
-| `memory.usage.total` | gauge | ✔ | Bytes of memory used by the container |
-| `network.usage.rx_bytes` | cumulative |  | Bytes received by the container via its network interface |
-| `network.usage.rx_dropped` | cumulative |  | Number of inbound network packets dropped by the container |
-| `network.usage.rx_errors` | cumulative |  | Errors receiving network packets |
-| `network.usage.rx_packets` | cumulative |  | Network packets received by the container via its network interface |
-| `network.usage.tx_bytes` | cumulative |  | Bytes sent by the container via its network interface |
-| `network.usage.tx_dropped` | cumulative |  | Number of outbound network packets dropped by the container |
-| `network.usage.tx_errors` | cumulative |  | Errors sending network packets |
-| `network.usage.tx_packets` | cumulative |  | Network packets sent by the container via its network interface |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | [Group](#groups) | Description |
+| ---  | ---  | ---    | --- | ---         |
+| `blkio.io_service_bytes_recursive.async` | cumulative | ✔ | blkio | Volume, in bytes, of asynchronous block I/O |
+| `blkio.io_service_bytes_recursive.read` | cumulative | ✔ | blkio | Volume, in bytes, of reads from block devices |
+| `blkio.io_service_bytes_recursive.sync` | cumulative | ✔ | blkio | Volume, in bytes, of synchronous block I/O |
+| `blkio.io_service_bytes_recursive.total` | cumulative | ✔ | blkio | Total volume, in bytes, of all block I/O |
+| `blkio.io_service_bytes_recursive.write` | cumulative | ✔ | blkio | Volume, in bytes, of writes to block devices |
+| `cpu.usage.kernelmode` | cumulative | ✔ | cpu | Jiffies of CPU time spent in kernel mode by the container |
+| `cpu.usage.system` | gauge | ✔ | cpu | Jiffies of CPU time used by the system |
+| `cpu.usage.total` | gauge | ✔ | cpu | Jiffies of CPU time used by the container |
+| `cpu.usage.usermode` | cumulative | ✔ | cpu | Jiffies of CPU time spent in user mode by the container |
+| `memory.usage.limit` | gauge | ✔ | memory | Memory usage limit of the container, in bytes |
+| `memory.usage.max` | gauge | ✔ | memory | Maximum measured memory usage of the container, in bytes |
+| `memory.usage.total` | gauge | ✔ | memory | Bytes of memory used by the container |
+| `network.usage.rx_bytes` | cumulative |  | network | Bytes received by the container via its network interface |
+| `network.usage.rx_dropped` | cumulative |  | network | Number of inbound network packets dropped by the container |
+| `network.usage.rx_errors` | cumulative |  | network | Errors receiving network packets |
+| `network.usage.rx_packets` | cumulative |  | network | Network packets received by the container via its network interface |
+| `network.usage.tx_bytes` | cumulative |  | network | Bytes sent by the container via its network interface |
+| `network.usage.tx_dropped` | cumulative |  | network | Number of outbound network packets dropped by the container |
+| `network.usage.tx_errors` | cumulative |  | network | Errors sending network packets |
+| `network.usage.tx_packets` | cumulative |  | network | Network packets sent by the container via its network interface |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - network.usage.rx_bytes
-    - network.usage.rx_dropped
-    - network.usage.rx_errors
-    - network.usage.rx_packets
-    - network.usage.tx_bytes
-    - network.usage.tx_dropped
-    - network.usage.tx_errors
-    - network.usage.tx_packets
-    monitorType: collectd/docker
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+#### Groups
+You can enable an entire group of metrics by specifying the `extraGroups` config
+option in your monitor config.  The value is a list of group names to enable.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

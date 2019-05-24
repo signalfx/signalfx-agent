@@ -46,6 +46,10 @@ Monitor Type: `collectd/mysql`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
@@ -66,13 +70,14 @@ The **nested** `databases` config object has the following fields:
 | `password` | no | `string` |  |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
 
-| Name | Type | Included | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `cache_result.cache_size` | gauge |  | MySQL Qcache Size |
 | `cache_result.qcache-hits` | cumulative | ✔ | The number of hits on MySQL query cache. |
@@ -249,183 +254,35 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `total_threads.created` | cumulative |  | The total number of threads created by MySQL for client connections.  A MySQL thread corresponds to a single MySQL connection. |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - cache_result.cache_size
-    - cache_result.qcache-not_cached
-    - cache_result.qcache-prunes
-    - mysql_commands.admin_commands
-    - mysql_commands.alter_db
-    - mysql_commands.alter_db_upgrade
-    - mysql_commands.alter_event
-    - mysql_commands.alter_function
-    - mysql_commands.alter_procedure
-    - mysql_commands.alter_server
-    - mysql_commands.alter_table
-    - mysql_commands.alter_tablespace
-    - mysql_commands.alter_user
-    - mysql_commands.analyze
-    - mysql_commands.assign_to_keycache
-    - mysql_commands.begin
-    - mysql_commands.binlog
-    - mysql_commands.call_procedure
-    - mysql_commands.change_db
-    - mysql_commands.change_master
-    - mysql_commands.check
-    - mysql_commands.checksum
-    - mysql_commands.commit
-    - mysql_commands.create_db
-    - mysql_commands.create_event
-    - mysql_commands.create_function
-    - mysql_commands.create_index
-    - mysql_commands.create_procedure
-    - mysql_commands.create_server
-    - mysql_commands.create_table
-    - mysql_commands.create_trigger
-    - mysql_commands.create_udf
-    - mysql_commands.create_user
-    - mysql_commands.create_view
-    - mysql_commands.dealloc_sql
-    - mysql_commands.delete_multi
-    - mysql_commands.do
-    - mysql_commands.drop_db
-    - mysql_commands.drop_event
-    - mysql_commands.drop_function
-    - mysql_commands.drop_index
-    - mysql_commands.drop_procedure
-    - mysql_commands.drop_server
-    - mysql_commands.drop_table
-    - mysql_commands.drop_trigger
-    - mysql_commands.drop_user
-    - mysql_commands.drop_view
-    - mysql_commands.empty_query
-    - mysql_commands.execute_sql
-    - mysql_commands.flush
-    - mysql_commands.get_diagnostics
-    - mysql_commands.grant
-    - mysql_commands.ha_close
-    - mysql_commands.ha_open
-    - mysql_commands.ha_read
-    - mysql_commands.help
-    - mysql_commands.insert_select
-    - mysql_commands.install_plugin
-    - mysql_commands.kill
-    - mysql_commands.load
-    - mysql_commands.lock_tables
-    - mysql_commands.optimize
-    - mysql_commands.preload_keys
-    - mysql_commands.prepare_sql
-    - mysql_commands.purge
-    - mysql_commands.purge_before_date
-    - mysql_commands.release_savepoint
-    - mysql_commands.rename_table
-    - mysql_commands.rename_user
-    - mysql_commands.repair
-    - mysql_commands.replace
-    - mysql_commands.replace_select
-    - mysql_commands.reset
-    - mysql_commands.resignal
-    - mysql_commands.revoke
-    - mysql_commands.revoke_all
-    - mysql_commands.rollback
-    - mysql_commands.rollback_to_savepoint
-    - mysql_commands.savepoint
-    - mysql_commands.set_option
-    - mysql_commands.show_binlog_events
-    - mysql_commands.show_binlogs
-    - mysql_commands.show_charsets
-    - mysql_commands.show_collations
-    - mysql_commands.show_create_db
-    - mysql_commands.show_create_event
-    - mysql_commands.show_create_func
-    - mysql_commands.show_create_proc
-    - mysql_commands.show_create_table
-    - mysql_commands.show_create_trigger
-    - mysql_commands.show_databases
-    - mysql_commands.show_engine_logs
-    - mysql_commands.show_engine_mutex
-    - mysql_commands.show_engine_status
-    - mysql_commands.show_errors
-    - mysql_commands.show_events
-    - mysql_commands.show_fields
-    - mysql_commands.show_function_code
-    - mysql_commands.show_function_status
-    - mysql_commands.show_grants
-    - mysql_commands.show_keys
-    - mysql_commands.show_master_status
-    - mysql_commands.show_open_tables
-    - mysql_commands.show_plugins
-    - mysql_commands.show_privileges
-    - mysql_commands.show_procedure_code
-    - mysql_commands.show_procedure_status
-    - mysql_commands.show_processlist
-    - mysql_commands.show_profile
-    - mysql_commands.show_profiles
-    - mysql_commands.show_relaylog_events
-    - mysql_commands.show_slave_hosts
-    - mysql_commands.show_slave_status
-    - mysql_commands.show_status
-    - mysql_commands.show_storage_engines
-    - mysql_commands.show_table_status
-    - mysql_commands.show_tables
-    - mysql_commands.show_triggers
-    - mysql_commands.show_variables
-    - mysql_commands.show_warnings
-    - mysql_commands.signal
-    - mysql_commands.slave_start
-    - mysql_commands.slave_stop
-    - mysql_commands.truncate
-    - mysql_commands.uninstall_plugin
-    - mysql_commands.unlock_tables
-    - mysql_commands.update_multi
-    - mysql_commands.xa_commit
-    - mysql_commands.xa_end
-    - mysql_commands.xa_prepare
-    - mysql_commands.xa_recover
-    - mysql_commands.xa_rollback
-    - mysql_commands.xa_start
-    - mysql_handler.commit
-    - mysql_handler.delete
-    - mysql_handler.external_lock
-    - mysql_handler.prepare
-    - mysql_handler.read_first
-    - mysql_handler.read_key
-    - mysql_handler.read_next
-    - mysql_handler.read_prev
-    - mysql_handler.read_rnd
-    - mysql_handler.read_rnd_next
-    - mysql_handler.rollback
-    - mysql_handler.savepoint
-    - mysql_handler.savepoint_rollback
-    - mysql_handler.update
-    - mysql_handler.write
-    - mysql_select.full_join
-    - mysql_select.full_range_join
-    - mysql_select.range
-    - mysql_select.range_check
-    - mysql_select.scan
-    - mysql_slow_queries
-    - mysql_sort.range
-    - mysql_sort.scan
-    - mysql_sort_merge_passes
-    - mysql_sort_rows
-    - threads.running
-    - total_threads.created
-    monitorType: collectd/mysql
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

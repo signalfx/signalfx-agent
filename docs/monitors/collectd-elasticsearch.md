@@ -20,6 +20,10 @@ Monitor Type: `collectd/elasticsearch`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
@@ -40,13 +44,14 @@ Monitor Type: `collectd/elasticsearch`
 | `version` | no | `string` |  |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
 
-| Name | Type | Included | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `bytes.indices.primaries.merges.total-size` | gauge |  |  |
 | `bytes.indices.total.merges.total-size` | gauge |  |  |
@@ -223,168 +228,35 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `percent.jvm.mem.heap-used-percent` | gauge |  |  |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - bytes.indices.primaries.merges.total-size
-    - bytes.indices.total.merges.total-size
-    - counter.http.total_open
-    - counter.indices.cache.field.eviction
-    - counter.indices.cache.filter.cache-count
-    - counter.indices.cache.filter.evictions
-    - counter.indices.cache.filter.hit-count
-    - counter.indices.cache.filter.miss-count
-    - counter.indices.cache.filter.total-count
-    - counter.indices.flush.time
-    - counter.indices.flush.total
-    - counter.indices.get.exists-time
-    - counter.indices.get.exists-total
-    - counter.indices.get.missing-time
-    - counter.indices.get.missing-total
-    - counter.indices.get.time
-    - counter.indices.indexing.delete-time
-    - counter.indices.indexing.delete-total
-    - counter.indices.indexing.index-time
-    - counter.indices.merges.time
-    - counter.indices.merges.total-size
-    - counter.indices.primaries.fielddata.evictions
-    - counter.indices.primaries.flush.total
-    - counter.indices.primaries.flush.total-time
-    - counter.indices.primaries.get.exists-time
-    - counter.indices.primaries.get.exists-total
-    - counter.indices.primaries.get.missing-time
-    - counter.indices.primaries.get.missing-total
-    - counter.indices.primaries.get.time
-    - counter.indices.primaries.indexing.delete-time
-    - counter.indices.primaries.indexing.delete-total
-    - counter.indices.primaries.indexing.index-time
-    - counter.indices.primaries.indexing.index-total
-    - counter.indices.primaries.merges.total
-    - counter.indices.primaries.merges.total-docs
-    - counter.indices.primaries.merges.total-time
-    - counter.indices.primaries.refresh.total
-    - counter.indices.primaries.refresh.total-time
-    - counter.indices.primaries.search.fetch-time
-    - counter.indices.primaries.search.fetch-total
-    - counter.indices.primaries.search.query-time
-    - counter.indices.primaries.search.query-total
-    - counter.indices.primaries.segments.count
-    - counter.indices.primaries.translog.operations
-    - counter.indices.primaries.warmer.total
-    - counter.indices.primaries.warmer.total.primaries.warmer.total-time
-    - counter.indices.refresh.time
-    - counter.indices.refresh.total
-    - counter.indices.search.fetch-time
-    - counter.indices.search.fetch-total
-    - counter.indices.search.scroll-time
-    - counter.indices.search.scroll.total
-    - counter.indices.total.fielddata.evictions
-    - counter.indices.total.flush.periodic
-    - counter.indices.total.get.exists-time
-    - counter.indices.total.get.exists-total
-    - counter.indices.total.get.missing-time
-    - counter.indices.total.get.missing-total
-    - counter.indices.total.get.time
-    - counter.indices.total.get.total
-    - counter.indices.total.indexing.delete-time
-    - counter.indices.total.indexing.delete-total
-    - counter.indices.total.indexing.index-time
-    - counter.indices.total.merges.total-docs
-    - counter.indices.total.merges.total-time
-    - counter.indices.total.search.fetch-total
-    - counter.indices.total.search.query-time
-    - counter.indices.total.translog.earliest_last_modified_age
-    - counter.indices.total.translog.uncommitted_operations
-    - counter.indices.total.translog.uncommitted_size_in_bytes
-    - counter.jvm.gc.count
-    - counter.jvm.gc.old-count
-    - counter.jvm.gc.old-time
-    - counter.jvm.uptime
-    - counter.thread_pool.completed
-    - counter.transport.rx.count
-    - counter.transport.rx.size
-    - counter.transport.tx.count
-    - counter.transport.tx.size
-    - gauge.cluster.initializing-shards
-    - gauge.cluster.status
-    - gauge.http.current_open
-    - gauge.indices.get.current
-    - gauge.indices.indexing.delete-current
-    - gauge.indices.indexing.index-current
-    - gauge.indices.merges.current-docs
-    - gauge.indices.merges.current-size
-    - gauge.indices.merges.total-docs
-    - gauge.indices.primaries.completion.size
-    - gauge.indices.primaries.docs.count
-    - gauge.indices.primaries.docs.deleted
-    - gauge.indices.primaries.fielddata.memory-size
-    - gauge.indices.primaries.flush.periodic
-    - gauge.indices.primaries.get.current
-    - gauge.indices.primaries.indexing.delete-current
-    - gauge.indices.primaries.indexing.index-current
-    - gauge.indices.primaries.merges.current
-    - gauge.indices.primaries.merges.current-docs
-    - gauge.indices.primaries.merges.current-size
-    - gauge.indices.primaries.search.fetch-current
-    - gauge.indices.primaries.search.open-contexts
-    - gauge.indices.primaries.search.query-current
-    - gauge.indices.primaries.segments.index-writer-memory
-    - gauge.indices.primaries.segments.memory
-    - gauge.indices.primaries.segments.version-map-memory
-    - gauge.indices.primaries.store.size
-    - gauge.indices.primaries.translog.earliest_last_modified_age
-    - gauge.indices.primaries.translog.size
-    - gauge.indices.primaries.translog.uncommitted_operations
-    - gauge.indices.primaries.translog.uncommitted_size_in_bytes
-    - gauge.indices.primaries.warmer.current
-    - gauge.indices.search.fetch-current
-    - gauge.indices.search.open-contexts
-    - gauge.indices.search.query-current
-    - gauge.indices.search.scroll.current
-    - gauge.indices.segments.index-writer-size
-    - gauge.indices.segments.size
-    - gauge.indices.store.size
-    - gauge.indices.total.docs.deleted
-    - gauge.indices.total.get.current
-    - gauge.indices.total.indexing.delete-current
-    - gauge.indices.total.indexing.index-current
-    - gauge.indices.total.merges.current
-    - gauge.indices.total.merges.current-docs
-    - gauge.indices.total.merges.current-size
-    - gauge.indices.total.search.open-contexts
-    - gauge.indices.total.search.query-current
-    - gauge.indices.total.store.size
-    - gauge.indices.translog.uncommitted_operations
-    - gauge.indices.translog.uncommitted_size_in_bytes
-    - gauge.jvm.mem.non-heap-committed
-    - gauge.jvm.mem.non-heap-used
-    - gauge.jvm.mem.pools.old.max_in_bytes
-    - gauge.jvm.mem.pools.old.used_in_bytes
-    - gauge.jvm.mem.pools.young.max_in_bytes
-    - gauge.jvm.mem.pools.young.used_in_bytes
-    - gauge.jvm.threads.count
-    - gauge.jvm.threads.peak
-    - gauge.process.cpu.percent
-    - gauge.thread_pool.active
-    - gauge.thread_pool.largest
-    - gauge.thread_pool.queue
-    - gauge.thread_pool.threads
-    - gauge.transport.server_open
-    - percent.jvm.mem.heap-used-percent
-    monitorType: collectd/elasticsearch
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 
