@@ -28,6 +28,7 @@ type DimensionPropertyClient struct {
 	ctx           context.Context
 	Token         string
 	APIURL        *url.URL
+	client        *http.Client
 	requestSender *reqSender
 	sendDelay     time.Duration
 	// Keeps track of what has been synced so we don't do unnecessary syncs
@@ -92,6 +93,7 @@ func NewDimensionPropertyClient(ctx context.Context, conf *config.WriterConfig) 
 		delayedSet:        make(map[types.Dimension]*types.DimProperties),
 		delayedQueue:      make(chan *queuedDimension, conf.PropertiesMaxBuffered),
 		requestSender:     sender,
+		client:            client,
 		PropertyFilterSet: propFilters,
 		now:               time.Now,
 	}, nil
@@ -145,21 +147,26 @@ func (dpc *DimensionPropertyClient) AcceptDimProp(dimProps *types.DimProperties)
 }
 
 func (dpc *DimensionPropertyClient) processQueue() {
-	for delayedDim := range dpc.delayedQueue {
-		now := dpc.now()
-		if now.Before(delayedDim.TimeToSend) {
-			// dims are always in the channel in order of TimeToSend
-			time.Sleep(delayedDim.TimeToSend.Sub(now))
-		}
-		atomic.AddInt64(&dpc.DimensionsCurrentlyDelayed, int64(-1))
+	for {
+		select {
+		case <-dpc.ctx.Done():
+			return
+		case delayedDim := <-dpc.delayedQueue:
+			now := dpc.now()
+			if now.Before(delayedDim.TimeToSend) {
+				// dims are always in the channel in order of TimeToSend
+				time.Sleep(delayedDim.TimeToSend.Sub(now))
+			}
+			atomic.AddInt64(&dpc.DimensionsCurrentlyDelayed, int64(-1))
 
-		dpc.Lock()
-		delete(dpc.delayedSet, delayedDim.DimProperties.Dimension)
-		dpc.Unlock()
+			dpc.Lock()
+			delete(dpc.delayedSet, delayedDim.DimProperties.Dimension)
+			dpc.Unlock()
 
-		if !dpc.isDuplicate(delayedDim.DimProperties) {
-			if err := dpc.setPropertiesOnDimension(delayedDim.DimProperties); err != nil {
-				log.WithError(err).WithField("dim", delayedDim.DimProperties.Dimension).Error("Could not send dimension update")
+			if !dpc.isDuplicate(delayedDim.DimProperties) {
+				if err := dpc.setPropertiesOnDimension(delayedDim.DimProperties); err != nil {
+					log.WithError(err).WithField("dim", delayedDim.DimProperties.Dimension).Error("Could not send dimension update")
+				}
 			}
 		}
 	}
@@ -169,6 +176,29 @@ func (dpc *DimensionPropertyClient) processQueue() {
 // value.  It will wipe out any description on the dimension.  There is no
 // retry logic here so any failures are terminal.
 func (dpc *DimensionPropertyClient) setPropertiesOnDimension(dimProps *types.DimProperties) error {
+	if dimProps.MergeIntoExisting {
+		oldProps, oldTags, err := dpc.fetchExistingDimension(dimProps.Name, dimProps.Value)
+		if err != nil {
+			return fmt.Errorf("could not get existing properties/tags: %v", err)
+		}
+
+		for k, v := range dimProps.Properties {
+			// Override the old values
+			oldProps[k] = v
+		}
+		dimProps.Properties = oldProps
+
+		if dimProps.Tags == nil && len(oldTags) > 0 {
+			dimProps.Tags = make(map[string]bool)
+		}
+		for _, t := range oldTags {
+			// Add any that don't exist.
+			if _, ok := dimProps.Tags[t]; !ok {
+				dimProps.Tags[t] = true
+			}
+		}
+	}
+
 	req, err := dpc.makeRequest(dimProps.Name, dimProps.Value, dimProps.Properties, dimProps.Tags)
 	if err != nil {
 		return err
@@ -195,6 +225,41 @@ func (dpc *DimensionPropertyClient) isDuplicate(dimProps *types.DimProperties) b
 	return ok && reflect.DeepEqual(prev.(*types.DimProperties), dimProps)
 }
 
+func (dpc *DimensionPropertyClient) fetchExistingDimension(key, value string) (map[string]string, []string, error) {
+	url, err := dpc.makeDimURL(key, value)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	resp, err := dpc.client.Get(url.String())
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if resp.StatusCode != 200 {
+		// No existing dimension value, so return blank for both.
+		return map[string]string{}, []string{}, nil
+	}
+
+	var s struct {
+		CustomProperties map[string]string `json:"customProperties"`
+		Tags             []string          `json:"tags"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&s); err != nil {
+		return nil, nil, err
+	}
+
+	return s.CustomProperties, s.Tags, nil
+}
+
+func (dpc *DimensionPropertyClient) makeDimURL(key, value string) (*url.URL, error) {
+	url, err := dpc.APIURL.Parse(fmt.Sprintf("/v2/dimension/%s/%s", key, value))
+	if err != nil {
+		return nil, fmt.Errorf("could not construct dimension property PUT URL with %s / %s: %v", key, value, err)
+	}
+	return url, nil
+}
+
 func (dpc *DimensionPropertyClient) makeRequest(key, value string, props map[string]string, tags map[string]bool) (*http.Request, error) {
 	json, err := json.Marshal(map[string]interface{}{
 		"key":              key,
@@ -206,9 +271,9 @@ func (dpc *DimensionPropertyClient) makeRequest(key, value string, props map[str
 		return nil, err
 	}
 
-	url, err := dpc.APIURL.Parse(fmt.Sprintf("/v2/dimension/%s/%s", key, value))
+	url, err := dpc.makeDimURL(key, value)
 	if err != nil {
-		return nil, fmt.Errorf("could not construct dimension property PUT URL with %s / %s: %v", key, value, err)
+		return nil, err
 	}
 
 	req, err := http.NewRequest(

@@ -119,6 +119,7 @@ class Agent:
                     print("\nEvents received:")
                     for event in self.fake_services.events:
                         print_dp_or_event(event)
+                    print(f"\nDimensions set: {self.fake_services.dims}")
 
     @classmethod
     @contextmanager
@@ -132,9 +133,6 @@ class Agent:
         extra_env=None,
         profiling=False,
     ):
-        if host is None:
-            host = get_unique_localhost()
-
         with ensure_fake_backend(
             host=host, backend_options=backend_options, fake_services=fake_services
         ) as _fake_services:
@@ -145,7 +143,7 @@ class Agent:
                     run_dir=run_dir,
                     fake_services=_fake_services,
                     env=agent_env,
-                    host=host,
+                    host=_fake_services.ingest_host,  # This should be unique per test run
                     profiling=profiling,
                     debug=debug,
                 )
@@ -155,6 +153,9 @@ class Agent:
 
 @contextmanager
 def ensure_fake_backend(host=None, backend_options=None, fake_services=None):
+    if host is None:
+        host = get_unique_localhost()
+
     if fake_services is None:
         with fake_backend.start(host, **(backend_options or {})) as started_fake_services:
             yield started_fake_services

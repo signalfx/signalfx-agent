@@ -37,7 +37,6 @@ func Dimensions(sendMachineID bool, hostname string, useFullyQualifiedHost *bool
 
 	dims := g.WaitForDimensions()
 
-	log.Infof("Using host id dimensions %v", dims)
 	return dims
 }
 
