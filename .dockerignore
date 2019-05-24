@@ -17,4 +17,5 @@ vendor_orig/**
 **/.vagrant/**
 .circleci/**
 .azure-pipelines/**
+**/genmetadata.go
 monitor-code-gen
