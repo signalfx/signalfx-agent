@@ -1,5 +1,4 @@
 from functools import partial as p
-from textwrap import dedent
 
 import pytest
 
@@ -9,12 +8,16 @@ from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_service, wait_for
 from tests.helpers.verify import run_agent_verify
 
-pytestmark = [pytest.mark.collectd, pytest.mark.elasticsearch, pytest.mark.monitor_with_endpoints]
+pytestmark = [
+    pytest.mark.collectd,
+    pytest.mark.elasticsearch,
+    pytest.mark.monitor_with_endpoints,
+    pytest.mark.flaky(reruns=2),
+]
 
 METADATA = Metadata.from_package("elasticsearch")
 ENV = {"cluster.name": "testCluster"}
-AGENT_CONFIG_TEMPLATE = dedent(
-    """
+AGENT_CONFIG_TEMPLATE = """
     monitors:
     - type: elasticsearch
       host: {host}
@@ -23,14 +26,12 @@ AGENT_CONFIG_TEMPLATE = dedent(
       password: testing123
       {flag}
     """
-)
 
 
 def check_service_status(host):
     assert wait_for(p(http_status, url=f"http://{host}:9200/_nodes/_local", status=[200]), 180), "service didn't start"
 
 
-@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_without_cluster_option():
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
         host = container_ip(es_container)
@@ -46,7 +47,6 @@ def test_elasticsearch_without_cluster_option():
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
-@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_cluster_option():
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
         host = container_ip(es_container)
@@ -67,7 +67,8 @@ def test_elasticsearch_with_cluster_option():
 
 
 # To mimic the scenario where node is not up
-@pytest.mark.flaky(reruns=2)
+
+
 def test_elasticsearch_without_cluster():
     # start the ES container without the service
     with run_service("elasticsearch/6.4.2", environment=ENV, entrypoint="sleep inf") as es_container:
@@ -84,7 +85,6 @@ def test_elasticsearch_without_cluster():
             ), "service didn't start"
 
 
-@pytest.mark.flaky(reruns=2)
 def test_with_default_config_6_6_1():
     with run_service("elasticsearch/6.6.1") as es_container:
         host = container_ip(es_container)
@@ -97,7 +97,6 @@ def test_with_default_config_6_6_1():
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
-@pytest.mark.flaky(reruns=2)
 def test_with_default_config_2_4_5():
     with run_service("elasticsearch/2.4.5") as es_container:
         host = container_ip(es_container)
@@ -110,7 +109,6 @@ def test_with_default_config_2_4_5():
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
-@pytest.mark.flaky(reruns=2)
 def test_with_default_config_2_0_2():
     with run_service("elasticsearch/2.0.2") as es_container:
         host = container_ip(es_container)
@@ -123,7 +121,6 @@ def test_with_default_config_2_0_2():
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
-@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_cluster_health_stats():
     expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["cluster"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
@@ -133,7 +130,6 @@ def test_elasticsearch_with_enhanced_cluster_health_stats():
         run_agent_verify(agent_config, expected_metrics)
 
 
-@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_http_stats():
     expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["node/http"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
@@ -143,7 +139,6 @@ def test_elasticsearch_with_enhanced_http_stats():
         run_agent_verify(agent_config, expected_metrics)
 
 
-@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_jvm_stats():
     expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["node/jvm"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
@@ -153,7 +148,6 @@ def test_elasticsearch_with_enhanced_jvm_stats():
         run_agent_verify(agent_config, expected_metrics)
 
 
-@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_process_stats():
     expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["node/process"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
@@ -163,7 +157,6 @@ def test_elasticsearch_with_enhanced_process_stats():
         run_agent_verify(agent_config, expected_metrics)
 
 
-@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_thread_pool_stats():
     expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["node/thread-pool"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
@@ -173,7 +166,6 @@ def test_elasticsearch_with_enhanced_thread_pool_stats():
         run_agent_verify(agent_config, expected_metrics)
 
 
-@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_with_enhanced_transport_stats():
     expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["node/transport"]
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
@@ -183,7 +175,6 @@ def test_elasticsearch_with_enhanced_transport_stats():
         run_agent_verify(agent_config, expected_metrics)
 
 
-@pytest.mark.flaky(reruns=2)
 def test_elasticsearch_all_metrics():
     with run_service("elasticsearch/6.4.2", environment=ENV) as es_container:
         host = container_ip(es_container)
@@ -202,8 +193,7 @@ def test_elasticsearch_all_metrics():
             "elasticsearch.indices.filter-cache.evictions",
             "elasticsearch.indices.segments.index-writer-max-memory-size",
         }
-        config = dedent(
-            f"""
+        config = f"""
             monitors:
             - type: elasticsearch
               host: {host}
@@ -259,5 +249,4 @@ def test_elasticsearch_all_metrics():
               - suggest
               - percolate
             """
-        )
         run_agent_verify(config, es_6_4_2_expected_metrics)

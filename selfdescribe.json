@@ -3732,11 +3732,125 @@
       "doc": "Monitors ElasticSearch instances. We strongly recommend using the\n[elasticsearch](./elasticsearch.md) monitor instead, as it will\nscale much better.\n\nSee https://github.com/signalfx/collectd-elasticsearch and\nhttps://github.com/signalfx/integrations/tree/master/collectd-elasticsearch\n",
       "groups": null,
       "metrics": {
+        "bytes.indices.primaries.merges.total-size": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "bytes.indices.total.merges.total-size": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.http.total_open": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.cache.field.eviction": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.cache.filter.cache-count": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.cache.filter.evictions": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.cache.filter.hit-count": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.cache.filter.miss-count": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.cache.filter.total-count": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.flush.time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.flush.total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.get.exists-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.get.exists-total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.get.missing-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.get.missing-total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.get.time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
         "counter.indices.get.total": {
           "type": "cumulative",
           "description": "The total number of get requests since node startup",
           "group": null,
           "default": true
+        },
+        "counter.indices.indexing.delete-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.indexing.delete-total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.indexing.index-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
         },
         "counter.indices.indexing.index-total": {
           "type": "cumulative",
@@ -3744,11 +3858,197 @@
           "group": null,
           "default": true
         },
+        "counter.indices.merges.time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
         "counter.indices.merges.total": {
           "type": "cumulative",
           "description": "Total number of merges since node startup",
           "group": null,
           "default": true
+        },
+        "counter.indices.merges.total-size": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.fielddata.evictions": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.flush.total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.flush.total-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.get.exists-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.get.exists-total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.get.missing-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.get.missing-total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.get.time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.indexing.delete-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.indexing.delete-total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.indexing.index-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.indexing.index-total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.merges.total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.merges.total-docs": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.merges.total-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.refresh.total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.refresh.total-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.search.fetch-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.search.fetch-total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.search.query-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.search.query-total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.segments.count": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.translog.operations": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.warmer.total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.primaries.warmer.total.primaries.warmer.total-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.refresh.time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.refresh.total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.search.fetch-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.search.fetch-total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
         },
         "counter.indices.search.query-time": {
           "type": "cumulative",
@@ -3762,6 +4062,84 @@
           "group": null,
           "default": true
         },
+        "counter.indices.search.scroll-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.search.scroll.total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.total.fielddata.evictions": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.total.flush.periodic": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.total.get.exists-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.total.get.exists-total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.total.get.missing-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.total.get.missing-total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.total.get.time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.total.get.total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.total.indexing.delete-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.total.indexing.delete-total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.total.indexing.index-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
         "counter.indices.total.indexing.index-total": {
           "type": "cumulative",
           "description": "The total number of index requests per cluster",
@@ -3774,11 +4152,71 @@
           "group": null,
           "default": true
         },
+        "counter.indices.total.merges.total-docs": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.total.merges.total-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.total.search.fetch-total": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.total.search.query-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
         "counter.indices.total.search.query-total": {
           "type": "cumulative",
           "description": "The total number of search requests per cluster",
           "group": null,
           "default": true
+        },
+        "counter.indices.total.translog.earliest_last_modified_age": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.total.translog.uncommitted_operations": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.indices.total.translog.uncommitted_size_in_bytes": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.jvm.gc.count": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.jvm.gc.old-count": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.jvm.gc.old-time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
         },
         "counter.jvm.gc.time": {
           "type": "cumulative",
@@ -3786,53 +4224,17 @@
           "group": null,
           "default": true
         },
-        "counter.thread_pool.bulk.rejected": {
+        "counter.jvm.uptime": {
           "type": "cumulative",
-          "description": "Number of rejected bulk requests",
+          "description": "",
           "group": null,
-          "default": true
+          "default": false
         },
-        "counter.thread_pool.flush.rejected": {
+        "counter.thread_pool.completed": {
           "type": "cumulative",
-          "description": "Number of rejected flush requests",
+          "description": "",
           "group": null,
-          "default": true
-        },
-        "counter.thread_pool.generic.rejected": {
-          "type": "cumulative",
-          "description": "Number of rejected generic requests",
-          "group": null,
-          "default": true
-        },
-        "counter.thread_pool.get.rejected": {
-          "type": "cumulative",
-          "description": "Number of rejected get requests",
-          "group": null,
-          "default": true
-        },
-        "counter.thread_pool.index.rejected": {
-          "type": "cumulative",
-          "description": "Number of rejected index requests",
-          "group": null,
-          "default": true
-        },
-        "counter.thread_pool.merge.rejected": {
-          "type": "cumulative",
-          "description": "Number of rejected merge requests",
-          "group": null,
-          "default": true
-        },
-        "counter.thread_pool.optimize.rejected": {
-          "type": "cumulative",
-          "description": "Number of rejected optimize requests",
-          "group": null,
-          "default": true
-        },
-        "counter.thread_pool.refresh.rejected": {
-          "type": "cumulative",
-          "description": "Number of rejected refresh requests",
-          "group": null,
-          "default": true
+          "default": false
         },
         "counter.thread_pool.rejected": {
           "type": "cumulative",
@@ -3840,17 +4242,29 @@
           "group": null,
           "default": true
         },
-        "counter.thread_pool.search.rejected": {
+        "counter.transport.rx.count": {
           "type": "cumulative",
-          "description": "Number of rejected search requests",
+          "description": "",
           "group": null,
-          "default": true
+          "default": false
         },
-        "counter.thread_pool.snapshot.rejected": {
+        "counter.transport.rx.size": {
           "type": "cumulative",
-          "description": "Number of rejected snapshot requests",
+          "description": "",
           "group": null,
-          "default": true
+          "default": false
+        },
+        "counter.transport.tx.count": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "counter.transport.tx.size": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
         },
         "gauge.cluster.active-primary-shards": {
           "type": "gauge",
@@ -3900,6 +4314,12 @@
           "group": null,
           "default": true
         },
+        "gauge.http.current_open": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
         "gauge.indices.cache.field.size": {
           "type": "gauge",
           "description": "Field data size (bytes)",
@@ -3924,11 +4344,209 @@
           "group": null,
           "default": true
         },
+        "gauge.indices.get.current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.indexing.delete-current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.indexing.index-current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
         "gauge.indices.merges.current": {
           "type": "gauge",
           "description": "Number of active merges",
           "group": null,
           "default": true
+        },
+        "gauge.indices.merges.current-docs": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.merges.current-size": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.merges.total-docs": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.completion.size": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.docs.count": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.docs.deleted": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.fielddata.memory-size": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.flush.periodic": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.get.current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.indexing.delete-current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.indexing.index-current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.merges.current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.merges.current-docs": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.merges.current-size": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.search.fetch-current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.search.open-contexts": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.search.query-current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.segments.index-writer-memory": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.segments.memory": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.segments.version-map-memory": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.store.size": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.translog.earliest_last_modified_age": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.translog.size": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.translog.uncommitted_operations": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.translog.uncommitted_size_in_bytes": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.primaries.warmer.current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.search.fetch-current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.search.open-contexts": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.search.query-current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.search.scroll.current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
         },
         "gauge.indices.segments.count": {
           "type": "gauge",
@@ -3936,11 +4554,35 @@
           "group": null,
           "default": true
         },
+        "gauge.indices.segments.index-writer-size": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.segments.size": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.store.size": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
         "gauge.indices.total.docs.count": {
           "type": "gauge",
           "description": "Number of documents in the cluster",
           "group": null,
           "default": true
+        },
+        "gauge.indices.total.docs.deleted": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
         },
         "gauge.indices.total.fielddata.memory-size": {
           "type": "gauge",
@@ -3954,6 +4596,72 @@
           "group": null,
           "default": true
         },
+        "gauge.indices.total.get.current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.total.indexing.delete-current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.total.indexing.index-current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.total.merges.current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.total.merges.current-docs": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.total.merges.current-size": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.total.search.open-contexts": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.total.search.query-current": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.total.store.size": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.translog.uncommitted_operations": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.indices.translog.uncommitted_size_in_bytes": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
         "gauge.jvm.mem.heap-committed": {
           "type": "gauge",
           "description": "Total heap committed by the process (bytes)",
@@ -3965,6 +4673,60 @@
           "description": "Total heap used (bytes)",
           "group": null,
           "default": true
+        },
+        "gauge.jvm.mem.non-heap-committed": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.jvm.mem.non-heap-used": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.jvm.mem.pools.old.max_in_bytes": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.jvm.mem.pools.old.used_in_bytes": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.jvm.mem.pools.young.max_in_bytes": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.jvm.mem.pools.young.used_in_bytes": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.jvm.threads.count": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.jvm.threads.peak": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "gauge.process.cpu.percent": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
         },
         "gauge.process.open_file_descriptors": {
           "type": "gauge",
@@ -3993,6 +4755,18 @@
         "gauge.thread_pool.threads": {
           "type": "gauge",
           "description": "Number of Threads in thread pool",
+          "group": null,
+          "default": false
+        },
+        "gauge.transport.server_open": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "percent.jvm.mem.heap-used-percent": {
+          "type": "gauge",
+          "description": "",
           "group": null,
           "default": false
         }
