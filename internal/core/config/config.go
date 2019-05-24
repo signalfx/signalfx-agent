@@ -85,15 +85,18 @@ type Config struct {
 	Logging LogConfig `yaml:"logging" default:"{}"`
 	// Configuration of the managed collectd subprocess
 	Collectd CollectdConfig `yaml:"collectd" default:"{}"`
-	// If true, the agent will inherently filter non-bundled metrics
+	// If true, the agent will inherently filter out [custom
+	// metrics](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
 	// without having to rely on the `whitelist.json` filter that was
-	// previously included under `metricsToExclude`.  Whether a metric is
-	// bundled or not is documented in each monitor's documentation.  Now every
+	// previously configured under `metricsToExclude`.  Whether a metric is
+	// custom or not is documented in each monitor's documentation.  Now every
 	// monitor's default configuration (i.e. the minimum amount of
-	// configuration to make it work) will only send bundled metrics, but if
-	// you enable certain flags or config options on the monitor, non-bundled
+	// configuration to make it work) will only send non-custom metrics, but if
+	// you enable certain flags or config options on the monitor, custom
 	// metrics will also be sent without having to modify the whitelist via
-	// `metricsToInclude`.
+	// `metricsToInclude`.  If this option is set to `true`, the
+	// `whitelist.json` entry under `metricToExclude` should be removed, if it
+	// was present.
 	EnableBuiltInFiltering bool `yaml:"enableBuiltInFiltering" default:"false"`
 	// A list of metric filters that will whitelist/include metrics.  These
 	// filters take priority over the filters specified in `metricsToExclude`.
