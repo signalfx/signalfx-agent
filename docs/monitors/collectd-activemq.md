@@ -79,6 +79,7 @@ The **nested** `values` config object has the following fields:
 | `instancePrefix` | no | `string` | Works like the option of the same name directly beneath the MBean block, but sets the type instance instead |
 | `instanceFrom` | no | `list of strings` | Works like the option of the same name directly beneath the MBean block, but sets the type instance instead |
 | `attribute` | no | `string` | Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true, path must point to a composite type, otherwise it must point to a numeric type. |
+| `attributes` | no | `list of strings` | The plural form of the `attribute` config above.  Used to derive multiple metrics from a single MBean. |
 
 
 ## Metrics
