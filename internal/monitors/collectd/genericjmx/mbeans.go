@@ -112,6 +112,11 @@ type MBeanValue struct {
 	// must point to a composite type, otherwise it must point to
 	// a numeric type.
 	Attribute string `yaml:"attribute"`
+
+	// Allows you to define multiple attributes within a singular value
+	// this is sometimes needed when generic JMX type requires multiple attributes
+	// to report.
+	Attributes []string `yaml:"attributes"`
 }
 
 // MBean represents the <MBean> config object in the collectd config for
