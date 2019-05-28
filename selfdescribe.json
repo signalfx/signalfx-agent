@@ -1552,6 +1552,14 @@
                         "required": false,
                         "type": "string",
                         "elementKind": ""
+                      },
+                      {
+                        "yamlName": "attributes",
+                        "doc": "The plural form of the `attribute` config above.  Used to derive multiple metrics from a single MBean.",
+                        "default": null,
+                        "required": false,
+                        "type": "slice",
+                        "elementKind": "string"
                       }
                     ]
                   }
@@ -2110,6 +2118,14 @@
                         "required": false,
                         "type": "string",
                         "elementKind": ""
+                      },
+                      {
+                        "yamlName": "attributes",
+                        "doc": "The plural form of the `attribute` config above.  Used to derive multiple metrics from a single MBean.",
+                        "default": null,
+                        "required": false,
+                        "type": "slice",
+                        "elementKind": "string"
                       }
                     ]
                   }
@@ -5412,6 +5428,14 @@
                         "required": false,
                         "type": "string",
                         "elementKind": ""
+                      },
+                      {
+                        "yamlName": "attributes",
+                        "doc": "The plural form of the `attribute` config above.  Used to derive multiple metrics from a single MBean.",
+                        "default": null,
+                        "required": false,
+                        "type": "slice",
+                        "elementKind": "string"
                       }
                     ]
                   }
@@ -7051,6 +7075,14 @@
                         "required": false,
                         "type": "string",
                         "elementKind": ""
+                      },
+                      {
+                        "yamlName": "attributes",
+                        "doc": "The plural form of the `attribute` config above.  Used to derive multiple metrics from a single MBean.",
+                        "default": null,
+                        "required": false,
+                        "type": "slice",
+                        "elementKind": "string"
                       }
                     ]
                   }
@@ -8313,6 +8345,14 @@
                         "required": false,
                         "type": "string",
                         "elementKind": ""
+                      },
+                      {
+                        "yamlName": "attributes",
+                        "doc": "The plural form of the `attribute` config above.  Used to derive multiple metrics from a single MBean.",
+                        "default": null,
+                        "required": false,
+                        "type": "slice",
+                        "elementKind": "string"
                       }
                     ]
                   }
@@ -8609,6 +8649,14 @@
                         "required": false,
                         "type": "string",
                         "elementKind": ""
+                      },
+                      {
+                        "yamlName": "attributes",
+                        "doc": "The plural form of the `attribute` config above.  Used to derive multiple metrics from a single MBean.",
+                        "default": null,
+                        "required": false,
+                        "type": "slice",
+                        "elementKind": "string"
                       }
                     ]
                   }
@@ -8927,6 +8975,14 @@
                         "required": false,
                         "type": "string",
                         "elementKind": ""
+                      },
+                      {
+                        "yamlName": "attributes",
+                        "doc": "The plural form of the `attribute` config above.  Used to derive multiple metrics from a single MBean.",
+                        "default": null,
+                        "required": false,
+                        "type": "slice",
+                        "elementKind": "string"
                       }
                     ]
                   }

@@ -112,6 +112,9 @@ type MBeanValue struct {
 	// must point to a composite type, otherwise it must point to
 	// a numeric type.
 	Attribute string `yaml:"attribute"`
+	// The plural form of the `attribute` config above.  Used to derive
+	// multiple metrics from a single MBean.
+	Attributes []string `yaml:"attributes"`
 }
 
 // MBean represents the <MBean> config object in the collectd config for
