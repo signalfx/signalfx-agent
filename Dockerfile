@@ -262,6 +262,7 @@ ARG TARGET_ARCH
 
 RUN apt update &&\
     apt install -y \
+	  chrpath \
 	  curl \
 	  host \
 	  iproute2 \
