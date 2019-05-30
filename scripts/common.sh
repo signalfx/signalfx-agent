@@ -29,7 +29,7 @@ do_docker_build() {
   fi
   if [ "x${BUILD_FOR_ARM64}" == "xyes" ]; then
     cpu_arch="aarch64"
-    build_cpus="--cpuset-cpus=0"
+    build_cpus=""
   fi
 
   cache_flags=

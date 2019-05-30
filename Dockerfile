@@ -135,7 +135,7 @@ RUN wget -O /tmp/Python-${PYTHON_VERSION}.tgz https://www.python.org/ftp/python/
     make && make install
 
 RUN echo "$PYTHONHOME/lib" > /etc/ld.so.conf.d/python.conf && \
-    ldconfig
+    ldconfig $PYTHONHOME/lib/
 ENV PATH=$PYTHONHOME/bin:$PATH
 
 RUN wget -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py && \
@@ -232,7 +232,7 @@ RUN rm -rf $PYTHONHOME/lib/python2.7/config-*-linux-gnu
 ###### Python Plugin Image ######
 ARG DOCKER_ARCH
 
-FROM ${DOCKER_ARCH}collectd as python-plugins
+FROM collectd as python-plugins
 
 RUN apt update &&\
     apt install -y git python-pip wget curl &&\
@@ -337,8 +337,8 @@ COPY --from=collectd /usr/sbin/collectd /opt/root/bin/collectd
 COPY --from=collectd /opt/deps/ /opt/root/lib/
 COPY --from=collectd /usr/lib/collectd/*.so /opt/root/lib/collectd/
 
-COPY scripts/patch-rpath /usr/bin/
-RUN patch-rpath /opt/root
+#COPY scripts/patch-rpath /usr/bin/
+#RUN patch-rpath /opt/root
 
 ###### Final Agent Image #######
 # This build stage is meant as the final target when running the agent in a
@@ -452,7 +452,7 @@ RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
 RUN go get -u golang.org/x/lint/golint &&\
     if [ `uname -m` != "aarch64" ]; then go get github.com/derekparker/delve/cmd/dlv; fi &&\
     go get github.com/tebeka/go2xunit &&\
-    curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.16.0
+    if [ `uname -m` != "aarch64" ]; then curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.16.0; fi
 
 # Get integration test deps in here
 COPY python/setup.py /tmp/

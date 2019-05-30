@@ -99,11 +99,11 @@ endif
 
 .PHONY: deb-package
 deb-%-package:
-	COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) packaging/deb/build $*
+	COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) BUILD_FOR_ARM64="no" packaging/deb/build $*
 
 .PHONY: rpm-package
 rpm-%-package:
-	COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) packaging/rpm/build $*
+	COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) BUILD_FOR_ARM64="no" packaging/rpm/build $*
 
 .PHONY: dev-image
 dev-image:
