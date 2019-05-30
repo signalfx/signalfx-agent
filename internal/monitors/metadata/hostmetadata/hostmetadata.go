@@ -8,7 +8,6 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/metadata/aws/ec2metadata"
 	"github.com/signalfx/golib/metadata/hostmetadata"
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -55,7 +54,6 @@ func (m *Monitor) Configure(conf *Config) error {
 		func() (info, error) { return hostmetadata.GetCPU() },
 		func() (info, error) { return hostmetadata.GetMemory() },
 		func() (info, error) { return hostmetadata.GetOS() },
-		func() (info, error) { return ec2metadata.Get() },
 	}
 
 	intervals := []time.Duration{

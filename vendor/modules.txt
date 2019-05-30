@@ -438,7 +438,6 @@ github.com/signalfx/golib/event
 github.com/signalfx/golib/sfxclient
 github.com/signalfx/golib/trace
 github.com/signalfx/golib/pointer
-github.com/signalfx/golib/metadata/aws/ec2metadata
 github.com/signalfx/golib/metadata/hostmetadata
 github.com/signalfx/golib/web
 github.com/signalfx/golib/log
