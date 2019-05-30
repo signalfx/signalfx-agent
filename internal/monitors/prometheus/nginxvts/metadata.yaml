@@ -9,73 +9,73 @@ monitors:
   metrics:
     nginx_vts_info:
       description: Nginx info
-      included:
+      default:
       type: gauge
     nginx_vts_start_time_seconds:
       description: Nginx start time
-      included:
+      default:
       type: gauge
     nginx_vts_main_connections:
       description: connections
-      included: true
+      default: true
       type: gauge
     nginx_vts_main_shm_usage_bytes:
       description: Shared memory [ngx_http_vhost_traffic_status] info
-      included:
+      default:
       type: gauge
     nginx_vts_server_bytes_total:
       description: The request/response bytes
-      included:
+      default:
       type: cumulative
     nginx_vts_server_requests_total:
       description: The requests counter
-      included: true
+      default: true
       type: cumulative
     nginx_vts_server_request_seconds_total:
       description: The request processing time in seconds
-      included:
+      default:
       type: cumulative
     nginx_vts_server_cache_total:
       description: The requests cache counter
-      included:
+      default:
       type: cumulative
     nginx_vts_server_request_seconds:
       description: The average of request processing times in seconds
-      included: true
+      default: true
       type: gauge
     nginx_vts_server_request_duration_seconds:
       description: The histogram of request processing time
-      included:
+      default:
       type: cumulative
     nginx_vts_upstream_bytes_total:
       description: The request/response bytes
-      included:
+      default:
       type: cumulative
     nginx_vts_upstream_requests_total:
       description: The upstream requests counter
-      included:
+      default:
       type: cumulative
     nginx_vts_upstream_request_seconds_total:
       description: The request Processing time including upstream in seconds
-      included:
+      default:
       type: cumulative
     nginx_vts_upstream_request_seconds:
       description: The average of request processing times including upstream in seconds
-      included: true
+      default: true
       type: gauge
     nginx_vts_upstream_response_seconds_total:
       description: The only upstream response processing time in seconds
-      included:
+      default:
       type: cumulative
     nginx_vts_upstream_response_seconds:
       description: The average of only upstream response processing times in seconds
-      included:
+      default:
       type: gauge
     nginx_vts_upstream_request_duration_seconds:
       description: The histogram of request processing time including upstream
-      included:
+      default:
       type: cumulative
     nginx_vts_upstream_response_duration_seconds:
       description: The histogram of only upstream response processing time
-      included:
+      default:
       type: cumulative

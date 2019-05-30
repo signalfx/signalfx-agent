@@ -65,95 +65,95 @@ monitors:
   metrics:
     pg_blks.heap_hit:
       description: Number of buffer hits
-      included: true
+      default: true
       type: gauge
     pg_blks.heap_read:
       description: Number of disk blocks read
-      included: true
+      default: true
       type: gauge
     pg_blks.idx_hit:
       description: Number of index buffer hits
-      included: true
+      default: true
       type: gauge
     pg_blks.idx_read:
       description: Number of index blocks read
-      included: true
+      default: true
       type: gauge
     pg_blks.tidx_hit:
       description: Number of TOAST index buffer hits
-      included: false
+      default: false
       type: gauge
     pg_blks.tidx_read:
       description: Number of TOAST index blocks read
-      included: false
+      default: false
       type: gauge
     pg_blks.toast_hit:
       description: Number of TOAST buffer hits
-      included: false
+      default: false
       type: gauge
     pg_blks.toast_read:
       description: Number of disk blocks read
-      included: false
+      default: false
       type: gauge
     pg_db_size:
       description: Size of the database on disk, in bytes
-      included: true
+      default: true
       type: gauge
     pg_n_tup_c.del:
       description: Number of delete operations
-      included: true
+      default: true
       type: gauge
     pg_n_tup_c.hot_upd:
       description: Number of update operations not requiring index update
-      included: false
+      default: false
       type: gauge
     pg_n_tup_c.ins:
       description: Number of insert operations
-      included: true
+      default: true
       type: gauge
     pg_n_tup_c.upd:
       description: Number of update operations
-      included: true
+      default: true
       type: gauge
     pg_n_tup_g.dead:
       description: Number of dead rows in the database
-      included: false
+      default: false
       type: gauge
     pg_n_tup_g.live:
       description: Number of live rows in the database
-      included: true
+      default: true
       type: gauge
     pg_numbackends:
       description: Number of server processes
-      included: true
+      default: true
       type: gauge
     pg_scan.idx:
       description: Number of index scans
-      included: true
+      default: true
       type: gauge
     pg_scan.idx_tup_fetch:
       description: Number of rows read from index scans
-      included: true
+      default: true
       type: gauge
     pg_scan.seq:
       description: Number of sequential scans
-      included: true
+      default: true
       type: gauge
     pg_scan.seq_tup_read:
       description: Number of rows read from sequential scans
-      included: true
+      default: true
       type: gauge
     pg_xact.commit:
       description: Number of commits
-      included: true
+      default: true
       type: gauge
     pg_xact.num_deadlocks:
       description: Number of deadlocks detected by the database
-      included: false
+      default: false
       type: gauge
     pg_xact.rollback:
       description: Number of rollbacks
-      included: true
+      default: true
       type: gauge
   monitorType: collectd/postgresql
   properties:

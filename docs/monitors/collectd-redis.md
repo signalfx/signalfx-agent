@@ -41,6 +41,10 @@ Monitor Type: `collectd/redis`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
@@ -58,13 +62,14 @@ The **nested** `sendListLengths` config object has the following fields:
 | `keyPattern` | **yes** | `string` | Can be a globbed pattern (only * is supported), in which case all keys matching that glob will be processed.  The pattern should be placed in single quotes (').  Ex. `'mylist*'` |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
 
-| Name | Type | Included | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `bytes.used_memory` | gauge | ✔ | Number of bytes allocated by Redis |
 | `bytes.used_memory_lua` | gauge |  | Number of bytes used by the Lua engine |
@@ -106,45 +111,35 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.uptime_in_seconds` | gauge |  | Number of seconds up |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - bytes.used_memory_lua
-    - bytes.used_memory_peak
-    - counter.connections_received
-    - counter.lru_clock
-    - counter.used_cpu_sys_children
-    - counter.used_cpu_user_children
-    - gauge.changes_since_last_save
-    - gauge.client_biggest_input_buf
-    - gauge.client_longest_output_list
-    - gauge.connected_slaves
-    - gauge.db0_avg_ttl
-    - gauge.db0_expires
-    - gauge.db0_keys
-    - gauge.instantaneous_ops_per_sec
-    - gauge.key_llen
-    - gauge.latest_fork_usec
-    - gauge.master_last_io_seconds_ago
-    - gauge.mem_fragmentation_ratio
-    - gauge.rdb_bgsave_in_progress
-    - gauge.repl_backlog_first_byte_offset
-    - gauge.uptime_in_days
-    - gauge.uptime_in_seconds
-    monitorType: collectd/redis
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

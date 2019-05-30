@@ -59,6 +59,10 @@ Monitor Type: `telegraf/sqlserver`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
@@ -72,20 +76,21 @@ Monitor Type: `telegraf/sqlserver`
 | `log` | no | `unsigned integer` | Log level to use when accessing the database (**default:** `1`) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
 
-| Name | Type | Included | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
-| `sqlserver_database_io.read_bytes` | gauge |  | Bytes read by the database. |
-| `sqlserver_database_io.read_latency_ms` | gauge |  | Latency in milliseconds reading from the database. |
-| `sqlserver_database_io.reads` | gauge |  | Number of reads from the database. |
-| `sqlserver_database_io.write_bytes` | gauge |  | Bytes written to the database. |
-| `sqlserver_database_io.write_latency_ms` | gauge |  | Latency in milliseconds writing to the database. |
-| `sqlserver_database_io.writes` | gauge |  | Number of writes to the database. |
+| `sqlserver_database_io.read_bytes` | gauge | ✔ | Bytes read by the database. |
+| `sqlserver_database_io.read_latency_ms` | gauge | ✔ | Latency in milliseconds reading from the database. |
+| `sqlserver_database_io.reads` | gauge | ✔ | Number of reads from the database. |
+| `sqlserver_database_io.write_bytes` | gauge | ✔ | Bytes written to the database. |
+| `sqlserver_database_io.write_latency_ms` | gauge | ✔ | Latency in milliseconds writing to the database. |
+| `sqlserver_database_io.writes` | gauge | ✔ | Number of writes to the database. |
 | `sqlserver_memory_clerks.size_kb.bound_trees` | gauge |  | Size in KB of bound trees memory clerk. |
 | `sqlserver_memory_clerks.size_kb.buffer_pool` | gauge |  | Size in KB of buffer pool memory clerk. |
 | `sqlserver_memory_clerks.size_kb.connection_pool` | gauge |  | Size in KB of connection pool memory clerk. |
@@ -102,94 +107,95 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `sqlserver_memory_clerks.size_kb.system_rowset_store` | gauge |  | Size in KB of system rowset store memory clerk. |
 | `sqlserver_performance.active_memory_grant_amount_kb` | gauge |  | Amount of active memory in KB granted. |
 | `sqlserver_performance.active_temp_tables` | gauge |  | Number of active temporary tables. |
-| `sqlserver_performance.background_writer_pages_persec` | gauge |  | Rate per second of pages written in the background. |
-| `sqlserver_performance.backup/restore_throughput_persec` | gauge |  | Rate per second of backup/restore throughput. |
-| `sqlserver_performance.batch_requests_persec` | gauge |  | Rate per second of batch requests. |
+| `sqlserver_performance.background_writer_pages_sec` | gauge |  | Rate per second of pages written in the background. |
+| `sqlserver_performance.backup_restore_throughput_sec` | gauge |  | Rate per second of backup/restore throughput. |
+| `sqlserver_performance.batch_requests_sec` | gauge | ✔ | Rate per second of batch requests. |
 | `sqlserver_performance.blocked_tasks` | gauge |  | Number of blocked tasks. |
-| `sqlserver_performance.buffer_cache_hit_ratio` | gauge |  | Buffer cache hit ration. |
-| `sqlserver_performance.bytes_received_from_replica_persec` | gauge |  | Rate per second of bytes received from replicas. |
-| `sqlserver_performance.bytes_sent_to_replica_persec` | gauge |  | Rate per second of bytes sent to replicas. |
-| `sqlserver_performance.bytes_sent_to_transport_persec` | gauge |  | Rate per second of bytes sent to transports. |
-| `sqlserver_performance.checkpoint_pages_persec` | gauge |  | Rate per second of checkpoint pages. |
+| `sqlserver_performance.buffer_cache_hit_ratio` | gauge | ✔ | Buffer cache hit ration. |
+| `sqlserver_performance.bytes_received_from_replica_sec` | gauge |  | Rate per second of bytes received from replicas. |
+| `sqlserver_performance.bytes_sent_to_replica_sec` | gauge |  | Rate per second of bytes sent to replicas. |
+| `sqlserver_performance.bytes_sent_to_transport_sec` | gauge |  | Rate per second of bytes sent to transports. |
+| `sqlserver_performance.checkpoint_pages_sec` | gauge |  | Rate per second of checkpoint pages. |
 | `sqlserver_performance.cpu_limit_violation_count` | gauge |  | Number of cpu limit violations. |
-| `sqlserver_performance.cpu_usage_percent` | gauge |  | CPU usage percentage. |
+| `sqlserver_performance.cpu_usage_pct` | gauge |  | CPU usage percentage. |
 | `sqlserver_performance.cpu_usage_time` | gauge |  | CPU usage time. |
-| `sqlserver_performance.data_files_size_kb` | gauge |  | Size in KB of data files. |
-| `sqlserver_performance.disk_read_bytes_persec` | gauge |  | Rate per second of bytes from disk. |
-| `sqlserver_performance.disk_read_io_persec` | gauge |  | Rate per second of read operations from disk. |
-| `sqlserver_performance.disk_read_io_throttled_persec` | gauge |  | Rate per second of throttled read operations. |
-| `sqlserver_performance.disk_write_bytes_persec` | gauge |  | Rate per second of bytes written to disk. |
-| `sqlserver_performance.disk_write_io_persec` | gauge |  | Rate per second of write operations to disk. |
-| `sqlserver_performance.disk_write_io_throttled_persec` | gauge |  | Rate per second of write operations throttled. |
-| `sqlserver_performance.errors_persec` | gauge |  | Rate of errors per second. |
-| `sqlserver_performance.flow_control_persec` | gauge |  | Rate per second of flow control. |
-| `sqlserver_performance.flow_control_time_ms_persec` | gauge |  | Rate per second of ms of flow control time. |
-| `sqlserver_performance.forwarded_records_persec` | gauge |  | Rate per second of record forwarding. |
-| `sqlserver_performance.free_list_stalls_persec` | gauge |  | Rate per second of stalled free list. |
+| `sqlserver_performance.data_file_size_kb` | gauge |  | Size in KB of data files. |
+| `sqlserver_performance.disk_read_bytes_sec` | gauge |  | Rate per second of bytes from disk. |
+| `sqlserver_performance.disk_read_io_sec` | gauge |  | Rate per second of read operations from disk. |
+| `sqlserver_performance.disk_read_io_throttled_sec` | gauge | ✔ | Rate per second of throttled read operations. |
+| `sqlserver_performance.disk_write_bytes_sec` | gauge |  | Rate per second of bytes written to disk. |
+| `sqlserver_performance.disk_write_io_sec` | gauge |  | Rate per second of write operations to disk. |
+| `sqlserver_performance.disk_write_io_throttled_sec` | gauge | ✔ | Rate per second of write operations throttled. |
+| `sqlserver_performance.errors_sec` | gauge |  | Rate of errors per second. |
+| `sqlserver_performance.flow_control_sec` | gauge |  | Rate per second of flow control. |
+| `sqlserver_performance.flow_control_time_ms_sec` | gauge |  | Rate per second of ms of flow control time. |
+| `sqlserver_performance.forwarded_records_sec` | gauge |  | Rate per second of record forwarding. |
+| `sqlserver_performance.free_list_stalls_sec` | gauge |  | Rate per second of stalled free list. |
 | `sqlserver_performance.free_space_in_tempdb_kb` | gauge |  | Free space in KB of tempdb. |
-| `sqlserver_performance.full_scans_persec` | gauge |  | Rate per second of full scans. |
-| `sqlserver_performance.index_searches_persec` | gauge |  | Rate per second of index searches. |
-| `sqlserver_performance.latch_waits_persec` | gauge |  | Rate per second of latch waits. |
-| `sqlserver_performance.lazy_writes_persec` | gauge |  | Rate per second of lazy writes. |
-| `sqlserver_performance.lock_timeouts_persec` | gauge |  | Rate per second of lock timeouts. |
-| `sqlserver_performance.lock_wait_count` | gauge |  | Number of lock waits. |
+| `sqlserver_performance.full_scans_sec` | gauge |  | Rate per second of full scans. |
+| `sqlserver_performance.index_searches_sec` | gauge |  | Rate per second of index searches. |
+| `sqlserver_performance.latch_waits_sec` | gauge |  | Rate per second of latch waits. |
+| `sqlserver_performance.lazy_writes_sec` | gauge |  | Rate per second of lazy writes. |
+| `sqlserver_performance.lock_timeouts_sec` | gauge |  | Rate per second of lock timeouts. |
+| `sqlserver_performance.lock_wait_count` | gauge | ✔ | Number of lock waits. |
 | `sqlserver_performance.lock_wait_time` | gauge |  | Lock wait time. |
-| `sqlserver_performance.lock_waits_persec` | gauge |  | Rate per second of lock waits. |
+| `sqlserver_performance.lock_waits_sec` | gauge |  | Rate per second of lock waits. |
 | `sqlserver_performance.log_apply_pending_queue` | gauge |  | Size of the log apply pending queue. |
 | `sqlserver_performance.log_apply_ready_queue` | gauge |  | Size of log apply ready queue. |
-| `sqlserver_performance.log_bytes_flushed_persec` | gauge |  | Rate per second of log bytes flushed. |
-| `sqlserver_performance.log_bytes_received_persec` | gauge |  | Rate per second of log bytes received. |
-| `sqlserver_performance.log_files_size_kb` | gauge |  | Size in KB of log file. |
-| `sqlserver_performance.log_files_used_size_kb` | gauge |  | Size in KB of log file used. |
+| `sqlserver_performance.log_bytes_flushed_sec` | gauge |  | Rate per second of log bytes flushed. |
+| `sqlserver_performance.log_bytes_received_sec` | gauge |  | Rate per second of log bytes received. |
+| `sqlserver_performance.log_file_size_kb` | gauge |  | Size in KB of log file. |
+| `sqlserver_performance.log_file_used_size_kb` | gauge |  | Size in KB of log file used. |
 | `sqlserver_performance.log_flush_wait_time` | gauge |  | Time spent flushing the log. |
-| `sqlserver_performance.log_flushes_persec` | gauge |  | Rate per second of log flushes. |
+| `sqlserver_performance.log_flushes_sec` | gauge |  | Rate per second of log flushes. |
 | `sqlserver_performance.log_send_queue` | gauge |  | Size of the log send queue. |
-| `sqlserver_performance.logins_persec` | gauge |  | Rate of logins per second. |
-| `sqlserver_performance.logouts_persec` | gauge |  | Rate of logouts per second. |
+| `sqlserver_performance.logins_sec` | gauge |  | Rate of logins per second. |
+| `sqlserver_performance.logouts_sec` | gauge |  | Rate of logouts per second. |
 | `sqlserver_performance.memory_broker_clerk_size` | gauge |  | Size of memory broker clerk. |
 | `sqlserver_performance.memory_grants_outstanding` | gauge |  | Number of outstanding memory grants. |
 | `sqlserver_performance.memory_grants_pending` | gauge |  | Number of pending memory grants. |
-| `sqlserver_performance.number_of_deadlocks_persec` | gauge |  | Rate of deadlocks per second. |
+| `sqlserver_performance.number_of_deadlocks_sec` | gauge |  | Rate of deadlocks per second. |
 | `sqlserver_performance.page_life_expectancy` | gauge |  | Page life expectancy. |
-| `sqlserver_performance.page_lookups_persec` | gauge |  | Rate of page look ups per second. |
-| `sqlserver_performance.page_reads_persec` | gauge |  | Rate of page reads per second. |
-| `sqlserver_performance.page_splits_persec` | gauge |  | Rate of page splits per second. |
-| `sqlserver_performance.page_writes_persec` | gauge |  | Rate of page writes per second. |
-| `sqlserver_performance.percent_log_used` | gauge |  | Percentage of log used. |
-| `sqlserver_performance.processes_blocked` | gauge |  | Number of blocked processes. |
+| `sqlserver_performance.page_lookups_sec` | gauge |  | Rate of page look ups per second. |
+| `sqlserver_performance.page_reads_sec` | gauge |  | Rate of page reads per second. |
+| `sqlserver_performance.page_splits_sec` | gauge |  | Rate of page splits per second. |
+| `sqlserver_performance.page_writes_sec` | gauge |  | Rate of page writes per second. |
+| `sqlserver_performance.pct_log_used` | gauge |  | Percentage of log used. |
+| `sqlserver_performance.processes_blocked` | gauge | ✔ | Number of blocked processes. |
+| `sqlserver_performance.query` | gauge |  | [User settable](https://docs.microsoft.com/en-us/sql/relational-databases/performance-monitor/sql-server-user-settable-object?view=sql-server-2017) performance counters |
 | `sqlserver_performance.queued_request_count` | gauge |  | Number of queued requests. |
 | `sqlserver_performance.queued_requests` | gauge |  | Average number of queued requests. |
-| `sqlserver_performance.readahead_pages_persec` | gauge |  | Rate per second of read ahead pages. |
-| `sqlserver_performance.receives_from_replica_persec` | gauge |  | Rate receives from replicas per second. |
+| `sqlserver_performance.readahead_pages_sec` | gauge |  | Rate per second of read ahead pages. |
+| `sqlserver_performance.receives_from_replica_sec` | gauge |  | Rate receives from replicas per second. |
 | `sqlserver_performance.recovery_queue` | gauge |  | Size of recovery queue. |
-| `sqlserver_performance.redone_bytes_persec` | gauge |  | Rate of redone bytes per second. |
+| `sqlserver_performance.redone_bytes_sec` | gauge |  | Rate of redone bytes per second. |
 | `sqlserver_performance.reduced_memory_grant_count` | gauge |  | Number of reduced memory grants. |
 | `sqlserver_performance.request_count` | gauge |  | Number of requests. |
-| `sqlserver_performance.requests_completed_persec` | gauge |  | Rate of completed requests per second. |
-| `sqlserver_performance.resent_messages_persec` | gauge |  | Rate of resent messages per second. |
-| `sqlserver_performance.sends_to_replica_persec` | gauge |  | Rate of sends to replicas per second. |
-| `sqlserver_performance.sends_to_transport_persec` | gauge |  | Rate of sends to transports per second. |
-| `sqlserver_performance.sql_compilations_persec` | gauge |  | Rate of sql compilations per second. |
-| `sqlserver_performance.sql_re-compilations_persec` | gauge |  | Rate of sql recompilations per sec. |
+| `sqlserver_performance.requests_completed_sec` | gauge |  | Rate of completed requests per second. |
+| `sqlserver_performance.resent_messages_sec` | gauge |  | Rate of resent messages per second. |
+| `sqlserver_performance.sends_to_replica_sec` | gauge |  | Rate of sends to replicas per second. |
+| `sqlserver_performance.sends_to_transport_sec` | gauge |  | Rate of sends to transports per second. |
+| `sqlserver_performance.sql_compilations_sec` | gauge | ✔ | Rate of sql compilations per second. |
+| `sqlserver_performance.sql_re-compilations_sec` | gauge | ✔ | Rate of sql recompilations per sec. |
 | `sqlserver_performance.target_server_memory_kb` | gauge |  | Size of target server memory in KB. |
 | `sqlserver_performance.temp_tables_creation_rate` | gauge |  | Rate of temporary table creations. |
 | `sqlserver_performance.temp_tables_for_destruction` | gauge |  | Number of temporary tables marked for destruction. |
 | `sqlserver_performance.total_server_memory_kb` | gauge |  | Total server memory in KB. |
 | `sqlserver_performance.transaction_delay` | gauge |  | Number of delayed transactions. |
-| `sqlserver_performance.transactions_persec` | gauge |  | Rate of transactions per second. |
+| `sqlserver_performance.transactions_sec` | gauge |  | Rate of transactions per second. |
 | `sqlserver_performance.used_memory_kb` | gauge |  | Used memory in KB. |
-| `sqlserver_performance.user_connections` | gauge |  | Number of user connections. |
+| `sqlserver_performance.user_connections` | gauge | ✔ | Number of user connections. |
 | `sqlserver_performance.version_store_size_kb` | gauge |  | Size of the version store in KB. |
-| `sqlserver_performance.write_transactions_persec` | gauge |  | Rate of write transactions per second. |
+| `sqlserver_performance.write_transactions_sec` | gauge |  | Rate of write transactions per second. |
 | `sqlserver_performance.xtp_memory_used_kb` | gauge |  | Size of xtp memory used in KB. |
 | `sqlserver_server_properties.available_storage_mb` | gauge |  | Available storage in MB. |
 | `sqlserver_server_properties.cpu_count` | gauge |  | Number of cpus. |
-| `sqlserver_server_properties.db_offline` | gauge |  | Number of offline databases. |
-| `sqlserver_server_properties.db_online` | gauge |  | Number of online databases. |
-| `sqlserver_server_properties.db_recovering` | gauge |  | Number of databases recovering. |
-| `sqlserver_server_properties.db_recoveryPending` | gauge |  | Number of databases pending recovery. |
-| `sqlserver_server_properties.db_restoring` | gauge |  | Number of databases restoring. |
-| `sqlserver_server_properties.db_suspect` | gauge |  | Number of suspect databases. |
+| `sqlserver_server_properties.db_offline` | gauge | ✔ | Number of offline databases. |
+| `sqlserver_server_properties.db_online` | gauge | ✔ | Number of online databases. |
+| `sqlserver_server_properties.db_recovering` | gauge | ✔ | Number of databases recovering. |
+| `sqlserver_server_properties.db_recoverypending` | gauge | ✔ | Number of databases pending recovery. |
+| `sqlserver_server_properties.db_restoring` | gauge | ✔ | Number of databases restoring. |
+| `sqlserver_server_properties.db_suspect` | gauge | ✔ | Number of suspect databases. |
 | `sqlserver_server_properties.engine_edition` | gauge |  | Sql server engine edition version. |
 | `sqlserver_server_properties.server_memory` | gauge |  | Amount of memory on the sql server. |
 | `sqlserver_server_properties.total_storage_mb` | gauge |  | Amount of storage in MB of the sql server. |
@@ -201,6 +207,35 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `sqlserver_waitstats.waiting_tasks_count` | gauge |  | Time in milliseconds |
 
 
+
+### Non-default metrics (version 4.7.0+)
+
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
+
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
+
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

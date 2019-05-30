@@ -4,7 +4,7 @@ monitors:
     Monitors Java services that expose metrics on
     JMX using collectd's GenericJMX plugin.
 
-    See the following for more information 
+    See the following for more information
     - https://github.com/signalfx/integrations/tree/master/collectd-genericjmx
     - https://collectd.org/documentation/manpages/collectd-java.5.shtml
     - https://collectd.org/wiki/index.php/Plugin:GenericJMX
@@ -86,5 +86,45 @@ monitors:
 
      - https://realjenius.com/2012/11/21/java7-jmx-tunneling-freedom/
   metrics:
+    gauge.jvm.threads.count:
+      description: Number of JVM threads
+      group: jvm
+      default: true
+      type: gauge
+    gauge.loaded_classes:
+      description: Number of classes loaded in the JVM
+      group: jvm
+      default: true
+      type: gauge
+    invocations:
+      description: Total number of garbage collection events
+      group: jvm
+      default: true
+      type: cumulative
+    jmx_memory.committed:
+      description: Amount of memory guaranteed to be available in bytes
+      group: jvm
+      default: true
+      type: gauge
+    jmx_memory.max:
+      description: Maximum amount of memory that can be used in bytes
+      group: jvm
+      default: true
+      type: gauge
+    jmx_memory.used:
+      description: Current memory usage in bytes
+      group: jvm
+      default: true
+      type: gauge
+    total_time_in_ms.collection_time:
+      description: Amount of time spent garbage collecting in milliseconds
+      group: jvm
+      default: true
+      type: cumulative
+    jmx_memory.init:
+      description: Amount of initial memory at startup in bytes
+      group: jvm
+      default: true
+      type: gauge
   monitorType: collectd/genericjmx
   properties:

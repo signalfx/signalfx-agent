@@ -49,6 +49,20 @@ func (ac AnnotationConfigs) FilterByPortOrPortName(port int32, portName string) 
 	return
 }
 
+func (ac AnnotationConfigs) GroupByPortNumber() map[int32]AnnotationConfigs {
+	out := map[int32]AnnotationConfigs{}
+	for i := range ac {
+		port := ac[i].Port
+		if port == 0 {
+			// Only deal with annotations that specify a port by number
+			continue
+		}
+
+		out[port] = append(out[port], ac[i])
+	}
+	return out
+}
+
 func parseAgentAnnotation(key, value string, pod *v1.Pod) (*AnnotationConfig, error) {
 	groups := annotationConfigRegexp.FindStringSubmatch(key)
 	if groups[0] == "" {
@@ -82,19 +96,33 @@ func parseAgentAnnotation(key, value string, pod *v1.Pod) (*AnnotationConfig, er
 	return conf, nil
 }
 
-func annotationsForPod(pod *v1.Pod) AnnotationConfigs {
+func annotationConfigsForPod(pod *v1.Pod, additionalPortAnnotations map[string]bool) AnnotationConfigs {
 	var confs []*AnnotationConfig
 
 	for key, value := range pod.Annotations {
-		if !strings.HasPrefix(key, "agent.signalfx.com") {
-			continue
+		var annotationConf *AnnotationConfig
+		if strings.HasPrefix(key, "agent.signalfx.com") {
+			var err error
+			annotationConf, err = parseAgentAnnotation(key, value, pod)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"error": err,
+				}).Error("Invalid K8s agent annotation")
+				continue
+			}
+		} else if additionalPortAnnotations[key] {
+			port, err := strconv.Atoi(value)
+			if err != nil {
+				log.WithField("annotation", key).WithField("value", value).Error("K8s annotation should be a port number")
+				continue
+			}
+			annotationConf = &AnnotationConfig{
+				AnnotationKey: key,
+				Port:          int32(port),
+			}
 		}
 
-		annotationConf, err := parseAgentAnnotation(key, value, pod)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-			}).Error("Invalid K8s agent annotation")
+		if annotationConf == nil {
 			continue
 		}
 

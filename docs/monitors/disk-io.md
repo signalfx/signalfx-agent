@@ -25,6 +25,10 @@ Monitor Type: `disk-io`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `disks` | no | `list of strings` | The devices to include/exclude. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). (**default:** `[* !/^loop[0-9]+$/ !/^dm-[0-9]+$/]`) |
@@ -32,59 +36,31 @@ Monitor Type: `disk-io`
 | `printValid` | no | `bool` | (Windows Only) Print out the configurations that match available performance counters.  This used for debugging. (**default:** `false`) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `disk_merged.read` | cumulative |  | (Linux Only) The number of disk reads merged into single physical disk access operations. |
-| `disk_merged.write` | cumulative |  | (Linux Only) The number of disk writes merged into single physical disk access operations. |
-| `disk_octets.avg_read` | gauge |  | (Windows Only) The average number of octets (bytes) read. |
-| `disk_octets.avg_write` | gauge |  | (Windows Only) The average number of octets (bytes) written. |
-| `disk_octets.read` | cumulative |  | (Linux Only) The number of bytes (octets) read from a disk. |
-| `disk_octets.write` | cumulative |  | (Linux Only) The number of bytes (octets) written to a disk. |
-| `disk_ops.avg_read` | gauge |  | (Windows Only) The average disk read queue length. |
-| `disk_ops.avg_write` | gauge |  | (Windows Only) The average disk write queue length. |
-| `disk_ops.read` | cumulative | ✔ | (Linux Only) The number of disk read operations. |
-| `disk_ops.write` | cumulative | ✔ | (Linux Only) The number of disk write operations. |
-| `disk_time.avg_read` | gauge |  | (Windows Only) The average time spent reading from the disk. |
-| `disk_time.avg_write` | gauge |  | (Windows Only) The average time spent writing to the disk |
-| `disk_time.read` | cumulative |  | (Linux Only) The average amount of time it took to do a read operation. |
-| `disk_time.write` | cumulative |  | (Linux Only) The average amount of time it took to do a write operation. |
+The following table lists the metrics available for this monitor.
+This monitor emits all metrics by default; however, **none are categorized as [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) -- they are all custom**.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
-
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
-
-```yaml
-
-metricsToInclude:
-  - metricNames:
-    - disk_merged.read
-    - disk_merged.write
-    - disk_octets.avg_read
-    - disk_octets.avg_write
-    - disk_octets.read
-    - disk_octets.write
-    - disk_ops.avg_read
-    - disk_ops.avg_write
-    - disk_time.avg_read
-    - disk_time.avg_write
-    - disk_time.read
-    - disk_time.write
-    monitorType: disk-io
-```
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `disk_merged.read` | cumulative | (Linux Only) The number of disk reads merged into single physical disk access operations. |
+| `disk_merged.write` | cumulative | (Linux Only) The number of disk writes merged into single physical disk access operations. |
+| `disk_octets.avg_read` | gauge | (Windows Only) The average number of octets (bytes) read. |
+| `disk_octets.avg_write` | gauge | (Windows Only) The average number of octets (bytes) written. |
+| `disk_octets.read` | cumulative | (Linux Only) The number of bytes (octets) read from a disk. |
+| `disk_octets.write` | cumulative | (Linux Only) The number of bytes (octets) written to a disk. |
+| `disk_ops.avg_read` | gauge | (Windows Only) The average disk read queue length. |
+| `disk_ops.avg_write` | gauge | (Windows Only) The average disk write queue length. |
+| `disk_ops.read` | cumulative | (Linux Only) The number of disk read operations. |
+| `disk_ops.write` | cumulative | (Linux Only) The number of disk write operations. |
+| `disk_time.avg_read` | gauge | (Windows Only) The average time spent reading from the disk. |
+| `disk_time.avg_write` | gauge | (Windows Only) The average time spent writing to the disk |
+| `disk_time.read` | cumulative | (Linux Only) The average amount of time it took to do a read operation. |
+| `disk_time.write` | cumulative | (Linux Only) The average amount of time it took to do a write operation. |
 
 
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

@@ -40,7 +40,7 @@ monitors:
     sfxagent.hostmetadata:
       description: The time the hostmetadata monitor has been running in seconds.  It
         includes dimensional metadata about the host and agent.
-      included: true
+      default: true
       type: gauge
   monitorType: host-metadata
   properties:

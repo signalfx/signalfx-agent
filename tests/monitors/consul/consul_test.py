@@ -1,67 +1,68 @@
-import string
 from functools import partial as p
-from pathlib import Path
 
 import pytest
-
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_datapoint_with_metric_name, tcp_socket_open
-from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
-from tests.helpers.util import (
-    container_ip,
-    get_monitor_dims_from_selfdescribe,
-    get_monitor_metrics_from_selfdescribe,
-    run_container,
-    wait_for,
-)
+from tests.helpers.assertions import has_datapoint, tcp_socket_open
+from tests.helpers.metadata import Metadata
+from tests.helpers.util import container_ip, run_container, wait_for, wait_for_assertion
+from tests.helpers.verify import verify
 
 pytestmark = [pytest.mark.collectd, pytest.mark.consul, pytest.mark.monitor_with_endpoints]
 
-SCRIPT_DIR = Path(__file__).parent.resolve()
-CONSUL_CONFIG = string.Template(
-    """
-monitors:
-  - type: collectd/consul
-    host: $host
-    port: 8500
-    enhancedMetrics: true
-"""
-)
+METADATA = Metadata.from_package("collectd/consul")
+
+EXPECTED_DEFAULTS = METADATA.default_metrics - {
+    # We don't get these with the test service of consul for
+    # some reason, maybe investigate why.
+    "gauge.consul.network.node.latency.avg",
+    "gauge.consul.serf.queue.Event.avg",
+    "gauge.consul.serf.member.left",
+    "gauge.consul.consul.leader.reconcile.avg",
+    "gauge.consul.network.node.latency.max",
+    "gauge.consul.network.node.latency.min",
+    "gauge.consul.raft.leader.lastContact.avg",
+    "gauge.consul.raft.leader.lastContact.max",
+    "gauge.consul.serf.queue.Event.max",
+    "gauge.consul.raft.leader.lastContact.min",
+    "gauge.consul.network.dc.latency.avg",
+}
 
 
-def test_consul():
-    with run_container("consul:0.9.3") as consul_cont:
+def test_consul_defaults():
+    with run_container("consul:1.4.4") as consul_cont:
         host = container_ip(consul_cont)
-        config = CONSUL_CONFIG.substitute(host=host)
-
         assert wait_for(p(tcp_socket_open, host, 8500), 60), "consul service didn't start"
 
-        with Agent.run(config) as agent:
-            assert wait_for(
-                p(has_datapoint_with_metric_name, agent.fake_services, "gauge.consul.catalog.services.total"), 60
-            ), "Didn't get consul datapoints"
+        with Agent.run(
+            f"""
+         monitors:
+           - type: collectd/consul
+             host: {host}
+             port: 8500
+             enhancedMetrics: false
+         """
+        ) as agent:
+            verify(agent, EXPECTED_DEFAULTS)
 
 
-@pytest.mark.kubernetes
-def test_consul_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = SCRIPT_DIR / "consul-k8s.yaml"
-    monitors = [
-        {
-            "type": "collectd/consul",
-            "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace),
-            "aclToken": "testing123",
-            "signalFxAccessToken": "testing123",
-            "enhancedMetrics": True,
-        }
-    ]
-    run_k8s_monitors_test(
-        agent_image,
-        minikube,
-        monitors,
-        namespace=k8s_namespace,
-        yamls=[yaml],
-        observer=k8s_observer,
-        expected_metrics=get_monitor_metrics_from_selfdescribe(monitors[0]["type"]),
-        expected_dims=get_monitor_dims_from_selfdescribe(monitors[0]["type"]),
-        test_timeout=k8s_test_timeout,
-    )
+def test_consul_enhanced():
+    with run_container("consul:1.4.4") as consul_cont:
+        host = container_ip(consul_cont)
+        assert wait_for(p(tcp_socket_open, host, 8500), 60), "consul service didn't start"
+
+        with Agent.run(
+            f"""
+         monitors:
+           - type: collectd/consul
+             host: {host}
+             port: 8500
+             enhancedMetrics: true
+         """
+        ) as agent:
+            target_metric = "gauge.consul.serf.events.consul:new-leader"
+            assert target_metric in METADATA.nondefault_metrics
+
+            def test():
+                assert has_datapoint(agent.fake_services, metric_name=target_metric)
+
+            wait_for_assertion(test)

@@ -7,7 +7,7 @@ monitors:
   metrics:
     uptime:
       description: Seconds since system boot
-      included: true
+      default: true
       type: gauge
   monitorType: collectd/uptime
   properties:

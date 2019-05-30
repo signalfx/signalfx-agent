@@ -17,6 +17,10 @@ Monitor Type: `collectd/python`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | no | `string` | Host will be filled in by auto-discovery if this monitor has a discovery rule.  It can then be used under pluginConfig by the template `{{.Host}}` |
@@ -28,8 +32,7 @@ Monitor Type: `collectd/python`
 
 
 
-
-
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

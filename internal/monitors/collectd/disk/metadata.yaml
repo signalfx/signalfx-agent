@@ -9,36 +9,48 @@ monitors:
     disk_merged.read:
       description: The number of disk reads merged into single physical disk access
         operations.
-      included: false
+      default: false
       type: cumulative
     disk_merged.write:
       description: The number of disk writes merged into single physical disk access
         operations.
-      included: false
+      default: false
       type: cumulative
     disk_octets.read:
       description: The number of bytes (octets) read from a disk.
-      included: false
+      default: false
       type: cumulative
     disk_octets.write:
       description: The number of bytes (octets) written to a disk.
-      included: false
+      default: false
       type: cumulative
     disk_ops.read:
       description: The number of disk read operations.
-      included: true
+      default: true
       type: cumulative
     disk_ops.write:
       description: The number of disk write operations.
-      included: true
+      default: true
       type: cumulative
     disk_time.read:
       description: The average amount of time it took to do a read operation.
-      included: false
+      default: false
       type: cumulative
     disk_time.write:
       description: The average amount of time it took to do a write operation.
-      included: false
+      default: false
       type: cumulative
+    disk_io_time.weighted_io_time:
+      description: Amount of time spent doing IO in ms multiplied by the queue length
+      default: false
+      type: cumulative
+    disk_io_time.io_time:
+      description: Amount of time spent doing IO in ms
+      default: false
+      type: cumulative
+    pending_operations:
+      description: Number of pending operations
+      default: false
+      type: gauge
   monitorType: collectd/disk
   properties:

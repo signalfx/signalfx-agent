@@ -11,7 +11,7 @@ import (
 )
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
 				MonitorCore: pyrunner.New("sfxcollectd"),
@@ -33,6 +33,14 @@ type Config struct {
 	ClientCertificate    string `yaml:"clientCertificate"`
 	ClientKey            string `yaml:"clientKey"`
 	SignalFxAccessToken  string `yaml:"signalFxAccessToken" neverLog:"true"`
+}
+
+// GetExtraMetrics takes into account the EnhancedMetrics flag
+func (c *Config) GetExtraMetrics() []string {
+	if c.EnhancedMetrics != nil && *c.EnhancedMetrics {
+		return []string{"*"}
+	}
+	return nil
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface

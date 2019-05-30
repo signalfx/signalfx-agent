@@ -18,7 +18,7 @@
     - tests
 
 - name: etcd
-  version: v1.0.0
+  version: v2.0.0
   repo: signalfx/collectd-etcd
 
 - name: hadoop
@@ -50,7 +50,7 @@
   repo: signalfx/collectd-marathon
 
 - name: mongodb
-  version: v1.2.2
+  version: v1.2.3
   repo: signalfx/collectd-mongodb
   pip_packages:
     - pymongo[tls]==3.3.1
@@ -87,7 +87,7 @@
   repo: signalfx/collectd-spark
 
 - name: zookeeper
-  version: v0.0.4
+  version: v0.0.5
   repo: signalfx/collectd-zookeeper
 
 - name: vmstat

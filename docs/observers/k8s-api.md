@@ -26,13 +26,14 @@ Observer Type: `k8s-api`
 | --- | --- | --- | --- |
 | `namespace` | no | `string` | If specified, only pods within the given namespace on the same node as the agent will be discovered. If blank, all pods on the same node as the agent will be discovered. |
 | `kubernetesAPI` | no | `object (see below)` | Configuration for the K8s API client |
+| `additionalPortAnnotations` | no | `list of strings` | A list of annotation names that should be used to infer additional ports to be discovered on a particular pod.  The pod's annotation value should be a port number.  This is useful for annotations like `prometheus.io/port: 9230`.  If you don't already have preexisting annotations like this, we recommend using the [SignalFx-specific annotations](https://docs.signalfx.com/en/latest/integrations/agent/kubernetes-setup.html#config-via-k8s-annotations). |
 
 
 The **nested** `kubernetesAPI` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `authType` | no | `string` | How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), or `serviceAccount` (to use the standard service account token provided to the agent pod). (**default:** `serviceAccount`) |
+| `authType` | no | `string` | How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), `serviceAccount` (to use the standard service account token provided to the agent pod), or `kubeConfig` to use credentials from `~/.kube/config`. (**default:** `serviceAccount`) |
 | `skipVerify` | no | `bool` | Whether to skip verifying the TLS cert from the API server.  Almost never needed. (**default:** `false`) |
 | `clientCertPath` | no | `string` | The path to the TLS client cert on the pod's filesystem, if using `tls` auth. |
 | `clientKeyPath` | no | `string` | The path to the TLS client key on the pod's filesystem, if using `tls` auth. |

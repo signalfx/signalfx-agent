@@ -10,7 +10,7 @@ import (
 )
 
 {{if (len .monitors) eq 1 }}
-const monitorType = "{{(index .monitors 0).MonitorType}}"
+const {{"monitorType" | formatVariable}} = "{{(index .monitors 0).MonitorType}}"
 {{end}}
 
 {{with .groupMetricsMap}}
@@ -21,7 +21,7 @@ const (
 )
 {{end}}
 
-var groupSet = map[string]bool {
+var {{"groupSet" | formatVariable}} = map[string]bool {
 {{- range $group, $metrics := .groupMetricsMap}}
 	{{(printf "group.%s" $group) | formatVariable}}: true,
 {{- end}}
@@ -38,15 +38,19 @@ const (
 )
 {{end}}
 
-var metricSet = map[string]monitors.MetricInfo {
+var {{"metricSet" | formatVariable}} = map[string]monitors.MetricInfo {
 {{- range $metric, $info := .metrics}}
-	{{$metric | formatVariable}}: {Type: {{$info.Type | convertMetricType}}},
+	{{- if $info.Group}}
+		{{$metric | formatVariable}}: {Type: {{$info.Type | convertMetricType}}, Group: {{$info.Group | deref | printf "group.%s" | formatVariable}}},
+	{{- else}}
+		{{$metric | formatVariable}}: {Type: {{$info.Type | convertMetricType}}},
+	{{- end}}
 {{- end}}
 }
 
-var includedMetrics = map[string]bool {
+var {{"defaultMetrics" | formatVariable}} = map[string]bool {
 {{- range $metric, $info := .metrics}}
-{{- if $info.Included}}
+{{- if $info.Default}}
 	{{$metric | formatVariable}}: true,
 {{- with $info.Alias}}
 	{{. | formatVariable}}: true,
@@ -55,7 +59,7 @@ var includedMetrics = map[string]bool {
 {{- end}}
 }
 
-var groupMetricsMap = map[string][]string {
+var {{"groupMetricsMap" | formatVariable}} = map[string][]string {
 {{- range $group, $metrics := .groupMetricsMap}}
 	{{(printf "group.%s" $group) | formatVariable}}: []string {
 		{{- range $metrics}}
@@ -69,13 +73,13 @@ var groupMetricsMap = map[string][]string {
 var {{if gt (len $.monitors) 1 -}}
 {{- (printf "%s.%s" .MonitorType "monitorMetadata") | formatVariable -}}
 {{else -}}
-monitorMetadata{{end}} = monitors.Metadata{
+{{"monitorMetadata" | formatVariable}}{{end}} = monitors.Metadata{
 	MonitorType: "{{.MonitorType}}",
-	IncludedMetrics: includedMetrics,
-	Metrics: metricSet,
+	DefaultMetrics: {{"defaultMetrics" | formatVariable}},
+	Metrics: {{"metricSet" | formatVariable}},
 	MetricsExhaustive: {{.MetricsExhaustive}},
-	Groups: groupSet,
-	GroupMetricsMap: groupMetricsMap,
+	Groups: {{"groupSet" | formatVariable}},
+	GroupMetricsMap: {{"groupMetricsMap" | formatVariable}},
 	SendAll: {{ .SendAll }},
 }
 {{end}}

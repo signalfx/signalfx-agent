@@ -1,16 +1,18 @@
-import yaml
+from collections import defaultdict
 
+import yaml
 from tests.paths import REPO_ROOT_DIR
 
 
 class Metadata:
     """Metadata information like metrics and dimensions for a monitor"""
 
-    def __init__(self, monitor_type, included_metrics, nonincluded_metrics, dims):
+    def __init__(self, monitor_type, default_metrics, nondefault_metrics, metrics_by_group, dims):
         self.monitor_type = monitor_type
-        self.included_metrics = included_metrics
-        self.nonincluded_mertics = nonincluded_metrics
-        self.all_metrics = self.included_metrics | self.nonincluded_mertics
+        self.default_metrics = default_metrics
+        self.nondefault_metrics = nondefault_metrics
+        self.all_metrics = self.default_metrics | self.nondefault_metrics
+        self.metrics_by_group = metrics_by_group
         self.dims = dims
 
     @classmethod
@@ -21,11 +23,18 @@ class Metadata:
             doc = yaml.safe_load(fd)
             monitor = _find_monitor(doc["monitors"], mon_type)
 
+            metrics_by_group = defaultdict(set)
+            for metric, info in (monitor.get("metrics") or {}).items():
+                group = info.get("group")
+                if group:
+                    metrics_by_group[group].add(metric)
+
             return cls(
                 monitor_type=monitor["monitorType"],
-                included_metrics=frozenset(_get_monitor_metrics(monitor, included=True)),
-                nonincluded_metrics=frozenset(_get_monitor_metrics(monitor, included=False)),
-                dims=frozenset(_get_monitor_dims(doc)),
+                default_metrics=frozenset(_get_monitor_metrics(monitor, default=True)),
+                nondefault_metrics=frozenset(_get_monitor_metrics(monitor, default=False)),
+                metrics_by_group=metrics_by_group,
+                dims=frozenset(_get_monitor_dims(doc, mon_type)),
             )
 
 
@@ -43,9 +52,9 @@ def _find_monitor(monitors, mon_type):
     raise ValueError(f"mon_type {mon_type} was not found")
 
 
-def _get_monitor_metrics(monitor, included=True):
+def _get_monitor_metrics(monitor, default):
     for metric, info in (monitor.get("metrics") or {}).items():
-        if info["included"] == included:
+        if info["default"] == default:
             yield metric
 
 

@@ -3,6 +3,8 @@ package spark
 import (
 	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
@@ -23,7 +25,7 @@ const (
 )
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
 				MonitorCore: pyrunner.New("sfxcollectd"),
@@ -44,8 +46,8 @@ type Config struct {
 	// not be collected on Yarn.  Please use the collectd/hadoop monitor to gain
 	// insights to your cluster's health.
 	ClusterType               sparkClusterType `yaml:"clusterType" validate:"required"`
-	CollectApplicationMetrics *bool            `yaml:"collectApplicationMetrics" default:"false"`
-	EnhancedMetrics           *bool            `yaml:"enhancedMetrics" default:"false"`
+	CollectApplicationMetrics bool             `yaml:"collectApplicationMetrics"`
+	EnhancedMetrics           bool             `yaml:"enhancedMetrics"`
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface
@@ -53,9 +55,18 @@ func (c *Config) PythonConfig() *python.Config {
 	return c.pyConf
 }
 
+func (c *Config) GetExtraMetrics() []string {
+	if c.EnhancedMetrics || c.CollectApplicationMetrics {
+		return []string{"*"}
+	}
+	return nil
+}
+
+var _ config.ExtraMetrics = &Config{}
+
 // Validate will check the config for correctness.
 func (c *Config) Validate() error {
-	if c.CollectApplicationMetrics != nil && *c.CollectApplicationMetrics && !c.IsMaster {
+	if c.CollectApplicationMetrics && !c.IsMaster {
 		return errors.New("cannot collect application metrics from non-master endpoint")
 	}
 	switch c.ClusterType {
@@ -81,11 +92,12 @@ func (m *Monitor) Configure(conf *Config) error {
 		ModulePaths:   []string{collectd.MakePythonPluginPath("spark")},
 		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
-			"Host":            conf.Host,
-			"Port":            conf.Port,
-			"Cluster":         string(conf.ClusterType),
-			"Applications":    conf.CollectApplicationMetrics,
-			"EnhancedMetrics": conf.EnhancedMetrics,
+			"Host":    conf.Host,
+			"Port":    conf.Port,
+			"Cluster": string(conf.ClusterType),
+			// Format as bools to work around pyrunner and collectd config type differences.
+			"Applications":    strings.Title(strconv.FormatBool(conf.CollectApplicationMetrics)),
+			"EnhancedMetrics": strings.Title(strconv.FormatBool(conf.EnhancedMetrics)),
 		},
 	}
 

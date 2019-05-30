@@ -25,7 +25,7 @@ import (
 const dockerAPIVersion = "v1.22"
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // EnhancedMetricsConfig to decide if it will send out all custom metrics
@@ -69,7 +69,7 @@ type Config struct {
 
 // Monitor for Docker
 type Monitor struct {
-	Output  types.Output
+	Output  types.FilteringOutput
 	cancel  func()
 	ctx     context.Context
 	client  *docker.Client
@@ -85,6 +85,8 @@ type dockerContainer struct {
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
+
+	enhancedMetricsConfig := EnableExtraGroups(conf.EnhancedMetricsConfig, m.Output.EnabledMetrics())
 
 	defaultHeaders := map[string]string{"User-Agent": "signalfx-agent"}
 
@@ -150,12 +152,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		// only the map that holds them.
 		lock.Lock()
 		for id := range containers {
-			go m.fetchStats(containers[id], conf.LabelsToDimensions, conf.EnvToDimensions, EnhancedMetricsConfig{
-				EnableExtraBlockIOMetrics: conf.EnableExtraBlockIOMetrics,
-				EnableExtraCPUMetrics:     conf.EnableExtraCPUMetrics,
-				EnableExtraMemoryMetrics:  conf.EnableExtraMemoryMetrics,
-				EnableExtraNetworkMetrics: conf.EnableExtraNetworkMetrics,
-			})
+			go m.fetchStats(containers[id], conf.LabelsToDimensions, conf.EnvToDimensions, enhancedMetricsConfig)
 		}
 		lock.Unlock()
 
@@ -225,9 +222,57 @@ func parseContainerEnvSlice(env []string) map[string]string {
 	return out
 }
 
+// EnableExtraGroups enables extra metrics that were individually turned on
+// by ExtraMetrics/ExtraGroups configuration
+func EnableExtraGroups(initConf EnhancedMetricsConfig, enabledMetrics []string) EnhancedMetricsConfig {
+	groupEnableMap := map[string]bool{
+		groupBlkio:   initConf.EnableExtraBlockIOMetrics,
+		groupCPU:     initConf.EnableExtraCPUMetrics,
+		groupMemory:  initConf.EnableExtraMemoryMetrics,
+		groupNetwork: initConf.EnableExtraNetworkMetrics,
+	}
+
+	for _, metric := range enabledMetrics {
+		if metricInfo, ok := metricSet[metric]; ok {
+			groupEnableMap[metricInfo.Group] = true
+		}
+	}
+
+	return EnhancedMetricsConfig{
+		EnableExtraBlockIOMetrics: groupEnableMap[groupBlkio],
+		EnableExtraCPUMetrics:     groupEnableMap[groupCPU],
+		EnableExtraMemoryMetrics:  groupEnableMap[groupMemory],
+		EnableExtraNetworkMetrics: groupEnableMap[groupNetwork],
+	}
+}
+
 // Shutdown stops the metric sync
 func (m *Monitor) Shutdown() {
 	if m.cancel != nil {
 		m.cancel()
 	}
+
+}
+
+// GetExtraMetrics returns additional metrics that should be allowed through.
+func (c *Config) GetExtraMetrics() []string {
+	var extraMetrics []string
+
+	if c.EnableExtraBlockIOMetrics {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupBlkio]...)
+	}
+
+	if c.EnableExtraCPUMetrics {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupCPU]...)
+	}
+
+	if c.EnableExtraMemoryMetrics {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupMemory]...)
+	}
+
+	if c.EnableExtraNetworkMetrics {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupNetwork]...)
+	}
+
+	return extraMetrics
 }

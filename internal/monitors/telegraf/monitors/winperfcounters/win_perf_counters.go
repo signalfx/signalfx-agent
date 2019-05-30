@@ -11,7 +11,26 @@ import (
 )
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
+}
+
+// MetricReplacements is the default replacement set of perfcounter metric names.
+var MetricReplacements = []string{
+	" ", "_", // PCR bad char
+	";", "_", // PCR bad char
+	":", "_", // PCR bad char
+	"/", "_", // PCR bad char
+	"(", "_", // PCR bad char
+	")", "_", // PCR bad char
+	"*", "_", // PCR bad char
+	"\\", "_", // PCR bad char
+	"#", "num", // telegraf -> PCR
+	"percent", "pct", // telegraf -> PCR
+	"_persec", "_sec", // telegraf -> PCR
+	"._", "_", // telegraf -> PCR (this is more of a side affect of telegraf's conversion)
+	"____", "_", // telegraf -> PCR (this is also a side affect)
+	"___", "_", // telegraf -> PCR (this is also a side affect)
+	"__", "_", // telegraf/PCR (this is a side affect of both telegraf and PCR conversion)
 }
 
 // PerfCounterObj represents a windows performance counter object to monitor
@@ -67,22 +86,7 @@ func (m *Monitor) Shutdown() {
 // NewPCRReplacer returns a new replacer for sanitizing metricnames and instances like
 // SignalFx PCR
 func NewPCRReplacer() *strings.Replacer {
-	return strings.NewReplacer(
-		" ", "_", // PCR bad char
-		";", "_", // PCR bad char
-		":", "_", // PCR bad char
-		"/", "_", // PCR bad char
-		"(", "_", // PCR bad char
-		")", "_", // PCR bad char
-		"*", "_", // PCR bad char
-		"\\", "_", // PCR bad char
-		"#", "num", // telegraf -> PCR
-		"percent", "pct", // telegraf -> PCR
-		"_persec", "_sec", // telegraf -> PCR
-		"._", "_", // telegraf -> PCR (this is more of a side affect of telegraf's conversion)
-		"____", "_", // telegraf -> PCR (this is also a side affect)
-		"___", "_", // telegraf -> PCR (this is also a side affect)
-		"__", "_") // telegraf/PCR (this is a side affect of both telegraf and PCR conversion)
+	return strings.NewReplacer(MetricReplacements...)
 }
 
 // NewPCRMetricNamesTransformer returns a function for tranforming perf counter

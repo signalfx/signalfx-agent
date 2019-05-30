@@ -38,8 +38,9 @@ type EndpointCore struct {
 	// The type of monitor that this endpoint has requested.  This is populated
 	// by observers that pull configuration directly from the platform they are
 	// observing.
-	MonitorType     string            `yaml:"-"`
-	extraDimensions map[string]string `yaml:"-"`
+	MonitorType     string                 `yaml:"-"`
+	extraDimensions map[string]string      `yaml:"-"`
+	extraFields     map[string]interface{} `yaml:"-"`
 }
 
 // NewEndpointCore returns a new initialized endpoint core struct
@@ -54,6 +55,7 @@ func NewEndpointCore(id string, name string, discoveredBy string, dims map[strin
 		Name:            name,
 		DiscoveredBy:    discoveredBy,
 		extraDimensions: dims,
+		extraFields:     map[string]interface{}{},
 	}
 
 	return ec
@@ -77,7 +79,7 @@ func (e *EndpointCore) DerivedFields() map[string]interface{} {
 	if ipAddrRegexp.MatchString(e.Host) {
 		out["ip_address"] = e.Host
 	}
-	return utils.MergeInterfaceMaps(utils.StringMapToInterfaceMap(e.Dimensions()), out)
+	return utils.MergeInterfaceMaps(utils.CloneInterfaceMap(e.extraFields), utils.StringMapToInterfaceMap(e.Dimensions()), out)
 }
 
 // ExtraConfig returns a map of values to be considered when configuring a monitor
@@ -114,4 +116,8 @@ func (e *EndpointCore) AddDimension(k string, v string) {
 // RemoveDimension removes a dimension from this endpoint
 func (e *EndpointCore) RemoveDimension(k string) {
 	delete(e.extraDimensions, k)
+}
+
+func (e *EndpointCore) AddExtraField(name string, val interface{}) {
+	e.extraFields[name] = val
 }

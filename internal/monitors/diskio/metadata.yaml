@@ -12,64 +12,65 @@ monitors:
     monitors:
      - type: disk-io
     ```
+  sendAll: true
   metrics:
     disk_merged.read:
       description: (Linux Only) The number of disk reads merged into single physical
         disk access operations.
-      included: false
+      default: false
       type: cumulative
     disk_merged.write:
       description: (Linux Only) The number of disk writes merged into single physical
         disk access operations.
-      included: false
+      default: false
       type: cumulative
     disk_octets.avg_read:
       description: (Windows Only) The average number of octets (bytes) read.
-      included: false
+      default: false
       type: gauge
     disk_octets.avg_write:
       description: (Windows Only) The average number of octets (bytes) written.
-      included: false
+      default: false
       type: gauge
     disk_octets.read:
       description: (Linux Only) The number of bytes (octets) read from a disk.
-      included: false
+      default: false
       type: cumulative
     disk_octets.write:
       description: (Linux Only) The number of bytes (octets) written to a disk.
-      included: false
+      default: false
       type: cumulative
     disk_ops.avg_read:
       description: (Windows Only) The average disk read queue length.
-      included: false
+      default: false
       type: gauge
     disk_ops.avg_write:
       description: (Windows Only) The average disk write queue length.
-      included: false
+      default: false
       type: gauge
     disk_ops.read:
       description: (Linux Only) The number of disk read operations.
-      included: true
+      default: true
       type: cumulative
     disk_ops.write:
       description: (Linux Only) The number of disk write operations.
-      included: true
+      default: true
       type: cumulative
     disk_time.avg_read:
       description: (Windows Only) The average time spent reading from the disk.
-      included: false
+      default: false
       type: gauge
     disk_time.avg_write:
       description: (Windows Only) The average time spent writing to the disk
-      included: false
+      default: false
       type: gauge
     disk_time.read:
       description: (Linux Only) The average amount of time it took to do a read operation.
-      included: false
+      default: false
       type: cumulative
     disk_time.write:
       description: (Linux Only) The average amount of time it took to do a write operation.
-      included: false
+      default: false
       type: cumulative
   monitorType: disk-io
   properties:

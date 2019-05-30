@@ -54,6 +54,7 @@ if not set.
 | `writer` | no | [object (see below)](#writer) | Configuration of the datapoint/event writer |
 | `logging` | no | [object (see below)](#logging) | Log configuration |
 | `collectd` | no | [object (see below)](#collectd) | Configuration of the managed collectd subprocess |
+| `enableBuiltInFiltering` | no | bool | If true, the agent will filter out [custom metrics](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) without having to rely on the `whitelist.json` filter that was previously configured under `metricsToExclude`.  Whether a metric is custom or not is documented in each monitor's documentation.  If `true`, every monitor's default configuration (i.e. the minimum amount of configuration to make it work) will only send non-custom metrics.  In order to send out custom metrics from a monitor, certain config flags on the monitor must be set _or_ you can specify the metric in the `extraMetrics` config option on each monitor if you know the specific metric name.  You would not have to modify the whitelist via `metricsToInclude` as before.  If you set this option to `true`, the `whitelist.json` entry under `metricToExclude` should be removed, if it is present -- otherwise custom metrics won't be emitted. (**default:** `false`) |
 | `metricsToInclude` | no | [list of objects (see below)](#metricstoinclude) | A list of metric filters that will whitelist/include metrics.  These filters take priority over the filters specified in `metricsToExclude`. |
 | `metricsToExclude` | no | [list of objects (see below)](#metricstoexclude) | A list of metric filters |
 | `propertiesToExclude` | no | [list of objects (see below)](#propertiestoexclude) | A list of properties filters |
@@ -94,6 +95,7 @@ The following are generic options that apply to all monitors.  Each monitor type
 | `discoveryRule` | no | string | The rule used to match up this configuration with a discovered endpoint. If blank, the configuration will be run immediately when the agent is started.  If multiple endpoints match this rule, multiple instances of the monitor type will be created with the same configuration (except different host/port). |
 | `validateDiscoveryRule` | no | bool | If true, a warning will be emitted if a discovery rule contains variables that will never possibly match a rule.  If using multiple observers, it is convenient to set this to false to suppress spurious errors.  The top-level setting `validateDiscoveryRules` acts as a default if this isn't set. (**default:** `"false"`) |
 | `extraDimensions` | no | map of strings | A set of extra dimensions (key:value pairs) to include on datapoints emitted by the monitor(s) created from this configuration. To specify metrics from this monitor should be high-resolution, add the dimension `sf_hires: 1` |
+| `extraDimensionsFromEndpoint` | no | map of strings | A mapping of extra dimension names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the dimension.  For example, to use a certain container label as a dimension, you could use something like this in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}` |
 | `configEndpointMappings` | no | map of strings | A set of mappings from a configuration option on this monitor to attributes of a discovered endpoint.  The keys are the config option on this monitor and the value can be any valid expression used in discovery rules. |
 | `intervalSeconds` | no | integer | The interval (in seconds) at which to emit datapoints from the monitor(s) created by this configuration.  If not set (or set to 0), the global agent intervalSeconds config option will be used instead. (**default:** `0`) |
 | `solo` | no | bool | If one or more configurations have this set to true, only those configurations will be considered. This setting can be useful for testing. (**default:** `false`) |
@@ -101,6 +103,9 @@ The following are generic options that apply to all monitors.  Each monitor type
 | `datapointsToExclude` | no | [list of objects (see below)](#datapointstoexclude) | A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](https://github.com/signalfx/signalfx-agent/tree/master/docs/filtering.md#monitor-level-filtering) for examples and more information. |
 | `disableHostDimensions` | no | bool | Some monitors pull metrics from services not running on the same host and should not get the host-specific dimensions set on them (e.g. `host`, `AWSUniqueId`, etc).  Setting this to `true` causes those dimensions to be omitted.  You can disable this globally with the `disableHostDimensions` option on the top level of the config. (**default:** `false`) |
 | `disableEndpointDimensions` | no | bool | This can be set to true if you don't want to include the dimensions that are specific to the endpoint that was discovered by an observer.  This is useful when you have an endpoint whose identity is not particularly important since it acts largely as a proxy or adapter for other metrics. (**default:** `false`) |
+| `dimensionTransformations` | no | map of strings | A map from dimension names emitted by the monitor to the desired dimension name that will be emitted in the datapoint that goes to SignalFx.  This can be useful if you have custom metrics from your applications and want to make the dimensions from a monitor match those. Also can be useful when scraping free-form metrics, say with the `prometheus-exporter` monitor.  Right now, only static key/value transformations are supported.  Note that filtering by dimensions will be done on the *original* dimension name and not the new name. |
+| `extraMetrics` | no | list of strings | Extra metrics to enable besides the default included ones.  This is an [overridable filter](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filtering). |
+| `extraGroups` | no | list of strings | Extra metric groups to enable in addition to the metrics that are emitted by default.  A metric group is simply a collection of metrics, and they are defined in each monitor's documentation. |
 
 
 ## metricsToExclude
@@ -412,6 +417,7 @@ where applicable:
     writeServerIPAddr: "127.9.8.7"
     writeServerPort: 0
     configDir: "/var/run/signalfx-agent/collectd"
+  enableBuiltInFiltering: false
   metricsToInclude: []
   metricsToExclude: []
   propertiesToExclude: []

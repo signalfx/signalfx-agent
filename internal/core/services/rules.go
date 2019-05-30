@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
@@ -14,7 +15,7 @@ import (
 // get returns the value of the specified key in the supplied map
 func get(args ...interface{}) (interface{}, error) {
 	if len(args) < 2 {
-		return nil, errors.New("Get takes 2 args")
+		return nil, errors.New("Get takes at least 2 args")
 	}
 	inputMap := args[0]
 	key := args[1]
@@ -24,19 +25,15 @@ func get(args ...interface{}) (interface{}, error) {
 		defVal = args[2]
 	}
 
-	interfaceMap, ok := inputMap.(map[interface{}]interface{})
-	if !ok {
-		return nil, errors.New("label must be a map[string]string")
+	mapVal := reflect.ValueOf(inputMap)
+	if mapVal.Kind() != reflect.Map {
+		return nil, errors.New("first arg to Get must be a map")
 	}
 
-	keyStr, ok := key.(string)
-	if !ok {
-		return nil, errors.New("label must be of type string")
-	}
+	keyVal := reflect.ValueOf(key)
 
-	stringMap := utils.InterfaceMapToStringMap(interfaceMap)
-	if val, ok := stringMap[keyStr]; ok {
-		return val, nil
+	if val := mapVal.MapIndex(keyVal); val.IsValid() && val.CanInterface() {
+		return val.Interface(), nil
 	} else if defVal != nil {
 		return defVal, nil
 	}
@@ -53,13 +50,20 @@ var ruleFunctions = map[string]govaluate.ExpressionFunction{
 		}
 		return val != nil, nil
 	},
+	"ToString": func(args ...interface{}) (interface{}, error) {
+		if len(args) != 1 {
+			return nil, errors.New("ToString takes exactly one parameter")
+		}
+		return fmt.Sprintf("%v", args[0]), nil
+	},
 }
 
 func parseRuleText(text string) (*govaluate.EvaluableExpression, error) {
 	return govaluate.NewEvaluableExpressionWithFunctions(text, ruleFunctions)
 }
 
-func evaluateRule(si Endpoint, ruleText string, errorOnMissing bool, doValidation bool) (interface{}, error) {
+// EvaluateRule executes a govaluate expression against an endpoint
+func EvaluateRule(si Endpoint, ruleText string, errorOnMissing bool, doValidation bool) (interface{}, error) {
 	rule, err := parseRuleText(ruleText)
 	if err != nil {
 		return nil, errors.WithMessage(err, "Could not parse rule")
@@ -86,7 +90,7 @@ func evaluateRule(si Endpoint, ruleText string, errorOnMissing bool, doValidatio
 // DoesServiceMatchRule returns true if service endpoint satisfies the rule
 // given
 func DoesServiceMatchRule(si Endpoint, ruleText string, doValidation bool) bool {
-	ret, err := evaluateRule(si, ruleText, false, doValidation)
+	ret, err := EvaluateRule(si, ruleText, false, doValidation)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"discoveryRule":   ruleText,

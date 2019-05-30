@@ -5,7 +5,6 @@ from textwrap import dedent
 
 import pytest
 from kubernetes import client
-
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_dim_prop, has_dim_tag
 from tests.helpers.kubernetes.fakeapiserver import fake_k8s_api_server
@@ -365,6 +364,11 @@ def test_large_k8s_cluster_deployment_prop():
 
             assert wait_for(has_all_deployment_props, interval_seconds=2, timeout_seconds=60)
             assert wait_for(has_all_replica_set_props, interval_seconds=2)
+
+            # The counter doesn't get updated until some time after the
+            # response from fake backend is received, so give it time to get
+            # incremented.
+            time.sleep(1)
 
             assert (
                 agent.internal_metrics_client.get()["sfxagent.dim_updates_completed"] == 5050

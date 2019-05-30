@@ -88,6 +88,10 @@ Monitor Type: `conviva`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `pulseUsername` | **yes** | `string` | Conviva Pulse username required with each API request. |
@@ -108,9 +112,90 @@ The **nested** `metricConfigs` config object has the following fields:
 | `maxFiltersPerRequest` | no | `integer` | Max number of filters per request. The default is the number of filters. Multiple requests are made if the number of filters is more than maxFiltersPerRequest (**default:** `0`) |
 
 
+## Metrics
+
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
+
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | [Group](#groups) | Description |
+| ---  | ---  | ---    | --- | ---         |
+| `conviva.attempts` | gauge | ✔ | attempts | Attempts time-series |
+| `conviva.audience_metriclens.concurrent_plays` | gauge | ✔ | audience_metriclens | Concurrent Plays |
+| `conviva.audience_metriclens.ended_plays` | gauge | ✔ | audience_metriclens | Ended Plays |
+| `conviva.audience_metriclens.plays` | gauge | ✔ | audience_metriclens | Plays |
+| `conviva.avg_bitrate` | gauge | ✔ | avg_bitrate | Average bitrate time-series |
+| `conviva.concurrent_plays` | gauge | ✔ | concurrent_plays | Concurrent plays time-series |
+| `conviva.connection_induced_rebuffering_ratio` | gauge | ✔ | connection_induced_rebuffering_ratio | Connection induced rebuffering ratio simple-series |
+| `conviva.connection_induced_rebuffering_ratio_timeseries` | gauge | ✔ | connection_induced_rebuffering_ratio_timeseries | Connection induced rebuffering ratio time-series |
+| `conviva.duration_connection_induced_rebuffering_ratio_distribution` | gauge | ✔ | duration_connection_induced_rebuffering_ratio_distribution | Duration vs. connection induced rebuffering ratio distribution label-series |
+| `conviva.ended_plays` | gauge | ✔ | ended_plays | Ended plays simple-series |
+| `conviva.ended_plays_timeseries` | gauge | ✔ | ended_plays_timeseries | Ended plays time-series |
+| `conviva.exits_before_video_start` | gauge | ✔ | exits_before_video_start | Exits before video start time-series |
+| `conviva.play_bitrate_distribution` | gauge | ✔ | play_bitrate_distribution | Play bitrate distribution label-series |
+| `conviva.play_buffering_ratio_distribution` | gauge | ✔ | play_buffering_ratio_distribution | Play buffering ratio distribution label-series |
+| `conviva.play_connection_induced_rebuffering_ratio_distribution` | gauge | ✔ | play_connection_induced_rebuffering_ratio_distribution | Play connection induced rebuffering ratio distribution label-series |
+| `conviva.plays` | gauge | ✔ | plays | Plays time-series |
+| `conviva.quality_metriclens.average_bitrate_kbps` | gauge | ✔ | quality_metriclens | Average Bitrate (bps). This metric can be returned in kbps with the ab_units=kbps parameter. Unless this parameter is specified, average bitrate is bps |
+| `conviva.quality_metriclens.connection_induced_rebuffering_ratio_percent` | gauge | ✔ | quality_metriclens | Connection Induced ReBuffering Ratio (%) |
+| `conviva.quality_metriclens.ended_plays` | gauge | ✔ | quality_metriclens | Ended Plays |
+| `conviva.quality_metriclens.exits_before_video_start_percent` | gauge | ✔ | quality_metriclens | Exits Before Video Starts (EBVS) (%) |
+| `conviva.quality_metriclens.plays_percent` | gauge | ✔ | quality_metriclens | Plays (%) |
+| `conviva.quality_metriclens.rebuffering_ratio_percent` | gauge | ✔ | quality_metriclens | Rebuffering Ratio (%) |
+| `conviva.quality_metriclens.total_attempts` | gauge | ✔ | quality_metriclens | Attempts |
+| `conviva.quality_metriclens.video_playback_failures_percent` | gauge | ✔ | quality_metriclens | Video Playback Failures (%) |
+| `conviva.quality_metriclens.video_restart_time` | gauge | ✔ | quality_metriclens | Video Restart Time |
+| `conviva.quality_metriclens.video_start_failures_percent` | gauge | ✔ | quality_metriclens | Video Start Failures(VSF) (%) |
+| `conviva.quality_metriclens.video_startup_time_sec` | gauge | ✔ | quality_metriclens | Video Startup Time (sec) |
+| `conviva.quality_summary` | gauge | ✔ | quality_summary | Quality summary label-series |
+| `conviva.rebuffered_plays` | gauge | ✔ | rebuffered_plays | Rebuffered plays time-series |
+| `conviva.rebuffering_ratio` | gauge | ✔ | rebuffering_ratio | Rebuffering ratio time-series |
+| `conviva.top_assets_15_mins` | gauge | ✔ | top_assets_15_mins | Top assets over last 15 minutes simple-table |
+| `conviva.top_assets_summary` | gauge | ✔ | top_assets_summary | Top assets summary label-series |
+| `conviva.video_playback_failures` | gauge | ✔ | video_playback_failures | Video playback failures simple-series |
+| `conviva.video_playback_failures_distribution` | gauge | ✔ | video_playback_failures_distribution | Video playback failures distribution label-series |
+| `conviva.video_playback_failures_timeseries` | gauge | ✔ | video_playback_failures_timeseries | Video playback failures time-series |
+| `conviva.video_restart_time` | gauge | ✔ | video_restart_time | Video restart time simple-series |
+| `conviva.video_restart_time_distribution` | gauge | ✔ | video_restart_time_distribution | Video restart time distribution label-series |
+| `conviva.video_restart_time_timeseries` | gauge | ✔ | video_restart_time_timeseries | Video restart time time-series |
+| `conviva.video_start_failures` | gauge | ✔ | video_start_failures | Video start failures time-series |
+| `conviva.video_start_failures_errornames` | gauge | ✔ | video_start_failures_errornames | Video start failures by error names simple-table |
+| `conviva.video_startup_time` | gauge | ✔ |  | Video startup time label-series |
 
 
 
+### Non-default metrics (version 4.7.0+)
+
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
+
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
+
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+#### Groups
+You can enable an entire group of metrics by specifying the `extraGroups` config
+option in your monitor config.  The value is a list of group names to enable.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

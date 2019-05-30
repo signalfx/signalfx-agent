@@ -9,7 +9,7 @@ import (
 )
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
 				MonitorCore: pyrunner.New("sfxcollectd"),
@@ -33,6 +33,15 @@ type Config struct {
 	// ExcludeMetrics metric names from the /admin/metrics endpoint to exclude (valid when EnhancedMetrics is "true")
 	ExcludeMetrics []string `yaml:"excludeMetrics"`
 }
+
+func (c *Config) GetExtraMetrics() []string {
+	if c.EnhancedMetrics != nil && *c.EnhancedMetrics {
+		return []string{"*"}
+	}
+	return c.IncludeMetrics
+}
+
+var _ config.ExtraMetrics = &Config{}
 
 // PythonConfig returns the embedded python.Config struct from the interface
 func (c *Config) PythonConfig() *python.Config {

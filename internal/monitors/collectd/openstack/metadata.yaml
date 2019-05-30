@@ -16,159 +16,223 @@ monitors:
   metrics:
     counter.openstack.nova.server.cpu_time:
       description: Virtual CPU time consumed in nanoseconds
-      included: false
+      default: false
       type: counter
     counter.openstack.nova.server.rx:
       description: Size of network packet received in bytes
-      included: true
+      default: true
       type: counter
     counter.openstack.nova.server.rx_packets:
       description: Received packets at an instance
-      included: true
+      default: true
       type: counter
     counter.openstack.nova.server.tx:
       description: Size of network packet transmitted in bytes
-      included: true
+      default: true
       type: counter
     counter.openstack.nova.server.tx_packets:
       description: Transmitted packets at an instance
-      included: true
+      default: true
       type: counter
     gauge.openstack.cinder.limit.maxTotalVolumeGigabytes:
       description: Total available block storage at cinder component for project
-      included: true
+      default: true
       type: gauge
     gauge.openstack.cinder.limit.maxTotalVolumes:
       description: Maximum volume resources available at cinder component for project
-      included: true
+      default: true
+      type: gauge
+    gauge.openstack.cinder.limit.maxTotalSnapshots:
+      description: Total available snapshots at cinder component for project
+      default: true
       type: gauge
     gauge.openstack.cinder.limit.totalGigabytesUsed:
       description: Total block storage used at cinder component for project
-      included: true
+      default: true
       type: gauge
     gauge.openstack.cinder.limit.totalVolumesUsed:
       description: Volume resources used at cinder component for project
-      included: true
+      default: true
+      type: gauge
+    gauge.openstack.cinder.limit.totalSnapshotsUsed:
+      description: Total snapshots used at cinder component for project
+      default: true
+      type: gauge
+    gauge.openstack.cinder.limit.maxTotalBackupGigabytes:
+      description: Maximum backup space available at cinder component for project in Gigabytes
+      default: true
+      type: gauge
+    gauge.openstack.cinder.limit.totalBackupGigabytesUsed:
+      description: Total backup space used at cinder component for project in Gigabytes
+      default: true
+      type: gauge
+    gauge.openstack.cinder.limit.totalBackupsUsed:
+      description: Total backups used at cinder component for project
+      default: true
+      type: gauge
+    gauge.openstack.cinder.limit.maxTotalBackups:
+      description: Total available backups used at cinder component for project
+      default: true
+      type: gauge
+    gauge.openstack.cinder.snapshot.size:
+      description: Total snapshot size at cinder component for project
+      default: true
+      type: gauge
+    gauge.openstack.cinder.snapshot.count:
+      description: Total number of snapshots at cinder component for project
+      default: true
+      type: gauge
+    gauge.openstack.cinder.volume.size:
+      description: Total volume size at cinder component for project
+      default: true
+      type: gauge
+    gauge.openstack.cinder.volume.count:
+      description: Total number of volumes at cinder component for project
+      default: true
       type: gauge
     gauge.openstack.neutron.floatingip.count:
       description: Overall floating IPs used across projects
-      included: true
+      default: true
       type: gauge
     gauge.openstack.neutron.network.count:
       description: Overall Network resources used across projects
-      included: true
+      default: true
       type: gauge
     gauge.openstack.neutron.router.count:
       description: Overall router resources used across projects
-      included: true
+      default: true
       type: gauge
     gauge.openstack.neutron.securitygroup.count:
       description: Overall securitygroup resources used across projects
-      included: true
+      default: true
       type: gauge
     gauge.openstack.neutron.subnet.count:
       description: Overall subnet resources used in all projects
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.hypervisor.disk_available_least:
       description: Minimum free disk space available in Gigabyte
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.hypervisor.free_disk_gb:
       description: Maximum free disk space available in Gigabyte
-      included: true
+      default: true
+      type: gauge
+    gauge.openstack.nova.hypervisor.free_ram_mb:
+      description: Maximum free ram space available in Megabyte
+      default: true
       type: gauge
     gauge.openstack.nova.hypervisor.load_average:
       description: Average CPU load on the hypervisor
-      included: false
+      default: false
       type: gauge
     gauge.openstack.nova.hypervisor.local_gb:
       description: Maximum available local disk space in Gigabyte
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.hypervisor.local_gb_used:
       description: Total disk space used in Gigabyte
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.hypervisor.memory_mb:
       description: Maximum available memory in MB at hypervisor
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.hypervisor.memory_mb_used:
       description: Total memory used in MB at hypervisor
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.hypervisor.running_vms:
       description: Total running VMs at hypervisor
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.hypervisor.vcpus:
       description: Available physical cores at hypervisor
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.hypervisor.vcpus_used:
       description: Used virtual CPUs used
-      included: true
+      default: true
+      type: gauge
+    gauge.openstack.nova.hypervisor.current_workload:
+      description: Total current active hypervisor tasks in project
+      default: true
       type: gauge
     gauge.openstack.nova.limit.maxSecurityGroups:
       description: Maximum available security groups for project
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.limit.maxTotalCores:
       description: Maximum available VCPUs in project
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.limit.maxTotalFloatingIps:
       description: Maximum available floating IPs for project
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.limit.maxTotalInstances:
       description: Maximum available instances in project
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.limit.maxTotalRAMSize:
       description: Maximum available RAM size for project
-      included: true
+      default: true
+      type: gauge
+    gauge.openstack.nova.limit.maxTotalKeypairs:
+      description: Maximum available keypairs for project
+      default: true
+      type: gauge
+    gauge.openstack.nova.limit.maxImageMeta:
+      description: Maximum number of metadata items associated with an image for project
+      default: true
       type: gauge
     gauge.openstack.nova.limit.totalCoresUsed:
       description: Total cores used in the project
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.limit.totalInstancesUsed:
       description: Total instances used in the project
-      included: true
+      default: true
+      type: gauge
+    gauge.openstack.nova.limit.totalFloatingIpsUsed:
+      description: Total floating IPs used in the project
+      default: true
       type: gauge
     gauge.openstack.nova.limit.totalRAMUsed:
       description: Total RAM used in the project
-      included: true
+      default: true
+      type: gauge
+    gauge.openstack.nova.limit.totalSecurityGroupsUsed:
+      description: Total RAM used in the project
+      default: true
       type: gauge
     gauge.openstack.nova.server.memory:
       description: Memory provisioned at an instance
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.server.memory-actual:
       description: Actual memory used at an instance
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.server.memory-rss:
       description: Memory used not including disk pages at an instance
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.server.vda_read:
       description: Size of virtual disk read requests in bytes
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.server.vda_read_req:
       description: Virtual disk read requests from an instance
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.server.vda_write:
       description: Size of virtual disk write requests in bytes
-      included: true
+      default: true
       type: gauge
     gauge.openstack.nova.server.vda_write_req:
       description: Virtual disk write requests from an instance
-      included: true
+      default: true
       type: gauge
   monitorType: collectd/openstack
   properties:

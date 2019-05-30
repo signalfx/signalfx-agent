@@ -12,8 +12,10 @@ packaging/*/output
 tests/**/__pycache__
 **/virtualenv
 vendor_orig/**
+**/virtualenv
 **/boxcutter/**
 **/.vagrant/**
 .circleci/**
 .azure-pipelines/**
+**/genmetadata.go
 monitor-code-gen

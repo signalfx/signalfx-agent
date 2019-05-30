@@ -26,7 +26,7 @@ import (
 const messageTypeDatapointList pyrunner.MessageType = 200
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &PyMonitor{
 			MonitorCore: pyrunner.New("sfxmonitor"),
 		}

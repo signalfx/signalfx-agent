@@ -25,6 +25,10 @@ Monitor Type: `kubernetes-volumes`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `kubeletAPI` | no | `object (see below)` | Kubelet kubeletClient configuration |
@@ -48,26 +52,27 @@ The **nested** `kubernetesAPI` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `authType` | no | `string` | How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), or `serviceAccount` (to use the standard service account token provided to the agent pod). (**default:** `serviceAccount`) |
+| `authType` | no | `string` | How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), `serviceAccount` (to use the standard service account token provided to the agent pod), or `kubeConfig` to use credentials from `~/.kube/config`. (**default:** `serviceAccount`) |
 | `skipVerify` | no | `bool` | Whether to skip verifying the TLS cert from the API server.  Almost never needed. (**default:** `false`) |
 | `clientCertPath` | no | `string` | The path to the TLS client cert on the pod's filesystem, if using `tls` auth. |
 | `clientKeyPath` | no | `string` | The path to the TLS client key on the pod's filesystem, if using `tls` auth. |
 | `caCertPath` | no | `string` | Path to a CA certificate to use when verifying the API server's TLS cert.  Generally this is provided by K8s alongside the service account token, which will be picked up automatically, so this should rarely be necessary to specify. |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `kubernetes.volume_available_bytes` | gauge |  | The number of available bytes in the volume |
-| `kubernetes.volume_capacity_bytes` | gauge |  | The total capacity in bytes of the volume |
+The following table lists the metrics available for this monitor.
+This monitor emits all metrics by default; however, **none are categorized as [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) -- they are all custom**.
 
 
+| Name | Type | Description |
+| ---  | ---  | ---         |
+| `kubernetes.volume_available_bytes` | gauge | The number of available bytes in the volume |
+| `kubernetes.volume_capacity_bytes` | gauge | The total capacity in bytes of the volume |
 
+
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 ## Dimensions
 
 The following dimensions may occur on metrics emitted by this monitor.  Some

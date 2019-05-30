@@ -10,227 +10,320 @@ monitors:
   metrics:
     counter.backgroundFlushing.flushes:
       description: Number of times the database has been flushed
-      included: true
+      default: true
       type: gauge
     counter.collection.commandsCount:
       description: Number of commands issued for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.commandsTime:
       description: Time spent in microseconds processing commands issued for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.getmoreCount:
       description: Number of getMore requests issued for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.getmoreTime:
       description: Time spent in microseconds processing getMore requests for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.index.accesses.ops:
       description: Number of times an index has been used (only on Mongo 3.2+)
-      included: false
+      default: false
       type: counter
+      group: collection
     counter.collection.insertCount:
       description: Number of inserts issued for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.insertTime:
       description: Time spent in microseconds processing insert requests for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.queriesCount:
       description: Number of queries issued for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.queriesTime:
       description: Time spent in microseconds processing query requests for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.readLockCount:
       description: Number of read locks issued for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.readLockTime:
       description: Time spent in microseconds processing read locks for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.removeCount:
       description: Number of remove requests issued for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.removeTime:
       description: Time spent in microseconds processing remove requests for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.totalCount:
       description: Total number of operations issued for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.totalTime:
       description: Time spent in microseconds processing all operations for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.updateCount:
       description: Number of update requests issued for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.updateTime:
       description: Time spent in microseconds processing update requests for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.writeLockCount:
       description: Number of write locks issued for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.collection.writeLockTime:
       description: Time spent in microseconds processing write locks for a collection
-      included: false
+      default: false
       type: counter
+      group: collection-top
     counter.extra_info.page_faults:
       description: Mongod page faults
-      included: true
+      default: true
       type: gauge
     counter.network.bytesIn:
       description: Network bytes received by the database server
-      included: true
+      default: true
       type: gauge
     counter.network.bytesOut:
       description: Network bytes sent by the database server
-      included: true
+      default: true
       type: gauge
     counter.network.numRequests:
       description: Requests received by the server
-      included: true
+      default: true
       type: cumulative
     counter.opcounters.delete:
-      description: Number of deletes per second
-      included: true
+      description: Number of deletes since last restart
+      default: true
       type: cumulative
     counter.opcounters.insert:
-      description: Number of inserts per second
-      included: true
+      description: Number of inserts since last restart
+      default: true
       type: cumulative
     counter.opcounters.query:
-      description: Number of queries per second
-      included: true
+      description: Number of queries since last restart
+      default: true
       type: cumulative
     counter.opcounters.update:
-      description: Number of updates per second
-      included: true
+      description: Number of updates since last restart
+      default: true
+      type: cumulative
+    counter.opcounters.getmore:
+      description: Number of getmore operations since last restart
+      default: false
+      type: cumulative
+    counter.opcounters.command:
+      description: Number of commands since last restart
+      default: false
+      type: cumulative
+    counter.opcountersRepl.delete:
+      description: Number of replicated deletes since last restart
+      default: false
+      type: cumulative
+    counter.opcountersRepl.insert:
+      description: Number of replicated inserts since last restart
+      default: false
+      type: cumulative
+    counter.opcountersRepl.query:
+      description: Number of replicated queries since last restart
+      default: false
+      type: cumulative
+    counter.opcountersRepl.update:
+      description: Number of replicated updates since last restart
+      default: false
+      type: cumulative
+    counter.opcountersRepl.getmore:
+      description: Number of replicated getmore operations since last restart
+      default: false
+      type: cumulative
+    counter.opcountersRepl.command:
+      description: Number of replicated commands since last restart
+      default: false
       type: cumulative
     gauge.backgroundFlushing.average_ms:
       description: Average time (ms) to write data to disk
-      included: true
+      default: true
       type: gauge
     gauge.backgroundFlushing.last_ms:
       description: Most recent time (ms) spent writing data to disk
-      included: true
+      default: true
       type: gauge
     gauge.collection.avgObjSize:
       description: Mean object/document size of a collection
-      included: false
+      default: false
       type: gauge
+      group: collection
     gauge.collection.count:
       description: Number of objects/documents in a collection
-      included: false
+      default: false
       type: gauge
+      group: collection
     gauge.collection.indexSize:
       description: Size of a particular index on a collection
-      included: false
+      default: false
       type: gauge
+      group: collection
     gauge.collection.max:
       description: Maximum number of documents in a capped collection
-      included: false
+      default: false
       type: gauge
     gauge.collection.maxSize:
       description: Maximum disk usage of a capped collection
-      included: false
+      default: false
       type: gauge
     gauge.collection.size:
       description: Size of a collection in bytes, not including indexes
-      included: false
+      default: false
       type: gauge
+      group: collection
     gauge.collection.storageSize:
       description: Size of the collection on disk in bytes, never decreases.
-      included: false
+      default: false
       type: gauge
+      group: collection
     gauge.collections:
       description: Number of collections
-      included: false
+      default: false
       type: gauge
     gauge.connections.available:
       description: Number of available incoming connections
-      included: false
+      default: false
       type: gauge
+    gauge.connections.totalCreated:
+      description: Count of all incoming connections created to the server. This number includes connections that have since closed.
+      default: false
+      type: cumulative
     gauge.connections.current:
       description: Number of current client connections
-      included: true
+      default: true
       type: gauge
     gauge.dataSize:
       description: Total size of data, in bytes
-      included: true
+      default: true
       type: gauge
     gauge.extra_info.heap_usage_bytes:
       description: Heap size used by the mongod process, in bytes
-      included: true
+      default: true
       type: gauge
     gauge.globalLock.activeClients.readers:
       description: Number of active client connections performing reads
-      included: true
+      default: true
       type: gauge
     gauge.globalLock.activeClients.total:
       description: Total number of active client connections
-      included: false
+      default: false
       type: gauge
     gauge.globalLock.activeClients.writers:
       description: Number of active client connections performing writes
-      included: true
+      default: true
       type: gauge
     gauge.globalLock.currentQueue.readers:
       description: Read operations currently in queue
-      included: true
+      default: true
       type: gauge
     gauge.globalLock.currentQueue.total:
       description: Total operations currently in queue
-      included: false
+      default: false
       type: gauge
     gauge.globalLock.currentQueue.writers:
       description: Write operations currently in queue
-      included: true
+      default: true
       type: gauge
     gauge.indexSize:
       description: Total size of indexes, in bytes
-      included: true
+      default: true
       type: gauge
     gauge.indexes:
       description: Number of indexes across all collections
-      included: false
+      default: false
       type: gauge
     gauge.mem.mapped:
       description: Mongodb mapped memory usage, in MB
-      included: true
+      default: true
       type: gauge
     gauge.mem.resident:
       description: Mongodb resident memory usage, in MB
-      included: true
+      default: true
       type: gauge
     gauge.mem.virtual:
       description: Mongodb virtual memory usage, in MB
-      included: true
+      default: true
       type: gauge
     gauge.objects:
       description: Number of documents across all collections
-      included: true
+      default: true
       type: gauge
     gauge.storageSize:
       description: Total bytes allocated to collections for document storage
-      included: true
+      default: true
       type: gauge
     gauge.uptime:
       description: Uptime of this server in milliseconds
-      included: true
+      default: true
       type: counter
+    counter.asserts.warning:
+      description: In MongoDB 3.x and earlier, the field returns the number of warnings raised since the MongoDB process started.  In MongodDB 4, this is always 0.
+      default: false
+      type: cumulative
+    counter.asserts.regular:
+      description: The number of regular assertions raised since the MongoDB process started. Check the log file for more information about these messages.
+      default: false
+      type: cumulative
+    gauge.numExtents:
+      description:
+      default: false
+      type: gauge
+    counter.lock.Global.acquireCount.write:
+      default: false
+      type: cumulative
+    counter.lock.Global.acquireCount.intentShared:
+      default: false
+      type: cumulative
+    counter.lock.Global.acquireCount.intentExclusive:
+      default: false
+      type: cumulative
+    counter.lock.Database.acquireCount.write:
+      default: false
+      type: cumulative
+    counter.lock.Database.acquireCount.intentExclusive:
+      default: false
+      type: cumulative
+    counter.lock.Database.acquireCount.read:
+      default: false
+      type: cumulative
+    counter.lock.Database.acquireCount.intentShared:
+      default: false
+      type: cumulative
   monitorType: collectd/mongodb
   properties:

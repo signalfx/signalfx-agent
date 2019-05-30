@@ -82,6 +82,10 @@ Monitor Type: `collectd/statsd`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `listenAddress` | no | `string` | The host/address on which to bind the UDP listener that accepts statsd datagrams (**default:** `localhost`) |
@@ -99,8 +103,7 @@ Monitor Type: `collectd/statsd`
 
 
 
-
-
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

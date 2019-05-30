@@ -4,16 +4,14 @@ Tests the statsd monitor
 from functools import partial as p
 
 import pytest
-
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_datapoint, has_datapoint_with_metric_name, udp_port_open_locally_netstat
+from tests.helpers.assertions import has_datapoint, has_datapoint_with_metric_name, udp_port_open_locally
 from tests.helpers.util import get_statsd_port, send_udp_message, wait_for
-
 
 pytestmark = [pytest.mark.collectd, pytest.mark.statsd, pytest.mark.monitor_without_endpoints]
 
 
-def test_statsd_monitor():
+def test_statsd_basic():
     """
     Test basic functionality
     """
@@ -26,7 +24,7 @@ monitors:
     ) as agent:
         port = get_statsd_port(agent)
 
-        assert wait_for(p(udp_port_open_locally_netstat, port)), "statsd port never opened!"
+        assert wait_for(p(udp_port_open_locally, port)), "statsd port never opened!"
         send_udp_message("localhost", port, "statsd.test:1|g")
 
         assert wait_for(
@@ -48,7 +46,7 @@ monitors:
     ) as agent:
         port = get_statsd_port(agent)
 
-        assert wait_for(p(udp_port_open_locally_netstat, port)), "statsd port never opened!"
+        assert wait_for(p(udp_port_open_locally, port)), "statsd port never opened!"
         send_udp_message(
             "localhost",
             port,
@@ -80,7 +78,7 @@ monitors:
     ) as agent:
         port = get_statsd_port(agent)
 
-        assert wait_for(p(udp_port_open_locally_netstat, port)), "statsd port never opened!"
+        assert wait_for(p(udp_port_open_locally, port)), "statsd port never opened!"
         send_udp_message(
             "localhost", port, "cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success:8|c"
         )

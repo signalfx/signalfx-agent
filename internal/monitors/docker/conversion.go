@@ -70,6 +70,9 @@ func convertBlkioStats(stats *dtypes.BlkioStats, enhancedMetrics bool) []*datapo
 		"sectors_recursive":          stats.SectorsRecursive,
 	} {
 		for _, bs := range v {
+			if bs.Op == "" {
+				continue
+			}
 			metricName := "blkio." + k + "." + strings.ToLower(bs.Op)
 
 			if _, exists := basicBlockIOMetrics[metricName]; enhancedMetrics || exists {

@@ -26,6 +26,10 @@ Monitor Type: `collectd/openstack`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `authURL` | **yes** | `string` | Keystone authentication URL/endpoint for the OpenStack cloud |
@@ -36,30 +40,43 @@ Monitor Type: `collectd/openstack`
 | `userDomainID` | no | `string` | The user domain id (**default**:"default") |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
 
-| Name | Type | Included | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `counter.openstack.nova.server.cpu_time` | counter |  | Virtual CPU time consumed in nanoseconds |
 | `counter.openstack.nova.server.rx` | counter | ✔ | Size of network packet received in bytes |
 | `counter.openstack.nova.server.rx_packets` | counter | ✔ | Received packets at an instance |
 | `counter.openstack.nova.server.tx` | counter | ✔ | Size of network packet transmitted in bytes |
 | `counter.openstack.nova.server.tx_packets` | counter | ✔ | Transmitted packets at an instance |
+| `gauge.openstack.cinder.limit.maxTotalBackupGigabytes` | gauge | ✔ | Maximum backup space available at cinder component for project in Gigabytes |
+| `gauge.openstack.cinder.limit.maxTotalBackups` | gauge | ✔ | Total available backups used at cinder component for project |
+| `gauge.openstack.cinder.limit.maxTotalSnapshots` | gauge | ✔ | Total available snapshots at cinder component for project |
 | `gauge.openstack.cinder.limit.maxTotalVolumeGigabytes` | gauge | ✔ | Total available block storage at cinder component for project |
 | `gauge.openstack.cinder.limit.maxTotalVolumes` | gauge | ✔ | Maximum volume resources available at cinder component for project |
+| `gauge.openstack.cinder.limit.totalBackupGigabytesUsed` | gauge | ✔ | Total backup space used at cinder component for project in Gigabytes |
+| `gauge.openstack.cinder.limit.totalBackupsUsed` | gauge | ✔ | Total backups used at cinder component for project |
 | `gauge.openstack.cinder.limit.totalGigabytesUsed` | gauge | ✔ | Total block storage used at cinder component for project |
+| `gauge.openstack.cinder.limit.totalSnapshotsUsed` | gauge | ✔ | Total snapshots used at cinder component for project |
 | `gauge.openstack.cinder.limit.totalVolumesUsed` | gauge | ✔ | Volume resources used at cinder component for project |
+| `gauge.openstack.cinder.snapshot.count` | gauge | ✔ | Total number of snapshots at cinder component for project |
+| `gauge.openstack.cinder.snapshot.size` | gauge | ✔ | Total snapshot size at cinder component for project |
+| `gauge.openstack.cinder.volume.count` | gauge | ✔ | Total number of volumes at cinder component for project |
+| `gauge.openstack.cinder.volume.size` | gauge | ✔ | Total volume size at cinder component for project |
 | `gauge.openstack.neutron.floatingip.count` | gauge | ✔ | Overall floating IPs used across projects |
 | `gauge.openstack.neutron.network.count` | gauge | ✔ | Overall Network resources used across projects |
 | `gauge.openstack.neutron.router.count` | gauge | ✔ | Overall router resources used across projects |
 | `gauge.openstack.neutron.securitygroup.count` | gauge | ✔ | Overall securitygroup resources used across projects |
 | `gauge.openstack.neutron.subnet.count` | gauge | ✔ | Overall subnet resources used in all projects |
+| `gauge.openstack.nova.hypervisor.current_workload` | gauge | ✔ | Total current active hypervisor tasks in project |
 | `gauge.openstack.nova.hypervisor.disk_available_least` | gauge | ✔ | Minimum free disk space available in Gigabyte |
 | `gauge.openstack.nova.hypervisor.free_disk_gb` | gauge | ✔ | Maximum free disk space available in Gigabyte |
+| `gauge.openstack.nova.hypervisor.free_ram_mb` | gauge | ✔ | Maximum free ram space available in Megabyte |
 | `gauge.openstack.nova.hypervisor.load_average` | gauge |  | Average CPU load on the hypervisor |
 | `gauge.openstack.nova.hypervisor.local_gb` | gauge | ✔ | Maximum available local disk space in Gigabyte |
 | `gauge.openstack.nova.hypervisor.local_gb_used` | gauge | ✔ | Total disk space used in Gigabyte |
@@ -68,14 +85,18 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.openstack.nova.hypervisor.running_vms` | gauge | ✔ | Total running VMs at hypervisor |
 | `gauge.openstack.nova.hypervisor.vcpus` | gauge | ✔ | Available physical cores at hypervisor |
 | `gauge.openstack.nova.hypervisor.vcpus_used` | gauge | ✔ | Used virtual CPUs used |
+| `gauge.openstack.nova.limit.maxImageMeta` | gauge | ✔ | Maximum number of metadata items associated with an image for project |
 | `gauge.openstack.nova.limit.maxSecurityGroups` | gauge | ✔ | Maximum available security groups for project |
 | `gauge.openstack.nova.limit.maxTotalCores` | gauge | ✔ | Maximum available VCPUs in project |
 | `gauge.openstack.nova.limit.maxTotalFloatingIps` | gauge | ✔ | Maximum available floating IPs for project |
 | `gauge.openstack.nova.limit.maxTotalInstances` | gauge | ✔ | Maximum available instances in project |
+| `gauge.openstack.nova.limit.maxTotalKeypairs` | gauge | ✔ | Maximum available keypairs for project |
 | `gauge.openstack.nova.limit.maxTotalRAMSize` | gauge | ✔ | Maximum available RAM size for project |
 | `gauge.openstack.nova.limit.totalCoresUsed` | gauge | ✔ | Total cores used in the project |
+| `gauge.openstack.nova.limit.totalFloatingIpsUsed` | gauge | ✔ | Total floating IPs used in the project |
 | `gauge.openstack.nova.limit.totalInstancesUsed` | gauge | ✔ | Total instances used in the project |
 | `gauge.openstack.nova.limit.totalRAMUsed` | gauge | ✔ | Total RAM used in the project |
+| `gauge.openstack.nova.limit.totalSecurityGroupsUsed` | gauge | ✔ | Total RAM used in the project |
 | `gauge.openstack.nova.server.memory` | gauge | ✔ | Memory provisioned at an instance |
 | `gauge.openstack.nova.server.memory-actual` | gauge | ✔ | Actual memory used at an instance |
 | `gauge.openstack.nova.server.memory-rss` | gauge | ✔ | Memory used not including disk pages at an instance |
@@ -85,25 +106,35 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.openstack.nova.server.vda_write_req` | gauge | ✔ | Virtual disk write requests from an instance |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - counter.openstack.nova.server.cpu_time
-    - gauge.openstack.nova.hypervisor.load_average
-    monitorType: collectd/openstack
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

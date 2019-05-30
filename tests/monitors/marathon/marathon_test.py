@@ -38,3 +38,11 @@ def test_marathon(marathon_image):
                 assert wait_for(
                     p(has_datapoint_with_dim, agent.fake_services, "plugin", "marathon")
                 ), "didn't get datapoints"
+
+
+# This test do not confirm the list of included/enhanced metrics due to considerable flexibility/inconsistency.
+# There are 120+ metrics being emitted by the monitor without any extra configuration and a proper documentation
+# is missing for the metrics.
+# A complete list of the metrics can be found here.
+# https://docs.google.com/spreadsheets/d/123sUSxhn2Xw0boO8e6q4RoNFg0UfZ3CYuq-TVC5a89E/edit?usp=sharing
+# Seon Kim, 05/21/2019

@@ -40,6 +40,10 @@ Monitor Type: `collectd/kafka_consumer`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host to connect to -- JMX must be configured for remote access and accessible from the agent |
@@ -76,23 +80,65 @@ The **nested** `values` config object has the following fields:
 | `instancePrefix` | no | `string` | Works like the option of the same name directly beneath the MBean block, but sets the type instance instead |
 | `instanceFrom` | no | `list of strings` | Works like the option of the same name directly beneath the MBean block, but sets the type instance instead |
 | `attribute` | no | `string` | Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true, path must point to a composite type, otherwise it must point to a numeric type. |
-
-
+| `attributes` | no | `list of strings` | The plural form of the `attribute` config above.  Used to derive multiple metrics from a single MBean. |
 
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
 
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `kafka.consumer.bytes-consumed-rate` | gauge |  | Average number of bytes consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter. |
-| `kafka.consumer.fetch-rate` | gauge |  | Number of records consumed per second. |
-| `kafka.consumer.fetch-size-avg` | gauge |  | Average number of bytes fetched per request. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter. |
-| `kafka.consumer.records-consumed-rate` | gauge |  | Average number of records consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter. |
-| `kafka.consumer.records-lag-max` | gauge |  | Maximum lag in of records for any partition in this window. An increasing value over time is your best indication that the consumer group is not keeping up with the producers. |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | [Group](#groups) | Description |
+| ---  | ---  | ---    | --- | ---         |
+| `gauge.jvm.threads.count` | gauge | ✔ | jvm | Number of JVM threads |
+| `gauge.kafka.consumer.bytes-consumed-rate` | gauge | ✔ |  | Average number of bytes consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter. |
+| `gauge.kafka.consumer.fetch-rate` | gauge | ✔ |  | Number of records consumed per second. |
+| `gauge.kafka.consumer.fetch-size-avg` | gauge | ✔ |  | Average number of bytes fetched per request. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter. |
+| `gauge.kafka.consumer.records-consumed-rate` | gauge | ✔ |  | Average number of records consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter. |
+| `gauge.kafka.consumer.records-lag-max` | gauge | ✔ |  | Maximum lag in of records for any partition in this window. An increasing value over time is your best indication that the consumer group is not keeping up with the producers. |
+| `gauge.loaded_classes` | gauge | ✔ | jvm | Number of classes loaded in the JVM |
+| `invocations` | cumulative | ✔ | jvm | Total number of garbage collection events |
+| `jmx_memory.committed` | gauge | ✔ | jvm | Amount of memory guaranteed to be available in bytes |
+| `jmx_memory.init` | gauge | ✔ | jvm | Amount of initial memory at startup in bytes |
+| `jmx_memory.max` | gauge | ✔ | jvm | Maximum amount of memory that can be used in bytes |
+| `jmx_memory.used` | gauge | ✔ | jvm | Current memory usage in bytes |
+| `total_time_in_ms.collection_time` | cumulative | ✔ | jvm | Amount of time spent garbage collecting in milliseconds |
 
 
+
+### Non-default metrics (version 4.7.0+)
+
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
+
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
+
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+#### Groups
+You can enable an entire group of metrics by specifying the `extraGroups` config
+option in your monitor config.  The value is a list of group names to enable.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

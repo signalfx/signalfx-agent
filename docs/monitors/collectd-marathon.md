@@ -41,6 +41,10 @@ Monitor Type: `collectd/marathon`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
@@ -51,13 +55,14 @@ Monitor Type: `collectd/marathon`
 | `dcosAuthURL` | no | `string` | The dcos authentication URL which the plugin uses to get authentication tokens from. Set scheme to "https" if operating DC/OS in strict mode and dcosAuthURL to "https://leader.mesos/acs/api/v1/auth/login" (which is the default DNS entry provided by DC/OS) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
 
-| Name | Type | Included | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `gauge.marathon-api-metric` | gauge |  | Metrics reported by the Marathon Metrics API |
 | `gauge.marathon.app.cpu.allocated` | gauge | ✔ | Number of CPUs allocated to an application |
@@ -80,30 +85,35 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `gauge.marathon.task.start.time.elapsed` | gauge |  | Time elapsed since the task started |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - gauge.marathon-api-metric
-    - gauge.marathon.app.delayed
-    - gauge.marathon.app.deployments.total
-    - gauge.marathon.app.gpu.allocated
-    - gauge.marathon.app.gpu.allocated.per.instance
-    - gauge.marathon.task.staged.time.elapsed
-    - gauge.marathon.task.start.time.elapsed
-    monitorType: collectd/marathon
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

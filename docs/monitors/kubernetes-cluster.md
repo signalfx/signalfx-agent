@@ -2,10 +2,12 @@
 
 # kubernetes-cluster
 
-Collects cluster-level metrics from the
-Kubernetes API server.  It uses the _watch_ functionality of the K8s API
-to listen for updates about the cluster and maintains a cache of metrics
-that get sent on a regular interval.
+*If you are using OpenShift there is an* [openshift-cluster](openshift-cluster.md)
+*monitor to be used instead of this monitor that contains additional OpenShift metrics.*
+
+Collects cluster-level metrics from the Kubernetes API server.  It uses the
+_watch_ functionality of the K8s API to listen for updates about the cluster
+and maintains a cache of metrics that get sent on a regular interval.
 
 Since the agent is generally running in multiple places in a K8s cluster and
 since it is generally more convenient to share the same configuration across
@@ -34,6 +36,10 @@ Monitor Type: `kubernetes-cluster`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `alwaysClusterReporter` | no | `bool` | If `true`, leader election is skipped and metrics are always reported. (**default:** `false`) |
@@ -47,20 +53,21 @@ The **nested** `kubernetesAPI` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `authType` | no | `string` | How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), or `serviceAccount` (to use the standard service account token provided to the agent pod). (**default:** `serviceAccount`) |
+| `authType` | no | `string` | How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), `serviceAccount` (to use the standard service account token provided to the agent pod), or `kubeConfig` to use credentials from `~/.kube/config`. (**default:** `serviceAccount`) |
 | `skipVerify` | no | `bool` | Whether to skip verifying the TLS cert from the API server.  Almost never needed. (**default:** `false`) |
 | `clientCertPath` | no | `string` | The path to the TLS client cert on the pod's filesystem, if using `tls` auth. |
 | `clientKeyPath` | no | `string` | The path to the TLS client key on the pod's filesystem, if using `tls` auth. |
 | `caCertPath` | no | `string` | Path to a CA certificate to use when verifying the API server's TLS cert.  Generally this is provided by K8s alongside the service account token, which will be picked up automatically, so this should rarely be necessary to specify. |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
 
-| Name | Type | Included | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `kubernetes.container_ready` | gauge | ✔ | Whether a container has passed its readiness probe (0 for no, 1 for yes) |
 | `kubernetes.container_restart_count` | gauge | ✔ | How many times the container has restarted in the recent past.  This value is pulled directly from [the K8s API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core) and the value can go indefinitely high and be reset to 0 at any time depending on how your [kubelet is configured to prune dead containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/). It is best to not depend too much on the exact value but rather look at it as either `== 0`, in which case you can conclude there were no restarts in the recent past, or `> 0`, in which case you can conclude there were restarts in the recent past, and not try and analyze the value beyond that. |
@@ -81,23 +88,35 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `kubernetes.resource_quota_used` | gauge | ✔ | The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores. |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    monitorType: kubernetes-cluster
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 ## Dimensions
 

@@ -16,49 +16,55 @@ monitors:
   metrics:
     df_complex.free:
       description: Free disk space in bytes
-      included: true
+      default: true
       type: gauge
     df_complex.used:
       description: Used disk space in bytes
-      included: true
+      default: true
       type: gauge
     df_inodes.free:
       description: (Linux Only) Number of inodes that are free.  This is is only reported
-        if the configuration option `reportInodes` is set to `true`.
-      included: false
+        if the configuration option `inodes` is set to `true`.
+      default: false
       type: gauge
+      group: inodes
     df_inodes.used:
       description: (Linux Only) Number of inodes that are used.  This is only reported
-        if the configuration option `reportInodes` is set to `true`.
-      included: false
+        if the configuration option `inodes` is set to `true`.
+      default: false
       type: gauge
+      group: inodes
     disk.summary_utilization:
       description: Percent of disk space utilized on all volumes on this host. This
         metric reports with plugin dimension set to "signalfx-metadata".
-      included: true
+      default: true
       type: gauge
     disk.utilization:
       description: Percent of disk used on this volume. This metric reports with plugin
         dimension set to "signalfx-metadata".
-      included: true
+      default: true
       type: gauge
     percent_bytes.free:
       description: Free disk space on the file system, expressed as a percentage.
-      included: false
+      default: false
       type: gauge
+      group: logical
     percent_bytes.used:
       description: Used disk space on the file system, expressed as a percentage.
-      included: false
+      default: false
       type: gauge
+      group: logical
     percent_inodes.free:
       description: (Linux Only) Free inodes on the file system, expressed as a percentage.  This
-        is only reported if the configuration option `reportInodes` is set to `true`.
-      included: false
+        is only reported if the configuration option `inodes` is set to `true`.
+      default: false
       type: gauge
+      group: inodes
     percent_inodes.used:
       description: (Linux Only) Used inodes on the file system, expressed as a percentage.  This
-        is only reported if the configuration option `reportInodes` is set to `true`.
-      included: false
+        is only reported if the configuration option `inodes` is set to `true`.
+      default: false
       type: gauge
+      group: inodes
   monitorType: filesystems
   properties:

@@ -1,70 +1,69 @@
 """
 Tests for the collectd/activemq monitor
 """
+from contextlib import contextmanager
 from functools import partial as p
 from pathlib import Path
-from textwrap import dedent
 
 import pytest
-
-from tests.helpers.agent import Agent
-from tests.helpers.assertions import any_metric_found, tcp_socket_open
-from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
-from tests.helpers.util import (
-    container_ip,
-    get_monitor_dims_from_selfdescribe,
-    get_monitor_metrics_from_selfdescribe,
-    run_service,
-    wait_for,
-)
+from tests.helpers.assertions import tcp_socket_open
+from tests.helpers.metadata import Metadata
+from tests.helpers.util import container_ip, run_service, wait_for
+from tests.helpers.verify import run_agent_verify_all_metrics, run_agent_verify_default_metrics
 
 pytestmark = [pytest.mark.collectd, pytest.mark.activemq, pytest.mark.monitor_with_endpoints]
 
+METADATA = Metadata.from_package("collectd/activemq")
 SCRIPT_DIR = Path(__file__).parent.resolve()
+JMX_USERNAME = "testuser"
+JMX_PASSWORD = "testing123"
 
 
-def test_activemq():
+@contextmanager
+def run_activemq():
     with run_service("activemq") as activemq_container:
         host = container_ip(activemq_container)
-        config = dedent(
-            f"""
-            monitors:
-              - type: collectd/activemq
-                host: {host}
-                port: 1099
-                serviceURL: service:jmx:rmi:///jndi/rmi://{host}:1099/jmxrmi
-                username: testuser
-                password: testing123
+        assert wait_for(p(tcp_socket_open, host, 1099), 60), "broker socket didn't open"
+
+        def check():
+            # Check that the broker is actually responding. This currently isn't sufficient
+            # to check that the broker is up for unknown reasons so still ignoring
+            # error checking for now.
+            res = activemq_container.exec_run(
+                f"bin/activemq query --jmxuser {JMX_USERNAME} --jmxpassword {JMX_PASSWORD}"
+            )
+            return res.exit_code == 0 and b"Broker not available" not in res.output
+
+        assert wait_for(check), "broker did not start"
+        yield host
+
+
+def test_activemq_default():
+    with run_activemq() as host:
+        config = f"""
+        monitors:
+        - type: collectd/activemq
+          host: {host}
+          port: 1099
+          serviceURL: service:jmx:rmi:///jndi/rmi://{host}:1099/jmxrmi
+          username: {JMX_USERNAME}
+          password: {JMX_PASSWORD}
         """
-        )
-        assert wait_for(p(tcp_socket_open, host, 1099), 60), "service didn't start"
-        with Agent.run(config) as agent:
-            metrics = get_monitor_metrics_from_selfdescribe("collectd/activemq")
-            assert wait_for(p(any_metric_found, agent.fake_services, metrics)), "Didn't get activemq datapoints"
+
+        run_agent_verify_default_metrics(config, METADATA)
 
 
-@pytest.mark.kubernetes
-def test_activemq_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = SCRIPT_DIR / "activemq-k8s.yaml"
-    build_opts = {"tag": "activemq:k8s-test"}
-    minikube.build_image("activemq", build_opts)
-    monitors = [
-        {
-            "type": "collectd/activemq",
-            "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace),
-            "serviceURL": "service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi",
-            "username": "testuser",
-            "password": "testing123",
-        }
-    ]
-    run_k8s_monitors_test(
-        agent_image,
-        minikube,
-        monitors,
-        namespace=k8s_namespace,
-        yamls=[yaml],
-        observer=k8s_observer,
-        expected_metrics=get_monitor_metrics_from_selfdescribe(monitors[0]["type"]),
-        expected_dims=get_monitor_dims_from_selfdescribe(monitors[0]["type"]),
-        test_timeout=k8s_test_timeout,
-    )
+def test_activemq_all():
+    with run_activemq() as host:
+        config = f"""
+        monitors:
+        - type: collectd/activemq
+          host: {host}
+          port: 1099
+          serviceURL: service:jmx:rmi:///jndi/rmi://{host}:1099/jmxrmi
+          username: {JMX_USERNAME}
+          password: {JMX_PASSWORD}
+          extraMetrics: ["*"]
+        """
+
+        run_agent_verify_all_metrics(config, METADATA)

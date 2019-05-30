@@ -17,15 +17,15 @@ Monitor Type: `collectd/chrony`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | The hostname of the chronyd instance |
 | `port` | no | `integer` | The UDP port number of the chronyd instance.  Defaults to 323 in collectd if unspecified. |
 | `timeout` | no | `unsigned integer` | How long to wait for a response from chronyd before considering it down. Defaults to 2 seconds in the collectd plugin if not specified |
-
-
-
-
 
 
 

@@ -26,7 +26,10 @@ syncs:
     - Path .git
     - Path signalfx-agent
     - Path monitor-code-gen
-    - Name boxcutter
+    - Path scripts/windows/vagrant/boxcutter
+    - Name __pycache__
+    - Name *.exe
+    - Name *.tar.gz
     - Name .idea
     - Name .DS_Store
 
@@ -38,3 +41,11 @@ syncs:
     #
     # for more see http://www.cis.upenn.edu/~bcpierce/unison/download/releases/stable/unison-manual.html#pathspec
     sync_excludes_type: none
+
+    # monit can be used to monitor the health of unison in the native_osx strategy and can restart unison if it detects a problem
+    # optional: use this to switch monit monitoring on
+    monit_enable: true
+    # optional: use this to change how many seconds between each monit check (cycle)
+    monit_interval: 3
+    # optional: use this to change how many consecutive times high cpu usage must be observed before unison is restarted
+    monit_high_cpu_cycles: 2

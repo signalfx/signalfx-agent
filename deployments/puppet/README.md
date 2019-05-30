@@ -10,10 +10,11 @@ class accepts the following parameters:
     for a full list of acceptable options.  The only required option is
     `signalFxAccessToken`.  Here is a basic config that will monitor a basic set of
     host-level components:
-    
+
     ```ruby
     $config = {
       signalFxAccessToken: "MY_TOKEN",
+      enableBuiltInFiltering: true,
       monitors: [
         {type: "collectd/cpu"},
         {type: "collectd/cpufreq"},

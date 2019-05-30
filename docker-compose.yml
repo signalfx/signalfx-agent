@@ -2,7 +2,7 @@ version: "3"
 services:
   shell:
     image: signalfx-agent-dev
-    network_mode: bridge
+    network_mode: host
     command: tail -f /dev/null
     stop_grace_period: 0s
     ports:

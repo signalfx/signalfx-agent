@@ -31,19 +31,24 @@ Monitor Type: `windows-legacy`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `counterRefreshInterval` | no | `int64` | (Windows Only) Number of seconds that wildcards in counter paths should be expanded and how often to refresh counters from configuration. (**default:** `60s`) |
 | `printValid` | no | `bool` | (Windows Only) Print out the configurations that match available performance counters.  This used for debugging. (**default:** `false`) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
+The following table lists the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+are marked as _Default_ in the table below.
 
-| Name | Type | Included | Description |
+| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
 | ---  | ---  | ---    | ---         |
 | `logicaldisk.disk_read_bytes_sec` | gauge |  | The number of bytes read from disk per second. |
 | `logicaldisk.disk_reads_sec` | gauge | ✔ | The number of read operations per second. |
@@ -58,12 +63,12 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `network_interface.bytes_sent_sec` | gauge | ✔ | Bytes Sent/sec is the rate at which bytes are sent over each network adapter, including framing characters. |
 | `network_interface.bytes_total_sec` | gauge | ✔ | The number of bytes sent and received over a specific network adapter, including framing characters. |
 | `network_interface.current_bandwidth` | gauge |  | Current Bandwidth is an estimate of the current bandwidth of the network interface in bits per second (BPS). |
-| `network_interface.outbound_discarded` | gauge |  | The number of outbound packets discarded |
+| `network_interface.packets_outbound_discarded` | gauge |  | The number of outbound packets discarded |
 | `network_interface.packets_outbound_errors` | gauge | ✔ | The number of packets sent that encountered an error. |
+| `network_interface.packets_received_discarded` | gauge |  | The number of received packets discarded. |
 | `network_interface.packets_received_errors` | gauge | ✔ | The number of packets received that encountered an error. |
 | `network_interface.packets_received_sec` | gauge |  | Tracking the packets received over time can give you a good indication of the typical use of the system's network. |
 | `network_interface.packets_sent_sec` | gauge |  | The number of packets sent per second. |
-| `network_interface.received_discarded` | gauge |  | The number of received packets discarded. |
 | `paging_file.pct_usage` | gauge | ✔ | Amount of Page File in use, which indicates the server is substituting disk space for memory. |
 | `paging_file.pct_usage_peak` | gauge |  | Highest %Usage metric since the last time the server was restarted. |
 | `physicaldisk.avg_disk_sec_read` | gauge |  | The average time, in milliseconds, of each read from disk. |
@@ -78,41 +83,35 @@ The following table lists the metrics available for this monitor. Metrics that a
 | `system.system_calls_sec` | gauge |  | The number of system calls being serviced by the CPU per second. |
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - logicaldisk.disk_read_bytes_sec
-    - logicaldisk.disk_transfers_sec
-    - logicaldisk.disk_write_bytes_sec
-    - network_interface.current_bandwidth
-    - network_interface.outbound_discarded
-    - network_interface.packets_received_sec
-    - network_interface.packets_sent_sec
-    - network_interface.received_discarded
-    - paging_file.pct_usage_peak
-    - physicaldisk.avg_disk_sec_read
-    - physicaldisk.avg_disk_sec_transfer
-    - physicaldisk.avg_disk_sec_write
-    - processor.interrupts_sec
-    - processor.pct_privileged_time
-    - processor.pct_user_time
-    - system.context_switches_sec
-    - system.processor_queue_length
-    - system.system_calls_sec
-    monitorType: windows-legacy
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above table do
+not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

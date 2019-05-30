@@ -83,7 +83,7 @@ data:
 
     {{ if .Values.gatherClusterMetrics -}}
     # Collects k8s cluster-level metrics
-    - type: kubernetes-cluster
+    - type: {{.Values.kubernetesDistro}}-cluster
       useNodeName: true
     {{- end }}
 
@@ -116,6 +116,8 @@ data:
       writeQueueLimitLow: {{ .Values.writeQueueLimitLow | default 400000 }}
       timeout: {{ .Values.timeout | default 40 }}
       logLevel: {{ .Values.logLevel | default "notice" }}
+
+    enableBuiltInFiltering: true
 
     metricsToExclude:
       # The StackDriver metadata-agent pod on GKE restarts every few minutes so

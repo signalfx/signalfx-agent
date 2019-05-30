@@ -1,6 +1,13 @@
 from signalfx.generated_protocol_buffers import signal_fx_protocol_buffers_pb2 as sf_pbuf
 
 
+def get_metric_type(index):
+    for metric_type, idx in sf_pbuf.MetricType.items():
+        if int(index) == idx:
+            return metric_type
+    return str(index)
+
+
 def print_dp_or_event(dp_or_event):
     """
     Prints datapoint object in the format:
@@ -13,12 +20,6 @@ def print_dp_or_event(dp_or_event):
      - <property_key> = <property_value>
      - ...
     """
-
-    def _get_metric_type(index):
-        for metric_type, idx in sf_pbuf.MetricType.items():
-            if int(index) == idx:
-                return metric_type
-        return str(index)
 
     def _get_event_category(number):
         for category, num in sf_pbuf.EventCategory.items():
@@ -48,7 +49,7 @@ def print_dp_or_event(dp_or_event):
     str_dp_or_event = ""
     if isinstance(dp_or_event, sf_pbuf.DataPoint):
         str_dp_or_event = dp_or_event.metric
-        str_dp_or_event += " (" + _get_metric_type(dp_or_event.metricType) + ")"
+        str_dp_or_event += " (" + get_metric_type(dp_or_event.metricType) + ")"
         str_dp_or_event += _get_pretty_dims(dp_or_event.dimensions)
         str_dp_or_event += " = " + _get_pretty_value(dp_or_event.value)
     else:

@@ -11,8 +11,10 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"strings"
+	"unicode"
 
-	"github.com/signalfx/signalfx-agent/internal/monitors"
+	"github.com/signalfx/signalfx-agent/internal/selfdescribe"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -21,13 +23,17 @@ const (
 	generatedMetadataTemplate = "genmetadata.tmpl"
 )
 
-func buildOutputPath(pkg *monitors.PackageMetadata) string {
+func buildOutputPath(pkg *selfdescribe.PackageMetadata) string {
 	outputDir := pkg.PackagePath
+	outputPackage := strings.TrimSpace(pkg.PackageDir)
+	if outputPackage != "" {
+		outputDir = path.Join(pkg.PackagePath, outputPackage)
+	}
 	return path.Join(outputDir, genMetadata)
 }
 
 // shouldRegenerate determines whether the metadata file needs regenerated based on its existence and timestamps.
-func shouldRegenerate(pkg *monitors.PackageMetadata, outputFile string) (bool, error) {
+func shouldRegenerate(pkg *selfdescribe.PackageMetadata, outputFile string) (bool, error) {
 	var generatorStat os.FileInfo
 	var statMetadataYaml os.FileInfo
 
@@ -55,14 +61,29 @@ func shouldRegenerate(pkg *monitors.PackageMetadata, outputFile string) (bool, e
 }
 
 func generate(templateFile string, force bool) error {
-	pkgs, err := monitors.CollectMetadata("internal/monitors")
+	pkgs, err := selfdescribe.CollectMetadata("internal/monitors")
 
 	if err != nil {
 		return err
 	}
 
+	exportVars := false
+
 	tmpl, err := template.New(generatedMetadataTemplate).Option("missingkey=error").Funcs(template.FuncMap{
-		"formatVariable": formatVariable,
+		"formatVariable": func(s string) (string, error) {
+			formatted, err := formatVariable(s)
+
+			if err != nil {
+				return "", err
+			}
+
+			if exportVars {
+				runes := []rune(formatted)
+				runes[0] = unicode.ToUpper(runes[0])
+				formatted = string(runes)
+			}
+			return formatted, nil
+		},
 		"convertMetricType": func(metricType string) (output string, err error) {
 			switch metricType {
 			case "gauge":
@@ -75,6 +96,7 @@ func generate(templateFile string, force bool) error {
 				return "", fmt.Errorf("unknown metric type %s", metricType)
 			}
 		},
+		"deref": func(p *string) string { return *p },
 	}).ParseFiles(templateFile)
 
 	if err != nil {
@@ -93,7 +115,7 @@ func generate(templateFile string, force bool) error {
 
 		writer := &bytes.Buffer{}
 		groupMetricsMap := map[string][]string{}
-		metrics := map[string]monitors.MetricMetadata{}
+		metrics := map[string]selfdescribe.MetricMetadata{}
 
 		for _, mon := range pkg.Monitors {
 			for metric, metricInfo := range mon.Metrics {
@@ -116,9 +138,14 @@ func generate(templateFile string, force bool) error {
 			}
 		}
 
+		// Pretty gross, resets variable that template function references above.
+		exportVars = strings.TrimSpace(pkg.PackageDir) != ""
+
 		// Go package name can be overridden but default to the directory name.
 		var goPackage string
 		switch {
+		case exportVars:
+			goPackage = pkg.PackageDir
 		case pkg.GoPackage != nil:
 			goPackage = *pkg.GoPackage
 		default:
@@ -141,6 +168,10 @@ func generate(templateFile string, force bool) error {
 		}
 
 		outputFile := buildOutputPath(pkg)
+
+		if err := os.MkdirAll(path.Dir(outputFile), 0755); err != nil {
+			return err
+		}
 
 		if err := ioutil.WriteFile(outputFile, formatted, 0644); err != nil {
 			return err

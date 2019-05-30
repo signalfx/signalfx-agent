@@ -16,6 +16,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/observers"
+	"github.com/signalfx/signalfx-agent/internal/utils"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/types"
@@ -74,6 +75,13 @@ type Config struct {
 	Namespace string `yaml:"namespace"`
 	// Configuration for the K8s API client
 	KubernetesAPI *kubernetes.APIConfig `yaml:"kubernetesAPI" default:"{}"`
+	// A list of annotation names that should be used to infer additional ports
+	// to be discovered on a particular pod.  The pod's annotation value should
+	// be a port number.  This is useful for annotations like
+	// `prometheus.io/port: 9230`.  If you don't already have preexisting
+	// annotations like this, we recommend using the [SignalFx-specific
+	// annotations](https://docs.signalfx.com/en/latest/integrations/agent/kubernetes-setup.html#config-via-k8s-annotations).
+	AdditionalPortAnnotations []string `yaml:"additionalPortAnnotations"`
 }
 
 // Validate the observer-specific config
@@ -173,7 +181,7 @@ func (o *Observer) changeHandler(oldPod *v1.Pod, newPod *v1.Pod) {
 	}
 
 	if newPod != nil {
-		newEndpoints = o.endpointsInPod(newPod, o.clientset)
+		newEndpoints = o.endpointsInPod(newPod, o.clientset, utils.StringSliceToMap(o.config.AdditionalPortAnnotations))
 		o.endpointsByPodUID[newPod.UID] = newEndpoints
 	}
 
@@ -195,7 +203,7 @@ func (o *Observer) changeHandler(oldPod *v1.Pod, newPod *v1.Pod) {
 	}
 }
 
-func (o *Observer) endpointsInPod(pod *v1.Pod, client *k8s.Clientset) []services.Endpoint {
+func (o *Observer) endpointsInPod(pod *v1.Pod, client *k8s.Clientset, portAnnotationSet map[string]bool) []services.Endpoint {
 	endpoints := make([]services.Endpoint, 0)
 
 	podIP := pod.Status.PodIP
@@ -210,14 +218,25 @@ func (o *Observer) endpointsInPod(pod *v1.Pod, client *k8s.Clientset) []services
 		return nil
 	}
 
-	annotationConfs := annotationsForPod(pod)
+	annotationConfs := annotationConfigsForPod(pod, portAnnotationSet)
 
 	orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, services.PRIVATE)
+
+	portsSeen := map[int32]bool{}
+
+	podDims := map[string]string{
+		"kubernetes_pod_name":  pod.Name,
+		"kubernetes_pod_uid":   string(pod.UID),
+		"kubernetes_namespace": pod.Namespace,
+	}
 
 	for _, container := range pod.Spec.Containers {
 		var containerState string
 		var containerID string
 		var containerName string
+
+		dims := utils.CloneStringMap(podDims)
+		dims["container_spec_name"] = container.Name
 
 		for _, status := range pod.Status.ContainerStatuses {
 			if container.Name != status.Name {
@@ -236,14 +255,9 @@ func (o *Observer) endpointsInPod(pod *v1.Pod, client *k8s.Clientset) []services
 			continue
 		}
 
-		dims := map[string]string{
-			"container_spec_name":  container.Name,
-			"kubernetes_pod_name":  pod.Name,
-			"kubernetes_pod_uid":   string(pod.UID),
-			"kubernetes_namespace": pod.Namespace,
-		}
-
 		for _, port := range container.Ports {
+			portsSeen[port.ContainerPort] = true
+
 			id := fmt.Sprintf("%s-%s-%d", pod.Name, pod.UID[:7], port.ContainerPort)
 
 			endpoint := services.NewEndpointCore(id, port.Name, observerType, dims)
@@ -271,6 +285,9 @@ func (o *Observer) endpointsInPod(pod *v1.Pod, client *k8s.Clientset) []services
 				State:   containerState,
 				Labels:  pod.Labels,
 			}
+
+			endpoint.AddExtraField("kubernetes_annotations", pod.Annotations)
+
 			endpoints = append(endpoints, &services.ContainerEndpoint{
 				EndpointCore:  *endpoint,
 				AltPort:       0,
@@ -278,6 +295,39 @@ func (o *Observer) endpointsInPod(pod *v1.Pod, client *k8s.Clientset) []services
 				Orchestration: *orchestration,
 			})
 		}
+	}
+
+	annotationConfsByPort := annotationConfs.GroupByPortNumber()
+
+	// Cover all non-declared ports that were specified in annotations
+	for portNum, acs := range annotationConfsByPort {
+		if portsSeen[portNum] {
+			// This would have been handled in the above loop.
+			continue
+		}
+
+		id := fmt.Sprintf("%s-%s-%d", pod.Name, pod.UID[:7], portNum)
+
+		endpoint := services.NewEndpointCore(id, "", observerType, podDims)
+		monitorType, extraConf, err := configFromAnnotations("", acs, pod, client)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("K8s port has invalid config annotations")
+		} else {
+			endpoint.Configuration = extraConf
+			endpoint.MonitorType = monitorType
+		}
+		endpoint.Host = podIP
+		endpoint.PortType = services.UNKNOWN
+		endpoint.Port = uint16(portNum)
+		endpoint.AddExtraField("kubernetes_annotations", pod.Annotations)
+
+		endpoints = append(endpoints, &services.ContainerEndpoint{
+			EndpointCore:  *endpoint,
+			AltPort:       0,
+			Orchestration: *orchestration,
+		})
 	}
 	return endpoints
 }

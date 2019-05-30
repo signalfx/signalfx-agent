@@ -50,7 +50,7 @@ monitors:
     | [gitlab-sidekiq](gitlab-sidekiq.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8082 | /metrics |
     | [gitlab-unicorn](gitlab-unicorn.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_metrics.html#unicorn-metrics-available) | 8080 | /-/metrics |
     | [gitlab-workhorse](gitlab-workhorse.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9229 | /metrics |
-    | [prometheus/nginx-vts](prometheus-nginx-vtx.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8060 | /metrics |
+    | [prometheus/nginx-vts](prometheus-nginx-vts.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8060 | /metrics |
     | [prometheus/node](prometheus-node.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/node_exporter.html) | 9100 | /metrics |
     | [promteheus/postgres](prometheus-postgres.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/postgres_exporter.html) | 9187 | /metrics |
     | [prometheus/prometheus](prometheus-prometheus.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9090 | /metrics |
@@ -144,211 +144,211 @@ monitors:
   metrics:
     ci_stale_builds:
       description: ci_stale_builds metric
-      included:
+      default:
       type: gauge
     gitlab_database_rows:
       description:
-      included:
+      default:
       type: gauge
     process_memory_bytes:
       description: process_memory_bytes metric
-      included:
+      default:
       type: gauge
     process_age_seconds:
       description: process_age_seconds metric
-      included:
+      default:
       type: gauge
     process_count:
       description: process_count metric
-      included: true
+      default: true
       type: gauge
     sidekiq_queue_size:
       description: sidekiq_queue_size metric
-      included: true
+      default: true
       type: gauge
     sidekiq_queue_latency:
       description: sidekiq_queue_latency metric
-      included: true
+      default: true
       type: gauge
     sidekiq_dead_jobs_total:
       description: sidekiq_dead_jobs_total metric
-      included:
+      default:
       type: gauge
     gitlab_projects_with_jid:
       description:
-      included:
+      default:
       type: gauge
     gitlab_projects_without_jid:
       description:
-      included:
+      default:
       type: gauge
     gitlab_stuck_import_jobs_worker_runs_total:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_cache_misses_total:
       description:
-      included:
+      default:
       type: cumulative
     http_request_duration_seconds_bucket:
       description:
-      included:
+      default:
       type: cumulative
     http_request_duration_seconds_count:
       description:
-      included:
+      default:
       type: cumulative
     http_request_duration_seconds:
       description:
-      included:
+      default:
       type: cumulative
     ruby_file_descriptors:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_duration_seconds_total:
       description:
-      included:
+      default:
       type: cumulative
     ruby_gc_stat_count:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_heap_allocatable_pages:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_heap_allocated_pages:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_heap_available_slots:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_heap_eden_pages:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_heap_final_slots:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_heap_free_slots:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_heap_live_slots:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_heap_marked_slots:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_heap_sorted_length:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_heap_tomb_pages:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_major_gc_count:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_malloc_increase_bytes:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_malloc_increase_bytes_limit:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_minor_gc_count:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_old_objects:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_old_objects_limit:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_oldmalloc_increase_bytes:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_oldmalloc_increase_bytes_limit:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_remembered_wb_unprotected_objects:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_remembered_wb_unprotected_objects_limit:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_total_allocated_objects:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_total_allocated_pages:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_total_freed_objects:
       description:
-      included:
+      default:
       type: gauge
     ruby_gc_stat_total_freed_pages:
       description:
-      included:
+      default:
       type: gauge
     ruby_memory_bytes:
       description:
-      included:
+      default:
       type: gauge
     ruby_sampler_duration_seconds_total:
       description:
-      included:
+      default:
       type: cumulative
     pg_stat_table_seq_tup_read:
       description: pg_stat_table_seq_tup_read metric
-      included: true
+      default: true
       type: gauge
     pg_stat_table_idx_tup_fetch:
       description: pg_stat_table_idx_tup_fetch metric
-      included: true
+      default: true
       type: gauge
     pg_stat_table_n_tup_ins:
       description: pg_stat_table_n_tup_ins metric
-      included: true
+      default: true
       type: gauge
     pg_stat_table_n_tup_upd:
       description: pg_stat_table_n_tup_upd metric
-      included: true
+      default: true
       type: gauge
     pg_stat_table_n_tup_del:
       description: pg_stat_table_n_tup_del metric
-      included: true
+      default: true
       type: gauge
     pg_stat_table_n_tup_hot_upd:
       description: pg_stat_table_n_tup_hot_upd metric
-      included:
+      default:
       type: gauge
     pg_stat_table_n_dead_tup:
       description: pg_stat_table_n_dead_tup metric
-      included:
+      default:
       type: gauge
     pg_stat_table_seq_scan:
       description: pg_stat_table_seq_scan metric
-      included:
+      default:
       type: gauge
 - monitorType: gitlab-workhorse
   doc: |
@@ -370,116 +370,116 @@ monitors:
   metrics:
     gitlab_workhorse_builds_register_handler_open:
       description: Describes how many requests is currently open in given state
-      included:
+      default:
       type: gauge
     gitlab_workhorse_builds_register_handler_requests:
       description: Describes how many requests in different states hit a register
         handler
-      included:
+      default:
       type: cumulative
     gitlab_workhorse_git_http_sessions_active:
       description: Number of Git HTTP request-response cycles currently being handled
         by gitlab-workhorse
-      included: true
+      default: true
       type: gauge
     gitlab_workhorse_http_in_flight_requests:
       description: A gauge of requests currently being served by workhorse
-      included:
+      default:
       type: gauge
     gitlab_workhorse_http_request_duration_seconds_bucket:
       description: A histogram of latencies for requests to workhorse
-      included:
+      default:
       type: cumulative
     gitlab_workhorse_http_request_duration_seconds:
       description: A histogram of latencies for requests to workhorse
-      included: true
+      default: true
       type: cumulative
     gitlab_workhorse_http_request_duration_seconds_count:
       description: A histogram of latencies for requests to workhorse
-      included: true
+      default: true
       type: cumulative
     gitlab_workhorse_http_request_size_bytes_bucket:
       description: A histogram of sizes of requests to workhorse
-      included:
+      default:
       type: cumulative
     gitlab_workhorse_http_request_size_bytes:
       description: A histogram of sizes of requests to workhorse
-      included: true
+      default: true
       type: cumulative
     gitlab_workhorse_http_request_size_bytes_count:
       description: A histogram of sizes of requests to workhorse
-      included: true
+      default: true
       type: cumulative
     gitlab_workhorse_http_requests_total:
       description: A counter for requests to workhorse
-      included:
+      default:
       type: cumulative
     gitlab_workhorse_http_time_to_write_header_seconds_bucket:
       description: A histogram of request durations until the response headers are
         written
-      included:
+      default:
       type: cumulative
     gitlab_workhorse_http_time_to_write_header_seconds:
       description: A histogram of request durations until the response headers are
         written
-      included:
+      default:
       type: cumulative
     gitlab_workhorse_http_time_to_write_header_seconds_count:
       description: A histogram of request durations until the response headers are
         written
-      included:
+      default:
       type: cumulative
     gitlab_workhorse_internal_api_failure_response_bytes:
       description: How many bytes have been returned by upstream GitLab in API failure/rejection
         response bodies
-      included:
+      default:
       type: cumulative
     gitlab_workhorse_keywatcher_keywatchers:
       description: The number of keys that is being watched by gitlab-workhorse
-      included:
+      default:
       type: gauge
     gitlab_workhorse_keywather_total_messages:
       description: How many messages gitlab-workhorse has received in total on pubsub
-      included:
+      default:
       type: cumulative
     gitlab_workhorse_object_storage_upload_bytes:
       description: How many bytes were sent to object storage
-      included:
+      default:
       type: cumulative
     gitlab_workhorse_object_storage_upload_open:
       description: Describes many object storage requests are open now
-      included:
+      default:
       type: gauge
     gitlab_workhorse_object_storage_upload_requests:
       description: How many object storage requests have been processed
-      included:
+      default:
       type: cumulative
     gitlab_workhorse_redis_errors:
       description: Counts different types of Redis errors encountered by workhorse,
         by type and destination (redis, sentinel)
-      included:
+      default:
       type: cumulative
     gitlab_workhorse_redis_total_connections:
       description: How many connections gitlab-workhorse has opened in total. Can
         be used to track Redis connection rate for this process
-      included:
+      default:
       type: cumulative
     gitlab_workhorse_send_url_bytes:
       description: How many bytes were passed with send URL
-      included:
+      default:
       type: cumulative
     gitlab_workhorse_send_url_open_requests:
       description: Describes how many send URL requests are open now
-      included:
+      default:
       type: gauge
     gitlab_workhorse_send_url_requests:
       description: How many send URL requests have been processed
-      included:
+      default:
       type: cumulative
     gitlab_workhorse_static_error_responses:
       description: How many HTTP responses have been changed to a static error page,
         by HTTP status code.
-      included:
+      default:
       type: cumulative
 - monitorType: gitlab-unicorn
   doc: |
@@ -506,123 +506,123 @@ monitors:
   metrics:
     user_session_logins_total:
       description:
-      included:
+      default:
       type: cumulative
     unicorn_active_connections:
       description:
-      included:
+      default:
       type: gauge
     unicorn_queued_connections:
       description:
-      included:
+      default:
       type: gauge
     http_requests_total:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_transaction_rails_queue_duration_total:
       description:
-      included:
+      default:
       type: gauge
     gitlab_rails_queue_duration_seconds_bucket:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_rails_queue_duration_seconds_count:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_rails_queue_duration_seconds:
       description:
-      included:
+      default:
       type: cumulative
     job_register_attempts_failed_total:
       description:
-      included:
+      default:
       type: cumulative
     job_register_attempts_total:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_transaction_new_redis_connections_total:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_transaction_view_duration_total:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_transaction_cache_read_hit_count_total:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_transaction_cache_read_miss_count_total:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_auth_user_authenticated_total:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_auth_user_unauthenticated_total:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_banzai_cacheless_render_real_duration_seconds_bucket:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_banzai_cacheless_render_real_duration_seconds_count:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_banzai_cacheless_render_real_duration_seconds:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_cache_misses_total:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_cache_operation_duration_seconds_bucket:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_cache_operation_duration_seconds_count:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_cache_operation_duration_seconds:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_sql_duration_seconds_bucket:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_sql_duration_seconds_count:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_sql_duration_seconds:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_transaction_sidekiq_queue_duration_total:
       description:
-      included: true
+      default: true
       type: gauge
     gitlab_transaction_duration_seconds_bucket:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_transaction_duration_seconds_count:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_transaction_duration_seconds:
       description:
-      included:
+      default:
       type: cumulative
 - monitorType: gitlab-runner
   doc: |
@@ -642,48 +642,48 @@ monitors:
     gitlab_runner_api_request_statuses_total:
       description: The total number of API requests, partitioned by runner, endpoint
         and status
-      included:
+      default:
       type: cumulative
     gitlab_runner_autoscaling_machine_creation_duration_seconds_bucket:
       description: Histogram of machine creation time
-      included:
+      default:
       type: cumulative
     gitlab_runner_autoscaling_machine_creation_duration_seconds:
       description: Histogram of machine creation time
-      included:
+      default:
       type: cumulative
     gitlab_runner_autoscaling_machine_creation_duration_seconds_count:
       description: Histogram of machine creation time
-      included:
+      default:
       type: cumulative
     gitlab_runner_autoscaling_machine_states:
       description: The current number of machines per state in this provider
-      included:
+      default:
       type: gauge
     gitlab_runner_concurrent:
       description: The current value of concurrent setting
-      included:
+      default:
       type: gauge
     gitlab_runner_errors_total:
       description: The number of catched errors
-      included: true
+      default: true
       type: cumulative
     gitlab_runner_limit:
       description: The current value of concurrent setting
-      included:
+      default:
       type: gauge
     gitlab_runner_request_concurrency:
       description: The current number of concurrent requests for a new job
-      included: true
+      default: true
       type: gauge
     gitlab_runner_request_concurrency_exceeded_total:
       description: Counter tracking exceeding of request concurrency
-      included:
+      default:
       type: cumulative
     gitlab_runner_version_info:
       description: A metric with a constant '1' value labeled by different build stats
         fields
-      included:
+      default:
       type: gauge
 - monitorType: gitlab-sidekiq
   doc: |
@@ -691,79 +691,79 @@ monitors:
   metrics:
     gitlab_cache_misses_total:
       description:
-      included:
+      default:
       type: cumulative
     gitaly_controller_action_duration_seconds_bucket:
       description:
-      included:
+      default:
       type: cumulative
     gitaly_controller_action_duration_seconds_count:
       description:
-      included:
+      default:
       type: cumulative
     gitaly_controller_action_duration_seconds:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_cache_operation_duration_seconds_bucket:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_cache_operation_duration_seconds_count:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_cache_operation_duration_seconds:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_repository_archive_clean_up_real_duration_seconds_bucket:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_repository_archive_clean_up_real_duration_seconds_count:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_repository_archive_clean_up_real_duration_seconds:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_sql_duration_seconds_bucket:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_sql_duration_seconds_count:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_sql_duration_seconds:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_transaction_sidekiq_queue_duration_total:
       description:
-      included: true
+      default: true
       type: gauge
     gitlab_transaction_cache_read_hit_count_total:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_transaction_cache_read_miss_count_total:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_transaction_duration_seconds_bucket:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_transaction_duration_seconds_count:
       description:
-      included:
+      default:
       type: cumulative
     gitlab_transaction_duration_seconds:
       description:
-      included:
+      default:
       type: cumulative
 - monitorType: gitlab-gitaly
   doc: |
@@ -771,56 +771,56 @@ monitors:
   metrics:
     gitaly_authentications:
       description: Counts of of Gitaly request authentication attempts
-      included:
+      default:
       type: cumulative
     gitaly_connections_total:
       description: Total number of connections accepted by this Gitaly process
-      included:
+      default:
       type: cumulative
     gitaly_service_client_requests:
       description: Counter of client requests received by client, call_site, auth
         version, and response code
-      included:
+      default:
       type: cumulative
     gitaly_smarthttp_deepen_count:
       description: Number of git-upload-pack requests processed that contained a 'deepen'
         message
-      included:
+      default:
       type: cumulative
     gitaly_spawn_timeout_count:
       description: Number of process spawn timeouts
-      included:
+      default:
       type: cumulative
     gitaly_supervisor_health_checks:
       description: Count of Gitaly supervisor health checks
-      included: true
+      default: true
       type: cumulative
     gitaly_supervisor_rss_bytes:
       description: Resident set size of supervised processes, in bytes
-      included:
+      default:
       type: gauge
     gitaly_supervisor_starts_total:
       description: Number of starts of supervised processes
-      included:
+      default:
       type: cumulative
     gitlab_build_info:
       description: Current build info for this GitLab Service
-      included:
+      default:
       type: gauge
     grpc_server_handled_total:
       description: Total number of RPCs completed on the server, regardless of success
         or failure
-      included: true
+      default: true
       type: cumulative
     grpc_server_msg_received_total:
       description: Total number of RPC stream messages received on the server
-      included:
+      default:
       type: cumulative
     grpc_server_msg_sent_total:
       description: Total number of gRPC stream messages sent by the server
-      included:
+      default:
       type: cumulative
     grpc_server_started_total:
       description: Total number of RPCs started on the server
-      included:
+      default:
       type: cumulative

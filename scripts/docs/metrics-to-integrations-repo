@@ -1,0 +1,81 @@
+#!/usr/bin/env python3
+
+import os
+import sys
+import subprocess
+from pathlib import Path
+import string
+import yaml
+
+SCRIPT_DIR = Path(__file__).parent.resolve()
+AGENT_ROOT = SCRIPT_DIR / "../.."
+
+INTEGRATIONS_REPO = os.environ.get("INTEGRATIONS_REPO", (AGENT_ROOT / "../integrations").resolve())
+
+# Key is of the form <monitor/package/path:monitorType>, value is the
+# integration directory in the integrations repo where metrics should go (not
+# including the `docs/` path suffix).
+MONITORS_TO_INTEGRATIONS_DIR = {
+    "internal/monitors/collectd/activemq:collectd/activemq": "activemq",
+    "internal/monitors/elasticsearch:elasticsearch": "elasticsearch",
+}
+
+METRIC_MARKDOWN_TEMPLATE = string.Template(
+    """
+---
+title: $title
+brief: $brief
+metric_type: $metric_type
+custom: $custom
+---
+### $title
+
+$description
+"""
+)
+
+
+def do_sync(mon_type_filter=None):
+    for mon_key, integrations_dir in MONITORS_TO_INTEGRATIONS_DIR.items():
+        package_path, monitor_type = mon_key.rsplit(":", 1)
+
+        if mon_type_filter is not None and mon_type_filter != monitor_type:
+            continue
+
+        for mon in yaml.safe_load((AGENT_ROOT / package_path / "metadata.yaml").read_bytes())["monitors"]:
+            if mon.get("monitorType") == monitor_type:
+                for name, markdown in generate_metric_markdown(mon):
+                    out_path = INTEGRATIONS_REPO / integrations_dir / "docs" / f"{name}.md"
+                    out_path.write_text(markdown)
+                break
+        else:
+            raise ValueError("monitor type %s not found in %s", (monitor_type, package_path))
+
+
+def generate_metric_markdown(mon):
+    for name, metric in mon.get("metrics", []).items():
+        custom = mon.get("sendAll", False) or not metric.get("included", False)
+        yield (
+            name,
+            METRIC_MARKDOWN_TEMPLATE.substitute(
+                {
+                    "title": name,
+                    "brief": metric.get("description"),
+                    "metric_type": metric["type"],
+                    "description": metric.get("description"),
+                    "custom": "true" if custom else "false",
+                }
+            ),
+        )
+
+
+if __name__ == "__main__":
+    mon_type_filter = None
+    if len(sys.argv) > 1:
+        mon_type_filter = sys.argv[1]
+
+    if not INTEGRATIONS_REPO:
+        print("INTEGRATIONS_REPO envvar should be set")
+        os.exit(1)
+
+    do_sync(mon_type_filter)

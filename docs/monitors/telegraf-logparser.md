@@ -32,6 +32,10 @@ Monitor Type: `telegraf/logparser`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `files` | **yes** | `list of strings` | Paths to files to be tailed |
@@ -46,8 +50,7 @@ Monitor Type: `telegraf/logparser`
 
 
 
-
-
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

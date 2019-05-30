@@ -11,27 +11,35 @@ monitors:
   metrics:
     if_errors.rx:
       description: Count of receive errors on the interface
-      included: true
+      default: true
       type: cumulative
     if_errors.tx:
       description: Count of transmit errors on the interface
-      included: true
+      default: true
       type: cumulative
     if_octets.rx:
       description: Count of bytes (octets) received on the interface
-      included: true
+      default: true
       type: cumulative
     if_octets.tx:
       description: Count of bytes (octets) transmitted by the interface
-      included: true
+      default: true
       type: cumulative
     if_packets.rx:
       description: Count of packets received on the interface
-      included: false
+      default: false
       type: cumulative
     if_packets.tx:
       description: Count of packets transmitted by the interface
-      included: false
+      default: false
+      type: cumulative
+    if_dropped.rx:
+      description: Count of received packets dropped by the interface
+      default: false
+      type: cumulative
+    if_dropped.tx:
+      description: Count of transmitted packets dropped by the interface
+      default: false
       type: cumulative
   monitorType: collectd/interface
   properties:

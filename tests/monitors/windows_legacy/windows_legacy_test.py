@@ -1,12 +1,10 @@
 import sys
-from functools import partial as p
-from textwrap import dedent
 
 import pytest
 
-from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_any_metric_or_dim, has_log_message
-from tests.helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_metrics_from_selfdescribe, wait_for
+from tests.helpers.assertions import has_log_message
+from tests.helpers.metadata import Metadata
+from tests.helpers.verify import run_agent_verify_default_metrics, run_agent_verify_all_metrics
 
 pytestmark = [
     pytest.mark.skipif(sys.platform != "win32", reason="only runs on windows"),
@@ -14,18 +12,27 @@ pytestmark = [
     pytest.mark.windowslegacy,
 ]
 
+METADATA = Metadata.from_package("windowslegacy")
 
-def test_windowslegacy():
-    expected_metrics = get_monitor_metrics_from_selfdescribe("windows-legacy")
-    expected_dims = get_monitor_dims_from_selfdescribe("windows-legacy")
-    config = dedent(
+
+def test_windowslegacy_default():
+    agent = run_agent_verify_default_metrics(
         """
         monitors:
-         - type: windows-legacy
-        """
+        - type: windows-legacy
+        """,
+        METADATA,
     )
-    with Agent.run(config) as agent:
-        assert wait_for(
-            p(has_any_metric_or_dim, agent.fake_services, expected_metrics, expected_dims), timeout_seconds=60
-        ), "timed out waiting for metrics and/or dimensions!"
-        assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
+    assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
+
+
+def test_windowslegacy_all():
+    agent = run_agent_verify_all_metrics(
+        """
+        monitors:
+        - type: windows-legacy
+          extraMetrics: ["*"]
+        """,
+        METADATA,
+    )
+    assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"

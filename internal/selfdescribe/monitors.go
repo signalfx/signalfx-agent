@@ -12,7 +12,7 @@ import (
 )
 
 type monitorDoc struct {
-	monitors.MonitorMetadata
+	MonitorMetadata
 	Config           structMetadata `json:"config"`
 	AcceptsEndpoints bool           `json:"acceptsEndpoints"`
 	SingleInstance   bool           `json:"singleInstance"`
@@ -23,7 +23,7 @@ func monitorsStructMetadata() []monitorDoc {
 	// Set to track undocumented monitors
 	monTypesSeen := map[string]bool{}
 
-	if packages, err := monitors.CollectMetadata("internal/monitors"); err != nil {
+	if packages, err := CollectMetadata("internal/monitors"); err != nil {
 		log.Fatal(err)
 	} else {
 		for _, pkg := range packages {
@@ -45,7 +45,7 @@ func monitorsStructMetadata() []monitorDoc {
 				mc, _ := t.FieldByName("MonitorConfig")
 				mmd := monitorDoc{
 					Config: getStructMetadata(t),
-					MonitorMetadata: monitors.MonitorMetadata{
+					MonitorMetadata: MonitorMetadata{
 						SendAll:     monitor.SendAll,
 						MonitorType: monType,
 						Dimensions:  monitor.Dimensions,
@@ -77,17 +77,17 @@ func monitorsStructMetadata() []monitorDoc {
 	return sms
 }
 
-func dimensionsFromNotes(allDocs []*doc.Package) map[string]monitors.DimMetadata {
-	dm := map[string]monitors.DimMetadata{}
+func dimensionsFromNotes(allDocs []*doc.Package) map[string]DimMetadata {
+	dm := map[string]DimMetadata{}
 	for _, note := range notesFromDocs(allDocs, "DIMENSION") {
-		dm[note.UID] = monitors.DimMetadata{
+		dm[note.UID] = DimMetadata{
 			Description: commentTextToParagraphs(note.Body),
 		}
 	}
 	return dm
 }
 
-func checkDuplicateMetrics(path string, metrics map[string]monitors.MetricMetadata) {
+func checkDuplicateMetrics(path string, metrics map[string]MetricMetadata) {
 	seen := map[string]bool{}
 
 	for metric := range metrics {
@@ -98,7 +98,7 @@ func checkDuplicateMetrics(path string, metrics map[string]monitors.MetricMetada
 	}
 }
 
-func checkMetricTypes(path string, metrics map[string]monitors.MetricMetadata) {
+func checkMetricTypes(path string, metrics map[string]MetricMetadata) {
 	for metric, info := range metrics {
 		t := info.Type
 		if t != "gauge" && t != "counter" && t != "cumulative" {
@@ -107,18 +107,18 @@ func checkMetricTypes(path string, metrics map[string]monitors.MetricMetadata) {
 	}
 }
 
-func checkSendAllLogic(monType string, metrics map[string]monitors.MetricMetadata, sendAll bool) {
+func checkSendAllLogic(monType string, metrics map[string]MetricMetadata, sendAll bool) {
 	if len(metrics) == 0 {
 		return
 	}
 
-	hasIncluded := false
+	hasDefault := false
 	for _, metricInfo := range metrics {
-		hasIncluded = hasIncluded || metricInfo.Included
+		hasDefault = hasDefault || metricInfo.Default
 	}
-	if hasIncluded && sendAll {
+	if hasDefault && sendAll {
 		log.Warnf("sendAll was specified on monitor type '%s' but some metrics were also marked as 'included'", monType)
-	} else if !hasIncluded && !sendAll {
+	} else if !hasDefault && !sendAll {
 		log.Warnf("sendAll was not specified on monitor type '%s' and no metrics are marked as 'included'", monType)
 	}
 }

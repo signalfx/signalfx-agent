@@ -1,5 +1,6 @@
 sfx_agent_config:
   signalFxAccessToken: MyToken
+  enableBuiltInFiltering: true
   monitors:
     - type: collectd/cpu
     - type: collectd/cpufreq

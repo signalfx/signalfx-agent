@@ -38,8 +38,9 @@ type Config struct {
 }
 
 // Monitor for conviva metrics
+// This monitor does not implement GetExtraMetrics() in order to get configured extra metrics to allow through because all metrics are included/allowed.
 type Monitor struct {
-	Output  types.Output
+	Output  types.FilteringOutput
 	cancel  context.CancelFunc
 	ctx     context.Context
 	client  httpClient
@@ -48,16 +49,12 @@ type Monitor struct {
 }
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{MetricConfigs: []*metricConfig{{MetricParameter: "quality_metriclens"}}})
 }
 
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
-
-	if conf.MetricConfigs == nil {
-		conf.MetricConfigs = []*metricConfig{{MetricParameter: "quality_metriclens"}}
-	}
 	m.timeout = time.Duration(conf.TimeoutSeconds) * time.Second
 	m.client = newConvivaClient(&http.Client{
 		Transport: &http.Transport{
@@ -73,7 +70,6 @@ func (m *Monitor) Configure(conf *Config) error {
 			if err := metricConf.init(service); err != nil {
 				m.logger.WithError(err).Error("Could not initialize metric configuration")
 			}
-
 			if strings.Contains(metricConf.MetricParameter, "metriclens") {
 				m.fetchMetricLensMetrics(interval, semaphore, metricConf)
 			} else {

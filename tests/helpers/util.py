@@ -1,12 +1,15 @@
 import io
 import os
+import random
 import re
 import socket
 import subprocess
+import tarfile
 import threading
 import time
 from contextlib import contextmanager
 from functools import partial as p
+from io import BytesIO
 from typing import Dict, List
 
 import docker
@@ -14,15 +17,19 @@ import netifaces as ni
 import yaml
 
 from tests.helpers.assertions import regex_search_matches_output
-from tests.paths import TEST_SERVICES_DIR, SELFDESCRIBE_JSON
+from tests.paths import SELFDESCRIBE_JSON, TEST_SERVICES_DIR
 
-DEFAULT_TIMEOUT = os.environ.get("DEFAULT_TIMEOUT", 30)
+DEFAULT_TIMEOUT = int(os.environ.get("DEFAULT_TIMEOUT", 30))
 DOCKER_API_VERSION = "1.34"
 STATSD_RE = re.compile(r"SignalFx StatsD monitor: Listening on host & port udp:\[::\]:([0-9]*)")
 
 
 def get_docker_client():
     return docker.from_env(version=DOCKER_API_VERSION)
+
+
+def has_docker_image(client, name):
+    return name in [t for image in client.images.list() for t in image.tags]
 
 
 def assert_wait_for(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2, on_fail=None):
@@ -50,6 +57,27 @@ def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
         if time.time() - start > timeout_seconds:
             return False
         time.sleep(interval_seconds)
+
+
+def wait_for_assertion(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
+    """
+    Waits for the given `test` function passed in to not raise an
+    AssertionError.  It is is still raising such an error after the
+    timeout_seconds, that exception will be raised by this function itself.
+    """
+    e = None
+
+    def wrap():
+        nonlocal e
+        try:
+            test()
+        except AssertionError as err:
+            e = err
+            return False
+        return True
+
+    if not wait_for(wrap, timeout_seconds, interval_seconds):
+        raise e  # pylint: disable=raising-bad-type
 
 
 def ensure_always(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
@@ -93,6 +121,11 @@ def container_ip(container):
     return container.attrs["NetworkSettings"]["IPAddress"]
 
 
+def container_hostname(container):
+    container.reload()
+    return container.attrs["Config"]["Hostname"]
+
+
 # Ensure a unique internal status server host address.  This supports up to
 # 255 concurrent agents on the same pytest worker process, and up to 255
 # pytest workers, which should be plenty
@@ -110,20 +143,7 @@ def run_subprocess(command: List[str], env: Dict[any, any] = None):
     # subprocess on Windows has a bug where it doesn't like Path.
     proc = subprocess.Popen([str(c) for c in command], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
-    output = io.BytesIO()
-
-    def pull_output():
-        while True:
-            # If any output is waiting, grab it.
-            byt = proc.stdout.read(1)
-            if not byt:
-                return
-            output.write(byt)
-
-    def get_output():
-        return output.getvalue().decode("utf-8")
-
-    threading.Thread(target=pull_output).start()
+    get_output = pull_from_reader_in_background(proc.stdout)
 
     try:
         yield [get_output, proc.pid]
@@ -134,17 +154,26 @@ def run_subprocess(command: List[str], env: Dict[any, any] = None):
 
 @contextmanager
 def run_container(image_name, wait_for_ip=True, print_logs=True, **kwargs):
+    files = kwargs.pop("files", [])
     client = get_docker_client()
-    container = retry(lambda: client.containers.run(image_name, detach=True, **kwargs), docker.errors.DockerException)
 
-    def has_ip_addr():
-        container.reload()
-        return container.attrs["NetworkSettings"]["IPAddress"]
+    if not image_name.startswith("sha256"):
+        container = client.images.pull(image_name)
+    container = retry(lambda: client.containers.create(image_name, **kwargs), docker.errors.DockerException)
 
-    if wait_for_ip:
-        wait_for(has_ip_addr, timeout_seconds=5)
+    for src, dst in files:
+        copy_file_into_container(src, container, dst)
+
     try:
-        yield container
+        container.start()
+
+        def has_ip_addr():
+            container.reload()
+            return container.attrs["NetworkSettings"]["IPAddress"]
+
+        if wait_for_ip:
+            wait_for(has_ip_addr, timeout_seconds=5)
+            yield container
     finally:
         try:
             if print_logs:
@@ -238,3 +267,75 @@ def get_statsd_port(agent):
     assert wait_for(p(regex_search_matches_output, agent.get_output, STATSD_RE.search))
     regex_results = STATSD_RE.search(agent.output)
     return int(regex_results.groups()[0])
+
+
+def pull_from_reader_in_background(reader):
+    output = io.BytesIO()
+
+    def pull_output():
+        while True:
+            # If any output is waiting, grab it.
+            try:
+                byt = reader.read(1)
+            except OSError:
+                return
+            if not byt:
+                return
+            if isinstance(byt, str):
+                byt = byt.encode("utf-8")
+            output.write(byt)
+
+    threading.Thread(target=pull_output).start()
+
+    def get_output():
+        return output.getvalue().decode("utf-8")
+
+    return get_output
+
+
+def random_hex(bits=64):
+    """Return random hex number as a string with the given number of bits (default 64)"""
+    return hex(random.getrandbits(bits))[2:]
+
+
+def copy_file_content_into_container(content, container, target_path):
+    copy_file_object_into_container(
+        BytesIO(content.encode("utf-8")), container, target_path, size=len(content.encode("utf-8"))
+    )
+
+
+# This is more convoluted that it should be but seems to be the simplest way in
+# the face of docker-in-docker environments where volume bind mounting is hard.
+def copy_file_object_into_container(fd, container, target_path, size=None):
+    tario = BytesIO()
+    tar = tarfile.TarFile(fileobj=tario, mode="w")
+
+    info = tarfile.TarInfo(name=target_path)
+    if size is None:
+        size = os.fstat(fd.fileno()).st_size
+    info.size = size
+
+    tar.addfile(info, fd)
+
+    tar.close()
+
+    container.put_archive("/", tario.getvalue())
+    # Apparently when the above `put_archive` call returns, the file isn't
+    # necessarily fully written in the container, so wait a bit to ensure it
+    # is.
+    time.sleep(2)
+
+
+def copy_file_into_container(path, container, target_path):
+    with open(path, "rb") as fd:
+        copy_file_object_into_container(fd, container, target_path)
+
+
+def path_exists_in_container(container, path):
+    code, _ = container.exec_run("test -e %s" % path)
+    return code == 0
+
+
+def get_container_file_content(container, path):
+    assert path_exists_in_container(container, path), "File %s does not exist!" % path
+    return container.exec_run("cat %s" % path)[1].decode("utf-8")

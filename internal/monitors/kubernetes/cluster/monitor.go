@@ -7,25 +7,18 @@
 // watch API is used to efficiently maintain the state between read intervals
 // (see `clusterstate.go`).
 //
-// This plugin should only be run at one place in the cluster, or else metrics
-// would be duplicated.  This plugin supports two ways of ensuring that:
-//
-// 2) You can simply pass a config flag `alwaysClusterReporter` with value of
-// `true` to this plugin and it will always report cluster metrics.  This
-// method uses less cluster resources (e.g. network sockets, watches on the api
-// server) but requires special case configuration for a single agent in the
-// cluster, which may be more error prone.
-//
 // This plugin requires read-only access to the K8s API.
 package cluster
 
 import (
+	"fmt"
 	"time"
 
-	"github.com/pkg/errors"
+	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/cluster/meta"
+
 	"github.com/sirupsen/logrus"
 
-	k8s "k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 
 	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/internal/core/common/kubernetes"
@@ -34,6 +27,16 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/cluster/metrics"
 	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/leadership"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+)
+
+// KubernetesDistribution indicates the particular flavor of Kubernetes.
+type KubernetesDistribution int
+
+const (
+	// Generic is normal Kubernetes with nothing extra added.
+	Generic KubernetesDistribution = iota
+	// OpenShift is RedHat's Kubernetes distribution.
+	OpenShift
 )
 
 // Config for the K8s monitor
@@ -67,32 +70,32 @@ func (c *Config) Validate() error {
 // Monitor for K8s Cluster Metrics.  Also handles syncing certain properties
 // about pods.
 type Monitor struct {
-	config *Config
-	Output types.Output
+	config       *Config
+	distribution KubernetesDistribution
+	Output       types.Output
 	// Since most datapoints will stay the same or only slightly different
 	// across reporting intervals, reuse them
 	datapointCache *metrics.DatapointCache
-	k8sClient      *k8s.Clientset
+	restConfig     *rest.Config
 	stop           chan struct{}
 	logger         logrus.FieldLogger
 }
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&meta.KubernetesClusterMonitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // Configure is called by the plugin framework when configuration changes
 func (m *Monitor) Configure(config *Config) error {
-	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
+	var err error
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": meta.MonitorType})
 
 	m.config = config
 
-	k8sClient, err := kubernetes.MakeClient(config.KubernetesAPI)
-	if err != nil {
-		return errors.Wrapf(err, "Could not create K8s API client")
+	if m.restConfig, err = kubernetes.CreateRestConfig(config.KubernetesAPI); err != nil {
+		return fmt.Errorf("could not create Kubernetes REST config: %s", err)
 	}
 
-	m.k8sClient = k8sClient
 	m.datapointCache = metrics.NewDatapointCache(config.UseNodeName, m.config.NodeConditionTypesToReport)
 	m.stop = make(chan struct{})
 
@@ -105,7 +108,10 @@ func (m *Monitor) Start() error {
 
 	shouldReport := m.config.AlwaysClusterReporter
 
-	clusterState := newState(m.k8sClient, m.datapointCache, m.config.Namespace)
+	clusterState, err := newState(m.distribution, m.restConfig, m.datapointCache, m.config.Namespace)
+	if err != nil {
+		return err
+	}
 
 	var leaderCh <-chan bool
 	var unregister func()
@@ -114,7 +120,7 @@ func (m *Monitor) Start() error {
 		clusterState.Start()
 	} else {
 		var err error
-		leaderCh, unregister, err = leadership.RequestLeaderNotification(m.k8sClient.CoreV1())
+		leaderCh, unregister, err = leadership.RequestLeaderNotification(clusterState.clientset.CoreV1())
 		if err != nil {
 			return err
 		}

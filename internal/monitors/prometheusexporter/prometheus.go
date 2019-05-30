@@ -22,7 +22,7 @@ import (
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // Config for this monitor
@@ -57,6 +57,17 @@ type Config struct {
 	SendAllMetrics bool `yaml:"sendAllMetrics"`
 }
 
+func (c *Config) GetExtraMetrics() []string {
+	// Maintain backwards compatibility with the config flag that existing
+	// prior to the new filtering mechanism.
+	if c.SendAllMetrics {
+		return []string{"*"}
+	}
+	return nil
+}
+
+var _ config.ExtraMetrics = &Config{}
+
 // Monitor for prometheus exporter metrics
 type Monitor struct {
 	Output types.Output
@@ -71,29 +82,8 @@ type Monitor struct {
 	client  *http.Client
 }
 
-type filteringOutput struct {
-	types.Output
-	includedMetrics map[string]bool
-}
-
-var _ types.Output = &filteringOutput{}
-
-func (fo *filteringOutput) SendDatapoint(dp *datapoint.Datapoint) {
-	if !fo.includedMetrics[dp.Metric] {
-		return
-	}
-	fo.Output.SendDatapoint(dp)
-}
-
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
-	// This is a temporary hack until the generic metric filtering/grouping
-	// work is done.  This should be removable once that is done and the logic
-	// lives in the core Output instance.
-	if m.IncludedMetrics != nil && !conf.SendAllMetrics {
-		m.Output = &filteringOutput{Output: m.Output, includedMetrics: m.IncludedMetrics}
-	}
-
 	m.client = &http.Client{
 		Timeout: 10 * time.Second,
 		Transport: &http.Transport{

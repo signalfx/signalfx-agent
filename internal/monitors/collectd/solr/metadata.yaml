@@ -15,189 +15,196 @@ monitors:
       port: 8983
     ```
   metrics:
+    counter.solr.http_requests:
+      description: Total number of http requests
+      default: true
+      type: counter
     counter.solr.http_2xx_responses:
       description: Total number of 2xx http responses
-      included: true
+      default: true
       type: counter
     counter.solr.http_4xx_responses:
       description: Total number of 4xx http responses
-      included: true
+      default: true
       type: counter
     counter.solr.http_5xx_responses:
       description: Total number of 5xx http responses
-      included: true
+      default: true
       type: counter
     counter.solr.jvm_classes_loaded:
       description: Number of JVM classes loaded
-      included: false
+      default: false
       type: counter
     counter.solr.node_collections_requests:
       description: Number of collection level requets to Solr node
-      included: true
+      default: true
       type: counter
     counter.solr.node_cores_requests:
       description: Number of core level requets to Solr node
-      included: true
+      default: true
       type: counter
     counter.solr.node_metric_request_count:
       description: Number of metric requests
-      included: false
+      default: false
       type: counter
     counter.solr.node_metrics_requests:
       description: Number of metrics level requets to Solr node
-      included: true
+      default: true
       type: counter
     counter.solr.node_zookeeper_requests:
       description: Number of zookeeper level requets to Solr node
-      included: true
+      default: true
       type: counter
     counter.solr.openFileDescriptorCount:
       description: Number of open file descriptors
-      included: false
+      default: false
       type: counter
     counter.solr.replication_handler_requests:
       description: Number of replication handler requets
-      included: false
+      default: false
       type: counter
     counter.solr.search_query_requests:
       description: Number of search query requests
-      included: true
+      default: true
       type: counter
     counter.solr.update_handler_requests:
       description: Number of update handler requets
-      included: true
+      default: true
       type: counter
     counter.solr.zookeeper_errors:
       description: Number of failures/error at Zookeeper
-      included: false
+      default: false
       type: counter
     gauge.solr.core_deleted_docs:
       description: Number of deleted docs in Solr core
-      included: true
+      default: true
       type: gauge
     gauge.solr.core_index_size:
       description: Size of a core index
-      included: true
+      default: true
       type: gauge
     gauge.solr.core_max_docs:
-      description: Total number of docs in Sor core
-      included: true
+      description: Total number of docs in Solr core
+      default: true
       type: gauge
     gauge.solr.core_num_docs:
-      description: Total number of indexed docs in Sor core
-      included: true
+      description: Total number of indexed docs in Solr core
+      default: true
       type: gauge
     gauge.solr.core_totalspace:
       description: Total space allocated for core
-      included: true
+      default: true
       type: gauge
     gauge.solr.core_usablespace:
       description: Usable space available in core
-      included: true
+      default: true
       type: gauge
     gauge.solr.document_cache_cumulative_hitratio:
       description: Cummulative hit ration of document cache
-      included: true
+      default: true
       type: gauge
     gauge.solr.field_value_cache_cumulative_hitratio:
       description: Cummulative hit ration of filed value cache
-      included: true
+      default: true
       type: gauge
     gauge.solr.http_active_requests:
       description: Number of http active requests
-      included: false
+      default: false
       type: gauge
     gauge.solr.jetty_get_request_latency:
       description: Time to process http get request
-      included: false
+      default: false
       type: gauge
     gauge.solr.jetty_post_request_latency:
       description: Time to process http post request
-      included: false
+      default: false
       type: gauge
     gauge.solr.jetty_request_latency:
       description: Http request response time
-      included: true
+      default: true
       type: gauge
     gauge.solr.jvm_gc_cms_count:
       description: JVM Garbage Collector - CMS invocation count
-      included: true
+      default: true
       type: gauge
     gauge.solr.jvm_gc_cms_time:
       description: JVM Garbage Collector - CMS prcoess time
-      included: true
+      default: true
       type: gauge
     gauge.solr.jvm_gc_parnew_count:
       description: JVM Garbage Collector - Parnew invocation count
-      included: true
+      default: true
       type: gauge
     gauge.solr.jvm_gc_parnew_time:
       description: JVM Garbage Collector - Parnew process time
-      included: true
+      default: true
       type: gauge
     gauge.solr.jvm_heap_usage:
       description: JVM Heap usage
-      included: true
+      default: true
       type: gauge
     gauge.solr.jvm_mapped_memory_capacity:
       description: Total JVM mapped memory capacity
-      included: false
+      default: false
       type: gauge
     gauge.solr.jvm_mapped_memory_used:
       description: Total JVM mapped memory used
-      included: false
+      default: false
       type: gauge
     gauge.solr.jvm_memory_pools_Code-Cache_usage:
       description: JVM memory pools - PCode Cache usage
-      included: true
+      default: true
       type: gauge
     gauge.solr.jvm_memory_pools_Metaspace_usage:
       description: JVM memory pools - Metaspace usage
-      included: true
+      default: true
       type: gauge
     gauge.solr.jvm_memory_pools_Par-Eden-Space_usage:
       description: JVM memory pools - Par Eden space usage
-      included: true
+      default: true
       type: gauge
     gauge.solr.jvm_memory_pools_Par-Survivor-Space_usage:
       description: JVM memory pools - Par Survivor space usage
-      included: true
+      default: true
       type: gauge
     gauge.solr.jvm_total_memory:
       description: JVM total memory allocated
-      included: true
+      default: true
       type: gauge
     gauge.solr.jvm_total_memory_used:
       description: JVM memory used
-      included: true
+      default: true
       type: gauge
     gauge.solr.node_metric_request_time:
       description: Time to process a metric request
-      included: false
+      default: false
       type: gauge
     gauge.solr.query_result_cache_cumulative_hitratio:
       description: Cummulative hit ration of query cache
-      included: true
+      default: true
       type: gauge
     gauge.solr.replication_handler_response:
       description: Resplication handler response time
-      included: false
+      default: false
       type: gauge
     gauge.solr.search_query_response:
       description: Search query response time
-      included: true
+      default: true
       type: gauge
     gauge.solr.searcher_warmup:
       description: Time to new searcher to warm up
-      included: true
+      default: true
       type: gauge
     gauge.solr.update_request_handler_response:
       description: Update request handler response time
-      included: true
+      default: true
       type: gauge
     gauge.solr.zookeeper_request_time:
       description: Time to process a request at zookeeper
-      included: false
+      default: false
+      type: gauge
+    gauge.solr.shard_cumulative_docs:
+      default: false
       type: gauge
   monitorType: collectd/solr
   properties:
