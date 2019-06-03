@@ -40,12 +40,20 @@ function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalf
     compile_deps
 
     go build -mod vendor -o "$AGENT_BIN" github.com/signalfx/signalfx-agent/cmd/agent
+
+    if (!(Test-Path -Path "$AGENT_BIN")) {
+        throw "$AGENT_BIN not found!"
+    }
 }
 
 function monitor-code-gen([string]$AGENT_VERSION="", [string]$CODEGEN_BIN=".\monitor-code-gen.exe", [string]$COLLECTD_VERSION="") {
     versions_go
 
     go build -mod vendor -o "$CODEGEN_BIN" github.com/signalfx/signalfx-agent/cmd/monitorcodegen
+
+    if (!(Test-Path -Path "$CODEGEN_BIN")) {
+        throw "$CODEGEN_BIN not found!"
+    }
 }
 
 # make the build bundle
@@ -166,7 +174,8 @@ function integration_test() {
 }
 
 if ($REMAINING.length -gt 0) {
-    &$Target $Remaining
+    $sb = [scriptblock]::create("$Target $REMAINING")
+    Invoke-Command -ScriptBlock $sb
 } else {
     &$Target
 }
