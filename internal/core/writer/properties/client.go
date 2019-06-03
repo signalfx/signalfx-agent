@@ -289,6 +289,7 @@ func (dpc *DimensionPropertyClient) fetchExistingDimension(key, value string) (m
 	if err != nil {
 		return nil, nil, err
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode == 404 {
 		// No existing dimension value, so return blank for both.
