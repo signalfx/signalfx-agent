@@ -220,7 +220,7 @@ func startSyncClusterProperty(propertyChan chan *types.DimProperties, cluster st
 			// will still show up on all MTSs that come out of this agent.
 			continue
 		}
-		log.Infof("Setting cluster property on '%s' dimension", dimName)
+		log.Infof("Setting cluster=%s property on '%s: %s' dimension", cluster, dimName, dimValue)
 		propertyChan <- &types.DimProperties{
 			Dimension: types.Dimension{
 				Name:  dimName,

@@ -30967,6 +30967,14 @@
               "elementKind": ""
             },
             {
+              "yamlName": "logDimensionUpdates",
+              "doc": "If `true`, dimension updates will be logged at the INFO level.",
+              "default": false,
+              "required": false,
+              "type": "bool",
+              "elementKind": ""
+            },
+            {
               "yamlName": "logDroppedDatapoints",
               "doc": "If true, and the log level is `debug`, filtered out datapoints will be logged.",
               "default": false,
