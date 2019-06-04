@@ -62,6 +62,8 @@ type WriterConfig struct {
 	LogEvents bool `yaml:"logEvents"`
 	// The analogue of `logDatapoints` for trace spans.
 	LogTraceSpans bool `yaml:"logTraceSpans"`
+	// If `true`, dimension updates will be logged at the INFO level.
+	LogDimensionUpdates bool `yaml:"logDimensionUpdates"`
 	// If true, and the log level is `debug`, filtered out datapoints will be
 	// logged.
 	LogDroppedDatapoints bool `yaml:"logDroppedDatapoints"`

@@ -4,7 +4,7 @@ import json
 import socket
 import sys
 import threading
-from collections import defaultdict, OrderedDict
+from collections import OrderedDict, defaultdict
 from contextlib import contextmanager
 from queue import Queue
 
@@ -76,6 +76,15 @@ def _make_fake_ingest(datapoint_queue, events, spans):
 def _make_fake_api(dims):
     app = Sanic()
 
+    @app.get("/v2/dimension/<key>/<value>")
+    async def get_dim(_, key, value):
+        dim = dims.get(key, {}).get(value)
+        if not dim:
+            return response.json({}, status=404)
+        return response.json(
+            {"key": key, "value": value, "customProperties": dim.get("customProperties"), "tags": dim.get("tags")}
+        )
+
     @app.put("/v2/dimension/<key>/<value>")
     async def put_dim(request, key, value):
         content = request.json
@@ -120,7 +129,10 @@ def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0):
     loop.create_task(start_servers())
     threading.Thread(target=loop.run_forever).start()
 
-    def add_datapoints():
+    def _add_datapoints():
+        """
+        This is an attempt at making the datapoint endpoint have more throughput for heavy load tests.
+        """
         while True:
             dp_upload = _dp_upload_queue.get()
             if dp_upload is STOP:
@@ -131,7 +143,7 @@ def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0):
                 for dim in dp.dimensions:
                     _datapoints_by_dim[f"{dim.key}:{dim.value}"].append(dp)
 
-    threading.Thread(target=add_datapoints).start()
+    threading.Thread(target=_add_datapoints).start()
 
     class FakeBackend:  # pylint: disable=too-few-public-methods
         ingest_host = ip_addr

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
@@ -19,6 +20,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/propfilters"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -28,6 +30,7 @@ type DimensionPropertyClient struct {
 	ctx           context.Context
 	Token         string
 	APIURL        *url.URL
+	client        *http.Client
 	requestSender *reqSender
 	sendDelay     time.Duration
 	// Keeps track of what has been synced so we don't do unnecessary syncs
@@ -37,10 +40,12 @@ type DimensionPropertyClient struct {
 	delayedSet map[types.Dimension]*types.DimProperties
 	// Queue of dimensions to update.  The ordering should never change once
 	// put in the queue so no need for heap/priority queue.
-	delayedQueue      chan *queuedDimension
-	PropertyFilterSet *propfilters.FilterSet
+	delayedQueue        chan *queuedDimension
+	mergedDimPropsQueue chan *types.DimProperties
+	PropertyFilterSet   *propfilters.FilterSet
 	// For easier unit testing
-	now func() time.Time
+	now        func() time.Time
+	logUpdates bool
 
 	DimensionsCurrentlyDelayed int64
 	TotalDimensionsDropped     int64
@@ -84,16 +89,19 @@ func NewDimensionPropertyClient(ctx context.Context, conf *config.WriterConfig) 
 	sender := newReqSender(ctx, client, conf.PropertiesMaxRequests)
 
 	return &DimensionPropertyClient{
-		ctx:               ctx,
-		Token:             conf.SignalFxAccessToken,
-		APIURL:            conf.ParsedAPIURL(),
-		sendDelay:         time.Duration(conf.PropertiesSendDelaySeconds) * time.Second,
-		history:           history,
-		delayedSet:        make(map[types.Dimension]*types.DimProperties),
-		delayedQueue:      make(chan *queuedDimension, conf.PropertiesMaxBuffered),
-		requestSender:     sender,
-		PropertyFilterSet: propFilters,
-		now:               time.Now,
+		ctx:                 ctx,
+		Token:               conf.SignalFxAccessToken,
+		APIURL:              conf.ParsedAPIURL(),
+		sendDelay:           time.Duration(conf.PropertiesSendDelaySeconds) * time.Second,
+		history:             history,
+		delayedSet:          make(map[types.Dimension]*types.DimProperties),
+		delayedQueue:        make(chan *queuedDimension, conf.PropertiesMaxBuffered),
+		mergedDimPropsQueue: make(chan *types.DimProperties),
+		requestSender:       sender,
+		client:              client,
+		PropertyFilterSet:   propFilters,
+		now:                 time.Now,
+		logUpdates:          conf.LogDimensionUpdates,
 	}, nil
 }
 
@@ -145,22 +153,47 @@ func (dpc *DimensionPropertyClient) AcceptDimProp(dimProps *types.DimProperties)
 }
 
 func (dpc *DimensionPropertyClient) processQueue() {
-	for delayedDim := range dpc.delayedQueue {
-		now := dpc.now()
-		if now.Before(delayedDim.TimeToSend) {
-			// dims are always in the channel in order of TimeToSend
-			time.Sleep(delayedDim.TimeToSend.Sub(now))
+
+	send := func(dim *types.DimProperties) {
+		if err := dpc.setPropertiesOnDimension(dim); err != nil {
+			log.WithError(err).WithField("dim", dim.Dimension).Error("Could not send dimension update")
+		} else if dpc.logUpdates {
+			log.WithFields(log.Fields{
+				"name":       dim.Dimension.Name,
+				"value":      dim.Dimension.Value,
+				"properties": dim.Properties,
+				"tags":       dim.Tags,
+			}).Info("Updated dimension")
 		}
-		atomic.AddInt64(&dpc.DimensionsCurrentlyDelayed, int64(-1))
+	}
 
-		dpc.Lock()
-		delete(dpc.delayedSet, delayedDim.DimProperties.Dimension)
-		dpc.Unlock()
-
-		if !dpc.isDuplicate(delayedDim.DimProperties) {
-			if err := dpc.setPropertiesOnDimension(delayedDim.DimProperties); err != nil {
-				log.WithError(err).WithField("dim", delayedDim.DimProperties.Dimension).Error("Could not send dimension update")
+	for {
+		select {
+		case <-dpc.ctx.Done():
+			return
+		case delayedDim := <-dpc.delayedQueue:
+			now := dpc.now()
+			if now.Before(delayedDim.TimeToSend) {
+				// dims are always in the channel in order of TimeToSend
+				time.Sleep(delayedDim.TimeToSend.Sub(now))
 			}
+			atomic.AddInt64(&dpc.DimensionsCurrentlyDelayed, int64(-1))
+
+			dpc.Lock()
+			delete(dpc.delayedSet, delayedDim.DimProperties.Dimension)
+			dpc.Unlock()
+
+			if !dpc.isDuplicate(delayedDim.DimProperties) {
+				if delayedDim.DimProperties.MergeIntoExisting {
+					go dpc.mergeExisting(delayedDim.DimProperties)
+					// The merged dim prop goes back into the
+					// mergeDimPropsQueue when ready
+					continue
+				}
+				send(delayedDim.DimProperties)
+			}
+		case dim := <-dpc.mergedDimPropsQueue:
+			send(dim)
 		}
 	}
 }
@@ -195,6 +228,103 @@ func (dpc *DimensionPropertyClient) isDuplicate(dimProps *types.DimProperties) b
 	return ok && reflect.DeepEqual(prev.(*types.DimProperties), dimProps)
 }
 
+const initialDimFetchBackoff = 5 * time.Second
+const maxDimFetchBackoff = 160 * time.Second
+
+// Unfortunately no way to do incremental updates to dimension properties
+// through the API, so must fetch and merge it client-side.
+func (dpc *DimensionPropertyClient) mergeExisting(dimProps *types.DimProperties) {
+	backoff := initialDimFetchBackoff
+	// Keep trying to fetch existing dimensions with exponential backoff
+	for {
+		oldProps, oldTags, err := dpc.fetchExistingDimension(dimProps.Name, dimProps.Value)
+		if err != nil {
+			logrus.WithError(err).WithFields(logrus.Fields{
+				"dimName":  dimProps.Name,
+				"dimValue": dimProps.Value,
+			}).Errorf("Could not get existing properties/tags for dimension")
+
+			time.Sleep(backoff)
+			if backoff < maxDimFetchBackoff {
+				backoff *= 2
+			}
+			continue
+		}
+
+		for k, v := range dimProps.Properties {
+			// Override the old values
+			oldProps[k] = v
+		}
+		dimProps.Properties = oldProps
+
+		if dimProps.Tags == nil && len(oldTags) > 0 {
+			dimProps.Tags = make(map[string]bool)
+		}
+		for _, t := range oldTags {
+			// Add any that don't exist.
+			if _, ok := dimProps.Tags[t]; !ok {
+				dimProps.Tags[t] = true
+			}
+		}
+		break
+	}
+
+	dpc.mergedDimPropsQueue <- dimProps
+}
+
+func (dpc *DimensionPropertyClient) fetchExistingDimension(key, value string) (map[string]string, []string, error) {
+	url, err := dpc.makeDimURL(key, value)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req, err := http.NewRequest("GET", url.String(), nil)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	req.Header.Add("X-SF-Token", dpc.Token)
+
+	resp, err := dpc.client.Do(req)
+	if err != nil {
+		return nil, nil, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 404 {
+		// No existing dimension value, so return blank for both.
+		return map[string]string{}, []string{}, nil
+	}
+
+	if resp.StatusCode >= 500 {
+		body, _ := ioutil.ReadAll(resp.Body)
+		return nil, nil, fmt.Errorf("server error (%d) fetching existing dimension: %s", resp.StatusCode, body)
+	}
+
+	var s struct {
+		CustomProperties map[string]string `json:"customProperties"`
+		Tags             []string          `json:"tags"`
+	}
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	if err := json.Unmarshal(body, &s); err != nil {
+		return nil, nil, fmt.Errorf("could not decode json response body (%v): %s", err, body)
+	}
+
+	return s.CustomProperties, s.Tags, nil
+}
+
+func (dpc *DimensionPropertyClient) makeDimURL(key, value string) (*url.URL, error) {
+	url, err := dpc.APIURL.Parse(fmt.Sprintf("/v2/dimension/%s/%s", key, value))
+	if err != nil {
+		return nil, fmt.Errorf("could not construct dimension property PUT URL with %s / %s: %v", key, value, err)
+	}
+	return url, nil
+}
+
 func (dpc *DimensionPropertyClient) makeRequest(key, value string, props map[string]string, tags map[string]bool) (*http.Request, error) {
 	json, err := json.Marshal(map[string]interface{}{
 		"key":              key,
@@ -206,9 +336,9 @@ func (dpc *DimensionPropertyClient) makeRequest(key, value string, props map[str
 		return nil, err
 	}
 
-	url, err := dpc.APIURL.Parse(fmt.Sprintf("/v2/dimension/%s/%s", key, value))
+	url, err := dpc.makeDimURL(key, value)
 	if err != nil {
-		return nil, fmt.Errorf("could not construct dimension property PUT URL with %s / %s: %v", key, value, err)
+		return nil, err
 	}
 
 	req, err := http.NewRequest(

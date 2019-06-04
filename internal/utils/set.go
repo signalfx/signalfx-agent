@@ -25,7 +25,8 @@ func StringSliceToMap(strings []string) map[string]bool {
 	return ret
 }
 
-// StringSetToSlice converts a map representing a set into a slice of strings
+// StringSetToSlice converts a map representing a set into a slice of strings.
+// If the value is `false`, the key won't be added.
 func StringSetToSlice(set map[string]bool) []string {
 	var out []string
 	for k, ok := range set {

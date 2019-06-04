@@ -88,8 +88,10 @@ func (a *Agent) configure(conf *config.Config) {
 
 	log.Infof("Using log level %s", log.GetLevel().String())
 
+	hostDims := hostid.Dimensions(conf.SendMachineID, conf.Hostname, conf.UseFullyQualifiedHost)
 	if !conf.DisableHostDimensions {
-		conf.Writer.HostIDDims = hostid.Dimensions(conf.SendMachineID, conf.Hostname, conf.UseFullyQualifiedHost)
+		log.Infof("Using host id dimensions %v", hostDims)
+		conf.Writer.HostIDDims = hostDims
 	}
 
 	if conf.EnableProfiling {
@@ -107,6 +109,10 @@ func (a *Agent) configure(conf *config.Config) {
 			log.WithError(err).Error("Could not configure SignalFx datapoint writer, unable to start up")
 			os.Exit(4)
 		}
+	}
+
+	if conf.Cluster != "" {
+		startSyncClusterProperty(a.propertyChan, conf.Cluster, hostDims)
 	}
 
 	a.meta.InternalStatusHost = conf.InternalStatusHost
@@ -203,4 +209,27 @@ func StreamDatapoints(configPath string, metric string, dims string) (io.ReadClo
 
 	conf := <-configLoads
 	return streamDatapoints(conf.InternalStatusHost, conf.InternalStatusPort, metric, dims)
+}
+
+func startSyncClusterProperty(propertyChan chan *types.DimProperties, cluster string, hostDims map[string]string) {
+	for dimName, dimValue := range hostDims {
+		if len(hostDims) > 1 && dimName == "host" {
+			// If we also have a platform-specific host-id dimension that isn't
+			// the generic 'host' dimension, then skip setting the property on
+			// 'host' since it tends to get reused frequently. The property
+			// will still show up on all MTSs that come out of this agent.
+			continue
+		}
+		log.Infof("Setting cluster=%s property on '%s: %s' dimension", cluster, dimName, dimValue)
+		propertyChan <- &types.DimProperties{
+			Dimension: types.Dimension{
+				Name:  dimName,
+				Value: dimValue,
+			},
+			Properties: map[string]string{
+				"cluster": cluster,
+			},
+			MergeIntoExisting: true,
+		}
+	}
 }
