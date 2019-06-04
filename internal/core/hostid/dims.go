@@ -1,6 +1,7 @@
 package hostid
 
 import (
+	"os"
 	"sync"
 
 	log "github.com/sirupsen/logrus"
@@ -22,18 +23,23 @@ func Dimensions(sendMachineID bool, hostname string, useFullyQualifiedHost *bool
 		// if the user specified it explicitly as false with this logic.
 		return getHostname(useFullyQualifiedHost == nil || *useFullyQualifiedHost)
 	})
-	g.GatherDim("AWSUniqueId", AWSUniqueID)
-	g.GatherDim("gcp_id", GoogleComputeID)
-	if sendMachineID {
-		g.GatherDim("machine_id", MachineID)
-	} else {
-		// If not running on k8s, this will be blank and thus omitted.  It is
-		// only sent as an alternative to machine id because k8s node labels
-		// are synced as properties to this instead of machine_id when
-		// machine_id isn't available.
-		g.GatherDim("kubernetes_node", KubernetesNodeName)
+
+	// The envvar exists primarily for testing but could be useful otherwise.
+	// It remains undocumented for the time being though.
+	if os.Getenv("SKIP_PLATFORM_HOST_DIMS") != "yes" {
+		g.GatherDim("AWSUniqueId", AWSUniqueID)
+		g.GatherDim("gcp_id", GoogleComputeID)
+		if sendMachineID {
+			g.GatherDim("machine_id", MachineID)
+		} else {
+			// If not running on k8s, this will be blank and thus omitted.  It is
+			// only sent as an alternative to machine id because k8s node labels
+			// are synced as properties to this instead of machine_id when
+			// machine_id isn't available.
+			g.GatherDim("kubernetes_node", KubernetesNodeName)
+		}
+		g.GatherDim("azure_resource_id", AzureUniqueID)
 	}
-	g.GatherDim("azure_resource_id", AzureUniqueID)
 
 	dims := g.WaitForDimensions()
 

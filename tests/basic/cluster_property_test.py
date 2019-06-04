@@ -17,6 +17,8 @@ def test_cluster_prop_is_merged_into_existing():
               propertiesSendDelaySeconds: 1
         """,
             fake_services=fake_services,
+            # Make it ignore all platform metrics for CI environments
+            extra_env={"SKIP_PLATFORM_HOST_DIMS": "yes"},
         ):
 
             def assert_cluster_property():
@@ -34,7 +36,9 @@ def test_cluster_prop_is_added_to_host_dims():
         hostname: myhost
         writer:
           propertiesSendDelaySeconds: 1
-    """
+    """,
+        # Make it ignore all platform metrics for CI environments
+        extra_env={"SKIP_PLATFORM_HOST_DIMS": "yes"},
     ) as agent:
 
         def assert_cluster_property():
