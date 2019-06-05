@@ -110,7 +110,7 @@ monitors:
       type: cumulative
     container_fs_usage_bytes:
       description: Number of bytes that are consumed by the container on this filesystem
-      default: false
+      default: true
       type: gauge
     container_fs_write_seconds_total:
       description: Cumulative count of seconds spent writing

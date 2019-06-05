@@ -943,7 +943,7 @@
           "type": "gauge",
           "description": "Number of bytes that are consumed by the container on this filesystem",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_fs_write_seconds_total": {
           "type": "cumulative",
@@ -20650,7 +20650,7 @@
           "type": "gauge",
           "description": "Number of bytes that are consumed by the container on this filesystem",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_fs_write_seconds_total": {
           "type": "cumulative",
