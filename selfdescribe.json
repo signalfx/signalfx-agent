@@ -853,7 +853,7 @@
           "type": "cumulative",
           "description": "Cumulative cpu utilization as a percentage of the total host CPU available.  This metric is equivalent to `container_cpu_utilization` / \u003c# of CPUs/cores on host\u003e.",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_cpu_system_seconds_total": {
           "type": "cumulative",
@@ -913,7 +913,7 @@
           "type": "cumulative",
           "description": "Cumulative count of seconds spent reading",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_fs_reads_merged_total": {
           "type": "cumulative",
@@ -925,7 +925,7 @@
           "type": "cumulative",
           "description": "Cumulative count of reads completed",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_fs_sector_reads_total": {
           "type": "cumulative",
@@ -20560,7 +20560,7 @@
           "type": "cumulative",
           "description": "Cumulative cpu utilization as a percentage of the total host CPU available.  This metric is equivalent to `container_cpu_utilization` / \u003c# of CPUs/cores on host\u003e.",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_cpu_system_seconds_total": {
           "type": "cumulative",
@@ -20620,7 +20620,7 @@
           "type": "cumulative",
           "description": "Cumulative count of seconds spent reading",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_fs_reads_merged_total": {
           "type": "cumulative",
@@ -20632,7 +20632,7 @@
           "type": "cumulative",
           "description": "Cumulative count of reads completed",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_fs_sector_reads_total": {
           "type": "cumulative",

@@ -48,7 +48,7 @@ monitors:
       description: Cumulative cpu utilization as a percentage of the total host CPU
         available.  This metric is equivalent to `container_cpu_utilization` / <#
         of CPUs/cores on host>.
-      default: false
+      default: true
       type: cumulative
     container_cpu_utilization_per_core:
       description: Cumulative cpu utilization in percentages per core
@@ -90,7 +90,7 @@ monitors:
       type: gauge
     container_fs_read_seconds_total:
       description: Cumulative count of seconds spent reading
-      default: false
+      default: true
       type: cumulative
     container_fs_reads_merged_total:
       description: Cumulative count of reads merged
@@ -98,7 +98,7 @@ monitors:
       type: cumulative
     container_fs_reads_total:
       description: Cumulative count of reads completed
-      default: false
+      default: true
       type: cumulative
     container_fs_sector_reads_total:
       description: Cumulative count of sector reads completed
