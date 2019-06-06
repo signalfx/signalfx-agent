@@ -17,7 +17,7 @@
 
 Your SignalFx API Token can be obtained from the Organization->Access Token tab in SignalFx.
 
-Certain installation statements include YOUR_SIGNALFX_REALM. If this value is not set, SignalFx assumes your organization is in the us0 realm. To determine if you are in a different realm and need to supply your realm value in those statements, check your profile page in the SignalFx web application.
+Certain installation statements include YOUR_SIGNALFX_REALM. A realm is a self-contained deployment of SignalFx in which your organization is hosted. Different realms have different API endpoints (e.g. the endpoint for sending data is ingest.us1.signalfx.com for the us1 realm, and ingest.eu0.signalfx.com for the eu0 realm). If this value is not set, SignalFx assumes your organization is in the us0 realm. To determine if you are in a different realm and need to supply your realm value in those statements, check your profile page in the SignalFx web application.
 
 The Smart Agent for Linux contains a Java JRE runtime and a Python runtime, so there are no
 additional dependency requirements. 
@@ -79,7 +79,7 @@ signalfx-agent status all - show everything
 To troubleshoot your installation, check the FAQ about troubleshooting [here](https://github.com/signalfx/signalfx-agent/blob/master/docs/faq.md#how-can-I-see-the-datapoints-emitted-by-the-agent-to-troubleshoot-issues).
 
 
-###Realm
+### Realm
 
 By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to explicitly set the signalFxRealm option in your config like this:
 
