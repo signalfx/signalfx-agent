@@ -64,9 +64,9 @@ are marked as _Default_ in the table below.
 | `container_fs_sector_reads_total` | cumulative |  | Cumulative count of sector reads completed |
 | `container_fs_sector_writes_total` | cumulative |  | Cumulative count of sector writes completed |
 | `container_fs_usage_bytes` | gauge | ✔ | Number of bytes that are consumed by the container on this filesystem |
-| `container_fs_write_seconds_total` | cumulative |  | Cumulative count of seconds spent writing |
+| `container_fs_write_seconds_total` | cumulative | ✔ | Cumulative count of seconds spent writing |
 | `container_fs_writes_merged_total` | cumulative |  | Cumulative count of writes merged |
-| `container_fs_writes_total` | cumulative |  | Cumulative count of writes completed |
+| `container_fs_writes_total` | cumulative | ✔ | Cumulative count of writes completed |
 | `container_last_seen` | gauge |  | Last time a container was seen by the exporter |
 | `container_memory_failcnt` | cumulative |  | Number of memory usage hits limits |
 | `container_memory_failures_total` | cumulative | ✔ | Cumulative count of memory allocation failures |

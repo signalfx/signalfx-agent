@@ -114,7 +114,7 @@ monitors:
       type: gauge
     container_fs_write_seconds_total:
       description: Cumulative count of seconds spent writing
-      default: false
+      default: true
       type: cumulative
     container_fs_writes_merged_total:
       description: Cumulative count of writes merged
@@ -122,7 +122,7 @@ monitors:
       type: cumulative
     container_fs_writes_total:
       description: Cumulative count of writes completed
-      default: false
+      default: true
       type: cumulative
     container_last_seen:
       description: Last time a container was seen by the exporter

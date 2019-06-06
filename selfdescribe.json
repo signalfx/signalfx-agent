@@ -949,7 +949,7 @@
           "type": "cumulative",
           "description": "Cumulative count of seconds spent writing",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_fs_writes_merged_total": {
           "type": "cumulative",
@@ -961,7 +961,7 @@
           "type": "cumulative",
           "description": "Cumulative count of writes completed",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_last_seen": {
           "type": "gauge",
@@ -20656,7 +20656,7 @@
           "type": "cumulative",
           "description": "Cumulative count of seconds spent writing",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_fs_writes_merged_total": {
           "type": "cumulative",
@@ -20668,7 +20668,7 @@
           "type": "cumulative",
           "description": "Cumulative count of writes completed",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_last_seen": {
           "type": "gauge",
