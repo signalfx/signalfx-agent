@@ -27,7 +27,7 @@ SignalFx Smart Agent has three main components:
 
 1) _Observers_ that discover applications and services running on the host.
 2) _Monitors_ that collect metrics from the host and applications.
-3) the _Writer_ that sends the metrics collected by monitors to SignalFx.
+3) The _Writer_ that sends the metrics collected by monitors to SignalFx.
 
 ### Observers
 

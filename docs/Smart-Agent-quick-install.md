@@ -46,33 +46,43 @@ The agent will be installed as a Windows service and will log to the Windows Eve
 
 ## Confirmation
 
-To confirm the SignalFx Smart Agent installation is functional, for Linux enter:
+To confirm the SignalFx Smart Agent installation is functional on either platform, enter:
 
 ```sh
 sudo signalfx-agent status
 ```
 
-The response you will see is __(need content)__
+The response you will see is:
 
-To confirm the SignalFx Smart Agent installation is functional, for Windows enter:
+SignalFx Agent version:           4.5.0
+Agent uptime:                     8m44s
+Observers active:                 host
+Active Monitors:                  16
+Configured Monitors:              33
+Discovered Endpoint Count:        6
+Bad Monitor Config:               None
+Global Dimensions:                {host: my-host-1}
+Datapoints sent (last minute):    1614
+Events Sent (last minute):        0
+Trace Spans Sent (last minute):   0
 
-```sh
-something
-```
+To verify the installation, you can run the following commands:
 
-The response you will see is __(need content)__
+signalfx-agent status config - show resolved config in use by agent
+signalfx-agent status endpoints - show discovered endpoints
+signalfx-agent status monitors - show active monitors
+signalfx-agent status all - show everything
 
-__Now login to SignalFx to see your data!__
 
 ## Troubleshooting the Installation
 
-To troubleshoot the Linux installation __(need content)__ 
+To troubleshoot your installation, check the FAQ about troubleshooting [here](https://github.com/signalfx/signalfx-agent/blob/master/docs/faq.md#how-can-I-see-the-datapoints-emitted-by-the-agent-to-troubleshoot-issues).
 
-To troubleshoot the Windows installation __(need content)__ 
 
 ###Realm
 
 By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to explicitly set the signalFxRealm option in your config like this:
+
 ```sh
 signalFxRealm: YOUR_SIGNALFX_REALM
 ```
