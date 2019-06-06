@@ -130,6 +130,13 @@ point but for now the process is manual.
 
 1. Wait for the RedHat build to complete and then publish it.
 
+1. If the Helm assets have changed bump the chart version number in [Chart.yaml](deployments/k8s/helm/signalfx-agent/Chart.yaml)
+   then update the repo from `dtools/helm_repo` by running:
+
+   ```sh
+    AGENT_CHART_DIR=<agent dir>/deployments/k8s/helm/signalfx-agent ./update signalfx-agent
+    ```
+
 1. Test out the new release by deploying it to a test environment and ensuring
    it works.
 
