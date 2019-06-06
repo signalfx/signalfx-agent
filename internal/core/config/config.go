@@ -73,10 +73,13 @@ type Config struct {
 	// The logical environment/cluster that this agent instance is running in.
 	// All of the services that this instance monitors should be in the same
 	// environment as well. This value, if provided, will be synced as a
-	// property onto the `host` dimension, as well as onto any cloud-provided
-	// specific dimensions (`AWSUniqueId`, `gcp_id`, and `azure_resource_id`).
-	// Example values:  "prod-usa", "dev"
+	// property onto the `host` dimension, or onto any cloud-provided specific
+	// dimensions (`AWSUniqueId`, `gcp_id`, and `azure_resource_id`) when
+	// available. Example values: "prod-usa", "dev"
 	Cluster string `yaml:"cluster"`
+	// If true, force syncing of the `cluster` property on the `host` dimension,
+	// even when cloud-specific dimensions are present.
+	SyncClusterOnHostDimension bool `yaml:"syncClusterOnHostDimension"`
 	// If true, a warning will be emitted if a discovery rule contains
 	// variables that will never possibly match a rule.  If using multiple
 	// observers, it is convenient to set this to false to suppress spurious
