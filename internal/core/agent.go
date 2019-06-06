@@ -112,7 +112,7 @@ func (a *Agent) configure(conf *config.Config) {
 	}
 
 	if conf.Cluster != "" {
-		startSyncClusterProperty(a.propertyChan, conf.Cluster, hostDims)
+		startSyncClusterProperty(a.propertyChan, conf.Cluster, hostDims, conf.SyncClusterOnHostDimension)
 	}
 
 	a.meta.InternalStatusHost = conf.InternalStatusHost
@@ -211,16 +211,16 @@ func StreamDatapoints(configPath string, metric string, dims string) (io.ReadClo
 	return streamDatapoints(conf.InternalStatusHost, conf.InternalStatusPort, metric, dims)
 }
 
-func startSyncClusterProperty(propertyChan chan *types.DimProperties, cluster string, hostDims map[string]string) {
+func startSyncClusterProperty(propertyChan chan *types.DimProperties, cluster string, hostDims map[string]string, setOnHost bool) {
 	for dimName, dimValue := range hostDims {
-		if len(hostDims) > 1 && dimName == "host" {
+		if len(hostDims) > 1 && dimName == "host" && !setOnHost {
 			// If we also have a platform-specific host-id dimension that isn't
 			// the generic 'host' dimension, then skip setting the property on
 			// 'host' since it tends to get reused frequently. The property
 			// will still show up on all MTSs that come out of this agent.
 			continue
 		}
-		log.Infof("Setting cluster=%s property on '%s: %s' dimension", cluster, dimName, dimValue)
+		log.Infof("Setting cluster:%s property on %s:%s dimension", cluster, dimName, dimValue)
 		propertyChan <- &types.DimProperties{
 			Dimension: types.Dimension{
 				Name:  dimName,
