@@ -65,7 +65,7 @@ func (ac AnnotationConfigs) GroupByPortNumber() map[int32]AnnotationConfigs {
 
 func parseAgentAnnotation(key, value string, pod *v1.Pod) (*AnnotationConfig, error) {
 	groups := annotationConfigRegexp.FindStringSubmatch(key)
-	if groups[0] == "" {
+	if len(groups) == 0 || groups[0] == "" {
 		return nil, fmt.Errorf("kubernetes config annotation has invalid agent namespaced key: %s", key)
 	}
 
