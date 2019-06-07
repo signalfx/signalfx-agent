@@ -1,5 +1,4 @@
 from functools import partial as p
-from textwrap import dedent
 
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint
@@ -8,8 +7,7 @@ from tests.helpers.util import container_ip, ensure_always, run_service, wait_fo
 
 def test_new_monitor_filtering():
     with Agent.run(
-        dedent(
-            """
+        """
            monitors:
              - type: internal-metrics
                intervalSeconds: 1
@@ -19,7 +17,6 @@ def test_new_monitor_filtering():
                   - '!sfxagent.go_heap_*'
                   - '!sfxagent.go_frees'
            """
-        )
     ) as agent:
         is_expected = lambda dp: dp.metric.startswith("sfxagent.go_heap") or dp.metric == "sfxagent.go_frees"
 
@@ -40,8 +37,7 @@ def test_new_monitor_filtering():
 def test_filtering_by_dimensions():
     with run_service("nginx") as nginx_cont:
         with Agent.run(
-            dedent(
-                f"""
+            f"""
                monitors:
                  - type: collectd/nginx
                    host: {container_ip(nginx_cont)}
@@ -51,7 +47,6 @@ def test_filtering_by_dimensions():
                     - dimensions:
                         plugin: ['*', '!nginx']
                """
-            )
         ) as agent:
             assert wait_for(
                 p(has_datapoint, agent.fake_services, dimensions={"plugin": "nginx"})
