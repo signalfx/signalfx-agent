@@ -162,15 +162,15 @@ func TestNewFilters(t *testing.T) {
 	})
 
 	t.Run("Filters respect both metric names and dimensions", func(t *testing.T) {
-		f, _ := makeNewFilterSet([]MetricFilter{
+		f, err := makeNewFilterSet([]MetricFilter{
 			{
 				MetricNames: []string{
 					"*.utilization",
 					"!memory.utilization",
 				},
 				Dimensions: map[string]interface{}{
-					"env":     []string{"prod", "dev"},
-					"service": []string{"db"},
+					"env":     []interface{}{"prod", "dev"},
+					"service": []interface{}{"db"},
 				},
 			},
 			{
@@ -184,6 +184,8 @@ func TestNewFilters(t *testing.T) {
 				},
 			},
 		})
+		assert.Nil(t, err)
+
 		assert.True(t, f.Matches(&datapoint.Datapoint{Metric: "disk.utilization"}))
 		assert.True(t, f.Matches(&datapoint.Datapoint{
 			Metric: "disk.utilization",
