@@ -40,8 +40,12 @@ func (mf *MetricFilter) Normalize() (map[string][]string, error) {
 	dimSet := map[string][]string{}
 	for k, v := range mf.Dimensions {
 		switch s := v.(type) {
-		case []string:
-			dimSet[k] = s
+		case []interface{}:
+			newSet := []string{}
+			for _, iv := range s {
+				newSet = append(newSet, fmt.Sprintf("%v", iv))
+			}
+			dimSet[k] = newSet
 		case string:
 			dimSet[k] = []string{s}
 		default:
