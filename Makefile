@@ -34,7 +34,7 @@ test: compileDeps
 ifeq ($(OS),Windows_NT)
 	powershell $(CURDIR)/scripts/windows/make.ps1 test
 else
-	CGO_ENABLED=0 go test -mod vendor -p $(NUM_CORES) ./... | grep -v '\[no test files\]'
+	bash -euo pipefail -c "CGO_ENABLED=0 go test -mod vendor -p $(NUM_CORES) ./... | grep -v '\[no test files\]'"
 endif
 
 .PHONY: vet
