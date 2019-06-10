@@ -25,7 +25,12 @@ Monitor Type: `collectd/interface`
 Configuration](../monitor-config.md#common-configuration).**
 
 
-This monitor has no configuration options.
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `excludedInterfaces` | no | `list of strings` | List of interface names to exclude from monitoring (**default:** `[/^lo\d*$/ /^docker.*/ /^t(un|ap)\d*$/ /^veth.*$/]`) |
+| `includedInterfaces` | no | `list of strings` | List of all the interfaces you want to monitor, all others will be ignored.  If you set both included and excludedInterfaces, only includedInterfaces will be honored. |
+
+
 ## Metrics
 
 The following table lists the metrics available for this monitor.
