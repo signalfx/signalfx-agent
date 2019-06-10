@@ -5,9 +5,8 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import docker
-
 from tests.helpers import fake_backend
-from tests.helpers.util import get_docker_client, get_host_ip, retry, run_container
+from tests.helpers.util import get_docker_client, get_host_ip, pull_from_reader_in_background, retry, run_container
 from tests.paths import REPO_ROOT_DIR
 
 PACKAGING_DIR = REPO_ROOT_DIR / "packaging"
@@ -118,14 +117,7 @@ def socat_https_proxy(container, target_host, target_port, source_host, bind_add
         stderr=subprocess.STDOUT,
     )
 
-    def read_out(_p):
-        while True:
-            read_bytes = _p.stdout.read()
-            if not read_bytes:
-                return
-            print(read_bytes)
-
-    threading.Thread(target=read_out, args=(proc,)).start()
+    get_local_out = pull_from_reader_in_background(proc.stdout)
 
     try:
         yield
@@ -133,6 +125,7 @@ def socat_https_proxy(container, target_host, target_port, source_host, bind_add
         stopped = True
         # The socat instance in the container will die with the container
         proc.kill()
+        print(get_local_out())
 
 
 @contextmanager
