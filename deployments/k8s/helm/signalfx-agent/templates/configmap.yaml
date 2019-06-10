@@ -37,6 +37,8 @@ data:
 
     intervalSeconds: {{ .Values.metricIntervalSeconds }}
 
+    cluster: {{.Values.clusterName}}
+
     logging:
       level: {{ .Values.logLevel | default "info" }}
 
