@@ -7774,7 +7774,29 @@
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
         "package": "internal/monitors/collectd/netinterface",
-        "fields": []
+        "fields": [
+          {
+            "yamlName": "excludedInterfaces",
+            "doc": "List of interface names to exclude from monitoring",
+            "default": [
+              "/^lo\\d*$/",
+              "/^docker.*/",
+              "/^t(un|ap)\\d*$/",
+              "/^veth.*$/"
+            ],
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "includedInterfaces",
+            "doc": "List of all the interfaces you want to monitor, all others will be ignored.  If you set both included and excludedInterfaces, only includedInterfaces will be honored.",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          }
+        ]
       },
       "acceptsEndpoints": false,
       "singleInstance": true
