@@ -14,6 +14,7 @@ yum_gpg_key_url="$repo_base/yum-rpm.key"
 parse_args_and_install() {
   local stage="final"
   local realm="us0"
+  local cluster=
   local ingest_url=
   local api_url=
   local access_token=
@@ -38,6 +39,10 @@ parse_args_and_install() {
         ;;
       --realm)
         realm="$2"
+        shift 1
+        ;;
+      --cluster)
+        cluster="$2"
         shift 1
         ;;
       --insecure)
@@ -80,7 +85,7 @@ parse_args_and_install() {
   echo "Ingest URL: $ingest_url"
   echo "API URL: $api_url"
 
-  install "$stage" "$ingest_url" "$api_url" "$access_token" "$insecure" "$package_version"
+  install "$stage" "$ingest_url" "$api_url" "$access_token" "$insecure" "$package_version" "$cluster"
   exit 0
 }
 
@@ -95,6 +100,8 @@ stdin.
 Options:
 
   --package-version <version> The agent package version to instance
+  --realm <us0|us1|eu0|...>   SignalFx realm to use (used to set --ingest-url and --api-url automatically)
+  --cluster <custer name>     The user-defined environment/cluster to use (corresponds to 'cluster' option in agent)
   --ingest-url <ingest url>   Base URL of the SignalFx ingest server
   --api-url <api url>         Base URL of the SignalFx API server
   --test                      Use the test package repo instead of the primary
@@ -284,6 +291,13 @@ configure_api_url() {
   printf "%s" "$api_url" > /etc/signalfx/api_url
 }
 
+configure_cluster() {
+  local cluster=$1
+
+  mkdir -p /etc/signalfx
+  printf "%s" "$cluster" > /etc/signalfx/cluster
+}
+
 start_agent() {
   if command -v systemctl > /dev/null; then
     systemctl start signalfx-agent
@@ -299,6 +313,7 @@ install() {
   local access_token="$4"
   local insecure="$5"
   local package_version="$6"
+  local cluster="$7"
   local distro="$(get_distro)"
 
   ensure_not_installed
@@ -339,6 +354,7 @@ install() {
   configure_access_token "$access_token"
   configure_ingest_url "$ingest_url"
   configure_api_url "$api_url"
+  configure_cluster "$cluster"
 
   start_agent
 
