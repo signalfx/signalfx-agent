@@ -213,6 +213,8 @@ func (sw *SignalFxWriter) preprocessDatapoint(dp *datapoint.Datapoint) {
 		dp.Dimensions = sw.addhostIDFields(dp.Dimensions)
 	}
 
+	utils.TruncateDimensionValuesInPlace(dp.Dimensions)
+
 	if sw.conf.LogDatapoints {
 		log.Debugf("Sending datapoint:\n%s", utils.DatapointToString(dp))
 	}

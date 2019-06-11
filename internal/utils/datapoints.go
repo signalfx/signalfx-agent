@@ -65,3 +65,15 @@ func BoolToInt(b bool) int {
 	}
 	return 0
 }
+
+// TruncateDimensionValuesInPlace restricts the value of dimensions to 256
+// characters.  If the dim exceeds this limit, the value is truncated.
+func TruncateDimensionValuesInPlace(dims map[string]string) {
+	for k, v := range dims {
+		// Not sure if our backend enforces character length or byte length.
+		// If values include multi-byte unicode chars, this might not work.
+		if len(v) > 256 {
+			dims[k] = v[:256]
+		}
+	}
+}
