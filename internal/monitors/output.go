@@ -59,7 +59,7 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 	dp.Dimensions = utils.MergeStringMaps(dp.Dimensions, mo.extraDims, endpointDims)
 	// Defer filtering until here so we have the full dimension set to match
 	// on.
-	if mo.monitorFiltering != nil && mo.monitorFiltering.filterSet.Matches(dp) {
+	if mo.monitorFiltering.filterSet.Matches(dp) {
 		return
 	}
 

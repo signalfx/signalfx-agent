@@ -332,22 +332,24 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		return errors.Errorf("Could not create new monitor of type %s", monitorType)
 	}
 
-	metadata, ok := MonitorMetadatas[monitorType]
-	if !ok || metadata == nil {
-		// This indicates a programming error in not specifying metadata, not
-		// bad user input
-		panic(fmt.Sprintf("could not find monitor metadata of type %s", monitorType))
+	// Make metadata nil if we aren't using built in filtering and then none of
+	// the new filtering logic will apply.
+	var metadata *Metadata
+	if mm.enableBuiltInFiltering {
+		var ok bool
+		metadata, ok = MonitorMetadatas[monitorType]
+		if !ok || metadata == nil {
+			// This indicates a programming error in not specifying metadata, not
+			// bad user input
+			panic(fmt.Sprintf("could not find monitor metadata of type %s", monitorType))
+		}
 	}
 
 	configHash := config.MonitorConfigCore().Hash()
 
-	var monFiltering *monitorFiltering
-	if mm.enableBuiltInFiltering {
-		var err error
-		monFiltering, err = newMonitorFiltering(config, metadata)
-		if err != nil {
-			return err
-		}
+	monFiltering, err := newMonitorFiltering(config, metadata)
+	if err != nil {
+		return err
 	}
 
 	output := &monitorOutput{
