@@ -5,7 +5,7 @@
 
 ### Step 1: Download and install the agent on a single host.
 
-See [Smart Agent Quick Install](./docs/smart-agent-quick-install.md) for Steps 1, 2, & 3.
+See [Smart Agent Quick Install](/docs/smart-agent-quick-install.md) for Steps 1, 2, & 3.
 
 ### Step 2: Confirm the installation is functioning.
 
@@ -17,7 +17,7 @@ See [Smart Agent Quick Install](./docs/smart-agent-quick-install.md) for Steps 1
 
 ### Step 4: Deploy Smart Agent on multiple hosts.
 
-See [Smart Agent Next Steps](./docs/smart-agent-next-steps.md).
+See [Smart Agent Next Steps](/docs/smart-agent-next-steps.md).
 
 ### Step 5: Configure various monitors to output metrics to Smart Agent. 
 

@@ -54,6 +54,7 @@ sudo signalfx-agent status
 
 The response you will see is:
 
+```sh
 SignalFx Agent version:           4.5.0
 Agent uptime:                     8m44s
 Observers active:                 host
@@ -65,14 +66,16 @@ Global Dimensions:                {host: my-host-1}
 Datapoints sent (last minute):    1614
 Events Sent (last minute):        0
 Trace Spans Sent (last minute):   0
+```
 
 To verify the installation, you can run the following commands:
 
+```sh
 signalfx-agent status config - show resolved config in use by agent
 signalfx-agent status endpoints - show discovered endpoints
 signalfx-agent status monitors - show active monitors
 signalfx-agent status all - show everything
-
+```
 
 ## Troubleshooting the Installation
 
