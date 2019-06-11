@@ -853,7 +853,7 @@
           "type": "cumulative",
           "description": "Cumulative cpu utilization as a percentage of the total host CPU available.  This metric is equivalent to `container_cpu_utilization` / \u003c# of CPUs/cores on host\u003e.",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_cpu_system_seconds_total": {
           "type": "cumulative",
@@ -913,7 +913,7 @@
           "type": "cumulative",
           "description": "Cumulative count of seconds spent reading",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_fs_reads_merged_total": {
           "type": "cumulative",
@@ -925,7 +925,7 @@
           "type": "cumulative",
           "description": "Cumulative count of reads completed",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_fs_sector_reads_total": {
           "type": "cumulative",
@@ -943,13 +943,13 @@
           "type": "gauge",
           "description": "Number of bytes that are consumed by the container on this filesystem",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_fs_write_seconds_total": {
           "type": "cumulative",
           "description": "Cumulative count of seconds spent writing",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_fs_writes_merged_total": {
           "type": "cumulative",
@@ -961,7 +961,7 @@
           "type": "cumulative",
           "description": "Cumulative count of writes completed",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_last_seen": {
           "type": "gauge",
@@ -20582,7 +20582,7 @@
           "type": "cumulative",
           "description": "Cumulative cpu utilization as a percentage of the total host CPU available.  This metric is equivalent to `container_cpu_utilization` / \u003c# of CPUs/cores on host\u003e.",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_cpu_system_seconds_total": {
           "type": "cumulative",
@@ -20642,7 +20642,7 @@
           "type": "cumulative",
           "description": "Cumulative count of seconds spent reading",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_fs_reads_merged_total": {
           "type": "cumulative",
@@ -20654,7 +20654,7 @@
           "type": "cumulative",
           "description": "Cumulative count of reads completed",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_fs_sector_reads_total": {
           "type": "cumulative",
@@ -20672,13 +20672,13 @@
           "type": "gauge",
           "description": "Number of bytes that are consumed by the container on this filesystem",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_fs_write_seconds_total": {
           "type": "cumulative",
           "description": "Cumulative count of seconds spent writing",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_fs_writes_merged_total": {
           "type": "cumulative",
@@ -20690,7 +20690,7 @@
           "type": "cumulative",
           "description": "Cumulative count of writes completed",
           "group": null,
-          "default": false
+          "default": true
         },
         "container_last_seen": {
           "type": "gauge",
