@@ -40,7 +40,7 @@
                 "app": "signalfx-agent"
             },
             "name": "signalfx-agent",
-            "image": "quay.io/signalfx/signalfx-agent:4.7.4"
+            "image": "quay.io/signalfx/signalfx-agent:4.7.5"
         }
     ],
     "cpu": "128",
