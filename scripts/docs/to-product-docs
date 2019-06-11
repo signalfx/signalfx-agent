@@ -42,6 +42,10 @@ convert_doc_extensions() {
   sed -E -e '/http:|https:|(development|signalfx-agent.1|MANUAL).md/! s/\.md(#.*)?[[:>:]]/.html\1/g' -e'/(development|signalfx-agent.1).md/! s@\./docs/@./@g'
 }
 
+strip_needless_header_refs() {
+  sed -E -e '/\.\. _.*default-metrics-version/d'
+}
+
 reset_repo() {
   if ! git -C $PRODUCT_DOCS_REPO diff --exit-code; then
     echo "Product docs repo has uncommitted changes, please deal with them first" >&2
@@ -87,6 +91,7 @@ for f in $(find $AGENT_REPO_BASE/docs -name "*.md"); do
     --columns=1300 | \
    convert_doc_extensions | \
    convert_relative_links | \
+   strip_needless_header_refs | \
    convert_overview_links \
      >> $out_file
 
