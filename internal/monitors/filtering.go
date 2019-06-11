@@ -38,7 +38,7 @@ func (mf *monitorFiltering) AddDatapointExclusionFilter(filter dpfilters.Datapoi
 }
 
 func (mf *monitorFiltering) EnabledMetrics() []string {
-	if mf == nil {
+	if mf.metadata == nil {
 		return nil
 	}
 
@@ -59,7 +59,7 @@ func (mf *monitorFiltering) EnabledMetrics() []string {
 // HasEnabledMetricInGroup returns true if there are any metrics enabled that
 // fall into the given group.
 func (mf *monitorFiltering) HasEnabledMetricInGroup(group string) bool {
-	if mf == nil {
+	if mf.metadata == nil {
 		return false
 	}
 
@@ -76,9 +76,6 @@ func (mf *monitorFiltering) HasEnabledMetricInGroup(group string) bool {
 // HasAnyExtraMetrics returns true if there is any custom metric
 // enabled for this output instance.
 func (mf *monitorFiltering) HasAnyExtraMetrics() bool {
-	if mf == nil {
-		return false
-	}
 	return mf.hasExtraMetrics
 }
 
@@ -97,7 +94,7 @@ func buildFilterSet(metadata *Metadata, conf config.MonitorCustomConfig) (*dpfil
 
 	excludeFilters := []dpfilters.DatapointFilter{oldFilter, newFilter}
 
-	if !metadata.SendAll {
+	if metadata != nil && !metadata.SendAll {
 		// Make a copy of extra metrics from config so we don't alter what the user configured.
 		extraMetrics := append([]string{}, coreConfig.ExtraMetrics...)
 
