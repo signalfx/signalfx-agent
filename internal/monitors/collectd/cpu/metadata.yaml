@@ -20,7 +20,7 @@ monitors:
       type: cumulative
     cpu.interrupt:
       description: >
-        CPU time spent while servicing hardware interrupts -- A hardware
+        CPU time spent while servicing hardware interrupts. A hardware
         interrupt happens at the physical layer. When this occurs, the CPU will
         stop whatever else it is doing and service the interrupt. This metric
         measures how many jiffies were spent handling these interrupts. In
@@ -42,7 +42,7 @@ monitors:
       type: cumulative
     cpu.softirq:
       description: >
-        CPU time spent while servicing software interrupts -- unlike a hardware
+        CPU time spent while servicing software interrupts. Unlike a hardware
         interrupt, a software interrupt happens at the sofware layer. Usually
         it is a userspace program requesting a service of the kernel. This
         metric measures how many jiffies were spent by the CPU handling these
@@ -56,7 +56,7 @@ monitors:
     cpu.steal:
       description: >
         CPU time spent waiting for a hypervisor to service requests from other
-        virtual machines -- This metric is only present on virtual machines. This
+        virtual machines. This metric is only present on virtual machines. This
         metric records how much time this virtual machine had to wait to have the
         hypervisor kernel service a request. In order to get a percentage this
         value must be compared against the sum of all CPU states. A sustained
@@ -67,7 +67,7 @@ monitors:
       type: cumulative
     cpu.system:
       description: >
-        CPU time spent running in the kernel -- This value reflects how often
+        CPU time spent running in the kernel. This value reflects how often
         processes are calling into the kernel for services (e.g to log to the
         console). In order to get a percentage this value must be compared
         against the sum of all CPU states. A sustained high value for this metric
@@ -78,7 +78,7 @@ monitors:
       type: cumulative
     cpu.user:
       description: >
-        CPU time spent running in userspace -- In order to get a percentage
+        CPU time spent running in userspace. In order to get a percentage
         this value must be compared against the sum of all CPU states. If this value is
         high: 1) A process requires more CPU to run than is available on the server, or
         2) There is an application programming error which is causing the CPU to be
@@ -89,7 +89,7 @@ monitors:
     cpu.wait:
       description: >
         Amount of total CPU time spent idle while waiting for an I/O operation
-        to complete -- In order to get a percentage this value must be compared
+        to complete. In order to get a percentage this value must be compared
         against the sum of all CPU states. A high value for a sustained period
         may be caused by: 1) A slow hardware device that is taking too long to
         service requests, or 2) Too many requests being sent to an I/O device

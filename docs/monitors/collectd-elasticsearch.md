@@ -7,7 +7,7 @@ Monitors ElasticSearch instances. We strongly recommend using the
 scale much better.
 
 See https://github.com/signalfx/collectd-elasticsearch and
-https://github.com/signalfx/integrations/tree/master/collectd-elasticsearch
+https://github.com/signalfx/integrations/tree/master/elasticsearch
 
 
 Monitor Type: `collectd/elasticsearch`
