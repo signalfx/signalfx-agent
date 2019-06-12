@@ -18,6 +18,7 @@ INTEGRATIONS_REPO = os.environ.get("INTEGRATIONS_REPO", (AGENT_ROOT / "../integr
 MONITORS_TO_INTEGRATIONS_DIR = {
     "internal/monitors/collectd/activemq:collectd/activemq": "activemq",
     "internal/monitors/elasticsearch:elasticsearch": "elasticsearch",
+    "internal/monitors/collectd/cpu:collectd/cpu": "collectd-cpu",
 }
 
 METRIC_MARKDOWN_TEMPLATE = string.Template(
