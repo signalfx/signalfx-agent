@@ -6,7 +6,8 @@
             "essential": true,
             "dockerLabels": {
                 "agent.signalfx.com.port.6379": "true",
-                "agent.signalfx.com.config.6379.intervalSeconds": "1"
+                "agent.signalfx.com.config.6379.intervalSeconds": "1",
+                "agent.signalfx.com.monitorType.6379": "collectd/redis"
             }
         },
         {
@@ -33,7 +34,7 @@
                 },
                 {
                     "name": "CONFIG_URL",
-                    "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/master/deployments/fargate/agent.yaml"
+                    "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/v4.7.5/deployments/fargate/agent.yaml"
                 }
             ],
             "dockerLabels": {
