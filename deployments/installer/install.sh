@@ -209,6 +209,7 @@ download_debian_key() {
     echo "Could not get the SignalFx Debian GPG signing key" >&2
     exit 1
   fi
+  chmod 644 /etc/apt/trusted.gpg.d/signalfx.gpg
 }
 
 install_debian_apt_source() {
