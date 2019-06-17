@@ -37,33 +37,30 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `nginx_vts_info` | gauge |  | Nginx info |
-| `nginx_vts_main_connections` | gauge | ✔ | connections |
-| `nginx_vts_main_shm_usage_bytes` | gauge |  | Shared memory [ngx_http_vhost_traffic_status] info |
-| `nginx_vts_server_bytes_total` | cumulative |  | The request/response bytes |
-| `nginx_vts_server_cache_total` | cumulative |  | The requests cache counter |
-| `nginx_vts_server_request_duration_seconds` | cumulative |  | The histogram of request processing time |
-| `nginx_vts_server_request_seconds` | gauge | ✔ | The average of request processing times in seconds |
-| `nginx_vts_server_request_seconds_total` | cumulative |  | The request processing time in seconds |
-| `nginx_vts_server_requests_total` | cumulative | ✔ | The requests counter |
-| `nginx_vts_start_time_seconds` | gauge |  | Nginx start time |
-| `nginx_vts_upstream_bytes_total` | cumulative |  | The request/response bytes |
-| `nginx_vts_upstream_request_duration_seconds` | cumulative |  | The histogram of request processing time including upstream |
-| `nginx_vts_upstream_request_seconds` | gauge | ✔ | The average of request processing times including upstream in seconds |
-| `nginx_vts_upstream_request_seconds_total` | cumulative |  | The request Processing time including upstream in seconds |
-| `nginx_vts_upstream_requests_total` | cumulative |  | The upstream requests counter |
-| `nginx_vts_upstream_response_duration_seconds` | cumulative |  | The histogram of only upstream response processing time |
-| `nginx_vts_upstream_response_seconds` | gauge |  | The average of only upstream response processing times in seconds |
-| `nginx_vts_upstream_response_seconds_total` | cumulative |  | The only upstream response processing time in seconds |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - `nginx_vts_info` (*gauge*) - <br>    Nginx info
+ - ***`nginx_vts_main_connections`*** (*gauge*) - <br>    connections
+ - `nginx_vts_main_shm_usage_bytes` (*gauge*) - <br>    Shared memory [ngx_http_vhost_traffic_status] info
+ - `nginx_vts_server_bytes_total` (*cumulative*) - <br>    The request/response bytes
+ - `nginx_vts_server_cache_total` (*cumulative*) - <br>    The requests cache counter
+ - `nginx_vts_server_request_duration_seconds` (*cumulative*) - <br>    The histogram of request processing time
+ - ***`nginx_vts_server_request_seconds`*** (*gauge*) - <br>    The average of request processing times in seconds
+ - `nginx_vts_server_request_seconds_total` (*cumulative*) - <br>    The request processing time in seconds
+ - ***`nginx_vts_server_requests_total`*** (*cumulative*) - <br>    The requests counter
+ - `nginx_vts_start_time_seconds` (*gauge*) - <br>    Nginx start time
+ - `nginx_vts_upstream_bytes_total` (*cumulative*) - <br>    The request/response bytes
+ - `nginx_vts_upstream_request_duration_seconds` (*cumulative*) - <br>    The histogram of request processing time including upstream
+ - ***`nginx_vts_upstream_request_seconds`*** (*gauge*) - <br>    The average of request processing times including upstream in seconds
+ - `nginx_vts_upstream_request_seconds_total` (*cumulative*) - <br>    The request Processing time including upstream in seconds
+ - `nginx_vts_upstream_requests_total` (*cumulative*) - <br>    The upstream requests counter
+ - `nginx_vts_upstream_response_duration_seconds` (*cumulative*) - <br>    The histogram of only upstream response processing time
+ - `nginx_vts_upstream_response_seconds` (*gauge*) - <br>    The average of only upstream response processing times in seconds
+ - `nginx_vts_upstream_response_seconds_total` (*cumulative*) - <br>    The only upstream response processing time in seconds
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -72,13 +69,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

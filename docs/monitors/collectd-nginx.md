@@ -38,23 +38,20 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `connections.accepted` | cumulative | ✔ | Connections accepted by Nginx Web Server |
-| `connections.failed` | cumulative |  | Connections failed by the Nginx Web Server |
-| `connections.handled` | cumulative | ✔ | Connections handled by Nginx Web Server |
-| `nginx_connections.active` | gauge | ✔ | Connections active in Nginx Web Server |
-| `nginx_connections.reading` | gauge | ✔ | Connections being read by Nginx Web Server |
-| `nginx_connections.waiting` | gauge | ✔ | Connections waited on by Nginx Web Server |
-| `nginx_connections.writing` | gauge | ✔ | Connections being written by Nginx Web Server |
-| `nginx_requests` | cumulative | ✔ | Requests handled by Nginx Web Server |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - ***`connections.accepted`*** (*cumulative*) - <br>    Connections accepted by Nginx Web Server
+ - `connections.failed` (*cumulative*) - <br>    Connections failed by the Nginx Web Server
+ - ***`connections.handled`*** (*cumulative*) - <br>    Connections handled by Nginx Web Server
+ - ***`nginx_connections.active`*** (*gauge*) - <br>    Connections active in Nginx Web Server
+ - ***`nginx_connections.reading`*** (*gauge*) - <br>    Connections being read by Nginx Web Server
+ - ***`nginx_connections.waiting`*** (*gauge*) - <br>    Connections waited on by Nginx Web Server
+ - ***`nginx_connections.writing`*** (*gauge*) - <br>    Connections being written by Nginx Web Server
+ - ***`nginx_requests`*** (*cumulative*) - <br>    Requests handled by Nginx Web Server
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -63,13 +60,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

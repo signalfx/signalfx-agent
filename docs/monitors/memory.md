@@ -32,23 +32,20 @@ Configuration](../monitor-config.md#common-configuration).**
 This monitor has no configuration options.
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `memory.available` | gauge |  | (Windows Only) Bytes of memory available for use. |
-| `memory.buffered` | gauge | ✔ | (Linux Only) Bytes of memory used for buffering I/O. |
-| `memory.cached` | gauge | ✔ | (Linux Only) Bytes of memory used for disk caching. |
-| `memory.free` | gauge | ✔ | (Linux Only) Bytes of memory available for use. |
-| `memory.slab_recl` | gauge | ✔ | (Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed. |
-| `memory.slab_unrecl` | gauge | ✔ | (Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed. |
-| `memory.used` | gauge | ✔ | Bytes of memory in use by the system. |
-| `memory.utilization` | gauge | ✔ | Percent of memory in use on this host. This metric reports with plugin dimension set to "signalfx-metadata". |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - `memory.available` (*gauge*) - <br>    (Windows Only) Bytes of memory available for use.
+ - ***`memory.buffered`*** (*gauge*) - <br>    (Linux Only) Bytes of memory used for buffering I/O.
+ - ***`memory.cached`*** (*gauge*) - <br>    (Linux Only) Bytes of memory used for disk caching.
+ - ***`memory.free`*** (*gauge*) - <br>    (Linux Only) Bytes of memory available for use.
+ - ***`memory.slab_recl`*** (*gauge*) - <br>    (Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed.
+ - ***`memory.slab_unrecl`*** (*gauge*) - <br>    (Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed.
+ - ***`memory.used`*** (*gauge*) - <br>    Bytes of memory in use by the system.
+ - ***`memory.utilization`*** (*gauge*) - <br>    Percent of memory in use on this host. This metric reports with plugin dimension set to "signalfx-metadata".
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -57,13 +54,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

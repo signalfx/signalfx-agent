@@ -42,6 +42,25 @@ func monitorsStructMetadata() []monitorDoc {
 				checkDuplicateMetrics(pkg.Path, monitor.Metrics)
 				checkMetricTypes(pkg.Path, monitor.Metrics)
 
+				if monitor.Groups == nil {
+					monitor.Groups = make(map[string]*GroupMetadata)
+				}
+
+				for name, metric := range monitor.Metrics {
+					group := ""
+					if metric.Group != nil {
+						group = *metric.Group
+					}
+
+					if monitor.Groups[group] == nil {
+						monitor.Groups[group] = &GroupMetadata{}
+					}
+
+					groupMeta := monitor.Groups[group]
+					groupMeta.Metrics = append(groupMeta.Metrics, name)
+					sort.Strings(groupMeta.Metrics)
+				}
+
 				mc, _ := t.FieldByName("MonitorConfig")
 				mmd := monitorDoc{
 					Config: getStructMetadata(t),

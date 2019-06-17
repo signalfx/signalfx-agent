@@ -85,65 +85,62 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `go_gc_duration_seconds` | cumulative |  | A summary of the GC invocation durations. |
-| `go_gc_duration_seconds_count` | cumulative |  | A count of the GC invocation durations. |
-| `go_gc_duration_seconds_sum` | cumulative |  | The sum of the GC invocation durations, in seconds. |
-| `go_goroutines` | cumulative |  | Number of goroutines that currently exist. |
-| `go_memstats_alloc_bytes` | gauge |  | Number of bytes allocated and still in use. |
-| `go_memstats_alloc_bytes_total` | cumulative |  | Total number of bytes allocated, even if freed. |
-| `go_memstats_buck_hash_sys_bytes` | gauge |  | Number of bytes used by the profiling bucket hash table. |
-| `go_memstats_frees_total` | cumulative |  | Total number of frees. |
-| `go_memstats_gc_cpu_fraction` | gauge |  | The fraction of this program's available CPU time used by the GC since the program started. |
-| `go_memstats_gc_sys_bytes` | gauge |  | Number of bytes used for garbage collection system metadata. |
-| `go_memstats_heap_alloc_bytes` | gauge |  | Number of heap bytes allocated and still in use. |
-| `go_memstats_heap_idle_bytes` | gauge |  | Number of heap bytes waiting to be used. |
-| `go_memstats_heap_inuse_bytes` | gauge |  | Number of heap bytes that are in use. |
-| `go_memstats_heap_objects` | gauge |  | Number of allocated objects. |
-| `go_memstats_heap_released_bytes` | gauge |  | Number of heap bytes released to OS. |
-| `go_memstats_heap_sys_bytes` | gauge |  | Number of heap bytes obtained from system. |
-| `go_memstats_last_gc_time_seconds` | gauge |  | Length of time since last garbage collection, in seconds since unix epoch. |
-| `go_memstats_lookups_total` | cumulative |  | Total number of pointer lookups. |
-| `go_memstats_mallocs_total` | cumulative |  | Total number of mallocs. |
-| `go_memstats_mcache_inuse_bytes` | gauge |  | Number of bytes in use by mcache structures. |
-| `go_memstats_mcache_sys_bytes` | gauge |  | Number of bytes used for mcache structures obtained from system. |
-| `go_memstats_mspan_inuse_bytes` | gauge |  | Number of bytes in use by mspan structures. |
-| `go_memstats_mspan_sys_bytes` | gauge |  | Number of bytes used for mspan structures obtained from system. |
-| `go_memstats_next_gc_bytes` | gauge |  | Number of heap bytes when next garbage collection will take place. |
-| `go_memstats_other_sys_bytes` | gauge |  | Number of bytes used for other system allocations. |
-| `go_memstats_stack_inuse_bytes` | gauge |  | Number of bytes in use by the stack allocator. |
-| `go_memstats_stack_sys_bytes` | gauge |  | Number of bytes obtained from system for stack allocator. |
-| `go_memstats_sys_bytes` | gauge |  | Number of bytes obtained from system. |
-| `go_threads` | gauge |  | Number of OS threads created |
-| `process_cpu_seconds_total` | cumulative |  | Total user and system CPU time spent, in seconds. |
-| `process_max_fds` | gauge |  | Maximum number of open file descriptors. |
-| `process_open_fds` | gauge |  | Number of open file descriptors. |
-| `process_resident_memory_bytes` | gauge |  | Resident memory size in bytes. |
-| `process_start_time_seconds` | gauge | ✔ | Start time of the process since unix epoch in seconds. |
-| `process_virtual_memory_bytes` | gauge |  | Virtual memory size in bytes. |
-| `traefik_backend_open_connections` | gauge | ✔ | How many open connections exist on a backend, partitioned by method and protocol. |
-| `traefik_backend_request_duration_seconds_bucket` | cumulative |  | The sum of request durations that are within a configured time interval. The request durations are measured at a backend in seconds. This value is partitioned by status code, protocol, and method. |
-| `traefik_backend_request_duration_seconds_count` | cumulative |  | The number of request durations that were measured on a backend. The values are partitioned by status code, protocol, and method. |
-| `traefik_backend_request_duration_seconds_sum` | cumulative | ✔ | The sum of the request durations in seconds, measured on a backend, partitioned by status code, protocol, and method. |
-| `traefik_backend_requests_total` | cumulative | ✔ | How many HTTP requests were processed on a backend, partitioned by status code, protocol, and method. |
-| `traefik_backend_server_up` | gauge | ✔ | Backend server is up, described by gauge value of 0 (down) or 1 (up). |
-| `traefik_config_last_reload_failure` | gauge |  | Last config reload failure |
-| `traefik_config_last_reload_success` | gauge |  | Last config reload success |
-| `traefik_config_reloads_failure_total` | cumulative |  | Total number of config reloads that failed |
-| `traefik_config_reloads_total` | cumulative |  | Config reloads |
-| `traefik_entrypoint_open_connections` | gauge | ✔ | How many open connections exist on an entrypoint, partitioned by method and protocol. |
-| `traefik_entrypoint_request_duration_seconds_bucket` | cumulative |  | The sum of request durations that are within a configured time interval. The request durations are measured at an entrypoint in seconds. This value is partitioned by status code, protocol, and method. |
-| `traefik_entrypoint_request_duration_seconds_count` | cumulative | ✔ | The number of request durations that were measured on an entrypoint. The values are partitioned by status code, protocol, and method. |
-| `traefik_entrypoint_request_duration_seconds_sum` | cumulative | ✔ | The sum of the request durations in seconds measured on an entrypoint, partitioned by status code, protocol, and method. |
-| `traefik_entrypoint_requests_total` | cumulative | ✔ | How many HTTP requests processed on an entrypoint, partitioned by status code, protocol, and method. |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - `go_gc_duration_seconds` (*cumulative*) - <br>    A summary of the GC invocation durations.
+ - `go_gc_duration_seconds_count` (*cumulative*) - <br>    A count of the GC invocation durations.
+ - `go_gc_duration_seconds_sum` (*cumulative*) - <br>    The sum of the GC invocation durations, in seconds.
+ - `go_goroutines` (*cumulative*) - <br>    Number of goroutines that currently exist.
+ - `go_memstats_alloc_bytes` (*gauge*) - <br>    Number of bytes allocated and still in use.
+ - `go_memstats_alloc_bytes_total` (*cumulative*) - <br>    Total number of bytes allocated, even if freed.
+ - `go_memstats_buck_hash_sys_bytes` (*gauge*) - <br>    Number of bytes used by the profiling bucket hash table.
+ - `go_memstats_frees_total` (*cumulative*) - <br>    Total number of frees.
+ - `go_memstats_gc_cpu_fraction` (*gauge*) - <br>    The fraction of this program's available CPU time used by the GC since the program started.
+ - `go_memstats_gc_sys_bytes` (*gauge*) - <br>    Number of bytes used for garbage collection system metadata.
+ - `go_memstats_heap_alloc_bytes` (*gauge*) - <br>    Number of heap bytes allocated and still in use.
+ - `go_memstats_heap_idle_bytes` (*gauge*) - <br>    Number of heap bytes waiting to be used.
+ - `go_memstats_heap_inuse_bytes` (*gauge*) - <br>    Number of heap bytes that are in use.
+ - `go_memstats_heap_objects` (*gauge*) - <br>    Number of allocated objects.
+ - `go_memstats_heap_released_bytes` (*gauge*) - <br>    Number of heap bytes released to OS.
+ - `go_memstats_heap_sys_bytes` (*gauge*) - <br>    Number of heap bytes obtained from system.
+ - `go_memstats_last_gc_time_seconds` (*gauge*) - <br>    Length of time since last garbage collection, in seconds since unix epoch.
+ - `go_memstats_lookups_total` (*cumulative*) - <br>    Total number of pointer lookups.
+ - `go_memstats_mallocs_total` (*cumulative*) - <br>    Total number of mallocs.
+ - `go_memstats_mcache_inuse_bytes` (*gauge*) - <br>    Number of bytes in use by mcache structures.
+ - `go_memstats_mcache_sys_bytes` (*gauge*) - <br>    Number of bytes used for mcache structures obtained from system.
+ - `go_memstats_mspan_inuse_bytes` (*gauge*) - <br>    Number of bytes in use by mspan structures.
+ - `go_memstats_mspan_sys_bytes` (*gauge*) - <br>    Number of bytes used for mspan structures obtained from system.
+ - `go_memstats_next_gc_bytes` (*gauge*) - <br>    Number of heap bytes when next garbage collection will take place.
+ - `go_memstats_other_sys_bytes` (*gauge*) - <br>    Number of bytes used for other system allocations.
+ - `go_memstats_stack_inuse_bytes` (*gauge*) - <br>    Number of bytes in use by the stack allocator.
+ - `go_memstats_stack_sys_bytes` (*gauge*) - <br>    Number of bytes obtained from system for stack allocator.
+ - `go_memstats_sys_bytes` (*gauge*) - <br>    Number of bytes obtained from system.
+ - `go_threads` (*gauge*) - <br>    Number of OS threads created
+ - `process_cpu_seconds_total` (*cumulative*) - <br>    Total user and system CPU time spent, in seconds.
+ - `process_max_fds` (*gauge*) - <br>    Maximum number of open file descriptors.
+ - `process_open_fds` (*gauge*) - <br>    Number of open file descriptors.
+ - `process_resident_memory_bytes` (*gauge*) - <br>    Resident memory size in bytes.
+ - ***`process_start_time_seconds`*** (*gauge*) - <br>    Start time of the process since unix epoch in seconds.
+ - `process_virtual_memory_bytes` (*gauge*) - <br>    Virtual memory size in bytes.
+ - ***`traefik_backend_open_connections`*** (*gauge*) - <br>    How many open connections exist on a backend, partitioned by method and protocol.
+ - `traefik_backend_request_duration_seconds_bucket` (*cumulative*) - <br>    The sum of request durations that are within a configured time interval. The request durations are measured at a backend in seconds. This value is partitioned by status code, protocol, and method.
+ - `traefik_backend_request_duration_seconds_count` (*cumulative*) - <br>    The number of request durations that were measured on a backend. The values are partitioned by status code, protocol, and method.
+ - ***`traefik_backend_request_duration_seconds_sum`*** (*cumulative*) - <br>    The sum of the request durations in seconds, measured on a backend, partitioned by status code, protocol, and method.
+ - ***`traefik_backend_requests_total`*** (*cumulative*) - <br>    How many HTTP requests were processed on a backend, partitioned by status code, protocol, and method.
+ - ***`traefik_backend_server_up`*** (*gauge*) - <br>    Backend server is up, described by gauge value of 0 (down) or 1 (up).
+ - `traefik_config_last_reload_failure` (*gauge*) - <br>    Last config reload failure
+ - `traefik_config_last_reload_success` (*gauge*) - <br>    Last config reload success
+ - `traefik_config_reloads_failure_total` (*cumulative*) - <br>    Total number of config reloads that failed
+ - `traefik_config_reloads_total` (*cumulative*) - <br>    Config reloads
+ - ***`traefik_entrypoint_open_connections`*** (*gauge*) - <br>    How many open connections exist on an entrypoint, partitioned by method and protocol.
+ - `traefik_entrypoint_request_duration_seconds_bucket` (*cumulative*) - <br>    The sum of request durations that are within a configured time interval. The request durations are measured at an entrypoint in seconds. This value is partitioned by status code, protocol, and method.
+ - ***`traefik_entrypoint_request_duration_seconds_count`*** (*cumulative*) - <br>    The number of request durations that were measured on an entrypoint. The values are partitioned by status code, protocol, and method.
+ - ***`traefik_entrypoint_request_duration_seconds_sum`*** (*cumulative*) - <br>    The sum of the request durations in seconds measured on an entrypoint, partitioned by status code, protocol, and method.
+ - ***`traefik_entrypoint_requests_total`*** (*cumulative*) - <br>    How many HTTP requests processed on an entrypoint, partitioned by status code, protocol, and method.
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -152,13 +149,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

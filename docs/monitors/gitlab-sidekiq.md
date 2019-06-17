@@ -33,34 +33,31 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `gitaly_controller_action_duration_seconds` | cumulative |  |  |
-| `gitaly_controller_action_duration_seconds_bucket` | cumulative |  |  |
-| `gitaly_controller_action_duration_seconds_count` | cumulative |  |  |
-| `gitlab_cache_misses_total` | cumulative |  |  |
-| `gitlab_cache_operation_duration_seconds` | cumulative |  |  |
-| `gitlab_cache_operation_duration_seconds_bucket` | cumulative |  |  |
-| `gitlab_cache_operation_duration_seconds_count` | cumulative |  |  |
-| `gitlab_repository_archive_clean_up_real_duration_seconds` | cumulative |  |  |
-| `gitlab_repository_archive_clean_up_real_duration_seconds_bucket` | cumulative |  |  |
-| `gitlab_repository_archive_clean_up_real_duration_seconds_count` | cumulative |  |  |
-| `gitlab_sql_duration_seconds` | cumulative |  |  |
-| `gitlab_sql_duration_seconds_bucket` | cumulative |  |  |
-| `gitlab_sql_duration_seconds_count` | cumulative |  |  |
-| `gitlab_transaction_cache_read_hit_count_total` | cumulative |  |  |
-| `gitlab_transaction_cache_read_miss_count_total` | cumulative |  |  |
-| `gitlab_transaction_duration_seconds` | cumulative |  |  |
-| `gitlab_transaction_duration_seconds_bucket` | cumulative |  |  |
-| `gitlab_transaction_duration_seconds_count` | cumulative |  |  |
-| `gitlab_transaction_sidekiq_queue_duration_total` | gauge | ✔ |  |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - `gitaly_controller_action_duration_seconds` (*cumulative*) - <br>
+ - `gitaly_controller_action_duration_seconds_bucket` (*cumulative*) - <br>
+ - `gitaly_controller_action_duration_seconds_count` (*cumulative*) - <br>
+ - `gitlab_cache_misses_total` (*cumulative*) - <br>
+ - `gitlab_cache_operation_duration_seconds` (*cumulative*) - <br>
+ - `gitlab_cache_operation_duration_seconds_bucket` (*cumulative*) - <br>
+ - `gitlab_cache_operation_duration_seconds_count` (*cumulative*) - <br>
+ - `gitlab_repository_archive_clean_up_real_duration_seconds` (*cumulative*) - <br>
+ - `gitlab_repository_archive_clean_up_real_duration_seconds_bucket` (*cumulative*) - <br>
+ - `gitlab_repository_archive_clean_up_real_duration_seconds_count` (*cumulative*) - <br>
+ - `gitlab_sql_duration_seconds` (*cumulative*) - <br>
+ - `gitlab_sql_duration_seconds_bucket` (*cumulative*) - <br>
+ - `gitlab_sql_duration_seconds_count` (*cumulative*) - <br>
+ - `gitlab_transaction_cache_read_hit_count_total` (*cumulative*) - <br>
+ - `gitlab_transaction_cache_read_miss_count_total` (*cumulative*) - <br>
+ - `gitlab_transaction_duration_seconds` (*cumulative*) - <br>
+ - `gitlab_transaction_duration_seconds_bucket` (*cumulative*) - <br>
+ - `gitlab_transaction_duration_seconds_count` (*cumulative*) - <br>
+ - ***`gitlab_transaction_sidekiq_queue_duration_total`*** (*gauge*) - <br>
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -69,13 +66,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

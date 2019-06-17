@@ -61,81 +61,78 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `circuit_breakers.<priority>.cx_open` | gauge |  | Whether the connection circuit breaker is closed (0) or open (1) |
-| `circuit_breakers.<priority>.cx_pool_open` | gauge |  | Whether the connection pool circuit breaker is closed (0) or open (1) |
-| `circuit_breakers.<priority>.remaining_cx` | gauge |  | Number of remaining connections until the circuit breaker opens |
-| `circuit_breakers.<priority>.remaining_pending` | gauge |  | Number of remaining pending requests until the circuit breaker opens |
-| `circuit_breakers.<priority>.remaining_retries` | gauge |  | Number of remaining retries until the circuit breaker opens |
-| `circuit_breakers.<priority>.remaining_rq` | gauge |  | Number of remaining requests until the circuit breaker opens |
-| `circuit_breakers.<priority>.rq_open` | gauge |  | Whether the requests circuit breaker is closed (0) or open (1) |
-| `circuit_breakers.<priority>.rq_pending_open` | gauge |  | Whether the pending requests circuit breaker is closed (0) or open (1) |
-| `circuit_breakers.<priority>.rq_retry_open` | gauge |  | Whether the retry circuit breaker is closed (0) or open (1) |
-| `external.upstream_rq_<_>` | cumulative |  | External origin specific HTTP response codes |
-| `external.upstream_rq_<_xx>` | cumulative |  | External origin aggregate HTTP response codes |
-| `external.upstream_rq_completed` | cumulative |  | Total external origin requests completed |
-| `external.upstream_rq_time` | gauge |  | External origin request time milliseconds |
-| `internal.upstream_rq_<_>` | cumulative |  | Internal origin specific HTTP response codes |
-| `internal.upstream_rq_<_xx>` | cumulative |  | Internal origin aggregate HTTP response codes |
-| `internal.upstream_rq_completed` | cumulative |  | Total internal origin requests completed |
-| `internal.upstream_rq_time` | gauge |  | Internal origin request time milliseconds |
-| `membership_change` | cumulative |  | Total cluster membership changes |
-| `membership_degraded` | gauge |  | Current cluster degraded total |
-| `membership_healthy` | gauge | ✔ | Current cluster healthy total (inclusive of both health checking and outlier detection) |
-| `membership_total` | gauge | ✔ | Current cluster membership total |
-| `upstream_cx_active` | gauge |  | Total active connections |
-| `upstream_cx_close_notify` | cumulative |  | Total connections closed via HTTP/1.1 connection close header or HTTP/2 GOAWAY |
-| `upstream_cx_connect_attempts_exceeded` | cumulative |  | Total consecutive connection failures exceeding configured connection attempts |
-| `upstream_cx_connect_fail` | cumulative |  | Total connection failures |
-| `upstream_cx_connect_ms` | gauge |  | Connection establishment milliseconds |
-| `upstream_cx_connect_timeout` | cumulative |  | Total connection connect timeouts |
-| `upstream_cx_destroy` | cumulative |  | Total destroyed connections |
-| `upstream_cx_destroy_local` | cumulative |  | Total connections destroyed locally |
-| `upstream_cx_destroy_local_with_active_rq` | cumulative |  | Total connections destroyed locally with 1+ active request |
-| `upstream_cx_destroy_remote` | cumulative |  | Total connections destroyed remotely |
-| `upstream_cx_destroy_remote_with_active_rq` | cumulative |  | Total connections destroyed remotely with 1+ active request |
-| `upstream_cx_destroy_with_active_rq` | cumulative |  | Total connections destroyed with 1+ active request |
-| `upstream_cx_http1_total` | cumulative |  | Total HTTP/1.1 connections |
-| `upstream_cx_http2_total` | cumulative |  | Total HTTP/2 connections |
-| `upstream_cx_idle_timeout` | cumulative |  | Total connection idle timeouts |
-| `upstream_cx_length_ms` | gauge |  | Connection length milliseconds |
-| `upstream_cx_max_requests` | cumulative |  | Total connections closed due to maximum requests |
-| `upstream_cx_none_healthy` | cumulative |  | Total times connection not established due to no healthy hosts |
-| `upstream_cx_overflow` | cumulative |  | Total times that the cluster’s connection circuit breaker overflowed |
-| `upstream_cx_pool_overflow` | cumulative |  | Total times that the cluster’s connection pool circuit breaker overflowed |
-| `upstream_cx_protocol_error` | cumulative |  | Total connection protocol errors |
-| `upstream_cx_rx_bytes_buffered` | gauge |  | Received connection bytes currently buffered |
-| `upstream_cx_rx_bytes_total` | cumulative | ✔ | Total received connection bytes |
-| `upstream_cx_total` | cumulative |  | Total connections |
-| `upstream_cx_tx_bytes_buffered` | gauge |  | Send connection bytes currently buffered |
-| `upstream_cx_tx_bytes_total` | cumulative |  | Total sent connection bytes |
-| `upstream_rq_<_>` | cumulative | ✔ | Specific HTTP response codes (e.g., 201, 302, etc.) |
-| `upstream_rq_<_xx>` | cumulative | ✔ | Aggregate HTTP response codes (e.g., 2xx, 3xx, etc.) |
-| `upstream_rq_active` | gauge |  | Total active requests |
-| `upstream_rq_cancelled` | cumulative |  | Total requests cancelled before obtaining a connection pool connection |
-| `upstream_rq_completed` | cumulative | ✔ | Total upstream requests completed |
-| `upstream_rq_maintenance_mode` | cumulative |  | Total requests that resulted in an immediate 503 due to maintenance mode |
-| `upstream_rq_pending_active` | gauge |  | Total active requests pending a connection pool connection |
-| `upstream_rq_pending_failure_eject` | cumulative |  | Total requests that were failed due to a connection pool connection failure |
-| `upstream_rq_pending_overflow` | cumulative |  | Total requests that overflowed connection pool circuit breaking and were failed |
-| `upstream_rq_pending_total` | cumulative |  | Total requests pending a connection pool connection |
-| `upstream_rq_per_try_timeout` | cumulative |  | Total requests that hit the per try timeout |
-| `upstream_rq_retry` | cumulative | ✔ | Total request retries |
-| `upstream_rq_retry_overflow` | cumulative |  | Total requests not retried due to circuit breaking |
-| `upstream_rq_retry_success` | cumulative | ✔ | Total request retry successes |
-| `upstream_rq_rx_reset` | cumulative |  | Total requests that were reset remotely |
-| `upstream_rq_time` | gauge | ✔ | Request time milliseconds |
-| `upstream_rq_timeout` | cumulative |  | Total requests that timed out waiting for a response |
-| `upstream_rq_total` | cumulative |  | Total requests |
-| `upstream_rq_tx_reset` | cumulative |  | Total requests that were reset locally |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - `circuit_breakers.<priority>.cx_open` (*gauge*) - <br>    Whether the connection circuit breaker is closed (0) or open (1)
+ - `circuit_breakers.<priority>.cx_pool_open` (*gauge*) - <br>    Whether the connection pool circuit breaker is closed (0) or open (1)
+ - `circuit_breakers.<priority>.remaining_cx` (*gauge*) - <br>    Number of remaining connections until the circuit breaker opens
+ - `circuit_breakers.<priority>.remaining_pending` (*gauge*) - <br>    Number of remaining pending requests until the circuit breaker opens
+ - `circuit_breakers.<priority>.remaining_retries` (*gauge*) - <br>    Number of remaining retries until the circuit breaker opens
+ - `circuit_breakers.<priority>.remaining_rq` (*gauge*) - <br>    Number of remaining requests until the circuit breaker opens
+ - `circuit_breakers.<priority>.rq_open` (*gauge*) - <br>    Whether the requests circuit breaker is closed (0) or open (1)
+ - `circuit_breakers.<priority>.rq_pending_open` (*gauge*) - <br>    Whether the pending requests circuit breaker is closed (0) or open (1)
+ - `circuit_breakers.<priority>.rq_retry_open` (*gauge*) - <br>    Whether the retry circuit breaker is closed (0) or open (1)
+ - `external.upstream_rq_<_>` (*cumulative*) - <br>    External origin specific HTTP response codes
+ - `external.upstream_rq_<_xx>` (*cumulative*) - <br>    External origin aggregate HTTP response codes
+ - `external.upstream_rq_completed` (*cumulative*) - <br>    Total external origin requests completed
+ - `external.upstream_rq_time` (*gauge*) - <br>    External origin request time milliseconds
+ - `internal.upstream_rq_<_>` (*cumulative*) - <br>    Internal origin specific HTTP response codes
+ - `internal.upstream_rq_<_xx>` (*cumulative*) - <br>    Internal origin aggregate HTTP response codes
+ - `internal.upstream_rq_completed` (*cumulative*) - <br>    Total internal origin requests completed
+ - `internal.upstream_rq_time` (*gauge*) - <br>    Internal origin request time milliseconds
+ - `membership_change` (*cumulative*) - <br>    Total cluster membership changes
+ - `membership_degraded` (*gauge*) - <br>    Current cluster degraded total
+ - ***`membership_healthy`*** (*gauge*) - <br>    Current cluster healthy total (inclusive of both health checking and outlier detection)
+ - ***`membership_total`*** (*gauge*) - <br>    Current cluster membership total
+ - `upstream_cx_active` (*gauge*) - <br>    Total active connections
+ - `upstream_cx_close_notify` (*cumulative*) - <br>    Total connections closed via HTTP/1.1 connection close header or HTTP/2 GOAWAY
+ - `upstream_cx_connect_attempts_exceeded` (*cumulative*) - <br>    Total consecutive connection failures exceeding configured connection attempts
+ - `upstream_cx_connect_fail` (*cumulative*) - <br>    Total connection failures
+ - `upstream_cx_connect_ms` (*gauge*) - <br>    Connection establishment milliseconds
+ - `upstream_cx_connect_timeout` (*cumulative*) - <br>    Total connection connect timeouts
+ - `upstream_cx_destroy` (*cumulative*) - <br>    Total destroyed connections
+ - `upstream_cx_destroy_local` (*cumulative*) - <br>    Total connections destroyed locally
+ - `upstream_cx_destroy_local_with_active_rq` (*cumulative*) - <br>    Total connections destroyed locally with 1+ active request
+ - `upstream_cx_destroy_remote` (*cumulative*) - <br>    Total connections destroyed remotely
+ - `upstream_cx_destroy_remote_with_active_rq` (*cumulative*) - <br>    Total connections destroyed remotely with 1+ active request
+ - `upstream_cx_destroy_with_active_rq` (*cumulative*) - <br>    Total connections destroyed with 1+ active request
+ - `upstream_cx_http1_total` (*cumulative*) - <br>    Total HTTP/1.1 connections
+ - `upstream_cx_http2_total` (*cumulative*) - <br>    Total HTTP/2 connections
+ - `upstream_cx_idle_timeout` (*cumulative*) - <br>    Total connection idle timeouts
+ - `upstream_cx_length_ms` (*gauge*) - <br>    Connection length milliseconds
+ - `upstream_cx_max_requests` (*cumulative*) - <br>    Total connections closed due to maximum requests
+ - `upstream_cx_none_healthy` (*cumulative*) - <br>    Total times connection not established due to no healthy hosts
+ - `upstream_cx_overflow` (*cumulative*) - <br>    Total times that the cluster’s connection circuit breaker overflowed
+ - `upstream_cx_pool_overflow` (*cumulative*) - <br>    Total times that the cluster’s connection pool circuit breaker overflowed
+ - `upstream_cx_protocol_error` (*cumulative*) - <br>    Total connection protocol errors
+ - `upstream_cx_rx_bytes_buffered` (*gauge*) - <br>    Received connection bytes currently buffered
+ - ***`upstream_cx_rx_bytes_total`*** (*cumulative*) - <br>    Total received connection bytes
+ - `upstream_cx_total` (*cumulative*) - <br>    Total connections
+ - `upstream_cx_tx_bytes_buffered` (*gauge*) - <br>    Send connection bytes currently buffered
+ - `upstream_cx_tx_bytes_total` (*cumulative*) - <br>    Total sent connection bytes
+ - ***`upstream_rq_<_>`*** (*cumulative*) - <br>    Specific HTTP response codes (e.g., 201, 302, etc.)
+ - ***`upstream_rq_<_xx>`*** (*cumulative*) - <br>    Aggregate HTTP response codes (e.g., 2xx, 3xx, etc.)
+ - `upstream_rq_active` (*gauge*) - <br>    Total active requests
+ - `upstream_rq_cancelled` (*cumulative*) - <br>    Total requests cancelled before obtaining a connection pool connection
+ - ***`upstream_rq_completed`*** (*cumulative*) - <br>    Total upstream requests completed
+ - `upstream_rq_maintenance_mode` (*cumulative*) - <br>    Total requests that resulted in an immediate 503 due to maintenance mode
+ - `upstream_rq_pending_active` (*gauge*) - <br>    Total active requests pending a connection pool connection
+ - `upstream_rq_pending_failure_eject` (*cumulative*) - <br>    Total requests that were failed due to a connection pool connection failure
+ - `upstream_rq_pending_overflow` (*cumulative*) - <br>    Total requests that overflowed connection pool circuit breaking and were failed
+ - `upstream_rq_pending_total` (*cumulative*) - <br>    Total requests pending a connection pool connection
+ - `upstream_rq_per_try_timeout` (*cumulative*) - <br>    Total requests that hit the per try timeout
+ - ***`upstream_rq_retry`*** (*cumulative*) - <br>    Total request retries
+ - `upstream_rq_retry_overflow` (*cumulative*) - <br>    Total requests not retried due to circuit breaking
+ - ***`upstream_rq_retry_success`*** (*cumulative*) - <br>    Total request retry successes
+ - `upstream_rq_rx_reset` (*cumulative*) - <br>    Total requests that were reset remotely
+ - ***`upstream_rq_time`*** (*gauge*) - <br>    Request time milliseconds
+ - `upstream_rq_timeout` (*cumulative*) - <br>    Total requests that timed out waiting for a response
+ - `upstream_rq_total` (*cumulative*) - <br>    Total requests
+ - `upstream_rq_tx_reset` (*cumulative*) - <br>    Total requests that were reset locally
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -144,13 +141,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

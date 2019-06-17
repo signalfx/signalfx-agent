@@ -28,22 +28,20 @@ Configuration](../monitor-config.md#common-configuration).**
 This monitor has no configuration options.
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `protocol_counter.ActiveOpens` | cumulative | ✔ | The number of times TCP connections transitioned from the CLOSED state to the SYN-SENT state. |
-| `protocol_counter.CurrEstab` | cumulative |  | The number of TCP connections currently in either ESTABLISHED or CLOSE-WAIT state. |
-| `protocol_counter.DelayedACKs` | cumulative |  | The number of acknowledgements delayed by TCP Delayed Acknowledgement |
-| `protocol_counter.InDestUnreachs` | cumulative |  | The number of ICMP Destination Unreachable messages received |
-| `protocol_counter.OutSegs` | cumulative |  | The total number of segments that have been sent, including those on current connections but excluding those containing only retransmitted octets. |
-| `protocol_counter.PassiveOpens` | cumulative |  | The number of times that a server opened a connection, due to receiving a TCP SYN packet. |
-| `protocol_counter.RetransSegs` | cumulative |  | The total number of segments retransmitted |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - ***`protocol_counter.ActiveOpens`*** (*cumulative*) - <br>    The number of times TCP connections transitioned from the CLOSED state to the SYN-SENT state.
+ - `protocol_counter.CurrEstab` (*cumulative*) - <br>    The number of TCP connections currently in either ESTABLISHED or CLOSE-WAIT state.
+ - `protocol_counter.DelayedACKs` (*cumulative*) - <br>    The number of acknowledgements delayed by TCP Delayed Acknowledgement
+ - `protocol_counter.InDestUnreachs` (*cumulative*) - <br>    The number of ICMP Destination Unreachable messages received
+ - `protocol_counter.OutSegs` (*cumulative*) - <br>    The total number of segments that have been sent, including those on current connections but excluding those containing only retransmitted octets.
+
+ - `protocol_counter.PassiveOpens` (*cumulative*) - <br>    The number of times that a server opened a connection, due to receiving a TCP SYN packet.
+ - `protocol_counter.RetransSegs` (*cumulative*) - <br>    The total number of segments retransmitted
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -52,13 +50,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

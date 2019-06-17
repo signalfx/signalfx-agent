@@ -119,29 +119,26 @@ The **nested** `metrics` config object has the following fields:
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `counter.kong.connections.accepted` | cumulative |  | Total number of all accepted connections. |
-| `counter.kong.connections.handled` | cumulative |  | Total number of all handled connections (accounting for resource limits). |
-| `counter.kong.kong.latency` | cumulative | ✔ | Time spent in Kong request handling and balancer (ms). |
-| `counter.kong.requests.count` | cumulative | ✔ | Total number of all requests made to Kong API and proxy server. |
-| `counter.kong.requests.latency` | cumulative | ✔ | Time elapsed between the first bytes being read from each client request and the log writes after the last bytes were sent to the clients (ms). |
-| `counter.kong.requests.size` | cumulative | ✔ | Total bytes received/proxied from client requests. |
-| `counter.kong.responses.count` | cumulative | ✔ | Total number of responses provided to clients. |
-| `counter.kong.responses.size` | cumulative | ✔ | Total bytes sent/proxied to clients. |
-| `counter.kong.upstream.latency` | cumulative | ✔ | Time spent waiting for upstream response (ms). |
-| `gauge.kong.connections.active` | gauge | ✔ | The current number of active client connections (includes waiting). |
-| `gauge.kong.connections.reading` | gauge | ✔ | The current number of connections where nginx is reading the request header. |
-| `gauge.kong.connections.waiting` | gauge | ✔ | The current number of idle client connections waiting for a request. |
-| `gauge.kong.connections.writing` | gauge | ✔ | The current number of connections where nginx is writing the response back to the client. |
-| `gauge.kong.database.reachable` | gauge | ✔ | kong.dao:db.reachable() at time of metric query |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - `counter.kong.connections.accepted` (*cumulative*) - <br>    Total number of all accepted connections.
+ - `counter.kong.connections.handled` (*cumulative*) - <br>    Total number of all handled connections (accounting for resource limits).
+ - ***`counter.kong.kong.latency`*** (*cumulative*) - <br>    Time spent in Kong request handling and balancer (ms).
+ - ***`counter.kong.requests.count`*** (*cumulative*) - <br>    Total number of all requests made to Kong API and proxy server.
+ - ***`counter.kong.requests.latency`*** (*cumulative*) - <br>    Time elapsed between the first bytes being read from each client request and the log writes after the last bytes were sent to the clients (ms).
+ - ***`counter.kong.requests.size`*** (*cumulative*) - <br>    Total bytes received/proxied from client requests.
+ - ***`counter.kong.responses.count`*** (*cumulative*) - <br>    Total number of responses provided to clients.
+ - ***`counter.kong.responses.size`*** (*cumulative*) - <br>    Total bytes sent/proxied to clients.
+ - ***`counter.kong.upstream.latency`*** (*cumulative*) - <br>    Time spent waiting for upstream response (ms).
+ - ***`gauge.kong.connections.active`*** (*gauge*) - <br>    The current number of active client connections (includes waiting).
+ - ***`gauge.kong.connections.reading`*** (*gauge*) - <br>    The current number of connections where nginx is reading the request header.
+ - ***`gauge.kong.connections.waiting`*** (*gauge*) - <br>    The current number of idle client connections waiting for a request.
+ - ***`gauge.kong.connections.writing`*** (*gauge*) - <br>    The current number of connections where nginx is writing the response back to the client.
+ - ***`gauge.kong.database.reachable`*** (*gauge*) - <br>    kong.dao:db.reachable() at time of metric query
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -150,13 +147,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

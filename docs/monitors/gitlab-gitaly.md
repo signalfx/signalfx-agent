@@ -33,28 +33,25 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `gitaly_authentications` | cumulative |  | Counts of of Gitaly request authentication attempts |
-| `gitaly_connections_total` | cumulative |  | Total number of connections accepted by this Gitaly process |
-| `gitaly_service_client_requests` | cumulative |  | Counter of client requests received by client, call_site, auth version, and response code |
-| `gitaly_smarthttp_deepen_count` | cumulative |  | Number of git-upload-pack requests processed that contained a 'deepen' message |
-| `gitaly_spawn_timeout_count` | cumulative |  | Number of process spawn timeouts |
-| `gitaly_supervisor_health_checks` | cumulative | ✔ | Count of Gitaly supervisor health checks |
-| `gitaly_supervisor_rss_bytes` | gauge |  | Resident set size of supervised processes, in bytes |
-| `gitaly_supervisor_starts_total` | cumulative |  | Number of starts of supervised processes |
-| `gitlab_build_info` | gauge |  | Current build info for this GitLab Service |
-| `grpc_server_handled_total` | cumulative | ✔ | Total number of RPCs completed on the server, regardless of success or failure |
-| `grpc_server_msg_received_total` | cumulative |  | Total number of RPC stream messages received on the server |
-| `grpc_server_msg_sent_total` | cumulative |  | Total number of gRPC stream messages sent by the server |
-| `grpc_server_started_total` | cumulative |  | Total number of RPCs started on the server |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - `gitaly_authentications` (*cumulative*) - <br>    Counts of of Gitaly request authentication attempts
+ - `gitaly_connections_total` (*cumulative*) - <br>    Total number of connections accepted by this Gitaly process
+ - `gitaly_service_client_requests` (*cumulative*) - <br>    Counter of client requests received by client, call_site, auth version, and response code
+ - `gitaly_smarthttp_deepen_count` (*cumulative*) - <br>    Number of git-upload-pack requests processed that contained a 'deepen' message
+ - `gitaly_spawn_timeout_count` (*cumulative*) - <br>    Number of process spawn timeouts
+ - ***`gitaly_supervisor_health_checks`*** (*cumulative*) - <br>    Count of Gitaly supervisor health checks
+ - `gitaly_supervisor_rss_bytes` (*gauge*) - <br>    Resident set size of supervised processes, in bytes
+ - `gitaly_supervisor_starts_total` (*cumulative*) - <br>    Number of starts of supervised processes
+ - `gitlab_build_info` (*gauge*) - <br>    Current build info for this GitLab Service
+ - ***`grpc_server_handled_total`*** (*cumulative*) - <br>    Total number of RPCs completed on the server, regardless of success or failure
+ - `grpc_server_msg_received_total` (*cumulative*) - <br>    Total number of RPC stream messages received on the server
+ - `grpc_server_msg_sent_total` (*cumulative*) - <br>    Total number of gRPC stream messages sent by the server
+ - `grpc_server_started_total` (*cumulative*) - <br>    Total number of RPCs started on the server
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -63,13 +60,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

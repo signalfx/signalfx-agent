@@ -61,16 +61,15 @@ The **nested** `kubernetesAPI` config object has the following fields:
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
-This monitor emits all metrics by default; however, **none are categorized as [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) -- they are all custom**.
+These are the metrics available for this monitor.
+This monitor emits all metrics by default; however, **none are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+-- they are all custom**.
 
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `kubernetes.volume_available_bytes` | gauge | The number of available bytes in the volume |
-| `kubernetes.volume_capacity_bytes` | gauge | The total capacity in bytes of the volume |
 
-
+ - ***`kubernetes.volume_available_bytes`*** (*gauge*) - <br>    The number of available bytes in the volume
+ - ***`kubernetes.volume_capacity_bytes`*** (*gauge*) - <br>    The total capacity in bytes of the volume
 The agent does not do any built-in filtering of metrics coming out of this
 monitor.
 ## Dimensions

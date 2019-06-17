@@ -169,176 +169,302 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | [Group](#groups) | Description |
-| ---  | ---  | ---    | --- | ---         |
-| `elasticsearch.cluster.active-primary-shards` | gauge | ✔ | cluster | Number of active primary shards |
-| `elasticsearch.cluster.active-shards` | gauge | ✔ | cluster | Number of active shards |
-| `elasticsearch.cluster.active-shards-percent` | gauge |  | cluster | Percentaage of shards active |
-| `elasticsearch.cluster.delayed-unassigned-shards` | gauge |  | cluster | Number of delayed unassigned shards |
-| `elasticsearch.cluster.in-flight-fetches` | gauge |  | cluster | Number of fetches in-flight |
-| `elasticsearch.cluster.initializing-shards` | gauge |  | cluster | Number of shards being initialized |
-| `elasticsearch.cluster.number-of-data_nodes` | gauge | ✔ | cluster | Number of data nodes |
-| `elasticsearch.cluster.number-of-nodes` | gauge | ✔ | cluster | Number of nodes |
-| `elasticsearch.cluster.pending-tasks` | gauge |  | cluster | Number of pending tasks |
-| `elasticsearch.cluster.relocating-shards` | gauge | ✔ | cluster | Number of shards being relocated |
-| `elasticsearch.cluster.status` | gauge |  | cluster | Cluster stats (0, 1, 2 for green, yellow and red respectively) |
-| `elasticsearch.cluster.task-max-wait-time` | gauge |  | cluster | Max time a task has to wait |
-| `elasticsearch.cluster.unassigned-shards` | gauge | ✔ | cluster | Number of unassigned shards |
-| `elasticsearch.http.current_open` | gauge |  | node/http | Number of currently open HTTP connections |
-| `elasticsearch.http.total_open` | cumulative |  | node/http | Total number of opened HTTP connections |
-| `elasticsearch.indices.completion.size` | gauge |  | indices/completion | Size used by suggest completion (in bytes) |
-| `elasticsearch.indices.docs.count` | gauge | ✔ | indices/docs | Number of docs |
-| `elasticsearch.indices.docs.deleted` | gauge | ✔ | indices/docs | Number of docs deleted |
-| `elasticsearch.indices.fielddata.evictions` | cumulative |  | indices/fielddata | Number of evictions from fielddata cache |
-| `elasticsearch.indices.fielddata.memory-size` | gauge |  | indices/fielddata | Size of fielddata cache (in bytes) |
-| `elasticsearch.indices.filter-cache.evictions` | cumulative |  | indices/filter-cache | Number of evicttions from filter cache |
-| `elasticsearch.indices.filter-cache.memory-size` | gauge |  | indices/filter-cache | Filter cache size (in bytes) |
-| `elasticsearch.indices.flush.periodic` | gauge |  | indices/flush | How long to wait before triggering a flush regardless of translog size |
-| `elasticsearch.indices.flush.total` | cumulative |  | indices/flush | Number of index flushes to disk |
-| `elasticsearch.indices.flush.total-time` | cumulative |  | indices/flush | Time spent flushing the index to disk |
-| `elasticsearch.indices.get.current` | gauge |  | indices/get | Number of get requests running |
-| `elasticsearch.indices.get.exists-time` | cumulative |  | indices/get | Time spent on get requests where the document existed |
-| `elasticsearch.indices.get.exists-total` | cumulative |  | indices/get | Number of get requests where the document existed |
-| `elasticsearch.indices.get.missing-time` | cumulative |  | indices/get | Time spent on get requests where the document was missing |
-| `elasticsearch.indices.get.missing-total` | cumulative |  | indices/get | Number of get requests where the document was missing |
-| `elasticsearch.indices.get.time` | cumulative |  | indices/get | Time spent on get requests |
-| `elasticsearch.indices.get.total` | cumulative | ✔ | indices/get | Total number of get requests |
-| `elasticsearch.indices.id-cache.memory-size` | gauge |  | indices/id-cache | Size of id cache (in bytes) |
-| `elasticsearch.indices.indexing.delete-current` | gauge |  | indices/indexing | Number of documents currently being deleted from an index |
-| `elasticsearch.indices.indexing.delete-time` | cumulative |  | indices/indexing | Time spent deleting documents from an index |
-| `elasticsearch.indices.indexing.delete-total` | cumulative |  | indices/indexing | Number of documents deleted from an index |
-| `elasticsearch.indices.indexing.index-current` | gauge |  | indices/indexing | Number of documents currently being indexed to an index |
-| `elasticsearch.indices.indexing.index-failed` | gauge |  | indices/indexing | Number of failed indices |
-| `elasticsearch.indices.indexing.index-time` | cumulative |  | indices/indexing | Time spent indexing documents to an index |
-| `elasticsearch.indices.indexing.index-total` | cumulative | ✔ | indices/indexing | Total number of documents indexed to an index |
-| `elasticsearch.indices.indexing.noop-update-total` | cumulative |  | indices/indexing | Number of noop updates |
-| `elasticsearch.indices.indexing.throttle-time` | cumulative |  | indices/indexing | Throttle time |
-| `elasticsearch.indices.merges.auto-throttle-size` | cumulative |  | indices/merges | Merging throttled due to auto-throttling (in bytes) |
-| `elasticsearch.indices.merges.current` | gauge | ✔ | indices/merges | Number of currently active segment merges |
-| `elasticsearch.indices.merges.current-docs` | gauge |  | indices/merges | Number of docs currently being merged |
-| `elasticsearch.indices.merges.current-size` | gauge |  | indices/merges | Size of the segments currently being merged |
-| `elasticsearch.indices.merges.stopped-time` | cumulative |  | indices/merges | Total time merges were stopped for |
-| `elasticsearch.indices.merges.throttle-time` | cumulative |  | indices/merges | Total time merges spent waiting due to throttling |
-| `elasticsearch.indices.merges.total` | cumulative | ✔ | indices/merges | Number of segment merges |
-| `elasticsearch.indices.merges.total-docs` | cumulative |  | indices/merges | Number of merged docs across merged segments |
-| `elasticsearch.indices.merges.total-size` | cumulative |  | indices/merges | Total size of merged segments |
-| `elasticsearch.indices.merges.total-time` | cumulative |  | indices/merges | Total time spent on merging |
-| `elasticsearch.indices.percolate.current` | gauge |  | indices/percolate | Number of percolator queries currently running |
-| `elasticsearch.indices.percolate.queries` | cumulative |  | indices/percolate | Number of percolator queries |
-| `elasticsearch.indices.percolate.time` | cumulative |  | indices/percolate | Total time spent on percolate requests |
-| `elasticsearch.indices.percolate.total` | cumulative |  | indices/percolate | Total number of suggest requests |
-| `elasticsearch.indices.query-cache.cache-count` | gauge |  | indices/query-cache | Number of items in query cache |
-| `elasticsearch.indices.query-cache.cache-size` | gauge |  | indices/query-cache | Size of query cache (in bytes) |
-| `elasticsearch.indices.query-cache.evictions` | cumulative |  | indices/query-cache | Number of query cache evictions |
-| `elasticsearch.indices.query-cache.hit-count` | cumulative |  | indices/query-cache | Number of query cache hits |
-| `elasticsearch.indices.query-cache.memory-size` | gauge |  | indices/query-cache | Size of query cache (in bytes) |
-| `elasticsearch.indices.query-cache.miss-count` | cumulative |  | indices/request-cache | Number of query cache misses |
-| `elasticsearch.indices.query-cache.total-count` | cumulative |  | indices/query-cache | Total number of items in the query cache |
-| `elasticsearch.indices.recovery.current-as-source` | gauge |  | indices/recovery | Number of ongoing recoveries for which a shard serves as a source |
-| `elasticsearch.indices.recovery.current-as-target` | gauge |  | indices/recovery | Number of ongoing recoveries for which a shard serves as a target |
-| `elasticsearch.indices.recovery.throttle-time` | cumulative |  | indices/recovery | Total time recoveries waited due to throttling |
-| `elasticsearch.indices.refresh.listeners` | gauge |  | indices/refresh | Number of listeners waiting for a refresh |
-| `elasticsearch.indices.refresh.total` | cumulative |  | indices/refresh | Total number of index refreshes |
-| `elasticsearch.indices.refresh.total-time` | cumulative |  | indices/refresh | Total time spent on index refreshes |
-| `elasticsearch.indices.request-cache.evictions` | cumulative |  | indices/request-cache | Number of request cache evictions |
-| `elasticsearch.indices.request-cache.hit-count` | cumulative |  | indices/request-cache | Number of request cache hits |
-| `elasticsearch.indices.request-cache.memory-size` | gauge |  | indices/request-cache | Memory used by request cache (in bytes) |
-| `elasticsearch.indices.request-cache.miss-count` | cumulative |  | indices/request-cache | Number of request cache misses |
-| `elasticsearch.indices.search.fetch-current` | gauge |  | indices/search | Number of query fetches currently running |
-| `elasticsearch.indices.search.fetch-time` | cumulative |  | indices/search | Total time spent on query fetches |
-| `elasticsearch.indices.search.fetch-total` | cumulative |  | indices/search | Total number of query feches |
-| `elasticsearch.indices.search.open-contexts` | gauge |  | indices/search | Number of open contexts |
-| `elasticsearch.indices.search.query-current` | gauge |  | indices/search | Number of currently active queries |
-| `elasticsearch.indices.search.query-time` | cumulative | ✔ | indices/search | Total time spent querying on the primary |
-| `elasticsearch.indices.search.query-total` | cumulative | ✔ | indices/search | Total number of queries |
-| `elasticsearch.indices.search.scroll-current` | gauge |  | indices/search | Currently active scroll queries count |
-| `elasticsearch.indices.search.scroll-time` | cumulative |  | indices/search | Total time spent on scroll queries |
-| `elasticsearch.indices.search.scroll-total` | cumulative |  | indices/search | Total number of scroll queries |
-| `elasticsearch.indices.search.suggest-current` | gauge |  | indices/search | Number of suggest requests currently active |
-| `elasticsearch.indices.search.suggest-time` | cumulative |  | indices/search | Total time spent on search suggest |
-| `elasticsearch.indices.search.suggest-total` | cumulative |  | indices/search | Total number of suggest requests |
-| `elasticsearch.indices.segments.count` | gauge | ✔ | indices/segments | Number of segments in an index shard |
-| `elasticsearch.indices.segments.doc-values-memory-size` | gauge |  | indices/segments | Memory used by doc values |
-| `elasticsearch.indices.segments.fixed-bit-set-memory-size` | gauge |  | indices/segments | Memory used by fixed bit set |
-| `elasticsearch.indices.segments.index-writer-max-memory-size` | gauge |  | indices/segments | Maximum memory used by the index writer |
-| `elasticsearch.indices.segments.index-writer-memory-size` | gauge |  | indices/segments | Memory used by the index writer |
-| `elasticsearch.indices.segments.memory-size` | gauge |  | indices/segments | Memory used by index segments (in bytes) |
-| `elasticsearch.indices.segments.norms-memory-size` | gauge |  | indices/segments | Memory used by norms (in bytes) |
-| `elasticsearch.indices.segments.points-memory-size` | gauge |  | indices/segments | Memory used by points |
-| `elasticsearch.indices.segments.stored-field-memory-size` | gauge |  | indices/segments | Memory used by stored fields (in bytes) |
-| `elasticsearch.indices.segments.term-vectors-memory-size` | gauge |  | indices/segments | Memory used by term vectors (in bytes) |
-| `elasticsearch.indices.segments.terms-memory-size` | gauge |  | indices/segments | Memory used by terms (in bytes) |
-| `elasticsearch.indices.segments.version-map-memory-size` | gauge |  | indices/segments | Memory used by segment version map (in bytes) |
-| `elasticsearch.indices.store.size` | gauge |  | indices/store | Total size (in bytes) |
-| `elasticsearch.indices.store.throttle-time` | cumulative |  | indices/store | Total time requests are throttled for |
-| `elasticsearch.indices.suggest.current` | gauge |  | indices/suggest | Number of currently active suggest requests |
-| `elasticsearch.indices.suggest.time` | cumulative |  | indices/suggest | Total time spent in suggest requests |
-| `elasticsearch.indices.suggest.total` | cumulative |  | indices/suggest | Total number of suggest requests |
-| `elasticsearch.indices.translog.earliest_last_modified_age` | gauge |  | indices/translog | Earliest last modified age on transaction logs |
-| `elasticsearch.indices.translog.operations` | gauge |  | indices/translog | Number of operations in the transaction log |
-| `elasticsearch.indices.translog.size` | gauge |  | indices/translog | Size of the transaction log |
-| `elasticsearch.indices.translog.uncommitted_operations` | gauge |  | indices/translog | Number of uncommitted operations in the transaction log |
-| `elasticsearch.indices.translog.uncommitted_size_in_bytes` | gauge |  | indices/translog | Size of uncommitted transaction logs (in bytes) |
-| `elasticsearch.indices.warmer.current` | gauge |  | indices/warmer | Number of currently active warmers |
-| `elasticsearch.indices.warmer.total` | cumulative |  | indices/warmer | Total number of warmers |
-| `elasticsearch.indices.warmer.total-time` | cumulative |  | indices/warmer | Total time spent by warmers |
-| `elasticsearch.jvm.classes.current-loaded-count` | gauge |  | node/jvm | Number of classes currently loaded |
-| `elasticsearch.jvm.classes.total-loaded-count` | cumulative |  | node/jvm | Number of classes loaded |
-| `elasticsearch.jvm.classes.total-unloaded-count` | cumulative |  | node/jvm | Total number of classes unloaded |
-| `elasticsearch.jvm.gc.count` | cumulative |  | node/jvm | Total number of garbage collections |
-| `elasticsearch.jvm.gc.old-count` | cumulative |  | node/jvm | Total number of garbage collections on Old Gen |
-| `elasticsearch.jvm.gc.old-time` | cumulative |  | node/jvm | Total time spent in garbage collections on Old Gen |
-| `elasticsearch.jvm.gc.time` | cumulative | ✔ | node/jvm | Total time spent on GC |
-| `elasticsearch.jvm.mem.buffer_pools.direct.count` | gauge |  | node/jvm | Number of direct buffer pools |
-| `elasticsearch.jvm.mem.buffer_pools.direct.total_capacity_in_bytes` | gauge |  | node/jvm | Total capacity of direct buffer pools |
-| `elasticsearch.jvm.mem.buffer_pools.direct.used_in_bytes` | gauge |  | node/jvm | Memory used by direct buffer pools (in bytes) |
-| `elasticsearch.jvm.mem.buffer_pools.mapped.count` | gauge |  | node/jvm | Number of buffers in the mapped pool |
-| `elasticsearch.jvm.mem.buffer_pools.mapped.total_capacity_in_bytes` | gauge |  | node/jvm | Total capacity of the buffers in the mapped pool |
-| `elasticsearch.jvm.mem.buffer_pools.mapped.used_in_bytes` | gauge |  | node/jvm | Memory used by mapped buffer pools (in bytes) |
-| `elasticsearch.jvm.mem.heap-committed` | gauge | ✔ | node/jvm | Memory guaranteed to be available to JVM heap |
-| `elasticsearch.jvm.mem.heap-max` | gauge |  | node/jvm | Max memory that can be used by JVM heap (in bytes) |
-| `elasticsearch.jvm.mem.heap-used` | gauge | ✔ | node/jvm | Memory current being used by JVM heap (in bytes) |
-| `elasticsearch.jvm.mem.heap-used-percent` | gauge |  | node/jvm | Percent of heap being used |
-| `elasticsearch.jvm.mem.non-heap-committed` | gauge |  | node/jvm | Memory guaranteed to be available to JVM non-heap |
-| `elasticsearch.jvm.mem.non-heap-used` | gauge |  | node/jvm | Memory current being used by JVM non-heap (in bytes) |
-| `elasticsearch.jvm.mem.pools.old.max_in_bytes` | gauge |  | node/jvm | Memory used by Old Gen (in bytes) |
-| `elasticsearch.jvm.mem.pools.old.peak_max_in_bytes` | gauge |  | node/jvm | Memory pool Old Gen peak max (in bytes) |
-| `elasticsearch.jvm.mem.pools.old.peak_used_in_bytes` | gauge |  | node/jvm | Peak memory used by Old Gen (in bytes) |
-| `elasticsearch.jvm.mem.pools.old.used_in_bytes` | gauge |  | node/jvm | Memory being used by Old Gen (in bytes) |
-| `elasticsearch.jvm.mem.pools.survivor.max_in_bytes` | gauge |  | node/jvm | Max memory that can be used by Survivor space (in bytes) |
-| `elasticsearch.jvm.mem.pools.survivor.peak_max_in_bytes` | gauge |  | node/jvm | Memory used by Survivor space (in bytes) |
-| `elasticsearch.jvm.mem.pools.survivor.peak_used_in_bytes` | gauge |  | node/jvm | Peak memory used by Survivor space (in bytes) |
-| `elasticsearch.jvm.mem.pools.survivor.used_in_bytes` | gauge |  | node/jvm | Memory being used currently by Survivor space (in bytes) |
-| `elasticsearch.jvm.mem.pools.young.max_in_bytes` | gauge |  | node/jvm | Max memory (in bytes) that can be used by Young Gen |
-| `elasticsearch.jvm.mem.pools.young.peak_max_in_bytes` | gauge |  | node/jvm | Memory pool Young Gen peak max (in bytes) |
-| `elasticsearch.jvm.mem.pools.young.peak_used_in_bytes` | gauge |  | node/jvm | Memory pool Young Gen peak used (in bytes) |
-| `elasticsearch.jvm.mem.pools.young.used_in_bytes` | gauge |  | node/jvm | Memory used by Young Gen (in bytes) |
-| `elasticsearch.jvm.threads.count` | gauge |  | node/jvm | Number of active threads in the JVM |
-| `elasticsearch.jvm.threads.peak` | gauge |  | node/jvm | Peak number of threads used |
-| `elasticsearch.jvm.uptime` | cumulative |  | node/jvm | Uptime of JVM |
-| `elasticsearch.process.cpu.percent` | gauge |  | node/process | CPU usage in percent |
-| `elasticsearch.process.cpu.time` | cumulative |  | node/process | CPU time (in milliseconds) used by the process on which the Java virtual machine is running |
-| `elasticsearch.process.max_file_descriptors` | gauge |  | node/process | Number of opened file descriptors associated with the current process |
-| `elasticsearch.process.mem.total-virtual-size` | cumulative |  | node/process | Size in bytes of virtual memory that is guaranteed to be available to the running process |
-| `elasticsearch.process.open_file_descriptors` | gauge | ✔ | node/process | Number of currently open file descriptors |
-| `elasticsearch.thread_pool.active` | gauge |  | node/thread-pool | Number of active threads |
-| `elasticsearch.thread_pool.completed` | cumulative |  | node/thread-pool | Number of threads completed in thread pool |
-| `elasticsearch.thread_pool.largest` | gauge |  | node/thread-pool | Highest active threads in thread pool |
-| `elasticsearch.thread_pool.queue` | gauge |  | node/thread-pool | Number of Tasks in thread pool |
-| `elasticsearch.thread_pool.rejected` | cumulative | ✔ | node/thread-pool | Number of rejected threads in thread pool |
-| `elasticsearch.thread_pool.threads` | cumulative |  | node/thread-pool | Number of Threads in thread pool |
-| `elasticsearch.transport.rx.count` | cumulative |  | node/transport | Total size of data received in cluster communication (in bytes) |
-| `elasticsearch.transport.rx.size` | cumulative |  | node/transport | Total size of data received in cluster communication |
-| `elasticsearch.transport.server_open` | gauge |  | node/transport | Total number of connections opened for cluster communication |
-| `elasticsearch.transport.tx.count` | cumulative |  | node/transport | Total number of packets sent in cluster communication |
-| `elasticsearch.transport.tx.size` | cumulative |  | node/transport | Total size of data sent in cluster communication |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+#### Group cluster
+All of the following metrics are part of the `cluster` metric group. All of
+the non-default metrics below can be turned on by adding `cluster` to the
+monitor config option `extraGroups`:
+ - ***`elasticsearch.cluster.active-primary-shards`*** (*gauge*) - <br>    Number of active primary shards
+ - ***`elasticsearch.cluster.active-shards`*** (*gauge*) - <br>    Number of active shards
+ - `elasticsearch.cluster.active-shards-percent` (*gauge*) - <br>    Percentaage of shards active
+ - `elasticsearch.cluster.delayed-unassigned-shards` (*gauge*) - <br>    Number of delayed unassigned shards
+ - `elasticsearch.cluster.in-flight-fetches` (*gauge*) - <br>    Number of fetches in-flight
+ - `elasticsearch.cluster.initializing-shards` (*gauge*) - <br>    Number of shards being initialized
+ - ***`elasticsearch.cluster.number-of-data_nodes`*** (*gauge*) - <br>    Number of data nodes
+ - ***`elasticsearch.cluster.number-of-nodes`*** (*gauge*) - <br>    Number of nodes
+ - `elasticsearch.cluster.pending-tasks` (*gauge*) - <br>    Number of pending tasks
+ - ***`elasticsearch.cluster.relocating-shards`*** (*gauge*) - <br>    Number of shards being relocated
+ - `elasticsearch.cluster.status` (*gauge*) - <br>    Cluster stats (0, 1, 2 for green, yellow and red respectively)
+ - `elasticsearch.cluster.task-max-wait-time` (*gauge*) - <br>    Max time a task has to wait
+ - ***`elasticsearch.cluster.unassigned-shards`*** (*gauge*) - <br>    Number of unassigned shards
+
+#### Group indices/completion
+All of the following metrics are part of the `indices/completion` metric group. All of
+the non-default metrics below can be turned on by adding `indices/completion` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.completion.size` (*gauge*) - <br>    Size used by suggest completion (in bytes)
+
+#### Group indices/docs
+All of the following metrics are part of the `indices/docs` metric group. All of
+the non-default metrics below can be turned on by adding `indices/docs` to the
+monitor config option `extraGroups`:
+ - ***`elasticsearch.indices.docs.count`*** (*gauge*) - <br>    Number of docs
+ - ***`elasticsearch.indices.docs.deleted`*** (*gauge*) - <br>    Number of docs deleted
+
+#### Group indices/fielddata
+All of the following metrics are part of the `indices/fielddata` metric group. All of
+the non-default metrics below can be turned on by adding `indices/fielddata` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.fielddata.evictions` (*cumulative*) - <br>    Number of evictions from fielddata cache
+ - `elasticsearch.indices.fielddata.memory-size` (*gauge*) - <br>    Size of fielddata cache (in bytes)
+
+#### Group indices/filter-cache
+All of the following metrics are part of the `indices/filter-cache` metric group. All of
+the non-default metrics below can be turned on by adding `indices/filter-cache` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.filter-cache.evictions` (*cumulative*) - <br>    Number of evicttions from filter cache
+ - `elasticsearch.indices.filter-cache.memory-size` (*gauge*) - <br>    Filter cache size (in bytes)
+
+#### Group indices/flush
+All of the following metrics are part of the `indices/flush` metric group. All of
+the non-default metrics below can be turned on by adding `indices/flush` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.flush.periodic` (*gauge*) - <br>    How long to wait before triggering a flush regardless of translog size
+ - `elasticsearch.indices.flush.total` (*cumulative*) - <br>    Number of index flushes to disk
+ - `elasticsearch.indices.flush.total-time` (*cumulative*) - <br>    Time spent flushing the index to disk
+
+#### Group indices/get
+All of the following metrics are part of the `indices/get` metric group. All of
+the non-default metrics below can be turned on by adding `indices/get` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.get.current` (*gauge*) - <br>    Number of get requests running
+ - `elasticsearch.indices.get.exists-time` (*cumulative*) - <br>    Time spent on get requests where the document existed
+ - `elasticsearch.indices.get.exists-total` (*cumulative*) - <br>    Number of get requests where the document existed
+ - `elasticsearch.indices.get.missing-time` (*cumulative*) - <br>    Time spent on get requests where the document was missing
+ - `elasticsearch.indices.get.missing-total` (*cumulative*) - <br>    Number of get requests where the document was missing
+ - `elasticsearch.indices.get.time` (*cumulative*) - <br>    Time spent on get requests
+ - ***`elasticsearch.indices.get.total`*** (*cumulative*) - <br>    Total number of get requests
+
+#### Group indices/id-cache
+All of the following metrics are part of the `indices/id-cache` metric group. All of
+the non-default metrics below can be turned on by adding `indices/id-cache` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.id-cache.memory-size` (*gauge*) - <br>    Size of id cache (in bytes)
+
+#### Group indices/indexing
+All of the following metrics are part of the `indices/indexing` metric group. All of
+the non-default metrics below can be turned on by adding `indices/indexing` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.indexing.delete-current` (*gauge*) - <br>    Number of documents currently being deleted from an index
+ - `elasticsearch.indices.indexing.delete-time` (*cumulative*) - <br>    Time spent deleting documents from an index
+ - `elasticsearch.indices.indexing.delete-total` (*cumulative*) - <br>    Number of documents deleted from an index
+ - `elasticsearch.indices.indexing.index-current` (*gauge*) - <br>    Number of documents currently being indexed to an index
+ - `elasticsearch.indices.indexing.index-failed` (*gauge*) - <br>    Number of failed indices
+ - `elasticsearch.indices.indexing.index-time` (*cumulative*) - <br>    Time spent indexing documents to an index
+ - ***`elasticsearch.indices.indexing.index-total`*** (*cumulative*) - <br>    Total number of documents indexed to an index
+ - `elasticsearch.indices.indexing.noop-update-total` (*cumulative*) - <br>    Number of noop updates
+ - `elasticsearch.indices.indexing.throttle-time` (*cumulative*) - <br>    Throttle time
+
+#### Group indices/merges
+All of the following metrics are part of the `indices/merges` metric group. All of
+the non-default metrics below can be turned on by adding `indices/merges` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.merges.auto-throttle-size` (*cumulative*) - <br>    Merging throttled due to auto-throttling (in bytes)
+ - ***`elasticsearch.indices.merges.current`*** (*gauge*) - <br>    Number of currently active segment merges
+ - `elasticsearch.indices.merges.current-docs` (*gauge*) - <br>    Number of docs currently being merged
+ - `elasticsearch.indices.merges.current-size` (*gauge*) - <br>    Size of the segments currently being merged
+ - `elasticsearch.indices.merges.stopped-time` (*cumulative*) - <br>    Total time merges were stopped for
+ - `elasticsearch.indices.merges.throttle-time` (*cumulative*) - <br>    Total time merges spent waiting due to throttling
+ - ***`elasticsearch.indices.merges.total`*** (*cumulative*) - <br>    Number of segment merges
+ - `elasticsearch.indices.merges.total-docs` (*cumulative*) - <br>    Number of merged docs across merged segments
+ - `elasticsearch.indices.merges.total-size` (*cumulative*) - <br>    Total size of merged segments
+ - `elasticsearch.indices.merges.total-time` (*cumulative*) - <br>    Total time spent on merging
+
+#### Group indices/percolate
+All of the following metrics are part of the `indices/percolate` metric group. All of
+the non-default metrics below can be turned on by adding `indices/percolate` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.percolate.current` (*gauge*) - <br>    Number of percolator queries currently running
+ - `elasticsearch.indices.percolate.queries` (*cumulative*) - <br>    Number of percolator queries
+ - `elasticsearch.indices.percolate.time` (*cumulative*) - <br>    Total time spent on percolate requests
+ - `elasticsearch.indices.percolate.total` (*cumulative*) - <br>    Total number of suggest requests
+
+#### Group indices/query-cache
+All of the following metrics are part of the `indices/query-cache` metric group. All of
+the non-default metrics below can be turned on by adding `indices/query-cache` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.query-cache.cache-count` (*gauge*) - <br>    Number of items in query cache
+ - `elasticsearch.indices.query-cache.cache-size` (*gauge*) - <br>    Size of query cache (in bytes)
+ - `elasticsearch.indices.query-cache.evictions` (*cumulative*) - <br>    Number of query cache evictions
+ - `elasticsearch.indices.query-cache.hit-count` (*cumulative*) - <br>    Number of query cache hits
+ - `elasticsearch.indices.query-cache.memory-size` (*gauge*) - <br>    Size of query cache (in bytes)
+ - `elasticsearch.indices.query-cache.total-count` (*cumulative*) - <br>    Total number of items in the query cache
+
+#### Group indices/recovery
+All of the following metrics are part of the `indices/recovery` metric group. All of
+the non-default metrics below can be turned on by adding `indices/recovery` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.recovery.current-as-source` (*gauge*) - <br>    Number of ongoing recoveries for which a shard serves as a source
+ - `elasticsearch.indices.recovery.current-as-target` (*gauge*) - <br>    Number of ongoing recoveries for which a shard serves as a target
+ - `elasticsearch.indices.recovery.throttle-time` (*cumulative*) - <br>    Total time recoveries waited due to throttling
+
+#### Group indices/refresh
+All of the following metrics are part of the `indices/refresh` metric group. All of
+the non-default metrics below can be turned on by adding `indices/refresh` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.refresh.listeners` (*gauge*) - <br>    Number of listeners waiting for a refresh
+ - `elasticsearch.indices.refresh.total` (*cumulative*) - <br>    Total number of index refreshes
+ - `elasticsearch.indices.refresh.total-time` (*cumulative*) - <br>    Total time spent on index refreshes
+
+#### Group indices/request-cache
+All of the following metrics are part of the `indices/request-cache` metric group. All of
+the non-default metrics below can be turned on by adding `indices/request-cache` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.query-cache.miss-count` (*cumulative*) - <br>    Number of query cache misses
+ - `elasticsearch.indices.request-cache.evictions` (*cumulative*) - <br>    Number of request cache evictions
+ - `elasticsearch.indices.request-cache.hit-count` (*cumulative*) - <br>    Number of request cache hits
+ - `elasticsearch.indices.request-cache.memory-size` (*gauge*) - <br>    Memory used by request cache (in bytes)
+ - `elasticsearch.indices.request-cache.miss-count` (*cumulative*) - <br>    Number of request cache misses
+
+#### Group indices/search
+All of the following metrics are part of the `indices/search` metric group. All of
+the non-default metrics below can be turned on by adding `indices/search` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.search.fetch-current` (*gauge*) - <br>    Number of query fetches currently running
+ - `elasticsearch.indices.search.fetch-time` (*cumulative*) - <br>    Total time spent on query fetches
+ - `elasticsearch.indices.search.fetch-total` (*cumulative*) - <br>    Total number of query feches
+ - `elasticsearch.indices.search.open-contexts` (*gauge*) - <br>    Number of open contexts
+ - `elasticsearch.indices.search.query-current` (*gauge*) - <br>    Number of currently active queries
+ - ***`elasticsearch.indices.search.query-time`*** (*cumulative*) - <br>    Total time spent querying on the primary
+ - ***`elasticsearch.indices.search.query-total`*** (*cumulative*) - <br>    Total number of queries
+ - `elasticsearch.indices.search.scroll-current` (*gauge*) - <br>    Currently active scroll queries count
+ - `elasticsearch.indices.search.scroll-time` (*cumulative*) - <br>    Total time spent on scroll queries
+ - `elasticsearch.indices.search.scroll-total` (*cumulative*) - <br>    Total number of scroll queries
+ - `elasticsearch.indices.search.suggest-current` (*gauge*) - <br>    Number of suggest requests currently active
+ - `elasticsearch.indices.search.suggest-time` (*cumulative*) - <br>    Total time spent on search suggest
+ - `elasticsearch.indices.search.suggest-total` (*cumulative*) - <br>    Total number of suggest requests
+
+#### Group indices/segments
+All of the following metrics are part of the `indices/segments` metric group. All of
+the non-default metrics below can be turned on by adding `indices/segments` to the
+monitor config option `extraGroups`:
+ - ***`elasticsearch.indices.segments.count`*** (*gauge*) - <br>    Number of segments in an index shard
+ - `elasticsearch.indices.segments.doc-values-memory-size` (*gauge*) - <br>    Memory used by doc values
+ - `elasticsearch.indices.segments.fixed-bit-set-memory-size` (*gauge*) - <br>    Memory used by fixed bit set
+ - `elasticsearch.indices.segments.index-writer-max-memory-size` (*gauge*) - <br>    Maximum memory used by the index writer
+ - `elasticsearch.indices.segments.index-writer-memory-size` (*gauge*) - <br>    Memory used by the index writer
+ - `elasticsearch.indices.segments.memory-size` (*gauge*) - <br>    Memory used by index segments (in bytes)
+ - `elasticsearch.indices.segments.norms-memory-size` (*gauge*) - <br>    Memory used by norms (in bytes)
+ - `elasticsearch.indices.segments.points-memory-size` (*gauge*) - <br>    Memory used by points
+ - `elasticsearch.indices.segments.stored-field-memory-size` (*gauge*) - <br>    Memory used by stored fields (in bytes)
+ - `elasticsearch.indices.segments.term-vectors-memory-size` (*gauge*) - <br>    Memory used by term vectors (in bytes)
+ - `elasticsearch.indices.segments.terms-memory-size` (*gauge*) - <br>    Memory used by terms (in bytes)
+ - `elasticsearch.indices.segments.version-map-memory-size` (*gauge*) - <br>    Memory used by segment version map (in bytes)
+
+#### Group indices/store
+All of the following metrics are part of the `indices/store` metric group. All of
+the non-default metrics below can be turned on by adding `indices/store` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.store.size` (*gauge*) - <br>    Total size (in bytes)
+ - `elasticsearch.indices.store.throttle-time` (*cumulative*) - <br>    Total time requests are throttled for
+
+#### Group indices/suggest
+All of the following metrics are part of the `indices/suggest` metric group. All of
+the non-default metrics below can be turned on by adding `indices/suggest` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.suggest.current` (*gauge*) - <br>    Number of currently active suggest requests
+ - `elasticsearch.indices.suggest.time` (*cumulative*) - <br>    Total time spent in suggest requests
+ - `elasticsearch.indices.suggest.total` (*cumulative*) - <br>    Total number of suggest requests
+
+#### Group indices/translog
+All of the following metrics are part of the `indices/translog` metric group. All of
+the non-default metrics below can be turned on by adding `indices/translog` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.translog.earliest_last_modified_age` (*gauge*) - <br>    Earliest last modified age on transaction logs
+ - `elasticsearch.indices.translog.operations` (*gauge*) - <br>    Number of operations in the transaction log
+ - `elasticsearch.indices.translog.size` (*gauge*) - <br>    Size of the transaction log
+ - `elasticsearch.indices.translog.uncommitted_operations` (*gauge*) - <br>    Number of uncommitted operations in the transaction log
+ - `elasticsearch.indices.translog.uncommitted_size_in_bytes` (*gauge*) - <br>    Size of uncommitted transaction logs (in bytes)
+
+#### Group indices/warmer
+All of the following metrics are part of the `indices/warmer` metric group. All of
+the non-default metrics below can be turned on by adding `indices/warmer` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.indices.warmer.current` (*gauge*) - <br>    Number of currently active warmers
+ - `elasticsearch.indices.warmer.total` (*cumulative*) - <br>    Total number of warmers
+ - `elasticsearch.indices.warmer.total-time` (*cumulative*) - <br>    Total time spent by warmers
+
+#### Group node/http
+All of the following metrics are part of the `node/http` metric group. All of
+the non-default metrics below can be turned on by adding `node/http` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.http.current_open` (*gauge*) - <br>    Number of currently open HTTP connections
+ - `elasticsearch.http.total_open` (*cumulative*) - <br>    Total number of opened HTTP connections
+
+#### Group node/jvm
+All of the following metrics are part of the `node/jvm` metric group. All of
+the non-default metrics below can be turned on by adding `node/jvm` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.jvm.classes.current-loaded-count` (*gauge*) - <br>    Number of classes currently loaded
+ - `elasticsearch.jvm.classes.total-loaded-count` (*cumulative*) - <br>    Number of classes loaded
+ - `elasticsearch.jvm.classes.total-unloaded-count` (*cumulative*) - <br>    Total number of classes unloaded
+ - `elasticsearch.jvm.gc.count` (*cumulative*) - <br>    Total number of garbage collections
+ - `elasticsearch.jvm.gc.old-count` (*cumulative*) - <br>    Total number of garbage collections on Old Gen
+ - `elasticsearch.jvm.gc.old-time` (*cumulative*) - <br>    Total time spent in garbage collections on Old Gen
+ - ***`elasticsearch.jvm.gc.time`*** (*cumulative*) - <br>    Total time spent on GC
+ - `elasticsearch.jvm.mem.buffer_pools.direct.count` (*gauge*) - <br>    Number of direct buffer pools
+ - `elasticsearch.jvm.mem.buffer_pools.direct.total_capacity_in_bytes` (*gauge*) - <br>    Total capacity of direct buffer pools
+ - `elasticsearch.jvm.mem.buffer_pools.direct.used_in_bytes` (*gauge*) - <br>    Memory used by direct buffer pools (in bytes)
+ - `elasticsearch.jvm.mem.buffer_pools.mapped.count` (*gauge*) - <br>    Number of buffers in the mapped pool
+ - `elasticsearch.jvm.mem.buffer_pools.mapped.total_capacity_in_bytes` (*gauge*) - <br>    Total capacity of the buffers in the mapped pool
+ - `elasticsearch.jvm.mem.buffer_pools.mapped.used_in_bytes` (*gauge*) - <br>    Memory used by mapped buffer pools (in bytes)
+ - ***`elasticsearch.jvm.mem.heap-committed`*** (*gauge*) - <br>    Memory guaranteed to be available to JVM heap
+ - `elasticsearch.jvm.mem.heap-max` (*gauge*) - <br>    Max memory that can be used by JVM heap (in bytes)
+ - ***`elasticsearch.jvm.mem.heap-used`*** (*gauge*) - <br>    Memory current being used by JVM heap (in bytes)
+ - `elasticsearch.jvm.mem.heap-used-percent` (*gauge*) - <br>    Percent of heap being used
+ - `elasticsearch.jvm.mem.non-heap-committed` (*gauge*) - <br>    Memory guaranteed to be available to JVM non-heap
+ - `elasticsearch.jvm.mem.non-heap-used` (*gauge*) - <br>    Memory current being used by JVM non-heap (in bytes)
+ - `elasticsearch.jvm.mem.pools.old.max_in_bytes` (*gauge*) - <br>    Memory used by Old Gen (in bytes)
+ - `elasticsearch.jvm.mem.pools.old.peak_max_in_bytes` (*gauge*) - <br>    Memory pool Old Gen peak max (in bytes)
+ - `elasticsearch.jvm.mem.pools.old.peak_used_in_bytes` (*gauge*) - <br>    Peak memory used by Old Gen (in bytes)
+ - `elasticsearch.jvm.mem.pools.old.used_in_bytes` (*gauge*) - <br>    Memory being used by Old Gen (in bytes)
+ - `elasticsearch.jvm.mem.pools.survivor.max_in_bytes` (*gauge*) - <br>    Max memory that can be used by Survivor space (in bytes)
+ - `elasticsearch.jvm.mem.pools.survivor.peak_max_in_bytes` (*gauge*) - <br>    Memory used by Survivor space (in bytes)
+ - `elasticsearch.jvm.mem.pools.survivor.peak_used_in_bytes` (*gauge*) - <br>    Peak memory used by Survivor space (in bytes)
+ - `elasticsearch.jvm.mem.pools.survivor.used_in_bytes` (*gauge*) - <br>    Memory being used currently by Survivor space (in bytes)
+ - `elasticsearch.jvm.mem.pools.young.max_in_bytes` (*gauge*) - <br>    Max memory (in bytes) that can be used by Young Gen
+ - `elasticsearch.jvm.mem.pools.young.peak_max_in_bytes` (*gauge*) - <br>    Memory pool Young Gen peak max (in bytes)
+ - `elasticsearch.jvm.mem.pools.young.peak_used_in_bytes` (*gauge*) - <br>    Memory pool Young Gen peak used (in bytes)
+ - `elasticsearch.jvm.mem.pools.young.used_in_bytes` (*gauge*) - <br>    Memory used by Young Gen (in bytes)
+ - `elasticsearch.jvm.threads.count` (*gauge*) - <br>    Number of active threads in the JVM
+ - `elasticsearch.jvm.threads.peak` (*gauge*) - <br>    Peak number of threads used
+ - `elasticsearch.jvm.uptime` (*cumulative*) - <br>    Uptime of JVM
+
+#### Group node/process
+All of the following metrics are part of the `node/process` metric group. All of
+the non-default metrics below can be turned on by adding `node/process` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.process.cpu.percent` (*gauge*) - <br>    CPU usage in percent
+ - `elasticsearch.process.cpu.time` (*cumulative*) - <br>    CPU time (in milliseconds) used by the process on which the Java virtual machine is running
+ - `elasticsearch.process.max_file_descriptors` (*gauge*) - <br>    Number of opened file descriptors associated with the current process
+ - `elasticsearch.process.mem.total-virtual-size` (*cumulative*) - <br>    Size in bytes of virtual memory that is guaranteed to be available to the running process
+ - ***`elasticsearch.process.open_file_descriptors`*** (*gauge*) - <br>    Number of currently open file descriptors
+
+#### Group node/thread-pool
+All of the following metrics are part of the `node/thread-pool` metric group. All of
+the non-default metrics below can be turned on by adding `node/thread-pool` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.thread_pool.active` (*gauge*) - <br>    Number of active threads
+ - `elasticsearch.thread_pool.completed` (*cumulative*) - <br>    Number of threads completed in thread pool
+ - `elasticsearch.thread_pool.largest` (*gauge*) - <br>    Highest active threads in thread pool
+ - `elasticsearch.thread_pool.queue` (*gauge*) - <br>    Number of Tasks in thread pool
+ - ***`elasticsearch.thread_pool.rejected`*** (*cumulative*) - <br>    Number of rejected threads in thread pool
+ - `elasticsearch.thread_pool.threads` (*cumulative*) - <br>    Number of Threads in thread pool
+
+#### Group node/transport
+All of the following metrics are part of the `node/transport` metric group. All of
+the non-default metrics below can be turned on by adding `node/transport` to the
+monitor config option `extraGroups`:
+ - `elasticsearch.transport.rx.count` (*cumulative*) - <br>    Total size of data received in cluster communication (in bytes)
+ - `elasticsearch.transport.rx.size` (*cumulative*) - <br>    Total size of data received in cluster communication
+ - `elasticsearch.transport.server_open` (*gauge*) - <br>    Total number of connections opened for cluster communication
+ - `elasticsearch.transport.tx.count` (*cumulative*) - <br>    Total number of packets sent in cluster communication
+ - `elasticsearch.transport.tx.size` (*cumulative*) - <br>    Total size of data sent in cluster communication
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -347,16 +473,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
-#### Groups
-You can enable an entire group of metrics by specifying the `extraGroups` config
-option in your monitor config.  The value is a list of group names to enable.
 
 ### Legacy non-default metrics (version < 4.7.0)
 

@@ -52,45 +52,42 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `gitlab_auth_user_authenticated_total` | cumulative |  |  |
-| `gitlab_auth_user_unauthenticated_total` | cumulative |  |  |
-| `gitlab_banzai_cacheless_render_real_duration_seconds` | cumulative |  |  |
-| `gitlab_banzai_cacheless_render_real_duration_seconds_bucket` | cumulative |  |  |
-| `gitlab_banzai_cacheless_render_real_duration_seconds_count` | cumulative |  |  |
-| `gitlab_cache_misses_total` | cumulative |  |  |
-| `gitlab_cache_operation_duration_seconds` | cumulative |  |  |
-| `gitlab_cache_operation_duration_seconds_bucket` | cumulative |  |  |
-| `gitlab_cache_operation_duration_seconds_count` | cumulative |  |  |
-| `gitlab_rails_queue_duration_seconds` | cumulative |  |  |
-| `gitlab_rails_queue_duration_seconds_bucket` | cumulative |  |  |
-| `gitlab_rails_queue_duration_seconds_count` | cumulative |  |  |
-| `gitlab_sql_duration_seconds` | cumulative |  |  |
-| `gitlab_sql_duration_seconds_bucket` | cumulative |  |  |
-| `gitlab_sql_duration_seconds_count` | cumulative |  |  |
-| `gitlab_transaction_cache_read_hit_count_total` | cumulative |  |  |
-| `gitlab_transaction_cache_read_miss_count_total` | cumulative |  |  |
-| `gitlab_transaction_duration_seconds` | cumulative |  |  |
-| `gitlab_transaction_duration_seconds_bucket` | cumulative |  |  |
-| `gitlab_transaction_duration_seconds_count` | cumulative |  |  |
-| `gitlab_transaction_new_redis_connections_total` | cumulative |  |  |
-| `gitlab_transaction_rails_queue_duration_total` | gauge |  |  |
-| `gitlab_transaction_sidekiq_queue_duration_total` | gauge | ✔ |  |
-| `gitlab_transaction_view_duration_total` | cumulative |  |  |
-| `http_requests_total` | cumulative |  |  |
-| `job_register_attempts_failed_total` | cumulative |  |  |
-| `job_register_attempts_total` | cumulative |  |  |
-| `unicorn_active_connections` | gauge |  |  |
-| `unicorn_queued_connections` | gauge |  |  |
-| `user_session_logins_total` | cumulative |  |  |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - `gitlab_auth_user_authenticated_total` (*cumulative*) - <br>
+ - `gitlab_auth_user_unauthenticated_total` (*cumulative*) - <br>
+ - `gitlab_banzai_cacheless_render_real_duration_seconds` (*cumulative*) - <br>
+ - `gitlab_banzai_cacheless_render_real_duration_seconds_bucket` (*cumulative*) - <br>
+ - `gitlab_banzai_cacheless_render_real_duration_seconds_count` (*cumulative*) - <br>
+ - `gitlab_cache_misses_total` (*cumulative*) - <br>
+ - `gitlab_cache_operation_duration_seconds` (*cumulative*) - <br>
+ - `gitlab_cache_operation_duration_seconds_bucket` (*cumulative*) - <br>
+ - `gitlab_cache_operation_duration_seconds_count` (*cumulative*) - <br>
+ - `gitlab_rails_queue_duration_seconds` (*cumulative*) - <br>
+ - `gitlab_rails_queue_duration_seconds_bucket` (*cumulative*) - <br>
+ - `gitlab_rails_queue_duration_seconds_count` (*cumulative*) - <br>
+ - `gitlab_sql_duration_seconds` (*cumulative*) - <br>
+ - `gitlab_sql_duration_seconds_bucket` (*cumulative*) - <br>
+ - `gitlab_sql_duration_seconds_count` (*cumulative*) - <br>
+ - `gitlab_transaction_cache_read_hit_count_total` (*cumulative*) - <br>
+ - `gitlab_transaction_cache_read_miss_count_total` (*cumulative*) - <br>
+ - `gitlab_transaction_duration_seconds` (*cumulative*) - <br>
+ - `gitlab_transaction_duration_seconds_bucket` (*cumulative*) - <br>
+ - `gitlab_transaction_duration_seconds_count` (*cumulative*) - <br>
+ - `gitlab_transaction_new_redis_connections_total` (*cumulative*) - <br>
+ - `gitlab_transaction_rails_queue_duration_total` (*gauge*) - <br>
+ - ***`gitlab_transaction_sidekiq_queue_duration_total`*** (*gauge*) - <br>
+ - `gitlab_transaction_view_duration_total` (*cumulative*) - <br>
+ - `http_requests_total` (*cumulative*) - <br>
+ - `job_register_attempts_failed_total` (*cumulative*) - <br>
+ - `job_register_attempts_total` (*cumulative*) - <br>
+ - `unicorn_active_connections` (*gauge*) - <br>
+ - `unicorn_queued_connections` (*gauge*) - <br>
+ - `user_session_logins_total` (*cumulative*) - <br>
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -99,13 +96,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

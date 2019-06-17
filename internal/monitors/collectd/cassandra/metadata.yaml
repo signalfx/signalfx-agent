@@ -1,8 +1,19 @@
 monitors:
 - dimensions:
   doc: |
-    Monitors Cassandra using the GenericJMX collectd
-    plugin.
+    Monitors Cassandra using the Collectd GenericJMX plugin.  This is
+    essentially a wrapper around the
+    [collectd-genericjmx](./collectd-genericjmx.md) monitor that comes with a
+    set of predefined MBean definitions that a standard Cassandra deployment
+    will expose.
+
+    Use this integration to monitor the following types of information from Cassandra nodes:
+
+     - read/write/range-slice requests
+     - read/write/range-slice errors (timeouts and unavailable)
+     - read/write/range-slice latency (median, 99th percentile, maximum)
+     - compaction activity
+     - hint activity
   metrics:
     # Taken from genericjmx monitor. If you want to change them update genericjmx and update
     # all other monitors that use genericjmx with this same notice.
@@ -50,7 +61,15 @@ monitors:
     ### END JVM METRICS ###
 
     counter.cassandra.ClientRequest.RangeSlice.Latency.Count:
-      description: Count of range slice operations since server start
+      description: |
+        Count of range slice operations since server start. This typically indicates a server overload condition.
+
+        If this value is increasing across the cluster then the cluster is too small for the application range slice load.
+
+        If this value is increasing for a single server in a cluster, then one of the following conditions may be true:
+
+        - one or more clients are directing more load to this server than the others
+        - the server is experiencing hardware or software issues and may require maintenance.
       default: true
       type: cumulative
     counter.cassandra.ClientRequest.RangeSlice.Timeouts.Count:
@@ -58,7 +77,13 @@ monitors:
       default: true
       type: cumulative
     counter.cassandra.ClientRequest.RangeSlice.Unavailables.Count:
-      description: Count of range slice unavailables since server start
+      description: |
+        Count of range slice unavailables since server start. A non-zero value
+        means that insufficient replicas were available to fulfil a range slice
+        request at the requested consistency level.
+
+        This typically means that one or more nodes are down. To fix this condition,
+        any down nodes must be restarted, or removed from the cluster.
       default: true
       type: cumulative
     counter.cassandra.ClientRequest.Read.Latency.Count:
@@ -66,35 +91,72 @@ monitors:
       default: true
       type: cumulative
     counter.cassandra.ClientRequest.Read.Timeouts.Count:
-      description: Count of read timeouts since server start
+      description: |
+        Count of read timeouts since server start. This typically indicates a server overload condition.
+
+        If this value is increasing across the cluster then the cluster is too small for the application read load.
+
+        If this value is increasing for a single server in a cluster, then one of the following conditions may be true:
+        - one or more clients are directing more load to this server than the others
+        - the server is experiencing hardware or software issues and may require maintenance.
       default: true
       type: cumulative
     counter.cassandra.ClientRequest.Read.Unavailables.Count:
-      description: Count of read unavailables since server start
+      description: |
+        Count of read unavailables since server start. A non-zero value means
+        that insufficient replicas were available to fulfil a read request at
+        the requested consistency level. This typically means that one or more
+        nodes are down. To fix this condition, any down nodes must be
+        restarted, or removed from the cluster.
       default: true
       type: cumulative
     counter.cassandra.ClientRequest.Write.Latency.Count:
-      description: Count of write operations since server start
+      description: Count of write operations since server start.
       default: true
       type: cumulative
     counter.cassandra.ClientRequest.Write.Timeouts.Count:
-      description: Count of write timeouts since server start
+      description: |
+        Count of write timeouts since server start. This typically indicates a server overload condition.
+
+        If this value is increasing across the cluster then the cluster is too small for the application write load.
+
+        If this value is increasing for a single server in a cluster, then one of the following conditions may be true:
+        - one or more clients are directing more load to this server than the others
+        - the server is experiencing hardware or software issues and may require maintenance.
       default: true
       type: cumulative
     counter.cassandra.ClientRequest.Write.Unavailables.Count:
-      description: Count of write unavailables since server start
+      description: |
+        Count of write unavailables since server start. A non-zero value means
+        that insufficient replicas were available to fulfil a write request at
+        the requested consistency level.
+
+        This typically means that one or more nodes are down. To fix this
+        condition, any down nodes must be restarted, or removed from the
+        cluster.
       default: true
       type: cumulative
     counter.cassandra.Compaction.TotalCompactionsCompleted.Count:
-      description: Number of compaction operations since node start
+      description: |
+        Number of compaction operations since node start. If this value does
+        not increase steadily over time then the node may be experiencing
+        problems completing compaction operations.
       default: false
       type: cumulative
     gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile:
-      description: 50th percentile (median) of Cassandra range slice latency
+      description: |
+        50th percentile (median) of Cassandra range slice latency. This value
+        should be similar across all nodes in the cluster. If some nodes have higher
+        values than the rest of the cluster then they may have more connected clients
+        or may be experiencing heavier than usual compaction load.
       default: false
       type: gauge
     gauge.cassandra.ClientRequest.RangeSlice.Latency.99thPercentile:
-      description: 99th percentile of Cassandra range slice latency
+      description: |
+        99th percentile of Cassandra range slice latency. This value should be
+        similar across all nodes in the cluster. If some nodes have higher values than
+        the rest of the cluster then they may have more connected clients or may be
+        experiencing heavier than usual compaction load.
       default: true
       type: gauge
     gauge.cassandra.ClientRequest.RangeSlice.Latency.Max:
@@ -102,11 +164,19 @@ monitors:
       default: false
       type: gauge
     gauge.cassandra.ClientRequest.Read.Latency.50thPercentile:
-      description: 50th percentile (median) of Cassandra read latency
+      description: |
+        50th percentile (median) of Cassandra read latency. This value should
+        be similar across all nodes in the cluster. If some nodes have higher
+        values than the rest of the cluster then they may have more connected
+        clients or may be experiencing heavier than usual compaction load.
       default: true
       type: gauge
     gauge.cassandra.ClientRequest.Read.Latency.99thPercentile:
-      description: 99th percentile of Cassandra read latency
+      description: |
+        99th percentile of Cassandra read latency. This value should be similar
+        across all nodes in the cluster. If some nodes have higher values than
+        the rest of the cluster then they may have more connected clients or
+        may be experiencing heavier than usual compaction load.
       default: true
       type: gauge
     gauge.cassandra.ClientRequest.Read.Latency.Max:
@@ -114,11 +184,19 @@ monitors:
       default: true
       type: gauge
     gauge.cassandra.ClientRequest.Write.Latency.50thPercentile:
-      description: 50th percentile (median) of Cassandra write latency
+      description: |
+        50th percentile (median) of Cassandra write latency. This value should
+        be similar across all nodes in the cluster. If some nodes have higher
+        values than the rest of the cluster then they may have more connected
+        clients or may be experiencing heavier than usual compaction load.
       default: true
       type: gauge
     gauge.cassandra.ClientRequest.Write.Latency.99thPercentile:
-      description: 99th percentile of Cassandra write latency
+      description: |
+        99th percentile of Cassandra write latency. This value should be
+        similar across all nodes in the cluster. If some nodes have higher
+        values than the rest of the cluster then they may have more connected
+        clients or may be experiencing heavier than usual compaction load.
       default: true
       type: gauge
     gauge.cassandra.ClientRequest.Write.Latency.Max:
@@ -126,19 +204,35 @@ monitors:
       default: true
       type: gauge
     gauge.cassandra.Compaction.PendingTasks.Value:
-      description: Number of compaction operations waiting to run
+      description: |
+        Number of compaction operations waiting to run. If this value is
+        continually increasing then the node may be experiencing problems
+        completing compaction operations.
       default: true
       type: gauge
     gauge.cassandra.Storage.Load.Count:
-      description: Storage used for Cassandra data in bytes
+      description: |
+        Storage used for Cassandra data in bytes. Use this metric to see how much storage is being used for data by a Cassandra node.
+
+        The value of this metric is influenced by:
+        - Total data stored into the database
+        - compaction behavior
       default: true
       type: gauge
     gauge.cassandra.Storage.TotalHints.Count:
-      description: Total hints since node start
+      description: |
+        Total hints since node start. Indicates that write operations cannot be
+        delivered to a node, usually because a node is down. If this value is
+        increasing and all nodes are up then there may be some connectivity
+        issue between nodes in the cluster.
       default: false
       type: gauge
     gauge.cassandra.Storage.TotalHintsInProgress.Count:
-      description: Total pending hints
+      description: |
+        Total pending hints. Indicates that write operations cannot be
+        delivered to a node, usually because a node is down. If this value is
+        increasing and all nodes are up then there may be some connectivity
+        issue between nodes in the cluster.
       default: true
       type: gauge
   monitorType: collectd/cassandra

@@ -25,24 +25,21 @@ Configuration](../monitor-config.md#common-configuration).**
 This monitor has no configuration options.
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `vmpage_faults.majflt` | cumulative |  | Number of major page faults on the system |
-| `vmpage_faults.minflt` | cumulative |  | Number of minor page faults on the system |
-| `vmpage_io.memory.in` | cumulative |  | Page Ins for Memory |
-| `vmpage_io.memory.out` | cumulative |  | Page Outs for Memory |
-| `vmpage_io.swap.in` | cumulative | ✔ | Page Ins for Swap |
-| `vmpage_io.swap.out` | cumulative | ✔ | Page Outs for Swap |
-| `vmpage_number.free_pages` | cumulative |  | Number of free memory pages |
-| `vmpage_number.mapped` | cumulative |  | Number of mapped pages |
-| `vmpage_number.shmem_pmdmapped` | gauge |  | The amount of shared (shmem/tmpfs) memory backed by huge pages |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - `vmpage_faults.majflt` (*cumulative*) - <br>    Number of major page faults on the system
+ - `vmpage_faults.minflt` (*cumulative*) - <br>    Number of minor page faults on the system
+ - `vmpage_io.memory.in` (*cumulative*) - <br>    Page Ins for Memory
+ - `vmpage_io.memory.out` (*cumulative*) - <br>    Page Outs for Memory
+ - ***`vmpage_io.swap.in`*** (*cumulative*) - <br>    Page Ins for Swap
+ - ***`vmpage_io.swap.out`*** (*cumulative*) - <br>    Page Outs for Swap
+ - `vmpage_number.free_pages` (*cumulative*) - <br>    Number of free memory pages
+ - `vmpage_number.mapped` (*cumulative*) - <br>    Number of mapped pages
+ - `vmpage_number.shmem_pmdmapped` (*gauge*) - <br>    The amount of shared (shmem/tmpfs) memory backed by huge pages
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -51,13 +48,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

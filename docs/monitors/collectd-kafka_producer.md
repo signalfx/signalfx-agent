@@ -77,33 +77,35 @@ The **nested** `values` config object has the following fields:
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | [Group](#groups) | Description |
-| ---  | ---  | ---    | --- | ---         |
-| `gauge.jvm.threads.count` | gauge | ✔ | jvm | Number of JVM threads |
-| `gauge.kafka.producer.byte-rate` | gauge | ✔ |  | Average number of bytes sent per second for a topic. This metric has client-id and topic dimensions. |
-| `gauge.kafka.producer.compression-rate` | gauge | ✔ |  | Average compression rate of record batches for a topic. This metric has client-id and topic dimensions. |
-| `gauge.kafka.producer.io-wait-time-ns-avg` | gauge | ✔ |  | Average length of time the I/O thread spent waiting for a socket ready for reads or writes in nanoseconds. This metric has client-id dimension. |
-| `gauge.kafka.producer.outgoing-byte-rate` | gauge | ✔ |  | Average number of outgoing bytes sent per second to all servers. This metric has client-id dimension. |
-| `gauge.kafka.producer.record-error-rate` | gauge | ✔ |  | Average per-second number of record sends that resulted in errors for a topic. This metric has client-id and topic dimensions. |
-| `gauge.kafka.producer.record-retry-rate` | gauge | ✔ |  | Average per-second number of retried record sends for a topic. This metric has client-id and topic dimensions. |
-| `gauge.kafka.producer.record-send-rate` | gauge | ✔ |  | Average number of records sent per second for a topic. This metric has client-id and topic dimensions. |
-| `gauge.kafka.producer.request-latency-avg` | gauge | ✔ |  | Average request latency in ms. Time it takes on average for the producer to get responses from the broker. This metric has client-id dimension. |
-| `gauge.kafka.producer.request-rate` | gauge | ✔ |  | Average number of requests sent per second. This metric has client-id dimension. |
-| `gauge.kafka.producer.response-rate` | gauge | ✔ |  | Average number of responses received per second. This metric has client-id dimension. |
-| `gauge.loaded_classes` | gauge | ✔ | jvm | Number of classes loaded in the JVM |
-| `invocations` | cumulative | ✔ | jvm | Total number of garbage collection events |
-| `jmx_memory.committed` | gauge | ✔ | jvm | Amount of memory guaranteed to be available in bytes |
-| `jmx_memory.init` | gauge | ✔ | jvm | Amount of initial memory at startup in bytes |
-| `jmx_memory.max` | gauge | ✔ | jvm | Maximum amount of memory that can be used in bytes |
-| `jmx_memory.used` | gauge | ✔ | jvm | Current memory usage in bytes |
-| `total_time_in_ms.collection_time` | cumulative | ✔ | jvm | Amount of time spent garbage collecting in milliseconds |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - ***`gauge.kafka.producer.byte-rate`*** (*gauge*) - <br>    Average number of bytes sent per second for a topic. This metric has client-id and topic dimensions.
+ - ***`gauge.kafka.producer.compression-rate`*** (*gauge*) - <br>    Average compression rate of record batches for a topic. This metric has client-id and topic dimensions.
+ - ***`gauge.kafka.producer.io-wait-time-ns-avg`*** (*gauge*) - <br>    Average length of time the I/O thread spent waiting for a socket ready for reads or writes in nanoseconds. This metric has client-id dimension.
+ - ***`gauge.kafka.producer.outgoing-byte-rate`*** (*gauge*) - <br>    Average number of outgoing bytes sent per second to all servers. This metric has client-id dimension.
+ - ***`gauge.kafka.producer.record-error-rate`*** (*gauge*) - <br>    Average per-second number of record sends that resulted in errors for a topic. This metric has client-id and topic dimensions.
+ - ***`gauge.kafka.producer.record-retry-rate`*** (*gauge*) - <br>    Average per-second number of retried record sends for a topic. This metric has client-id and topic dimensions.
+ - ***`gauge.kafka.producer.record-send-rate`*** (*gauge*) - <br>    Average number of records sent per second for a topic. This metric has client-id and topic dimensions.
+ - ***`gauge.kafka.producer.request-latency-avg`*** (*gauge*) - <br>    Average request latency in ms. Time it takes on average for the producer to get responses from the broker. This metric has client-id dimension.
+ - ***`gauge.kafka.producer.request-rate`*** (*gauge*) - <br>    Average number of requests sent per second. This metric has client-id dimension.
+ - ***`gauge.kafka.producer.response-rate`*** (*gauge*) - <br>    Average number of responses received per second. This metric has client-id dimension.
+
+#### Group jvm
+All of the following metrics are part of the `jvm` metric group. All of
+the non-default metrics below can be turned on by adding `jvm` to the
+monitor config option `extraGroups`:
+ - ***`gauge.jvm.threads.count`*** (*gauge*) - <br>    Number of JVM threads
+ - ***`gauge.loaded_classes`*** (*gauge*) - <br>    Number of classes loaded in the JVM
+ - ***`invocations`*** (*cumulative*) - <br>    Total number of garbage collection events
+ - ***`jmx_memory.committed`*** (*gauge*) - <br>    Amount of memory guaranteed to be available in bytes
+ - ***`jmx_memory.init`*** (*gauge*) - <br>    Amount of initial memory at startup in bytes
+ - ***`jmx_memory.max`*** (*gauge*) - <br>    Maximum amount of memory that can be used in bytes
+ - ***`jmx_memory.used`*** (*gauge*) - <br>    Current memory usage in bytes
+ - ***`total_time_in_ms.collection_time`*** (*cumulative*) - <br>    Amount of time spent garbage collecting in milliseconds
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -112,16 +114,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
-#### Groups
-You can enable an entire group of metrics by specifying the `extraGroups` config
-option in your monitor config.  The value is a list of group names to enable.
 
 ### Legacy non-default metrics (version < 4.7.0)
 

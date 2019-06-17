@@ -25,15 +25,14 @@ Configuration](../monitor-config.md#common-configuration).**
 This monitor has no configuration options.
 ## Metrics
 
-The following table lists the metrics available for this monitor.
-This monitor emits all metrics by default; however, **none are categorized as [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) -- they are all custom**.
+These are the metrics available for this monitor.
+This monitor emits all metrics by default; however, **none are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+-- they are all custom**.
 
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `cpufreq.<N>` | gauge | The processor frequency in Hertz for the <N>th processor on the system. |
 
-
+ - ***`cpufreq.<N>`*** (*gauge*) - <br>    The processor frequency in Hertz for the <N>th processor on the system.
 The agent does not do any built-in filtering of metrics coming out of this
 monitor.
 

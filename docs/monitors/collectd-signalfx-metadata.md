@@ -42,22 +42,19 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `cpu.utilization` | gauge | ✔ | Percent of CPU used on this host. |
-| `cpu.utilization_per_core` | gauge |  | Percent of CPU used on each core. `perCoreCPUUtil` config must be set to true. |
-| `disk.summary_utilization` | gauge | ✔ | Percent of disk space utilized on all volumes on this host. |
-| `disk.utilization` | gauge | ✔ | Percent of disk used on this volume. |
-| `disk_ops.total` | cumulative | ✔ | Total number of disk read and write operations on this host. |
-| `memory.utilization` | gauge | ✔ | Percent of memory in use on this host. |
-| `network.total` | cumulative | ✔ | Total amount of inbound and outbound network traffic on this host, in bytes. |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - ***`cpu.utilization`*** (*gauge*) - <br>    Percent of CPU used on this host.
+ - `cpu.utilization_per_core` (*gauge*) - <br>    Percent of CPU used on each core. `perCoreCPUUtil` config must be set to true.
+ - ***`disk.summary_utilization`*** (*gauge*) - <br>    Percent of disk space utilized on all volumes on this host.
+ - ***`disk.utilization`*** (*gauge*) - <br>    Percent of disk used on this volume.
+ - ***`disk_ops.total`*** (*cumulative*) - <br>    Total number of disk read and write operations on this host.
+ - ***`memory.utilization`*** (*gauge*) - <br>    Percent of memory in use on this host.
+ - ***`network.total`*** (*cumulative*) - <br>    Total amount of inbound and outbound network traffic on this host, in bytes.
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -66,13 +63,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 
