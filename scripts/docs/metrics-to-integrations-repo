@@ -30,6 +30,7 @@ MONITORS_TO_INTEGRATIONS_DIR = {
     "internal/monitors/collectd/apache:collectd/apache": "apache",
     "internal/monitors/elasticsearch:elasticsearch": "elasticsearch",
     "internal/monitors/collectd/cpu:collectd/cpu": "collectd-cpu",
+    "internal/monitors/collectd/cassandra:collectd/cassandra": "cassandra",
 }
 
 METRIC_MARKDOWN_TEMPLATE = string.Template(
@@ -72,7 +73,7 @@ def generate_metric_markdown(mon):
             METRIC_MARKDOWN_TEMPLATE.substitute(
                 {
                     "title": name,
-                    "brief": sent_tokenize(metric.get("description"))[0],
+                    "brief": sent_tokenize(metric.get("description"))[0].rstrip("."),
                     "metric_type": metric["type"],
                     "description": metric.get("description"),
                     "custom": "true" if custom else "false",

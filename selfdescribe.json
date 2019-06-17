@@ -2015,7 +2015,7 @@
         },
         "counter.cassandra.ClientRequest.RangeSlice.Timeouts.Count": {
           "type": "cumulative",
-          "description": "Count of range slice timeouts since server start",
+          "description": "Count of range slice timeouts since server start. This typically indicates a server overload condition.\n\nIf this value is increasing across the cluster then the cluster is too small for the application range slice load.\n\nIf this value is increasing for a single server in a cluster, then one of the following conditions may be true:\n- one or more clients are directing more load to this server than the others\n- the server is experiencing hardware or software issues and may require maintenance.\n",
           "group": null,
           "default": true
         },
