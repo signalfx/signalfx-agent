@@ -39,25 +39,25 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `gitaly_controller_action_duration_seconds` (*cumulative*) - <br>
- - `gitaly_controller_action_duration_seconds_bucket` (*cumulative*) - <br>
- - `gitaly_controller_action_duration_seconds_count` (*cumulative*) - <br>
- - `gitlab_cache_misses_total` (*cumulative*) - <br>
- - `gitlab_cache_operation_duration_seconds` (*cumulative*) - <br>
- - `gitlab_cache_operation_duration_seconds_bucket` (*cumulative*) - <br>
- - `gitlab_cache_operation_duration_seconds_count` (*cumulative*) - <br>
- - `gitlab_repository_archive_clean_up_real_duration_seconds` (*cumulative*) - <br>
- - `gitlab_repository_archive_clean_up_real_duration_seconds_bucket` (*cumulative*) - <br>
- - `gitlab_repository_archive_clean_up_real_duration_seconds_count` (*cumulative*) - <br>
- - `gitlab_sql_duration_seconds` (*cumulative*) - <br>
- - `gitlab_sql_duration_seconds_bucket` (*cumulative*) - <br>
- - `gitlab_sql_duration_seconds_count` (*cumulative*) - <br>
- - `gitlab_transaction_cache_read_hit_count_total` (*cumulative*) - <br>
- - `gitlab_transaction_cache_read_miss_count_total` (*cumulative*) - <br>
- - `gitlab_transaction_duration_seconds` (*cumulative*) - <br>
- - `gitlab_transaction_duration_seconds_bucket` (*cumulative*) - <br>
- - `gitlab_transaction_duration_seconds_count` (*cumulative*) - <br>
- - ***`gitlab_transaction_sidekiq_queue_duration_total`*** (*gauge*) - <br>
+ - `gitaly_controller_action_duration_seconds` (*cumulative*)<br>
+ - `gitaly_controller_action_duration_seconds_bucket` (*cumulative*)<br>
+ - `gitaly_controller_action_duration_seconds_count` (*cumulative*)<br>
+ - `gitlab_cache_misses_total` (*cumulative*)<br>
+ - `gitlab_cache_operation_duration_seconds` (*cumulative*)<br>
+ - `gitlab_cache_operation_duration_seconds_bucket` (*cumulative*)<br>
+ - `gitlab_cache_operation_duration_seconds_count` (*cumulative*)<br>
+ - `gitlab_repository_archive_clean_up_real_duration_seconds` (*cumulative*)<br>
+ - `gitlab_repository_archive_clean_up_real_duration_seconds_bucket` (*cumulative*)<br>
+ - `gitlab_repository_archive_clean_up_real_duration_seconds_count` (*cumulative*)<br>
+ - `gitlab_sql_duration_seconds` (*cumulative*)<br>
+ - `gitlab_sql_duration_seconds_bucket` (*cumulative*)<br>
+ - `gitlab_sql_duration_seconds_count` (*cumulative*)<br>
+ - `gitlab_transaction_cache_read_hit_count_total` (*cumulative*)<br>
+ - `gitlab_transaction_cache_read_miss_count_total` (*cumulative*)<br>
+ - `gitlab_transaction_duration_seconds` (*cumulative*)<br>
+ - `gitlab_transaction_duration_seconds_bucket` (*cumulative*)<br>
+ - `gitlab_transaction_duration_seconds_count` (*cumulative*)<br>
+ - ***`gitlab_transaction_sidekiq_queue_duration_total`*** (*gauge*)<br>
 
 ### Non-default metrics (version 4.7.0+)
 

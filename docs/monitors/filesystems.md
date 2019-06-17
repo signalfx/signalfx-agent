@@ -48,26 +48,26 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`df_complex.free`*** (*gauge*) - <br>    Free disk space in bytes
- - ***`df_complex.used`*** (*gauge*) - <br>    Used disk space in bytes
- - ***`disk.summary_utilization`*** (*gauge*) - <br>    Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to "signalfx-metadata".
- - ***`disk.utilization`*** (*gauge*) - <br>    Percent of disk used on this volume. This metric reports with plugin dimension set to "signalfx-metadata".
+ - ***`df_complex.free`*** (*gauge*)<br>    Free disk space in bytes
+ - ***`df_complex.used`*** (*gauge*)<br>    Used disk space in bytes
+ - ***`disk.summary_utilization`*** (*gauge*)<br>    Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to "signalfx-metadata".
+ - ***`disk.utilization`*** (*gauge*)<br>    Percent of disk used on this volume. This metric reports with plugin dimension set to "signalfx-metadata".
 
 #### Group inodes
 All of the following metrics are part of the `inodes` metric group. All of
 the non-default metrics below can be turned on by adding `inodes` to the
 monitor config option `extraGroups`:
- - `df_inodes.free` (*gauge*) - <br>    (Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `inodes` is set to `true`.
- - `df_inodes.used` (*gauge*) - <br>    (Linux Only) Number of inodes that are used.  This is only reported if the configuration option `inodes` is set to `true`.
- - `percent_inodes.free` (*gauge*) - <br>    (Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`.
- - `percent_inodes.used` (*gauge*) - <br>    (Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`.
+ - `df_inodes.free` (*gauge*)<br>    (Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `inodes` is set to `true`.
+ - `df_inodes.used` (*gauge*)<br>    (Linux Only) Number of inodes that are used.  This is only reported if the configuration option `inodes` is set to `true`.
+ - `percent_inodes.free` (*gauge*)<br>    (Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`.
+ - `percent_inodes.used` (*gauge*)<br>    (Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`.
 
 #### Group logical
 All of the following metrics are part of the `logical` metric group. All of
 the non-default metrics below can be turned on by adding `logical` to the
 monitor config option `extraGroups`:
- - `percent_bytes.free` (*gauge*) - <br>    Free disk space on the file system, expressed as a percentage.
- - `percent_bytes.used` (*gauge*) - <br>    Used disk space on the file system, expressed as a percentage.
+ - `percent_bytes.free` (*gauge*)<br>    Free disk space on the file system, expressed as a percentage.
+ - `percent_bytes.used` (*gauge*)<br>    Used disk space on the file system, expressed as a percentage.
 
 ### Non-default metrics (version 4.7.0+)
 

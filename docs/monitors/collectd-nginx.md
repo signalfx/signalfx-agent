@@ -44,14 +44,14 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`connections.accepted`*** (*cumulative*) - <br>    Connections accepted by Nginx Web Server
- - `connections.failed` (*cumulative*) - <br>    Connections failed by the Nginx Web Server
- - ***`connections.handled`*** (*cumulative*) - <br>    Connections handled by Nginx Web Server
- - ***`nginx_connections.active`*** (*gauge*) - <br>    Connections active in Nginx Web Server
- - ***`nginx_connections.reading`*** (*gauge*) - <br>    Connections being read by Nginx Web Server
- - ***`nginx_connections.waiting`*** (*gauge*) - <br>    Connections waited on by Nginx Web Server
- - ***`nginx_connections.writing`*** (*gauge*) - <br>    Connections being written by Nginx Web Server
- - ***`nginx_requests`*** (*cumulative*) - <br>    Requests handled by Nginx Web Server
+ - ***`connections.accepted`*** (*cumulative*)<br>    Connections accepted by Nginx Web Server
+ - `connections.failed` (*cumulative*)<br>    Connections failed by the Nginx Web Server
+ - ***`connections.handled`*** (*cumulative*)<br>    Connections handled by Nginx Web Server
+ - ***`nginx_connections.active`*** (*gauge*)<br>    Connections active in Nginx Web Server
+ - ***`nginx_connections.reading`*** (*gauge*)<br>    Connections being read by Nginx Web Server
+ - ***`nginx_connections.waiting`*** (*gauge*)<br>    Connections waited on by Nginx Web Server
+ - ***`nginx_connections.writing`*** (*gauge*)<br>    Connections being written by Nginx Web Server
+ - ***`nginx_requests`*** (*cumulative*)<br>    Requests handled by Nginx Web Server
 
 ### Non-default metrics (version 4.7.0+)
 

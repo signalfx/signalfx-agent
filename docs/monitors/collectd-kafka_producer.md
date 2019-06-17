@@ -83,29 +83,29 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`gauge.kafka.producer.byte-rate`*** (*gauge*) - <br>    Average number of bytes sent per second for a topic. This metric has client-id and topic dimensions.
- - ***`gauge.kafka.producer.compression-rate`*** (*gauge*) - <br>    Average compression rate of record batches for a topic. This metric has client-id and topic dimensions.
- - ***`gauge.kafka.producer.io-wait-time-ns-avg`*** (*gauge*) - <br>    Average length of time the I/O thread spent waiting for a socket ready for reads or writes in nanoseconds. This metric has client-id dimension.
- - ***`gauge.kafka.producer.outgoing-byte-rate`*** (*gauge*) - <br>    Average number of outgoing bytes sent per second to all servers. This metric has client-id dimension.
- - ***`gauge.kafka.producer.record-error-rate`*** (*gauge*) - <br>    Average per-second number of record sends that resulted in errors for a topic. This metric has client-id and topic dimensions.
- - ***`gauge.kafka.producer.record-retry-rate`*** (*gauge*) - <br>    Average per-second number of retried record sends for a topic. This metric has client-id and topic dimensions.
- - ***`gauge.kafka.producer.record-send-rate`*** (*gauge*) - <br>    Average number of records sent per second for a topic. This metric has client-id and topic dimensions.
- - ***`gauge.kafka.producer.request-latency-avg`*** (*gauge*) - <br>    Average request latency in ms. Time it takes on average for the producer to get responses from the broker. This metric has client-id dimension.
- - ***`gauge.kafka.producer.request-rate`*** (*gauge*) - <br>    Average number of requests sent per second. This metric has client-id dimension.
- - ***`gauge.kafka.producer.response-rate`*** (*gauge*) - <br>    Average number of responses received per second. This metric has client-id dimension.
+ - ***`gauge.kafka.producer.byte-rate`*** (*gauge*)<br>    Average number of bytes sent per second for a topic. This metric has client-id and topic dimensions.
+ - ***`gauge.kafka.producer.compression-rate`*** (*gauge*)<br>    Average compression rate of record batches for a topic. This metric has client-id and topic dimensions.
+ - ***`gauge.kafka.producer.io-wait-time-ns-avg`*** (*gauge*)<br>    Average length of time the I/O thread spent waiting for a socket ready for reads or writes in nanoseconds. This metric has client-id dimension.
+ - ***`gauge.kafka.producer.outgoing-byte-rate`*** (*gauge*)<br>    Average number of outgoing bytes sent per second to all servers. This metric has client-id dimension.
+ - ***`gauge.kafka.producer.record-error-rate`*** (*gauge*)<br>    Average per-second number of record sends that resulted in errors for a topic. This metric has client-id and topic dimensions.
+ - ***`gauge.kafka.producer.record-retry-rate`*** (*gauge*)<br>    Average per-second number of retried record sends for a topic. This metric has client-id and topic dimensions.
+ - ***`gauge.kafka.producer.record-send-rate`*** (*gauge*)<br>    Average number of records sent per second for a topic. This metric has client-id and topic dimensions.
+ - ***`gauge.kafka.producer.request-latency-avg`*** (*gauge*)<br>    Average request latency in ms. Time it takes on average for the producer to get responses from the broker. This metric has client-id dimension.
+ - ***`gauge.kafka.producer.request-rate`*** (*gauge*)<br>    Average number of requests sent per second. This metric has client-id dimension.
+ - ***`gauge.kafka.producer.response-rate`*** (*gauge*)<br>    Average number of responses received per second. This metric has client-id dimension.
 
 #### Group jvm
 All of the following metrics are part of the `jvm` metric group. All of
 the non-default metrics below can be turned on by adding `jvm` to the
 monitor config option `extraGroups`:
- - ***`gauge.jvm.threads.count`*** (*gauge*) - <br>    Number of JVM threads
- - ***`gauge.loaded_classes`*** (*gauge*) - <br>    Number of classes loaded in the JVM
- - ***`invocations`*** (*cumulative*) - <br>    Total number of garbage collection events
- - ***`jmx_memory.committed`*** (*gauge*) - <br>    Amount of memory guaranteed to be available in bytes
- - ***`jmx_memory.init`*** (*gauge*) - <br>    Amount of initial memory at startup in bytes
- - ***`jmx_memory.max`*** (*gauge*) - <br>    Maximum amount of memory that can be used in bytes
- - ***`jmx_memory.used`*** (*gauge*) - <br>    Current memory usage in bytes
- - ***`total_time_in_ms.collection_time`*** (*cumulative*) - <br>    Amount of time spent garbage collecting in milliseconds
+ - ***`gauge.jvm.threads.count`*** (*gauge*)<br>    Number of JVM threads
+ - ***`gauge.loaded_classes`*** (*gauge*)<br>    Number of classes loaded in the JVM
+ - ***`invocations`*** (*cumulative*)<br>    Total number of garbage collection events
+ - ***`jmx_memory.committed`*** (*gauge*)<br>    Amount of memory guaranteed to be available in bytes
+ - ***`jmx_memory.init`*** (*gauge*)<br>    Amount of initial memory at startup in bytes
+ - ***`jmx_memory.max`*** (*gauge*)<br>    Maximum amount of memory that can be used in bytes
+ - ***`jmx_memory.used`*** (*gauge*)<br>    Current memory usage in bytes
+ - ***`total_time_in_ms.collection_time`*** (*cumulative*)<br>    Amount of time spent garbage collecting in milliseconds
 
 ### Non-default metrics (version 4.7.0+)
 

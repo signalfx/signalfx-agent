@@ -44,18 +44,18 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `vmpage.swap.in_per_second` (*gauge*) - <br>    (Windows Only)
- - `vmpage.swap.out_per_second` (*gauge*) - <br>    (Windows Only)
- - `vmpage.swap.total.per_second` (*gauge*) - <br>    (Windows Only)
- - `vmpage_faults.majflt` (*cumulative*) - <br>    (Linux Only) Number of major page faults on the system
- - `vmpage_faults.minflt` (*cumulative*) - <br>    (Linux Only) Number of minor page faults on the system
- - `vmpage_io.memory.in` (*cumulative*) - <br>    (Linux Only) Page Ins for Memory
- - `vmpage_io.memory.out` (*cumulative*) - <br>    (Linux Only) Page Outs for Memory
- - ***`vmpage_io.swap.in`*** (*cumulative*) - <br>    (Linux Only) Page Ins for Swap
- - ***`vmpage_io.swap.out`*** (*cumulative*) - <br>    (Linux Only) Page Outs for Swap
- - `vmpage_number.free_pages` (*gauge*) - <br>    (Linux Only) Number of free memory pages
- - `vmpage_number.mapped` (*gauge*) - <br>    (Linux Only) Number of mapped pages
- - `vmpage_number.shmem_pmdmapped` (*gauge*) - <br>    (Linux Only) The amount of shared (shmem/tmpfs) memory backed by huge pages
+ - `vmpage.swap.in_per_second` (*gauge*)<br>    (Windows Only)
+ - `vmpage.swap.out_per_second` (*gauge*)<br>    (Windows Only)
+ - `vmpage.swap.total.per_second` (*gauge*)<br>    (Windows Only)
+ - `vmpage_faults.majflt` (*cumulative*)<br>    (Linux Only) Number of major page faults on the system
+ - `vmpage_faults.minflt` (*cumulative*)<br>    (Linux Only) Number of minor page faults on the system
+ - `vmpage_io.memory.in` (*cumulative*)<br>    (Linux Only) Page Ins for Memory
+ - `vmpage_io.memory.out` (*cumulative*)<br>    (Linux Only) Page Outs for Memory
+ - ***`vmpage_io.swap.in`*** (*cumulative*)<br>    (Linux Only) Page Ins for Swap
+ - ***`vmpage_io.swap.out`*** (*cumulative*)<br>    (Linux Only) Page Outs for Swap
+ - `vmpage_number.free_pages` (*gauge*)<br>    (Linux Only) Number of free memory pages
+ - `vmpage_number.mapped` (*gauge*)<br>    (Linux Only) Number of mapped pages
+ - `vmpage_number.shmem_pmdmapped` (*gauge*)<br>    (Linux Only) The amount of shared (shmem/tmpfs) memory backed by huge pages
 
 ### Non-default metrics (version 4.7.0+)
 

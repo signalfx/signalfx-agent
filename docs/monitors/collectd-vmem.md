@@ -31,15 +31,15 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `vmpage_faults.majflt` (*cumulative*) - <br>    Number of major page faults on the system
- - `vmpage_faults.minflt` (*cumulative*) - <br>    Number of minor page faults on the system
- - `vmpage_io.memory.in` (*cumulative*) - <br>    Page Ins for Memory
- - `vmpage_io.memory.out` (*cumulative*) - <br>    Page Outs for Memory
- - ***`vmpage_io.swap.in`*** (*cumulative*) - <br>    Page Ins for Swap
- - ***`vmpage_io.swap.out`*** (*cumulative*) - <br>    Page Outs for Swap
- - `vmpage_number.free_pages` (*cumulative*) - <br>    Number of free memory pages
- - `vmpage_number.mapped` (*cumulative*) - <br>    Number of mapped pages
- - `vmpage_number.shmem_pmdmapped` (*gauge*) - <br>    The amount of shared (shmem/tmpfs) memory backed by huge pages
+ - `vmpage_faults.majflt` (*cumulative*)<br>    Number of major page faults on the system
+ - `vmpage_faults.minflt` (*cumulative*)<br>    Number of minor page faults on the system
+ - `vmpage_io.memory.in` (*cumulative*)<br>    Page Ins for Memory
+ - `vmpage_io.memory.out` (*cumulative*)<br>    Page Outs for Memory
+ - ***`vmpage_io.swap.in`*** (*cumulative*)<br>    Page Ins for Swap
+ - ***`vmpage_io.swap.out`*** (*cumulative*)<br>    Page Outs for Swap
+ - `vmpage_number.free_pages` (*cumulative*)<br>    Number of free memory pages
+ - `vmpage_number.mapped` (*cumulative*)<br>    Number of mapped pages
+ - `vmpage_number.shmem_pmdmapped` (*gauge*)<br>    The amount of shared (shmem/tmpfs) memory backed by huge pages
 
 ### Non-default metrics (version 4.7.0+)
 

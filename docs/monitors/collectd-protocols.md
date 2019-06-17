@@ -34,14 +34,14 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`protocol_counter.ActiveOpens`*** (*cumulative*) - <br>    The number of times TCP connections transitioned from the CLOSED state to the SYN-SENT state.
- - `protocol_counter.CurrEstab` (*cumulative*) - <br>    The number of TCP connections currently in either ESTABLISHED or CLOSE-WAIT state.
- - `protocol_counter.DelayedACKs` (*cumulative*) - <br>    The number of acknowledgements delayed by TCP Delayed Acknowledgement
- - `protocol_counter.InDestUnreachs` (*cumulative*) - <br>    The number of ICMP Destination Unreachable messages received
- - `protocol_counter.OutSegs` (*cumulative*) - <br>    The total number of segments that have been sent, including those on current connections but excluding those containing only retransmitted octets.
+ - ***`protocol_counter.ActiveOpens`*** (*cumulative*)<br>    The number of times TCP connections transitioned from the CLOSED state to the SYN-SENT state.
+ - `protocol_counter.CurrEstab` (*cumulative*)<br>    The number of TCP connections currently in either ESTABLISHED or CLOSE-WAIT state.
+ - `protocol_counter.DelayedACKs` (*cumulative*)<br>    The number of acknowledgements delayed by TCP Delayed Acknowledgement
+ - `protocol_counter.InDestUnreachs` (*cumulative*)<br>    The number of ICMP Destination Unreachable messages received
+ - `protocol_counter.OutSegs` (*cumulative*)<br>    The total number of segments that have been sent, including those on current connections but excluding those containing only retransmitted octets.
 
- - `protocol_counter.PassiveOpens` (*cumulative*) - <br>    The number of times that a server opened a connection, due to receiving a TCP SYN packet.
- - `protocol_counter.RetransSegs` (*cumulative*) - <br>    The total number of segments retransmitted
+ - `protocol_counter.PassiveOpens` (*cumulative*)<br>    The number of times that a server opened a connection, due to receiving a TCP SYN packet.
+ - `protocol_counter.RetransSegs` (*cumulative*)<br>    The total number of segments retransmitted
 
 ### Non-default metrics (version 4.7.0+)
 

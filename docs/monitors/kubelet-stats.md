@@ -46,51 +46,51 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `container_cpu_cfs_periods` (*cumulative*) - <br>    Total number of elapsed CFS enforcement intervals
- - `container_cpu_cfs_throttled_periods` (*cumulative*) - <br>    Total number of times tasks in the cgroup have been throttled
- - `container_cpu_cfs_throttled_time` (*cumulative*) - <br>    Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled
- - ***`container_cpu_percent`*** (*cumulative*) - <br>    Cumulative cpu utilization as a percentage of the total host CPU available.  This metric is equivalent to `container_cpu_utilization` / <# of CPUs/cores on host>.
- - `container_cpu_system_seconds_total` (*cumulative*) - <br>    Cumulative system cpu time consumed in nanoseconds
- - `container_cpu_usage_seconds_total` (*cumulative*) - <br>    Cumulative cpu time consumed per cpu in nanoseconds
- - `container_cpu_user_seconds_total` (*cumulative*) - <br>    Cumulative user cpu time consumed in nanoseconds
- - ***`container_cpu_utilization`*** (*cumulative*) - <br>    Cumulative cpu utilization in percentages.  This is equivalent to "centicores", or hundreths of CPU cores consumed.  This metric is **NOT** normalized by the total # of cores on the system.
- - `container_cpu_utilization_per_core` (*cumulative*) - <br>    Cumulative cpu utilization in percentages per core
- - `container_fs_io_current` (*gauge*) - <br>    Number of I/Os currently in progress
- - `container_fs_io_time_seconds_total` (*cumulative*) - <br>    Cumulative count of seconds spent doing I/Os
- - `container_fs_io_time_weighted_seconds_total` (*cumulative*) - <br>    Cumulative weighted I/O time in seconds
- - `container_fs_limit_bytes` (*gauge*) - <br>    Number of bytes that the container may occupy on this filesystem
- - ***`container_fs_read_seconds_total`*** (*cumulative*) - <br>    Cumulative count of seconds spent reading
- - `container_fs_reads_merged_total` (*cumulative*) - <br>    Cumulative count of reads merged
- - ***`container_fs_reads_total`*** (*cumulative*) - <br>    Cumulative count of reads completed
- - `container_fs_sector_reads_total` (*cumulative*) - <br>    Cumulative count of sector reads completed
- - `container_fs_sector_writes_total` (*cumulative*) - <br>    Cumulative count of sector writes completed
- - ***`container_fs_usage_bytes`*** (*gauge*) - <br>    Number of bytes that are consumed by the container on this filesystem
- - ***`container_fs_write_seconds_total`*** (*cumulative*) - <br>    Cumulative count of seconds spent writing
- - `container_fs_writes_merged_total` (*cumulative*) - <br>    Cumulative count of writes merged
- - ***`container_fs_writes_total`*** (*cumulative*) - <br>    Cumulative count of writes completed
- - `container_last_seen` (*gauge*) - <br>    Last time a container was seen by the exporter
- - `container_memory_failcnt` (*cumulative*) - <br>    Number of memory usage hits limits
- - ***`container_memory_failures_total`*** (*cumulative*) - <br>    Cumulative count of memory allocation failures
- - ***`container_memory_usage_bytes`*** (*gauge*) - <br>    Current memory usage in bytes
- - `container_memory_working_set_bytes` (*gauge*) - <br>    Current working set in bytes
- - ***`container_spec_cpu_period`*** (*gauge*) - <br>    The number of microseconds that the [CFS scheduler](https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt) uses as a window when limiting container processes
- - ***`container_spec_cpu_quota`*** (*gauge*) - <br>    In CPU quota for the CFS process scheduler. In K8s this is equal to the containers's CPU limit as a fraction of 1 core and multiplied by the `container_spec_cpu_period`.  So if the CPU limit is `500m` (500 millicores) for a container and the `container_spec_cpu_period` is set to 100,000, this value will be 50,000.
- - `container_spec_cpu_shares` (*gauge*) - <br>    CPU share of the container
- - ***`container_spec_memory_limit_bytes`*** (*gauge*) - <br>    Memory limit for the container.
- - `container_spec_memory_swap_limit_bytes` (*gauge*) - <br>    Memory swap limit for the container.
- - `container_start_time_seconds` (*gauge*) - <br>    Start time of the container since unix epoch in seconds.
- - `container_tasks_state` (*gauge*) - <br>    Number of tasks in given state
- - ***`machine_cpu_cores`*** (*gauge*) - <br>    Number of CPU cores on the node.
- - `machine_cpu_frequency_khz` (*gauge*) - <br>    Node's CPU frequency.
- - ***`machine_memory_bytes`*** (*gauge*) - <br>    Amount of memory installed on the node.
- - ***`pod_network_receive_bytes_total`*** (*cumulative*) - <br>    Cumulative count of bytes received
- - ***`pod_network_receive_errors_total`*** (*cumulative*) - <br>    Cumulative count of errors encountered while receiving
- - `pod_network_receive_packets_dropped_total` (*cumulative*) - <br>    Cumulative count of packets dropped while receiving
- - `pod_network_receive_packets_total` (*cumulative*) - <br>    Cumulative count of packets received
- - ***`pod_network_transmit_bytes_total`*** (*cumulative*) - <br>    Cumulative count of bytes transmitted
- - ***`pod_network_transmit_errors_total`*** (*cumulative*) - <br>    Cumulative count of errors encountered while transmitting
- - `pod_network_transmit_packets_dropped_total` (*cumulative*) - <br>    Cumulative count of packets dropped while transmitting
- - `pod_network_transmit_packets_total` (*cumulative*) - <br>    Cumulative count of packets transmitted
+ - `container_cpu_cfs_periods` (*cumulative*)<br>    Total number of elapsed CFS enforcement intervals
+ - `container_cpu_cfs_throttled_periods` (*cumulative*)<br>    Total number of times tasks in the cgroup have been throttled
+ - `container_cpu_cfs_throttled_time` (*cumulative*)<br>    Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled
+ - ***`container_cpu_percent`*** (*cumulative*)<br>    Cumulative cpu utilization as a percentage of the total host CPU available.  This metric is equivalent to `container_cpu_utilization` / <# of CPUs/cores on host>.
+ - `container_cpu_system_seconds_total` (*cumulative*)<br>    Cumulative system cpu time consumed in nanoseconds
+ - `container_cpu_usage_seconds_total` (*cumulative*)<br>    Cumulative cpu time consumed per cpu in nanoseconds
+ - `container_cpu_user_seconds_total` (*cumulative*)<br>    Cumulative user cpu time consumed in nanoseconds
+ - ***`container_cpu_utilization`*** (*cumulative*)<br>    Cumulative cpu utilization in percentages.  This is equivalent to "centicores", or hundreths of CPU cores consumed.  This metric is **NOT** normalized by the total # of cores on the system.
+ - `container_cpu_utilization_per_core` (*cumulative*)<br>    Cumulative cpu utilization in percentages per core
+ - `container_fs_io_current` (*gauge*)<br>    Number of I/Os currently in progress
+ - `container_fs_io_time_seconds_total` (*cumulative*)<br>    Cumulative count of seconds spent doing I/Os
+ - `container_fs_io_time_weighted_seconds_total` (*cumulative*)<br>    Cumulative weighted I/O time in seconds
+ - `container_fs_limit_bytes` (*gauge*)<br>    Number of bytes that the container may occupy on this filesystem
+ - ***`container_fs_read_seconds_total`*** (*cumulative*)<br>    Cumulative count of seconds spent reading
+ - `container_fs_reads_merged_total` (*cumulative*)<br>    Cumulative count of reads merged
+ - ***`container_fs_reads_total`*** (*cumulative*)<br>    Cumulative count of reads completed
+ - `container_fs_sector_reads_total` (*cumulative*)<br>    Cumulative count of sector reads completed
+ - `container_fs_sector_writes_total` (*cumulative*)<br>    Cumulative count of sector writes completed
+ - ***`container_fs_usage_bytes`*** (*gauge*)<br>    Number of bytes that are consumed by the container on this filesystem
+ - ***`container_fs_write_seconds_total`*** (*cumulative*)<br>    Cumulative count of seconds spent writing
+ - `container_fs_writes_merged_total` (*cumulative*)<br>    Cumulative count of writes merged
+ - ***`container_fs_writes_total`*** (*cumulative*)<br>    Cumulative count of writes completed
+ - `container_last_seen` (*gauge*)<br>    Last time a container was seen by the exporter
+ - `container_memory_failcnt` (*cumulative*)<br>    Number of memory usage hits limits
+ - ***`container_memory_failures_total`*** (*cumulative*)<br>    Cumulative count of memory allocation failures
+ - ***`container_memory_usage_bytes`*** (*gauge*)<br>    Current memory usage in bytes
+ - `container_memory_working_set_bytes` (*gauge*)<br>    Current working set in bytes
+ - ***`container_spec_cpu_period`*** (*gauge*)<br>    The number of microseconds that the [CFS scheduler](https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt) uses as a window when limiting container processes
+ - ***`container_spec_cpu_quota`*** (*gauge*)<br>    In CPU quota for the CFS process scheduler. In K8s this is equal to the containers's CPU limit as a fraction of 1 core and multiplied by the `container_spec_cpu_period`.  So if the CPU limit is `500m` (500 millicores) for a container and the `container_spec_cpu_period` is set to 100,000, this value will be 50,000.
+ - `container_spec_cpu_shares` (*gauge*)<br>    CPU share of the container
+ - ***`container_spec_memory_limit_bytes`*** (*gauge*)<br>    Memory limit for the container.
+ - `container_spec_memory_swap_limit_bytes` (*gauge*)<br>    Memory swap limit for the container.
+ - `container_start_time_seconds` (*gauge*)<br>    Start time of the container since unix epoch in seconds.
+ - `container_tasks_state` (*gauge*)<br>    Number of tasks in given state
+ - ***`machine_cpu_cores`*** (*gauge*)<br>    Number of CPU cores on the node.
+ - `machine_cpu_frequency_khz` (*gauge*)<br>    Node's CPU frequency.
+ - ***`machine_memory_bytes`*** (*gauge*)<br>    Amount of memory installed on the node.
+ - ***`pod_network_receive_bytes_total`*** (*cumulative*)<br>    Cumulative count of bytes received
+ - ***`pod_network_receive_errors_total`*** (*cumulative*)<br>    Cumulative count of errors encountered while receiving
+ - `pod_network_receive_packets_dropped_total` (*cumulative*)<br>    Cumulative count of packets dropped while receiving
+ - `pod_network_receive_packets_total` (*cumulative*)<br>    Cumulative count of packets received
+ - ***`pod_network_transmit_bytes_total`*** (*cumulative*)<br>    Cumulative count of bytes transmitted
+ - ***`pod_network_transmit_errors_total`*** (*cumulative*)<br>    Cumulative count of errors encountered while transmitting
+ - `pod_network_transmit_packets_dropped_total` (*cumulative*)<br>    Cumulative count of packets dropped while transmitting
+ - `pod_network_transmit_packets_total` (*cumulative*)<br>    Cumulative count of packets transmitted
 
 ### Non-default metrics (version 4.7.0+)
 

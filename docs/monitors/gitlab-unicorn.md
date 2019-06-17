@@ -58,36 +58,36 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `gitlab_auth_user_authenticated_total` (*cumulative*) - <br>
- - `gitlab_auth_user_unauthenticated_total` (*cumulative*) - <br>
- - `gitlab_banzai_cacheless_render_real_duration_seconds` (*cumulative*) - <br>
- - `gitlab_banzai_cacheless_render_real_duration_seconds_bucket` (*cumulative*) - <br>
- - `gitlab_banzai_cacheless_render_real_duration_seconds_count` (*cumulative*) - <br>
- - `gitlab_cache_misses_total` (*cumulative*) - <br>
- - `gitlab_cache_operation_duration_seconds` (*cumulative*) - <br>
- - `gitlab_cache_operation_duration_seconds_bucket` (*cumulative*) - <br>
- - `gitlab_cache_operation_duration_seconds_count` (*cumulative*) - <br>
- - `gitlab_rails_queue_duration_seconds` (*cumulative*) - <br>
- - `gitlab_rails_queue_duration_seconds_bucket` (*cumulative*) - <br>
- - `gitlab_rails_queue_duration_seconds_count` (*cumulative*) - <br>
- - `gitlab_sql_duration_seconds` (*cumulative*) - <br>
- - `gitlab_sql_duration_seconds_bucket` (*cumulative*) - <br>
- - `gitlab_sql_duration_seconds_count` (*cumulative*) - <br>
- - `gitlab_transaction_cache_read_hit_count_total` (*cumulative*) - <br>
- - `gitlab_transaction_cache_read_miss_count_total` (*cumulative*) - <br>
- - `gitlab_transaction_duration_seconds` (*cumulative*) - <br>
- - `gitlab_transaction_duration_seconds_bucket` (*cumulative*) - <br>
- - `gitlab_transaction_duration_seconds_count` (*cumulative*) - <br>
- - `gitlab_transaction_new_redis_connections_total` (*cumulative*) - <br>
- - `gitlab_transaction_rails_queue_duration_total` (*gauge*) - <br>
- - ***`gitlab_transaction_sidekiq_queue_duration_total`*** (*gauge*) - <br>
- - `gitlab_transaction_view_duration_total` (*cumulative*) - <br>
- - `http_requests_total` (*cumulative*) - <br>
- - `job_register_attempts_failed_total` (*cumulative*) - <br>
- - `job_register_attempts_total` (*cumulative*) - <br>
- - `unicorn_active_connections` (*gauge*) - <br>
- - `unicorn_queued_connections` (*gauge*) - <br>
- - `user_session_logins_total` (*cumulative*) - <br>
+ - `gitlab_auth_user_authenticated_total` (*cumulative*)<br>
+ - `gitlab_auth_user_unauthenticated_total` (*cumulative*)<br>
+ - `gitlab_banzai_cacheless_render_real_duration_seconds` (*cumulative*)<br>
+ - `gitlab_banzai_cacheless_render_real_duration_seconds_bucket` (*cumulative*)<br>
+ - `gitlab_banzai_cacheless_render_real_duration_seconds_count` (*cumulative*)<br>
+ - `gitlab_cache_misses_total` (*cumulative*)<br>
+ - `gitlab_cache_operation_duration_seconds` (*cumulative*)<br>
+ - `gitlab_cache_operation_duration_seconds_bucket` (*cumulative*)<br>
+ - `gitlab_cache_operation_duration_seconds_count` (*cumulative*)<br>
+ - `gitlab_rails_queue_duration_seconds` (*cumulative*)<br>
+ - `gitlab_rails_queue_duration_seconds_bucket` (*cumulative*)<br>
+ - `gitlab_rails_queue_duration_seconds_count` (*cumulative*)<br>
+ - `gitlab_sql_duration_seconds` (*cumulative*)<br>
+ - `gitlab_sql_duration_seconds_bucket` (*cumulative*)<br>
+ - `gitlab_sql_duration_seconds_count` (*cumulative*)<br>
+ - `gitlab_transaction_cache_read_hit_count_total` (*cumulative*)<br>
+ - `gitlab_transaction_cache_read_miss_count_total` (*cumulative*)<br>
+ - `gitlab_transaction_duration_seconds` (*cumulative*)<br>
+ - `gitlab_transaction_duration_seconds_bucket` (*cumulative*)<br>
+ - `gitlab_transaction_duration_seconds_count` (*cumulative*)<br>
+ - `gitlab_transaction_new_redis_connections_total` (*cumulative*)<br>
+ - `gitlab_transaction_rails_queue_duration_total` (*gauge*)<br>
+ - ***`gitlab_transaction_sidekiq_queue_duration_total`*** (*gauge*)<br>
+ - `gitlab_transaction_view_duration_total` (*cumulative*)<br>
+ - `http_requests_total` (*cumulative*)<br>
+ - `job_register_attempts_failed_total` (*cumulative*)<br>
+ - `job_register_attempts_total` (*cumulative*)<br>
+ - `unicorn_active_connections` (*gauge*)<br>
+ - `unicorn_queued_connections` (*gauge*)<br>
+ - `user_session_logins_total` (*cumulative*)<br>
 
 ### Non-default metrics (version 4.7.0+)
 

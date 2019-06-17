@@ -39,14 +39,14 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `if_dropped.rx` (*cumulative*) - <br>    Count of received packets dropped by the interface
- - `if_dropped.tx` (*cumulative*) - <br>    Count of transmitted packets dropped by the interface
- - ***`if_errors.rx`*** (*cumulative*) - <br>    Count of receive errors on the interface
- - ***`if_errors.tx`*** (*cumulative*) - <br>    Count of transmit errors on the interface
- - ***`if_octets.rx`*** (*cumulative*) - <br>    Count of bytes (octets) received on the interface
- - ***`if_octets.tx`*** (*cumulative*) - <br>    Count of bytes (octets) transmitted by the interface
- - `if_packets.rx` (*cumulative*) - <br>    Count of packets received on the interface
- - `if_packets.tx` (*cumulative*) - <br>    Count of packets transmitted by the interface
+ - `if_dropped.rx` (*cumulative*)<br>    Count of received packets dropped by the interface
+ - `if_dropped.tx` (*cumulative*)<br>    Count of transmitted packets dropped by the interface
+ - ***`if_errors.rx`*** (*cumulative*)<br>    Count of receive errors on the interface
+ - ***`if_errors.tx`*** (*cumulative*)<br>    Count of transmit errors on the interface
+ - ***`if_octets.rx`*** (*cumulative*)<br>    Count of bytes (octets) received on the interface
+ - ***`if_octets.tx`*** (*cumulative*)<br>    Count of bytes (octets) transmitted by the interface
+ - `if_packets.rx` (*cumulative*)<br>    Count of packets received on the interface
+ - `if_packets.tx` (*cumulative*)<br>    Count of packets transmitted by the interface
 
 ### Non-default metrics (version 4.7.0+)
 

@@ -135,29 +135,29 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`pg_blks.heap_hit`*** (*gauge*) - <br>    Number of buffer hits
- - ***`pg_blks.heap_read`*** (*gauge*) - <br>    Number of disk blocks read
- - ***`pg_blks.idx_hit`*** (*gauge*) - <br>    Number of index buffer hits
- - ***`pg_blks.idx_read`*** (*gauge*) - <br>    Number of index blocks read
- - `pg_blks.tidx_hit` (*gauge*) - <br>    Number of TOAST index buffer hits
- - `pg_blks.tidx_read` (*gauge*) - <br>    Number of TOAST index blocks read
- - `pg_blks.toast_hit` (*gauge*) - <br>    Number of TOAST buffer hits
- - `pg_blks.toast_read` (*gauge*) - <br>    Number of disk blocks read
- - ***`pg_db_size`*** (*gauge*) - <br>    Size of the database on disk, in bytes
- - ***`pg_n_tup_c.del`*** (*gauge*) - <br>    Number of delete operations
- - `pg_n_tup_c.hot_upd` (*gauge*) - <br>    Number of update operations not requiring index update
- - ***`pg_n_tup_c.ins`*** (*gauge*) - <br>    Number of insert operations
- - ***`pg_n_tup_c.upd`*** (*gauge*) - <br>    Number of update operations
- - `pg_n_tup_g.dead` (*gauge*) - <br>    Number of dead rows in the database
- - ***`pg_n_tup_g.live`*** (*gauge*) - <br>    Number of live rows in the database
- - ***`pg_numbackends`*** (*gauge*) - <br>    Number of server processes
- - ***`pg_scan.idx`*** (*gauge*) - <br>    Number of index scans
- - ***`pg_scan.idx_tup_fetch`*** (*gauge*) - <br>    Number of rows read from index scans
- - ***`pg_scan.seq`*** (*gauge*) - <br>    Number of sequential scans
- - ***`pg_scan.seq_tup_read`*** (*gauge*) - <br>    Number of rows read from sequential scans
- - ***`pg_xact.commit`*** (*gauge*) - <br>    Number of commits
- - `pg_xact.num_deadlocks` (*gauge*) - <br>    Number of deadlocks detected by the database
- - ***`pg_xact.rollback`*** (*gauge*) - <br>    Number of rollbacks
+ - ***`pg_blks.heap_hit`*** (*gauge*)<br>    Number of buffer hits
+ - ***`pg_blks.heap_read`*** (*gauge*)<br>    Number of disk blocks read
+ - ***`pg_blks.idx_hit`*** (*gauge*)<br>    Number of index buffer hits
+ - ***`pg_blks.idx_read`*** (*gauge*)<br>    Number of index blocks read
+ - `pg_blks.tidx_hit` (*gauge*)<br>    Number of TOAST index buffer hits
+ - `pg_blks.tidx_read` (*gauge*)<br>    Number of TOAST index blocks read
+ - `pg_blks.toast_hit` (*gauge*)<br>    Number of TOAST buffer hits
+ - `pg_blks.toast_read` (*gauge*)<br>    Number of disk blocks read
+ - ***`pg_db_size`*** (*gauge*)<br>    Size of the database on disk, in bytes
+ - ***`pg_n_tup_c.del`*** (*gauge*)<br>    Number of delete operations
+ - `pg_n_tup_c.hot_upd` (*gauge*)<br>    Number of update operations not requiring index update
+ - ***`pg_n_tup_c.ins`*** (*gauge*)<br>    Number of insert operations
+ - ***`pg_n_tup_c.upd`*** (*gauge*)<br>    Number of update operations
+ - `pg_n_tup_g.dead` (*gauge*)<br>    Number of dead rows in the database
+ - ***`pg_n_tup_g.live`*** (*gauge*)<br>    Number of live rows in the database
+ - ***`pg_numbackends`*** (*gauge*)<br>    Number of server processes
+ - ***`pg_scan.idx`*** (*gauge*)<br>    Number of index scans
+ - ***`pg_scan.idx_tup_fetch`*** (*gauge*)<br>    Number of rows read from index scans
+ - ***`pg_scan.seq`*** (*gauge*)<br>    Number of sequential scans
+ - ***`pg_scan.seq_tup_read`*** (*gauge*)<br>    Number of rows read from sequential scans
+ - ***`pg_xact.commit`*** (*gauge*)<br>    Number of commits
+ - `pg_xact.num_deadlocks` (*gauge*)<br>    Number of deadlocks detected by the database
+ - ***`pg_xact.rollback`*** (*gauge*)<br>    Number of rollbacks
 
 ### Non-default metrics (version 4.7.0+)
 

@@ -49,37 +49,37 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `logicaldisk.disk_read_bytes_sec` (*gauge*) - <br>    The number of bytes read from disk per second.
- - ***`logicaldisk.disk_reads_sec`*** (*gauge*) - <br>    The number of read operations per second.
- - `logicaldisk.disk_transfers_sec` (*gauge*) - <br>    The number of transfers per second.
- - `logicaldisk.disk_write_bytes_sec` (*gauge*) - <br>    The number of bytes written to disk per second.
- - ***`logicaldisk.disk_writes_sec`*** (*gauge*) - <br>    The number of write operations per second.
- - ***`logicaldisk.free_megabytes`*** (*gauge*) - <br>    The number of available megabytes.
- - ***`logicaldisk.pct_free_space`*** (*gauge*) - <br>    The percentage of free disk space available.
- - ***`memory.available_mbytes`*** (*gauge*) - <br>    Unused physical memory (not page file).
- - ***`memory.pages_input_sec`*** (*gauge*) - <br>    Reads from hard disk per second to resolve hard pages.
- - ***`network_interface.bytes_received_sec`*** (*gauge*) - <br>    Bytes Received/sec is the rate at which bytes are received over each network adapter, including framing characters.
- - ***`network_interface.bytes_sent_sec`*** (*gauge*) - <br>    Bytes Sent/sec is the rate at which bytes are sent over each network adapter, including framing characters.
- - ***`network_interface.bytes_total_sec`*** (*gauge*) - <br>    The number of bytes sent and received over a specific network adapter, including framing characters.
- - `network_interface.current_bandwidth` (*gauge*) - <br>    Current Bandwidth is an estimate of the current bandwidth of the network interface in bits per second (BPS).
- - `network_interface.packets_outbound_discarded` (*gauge*) - <br>    The number of outbound packets discarded
- - ***`network_interface.packets_outbound_errors`*** (*gauge*) - <br>    The number of packets sent that encountered an error.
- - `network_interface.packets_received_discarded` (*gauge*) - <br>    The number of received packets discarded.
- - ***`network_interface.packets_received_errors`*** (*gauge*) - <br>    The number of packets received that encountered an error.
- - `network_interface.packets_received_sec` (*gauge*) - <br>    Tracking the packets received over time can give you a good indication of the typical use of the system's network.
- - `network_interface.packets_sent_sec` (*gauge*) - <br>    The number of packets sent per second.
- - ***`paging_file.pct_usage`*** (*gauge*) - <br>    Amount of Page File in use, which indicates the server is substituting disk space for memory.
- - `paging_file.pct_usage_peak` (*gauge*) - <br>    Highest %Usage metric since the last time the server was restarted.
- - `physicaldisk.avg_disk_sec_read` (*gauge*) - <br>    The average time, in milliseconds, of each read from disk.
- - `physicaldisk.avg_disk_sec_transfer` (*gauge*) - <br>    The average time in milliseconds spent transfering data on disk.
- - `physicaldisk.avg_disk_sec_write` (*gauge*) - <br>    The average time, in milliseconds, of each write to disk.
- - `processor.interrupts_sec` (*gauge*) - <br>    Rate of processor interrupts per second.
- - `processor.pct_privileged_time` (*gauge*) - <br>    Percentage of elapsed time the processor spends on privileged tasks.
- - ***`processor.pct_processor_time`*** (*gauge*) - <br>    Percentage of elapsed time the processor spends executing non-idle threads.
- - `processor.pct_user_time` (*gauge*) - <br>    Percentage of elapsed time the processor spends executing user threads.
- - `system.context_switches_sec` (*gauge*) - <br>    Number of execution contexts switched in the last second, where >6000 is poor, <3000 is good, and <1500 is excellent.
- - `system.processor_queue_length` (*gauge*) - <br>    Number of threads waiting for CPU cycles, where < 12 per CPU is good/fair, < 8 is better, < 4 is best
- - `system.system_calls_sec` (*gauge*) - <br>    The number of system calls being serviced by the CPU per second.
+ - `logicaldisk.disk_read_bytes_sec` (*gauge*)<br>    The number of bytes read from disk per second.
+ - ***`logicaldisk.disk_reads_sec`*** (*gauge*)<br>    The number of read operations per second.
+ - `logicaldisk.disk_transfers_sec` (*gauge*)<br>    The number of transfers per second.
+ - `logicaldisk.disk_write_bytes_sec` (*gauge*)<br>    The number of bytes written to disk per second.
+ - ***`logicaldisk.disk_writes_sec`*** (*gauge*)<br>    The number of write operations per second.
+ - ***`logicaldisk.free_megabytes`*** (*gauge*)<br>    The number of available megabytes.
+ - ***`logicaldisk.pct_free_space`*** (*gauge*)<br>    The percentage of free disk space available.
+ - ***`memory.available_mbytes`*** (*gauge*)<br>    Unused physical memory (not page file).
+ - ***`memory.pages_input_sec`*** (*gauge*)<br>    Reads from hard disk per second to resolve hard pages.
+ - ***`network_interface.bytes_received_sec`*** (*gauge*)<br>    Bytes Received/sec is the rate at which bytes are received over each network adapter, including framing characters.
+ - ***`network_interface.bytes_sent_sec`*** (*gauge*)<br>    Bytes Sent/sec is the rate at which bytes are sent over each network adapter, including framing characters.
+ - ***`network_interface.bytes_total_sec`*** (*gauge*)<br>    The number of bytes sent and received over a specific network adapter, including framing characters.
+ - `network_interface.current_bandwidth` (*gauge*)<br>    Current Bandwidth is an estimate of the current bandwidth of the network interface in bits per second (BPS).
+ - `network_interface.packets_outbound_discarded` (*gauge*)<br>    The number of outbound packets discarded
+ - ***`network_interface.packets_outbound_errors`*** (*gauge*)<br>    The number of packets sent that encountered an error.
+ - `network_interface.packets_received_discarded` (*gauge*)<br>    The number of received packets discarded.
+ - ***`network_interface.packets_received_errors`*** (*gauge*)<br>    The number of packets received that encountered an error.
+ - `network_interface.packets_received_sec` (*gauge*)<br>    Tracking the packets received over time can give you a good indication of the typical use of the system's network.
+ - `network_interface.packets_sent_sec` (*gauge*)<br>    The number of packets sent per second.
+ - ***`paging_file.pct_usage`*** (*gauge*)<br>    Amount of Page File in use, which indicates the server is substituting disk space for memory.
+ - `paging_file.pct_usage_peak` (*gauge*)<br>    Highest %Usage metric since the last time the server was restarted.
+ - `physicaldisk.avg_disk_sec_read` (*gauge*)<br>    The average time, in milliseconds, of each read from disk.
+ - `physicaldisk.avg_disk_sec_transfer` (*gauge*)<br>    The average time in milliseconds spent transfering data on disk.
+ - `physicaldisk.avg_disk_sec_write` (*gauge*)<br>    The average time, in milliseconds, of each write to disk.
+ - `processor.interrupts_sec` (*gauge*)<br>    Rate of processor interrupts per second.
+ - `processor.pct_privileged_time` (*gauge*)<br>    Percentage of elapsed time the processor spends on privileged tasks.
+ - ***`processor.pct_processor_time`*** (*gauge*)<br>    Percentage of elapsed time the processor spends executing non-idle threads.
+ - `processor.pct_user_time` (*gauge*)<br>    Percentage of elapsed time the processor spends executing user threads.
+ - `system.context_switches_sec` (*gauge*)<br>    Number of execution contexts switched in the last second, where >6000 is poor, <3000 is good, and <1500 is excellent.
+ - `system.processor_queue_length` (*gauge*)<br>    Number of threads waiting for CPU cycles, where < 12 per CPU is good/fair, < 8 is better, < 4 is best
+ - `system.system_calls_sec` (*gauge*)<br>    The number of system calls being serviced by the CPU per second.
 
 ### Non-default metrics (version 4.7.0+)
 

@@ -73,20 +73,20 @@ This monitor emits all metrics by default; however, **none are categorized as
 
 
 
- - ***`gauge.active_state.activating`*** (*gauge*) - <br>    Indicates that the systemd unit/service has previously been inactive but is currently in the process of entering an active state
- - ***`gauge.active_state.active`*** (*gauge*) - <br>    Indicates that the systemd unit/service is active
- - ***`gauge.active_state.deactivating`*** (*gauge*) - <br>    Indicates that the systemd unit/service is currently in the process of deactivation
- - ***`gauge.active_state.failed`*** (*gauge*) - <br>    Indicates that the systemd unit/service is inactive the previous run was not successful
- - ***`gauge.active_state.inactive`*** (*gauge*) - <br>    Indicates that the systemd unit/service is inactive and the previous run was successful or no previous run has taken place yet
- - ***`gauge.active_state.reloading`*** (*gauge*) - <br>    Indicates that the systemd unit/service is active and currently reloading its configuration
- - ***`gauge.load_state.error`*** (*gauge*) - <br>    Indicates that the systemd unit/service configuration failed to load
- - ***`gauge.load_state.loaded`*** (*gauge*) - <br>    Indicates that the systemd unit/service configuration was loaded and parsed successfully
- - ***`gauge.load_state.masked`*** (*gauge*) - <br>    Indicates that the systemd unit/service is currently masked out (i.e. symlinked to /dev/null etc)
- - ***`gauge.load_state.not-found`*** (*gauge*) - <br>    Indicates that the systemd unit/service configuration was not found
- - ***`gauge.substate.dead`*** (*gauge*) - <br>    Indicates that the systemd unit/service died
- - ***`gauge.substate.exited`*** (*gauge*) - <br>    Indicates that the systemd unit/service exited
- - ***`gauge.substate.failed`*** (*gauge*) - <br>    Indicates that the systemd unit/service failed
- - ***`gauge.substate.running`*** (*gauge*) - <br>    Indicates that the systemd unit/service is running
+ - ***`gauge.active_state.activating`*** (*gauge*)<br>    Indicates that the systemd unit/service has previously been inactive but is currently in the process of entering an active state
+ - ***`gauge.active_state.active`*** (*gauge*)<br>    Indicates that the systemd unit/service is active
+ - ***`gauge.active_state.deactivating`*** (*gauge*)<br>    Indicates that the systemd unit/service is currently in the process of deactivation
+ - ***`gauge.active_state.failed`*** (*gauge*)<br>    Indicates that the systemd unit/service is inactive the previous run was not successful
+ - ***`gauge.active_state.inactive`*** (*gauge*)<br>    Indicates that the systemd unit/service is inactive and the previous run was successful or no previous run has taken place yet
+ - ***`gauge.active_state.reloading`*** (*gauge*)<br>    Indicates that the systemd unit/service is active and currently reloading its configuration
+ - ***`gauge.load_state.error`*** (*gauge*)<br>    Indicates that the systemd unit/service configuration failed to load
+ - ***`gauge.load_state.loaded`*** (*gauge*)<br>    Indicates that the systemd unit/service configuration was loaded and parsed successfully
+ - ***`gauge.load_state.masked`*** (*gauge*)<br>    Indicates that the systemd unit/service is currently masked out (i.e. symlinked to /dev/null etc)
+ - ***`gauge.load_state.not-found`*** (*gauge*)<br>    Indicates that the systemd unit/service configuration was not found
+ - ***`gauge.substate.dead`*** (*gauge*)<br>    Indicates that the systemd unit/service died
+ - ***`gauge.substate.exited`*** (*gauge*)<br>    Indicates that the systemd unit/service exited
+ - ***`gauge.substate.failed`*** (*gauge*)<br>    Indicates that the systemd unit/service failed
+ - ***`gauge.substate.running`*** (*gauge*)<br>    Indicates that the systemd unit/service is running
 
 #### Group ActiveState
 All of the following metrics are part of the `ActiveState` metric group. All of

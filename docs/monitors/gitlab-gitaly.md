@@ -39,19 +39,19 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `gitaly_authentications` (*cumulative*) - <br>    Counts of of Gitaly request authentication attempts
- - `gitaly_connections_total` (*cumulative*) - <br>    Total number of connections accepted by this Gitaly process
- - `gitaly_service_client_requests` (*cumulative*) - <br>    Counter of client requests received by client, call_site, auth version, and response code
- - `gitaly_smarthttp_deepen_count` (*cumulative*) - <br>    Number of git-upload-pack requests processed that contained a 'deepen' message
- - `gitaly_spawn_timeout_count` (*cumulative*) - <br>    Number of process spawn timeouts
- - ***`gitaly_supervisor_health_checks`*** (*cumulative*) - <br>    Count of Gitaly supervisor health checks
- - `gitaly_supervisor_rss_bytes` (*gauge*) - <br>    Resident set size of supervised processes, in bytes
- - `gitaly_supervisor_starts_total` (*cumulative*) - <br>    Number of starts of supervised processes
- - `gitlab_build_info` (*gauge*) - <br>    Current build info for this GitLab Service
- - ***`grpc_server_handled_total`*** (*cumulative*) - <br>    Total number of RPCs completed on the server, regardless of success or failure
- - `grpc_server_msg_received_total` (*cumulative*) - <br>    Total number of RPC stream messages received on the server
- - `grpc_server_msg_sent_total` (*cumulative*) - <br>    Total number of gRPC stream messages sent by the server
- - `grpc_server_started_total` (*cumulative*) - <br>    Total number of RPCs started on the server
+ - `gitaly_authentications` (*cumulative*)<br>    Counts of of Gitaly request authentication attempts
+ - `gitaly_connections_total` (*cumulative*)<br>    Total number of connections accepted by this Gitaly process
+ - `gitaly_service_client_requests` (*cumulative*)<br>    Counter of client requests received by client, call_site, auth version, and response code
+ - `gitaly_smarthttp_deepen_count` (*cumulative*)<br>    Number of git-upload-pack requests processed that contained a 'deepen' message
+ - `gitaly_spawn_timeout_count` (*cumulative*)<br>    Number of process spawn timeouts
+ - ***`gitaly_supervisor_health_checks`*** (*cumulative*)<br>    Count of Gitaly supervisor health checks
+ - `gitaly_supervisor_rss_bytes` (*gauge*)<br>    Resident set size of supervised processes, in bytes
+ - `gitaly_supervisor_starts_total` (*cumulative*)<br>    Number of starts of supervised processes
+ - `gitlab_build_info` (*gauge*)<br>    Current build info for this GitLab Service
+ - ***`grpc_server_handled_total`*** (*cumulative*)<br>    Total number of RPCs completed on the server, regardless of success or failure
+ - `grpc_server_msg_received_total` (*cumulative*)<br>    Total number of RPC stream messages received on the server
+ - `grpc_server_msg_sent_total` (*cumulative*)<br>    Total number of gRPC stream messages sent by the server
+ - `grpc_server_started_total` (*cumulative*)<br>    Total number of RPCs started on the server
 
 ### Non-default metrics (version 4.7.0+)
 

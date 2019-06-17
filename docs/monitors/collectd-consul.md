@@ -52,63 +52,63 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `consul.dns.stale_queries` (*gauge*) - <br>    Number of times an agent serves a DNS query with stale information
- - `consul.memberlist.msg.suspect` (*gauge*) - <br>    Number of suspect messages received per interval
- - `consul.serf.member.flap` (*gauge*) - <br>    Tracks flapping agents
- - ***`gauge.consul.catalog.nodes.total`*** (*gauge*) - <br>    Number of nodes in the Consul datacenter
- - ***`gauge.consul.catalog.nodes_by_service`*** (*gauge*) - <br>    Number of nodes providing a given service
- - ***`gauge.consul.catalog.services.total`*** (*gauge*) - <br>    Total number of services registered with Consul in the given datacenter
- - ***`gauge.consul.catalog.services_by_node`*** (*gauge*) - <br>    Number of services registered with a node
- - `gauge.consul.consul.dns.domain_query.AGENT.avg` (*gauge*) - <br>    Average time to complete a forward DNS query
- - `gauge.consul.consul.dns.domain_query.AGENT.max` (*gauge*) - <br>    Max time to complete a forward DNS query
- - `gauge.consul.consul.dns.domain_query.AGENT.min` (*gauge*) - <br>    Min time to complete a forward DNS query
- - `gauge.consul.consul.dns.ptr_query.AGENT.avg` (*gauge*) - <br>    Average time to complete a Reverse DNS query
- - `gauge.consul.consul.dns.ptr_query.AGENT.max` (*gauge*) - <br>    Max time to complete a Reverse DNS query
- - `gauge.consul.consul.dns.ptr_query.AGENT.min` (*gauge*) - <br>    Min time to complete a Reverse DNS query
- - ***`gauge.consul.consul.leader.reconcile.avg`*** (*gauge*) - <br>    Leader time to reconcile the differences between Serf membership and Consul's store
- - ***`gauge.consul.health.nodes.critical`*** (*gauge*) - <br>    Number of nodes for which health checks are reporting Critical state
- - ***`gauge.consul.health.nodes.passing`*** (*gauge*) - <br>    Number of nodes for which health checks are reporting Passing state
- - ***`gauge.consul.health.nodes.warning`*** (*gauge*) - <br>    Number of nodes for which health checks are reporting Warning state
- - ***`gauge.consul.health.services.critical`*** (*gauge*) - <br>    Number of services for which health checks are reporting Critical state
- - ***`gauge.consul.health.services.passing`*** (*gauge*) - <br>    Number of services for which health checks are reporting Passing state
- - ***`gauge.consul.health.services.warning`*** (*gauge*) - <br>    Number of services for which health checks are reporting Warning state
- - ***`gauge.consul.is_leader`*** (*gauge*) - <br>    Metric to map consul server's in leader or follower state
- - ***`gauge.consul.network.dc.latency.avg`*** (*gauge*) - <br>    Average network latency between 2 datacenters
- - `gauge.consul.network.dc.latency.max` (*gauge*) - <br>    Maximum network latency between 2 datacenters
- - `gauge.consul.network.dc.latency.min` (*gauge*) - <br>    Minimum network latency between 2 datacenters
- - ***`gauge.consul.network.node.latency.avg`*** (*gauge*) - <br>    Average network latency between given node and other nodes in the datacenter
- - ***`gauge.consul.network.node.latency.max`*** (*gauge*) - <br>    Minimum network latency between given node and other nodes in the datacenter
- - ***`gauge.consul.network.node.latency.min`*** (*gauge*) - <br>    Minimum network latency between given node and other nodes in the datacenter
- - ***`gauge.consul.peers`*** (*gauge*) - <br>    Number of Raft peers in Consul datacenter
- - ***`gauge.consul.raft.apply`*** (*gauge*) - <br>    Number of raft transactions
- - ***`gauge.consul.raft.commitTime.avg`*** (*gauge*) - <br>    Average of the time it takes to commit an entry on the leader
- - ***`gauge.consul.raft.commitTime.max`*** (*gauge*) - <br>    Max of the time it takes to commit an entry on the leader
- - ***`gauge.consul.raft.commitTime.min`*** (*gauge*) - <br>    Minimum of the time it takes to commit an entry on the leader
- - ***`gauge.consul.raft.leader.dispatchLog.avg`*** (*gauge*) - <br>    Average of the time it takes for the leader to write log entries to disk
- - ***`gauge.consul.raft.leader.dispatchLog.max`*** (*gauge*) - <br>    Maximum of the time it takes for the leader to write log entries to disk
- - ***`gauge.consul.raft.leader.dispatchLog.min`*** (*gauge*) - <br>    Minimum of the time it takes for the leader to write log entries to disk
- - ***`gauge.consul.raft.leader.lastContact.avg`*** (*gauge*) - <br>    Mean of the time since the leader was last able to contact follower nodes
- - ***`gauge.consul.raft.leader.lastContact.max`*** (*gauge*) - <br>    Max of the time since the leader was last able to contact follower nodes
- - ***`gauge.consul.raft.leader.lastContact.min`*** (*gauge*) - <br>    Min of the time since the leader was last able to contact follower nodes
- - `gauge.consul.raft.replication.appendEntries.rpc.AGENT.avg` (*gauge*) - <br>    Mean time taken to complete the AppendEntries RPC
- - `gauge.consul.raft.replication.appendEntries.rpc.AGENT.max` (*gauge*) - <br>    Max time taken to complete the AppendEntries RPC
- - `gauge.consul.raft.replication.appendEntries.rpc.AGENT.min` (*gauge*) - <br>    Min time taken to complete the AppendEntries RPC
- - ***`gauge.consul.raft.state.candidate`*** (*gauge*) - <br>    Tracks the number of times given node enters the candidate state
- - ***`gauge.consul.raft.state.leader`*** (*gauge*) - <br>    Tracks the number of leadership transitions per interval
- - `gauge.consul.rpc.query` (*gauge*) - <br>
- - `gauge.consul.runtime.alloc_bytes` (*gauge*) - <br>    Number of bytes allocated to Consul process on the node
- - `gauge.consul.runtime.heap_objects` (*gauge*) - <br>    Number of heap objects allocated to Consul
- - `gauge.consul.runtime.num_goroutines` (*gauge*) - <br>    Number of GO routines run by Consul process
- - ***`gauge.consul.serf.events`*** (*gauge*) - <br>    Number of serf events processed
- - `gauge.consul.serf.events.consul:new-leader` (*gauge*) - <br>
- - ***`gauge.consul.serf.member.join`*** (*gauge*) - <br>    Tracks successful node joins
- - ***`gauge.consul.serf.member.left`*** (*gauge*) - <br>    Tracks successful node leaves
- - ***`gauge.consul.serf.queue.Event.avg`*** (*gauge*) - <br>    Average number of serf events in queue yet to be processed
- - ***`gauge.consul.serf.queue.Event.max`*** (*gauge*) - <br>    Maximum number of serf events in queue yet to be processed during the interval
- - `gauge.consul.serf.queue.Event.min` (*gauge*) - <br>    Minimum number of serf events in queue yet to be processed during the interval
- - `gauge.consul.serf.queue.Query.avg` (*gauge*) - <br>    Average number of serf queries in queue yet to be processed during the interval
- - `gauge.consul.serf.queue.Query.max` (*gauge*) - <br>    Maximum number of serf queries in queue yet to be processed during the interval
- - `gauge.consul.serf.queue.Query.min` (*gauge*) - <br>    Minimum number of serf queries in queue yet to be processed during the interval
+ - `consul.dns.stale_queries` (*gauge*)<br>    Number of times an agent serves a DNS query with stale information
+ - `consul.memberlist.msg.suspect` (*gauge*)<br>    Number of suspect messages received per interval
+ - `consul.serf.member.flap` (*gauge*)<br>    Tracks flapping agents
+ - ***`gauge.consul.catalog.nodes.total`*** (*gauge*)<br>    Number of nodes in the Consul datacenter
+ - ***`gauge.consul.catalog.nodes_by_service`*** (*gauge*)<br>    Number of nodes providing a given service
+ - ***`gauge.consul.catalog.services.total`*** (*gauge*)<br>    Total number of services registered with Consul in the given datacenter
+ - ***`gauge.consul.catalog.services_by_node`*** (*gauge*)<br>    Number of services registered with a node
+ - `gauge.consul.consul.dns.domain_query.AGENT.avg` (*gauge*)<br>    Average time to complete a forward DNS query
+ - `gauge.consul.consul.dns.domain_query.AGENT.max` (*gauge*)<br>    Max time to complete a forward DNS query
+ - `gauge.consul.consul.dns.domain_query.AGENT.min` (*gauge*)<br>    Min time to complete a forward DNS query
+ - `gauge.consul.consul.dns.ptr_query.AGENT.avg` (*gauge*)<br>    Average time to complete a Reverse DNS query
+ - `gauge.consul.consul.dns.ptr_query.AGENT.max` (*gauge*)<br>    Max time to complete a Reverse DNS query
+ - `gauge.consul.consul.dns.ptr_query.AGENT.min` (*gauge*)<br>    Min time to complete a Reverse DNS query
+ - ***`gauge.consul.consul.leader.reconcile.avg`*** (*gauge*)<br>    Leader time to reconcile the differences between Serf membership and Consul's store
+ - ***`gauge.consul.health.nodes.critical`*** (*gauge*)<br>    Number of nodes for which health checks are reporting Critical state
+ - ***`gauge.consul.health.nodes.passing`*** (*gauge*)<br>    Number of nodes for which health checks are reporting Passing state
+ - ***`gauge.consul.health.nodes.warning`*** (*gauge*)<br>    Number of nodes for which health checks are reporting Warning state
+ - ***`gauge.consul.health.services.critical`*** (*gauge*)<br>    Number of services for which health checks are reporting Critical state
+ - ***`gauge.consul.health.services.passing`*** (*gauge*)<br>    Number of services for which health checks are reporting Passing state
+ - ***`gauge.consul.health.services.warning`*** (*gauge*)<br>    Number of services for which health checks are reporting Warning state
+ - ***`gauge.consul.is_leader`*** (*gauge*)<br>    Metric to map consul server's in leader or follower state
+ - ***`gauge.consul.network.dc.latency.avg`*** (*gauge*)<br>    Average network latency between 2 datacenters
+ - `gauge.consul.network.dc.latency.max` (*gauge*)<br>    Maximum network latency between 2 datacenters
+ - `gauge.consul.network.dc.latency.min` (*gauge*)<br>    Minimum network latency between 2 datacenters
+ - ***`gauge.consul.network.node.latency.avg`*** (*gauge*)<br>    Average network latency between given node and other nodes in the datacenter
+ - ***`gauge.consul.network.node.latency.max`*** (*gauge*)<br>    Minimum network latency between given node and other nodes in the datacenter
+ - ***`gauge.consul.network.node.latency.min`*** (*gauge*)<br>    Minimum network latency between given node and other nodes in the datacenter
+ - ***`gauge.consul.peers`*** (*gauge*)<br>    Number of Raft peers in Consul datacenter
+ - ***`gauge.consul.raft.apply`*** (*gauge*)<br>    Number of raft transactions
+ - ***`gauge.consul.raft.commitTime.avg`*** (*gauge*)<br>    Average of the time it takes to commit an entry on the leader
+ - ***`gauge.consul.raft.commitTime.max`*** (*gauge*)<br>    Max of the time it takes to commit an entry on the leader
+ - ***`gauge.consul.raft.commitTime.min`*** (*gauge*)<br>    Minimum of the time it takes to commit an entry on the leader
+ - ***`gauge.consul.raft.leader.dispatchLog.avg`*** (*gauge*)<br>    Average of the time it takes for the leader to write log entries to disk
+ - ***`gauge.consul.raft.leader.dispatchLog.max`*** (*gauge*)<br>    Maximum of the time it takes for the leader to write log entries to disk
+ - ***`gauge.consul.raft.leader.dispatchLog.min`*** (*gauge*)<br>    Minimum of the time it takes for the leader to write log entries to disk
+ - ***`gauge.consul.raft.leader.lastContact.avg`*** (*gauge*)<br>    Mean of the time since the leader was last able to contact follower nodes
+ - ***`gauge.consul.raft.leader.lastContact.max`*** (*gauge*)<br>    Max of the time since the leader was last able to contact follower nodes
+ - ***`gauge.consul.raft.leader.lastContact.min`*** (*gauge*)<br>    Min of the time since the leader was last able to contact follower nodes
+ - `gauge.consul.raft.replication.appendEntries.rpc.AGENT.avg` (*gauge*)<br>    Mean time taken to complete the AppendEntries RPC
+ - `gauge.consul.raft.replication.appendEntries.rpc.AGENT.max` (*gauge*)<br>    Max time taken to complete the AppendEntries RPC
+ - `gauge.consul.raft.replication.appendEntries.rpc.AGENT.min` (*gauge*)<br>    Min time taken to complete the AppendEntries RPC
+ - ***`gauge.consul.raft.state.candidate`*** (*gauge*)<br>    Tracks the number of times given node enters the candidate state
+ - ***`gauge.consul.raft.state.leader`*** (*gauge*)<br>    Tracks the number of leadership transitions per interval
+ - `gauge.consul.rpc.query` (*gauge*)<br>
+ - `gauge.consul.runtime.alloc_bytes` (*gauge*)<br>    Number of bytes allocated to Consul process on the node
+ - `gauge.consul.runtime.heap_objects` (*gauge*)<br>    Number of heap objects allocated to Consul
+ - `gauge.consul.runtime.num_goroutines` (*gauge*)<br>    Number of GO routines run by Consul process
+ - ***`gauge.consul.serf.events`*** (*gauge*)<br>    Number of serf events processed
+ - `gauge.consul.serf.events.consul:new-leader` (*gauge*)<br>
+ - ***`gauge.consul.serf.member.join`*** (*gauge*)<br>    Tracks successful node joins
+ - ***`gauge.consul.serf.member.left`*** (*gauge*)<br>    Tracks successful node leaves
+ - ***`gauge.consul.serf.queue.Event.avg`*** (*gauge*)<br>    Average number of serf events in queue yet to be processed
+ - ***`gauge.consul.serf.queue.Event.max`*** (*gauge*)<br>    Maximum number of serf events in queue yet to be processed during the interval
+ - `gauge.consul.serf.queue.Event.min` (*gauge*)<br>    Minimum number of serf events in queue yet to be processed during the interval
+ - `gauge.consul.serf.queue.Query.avg` (*gauge*)<br>    Average number of serf queries in queue yet to be processed during the interval
+ - `gauge.consul.serf.queue.Query.max` (*gauge*)<br>    Maximum number of serf queries in queue yet to be processed during the interval
+ - `gauge.consul.serf.queue.Query.min` (*gauge*)<br>    Minimum number of serf queries in queue yet to be processed during the interval
 
 ### Non-default metrics (version 4.7.0+)
 

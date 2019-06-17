@@ -48,61 +48,61 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `counter.openstack.nova.server.cpu_time` (*counter*) - <br>    Virtual CPU time consumed in nanoseconds
- - ***`counter.openstack.nova.server.rx`*** (*counter*) - <br>    Size of network packet received in bytes
- - ***`counter.openstack.nova.server.rx_packets`*** (*counter*) - <br>    Received packets at an instance
- - ***`counter.openstack.nova.server.tx`*** (*counter*) - <br>    Size of network packet transmitted in bytes
- - ***`counter.openstack.nova.server.tx_packets`*** (*counter*) - <br>    Transmitted packets at an instance
- - ***`gauge.openstack.cinder.limit.maxTotalBackupGigabytes`*** (*gauge*) - <br>    Maximum backup space available at cinder component for project in Gigabytes
- - ***`gauge.openstack.cinder.limit.maxTotalBackups`*** (*gauge*) - <br>    Total available backups used at cinder component for project
- - ***`gauge.openstack.cinder.limit.maxTotalSnapshots`*** (*gauge*) - <br>    Total available snapshots at cinder component for project
- - ***`gauge.openstack.cinder.limit.maxTotalVolumeGigabytes`*** (*gauge*) - <br>    Total available block storage at cinder component for project
- - ***`gauge.openstack.cinder.limit.maxTotalVolumes`*** (*gauge*) - <br>    Maximum volume resources available at cinder component for project
- - ***`gauge.openstack.cinder.limit.totalBackupGigabytesUsed`*** (*gauge*) - <br>    Total backup space used at cinder component for project in Gigabytes
- - ***`gauge.openstack.cinder.limit.totalBackupsUsed`*** (*gauge*) - <br>    Total backups used at cinder component for project
- - ***`gauge.openstack.cinder.limit.totalGigabytesUsed`*** (*gauge*) - <br>    Total block storage used at cinder component for project
- - ***`gauge.openstack.cinder.limit.totalSnapshotsUsed`*** (*gauge*) - <br>    Total snapshots used at cinder component for project
- - ***`gauge.openstack.cinder.limit.totalVolumesUsed`*** (*gauge*) - <br>    Volume resources used at cinder component for project
- - ***`gauge.openstack.cinder.snapshot.count`*** (*gauge*) - <br>    Total number of snapshots at cinder component for project
- - ***`gauge.openstack.cinder.snapshot.size`*** (*gauge*) - <br>    Total snapshot size at cinder component for project
- - ***`gauge.openstack.cinder.volume.count`*** (*gauge*) - <br>    Total number of volumes at cinder component for project
- - ***`gauge.openstack.cinder.volume.size`*** (*gauge*) - <br>    Total volume size at cinder component for project
- - ***`gauge.openstack.neutron.floatingip.count`*** (*gauge*) - <br>    Overall floating IPs used across projects
- - ***`gauge.openstack.neutron.network.count`*** (*gauge*) - <br>    Overall Network resources used across projects
- - ***`gauge.openstack.neutron.router.count`*** (*gauge*) - <br>    Overall router resources used across projects
- - ***`gauge.openstack.neutron.securitygroup.count`*** (*gauge*) - <br>    Overall securitygroup resources used across projects
- - ***`gauge.openstack.neutron.subnet.count`*** (*gauge*) - <br>    Overall subnet resources used in all projects
- - ***`gauge.openstack.nova.hypervisor.current_workload`*** (*gauge*) - <br>    Total current active hypervisor tasks in project
- - ***`gauge.openstack.nova.hypervisor.disk_available_least`*** (*gauge*) - <br>    Minimum free disk space available in Gigabyte
- - ***`gauge.openstack.nova.hypervisor.free_disk_gb`*** (*gauge*) - <br>    Maximum free disk space available in Gigabyte
- - ***`gauge.openstack.nova.hypervisor.free_ram_mb`*** (*gauge*) - <br>    Maximum free ram space available in Megabyte
- - `gauge.openstack.nova.hypervisor.load_average` (*gauge*) - <br>    Average CPU load on the hypervisor
- - ***`gauge.openstack.nova.hypervisor.local_gb`*** (*gauge*) - <br>    Maximum available local disk space in Gigabyte
- - ***`gauge.openstack.nova.hypervisor.local_gb_used`*** (*gauge*) - <br>    Total disk space used in Gigabyte
- - ***`gauge.openstack.nova.hypervisor.memory_mb`*** (*gauge*) - <br>    Maximum available memory in MB at hypervisor
- - ***`gauge.openstack.nova.hypervisor.memory_mb_used`*** (*gauge*) - <br>    Total memory used in MB at hypervisor
- - ***`gauge.openstack.nova.hypervisor.running_vms`*** (*gauge*) - <br>    Total running VMs at hypervisor
- - ***`gauge.openstack.nova.hypervisor.vcpus`*** (*gauge*) - <br>    Available physical cores at hypervisor
- - ***`gauge.openstack.nova.hypervisor.vcpus_used`*** (*gauge*) - <br>    Used virtual CPUs used
- - ***`gauge.openstack.nova.limit.maxImageMeta`*** (*gauge*) - <br>    Maximum number of metadata items associated with an image for project
- - ***`gauge.openstack.nova.limit.maxSecurityGroups`*** (*gauge*) - <br>    Maximum available security groups for project
- - ***`gauge.openstack.nova.limit.maxTotalCores`*** (*gauge*) - <br>    Maximum available VCPUs in project
- - ***`gauge.openstack.nova.limit.maxTotalFloatingIps`*** (*gauge*) - <br>    Maximum available floating IPs for project
- - ***`gauge.openstack.nova.limit.maxTotalInstances`*** (*gauge*) - <br>    Maximum available instances in project
- - ***`gauge.openstack.nova.limit.maxTotalKeypairs`*** (*gauge*) - <br>    Maximum available keypairs for project
- - ***`gauge.openstack.nova.limit.maxTotalRAMSize`*** (*gauge*) - <br>    Maximum available RAM size for project
- - ***`gauge.openstack.nova.limit.totalCoresUsed`*** (*gauge*) - <br>    Total cores used in the project
- - ***`gauge.openstack.nova.limit.totalFloatingIpsUsed`*** (*gauge*) - <br>    Total floating IPs used in the project
- - ***`gauge.openstack.nova.limit.totalInstancesUsed`*** (*gauge*) - <br>    Total instances used in the project
- - ***`gauge.openstack.nova.limit.totalRAMUsed`*** (*gauge*) - <br>    Total RAM used in the project
- - ***`gauge.openstack.nova.limit.totalSecurityGroupsUsed`*** (*gauge*) - <br>    Total RAM used in the project
- - ***`gauge.openstack.nova.server.memory`*** (*gauge*) - <br>    Memory provisioned at an instance
- - ***`gauge.openstack.nova.server.memory-actual`*** (*gauge*) - <br>    Actual memory used at an instance
- - ***`gauge.openstack.nova.server.memory-rss`*** (*gauge*) - <br>    Memory used not including disk pages at an instance
- - ***`gauge.openstack.nova.server.vda_read`*** (*gauge*) - <br>    Size of virtual disk read requests in bytes
- - ***`gauge.openstack.nova.server.vda_read_req`*** (*gauge*) - <br>    Virtual disk read requests from an instance
- - ***`gauge.openstack.nova.server.vda_write`*** (*gauge*) - <br>    Size of virtual disk write requests in bytes
- - ***`gauge.openstack.nova.server.vda_write_req`*** (*gauge*) - <br>    Virtual disk write requests from an instance
+ - `counter.openstack.nova.server.cpu_time` (*counter*)<br>    Virtual CPU time consumed in nanoseconds
+ - ***`counter.openstack.nova.server.rx`*** (*counter*)<br>    Size of network packet received in bytes
+ - ***`counter.openstack.nova.server.rx_packets`*** (*counter*)<br>    Received packets at an instance
+ - ***`counter.openstack.nova.server.tx`*** (*counter*)<br>    Size of network packet transmitted in bytes
+ - ***`counter.openstack.nova.server.tx_packets`*** (*counter*)<br>    Transmitted packets at an instance
+ - ***`gauge.openstack.cinder.limit.maxTotalBackupGigabytes`*** (*gauge*)<br>    Maximum backup space available at cinder component for project in Gigabytes
+ - ***`gauge.openstack.cinder.limit.maxTotalBackups`*** (*gauge*)<br>    Total available backups used at cinder component for project
+ - ***`gauge.openstack.cinder.limit.maxTotalSnapshots`*** (*gauge*)<br>    Total available snapshots at cinder component for project
+ - ***`gauge.openstack.cinder.limit.maxTotalVolumeGigabytes`*** (*gauge*)<br>    Total available block storage at cinder component for project
+ - ***`gauge.openstack.cinder.limit.maxTotalVolumes`*** (*gauge*)<br>    Maximum volume resources available at cinder component for project
+ - ***`gauge.openstack.cinder.limit.totalBackupGigabytesUsed`*** (*gauge*)<br>    Total backup space used at cinder component for project in Gigabytes
+ - ***`gauge.openstack.cinder.limit.totalBackupsUsed`*** (*gauge*)<br>    Total backups used at cinder component for project
+ - ***`gauge.openstack.cinder.limit.totalGigabytesUsed`*** (*gauge*)<br>    Total block storage used at cinder component for project
+ - ***`gauge.openstack.cinder.limit.totalSnapshotsUsed`*** (*gauge*)<br>    Total snapshots used at cinder component for project
+ - ***`gauge.openstack.cinder.limit.totalVolumesUsed`*** (*gauge*)<br>    Volume resources used at cinder component for project
+ - ***`gauge.openstack.cinder.snapshot.count`*** (*gauge*)<br>    Total number of snapshots at cinder component for project
+ - ***`gauge.openstack.cinder.snapshot.size`*** (*gauge*)<br>    Total snapshot size at cinder component for project
+ - ***`gauge.openstack.cinder.volume.count`*** (*gauge*)<br>    Total number of volumes at cinder component for project
+ - ***`gauge.openstack.cinder.volume.size`*** (*gauge*)<br>    Total volume size at cinder component for project
+ - ***`gauge.openstack.neutron.floatingip.count`*** (*gauge*)<br>    Overall floating IPs used across projects
+ - ***`gauge.openstack.neutron.network.count`*** (*gauge*)<br>    Overall Network resources used across projects
+ - ***`gauge.openstack.neutron.router.count`*** (*gauge*)<br>    Overall router resources used across projects
+ - ***`gauge.openstack.neutron.securitygroup.count`*** (*gauge*)<br>    Overall securitygroup resources used across projects
+ - ***`gauge.openstack.neutron.subnet.count`*** (*gauge*)<br>    Overall subnet resources used in all projects
+ - ***`gauge.openstack.nova.hypervisor.current_workload`*** (*gauge*)<br>    Total current active hypervisor tasks in project
+ - ***`gauge.openstack.nova.hypervisor.disk_available_least`*** (*gauge*)<br>    Minimum free disk space available in Gigabyte
+ - ***`gauge.openstack.nova.hypervisor.free_disk_gb`*** (*gauge*)<br>    Maximum free disk space available in Gigabyte
+ - ***`gauge.openstack.nova.hypervisor.free_ram_mb`*** (*gauge*)<br>    Maximum free ram space available in Megabyte
+ - `gauge.openstack.nova.hypervisor.load_average` (*gauge*)<br>    Average CPU load on the hypervisor
+ - ***`gauge.openstack.nova.hypervisor.local_gb`*** (*gauge*)<br>    Maximum available local disk space in Gigabyte
+ - ***`gauge.openstack.nova.hypervisor.local_gb_used`*** (*gauge*)<br>    Total disk space used in Gigabyte
+ - ***`gauge.openstack.nova.hypervisor.memory_mb`*** (*gauge*)<br>    Maximum available memory in MB at hypervisor
+ - ***`gauge.openstack.nova.hypervisor.memory_mb_used`*** (*gauge*)<br>    Total memory used in MB at hypervisor
+ - ***`gauge.openstack.nova.hypervisor.running_vms`*** (*gauge*)<br>    Total running VMs at hypervisor
+ - ***`gauge.openstack.nova.hypervisor.vcpus`*** (*gauge*)<br>    Available physical cores at hypervisor
+ - ***`gauge.openstack.nova.hypervisor.vcpus_used`*** (*gauge*)<br>    Used virtual CPUs used
+ - ***`gauge.openstack.nova.limit.maxImageMeta`*** (*gauge*)<br>    Maximum number of metadata items associated with an image for project
+ - ***`gauge.openstack.nova.limit.maxSecurityGroups`*** (*gauge*)<br>    Maximum available security groups for project
+ - ***`gauge.openstack.nova.limit.maxTotalCores`*** (*gauge*)<br>    Maximum available VCPUs in project
+ - ***`gauge.openstack.nova.limit.maxTotalFloatingIps`*** (*gauge*)<br>    Maximum available floating IPs for project
+ - ***`gauge.openstack.nova.limit.maxTotalInstances`*** (*gauge*)<br>    Maximum available instances in project
+ - ***`gauge.openstack.nova.limit.maxTotalKeypairs`*** (*gauge*)<br>    Maximum available keypairs for project
+ - ***`gauge.openstack.nova.limit.maxTotalRAMSize`*** (*gauge*)<br>    Maximum available RAM size for project
+ - ***`gauge.openstack.nova.limit.totalCoresUsed`*** (*gauge*)<br>    Total cores used in the project
+ - ***`gauge.openstack.nova.limit.totalFloatingIpsUsed`*** (*gauge*)<br>    Total floating IPs used in the project
+ - ***`gauge.openstack.nova.limit.totalInstancesUsed`*** (*gauge*)<br>    Total instances used in the project
+ - ***`gauge.openstack.nova.limit.totalRAMUsed`*** (*gauge*)<br>    Total RAM used in the project
+ - ***`gauge.openstack.nova.limit.totalSecurityGroupsUsed`*** (*gauge*)<br>    Total RAM used in the project
+ - ***`gauge.openstack.nova.server.memory`*** (*gauge*)<br>    Memory provisioned at an instance
+ - ***`gauge.openstack.nova.server.memory-actual`*** (*gauge*)<br>    Actual memory used at an instance
+ - ***`gauge.openstack.nova.server.memory-rss`*** (*gauge*)<br>    Memory used not including disk pages at an instance
+ - ***`gauge.openstack.nova.server.vda_read`*** (*gauge*)<br>    Size of virtual disk read requests in bytes
+ - ***`gauge.openstack.nova.server.vda_read_req`*** (*gauge*)<br>    Virtual disk read requests from an instance
+ - ***`gauge.openstack.nova.server.vda_write`*** (*gauge*)<br>    Size of virtual disk write requests in bytes
+ - ***`gauge.openstack.nova.server.vda_write_req`*** (*gauge*)<br>    Virtual disk write requests from an instance
 
 ### Non-default metrics (version 4.7.0+)
 

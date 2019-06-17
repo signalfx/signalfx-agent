@@ -58,218 +58,218 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `counter.hadoop.cluster.metrics.total_mb` (*cumulative*) - <br>
- - `counter.hadoop.cluster.metrics.total_nodes` (*cumulative*) - <br>
- - `counter.hadoop.cluster.metrics.total_virtual_cores` (*cumulative*) - <br>
- - ***`gauge.hadoop.cluster.metrics.active_nodes`*** (*gauge*) - <br>
- - ***`gauge.hadoop.cluster.metrics.allocated_mb`*** (*gauge*) - <br>
- - ***`gauge.hadoop.cluster.metrics.allocated_virtual_cores`*** (*gauge*) - <br>
- - ***`gauge.hadoop.cluster.metrics.apps_completed`*** (*gauge*) - <br>
- - ***`gauge.hadoop.cluster.metrics.apps_failed`*** (*gauge*) - <br>
- - `gauge.hadoop.cluster.metrics.apps_killed` (*gauge*) - <br>
- - `gauge.hadoop.cluster.metrics.apps_pending` (*gauge*) - <br>
- - ***`gauge.hadoop.cluster.metrics.apps_running`*** (*gauge*) - <br>
- - ***`gauge.hadoop.cluster.metrics.apps_submitted`*** (*gauge*) - <br>
- - ***`gauge.hadoop.cluster.metrics.available_mb`*** (*gauge*) - <br>
- - ***`gauge.hadoop.cluster.metrics.available_virtual_cores`*** (*gauge*) - <br>
- - `gauge.hadoop.cluster.metrics.containers_allocated` (*gauge*) - <br>
- - `gauge.hadoop.cluster.metrics.containers_pending` (*gauge*) - <br>
- - `gauge.hadoop.cluster.metrics.containers_reserved` (*gauge*) - <br>
- - ***`gauge.hadoop.cluster.metrics.decommissioned_nodes`*** (*gauge*) - <br>
- - ***`gauge.hadoop.cluster.metrics.lost_nodes`*** (*gauge*) - <br>
- - ***`gauge.hadoop.cluster.metrics.rebooted_nodes`*** (*gauge*) - <br>
- - ***`gauge.hadoop.cluster.metrics.reserved_mb`*** (*gauge*) - <br>
- - ***`gauge.hadoop.cluster.metrics.reserved_virtual_cores`*** (*gauge*) - <br>
- - ***`gauge.hadoop.cluster.metrics.total_mb`*** (*gauge*) - <br>
- - ***`gauge.hadoop.cluster.metrics.total_virtual_cores`*** (*gauge*) - <br>
- - ***`gauge.hadoop.cluster.metrics.unhealthy_nodes`*** (*gauge*) - <br>
- - ***`gauge.hadoop.mapreduce.job.elapsedTime`*** (*gauge*) - <br>
- - ***`gauge.hadoop.mapreduce.job.failedMapAttempts`*** (*gauge*) - <br>
- - ***`gauge.hadoop.mapreduce.job.failedReduceAttempts`*** (*gauge*) - <br>
- - ***`gauge.hadoop.mapreduce.job.mapsTotal`*** (*gauge*) - <br>
- - ***`gauge.hadoop.mapreduce.job.successfulMapAttempts`*** (*gauge*) - <br>
- - ***`gauge.hadoop.mapreduce.job.successfulReduceAttempts`*** (*gauge*) - <br>
- - ***`gauge.hadoop.resource.manager.apps.allocatedMB`*** (*gauge*) - <br>
- - ***`gauge.hadoop.resource.manager.apps.allocatedVCores`*** (*gauge*) - <br>
- - ***`gauge.hadoop.resource.manager.apps.clusterUsagePercentage`*** (*gauge*) - <br>
- - ***`gauge.hadoop.resource.manager.apps.memorySeconds`*** (*gauge*) - <br>
- - ***`gauge.hadoop.resource.manager.apps.priority`*** (*gauge*) - <br>
- - ***`gauge.hadoop.resource.manager.apps.progress`*** (*gauge*) - <br>
- - ***`gauge.hadoop.resource.manager.apps.queueUsagePercentage`*** (*gauge*) - <br>
- - ***`gauge.hadoop.resource.manager.apps.runningContainers`*** (*gauge*) - <br>
- - ***`gauge.hadoop.resource.manager.apps.vcoreSeconds`*** (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.nodes.availMemoryMB` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.nodes.availableVirtualCores` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.nodes.numContainers` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.nodes.usedMemoryMB` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.nodes.usedVirtualCores` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteCapacity` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteMaxCapacity` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteUsedCapacity` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.leaf.queue.allocatedContainers` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.leaf.queue.capacity` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.leaf.queue.maxApplications` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.leaf.queue.maxApplicationsPerUser` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.leaf.queue.maxCapacity` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.leaf.queue.numActiveApplications` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.leaf.queue.numApplications` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.leaf.queue.numContainers` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.leaf.queue.numPendingApplications` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.leaf.queue.pendingContainers` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.leaf.queue.reservedContainers` (*gauge*) - <br>
- - ***`gauge.hadoop.resource.manager.scheduler.leaf.queue.usedCapacity`*** (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.leaf.queue.userLimit` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.leaf.queue.userLimitFactor` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.root.queue.capacity` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.root.queue.maxCapacity` (*gauge*) - <br>
- - `gauge.hadoop.resource.manager.scheduler.root.queue.usedCapacity` (*gauge*) - <br>
+ - `counter.hadoop.cluster.metrics.total_mb` (*cumulative*)<br>
+ - `counter.hadoop.cluster.metrics.total_nodes` (*cumulative*)<br>
+ - `counter.hadoop.cluster.metrics.total_virtual_cores` (*cumulative*)<br>
+ - ***`gauge.hadoop.cluster.metrics.active_nodes`*** (*gauge*)<br>
+ - ***`gauge.hadoop.cluster.metrics.allocated_mb`*** (*gauge*)<br>
+ - ***`gauge.hadoop.cluster.metrics.allocated_virtual_cores`*** (*gauge*)<br>
+ - ***`gauge.hadoop.cluster.metrics.apps_completed`*** (*gauge*)<br>
+ - ***`gauge.hadoop.cluster.metrics.apps_failed`*** (*gauge*)<br>
+ - `gauge.hadoop.cluster.metrics.apps_killed` (*gauge*)<br>
+ - `gauge.hadoop.cluster.metrics.apps_pending` (*gauge*)<br>
+ - ***`gauge.hadoop.cluster.metrics.apps_running`*** (*gauge*)<br>
+ - ***`gauge.hadoop.cluster.metrics.apps_submitted`*** (*gauge*)<br>
+ - ***`gauge.hadoop.cluster.metrics.available_mb`*** (*gauge*)<br>
+ - ***`gauge.hadoop.cluster.metrics.available_virtual_cores`*** (*gauge*)<br>
+ - `gauge.hadoop.cluster.metrics.containers_allocated` (*gauge*)<br>
+ - `gauge.hadoop.cluster.metrics.containers_pending` (*gauge*)<br>
+ - `gauge.hadoop.cluster.metrics.containers_reserved` (*gauge*)<br>
+ - ***`gauge.hadoop.cluster.metrics.decommissioned_nodes`*** (*gauge*)<br>
+ - ***`gauge.hadoop.cluster.metrics.lost_nodes`*** (*gauge*)<br>
+ - ***`gauge.hadoop.cluster.metrics.rebooted_nodes`*** (*gauge*)<br>
+ - ***`gauge.hadoop.cluster.metrics.reserved_mb`*** (*gauge*)<br>
+ - ***`gauge.hadoop.cluster.metrics.reserved_virtual_cores`*** (*gauge*)<br>
+ - ***`gauge.hadoop.cluster.metrics.total_mb`*** (*gauge*)<br>
+ - ***`gauge.hadoop.cluster.metrics.total_virtual_cores`*** (*gauge*)<br>
+ - ***`gauge.hadoop.cluster.metrics.unhealthy_nodes`*** (*gauge*)<br>
+ - ***`gauge.hadoop.mapreduce.job.elapsedTime`*** (*gauge*)<br>
+ - ***`gauge.hadoop.mapreduce.job.failedMapAttempts`*** (*gauge*)<br>
+ - ***`gauge.hadoop.mapreduce.job.failedReduceAttempts`*** (*gauge*)<br>
+ - ***`gauge.hadoop.mapreduce.job.mapsTotal`*** (*gauge*)<br>
+ - ***`gauge.hadoop.mapreduce.job.successfulMapAttempts`*** (*gauge*)<br>
+ - ***`gauge.hadoop.mapreduce.job.successfulReduceAttempts`*** (*gauge*)<br>
+ - ***`gauge.hadoop.resource.manager.apps.allocatedMB`*** (*gauge*)<br>
+ - ***`gauge.hadoop.resource.manager.apps.allocatedVCores`*** (*gauge*)<br>
+ - ***`gauge.hadoop.resource.manager.apps.clusterUsagePercentage`*** (*gauge*)<br>
+ - ***`gauge.hadoop.resource.manager.apps.memorySeconds`*** (*gauge*)<br>
+ - ***`gauge.hadoop.resource.manager.apps.priority`*** (*gauge*)<br>
+ - ***`gauge.hadoop.resource.manager.apps.progress`*** (*gauge*)<br>
+ - ***`gauge.hadoop.resource.manager.apps.queueUsagePercentage`*** (*gauge*)<br>
+ - ***`gauge.hadoop.resource.manager.apps.runningContainers`*** (*gauge*)<br>
+ - ***`gauge.hadoop.resource.manager.apps.vcoreSeconds`*** (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.nodes.availMemoryMB` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.nodes.availableVirtualCores` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.nodes.numContainers` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.nodes.usedMemoryMB` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.nodes.usedVirtualCores` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteCapacity` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteMaxCapacity` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteUsedCapacity` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.leaf.queue.allocatedContainers` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.leaf.queue.capacity` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.leaf.queue.maxApplications` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.leaf.queue.maxApplicationsPerUser` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.leaf.queue.maxCapacity` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.leaf.queue.numActiveApplications` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.leaf.queue.numApplications` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.leaf.queue.numContainers` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.leaf.queue.numPendingApplications` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.leaf.queue.pendingContainers` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.leaf.queue.reservedContainers` (*gauge*)<br>
+ - ***`gauge.hadoop.resource.manager.scheduler.leaf.queue.usedCapacity`*** (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.leaf.queue.userLimit` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.leaf.queue.userLimitFactor` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.root.queue.capacity` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.root.queue.maxCapacity` (*gauge*)<br>
+ - `gauge.hadoop.resource.manager.scheduler.root.queue.usedCapacity` (*gauge*)<br>
 
 #### Group applications
 All of the following metrics are part of the `applications` metric group. All of
 the non-default metrics below can be turned on by adding `applications` to the
 monitor config option `extraGroups`:
- - `hadoop.resource.manager.apps.allocatedMB` (*gauge*) - <br>
- - `hadoop.resource.manager.apps.allocatedVCores` (*gauge*) - <br>
- - `hadoop.resource.manager.apps.clusterUsagePercentage` (*gauge*) - <br>
- - `hadoop.resource.manager.apps.memorySeconds` (*gauge*) - <br>
- - `hadoop.resource.manager.apps.numAMContainerPreempted` (*gauge*) - <br>
- - `hadoop.resource.manager.apps.numNonAMContainerPreempted` (*gauge*) - <br>
- - `hadoop.resource.manager.apps.preemptedResourceMB` (*gauge*) - <br>
- - `hadoop.resource.manager.apps.preemptedResourceVCores` (*gauge*) - <br>
- - `hadoop.resource.manager.apps.priority` (*gauge*) - <br>
- - `hadoop.resource.manager.apps.progress` (*gauge*) - <br>
- - `hadoop.resource.manager.apps.queueUsagePercentage` (*gauge*) - <br>
- - `hadoop.resource.manager.apps.runningContainers` (*gauge*) - <br>
- - `hadoop.resource.manager.apps.vcoreSeconds` (*gauge*) - <br>
+ - `hadoop.resource.manager.apps.allocatedMB` (*gauge*)<br>
+ - `hadoop.resource.manager.apps.allocatedVCores` (*gauge*)<br>
+ - `hadoop.resource.manager.apps.clusterUsagePercentage` (*gauge*)<br>
+ - `hadoop.resource.manager.apps.memorySeconds` (*gauge*)<br>
+ - `hadoop.resource.manager.apps.numAMContainerPreempted` (*gauge*)<br>
+ - `hadoop.resource.manager.apps.numNonAMContainerPreempted` (*gauge*)<br>
+ - `hadoop.resource.manager.apps.preemptedResourceMB` (*gauge*)<br>
+ - `hadoop.resource.manager.apps.preemptedResourceVCores` (*gauge*)<br>
+ - `hadoop.resource.manager.apps.priority` (*gauge*)<br>
+ - `hadoop.resource.manager.apps.progress` (*gauge*)<br>
+ - `hadoop.resource.manager.apps.queueUsagePercentage` (*gauge*)<br>
+ - `hadoop.resource.manager.apps.runningContainers` (*gauge*)<br>
+ - `hadoop.resource.manager.apps.vcoreSeconds` (*gauge*)<br>
 
 #### Group cluster
 All of the following metrics are part of the `cluster` metric group. All of
 the non-default metrics below can be turned on by adding `cluster` to the
 monitor config option `extraGroups`:
- - `hadoop.cluster.metrics.active_nodes` (*gauge*) - <br>
- - `hadoop.cluster.metrics.allocated_mb` (*gauge*) - <br>
- - `hadoop.cluster.metrics.allocated_virtual_cores` (*gauge*) - <br>
- - `hadoop.cluster.metrics.apps_completed` (*gauge*) - <br>
- - `hadoop.cluster.metrics.apps_failed` (*gauge*) - <br>
- - `hadoop.cluster.metrics.apps_killed` (*gauge*) - <br>
- - `hadoop.cluster.metrics.apps_pending` (*gauge*) - <br>
- - `hadoop.cluster.metrics.apps_running` (*gauge*) - <br>
- - `hadoop.cluster.metrics.apps_submitted` (*gauge*) - <br>
- - `hadoop.cluster.metrics.available_mb` (*gauge*) - <br>
- - `hadoop.cluster.metrics.available_virtual_cores` (*gauge*) - <br>
- - `hadoop.cluster.metrics.containers_allocated` (*gauge*) - <br>
- - `hadoop.cluster.metrics.containers_pending` (*gauge*) - <br>
- - `hadoop.cluster.metrics.containers_reserved` (*gauge*) - <br>
- - `hadoop.cluster.metrics.decommissioned_nodes` (*gauge*) - <br>
- - `hadoop.cluster.metrics.lost_nodes` (*gauge*) - <br>
- - `hadoop.cluster.metrics.rebooted_nodes` (*gauge*) - <br>
- - `hadoop.cluster.metrics.reserved_mb` (*gauge*) - <br>
- - `hadoop.cluster.metrics.reserved_virtual_cores` (*gauge*) - <br>
- - `hadoop.cluster.metrics.total_mb` (*counter*) - <br>
- - `hadoop.cluster.metrics.total_nodes` (*counter*) - <br>
- - `hadoop.cluster.metrics.total_virtual_cores` (*counter*) - <br>
- - `hadoop.cluster.metrics.unhealthy_nodes` (*gauge*) - <br>
+ - `hadoop.cluster.metrics.active_nodes` (*gauge*)<br>
+ - `hadoop.cluster.metrics.allocated_mb` (*gauge*)<br>
+ - `hadoop.cluster.metrics.allocated_virtual_cores` (*gauge*)<br>
+ - `hadoop.cluster.metrics.apps_completed` (*gauge*)<br>
+ - `hadoop.cluster.metrics.apps_failed` (*gauge*)<br>
+ - `hadoop.cluster.metrics.apps_killed` (*gauge*)<br>
+ - `hadoop.cluster.metrics.apps_pending` (*gauge*)<br>
+ - `hadoop.cluster.metrics.apps_running` (*gauge*)<br>
+ - `hadoop.cluster.metrics.apps_submitted` (*gauge*)<br>
+ - `hadoop.cluster.metrics.available_mb` (*gauge*)<br>
+ - `hadoop.cluster.metrics.available_virtual_cores` (*gauge*)<br>
+ - `hadoop.cluster.metrics.containers_allocated` (*gauge*)<br>
+ - `hadoop.cluster.metrics.containers_pending` (*gauge*)<br>
+ - `hadoop.cluster.metrics.containers_reserved` (*gauge*)<br>
+ - `hadoop.cluster.metrics.decommissioned_nodes` (*gauge*)<br>
+ - `hadoop.cluster.metrics.lost_nodes` (*gauge*)<br>
+ - `hadoop.cluster.metrics.rebooted_nodes` (*gauge*)<br>
+ - `hadoop.cluster.metrics.reserved_mb` (*gauge*)<br>
+ - `hadoop.cluster.metrics.reserved_virtual_cores` (*gauge*)<br>
+ - `hadoop.cluster.metrics.total_mb` (*counter*)<br>
+ - `hadoop.cluster.metrics.total_nodes` (*counter*)<br>
+ - `hadoop.cluster.metrics.total_virtual_cores` (*counter*)<br>
+ - `hadoop.cluster.metrics.unhealthy_nodes` (*gauge*)<br>
 
 #### Group fifo-scheduler
 All of the following metrics are part of the `fifo-scheduler` metric group. All of
 the non-default metrics below can be turned on by adding `fifo-scheduler` to the
 monitor config option `extraGroups`:
- - `hadoop.resource.manager.scheduler.fifo.availNodeCapacity` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.fifo.capacity` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.fifo.maxQueueMemoryCapacity` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.fifo.minQueueMemoryCapacity` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.fifo.numContainers` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.fifo.numNodes` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.fifo.totalNodeCapacity` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.fifo.usedCapacity` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.fifo.usedNodeCapacity` (*gauge*) - <br>
+ - `hadoop.resource.manager.scheduler.fifo.availNodeCapacity` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.fifo.capacity` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.fifo.maxQueueMemoryCapacity` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.fifo.minQueueMemoryCapacity` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.fifo.numContainers` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.fifo.numNodes` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.fifo.totalNodeCapacity` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.fifo.usedCapacity` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.fifo.usedNodeCapacity` (*gauge*)<br>
 
 #### Group leaf-queue
 All of the following metrics are part of the `leaf-queue` metric group. All of
 the non-default metrics below can be turned on by adding `leaf-queue` to the
 monitor config option `extraGroups`:
- - `hadoop.resource.manager.scheduler.leaf.queue.absoluteCapacity` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.absoluteMaxCapacity` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.absoluteUsedCapacity` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.allocatedContainers` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.capacity` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.maxActiveApplications` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.maxActiveApplicationsPerUser` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.maxApplications` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.maxApplicationsPerUser` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.maxCapacity` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.numActiveApplications` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.numApplications` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.numContainers` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.numPendingApplications` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.pendingContainers` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.reservedContainers` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.usedCapacity` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.userLimit` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.leaf.queue.userLimitFactor` (*gauge*) - <br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.absoluteCapacity` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.absoluteMaxCapacity` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.absoluteUsedCapacity` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.allocatedContainers` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.capacity` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.maxActiveApplications` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.maxActiveApplicationsPerUser` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.maxApplications` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.maxApplicationsPerUser` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.maxCapacity` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.numActiveApplications` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.numApplications` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.numContainers` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.numPendingApplications` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.pendingContainers` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.reservedContainers` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.usedCapacity` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.userLimit` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.leaf.queue.userLimitFactor` (*gauge*)<br>
 
 #### Group mapreduce-jobs
 All of the following metrics are part of the `mapreduce-jobs` metric group. All of
 the non-default metrics below can be turned on by adding `mapreduce-jobs` to the
 monitor config option `extraGroups`:
- - `hadoop.mapreduce.job.elapsedTime` (*gauge*) - <br>
- - `hadoop.mapreduce.job.failedMapAttempts` (*gauge*) - <br>
- - `hadoop.mapreduce.job.failedReduceAttempts` (*gauge*) - <br>
- - `hadoop.mapreduce.job.killedMapAttempts` (*gauge*) - <br>
- - `hadoop.mapreduce.job.killedReduceAttempts` (*gauge*) - <br>
- - `hadoop.mapreduce.job.mapsCompleted` (*gauge*) - <br>
- - `hadoop.mapreduce.job.mapsPending` (*gauge*) - <br>
- - `hadoop.mapreduce.job.mapsRunning` (*gauge*) - <br>
- - `hadoop.mapreduce.job.mapsTotal` (*gauge*) - <br>
- - `hadoop.mapreduce.job.newMapAttempts` (*gauge*) - <br>
- - `hadoop.mapreduce.job.newReduceAttempts` (*gauge*) - <br>
- - `hadoop.mapreduce.job.reducesCompleted` (*gauge*) - <br>
- - `hadoop.mapreduce.job.reducesPending` (*gauge*) - <br>
- - `hadoop.mapreduce.job.reducesTotal` (*gauge*) - <br>
- - `hadoop.mapreduce.job.runningMapAttempts` (*gauge*) - <br>
- - `hadoop.mapreduce.job.runningReduceAttempts` (*gauge*) - <br>
- - `hadoop.mapreduce.job.successfulMapAttempts` (*gauge*) - <br>
- - `hadoop.mapreduce.job.successfulReduceAttempts` (*gauge*) - <br>
+ - `hadoop.mapreduce.job.elapsedTime` (*gauge*)<br>
+ - `hadoop.mapreduce.job.failedMapAttempts` (*gauge*)<br>
+ - `hadoop.mapreduce.job.failedReduceAttempts` (*gauge*)<br>
+ - `hadoop.mapreduce.job.killedMapAttempts` (*gauge*)<br>
+ - `hadoop.mapreduce.job.killedReduceAttempts` (*gauge*)<br>
+ - `hadoop.mapreduce.job.mapsCompleted` (*gauge*)<br>
+ - `hadoop.mapreduce.job.mapsPending` (*gauge*)<br>
+ - `hadoop.mapreduce.job.mapsRunning` (*gauge*)<br>
+ - `hadoop.mapreduce.job.mapsTotal` (*gauge*)<br>
+ - `hadoop.mapreduce.job.newMapAttempts` (*gauge*)<br>
+ - `hadoop.mapreduce.job.newReduceAttempts` (*gauge*)<br>
+ - `hadoop.mapreduce.job.reducesCompleted` (*gauge*)<br>
+ - `hadoop.mapreduce.job.reducesPending` (*gauge*)<br>
+ - `hadoop.mapreduce.job.reducesTotal` (*gauge*)<br>
+ - `hadoop.mapreduce.job.runningMapAttempts` (*gauge*)<br>
+ - `hadoop.mapreduce.job.runningReduceAttempts` (*gauge*)<br>
+ - `hadoop.mapreduce.job.successfulMapAttempts` (*gauge*)<br>
+ - `hadoop.mapreduce.job.successfulReduceAttempts` (*gauge*)<br>
 
 #### Group node-resources
 All of the following metrics are part of the `node-resources` metric group. All of
 the non-default metrics below can be turned on by adding `node-resources` to the
 monitor config option `extraGroups`:
- - `hadoop.resource.manager.node.nodeCPUUsage` (*gauge*) - <br>
- - `hadoop.resource.manager.node.nodePhysicalMemoryMB` (*gauge*) - <br>
- - `hadoop.resource.manager.node.nodeVirtualMemoryMB` (*gauge*) - <br>
+ - `hadoop.resource.manager.node.nodeCPUUsage` (*gauge*)<br>
+ - `hadoop.resource.manager.node.nodePhysicalMemoryMB` (*gauge*)<br>
+ - `hadoop.resource.manager.node.nodeVirtualMemoryMB` (*gauge*)<br>
 
 #### Group nodes
 All of the following metrics are part of the `nodes` metric group. All of
 the non-default metrics below can be turned on by adding `nodes` to the
 monitor config option `extraGroups`:
- - `hadoop.resource.manager.nodes.availMemoryMB` (*gauge*) - <br>
- - `hadoop.resource.manager.nodes.availableVirtualCores` (*gauge*) - <br>
- - `hadoop.resource.manager.nodes.numContainers` (*gauge*) - <br>
- - `hadoop.resource.manager.nodes.usedMemoryMB` (*gauge*) - <br>
- - `hadoop.resource.manager.nodes.usedVirtualCores` (*gauge*) - <br>
+ - `hadoop.resource.manager.nodes.availMemoryMB` (*gauge*)<br>
+ - `hadoop.resource.manager.nodes.availableVirtualCores` (*gauge*)<br>
+ - `hadoop.resource.manager.nodes.numContainers` (*gauge*)<br>
+ - `hadoop.resource.manager.nodes.usedMemoryMB` (*gauge*)<br>
+ - `hadoop.resource.manager.nodes.usedVirtualCores` (*gauge*)<br>
 
 #### Group queue-users
 All of the following metrics are part of the `queue-users` metric group. All of
 the non-default metrics below can be turned on by adding `queue-users` to the
 monitor config option `extraGroups`:
- - `hadoop.resource.manager.scheduler.queue.users.numActiveApplications` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.queue.users.numPendingApplications` (*gauge*) - <br>
+ - `hadoop.resource.manager.scheduler.queue.users.numActiveApplications` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.queue.users.numPendingApplications` (*gauge*)<br>
 
 #### Group resource-objects
 All of the following metrics are part of the `resource-objects` metric group. All of
 the non-default metrics below can be turned on by adding `resource-objects` to the
 monitor config option `extraGroups`:
- - `hadoop.resource.manager.scheduler.queue.resource.memory` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.queue.resource.vCores` (*gauge*) - <br>
+ - `hadoop.resource.manager.scheduler.queue.resource.memory` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.queue.resource.vCores` (*gauge*)<br>
 
 #### Group root-queue
 All of the following metrics are part of the `root-queue` metric group. All of
 the non-default metrics below can be turned on by adding `root-queue` to the
 monitor config option `extraGroups`:
- - `hadoop.resource.manager.scheduler.root.queue.capacity` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.root.queue.maxCapacity` (*gauge*) - <br>
- - `hadoop.resource.manager.scheduler.root.queue.usedCapacity` (*gauge*) - <br>
+ - `hadoop.resource.manager.scheduler.root.queue.capacity` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.root.queue.maxCapacity` (*gauge*)<br>
+ - `hadoop.resource.manager.scheduler.root.queue.usedCapacity` (*gauge*)<br>
 
 ### Non-default metrics (version 4.7.0+)
 

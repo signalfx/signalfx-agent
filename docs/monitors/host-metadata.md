@@ -50,7 +50,7 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`sfxagent.hostmetadata`*** (*gauge*) - <br>    The time the hostmetadata monitor has been running in seconds.  It includes dimensional metadata about the host and agent.
+ - ***`sfxagent.hostmetadata`*** (*gauge*)<br>    The time the hostmetadata monitor has been running in seconds.  It includes dimensional metadata about the host and agent.
 
 ### Non-default metrics (version 4.7.0+)
 

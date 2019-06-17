@@ -42,13 +42,13 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`if_errors.rx`*** (*cumulative*) - <br>    Count of receive errors on the interface
- - ***`if_errors.tx`*** (*cumulative*) - <br>    Count of transmit errors on the interface
- - ***`if_octets.rx`*** (*cumulative*) - <br>    Count of bytes (octets) received on the interface
- - ***`if_octets.tx`*** (*cumulative*) - <br>    Count of bytes (octets) transmitted by the interface
- - `if_packets.rx` (*cumulative*) - <br>    Count of packets received on the interface
- - `if_packets.tx` (*cumulative*) - <br>    Count of packets transmitted by the interface
- - ***`network.total`*** (*cumulative*) - <br>    Total amount of inbound and outbound network traffic on this host, in bytes.  This metric reports with plugin dimension set to "signalfx-metadata".
+ - ***`if_errors.rx`*** (*cumulative*)<br>    Count of receive errors on the interface
+ - ***`if_errors.tx`*** (*cumulative*)<br>    Count of transmit errors on the interface
+ - ***`if_octets.rx`*** (*cumulative*)<br>    Count of bytes (octets) received on the interface
+ - ***`if_octets.tx`*** (*cumulative*)<br>    Count of bytes (octets) transmitted by the interface
+ - `if_packets.rx` (*cumulative*)<br>    Count of packets received on the interface
+ - `if_packets.tx` (*cumulative*)<br>    Count of packets transmitted by the interface
+ - ***`network.total`*** (*cumulative*)<br>    Total amount of inbound and outbound network traffic on this host, in bytes.  This metric reports with plugin dimension set to "signalfx-metadata".
 
 ### Non-default metrics (version 4.7.0+)
 

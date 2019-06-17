@@ -30,7 +30,7 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`uptime`*** (*gauge*) - <br>    Seconds since system boot
+ - ***`uptime`*** (*gauge*)<br>    Seconds since system boot
 
 ### Non-default metrics (version 4.7.0+)
 

@@ -38,8 +38,8 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`cpu.utilization`*** (*gauge*) - <br>    Percent of CPU used on this host. This metric is emitted with a plugin dimension set to "signalfx-metadata".
- - `cpu.utilization_per_core` (*gauge*) - <br>    Percent of CPU used on each core. This metric is emitted with the plugin dimension set to "signalfx-metadata"
+ - ***`cpu.utilization`*** (*gauge*)<br>    Percent of CPU used on this host. This metric is emitted with a plugin dimension set to "signalfx-metadata".
+ - `cpu.utilization_per_core` (*gauge*)<br>    Percent of CPU used on each core. This metric is emitted with the plugin dimension set to "signalfx-metadata"
 
 ### Non-default metrics (version 4.7.0+)
 

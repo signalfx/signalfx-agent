@@ -48,13 +48,13 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`cpu.utilization`*** (*gauge*) - <br>    Percent of CPU used on this host.
- - `cpu.utilization_per_core` (*gauge*) - <br>    Percent of CPU used on each core. `perCoreCPUUtil` config must be set to true.
- - ***`disk.summary_utilization`*** (*gauge*) - <br>    Percent of disk space utilized on all volumes on this host.
- - ***`disk.utilization`*** (*gauge*) - <br>    Percent of disk used on this volume.
- - ***`disk_ops.total`*** (*cumulative*) - <br>    Total number of disk read and write operations on this host.
- - ***`memory.utilization`*** (*gauge*) - <br>    Percent of memory in use on this host.
- - ***`network.total`*** (*cumulative*) - <br>    Total amount of inbound and outbound network traffic on this host, in bytes.
+ - ***`cpu.utilization`*** (*gauge*)<br>    Percent of CPU used on this host.
+ - `cpu.utilization_per_core` (*gauge*)<br>    Percent of CPU used on each core. `perCoreCPUUtil` config must be set to true.
+ - ***`disk.summary_utilization`*** (*gauge*)<br>    Percent of disk space utilized on all volumes on this host.
+ - ***`disk.utilization`*** (*gauge*)<br>    Percent of disk used on this volume.
+ - ***`disk_ops.total`*** (*cumulative*)<br>    Total number of disk read and write operations on this host.
+ - ***`memory.utilization`*** (*gauge*)<br>    Percent of memory in use on this host.
+ - ***`network.total`*** (*cumulative*)<br>    Total amount of inbound and outbound network traffic on this host, in bytes.
 
 ### Non-default metrics (version 4.7.0+)
 

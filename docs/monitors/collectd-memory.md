@@ -29,12 +29,12 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`memory.buffered`*** (*gauge*) - <br>    Bytes of memory used for buffering I/O
- - ***`memory.cached`*** (*gauge*) - <br>    Bytes of memory used for disk caching
- - ***`memory.free`*** (*gauge*) - <br>    Bytes of memory available for use
- - ***`memory.slab_recl`*** (*gauge*) - <br>    Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed.
- - ***`memory.slab_unrecl`*** (*gauge*) - <br>    Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed
- - ***`memory.used`*** (*gauge*) - <br>    Bytes of memory in use by the system.
+ - ***`memory.buffered`*** (*gauge*)<br>    Bytes of memory used for buffering I/O
+ - ***`memory.cached`*** (*gauge*)<br>    Bytes of memory used for disk caching
+ - ***`memory.free`*** (*gauge*)<br>    Bytes of memory available for use
+ - ***`memory.slab_recl`*** (*gauge*)<br>    Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed.
+ - ***`memory.slab_unrecl`*** (*gauge*)<br>    Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed
+ - ***`memory.used`*** (*gauge*)<br>    Bytes of memory in use by the system.
 
 ### Non-default metrics (version 4.7.0+)
 

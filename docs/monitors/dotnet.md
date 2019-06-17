@@ -60,17 +60,17 @@ This monitor emits all metrics by default; however, **none are categorized as
 
 
 
- - ***`net_clr_exceptions.num_exceps_thrown_sec`*** (*gauge*) - <br>    The number of exceptions thrown by .NET applications.
- - ***`net_clr_locksandthreads.contention_rate_sec`*** (*gauge*) - <br>    The rate of thread of thread contention per second for .NET applications.
- - ***`net_clr_locksandthreads.current_queue_length`*** (*gauge*) - <br>    The current thread queue length for .NET applications.
- - ***`net_clr_locksandthreads.num_of_current_logical_threads`*** (*gauge*) - <br>    The number of current logical threads for .NET applications.
- - ***`net_clr_locksandthreads.num_of_current_physical_threads`*** (*gauge*) - <br>    The number of current physical threads for .NET applications.
- - ***`net_clr_memory.num_bytes_in_all_heaps`*** (*gauge*) - <br>    The number of bytes in all heaps for .NET applications.
- - ***`net_clr_memory.num_gc_handles`*** (*gauge*) - <br>    The number of garbage collection handles held by .NET applications.
- - ***`net_clr_memory.num_of_pinned_objects`*** (*gauge*) - <br>    The number of objects pinned in memory by .NET applications.
- - ***`net_clr_memory.num_total_committed_bytes`*** (*gauge*) - <br>    The total number of bytes committed to memory by .NET applications.
- - ***`net_clr_memory.num_total_reserved_bytes`*** (*gauge*) - <br>    The total number of bytes reserved by .NET applications.
- - ***`net_clr_memory.pct_time_in_gc`*** (*gauge*) - <br>    The percentage of time spent garbage collecting by .NET applications.
+ - ***`net_clr_exceptions.num_exceps_thrown_sec`*** (*gauge*)<br>    The number of exceptions thrown by .NET applications.
+ - ***`net_clr_locksandthreads.contention_rate_sec`*** (*gauge*)<br>    The rate of thread of thread contention per second for .NET applications.
+ - ***`net_clr_locksandthreads.current_queue_length`*** (*gauge*)<br>    The current thread queue length for .NET applications.
+ - ***`net_clr_locksandthreads.num_of_current_logical_threads`*** (*gauge*)<br>    The number of current logical threads for .NET applications.
+ - ***`net_clr_locksandthreads.num_of_current_physical_threads`*** (*gauge*)<br>    The number of current physical threads for .NET applications.
+ - ***`net_clr_memory.num_bytes_in_all_heaps`*** (*gauge*)<br>    The number of bytes in all heaps for .NET applications.
+ - ***`net_clr_memory.num_gc_handles`*** (*gauge*)<br>    The number of garbage collection handles held by .NET applications.
+ - ***`net_clr_memory.num_of_pinned_objects`*** (*gauge*)<br>    The number of objects pinned in memory by .NET applications.
+ - ***`net_clr_memory.num_total_committed_bytes`*** (*gauge*)<br>    The total number of bytes committed to memory by .NET applications.
+ - ***`net_clr_memory.num_total_reserved_bytes`*** (*gauge*)<br>    The total number of bytes reserved by .NET applications.
+ - ***`net_clr_memory.pct_time_in_gc`*** (*gauge*)<br>    The percentage of time spent garbage collecting by .NET applications.
 The agent does not do any built-in filtering of metrics coming out of this
 monitor.
 

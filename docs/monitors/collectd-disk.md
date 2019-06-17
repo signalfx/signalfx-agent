@@ -36,17 +36,17 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `disk_io_time.io_time` (*cumulative*) - <br>    Amount of time spent doing IO in ms
- - `disk_io_time.weighted_io_time` (*cumulative*) - <br>    Amount of time spent doing IO in ms multiplied by the queue length
- - `disk_merged.read` (*cumulative*) - <br>    The number of disk reads merged into single physical disk access operations.
- - `disk_merged.write` (*cumulative*) - <br>    The number of disk writes merged into single physical disk access operations.
- - `disk_octets.read` (*cumulative*) - <br>    The number of bytes (octets) read from a disk.
- - `disk_octets.write` (*cumulative*) - <br>    The number of bytes (octets) written to a disk.
- - ***`disk_ops.read`*** (*cumulative*) - <br>    The number of disk read operations.
- - ***`disk_ops.write`*** (*cumulative*) - <br>    The number of disk write operations.
- - `disk_time.read` (*cumulative*) - <br>    The average amount of time it took to do a read operation.
- - `disk_time.write` (*cumulative*) - <br>    The average amount of time it took to do a write operation.
- - `pending_operations` (*gauge*) - <br>    Number of pending operations
+ - `disk_io_time.io_time` (*cumulative*)<br>    Amount of time spent doing IO in ms
+ - `disk_io_time.weighted_io_time` (*cumulative*)<br>    Amount of time spent doing IO in ms multiplied by the queue length
+ - `disk_merged.read` (*cumulative*)<br>    The number of disk reads merged into single physical disk access operations.
+ - `disk_merged.write` (*cumulative*)<br>    The number of disk writes merged into single physical disk access operations.
+ - `disk_octets.read` (*cumulative*)<br>    The number of bytes (octets) read from a disk.
+ - `disk_octets.write` (*cumulative*)<br>    The number of bytes (octets) written to a disk.
+ - ***`disk_ops.read`*** (*cumulative*)<br>    The number of disk read operations.
+ - ***`disk_ops.write`*** (*cumulative*)<br>    The number of disk write operations.
+ - `disk_time.read` (*cumulative*)<br>    The average amount of time it took to do a read operation.
+ - `disk_time.write` (*cumulative*)<br>    The average amount of time it took to do a write operation.
+ - `pending_operations` (*gauge*)<br>    Number of pending operations
 
 ### Non-default metrics (version 4.7.0+)
 

@@ -125,20 +125,20 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `counter.kong.connections.accepted` (*cumulative*) - <br>    Total number of all accepted connections.
- - `counter.kong.connections.handled` (*cumulative*) - <br>    Total number of all handled connections (accounting for resource limits).
- - ***`counter.kong.kong.latency`*** (*cumulative*) - <br>    Time spent in Kong request handling and balancer (ms).
- - ***`counter.kong.requests.count`*** (*cumulative*) - <br>    Total number of all requests made to Kong API and proxy server.
- - ***`counter.kong.requests.latency`*** (*cumulative*) - <br>    Time elapsed between the first bytes being read from each client request and the log writes after the last bytes were sent to the clients (ms).
- - ***`counter.kong.requests.size`*** (*cumulative*) - <br>    Total bytes received/proxied from client requests.
- - ***`counter.kong.responses.count`*** (*cumulative*) - <br>    Total number of responses provided to clients.
- - ***`counter.kong.responses.size`*** (*cumulative*) - <br>    Total bytes sent/proxied to clients.
- - ***`counter.kong.upstream.latency`*** (*cumulative*) - <br>    Time spent waiting for upstream response (ms).
- - ***`gauge.kong.connections.active`*** (*gauge*) - <br>    The current number of active client connections (includes waiting).
- - ***`gauge.kong.connections.reading`*** (*gauge*) - <br>    The current number of connections where nginx is reading the request header.
- - ***`gauge.kong.connections.waiting`*** (*gauge*) - <br>    The current number of idle client connections waiting for a request.
- - ***`gauge.kong.connections.writing`*** (*gauge*) - <br>    The current number of connections where nginx is writing the response back to the client.
- - ***`gauge.kong.database.reachable`*** (*gauge*) - <br>    kong.dao:db.reachable() at time of metric query
+ - `counter.kong.connections.accepted` (*cumulative*)<br>    Total number of all accepted connections.
+ - `counter.kong.connections.handled` (*cumulative*)<br>    Total number of all handled connections (accounting for resource limits).
+ - ***`counter.kong.kong.latency`*** (*cumulative*)<br>    Time spent in Kong request handling and balancer (ms).
+ - ***`counter.kong.requests.count`*** (*cumulative*)<br>    Total number of all requests made to Kong API and proxy server.
+ - ***`counter.kong.requests.latency`*** (*cumulative*)<br>    Time elapsed between the first bytes being read from each client request and the log writes after the last bytes were sent to the clients (ms).
+ - ***`counter.kong.requests.size`*** (*cumulative*)<br>    Total bytes received/proxied from client requests.
+ - ***`counter.kong.responses.count`*** (*cumulative*)<br>    Total number of responses provided to clients.
+ - ***`counter.kong.responses.size`*** (*cumulative*)<br>    Total bytes sent/proxied to clients.
+ - ***`counter.kong.upstream.latency`*** (*cumulative*)<br>    Time spent waiting for upstream response (ms).
+ - ***`gauge.kong.connections.active`*** (*gauge*)<br>    The current number of active client connections (includes waiting).
+ - ***`gauge.kong.connections.reading`*** (*gauge*)<br>    The current number of connections where nginx is reading the request header.
+ - ***`gauge.kong.connections.waiting`*** (*gauge*)<br>    The current number of idle client connections waiting for a request.
+ - ***`gauge.kong.connections.writing`*** (*gauge*)<br>    The current number of connections where nginx is writing the response back to the client.
+ - ***`gauge.kong.database.reachable`*** (*gauge*)<br>    kong.dao:db.reachable() at time of metric query
 
 ### Non-default metrics (version 4.7.0+)
 

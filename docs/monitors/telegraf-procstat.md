@@ -59,47 +59,47 @@ This monitor emits all metrics by default; however, **none are categorized as
 
 
 
- - ***`procstat.cpu_time`*** (*gauge*) - <br>    Amount of cpu time consumed by the process.
- - ***`procstat.cpu_usage`*** (*gauge*) - <br>    CPU used by the process.
- - ***`procstat.involuntary_context_switches`*** (*gauge*) - <br>    Number of involuntary context switches.
- - ***`procstat.memory_data`*** (*gauge*) - <br>    VMData memory used by the process.
- - ***`procstat.memory_locked`*** (*gauge*) - <br>    VMLocked memory used by the process.
- - ***`procstat.memory_rss`*** (*gauge*) - <br>    VMRSS memory used by the process.
- - ***`procstat.memory_stack`*** (*gauge*) - <br>    VMStack memory used by the process.
- - ***`procstat.memory_swap`*** (*gauge*) - <br>    VMSwap memory used by the process.
- - ***`procstat.memory_vms`*** (*gauge*) - <br>    VMS memory used by the process.
- - ***`procstat.nice_priority`*** (*gauge*) - <br>    Nice priority number of the process.
- - ***`procstat.num_fds`*** (*gauge*) - <br>    Number of file descriptors.  This may require the agent to be running as root.
- - ***`procstat.num_threads`*** (*gauge*) - <br>    Number of threads used by the process.
- - ***`procstat.read_bytes`*** (*gauge*) - <br>    Number of bytes read by the process.  This may require the agent to be running as root.
- - ***`procstat.read_count`*** (*gauge*) - <br>    Number of read operations by the process.  This may require the agent to be running as root.
- - ***`procstat.realtime_priority`*** (*gauge*) - <br>    Real time priority of the process.
- - ***`procstat.rlimit_cpu_time_hard`*** (*gauge*) - <br>    The hard cpu rlimit.
- - ***`procstat.rlimit_cpu_time_soft`*** (*gauge*) - <br>    The soft cpu rlimit.
- - ***`procstat.rlimit_file_locks_hard`*** (*gauge*) - <br>    The hard file lock rlimit.
- - ***`procstat.rlimit_file_locks_soft`*** (*gauge*) - <br>    The soft file lock rlimit.
- - ***`procstat.rlimit_memory_data_hard`*** (*gauge*) - <br>    The hard data memory rlimit.
- - ***`procstat.rlimit_memory_data_soft`*** (*gauge*) - <br>    The soft data memory rlimit.
- - ***`procstat.rlimit_memory_locked_hard`*** (*gauge*) - <br>    The hard locked memory rlimit.
- - ***`procstat.rlimit_memory_locked_soft`*** (*gauge*) - <br>    The soft locked memory rlimit.
- - ***`procstat.rlimit_memory_rss_hard`*** (*gauge*) - <br>    The hard rss memory rlimit.
- - ***`procstat.rlimit_memory_rss_soft`*** (*gauge*) - <br>    The soft rss memory rlimit.
- - ***`procstat.rlimit_memory_stack_hard`*** (*gauge*) - <br>    The hard stack memory rlimit.
- - ***`procstat.rlimit_memory_stack_soft`*** (*gauge*) - <br>    The soft stack memory rlimit.
- - ***`procstat.rlimit_memory_vms_hard`*** (*gauge*) - <br>    The hard vms memory rlimit.
- - ***`procstat.rlimit_memory_vms_soft`*** (*gauge*) - <br>    The soft vms memory rlimit.
- - ***`procstat.rlimit_nice_priority_hard`*** (*gauge*) - <br>    The hard nice priority rlimit.
- - ***`procstat.rlimit_nice_priority_soft`*** (*gauge*) - <br>    The soft nice priority rlimit.
- - ***`procstat.rlimit_num_fds_hard`*** (*gauge*) - <br>    The hard file descriptor rlimit.
- - ***`procstat.rlimit_num_fds_soft`*** (*gauge*) - <br>    The soft file descriptor rlimit.
- - ***`procstat.rlimit_realtime_priority_hard`*** (*gauge*) - <br>    The hard realtime priority rlimit.
- - ***`procstat.rlimit_realtime_priority_soft`*** (*gauge*) - <br>    The soft realtime priority rlimit.
- - ***`procstat.rlimit_signals_pending_hard`*** (*gauge*) - <br>    The hard pending signal rlimit.
- - ***`procstat.rlimit_signals_pending_soft`*** (*gauge*) - <br>    The soft pendidng signal rlimit.
- - ***`procstat.signals_pending`*** (*gauge*) - <br>    The number of signals pending.
- - ***`procstat.write_bytes`*** (*gauge*) - <br>    Number of bytes written by the process.  This may require the agent to be running as root.
- - ***`procstat.write_count`*** (*gauge*) - <br>    Number of write operations by the process.  This may require the agent to be running as root.
- - ***`procstat_lookup.pid_count`*** (*gauge*) - <br>    The number of pids. This metric emits with the plugin dimension set to "procstat_lookup".
+ - ***`procstat.cpu_time`*** (*gauge*)<br>    Amount of cpu time consumed by the process.
+ - ***`procstat.cpu_usage`*** (*gauge*)<br>    CPU used by the process.
+ - ***`procstat.involuntary_context_switches`*** (*gauge*)<br>    Number of involuntary context switches.
+ - ***`procstat.memory_data`*** (*gauge*)<br>    VMData memory used by the process.
+ - ***`procstat.memory_locked`*** (*gauge*)<br>    VMLocked memory used by the process.
+ - ***`procstat.memory_rss`*** (*gauge*)<br>    VMRSS memory used by the process.
+ - ***`procstat.memory_stack`*** (*gauge*)<br>    VMStack memory used by the process.
+ - ***`procstat.memory_swap`*** (*gauge*)<br>    VMSwap memory used by the process.
+ - ***`procstat.memory_vms`*** (*gauge*)<br>    VMS memory used by the process.
+ - ***`procstat.nice_priority`*** (*gauge*)<br>    Nice priority number of the process.
+ - ***`procstat.num_fds`*** (*gauge*)<br>    Number of file descriptors.  This may require the agent to be running as root.
+ - ***`procstat.num_threads`*** (*gauge*)<br>    Number of threads used by the process.
+ - ***`procstat.read_bytes`*** (*gauge*)<br>    Number of bytes read by the process.  This may require the agent to be running as root.
+ - ***`procstat.read_count`*** (*gauge*)<br>    Number of read operations by the process.  This may require the agent to be running as root.
+ - ***`procstat.realtime_priority`*** (*gauge*)<br>    Real time priority of the process.
+ - ***`procstat.rlimit_cpu_time_hard`*** (*gauge*)<br>    The hard cpu rlimit.
+ - ***`procstat.rlimit_cpu_time_soft`*** (*gauge*)<br>    The soft cpu rlimit.
+ - ***`procstat.rlimit_file_locks_hard`*** (*gauge*)<br>    The hard file lock rlimit.
+ - ***`procstat.rlimit_file_locks_soft`*** (*gauge*)<br>    The soft file lock rlimit.
+ - ***`procstat.rlimit_memory_data_hard`*** (*gauge*)<br>    The hard data memory rlimit.
+ - ***`procstat.rlimit_memory_data_soft`*** (*gauge*)<br>    The soft data memory rlimit.
+ - ***`procstat.rlimit_memory_locked_hard`*** (*gauge*)<br>    The hard locked memory rlimit.
+ - ***`procstat.rlimit_memory_locked_soft`*** (*gauge*)<br>    The soft locked memory rlimit.
+ - ***`procstat.rlimit_memory_rss_hard`*** (*gauge*)<br>    The hard rss memory rlimit.
+ - ***`procstat.rlimit_memory_rss_soft`*** (*gauge*)<br>    The soft rss memory rlimit.
+ - ***`procstat.rlimit_memory_stack_hard`*** (*gauge*)<br>    The hard stack memory rlimit.
+ - ***`procstat.rlimit_memory_stack_soft`*** (*gauge*)<br>    The soft stack memory rlimit.
+ - ***`procstat.rlimit_memory_vms_hard`*** (*gauge*)<br>    The hard vms memory rlimit.
+ - ***`procstat.rlimit_memory_vms_soft`*** (*gauge*)<br>    The soft vms memory rlimit.
+ - ***`procstat.rlimit_nice_priority_hard`*** (*gauge*)<br>    The hard nice priority rlimit.
+ - ***`procstat.rlimit_nice_priority_soft`*** (*gauge*)<br>    The soft nice priority rlimit.
+ - ***`procstat.rlimit_num_fds_hard`*** (*gauge*)<br>    The hard file descriptor rlimit.
+ - ***`procstat.rlimit_num_fds_soft`*** (*gauge*)<br>    The soft file descriptor rlimit.
+ - ***`procstat.rlimit_realtime_priority_hard`*** (*gauge*)<br>    The hard realtime priority rlimit.
+ - ***`procstat.rlimit_realtime_priority_soft`*** (*gauge*)<br>    The soft realtime priority rlimit.
+ - ***`procstat.rlimit_signals_pending_hard`*** (*gauge*)<br>    The hard pending signal rlimit.
+ - ***`procstat.rlimit_signals_pending_soft`*** (*gauge*)<br>    The soft pendidng signal rlimit.
+ - ***`procstat.signals_pending`*** (*gauge*)<br>    The number of signals pending.
+ - ***`procstat.write_bytes`*** (*gauge*)<br>    Number of bytes written by the process.  This may require the agent to be running as root.
+ - ***`procstat.write_count`*** (*gauge*)<br>    Number of write operations by the process.  This may require the agent to be running as root.
+ - ***`procstat_lookup.pid_count`*** (*gauge*)<br>    The number of pids. This metric emits with the plugin dimension set to "procstat_lookup".
 The agent does not do any built-in filtering of metrics coming out of this
 monitor.
 

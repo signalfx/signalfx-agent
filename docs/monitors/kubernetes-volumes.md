@@ -68,8 +68,8 @@ This monitor emits all metrics by default; however, **none are categorized as
 
 
 
- - ***`kubernetes.volume_available_bytes`*** (*gauge*) - <br>    The number of available bytes in the volume
- - ***`kubernetes.volume_capacity_bytes`*** (*gauge*) - <br>    The total capacity in bytes of the volume
+ - ***`kubernetes.volume_available_bytes`*** (*gauge*)<br>    The number of available bytes in the volume
+ - ***`kubernetes.volume_capacity_bytes`*** (*gauge*)<br>    The total capacity in bytes of the volume
 The agent does not do any built-in filtering of metrics coming out of this
 monitor.
 ## Dimensions

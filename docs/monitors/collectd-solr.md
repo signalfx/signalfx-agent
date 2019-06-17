@@ -49,54 +49,54 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`counter.solr.http_2xx_responses`*** (*counter*) - <br>    Total number of 2xx http responses
- - ***`counter.solr.http_4xx_responses`*** (*counter*) - <br>    Total number of 4xx http responses
- - ***`counter.solr.http_5xx_responses`*** (*counter*) - <br>    Total number of 5xx http responses
- - ***`counter.solr.http_requests`*** (*counter*) - <br>    Total number of http requests
- - `counter.solr.jvm_classes_loaded` (*counter*) - <br>    Number of JVM classes loaded
- - ***`counter.solr.node_collections_requests`*** (*counter*) - <br>    Number of collection level requets to Solr node
- - ***`counter.solr.node_cores_requests`*** (*counter*) - <br>    Number of core level requets to Solr node
- - `counter.solr.node_metric_request_count` (*counter*) - <br>    Number of metric requests
- - ***`counter.solr.node_metrics_requests`*** (*counter*) - <br>    Number of metrics level requets to Solr node
- - ***`counter.solr.node_zookeeper_requests`*** (*counter*) - <br>    Number of zookeeper level requets to Solr node
- - `counter.solr.openFileDescriptorCount` (*counter*) - <br>    Number of open file descriptors
- - `counter.solr.replication_handler_requests` (*counter*) - <br>    Number of replication handler requets
- - ***`counter.solr.search_query_requests`*** (*counter*) - <br>    Number of search query requests
- - ***`counter.solr.update_handler_requests`*** (*counter*) - <br>    Number of update handler requets
- - `counter.solr.zookeeper_errors` (*counter*) - <br>    Number of failures/error at Zookeeper
- - ***`gauge.solr.core_deleted_docs`*** (*gauge*) - <br>    Number of deleted docs in Solr core
- - ***`gauge.solr.core_index_size`*** (*gauge*) - <br>    Size of a core index
- - ***`gauge.solr.core_max_docs`*** (*gauge*) - <br>    Total number of docs in Solr core
- - ***`gauge.solr.core_num_docs`*** (*gauge*) - <br>    Total number of indexed docs in Solr core
- - ***`gauge.solr.core_totalspace`*** (*gauge*) - <br>    Total space allocated for core
- - ***`gauge.solr.core_usablespace`*** (*gauge*) - <br>    Usable space available in core
- - ***`gauge.solr.document_cache_cumulative_hitratio`*** (*gauge*) - <br>    Cummulative hit ration of document cache
- - ***`gauge.solr.field_value_cache_cumulative_hitratio`*** (*gauge*) - <br>    Cummulative hit ration of filed value cache
- - `gauge.solr.http_active_requests` (*gauge*) - <br>    Number of http active requests
- - `gauge.solr.jetty_get_request_latency` (*gauge*) - <br>    Time to process http get request
- - `gauge.solr.jetty_post_request_latency` (*gauge*) - <br>    Time to process http post request
- - ***`gauge.solr.jetty_request_latency`*** (*gauge*) - <br>    Http request response time
- - ***`gauge.solr.jvm_gc_cms_count`*** (*gauge*) - <br>    JVM Garbage Collector - CMS invocation count
- - ***`gauge.solr.jvm_gc_cms_time`*** (*gauge*) - <br>    JVM Garbage Collector - CMS prcoess time
- - ***`gauge.solr.jvm_gc_parnew_count`*** (*gauge*) - <br>    JVM Garbage Collector - Parnew invocation count
- - ***`gauge.solr.jvm_gc_parnew_time`*** (*gauge*) - <br>    JVM Garbage Collector - Parnew process time
- - ***`gauge.solr.jvm_heap_usage`*** (*gauge*) - <br>    JVM Heap usage
- - `gauge.solr.jvm_mapped_memory_capacity` (*gauge*) - <br>    Total JVM mapped memory capacity
- - `gauge.solr.jvm_mapped_memory_used` (*gauge*) - <br>    Total JVM mapped memory used
- - ***`gauge.solr.jvm_memory_pools_Code-Cache_usage`*** (*gauge*) - <br>    JVM memory pools - PCode Cache usage
- - ***`gauge.solr.jvm_memory_pools_Metaspace_usage`*** (*gauge*) - <br>    JVM memory pools - Metaspace usage
- - ***`gauge.solr.jvm_memory_pools_Par-Eden-Space_usage`*** (*gauge*) - <br>    JVM memory pools - Par Eden space usage
- - ***`gauge.solr.jvm_memory_pools_Par-Survivor-Space_usage`*** (*gauge*) - <br>    JVM memory pools - Par Survivor space usage
- - ***`gauge.solr.jvm_total_memory`*** (*gauge*) - <br>    JVM total memory allocated
- - ***`gauge.solr.jvm_total_memory_used`*** (*gauge*) - <br>    JVM memory used
- - `gauge.solr.node_metric_request_time` (*gauge*) - <br>    Time to process a metric request
- - ***`gauge.solr.query_result_cache_cumulative_hitratio`*** (*gauge*) - <br>    Cummulative hit ration of query cache
- - `gauge.solr.replication_handler_response` (*gauge*) - <br>    Resplication handler response time
- - ***`gauge.solr.search_query_response`*** (*gauge*) - <br>    Search query response time
- - ***`gauge.solr.searcher_warmup`*** (*gauge*) - <br>    Time to new searcher to warm up
- - `gauge.solr.shard_cumulative_docs` (*gauge*) - <br>
- - ***`gauge.solr.update_request_handler_response`*** (*gauge*) - <br>    Update request handler response time
- - `gauge.solr.zookeeper_request_time` (*gauge*) - <br>    Time to process a request at zookeeper
+ - ***`counter.solr.http_2xx_responses`*** (*counter*)<br>    Total number of 2xx http responses
+ - ***`counter.solr.http_4xx_responses`*** (*counter*)<br>    Total number of 4xx http responses
+ - ***`counter.solr.http_5xx_responses`*** (*counter*)<br>    Total number of 5xx http responses
+ - ***`counter.solr.http_requests`*** (*counter*)<br>    Total number of http requests
+ - `counter.solr.jvm_classes_loaded` (*counter*)<br>    Number of JVM classes loaded
+ - ***`counter.solr.node_collections_requests`*** (*counter*)<br>    Number of collection level requets to Solr node
+ - ***`counter.solr.node_cores_requests`*** (*counter*)<br>    Number of core level requets to Solr node
+ - `counter.solr.node_metric_request_count` (*counter*)<br>    Number of metric requests
+ - ***`counter.solr.node_metrics_requests`*** (*counter*)<br>    Number of metrics level requets to Solr node
+ - ***`counter.solr.node_zookeeper_requests`*** (*counter*)<br>    Number of zookeeper level requets to Solr node
+ - `counter.solr.openFileDescriptorCount` (*counter*)<br>    Number of open file descriptors
+ - `counter.solr.replication_handler_requests` (*counter*)<br>    Number of replication handler requets
+ - ***`counter.solr.search_query_requests`*** (*counter*)<br>    Number of search query requests
+ - ***`counter.solr.update_handler_requests`*** (*counter*)<br>    Number of update handler requets
+ - `counter.solr.zookeeper_errors` (*counter*)<br>    Number of failures/error at Zookeeper
+ - ***`gauge.solr.core_deleted_docs`*** (*gauge*)<br>    Number of deleted docs in Solr core
+ - ***`gauge.solr.core_index_size`*** (*gauge*)<br>    Size of a core index
+ - ***`gauge.solr.core_max_docs`*** (*gauge*)<br>    Total number of docs in Solr core
+ - ***`gauge.solr.core_num_docs`*** (*gauge*)<br>    Total number of indexed docs in Solr core
+ - ***`gauge.solr.core_totalspace`*** (*gauge*)<br>    Total space allocated for core
+ - ***`gauge.solr.core_usablespace`*** (*gauge*)<br>    Usable space available in core
+ - ***`gauge.solr.document_cache_cumulative_hitratio`*** (*gauge*)<br>    Cummulative hit ration of document cache
+ - ***`gauge.solr.field_value_cache_cumulative_hitratio`*** (*gauge*)<br>    Cummulative hit ration of filed value cache
+ - `gauge.solr.http_active_requests` (*gauge*)<br>    Number of http active requests
+ - `gauge.solr.jetty_get_request_latency` (*gauge*)<br>    Time to process http get request
+ - `gauge.solr.jetty_post_request_latency` (*gauge*)<br>    Time to process http post request
+ - ***`gauge.solr.jetty_request_latency`*** (*gauge*)<br>    Http request response time
+ - ***`gauge.solr.jvm_gc_cms_count`*** (*gauge*)<br>    JVM Garbage Collector - CMS invocation count
+ - ***`gauge.solr.jvm_gc_cms_time`*** (*gauge*)<br>    JVM Garbage Collector - CMS prcoess time
+ - ***`gauge.solr.jvm_gc_parnew_count`*** (*gauge*)<br>    JVM Garbage Collector - Parnew invocation count
+ - ***`gauge.solr.jvm_gc_parnew_time`*** (*gauge*)<br>    JVM Garbage Collector - Parnew process time
+ - ***`gauge.solr.jvm_heap_usage`*** (*gauge*)<br>    JVM Heap usage
+ - `gauge.solr.jvm_mapped_memory_capacity` (*gauge*)<br>    Total JVM mapped memory capacity
+ - `gauge.solr.jvm_mapped_memory_used` (*gauge*)<br>    Total JVM mapped memory used
+ - ***`gauge.solr.jvm_memory_pools_Code-Cache_usage`*** (*gauge*)<br>    JVM memory pools - PCode Cache usage
+ - ***`gauge.solr.jvm_memory_pools_Metaspace_usage`*** (*gauge*)<br>    JVM memory pools - Metaspace usage
+ - ***`gauge.solr.jvm_memory_pools_Par-Eden-Space_usage`*** (*gauge*)<br>    JVM memory pools - Par Eden space usage
+ - ***`gauge.solr.jvm_memory_pools_Par-Survivor-Space_usage`*** (*gauge*)<br>    JVM memory pools - Par Survivor space usage
+ - ***`gauge.solr.jvm_total_memory`*** (*gauge*)<br>    JVM total memory allocated
+ - ***`gauge.solr.jvm_total_memory_used`*** (*gauge*)<br>    JVM memory used
+ - `gauge.solr.node_metric_request_time` (*gauge*)<br>    Time to process a metric request
+ - ***`gauge.solr.query_result_cache_cumulative_hitratio`*** (*gauge*)<br>    Cummulative hit ration of query cache
+ - `gauge.solr.replication_handler_response` (*gauge*)<br>    Resplication handler response time
+ - ***`gauge.solr.search_query_response`*** (*gauge*)<br>    Search query response time
+ - ***`gauge.solr.searcher_warmup`*** (*gauge*)<br>    Time to new searcher to warm up
+ - `gauge.solr.shard_cumulative_docs` (*gauge*)<br>
+ - ***`gauge.solr.update_request_handler_response`*** (*gauge*)<br>    Update request handler response time
+ - `gauge.solr.zookeeper_request_time` (*gauge*)<br>    Time to process a request at zookeeper
 
 ### Non-default metrics (version 4.7.0+)
 

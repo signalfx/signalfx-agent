@@ -50,17 +50,17 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `gitlab_runner_api_request_statuses_total` (*cumulative*) - <br>    The total number of API requests, partitioned by runner, endpoint and status
- - `gitlab_runner_autoscaling_machine_creation_duration_seconds` (*cumulative*) - <br>    Histogram of machine creation time
- - `gitlab_runner_autoscaling_machine_creation_duration_seconds_bucket` (*cumulative*) - <br>    Histogram of machine creation time
- - `gitlab_runner_autoscaling_machine_creation_duration_seconds_count` (*cumulative*) - <br>    Histogram of machine creation time
- - `gitlab_runner_autoscaling_machine_states` (*gauge*) - <br>    The current number of machines per state in this provider
- - `gitlab_runner_concurrent` (*gauge*) - <br>    The current value of concurrent setting
- - ***`gitlab_runner_errors_total`*** (*cumulative*) - <br>    The number of catched errors
- - `gitlab_runner_limit` (*gauge*) - <br>    The current value of concurrent setting
- - ***`gitlab_runner_request_concurrency`*** (*gauge*) - <br>    The current number of concurrent requests for a new job
- - `gitlab_runner_request_concurrency_exceeded_total` (*cumulative*) - <br>    Counter tracking exceeding of request concurrency
- - `gitlab_runner_version_info` (*gauge*) - <br>    A metric with a constant '1' value labeled by different build stats fields
+ - `gitlab_runner_api_request_statuses_total` (*cumulative*)<br>    The total number of API requests, partitioned by runner, endpoint and status
+ - `gitlab_runner_autoscaling_machine_creation_duration_seconds` (*cumulative*)<br>    Histogram of machine creation time
+ - `gitlab_runner_autoscaling_machine_creation_duration_seconds_bucket` (*cumulative*)<br>    Histogram of machine creation time
+ - `gitlab_runner_autoscaling_machine_creation_duration_seconds_count` (*cumulative*)<br>    Histogram of machine creation time
+ - `gitlab_runner_autoscaling_machine_states` (*gauge*)<br>    The current number of machines per state in this provider
+ - `gitlab_runner_concurrent` (*gauge*)<br>    The current value of concurrent setting
+ - ***`gitlab_runner_errors_total`*** (*cumulative*)<br>    The number of catched errors
+ - `gitlab_runner_limit` (*gauge*)<br>    The current value of concurrent setting
+ - ***`gitlab_runner_request_concurrency`*** (*gauge*)<br>    The current number of concurrent requests for a new job
+ - `gitlab_runner_request_concurrency_exceeded_total` (*cumulative*)<br>    Counter tracking exceeding of request concurrency
+ - `gitlab_runner_version_info` (*gauge*)<br>    A metric with a constant '1' value labeled by different build stats fields
 
 ### Non-default metrics (version 4.7.0+)
 

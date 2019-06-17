@@ -38,28 +38,28 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`df_complex.free`*** (*gauge*) - <br>    Free disk space in bytes
- - `df_complex.reserved` (*gauge*) - <br>    Reserved disk space in bytes
- - ***`df_complex.used`*** (*gauge*) - <br>    Used disk space in bytes
- - `percent_inodes.free` (*gauge*) - <br>    Free inodes on the file system, expressed as a percentage.
- - `percent_inodes.reserved` (*gauge*) - <br>    Reserved inodes on the file system, expressed as a percentage.
- - `percent_inodes.used` (*gauge*) - <br>    Used inodes on the file system, expressed as a percentage.
+ - ***`df_complex.free`*** (*gauge*)<br>    Free disk space in bytes
+ - `df_complex.reserved` (*gauge*)<br>    Reserved disk space in bytes
+ - ***`df_complex.used`*** (*gauge*)<br>    Used disk space in bytes
+ - `percent_inodes.free` (*gauge*)<br>    Free inodes on the file system, expressed as a percentage.
+ - `percent_inodes.reserved` (*gauge*)<br>    Reserved inodes on the file system, expressed as a percentage.
+ - `percent_inodes.used` (*gauge*)<br>    Used inodes on the file system, expressed as a percentage.
 
 #### Group inodes
 All of the following metrics are part of the `inodes` metric group. All of
 the non-default metrics below can be turned on by adding `inodes` to the
 monitor config option `extraGroups`:
- - `df_inodes.free` (*gauge*) - <br>    Number of inodes that are free.
- - `df_inodes.reserved` (*gauge*) - <br>    Number of inodes reserved for the super user.
- - `df_inodes.used` (*gauge*) - <br>    Number of inodes that are used.
+ - `df_inodes.free` (*gauge*)<br>    Number of inodes that are free.
+ - `df_inodes.reserved` (*gauge*)<br>    Number of inodes reserved for the super user.
+ - `df_inodes.used` (*gauge*)<br>    Number of inodes that are used.
 
 #### Group percentage
 All of the following metrics are part of the `percentage` metric group. All of
 the non-default metrics below can be turned on by adding `percentage` to the
 monitor config option `extraGroups`:
- - `percent_bytes.free` (*gauge*) - <br>    Free disk space on the file system, expressed as a percentage.
- - `percent_bytes.reserved` (*gauge*) - <br>    Reserved disk space on the filesystem, expressed as a percentage.
- - `percent_bytes.used` (*gauge*) - <br>    Used disk space on the file system, expressed as a percentage.
+ - `percent_bytes.free` (*gauge*)<br>    Free disk space on the file system, expressed as a percentage.
+ - `percent_bytes.reserved` (*gauge*)<br>    Reserved disk space on the filesystem, expressed as a percentage.
+ - `percent_bytes.used` (*gauge*)<br>    Used disk space on the file system, expressed as a percentage.
 
 ### Non-default metrics (version 4.7.0+)
 

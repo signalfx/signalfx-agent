@@ -91,24 +91,24 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`gauge.kafka.consumer.bytes-consumed-rate`*** (*gauge*) - <br>    Average number of bytes consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.
- - ***`gauge.kafka.consumer.fetch-rate`*** (*gauge*) - <br>    Number of records consumed per second.
- - ***`gauge.kafka.consumer.fetch-size-avg`*** (*gauge*) - <br>    Average number of bytes fetched per request. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.
- - ***`gauge.kafka.consumer.records-consumed-rate`*** (*gauge*) - <br>    Average number of records consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.
- - ***`gauge.kafka.consumer.records-lag-max`*** (*gauge*) - <br>    Maximum lag in of records for any partition in this window. An increasing value over time is your best indication that the consumer group is not keeping up with the producers.
+ - ***`gauge.kafka.consumer.bytes-consumed-rate`*** (*gauge*)<br>    Average number of bytes consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.
+ - ***`gauge.kafka.consumer.fetch-rate`*** (*gauge*)<br>    Number of records consumed per second.
+ - ***`gauge.kafka.consumer.fetch-size-avg`*** (*gauge*)<br>    Average number of bytes fetched per request. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.
+ - ***`gauge.kafka.consumer.records-consumed-rate`*** (*gauge*)<br>    Average number of records consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.
+ - ***`gauge.kafka.consumer.records-lag-max`*** (*gauge*)<br>    Maximum lag in of records for any partition in this window. An increasing value over time is your best indication that the consumer group is not keeping up with the producers.
 
 #### Group jvm
 All of the following metrics are part of the `jvm` metric group. All of
 the non-default metrics below can be turned on by adding `jvm` to the
 monitor config option `extraGroups`:
- - ***`gauge.jvm.threads.count`*** (*gauge*) - <br>    Number of JVM threads
- - ***`gauge.loaded_classes`*** (*gauge*) - <br>    Number of classes loaded in the JVM
- - ***`invocations`*** (*cumulative*) - <br>    Total number of garbage collection events
- - ***`jmx_memory.committed`*** (*gauge*) - <br>    Amount of memory guaranteed to be available in bytes
- - ***`jmx_memory.init`*** (*gauge*) - <br>    Amount of initial memory at startup in bytes
- - ***`jmx_memory.max`*** (*gauge*) - <br>    Maximum amount of memory that can be used in bytes
- - ***`jmx_memory.used`*** (*gauge*) - <br>    Current memory usage in bytes
- - ***`total_time_in_ms.collection_time`*** (*cumulative*) - <br>    Amount of time spent garbage collecting in milliseconds
+ - ***`gauge.jvm.threads.count`*** (*gauge*)<br>    Number of JVM threads
+ - ***`gauge.loaded_classes`*** (*gauge*)<br>    Number of classes loaded in the JVM
+ - ***`invocations`*** (*cumulative*)<br>    Total number of garbage collection events
+ - ***`jmx_memory.committed`*** (*gauge*)<br>    Amount of memory guaranteed to be available in bytes
+ - ***`jmx_memory.init`*** (*gauge*)<br>    Amount of initial memory at startup in bytes
+ - ***`jmx_memory.max`*** (*gauge*)<br>    Maximum amount of memory that can be used in bytes
+ - ***`jmx_memory.used`*** (*gauge*)<br>    Current memory usage in bytes
+ - ***`total_time_in_ms.collection_time`*** (*cumulative*)<br>    Amount of time spent garbage collecting in milliseconds
 
 ### Non-default metrics (version 4.7.0+)
 

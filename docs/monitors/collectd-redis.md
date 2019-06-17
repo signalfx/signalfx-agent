@@ -70,44 +70,44 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`bytes.used_memory`*** (*gauge*) - <br>    Number of bytes allocated by Redis
- - `bytes.used_memory_lua` (*gauge*) - <br>    Number of bytes used by the Lua engine
- - `bytes.used_memory_peak` (*gauge*) - <br>    Peak Number of bytes allocated by Redis
- - ***`bytes.used_memory_rss`*** (*gauge*) - <br>    Number of bytes allocated by Redis as seen by the OS
- - ***`counter.commands_processed`*** (*cumulative*) - <br>    Total number of commands processed by the server
- - `counter.connections_received` (*cumulative*) - <br>    Total number of connections accepted by the server
- - ***`counter.evicted_keys`*** (*cumulative*) - <br>    Number of evicted keys due to maxmemory limit
- - ***`counter.expired_keys`*** (*cumulative*) - <br>    Total number of key expiration events
- - `counter.lru_clock` (*cumulative*) - <br>    Clock incrementing every minute, for LRU management
- - ***`counter.rejected_connections`*** (*cumulative*) - <br>    Number of connections rejected because of maxclients limit
- - ***`counter.total_net_input_bytes`*** (*cumulative*) - <br>    Total number of bytes inputted
- - ***`counter.total_net_output_bytes`*** (*cumulative*) - <br>    Total number of bytes outputted
- - ***`counter.used_cpu_sys`*** (*cumulative*) - <br>    System CPU consumed by the Redis server
- - `counter.used_cpu_sys_children` (*cumulative*) - <br>    System CPU consumed by the background processes
- - ***`counter.used_cpu_user`*** (*cumulative*) - <br>    User CPU consumed by the Redis server
- - `counter.used_cpu_user_children` (*cumulative*) - <br>    User CPU consumed by the background processes
- - ***`derive.keyspace_hits`*** (*cumulative*) - <br>    Number of successful lookup of keys in the main dictionary
- - ***`derive.keyspace_misses`*** (*cumulative*) - <br>    Number of failed lookup of keys in the main dictionary
- - ***`gauge.blocked_clients`*** (*gauge*) - <br>    Number of clients pending on a blocking call
- - `gauge.changes_since_last_save` (*gauge*) - <br>    Number of changes since the last dump
- - `gauge.client_biggest_input_buf` (*gauge*) - <br>    Biggest input buffer among current client connections
- - `gauge.client_longest_output_list` (*gauge*) - <br>    Longest output list among current client connections
- - ***`gauge.connected_clients`*** (*gauge*) - <br>    Number of client connections (excluding connections from slaves)
- - `gauge.connected_slaves` (*gauge*) - <br>    Number of connected slaves
- - `gauge.db0_avg_ttl` (*gauge*) - <br>    The average time to live for all keys in redis
- - `gauge.db0_expires` (*gauge*) - <br>    The total number of keys in redis that will expire
- - `gauge.db0_keys` (*gauge*) - <br>    The total number of keys stored in redis
- - `gauge.instantaneous_ops_per_sec` (*gauge*) - <br>    Number of commands processed per second
- - `gauge.key_llen` (*gauge*) - <br>    Length of an list key
- - `gauge.latest_fork_usec` (*gauge*) - <br>    Duration of the latest fork operation in microseconds
- - `gauge.master_last_io_seconds_ago` (*gauge*) - <br>    Number of seconds since the last interaction with master
- - ***`gauge.master_repl_offset`*** (*gauge*) - <br>    Master replication offset
- - `gauge.mem_fragmentation_ratio` (*gauge*) - <br>    Ratio between used_memory_rss and used_memory
- - `gauge.rdb_bgsave_in_progress` (*gauge*) - <br>    Flag indicating a RDB save is on-going
- - `gauge.repl_backlog_first_byte_offset` (*gauge*) - <br>    Slave replication backlog offset
- - ***`gauge.slave_repl_offset`*** (*gauge*) - <br>    Slave replication offset
- - `gauge.uptime_in_days` (*gauge*) - <br>    Number of days up
- - `gauge.uptime_in_seconds` (*gauge*) - <br>    Number of seconds up
+ - ***`bytes.used_memory`*** (*gauge*)<br>    Number of bytes allocated by Redis
+ - `bytes.used_memory_lua` (*gauge*)<br>    Number of bytes used by the Lua engine
+ - `bytes.used_memory_peak` (*gauge*)<br>    Peak Number of bytes allocated by Redis
+ - ***`bytes.used_memory_rss`*** (*gauge*)<br>    Number of bytes allocated by Redis as seen by the OS
+ - ***`counter.commands_processed`*** (*cumulative*)<br>    Total number of commands processed by the server
+ - `counter.connections_received` (*cumulative*)<br>    Total number of connections accepted by the server
+ - ***`counter.evicted_keys`*** (*cumulative*)<br>    Number of evicted keys due to maxmemory limit
+ - ***`counter.expired_keys`*** (*cumulative*)<br>    Total number of key expiration events
+ - `counter.lru_clock` (*cumulative*)<br>    Clock incrementing every minute, for LRU management
+ - ***`counter.rejected_connections`*** (*cumulative*)<br>    Number of connections rejected because of maxclients limit
+ - ***`counter.total_net_input_bytes`*** (*cumulative*)<br>    Total number of bytes inputted
+ - ***`counter.total_net_output_bytes`*** (*cumulative*)<br>    Total number of bytes outputted
+ - ***`counter.used_cpu_sys`*** (*cumulative*)<br>    System CPU consumed by the Redis server
+ - `counter.used_cpu_sys_children` (*cumulative*)<br>    System CPU consumed by the background processes
+ - ***`counter.used_cpu_user`*** (*cumulative*)<br>    User CPU consumed by the Redis server
+ - `counter.used_cpu_user_children` (*cumulative*)<br>    User CPU consumed by the background processes
+ - ***`derive.keyspace_hits`*** (*cumulative*)<br>    Number of successful lookup of keys in the main dictionary
+ - ***`derive.keyspace_misses`*** (*cumulative*)<br>    Number of failed lookup of keys in the main dictionary
+ - ***`gauge.blocked_clients`*** (*gauge*)<br>    Number of clients pending on a blocking call
+ - `gauge.changes_since_last_save` (*gauge*)<br>    Number of changes since the last dump
+ - `gauge.client_biggest_input_buf` (*gauge*)<br>    Biggest input buffer among current client connections
+ - `gauge.client_longest_output_list` (*gauge*)<br>    Longest output list among current client connections
+ - ***`gauge.connected_clients`*** (*gauge*)<br>    Number of client connections (excluding connections from slaves)
+ - `gauge.connected_slaves` (*gauge*)<br>    Number of connected slaves
+ - `gauge.db0_avg_ttl` (*gauge*)<br>    The average time to live for all keys in redis
+ - `gauge.db0_expires` (*gauge*)<br>    The total number of keys in redis that will expire
+ - `gauge.db0_keys` (*gauge*)<br>    The total number of keys stored in redis
+ - `gauge.instantaneous_ops_per_sec` (*gauge*)<br>    Number of commands processed per second
+ - `gauge.key_llen` (*gauge*)<br>    Length of an list key
+ - `gauge.latest_fork_usec` (*gauge*)<br>    Duration of the latest fork operation in microseconds
+ - `gauge.master_last_io_seconds_ago` (*gauge*)<br>    Number of seconds since the last interaction with master
+ - ***`gauge.master_repl_offset`*** (*gauge*)<br>    Master replication offset
+ - `gauge.mem_fragmentation_ratio` (*gauge*)<br>    Ratio between used_memory_rss and used_memory
+ - `gauge.rdb_bgsave_in_progress` (*gauge*)<br>    Flag indicating a RDB save is on-going
+ - `gauge.repl_backlog_first_byte_offset` (*gauge*)<br>    Slave replication backlog offset
+ - ***`gauge.slave_repl_offset`*** (*gauge*)<br>    Slave replication offset
+ - `gauge.uptime_in_days` (*gauge*)<br>    Number of days up
+ - `gauge.uptime_in_seconds` (*gauge*)<br>    Number of seconds up
 
 ### Non-default metrics (version 4.7.0+)
 

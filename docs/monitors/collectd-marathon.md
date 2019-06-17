@@ -63,25 +63,25 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `gauge.marathon-api-metric` (*gauge*) - <br>    Metrics reported by the Marathon Metrics API
- - ***`gauge.marathon.app.cpu.allocated`*** (*gauge*) - <br>    Number of CPUs allocated to an application
- - ***`gauge.marathon.app.cpu.allocated.per.instance`*** (*gauge*) - <br>    Configured number of CPUs allocated to each application instance
- - `gauge.marathon.app.delayed` (*gauge*) - <br>    Indicates if the application is delayed or not
- - `gauge.marathon.app.deployments.total` (*gauge*) - <br>    Number of application deployments
- - ***`gauge.marathon.app.disk.allocated`*** (*gauge*) - <br>    Storage allocated to a Marathon application
- - ***`gauge.marathon.app.disk.allocated.per.instance`*** (*gauge*) - <br>    Configured storage allocated each to application instance
- - `gauge.marathon.app.gpu.allocated` (*gauge*) - <br>    GPU Allocated to a Marathon application
- - `gauge.marathon.app.gpu.allocated.per.instance` (*gauge*) - <br>    Configured number of GPUs allocated to each application instance
- - ***`gauge.marathon.app.instances.total`*** (*gauge*) - <br>    Number of application instances
- - ***`gauge.marathon.app.memory.allocated`*** (*gauge*) - <br>    Memory Allocated to a Marathon application
- - ***`gauge.marathon.app.memory.allocated.per.instance`*** (*gauge*) - <br>    Configured amount of memory allocated to each application instance
- - ***`gauge.marathon.app.tasks.running`*** (*gauge*) - <br>    Number tasks running for an application
- - ***`gauge.marathon.app.tasks.staged`*** (*gauge*) - <br>    Number tasks staged for an application
- - ***`gauge.marathon.app.tasks.unhealthy`*** (*gauge*) - <br>    Number unhealthy tasks for an application
- - ***`gauge.marathon.task.healthchecks.failing.total`*** (*gauge*) - <br>    The number of failing health checks for a task
- - ***`gauge.marathon.task.healthchecks.passing.total`*** (*gauge*) - <br>    The number of passing health checks for a task
- - `gauge.marathon.task.staged.time.elapsed` (*gauge*) - <br>    The amount of time the task spent in staging
- - `gauge.marathon.task.start.time.elapsed` (*gauge*) - <br>    Time elapsed since the task started
+ - `gauge.marathon-api-metric` (*gauge*)<br>    Metrics reported by the Marathon Metrics API
+ - ***`gauge.marathon.app.cpu.allocated`*** (*gauge*)<br>    Number of CPUs allocated to an application
+ - ***`gauge.marathon.app.cpu.allocated.per.instance`*** (*gauge*)<br>    Configured number of CPUs allocated to each application instance
+ - `gauge.marathon.app.delayed` (*gauge*)<br>    Indicates if the application is delayed or not
+ - `gauge.marathon.app.deployments.total` (*gauge*)<br>    Number of application deployments
+ - ***`gauge.marathon.app.disk.allocated`*** (*gauge*)<br>    Storage allocated to a Marathon application
+ - ***`gauge.marathon.app.disk.allocated.per.instance`*** (*gauge*)<br>    Configured storage allocated each to application instance
+ - `gauge.marathon.app.gpu.allocated` (*gauge*)<br>    GPU Allocated to a Marathon application
+ - `gauge.marathon.app.gpu.allocated.per.instance` (*gauge*)<br>    Configured number of GPUs allocated to each application instance
+ - ***`gauge.marathon.app.instances.total`*** (*gauge*)<br>    Number of application instances
+ - ***`gauge.marathon.app.memory.allocated`*** (*gauge*)<br>    Memory Allocated to a Marathon application
+ - ***`gauge.marathon.app.memory.allocated.per.instance`*** (*gauge*)<br>    Configured amount of memory allocated to each application instance
+ - ***`gauge.marathon.app.tasks.running`*** (*gauge*)<br>    Number tasks running for an application
+ - ***`gauge.marathon.app.tasks.staged`*** (*gauge*)<br>    Number tasks staged for an application
+ - ***`gauge.marathon.app.tasks.unhealthy`*** (*gauge*)<br>    Number unhealthy tasks for an application
+ - ***`gauge.marathon.task.healthchecks.failing.total`*** (*gauge*)<br>    The number of failing health checks for a task
+ - ***`gauge.marathon.task.healthchecks.passing.total`*** (*gauge*)<br>    The number of passing health checks for a task
+ - `gauge.marathon.task.staged.time.elapsed` (*gauge*)<br>    The amount of time the task spent in staging
+ - `gauge.marathon.task.start.time.elapsed` (*gauge*)<br>    Time elapsed since the task started
 
 ### Non-default metrics (version 4.7.0+)
 

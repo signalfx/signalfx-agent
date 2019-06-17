@@ -77,7 +77,7 @@ monitor config option `extraGroups`:
   {{- range $metricName := $groupInfo.metrics -}}
   {{- $info := index $metrics $metricName }}
   {{- $isDefault := (or $sendAll $info.default) }}
- - {{if $isDefault}}***{{end}}`{{$metricName}}`{{if has $info "alias"}} _or_ `{{$info.alias}}`{{end}}{{if $isDefault}}***{{end}} (*{{$info.type}}*) - <br>{{$info.description | strings.Indent 4}}
+ - {{if $isDefault}}***{{end}}`{{$metricName}}`{{if has $info "alias"}} _or_ `{{$info.alias}}`{{end}}{{if $isDefault}}***{{end}} (*{{$info.type}}*)<br>{{$info.description | strings.Indent 4}}
   {{- end}}
 {{- end}}
 

@@ -78,20 +78,20 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`gauge.jenkins.job.duration`*** (*gauge*) - <br>    Time taken to complete the job in ms.
- - ***`gauge.jenkins.node.executor.count.value`*** (*gauge*) - <br>    Total Number of executors in an instance
- - ***`gauge.jenkins.node.executor.in-use.value`*** (*gauge*) - <br>    Total number of executors being used in an instance
- - ***`gauge.jenkins.node.health-check.score`*** (*gauge*) - <br>    Mean health score of an instance
- - ***`gauge.jenkins.node.health.disk.space`*** (*gauge*) - <br>    Binary value of disk space health
- - ***`gauge.jenkins.node.health.plugins`*** (*gauge*) - <br>    Boolean value indicating state of plugins
- - ***`gauge.jenkins.node.health.temporary.space`*** (*gauge*) - <br>    Binary value of temporary space health
- - ***`gauge.jenkins.node.health.thread-deadlock`*** (*gauge*) - <br>    Boolean value indicating a deadlock
- - ***`gauge.jenkins.node.online.status`*** (*gauge*) - <br>    Boolean value of instance is reachable or not
- - ***`gauge.jenkins.node.queue.size.value`*** (*gauge*) - <br>    Total number pending jobs in queue
- - ***`gauge.jenkins.node.slave.online.status`*** (*gauge*) - <br>    Boolean value for slave is reachable or not
- - ***`gauge.jenkins.node.vm.memory.heap.usage`*** (*gauge*) - <br>    Percent utilization of the heap memory
- - ***`gauge.jenkins.node.vm.memory.non-heap.used`*** (*gauge*) - <br>    Total amount of non-heap memory used
- - ***`gauge.jenkins.node.vm.memory.total.used`*** (*gauge*) - <br>    Total Memory used by instance
+ - ***`gauge.jenkins.job.duration`*** (*gauge*)<br>    Time taken to complete the job in ms.
+ - ***`gauge.jenkins.node.executor.count.value`*** (*gauge*)<br>    Total Number of executors in an instance
+ - ***`gauge.jenkins.node.executor.in-use.value`*** (*gauge*)<br>    Total number of executors being used in an instance
+ - ***`gauge.jenkins.node.health-check.score`*** (*gauge*)<br>    Mean health score of an instance
+ - ***`gauge.jenkins.node.health.disk.space`*** (*gauge*)<br>    Binary value of disk space health
+ - ***`gauge.jenkins.node.health.plugins`*** (*gauge*)<br>    Boolean value indicating state of plugins
+ - ***`gauge.jenkins.node.health.temporary.space`*** (*gauge*)<br>    Binary value of temporary space health
+ - ***`gauge.jenkins.node.health.thread-deadlock`*** (*gauge*)<br>    Boolean value indicating a deadlock
+ - ***`gauge.jenkins.node.online.status`*** (*gauge*)<br>    Boolean value of instance is reachable or not
+ - ***`gauge.jenkins.node.queue.size.value`*** (*gauge*)<br>    Total number pending jobs in queue
+ - ***`gauge.jenkins.node.slave.online.status`*** (*gauge*)<br>    Boolean value for slave is reachable or not
+ - ***`gauge.jenkins.node.vm.memory.heap.usage`*** (*gauge*)<br>    Percent utilization of the heap memory
+ - ***`gauge.jenkins.node.vm.memory.non-heap.used`*** (*gauge*)<br>    Total amount of non-heap memory used
+ - ***`gauge.jenkins.node.vm.memory.total.used`*** (*gauge*)<br>    Total Memory used by instance
 
 ### Non-default metrics (version 4.7.0+)
 

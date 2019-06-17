@@ -32,7 +32,7 @@ This monitor emits all metrics by default; however, **none are categorized as
 
 
 
- - ***`cpufreq.<N>`*** (*gauge*) - <br>    The processor frequency in Hertz for the <N>th processor on the system.
+ - ***`cpufreq.<N>`*** (*gauge*)<br>    The processor frequency in Hertz for the <N>th processor on the system.
 The agent does not do any built-in filtering of metrics coming out of this
 monitor.
 

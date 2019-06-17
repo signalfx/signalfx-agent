@@ -45,20 +45,20 @@ This monitor emits all metrics by default; however, **none are categorized as
 
 
 
- - ***`disk_merged.read`*** (*cumulative*) - <br>    (Linux Only) The number of disk reads merged into single physical disk access operations.
- - ***`disk_merged.write`*** (*cumulative*) - <br>    (Linux Only) The number of disk writes merged into single physical disk access operations.
- - ***`disk_octets.avg_read`*** (*gauge*) - <br>    (Windows Only) The average number of octets (bytes) read.
- - ***`disk_octets.avg_write`*** (*gauge*) - <br>    (Windows Only) The average number of octets (bytes) written.
- - ***`disk_octets.read`*** (*cumulative*) - <br>    (Linux Only) The number of bytes (octets) read from a disk.
- - ***`disk_octets.write`*** (*cumulative*) - <br>    (Linux Only) The number of bytes (octets) written to a disk.
- - ***`disk_ops.avg_read`*** (*gauge*) - <br>    (Windows Only) The average disk read queue length.
- - ***`disk_ops.avg_write`*** (*gauge*) - <br>    (Windows Only) The average disk write queue length.
- - ***`disk_ops.read`*** (*cumulative*) - <br>    (Linux Only) The number of disk read operations.
- - ***`disk_ops.write`*** (*cumulative*) - <br>    (Linux Only) The number of disk write operations.
- - ***`disk_time.avg_read`*** (*gauge*) - <br>    (Windows Only) The average time spent reading from the disk.
- - ***`disk_time.avg_write`*** (*gauge*) - <br>    (Windows Only) The average time spent writing to the disk
- - ***`disk_time.read`*** (*cumulative*) - <br>    (Linux Only) The average amount of time it took to do a read operation.
- - ***`disk_time.write`*** (*cumulative*) - <br>    (Linux Only) The average amount of time it took to do a write operation.
+ - ***`disk_merged.read`*** (*cumulative*)<br>    (Linux Only) The number of disk reads merged into single physical disk access operations.
+ - ***`disk_merged.write`*** (*cumulative*)<br>    (Linux Only) The number of disk writes merged into single physical disk access operations.
+ - ***`disk_octets.avg_read`*** (*gauge*)<br>    (Windows Only) The average number of octets (bytes) read.
+ - ***`disk_octets.avg_write`*** (*gauge*)<br>    (Windows Only) The average number of octets (bytes) written.
+ - ***`disk_octets.read`*** (*cumulative*)<br>    (Linux Only) The number of bytes (octets) read from a disk.
+ - ***`disk_octets.write`*** (*cumulative*)<br>    (Linux Only) The number of bytes (octets) written to a disk.
+ - ***`disk_ops.avg_read`*** (*gauge*)<br>    (Windows Only) The average disk read queue length.
+ - ***`disk_ops.avg_write`*** (*gauge*)<br>    (Windows Only) The average disk write queue length.
+ - ***`disk_ops.read`*** (*cumulative*)<br>    (Linux Only) The number of disk read operations.
+ - ***`disk_ops.write`*** (*cumulative*)<br>    (Linux Only) The number of disk write operations.
+ - ***`disk_time.avg_read`*** (*gauge*)<br>    (Windows Only) The average time spent reading from the disk.
+ - ***`disk_time.avg_write`*** (*gauge*)<br>    (Windows Only) The average time spent writing to the disk
+ - ***`disk_time.read`*** (*cumulative*)<br>    (Linux Only) The average amount of time it took to do a read operation.
+ - ***`disk_time.write`*** (*cumulative*)<br>    (Linux Only) The average amount of time it took to do a write operation.
 The agent does not do any built-in filtering of metrics coming out of this
 monitor.
 
