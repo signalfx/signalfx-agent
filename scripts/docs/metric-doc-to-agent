@@ -19,7 +19,7 @@ METADATA_DIR = Path(sys.argv[2]).resolve()
 
 INTEGRATIONS_REPO = Path(os.environ.get("INTEGRATIONS_REPO", SCRIPT_DIR / "../../../integrations"))
 
-if not os.path.isdir(INTEGRATIONS_REPO):
+if not INTEGRATIONS_REPO.is_dir():
     print("Please set INTEGRATIONS_REPO to the local path to the SignalFx integrations repo", file=sys.stderr)
     sys.exit(1)
 
