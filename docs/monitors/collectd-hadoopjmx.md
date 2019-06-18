@@ -124,76 +124,97 @@ The **nested** `values` config object has the following fields:
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | [Group](#groups) | Description |
-| ---  | ---  | ---    | --- | ---         |
-| `counter.hadoop-datanode-blocks-read` | cumulative |  | data-node |  |
-| `counter.hadoop-datanode-blocks-written` | cumulative |  | data-node |  |
-| `counter.hadoop-datanode-bytes-read` | cumulative |  | data-node |  |
-| `counter.hadoop-datanode-bytes-written` | cumulative |  | data-node |  |
-| `counter.hadoop-namenode-files-total` | cumulative |  | name-node |  |
-| `counter.hadoop-namenode-gc-count` | cumulative | ✔ | name-node |  |
-| `counter.hadoop-namenode-gc-time` | cumulative | ✔ | name-node |  |
-| `counter.hadoop-namenode-rpc-total-calls` | cumulative | ✔ | name-node |  |
-| `counter.hadoop-namenode-total-load` | cumulative | ✔ | name-node |  |
-| `counter.hadoop-namenode-volume-failures` | cumulative | ✔ | name-node |  |
-| `counter.hadoop-nodeManager-containers-failed` | cumulative |  | node-manager |  |
-| `counter.hadoop-nodeManager-containers-launched` | cumulative |  | node-manager |  |
-| `gauge.hadoop-datanode-fs-capacity` | gauge | ✔ | data-node |  |
-| `gauge.hadoop-datanode-fs-dfs-remaining` | gauge | ✔ | data-node |  |
-| `gauge.hadoop-datanode-fs-dfs-used` | gauge | ✔ | data-node |  |
-| `gauge.hadoop-datanode-info-xceiver` | gauge |  | data-node |  |
-| `gauge.hadoop-datanode-jvm-heap-used` | gauge | ✔ | data-node |  |
-| `gauge.hadoop-datanode-jvm-non-heap-used` | gauge |  | data-node |  |
-| `gauge.hadoop-datanode-rpc-call-queue-length` | gauge | ✔ | data-node |  |
-| `gauge.hadoop-datanode-rpc-open-connections` | gauge | ✔ | data-node |  |
-| `gauge.hadoop-datanode-rpc-processing-avg` | gauge | ✔ | data-node |  |
-| `gauge.hadoop-datanode-rpc-queue-time-avg` | gauge | ✔ | data-node |  |
-| `gauge.hadoop-namenode-blocks-with-corrupt-replicas` | gauge |  | name-node |  |
-| `gauge.hadoop-namenode-capacity-remaining` | gauge |  | name-node |  |
-| `gauge.hadoop-namenode-capacity-total` | gauge | ✔ | name-node |  |
-| `gauge.hadoop-namenode-capacity-used` | gauge | ✔ | name-node |  |
-| `gauge.hadoop-namenode-corrupt-blocks` | gauge |  | name-node |  |
-| `gauge.hadoop-namenode-current-heap-used` | gauge | ✔ | name-node |  |
-| `gauge.hadoop-namenode-dead-datanodes` | gauge | ✔ | name-node |  |
-| `gauge.hadoop-namenode-dfs-free` | gauge | ✔ | name-node |  |
-| `gauge.hadoop-namenode-live-datanodes` | gauge | ✔ | name-node |  |
-| `gauge.hadoop-namenode-max-heap` | gauge | ✔ | name-node |  |
-| `gauge.hadoop-namenode-missing-blocks` | gauge |  | name-node |  |
-| `gauge.hadoop-namenode-percent-dfs-used` | gauge |  | name-node |  |
-| `gauge.hadoop-namenode-percent-remaining` | gauge | ✔ | name-node |  |
-| `gauge.hadoop-namenode-rpc-avg-process-time` | gauge | ✔ | name-node |  |
-| `gauge.hadoop-namenode-rpc-avg-queue` | gauge | ✔ | name-node |  |
-| `gauge.hadoop-namenode-stale-datanodes` | gauge |  | name-node |  |
-| `gauge.hadoop-namenode-under-replicated-blocks` | gauge | ✔ | name-node |  |
-| `gauge.hadoop-nodeManager-allocated-memory` | gauge |  | node-manager |  |
-| `gauge.hadoop-nodeManager-allocated-vcores` | gauge |  | node-manager |  |
-| `gauge.hadoop-nodeManager-available-memory` | gauge |  | node-manager |  |
-| `gauge.hadoop-nodeManager-available-vcores` | gauge |  | node-manager |  |
-| `gauge.hadoop-resourceManager-active-apps` | gauge |  | resource-manager |  |
-| `gauge.hadoop-resourceManager-active-nms` | gauge |  | resource-manager |  |
-| `gauge.hadoop-resourceManager-active-users` | gauge |  | resource-manager |  |
-| `gauge.hadoop-resourceManager-allocated-containers` | gauge |  | resource-manager |  |
-| `gauge.hadoop-resourceManager-allocated-memory` | gauge |  | resource-manager |  |
-| `gauge.hadoop-resourceManager-allocated-vcores` | gauge | ✔ | resource-manager |  |
-| `gauge.hadoop-resourceManager-available-memory` | gauge |  | resource-manager |  |
-| `gauge.hadoop-resourceManager-available-vcores` | gauge | ✔ | resource-manager |  |
-| `gauge.hadoop-resourceManager-heap-max` | gauge |  | resource-manager |  |
-| `gauge.hadoop-resourceManager-heap-used` | gauge |  | resource-manager |  |
-| `gauge.jvm.threads.count` | gauge | ✔ | jvm | Number of JVM threads |
-| `gauge.loaded_classes` | gauge | ✔ | jvm | Number of classes loaded in the JVM |
-| `invocations` | cumulative | ✔ | jvm | Total number of garbage collection events |
-| `jmx_memory.committed` | gauge | ✔ | jvm | Amount of memory guaranteed to be available in bytes |
-| `jmx_memory.init` | gauge | ✔ | jvm | Amount of initial memory at startup in bytes |
-| `jmx_memory.max` | gauge | ✔ | jvm | Maximum amount of memory that can be used in bytes |
-| `jmx_memory.used` | gauge | ✔ | jvm | Current memory usage in bytes |
-| `total_time_in_ms.collection_time` | cumulative | ✔ | jvm | Amount of time spent garbage collecting in milliseconds |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+#### Group data-node
+All of the following metrics are part of the `data-node` metric group. All of
+the non-default metrics below can be turned on by adding `data-node` to the
+monitor config option `extraGroups`:
+ - `counter.hadoop-datanode-blocks-read` (*cumulative*)<br>
+ - `counter.hadoop-datanode-blocks-written` (*cumulative*)<br>
+ - `counter.hadoop-datanode-bytes-read` (*cumulative*)<br>
+ - `counter.hadoop-datanode-bytes-written` (*cumulative*)<br>
+ - ***`gauge.hadoop-datanode-fs-capacity`*** (*gauge*)<br>
+ - ***`gauge.hadoop-datanode-fs-dfs-remaining`*** (*gauge*)<br>
+ - ***`gauge.hadoop-datanode-fs-dfs-used`*** (*gauge*)<br>
+ - `gauge.hadoop-datanode-info-xceiver` (*gauge*)<br>
+ - ***`gauge.hadoop-datanode-jvm-heap-used`*** (*gauge*)<br>
+ - `gauge.hadoop-datanode-jvm-non-heap-used` (*gauge*)<br>
+ - ***`gauge.hadoop-datanode-rpc-call-queue-length`*** (*gauge*)<br>
+ - ***`gauge.hadoop-datanode-rpc-open-connections`*** (*gauge*)<br>
+ - ***`gauge.hadoop-datanode-rpc-processing-avg`*** (*gauge*)<br>
+ - ***`gauge.hadoop-datanode-rpc-queue-time-avg`*** (*gauge*)<br>
+
+#### Group jvm
+All of the following metrics are part of the `jvm` metric group. All of
+the non-default metrics below can be turned on by adding `jvm` to the
+monitor config option `extraGroups`:
+ - ***`gauge.jvm.threads.count`*** (*gauge*)<br>    Number of JVM threads
+ - ***`gauge.loaded_classes`*** (*gauge*)<br>    Number of classes loaded in the JVM
+ - ***`invocations`*** (*cumulative*)<br>    Total number of garbage collection events
+ - ***`jmx_memory.committed`*** (*gauge*)<br>    Amount of memory guaranteed to be available in bytes
+ - ***`jmx_memory.init`*** (*gauge*)<br>    Amount of initial memory at startup in bytes
+ - ***`jmx_memory.max`*** (*gauge*)<br>    Maximum amount of memory that can be used in bytes
+ - ***`jmx_memory.used`*** (*gauge*)<br>    Current memory usage in bytes
+ - ***`total_time_in_ms.collection_time`*** (*cumulative*)<br>    Amount of time spent garbage collecting in milliseconds
+
+#### Group name-node
+All of the following metrics are part of the `name-node` metric group. All of
+the non-default metrics below can be turned on by adding `name-node` to the
+monitor config option `extraGroups`:
+ - `counter.hadoop-namenode-files-total` (*cumulative*)<br>
+ - ***`counter.hadoop-namenode-gc-count`*** (*cumulative*)<br>
+ - ***`counter.hadoop-namenode-gc-time`*** (*cumulative*)<br>
+ - ***`counter.hadoop-namenode-rpc-total-calls`*** (*cumulative*)<br>
+ - ***`counter.hadoop-namenode-total-load`*** (*cumulative*)<br>
+ - ***`counter.hadoop-namenode-volume-failures`*** (*cumulative*)<br>
+ - `gauge.hadoop-namenode-blocks-with-corrupt-replicas` (*gauge*)<br>
+ - `gauge.hadoop-namenode-capacity-remaining` (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-capacity-total`*** (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-capacity-used`*** (*gauge*)<br>
+ - `gauge.hadoop-namenode-corrupt-blocks` (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-current-heap-used`*** (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-dead-datanodes`*** (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-dfs-free`*** (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-live-datanodes`*** (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-max-heap`*** (*gauge*)<br>
+ - `gauge.hadoop-namenode-missing-blocks` (*gauge*)<br>
+ - `gauge.hadoop-namenode-percent-dfs-used` (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-percent-remaining`*** (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-rpc-avg-process-time`*** (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-rpc-avg-queue`*** (*gauge*)<br>
+ - `gauge.hadoop-namenode-stale-datanodes` (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-under-replicated-blocks`*** (*gauge*)<br>
+
+#### Group node-manager
+All of the following metrics are part of the `node-manager` metric group. All of
+the non-default metrics below can be turned on by adding `node-manager` to the
+monitor config option `extraGroups`:
+ - `counter.hadoop-nodeManager-containers-failed` (*cumulative*)<br>
+ - `counter.hadoop-nodeManager-containers-launched` (*cumulative*)<br>
+ - `gauge.hadoop-nodeManager-allocated-memory` (*gauge*)<br>
+ - `gauge.hadoop-nodeManager-allocated-vcores` (*gauge*)<br>
+ - `gauge.hadoop-nodeManager-available-memory` (*gauge*)<br>
+ - `gauge.hadoop-nodeManager-available-vcores` (*gauge*)<br>
+
+#### Group resource-manager
+All of the following metrics are part of the `resource-manager` metric group. All of
+the non-default metrics below can be turned on by adding `resource-manager` to the
+monitor config option `extraGroups`:
+ - `gauge.hadoop-resourceManager-active-apps` (*gauge*)<br>
+ - `gauge.hadoop-resourceManager-active-nms` (*gauge*)<br>
+ - `gauge.hadoop-resourceManager-active-users` (*gauge*)<br>
+ - `gauge.hadoop-resourceManager-allocated-containers` (*gauge*)<br>
+ - `gauge.hadoop-resourceManager-allocated-memory` (*gauge*)<br>
+ - ***`gauge.hadoop-resourceManager-allocated-vcores`*** (*gauge*)<br>
+ - `gauge.hadoop-resourceManager-available-memory` (*gauge*)<br>
+ - ***`gauge.hadoop-resourceManager-available-vcores`*** (*gauge*)<br>
+ - `gauge.hadoop-resourceManager-heap-max` (*gauge*)<br>
+ - `gauge.hadoop-resourceManager-heap-used` (*gauge*)<br>
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -202,16 +223,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
-#### Groups
-You can enable an entire group of metrics by specifying the `extraGroups` config
-option in your monitor config.  The value is a list of group names to enable.
 
 ### Legacy non-default metrics (version < 4.7.0)
 

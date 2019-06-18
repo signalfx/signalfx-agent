@@ -63,60 +63,57 @@ The **nested** `kubernetesAPI` config object has the following fields:
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `kubernetes.container_ready` | gauge | ✔ | Whether a container has passed its readiness probe (0 for no, 1 for yes) |
-| `kubernetes.container_restart_count` | gauge | ✔ | How many times the container has restarted in the recent past.  This value is pulled directly from [the K8s API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core) and the value can go indefinitely high and be reset to 0 at any time depending on how your [kubelet is configured to prune dead containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/). It is best to not depend too much on the exact value but rather look at it as either `== 0`, in which case you can conclude there were no restarts in the recent past, or `> 0`, in which case you can conclude there were restarts in the recent past, and not try and analyze the value beyond that. |
-| `kubernetes.daemon_set.current_scheduled` | gauge | ✔ | The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod |
-| `kubernetes.daemon_set.desired_scheduled` | gauge | ✔ | The total number of nodes that should be running the daemon pod (including nodes currently running the daemon pod) |
-| `kubernetes.daemon_set.misscheduled` | gauge | ✔ | The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod |
-| `kubernetes.daemon_set.ready` | gauge | ✔ | The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready |
-| `kubernetes.deployment.available` | gauge | ✔ | Total number of available pods (ready for at least minReadySeconds) targeted by this deployment. |
-| `kubernetes.deployment.desired` | gauge | ✔ | Number of desired pods in this deployment |
-| `kubernetes.namespace_phase` | gauge | ✔ | The current phase of namespaces (`1` for _active_ and `0` for _terminating_) |
-| `kubernetes.node_ready` | gauge | ✔ | Whether this node is ready (1), not ready (0) or in an unknown state (-1) |
-| `kubernetes.pod_phase` | gauge | ✔ | Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown) |
-| `kubernetes.replica_set.available` | gauge | ✔ | Total number of available pods (ready for at least minReadySeconds) targeted by this replica set |
-| `kubernetes.replica_set.desired` | gauge | ✔ | Number of desired pods in this replica set |
-| `kubernetes.replication_controller.available` | gauge | ✔ | Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller. |
-| `kubernetes.replication_controller.desired` | gauge | ✔ | Number of desired pods |
-| `kubernetes.resource_quota_hard` | gauge | ✔ | The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores. |
-| `kubernetes.resource_quota_used` | gauge | ✔ | The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores. |
-| `openshift.appliedclusterquota.cpu.hard` | gauge | ✔ | Hard limit for number of cpu by namespace |
-| `openshift.appliedclusterquota.cpu.used` | gauge | ✔ | Consumed number of cpu by namespace |
-| `openshift.appliedclusterquota.memory.hard` | gauge | ✔ | Hard limit for amount of memory by namespace |
-| `openshift.appliedclusterquota.memory.used` | gauge | ✔ | Consumed amount of memory by namespace |
-| `openshift.appliedclusterquota.persistentvolumeclaims.hard` | gauge | ✔ | Hard limit for number of persistentvolumeclaims by namespace |
-| `openshift.appliedclusterquota.persistentvolumeclaims.used` | gauge | ✔ | Consumed number of persistentvolumeclaims by namespace |
-| `openshift.appliedclusterquota.pods.hard` | gauge | ✔ | Hard limit for number of pods by namespace |
-| `openshift.appliedclusterquota.pods.used` | gauge | ✔ | Consumed number of pods by namespace |
-| `openshift.appliedclusterquota.services.hard` | gauge | ✔ | Hard limit for number of services by namespace |
-| `openshift.appliedclusterquota.services.loadbalancers.hard` | gauge | ✔ | Hard limit for number of services.loadbalancers by namespace |
-| `openshift.appliedclusterquota.services.loadbalancers.used` | gauge | ✔ | Consumed number of services.loadbalancers by namespace |
-| `openshift.appliedclusterquota.services.nodeports.hard` | gauge | ✔ | Hard limit for number of services.nodeports by namespace |
-| `openshift.appliedclusterquota.services.nodeports.used` | gauge | ✔ | Consumed number of services.nodeports by namespace |
-| `openshift.appliedclusterquota.services.used` | gauge | ✔ | Consumed number of services by namespace |
-| `openshift.clusterquota.cpu.hard` | gauge | ✔ | Hard limit for number of cpu across all namespaces |
-| `openshift.clusterquota.cpu.used` | gauge | ✔ | Consumed number of cpu across all namespaces |
-| `openshift.clusterquota.memory.hard` | gauge | ✔ | Hard limit for amount of memory across all namespaces |
-| `openshift.clusterquota.memory.used` | gauge | ✔ | Consumed amount of memory across all namespaces |
-| `openshift.clusterquota.persistentvolumeclaims.hard` | gauge | ✔ | Hard limit for number of persistentvolumeclaims across all namespaces |
-| `openshift.clusterquota.persistentvolumeclaims.used` | gauge | ✔ | Consumed number of persistentvolumeclaims across all namespaces |
-| `openshift.clusterquota.pods.hard` | gauge | ✔ | Hard limit for number of pods across all namespaces |
-| `openshift.clusterquota.pods.used` | gauge | ✔ | Consumed number of pods across all namespaces |
-| `openshift.clusterquota.services.hard` | gauge | ✔ | Hard limit for number of services across all namespaces |
-| `openshift.clusterquota.services.loadbalancers.hard` | gauge | ✔ | Hard limit for number of services.loadbalancers across all namespaces |
-| `openshift.clusterquota.services.loadbalancers.used` | gauge | ✔ | Consumed number of services.loadbalancers across all namespaces |
-| `openshift.clusterquota.services.nodeports.hard` | gauge | ✔ | Hard limit for number of services.nodeports across all namespaces |
-| `openshift.clusterquota.services.nodeports.used` | gauge | ✔ | Consumed number of services.nodeports across all namespaces |
-| `openshift.clusterquota.services.used` | gauge | ✔ | Consumed number of services across all namespaces |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - ***`kubernetes.container_ready`*** (*gauge*)<br>    Whether a container has passed its readiness probe (0 for no, 1 for yes)
+ - ***`kubernetes.container_restart_count`*** (*gauge*)<br>    How many times the container has restarted in the recent past.  This value is pulled directly from [the K8s API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core) and the value can go indefinitely high and be reset to 0 at any time depending on how your [kubelet is configured to prune dead containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/). It is best to not depend too much on the exact value but rather look at it as either `== 0`, in which case you can conclude there were no restarts in the recent past, or `> 0`, in which case you can conclude there were restarts in the recent past, and not try and analyze the value beyond that.
+ - ***`kubernetes.daemon_set.current_scheduled`*** (*gauge*)<br>    The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod
+ - ***`kubernetes.daemon_set.desired_scheduled`*** (*gauge*)<br>    The total number of nodes that should be running the daemon pod (including nodes currently running the daemon pod)
+ - ***`kubernetes.daemon_set.misscheduled`*** (*gauge*)<br>    The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod
+ - ***`kubernetes.daemon_set.ready`*** (*gauge*)<br>    The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready
+ - ***`kubernetes.deployment.available`*** (*gauge*)<br>    Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.
+ - ***`kubernetes.deployment.desired`*** (*gauge*)<br>    Number of desired pods in this deployment
+ - ***`kubernetes.namespace_phase`*** (*gauge*)<br>    The current phase of namespaces (`1` for _active_ and `0` for _terminating_)
+ - ***`kubernetes.node_ready`*** (*gauge*)<br>    Whether this node is ready (1), not ready (0) or in an unknown state (-1)
+ - ***`kubernetes.pod_phase`*** (*gauge*)<br>    Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown)
+ - ***`kubernetes.replica_set.available`*** (*gauge*)<br>    Total number of available pods (ready for at least minReadySeconds) targeted by this replica set
+ - ***`kubernetes.replica_set.desired`*** (*gauge*)<br>    Number of desired pods in this replica set
+ - ***`kubernetes.replication_controller.available`*** (*gauge*)<br>    Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller.
+ - ***`kubernetes.replication_controller.desired`*** (*gauge*)<br>    Number of desired pods
+ - ***`kubernetes.resource_quota_hard`*** (*gauge*)<br>    The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.
+ - ***`kubernetes.resource_quota_used`*** (*gauge*)<br>    The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.
+ - ***`openshift.appliedclusterquota.cpu.hard`*** (*gauge*)<br>    Hard limit for number of cpu by namespace
+ - ***`openshift.appliedclusterquota.cpu.used`*** (*gauge*)<br>    Consumed number of cpu by namespace
+ - ***`openshift.appliedclusterquota.memory.hard`*** (*gauge*)<br>    Hard limit for amount of memory by namespace
+ - ***`openshift.appliedclusterquota.memory.used`*** (*gauge*)<br>    Consumed amount of memory by namespace
+ - ***`openshift.appliedclusterquota.persistentvolumeclaims.hard`*** (*gauge*)<br>    Hard limit for number of persistentvolumeclaims by namespace
+ - ***`openshift.appliedclusterquota.persistentvolumeclaims.used`*** (*gauge*)<br>    Consumed number of persistentvolumeclaims by namespace
+ - ***`openshift.appliedclusterquota.pods.hard`*** (*gauge*)<br>    Hard limit for number of pods by namespace
+ - ***`openshift.appliedclusterquota.pods.used`*** (*gauge*)<br>    Consumed number of pods by namespace
+ - ***`openshift.appliedclusterquota.services.hard`*** (*gauge*)<br>    Hard limit for number of services by namespace
+ - ***`openshift.appliedclusterquota.services.loadbalancers.hard`*** (*gauge*)<br>    Hard limit for number of services.loadbalancers by namespace
+ - ***`openshift.appliedclusterquota.services.loadbalancers.used`*** (*gauge*)<br>    Consumed number of services.loadbalancers by namespace
+ - ***`openshift.appliedclusterquota.services.nodeports.hard`*** (*gauge*)<br>    Hard limit for number of services.nodeports by namespace
+ - ***`openshift.appliedclusterquota.services.nodeports.used`*** (*gauge*)<br>    Consumed number of services.nodeports by namespace
+ - ***`openshift.appliedclusterquota.services.used`*** (*gauge*)<br>    Consumed number of services by namespace
+ - ***`openshift.clusterquota.cpu.hard`*** (*gauge*)<br>    Hard limit for number of cpu across all namespaces
+ - ***`openshift.clusterquota.cpu.used`*** (*gauge*)<br>    Consumed number of cpu across all namespaces
+ - ***`openshift.clusterquota.memory.hard`*** (*gauge*)<br>    Hard limit for amount of memory across all namespaces
+ - ***`openshift.clusterquota.memory.used`*** (*gauge*)<br>    Consumed amount of memory across all namespaces
+ - ***`openshift.clusterquota.persistentvolumeclaims.hard`*** (*gauge*)<br>    Hard limit for number of persistentvolumeclaims across all namespaces
+ - ***`openshift.clusterquota.persistentvolumeclaims.used`*** (*gauge*)<br>    Consumed number of persistentvolumeclaims across all namespaces
+ - ***`openshift.clusterquota.pods.hard`*** (*gauge*)<br>    Hard limit for number of pods across all namespaces
+ - ***`openshift.clusterquota.pods.used`*** (*gauge*)<br>    Consumed number of pods across all namespaces
+ - ***`openshift.clusterquota.services.hard`*** (*gauge*)<br>    Hard limit for number of services across all namespaces
+ - ***`openshift.clusterquota.services.loadbalancers.hard`*** (*gauge*)<br>    Hard limit for number of services.loadbalancers across all namespaces
+ - ***`openshift.clusterquota.services.loadbalancers.used`*** (*gauge*)<br>    Consumed number of services.loadbalancers across all namespaces
+ - ***`openshift.clusterquota.services.nodeports.hard`*** (*gauge*)<br>    Hard limit for number of services.nodeports across all namespaces
+ - ***`openshift.clusterquota.services.nodeports.used`*** (*gauge*)<br>    Consumed number of services.nodeports across all namespaces
+ - ***`openshift.clusterquota.services.used`*** (*gauge*)<br>    Consumed number of services across all namespaces
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -125,13 +122,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 
@@ -166,7 +161,7 @@ dimensions may be specific to certain metrics.
 ## Properties
 
 The following
-[properties](https://docs.signalfx.com/en/latest/concepts/metrics-metadata.html#properties)
+[properties](https://docs.signalfx.com/en/latest/metrics-metadata/metrics-metadata.html#properties)
 are set on the dimension values of the dimension specified.
 
 | Name | Dimension | Description |

@@ -2,8 +2,19 @@
 
 # collectd/cassandra
 
-Monitors Cassandra using the GenericJMX collectd
-plugin.
+Monitors Cassandra using the Collectd GenericJMX plugin.  This is
+essentially a wrapper around the
+[collectd-genericjmx](./collectd-genericjmx.md) monitor that comes with a
+set of predefined MBean definitions that a standard Cassandra deployment
+will expose.
+
+Use this integration to monitor the following types of information from Cassandra nodes:
+
+ - read/write/range-slice requests
+ - read/write/range-slice errors (timeouts and unavailable)
+ - read/write/range-slice latency (median, 99th percentile, maximum)
+ - compaction activity
+ - hint activity
 
 
 Monitor Type: `collectd/cassandra`
@@ -61,46 +72,138 @@ The **nested** `values` config object has the following fields:
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | [Group](#groups) | Description |
-| ---  | ---  | ---    | --- | ---         |
-| `counter.cassandra.ClientRequest.RangeSlice.Latency.Count` | cumulative | ✔ |  | Count of range slice operations since server start |
-| `counter.cassandra.ClientRequest.RangeSlice.Timeouts.Count` | cumulative | ✔ |  | Count of range slice timeouts since server start |
-| `counter.cassandra.ClientRequest.RangeSlice.Unavailables.Count` | cumulative | ✔ |  | Count of range slice unavailables since server start |
-| `counter.cassandra.ClientRequest.Read.Latency.Count` | cumulative | ✔ |  | Count of read operations since server start |
-| `counter.cassandra.ClientRequest.Read.Timeouts.Count` | cumulative | ✔ |  | Count of read timeouts since server start |
-| `counter.cassandra.ClientRequest.Read.Unavailables.Count` | cumulative | ✔ |  | Count of read unavailables since server start |
-| `counter.cassandra.ClientRequest.Write.Latency.Count` | cumulative | ✔ |  | Count of write operations since server start |
-| `counter.cassandra.ClientRequest.Write.Timeouts.Count` | cumulative | ✔ |  | Count of write timeouts since server start |
-| `counter.cassandra.ClientRequest.Write.Unavailables.Count` | cumulative | ✔ |  | Count of write unavailables since server start |
-| `counter.cassandra.Compaction.TotalCompactionsCompleted.Count` | cumulative |  |  | Number of compaction operations since node start |
-| `gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile` | gauge |  |  | 50th percentile (median) of Cassandra range slice latency |
-| `gauge.cassandra.ClientRequest.RangeSlice.Latency.99thPercentile` | gauge | ✔ |  | 99th percentile of Cassandra range slice latency |
-| `gauge.cassandra.ClientRequest.RangeSlice.Latency.Max` | gauge |  |  | Maximum Cassandra range slice latency |
-| `gauge.cassandra.ClientRequest.Read.Latency.50thPercentile` | gauge | ✔ |  | 50th percentile (median) of Cassandra read latency |
-| `gauge.cassandra.ClientRequest.Read.Latency.99thPercentile` | gauge | ✔ |  | 99th percentile of Cassandra read latency |
-| `gauge.cassandra.ClientRequest.Read.Latency.Max` | gauge | ✔ |  | Maximum Cassandra read latency |
-| `gauge.cassandra.ClientRequest.Write.Latency.50thPercentile` | gauge | ✔ |  | 50th percentile (median) of Cassandra write latency |
-| `gauge.cassandra.ClientRequest.Write.Latency.99thPercentile` | gauge | ✔ |  | 99th percentile of Cassandra write latency |
-| `gauge.cassandra.ClientRequest.Write.Latency.Max` | gauge | ✔ |  | Maximum Cassandra write latency |
-| `gauge.cassandra.Compaction.PendingTasks.Value` | gauge | ✔ |  | Number of compaction operations waiting to run |
-| `gauge.cassandra.Storage.Load.Count` | gauge | ✔ |  | Storage used for Cassandra data in bytes |
-| `gauge.cassandra.Storage.TotalHints.Count` | gauge |  |  | Total hints since node start |
-| `gauge.cassandra.Storage.TotalHintsInProgress.Count` | gauge | ✔ |  | Total pending hints |
-| `gauge.jvm.threads.count` | gauge | ✔ | jvm | Number of JVM threads |
-| `gauge.loaded_classes` | gauge | ✔ | jvm | Number of classes loaded in the JVM |
-| `invocations` | cumulative | ✔ | jvm | Total number of garbage collection events |
-| `jmx_memory.committed` | gauge | ✔ | jvm | Amount of memory guaranteed to be available in bytes |
-| `jmx_memory.init` | gauge | ✔ | jvm | Amount of initial memory at startup in bytes |
-| `jmx_memory.max` | gauge | ✔ | jvm | Maximum amount of memory that can be used in bytes |
-| `jmx_memory.used` | gauge | ✔ | jvm | Current memory usage in bytes |
-| `total_time_in_ms.collection_time` | cumulative | ✔ | jvm | Amount of time spent garbage collecting in milliseconds |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - ***`counter.cassandra.ClientRequest.RangeSlice.Latency.Count`*** (*cumulative*)<br>    Count of range slice operations since server start. This typically indicates a server overload condition.
+
+    If this value is increasing across the cluster then the cluster is too small for the application range slice load.
+
+    If this value is increasing for a single server in a cluster, then one of the following conditions may be true:
+
+    - one or more clients are directing more load to this server than the others
+    - the server is experiencing hardware or software issues and may require maintenance.
+
+ - ***`counter.cassandra.ClientRequest.RangeSlice.Timeouts.Count`*** (*cumulative*)<br>    Count of range slice timeouts since server start. This typically indicates a server overload condition.
+
+    If this value is increasing across the cluster then the cluster is too small for the application range slice load.
+
+    If this value is increasing for a single server in a cluster, then one of the following conditions may be true:
+    - one or more clients are directing more load to this server than the others
+    - the server is experiencing hardware or software issues and may require maintenance.
+
+ - ***`counter.cassandra.ClientRequest.RangeSlice.Unavailables.Count`*** (*cumulative*)<br>    Count of range slice unavailables since server start. A non-zero value
+    means that insufficient replicas were available to fulfil a range slice
+    request at the requested consistency level.
+
+    This typically means that one or more nodes are down. To fix this condition,
+    any down nodes must be restarted, or removed from the cluster.
+
+ - ***`counter.cassandra.ClientRequest.Read.Latency.Count`*** (*cumulative*)<br>    Count of read operations since server start
+ - ***`counter.cassandra.ClientRequest.Read.Timeouts.Count`*** (*cumulative*)<br>    Count of read timeouts since server start. This typically indicates a server overload condition.
+
+    If this value is increasing across the cluster then the cluster is too small for the application read load.
+
+    If this value is increasing for a single server in a cluster, then one of the following conditions may be true:
+    - one or more clients are directing more load to this server than the others
+    - the server is experiencing hardware or software issues and may require maintenance.
+
+ - ***`counter.cassandra.ClientRequest.Read.Unavailables.Count`*** (*cumulative*)<br>    Count of read unavailables since server start. A non-zero value means
+    that insufficient replicas were available to fulfil a read request at
+    the requested consistency level. This typically means that one or more
+    nodes are down. To fix this condition, any down nodes must be
+    restarted, or removed from the cluster.
+
+ - ***`counter.cassandra.ClientRequest.Write.Latency.Count`*** (*cumulative*)<br>    Count of write operations since server start.
+ - ***`counter.cassandra.ClientRequest.Write.Timeouts.Count`*** (*cumulative*)<br>    Count of write timeouts since server start. This typically indicates a server overload condition.
+
+    If this value is increasing across the cluster then the cluster is too small for the application write load.
+
+    If this value is increasing for a single server in a cluster, then one of the following conditions may be true:
+    - one or more clients are directing more load to this server than the others
+    - the server is experiencing hardware or software issues and may require maintenance.
+
+ - ***`counter.cassandra.ClientRequest.Write.Unavailables.Count`*** (*cumulative*)<br>    Count of write unavailables since server start. A non-zero value means
+    that insufficient replicas were available to fulfil a write request at
+    the requested consistency level.
+
+    This typically means that one or more nodes are down. To fix this
+    condition, any down nodes must be restarted, or removed from the
+    cluster.
+
+ - `counter.cassandra.Compaction.TotalCompactionsCompleted.Count` (*cumulative*)<br>    Number of compaction operations since node start. If this value does
+    not increase steadily over time then the node may be experiencing
+    problems completing compaction operations.
+
+ - `gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile` (*gauge*)<br>    50th percentile (median) of Cassandra range slice latency. This value
+    should be similar across all nodes in the cluster. If some nodes have higher
+    values than the rest of the cluster then they may have more connected clients
+    or may be experiencing heavier than usual compaction load.
+
+ - ***`gauge.cassandra.ClientRequest.RangeSlice.Latency.99thPercentile`*** (*gauge*)<br>    99th percentile of Cassandra range slice latency. This value should be
+    similar across all nodes in the cluster. If some nodes have higher values than
+    the rest of the cluster then they may have more connected clients or may be
+    experiencing heavier than usual compaction load.
+
+ - `gauge.cassandra.ClientRequest.RangeSlice.Latency.Max` (*gauge*)<br>    Maximum Cassandra range slice latency
+ - ***`gauge.cassandra.ClientRequest.Read.Latency.50thPercentile`*** (*gauge*)<br>    50th percentile (median) of Cassandra read latency. This value should
+    be similar across all nodes in the cluster. If some nodes have higher
+    values than the rest of the cluster then they may have more connected
+    clients or may be experiencing heavier than usual compaction load.
+
+ - ***`gauge.cassandra.ClientRequest.Read.Latency.99thPercentile`*** (*gauge*)<br>    99th percentile of Cassandra read latency. This value should be similar
+    across all nodes in the cluster. If some nodes have higher values than
+    the rest of the cluster then they may have more connected clients or
+    may be experiencing heavier than usual compaction load.
+
+ - ***`gauge.cassandra.ClientRequest.Read.Latency.Max`*** (*gauge*)<br>    Maximum Cassandra read latency
+ - ***`gauge.cassandra.ClientRequest.Write.Latency.50thPercentile`*** (*gauge*)<br>    50th percentile (median) of Cassandra write latency. This value should
+    be similar across all nodes in the cluster. If some nodes have higher
+    values than the rest of the cluster then they may have more connected
+    clients or may be experiencing heavier than usual compaction load.
+
+ - ***`gauge.cassandra.ClientRequest.Write.Latency.99thPercentile`*** (*gauge*)<br>    99th percentile of Cassandra write latency. This value should be
+    similar across all nodes in the cluster. If some nodes have higher
+    values than the rest of the cluster then they may have more connected
+    clients or may be experiencing heavier than usual compaction load.
+
+ - ***`gauge.cassandra.ClientRequest.Write.Latency.Max`*** (*gauge*)<br>    Maximum Cassandra write latency
+ - ***`gauge.cassandra.Compaction.PendingTasks.Value`*** (*gauge*)<br>    Number of compaction operations waiting to run. If this value is
+    continually increasing then the node may be experiencing problems
+    completing compaction operations.
+
+ - ***`gauge.cassandra.Storage.Load.Count`*** (*gauge*)<br>    Storage used for Cassandra data in bytes. Use this metric to see how much storage is being used for data by a Cassandra node.
+
+    The value of this metric is influenced by:
+    - Total data stored into the database
+    - compaction behavior
+
+ - `gauge.cassandra.Storage.TotalHints.Count` (*gauge*)<br>    Total hints since node start. Indicates that write operations cannot be
+    delivered to a node, usually because a node is down. If this value is
+    increasing and all nodes are up then there may be some connectivity
+    issue between nodes in the cluster.
+
+ - ***`gauge.cassandra.Storage.TotalHintsInProgress.Count`*** (*gauge*)<br>    Total pending hints. Indicates that write operations cannot be
+    delivered to a node, usually because a node is down. If this value is
+    increasing and all nodes are up then there may be some connectivity
+    issue between nodes in the cluster.
+
+
+#### Group jvm
+All of the following metrics are part of the `jvm` metric group. All of
+the non-default metrics below can be turned on by adding `jvm` to the
+monitor config option `extraGroups`:
+ - ***`gauge.jvm.threads.count`*** (*gauge*)<br>    Number of JVM threads
+ - ***`gauge.loaded_classes`*** (*gauge*)<br>    Number of classes loaded in the JVM
+ - ***`invocations`*** (*cumulative*)<br>    Total number of garbage collection events
+ - ***`jmx_memory.committed`*** (*gauge*)<br>    Amount of memory guaranteed to be available in bytes
+ - ***`jmx_memory.init`*** (*gauge*)<br>    Amount of initial memory at startup in bytes
+ - ***`jmx_memory.max`*** (*gauge*)<br>    Maximum amount of memory that can be used in bytes
+ - ***`jmx_memory.used`*** (*gauge*)<br>    Current memory usage in bytes
+ - ***`total_time_in_ms.collection_time`*** (*cumulative*)<br>    Amount of time spent garbage collecting in milliseconds
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -109,16 +212,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
-#### Groups
-You can enable an entire group of metrics by specifying the `extraGroups` config
-option in your monitor config.  The value is a list of group names to enable.
 
 ### Legacy non-default metrics (version < 4.7.0)
 

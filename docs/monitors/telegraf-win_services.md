@@ -42,16 +42,15 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
-This monitor emits all metrics by default; however, **none are categorized as [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) -- they are all custom**.
+These are the metrics available for this monitor.
+This monitor emits all metrics by default; however, **none are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+-- they are all custom**.
 
 
-| Name | Type | Description |
-| ---  | ---  | ---         |
-| `win_services.startup_mode` | gauge | The configured start up mode of the window windows service.  Possible values are: `0` (Boot Start), `1` (System Start), `2` (Auto Start), `3` (Demand Start), `4` (disabled). |
-| `win_services.state` | gauge | The state of the windows service.  Possible values are: `1` (Stopped), `2` (Start Pending), `3` (Stop Pending), `4` (Running), `5` (Continue Pending), `6` (Pause Pending), and `7` (Paused). |
 
-
+ - ***`win_services.startup_mode`*** (*gauge*)<br>    The configured start up mode of the window windows service.  Possible values are: `0` (Boot Start), `1` (System Start), `2` (Auto Start), `3` (Demand Start), `4` (disabled).
+ - ***`win_services.state`*** (*gauge*)<br>    The state of the windows service.  Possible values are: `1` (Stopped), `2` (Start Pending), `3` (Stop Pending), `4` (Running), `5` (Continue Pending), `6` (Pause Pending), and `7` (Paused).
 The agent does not do any built-in filtering of metrics coming out of this
 monitor.
 

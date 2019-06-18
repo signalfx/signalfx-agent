@@ -171,67 +171,64 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `ci_stale_builds` | gauge |  | ci_stale_builds metric |
-| `gitlab_cache_misses_total` | cumulative |  |  |
-| `gitlab_database_rows` | gauge |  |  |
-| `gitlab_projects_with_jid` | gauge |  |  |
-| `gitlab_projects_without_jid` | gauge |  |  |
-| `gitlab_stuck_import_jobs_worker_runs_total` | cumulative |  |  |
-| `http_request_duration_seconds` | cumulative |  |  |
-| `http_request_duration_seconds_bucket` | cumulative |  |  |
-| `http_request_duration_seconds_count` | cumulative |  |  |
-| `pg_stat_table_idx_tup_fetch` | gauge | ✔ | pg_stat_table_idx_tup_fetch metric |
-| `pg_stat_table_n_dead_tup` | gauge |  | pg_stat_table_n_dead_tup metric |
-| `pg_stat_table_n_tup_del` | gauge | ✔ | pg_stat_table_n_tup_del metric |
-| `pg_stat_table_n_tup_hot_upd` | gauge |  | pg_stat_table_n_tup_hot_upd metric |
-| `pg_stat_table_n_tup_ins` | gauge | ✔ | pg_stat_table_n_tup_ins metric |
-| `pg_stat_table_n_tup_upd` | gauge | ✔ | pg_stat_table_n_tup_upd metric |
-| `pg_stat_table_seq_scan` | gauge |  | pg_stat_table_seq_scan metric |
-| `pg_stat_table_seq_tup_read` | gauge | ✔ | pg_stat_table_seq_tup_read metric |
-| `process_age_seconds` | gauge |  | process_age_seconds metric |
-| `process_count` | gauge | ✔ | process_count metric |
-| `process_memory_bytes` | gauge |  | process_memory_bytes metric |
-| `ruby_file_descriptors` | gauge |  |  |
-| `ruby_gc_duration_seconds_total` | cumulative |  |  |
-| `ruby_gc_stat_count` | gauge |  |  |
-| `ruby_gc_stat_heap_allocatable_pages` | gauge |  |  |
-| `ruby_gc_stat_heap_allocated_pages` | gauge |  |  |
-| `ruby_gc_stat_heap_available_slots` | gauge |  |  |
-| `ruby_gc_stat_heap_eden_pages` | gauge |  |  |
-| `ruby_gc_stat_heap_final_slots` | gauge |  |  |
-| `ruby_gc_stat_heap_free_slots` | gauge |  |  |
-| `ruby_gc_stat_heap_live_slots` | gauge |  |  |
-| `ruby_gc_stat_heap_marked_slots` | gauge |  |  |
-| `ruby_gc_stat_heap_sorted_length` | gauge |  |  |
-| `ruby_gc_stat_heap_tomb_pages` | gauge |  |  |
-| `ruby_gc_stat_major_gc_count` | gauge |  |  |
-| `ruby_gc_stat_malloc_increase_bytes` | gauge |  |  |
-| `ruby_gc_stat_malloc_increase_bytes_limit` | gauge |  |  |
-| `ruby_gc_stat_minor_gc_count` | gauge |  |  |
-| `ruby_gc_stat_old_objects` | gauge |  |  |
-| `ruby_gc_stat_old_objects_limit` | gauge |  |  |
-| `ruby_gc_stat_oldmalloc_increase_bytes` | gauge |  |  |
-| `ruby_gc_stat_oldmalloc_increase_bytes_limit` | gauge |  |  |
-| `ruby_gc_stat_remembered_wb_unprotected_objects` | gauge |  |  |
-| `ruby_gc_stat_remembered_wb_unprotected_objects_limit` | gauge |  |  |
-| `ruby_gc_stat_total_allocated_objects` | gauge |  |  |
-| `ruby_gc_stat_total_allocated_pages` | gauge |  |  |
-| `ruby_gc_stat_total_freed_objects` | gauge |  |  |
-| `ruby_gc_stat_total_freed_pages` | gauge |  |  |
-| `ruby_memory_bytes` | gauge |  |  |
-| `ruby_sampler_duration_seconds_total` | cumulative |  |  |
-| `sidekiq_dead_jobs_total` | gauge |  | sidekiq_dead_jobs_total metric |
-| `sidekiq_queue_latency` | gauge | ✔ | sidekiq_queue_latency metric |
-| `sidekiq_queue_size` | gauge | ✔ | sidekiq_queue_size metric |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - `ci_stale_builds` (*gauge*)<br>    ci_stale_builds metric
+ - `gitlab_cache_misses_total` (*cumulative*)<br>
+ - `gitlab_database_rows` (*gauge*)<br>
+ - `gitlab_projects_with_jid` (*gauge*)<br>
+ - `gitlab_projects_without_jid` (*gauge*)<br>
+ - `gitlab_stuck_import_jobs_worker_runs_total` (*cumulative*)<br>
+ - `http_request_duration_seconds` (*cumulative*)<br>
+ - `http_request_duration_seconds_bucket` (*cumulative*)<br>
+ - `http_request_duration_seconds_count` (*cumulative*)<br>
+ - ***`pg_stat_table_idx_tup_fetch`*** (*gauge*)<br>    pg_stat_table_idx_tup_fetch metric
+ - `pg_stat_table_n_dead_tup` (*gauge*)<br>    pg_stat_table_n_dead_tup metric
+ - ***`pg_stat_table_n_tup_del`*** (*gauge*)<br>    pg_stat_table_n_tup_del metric
+ - `pg_stat_table_n_tup_hot_upd` (*gauge*)<br>    pg_stat_table_n_tup_hot_upd metric
+ - ***`pg_stat_table_n_tup_ins`*** (*gauge*)<br>    pg_stat_table_n_tup_ins metric
+ - ***`pg_stat_table_n_tup_upd`*** (*gauge*)<br>    pg_stat_table_n_tup_upd metric
+ - `pg_stat_table_seq_scan` (*gauge*)<br>    pg_stat_table_seq_scan metric
+ - ***`pg_stat_table_seq_tup_read`*** (*gauge*)<br>    pg_stat_table_seq_tup_read metric
+ - `process_age_seconds` (*gauge*)<br>    process_age_seconds metric
+ - ***`process_count`*** (*gauge*)<br>    process_count metric
+ - `process_memory_bytes` (*gauge*)<br>    process_memory_bytes metric
+ - `ruby_file_descriptors` (*gauge*)<br>
+ - `ruby_gc_duration_seconds_total` (*cumulative*)<br>
+ - `ruby_gc_stat_count` (*gauge*)<br>
+ - `ruby_gc_stat_heap_allocatable_pages` (*gauge*)<br>
+ - `ruby_gc_stat_heap_allocated_pages` (*gauge*)<br>
+ - `ruby_gc_stat_heap_available_slots` (*gauge*)<br>
+ - `ruby_gc_stat_heap_eden_pages` (*gauge*)<br>
+ - `ruby_gc_stat_heap_final_slots` (*gauge*)<br>
+ - `ruby_gc_stat_heap_free_slots` (*gauge*)<br>
+ - `ruby_gc_stat_heap_live_slots` (*gauge*)<br>
+ - `ruby_gc_stat_heap_marked_slots` (*gauge*)<br>
+ - `ruby_gc_stat_heap_sorted_length` (*gauge*)<br>
+ - `ruby_gc_stat_heap_tomb_pages` (*gauge*)<br>
+ - `ruby_gc_stat_major_gc_count` (*gauge*)<br>
+ - `ruby_gc_stat_malloc_increase_bytes` (*gauge*)<br>
+ - `ruby_gc_stat_malloc_increase_bytes_limit` (*gauge*)<br>
+ - `ruby_gc_stat_minor_gc_count` (*gauge*)<br>
+ - `ruby_gc_stat_old_objects` (*gauge*)<br>
+ - `ruby_gc_stat_old_objects_limit` (*gauge*)<br>
+ - `ruby_gc_stat_oldmalloc_increase_bytes` (*gauge*)<br>
+ - `ruby_gc_stat_oldmalloc_increase_bytes_limit` (*gauge*)<br>
+ - `ruby_gc_stat_remembered_wb_unprotected_objects` (*gauge*)<br>
+ - `ruby_gc_stat_remembered_wb_unprotected_objects_limit` (*gauge*)<br>
+ - `ruby_gc_stat_total_allocated_objects` (*gauge*)<br>
+ - `ruby_gc_stat_total_allocated_pages` (*gauge*)<br>
+ - `ruby_gc_stat_total_freed_objects` (*gauge*)<br>
+ - `ruby_gc_stat_total_freed_pages` (*gauge*)<br>
+ - `ruby_memory_bytes` (*gauge*)<br>
+ - `ruby_sampler_duration_seconds_total` (*cumulative*)<br>
+ - `sidekiq_dead_jobs_total` (*gauge*)<br>    sidekiq_dead_jobs_total metric
+ - ***`sidekiq_queue_latency`*** (*gauge*)<br>    sidekiq_queue_latency metric
+ - ***`sidekiq_queue_size`*** (*gauge*)<br>    sidekiq_queue_size metric
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -240,13 +237,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

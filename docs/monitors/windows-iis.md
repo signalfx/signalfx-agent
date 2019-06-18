@@ -45,36 +45,33 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `process.handle_count` | gauge |  | The total number of handles currently open by this process. This number is equal to the sum of the handles currently open by each thread in this process. |
-| `process.id_process` | gauge |  | The unique identifier of this process. ID Process numbers are reused, so they only identify a process for the lifetime of that process. |
-| `process.pct_processor_time` | gauge |  | The percentage of elapsed time that all process threads used the processor to execution instructions. Code executed to handle some hardware interrupts and trap conditions are included in this count. |
-| `process.private_bytes` | gauge |  | The current size, in bytes, of memory that this process has allocated that cannot be shared with other processes. |
-| `process.thread_count` | gauge |  | The number of threads currently active in this process. Every running process has at least one thread. |
-| `process.virtual_bytes` | gauge |  | The current size, in bytes, of the virtual address space the process is using. Use of virtual address space does not necessarily imply corresponding use of either disk or main memory pages. Virtual space is finite, and the process can limit its ability to load libraries. |
-| `process.working_set` | gauge |  | The current size, in bytes, of the Working Set of this process. The Working Set is the set of memory pages touched recently by the threads in the process. If free memory in the computer is above a threshold, pages are left in the Working Set of a process even if they are not in use. When free memory falls below a threshold, pages are trimmed from Working Sets. If they are needed, they will then be soft-faulted back into the Working Set before leaving main memory. |
-| `web_service.anonymous_users_sec` | gauge | ✔ | Rate at which users are making anonymous requests to the web service |
-| `web_service.bytes_received_sec` | gauge | ✔ | Rate that data is received by web service |
-| `web_service.bytes_sent_sec` | gauge | ✔ | Rate that data is sent by web service |
-| `web_service.connection_attempts_sec` | gauge | ✔ | Rate that connections to web service are attempted Requests |
-| `web_service.current_connections` | gauge | ✔ | Number of current connections to the web service |
-| `web_service.files_received_sec` | gauge | ✔ | Rate at which files are received by web service |
-| `web_service.files_sent_sec` | gauge | ✔ | Rate at which files are sent by web service |
-| `web_service.get_requests_sec` | gauge | ✔ | Rate of HTTP GET requests |
-| `web_service.isapi_extension_requests_sec` | gauge |  | Rate of ISAPI extension request processed simultaneously by the web service |
-| `web_service.nonanonymous_users_sec` | gauge | ✔ | Rate at which users are making nonanonymous requests to the web service |
-| `web_service.not_found_errors_sec` | gauge | ✔ | Rate of 'Not Found' Errors |
-| `web_service.post_requests_sec` | gauge | ✔ | Rate of HTTP POST requests |
-| `web_service.service_uptime` | gauge |  | Service uptime |
-| `web_service.total_method_requests_sec` | gauge | ✔ | Rate at which all HTTP requests are received |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - `process.handle_count` (*gauge*)<br>    The total number of handles currently open by this process. This number is equal to the sum of the handles currently open by each thread in this process.
+ - `process.id_process` (*gauge*)<br>    The unique identifier of this process. ID Process numbers are reused, so they only identify a process for the lifetime of that process.
+ - `process.pct_processor_time` (*gauge*)<br>    The percentage of elapsed time that all process threads used the processor to execution instructions. Code executed to handle some hardware interrupts and trap conditions are included in this count.
+ - `process.private_bytes` (*gauge*)<br>    The current size, in bytes, of memory that this process has allocated that cannot be shared with other processes.
+ - `process.thread_count` (*gauge*)<br>    The number of threads currently active in this process. Every running process has at least one thread.
+ - `process.virtual_bytes` (*gauge*)<br>    The current size, in bytes, of the virtual address space the process is using. Use of virtual address space does not necessarily imply corresponding use of either disk or main memory pages. Virtual space is finite, and the process can limit its ability to load libraries.
+ - `process.working_set` (*gauge*)<br>    The current size, in bytes, of the Working Set of this process. The Working Set is the set of memory pages touched recently by the threads in the process. If free memory in the computer is above a threshold, pages are left in the Working Set of a process even if they are not in use. When free memory falls below a threshold, pages are trimmed from Working Sets. If they are needed, they will then be soft-faulted back into the Working Set before leaving main memory.
+ - ***`web_service.anonymous_users_sec`*** (*gauge*)<br>    Rate at which users are making anonymous requests to the web service
+ - ***`web_service.bytes_received_sec`*** (*gauge*)<br>    Rate that data is received by web service
+ - ***`web_service.bytes_sent_sec`*** (*gauge*)<br>    Rate that data is sent by web service
+ - ***`web_service.connection_attempts_sec`*** (*gauge*)<br>    Rate that connections to web service are attempted Requests
+ - ***`web_service.current_connections`*** (*gauge*)<br>    Number of current connections to the web service
+ - ***`web_service.files_received_sec`*** (*gauge*)<br>    Rate at which files are received by web service
+ - ***`web_service.files_sent_sec`*** (*gauge*)<br>    Rate at which files are sent by web service
+ - ***`web_service.get_requests_sec`*** (*gauge*)<br>    Rate of HTTP GET requests
+ - `web_service.isapi_extension_requests_sec` (*gauge*)<br>    Rate of ISAPI extension request processed simultaneously by the web service
+ - ***`web_service.nonanonymous_users_sec`*** (*gauge*)<br>    Rate at which users are making nonanonymous requests to the web service
+ - ***`web_service.not_found_errors_sec`*** (*gauge*)<br>    Rate of 'Not Found' Errors
+ - ***`web_service.post_requests_sec`*** (*gauge*)<br>    Rate of HTTP POST requests
+ - `web_service.service_uptime` (*gauge*)<br>    Service uptime
+ - ***`web_service.total_method_requests_sec`*** (*gauge*)<br>    Rate at which all HTTP requests are received
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -83,13 +80,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

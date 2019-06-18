@@ -77,47 +77,49 @@ The **nested** `values` config object has the following fields:
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | [Group](#groups) | Description |
-| ---  | ---  | ---    | --- | ---         |
-| `counter.kafka-bytes-in` | cumulative | ✔ |  | Number of bytes received per second across all topics |
-| `counter.kafka-bytes-out` | cumulative | ✔ |  | Number of bytes transmitted per second across all topics |
-| `counter.kafka-isr-expands` | cumulative | ✔ |  | When a broker is brought up after a failure, it starts catching up by reading from the leader. Once it is caught up, it gets added back to the ISR. |
-| `counter.kafka-isr-shrinks` | cumulative | ✔ |  | When a broker goes down, ISR for some of partitions will shrink. When that broker is up again, ISR will be expanded once the replicas are fully caught up. Other than that, the expected value for both ISR shrink rate and expansion rate is 0. |
-| `counter.kafka-leader-election-rate` | cumulative |  |  | Number of leader elections |
-| `counter.kafka-messages-in` | cumulative | ✔ |  | Number of messages received per second across all topics |
-| `counter.kafka-unclean-elections-rate` | cumulative | ✔ |  | Number of unclean leader elections. This happens when a leader goes down and an out-of-sync replica is chosen to be the leader |
-| `counter.kafka.fetch-consumer.total-time.count` | cumulative | ✔ |  | Number of fetch requests from consumers per second across all partitions |
-| `counter.kafka.fetch-follower.total-time.count` | cumulative |  |  | Number of fetch requests from followers per second across all partitions |
-| `counter.kafka.logs.flush-time.count` | cumulative |  |  | Number of log flushes |
-| `counter.kafka.produce.total-time.count` | cumulative | ✔ |  | Number of producer requests |
-| `gauge.jvm.threads.count` | gauge | ✔ | jvm | Number of JVM threads |
-| `gauge.kafka-active-controllers` | gauge | ✔ |  | Specifies if the broker an active controller |
-| `gauge.kafka-max-lag` | gauge | ✔ |  | Maximum lag in messages between the follower and leader replicas |
-| `gauge.kafka-offline-partitions-count` | gauge | ✔ |  | Number of partitions that don’t have an active leader and are hence not writable or readable |
-| `gauge.kafka-request-queue` | gauge | ✔ |  | Number of requests in the request queue across all partitions on the broker |
-| `gauge.kafka-underreplicated-partitions` | gauge | ✔ |  | Number of underreplicated partitions across all topics on the broker |
-| `gauge.kafka.fetch-consumer.total-time.99th` | gauge | ✔ |  | 99th percentile of time in milliseconds to process fetch requests from consumers |
-| `gauge.kafka.fetch-consumer.total-time.median` | gauge | ✔ |  | Median time it takes to process a fetch request from consumers |
-| `gauge.kafka.fetch-follower.total-time.99th` | gauge | ✔ |  | 99th percentile of time in milliseconds to process fetch requests from followers |
-| `gauge.kafka.fetch-follower.total-time.median` | gauge | ✔ |  | Median time it takes to process a fetch request from follower |
-| `gauge.kafka.logs.flush-time.99th` | gauge |  |  | 99th percentile of time in milliseconds to flush logs |
-| `gauge.kafka.logs.flush-time.median` | gauge |  |  | Median time it takes to flush logs |
-| `gauge.kafka.produce.total-time.99th` | gauge | ✔ |  | 99th percentile of time in milliseconds to process produce requests |
-| `gauge.kafka.produce.total-time.median` | gauge | ✔ |  | Median time it takes to process a produce request |
-| `gauge.loaded_classes` | gauge | ✔ | jvm | Number of classes loaded in the JVM |
-| `invocations` | cumulative | ✔ | jvm | Total number of garbage collection events |
-| `jmx_memory.committed` | gauge | ✔ | jvm | Amount of memory guaranteed to be available in bytes |
-| `jmx_memory.init` | gauge | ✔ | jvm | Amount of initial memory at startup in bytes |
-| `jmx_memory.max` | gauge | ✔ | jvm | Maximum amount of memory that can be used in bytes |
-| `jmx_memory.used` | gauge | ✔ | jvm | Current memory usage in bytes |
-| `total_time_in_ms.collection_time` | cumulative | ✔ | jvm | Amount of time spent garbage collecting in milliseconds |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - ***`counter.kafka-bytes-in`*** (*cumulative*)<br>    Number of bytes received per second across all topics
+ - ***`counter.kafka-bytes-out`*** (*cumulative*)<br>    Number of bytes transmitted per second across all topics
+ - ***`counter.kafka-isr-expands`*** (*cumulative*)<br>    When a broker is brought up after a failure, it starts catching up by reading from the leader. Once it is caught up, it gets added back to the ISR.
+ - ***`counter.kafka-isr-shrinks`*** (*cumulative*)<br>    When a broker goes down, ISR for some of partitions will shrink. When that broker is up again, ISR will be expanded once the replicas are fully caught up. Other than that, the expected value for both ISR shrink rate and expansion rate is 0.
+ - `counter.kafka-leader-election-rate` (*cumulative*)<br>    Number of leader elections
+ - ***`counter.kafka-messages-in`*** (*cumulative*)<br>    Number of messages received per second across all topics
+ - ***`counter.kafka-unclean-elections-rate`*** (*cumulative*)<br>    Number of unclean leader elections. This happens when a leader goes down and an out-of-sync replica is chosen to be the leader
+ - ***`counter.kafka.fetch-consumer.total-time.count`*** (*cumulative*)<br>    Number of fetch requests from consumers per second across all partitions
+ - `counter.kafka.fetch-follower.total-time.count` (*cumulative*)<br>    Number of fetch requests from followers per second across all partitions
+ - `counter.kafka.logs.flush-time.count` (*cumulative*)<br>    Number of log flushes
+ - ***`counter.kafka.produce.total-time.count`*** (*cumulative*)<br>    Number of producer requests
+ - ***`gauge.kafka-active-controllers`*** (*gauge*)<br>    Specifies if the broker an active controller
+ - ***`gauge.kafka-max-lag`*** (*gauge*)<br>    Maximum lag in messages between the follower and leader replicas
+ - ***`gauge.kafka-offline-partitions-count`*** (*gauge*)<br>    Number of partitions that don’t have an active leader and are hence not writable or readable
+ - ***`gauge.kafka-request-queue`*** (*gauge*)<br>    Number of requests in the request queue across all partitions on the broker
+ - ***`gauge.kafka-underreplicated-partitions`*** (*gauge*)<br>    Number of underreplicated partitions across all topics on the broker
+ - ***`gauge.kafka.fetch-consumer.total-time.99th`*** (*gauge*)<br>    99th percentile of time in milliseconds to process fetch requests from consumers
+ - ***`gauge.kafka.fetch-consumer.total-time.median`*** (*gauge*)<br>    Median time it takes to process a fetch request from consumers
+ - ***`gauge.kafka.fetch-follower.total-time.99th`*** (*gauge*)<br>    99th percentile of time in milliseconds to process fetch requests from followers
+ - ***`gauge.kafka.fetch-follower.total-time.median`*** (*gauge*)<br>    Median time it takes to process a fetch request from follower
+ - `gauge.kafka.logs.flush-time.99th` (*gauge*)<br>    99th percentile of time in milliseconds to flush logs
+ - `gauge.kafka.logs.flush-time.median` (*gauge*)<br>    Median time it takes to flush logs
+ - ***`gauge.kafka.produce.total-time.99th`*** (*gauge*)<br>    99th percentile of time in milliseconds to process produce requests
+ - ***`gauge.kafka.produce.total-time.median`*** (*gauge*)<br>    Median time it takes to process a produce request
+
+#### Group jvm
+All of the following metrics are part of the `jvm` metric group. All of
+the non-default metrics below can be turned on by adding `jvm` to the
+monitor config option `extraGroups`:
+ - ***`gauge.jvm.threads.count`*** (*gauge*)<br>    Number of JVM threads
+ - ***`gauge.loaded_classes`*** (*gauge*)<br>    Number of classes loaded in the JVM
+ - ***`invocations`*** (*cumulative*)<br>    Total number of garbage collection events
+ - ***`jmx_memory.committed`*** (*gauge*)<br>    Amount of memory guaranteed to be available in bytes
+ - ***`jmx_memory.init`*** (*gauge*)<br>    Amount of initial memory at startup in bytes
+ - ***`jmx_memory.max`*** (*gauge*)<br>    Maximum amount of memory that can be used in bytes
+ - ***`jmx_memory.used`*** (*gauge*)<br>    Current memory usage in bytes
+ - ***`total_time_in_ms.collection_time`*** (*cumulative*)<br>    Amount of time spent garbage collecting in milliseconds
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -126,16 +128,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
-#### Groups
-You can enable an entire group of metrics by specifying the `extraGroups` config
-option in your monitor config.  The value is a list of group names to enable.
 
 ### Legacy non-default metrics (version < 4.7.0)
 

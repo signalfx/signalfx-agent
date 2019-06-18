@@ -40,90 +40,97 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | [Group](#groups) | Description |
-| ---  | ---  | ---    | --- | ---         |
-| `counter.asserts.regular` | cumulative |  |  | The number of regular assertions raised since the MongoDB process started. Check the log file for more information about these messages. |
-| `counter.asserts.warning` | cumulative |  |  | In MongoDB 3.x and earlier, the field returns the number of warnings raised since the MongoDB process started.  In MongodDB 4, this is always 0. |
-| `counter.backgroundFlushing.flushes` | gauge | ✔ |  | Number of times the database has been flushed |
-| `counter.collection.commandsCount` | counter |  | collection-top | Number of commands issued for a collection |
-| `counter.collection.commandsTime` | counter |  | collection-top | Time spent in microseconds processing commands issued for a collection |
-| `counter.collection.getmoreCount` | counter |  | collection-top | Number of getMore requests issued for a collection |
-| `counter.collection.getmoreTime` | counter |  | collection-top | Time spent in microseconds processing getMore requests for a collection |
-| `counter.collection.index.accesses.ops` | counter |  | collection | Number of times an index has been used (only on Mongo 3.2+) |
-| `counter.collection.insertCount` | counter |  | collection-top | Number of inserts issued for a collection |
-| `counter.collection.insertTime` | counter |  | collection-top | Time spent in microseconds processing insert requests for a collection |
-| `counter.collection.queriesCount` | counter |  | collection-top | Number of queries issued for a collection |
-| `counter.collection.queriesTime` | counter |  | collection-top | Time spent in microseconds processing query requests for a collection |
-| `counter.collection.readLockCount` | counter |  | collection-top | Number of read locks issued for a collection |
-| `counter.collection.readLockTime` | counter |  | collection-top | Time spent in microseconds processing read locks for a collection |
-| `counter.collection.removeCount` | counter |  | collection-top | Number of remove requests issued for a collection |
-| `counter.collection.removeTime` | counter |  | collection-top | Time spent in microseconds processing remove requests for a collection |
-| `counter.collection.totalCount` | counter |  | collection-top | Total number of operations issued for a collection |
-| `counter.collection.totalTime` | counter |  | collection-top | Time spent in microseconds processing all operations for a collection |
-| `counter.collection.updateCount` | counter |  | collection-top | Number of update requests issued for a collection |
-| `counter.collection.updateTime` | counter |  | collection-top | Time spent in microseconds processing update requests for a collection |
-| `counter.collection.writeLockCount` | counter |  | collection-top | Number of write locks issued for a collection |
-| `counter.collection.writeLockTime` | counter |  | collection-top | Time spent in microseconds processing write locks for a collection |
-| `counter.extra_info.page_faults` | gauge | ✔ |  | Mongod page faults |
-| `counter.lock.Database.acquireCount.intentExclusive` | cumulative |  |  |  |
-| `counter.lock.Database.acquireCount.intentShared` | cumulative |  |  |  |
-| `counter.lock.Database.acquireCount.read` | cumulative |  |  |  |
-| `counter.lock.Database.acquireCount.write` | cumulative |  |  |  |
-| `counter.lock.Global.acquireCount.intentExclusive` | cumulative |  |  |  |
-| `counter.lock.Global.acquireCount.intentShared` | cumulative |  |  |  |
-| `counter.lock.Global.acquireCount.write` | cumulative |  |  |  |
-| `counter.network.bytesIn` | gauge | ✔ |  | Network bytes received by the database server |
-| `counter.network.bytesOut` | gauge | ✔ |  | Network bytes sent by the database server |
-| `counter.network.numRequests` | cumulative | ✔ |  | Requests received by the server |
-| `counter.opcounters.command` | cumulative |  |  | Number of commands since last restart |
-| `counter.opcounters.delete` | cumulative | ✔ |  | Number of deletes since last restart |
-| `counter.opcounters.getmore` | cumulative |  |  | Number of getmore operations since last restart |
-| `counter.opcounters.insert` | cumulative | ✔ |  | Number of inserts since last restart |
-| `counter.opcounters.query` | cumulative | ✔ |  | Number of queries since last restart |
-| `counter.opcounters.update` | cumulative | ✔ |  | Number of updates since last restart |
-| `counter.opcountersRepl.command` | cumulative |  |  | Number of replicated commands since last restart |
-| `counter.opcountersRepl.delete` | cumulative |  |  | Number of replicated deletes since last restart |
-| `counter.opcountersRepl.getmore` | cumulative |  |  | Number of replicated getmore operations since last restart |
-| `counter.opcountersRepl.insert` | cumulative |  |  | Number of replicated inserts since last restart |
-| `counter.opcountersRepl.query` | cumulative |  |  | Number of replicated queries since last restart |
-| `counter.opcountersRepl.update` | cumulative |  |  | Number of replicated updates since last restart |
-| `gauge.backgroundFlushing.average_ms` | gauge | ✔ |  | Average time (ms) to write data to disk |
-| `gauge.backgroundFlushing.last_ms` | gauge | ✔ |  | Most recent time (ms) spent writing data to disk |
-| `gauge.collection.avgObjSize` | gauge |  | collection | Mean object/document size of a collection |
-| `gauge.collection.count` | gauge |  | collection | Number of objects/documents in a collection |
-| `gauge.collection.indexSize` | gauge |  | collection | Size of a particular index on a collection |
-| `gauge.collection.max` | gauge |  |  | Maximum number of documents in a capped collection |
-| `gauge.collection.maxSize` | gauge |  |  | Maximum disk usage of a capped collection |
-| `gauge.collection.size` | gauge |  | collection | Size of a collection in bytes, not including indexes |
-| `gauge.collection.storageSize` | gauge |  | collection | Size of the collection on disk in bytes, never decreases. |
-| `gauge.collections` | gauge |  |  | Number of collections |
-| `gauge.connections.available` | gauge |  |  | Number of available incoming connections |
-| `gauge.connections.current` | gauge | ✔ |  | Number of current client connections |
-| `gauge.connections.totalCreated` | cumulative |  |  | Count of all incoming connections created to the server. This number includes connections that have since closed. |
-| `gauge.dataSize` | gauge | ✔ |  | Total size of data, in bytes |
-| `gauge.extra_info.heap_usage_bytes` | gauge | ✔ |  | Heap size used by the mongod process, in bytes |
-| `gauge.globalLock.activeClients.readers` | gauge | ✔ |  | Number of active client connections performing reads |
-| `gauge.globalLock.activeClients.total` | gauge |  |  | Total number of active client connections |
-| `gauge.globalLock.activeClients.writers` | gauge | ✔ |  | Number of active client connections performing writes |
-| `gauge.globalLock.currentQueue.readers` | gauge | ✔ |  | Read operations currently in queue |
-| `gauge.globalLock.currentQueue.total` | gauge |  |  | Total operations currently in queue |
-| `gauge.globalLock.currentQueue.writers` | gauge | ✔ |  | Write operations currently in queue |
-| `gauge.indexSize` | gauge | ✔ |  | Total size of indexes, in bytes |
-| `gauge.indexes` | gauge |  |  | Number of indexes across all collections |
-| `gauge.mem.mapped` | gauge | ✔ |  | Mongodb mapped memory usage, in MB |
-| `gauge.mem.resident` | gauge | ✔ |  | Mongodb resident memory usage, in MB |
-| `gauge.mem.virtual` | gauge | ✔ |  | Mongodb virtual memory usage, in MB |
-| `gauge.numExtents` | gauge |  |  |  |
-| `gauge.objects` | gauge | ✔ |  | Number of documents across all collections |
-| `gauge.storageSize` | gauge | ✔ |  | Total bytes allocated to collections for document storage |
-| `gauge.uptime` | counter | ✔ |  | Uptime of this server in milliseconds |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - `counter.asserts.regular` (*cumulative*)<br>    The number of regular assertions raised since the MongoDB process started. Check the log file for more information about these messages.
+ - `counter.asserts.warning` (*cumulative*)<br>    In MongoDB 3.x and earlier, the field returns the number of warnings raised since the MongoDB process started.  In MongodDB 4, this is always 0.
+ - ***`counter.backgroundFlushing.flushes`*** (*gauge*)<br>    Number of times the database has been flushed
+ - ***`counter.extra_info.page_faults`*** (*gauge*)<br>    Mongod page faults
+ - `counter.lock.Database.acquireCount.intentExclusive` (*cumulative*)<br>
+ - `counter.lock.Database.acquireCount.intentShared` (*cumulative*)<br>
+ - `counter.lock.Database.acquireCount.read` (*cumulative*)<br>
+ - `counter.lock.Database.acquireCount.write` (*cumulative*)<br>
+ - `counter.lock.Global.acquireCount.intentExclusive` (*cumulative*)<br>
+ - `counter.lock.Global.acquireCount.intentShared` (*cumulative*)<br>
+ - `counter.lock.Global.acquireCount.write` (*cumulative*)<br>
+ - ***`counter.network.bytesIn`*** (*gauge*)<br>    Network bytes received by the database server
+ - ***`counter.network.bytesOut`*** (*gauge*)<br>    Network bytes sent by the database server
+ - ***`counter.network.numRequests`*** (*cumulative*)<br>    Requests received by the server
+ - `counter.opcounters.command` (*cumulative*)<br>    Number of commands since last restart
+ - ***`counter.opcounters.delete`*** (*cumulative*)<br>    Number of deletes since last restart
+ - `counter.opcounters.getmore` (*cumulative*)<br>    Number of getmore operations since last restart
+ - ***`counter.opcounters.insert`*** (*cumulative*)<br>    Number of inserts since last restart
+ - ***`counter.opcounters.query`*** (*cumulative*)<br>    Number of queries since last restart
+ - ***`counter.opcounters.update`*** (*cumulative*)<br>    Number of updates since last restart
+ - `counter.opcountersRepl.command` (*cumulative*)<br>    Number of replicated commands since last restart
+ - `counter.opcountersRepl.delete` (*cumulative*)<br>    Number of replicated deletes since last restart
+ - `counter.opcountersRepl.getmore` (*cumulative*)<br>    Number of replicated getmore operations since last restart
+ - `counter.opcountersRepl.insert` (*cumulative*)<br>    Number of replicated inserts since last restart
+ - `counter.opcountersRepl.query` (*cumulative*)<br>    Number of replicated queries since last restart
+ - `counter.opcountersRepl.update` (*cumulative*)<br>    Number of replicated updates since last restart
+ - ***`gauge.backgroundFlushing.average_ms`*** (*gauge*)<br>    Average time (ms) to write data to disk
+ - ***`gauge.backgroundFlushing.last_ms`*** (*gauge*)<br>    Most recent time (ms) spent writing data to disk
+ - `gauge.collection.max` (*gauge*)<br>    Maximum number of documents in a capped collection
+ - `gauge.collection.maxSize` (*gauge*)<br>    Maximum disk usage of a capped collection
+ - `gauge.collections` (*gauge*)<br>    Number of collections
+ - `gauge.connections.available` (*gauge*)<br>    Number of available incoming connections
+ - ***`gauge.connections.current`*** (*gauge*)<br>    Number of current client connections
+ - `gauge.connections.totalCreated` (*cumulative*)<br>    Count of all incoming connections created to the server. This number includes connections that have since closed.
+ - ***`gauge.dataSize`*** (*gauge*)<br>    Total size of data, in bytes
+ - ***`gauge.extra_info.heap_usage_bytes`*** (*gauge*)<br>    Heap size used by the mongod process, in bytes
+ - ***`gauge.globalLock.activeClients.readers`*** (*gauge*)<br>    Number of active client connections performing reads
+ - `gauge.globalLock.activeClients.total` (*gauge*)<br>    Total number of active client connections
+ - ***`gauge.globalLock.activeClients.writers`*** (*gauge*)<br>    Number of active client connections performing writes
+ - ***`gauge.globalLock.currentQueue.readers`*** (*gauge*)<br>    Read operations currently in queue
+ - `gauge.globalLock.currentQueue.total` (*gauge*)<br>    Total operations currently in queue
+ - ***`gauge.globalLock.currentQueue.writers`*** (*gauge*)<br>    Write operations currently in queue
+ - ***`gauge.indexSize`*** (*gauge*)<br>    Total size of indexes, in bytes
+ - `gauge.indexes` (*gauge*)<br>    Number of indexes across all collections
+ - ***`gauge.mem.mapped`*** (*gauge*)<br>    Mongodb mapped memory usage, in MB
+ - ***`gauge.mem.resident`*** (*gauge*)<br>    Mongodb resident memory usage, in MB
+ - ***`gauge.mem.virtual`*** (*gauge*)<br>    Mongodb virtual memory usage, in MB
+ - `gauge.numExtents` (*gauge*)<br>
+ - ***`gauge.objects`*** (*gauge*)<br>    Number of documents across all collections
+ - ***`gauge.storageSize`*** (*gauge*)<br>    Total bytes allocated to collections for document storage
+ - ***`gauge.uptime`*** (*counter*)<br>    Uptime of this server in milliseconds
+
+#### Group collection
+All of the following metrics are part of the `collection` metric group. All of
+the non-default metrics below can be turned on by adding `collection` to the
+monitor config option `extraGroups`:
+ - `counter.collection.index.accesses.ops` (*counter*)<br>    Number of times an index has been used (only on Mongo 3.2+)
+ - `gauge.collection.avgObjSize` (*gauge*)<br>    Mean object/document size of a collection
+ - `gauge.collection.count` (*gauge*)<br>    Number of objects/documents in a collection
+ - `gauge.collection.indexSize` (*gauge*)<br>    Size of a particular index on a collection
+ - `gauge.collection.size` (*gauge*)<br>    Size of a collection in bytes, not including indexes
+ - `gauge.collection.storageSize` (*gauge*)<br>    Size of the collection on disk in bytes, never decreases.
+
+#### Group collection-top
+All of the following metrics are part of the `collection-top` metric group. All of
+the non-default metrics below can be turned on by adding `collection-top` to the
+monitor config option `extraGroups`:
+ - `counter.collection.commandsCount` (*counter*)<br>    Number of commands issued for a collection
+ - `counter.collection.commandsTime` (*counter*)<br>    Time spent in microseconds processing commands issued for a collection
+ - `counter.collection.getmoreCount` (*counter*)<br>    Number of getMore requests issued for a collection
+ - `counter.collection.getmoreTime` (*counter*)<br>    Time spent in microseconds processing getMore requests for a collection
+ - `counter.collection.insertCount` (*counter*)<br>    Number of inserts issued for a collection
+ - `counter.collection.insertTime` (*counter*)<br>    Time spent in microseconds processing insert requests for a collection
+ - `counter.collection.queriesCount` (*counter*)<br>    Number of queries issued for a collection
+ - `counter.collection.queriesTime` (*counter*)<br>    Time spent in microseconds processing query requests for a collection
+ - `counter.collection.readLockCount` (*counter*)<br>    Number of read locks issued for a collection
+ - `counter.collection.readLockTime` (*counter*)<br>    Time spent in microseconds processing read locks for a collection
+ - `counter.collection.removeCount` (*counter*)<br>    Number of remove requests issued for a collection
+ - `counter.collection.removeTime` (*counter*)<br>    Time spent in microseconds processing remove requests for a collection
+ - `counter.collection.totalCount` (*counter*)<br>    Total number of operations issued for a collection
+ - `counter.collection.totalTime` (*counter*)<br>    Time spent in microseconds processing all operations for a collection
+ - `counter.collection.updateCount` (*counter*)<br>    Number of update requests issued for a collection
+ - `counter.collection.updateTime` (*counter*)<br>    Time spent in microseconds processing update requests for a collection
+ - `counter.collection.writeLockCount` (*counter*)<br>    Number of write locks issued for a collection
+ - `counter.collection.writeLockTime` (*counter*)<br>    Time spent in microseconds processing write locks for a collection
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -132,16 +139,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
-#### Groups
-You can enable an entire group of metrics by specifying the `extraGroups` config
-option in your monitor config.  The value is a list of group names to enable.
 
 ### Legacy non-default metrics (version < 4.7.0)
 

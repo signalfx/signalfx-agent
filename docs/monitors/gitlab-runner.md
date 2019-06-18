@@ -44,26 +44,23 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `gitlab_runner_api_request_statuses_total` | cumulative |  | The total number of API requests, partitioned by runner, endpoint and status |
-| `gitlab_runner_autoscaling_machine_creation_duration_seconds` | cumulative |  | Histogram of machine creation time |
-| `gitlab_runner_autoscaling_machine_creation_duration_seconds_bucket` | cumulative |  | Histogram of machine creation time |
-| `gitlab_runner_autoscaling_machine_creation_duration_seconds_count` | cumulative |  | Histogram of machine creation time |
-| `gitlab_runner_autoscaling_machine_states` | gauge |  | The current number of machines per state in this provider |
-| `gitlab_runner_concurrent` | gauge |  | The current value of concurrent setting |
-| `gitlab_runner_errors_total` | cumulative | ✔ | The number of catched errors |
-| `gitlab_runner_limit` | gauge |  | The current value of concurrent setting |
-| `gitlab_runner_request_concurrency` | gauge | ✔ | The current number of concurrent requests for a new job |
-| `gitlab_runner_request_concurrency_exceeded_total` | cumulative |  | Counter tracking exceeding of request concurrency |
-| `gitlab_runner_version_info` | gauge |  | A metric with a constant '1' value labeled by different build stats fields |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - `gitlab_runner_api_request_statuses_total` (*cumulative*)<br>    The total number of API requests, partitioned by runner, endpoint and status
+ - `gitlab_runner_autoscaling_machine_creation_duration_seconds` (*cumulative*)<br>    Histogram of machine creation time
+ - `gitlab_runner_autoscaling_machine_creation_duration_seconds_bucket` (*cumulative*)<br>    Histogram of machine creation time
+ - `gitlab_runner_autoscaling_machine_creation_duration_seconds_count` (*cumulative*)<br>    Histogram of machine creation time
+ - `gitlab_runner_autoscaling_machine_states` (*gauge*)<br>    The current number of machines per state in this provider
+ - `gitlab_runner_concurrent` (*gauge*)<br>    The current value of concurrent setting
+ - ***`gitlab_runner_errors_total`*** (*cumulative*)<br>    The number of catched errors
+ - `gitlab_runner_limit` (*gauge*)<br>    The current value of concurrent setting
+ - ***`gitlab_runner_request_concurrency`*** (*gauge*)<br>    The current number of concurrent requests for a new job
+ - `gitlab_runner_request_concurrency_exceeded_total` (*cumulative*)<br>    Counter tracking exceeding of request concurrency
+ - `gitlab_runner_version_info` (*gauge*)<br>    A metric with a constant '1' value labeled by different build stats fields
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -72,13 +69,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

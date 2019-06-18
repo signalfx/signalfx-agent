@@ -84,55 +84,57 @@ The **nested** `values` config object has the following fields:
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | [Group](#groups) | Description |
-| ---  | ---  | ---    | --- | ---         |
-| `counter.amq.TotalConnectionsCount` | counter | ✔ |  | Total connections count per broker |
-| `gauge.amq.TotalConsumerCount` | gauge | ✔ |  | Total number of consumers subscribed to destinations on the broker |
-| `gauge.amq.TotalDequeueCount` | gauge |  |  | Total number of messages that have been acknowledged from the broker. |
-| `gauge.amq.TotalEnqueueCount` | gauge | ✔ |  | Total number of messages that have been sent to the broker. |
-| `gauge.amq.TotalMessageCount` | gauge | ✔ |  | Total number of unacknowledged messages on the broker |
-| `gauge.amq.TotalProducerCount` | gauge | ✔ |  | Total number of message producers active on destinations on the broker |
-| `gauge.amq.queue.AverageBlockedTime` | gauge |  |  | Average time (ms) that messages have spent blocked by Flow Control. |
-| `gauge.amq.queue.AverageEnqueueTime` | gauge | ✔ |  | Average time (ms) that messages have been held at this destination |
-| `gauge.amq.queue.AverageMessageSize` | gauge |  |  | Average size of messages in this queue, in bytes. |
-| `gauge.amq.queue.BlockedSends` | gauge |  |  | Number of messages blocked by Flow Control. |
-| `gauge.amq.queue.ConsumerCount` | gauge | ✔ |  | Number of consumers subscribed to this queue. |
-| `gauge.amq.queue.DequeueCount` | gauge | ✔ |  | Number of messages that have been acknowledged and removed from the queue. |
-| `gauge.amq.queue.EnqueueCount` | gauge | ✔ |  | Number of messages that have been sent to the queue. |
-| `gauge.amq.queue.ExpiredCount` | gauge | ✔ |  | Number of messages that have expired from the queue. |
-| `gauge.amq.queue.ForwardCount` | gauge |  |  | Number of messages that have been forwarded from this queue to a networked broker. |
-| `gauge.amq.queue.InFlightCount` | gauge | ✔ |  | The number of messages that have been dispatched to consumers, but not acknowledged. |
-| `gauge.amq.queue.ProducerCount` | gauge | ✔ |  | Number of producers publishing to this queue |
-| `gauge.amq.queue.QueueSize` | gauge | ✔ |  | The number of messages in the queue that have yet to be consumed. |
-| `gauge.amq.queue.TotalBlockedTime` | gauge |  |  | The total time (ms) that messages have spent blocked by Flow Control. |
-| `gauge.amq.topic.AverageBlockedTime` | gauge |  |  | Average time (ms) that messages have been blocked by Flow Control. |
-| `gauge.amq.topic.AverageEnqueueTime` | gauge | ✔ |  | Average time (ms) that messages have been held at this destination. |
-| `gauge.amq.topic.AverageMessageSize` | gauge |  |  | Average size of messages on this topic, in bytes. |
-| `gauge.amq.topic.BlockedSends` | gauge |  |  | Number of messages blocked by Flow Control |
-| `gauge.amq.topic.ConsumerCount` | gauge | ✔ |  | The number of consumers subscribed to this topic |
-| `gauge.amq.topic.DequeueCount` | gauge |  |  | Number of messages that have been acknowledged and removed from the topic. |
-| `gauge.amq.topic.EnqueueCount` | gauge | ✔ |  | The number of messages that have been sent to the topic. |
-| `gauge.amq.topic.ExpiredCount` | gauge | ✔ |  | The number of messages that have expired from this topic. |
-| `gauge.amq.topic.ForwardCount` | gauge |  |  | The number of messages that have been forwarded from this topic to a networked broker. |
-| `gauge.amq.topic.InFlightCount` | gauge | ✔ |  | The number of messages that have been dispatched to consumers, but have not yet been acknowledged. |
-| `gauge.amq.topic.ProducerCount` | gauge | ✔ |  | Number of producers publishing to this topic. |
-| `gauge.amq.topic.QueueSize` | gauge | ✔ |  | Number of messages in the topic that have yet to be consumed. |
-| `gauge.amq.topic.TotalBlockedTime` | gauge |  |  | The total time (ms) that messages have spent blocked by Flow Control |
-| `gauge.jvm.threads.count` | gauge | ✔ | jvm | Number of JVM threads |
-| `gauge.loaded_classes` | gauge | ✔ | jvm | Number of classes loaded in the JVM |
-| `invocations` | cumulative | ✔ | jvm | Total number of garbage collection events |
-| `jmx_memory.committed` | gauge | ✔ | jvm | Amount of memory guaranteed to be available in bytes |
-| `jmx_memory.init` | gauge | ✔ | jvm | Amount of initial memory at startup in bytes |
-| `jmx_memory.max` | gauge | ✔ | jvm | Maximum amount of memory that can be used in bytes |
-| `jmx_memory.used` | gauge | ✔ | jvm | Current memory usage in bytes |
-| `total_time_in_ms.collection_time` | cumulative | ✔ | jvm | Amount of time spent garbage collecting in milliseconds |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - ***`counter.amq.TotalConnectionsCount`*** (*counter*)<br>    Total connections count per broker
+ - ***`gauge.amq.TotalConsumerCount`*** (*gauge*)<br>    Total number of consumers subscribed to destinations on the broker
+ - `gauge.amq.TotalDequeueCount` (*gauge*)<br>    Total number of messages that have been acknowledged from the broker.
+ - ***`gauge.amq.TotalEnqueueCount`*** (*gauge*)<br>    Total number of messages that have been sent to the broker.
+ - ***`gauge.amq.TotalMessageCount`*** (*gauge*)<br>    Total number of unacknowledged messages on the broker
+ - ***`gauge.amq.TotalProducerCount`*** (*gauge*)<br>    Total number of message producers active on destinations on the broker
+ - `gauge.amq.queue.AverageBlockedTime` (*gauge*)<br>    Average time (ms) that messages have spent blocked by Flow Control.
+ - ***`gauge.amq.queue.AverageEnqueueTime`*** (*gauge*)<br>    Average time (ms) that messages have been held at this destination
+ - `gauge.amq.queue.AverageMessageSize` (*gauge*)<br>    Average size of messages in this queue, in bytes.
+ - `gauge.amq.queue.BlockedSends` (*gauge*)<br>    Number of messages blocked by Flow Control.
+ - ***`gauge.amq.queue.ConsumerCount`*** (*gauge*)<br>    Number of consumers subscribed to this queue.
+ - ***`gauge.amq.queue.DequeueCount`*** (*gauge*)<br>    Number of messages that have been acknowledged and removed from the queue.
+ - ***`gauge.amq.queue.EnqueueCount`*** (*gauge*)<br>    Number of messages that have been sent to the queue.
+ - ***`gauge.amq.queue.ExpiredCount`*** (*gauge*)<br>    Number of messages that have expired from the queue.
+ - `gauge.amq.queue.ForwardCount` (*gauge*)<br>    Number of messages that have been forwarded from this queue to a networked broker.
+ - ***`gauge.amq.queue.InFlightCount`*** (*gauge*)<br>    The number of messages that have been dispatched to consumers, but not acknowledged.
+ - ***`gauge.amq.queue.ProducerCount`*** (*gauge*)<br>    Number of producers publishing to this queue
+ - ***`gauge.amq.queue.QueueSize`*** (*gauge*)<br>    The number of messages in the queue that have yet to be consumed.
+ - `gauge.amq.queue.TotalBlockedTime` (*gauge*)<br>    The total time (ms) that messages have spent blocked by Flow Control.
+ - `gauge.amq.topic.AverageBlockedTime` (*gauge*)<br>    Average time (ms) that messages have been blocked by Flow Control.
+ - ***`gauge.amq.topic.AverageEnqueueTime`*** (*gauge*)<br>    Average time (ms) that messages have been held at this destination.
+ - `gauge.amq.topic.AverageMessageSize` (*gauge*)<br>    Average size of messages on this topic, in bytes.
+ - `gauge.amq.topic.BlockedSends` (*gauge*)<br>    Number of messages blocked by Flow Control
+ - ***`gauge.amq.topic.ConsumerCount`*** (*gauge*)<br>    The number of consumers subscribed to this topic
+ - `gauge.amq.topic.DequeueCount` (*gauge*)<br>    Number of messages that have been acknowledged and removed from the topic.
+ - ***`gauge.amq.topic.EnqueueCount`*** (*gauge*)<br>    The number of messages that have been sent to the topic.
+ - ***`gauge.amq.topic.ExpiredCount`*** (*gauge*)<br>    The number of messages that have expired from this topic.
+ - `gauge.amq.topic.ForwardCount` (*gauge*)<br>    The number of messages that have been forwarded from this topic to a networked broker.
+ - ***`gauge.amq.topic.InFlightCount`*** (*gauge*)<br>    The number of messages that have been dispatched to consumers, but have not yet been acknowledged.
+ - ***`gauge.amq.topic.ProducerCount`*** (*gauge*)<br>    Number of producers publishing to this topic.
+ - ***`gauge.amq.topic.QueueSize`*** (*gauge*)<br>    Number of messages in the topic that have yet to be consumed.
+ - `gauge.amq.topic.TotalBlockedTime` (*gauge*)<br>    The total time (ms) that messages have spent blocked by Flow Control
+
+#### Group jvm
+All of the following metrics are part of the `jvm` metric group. All of
+the non-default metrics below can be turned on by adding `jvm` to the
+monitor config option `extraGroups`:
+ - ***`gauge.jvm.threads.count`*** (*gauge*)<br>    Number of JVM threads
+ - ***`gauge.loaded_classes`*** (*gauge*)<br>    Number of classes loaded in the JVM
+ - ***`invocations`*** (*cumulative*)<br>    Total number of garbage collection events
+ - ***`jmx_memory.committed`*** (*gauge*)<br>    Amount of memory guaranteed to be available in bytes
+ - ***`jmx_memory.init`*** (*gauge*)<br>    Amount of initial memory at startup in bytes
+ - ***`jmx_memory.max`*** (*gauge*)<br>    Maximum amount of memory that can be used in bytes
+ - ***`jmx_memory.used`*** (*gauge*)<br>    Current memory usage in bytes
+ - ***`total_time_in_ms.collection_time`*** (*cumulative*)<br>    Amount of time spent garbage collecting in milliseconds
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -141,16 +143,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
-#### Groups
-You can enable an entire group of metrics by specifying the `extraGroups` config
-option in your monitor config.  The value is a list of group names to enable.
 
 ### Legacy non-default metrics (version < 4.7.0)
 

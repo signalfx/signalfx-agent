@@ -72,29 +72,26 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `gauge.jenkins.job.duration` | gauge | ✔ | Time taken to complete the job in ms. |
-| `gauge.jenkins.node.executor.count.value` | gauge | ✔ | Total Number of executors in an instance |
-| `gauge.jenkins.node.executor.in-use.value` | gauge | ✔ | Total number of executors being used in an instance |
-| `gauge.jenkins.node.health-check.score` | gauge | ✔ | Mean health score of an instance |
-| `gauge.jenkins.node.health.disk.space` | gauge | ✔ | Binary value of disk space health |
-| `gauge.jenkins.node.health.plugins` | gauge | ✔ | Boolean value indicating state of plugins |
-| `gauge.jenkins.node.health.temporary.space` | gauge | ✔ | Binary value of temporary space health |
-| `gauge.jenkins.node.health.thread-deadlock` | gauge | ✔ | Boolean value indicating a deadlock |
-| `gauge.jenkins.node.online.status` | gauge | ✔ | Boolean value of instance is reachable or not |
-| `gauge.jenkins.node.queue.size.value` | gauge | ✔ | Total number pending jobs in queue |
-| `gauge.jenkins.node.slave.online.status` | gauge | ✔ | Boolean value for slave is reachable or not |
-| `gauge.jenkins.node.vm.memory.heap.usage` | gauge | ✔ | Percent utilization of the heap memory |
-| `gauge.jenkins.node.vm.memory.non-heap.used` | gauge | ✔ | Total amount of non-heap memory used |
-| `gauge.jenkins.node.vm.memory.total.used` | gauge | ✔ | Total Memory used by instance |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - ***`gauge.jenkins.job.duration`*** (*gauge*)<br>    Time taken to complete the job in ms.
+ - ***`gauge.jenkins.node.executor.count.value`*** (*gauge*)<br>    Total Number of executors in an instance
+ - ***`gauge.jenkins.node.executor.in-use.value`*** (*gauge*)<br>    Total number of executors being used in an instance
+ - ***`gauge.jenkins.node.health-check.score`*** (*gauge*)<br>    Mean health score of an instance
+ - ***`gauge.jenkins.node.health.disk.space`*** (*gauge*)<br>    Binary value of disk space health
+ - ***`gauge.jenkins.node.health.plugins`*** (*gauge*)<br>    Boolean value indicating state of plugins
+ - ***`gauge.jenkins.node.health.temporary.space`*** (*gauge*)<br>    Binary value of temporary space health
+ - ***`gauge.jenkins.node.health.thread-deadlock`*** (*gauge*)<br>    Boolean value indicating a deadlock
+ - ***`gauge.jenkins.node.online.status`*** (*gauge*)<br>    Boolean value of instance is reachable or not
+ - ***`gauge.jenkins.node.queue.size.value`*** (*gauge*)<br>    Total number pending jobs in queue
+ - ***`gauge.jenkins.node.slave.online.status`*** (*gauge*)<br>    Boolean value for slave is reachable or not
+ - ***`gauge.jenkins.node.vm.memory.heap.usage`*** (*gauge*)<br>    Percent utilization of the heap memory
+ - ***`gauge.jenkins.node.vm.memory.non-heap.used`*** (*gauge*)<br>    Total amount of non-heap memory used
+ - ***`gauge.jenkins.node.vm.memory.total.used`*** (*gauge*)<br>    Total Memory used by instance
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -103,13 +100,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

@@ -42,25 +42,32 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | [Group](#groups) | Description |
-| ---  | ---  | ---    | --- | ---         |
-| `df_complex.free` | gauge | ✔ |  | Free disk space in bytes |
-| `df_complex.used` | gauge | ✔ |  | Used disk space in bytes |
-| `df_inodes.free` | gauge |  | inodes | (Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `inodes` is set to `true`. |
-| `df_inodes.used` | gauge |  | inodes | (Linux Only) Number of inodes that are used.  This is only reported if the configuration option `inodes` is set to `true`. |
-| `disk.summary_utilization` | gauge | ✔ |  | Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to "signalfx-metadata". |
-| `disk.utilization` | gauge | ✔ |  | Percent of disk used on this volume. This metric reports with plugin dimension set to "signalfx-metadata". |
-| `percent_bytes.free` | gauge |  | logical | Free disk space on the file system, expressed as a percentage. |
-| `percent_bytes.used` | gauge |  | logical | Used disk space on the file system, expressed as a percentage. |
-| `percent_inodes.free` | gauge |  | inodes | (Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`. |
-| `percent_inodes.used` | gauge |  | inodes | (Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`. |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - ***`df_complex.free`*** (*gauge*)<br>    Free disk space in bytes
+ - ***`df_complex.used`*** (*gauge*)<br>    Used disk space in bytes
+ - ***`disk.summary_utilization`*** (*gauge*)<br>    Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to "signalfx-metadata".
+ - ***`disk.utilization`*** (*gauge*)<br>    Percent of disk used on this volume. This metric reports with plugin dimension set to "signalfx-metadata".
+
+#### Group inodes
+All of the following metrics are part of the `inodes` metric group. All of
+the non-default metrics below can be turned on by adding `inodes` to the
+monitor config option `extraGroups`:
+ - `df_inodes.free` (*gauge*)<br>    (Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `inodes` is set to `true`.
+ - `df_inodes.used` (*gauge*)<br>    (Linux Only) Number of inodes that are used.  This is only reported if the configuration option `inodes` is set to `true`.
+ - `percent_inodes.free` (*gauge*)<br>    (Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`.
+ - `percent_inodes.used` (*gauge*)<br>    (Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`.
+
+#### Group logical
+All of the following metrics are part of the `logical` metric group. All of
+the non-default metrics below can be turned on by adding `logical` to the
+monitor config option `extraGroups`:
+ - `percent_bytes.free` (*gauge*)<br>    Free disk space on the file system, expressed as a percentage.
+ - `percent_bytes.used` (*gauge*)<br>    Used disk space on the file system, expressed as a percentage.
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -69,16 +76,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
-#### Groups
-You can enable an entire group of metrics by specifying the `extraGroups` config
-option in your monitor config.  The value is a list of group names to enable.
 
 ### Legacy non-default metrics (version < 4.7.0)
 

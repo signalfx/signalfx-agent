@@ -36,22 +36,19 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `if_errors.rx` | cumulative | ✔ | Count of receive errors on the interface |
-| `if_errors.tx` | cumulative | ✔ | Count of transmit errors on the interface |
-| `if_octets.rx` | cumulative | ✔ | Count of bytes (octets) received on the interface |
-| `if_octets.tx` | cumulative | ✔ | Count of bytes (octets) transmitted by the interface |
-| `if_packets.rx` | cumulative |  | Count of packets received on the interface |
-| `if_packets.tx` | cumulative |  | Count of packets transmitted by the interface |
-| `network.total` | cumulative | ✔ | Total amount of inbound and outbound network traffic on this host, in bytes.  This metric reports with plugin dimension set to "signalfx-metadata". |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - ***`if_errors.rx`*** (*cumulative*)<br>    Count of receive errors on the interface
+ - ***`if_errors.tx`*** (*cumulative*)<br>    Count of transmit errors on the interface
+ - ***`if_octets.rx`*** (*cumulative*)<br>    Count of bytes (octets) received on the interface
+ - ***`if_octets.tx`*** (*cumulative*)<br>    Count of bytes (octets) transmitted by the interface
+ - `if_packets.rx` (*cumulative*)<br>    Count of packets received on the interface
+ - `if_packets.tx` (*cumulative*)<br>    Count of packets transmitted by the interface
+ - ***`network.total`*** (*cumulative*)<br>    Total amount of inbound and outbound network traffic on this host, in bytes.  This metric reports with plugin dimension set to "signalfx-metadata".
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -60,13 +57,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

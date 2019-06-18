@@ -30,26 +30,23 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `disk_io_time.io_time` | cumulative |  | Amount of time spent doing IO in ms |
-| `disk_io_time.weighted_io_time` | cumulative |  | Amount of time spent doing IO in ms multiplied by the queue length |
-| `disk_merged.read` | cumulative |  | The number of disk reads merged into single physical disk access operations. |
-| `disk_merged.write` | cumulative |  | The number of disk writes merged into single physical disk access operations. |
-| `disk_octets.read` | cumulative |  | The number of bytes (octets) read from a disk. |
-| `disk_octets.write` | cumulative |  | The number of bytes (octets) written to a disk. |
-| `disk_ops.read` | cumulative | ✔ | The number of disk read operations. |
-| `disk_ops.write` | cumulative | ✔ | The number of disk write operations. |
-| `disk_time.read` | cumulative |  | The average amount of time it took to do a read operation. |
-| `disk_time.write` | cumulative |  | The average amount of time it took to do a write operation. |
-| `pending_operations` | gauge |  | Number of pending operations |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - `disk_io_time.io_time` (*cumulative*)<br>    Amount of time spent doing IO in ms
+ - `disk_io_time.weighted_io_time` (*cumulative*)<br>    Amount of time spent doing IO in ms multiplied by the queue length
+ - `disk_merged.read` (*cumulative*)<br>    The number of disk reads merged into single physical disk access operations.
+ - `disk_merged.write` (*cumulative*)<br>    The number of disk writes merged into single physical disk access operations.
+ - `disk_octets.read` (*cumulative*)<br>    The number of bytes (octets) read from a disk.
+ - `disk_octets.write` (*cumulative*)<br>    The number of bytes (octets) written to a disk.
+ - ***`disk_ops.read`*** (*cumulative*)<br>    The number of disk read operations.
+ - ***`disk_ops.write`*** (*cumulative*)<br>    The number of disk write operations.
+ - `disk_time.read` (*cumulative*)<br>    The average amount of time it took to do a read operation.
+ - `disk_time.write` (*cumulative*)<br>    The average amount of time it took to do a write operation.
+ - `pending_operations` (*gauge*)<br>    Number of pending operations
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -58,13 +55,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

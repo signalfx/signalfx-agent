@@ -28,7 +28,8 @@ type PropMetadata struct {
 
 // GroupMetadata contains a group's metadata.
 type GroupMetadata struct {
-	Description string `json:"description"`
+	Description string   `json:"description"`
+	Metrics     []string `json:"metrics"`
 }
 
 // MonitorMetadata contains a monitor's metadata.
@@ -37,7 +38,7 @@ type MonitorMetadata struct {
 	SendAll     bool                      `json:"sendAll" yaml:"sendAll"`
 	Dimensions  map[string]DimMetadata    `json:"dimensions"`
 	Doc         string                    `json:"doc"`
-	Groups      map[string]GroupMetadata  `json:"groups"`
+	Groups      map[string]*GroupMetadata `json:"groups"`
 	Metrics     map[string]MetricMetadata `json:"metrics"`
 	Properties  map[string]PropMetadata   `json:"properties"`
 	// True if the list of metrics is definitively the set of metrics

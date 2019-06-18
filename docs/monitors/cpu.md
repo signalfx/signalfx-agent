@@ -32,17 +32,14 @@ Configuration](../monitor-config.md#common-configuration).**
 This monitor has no configuration options.
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `cpu.utilization` | gauge | ✔ | Percent of CPU used on this host. This metric is emitted with a plugin dimension set to "signalfx-metadata". |
-| `cpu.utilization_per_core` | gauge |  | Percent of CPU used on each core. This metric is emitted with the plugin dimension set to "signalfx-metadata" |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - ***`cpu.utilization`*** (*gauge*)<br>    Percent of CPU used on this host. This metric is emitted with a plugin dimension set to "signalfx-metadata".
+ - `cpu.utilization_per_core` (*gauge*)<br>    Percent of CPU used on each core. This metric is emitted with the plugin dimension set to "signalfx-metadata"
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -51,13 +48,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

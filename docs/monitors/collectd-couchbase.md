@@ -49,78 +49,89 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | [Group](#groups) | Description |
-| ---  | ---  | ---    | --- | ---         |
-| `gauge.bucket.basic.dataUsed` | gauge |  | bucket | Size of user data within buckets of the specified state that are resident in RAM (%) |
-| `gauge.bucket.basic.diskFetches` | gauge |  | bucket | Number of disk fetches |
-| `gauge.bucket.basic.diskUsed` | gauge | ✔ | bucket | Amount of disk used (bytes) |
-| `gauge.bucket.basic.itemCount` | gauge | ✔ | bucket | Number of items associated with the bucket |
-| `gauge.bucket.basic.memUsed` | gauge |  | bucket | Amount of memory used by the bucket (bytes) |
-| `gauge.bucket.basic.opsPerSec` | gauge | ✔ | bucket | Number of operations per second |
-| `gauge.bucket.basic.quotaPercentUsed` | gauge | ✔ | bucket | Percentage of RAM used (for active objects) against the configure bucket size (%) |
-| `gauge.bucket.op.cmd_get` | gauge | ✔ | bucket | requested objects |
-| `gauge.bucket.op.couch_docs_fragmentation` | gauge | ✔ | bucket | Percent fragmentation of documents in this bucket. |
-| `gauge.bucket.op.couch_views_ops` | gauge | ✔ | bucket | view operations per second |
-| `gauge.bucket.op.curr_connections` | gauge | ✔ | bucket | open connection per bucket |
-| `gauge.bucket.op.curr_items` | gauge |  | bucket | total number of stored items per bucket |
-| `gauge.bucket.op.disk_write_queue` | gauge |  | bucket | number of items waiting to be written to disk |
-| `gauge.bucket.op.ep_bg_fetched` | gauge | ✔ | bucket | number of items fetched from disk |
-| `gauge.bucket.op.ep_cache_miss_rate` | gauge | ✔ | bucket | ratio of requested objects found in cache vs retrieved from disk |
-| `gauge.bucket.op.ep_diskqueue_drain` | gauge | ✔ | bucket | items removed from disk queue |
-| `gauge.bucket.op.ep_diskqueue_fill` | gauge | ✔ | bucket | enqueued items on disk queue |
-| `gauge.bucket.op.ep_mem_high_wat` | gauge | ✔ | bucket | memory high water mark - point at which active objects begin to be ejected from bucket |
-| `gauge.bucket.op.ep_mem_low_wat` | gauge |  | bucket | memory low water mark |
-| `gauge.bucket.op.ep_num_value_ejects` | gauge | ✔ | bucket | number of objects ejected out of the bucket |
-| `gauge.bucket.op.ep_oom_errors` | gauge | ✔ | bucket | request rejected - bucket is at quota, panic |
-| `gauge.bucket.op.ep_queue_size` | gauge | ✔ | bucket | number of items queued for storage |
-| `gauge.bucket.op.ep_tmp_oom_errors` | gauge | ✔ | bucket | request rejected - couchbase is making room by ejecting objects, try again later |
-| `gauge.bucket.op.mem_used` | gauge | ✔ | bucket | memory used |
-| `gauge.bucket.op.ops` | gauge |  | bucket | total of gets, sets, increment and decrement |
-| `gauge.bucket.op.vb_active_resident_items_ratio` | gauge | ✔ | bucket | ratio of items kept in memory vs stored on disk |
-| `gauge.bucket.quota.ram` | gauge |  | bucket | Amount of RAM used by the bucket (bytes). |
-| `gauge.bucket.quota.rawRAM` | gauge |  | bucket | Amount of raw RAM used by the bucket (bytes). |
-| `gauge.nodes.cmd_get` | gauge | ✔ | nodes | Number of get commands |
-| `gauge.nodes.couch_docs_actual_disk_size` | gauge | ✔ | nodes | Amount of disk space used by Couch docs.(bytes) |
-| `gauge.nodes.couch_docs_data_size` | gauge | ✔ | nodes | Data size of couch documents associated with a node (bytes) |
-| `gauge.nodes.couch_spatial_data_size` | gauge |  | nodes | Size of object data for spatial views (bytes) |
-| `gauge.nodes.couch_spatial_disk_size` | gauge |  | nodes | Amount of disk space occupied by spatial views, in bytes. |
-| `gauge.nodes.couch_views_actual_disk_size` | gauge |  | nodes | Amount of disk space occupied by Couch views (bytes). |
-| `gauge.nodes.couch_views_data_size` | gauge |  | nodes | Size of object data for Couch views (bytes). |
-| `gauge.nodes.curr_items` | gauge |  | nodes | Number of current items |
-| `gauge.nodes.curr_items_tot` | gauge | ✔ | nodes | Total number of items associated with node |
-| `gauge.nodes.ep_bg_fetched` | gauge | ✔ | nodes | Number of disk fetches performed since server was started |
-| `gauge.nodes.get_hits` | gauge |  | nodes | Number of get hits |
-| `gauge.nodes.mcdMemoryAllocated` | gauge |  | nodes | Amount of memcached memory allocated (bytes). |
-| `gauge.nodes.mcdMemoryReserved` | gauge |  | nodes | Amount of memcached memory reserved (bytes). |
-| `gauge.nodes.mem_used` | gauge | ✔ | nodes | Memory used by the node (bytes) |
-| `gauge.nodes.memoryFree` | gauge |  | nodes | Amount of memory free for the node (bytes). |
-| `gauge.nodes.memoryTotal` | gauge |  | nodes | Total memory available to the node (bytes). |
-| `gauge.nodes.ops` | gauge | ✔ | nodes | Number of operations performed on Couchbase |
-| `gauge.nodes.system.cpu_utilization_rate` | gauge | ✔ | nodes | The CPU utilization rate (%) |
-| `gauge.nodes.system.mem_free` | gauge | ✔ | nodes | Free memory available to the node (bytes) |
-| `gauge.nodes.system.mem_total` | gauge | ✔ | nodes | Total memory available to the node (bytes) |
-| `gauge.nodes.system.swap_total` | gauge | ✔ | nodes | Total swap size allocated (bytes) |
-| `gauge.nodes.system.swap_used` | gauge | ✔ | nodes | Amount of swap space used (bytes) |
-| `gauge.nodes.vb_replica_curr_items` | gauge |  | nodes | Number of items/documents that are replicas |
-| `gauge.storage.hdd.free` | gauge |  | storage | Free harddrive space in the cluster (bytes) |
-| `gauge.storage.hdd.quotaTotal` | gauge |  | storage | Harddrive quota total for the cluster (bytes) |
-| `gauge.storage.hdd.total` | gauge |  | storage | Total harddrive space available to cluster (bytes) |
-| `gauge.storage.hdd.used` | gauge |  | storage | Harddrive space used by the cluster (bytes) |
-| `gauge.storage.hdd.usedByData` | gauge |  | storage | Harddrive use by the data in the cluster(bytes) |
-| `gauge.storage.ram.quotaTotal` | gauge |  | storage | Ram quota total for the cluster (bytes) |
-| `gauge.storage.ram.quotaTotalPerNode` | gauge |  | storage | Ram quota total per node (bytes) |
-| `gauge.storage.ram.quotaUsed` | gauge |  | storage | Ram quota used by the cluster (bytes) |
-| `gauge.storage.ram.quotaUsedPerNode` | gauge |  | storage | Ram quota used per node (bytes) |
-| `gauge.storage.ram.total` | gauge |  | storage | Total ram available to cluster (bytes) |
-| `gauge.storage.ram.used` | gauge |  | storage | Ram used by the cluster (bytes) |
-| `gauge.storage.ram.usedByData` | gauge |  | storage | Ram used by the data in the cluster (bytes) |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+#### Group bucket
+All of the following metrics are part of the `bucket` metric group. All of
+the non-default metrics below can be turned on by adding `bucket` to the
+monitor config option `extraGroups`:
+ - `gauge.bucket.basic.dataUsed` (*gauge*)<br>    Size of user data within buckets of the specified state that are resident in RAM (%)
+ - `gauge.bucket.basic.diskFetches` (*gauge*)<br>    Number of disk fetches
+ - ***`gauge.bucket.basic.diskUsed`*** (*gauge*)<br>    Amount of disk used (bytes)
+ - ***`gauge.bucket.basic.itemCount`*** (*gauge*)<br>    Number of items associated with the bucket
+ - `gauge.bucket.basic.memUsed` (*gauge*)<br>    Amount of memory used by the bucket (bytes)
+ - ***`gauge.bucket.basic.opsPerSec`*** (*gauge*)<br>    Number of operations per second
+ - ***`gauge.bucket.basic.quotaPercentUsed`*** (*gauge*)<br>    Percentage of RAM used (for active objects) against the configure bucket size (%)
+ - ***`gauge.bucket.op.cmd_get`*** (*gauge*)<br>    requested objects
+ - ***`gauge.bucket.op.couch_docs_fragmentation`*** (*gauge*)<br>    Percent fragmentation of documents in this bucket.
+ - ***`gauge.bucket.op.couch_views_ops`*** (*gauge*)<br>    view operations per second
+ - ***`gauge.bucket.op.curr_connections`*** (*gauge*)<br>    open connection per bucket
+ - `gauge.bucket.op.curr_items` (*gauge*)<br>    total number of stored items per bucket
+ - `gauge.bucket.op.disk_write_queue` (*gauge*)<br>    number of items waiting to be written to disk
+ - ***`gauge.bucket.op.ep_bg_fetched`*** (*gauge*)<br>    number of items fetched from disk
+ - ***`gauge.bucket.op.ep_cache_miss_rate`*** (*gauge*)<br>    ratio of requested objects found in cache vs retrieved from disk
+ - ***`gauge.bucket.op.ep_diskqueue_drain`*** (*gauge*)<br>    items removed from disk queue
+ - ***`gauge.bucket.op.ep_diskqueue_fill`*** (*gauge*)<br>    enqueued items on disk queue
+ - ***`gauge.bucket.op.ep_mem_high_wat`*** (*gauge*)<br>    memory high water mark - point at which active objects begin to be ejected from bucket
+ - `gauge.bucket.op.ep_mem_low_wat` (*gauge*)<br>    memory low water mark
+ - ***`gauge.bucket.op.ep_num_value_ejects`*** (*gauge*)<br>    number of objects ejected out of the bucket
+ - ***`gauge.bucket.op.ep_oom_errors`*** (*gauge*)<br>    request rejected - bucket is at quota, panic
+ - ***`gauge.bucket.op.ep_queue_size`*** (*gauge*)<br>    number of items queued for storage
+ - ***`gauge.bucket.op.ep_tmp_oom_errors`*** (*gauge*)<br>    request rejected - couchbase is making room by ejecting objects, try again later
+ - ***`gauge.bucket.op.mem_used`*** (*gauge*)<br>    memory used
+ - `gauge.bucket.op.ops` (*gauge*)<br>    total of gets, sets, increment and decrement
+ - ***`gauge.bucket.op.vb_active_resident_items_ratio`*** (*gauge*)<br>    ratio of items kept in memory vs stored on disk
+ - `gauge.bucket.quota.ram` (*gauge*)<br>    Amount of RAM used by the bucket (bytes).
+ - `gauge.bucket.quota.rawRAM` (*gauge*)<br>    Amount of raw RAM used by the bucket (bytes).
+
+#### Group nodes
+All of the following metrics are part of the `nodes` metric group. All of
+the non-default metrics below can be turned on by adding `nodes` to the
+monitor config option `extraGroups`:
+ - ***`gauge.nodes.cmd_get`*** (*gauge*)<br>    Number of get commands
+ - ***`gauge.nodes.couch_docs_actual_disk_size`*** (*gauge*)<br>    Amount of disk space used by Couch docs.(bytes)
+ - ***`gauge.nodes.couch_docs_data_size`*** (*gauge*)<br>    Data size of couch documents associated with a node (bytes)
+ - `gauge.nodes.couch_spatial_data_size` (*gauge*)<br>    Size of object data for spatial views (bytes)
+ - `gauge.nodes.couch_spatial_disk_size` (*gauge*)<br>    Amount of disk space occupied by spatial views, in bytes.
+ - `gauge.nodes.couch_views_actual_disk_size` (*gauge*)<br>    Amount of disk space occupied by Couch views (bytes).
+ - `gauge.nodes.couch_views_data_size` (*gauge*)<br>    Size of object data for Couch views (bytes).
+ - `gauge.nodes.curr_items` (*gauge*)<br>    Number of current items
+ - ***`gauge.nodes.curr_items_tot`*** (*gauge*)<br>    Total number of items associated with node
+ - ***`gauge.nodes.ep_bg_fetched`*** (*gauge*)<br>    Number of disk fetches performed since server was started
+ - `gauge.nodes.get_hits` (*gauge*)<br>    Number of get hits
+ - `gauge.nodes.mcdMemoryAllocated` (*gauge*)<br>    Amount of memcached memory allocated (bytes).
+ - `gauge.nodes.mcdMemoryReserved` (*gauge*)<br>    Amount of memcached memory reserved (bytes).
+ - ***`gauge.nodes.mem_used`*** (*gauge*)<br>    Memory used by the node (bytes)
+ - `gauge.nodes.memoryFree` (*gauge*)<br>    Amount of memory free for the node (bytes).
+ - `gauge.nodes.memoryTotal` (*gauge*)<br>    Total memory available to the node (bytes).
+ - ***`gauge.nodes.ops`*** (*gauge*)<br>    Number of operations performed on Couchbase
+ - ***`gauge.nodes.system.cpu_utilization_rate`*** (*gauge*)<br>    The CPU utilization rate (%)
+ - ***`gauge.nodes.system.mem_free`*** (*gauge*)<br>    Free memory available to the node (bytes)
+ - ***`gauge.nodes.system.mem_total`*** (*gauge*)<br>    Total memory available to the node (bytes)
+ - ***`gauge.nodes.system.swap_total`*** (*gauge*)<br>    Total swap size allocated (bytes)
+ - ***`gauge.nodes.system.swap_used`*** (*gauge*)<br>    Amount of swap space used (bytes)
+ - `gauge.nodes.vb_replica_curr_items` (*gauge*)<br>    Number of items/documents that are replicas
+
+#### Group storage
+All of the following metrics are part of the `storage` metric group. All of
+the non-default metrics below can be turned on by adding `storage` to the
+monitor config option `extraGroups`:
+ - `gauge.storage.hdd.free` (*gauge*)<br>    Free harddrive space in the cluster (bytes)
+ - `gauge.storage.hdd.quotaTotal` (*gauge*)<br>    Harddrive quota total for the cluster (bytes)
+ - `gauge.storage.hdd.total` (*gauge*)<br>    Total harddrive space available to cluster (bytes)
+ - `gauge.storage.hdd.used` (*gauge*)<br>    Harddrive space used by the cluster (bytes)
+ - `gauge.storage.hdd.usedByData` (*gauge*)<br>    Harddrive use by the data in the cluster(bytes)
+ - `gauge.storage.ram.quotaTotal` (*gauge*)<br>    Ram quota total for the cluster (bytes)
+ - `gauge.storage.ram.quotaTotalPerNode` (*gauge*)<br>    Ram quota total per node (bytes)
+ - `gauge.storage.ram.quotaUsed` (*gauge*)<br>    Ram quota used by the cluster (bytes)
+ - `gauge.storage.ram.quotaUsedPerNode` (*gauge*)<br>    Ram quota used per node (bytes)
+ - `gauge.storage.ram.total` (*gauge*)<br>    Total ram available to cluster (bytes)
+ - `gauge.storage.ram.used` (*gauge*)<br>    Ram used by the cluster (bytes)
+ - `gauge.storage.ram.usedByData` (*gauge*)<br>    Ram used by the data in the cluster (bytes)
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -129,16 +140,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
-#### Groups
-You can enable an entire group of metrics by specifying the `extraGroups` config
-option in your monitor config.  The value is a list of group names to enable.
 
 ### Legacy non-default metrics (version < 4.7.0)
 

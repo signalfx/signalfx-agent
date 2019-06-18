@@ -35,39 +35,36 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `connections.opened` | cumulative |  | Number of connections opened since server began running |
-| `df.cache.free` | gauge | ✔ | Unused storage bytes |
-| `df.cache.used` | gauge | ✔ | Current number of bytes used to store items |
-| `memcached_command.flush` | cumulative |  | Number of flush requests |
-| `memcached_command.get` | cumulative | ✔ | Number of retrieval requests |
-| `memcached_command.set` | cumulative | ✔ | Number of storage requests |
-| `memcached_command.touch` | cumulative |  | Number of touch requests |
-| `memcached_connections.current` | gauge | ✔ | Current number of open connections |
-| `memcached_items.current` | gauge | ✔ | Current number of items stored by this instance |
-| `memcached_octets.rx` | cumulative | ✔ | Total network bytes read by this server |
-| `memcached_octets.tx` | cumulative | ✔ | Total network bytes written by this server |
-| `memcached_ops.decr_hits` | cumulative |  | Number of successful Decr requests |
-| `memcached_ops.decr_misses` | cumulative |  | Number of decr requests against missing keys |
-| `memcached_ops.delete_hits` | cumulative |  | Number of successful delete requests |
-| `memcached_ops.delete_misses` | cumulative |  | Number of delete requests against missing keys |
-| `memcached_ops.evictions` | cumulative | ✔ | Number of valid items removed from cache |
-| `memcached_ops.hits` | cumulative | ✔ | Number of keys that have been requested and found present |
-| `memcached_ops.incr_hits` | cumulative |  | Number of successful incr requests |
-| `memcached_ops.incr_misses` | cumulative |  | Number of incr requests against missing keys |
-| `memcached_ops.misses` | cumulative | ✔ | Number of items that have been requested and not found |
-| `ps_count.threads` | gauge |  | Number of worker threads requested |
-| `ps_cputime.syst` | cumulative |  | Total system time for this instance |
-| `ps_cputime.user` | cumulative |  | Total user time for this instance |
-| `total_events.listen_disabled` | cumulative |  | Number of times connection limit has been exceeded |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - `connections.opened` (*cumulative*)<br>    Number of connections opened since server began running
+ - ***`df.cache.free`*** (*gauge*)<br>    Unused storage bytes
+ - ***`df.cache.used`*** (*gauge*)<br>    Current number of bytes used to store items
+ - `memcached_command.flush` (*cumulative*)<br>    Number of flush requests
+ - ***`memcached_command.get`*** (*cumulative*)<br>    Number of retrieval requests
+ - ***`memcached_command.set`*** (*cumulative*)<br>    Number of storage requests
+ - `memcached_command.touch` (*cumulative*)<br>    Number of touch requests
+ - ***`memcached_connections.current`*** (*gauge*)<br>    Current number of open connections
+ - ***`memcached_items.current`*** (*gauge*)<br>    Current number of items stored by this instance
+ - ***`memcached_octets.rx`*** (*cumulative*)<br>    Total network bytes read by this server
+ - ***`memcached_octets.tx`*** (*cumulative*)<br>    Total network bytes written by this server
+ - `memcached_ops.decr_hits` (*cumulative*)<br>    Number of successful Decr requests
+ - `memcached_ops.decr_misses` (*cumulative*)<br>    Number of decr requests against missing keys
+ - `memcached_ops.delete_hits` (*cumulative*)<br>    Number of successful delete requests
+ - `memcached_ops.delete_misses` (*cumulative*)<br>    Number of delete requests against missing keys
+ - ***`memcached_ops.evictions`*** (*cumulative*)<br>    Number of valid items removed from cache
+ - ***`memcached_ops.hits`*** (*cumulative*)<br>    Number of keys that have been requested and found present
+ - `memcached_ops.incr_hits` (*cumulative*)<br>    Number of successful incr requests
+ - `memcached_ops.incr_misses` (*cumulative*)<br>    Number of incr requests against missing keys
+ - ***`memcached_ops.misses`*** (*cumulative*)<br>    Number of items that have been requested and not found
+ - `ps_count.threads` (*gauge*)<br>    Number of worker threads requested
+ - `ps_cputime.syst` (*cumulative*)<br>    Total system time for this instance
+ - `ps_cputime.user` (*cumulative*)<br>    Total user time for this instance
+ - `total_events.listen_disabled` (*cumulative*)<br>    Number of times connection limit has been exceeded
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -76,13 +73,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

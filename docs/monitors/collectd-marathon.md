@@ -57,34 +57,31 @@ Configuration](../monitor-config.md#common-configuration).**
 
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
-
-| Name | Type | [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) | Description |
-| ---  | ---  | ---    | ---         |
-| `gauge.marathon-api-metric` | gauge |  | Metrics reported by the Marathon Metrics API |
-| `gauge.marathon.app.cpu.allocated` | gauge | ✔ | Number of CPUs allocated to an application |
-| `gauge.marathon.app.cpu.allocated.per.instance` | gauge | ✔ | Configured number of CPUs allocated to each application instance |
-| `gauge.marathon.app.delayed` | gauge |  | Indicates if the application is delayed or not |
-| `gauge.marathon.app.deployments.total` | gauge |  | Number of application deployments |
-| `gauge.marathon.app.disk.allocated` | gauge | ✔ | Storage allocated to a Marathon application |
-| `gauge.marathon.app.disk.allocated.per.instance` | gauge | ✔ | Configured storage allocated each to application instance |
-| `gauge.marathon.app.gpu.allocated` | gauge |  | GPU Allocated to a Marathon application |
-| `gauge.marathon.app.gpu.allocated.per.instance` | gauge |  | Configured number of GPUs allocated to each application instance |
-| `gauge.marathon.app.instances.total` | gauge | ✔ | Number of application instances |
-| `gauge.marathon.app.memory.allocated` | gauge | ✔ | Memory Allocated to a Marathon application |
-| `gauge.marathon.app.memory.allocated.per.instance` | gauge | ✔ | Configured amount of memory allocated to each application instance |
-| `gauge.marathon.app.tasks.running` | gauge | ✔ | Number tasks running for an application |
-| `gauge.marathon.app.tasks.staged` | gauge | ✔ | Number tasks staged for an application |
-| `gauge.marathon.app.tasks.unhealthy` | gauge | ✔ | Number unhealthy tasks for an application |
-| `gauge.marathon.task.healthchecks.failing.total` | gauge | ✔ | The number of failing health checks for a task |
-| `gauge.marathon.task.healthchecks.passing.total` | gauge | ✔ | The number of passing health checks for a task |
-| `gauge.marathon.task.staged.time.elapsed` | gauge |  | The amount of time the task spent in staging |
-| `gauge.marathon.task.start.time.elapsed` | gauge |  | Time elapsed since the task started |
+(*default*) are ***in bold and italics*** in the list below.
 
 
+ - `gauge.marathon-api-metric` (*gauge*)<br>    Metrics reported by the Marathon Metrics API
+ - ***`gauge.marathon.app.cpu.allocated`*** (*gauge*)<br>    Number of CPUs allocated to an application
+ - ***`gauge.marathon.app.cpu.allocated.per.instance`*** (*gauge*)<br>    Configured number of CPUs allocated to each application instance
+ - `gauge.marathon.app.delayed` (*gauge*)<br>    Indicates if the application is delayed or not
+ - `gauge.marathon.app.deployments.total` (*gauge*)<br>    Number of application deployments
+ - ***`gauge.marathon.app.disk.allocated`*** (*gauge*)<br>    Storage allocated to a Marathon application
+ - ***`gauge.marathon.app.disk.allocated.per.instance`*** (*gauge*)<br>    Configured storage allocated each to application instance
+ - `gauge.marathon.app.gpu.allocated` (*gauge*)<br>    GPU Allocated to a Marathon application
+ - `gauge.marathon.app.gpu.allocated.per.instance` (*gauge*)<br>    Configured number of GPUs allocated to each application instance
+ - ***`gauge.marathon.app.instances.total`*** (*gauge*)<br>    Number of application instances
+ - ***`gauge.marathon.app.memory.allocated`*** (*gauge*)<br>    Memory Allocated to a Marathon application
+ - ***`gauge.marathon.app.memory.allocated.per.instance`*** (*gauge*)<br>    Configured amount of memory allocated to each application instance
+ - ***`gauge.marathon.app.tasks.running`*** (*gauge*)<br>    Number tasks running for an application
+ - ***`gauge.marathon.app.tasks.staged`*** (*gauge*)<br>    Number tasks staged for an application
+ - ***`gauge.marathon.app.tasks.unhealthy`*** (*gauge*)<br>    Number unhealthy tasks for an application
+ - ***`gauge.marathon.task.healthchecks.failing.total`*** (*gauge*)<br>    The number of failing health checks for a task
+ - ***`gauge.marathon.task.healthchecks.passing.total`*** (*gauge*)<br>    The number of passing health checks for a task
+ - `gauge.marathon.task.staged.time.elapsed` (*gauge*)<br>    The amount of time the task spent in staging
+ - `gauge.marathon.task.start.time.elapsed` (*gauge*)<br>    Time elapsed since the task started
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -93,13 +90,11 @@ are marked as _Default_ in the table below.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
 
 ### Legacy non-default metrics (version < 4.7.0)
 

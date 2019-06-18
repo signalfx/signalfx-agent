@@ -46,24 +46,42 @@ This monitor has no configuration options.
 {{- $hasGroups := false }}
 {{- range $info := .metrics }}{{ if $info.group }}{{ $hasGroups = true }}{{end}}{{end -}}
 
-{{with .metrics -}}
+{{if .metrics -}}
 ## Metrics
 
-The following table lists the metrics available for this monitor.
+These are the metrics available for this monitor.
 {{ if not $sendAll -}}
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-are marked as _Default_ in the table below.
+(*default*) are ***in bold and italics*** in the list below.
 {{- else -}}
-This monitor emits all metrics by default; however, **none are categorized as [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) -- they are all custom**.
+This monitor emits all metrics by default; however, **none are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+-- they are all custom**.
 {{end}}
 
-| Name | Type {{if not $sendAll}}| [Default](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) {{end}}{{if $hasGroups}}| [Group](#groups) {{end}}| Description |
-| ---  | ---  {{if not $sendAll}}| ---    {{end}}{{if $hasGroups}}| --- {{end}}| ---         |
-{{ range $metric, $info := . -}}
-| `{{$metric}}`{{if has $info "alias"}}<br>_or_ `{{$info.alias}}`{{end}} | {{$info.type}} {{if not $sendAll}}| {{if $info.default}}✔{{end}} {{end}}{{if $hasGroups}}| {{$info.group | default ""}} {{end}}| {{$info.description | strings.TrimSpace}} |
-{{end}}
-{{end -}}
+{{- $firstGroup := true }}
+{{- $metrics := .metrics }}
+{{ range $group, $groupInfo := .groups }}
+  {{- if ne $group "" }}
+
+#### Group {{$group}}
+All of the following metrics are part of the `{{$group}}` metric group. All of
+the non-default metrics below can be turned on by adding `{{$group}}` to the
+monitor config option `extraGroups`:
+  {{- else }}
+{{assert $firstGroup}}
+  {{- end}}
+
+{{- $firstGroup = false}}
+  {{- range $metricName := $groupInfo.metrics -}}
+  {{- $info := index $metrics $metricName }}
+  {{- $isDefault := (or $sendAll $info.default) }}
+ - {{if $isDefault}}***{{end}}`{{$metricName}}`{{if has $info "alias"}} _or_ `{{$info.alias}}`{{end}}{{if $isDefault}}***{{end}} (*{{$info.type}}*)<br>{{$info.description | strings.Indent 4}}
+  {{- end}}
+{{- end}}
+
+{{- end -}}
 
 {{ if $sendAll }}
 The agent does not do any built-in filtering of metrics coming out of this
@@ -79,17 +97,11 @@ monitor.
 
 To emit metrics that are not _default_, you can add those metrics in the
 generic monitor-level `extraMetrics` config option.  Metrics that are derived
-from specific configuration options that do not appear in the above table do
-not need to be added to `extraMetrics`.
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-{{ if $hasGroups }}
-#### Groups
-You can enable an entire group of metrics by specifying the `extraGroups` config
-option in your monitor config.  The value is a list of group names to enable.
-{{- end }}
 
 ### Legacy non-default metrics (version < 4.7.0)
 
@@ -124,7 +136,7 @@ dimensions may be specific to certain metrics.
 ## Properties
 
 The following
-[properties](https://docs.signalfx.com/en/latest/concepts/metrics-metadata.html#properties)
+[properties](https://docs.signalfx.com/en/latest/metrics-metadata/metrics-metadata.html#properties)
 are set on the dimension values of the dimension specified.
 
 | Name | Dimension | Description |
