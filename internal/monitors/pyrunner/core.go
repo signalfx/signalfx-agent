@@ -155,7 +155,7 @@ func (mc *MonitorCore) runWithRestart(runtimeConf RuntimeConfig, handler func(Me
 			// configuring.
 			mc.configCond.Broadcast()
 
-			if err != nil {
+			if mc.configResult != nil {
 				mc.Shutdown()
 				mc.logger.WithError(mc.configResult).Error("Could not configure Python plugin")
 				return
@@ -170,11 +170,14 @@ func (mc *MonitorCore) runWithRestart(runtimeConf RuntimeConfig, handler func(Me
 		stdout.Close()
 		messages.Close()
 
+		if err != nil {
+			mc.logger.WithError(err).Error("Python runner process shutdown with error")
+		}
 		if mc.ShutdownCalled() {
 			return
 		}
+		mc.logger.Error("Restarting Python runner")
 
-		mc.logger.WithError(err).Error("Python runner process shutdown unexpectedly, restarting...")
 		time.Sleep(2 * time.Second)
 	}
 }
