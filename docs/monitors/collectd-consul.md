@@ -17,15 +17,19 @@ from Consul instances by hitting these endpoints:
 - [/health/state/any](https://www.consul.io/api/health.html#list-checks-in-state)
 
 
-If running Consul version below 0.9.1, configure the Consul agents that are to be monitored to send telemetry to a SignalFx Agent instance by adding the below configuration to Consul agents configuration file:
+### Agent Statsd listener
+If running Consul version below 0.9.1, configure the Consul agents that are
+to be monitored to send telemetry to a SignalFx Agent instance by adding
+the below configuration to Consul agents configuration file:
 
 ```
 {"telemetry":
   {"statsd_address": "<agent host>:<agent port, default 8125>"}
 }
 ```
-
-This monitor should be be configured with the `telemetryServer: true` option set. start a UDP server listening at above host and port.
+This monitor should then be be configured with the `telemetryServer: true`
+option set. This will start a UDP server listening on `0.0.0.0:8125` by
+default.
 
 
 Monitor Type: `collectd/consul`
