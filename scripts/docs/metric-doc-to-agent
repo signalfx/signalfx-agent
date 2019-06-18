@@ -32,7 +32,7 @@ if len(metadata) != 1:
 metrics = metadata["monitors"][0]["metrics"]
 
 for f in (INTEGRATIONS_REPO / INTEGRATION).glob("docs/*.md"):
-    if "readme.md" in str(f):
+    if f.name == "readme.md"
         continue
 
     metric_name = f.with_suffix("").name
