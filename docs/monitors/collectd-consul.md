@@ -17,6 +17,17 @@ from Consul instances by hitting these endpoints:
 - [/health/state/any](https://www.consul.io/api/health.html#list-checks-in-state)
 
 
+If running Consul version below 0.9.1, configure the Consul agents that are to be monitored to send telemetry to a SignalFx Agent instance by adding the below configuration to Consul agents configuration file:
+
+```
+{"telemetry":
+  {"statsd_address": "<agent host>:<agent port, default 8125>"}
+}
+```
+
+This monitor should be be configured with the `telemetryServer: true` option set. start a UDP server listening at above host and port.
+
+
 Monitor Type: `collectd/consul`
 
 [Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/consul)
@@ -35,12 +46,15 @@ Configuration](../monitor-config.md#common-configuration).**
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
-| `aclToken` | no | `string` |  |
-| `useHTTPS` | no | `bool` |  (**default:** `false`) |
-| `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
-| `caCertificate` | no | `string` |  |
-| `clientCertificate` | no | `string` |  |
-| `clientKey` | no | `string` |  |
+| `aclToken` | no | `string` | Consul ACL token |
+| `useHTTPS` | no | `bool` | Set to `true` to connect to Consul using HTTPS.  You can figure the certificate for the server with the `caCertificate` config option. (**default:** `false`) |
+| `telemetryServer` | no | `bool` |  (**default:** `false`) |
+| `telemetryHost` | no | `string` | IP address or DNS to which Consul is configured to send telemetry UDP packets. Relevant only if `telemetryServer` is set to true. (**default:** `0.0.0.0`) |
+| `telemetryPort` | no | `integer` | Port to which Consul is configured to send telemetry UDP packets. Relevant only if `telemetryServer` is set to true. (**default:** `8125`) |
+| `enhancedMetrics` | no | `bool` | Set to *true* to enable collecting all metrics from Consul's runtime telemetry send via UDP or from the `/agent/metrics` endpoint. (**default:** `false`) |
+| `caCertificate` | no | `string` | If Consul server has HTTPS enabled for the API, specifies the path to the CA's Certificate. |
+| `clientCertificate` | no | `string` | If client-side authentication is enabled, specifies the path to the certificate file. |
+| `clientKey` | no | `string` | If client-side authentication is enabled, specifies the path to the key file. |
 | `signalFxAccessToken` | no | `string` |  |
 
 
@@ -52,63 +66,64 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `consul.dns.stale_queries` (*gauge*)<br>    Number of times an agent serves a DNS query with stale information
- - `consul.memberlist.msg.suspect` (*gauge*)<br>    Number of suspect messages received per interval
- - `consul.serf.member.flap` (*gauge*)<br>    Tracks flapping agents
- - ***`gauge.consul.catalog.nodes.total`*** (*gauge*)<br>    Number of nodes in the Consul datacenter
- - ***`gauge.consul.catalog.nodes_by_service`*** (*gauge*)<br>    Number of nodes providing a given service
- - ***`gauge.consul.catalog.services.total`*** (*gauge*)<br>    Total number of services registered with Consul in the given datacenter
- - ***`gauge.consul.catalog.services_by_node`*** (*gauge*)<br>    Number of services registered with a node
- - `gauge.consul.consul.dns.domain_query.AGENT.avg` (*gauge*)<br>    Average time to complete a forward DNS query
- - `gauge.consul.consul.dns.domain_query.AGENT.max` (*gauge*)<br>    Max time to complete a forward DNS query
- - `gauge.consul.consul.dns.domain_query.AGENT.min` (*gauge*)<br>    Min time to complete a forward DNS query
- - `gauge.consul.consul.dns.ptr_query.AGENT.avg` (*gauge*)<br>    Average time to complete a Reverse DNS query
- - `gauge.consul.consul.dns.ptr_query.AGENT.max` (*gauge*)<br>    Max time to complete a Reverse DNS query
- - `gauge.consul.consul.dns.ptr_query.AGENT.min` (*gauge*)<br>    Min time to complete a Reverse DNS query
- - ***`gauge.consul.consul.leader.reconcile.avg`*** (*gauge*)<br>    Leader time to reconcile the differences between Serf membership and Consul's store
- - ***`gauge.consul.health.nodes.critical`*** (*gauge*)<br>    Number of nodes for which health checks are reporting Critical state
- - ***`gauge.consul.health.nodes.passing`*** (*gauge*)<br>    Number of nodes for which health checks are reporting Passing state
- - ***`gauge.consul.health.nodes.warning`*** (*gauge*)<br>    Number of nodes for which health checks are reporting Warning state
- - ***`gauge.consul.health.services.critical`*** (*gauge*)<br>    Number of services for which health checks are reporting Critical state
- - ***`gauge.consul.health.services.passing`*** (*gauge*)<br>    Number of services for which health checks are reporting Passing state
- - ***`gauge.consul.health.services.warning`*** (*gauge*)<br>    Number of services for which health checks are reporting Warning state
- - ***`gauge.consul.is_leader`*** (*gauge*)<br>    Metric to map consul server's in leader or follower state
- - ***`gauge.consul.network.dc.latency.avg`*** (*gauge*)<br>    Average network latency between 2 datacenters
- - `gauge.consul.network.dc.latency.max` (*gauge*)<br>    Maximum network latency between 2 datacenters
- - `gauge.consul.network.dc.latency.min` (*gauge*)<br>    Minimum network latency between 2 datacenters
- - ***`gauge.consul.network.node.latency.avg`*** (*gauge*)<br>    Average network latency between given node and other nodes in the datacenter
- - ***`gauge.consul.network.node.latency.max`*** (*gauge*)<br>    Minimum network latency between given node and other nodes in the datacenter
- - ***`gauge.consul.network.node.latency.min`*** (*gauge*)<br>    Minimum network latency between given node and other nodes in the datacenter
- - ***`gauge.consul.peers`*** (*gauge*)<br>    Number of Raft peers in Consul datacenter
- - ***`gauge.consul.raft.apply`*** (*gauge*)<br>    Number of raft transactions
- - ***`gauge.consul.raft.commitTime.avg`*** (*gauge*)<br>    Average of the time it takes to commit an entry on the leader
- - ***`gauge.consul.raft.commitTime.max`*** (*gauge*)<br>    Max of the time it takes to commit an entry on the leader
- - ***`gauge.consul.raft.commitTime.min`*** (*gauge*)<br>    Minimum of the time it takes to commit an entry on the leader
- - ***`gauge.consul.raft.leader.dispatchLog.avg`*** (*gauge*)<br>    Average of the time it takes for the leader to write log entries to disk
- - ***`gauge.consul.raft.leader.dispatchLog.max`*** (*gauge*)<br>    Maximum of the time it takes for the leader to write log entries to disk
- - ***`gauge.consul.raft.leader.dispatchLog.min`*** (*gauge*)<br>    Minimum of the time it takes for the leader to write log entries to disk
- - ***`gauge.consul.raft.leader.lastContact.avg`*** (*gauge*)<br>    Mean of the time since the leader was last able to contact follower nodes
- - ***`gauge.consul.raft.leader.lastContact.max`*** (*gauge*)<br>    Max of the time since the leader was last able to contact follower nodes
- - ***`gauge.consul.raft.leader.lastContact.min`*** (*gauge*)<br>    Min of the time since the leader was last able to contact follower nodes
- - `gauge.consul.raft.replication.appendEntries.rpc.AGENT.avg` (*gauge*)<br>    Mean time taken to complete the AppendEntries RPC
- - `gauge.consul.raft.replication.appendEntries.rpc.AGENT.max` (*gauge*)<br>    Max time taken to complete the AppendEntries RPC
- - `gauge.consul.raft.replication.appendEntries.rpc.AGENT.min` (*gauge*)<br>    Min time taken to complete the AppendEntries RPC
- - ***`gauge.consul.raft.state.candidate`*** (*gauge*)<br>    Tracks the number of times given node enters the candidate state
- - ***`gauge.consul.raft.state.leader`*** (*gauge*)<br>    Tracks the number of leadership transitions per interval
+ - `consul.dns.stale_queries` (*gauge*)<br>    Number of times an agent serves a DNS query based on information from a server that is more than 5 seconds out of date. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `consul.memberlist.msg.suspect` (*gauge*)<br>    This increments when an agent suspects another as failed when executing random probes as part of the gossip protocol. These can be an indicator of overloaded agents, network problems, or configuration errors where agents can not connect to each other on the required ports. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `consul.serf.member.flap` (*gauge*)<br>     This metric increments when an agent is marked dead and then recovers within a short time period. This can be an indicator of overloaded agents, network problems, or configuration errors where agents can not connect to each other on the required ports. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.catalog.nodes.total`*** (*gauge*)<br>    The total number of nodes in the Consul datacenter. This metric is common to the cluster and, therefore, reported by leader only. This metric is reported with the dimension `datacenter`, `consul_node` name and `consul_mode` to indicate which mode - server or client - is the reporting consul agent.
+ - ***`gauge.consul.catalog.nodes_by_service`*** (*gauge*)<br>    Number of nodes providing a given service. This metric is reported by the leader only. The dimension `consul_service` indicates which service the metric corresponds too. Additionally, the metric also has the `datacenter` and `consul_mode` dimension.
+ - ***`gauge.consul.catalog.services.total`*** (*gauge*)<br>    The total number of services registered with Consul in the given datacenter. This metric is common to the cluster and, therefore, reported by leader only. This metric is reported with the dimension `datacenter`, `consul_node` name and `consul_mode` to indicate which mode - server or client - is the reporting consul agent.
+ - ***`gauge.consul.catalog.services_by_node`*** (*gauge*)<br>    Number of services registered with a node. This metric is reported by the leader only. The dimension `consul_node` indicates which node the metric corresponds too. Additionally, the metric also has the `datacenter` and `consul_mode` dimension.
+ - `gauge.consul.consul.dns.domain_query.AGENT.avg` (*gauge*)<br>    This tracks how long it takes to service forward DNS lookups on the given Consul agent. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `gauge.consul.consul.dns.domain_query.AGENT.max` (*gauge*)<br>    This tracks maximum time takes to service forward DNS lookups on the given Consul agent. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `gauge.consul.consul.dns.domain_query.AGENT.min` (*gauge*)<br>    This tracks minimum time it takes to service forward DNS lookups on the given Consul agent. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `gauge.consul.consul.dns.ptr_query.AGENT.avg` (*gauge*)<br>    This tracks average time it takes to service reverse DNS lookups on the given Consul agent. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `gauge.consul.consul.dns.ptr_query.AGENT.max` (*gauge*)<br>    This tracks maximum time it takes to service reverse DNS lookups on the given Consul agent. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `gauge.consul.consul.dns.ptr_query.AGENT.min` (*gauge*)<br>    This tracks minimum time it takes to service reverse DNS lookups on the given Consul agent. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.consul.leader.reconcile.avg`*** (*gauge*)<br>    Time it takes the leader to reconcile the differences between Serf membership and Consul's store. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `gauge.consul.consul.rpc.query` (*gauge*)<br>    A general measure of all read volume. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.health.nodes.critical`*** (*gauge*)<br>    Number of nodes for which health checks are reporting Critical state. This metric is reported by leader only. This metric is reported with the dimension `datacenter`, `consul_node` name and `consul_mode`.
+ - ***`gauge.consul.health.nodes.passing`*** (*gauge*)<br>    Number of nodes which health checks are reporting to be in Passing state. This metric is reported by leader only. This metric is reported with the dimension `datacenter`, `consul_node` name and `consul_mode`.
+ - ***`gauge.consul.health.nodes.warning`*** (*gauge*)<br>    Number of nodes which health checks are reporting to be in Warning state. This metric is reported by leader only. This metric is reported with the dimension `datacenter`, `consul_node` name and `consul_mode`.
+ - ***`gauge.consul.health.services.critical`*** (*gauge*)<br>    Number of services for which health checks are reporting Critical state. This metric is reported by leader only. This metric is reported with the dimension `datacenter`, `consul_node` name and `consul_mode`.
+ - ***`gauge.consul.health.services.passing`*** (*gauge*)<br>    Number of services which health checks are reporting to be in Passing state. This metric is reported by leader only. This metric is reported with the dimension `datacenter`, `consul_node` name and `consul_mode`.
+ - ***`gauge.consul.health.services.warning`*** (*gauge*)<br>    Number of services which health checks are reporting to be in Warning state. This metric is reported by leader only. This metric is reported with the dimension `datacenter`, `consul_node` name and `consul_mode`.
+ - ***`gauge.consul.is_leader`*** (*gauge*)<br>    Metric to map consul server's in leader or follower state. A follower instance returns value of 0 and leader returns a value of 1. Used by a Heat Map in the dashboard which makes recognizing the leader from followers visually easy. This metric comes with the dimension - `consul_server_state` which can be either leader or follower. Also has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.network.dc.latency.avg`*** (*gauge*)<br>    Average datacenter latency between 2 datacenters. This metric has the additional dimension `destination_dc` dimension. The latency is calculated between this destination datacenter and the agent's datacenter given by the `datacenter` dimension. Only the leader in the source datacenter calculates this metric. The metric also has the dimensions `consul_mode` and `consul_node`.
+ - `gauge.consul.network.dc.latency.max` (*gauge*)<br>    Maximum datacenter latency between 2 datacenters. This metric has the additional dimension `destination_dc` dimension. The latency is calculated between this destination datacenter and the agent's datacenter given by the `datacenter` dimension. Only the leader in the source datacenter calculates this metric. The metric also has the dimensions `consul_mode` and `consul_node`.
+ - `gauge.consul.network.dc.latency.min` (*gauge*)<br>    Minimum datacenter latency between 2 datacenters. This metric has the additional dimension `destination_dc` dimension. The latency is calculated between this destination datacenter and the agent's datacenter given by the `datacenter` dimension. Only the leader in the source datacenter calculates this metric. The metric also has the dimensions `consul_mode` and `consul_node`.
+ - ***`gauge.consul.network.node.latency.avg`*** (*gauge*)<br>    Average network latency between given node and other nodes in the datacenter. The dimension `consul_node` corresponds to the source node. The metric also has the dimensions `datacenter` and `consul_mode`.
+ - ***`gauge.consul.network.node.latency.max`*** (*gauge*)<br>    Minimum network latency between given node and other nodes in the datacenter. The dimension `consul_node` corresponds to the source node. The metric also has the dimensions `datacenter` and `consul_mode`.
+ - ***`gauge.consul.network.node.latency.min`*** (*gauge*)<br>    Minimum network latency between given node and other nodes in the datacenter. The dimension `consul_node` corresponds to the source node. The metric also has the dimensions `datacenter` and `consul_mode`.
+ - ***`gauge.consul.peers`*** (*gauge*)<br>    Number of consul Raft peers or consul agents in server mode in a given datacenter. This metric is reported by the leader only. This metric is reported with the dimension `datacenter`, `consul_node` name and `consul_mode`
+ - ***`gauge.consul.raft.apply`*** (*gauge*)<br>    This metric is a general indicator of the write load on the Consul servers. This metric has the global dimensions `consul_node`, `consul_mode` and `datacenter`.
+ - ***`gauge.consul.raft.commitTime.avg`*** (*gauge*)<br>    This measures the mean time it takes to commit a new entry to the Raft log on the leader. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.raft.commitTime.max`*** (*gauge*)<br>    This measures the max time it takes to commit a new entry to the Raft log on the leader. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.raft.commitTime.min`*** (*gauge*)<br>    This measures the minimum time it takes to commit a new entry to the Raft log on the leader. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.raft.leader.dispatchLog.avg`*** (*gauge*)<br>    This measures the mean time it takes for the leader to write log entries to disk. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.raft.leader.dispatchLog.max`*** (*gauge*)<br>    This measures the maximum time it takes for the leader to write log entries to disk. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.raft.leader.dispatchLog.min`*** (*gauge*)<br>    This measures the minimum time it takes for the leader to write log entries to disk. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.raft.leader.lastContact.avg`*** (*gauge*)<br>    This measures the time since the leader was last able to contact the follower nodes when checking its leader lease. It can be used as a measure for how stable the Raft timing is and how close the leader is to timing out its lease. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.raft.leader.lastContact.max`*** (*gauge*)<br>    This measures the maximum time since the leader was last able to contact the follower nodes when checking its leader lease. It can be used as a measure for how stable the Raft timing is and how close the leader is to timing out its lease. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.raft.leader.lastContact.min`*** (*gauge*)<br>    This measures the minimum time since the leader was last able to contact the follower nodes when checking its leader lease. It can be used as a measure for how stable the Raft timing is and how close the leader is to timing out its lease. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `gauge.consul.raft.replication.appendEntries.rpc.AGENT.avg` (*gauge*)<br>    This measures the time it takes to replicate log entries to followers. This is a general indicator of the load pressure on the Consul servers, as well as the performance of the communication between the servers. This metric is sent by the leader for each follower. The metric has the followers ip or hostname added to the metric name. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `gauge.consul.raft.replication.appendEntries.rpc.AGENT.max` (*gauge*)<br>    This measures the maximum time it takes to replicate log entries to followers. This is a general indicator of the load pressure on the Consul servers, as well as the performance of the communication between the servers. This metric is sent by the leader for each follower. The metric has the followers ip or hostname added to the metric name. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `gauge.consul.raft.replication.appendEntries.rpc.AGENT.min` (*gauge*)<br>    This measures the minimum time it takes to replicate log entries to followers. This is a general indicator of the load pressure on the Consul servers, as well as the performance of the communication between the servers. This metric is sent by the leader for each follower. The metric has the followers ip or hostname added to the metric name. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.raft.state.candidate`*** (*gauge*)<br>    Tracks the number of times given node enters the candidate state, i.e., the number of times the Consul server starts a leader election. If this increments without a leadership change occurring it could indicate that a single server is overloaded or is experiencing network connectivity issues. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.raft.state.leader`*** (*gauge*)<br>    This metric increments whenever a Consul server becomes a leader. If there are frequent leadership changes this may be indication that the servers are overloaded and aren't meeting the soft real-time requirements for Raft, or that there are networking problems between the servers. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
  - `gauge.consul.rpc.query` (*gauge*)<br>
- - `gauge.consul.runtime.alloc_bytes` (*gauge*)<br>    Number of bytes allocated to Consul process on the node
- - `gauge.consul.runtime.heap_objects` (*gauge*)<br>    Number of heap objects allocated to Consul
- - `gauge.consul.runtime.num_goroutines` (*gauge*)<br>    Number of GO routines run by Consul process
- - ***`gauge.consul.serf.events`*** (*gauge*)<br>    Number of serf events processed
+ - `gauge.consul.runtime.alloc_bytes` (*gauge*)<br>    Number of bytes allocated to Consul process on the node. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `gauge.consul.runtime.heap_objects` (*gauge*)<br>    Number of heap objects allocated to Consul, indicates memory pressure on a Consul agent. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `gauge.consul.runtime.num_goroutines` (*gauge*)<br>    Number of GO routines run by Consul process on the node. Gives the general load pressure indicator for Consul agent. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.serf.events`*** (*gauge*)<br>    Number of serf events processed by Consul. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
  - `gauge.consul.serf.events.consul:new-leader` (*gauge*)<br>
- - ***`gauge.consul.serf.member.join`*** (*gauge*)<br>    Tracks successful node joins
- - ***`gauge.consul.serf.member.left`*** (*gauge*)<br>    Tracks successful node leaves
- - ***`gauge.consul.serf.queue.Event.avg`*** (*gauge*)<br>    Average number of serf events in queue yet to be processed
- - ***`gauge.consul.serf.queue.Event.max`*** (*gauge*)<br>    Maximum number of serf events in queue yet to be processed during the interval
- - `gauge.consul.serf.queue.Event.min` (*gauge*)<br>    Minimum number of serf events in queue yet to be processed during the interval
- - `gauge.consul.serf.queue.Query.avg` (*gauge*)<br>    Average number of serf queries in queue yet to be processed during the interval
- - `gauge.consul.serf.queue.Query.max` (*gauge*)<br>    Maximum number of serf queries in queue yet to be processed during the interval
- - `gauge.consul.serf.queue.Query.min` (*gauge*)<br>    Minimum number of serf queries in queue yet to be processed during the interval
+ - ***`gauge.consul.serf.member.join`*** (*gauge*)<br>    This metric tracks successful node joins to the Serf memberlist. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.serf.member.left`*** (*gauge*)<br>    This metric tracks successful node leaves to the Serf memberlist. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.serf.queue.Event.avg`*** (*gauge*)<br>    Average number of serf events in queue yet to be processed by Consul agent. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - ***`gauge.consul.serf.queue.Event.max`*** (*gauge*)<br>    Maximum number of serf events in queue yet to be processed by Consul agent. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `gauge.consul.serf.queue.Event.min` (*gauge*)<br>    Minimum number of serf events in queue yet to be processed by Consul agent. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `gauge.consul.serf.queue.Query.avg` (*gauge*)<br>    Average number of serf queries in queue yet to be processed by Consul agent. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `gauge.consul.serf.queue.Query.max` (*gauge*)<br>    Maximum number of serf queries in queue yet to be processed by Consul agent. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
+ - `gauge.consul.serf.queue.Query.min` (*gauge*)<br>    Minimum number of serf queries in queue yet to be processed by Consul agent. This metric has the dimensions `datacenter`, `consul_node` and `consul_mode`.
 
 ### Non-default metrics (version 4.7.0+)
 

@@ -31,6 +31,7 @@ MONITORS_TO_INTEGRATIONS_DIR = {
     "internal/monitors/elasticsearch:elasticsearch": "elasticsearch",
     "internal/monitors/collectd/cpu:collectd/cpu": "collectd-cpu",
     "internal/monitors/collectd/cassandra:collectd/cassandra": "cassandra",
+    "internal/monitors/collectd/consul:collectd/consul": "consul",
 }
 
 METRIC_MARKDOWN_TEMPLATE = string.Template(
