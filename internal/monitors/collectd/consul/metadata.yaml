@@ -405,6 +405,7 @@ monitors:
       type: gauge
     gauge.consul.consul.rpc.query:
       type: gauge
+      default: false
       description: A general measure of all read volume. This metric has the dimensions
         `datacenter`, `consul_node` and `consul_mode`.
   monitorType: collectd/consul
