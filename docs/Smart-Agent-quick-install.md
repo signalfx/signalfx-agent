@@ -79,7 +79,7 @@ signalfx-agent status all - show everything
 
 ## Troubleshooting the Installation
 
-To troubleshoot your installation, check the FAQ about troubleshooting [here](./docs/faq.md#how-can-I-see-the-datapoints-emitted-by-the-agent-to-troubleshoot-issues).
+To troubleshoot your installation, check the FAQ about troubleshooting [here](./faq.md#how-can-I-see-the-datapoints-emitted-by-the-agent-to-troubleshoot-issues).
 
 
 ### Realm
