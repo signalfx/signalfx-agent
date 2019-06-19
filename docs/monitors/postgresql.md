@@ -29,7 +29,7 @@ If you want to collect additional metrics about PostgreSQL, use the [sql monitor
 ## Example Configuration
 
 This example uses the [Vault remote config
-source](./docs/remote-config.md#nested-values-vault-only)
+source](https://github.com/signalfx/signalfx-agent/blob/master/docs/remote-config.md#nested-values-vault-only)
 to connect to PostgreSQL using the `params` map that allows you to pull
 out the username and password individually from Vault and interpolate
 them into the `connectionString` config option.
