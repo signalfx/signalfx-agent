@@ -39,5 +39,6 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/spark"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/statsd"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/uptime"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/varnish"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/vmem"
 )

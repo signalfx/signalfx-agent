@@ -1,0 +1,28 @@
+<LoadPlugin "varnish">
+  Interval {{.IntervalSeconds}}
+</LoadPlugin>
+<Plugin "varnish">
+  <Instance "{{.Host}}:{{.Port}}">
+    {{if hasEnabledMetricInGroup "cache"}}
+    CollectCache       true
+	{{- end}}
+    CollectConnections true
+    CollectBackend     true
+    CollectSHM         true
+    CollectESI         true
+    CollectFetch       true
+    CollectHCB         true
+    CollectSMA         true
+    CollectSMS         true
+    CollectTotals      true
+    CollectWorkers     true
+    CollectUptime      true
+    CollectVCL         true
+    CollectStruct      true
+    CollectObjects     true
+    CollectSession     true
+    CollectVSM         true
+  </Instance>
+</Plugin>
+
+

@@ -1,0 +1,151 @@
+monitors:
+- dimensions:
+  doc: |
+    This monitor uses the [collectd varnish plugin](https://collectd.org/wiki/index.php/Plugin:Varnish) to collect metrics from a Varnish cache instance.
+
+    [Varnish Cache](https://varnish-cache.org/) is a web application accelerator also known as a caching HTTP reverse proxy. You install it in front of any server that speaks HTTP and configure it to cache the contents. Varnish Cache is really, really fast. It typically speeds up delivery with a factor of 300 - 1000x, depending on your architecture.
+  groups:
+    backend:
+      description: Back-end connection statistics, such as successful, reused, and closed connections.
+    ban:
+      description: Statistics about ban operations, such as number of bans added, retired, and number of objects tested against ban operations. Only available with Varnish 3.x and above.
+    cache:
+      description: Cache hits and misses
+    connections:
+      description: Number of client connections received, accepted and dropped.
+    directorDNS:
+      description: DNS director lookup cache statistics. Only available with Varnish 3.x.
+    esi:
+      description: Edge Side Includes (ESI) parse statistics
+    fetch:
+      description: Statistics about fetches (HTTP requests sent to the backend).
+    hcb:
+      description: Inserts and look-ups in the crit bit tree based hash. Look-ups are divided into locked and unlocked look-ups.
+    objects:
+      description: |
+        Statistics on cached objects: number of objects expired, nuked (prematurely expired), saved, moved, etc.
+    session:
+      description: Client session statistics. Number of past and current sessions, session herd and linger counters, etc. Note that if using Varnish 4.x, some metrics found in the Connections and Threads sections with previous versions of Varnish have been moved here.
+    shm:
+      description: Statistics about the shared memory log, a memory region to store log messages which is flushed to disk when full.
+    sms:
+      description: synth (synthetic content) storage statistics. This storage component is used internally only.
+    struct:
+      description: Current varnish internal state statistics. Number of current sessions, objects in cache store, open connections to backends (with Varnish 2.x), etc.
+    totals:
+      description: Collects overview counters, such as the number of sessions created, the number of requests and bytes transferred.
+    uptime:
+      description: Varnish uptime. Only available with Varnish 3.x and above.
+    vcl:
+      description: Number of total (available + discarded) VCL (config files).
+    vsm:
+      description: Collect statistics about Varnish's shared memory usage (used by the logging and statistics subsystems). Only available with Varnish 4.x.
+    workers:
+      description: Collect statistics about worker threads.
+    vbe:
+      description: Backend counters. Only available with Varnish 4.x.
+    smf:
+      description: |
+        file (memory mapped file) storage statistics. Only available with Varnish 4.x. Note: SMA, SMF and MSE share counters, enable only the one used by the Varnish instance. Used to be called SM in Varnish 2.x.
+    management:
+      description: Management process counters. Only available with Varnish 4.x.
+    lock:
+      description: Lock counters. Only available with Varnish 4.x.
+    mempool:
+      description: Memory pool counters. Only available with Varnish 4.x.
+    mse:
+      description: |
+        Varnish Massive Storage Engine 2.0 (MSE2) is an improved storage backend for Varnish, replacing the traditional malloc and file storages. Only available with Varnish-Plus 4.x. Note: SMA, SMF and MSE share counters, enable only the one used by the Varnish instance.
+  metrics:
+    counter.varnish.cache-miss:
+      type: cumulative
+      description: |-
+        Count of misses
+
+        A cache miss indicates the object was fetched from the
+        backend before delivering it to the backend.
+      default: true
+    counter.varnish.cache-hitpass:
+      type: cumulative
+      description: |-
+        Count of hits for pass
+
+        A cache hit for pass indicates that Varnish is going to
+        pass the request to the backend and this decision has been
+        cached in it self. This counts how many times the cached
+        decision is being used.
+      default: true
+    counter.varnish.totals-req_header:
+      type: cumulative
+      description: |-
+        Total request header bytes received
+
+        Total bytes from request headers.
+      default: true
+    counter.varnish.totals-req_body:
+      type: cumulative
+      description: |-
+        Total request body bytes received
+
+        Total bytes from request bodies.
+      default: true
+    counter.varnish.session-accepted:
+      type: cumulative
+      description: |-
+        Count of sessions successfully accepted
+      default: true
+    counter.varnish.connections-recycled:
+      type: cumulative
+      description: |-
+        Count of backend connection recycles
+
+        This counter is increased whenever we have a keep-alive
+        connection that is put back into the pool of connections.
+        It has not yet been used, but it might be, unless the backend
+        closes it.
+      default: true
+    counter.varnish.totals-resp_body:
+      type: cumulative
+      description: |-
+        Total response body bytes transmitted
+
+        Total bytes from response bodies.
+      default: true
+    counter.varnish.totals-resp_header:
+      type: cumulative
+      description: |-
+        Total response header bytes received
+
+        Total bytes from response headers.
+      default: true
+    gauge.varnish.uptime:
+      type: gauge
+      description: |-
+        Child varnish process uptime
+
+        How long the child varnish process has been running.
+      default: true
+    counter.varnish.connections-received:
+      type: cumulative
+      description: |-
+        The count of parseable client requests seen
+
+        The count of parseable client requests seen by the server.
+      default: true
+    counter.varnish.connections-reuses:
+      type: cumulative
+      description: |-
+        Count of backend connection reuses
+
+        This counter is increased whenever we reuse a recycled connection.
+      default: true
+    counter.varnish.cache-hit:
+      type: cumulative
+      description: |-
+        Count of cache hits
+
+        A cache hit indicates that an object has been delivered to a
+        client without fetching it from a backend server.
+      default: true
+  monitorType: collectd/varnish
+  properties:

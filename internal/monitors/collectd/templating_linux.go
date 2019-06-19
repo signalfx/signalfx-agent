@@ -15,6 +15,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
+	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 
@@ -150,6 +151,25 @@ func InjectTemplateFuncs(tmpl *template.Template) *template.Template {
 			// Renders a subtemplate using the provided context, and optionally
 			// a service, which will be added to the context as "service"
 			"renderValue": RenderValue,
+			// Just a stub for the real implementation since we need something
+			// for the template to successfully compile.  Real implementation
+			// is set later once the output instance is known.
+			"hasEnabledMetricInGroup": func(group string) bool {
+				return false
+			},
 		})
+	return tmpl
+}
+
+// InjectOutputTemplateFuncs injects some helper functions into our templates
+// based on the Output instance.
+func InjectOutputTemplateFuncs(output types.FilteringOutput, tmpl *template.Template) *template.Template {
+	tmpl.Funcs(
+		template.FuncMap{
+			"hasEnabledMetricInGroup": func(group string) bool {
+				return output.HasEnabledMetricInGroup(group)
+			},
+		},
+	)
 	return tmpl
 }

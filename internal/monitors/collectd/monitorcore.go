@@ -35,16 +35,14 @@ type MonitorCore struct {
 // NewMonitorCore creates a new initialized but unconfigured MonitorCore with
 // the given template.
 func NewMonitorCore(template *template.Template) *MonitorCore {
-	return &MonitorCore{
-		Template: template,
+	tmplClone, err := template.Clone()
+	if err != nil {
+		panic("could not clone collectd template: " + err.Error())
 	}
-}
 
-// Init generates a unique file name for each distinct monitor instance
-func (bm *MonitorCore) Init() error {
-	InjectTemplateFuncs(bm.Template)
-
-	return nil
+	return &MonitorCore{
+		Template: tmplClone,
+	}
 }
 
 // SetCollectdInstance allows you to override the instance of collectd used by
@@ -68,6 +66,7 @@ func (bm *MonitorCore) SetConfigurationAndRun(conf config.MonitorCustomConfig) e
 
 	bm.config = conf
 	bm.monitorID = conf.MonitorConfigCore().MonitorID
+	bm.Template = InjectOutputTemplateFuncs(bm.Output, bm.Template)
 
 	bm.configFilename = fmt.Sprintf("20-%s.%s.conf", bm.Template.Name(), string(bm.monitorID))
 
