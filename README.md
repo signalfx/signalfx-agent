@@ -74,7 +74,7 @@ single agent.
 ## Installation
 
 To get started deploying the Smart Agent on a single host for Windows or Linux, see the
-[Smart Agent Quick Install](./docs/smart-agent-quick-install.md) guide. For more information to help you set up Smart Agent on your network, see [Smart Agent Next Steps](./docs/smart-agent-next-steps). Technical details for other methods of agent installation are discussed below.
+[Smart Agent Quick Install](./docs/Smart-Agent-quick-install.md) guide. For more information to help you set up Smart Agent on your network, see [Smart Agent Next Steps](./docs/smart-agent-next-steps). Technical details for other methods of agent installation are discussed below.
 
 
 ## Other methods of agent installation
