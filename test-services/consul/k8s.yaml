@@ -1,0 +1,36 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: consul-deployment
+  labels:
+    app: consul
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: consul
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: "/v1/agent/metrics?format=prometheus"
+        prometheus.io/port: "8500"
+        prometheus.io/scrape: "true"
+      labels:
+        app: consul
+    spec:
+      containers:
+        - name: consul
+          image: consul:1.4.4
+          ports:
+            - containerPort: 8500
+          env:
+            - name: CONSUL_LOCAL_CONFIG
+              value: |
+                {"telemetry": {"prometheus_retention_time": "1m", "disable_hostname": true}}
+          readinessProbe:
+            tcpSocket:
+              port: 8500
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5

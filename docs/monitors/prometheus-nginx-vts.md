@@ -19,75 +19,75 @@ Monitor Type: `prometheus/nginx-vts`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host of the exporter |
 | `port` | **yes** | `integer` | Port of the exporter |
+| `username` | no | `string` | Basic Auth username to use on each request, if any. |
+| `password` | no | `string` | Basic Auth password to use on each request, if any. |
 | `useHTTPS` | no | `bool` | If true, the agent will connect to the exporter using HTTPS instead of plain HTTP. (**default:** `false`) |
 | `skipVerify` | no | `bool` | If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified. (**default:** `false`) |
 | `metricPath` | no | `string` | Path to the metrics endpoint on the exporter server, usually `/metrics` (the default). (**default:** `/metrics`) |
 | `sendAllMetrics` | no | `bool` | Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors. (**default:** `false`) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `nginx_vts_info` | gauge |  | Nginx info |
-| `nginx_vts_start_time_seconds` | gauge |  | Nginx start time |
-| `nginx_vts_main_connections` | gauge | ✔ | connections |
-| `nginx_vts_main_shm_usage_bytes` | gauge |  | Shared memory [ngx_http_vhost_traffic_status] info |
-| `nginx_vts_server_bytes_total` | cumulative |  | The request/response bytes |
-| `nginx_vts_server_requests_total` | cumulative | ✔ | The requests counter |
-| `nginx_vts_server_request_seconds_total` | cumulative |  | The request processing time in seconds |
-| `nginx_vts_server_cache_total` | cumulative |  | The requests cache counter |
-| `nginx_vts_server_request_seconds` | gauge | ✔ | The average of request processing times in seconds |
-| `nginx_vts_server_request_duration_seconds` | cumulative |  | The histogram of request processing time |
-| `nginx_vts_upstream_bytes_total` | cumulative |  | The request/response bytes |
-| `nginx_vts_upstream_requests_total` | cumulative |  | The upstream requests counter |
-| `nginx_vts_upstream_request_seconds_total` | cumulative |  | The request Processing time including upstream in seconds |
-| `nginx_vts_upstream_request_seconds` | gauge | ✔ | The average of request processing times including upstream in seconds |
-| `nginx_vts_upstream_response_seconds_total` | cumulative |  | The only upstream response processing time in seconds |
-| `nginx_vts_upstream_response_seconds` | gauge |  | The average of only upstream response processing times in seconds |
-| `nginx_vts_upstream_request_duration_seconds` | cumulative |  | The histogram of request processing time including upstream |
-| `nginx_vts_upstream_response_duration_seconds` | cumulative |  | The histogram of only upstream response processing time |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+ - `nginx_vts_info` (*gauge*)<br>    Nginx info
+ - ***`nginx_vts_main_connections`*** (*gauge*)<br>    connections
+ - `nginx_vts_main_shm_usage_bytes` (*gauge*)<br>    Shared memory [ngx_http_vhost_traffic_status] info
+ - `nginx_vts_server_bytes_total` (*cumulative*)<br>    The request/response bytes
+ - `nginx_vts_server_cache_total` (*cumulative*)<br>    The requests cache counter
+ - `nginx_vts_server_request_duration_seconds` (*cumulative*)<br>    The histogram of request processing time
+ - ***`nginx_vts_server_request_seconds`*** (*gauge*)<br>    The average of request processing times in seconds
+ - `nginx_vts_server_request_seconds_total` (*cumulative*)<br>    The request processing time in seconds
+ - ***`nginx_vts_server_requests_total`*** (*cumulative*)<br>    The requests counter
+ - `nginx_vts_start_time_seconds` (*gauge*)<br>    Nginx start time
+ - `nginx_vts_upstream_bytes_total` (*cumulative*)<br>    The request/response bytes
+ - `nginx_vts_upstream_request_duration_seconds` (*cumulative*)<br>    The histogram of request processing time including upstream
+ - ***`nginx_vts_upstream_request_seconds`*** (*gauge*)<br>    The average of request processing times including upstream in seconds
+ - `nginx_vts_upstream_request_seconds_total` (*cumulative*)<br>    The request Processing time including upstream in seconds
+ - `nginx_vts_upstream_requests_total` (*cumulative*)<br>    The upstream requests counter
+ - `nginx_vts_upstream_response_duration_seconds` (*cumulative*)<br>    The histogram of only upstream response processing time
+ - `nginx_vts_upstream_response_seconds` (*gauge*)<br>    The average of only upstream response processing times in seconds
+ - `nginx_vts_upstream_response_seconds_total` (*cumulative*)<br>    The only upstream response processing time in seconds
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - nginx_vts_info
-    - nginx_vts_start_time_seconds
-    - nginx_vts_main_shm_usage_bytes
-    - nginx_vts_server_bytes_total
-    - nginx_vts_server_request_seconds_total
-    - nginx_vts_server_cache_total
-    - nginx_vts_server_request_duration_seconds
-    - nginx_vts_upstream_bytes_total
-    - nginx_vts_upstream_requests_total
-    - nginx_vts_upstream_request_seconds_total
-    - nginx_vts_upstream_response_seconds_total
-    - nginx_vts_upstream_response_seconds
-    - nginx_vts_upstream_request_duration_seconds
-    - nginx_vts_upstream_response_duration_seconds
-    monitorType: prometheus/nginx-vts
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

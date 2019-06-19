@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/mitchellh/go-wordwrap"
+
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/sfxclient"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -11,6 +13,8 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/leadership"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
+
+const maxLineLength = 120
 
 func endpointToDiagnosticText(endpoint services.Endpoint, isMonitored bool) string {
 	var items []string
@@ -60,6 +64,24 @@ func (mm *MonitorManager) SummaryDiagnosticText() string {
 	)
 }
 
+func formatEnabledMetrics(metrics []string, indent int) string {
+	metricList := strings.Join(metrics, ", ")
+	enabledMetricsPrefix := utils.IndentLines("Enabled Metrics: ", indent)
+	text := fmt.Sprintf("%s[%s]", enabledMetricsPrefix, metricList)
+
+	if len(text) <= maxLineLength {
+		return text
+	}
+
+	// Single line is too long, wrap it on multiple lines instead.
+	// fmt string is equally unreadable so just join it all together.
+	return strings.Join([]string{
+		enabledMetricsPrefix, "[\n",
+		utils.IndentLines(wordwrap.WrapString(metricList, uint(maxLineLength-indent+2)), indent+2), "\n",
+		utils.IndentLines("]", indent),
+	}, "")
+}
+
 // DiagnosticText returns a string to be served on the diagnostic socket
 func (mm *MonitorManager) DiagnosticText() string {
 	mm.lock.Lock()
@@ -72,19 +94,22 @@ func (mm *MonitorManager) DiagnosticText() string {
 		serviceStats := ""
 		if am.endpoint != nil {
 			serviceStats = fmt.Sprintf(
-				"Discovery Rule: %s\n"+
-					"Monitored Endpoint ID: %s\n",
+				`Discovery Rule: %s
+Monitored Endpoint ID: %s`,
 				am.config.MonitorConfigCore().DiscoveryRule,
 				am.endpoint.Core().ID)
 		}
 		activeMonText += fmt.Sprintf(
-			"%s. %s\n"+
-				"    Reporting Interval (seconds): %d\n"+
-				"%s"+
-				"    Config:\n%s\n",
+			`%s. %s
+    Reporting Interval (seconds): %d
+%s
+%s    Config:
+%s
+`,
 			am.config.MonitorConfigCore().MonitorID,
 			am.config.MonitorConfigCore().Type,
 			am.config.MonitorConfigCore().IntervalSeconds,
+			formatEnabledMetrics(am.output.EnabledMetrics(), 4),
 			utils.IndentLines(serviceStats, 4),
 			utils.IndentLines(config.ToString(am.config), 6))
 	}

@@ -52,8 +52,7 @@ func (c *configSourceCacher) Get(path string, optional bool) (map[string][]byte,
 
 func (c *configSourceCacher) watch(path string, version uint64) {
 	for {
-		var err error
-		err = c.source.WaitForChange(path, version, c.stop)
+		err := c.source.WaitForChange(path, version, c.stop)
 		if utils.IsSignalChanClosed(c.stop) {
 			return
 		}

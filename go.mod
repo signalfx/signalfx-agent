@@ -53,8 +53,8 @@ require (
 	github.com/go-ldap/ldap v3.0.2+incompatible // indirect
 	github.com/go-logfmt/logfmt v0.4.0 // indirect
 	github.com/go-ole/go-ole v1.2.1 // indirect
-	github.com/go-playground/locales v0.11.2 // indirect
-	github.com/go-playground/universal-translator v0.16.0 // indirect
+	github.com/go-playground/locales v0.11.2
+	github.com/go-playground/universal-translator v0.16.0
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/go-stack/stack v1.8.0 // indirect
 	github.com/go-stomp/stomp v2.0.2+incompatible // indirect
@@ -112,6 +112,7 @@ require (
 	github.com/keybase/go-crypto v0.0.0-20190312101036-b475f2ecc1fe // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/kr/pretty v0.1.0
+	github.com/leodido/go-urn v1.1.0 // indirect
 	github.com/lib/pq v1.0.0
 	github.com/mailru/easyjson v0.0.0-20180606163543-3fdea8d05856
 	github.com/mattbaird/elastigo v0.0.0-20170123220020-2fe47fd29e4b // indirect
@@ -119,14 +120,18 @@ require (
 	github.com/mattn/go-isatty v0.0.7 // indirect
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
 	github.com/michaelklishin/rabbit-hole v1.5.0 // indirect
+	github.com/mitchellh/go-wordwrap v1.0.0
 	github.com/mitchellh/hashstructure v0.0.0-20170609045927-2bca23e0e452
 	github.com/mitchellh/pointerstructure v0.0.0-20170205204203-f2329fcfa9e2 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v0.0.0-20180701023420-4b7aa43c6742 // indirect
 	github.com/morikuni/aec v0.0.0-20170113033406-39771216ff4c // indirect
 	github.com/naoina/go-stringutil v0.1.0 // indirect
+	github.com/olekukonko/tablewriter v0.0.1
 	github.com/onsi/ginkgo v1.7.0
 	github.com/onsi/gomega v1.4.3
+	github.com/openshift/api v3.9.0+incompatible
+	github.com/openshift/client-go v3.9.0+incompatible
 	github.com/ory-am/common v0.4.0 // indirect
 	github.com/ory/dockertest v3.3.4+incompatible // indirect
 	github.com/pborman/uuid v1.2.0 // indirect
@@ -171,7 +176,7 @@ require (
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/fatih/set.v0 v0.1.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
-	gopkg.in/go-playground/validator.v9 v9.9.4
+	gopkg.in/go-playground/validator.v9 v9.28.0
 	gopkg.in/gorethink/gorethink.v4 v4.1.0 // indirect
 	gopkg.in/ini.v1 v1.42.0 // indirect
 	gopkg.in/logfmt.v0 v0.1.0 // indirect

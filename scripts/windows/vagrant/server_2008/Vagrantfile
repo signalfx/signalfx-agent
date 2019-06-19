@@ -23,7 +23,7 @@ Vagrant.configure("2") do | config |
     config.vm.synced_folder "../../../../.", "C:\\Users\\vagrant\\signalfx-agent"
 
     # Copy Files #
-    
+
     # SSH Keys (disabled for now)#
     # config.vm.provision "file", source: "~/.ssh", destination: "C:\\Users\\vagrant\\.ssh"
 
@@ -49,5 +49,4 @@ Vagrant.configure("2") do | config |
     config.vm.provision "shell" do |s|
         s.path = "../common/6_windows_sdk_7.ps1"
     end
-
 end

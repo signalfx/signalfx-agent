@@ -1,6 +1,6 @@
 # Version of the signalfx-agent to deploy.  This will be the default for the
 # docker image tag if not overridden with imageTag
-agentVersion: 4.5.0
+agentVersion: 4.7.6
 
 # The access token for SignalFx.  REQUIRED
 signalFxAccessToken: ""
@@ -77,7 +77,9 @@ apiUrl:
 
 # clusterName must be provided.  It is an arbitrary value that identifies this
 # K8s cluster in SignalFx.  This will be the value of the 'kubernetes_cluster'
-# dimension on every metric sent by the agent.
+# dimension on every metric sent by the agent.  It will also be the value of
+# the `cluster` config option that is used to set a `cluster` property on the
+# `kubernetes_node` dimension.
 clusterName:
 
 # How frequently to send metrics by default in the agent.  This can be
@@ -114,6 +116,10 @@ collectd: {}
 # in metricIntervalSeconds.
 containerStatsIntervalSeconds:
 
+# Kubernetes distribution. Can be one either `kubernetes` or `openshift`. Defaults to
+# `kubernetes`.
+kubernetesDistro: kubernetes
+
 # If true, K8s cluster-level metrics will be collected (e.g. pod counts,
 # deployment status, etc).  The agents will decide amongst themselves which
 # instance should send the metrics so that they are only sent once.
@@ -131,7 +137,6 @@ gatherDockerMetrics: true
 # cAdvisor metrics that cause a large increase in DPM for little value for most
 # customers.
 metricsToExclude:
- - {"#from": "/lib/whitelist.json", flatten: true}
 
 
 # The path to the 'etc' directory of the underlying K8s node.  This allows the

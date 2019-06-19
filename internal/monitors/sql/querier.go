@@ -88,7 +88,7 @@ func (q *querier) doQuery(ctx context.Context, database *sql.DB, output types.Ou
 			output.SendDatapoint(dps[i])
 		}
 	}
-	return nil
+	return rows.Close()
 }
 
 func (q *querier) convertCurrentRowToDatapoint(rows *sql.Rows) ([]*datapoint.Datapoint, error) {
@@ -169,7 +169,7 @@ OUTER:
 	for i, ct := range cts {
 		for _, metric := range q.query.Metrics {
 
-			if strings.ToLower(ct.Name()) == strings.ToLower(metric.ValueColumn) {
+			if strings.EqualFold(ct.Name(), metric.ValueColumn) {
 				// Values are always numeric
 				rowSlice[i] = &sql.NullFloat64{}
 				// Can't also be a dimension column or value in another metric
@@ -177,7 +177,7 @@ OUTER:
 			}
 
 			for _, colName := range metric.DimensionColumns {
-				if strings.ToLower(ct.Name()) == strings.ToLower(colName) {
+				if strings.EqualFold(ct.Name(), colName) {
 					dimColsSeen[colName] = true
 					rowSlice[i] = &sql.NullString{}
 					// Cannot also be a value column if dimension

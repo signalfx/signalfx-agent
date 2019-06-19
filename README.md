@@ -25,9 +25,10 @@ run python-based collectd plugins without collectd.
 
 SignalFx Smart Agent has three main components:
 
-1) _Observers_ that discover applications and services running on the host.
-2) _Monitors_ that collect metrics from the host and applications.
-3) The _Writer_ that sends the metrics collected by monitors to SignalFx.
+
+1) _Observers_ that discover applications and services running on the host
+2) _Monitors_ that collect metrics, events, and dimension properties the host and applications
+3) The _Writer_ that sends the metrics, events, and dimension updates collected by monitors to SignalFx.
 
 ### Observers
 
@@ -51,7 +52,7 @@ Many of the monitors are built around [collectd](https://collectd.org), an open
 source third-party monitor, and use it to collect metrics. Some other monitors
 do not use collectd. All supported monitors are configured the same way.
 
-For a list of supported monitors and their configurations, 
+For a list of supported monitors and their configurations,
 see [Monitor Config](./docs/monitor-config.md).
 
 The agent monitors services/applications running on the
@@ -74,6 +75,7 @@ single agent.
 
 To get started deploying the Smart Agent on a single host for Windows or Linux, see the
 [Smart Agent Quick Install](./docs/smart-agent-quick-install.md) guide. For more information to help you set up Smart Agent on your network, see [Smart Agent Next Steps](./docs/smart-agent-next-steps). Technical details for other methods of agent installation are discussed below.
+
 
 ## Other methods of agent installation
 
@@ -111,6 +113,11 @@ capabilities for some reason.
 To use the bundle:
 
 1) Unarchive it to a directory of your choice on the target system.
+
+2) Go into the unarchived `signalfx-agent` directory and run
+`bin/patch-interpreter $(pwd)`.  This ensures that the binaries in the bundle
+have the right loader set on them since your host's loader may not be
+compatible.
 
 2) Ensure a valid configuration file is available somewhere on the target
 system.  The main thing that the distro packages provide -- but that you will
@@ -208,7 +215,7 @@ show how to do install and start the agent as a Windows service.
 The agent is configured primarily from a YAML file. By default, the agent config
 is installed at and looked for at `/etc/signalfx/agent.yaml` on Linux and
 `\ProgramData\SignalFxAgent\agent.yaml` on Windows. This can be
-overridden by the `-config` command line flag.  
+overridden by the `-config` command line flag.
 
 For the full schema of the config, see [Config Schema](./docs/config-schema.md).
 
@@ -218,16 +225,22 @@ Configuration](./docs/remote-config.md).
 
 ## Logging
 
+The default log level is `info`, which will log anything noteworthy in the
+agent without spamming the logs too much.  Most of the `info` level logs are on
+startup and upon service discovery changes.  `debug` will create very verbose
+log output and should only be used when trying to resolve a problem with the
+agent.  You can change the log level with the `logging: {level: info}` YAML
+config option.
+
+The agent will emit logs in either an unstructed text (default) or JSON format.
+You can configure it to emit JSON logs with the `logging: {format: json}` YAML
+config option.
+
 ### Linux
 
 Currently the agent only supports logging to stdout/stderr, which will
 generally be redirected by the init scripts we provide to either a file at
-`/var/log/signalfx-agent.log` or to the systemd journal on newer distros. The
-default log level is `info`, which will log anything noteworthy in the agent
-without spamming the logs too much.  Most of the `info` level logs are on
-startup and upon service discovery changes.  `debug` will create very verbose
-log output and should only be used when trying to resolve a problem with the
-agent.
+`/var/log/signalfx-agent.log` or to the systemd journal on newer distros.
 
 ### Windows
 

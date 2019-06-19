@@ -5,7 +5,6 @@ package pyrunner
 import (
 	"os"
 	"path/filepath"
-	"runtime"
 	"syscall"
 
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
@@ -21,14 +20,8 @@ func procAttrs() *syscall.SysProcAttr {
 	}
 }
 
-func defaultPythonBinaryExecutable() []string {
-	loader := filepath.Join(os.Getenv(constants.BundleDirEnvVar), "lib64", "ld-linux-x86-64.so.2")
-	if runtime.GOARCH == "arm64" {
-		loader = filepath.Join(os.Getenv(constants.BundleDirEnvVar), "lib", "ld-linux-aarch64.so.1")
-	}
-	pyBin := filepath.Join(os.Getenv(constants.BundleDirEnvVar), "bin", "python")
-
-	return []string{loader, pyBin}
+func defaultPythonBinaryExecutable() string {
+	return filepath.Join(os.Getenv(constants.BundleDirEnvVar), "bin", "python")
 }
 
 func defaultPythonBinaryArgs(pkgName string) []string {

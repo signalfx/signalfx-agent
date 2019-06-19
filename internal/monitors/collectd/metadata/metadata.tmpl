@@ -1,7 +1,7 @@
 LoadPlugin "python"
-TypesDB "{{ pluginRoot }}/signalfx/types.db.plugin"
+TypesDB "{{ pythonPluginRoot }}/signalfx/types.db.plugin"
 <Plugin python>
-  ModulePath "{{ pluginRoot }}/signalfx/src"
+  ModulePath "{{ pythonPluginRoot }}/signalfx/src"
   LogTraces true
   Interactive false
 

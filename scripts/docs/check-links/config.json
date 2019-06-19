@@ -1,0 +1,13 @@
+{
+    "ignorePatterns": [
+        {
+            "pattern": "^https://(api|dl|ingest)\\.(.*\\.)?signalfx\\.com"
+        },
+        {
+            "pattern": "^http(s)?://\\d+\\.\\d+\\.\\d+\\.\\d+"
+        },
+        {
+            "pattern": "^https://leader\\.mesos"
+        }
+    ]
+}

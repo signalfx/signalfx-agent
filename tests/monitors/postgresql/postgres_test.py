@@ -2,9 +2,11 @@ from functools import partial as p
 from textwrap import dedent
 
 import pytest
+
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
 from tests.helpers.metadata import Metadata
-from tests.helpers.util import container_ip, ensure_always, run_agent, run_service, wait_for
+from tests.helpers.util import container_ip, ensure_always, run_service, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.postgresql, pytest.mark.monitor_with_endpoints]
 
@@ -21,24 +23,28 @@ def test_postgresql(version):
         host = container_ip(postgres_cont)
         assert wait_for(p(tcp_socket_open, host, 5432), 60), "service didn't start"
 
-        with run_agent(
+        with Agent.run(
             dedent(
                 f"""
                 monitors:
                   - type: postgresql
                     host: {host}
                     port: 5432
-                    connectionString: "user=test_user password=test_pwd dbname=postgres sslmode=disable"
+                    params:
+                      password: test_pwd
+                      username: test_user
+                    connectionString: >
+                      user={{{{.username}}}} password={{{{.password}}}} dbname=postgres sslmode=disable
                 """
             )
-        ) as [backend, _, _]:
-            for metric in METADATA.included_metrics:
+        ) as agent:
+            for metric in METADATA.default_metrics:
                 assert wait_for(
-                    p(has_datapoint, backend, metric_name=metric, dimensions={"database": "dvdrental"})
-                ), f"Didn't get included postgresql metric {metric} for database dvdrental"
+                    p(has_datapoint, agent.fake_services, metric_name=metric, dimensions={"database": "dvdrental"})
+                ), f"Didn't get default postgresql metric {metric} for database dvdrental"
 
             assert wait_for(
-                p(has_datapoint, backend, dimensions={"database": "postgres"})
+                p(has_datapoint, agent.fake_services, dimensions={"database": "postgres"})
             ), f"Didn't get metric for postgres default database"
 
 
@@ -49,7 +55,7 @@ def test_postgresql_database_filter():
         host = container_ip(postgres_cont)
         assert wait_for(p(tcp_socket_open, host, 5432), 60), "service didn't start"
 
-        with run_agent(
+        with Agent.run(
             dedent(
                 f"""
                 monitors:
@@ -60,12 +66,12 @@ def test_postgresql_database_filter():
                     databases: ['*', '!postgres']
                 """
             )
-        ) as [backend, _, _]:
-            for metric in METADATA.included_metrics:
+        ) as agent:
+            for metric in METADATA.default_metrics:
                 assert wait_for(
-                    p(has_datapoint, backend, metric_name=metric, dimensions={"database": "dvdrental"})
-                ), f"Didn't get included postgresql metric {metric} for database dvdrental"
+                    p(has_datapoint, agent.fake_services, metric_name=metric, dimensions={"database": "dvdrental"})
+                ), f"Didn't get default postgresql metric {metric} for database dvdrental"
 
             assert ensure_always(
-                lambda: not has_datapoint(backend, dimensions={"database": "postgres"})
+                lambda: not has_datapoint(agent.fake_services, dimensions={"database": "postgres"})
             ), f"Should not get metric for postgres default database"

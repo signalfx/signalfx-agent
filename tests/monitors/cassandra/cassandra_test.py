@@ -1,70 +1,56 @@
-import os
-import string
+from pathlib import Path
 from functools import partial as p
 
 import pytest
 
-from tests.helpers.assertions import has_datapoint_with_metric_name, tcp_socket_open
-from tests.helpers.kubernetes.utils import get_discovery_rule, run_k8s_monitors_test
-from tests.helpers.util import (
-    container_ip,
-    get_monitor_dims_from_selfdescribe,
-    get_monitor_metrics_from_selfdescribe,
-    run_agent,
-    run_service,
-    wait_for,
-)
+from tests.helpers.assertions import tcp_socket_open
+from tests.helpers.metadata import Metadata
+from tests.helpers.util import container_ip, run_service, wait_for
+from tests.helpers.verify import run_agent_verify_default_metrics, run_agent_verify_all_metrics
 
 pytestmark = [pytest.mark.collectd, pytest.mark.cassandra, pytest.mark.monitor_with_endpoints]
 
 
-CASSANDRA_CONFIG = string.Template(
-    """
-monitors:
-  - type: collectd/cassandra
-    host: $host
-    port: 7199
-    username: cassandra
-    password: cassandra
-"""
-)
+METADATA = Metadata.from_package("collectd/cassandra")
+SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
 @pytest.mark.flaky(reruns=2)
-def test_cassandra():
+def test_cassandra_default():
     with run_service("cassandra") as cassandra_cont:
         host = container_ip(cassandra_cont)
-        config = CASSANDRA_CONFIG.substitute(host=host)
 
         # Wait for the JMX port to be open in the container
-        assert wait_for(p(tcp_socket_open, host, 7199), 60), "Cassandra JMX didn't start"
+        assert wait_for(p(tcp_socket_open, host, 7199)), "Cassandra JMX didn't start"
+        run_agent_verify_default_metrics(
+            f"""
+            monitors:
+              - type: collectd/cassandra
+                host: {host}
+                port: 7199
+                username: cassandra
+                password: cassandra
+            """,
+            METADATA,
+        )
 
-        with run_agent(config) as [backend, _, _]:
-            assert wait_for(
-                p(has_datapoint_with_metric_name, backend, "counter.cassandra.ClientRequest.Read.Latency.Count"), 60
-            ), "Didn't get Cassandra datapoints"
 
+@pytest.mark.flaky(reruns=2)
+def test_cassandra_all():
+    with run_service("cassandra") as cassandra_cont:
+        host = container_ip(cassandra_cont)
 
-@pytest.mark.k8s
-@pytest.mark.kubernetes
-def test_cassandra_in_k8s(agent_image, minikube, k8s_observer, k8s_test_timeout, k8s_namespace):
-    yaml = os.path.join(os.path.dirname(os.path.realpath(__file__)), "cassandra-k8s.yaml")
-    monitors = [
-        {
-            "type": "collectd/cassandra",
-            "discoveryRule": get_discovery_rule(yaml, k8s_observer, namespace=k8s_namespace),
-            "username": "testuser",
-            "password": "testing123",
-        }
-    ]
-    run_k8s_monitors_test(
-        agent_image,
-        minikube,
-        monitors,
-        namespace=k8s_namespace,
-        yamls=[yaml],
-        observer=k8s_observer,
-        expected_metrics=get_monitor_metrics_from_selfdescribe(monitors[0]["type"]),
-        expected_dims=get_monitor_dims_from_selfdescribe(monitors[0]["type"]),
-        test_timeout=k8s_test_timeout,
-    )
+        # Wait for the JMX port to be open in the container
+        assert wait_for(p(tcp_socket_open, host, 7199)), "Cassandra JMX didn't start"
+        run_agent_verify_all_metrics(
+            f"""
+            monitors:
+              - type: collectd/cassandra
+                host: {host}
+                port: 7199
+                username: cassandra
+                password: cassandra
+                extraMetrics: ["*"]
+            """,
+            METADATA,
+        )

@@ -12,10 +12,8 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
 
-const monitorType = "collectd/mysql"
-
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			*collectd.NewMonitorCore(CollectdTemplate),
 		}
@@ -52,12 +50,12 @@ type Config struct {
 // Validate will check the config for correctness.
 func (c *Config) Validate() error {
 	if len(c.Databases) == 0 {
-		return errors.New("You must specify at least one database for MySQL")
+		return errors.New("you must specify at least one database for MySQL")
 	}
 
 	for _, db := range c.Databases {
 		if db.Username == "" && c.Username == "" {
-			return errors.New("Username is required for MySQL monitoring")
+			return errors.New("username is required for MySQL monitoring")
 		}
 	}
 	return nil

@@ -41,6 +41,10 @@ Monitor Type: `collectd/redis`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
@@ -58,93 +62,79 @@ The **nested** `sendListLengths` config object has the following fields:
 | `keyPattern` | **yes** | `string` | Can be a globbed pattern (only * is supported), in which case all keys matching that glob will be processed.  The pattern should be placed in single quotes (').  Ex. `'mylist*'` |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `bytes.used_memory` | gauge | ✔ | Number of bytes allocated by Redis |
-| `bytes.used_memory_lua` | gauge |  | Number of bytes used by the Lua engine |
-| `bytes.used_memory_peak` | gauge |  | Peak Number of bytes allocated by Redis |
-| `bytes.used_memory_rss` | gauge | ✔ | Number of bytes allocated by Redis as seen by the OS |
-| `counter.commands_processed` | cumulative | ✔ | Total number of commands processed by the server |
-| `counter.connections_received` | cumulative |  | Total number of connections accepted by the server |
-| `counter.evicted_keys` | cumulative | ✔ | Number of evicted keys due to maxmemory limit |
-| `counter.expired_keys` | cumulative | ✔ | Total number of key expiration events |
-| `counter.lru_clock` | cumulative |  | Clock incrementing every minute, for LRU management |
-| `counter.rejected_connections` | cumulative | ✔ | Number of connections rejected because of maxclients limit |
-| `counter.total_net_input_bytes` | cumulative | ✔ | Total number of bytes inputted |
-| `counter.total_net_output_bytes` | cumulative | ✔ | Total number of bytes outputted |
-| `counter.used_cpu_sys` | cumulative | ✔ | System CPU consumed by the Redis server |
-| `counter.used_cpu_sys_children` | cumulative |  | System CPU consumed by the background processes |
-| `counter.used_cpu_user` | cumulative | ✔ | User CPU consumed by the Redis server |
-| `counter.used_cpu_user_children` | cumulative |  | User CPU consumed by the background processes |
-| `derive.keyspace_hits` | cumulative | ✔ | Number of successful lookup of keys in the main dictionary |
-| `derive.keyspace_misses` | cumulative | ✔ | Number of failed lookup of keys in the main dictionary |
-| `gauge.blocked_clients` | gauge | ✔ | Number of clients pending on a blocking call |
-| `gauge.changes_since_last_save` | gauge |  | Number of changes since the last dump |
-| `gauge.client_biggest_input_buf` | gauge |  | Biggest input buffer among current client connections |
-| `gauge.client_longest_output_list` | gauge |  | Longest output list among current client connections |
-| `gauge.connected_clients` | gauge | ✔ | Number of client connections (excluding connections from slaves) |
-| `gauge.connected_slaves` | gauge |  | Number of connected slaves |
-| `gauge.db0_avg_ttl` | gauge |  | The average time to live for all keys in redis |
-| `gauge.db0_expires` | gauge |  | The total number of keys in redis that will expire |
-| `gauge.db0_keys` | gauge |  | The total number of keys stored in redis |
-| `gauge.instantaneous_ops_per_sec` | gauge |  | Number of commands processed per second |
-| `gauge.key_llen` | gauge |  | Length of an list key |
-| `gauge.latest_fork_usec` | gauge |  | Duration of the latest fork operation in microseconds |
-| `gauge.master_last_io_seconds_ago` | gauge |  | Number of seconds since the last interaction with master |
-| `gauge.master_repl_offset` | gauge | ✔ | Master replication offset |
-| `gauge.mem_fragmentation_ratio` | gauge |  | Ratio between used_memory_rss and used_memory |
-| `gauge.rdb_bgsave_in_progress` | gauge |  | Flag indicating a RDB save is on-going |
-| `gauge.repl_backlog_first_byte_offset` | gauge |  | Slave replication backlog offset |
-| `gauge.slave_repl_offset` | gauge | ✔ | Slave replication offset |
-| `gauge.uptime_in_days` | gauge |  | Number of days up |
-| `gauge.uptime_in_seconds` | gauge |  | Number of seconds up |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+ - ***`bytes.used_memory`*** (*gauge*)<br>    Number of bytes allocated by Redis
+ - `bytes.used_memory_lua` (*gauge*)<br>    Number of bytes used by the Lua engine
+ - `bytes.used_memory_peak` (*gauge*)<br>    Peak Number of bytes allocated by Redis
+ - ***`bytes.used_memory_rss`*** (*gauge*)<br>    Number of bytes allocated by Redis as seen by the OS
+ - ***`counter.commands_processed`*** (*cumulative*)<br>    Total number of commands processed by the server
+ - `counter.connections_received` (*cumulative*)<br>    Total number of connections accepted by the server
+ - ***`counter.evicted_keys`*** (*cumulative*)<br>    Number of evicted keys due to maxmemory limit
+ - ***`counter.expired_keys`*** (*cumulative*)<br>    Total number of key expiration events
+ - `counter.lru_clock` (*cumulative*)<br>    Clock incrementing every minute, for LRU management
+ - ***`counter.rejected_connections`*** (*cumulative*)<br>    Number of connections rejected because of maxclients limit
+ - ***`counter.total_net_input_bytes`*** (*cumulative*)<br>    Total number of bytes inputted
+ - ***`counter.total_net_output_bytes`*** (*cumulative*)<br>    Total number of bytes outputted
+ - ***`counter.used_cpu_sys`*** (*cumulative*)<br>    System CPU consumed by the Redis server
+ - `counter.used_cpu_sys_children` (*cumulative*)<br>    System CPU consumed by the background processes
+ - ***`counter.used_cpu_user`*** (*cumulative*)<br>    User CPU consumed by the Redis server
+ - `counter.used_cpu_user_children` (*cumulative*)<br>    User CPU consumed by the background processes
+ - ***`derive.keyspace_hits`*** (*cumulative*)<br>    Number of successful lookup of keys in the main dictionary
+ - ***`derive.keyspace_misses`*** (*cumulative*)<br>    Number of failed lookup of keys in the main dictionary
+ - ***`gauge.blocked_clients`*** (*gauge*)<br>    Number of clients pending on a blocking call
+ - `gauge.changes_since_last_save` (*gauge*)<br>    Number of changes since the last dump
+ - `gauge.client_biggest_input_buf` (*gauge*)<br>    Biggest input buffer among current client connections
+ - `gauge.client_longest_output_list` (*gauge*)<br>    Longest output list among current client connections
+ - ***`gauge.connected_clients`*** (*gauge*)<br>    Number of client connections (excluding connections from slaves)
+ - `gauge.connected_slaves` (*gauge*)<br>    Number of connected slaves
+ - `gauge.db0_avg_ttl` (*gauge*)<br>    The average time to live for all keys in redis
+ - `gauge.db0_expires` (*gauge*)<br>    The total number of keys in redis that will expire
+ - `gauge.db0_keys` (*gauge*)<br>    The total number of keys stored in redis
+ - `gauge.instantaneous_ops_per_sec` (*gauge*)<br>    Number of commands processed per second
+ - `gauge.key_llen` (*gauge*)<br>    Length of an list key
+ - `gauge.latest_fork_usec` (*gauge*)<br>    Duration of the latest fork operation in microseconds
+ - `gauge.master_last_io_seconds_ago` (*gauge*)<br>    Number of seconds since the last interaction with master
+ - ***`gauge.master_repl_offset`*** (*gauge*)<br>    Master replication offset
+ - `gauge.mem_fragmentation_ratio` (*gauge*)<br>    Ratio between used_memory_rss and used_memory
+ - `gauge.rdb_bgsave_in_progress` (*gauge*)<br>    Flag indicating a RDB save is on-going
+ - `gauge.repl_backlog_first_byte_offset` (*gauge*)<br>    Slave replication backlog offset
+ - ***`gauge.slave_repl_offset`*** (*gauge*)<br>    Slave replication offset
+ - `gauge.uptime_in_days` (*gauge*)<br>    Number of days up
+ - `gauge.uptime_in_seconds` (*gauge*)<br>    Number of seconds up
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - bytes.used_memory_lua
-    - bytes.used_memory_peak
-    - counter.connections_received
-    - counter.lru_clock
-    - counter.used_cpu_sys_children
-    - counter.used_cpu_user_children
-    - gauge.changes_since_last_save
-    - gauge.client_biggest_input_buf
-    - gauge.client_longest_output_list
-    - gauge.connected_slaves
-    - gauge.db0_avg_ttl
-    - gauge.db0_expires
-    - gauge.db0_keys
-    - gauge.instantaneous_ops_per_sec
-    - gauge.key_llen
-    - gauge.latest_fork_usec
-    - gauge.master_last_io_seconds_ago
-    - gauge.mem_fragmentation_ratio
-    - gauge.rdb_bgsave_in_progress
-    - gauge.repl_backlog_first_byte_offset
-    - gauge.uptime_in_days
-    - gauge.uptime_in_seconds
-    monitorType: collectd/redis
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

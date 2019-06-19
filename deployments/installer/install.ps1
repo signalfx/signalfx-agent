@@ -399,5 +399,5 @@ while (!(service_running)){
 echo "- Started"
 
 # remove the temporary directory
-Remove-Item -Recurse "$tempdir"
+Remove-Item -Recurse -Force "$tempdir"
 echo "Installation Complete!"

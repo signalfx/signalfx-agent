@@ -24,12 +24,12 @@ func TestDatapointsAreGenerated(t *testing.T) {
 	a := New(5*time.Minute, nil)
 
 	a.AddSpans(context.Background(), []*trace.Span{
-		&trace.Span{
+		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("one"),
 			},
 		},
-		&trace.Span{
+		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("two"),
 			},
@@ -53,17 +53,17 @@ func TestExpiration(t *testing.T) {
 	setTime(a, time.Unix(100, 0))
 
 	a.AddSpans(context.Background(), []*trace.Span{
-		&trace.Span{
+		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("one"),
 			},
 		},
-		&trace.Span{
+		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("two"),
 			},
 		},
-		&trace.Span{
+		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("three"),
 			},
@@ -75,7 +75,7 @@ func TestExpiration(t *testing.T) {
 	advanceTime(a, 4)
 
 	a.AddSpans(context.Background(), []*trace.Span{
-		&trace.Span{
+		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("two"),
 			},

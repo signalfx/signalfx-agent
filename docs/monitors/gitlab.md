@@ -51,7 +51,7 @@ metrics are just targets `gitlab_monitor_database`,
 | [gitlab-sidekiq](gitlab-sidekiq.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8082 | /metrics |
 | [gitlab-unicorn](gitlab-unicorn.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_metrics.html#unicorn-metrics-available) | 8080 | /-/metrics |
 | [gitlab-workhorse](gitlab-workhorse.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9229 | /metrics |
-| [prometheus/nginx-vts](prometheus-nginx-vtx.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8060 | /metrics |
+| [prometheus/nginx-vts](prometheus-nginx-vts.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8060 | /metrics |
 | [prometheus/node](prometheus-node.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/node_exporter.html) | 9100 | /metrics |
 | [promteheus/postgres](prometheus-postgres.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/postgres_exporter.html) | 9187 | /metrics |
 | [prometheus/prometheus](prometheus-prometheus.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9090 | /metrics |
@@ -153,139 +153,109 @@ Monitor Type: `gitlab`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host of the exporter |
 | `port` | **yes** | `integer` | Port of the exporter |
+| `username` | no | `string` | Basic Auth username to use on each request, if any. |
+| `password` | no | `string` | Basic Auth password to use on each request, if any. |
 | `useHTTPS` | no | `bool` | If true, the agent will connect to the exporter using HTTPS instead of plain HTTP. (**default:** `false`) |
 | `skipVerify` | no | `bool` | If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified. (**default:** `false`) |
 | `metricPath` | no | `string` | Path to the metrics endpoint on the exporter server, usually `/metrics` (the default). (**default:** `/metrics`) |
 | `sendAllMetrics` | no | `bool` | Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors. (**default:** `false`) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `ci_stale_builds` | gauge |  | ci_stale_builds metric |
-| `gitlab_database_rows` | gauge |  |  |
-| `process_memory_bytes` | gauge |  | process_memory_bytes metric |
-| `process_age_seconds` | gauge |  | process_age_seconds metric |
-| `process_count` | gauge | ✔ | process_count metric |
-| `sidekiq_queue_size` | gauge | ✔ | sidekiq_queue_size metric |
-| `sidekiq_queue_latency`<br>_or_ `sidekiq_queue_latency_seconds` | gauge | ✔ | sidekiq_queue_latency metric |
-| `sidekiq_dead_jobs_total` | gauge |  | sidekiq_dead_jobs_total metric |
-| `gitlab_projects_with_jid` | gauge |  |  |
-| `gitlab_projects_without_jid` | gauge |  |  |
-| `gitlab_stuck_import_jobs_worker_runs_total` | cumulative |  |  |
-| `gitlab_cache_misses_total` | cumulative |  |  |
-| `http_request_duration_seconds_bucket` | cumulative |  |  |
-| `http_request_duration_seconds_count` | cumulative |  |  |
-| `http_request_duration_seconds` | cumulative |  |  |
-| `ruby_file_descriptors` | gauge |  |  |
-| `ruby_gc_duration_seconds_total` | cumulative |  |  |
-| `ruby_gc_stat_count` | gauge |  |  |
-| `ruby_gc_stat_heap_allocatable_pages` | gauge |  |  |
-| `ruby_gc_stat_heap_allocated_pages` | gauge |  |  |
-| `ruby_gc_stat_heap_available_slots` | gauge |  |  |
-| `ruby_gc_stat_heap_eden_pages` | gauge |  |  |
-| `ruby_gc_stat_heap_final_slots` | gauge |  |  |
-| `ruby_gc_stat_heap_free_slots` | gauge |  |  |
-| `ruby_gc_stat_heap_live_slots` | gauge |  |  |
-| `ruby_gc_stat_heap_marked_slots` | gauge |  |  |
-| `ruby_gc_stat_heap_sorted_length` | gauge |  |  |
-| `ruby_gc_stat_heap_tomb_pages` | gauge |  |  |
-| `ruby_gc_stat_major_gc_count` | gauge |  |  |
-| `ruby_gc_stat_malloc_increase_bytes` | gauge |  |  |
-| `ruby_gc_stat_malloc_increase_bytes_limit` | gauge |  |  |
-| `ruby_gc_stat_minor_gc_count` | gauge |  |  |
-| `ruby_gc_stat_old_objects` | gauge |  |  |
-| `ruby_gc_stat_old_objects_limit` | gauge |  |  |
-| `ruby_gc_stat_oldmalloc_increase_bytes` | gauge |  |  |
-| `ruby_gc_stat_oldmalloc_increase_bytes_limit` | gauge |  |  |
-| `ruby_gc_stat_remembered_wb_unprotected_objects` | gauge |  |  |
-| `ruby_gc_stat_remembered_wb_unprotected_objects_limit` | gauge |  |  |
-| `ruby_gc_stat_total_allocated_objects` | gauge |  |  |
-| `ruby_gc_stat_total_allocated_pages` | gauge |  |  |
-| `ruby_gc_stat_total_freed_objects` | gauge |  |  |
-| `ruby_gc_stat_total_freed_pages` | gauge |  |  |
-| `ruby_memory_bytes` | gauge |  |  |
-| `ruby_sampler_duration_seconds_total` | cumulative |  |  |
-| `pg_stat_table_seq_tup_read`<br>_or_ `gitlab_database_stat_table_seq_tup_read` | gauge | ✔ | pg_stat_table_seq_tup_read metric |
-| `pg_stat_table_idx_tup_fetch`<br>_or_ `gitlab_database_stat_table_idx_tup_fetch` | gauge | ✔ | pg_stat_table_idx_tup_fetch metric |
-| `pg_stat_table_n_tup_ins`<br>_or_ `gitlab_database_stat_table_n_tup_ins` | gauge | ✔ | pg_stat_table_n_tup_ins metric |
-| `pg_stat_table_n_tup_upd`<br>_or_ `gitlab_database_stat_table_n_tup_upd` | gauge | ✔ | pg_stat_table_n_tup_upd metric |
-| `pg_stat_table_n_tup_del`<br>_or_ `gitlab_database_stat_table_n_tup_del` | gauge | ✔ | pg_stat_table_n_tup_del metric |
-| `pg_stat_table_n_tup_hot_upd`<br>_or_ `gitlab_database_stat_table_n_tup_hot_upd` | gauge |  | pg_stat_table_n_tup_hot_upd metric |
-| `pg_stat_table_n_dead_tup`<br>_or_ `gitlab_database_stat_table_n_dead_tup` | gauge |  | pg_stat_table_n_dead_tup metric |
-| `pg_stat_table_seq_scan`<br>_or_ `gitlab_database_stat_table_seq_scan` | gauge |  | pg_stat_table_seq_scan metric |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+ - `ci_stale_builds` (*gauge*)<br>    ci_stale_builds metric
+ - `gitlab_cache_misses_total` (*cumulative*)<br>
+ - `gitlab_database_rows` (*gauge*)<br>
+ - `gitlab_projects_with_jid` (*gauge*)<br>
+ - `gitlab_projects_without_jid` (*gauge*)<br>
+ - `gitlab_stuck_import_jobs_worker_runs_total` (*cumulative*)<br>
+ - `http_request_duration_seconds` (*cumulative*)<br>
+ - `http_request_duration_seconds_bucket` (*cumulative*)<br>
+ - `http_request_duration_seconds_count` (*cumulative*)<br>
+ - ***`pg_stat_table_idx_tup_fetch`*** (*gauge*)<br>    pg_stat_table_idx_tup_fetch metric
+ - `pg_stat_table_n_dead_tup` (*gauge*)<br>    pg_stat_table_n_dead_tup metric
+ - ***`pg_stat_table_n_tup_del`*** (*gauge*)<br>    pg_stat_table_n_tup_del metric
+ - `pg_stat_table_n_tup_hot_upd` (*gauge*)<br>    pg_stat_table_n_tup_hot_upd metric
+ - ***`pg_stat_table_n_tup_ins`*** (*gauge*)<br>    pg_stat_table_n_tup_ins metric
+ - ***`pg_stat_table_n_tup_upd`*** (*gauge*)<br>    pg_stat_table_n_tup_upd metric
+ - `pg_stat_table_seq_scan` (*gauge*)<br>    pg_stat_table_seq_scan metric
+ - ***`pg_stat_table_seq_tup_read`*** (*gauge*)<br>    pg_stat_table_seq_tup_read metric
+ - `process_age_seconds` (*gauge*)<br>    process_age_seconds metric
+ - ***`process_count`*** (*gauge*)<br>    process_count metric
+ - `process_memory_bytes` (*gauge*)<br>    process_memory_bytes metric
+ - `ruby_file_descriptors` (*gauge*)<br>
+ - `ruby_gc_duration_seconds_total` (*cumulative*)<br>
+ - `ruby_gc_stat_count` (*gauge*)<br>
+ - `ruby_gc_stat_heap_allocatable_pages` (*gauge*)<br>
+ - `ruby_gc_stat_heap_allocated_pages` (*gauge*)<br>
+ - `ruby_gc_stat_heap_available_slots` (*gauge*)<br>
+ - `ruby_gc_stat_heap_eden_pages` (*gauge*)<br>
+ - `ruby_gc_stat_heap_final_slots` (*gauge*)<br>
+ - `ruby_gc_stat_heap_free_slots` (*gauge*)<br>
+ - `ruby_gc_stat_heap_live_slots` (*gauge*)<br>
+ - `ruby_gc_stat_heap_marked_slots` (*gauge*)<br>
+ - `ruby_gc_stat_heap_sorted_length` (*gauge*)<br>
+ - `ruby_gc_stat_heap_tomb_pages` (*gauge*)<br>
+ - `ruby_gc_stat_major_gc_count` (*gauge*)<br>
+ - `ruby_gc_stat_malloc_increase_bytes` (*gauge*)<br>
+ - `ruby_gc_stat_malloc_increase_bytes_limit` (*gauge*)<br>
+ - `ruby_gc_stat_minor_gc_count` (*gauge*)<br>
+ - `ruby_gc_stat_old_objects` (*gauge*)<br>
+ - `ruby_gc_stat_old_objects_limit` (*gauge*)<br>
+ - `ruby_gc_stat_oldmalloc_increase_bytes` (*gauge*)<br>
+ - `ruby_gc_stat_oldmalloc_increase_bytes_limit` (*gauge*)<br>
+ - `ruby_gc_stat_remembered_wb_unprotected_objects` (*gauge*)<br>
+ - `ruby_gc_stat_remembered_wb_unprotected_objects_limit` (*gauge*)<br>
+ - `ruby_gc_stat_total_allocated_objects` (*gauge*)<br>
+ - `ruby_gc_stat_total_allocated_pages` (*gauge*)<br>
+ - `ruby_gc_stat_total_freed_objects` (*gauge*)<br>
+ - `ruby_gc_stat_total_freed_pages` (*gauge*)<br>
+ - `ruby_memory_bytes` (*gauge*)<br>
+ - `ruby_sampler_duration_seconds_total` (*cumulative*)<br>
+ - `sidekiq_dead_jobs_total` (*gauge*)<br>    sidekiq_dead_jobs_total metric
+ - ***`sidekiq_queue_latency`*** (*gauge*)<br>    sidekiq_queue_latency metric
+ - ***`sidekiq_queue_size`*** (*gauge*)<br>    sidekiq_queue_size metric
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - ci_stale_builds
-    - gitlab_database_rows
-    - process_memory_bytes
-    - process_age_seconds
-    - sidekiq_dead_jobs_total
-    - gitlab_projects_with_jid
-    - gitlab_projects_without_jid
-    - gitlab_stuck_import_jobs_worker_runs_total
-    - gitlab_cache_misses_total
-    - http_request_duration_seconds_bucket
-    - http_request_duration_seconds_count
-    - http_request_duration_seconds
-    - ruby_file_descriptors
-    - ruby_gc_duration_seconds_total
-    - ruby_gc_stat_count
-    - ruby_gc_stat_heap_allocatable_pages
-    - ruby_gc_stat_heap_allocated_pages
-    - ruby_gc_stat_heap_available_slots
-    - ruby_gc_stat_heap_eden_pages
-    - ruby_gc_stat_heap_final_slots
-    - ruby_gc_stat_heap_free_slots
-    - ruby_gc_stat_heap_live_slots
-    - ruby_gc_stat_heap_marked_slots
-    - ruby_gc_stat_heap_sorted_length
-    - ruby_gc_stat_heap_tomb_pages
-    - ruby_gc_stat_major_gc_count
-    - ruby_gc_stat_malloc_increase_bytes
-    - ruby_gc_stat_malloc_increase_bytes_limit
-    - ruby_gc_stat_minor_gc_count
-    - ruby_gc_stat_old_objects
-    - ruby_gc_stat_old_objects_limit
-    - ruby_gc_stat_oldmalloc_increase_bytes
-    - ruby_gc_stat_oldmalloc_increase_bytes_limit
-    - ruby_gc_stat_remembered_wb_unprotected_objects
-    - ruby_gc_stat_remembered_wb_unprotected_objects_limit
-    - ruby_gc_stat_total_allocated_objects
-    - ruby_gc_stat_total_allocated_pages
-    - ruby_gc_stat_total_freed_objects
-    - ruby_gc_stat_total_freed_pages
-    - ruby_memory_bytes
-    - ruby_sampler_duration_seconds_total
-    - pg_stat_table_n_tup_hot_upd
-    - pg_stat_table_n_dead_tup
-    - pg_stat_table_seq_scan
-    monitorType: gitlab
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

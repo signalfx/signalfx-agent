@@ -1,19 +1,20 @@
+import time
 from functools import partial as p
 from textwrap import dedent
 
 import pytest
-from tests.helpers.assertions import (
-    has_datapoint_with_dim,
-    has_datapoint_with_metric_name,
-    has_log_message,
-    tcp_socket_open,
-)
-from tests.helpers.util import container_ip, ensure_always, run_agent, run_service, wait_for
+from tests.helpers.agent import Agent
+from tests.helpers.assertions import tcp_socket_open
+from tests.helpers.metadata import Metadata
+from tests.helpers.util import container_ip, run_service, wait_for
+from tests.helpers.verify import verify_expected_is_superset
 
 pytestmark = [pytest.mark.collectd, pytest.mark.etcd, pytest.mark.monitor_with_endpoints]
 
+METADATA = Metadata.from_package("collectd/solr")
 
-def test_solr_monitor():
+
+def test_solr_monitor_defaults():
     with run_service("solr") as solr_container:
         host = container_ip(solr_container)
         config = dedent(
@@ -25,7 +26,9 @@ def test_solr_monitor():
         """
         )
         assert wait_for(p(tcp_socket_open, host, 8983), 60), "service not listening on port"
-        with run_agent(config) as [backend, get_output, _]:
-            assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "solr")), "Didn't get solr datapoints"
-            assert ensure_always(lambda: has_datapoint_with_metric_name(backend, "counter.solr.http_5xx_responses"))
-            assert not has_log_message(get_output().lower(), "error"), "error found in agent output!"
+        with Agent.run(config) as agent:
+            time.sleep(10)
+            assert agent.fake_services.datapoints
+            # We don't get all default metrics but this ensures we don't get
+            # any non-default metrics through with default config.
+            verify_expected_is_superset(agent, METADATA.default_metrics)

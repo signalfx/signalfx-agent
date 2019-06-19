@@ -4,8 +4,10 @@ package core
 
 import (
 	"context"
+	"io"
 	"net/http"
 	"os"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
@@ -25,7 +27,7 @@ import (
 const (
 	// Items should stay in these channels only very briefly as there should be
 	// goroutines dedicated to pulling them at all times.  Having the capacity
-	// be non-zero is more an optimization to keep monitors from siezing up
+	// be non-zero is more an optimization to keep monitors from seizing up
 	// under extremely heavy load.
 	datapointChanCapacity = 3000
 	eventChanCapacity     = 100
@@ -47,6 +49,7 @@ type Agent struct {
 
 	diagnosticServer     *http.Server
 	profileServerRunning bool
+	startTime            time.Time
 }
 
 // NewAgent creates an unconfigured agent instance
@@ -56,6 +59,7 @@ func NewAgent() *Agent {
 		eventChan:    make(chan *event.Event, eventChanCapacity),
 		propertyChan: make(chan *types.DimProperties, dimPropChanCapacity),
 		spanChan:     make(chan *trace.Span, traceSpanChanCapacity),
+		startTime:    time.Now(),
 	}
 
 	agent.observers = &observers.ObserverManager{
@@ -75,14 +79,19 @@ func NewAgent() *Agent {
 }
 
 func (a *Agent) configure(conf *config.Config) {
+	log.SetFormatter(conf.Logging.LogrusFormatter())
+
 	level := conf.Logging.LogrusLevel()
 	if level != nil {
 		log.SetLevel(*level)
 	}
+
 	log.Infof("Using log level %s", log.GetLevel().String())
 
+	hostDims := hostid.Dimensions(conf.SendMachineID, conf.Hostname, conf.UseFullyQualifiedHost)
 	if !conf.DisableHostDimensions {
-		conf.Writer.HostIDDims = hostid.Dimensions(conf.SendMachineID, conf.Hostname, conf.UseFullyQualifiedHost)
+		log.Infof("Using host id dimensions %v", hostDims)
+		conf.Writer.HostIDDims = hostDims
 	}
 
 	if conf.EnableProfiling {
@@ -102,11 +111,15 @@ func (a *Agent) configure(conf *config.Config) {
 		}
 	}
 
+	if conf.Cluster != "" {
+		startSyncClusterProperty(a.propertyChan, conf.Cluster, hostDims, conf.SyncClusterOnHostDimension)
+	}
+
 	a.meta.InternalStatusHost = conf.InternalStatusHost
 	a.meta.InternalStatusPort = conf.InternalStatusPort
 
 	// The order of Configure calls is very important!
-	a.monitors.Configure(conf.Monitors, &conf.Collectd, conf.IntervalSeconds)
+	a.monitors.Configure(conf.Monitors, &conf.Collectd, conf.IntervalSeconds, conf.EnableBuiltInFiltering)
 	a.observers.Configure(conf.Observers)
 	a.lastConfig = conf
 }
@@ -162,9 +175,7 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 				log.Info("Done configuring agent")
 
 				if config.InternalStatusHost != "" {
-					if err := agent.serveDiagnosticInfo(config.InternalStatusHost, config.InternalStatusPort); err != nil {
-						log.WithError(err).Error("Could not start internal status server")
-					}
+					agent.serveDiagnosticInfo(config.InternalStatusHost, config.InternalStatusPort)
 				}
 
 			case <-ctx.Done():
@@ -185,8 +196,40 @@ func Status(configPath string, section string) ([]byte, error) {
 		return nil, err
 	}
 
-	select {
-	case conf := <-configLoads:
-		return readStatusInfo(conf.InternalStatusHost, conf.InternalStatusPort, section)
+	conf := <-configLoads
+	return readStatusInfo(conf.InternalStatusHost, conf.InternalStatusPort, section)
+}
+
+// StreamDatapoints reads the text from the diagnostic socket and returns it if available.
+func StreamDatapoints(configPath string, metric string, dims string) (io.ReadCloser, error) {
+	configLoads, err := config.LoadConfig(context.Background(), configPath)
+	if err != nil {
+		return nil, err
+	}
+
+	conf := <-configLoads
+	return streamDatapoints(conf.InternalStatusHost, conf.InternalStatusPort, metric, dims)
+}
+
+func startSyncClusterProperty(propertyChan chan *types.DimProperties, cluster string, hostDims map[string]string, setOnHost bool) {
+	for dimName, dimValue := range hostDims {
+		if len(hostDims) > 1 && dimName == "host" && !setOnHost {
+			// If we also have a platform-specific host-id dimension that isn't
+			// the generic 'host' dimension, then skip setting the property on
+			// 'host' since it tends to get reused frequently. The property
+			// will still show up on all MTSs that come out of this agent.
+			continue
+		}
+		log.Infof("Setting cluster:%s property on %s:%s dimension", cluster, dimName, dimValue)
+		propertyChan <- &types.DimProperties{
+			Dimension: types.Dimension{
+				Name:  dimName,
+				Value: dimValue,
+			},
+			Properties: map[string]string{
+				"cluster": cluster,
+			},
+			MergeIntoExisting: true,
+		}
 	}
 }

@@ -75,6 +75,10 @@ Monitor Type: `collectd/postgresql`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
@@ -123,63 +127,64 @@ The **nested** `results` config object has the following fields:
 | `instancesFrom` | no | `list of strings` | Specifies columns in the SQL result to uses for the type instance.  Multiple columns are joined with a hyphen "-". |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `pg_blks.heap_hit` | gauge | ✔ | Number of buffer hits |
-| `pg_blks.heap_read` | gauge | ✔ | Number of disk blocks read |
-| `pg_blks.idx_hit` | gauge | ✔ | Number of index buffer hits |
-| `pg_blks.idx_read` | gauge | ✔ | Number of index blocks read |
-| `pg_blks.tidx_hit` | gauge |  | Number of TOAST index buffer hits |
-| `pg_blks.tidx_read` | gauge |  | Number of TOAST index blocks read |
-| `pg_blks.toast_hit` | gauge |  | Number of TOAST buffer hits |
-| `pg_blks.toast_read` | gauge |  | Number of disk blocks read |
-| `pg_db_size` | gauge | ✔ | Size of the database on disk, in bytes |
-| `pg_n_tup_c.del` | gauge | ✔ | Number of delete operations |
-| `pg_n_tup_c.hot_upd` | gauge |  | Number of update operations not requiring index update |
-| `pg_n_tup_c.ins` | gauge | ✔ | Number of insert operations |
-| `pg_n_tup_c.upd` | gauge | ✔ | Number of update operations |
-| `pg_n_tup_g.dead` | gauge |  | Number of dead rows in the database |
-| `pg_n_tup_g.live` | gauge | ✔ | Number of live rows in the database |
-| `pg_numbackends` | gauge | ✔ | Number of server processes |
-| `pg_scan.idx` | gauge | ✔ | Number of index scans |
-| `pg_scan.idx_tup_fetch` | gauge | ✔ | Number of rows read from index scans |
-| `pg_scan.seq` | gauge | ✔ | Number of sequential scans |
-| `pg_scan.seq_tup_read` | gauge | ✔ | Number of rows read from sequential scans |
-| `pg_xact.commit` | gauge | ✔ | Number of commits |
-| `pg_xact.num_deadlocks` | gauge |  | Number of deadlocks detected by the database |
-| `pg_xact.rollback` | gauge | ✔ | Number of rollbacks |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+ - ***`pg_blks.heap_hit`*** (*gauge*)<br>    Number of buffer hits
+ - ***`pg_blks.heap_read`*** (*gauge*)<br>    Number of disk blocks read
+ - ***`pg_blks.idx_hit`*** (*gauge*)<br>    Number of index buffer hits
+ - ***`pg_blks.idx_read`*** (*gauge*)<br>    Number of index blocks read
+ - `pg_blks.tidx_hit` (*gauge*)<br>    Number of TOAST index buffer hits
+ - `pg_blks.tidx_read` (*gauge*)<br>    Number of TOAST index blocks read
+ - `pg_blks.toast_hit` (*gauge*)<br>    Number of TOAST buffer hits
+ - `pg_blks.toast_read` (*gauge*)<br>    Number of disk blocks read
+ - ***`pg_db_size`*** (*gauge*)<br>    Size of the database on disk, in bytes
+ - ***`pg_n_tup_c.del`*** (*gauge*)<br>    Number of delete operations
+ - `pg_n_tup_c.hot_upd` (*gauge*)<br>    Number of update operations not requiring index update
+ - ***`pg_n_tup_c.ins`*** (*gauge*)<br>    Number of insert operations
+ - ***`pg_n_tup_c.upd`*** (*gauge*)<br>    Number of update operations
+ - `pg_n_tup_g.dead` (*gauge*)<br>    Number of dead rows in the database
+ - ***`pg_n_tup_g.live`*** (*gauge*)<br>    Number of live rows in the database
+ - ***`pg_numbackends`*** (*gauge*)<br>    Number of server processes
+ - ***`pg_scan.idx`*** (*gauge*)<br>    Number of index scans
+ - ***`pg_scan.idx_tup_fetch`*** (*gauge*)<br>    Number of rows read from index scans
+ - ***`pg_scan.seq`*** (*gauge*)<br>    Number of sequential scans
+ - ***`pg_scan.seq_tup_read`*** (*gauge*)<br>    Number of rows read from sequential scans
+ - ***`pg_xact.commit`*** (*gauge*)<br>    Number of commits
+ - `pg_xact.num_deadlocks` (*gauge*)<br>    Number of deadlocks detected by the database
+ - ***`pg_xact.rollback`*** (*gauge*)<br>    Number of rollbacks
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - pg_blks.tidx_hit
-    - pg_blks.tidx_read
-    - pg_blks.toast_hit
-    - pg_blks.toast_read
-    - pg_n_tup_c.hot_upd
-    - pg_n_tup_g.dead
-    - pg_xact.num_deadlocks
-    monitorType: collectd/postgresql
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

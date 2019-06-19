@@ -6,6 +6,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
+
 	"github.com/influxdata/telegraf"
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/sqlserver"
@@ -14,18 +16,14 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
-	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "telegraf/sqlserver"
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
-
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // Config for this monitor
@@ -56,14 +54,14 @@ type Config struct {
 type Monitor struct {
 	Output types.Output
 	cancel func()
+	logger logrus.FieldLogger
 }
-
-// fetch the factory used to generate the perf counter plugin
-var factory = telegrafInputs.Inputs["sqlserver"]
 
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) error {
-	plugin := factory().(*telegrafPlugin.SQLServer)
+	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
+
+	plugin := telegrafInputs.Inputs["sqlserver"]().(*telegrafPlugin.SQLServer)
 
 	server := fmt.Sprintf("Server=%s;Port=%d;", conf.Host, conf.Port)
 
@@ -84,14 +82,18 @@ func (m *Monitor) Configure(conf *Config) error {
 	plugin.ExcludeQuery = conf.ExcludeQuery
 
 	// create batch emitter
-	emit := baseemitter.NewEmitter(m.Output, logger)
+	emit := baseemitter.NewEmitter(m.Output, m.logger)
 
 	// Hard code the plugin name because the emitter will parse out the
 	// configured measurement name as plugin and that is confusing.
 	emit.AddTag("plugin", strings.Replace(monitorType, "/", "-", -1))
 
-	// replacer sanitizes metrics according to our PCR reporter rules
-	replacer := winperfcounters.NewPCRReplacer()
+	// replacer sanitizes metrics according to our PCR reporter rules (ours have to come first).
+	replacer := strings.NewReplacer(append([]string{"%", "pct", "(s)", "_"}, winperfcounters.MetricReplacements...)...)
+
+	emit.AddMetricNameTransformation(func(metric string) string {
+		return strings.Trim(replacer.Replace(strings.ToLower(metric)), "_")
+	})
 
 	emit.AddMeasurementTransformation(
 		func(ms telegraf.Metric) error {
@@ -110,9 +112,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		})
 
 	// convert the metric name to lower case
-	emit.AddMetricNameTransformation(func(m string) string {
-		return strings.ToLower(m)
-	})
+	emit.AddMetricNameTransformation(strings.ToLower)
 
 	// create the accumulator
 	ac := accumulator.NewAccumulator(emit)
@@ -124,7 +124,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		if err := plugin.Gather(ac); err != nil {
-			logger.WithError(err).Errorf("an error occurred while gathering metrics from the plugin")
+			m.logger.WithError(err).Errorf("an error occurred while gathering metrics from the plugin")
 		}
 
 	}, time.Duration(conf.IntervalSeconds)*time.Second)

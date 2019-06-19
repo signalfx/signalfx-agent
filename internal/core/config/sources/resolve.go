@@ -32,7 +32,7 @@ func (r *resolver) Resolve(raw RawDynamicValueSpec) ([]interface{}, string, *dyn
 	sourceName := spec.From.SourceName()
 	source, ok := r.sources[sourceName]
 	if !ok {
-		return nil, "", nil, fmt.Errorf("Source '%s' is not configured", sourceName)
+		return nil, "", nil, fmt.Errorf("source '%s' is not configured", sourceName)
 	}
 
 	contentMap, err := source.Get(spec.From.Path(), spec.Optional)

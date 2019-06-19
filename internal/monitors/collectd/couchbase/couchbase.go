@@ -13,10 +13,8 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 )
 
-const monitorType = "collectd/couchbase"
-
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
 				MonitorCore: pyrunner.New("sfxcollectd"),
@@ -59,6 +57,13 @@ type Monitor struct {
 	python.PyMonitor
 }
 
+func (c *Config) GetExtraMetrics() []string {
+	if c.CollectMode == "detailed" {
+		return []string{"*"}
+	}
+	return nil
+}
+
 // Validate will check the config for correctness.
 func (c *Config) Validate() error {
 	if c.CollectTarget == "BUCKET" && c.CollectBucket == "" {
@@ -75,8 +80,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "couchbase",
-		ModulePaths:   []string{collectd.MakePath("couchbase")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("couchbase")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
 			"Host":          conf.Host,
 			"Port":          conf.Port,
@@ -89,6 +94,12 @@ func (m *Monitor) Configure(conf *Config) error {
 			"Username":      conf.Username,
 			"Password":      conf.Password,
 		},
+	}
+
+	if m.Output.HasAnyExtraMetrics() {
+		// If the user has enabled any nondefault metric turn on detailed for the monitor. Not all nondefault
+		// metrics require detailed but this is the safest assumption.
+		conf.pyConf.PluginConfig["CollectMode"] = "detailed"
 	}
 
 	return m.PyMonitor.Configure(conf)

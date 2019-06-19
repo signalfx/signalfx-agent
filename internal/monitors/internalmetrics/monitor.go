@@ -16,10 +16,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	monitorType = "internal-metrics"
-)
-
 // Config for internal metric monitoring
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
@@ -41,7 +37,7 @@ type Monitor struct {
 }
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // Configure and kick off internal metric collection

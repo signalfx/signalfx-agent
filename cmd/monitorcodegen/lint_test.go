@@ -20,13 +20,15 @@ func Test_formatVariable(t *testing.T) {
 		{"node_netstat_IpExt_OutOctets", "nodeNetstatIPExtOutOctets"},
 	}
 	for _, tt := range tests {
+		args := tt.args
+		want := tt.want
 		t.Run(tt.args, func(t *testing.T) {
-			got, err := formatVariable(tt.args)
+			got, err := formatVariable(args)
 			if err != nil {
 				t.Fatal(err)
 			}
-			if got != tt.want {
-				t.Errorf("formatVariable() = %v, want %v", got, tt.want)
+			if got != want {
+				t.Errorf("formatVariable() = %v, want %v", got, want)
 			}
 		})
 	}

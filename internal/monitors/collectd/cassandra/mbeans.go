@@ -1,10 +1,6 @@
+// +build linux
+
 package cassandra
-
-import (
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/genericjmx"
-)
-
-var defaultMBeans genericjmx.MBeanMap
 
 var defaultMBeanYAML = `
 cassandra-client-read-latency:

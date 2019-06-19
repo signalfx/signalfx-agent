@@ -154,9 +154,7 @@ DEPENDENCIES
   puppet-module-posix-dev-r2.3
   puppet-module-win-default-r2.3
   puppet-module-win-dev-r2.3
-  puppetlabs_spec_helper (~> 2.6.2)
-  rspec-puppet (~> 2.6.9)
-  rspec-puppet-facts (~> 1.9.0)
+  rspec_junit_formatter
 
 BUNDLED WITH
-   1.16.1
+   2.0.1

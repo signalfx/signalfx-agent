@@ -51,7 +51,13 @@ have to be Python 2.7 compatible.
 
 ## How can I see the datapoints emitted by the agent to troubleshoot issues?
 
-Set the following config in the agent.yaml config file:
+There are two ways, you can either set a config option in the agent to dump
+datapoints to the agent logs, or you can use the `signalfx-agent tap-dps`
+subcommand to stream them to a separate console.
+
+### Log Dump
+To dump datapoints to the logs, set the following config in the agent.yaml
+config file:
 
 ```yaml
 logging:
@@ -60,7 +66,11 @@ writer:
   logDatapoints: true
 ```
 
-This will log all of the datapoints as they are emitted by the agent.
+### Datapoint tap
+
+You can also dump a stream of datapoint to a separate console by running the
+`signalfx-agent tap-dps` command on the same host as the running agent.  Run
+`signalfx-agent tap-dps -h` for more information.
 
 
 ## How can I see what services the agent has discovered?

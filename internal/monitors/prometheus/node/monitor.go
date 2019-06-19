@@ -3,15 +3,10 @@ package node
 import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/prometheusexporter"
-	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "prometheus/node"
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
-
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // Config for this monitor

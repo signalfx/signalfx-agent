@@ -8,29 +8,25 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/metadata/aws/ec2metadata"
 	"github.com/signalfx/golib/metadata/hostmetadata"
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/metadata"
 	"github.com/signalfx/signalfx-agent/internal/utils"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
 const (
-	monitorType      = "host-metadata"
 	errNotAWS        = "not an aws box"
 	uptimeMetricName = "sfxagent.hostmetadata"
 )
 
-// the time that the agent started / imported this package
-var startTime = time.Now()
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
-
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{Monitor: metadata.Monitor{}} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} {
+		return &Monitor{Monitor: metadata.Monitor{},
+			startTime: time.Now()}
+	}, &Config{})
 }
 
 // Config for this monitor
@@ -43,11 +39,23 @@ type Monitor struct {
 	metadata.Monitor
 	startTime time.Time
 	cancel    func()
+	logger    logrus.FieldLogger
 }
 
 // Configure is the main function of the monitor, it will report host metadata
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
+
+	// metadatafuncs are the functions to collect host metadata.
+	// putting them directly in the array raised issues with the return type of info
+	// By placing them inside of anonymous functions I can return (info, error)
+	metadataFuncs := []func() (info, error){
+		func() (info, error) { return hostmetadata.GetCPU() },
+		func() (info, error) { return hostmetadata.GetMemory() },
+		func() (info, error) { return hostmetadata.GetOS() },
+	}
+
 	intervals := []time.Duration{
 		// on startup with some 0-60s dither
 		time.Duration(rand.Int63n(60)) * time.Second,
@@ -64,11 +72,11 @@ func (m *Monitor) Configure(conf *Config) error {
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 
-	logger.Debugf("Waiting %f seconds to emit metadata", intervals[0].Seconds())
+	m.logger.Debugf("Waiting %f seconds to emit metadata", intervals[0].Seconds())
 
 	// gather metadata on intervals
 	utils.RunOnArrayOfIntervals(ctx,
-		m.ReportMetadataProperties,
+		func() { m.ReportMetadataProperties(metadataFuncs) },
 		intervals, utils.RepeatLast)
 
 	// emit metadata metric
@@ -85,27 +93,17 @@ type info interface {
 	ToStringMap() map[string]string
 }
 
-// metadatafuncs are the functions to collect host metadata.
-// putting them directly in the array raised issues with the return type of info
-// By placing them inside of anonymous functions I can return (info, error)
-var metadatafuncs = []func() (info, error){
-	func() (info, error) { return hostmetadata.GetCPU() },
-	func() (info, error) { return hostmetadata.GetMemory() },
-	func() (info, error) { return hostmetadata.GetOS() },
-	func() (info, error) { return ec2metadata.Get() },
-}
-
 // ReportMetadataProperties emits properties about the host
-func (m *Monitor) ReportMetadataProperties() {
-	for _, f := range metadatafuncs {
+func (m *Monitor) ReportMetadataProperties(metadataFuncs []func() (info, error)) {
+	for _, f := range metadataFuncs {
 		meta, err := f()
 
 		if err != nil {
 			// suppress the not an aws box error message it is expected
 			if err.Error() == errNotAWS {
-				logger.Debug(err)
+				m.logger.Debug(err)
 			} else {
-				logger.WithError(err).Errorf("an error occurred while gathering metrics")
+				m.logger.WithError(err).Errorf("an error occurred while gathering metrics")
 			}
 			continue
 		}
@@ -149,7 +147,7 @@ func (m *Monitor) ReportUptimeMetric() {
 		datapoint.New(
 			uptimeMetricName,
 			dims,
-			datapoint.NewFloatValue(time.Since(startTime).Seconds()),
+			datapoint.NewFloatValue(time.Since(m.startTime).Seconds()),
 			datapoint.Counter,
 			time.Now(),
 		),

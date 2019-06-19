@@ -10,9 +10,9 @@ import (
 
 // DiagnosticText outputs human-readable text about the active observers.
 func (om *ObserverManager) DiagnosticText() string {
-	var observerTypes []string
+	observerTypes := make([]string, len(om.observers))
 	for i := range om.observers {
-		observerTypes = append(observerTypes, om.observers[i]._type)
+		observerTypes[i] = om.observers[i]._type
 	}
 	return fmt.Sprintf("Observers active:                 %s", strings.Join(observerTypes, ", "))
 }

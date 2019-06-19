@@ -18,18 +18,22 @@ Monitor Type: `collectd/cpufreq`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 This monitor has no configuration options.
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `cpufreq.<N>` | gauge |  | The processor frequency in Hertz for the <N>th processor on the system. |
-
+These are the metrics available for this monitor.
+This monitor emits all metrics by default; however, **none are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+-- they are all custom**.
 
 
+
+ - ***`cpufreq.<N>`*** (*gauge*)<br>    The processor frequency in Hertz for the <N>th processor on the system.
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

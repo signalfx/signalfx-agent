@@ -9,7 +9,8 @@ files_to_update=(
   deployments/k8s/helm/signalfx-agent/Chart.yaml
   deployments/k8s/helm/signalfx-agent/values.yaml
   deployments/ecs/signalfx-agent-task.json
-  deployments/fargate/signalfx-agent-fargate-task.json
+  deployments/fargate/example-fargate-task.json
+  Dockerfile.rhel
 )
 
 new_version=$1

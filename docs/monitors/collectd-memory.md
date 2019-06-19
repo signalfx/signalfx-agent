@@ -16,40 +16,52 @@ Monitor Type: `collectd/memory`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 This monitor has no configuration options.
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `memory.buffered` | gauge | ✔ | Bytes of memory used for buffering I/O |
-| `memory.cached` | gauge | ✔ | Bytes of memory used for disk caching |
-| `memory.free` | gauge | ✔ | Bytes of memory available for use |
-| `memory.slab_recl` | gauge | ✔ | Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed. |
-| `memory.slab_unrecl` | gauge | ✔ | Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed |
-| `memory.used` | gauge | ✔ | Bytes of memory in use by the system. |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+ - ***`memory.buffered`*** (*gauge*)<br>    Bytes of memory used for buffering I/O
+ - ***`memory.cached`*** (*gauge*)<br>    Bytes of memory used for disk caching
+ - ***`memory.free`*** (*gauge*)<br>    Bytes of memory available for use
+ - ***`memory.slab_recl`*** (*gauge*)<br>    Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed.
+ - ***`memory.slab_unrecl`*** (*gauge*)<br>    Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed
+ - ***`memory.used`*** (*gauge*)<br>    Bytes of memory in use by the system.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    monitorType: collectd/memory
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

@@ -29,6 +29,8 @@ const (
 // you are using Kubernetes, you should use the [k8s-api
 // observer](./k8s-api.md) instead of this.
 //
+// Requires Docker API version 1.22+.
+//
 // Note that you will need permissions to access the Docker engine API.  For a
 // Docker domain socket URL, this means that the agent needs to have read
 // permissions on the socket.  We don't currently support authentication for
@@ -283,7 +285,7 @@ func (docker *Docker) endpointForPort(portObj ContPort, cont *dtypes.ContainerJS
 		return nil
 	}
 
-	id := serviceContainer.PrimaryName() + "-" + cont.ID[:12] + "-" + strconv.Itoa(int(port))
+	id := serviceContainer.PrimaryName() + "-" + cont.ID[:12] + "-" + strconv.Itoa(port)
 	if portObj.Name != "" {
 		id += "-" + portObj.Name
 	}

@@ -32,7 +32,7 @@ function remove_empty_directories ($buildDir) {
 function extra_cflags_build_arg() {
     # If this isn't true then let build use default
     if ( $DEBUG -eq 'true' ) {
-      return "--build-arg extra_cflags='-g -O0'"
+        return "--build-arg extra_cflags='-g -O0'"
     }
 }
 
@@ -54,5 +54,5 @@ function do_docker_build([string]$image_name,
 }
 
 function replace_text([string]$filepath, [string]$find, [string]$replacement) {
-	(Get-Content $filepath).replace($find, $replacement) | Set-Content $filepath
+    (Get-Content $filepath).replace($find, $replacement) | Set-Content $filepath
 }

@@ -4,11 +4,17 @@ from contextlib import contextmanager
 import urllib3.exceptions
 from kubernetes import client
 from tests.helpers.assertions import tcp_socket_open
-from tests.helpers.util import REPO_ROOT_DIR, container_ip, run_service, wait_for
+from tests.helpers.util import container_ip, run_service, wait_for
+from tests.paths import REPO_ROOT_DIR
 
 
 @contextmanager
 def fake_k8s_api_server(print_logs=False):
+    """
+    Runs a fake k8s API server instance that supports generic get/list/watch/create/update
+    operations.  It does **not** do any of the controller functionality, such as
+    creating pods based on a deployment, etc.
+    """
     with run_service(
         "fakek8s", print_logs=print_logs, path=REPO_ROOT_DIR, dockerfile="./test-services/fakek8s/Dockerfile"
     ) as fakek8s_cont:

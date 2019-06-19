@@ -1,21 +1,48 @@
-import pytest
+from functools import partial as p
 
-from tests.helpers.kubernetes.utils import run_k8s_monitors_test
-from tests.helpers.util import get_monitor_dims_from_selfdescribe, get_monitor_metrics_from_selfdescribe
+import pytest
+from tests.helpers.assertions import has_datapoint, has_no_datapoint
+from tests.helpers.util import ensure_always, wait_for
 
 pytestmark = [pytest.mark.kubelet_stats, pytest.mark.monitor_without_endpoints]
 
 
-@pytest.mark.k8s
+# A reliably present custom metric name
+CUSTOM_METRIC = "container_start_time_seconds"
+
+
 @pytest.mark.kubernetes
-def test_kubelet_stats_in_k8s(agent_image, minikube, k8s_test_timeout, k8s_namespace):
-    monitors = [{"type": "kubelet-stats", "kubeletAPI": {"skipVerify": True, "authType": "serviceAccount"}}]
-    run_k8s_monitors_test(
-        agent_image,
-        minikube,
-        monitors,
-        namespace=k8s_namespace,
-        expected_metrics=get_monitor_metrics_from_selfdescribe(monitors[0]["type"]),
-        expected_dims=get_monitor_dims_from_selfdescribe(monitors[0]["type"]),
-        test_timeout=k8s_test_timeout,
-    )
+def test_kubelet_stats_defaults(k8s_cluster):
+    config = """
+     monitors:
+      - type: kubelet-stats
+        kubeletAPI:
+          skipVerify: true
+          authType: serviceAccount
+     """
+    with k8s_cluster.run_agent(agent_yaml=config) as agent:
+        assert wait_for(
+            p(has_datapoint, agent.fake_services, metric_name="pod_network_receive_bytes_total")
+        ), "Didn't get network datapoint"
+        assert wait_for(
+            p(has_datapoint, agent.fake_services, metric_name="container_cpu_utilization")
+        ), "Didn't get cpu datapoint"
+        assert wait_for(
+            p(has_datapoint, agent.fake_services, metric_name="container_memory_usage_bytes")
+        ), "Didn't get memory datapoint"
+        assert ensure_always(p(has_no_datapoint, agent.fake_services, metric_name=CUSTOM_METRIC), timeout_seconds=5)
+
+
+@pytest.mark.kubernetes
+def test_kubelet_stats_extra(k8s_cluster):
+    config = f"""
+     monitors:
+      - type: kubelet-stats
+        kubeletAPI:
+          skipVerify: true
+          authType: serviceAccount
+        extraMetrics:
+         - {CUSTOM_METRIC}
+     """
+    with k8s_cluster.run_agent(agent_yaml=config) as agent:
+        assert wait_for(p(has_datapoint, agent.fake_services, metric_name=CUSTOM_METRIC))

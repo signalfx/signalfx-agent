@@ -13,7 +13,7 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/gorilla/mux"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/runtime/serializer"
@@ -145,10 +145,10 @@ func (f *FakeK8s) addToResources(resKind resourceKind, namespace string, name st
 	defer f.Unlock()
 
 	if f.resources[resKind] == nil {
-		f.resources[resKind] = make(map[string]map[resourceName]runtime.Object, 0)
+		f.resources[resKind] = make(map[string]map[resourceName]runtime.Object)
 	}
 	if f.resources[resKind][namespace] == nil {
-		f.resources[resKind][namespace] = make(map[resourceName]runtime.Object, 0)
+		f.resources[resKind][namespace] = make(map[resourceName]runtime.Object)
 	}
 
 	_, exists := f.resources[resKind][namespace][resourceName(name)]
@@ -162,7 +162,7 @@ func (f *FakeK8s) handleCreateOrReplaceResource(rw http.ResponseWriter, r *http.
 	if err != nil {
 		panic("Got bad request")
 	}
-	obj, _, err := scheme.Codecs.UniversalDeserializer().Decode(content, nil, nil)
+	obj, _, _ := scheme.Codecs.UniversalDeserializer().Decode(content, nil, nil)
 	ns := mux.Vars(r)["namespace"]
 	if ns != "" {
 		obj.(metav1.ObjectMetaAccessor).GetObjectMeta().SetNamespace(ns)
@@ -175,7 +175,7 @@ func (f *FakeK8s) handleCreateOrReplaceResource(rw http.ResponseWriter, r *http.
 func (f *FakeK8s) CreateOrReplaceResource(obj runtime.Object) {
 	resKind := resourceKind(obj.GetObjectKind().GroupVersionKind().Kind)
 	objMeta := obj.(metav1.ObjectMetaAccessor).GetObjectMeta()
-	created := f.addToResources(resourceKind(resKind), objMeta.GetNamespace(), objMeta.GetName(), obj)
+	created := f.addToResources(resKind, objMeta.GetNamespace(), objMeta.GetName(), obj)
 
 	var eType watch.EventType
 	if created {
@@ -237,7 +237,7 @@ func (f *FakeK8s) handleGetResourceByName(rw http.ResponseWriter, r *http.Reques
 	s, _ := json.Marshal(obj)
 	rw.Header().Add("Content-Type", "application/json")
 	rw.WriteHeader(http.StatusOK)
-	rw.Write(s)
+	_, _ = rw.Write(s)
 }
 
 func (f *FakeK8s) handleListResource(rw http.ResponseWriter, r *http.Request) {
@@ -278,6 +278,7 @@ func (f *FakeK8s) startWatcher(resKind resourceKind, rw http.ResponseWriter) {
 	f.subs[resKind] = eventCh
 
 	f.subsMutex.Unlock()
+	rw.WriteHeader(200)
 
 	for {
 		select {
@@ -291,8 +292,8 @@ func (f *FakeK8s) startWatcher(resKind resourceKind, rw http.ResponseWriter) {
 			if err := encoder.Encode(&r); err != nil {
 				panic("could not encode watch event")
 			}
-			rw.Write(buf.Bytes())
-			rw.Write([]byte("\n"))
+			_, _ = rw.Write(buf.Bytes())
+			_, _ = rw.Write([]byte("\n"))
 			rw.(http.Flusher).Flush()
 		case <-stopper:
 			return
@@ -328,7 +329,8 @@ func (f *FakeK8s) sendList(resKind resourceKind, namespace string, rw http.Respo
 	d, _ := json.Marshal(l)
 	log.Debugf("list: %s", string(d))
 
-	rw.Write(d)
+	rw.WriteHeader(200)
+	_, _ = rw.Write(d)
 }
 
 func pluralNameToKind(name string) resourceKind {

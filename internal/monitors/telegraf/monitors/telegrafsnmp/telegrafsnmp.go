@@ -16,15 +16,12 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "telegraf/snmp"
-
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
-
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // Field represents an SNMP field
@@ -109,32 +106,34 @@ type Config struct {
 type Monitor struct {
 	Output types.Output
 	cancel context.CancelFunc
+	logger logrus.FieldLogger
 }
 
-// fetch the factory used to generate the perf counter plugin
-var factory = telegrafInputs.Inputs["snmp"]
-
 // converts our config struct for field to a telegraf field
-func getTelegrafFields(incoming []Field) []telegrafPlugin.Field {
+func getTelegrafFields(incoming []Field) ([]telegrafPlugin.Field, error) {
 	// initialize telegraf fields
 	fields := make([]telegrafPlugin.Field, 0, len(incoming))
 
 	// copy fields to table
-	for _, field := range incoming {
+	for i := range incoming {
 		f := telegrafPlugin.Field{}
-		deepcopier.Copy(&field).To(&f)
+		if err := deepcopier.Copy(&incoming[i]).To(&f); err != nil {
+			return nil, err
+		}
 		fields = append(fields, f)
 	}
 
-	return fields
+	return fields, nil
 }
 
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) (err error) {
-	plugin := factory().(*telegrafPlugin.Snmp)
+	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
+
+	plugin := telegrafInputs.Inputs["snmp"]().(*telegrafPlugin.Snmp)
 
 	// create the emitter
-	em := baseemitter.NewEmitter(m.Output, logger)
+	em := baseemitter.NewEmitter(m.Output, m.logger)
 
 	// Hard code the plugin name because the emitter will parse out the
 	// configured measurement name as plugin and that is confusing.
@@ -145,7 +144,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 
 	// copy configurations to the plugin
 	if err = deepcopier.Copy(conf).To(plugin); err != nil {
-		logger.Error("unable to copy configurations to plugin")
+		m.logger.Error("unable to copy configurations to plugin")
 		return err
 	}
 
@@ -159,18 +158,27 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	}
 
 	// get top level telegraf fields
-	plugin.Fields = getTelegrafFields(conf.Fields)
+	plugin.Fields, err = getTelegrafFields(conf.Fields)
+	if err != nil {
+		return err
+	}
 
 	// initialize plugin.Tables
 	plugin.Tables = make([]telegrafPlugin.Table, 0, len(conf.Tables))
 
 	// copy tables
-	for _, table := range conf.Tables {
+	for i := range conf.Tables {
+		table := conf.Tables[i]
 		t := telegrafPlugin.Table{}
-		deepcopier.Copy(&table).To(&t)
+		if err := deepcopier.Copy(&table).To(&t); err != nil {
+			return err
+		}
 
 		// get telegraf fields
-		t.Fields = getTelegrafFields(table.Fields)
+		t.Fields, err = getTelegrafFields(table.Fields)
+		if err != nil {
+			return err
+		}
 
 		plugin.Tables = append(plugin.Tables, t)
 	}
@@ -182,7 +190,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		if err := plugin.Gather(ac); err != nil {
-			logger.WithError(err).Errorf("an error occurred while gathering metrics")
+			m.logger.WithError(err).Errorf("an error occurred while gathering metrics")
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 

@@ -1,7 +1,6 @@
 from functools import partial as p
 
 import pytest
-
 from tests.helpers.util import ensure_always, wait_for
 
 pytestmark = [pytest.mark.kubernetes_events, pytest.mark.monitor_without_endpoints]
@@ -18,31 +17,35 @@ def has_event(fake_services, event_dict):
     return False
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
-def test_k8s_events_with_whitelist(agent_image, minikube, k8s_test_timeout, k8s_namespace):
-    expected_events = [
-        {"reason": "Pulled", "involvedObjectKind": "Pod"},
-        {"reason": "Created", "involvedObjectKind": "Pod"},
-        {"reason": "Started", "involvedObjectKind": "Pod"},
-    ]
-    monitors = [
-        {
-            "type": "kubernetes-events",
-            "kubernetesAPI": {"authType": "serviceAccount"},
-            "whitelistedEvents": expected_events,
-        }
-    ]
-    with minikube.run_agent(agent_image, monitors=monitors, namespace=k8s_namespace) as [_, backend]:
-        for expected_event in expected_events:
-            assert wait_for(p(has_event, backend, expected_event), k8s_test_timeout), (
+def test_k8s_events_with_whitelist(k8s_cluster):
+    config = """
+      monitors:
+       - type: kubernetes-events
+         whitelistedEvents:
+          - reason: Pulled
+            involvedObjectKind: Pod
+          - reason: Created
+            involvedObjectKind: Pod
+          - reason: Started
+            involvedObjectKind: Pod
+      """
+    with k8s_cluster.run_agent(config) as agent:
+        for expected_event in [
+            {"reason": "Pulled", "involvedObjectKind": "Pod"},
+            {"reason": "Created", "involvedObjectKind": "Pod"},
+            {"reason": "Started", "involvedObjectKind": "Pod"},
+        ]:
+            assert wait_for(p(has_event, agent.fake_services, expected_event)), (
                 "timed out waiting for event '%s'!" % expected_event
             )
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
-def test_k8s_events_without_whitelist(agent_image, minikube, k8s_namespace):
-    monitors = [{"type": "kubernetes-events", "kubernetesAPI": {"authType": "serviceAccount"}}]
-    with minikube.run_agent(agent_image, monitors=monitors, namespace=k8s_namespace) as [_, backend]:
-        assert ensure_always(lambda: not backend.events, 30), "event received!"
+def test_k8s_events_without_whitelist(k8s_cluster):
+    config = """
+      monitors:
+        - type: kubernetes-events
+      """
+    with k8s_cluster.run_agent(config) as agent:
+        assert ensure_always(lambda: not agent.fake_services.events, 30), "event received!"

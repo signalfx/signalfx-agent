@@ -29,90 +29,83 @@ Monitor Type: `gitlab-workhorse`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host of the exporter |
 | `port` | **yes** | `integer` | Port of the exporter |
+| `username` | no | `string` | Basic Auth username to use on each request, if any. |
+| `password` | no | `string` | Basic Auth password to use on each request, if any. |
 | `useHTTPS` | no | `bool` | If true, the agent will connect to the exporter using HTTPS instead of plain HTTP. (**default:** `false`) |
 | `skipVerify` | no | `bool` | If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified. (**default:** `false`) |
 | `metricPath` | no | `string` | Path to the metrics endpoint on the exporter server, usually `/metrics` (the default). (**default:** `/metrics`) |
 | `sendAllMetrics` | no | `bool` | Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors. (**default:** `false`) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `gitlab_workhorse_builds_register_handler_open` | gauge |  | Describes how many requests is currently open in given state |
-| `gitlab_workhorse_builds_register_handler_requests` | cumulative |  | Describes how many requests in different states hit a register handler |
-| `gitlab_workhorse_git_http_sessions_active` | gauge | ✔ | Number of Git HTTP request-response cycles currently being handled by gitlab-workhorse |
-| `gitlab_workhorse_http_in_flight_requests` | gauge |  | A gauge of requests currently being served by workhorse |
-| `gitlab_workhorse_http_request_duration_seconds_bucket` | cumulative |  | A histogram of latencies for requests to workhorse |
-| `gitlab_workhorse_http_request_duration_seconds` | cumulative | ✔ | A histogram of latencies for requests to workhorse |
-| `gitlab_workhorse_http_request_duration_seconds_count` | cumulative | ✔ | A histogram of latencies for requests to workhorse |
-| `gitlab_workhorse_http_request_size_bytes_bucket` | cumulative |  | A histogram of sizes of requests to workhorse |
-| `gitlab_workhorse_http_request_size_bytes` | cumulative | ✔ | A histogram of sizes of requests to workhorse |
-| `gitlab_workhorse_http_request_size_bytes_count` | cumulative | ✔ | A histogram of sizes of requests to workhorse |
-| `gitlab_workhorse_http_requests_total` | cumulative |  | A counter for requests to workhorse |
-| `gitlab_workhorse_http_time_to_write_header_seconds_bucket` | cumulative |  | A histogram of request durations until the response headers are written |
-| `gitlab_workhorse_http_time_to_write_header_seconds` | cumulative |  | A histogram of request durations until the response headers are written |
-| `gitlab_workhorse_http_time_to_write_header_seconds_count` | cumulative |  | A histogram of request durations until the response headers are written |
-| `gitlab_workhorse_internal_api_failure_response_bytes` | cumulative |  | How many bytes have been returned by upstream GitLab in API failure/rejection response bodies |
-| `gitlab_workhorse_keywatcher_keywatchers` | gauge |  | The number of keys that is being watched by gitlab-workhorse |
-| `gitlab_workhorse_keywather_total_messages` | cumulative |  | How many messages gitlab-workhorse has received in total on pubsub |
-| `gitlab_workhorse_object_storage_upload_bytes` | cumulative |  | How many bytes were sent to object storage |
-| `gitlab_workhorse_object_storage_upload_open` | gauge |  | Describes many object storage requests are open now |
-| `gitlab_workhorse_object_storage_upload_requests` | cumulative |  | How many object storage requests have been processed |
-| `gitlab_workhorse_redis_errors` | cumulative |  | Counts different types of Redis errors encountered by workhorse, by type and destination (redis, sentinel) |
-| `gitlab_workhorse_redis_total_connections` | cumulative |  | How many connections gitlab-workhorse has opened in total. Can be used to track Redis connection rate for this process |
-| `gitlab_workhorse_send_url_bytes` | cumulative |  | How many bytes were passed with send URL |
-| `gitlab_workhorse_send_url_open_requests` | gauge |  | Describes how many send URL requests are open now |
-| `gitlab_workhorse_send_url_requests` | cumulative |  | How many send URL requests have been processed |
-| `gitlab_workhorse_static_error_responses` | cumulative |  | How many HTTP responses have been changed to a static error page, by HTTP status code. |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+ - `gitlab_workhorse_builds_register_handler_open` (*gauge*)<br>    Describes how many requests is currently open in given state
+ - `gitlab_workhorse_builds_register_handler_requests` (*cumulative*)<br>    Describes how many requests in different states hit a register handler
+ - ***`gitlab_workhorse_git_http_sessions_active`*** (*gauge*)<br>    Number of Git HTTP request-response cycles currently being handled by gitlab-workhorse
+ - `gitlab_workhorse_http_in_flight_requests` (*gauge*)<br>    A gauge of requests currently being served by workhorse
+ - ***`gitlab_workhorse_http_request_duration_seconds`*** (*cumulative*)<br>    A histogram of latencies for requests to workhorse
+ - `gitlab_workhorse_http_request_duration_seconds_bucket` (*cumulative*)<br>    A histogram of latencies for requests to workhorse
+ - ***`gitlab_workhorse_http_request_duration_seconds_count`*** (*cumulative*)<br>    A histogram of latencies for requests to workhorse
+ - ***`gitlab_workhorse_http_request_size_bytes`*** (*cumulative*)<br>    A histogram of sizes of requests to workhorse
+ - `gitlab_workhorse_http_request_size_bytes_bucket` (*cumulative*)<br>    A histogram of sizes of requests to workhorse
+ - ***`gitlab_workhorse_http_request_size_bytes_count`*** (*cumulative*)<br>    A histogram of sizes of requests to workhorse
+ - `gitlab_workhorse_http_requests_total` (*cumulative*)<br>    A counter for requests to workhorse
+ - `gitlab_workhorse_http_time_to_write_header_seconds` (*cumulative*)<br>    A histogram of request durations until the response headers are written
+ - `gitlab_workhorse_http_time_to_write_header_seconds_bucket` (*cumulative*)<br>    A histogram of request durations until the response headers are written
+ - `gitlab_workhorse_http_time_to_write_header_seconds_count` (*cumulative*)<br>    A histogram of request durations until the response headers are written
+ - `gitlab_workhorse_internal_api_failure_response_bytes` (*cumulative*)<br>    How many bytes have been returned by upstream GitLab in API failure/rejection response bodies
+ - `gitlab_workhorse_keywatcher_keywatchers` (*gauge*)<br>    The number of keys that is being watched by gitlab-workhorse
+ - `gitlab_workhorse_keywather_total_messages` (*cumulative*)<br>    How many messages gitlab-workhorse has received in total on pubsub
+ - `gitlab_workhorse_object_storage_upload_bytes` (*cumulative*)<br>    How many bytes were sent to object storage
+ - `gitlab_workhorse_object_storage_upload_open` (*gauge*)<br>    Describes many object storage requests are open now
+ - `gitlab_workhorse_object_storage_upload_requests` (*cumulative*)<br>    How many object storage requests have been processed
+ - `gitlab_workhorse_redis_errors` (*cumulative*)<br>    Counts different types of Redis errors encountered by workhorse, by type and destination (redis, sentinel)
+ - `gitlab_workhorse_redis_total_connections` (*cumulative*)<br>    How many connections gitlab-workhorse has opened in total. Can be used to track Redis connection rate for this process
+ - `gitlab_workhorse_send_url_bytes` (*cumulative*)<br>    How many bytes were passed with send URL
+ - `gitlab_workhorse_send_url_open_requests` (*gauge*)<br>    Describes how many send URL requests are open now
+ - `gitlab_workhorse_send_url_requests` (*cumulative*)<br>    How many send URL requests have been processed
+ - `gitlab_workhorse_static_error_responses` (*cumulative*)<br>    How many HTTP responses have been changed to a static error page, by HTTP status code.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - gitlab_workhorse_builds_register_handler_open
-    - gitlab_workhorse_builds_register_handler_requests
-    - gitlab_workhorse_http_in_flight_requests
-    - gitlab_workhorse_http_request_duration_seconds_bucket
-    - gitlab_workhorse_http_request_size_bytes_bucket
-    - gitlab_workhorse_http_requests_total
-    - gitlab_workhorse_http_time_to_write_header_seconds_bucket
-    - gitlab_workhorse_http_time_to_write_header_seconds
-    - gitlab_workhorse_http_time_to_write_header_seconds_count
-    - gitlab_workhorse_internal_api_failure_response_bytes
-    - gitlab_workhorse_keywatcher_keywatchers
-    - gitlab_workhorse_keywather_total_messages
-    - gitlab_workhorse_object_storage_upload_bytes
-    - gitlab_workhorse_object_storage_upload_open
-    - gitlab_workhorse_object_storage_upload_requests
-    - gitlab_workhorse_redis_errors
-    - gitlab_workhorse_redis_total_connections
-    - gitlab_workhorse_send_url_bytes
-    - gitlab_workhorse_send_url_open_requests
-    - gitlab_workhorse_send_url_requests
-    - gitlab_workhorse_static_error_responses
-    monitorType: gitlab-workhorse
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

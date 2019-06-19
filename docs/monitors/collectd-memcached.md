@@ -21,6 +21,10 @@ Monitor Type: `collectd/memcached`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
@@ -29,64 +33,65 @@ Monitor Type: `collectd/memcached`
 | `reportHost` | no | `bool` |  (**default:** `false`) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `df.cache.free` | gauge | ✔ | Unused storage bytes |
-| `df.cache.used` | gauge | ✔ | Current number of bytes used to store items |
-| `memcached_command.flush` | cumulative |  | Number of flush requests |
-| `memcached_command.get` | cumulative | ✔ | Number of retrieval requests |
-| `memcached_command.set` | cumulative | ✔ | Number of storage requests |
-| `memcached_command.touch` | cumulative |  | Number of touch requests |
-| `memcached_connections.current` | gauge | ✔ | Current number of open connections |
-| `memcached_connections.listen_disabled` | gauge |  | Number of times connection limit has been exceeded |
-| `memcached_items.current` | gauge | ✔ | Current number of items stored by this instance |
-| `memcached_octets.rx` | cumulative | ✔ | Total network bytes read by this server |
-| `memcached_octets.tx` | cumulative | ✔ | Total network bytes written by this server |
-| `memcached_ops.decr_hits` | cumulative |  | Number of successful Decr requests |
-| `memcached_ops.decr_misses` | cumulative |  | Number of decr requests against missing keys |
-| `memcached_ops.evictions` | cumulative | ✔ | Number of valid items removed from cache |
-| `memcached_ops.hits` | cumulative | ✔ | Number of keys that have been requested and found present |
-| `memcached_ops.incr_hits` | cumulative |  | Number of successful incr requests |
-| `memcached_ops.incr_misses` | cumulative |  | Number of incr requests against missing keys |
-| `memcached_ops.misses` | cumulative | ✔ | Number of items that have been requested and not found |
-| `ps_count.threads` | gauge |  | Number of worker threads requested |
-| `ps_cputime.syst` | cumulative |  | Total system time for this instance |
-| `ps_cputime.user` | cumulative |  | Total user time for this instance |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+ - `connections.opened` (*cumulative*)<br>    Number of connections opened since server began running
+ - ***`df.cache.free`*** (*gauge*)<br>    Unused storage bytes
+ - ***`df.cache.used`*** (*gauge*)<br>    Current number of bytes used to store items
+ - `memcached_command.flush` (*cumulative*)<br>    Number of flush requests
+ - ***`memcached_command.get`*** (*cumulative*)<br>    Number of retrieval requests
+ - ***`memcached_command.set`*** (*cumulative*)<br>    Number of storage requests
+ - `memcached_command.touch` (*cumulative*)<br>    Number of touch requests
+ - ***`memcached_connections.current`*** (*gauge*)<br>    Current number of open connections
+ - ***`memcached_items.current`*** (*gauge*)<br>    Current number of items stored by this instance
+ - ***`memcached_octets.rx`*** (*cumulative*)<br>    Total network bytes read by this server
+ - ***`memcached_octets.tx`*** (*cumulative*)<br>    Total network bytes written by this server
+ - `memcached_ops.decr_hits` (*cumulative*)<br>    Number of successful Decr requests
+ - `memcached_ops.decr_misses` (*cumulative*)<br>    Number of decr requests against missing keys
+ - `memcached_ops.delete_hits` (*cumulative*)<br>    Number of successful delete requests
+ - `memcached_ops.delete_misses` (*cumulative*)<br>    Number of delete requests against missing keys
+ - ***`memcached_ops.evictions`*** (*cumulative*)<br>    Number of valid items removed from cache
+ - ***`memcached_ops.hits`*** (*cumulative*)<br>    Number of keys that have been requested and found present
+ - `memcached_ops.incr_hits` (*cumulative*)<br>    Number of successful incr requests
+ - `memcached_ops.incr_misses` (*cumulative*)<br>    Number of incr requests against missing keys
+ - ***`memcached_ops.misses`*** (*cumulative*)<br>    Number of items that have been requested and not found
+ - `ps_count.threads` (*gauge*)<br>    Number of worker threads requested
+ - `ps_cputime.syst` (*cumulative*)<br>    Total system time for this instance
+ - `ps_cputime.user` (*cumulative*)<br>    Total user time for this instance
+ - `total_events.listen_disabled` (*cumulative*)<br>    Number of times connection limit has been exceeded
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - memcached_command.flush
-    - memcached_command.touch
-    - memcached_connections.listen_disabled
-    - memcached_ops.decr_hits
-    - memcached_ops.decr_misses
-    - memcached_ops.incr_hits
-    - memcached_ops.incr_misses
-    - ps_count.threads
-    - ps_cputime.syst
-    - ps_cputime.user
-    monitorType: collectd/memcached
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

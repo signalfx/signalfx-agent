@@ -54,12 +54,3 @@ func configAcceptsEndpoints(monConfig config.MonitorCustomConfig) bool {
 	}
 	return coreConfField.Tag.Get("acceptsEndpoints") == "true"
 }
-
-func isConfigUnique(conf *config.MonitorConfig, otherConfs []config.MonitorConfig) bool {
-	for _, c := range otherConfs {
-		if c.MonitorConfigCore().Equals(conf) {
-			return true
-		}
-	}
-	return false
-}

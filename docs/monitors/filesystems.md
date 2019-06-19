@@ -26,59 +26,75 @@ Monitor Type: `filesystems`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `hostFSPath` | no | `string` | Path to the root of the host filesystem.  Useful when running in a container and the host filesystem is mounted in some subdirectory under /. |
-| `fsTypes` | no | `list of strings` | The filesystem types to include/exclude.  This is an [overridable set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters). (**default:** `[* !aufs !overlay !tmpfs !proc !sysfs !nsfs !cgroup !devpts !selinuxfs !devtmpfs !debugfs !mqueue !hugetlbfs !securityfs !pstore !binfmt_misc !autofs]`) |
-| `mountPoints` | no | `list of strings` | The mount paths to include/exclude. This is a [filter set](https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#overridable-filters). NOTE: If you are using the hostFSPath option you should not include the `/hostfs/` mount in the filter. (**default:** `[* !/^/var/lib/docker/containers/ !/^/var/lib/rkt/pods/ !/^/net// !/^/smb// !/^/tmp/scratch/]`) |
+| `fsTypes` | no | `list of strings` | The filesystem types to include/exclude.  This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). (**default:** `[* !aufs !overlay !tmpfs !proc !sysfs !nsfs !cgroup !devpts !selinuxfs !devtmpfs !debugfs !mqueue !hugetlbfs !securityfs !pstore !binfmt_misc !autofs]`) |
+| `mountPoints` | no | `list of strings` | The mount paths to include/exclude. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). NOTE: If you are using the hostFSPath option you should not include the `/hostfs/` mount in the filter. (**default:** `[* !/^/var/lib/docker/containers/ !/^/var/lib/rkt/pods/ !/^/net// !/^/smb// !/^/tmp/scratch/]`) |
 | `includeLogical` | no | `bool` | (Linux Only) If true, then metrics will be reported about logical devices. (**default:** `false`) |
 | `reportByDevice` | no | `bool` | If true, then metrics will report with their plugin_instance set to the device's name instead of the mountpoint. (**default:** `false`) |
 | `reportInodes` | no | `bool` | (Linux Only) If true metrics will be reported about inodes. (**default:** `false`) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `df_complex.free` | gauge | ✔ | Free disk space in bytes |
-| `df_complex.used` | gauge | ✔ | Used disk space in bytes |
-| `df_inodes.free` | gauge |  | (Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `reportInodes` is set to `true`. |
-| `df_inodes.used` | gauge |  | (Linux Only) Number of inodes that are used.  This is only reported if the configuration option `reportInodes` is set to `true`. |
-| `disk.summary_utilization` | gauge | ✔ | Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to "signalfx-metadata". |
-| `disk.utilization` | gauge | ✔ | Percent of disk used on this volume. This metric reports with plugin dimension set to "signalfx-metadata". |
-| `percent_bytes.free` | gauge |  | Free disk space on the file system, expressed as a percentage. |
-| `percent_bytes.used` | gauge |  | Used disk space on the file system, expressed as a percentage. |
-| `percent_inodes.free` | gauge |  | (Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`. |
-| `percent_inodes.used` | gauge |  | (Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `reportInodes` is set to `true`. |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+ - ***`df_complex.free`*** (*gauge*)<br>    Free disk space in bytes
+ - ***`df_complex.used`*** (*gauge*)<br>    Used disk space in bytes
+ - ***`disk.summary_utilization`*** (*gauge*)<br>    Percent of disk space utilized on all volumes on this host. This metric reports with plugin dimension set to "signalfx-metadata".
+ - ***`disk.utilization`*** (*gauge*)<br>    Percent of disk used on this volume. This metric reports with plugin dimension set to "signalfx-metadata".
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+#### Group inodes
+All of the following metrics are part of the `inodes` metric group. All of
+the non-default metrics below can be turned on by adding `inodes` to the
+monitor config option `extraGroups`:
+ - `df_inodes.free` (*gauge*)<br>    (Linux Only) Number of inodes that are free.  This is is only reported if the configuration option `inodes` is set to `true`.
+ - `df_inodes.used` (*gauge*)<br>    (Linux Only) Number of inodes that are used.  This is only reported if the configuration option `inodes` is set to `true`.
+ - `percent_inodes.free` (*gauge*)<br>    (Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`.
+ - `percent_inodes.used` (*gauge*)<br>    (Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`.
 
-```yaml
+#### Group logical
+All of the following metrics are part of the `logical` metric group. All of
+the non-default metrics below can be turned on by adding `logical` to the
+monitor config option `extraGroups`:
+ - `percent_bytes.free` (*gauge*)<br>    Free disk space on the file system, expressed as a percentage.
+ - `percent_bytes.used` (*gauge*)<br>    Used disk space on the file system, expressed as a percentage.
 
-metricsToInclude:
-  - metricNames:
-    - df_inodes.free
-    - df_inodes.used
-    - percent_bytes.free
-    - percent_bytes.used
-    - percent_inodes.free
-    - percent_inodes.used
-    monitorType: filesystems
-```
+### Non-default metrics (version 4.7.0+)
 
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
+
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
+
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

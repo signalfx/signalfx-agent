@@ -140,12 +140,14 @@ func TestCopyTo(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		args := tt.args
+		wantErr := tt.wantEr
 		t.Run(tt.name, func(t *testing.T) {
-			if err := CopyTo(tt.args.s); (err != nil) != tt.wantEr {
-				t.Errorf("CopyTo() error = %v wanted = %v", err, tt.wantEr)
+			if err := CopyTo(args.s); (err != nil) != wantErr {
+				t.Errorf("CopyTo() error = %v wanted = %v", err, wantErr)
 			} else {
-				result := tt.args.s.(testInput).getResult()
-				desired := tt.args.s.(testInput).getDesired()
+				result := args.s.(testInput).getResult()
+				desired := args.s.(testInput).getDesired()
 				t.Logf("result: %v desired: %v", result, desired)
 				if result != desired {
 					t.Errorf(fmt.Sprintf("CopyTo() DiagnosticsServerPath != %s", desired))
@@ -208,9 +210,11 @@ func Test_isOSEligible(t *testing.T) {
 		},
 	}
 	for _, tt := range tests {
+		args := tt.args
+		want := tt.want
 		t.Run(tt.name, func(t *testing.T) {
-			if got := isOSEligible(tt.args.OSString); got != tt.want {
-				t.Errorf("isOSEligible() = %v, want %v", got, tt.want)
+			if got := isOSEligible(args.OSString); got != want {
+				t.Errorf("isOSEligible() = %v, want %v", got, want)
 			}
 		})
 	}

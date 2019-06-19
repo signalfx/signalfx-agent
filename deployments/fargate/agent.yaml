@@ -19,16 +19,13 @@ observers:
 
 monitors:
   - type: collectd/cpu
-  - type: collectd/cpufreq
   - type: collectd/disk
   - type: collectd/interface
   - type: collectd/load
   - type: collectd/memory
   - type: collectd/protocols
   - type: collectd/signalfx-metadata
-  - type: collectd/uptime
   - type: collectd/vmem
-  - type: collectd/redis
 
   - type: ecs-metadata
     excludedImages:
@@ -42,8 +39,9 @@ monitors:
     # config for each EC2 instance.
   - {"#from": "env:EXTRA_MONITOR_CONFIG", default: [], flatten: true}
 
+enableBuiltInFiltering: true
+
 metricsToExclude:
-  - {"#from": "/lib/whitelist.json", flatten: true}
   - {"#from": "env:METRICS_TO_EXCLUDE", default: [], flatten: true}
 
 

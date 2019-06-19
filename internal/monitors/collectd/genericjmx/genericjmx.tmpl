@@ -23,7 +23,11 @@
         {{end -}}
         Type "{{.Type}}"
         Table {{withDefault .Table "false"}}
+        {{range .Attributes}}
+        Attribute "{{.}}"
+        {{else}}
         Attribute "{{.Attribute}}"
+        {{end}}
       </Value>
       {{end}}
     </MBean>

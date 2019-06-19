@@ -2,12 +2,27 @@
 
 # collectd/apache
 
-Monitors Apache webservice instances using
-the information provided by `mod_status`.
+Monitors Apache webservice instances using the information provided by
+`mod_status`.
 
-See https://github.com/signalfx/integrations/tree/master/collectd-apache
+To configure Apache to expose status metrics:
 
-Sample YAML configuration:
+1. Enable the <a target="_blank" href="http://httpd.apache.org/docs/2.4/mod/mod_status.html">mod_status</a> module in your Apache server.
+2. Add the following configuration to your Apache server:
+
+   ```
+    ExtendedStatus on
+    <Location /mod_status>
+    SetHandler server-status
+    </Location>
+   ```
+3. Restart Apache.
+
+_Note_: Make sure that the URL you provide for your `mod_status` module
+ends in `?auto`. This returns the status page as `text/plain`, which this
+plugin requires.
+
+Example configuration in the Smart Agent:
 
 ```
 monitors:
@@ -27,6 +42,22 @@ monitors:
    url: "http://{{.Host}}:{{.Port}}/server-status?auto"
 ```
 
+## Worker states
+Apache worker threads can be in one of the following states:
+
+| State        | Remark                                  |
+|--------------|-----------------------------------------|
+| Open         | Open (unused) slot - no process         |
+| Waiting      | Idle and waiting for request            |
+| Sending      | Serving response                        |
+| KeepAlive    | Kept alive for possible next request    |
+| Idle_cleanup | Idle and marked for cleanup             |
+| Closing      | Closing connection                      |
+| Logging      | Writing to log file                     |
+| Reading      | Reading request                         |
+| Finishing    | Finishing as part of graceful shutdown  |
+| Starting     | Starting up to serve                    |
+
 
 Monitor Type: `collectd/apache`
 
@@ -38,6 +69,10 @@ Monitor Type: `collectd/apache`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | The hostname of the Apache server |
@@ -48,58 +83,67 @@ Monitor Type: `collectd/apache`
 | `password` | no | `string` |  |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `apache_bytes` | cumulative | ✔ | Bytes served by Apache |
-| `apache_connections` | gauge | ✔ | Connections served by Apache |
-| `apache_idle_workers` | gauge | ✔ | Apache workers that are idle |
-| `apache_requests` | cumulative | ✔ | Requests served by Apache |
-| `apache_scoreboard.closing` | gauge |  | Number of workers in the process of closing connections |
-| `apache_scoreboard.dnslookup` | gauge |  | Number of workers performing DNS lookup |
-| `apache_scoreboard.finishing` | gauge |  | Number of workers that are finishing |
-| `apache_scoreboard.idle_cleanup` | gauge |  | Number of idle threads ready for cleanup |
-| `apache_scoreboard.keepalive` | gauge |  | Number of keep-alive connections |
-| `apache_scoreboard.logging` | gauge |  | Number of workers writing to log file |
-| `apache_scoreboard.open` | gauge | ✔ | Number of worker thread slots that are open |
-| `apache_scoreboard.reading` | gauge |  | Number of workers reading requests |
-| `apache_scoreboard.sending` | gauge |  | Number of workers sending responses |
-| `apache_scoreboard.starting` | gauge |  | Number of workers starting up |
-| `apache_scoreboard.waiting` | gauge |  | Number of workers waiting for requests |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+ - ***`apache_bytes`*** (*cumulative*)<br>    Amount of data served by Apache, in bytes.
+ - ***`apache_connections`*** (*gauge*)<br>    The number of connections that are being served by Apache.  This is also equal to the number of busy worker threads, where 'busy' means any worker thread which has been started successfully and is not slated for idle cleanup.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+ - ***`apache_idle_workers`*** (*gauge*)<br>    The number of Apache workers that are idling. If this number is consistently low, then your server may be too busy and you may have to increase the number of threads.  If it is consistently high, then the system may be under-utilized.
 
-```yaml
+ - ***`apache_requests`*** (*cumulative*)<br>    The number of requests that have been served by Apache. This metric is useful to know total requests and the rate at which Apache is able to serve them.
 
-metricsToInclude:
-  - metricNames:
-    - apache_scoreboard.closing
-    - apache_scoreboard.dnslookup
-    - apache_scoreboard.finishing
-    - apache_scoreboard.idle_cleanup
-    - apache_scoreboard.keepalive
-    - apache_scoreboard.logging
-    - apache_scoreboard.reading
-    - apache_scoreboard.sending
-    - apache_scoreboard.starting
-    - apache_scoreboard.waiting
-    monitorType: collectd/apache
-```
+ - `apache_scoreboard.closing` (*gauge*)<br>    This metric shows how many worker threads are in the process of closing TCP connections after serving a response. If this number is consistently high, then there might be a network issue or errant client preventing TCP tear-down.
 
+ - `apache_scoreboard.dnslookup` (*gauge*)<br>    This metric counts the number of worker threads that are performing a DNS lookup. If this number is too high, check if there is a DNS resolution problem at your server. This can affect Apache server performance.
+
+ - `apache_scoreboard.finishing` (*gauge*)<br>    The number of worker threads that are finishing as part of graceful server shutdown.
+ - `apache_scoreboard.idle_cleanup` (*gauge*)<br>    The number of worker threads that are idle and ready for clean-up.
+ - `apache_scoreboard.keepalive` (*gauge*)<br>    The number of worker threads that are maintaining keep-alive connections: keeping the connection "alive" after serving a response, in the expectation that another HTTP request will come on the same connection. At the end of the keep-alive interval, the connection is closed.
+
+ - `apache_scoreboard.logging` (*gauge*)<br>    This metric shows how many worker threads are busy writing to the log file.  If this number is consistently high, your logging level may be too high or one or more modules may be too verbose.
+
+ - ***`apache_scoreboard.open`*** (*gauge*)<br>    This metric shows how many worker slots are open.  The slots do not have a worker thread yet, but they can be spun up based on incoming requests.
+
+ - `apache_scoreboard.reading` (*gauge*)<br>    This metric shows how many workers are in the process of receiving requests (headers or body).  If this number is consistently high, clients may be sending large headers or uploading large files.
+
+ - `apache_scoreboard.sending` (*gauge*)<br>    This metric shows how many workers are sending responses.  It is normal for this to be a large number when measuring sites that serve large downloads.
+
+ - `apache_scoreboard.starting` (*gauge*)<br>    This metric shows how many workers are being started up.  If this number is consistently high, then the system may be overloaded.
+
+ - `apache_scoreboard.waiting` (*gauge*)<br>    This metric shows how many worker threads are ready and waiting for requests to come in.
+
+### Non-default metrics (version 4.7.0+)
+
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
+
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
+
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 ## Dimensions
 

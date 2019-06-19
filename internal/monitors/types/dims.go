@@ -8,6 +8,10 @@ type DimProperties struct {
 	Properties map[string]string
 	// Tags to apply to the dimension value
 	Tags map[string]bool
+	// Whether to do a query of existing dimension properties/tags and merge
+	// the given values into those before updating, or whether to entirely
+	// replace the set of properties/tags.
+	MergeIntoExisting bool
 }
 
 // Dimension represents a specific dimension value

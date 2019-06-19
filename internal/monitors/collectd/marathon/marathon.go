@@ -12,10 +12,8 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/marathon"
-
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
 				MonitorCore: pyrunner.New("sfxcollectd"),
@@ -52,7 +50,7 @@ func (c *Config) PythonConfig() *python.Config {
 // Validate config issues
 func (c *Config) Validate() error {
 	if c.DCOSAuthURL != "" && c.Scheme != "https" {
-		return errors.New("Scheme must be set to https when using a DCOSAuthURL")
+		return errors.New("scheme must be set to https when using a DCOSAuthURL")
 	}
 	return nil
 }
@@ -69,8 +67,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "marathon",
-		ModulePaths:   []string{collectd.MakePath("marathon")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("marathon")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
 			"verbose": false,
 		},

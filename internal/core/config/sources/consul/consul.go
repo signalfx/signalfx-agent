@@ -1,7 +1,6 @@
 package consul
 
 import (
-	"math"
 	"strings"
 	"time"
 
@@ -73,10 +72,6 @@ func New(conf *Config) (types.ConfigSource, error) {
 
 func (c *consulConfigSource) Name() string {
 	return "consul"
-}
-
-func max(a, b uint64) uint64 {
-	return uint64(math.Max(float64(a), float64(b)))
 }
 
 func (c *consulConfigSource) Get(path string) (map[string][]byte, uint64, error) {

@@ -12,10 +12,8 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/redis"
-
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
 				MonitorCore: pyrunner.New("sfxcollectd"),
@@ -55,6 +53,13 @@ func (c *Config) PythonConfig() *python.Config {
 	return c.pyConf
 }
 
+func (c *Config) GetExtraMetrics() []string {
+	if len(c.SendListLengths) > 0 {
+		return []string{gaugeKeyLlen}
+	}
+	return nil
+}
+
 func (c *Config) sendListLengthsTuples() [][]interface{} {
 	var out [][]interface{}
 	for _, ll := range c.SendListLengths {
@@ -81,8 +86,8 @@ func (rm *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "redis_info",
-		ModulePaths:   []string{collectd.MakePath("redis")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("redis")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
 			"Host":     conf.Host,
 			"Port":     conf.Port,

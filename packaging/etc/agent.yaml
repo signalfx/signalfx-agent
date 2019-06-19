@@ -3,6 +3,7 @@
 signalFxAccessToken: {"#from": "/etc/signalfx/token"}
 ingestUrl: {"#from": "/etc/signalfx/ingest_url", default: "https://ingest.signalfx.com"}
 apiUrl: {"#from": "/etc/signalfx/api_url", default: "https://api.signalfx.com"}
+cluster: {"#from": "/etc/signalfx/cluster", optional: true}
 
 intervalSeconds: 10
 
@@ -27,5 +28,4 @@ monitors:
   - type: collectd/signalfx-metadata
   - type: collectd/vmem
 
-metricsToExclude:
-  - {"#from": "/usr/lib/signalfx-agent/lib/whitelist.json", flatten: true}
+enableBuiltInFiltering: true

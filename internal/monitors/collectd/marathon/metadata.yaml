@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions:
   doc: |
     Monitors a Mesos Marathon instance using the
     [collectd Marathon Python plugin](https://github.com/signalfx/collectd-marathon).
@@ -29,81 +29,81 @@ monitors:
         dcosAuthURL: https://leader.mesos/acs/api/v1/auth/login
     ```
   metrics:
-  - description: Metrics reported by the Marathon Metrics API
-    included: false
-    name: gauge.marathon-api-metric
-    type: gauge
-  - description: Number of CPUs allocated to an application
-    included: true
-    name: gauge.marathon.app.cpu.allocated
-    type: gauge
-  - description: Configured number of CPUs allocated to each application instance
-    included: true
-    name: gauge.marathon.app.cpu.allocated.per.instance
-    type: gauge
-  - description: Indicates if the application is delayed or not
-    included: false
-    name: gauge.marathon.app.delayed
-    type: gauge
-  - description: Number of application deployments
-    included: false
-    name: gauge.marathon.app.deployments.total
-    type: gauge
-  - description: Storage allocated to a Marathon application
-    included: true
-    name: gauge.marathon.app.disk.allocated
-    type: gauge
-  - description: Configured storage allocated each to application instance
-    included: true
-    name: gauge.marathon.app.disk.allocated.per.instance
-    type: gauge
-  - description: GPU Allocated to a Marathon application
-    included: false
-    name: gauge.marathon.app.gpu.allocated
-    type: gauge
-  - description: Configured number of GPUs allocated to each application instance
-    included: false
-    name: gauge.marathon.app.gpu.allocated.per.instance
-    type: gauge
-  - description: Number of application instances
-    included: true
-    name: gauge.marathon.app.instances.total
-    type: gauge
-  - description: Memory Allocated to a Marathon application
-    included: true
-    name: gauge.marathon.app.memory.allocated
-    type: gauge
-  - description: Configured amount of memory allocated to each application instance
-    included: true
-    name: gauge.marathon.app.memory.allocated.per.instance
-    type: gauge
-  - description: Number tasks running for an application
-    included: true
-    name: gauge.marathon.app.tasks.running
-    type: gauge
-  - description: Number tasks staged for an application
-    included: true
-    name: gauge.marathon.app.tasks.staged
-    type: gauge
-  - description: Number unhealthy tasks for an application
-    included: true
-    name: gauge.marathon.app.tasks.unhealthy
-    type: gauge
-  - description: The number of failing health checks for a task
-    included: true
-    name: gauge.marathon.task.healthchecks.failing.total
-    type: gauge
-  - description: The number of passing health checks for a task
-    included: true
-    name: gauge.marathon.task.healthchecks.passing.total
-    type: gauge
-  - description: The amount of time the task spent in staging
-    included: false
-    name: gauge.marathon.task.staged.time.elapsed
-    type: gauge
-  - description: Time elapsed since the task started
-    included: false
-    name: gauge.marathon.task.start.time.elapsed
-    type: gauge
+    gauge.marathon-api-metric:
+      description: Metrics reported by the Marathon Metrics API
+      default: false
+      type: gauge
+    gauge.marathon.app.cpu.allocated:
+      description: Number of CPUs allocated to an application
+      default: true
+      type: gauge
+    gauge.marathon.app.cpu.allocated.per.instance:
+      description: Configured number of CPUs allocated to each application instance
+      default: true
+      type: gauge
+    gauge.marathon.app.delayed:
+      description: Indicates if the application is delayed or not
+      default: false
+      type: gauge
+    gauge.marathon.app.deployments.total:
+      description: Number of application deployments
+      default: false
+      type: gauge
+    gauge.marathon.app.disk.allocated:
+      description: Storage allocated to a Marathon application
+      default: true
+      type: gauge
+    gauge.marathon.app.disk.allocated.per.instance:
+      description: Configured storage allocated each to application instance
+      default: true
+      type: gauge
+    gauge.marathon.app.gpu.allocated:
+      description: GPU Allocated to a Marathon application
+      default: false
+      type: gauge
+    gauge.marathon.app.gpu.allocated.per.instance:
+      description: Configured number of GPUs allocated to each application instance
+      default: false
+      type: gauge
+    gauge.marathon.app.instances.total:
+      description: Number of application instances
+      default: true
+      type: gauge
+    gauge.marathon.app.memory.allocated:
+      description: Memory Allocated to a Marathon application
+      default: true
+      type: gauge
+    gauge.marathon.app.memory.allocated.per.instance:
+      description: Configured amount of memory allocated to each application instance
+      default: true
+      type: gauge
+    gauge.marathon.app.tasks.running:
+      description: Number tasks running for an application
+      default: true
+      type: gauge
+    gauge.marathon.app.tasks.staged:
+      description: Number tasks staged for an application
+      default: true
+      type: gauge
+    gauge.marathon.app.tasks.unhealthy:
+      description: Number unhealthy tasks for an application
+      default: true
+      type: gauge
+    gauge.marathon.task.healthchecks.failing.total:
+      description: The number of failing health checks for a task
+      default: true
+      type: gauge
+    gauge.marathon.task.healthchecks.passing.total:
+      description: The number of passing health checks for a task
+      default: true
+      type: gauge
+    gauge.marathon.task.staged.time.elapsed:
+      description: The amount of time the task spent in staging
+      default: false
+      type: gauge
+    gauge.marathon.task.start.time.elapsed:
+      description: Time elapsed since the task started
+      default: false
+      type: gauge
   monitorType: collectd/marathon
-  properties: null
+  properties:

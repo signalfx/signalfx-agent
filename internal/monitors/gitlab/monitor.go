@@ -6,29 +6,29 @@ import (
 )
 
 func init() {
-	monitors.Register("gitlab", func() interface{} {
-		return &pe.Monitor{IncludedMetrics: includedMetrics}
+	monitors.Register(&gitlabMonitorMetadata, func() interface{} {
+		return &pe.Monitor{}
 	}, &pe.Config{})
 
-	monitors.Register("gitlab-runner", func() interface{} {
-		return &pe.Monitor{IncludedMetrics: includedMetrics}
+	monitors.Register(&gitlabRunnerMonitorMetadata, func() interface{} {
+		return &pe.Monitor{}
 	}, &pe.Config{})
 
-	monitors.Register("gitlab-gitaly", func() interface{} {
-		return &pe.Monitor{IncludedMetrics: includedMetrics, ExtraDimensions: map[string]string{
+	monitors.Register(&gitlabGitalyMonitorMetadata, func() interface{} {
+		return &pe.Monitor{ExtraDimensions: map[string]string{
 			"metric_source": "gitlab-gitaly"}}
 	}, &pe.Config{})
 
-	monitors.Register("gitlab-sidekiq", func() interface{} {
-		return &pe.Monitor{IncludedMetrics: includedMetrics}
+	monitors.Register(&gitlabSidekiqMonitorMetadata, func() interface{} {
+		return &pe.Monitor{}
 	}, &pe.Config{})
 
-	monitors.Register("gitlab-workhorse", func() interface{} {
-		return &pe.Monitor{IncludedMetrics: includedMetrics}
+	monitors.Register(&gitlabWorkhorseMonitorMetadata, func() interface{} {
+		return &pe.Monitor{}
 	}, &pe.Config{})
 
 	// Send all unicorn metrics
-	monitors.Register("gitlab-unicorn", func() interface{} { return &pe.Monitor{} }, &pe.Config{
+	monitors.Register(&gitlabUnicornMonitorMetadata, func() interface{} { return &pe.Monitor{} }, &pe.Config{
 		MetricPath: "/-/metrics",
 	})
 }

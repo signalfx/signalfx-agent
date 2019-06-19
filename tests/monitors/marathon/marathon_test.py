@@ -3,8 +3,9 @@ from textwrap import dedent
 
 import pytest
 
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_dim, http_status, tcp_socket_open
-from tests.helpers.util import container_ip, run_agent, run_container, wait_for
+from tests.helpers.util import container_ip, run_container, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.marathon, pytest.mark.monitor_with_endpoints]
 
@@ -33,5 +34,15 @@ def test_marathon(marathon_image):
                 p(http_status, url="http://{0}:8080/v2/info".format(host), status=[200]), 120
             ), "service didn't start"
 
-            with run_agent(config) as [backend, _, _]:
-                assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "marathon")), "didn't get datapoints"
+            with Agent.run(config) as agent:
+                assert wait_for(
+                    p(has_datapoint_with_dim, agent.fake_services, "plugin", "marathon")
+                ), "didn't get datapoints"
+
+
+# This test do not confirm the list of included/enhanced metrics due to considerable flexibility/inconsistency.
+# There are 120+ metrics being emitted by the monitor without any extra configuration and a proper documentation
+# is missing for the metrics.
+# A complete list of the metrics can be found here.
+# https://docs.google.com/spreadsheets/d/123sUSxhn2Xw0boO8e6q4RoNFg0UfZ3CYuq-TVC5a89E/edit?usp=sharing
+# Seon Kim, 05/21/2019

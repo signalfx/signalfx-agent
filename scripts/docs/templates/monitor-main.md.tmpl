@@ -5,7 +5,18 @@
 
 Monitors gather metrics from the host and from running applications.  They are
 configured in a list called `monitors` in the [main agent config
-file](./config-schema.md).
+file](./config-schema.md).  For example:
+
+```yaml
+monitors:
+ - type: elasticsearch
+   discoveryRule: 'port == 9200 && container_image =~ "elasticsearch"'
+ - type: cpu
+ - type: docker-container-stats
+   dockerURL: tcp://localhost:2379
+```
+
+[See here for a list of available monitors](#monitor-list)
 
 ## Common Configuration
 
@@ -14,7 +25,7 @@ The following config options are common to all monitors:
 | Config option | Default | Required | Type | Description |
 | --- | --- | --- | --- | --- |
 {{ range (ds "agent").GenericMonitorConfig.fields -}}
-| `{{.yamlName}}` | {{if .default | print}}`{{.default}}`{{end}} | {{if .required}}**yes**{{else}}no{{end}} | `{{or (index $doc_types .type) .type}}{{if .elementKind}} of {{or (index $doc_types .elementKind) .elementKind}}{{end}}` | {{.doc | strings.TrimSpace}} |
+| `{{.yamlName}}` | {{if and (.default | conv.ToString) (ne (.default | conv.ToString) "nil")}}`{{.default}}`{{end}} | {{if .required}}**yes**{{else}}no{{end}} | `{{or (index $doc_types .type) .type}}{{if .elementKind}} of {{or (index $doc_types .elementKind) .elementKind}}{{if ne .elementKind "interface"}}s{{end}}{{end}}` | {{.doc | strings.TrimSpace}} |
 {{end}}
 
 ## Monitor list

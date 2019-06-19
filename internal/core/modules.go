@@ -5,6 +5,7 @@ package core
 
 import (
 	// Import everything that isn't referenced anywhere else
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/appmesh"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/aspdotnet"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/cadvisor"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/consul"
@@ -23,6 +24,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/rabbitmq"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/redis"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/spark"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/systemd"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/zookeeper"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/conviva"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/cpu"
@@ -50,6 +52,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheusexporter"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/pyrunner/signalfx"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/sql"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/statsd"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/mssqlserver"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/procstat"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/tail"
@@ -59,6 +62,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winperfcounters"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/telegraf/monitors/winservices"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/traceforwarder"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/traefik"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/vmem"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/windowsiis"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/windowslegacy"

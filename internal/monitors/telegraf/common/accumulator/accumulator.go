@@ -77,7 +77,7 @@ func (ac *Accumulator) AddError(err error) {
 
 // AddMetric - adds a metric and will use the configured
 func (ac *Accumulator) AddMetric(m telegraf.Metric) {
-	m.Accept() // TOOD: mark telegraf tracking metrics correctly in emitter
+	m.Accept() // TODO: mark telegraf tracking metrics correctly in emitter
 	ac.emit.AddMetric(m)
 }
 

@@ -11,17 +11,14 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "memory"
-
-// setting mem.VirtualMemory to a package variable for testing purposes
-var virtualMemory = mem.VirtualMemory
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
+const windowsOS = "windows"
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // Config for this monitor
@@ -33,6 +30,7 @@ type Config struct {
 type Monitor struct {
 	Output types.Output
 	cancel func()
+	logger logrus.FieldLogger
 }
 
 func (m *Monitor) processDatapointsWindows(memInfo *mem.VirtualMemoryStat, dimensions map[string]string) {
@@ -60,12 +58,12 @@ func (m *Monitor) processDatapointsLinux(memInfo *mem.VirtualMemoryStat, dimensi
 // EmitDatapoints emits a set of memory datapoints
 func (m *Monitor) emitDatapoints() {
 	// mem.VirtualMemory is a gopsutil function
-	memInfo, err := virtualMemory()
+	memInfo, err := mem.VirtualMemory()
 	if err != nil {
 		if err == context.DeadlineExceeded {
-			logger.WithField("debug", err).Debugf("unable to collect memory time info")
+			m.logger.WithField("debug", err).Debugf("unable to collect memory time info")
 		} else {
-			logger.WithError(err).Errorf("unable to collect memory time info")
+			m.logger.WithError(err).Errorf("unable to collect memory time info")
 		}
 		return
 	}
@@ -77,12 +75,12 @@ func (m *Monitor) emitDatapoints() {
 	m.Output.SendDatapoint(datapoint.New("memory.used", dimensions, datapoint.NewIntValue(int64(memInfo.Used)), datapoint.Gauge, time.Time{}))
 
 	// windows only
-	if runtime.GOOS == "windows" {
+	if runtime.GOOS == windowsOS {
 		m.processDatapointsWindows(memInfo, dimensions)
 	}
 
 	// linux + darwin only
-	if runtime.GOOS != "windows" {
+	if runtime.GOOS != windowsOS {
 		m.processDatapointsNotWindows(memInfo, dimensions)
 	}
 
@@ -100,8 +98,9 @@ func (m *Monitor) emitDatapoints() {
 // Configure is the main function of the monitor, it will report host metadata
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
-	if runtime.GOOS != "windows" {
-		logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
+	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
+	if runtime.GOOS != windowsOS {
+		m.logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
 	}
 
 	// create contexts for managing the the plugin loop

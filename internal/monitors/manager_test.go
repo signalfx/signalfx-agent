@@ -12,10 +12,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Used to make unique service ids
+//nolint: gochecknoglobals
 var serviceID = 0
 
-var collectdConf config.CollectdConfig
-
+//nolint: unparam
 func newService(imageName string, publicPort int) services.Endpoint {
 	serviceID++
 
@@ -45,14 +46,14 @@ var _ = Describe("Monitor Manager", func() {
 
 	It("Starts up static monitors immediately", func() {
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		Expect(len(getMonitors())).To(Equal(1))
 		for _, mon := range getMonitors() {
@@ -62,37 +63,37 @@ var _ = Describe("Monitor Manager", func() {
 
 	It("Shuts down static monitors when removed from config", func() {
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		Expect(len(getMonitors())).To(Equal(1))
 
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		Expect(len(getMonitors())).To(Equal(0))
 	})
 
 	It("Starts up dynamic monitors upon service discovery", func() {
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		Expect(len(getMonitors())).To(Equal(1))
 
@@ -106,14 +107,14 @@ var _ = Describe("Monitor Manager", func() {
 
 	It("Shuts down dynamic monitors upon service removed", func() {
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		service := newService("my-service", 5000)
 		manager.EndpointAdded(service)
@@ -137,14 +138,14 @@ var _ = Describe("Monitor Manager", func() {
 
 	It("Starts and stops multiple monitors for multiple endpoints of same monitor type", func() {
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		service := newService("my-service", 5000)
 		service2 := newService("my-service", 5001)
@@ -177,15 +178,15 @@ var _ = Describe("Monitor Manager", func() {
 	It("Re-monitors service if monitor is removed temporarily", func() {
 		log.SetLevel(log.DebugLevel)
 		goodConfig := []config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
 		}
-		manager.Configure(goodConfig, &collectdConf, 10)
+		manager.Configure(goodConfig, &config.CollectdConfig{}, 10, true)
 
 		manager.EndpointAdded(newService("my-service", 5000))
 
@@ -193,20 +194,20 @@ var _ = Describe("Monitor Manager", func() {
 		Expect(len(mons)).To(Equal(1))
 
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 				OtherConfig:   map[string]interface{}{"invalid": true},
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(0))
 
-		manager.Configure(goodConfig, &collectdConf, 10)
+		manager.Configure(goodConfig, &config.CollectdConfig{}, 10, true)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
@@ -214,11 +215,11 @@ var _ = Describe("Monitor Manager", func() {
 
 	It("Starts monitoring previously discovered service if new monitor config matches", func() {
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "their-service"`,
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		manager.EndpointAdded(newService("my-service", 5000))
 
@@ -226,11 +227,11 @@ var _ = Describe("Monitor Manager", func() {
 		Expect(len(mons)).To(Equal(0))
 
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
@@ -238,11 +239,11 @@ var _ = Describe("Monitor Manager", func() {
 
 	It("Stops monitoring service if new monitor config no longer matches", func() {
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		manager.EndpointAdded(newService("my-service", 5000))
 
@@ -250,11 +251,11 @@ var _ = Describe("Monitor Manager", func() {
 		Expect(len(mons)).To(Equal(1))
 
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "their-service"`,
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(0))
@@ -262,14 +263,14 @@ var _ = Describe("Monitor Manager", func() {
 
 	It("Monitors the same service on multiple monitors", func() {
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		manager.EndpointAdded(newService("my-service", 5000))
 
@@ -277,18 +278,18 @@ var _ = Describe("Monitor Manager", func() {
 		Expect(len(mons)).To(Equal(1))
 
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-			config.MonitorConfig{
+			{
 				Type:          "dynamic2",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
@@ -298,15 +299,15 @@ var _ = Describe("Monitor Manager", func() {
 
 		// Test restarting and making sure it sticks
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-			config.MonitorConfig{
+			{
 				Type:          "dynamic2",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
@@ -317,33 +318,33 @@ var _ = Describe("Monitor Manager", func() {
 
 	It("Validates required fields", func() {
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-			config.MonitorConfig{
+			{
 				Type: "dynamic2",
 				OtherConfig: map[string]interface{}{
 					"host": "example.com",
 					// Port is missing but required
 				},
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons := findMonitorsByType(getMonitors(), "dynamic2")
 		Expect(len(mons)).To(Equal(0))
 
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-			config.MonitorConfig{
+			{
 				Type: "dynamic2",
 				OtherConfig: map[string]interface{}{
 					"host": "example.com",
 					"port": 80,
 				},
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons = findMonitorsByType(getMonitors(), "dynamic2")
 		Expect(len(mons)).To(Equal(1))
@@ -351,10 +352,10 @@ var _ = Describe("Monitor Manager", func() {
 
 	It("Monitors self-configured endpoints", func() {
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		endpoint := newService("my-service", 5000)
 		endpoint.Core().MonitorType = "dynamic1"
@@ -371,14 +372,14 @@ var _ = Describe("Monitor Manager", func() {
 
 	It("Merges self-configured endpoint config with agent config", func() {
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `port == 5000 && container_image =~ "my-service"`,
 				OtherConfig: map[string]interface{}{
 					"password": "s3cr3t",
 				},
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		endpoint := newService("my-service", 5000)
 		endpoint.Core().Configuration = map[string]interface{}{
@@ -395,10 +396,10 @@ var _ = Describe("Monitor Manager", func() {
 
 	It("Does not double monitor self-configured endpoint", func() {
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		endpoint := newService("my-service", 5000)
 		endpoint.Core().MonitorType = "dynamic1"
@@ -409,14 +410,14 @@ var _ = Describe("Monitor Manager", func() {
 		manager.EndpointAdded(endpoint)
 
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-			config.MonitorConfig{
+			{
 				Type:          "dynamic1",
 				DiscoveryRule: `container_image =~ "my-service"`,
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons := findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
@@ -433,10 +434,10 @@ var _ = Describe("Monitor Manager", func() {
 
 	It("Does not stop monitoring self-configured endpoint on reconfig", func() {
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		endpoint := newService("my-service", 5000)
 		endpoint.Core().MonitorType = "dynamic1"
@@ -447,14 +448,14 @@ var _ = Describe("Monitor Manager", func() {
 		manager.EndpointAdded(endpoint)
 
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-			config.MonitorConfig{
+			{
 				Type:          "dynamic2",
 				DiscoveryRule: `container_image =~ "not-my-service"`,
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		mons := findMonitorsByType(getMonitors(), "dynamic1")
 		Expect(len(mons)).To(Equal(1))
@@ -463,10 +464,10 @@ var _ = Describe("Monitor Manager", func() {
 
 	It("Stops monitoring self-configured endpoint when removed", func() {
 		manager.Configure([]config.MonitorConfig{
-			config.MonitorConfig{
+			{
 				Type: "static1",
 			},
-		}, &collectdConf, 10)
+		}, &config.CollectdConfig{}, 10, true)
 
 		endpoint := newService("my-service", 5000)
 		endpoint.Core().MonitorType = "dynamic1"

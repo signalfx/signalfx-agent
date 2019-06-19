@@ -4,22 +4,25 @@ import re
 from functools import partial as p
 
 import pytest
-from tests.helpers.assertions import has_datapoint_with_dim
-from tests.helpers.util import print_lines, wait_for
 
+from tests.helpers.assertions import has_datapoint_with_dim
+from tests.helpers.util import (
+    print_lines,
+    wait_for,
+    copy_file_into_container,
+    path_exists_in_container,
+    get_container_file_content,
+)
 from .common import (
     AGENT_YAML_PATH,
     INIT_SYSTEMD,
     INIT_SYSV,
     INIT_UPSTART,
     PIDFILE_PATH,
-    copy_file_into_container,
     get_agent_logs,
-    get_container_file_content,
     get_deb_package_to_test,
     get_rpm_package_to_test,
     is_agent_running_as_non_root,
-    path_exists_in_container,
     run_init_system_image,
 )
 

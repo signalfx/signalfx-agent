@@ -1,17 +1,18 @@
 # Kubernetes Deployments
 
 The agent runs in Kubernetes and has some monitors and observers specific to
-that environment.  
+that environment.
 
 The resources in this directory can be used to deploy the agent to K8s.  They
-are generated from our [Helm](https://github.com/kubernetes/helm) chart,
-which is available in the main [Helm Charts
-repo](https://github.com/kubernetes/charts/tree/master/stable/signalfx-agent).
+are generated from our [Helm](https://github.com/kubernetes/helm) chart, which
+is available in a SignalFx Helm repository -- see [SignalFx Agent Helm Chart
+Use](./helm/signalfx-agent#use) for more information.
 
-A few things to do before deploying these:
+A few things to do before deploying these directly (when not using Helm):
 
- 1. Make sure you change the `kubernetes_cluster` global dimension to something
-	specific to your cluster in the `configmap.yaml` resource before deploying.
+ 1. Make sure you change the `kubernetes_cluster` global dimension *and* the
+	`cluster` config option to something specific to your cluster in the
+	`configmap.yaml` resource before deploying.
 
  2. Also make sure you change the `namespace` of the service account token
 	reference in [./clusterrolebinding.yaml](./clusterrolebinding.yaml) to the

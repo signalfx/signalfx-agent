@@ -1,19 +1,21 @@
 LoadPlugin interface
 <Plugin "interface">
-  Interface "/^lo\d*$/"
-  Interface "/^docker.*/"
-  Interface "/^t(un|ap)\d*$/"
-  Interface "/^veth.*$/"
-  IgnoreSelected "true"
+{{- range .ExcludedInterfaces }}
+  Interface "{{.}}"
+{{- end }}
+{{- range .IncludedInterfaces }}
+  Interface "{{.}}"
+{{- end }}
+  IgnoreSelected {{if .ExcludedInterfaces}}true{{else}}false{{end}}
 </Plugin>
 
-<Chain "PostCache"> 
-  <Rule "set_interface_monitor_id"> 
-    <Match "regex"> 
-      Plugin "^interface$" 
-    </Match> 
-    <Target "set"> 
-      MetaData "monitorID" "{{.MonitorID}}" 
-    </Target> 
-  </Rule> 
+<Chain "PostCache">
+  <Rule "set_interface_monitor_id">
+    <Match "regex">
+      Plugin "^interface$"
+    </Match>
+    <Target "set">
+      MetaData "monitorID" "{{.MonitorID}}"
+    </Target>
+  </Rule>
 </Chain>

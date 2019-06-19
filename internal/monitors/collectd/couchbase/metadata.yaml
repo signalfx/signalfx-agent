@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions:
   doc: |
     Monitors couchbase by using the
     [couchbase collectd Python
@@ -18,262 +18,332 @@ monitors:
       username: "user"
       password: "password"
     ```
+  groups:
+    nodes:
+      description: Node metrics
+    bucket:
+      description: Bucket metrics
+    storage:
+      description: Storage metrics
   metrics:
-  - description: Size of user data within buckets of the specified state that are
-      resident in RAM (%)
-    included: false
-    name: gauge.bucket.basic.dataUsed
-    type: gauge
-  - description: Number of disk fetches
-    included: false
-    name: gauge.bucket.basic.diskFetches
-    type: gauge
-  - description: Amount of disk used (bytes)
-    included: true
-    name: gauge.bucket.basic.diskUsed
-    type: gauge
-  - description: Number of items associated with the bucket
-    included: true
-    name: gauge.bucket.basic.itemCount
-    type: gauge
-  - description: Amount of memory used by the bucket (bytes)
-    included: false
-    name: gauge.bucket.basic.memUsed
-    type: gauge
-  - description: Number of operations per second
-    included: true
-    name: gauge.bucket.basic.opsPerSec
-    type: gauge
-  - description: Percentage of RAM used (for active objects) against the configure
-      bucket size (%)
-    included: true
-    name: gauge.bucket.basic.quotaPercentUsed
-    type: gauge
-  - description: requested objects
-    included: true
-    name: gauge.bucket.op.cmd_get
-    type: gauge
-  - description: Percent fragmentation of documents in this bucket.
-    included: true
-    name: gauge.bucket.op.couch_docs_fragmentation
-    type: gauge
-  - description: view operations per second
-    included: true
-    name: gauge.bucket.op.couch_views_ops
-    type: gauge
-  - description: open connection per bucket
-    included: true
-    name: gauge.bucket.op.curr_connections
-    type: gauge
-  - description: total number of stored items per bucket
-    included: false
-    name: gauge.bucket.op.curr_items
-    type: gauge
-  - description: number of items waiting to be written to disk
-    included: false
-    name: gauge.bucket.op.disk_write_queue
-    type: gauge
-  - description: number of items fetched from disk
-    included: true
-    name: gauge.bucket.op.ep_bg_fetched
-    type: gauge
-  - description: ratio of requested objects found in cache vs retrieved from disk
-    included: true
-    name: gauge.bucket.op.ep_cache_miss_rate
-    type: gauge
-  - description: items removed from disk queue
-    included: true
-    name: gauge.bucket.op.ep_diskqueue_drain
-    type: gauge
-  - description: enqueued items on disk queue
-    included: true
-    name: gauge.bucket.op.ep_diskqueue_fill
-    type: gauge
-  - description: memory high water mark - point at which active objects begin to be
-      ejected from bucket
-    included: true
-    name: gauge.bucket.op.ep_mem_high_wat
-    type: gauge
-  - description: memory low water mark
-    included: false
-    name: gauge.bucket.op.ep_mem_low_wat
-    type: gauge
-  - description: number of objects ejected out of the bucket
-    included: true
-    name: gauge.bucket.op.ep_num_value_ejects
-    type: gauge
-  - description: request rejected - bucket is at quota, panic
-    included: true
-    name: gauge.bucket.op.ep_oom_errors
-    type: gauge
-  - description: number of items queued for storage
-    included: true
-    name: gauge.bucket.op.ep_queue_size
-    type: gauge
-  - description: request rejected - couchbase is making room by ejecting objects,
-      try again later
-    included: true
-    name: gauge.bucket.op.ep_tmp_oom_errors
-    type: gauge
-  - description: memory used
-    included: true
-    name: gauge.bucket.op.mem_used
-    type: gauge
-  - description: total of gets, sets, increment and decrement
-    included: false
-    name: gauge.bucket.op.ops
-    type: gauge
-  - description: ratio of items kept in memory vs stored on disk
-    included: true
-    name: gauge.bucket.op.vb_active_resident_items_ratio
-    type: gauge
-  - description: Amount of RAM used by the bucket (bytes).
-    included: false
-    name: gauge.bucket.quota.ram
-    type: gauge
-  - description: Amount of raw RAM used by the bucket (bytes).
-    included: false
-    name: gauge.bucket.quota.rawRAM
-    type: gauge
-  - description: Number of get commands
-    included: true
-    name: gauge.nodes.cmd_get
-    type: gauge
-  - description: Amount of disk space used by Couch docs.(bytes)
-    included: true
-    name: gauge.nodes.couch_docs_actual_disk_size
-    type: gauge
-  - description: Data size of couch documents associated with a node (bytes)
-    included: true
-    name: gauge.nodes.couch_docs_data_size
-    type: gauge
-  - description: Size of object data for spatial views (bytes)
-    included: false
-    name: gauge.nodes.couch_spatial_data_size
-    type: gauge
-  - description: Amount of disk space occupied by spatial views, in bytes.
-    included: false
-    name: gauge.nodes.couch_spatial_disk_size
-    type: gauge
-  - description: Amount of disk space occupied by Couch views (bytes).
-    included: false
-    name: gauge.nodes.couch_views_actual_disk_size
-    type: gauge
-  - description: Size of object data for Couch views (bytes).
-    included: false
-    name: gauge.nodes.couch_views_data_size
-    type: gauge
-  - description: Number of current items
-    included: false
-    name: gauge.nodes.curr_items
-    type: gauge
-  - description: Total number of items associated with node
-    included: true
-    name: gauge.nodes.curr_items_tot
-    type: gauge
-  - description: Number of disk fetches performed since server was started
-    included: true
-    name: gauge.nodes.ep_bg_fetched
-    type: gauge
-  - description: Number of get hits
-    included: false
-    name: gauge.nodes.get_hits
-    type: gauge
-  - description: Amount of memcached memory allocated (bytes).
-    included: false
-    name: gauge.nodes.mcdMemoryAllocated
-    type: gauge
-  - description: Amount of memcached memory reserved (bytes).
-    included: false
-    name: gauge.nodes.mcdMemoryReserved
-    type: gauge
-  - description: Memory used by the node (bytes)
-    included: true
-    name: gauge.nodes.mem_used
-    type: gauge
-  - description: Amount of memory free for the node (bytes).
-    included: false
-    name: gauge.nodes.memoryFree
-    type: gauge
-  - description: Total memory available to the node (bytes).
-    included: false
-    name: gauge.nodes.memoryTotal
-    type: gauge
-  - description: Number of operations performed on Couchbase
-    included: true
-    name: gauge.nodes.ops
-    type: gauge
-  - description: The CPU utilization rate (%)
-    included: true
-    name: gauge.nodes.system.cpu_utilization_rate
-    type: gauge
-  - description: Free memory available to the node (bytes)
-    included: true
-    name: gauge.nodes.system.mem_free
-    type: gauge
-  - description: Total memory available to the node (bytes)
-    included: true
-    name: gauge.nodes.system.mem_total
-    type: gauge
-  - description: Total swap size allocated (bytes)
-    included: true
-    name: gauge.nodes.system.swap_total
-    type: gauge
-  - description: Amount of swap space used (bytes)
-    included: true
-    name: gauge.nodes.system.swap_used
-    type: gauge
-  - description: Number of items/documents that are replicas
-    included: false
-    name: gauge.nodes.vb_replica_curr_items
-    type: gauge
-  - description: Free harddrive space in the cluster (bytes)
-    included: false
-    name: gauge.storage.hdd.free
-    type: gauge
-  - description: Harddrive quota total for the cluster (bytes)
-    included: false
-    name: gauge.storage.hdd.quotaTotal
-    type: gauge
-  - description: Total harddrive space available to cluster (bytes)
-    included: false
-    name: gauge.storage.hdd.total
-    type: gauge
-  - description: Harddrive space used by the cluster (bytes)
-    included: false
-    name: gauge.storage.hdd.used
-    type: gauge
-  - description: Harddrive use by the data in the cluster(bytes)
-    included: false
-    name: gauge.storage.hdd.usedByData
-    type: gauge
-  - description: Ram quota total for the cluster (bytes)
-    included: false
-    name: gauge.storage.ram.quotaTotal
-    type: gauge
-  - description: Ram quota total per node (bytes)
-    included: false
-    name: gauge.storage.ram.quotaTotalPerNode
-    type: gauge
-  - description: Ram quota used by the cluster (bytes)
-    included: false
-    name: gauge.storage.ram.quotaUsed
-    type: gauge
-  - description: Ram quota used per node (bytes)
-    included: false
-    name: gauge.storage.ram.quotaUsedPerNode
-    type: gauge
-  - description: Total ram available to cluster (bytes)
-    included: false
-    name: gauge.storage.ram.total
-    type: gauge
-  - description: Ram used by the cluster (bytes)
-    included: false
-    name: gauge.storage.ram.used
-    type: gauge
-  - description: Ram used by the data in the cluster (bytes)
-    included: false
-    name: gauge.storage.ram.usedByData
-    type: gauge
+    gauge.bucket.basic.dataUsed:
+      description: Size of user data within buckets of the specified state that are
+        resident in RAM (%)
+      default: false
+      type: gauge
+      group: bucket
+    gauge.bucket.basic.diskFetches:
+      description: Number of disk fetches
+      default: false
+      type: gauge
+      group: bucket
+    gauge.bucket.basic.diskUsed:
+      description: Amount of disk used (bytes)
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.basic.itemCount:
+      description: Number of items associated with the bucket
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.basic.memUsed:
+      description: Amount of memory used by the bucket (bytes)
+      default: false
+      type: gauge
+      group: bucket
+    gauge.bucket.basic.opsPerSec:
+      description: Number of operations per second
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.basic.quotaPercentUsed:
+      description: Percentage of RAM used (for active objects) against the configure
+        bucket size (%)
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.op.cmd_get:
+      description: requested objects
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.op.couch_docs_fragmentation:
+      description: Percent fragmentation of documents in this bucket.
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.op.couch_views_ops:
+      description: view operations per second
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.op.curr_connections:
+      description: open connection per bucket
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.op.curr_items:
+      description: total number of stored items per bucket
+      default: false
+      type: gauge
+      group: bucket
+    gauge.bucket.op.disk_write_queue:
+      description: number of items waiting to be written to disk
+      default: false
+      type: gauge
+      group: bucket
+    gauge.bucket.op.ep_bg_fetched:
+      description: number of items fetched from disk
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.op.ep_cache_miss_rate:
+      description: ratio of requested objects found in cache vs retrieved from disk
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.op.ep_diskqueue_drain:
+      description: items removed from disk queue
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.op.ep_diskqueue_fill:
+      description: enqueued items on disk queue
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.op.ep_mem_high_wat:
+      description: memory high water mark - point at which active objects begin to
+        be ejected from bucket
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.op.ep_mem_low_wat:
+      description: memory low water mark
+      default: false
+      type: gauge
+      group: bucket
+    gauge.bucket.op.ep_num_value_ejects:
+      description: number of objects ejected out of the bucket
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.op.ep_oom_errors:
+      description: request rejected - bucket is at quota, panic
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.op.ep_queue_size:
+      description: number of items queued for storage
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.op.ep_tmp_oom_errors:
+      description: request rejected - couchbase is making room by ejecting objects,
+        try again later
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.op.mem_used:
+      description: memory used
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.op.ops:
+      description: total of gets, sets, increment and decrement
+      default: false
+      type: gauge
+      group: bucket
+    gauge.bucket.op.vb_active_resident_items_ratio:
+      description: ratio of items kept in memory vs stored on disk
+      default: true
+      type: gauge
+      group: bucket
+    gauge.bucket.quota.ram:
+      description: Amount of RAM used by the bucket (bytes).
+      default: false
+      type: gauge
+      group: bucket
+    gauge.bucket.quota.rawRAM:
+      description: Amount of raw RAM used by the bucket (bytes).
+      default: false
+      type: gauge
+      group: bucket
+    gauge.nodes.cmd_get:
+      description: Number of get commands
+      default: true
+      type: gauge
+      group: nodes
+    gauge.nodes.couch_docs_actual_disk_size:
+      description: Amount of disk space used by Couch docs.(bytes)
+      default: true
+      type: gauge
+      group: nodes
+    gauge.nodes.couch_docs_data_size:
+      description: Data size of couch documents associated with a node (bytes)
+      default: true
+      type: gauge
+      group: nodes
+    gauge.nodes.couch_spatial_data_size:
+      description: Size of object data for spatial views (bytes)
+      default: false
+      type: gauge
+      group: nodes
+    gauge.nodes.couch_spatial_disk_size:
+      description: Amount of disk space occupied by spatial views, in bytes.
+      default: false
+      type: gauge
+      group: nodes
+    gauge.nodes.couch_views_actual_disk_size:
+      description: Amount of disk space occupied by Couch views (bytes).
+      default: false
+      type: gauge
+      group: nodes
+    gauge.nodes.couch_views_data_size:
+      description: Size of object data for Couch views (bytes).
+      default: false
+      type: gauge
+      group: nodes
+    gauge.nodes.curr_items:
+      description: Number of current items
+      default: false
+      type: gauge
+      group: nodes
+    gauge.nodes.curr_items_tot:
+      description: Total number of items associated with node
+      default: true
+      type: gauge
+      group: nodes
+    gauge.nodes.ep_bg_fetched:
+      description: Number of disk fetches performed since server was started
+      default: true
+      type: gauge
+      group: nodes
+    gauge.nodes.get_hits:
+      description: Number of get hits
+      default: false
+      type: gauge
+      group: nodes
+    gauge.nodes.mcdMemoryAllocated:
+      description: Amount of memcached memory allocated (bytes).
+      default: false
+      type: gauge
+      group: nodes
+    gauge.nodes.mcdMemoryReserved:
+      description: Amount of memcached memory reserved (bytes).
+      default: false
+      type: gauge
+      group: nodes
+    gauge.nodes.mem_used:
+      description: Memory used by the node (bytes)
+      default: true
+      type: gauge
+      group: nodes
+    gauge.nodes.memoryFree:
+      description: Amount of memory free for the node (bytes).
+      default: false
+      type: gauge
+      group: nodes
+    gauge.nodes.memoryTotal:
+      description: Total memory available to the node (bytes).
+      default: false
+      type: gauge
+      group: nodes
+    gauge.nodes.ops:
+      description: Number of operations performed on Couchbase
+      default: true
+      type: gauge
+      group: nodes
+    gauge.nodes.system.cpu_utilization_rate:
+      description: The CPU utilization rate (%)
+      default: true
+      type: gauge
+      group: nodes
+    gauge.nodes.system.mem_free:
+      description: Free memory available to the node (bytes)
+      default: true
+      type: gauge
+      group: nodes
+    gauge.nodes.system.mem_total:
+      description: Total memory available to the node (bytes)
+      default: true
+      type: gauge
+      group: nodes
+    gauge.nodes.system.swap_total:
+      description: Total swap size allocated (bytes)
+      default: true
+      type: gauge
+      group: nodes
+    gauge.nodes.system.swap_used:
+      description: Amount of swap space used (bytes)
+      default: true
+      type: gauge
+      group: nodes
+    gauge.nodes.vb_replica_curr_items:
+      description: Number of items/documents that are replicas
+      default: false
+      type: gauge
+      group: nodes
+    gauge.storage.hdd.free:
+      description: Free harddrive space in the cluster (bytes)
+      default: false
+      type: gauge
+      group: storage
+    gauge.storage.hdd.quotaTotal:
+      description: Harddrive quota total for the cluster (bytes)
+      default: false
+      type: gauge
+      group: storage
+    gauge.storage.hdd.total:
+      description: Total harddrive space available to cluster (bytes)
+      default: false
+      type: gauge
+      group: storage
+    gauge.storage.hdd.used:
+      description: Harddrive space used by the cluster (bytes)
+      default: false
+      type: gauge
+      group: storage
+    gauge.storage.hdd.usedByData:
+      description: Harddrive use by the data in the cluster(bytes)
+      default: false
+      type: gauge
+      group: storage
+    gauge.storage.ram.quotaTotal:
+      description: Ram quota total for the cluster (bytes)
+      default: false
+      type: gauge
+      group: storage
+    gauge.storage.ram.quotaTotalPerNode:
+      description: Ram quota total per node (bytes)
+      default: false
+      type: gauge
+      group: storage
+    gauge.storage.ram.quotaUsed:
+      description: Ram quota used by the cluster (bytes)
+      default: false
+      type: gauge
+      group: storage
+    gauge.storage.ram.quotaUsedPerNode:
+      description: Ram quota used per node (bytes)
+      default: false
+      type: gauge
+      group: storage
+    gauge.storage.ram.total:
+      description: Total ram available to cluster (bytes)
+      default: false
+      type: gauge
+      group: storage
+    gauge.storage.ram.used:
+      description: Ram used by the cluster (bytes)
+      default: false
+      type: gauge
+      group: storage
+    gauge.storage.ram.usedByData:
+      description: Ram used by the data in the cluster (bytes)
+      default: false
+      type: gauge
+      group: storage
   monitorType: collectd/couchbase
-  properties: null
+  properties:
