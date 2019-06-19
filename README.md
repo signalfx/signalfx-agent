@@ -25,8 +25,8 @@ are not available on Windows.
 The agent has three main components:
 
 1) _Observers_ that discover applications and services running on the host
-2) _Monitors_ that collect metrics from the host and applications
-3) The _Writer_ that sends the metrics collected by monitors to SignalFx.
+2) _Monitors_ that collect metrics, events, and dimension properties the host and applications
+3) The _Writer_ that sends the metrics, events, and dimension updates collected by monitors to SignalFx.
 
 ### Observers
 
@@ -50,7 +50,7 @@ Many of the monitors are built around [collectd](https://collectd.org), an open
 source third-party monitor, and use it to collect metrics. Some other monitors
 do not use collectd. However, either type is configured in the same way.
 
-For a list of supported monitors and their configurations, 
+For a list of supported monitors and their configurations,
 see [Monitor Config](./docs/monitor-config.md).
 
 The agent is primarily intended to monitor services/applications running on the
@@ -74,7 +74,7 @@ The agent is available for Linux in both a containerized and standalone form.
 Whatever form you use, the dependencies are completely bundled along with the
 agent, including a Java JRE runtime and a Python runtime, so there are no
 additional dependencies required.  This means that the agent should work on any
-relatively modern Linux distribution (kernel version 2.6+).  
+relatively modern Linux distribution (kernel version 2.6+).
 
 The agent is also available on Windows in standalone form.  It
 contains its own Python runtime, but has an external depencency on the
@@ -318,7 +318,7 @@ On Windows the agent must be installed and run under an administrator account.
 The agent is configured primarily from a YAML file. By default, the agent config
 is installed at and looked for at `/etc/signalfx/agent.yaml` on Linux and
 `\ProgramData\SignalFxAgent\agent.yaml` on Windows. This can be
-overridden by the `-config` command line flag.  
+overridden by the `-config` command line flag.
 
 For the full schema of the config, see [Config Schema](./docs/config-schema.md).
 
@@ -328,15 +328,21 @@ Configuration](./docs/remote-config.md).
 
 ## Logging
 
+The default log level is `info`, which will log anything noteworthy in the
+agent without spamming the logs too much.  Most of the `info` level logs are on
+startup and upon service discovery changes.  `debug` will create very verbose
+log output and should only be used when trying to resolve a problem with the
+agent.  You can change the log level with the `logging: {level: info}` YAML
+config option.
+
+The agent will emit logs in either an unstructed text (default) or JSON format.
+You can configure it to emit JSON logs with the `logging: {format: json}` YAML
+config option.
+
 ### Linux
 Currently the agent only supports logging to stdout/stderr, which will
 generally be redirected by the init scripts we provide to either a file at
-`/var/log/signalfx-agent.log` or to the systemd journal on newer distros. The
-default log level is `info`, which will log anything noteworthy in the agent
-without spamming the logs too much.  Most of the `info` level logs are on
-startup and upon service discovery changes.  `debug` will create very verbose
-log output and should only be used when trying to resolve a problem with the
-agent.
+`/var/log/signalfx-agent.log` or to the systemd journal on newer distros.
 
 ### Windows
 On Windows, the agent will log to the console when executed directly in a shell.
