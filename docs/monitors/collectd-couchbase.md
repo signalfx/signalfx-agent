@@ -2,10 +2,29 @@
 
 # collectd/couchbase
 
-Monitors couchbase by using the
-[couchbase collectd Python
-plugin](https://github.com/signalfx/collectd-couchbase), which collects
-metrics from couchbase instances
+Monitors [Couchbase](https://www.couchbase.com/) by using the [couchbase
+collectd Python plugin](https://github.com/signalfx/collectd-couchbase),
+which collects metrics from Couchbase server instances.
+
+For general reference on how to monitor Couchbase, see <a target="_blank"
+href="http://blog.couchbase.com/monitoring-couchbase-cluster">Couchbase
+Monitoring</a> and <a target="_blank"
+href="http://developer.couchbase.com/documentation/server/4.0/monitoring/monitoring-rest.html">Monitor
+using the REST API</a>.
+
+## Note on bucket metrics
+
+This plugin emits some metrics about the bucket's performance across the
+cluster, and some metrics about the bucket's performance per node.
+
+Metrics beginning with `gauge.bucket.basic.*` and
+`gauge.bucket.quota.*` are reported once per cluster. All other
+bucket metrics (`gauge.bucket.*`) are reported by every node that hosts
+that bucket. In order to analyze bucket performance for the entire bucket,
+apply functions like Sum or Mean to group node-level metrics together by
+bucket.
+
+## Example Config
 
 Sample YAML configuration with custom query:
 
