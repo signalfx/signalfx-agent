@@ -23,7 +23,7 @@ This role sources the following variables:
 
  - `sfx_agent_config`: A mapping that gets converted to the Smart Agent
    configuration YAML file. See the [Agent Config
-   Schema](./docs/config-schema.md)
+   Schema](../../docs/config-schema.md)
    for a full list of acceptable options and their default values.  The only
    required key-value pair is `signalFxAccessToken`. 
 

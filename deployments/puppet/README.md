@@ -6,7 +6,7 @@ class accepts the following parameters:
 
  - `$config` (Hash): A config structure that gets directly converted to the agent
     YAML.  See the [Agent Config
-    Schema](./docs/config-schema.md)
+    Schema](../../docs/config-schema.md)
     for a full list of acceptable options.  The only required option is
     `signalFxAccessToken`.  Here is a basic config that will monitor a basic set of
     host-level components:

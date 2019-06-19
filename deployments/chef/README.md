@@ -36,7 +36,7 @@ be `final` (default, for main releases), `beta` (for beta releases), or `test`
 `node['signalfx_agent']['conf']`: Agent configuration object.  Everything
 underneath this object gets directly converted to YAML and becomes the agent
 config file.  See the [Agent Config
-Schema](./docs/config-schema.md)
+Schema](../../docs/config-schema.md)
 for a full list of acceptable options.  The only required option is
 `signalFxAccessToken`.  Here is a basic config that will monitor a basic set of
 host-level components:
