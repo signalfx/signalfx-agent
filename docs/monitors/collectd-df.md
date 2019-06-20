@@ -2,7 +2,13 @@
 
 # collectd/df
 
-Tracks free disk space on the host.
+Tracks free disk space on the host using the collectd [df
+plugin](https://collectd.org/wiki/index.php/Plugin:DF).
+
+Note that on Linux a filesystem **must** be mounted in the same filesystem
+namespace that the agent is running in for this monitor to be able to
+collect statistics about that filesystem.  This is mostly an issue when
+running the agent in a container.
 
 
 Monitor Type: `collectd/df`
@@ -38,28 +44,28 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`df_complex.free`*** (*gauge*)<br>    Free disk space in bytes
- - `df_complex.reserved` (*gauge*)<br>    Reserved disk space in bytes
- - ***`df_complex.used`*** (*gauge*)<br>    Used disk space in bytes
- - `percent_inodes.free` (*gauge*)<br>    Free inodes on the file system, expressed as a percentage.
- - `percent_inodes.reserved` (*gauge*)<br>    Reserved inodes on the file system, expressed as a percentage.
- - `percent_inodes.used` (*gauge*)<br>    Used inodes on the file system, expressed as a percentage.
+ - ***`df_complex.free`*** (*gauge*)<br>    Measures free disk space in bytes on this file system.
+ - `df_complex.reserved` (*gauge*)<br>    Measures disk space in bytes reserved for the super-user on this file system.
+ - ***`df_complex.used`*** (*gauge*)<br>    Measures used disk space in bytes on this file system.
+ - `percent_inodes.free` (*gauge*)<br>    Measures free inodes as a percentage of total inodes in the file system.  Inodes are structures used by file systems to store information about files (other than its content).
+ - `percent_inodes.reserved` (*gauge*)<br>    Measures inodes reserved for the super-user as a percentage of total inodes in the file system.  Inodes are structures used by file systems to store information about files (other than its content).
+ - `percent_inodes.used` (*gauge*)<br>    Measures used inodes as a percentage of total inodes in the file system.  Inodes are structures used by file systems to store information about files (other than its content).
 
 #### Group inodes
 All of the following metrics are part of the `inodes` metric group. All of
 the non-default metrics below can be turned on by adding `inodes` to the
 monitor config option `extraGroups`:
- - `df_inodes.free` (*gauge*)<br>    Number of inodes that are free.
- - `df_inodes.reserved` (*gauge*)<br>    Number of inodes reserved for the super user.
- - `df_inodes.used` (*gauge*)<br>    Number of inodes that are used.
+ - `df_inodes.free` (*gauge*)<br>    Measures free inodes in the file system.  Inodes are structures used by Unix filesystems to store metadata about files.
+ - `df_inodes.reserved` (*gauge*)<br>    Measures inodes reserved for the super user in the file system.  Inodes are structures used by Unix filesystems to store metadata about files.
+ - `df_inodes.used` (*gauge*)<br>    Measures used inodes in the file system.  Inodes are structures used by Unix filesystems to store metadata about files.
 
 #### Group percentage
 All of the following metrics are part of the `percentage` metric group. All of
 the non-default metrics below can be turned on by adding `percentage` to the
 monitor config option `extraGroups`:
- - `percent_bytes.free` (*gauge*)<br>    Free disk space on the file system, expressed as a percentage.
- - `percent_bytes.reserved` (*gauge*)<br>    Reserved disk space on the filesystem, expressed as a percentage.
- - `percent_bytes.used` (*gauge*)<br>    Used disk space on the file system, expressed as a percentage.
+ - `percent_bytes.free` (*gauge*)<br>    Measures free disk space as a percentage of total disk space on this file system.
+ - `percent_bytes.reserved` (*gauge*)<br>    Measures disk space reserved for the super-user as a percentage of total disk space of this file system.
+ - `percent_bytes.used` (*gauge*)<br>    Measures used disk space as a percentage of total disk space of this file system.
 
 ### Non-default metrics (version 4.7.0+)
 
