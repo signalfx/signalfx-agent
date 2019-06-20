@@ -11,9 +11,9 @@ import (
 )
 
 // Used to validate configuration that is common to all monitors up front.
-// allowSuppliedFields will allow host/port and configEndpointMappings fields
+// allowAutoDiscoveredFields will allow host/port and configEndpointMappings fields
 // to fail validation if they aren't present.
-func validateConfig(monConfig config.MonitorCustomConfig, allowSuppliedFields bool) error {
+func validateConfig(monConfig config.MonitorCustomConfig, allowAutoDiscoveredFields bool) error {
 	conf := monConfig.MonitorConfigCore()
 
 	if _, ok := MonitorFactories[conf.Type]; !ok {
@@ -42,15 +42,13 @@ func validateConfig(monConfig config.MonitorCustomConfig, allowSuppliedFields bo
 	}
 
 	if err := validation.ValidateStruct(monConfig); err != nil {
-		if !allowSuppliedFields || !errorMightBeAcceptable(err, conf) {
+		if !allowAutoDiscoveredFields || !errorMightBeAcceptable(err, conf) {
 			return err
 		}
 	}
 
 	if err := validation.ValidateCustomConfig(monConfig); err != nil {
-		if !allowSuppliedFields || !errorMightBeAcceptable(err, conf) {
-			return err
-		}
+		return err
 	}
 
 	return nil

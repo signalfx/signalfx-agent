@@ -4,9 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/signalfx/signalfx-agent/internal/core/config/validation"
-
 	"github.com/signalfx/golib/datapoint"
+	"gopkg.in/go-playground/validator.v9"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 )
@@ -27,7 +26,7 @@ type Config struct {
 	// If true, sends metrics memstats.alloc, memstats.by_size.size, memstats.by_size.mallocs and memstats.by_size.frees
 	EnhancedMetrics bool `yaml:"enhancedMetrics"`
 	// Metrics configurations
-	MetricConfigs []MetricConfig `yaml:"metrics"`
+	MetricConfigs []MetricConfig `yaml:"metrics" validate:"dive"`
 }
 
 // GetExtraMetrics handles the legacy enhancedMetrics option.
@@ -51,7 +50,7 @@ type MetricConfig struct {
 	// SignalFx metric type. Possible values are "gauge" or "cumulative"
 	Type string `yaml:"type" validate:"required,oneof=gauge cumulative"`
 	// Metric dimensions
-	DimensionConfigs []DimensionConfig `yaml:"dimensions"`
+	DimensionConfigs []DimensionConfig `yaml:"dimensions" validate:"dive"`
 }
 
 func (mc *MetricConfig) metricType() datapoint.MetricType {
@@ -68,31 +67,23 @@ type DimensionConfig struct {
 	// Dimension name
 	Name string `yaml:"name" validate:"required,excludes=0x20"`
 	// JSON path of the dimension value
-	JSONPath string `yaml:"JSONPath"`
+	JSONPath string `yaml:"JSONPath" validate:"required_without=Value"`
 	// Dimension value
-	Value string `yaml:"value"`
+	Value string `yaml:"value" validate:"required_without=JSONPath"`
 }
 
 // Validate validates configuration
-func (c *Config) Validate() error {
-	if c.MetricConfigs != nil {
-		for _, mConf := range c.MetricConfigs {
-			if err := validation.ValidateStruct(mConf); err != nil {
-				return err
-			}
+func (c *Config) CustomizeValidator(validator *validator.Validate) {
+	validator.RegisterStructValidator(validateDimensionPath, MetricConfig{})
+}
 
-			// Validating dimension configuration
-			for _, dConf := range mConf.DimensionConfigs {
-				switch {
-				case (dConf.JSONPath != "") == (dConf.Value != ""):
-					return fmt.Errorf("exactly one of dimension path %s and dimension value %s should be set", dConf.JSONPath, dConf.Value)
-				case dConf.JSONPath != "" && !strings.HasPrefix(mConf.JSONPath, dConf.JSONPath):
-					return fmt.Errorf("dimension path %s must be shorter than metric path %s and start from the same root", dConf.JSONPath, mConf.JSONPath)
-				}
-			}
+func validateDimensionPath(sl validator.StructLevel) {
+	// Validating dimension configuration
+	for _, dConf := range mConf.DimensionConfigs {
+		if dConf.JSONPath != "" && !strings.HasPrefix(mConf.JSONPath, dConf.JSONPath) {
+			return fmt.Errorf("dimension path %s must be shorter than metric path %s and start from the same root", dConf.JSONPath, mConf.JSONPath)
 		}
 	}
-	return nil
 }
 
 func (c *Config) getAllMetricConfigs() []MetricConfig {

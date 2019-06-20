@@ -1,8 +1,6 @@
 package mongodb
 
 import (
-	"errors"
-
 	"github.com/signalfx/golib/pointer"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
@@ -30,7 +28,7 @@ type Config struct {
 	pyConf                   *python.Config
 	Host                     string   `yaml:"host" validate:"required"`
 	Port                     uint16   `yaml:"port" validate:"required"`
-	Databases                []string `yaml:"databases" validate:"required"`
+	Databases                []string `yaml:"databases" validate:"min=1"`
 	Username                 string   `yaml:"username"`
 	Password                 string   `yaml:"password" neverLog:"true"`
 	UseTLS                   *bool    `yaml:"useTLS"`
@@ -45,14 +43,6 @@ type Config struct {
 // PythonConfig returns the embedded python.Config struct from the interface
 func (c *Config) PythonConfig() *python.Config {
 	return c.pyConf
-}
-
-// Validate will check the config for correctness.
-func (c *Config) Validate() error {
-	if len(c.Databases) == 0 {
-		return errors.New("must specify at least one database for MongoDB")
-	}
-	return nil
 }
 
 // GetExtraMetrics returns a list of metrics that should be let through the

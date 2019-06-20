@@ -38,6 +38,7 @@ func ValidateStruct(confStruct interface{}) error {
 	validate := validator.New()
 	validate.RegisterTagNameFunc(utils.YAMLNameOfField)
 	_ = en_translations.RegisterDefaultTranslations(validate, trans)
+
 	err := validate.Struct(confStruct)
 	if err != nil {
 		if ves, ok := err.(validator.ValidationErrors); ok {
