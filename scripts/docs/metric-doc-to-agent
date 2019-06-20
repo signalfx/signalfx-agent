@@ -32,7 +32,7 @@ if len(metadata) != 1:
 metrics = metadata["monitors"][0]["metrics"]
 
 for f in (INTEGRATIONS_REPO / INTEGRATION).glob("docs/*.md"):
-    if f.name == "readme.md"
+    if f.name == "readme.md":
         continue
 
     metric_name = f.with_suffix("").name
@@ -50,6 +50,8 @@ for f in (INTEGRATIONS_REPO / INTEGRATION).glob("docs/*.md"):
 
     metrics[metric_name]["type"] = typ
 
-    metrics[metric_name]["description"] = "\n".join(content.splitlines()[6:])
+    desc = "\n".join(content.splitlines()[6:]).strip().lstrip("> ")
+    metrics[metric_name]["description"] = yaml.scalarstring.LiteralScalarString(desc)
+    metrics[metric_name].setdefault("default", False)
 
 metadata_path.write_text(yaml.round_trip_dump(metadata))
