@@ -3710,7 +3710,7 @@
       "monitorType": "collectd/df",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Tracks free disk space on the host.\n",
+      "doc": "Tracks free disk space on the host using the collectd [df\nplugin](https://collectd.org/wiki/index.php/Plugin:DF).\n\nNote that on Linux a filesystem **must** be mounted in the same filesystem\nnamespace that the agent is running in for this monitor to be able to\ncollect statistics about that filesystem.  This is mostly an issue when\nrunning the agent in a container.\n",
       "groups": {
         "": {
           "description": "",
@@ -3743,73 +3743,73 @@
       "metrics": {
         "df_complex.free": {
           "type": "gauge",
-          "description": "Free disk space in bytes",
+          "description": "Measures free disk space in bytes on this file system.",
           "group": null,
           "default": true
         },
         "df_complex.reserved": {
           "type": "gauge",
-          "description": "Reserved disk space in bytes",
+          "description": "Measures disk space in bytes reserved for the super-user on this file system.",
           "group": null,
           "default": false
         },
         "df_complex.used": {
           "type": "gauge",
-          "description": "Used disk space in bytes",
+          "description": "Measures used disk space in bytes on this file system.",
           "group": null,
           "default": true
         },
         "df_inodes.free": {
           "type": "gauge",
-          "description": "Number of inodes that are free.",
+          "description": "Measures free inodes in the file system.  Inodes are structures used by Unix filesystems to store metadata about files.",
           "group": "inodes",
           "default": false
         },
         "df_inodes.reserved": {
           "type": "gauge",
-          "description": "Number of inodes reserved for the super user.",
+          "description": "Measures inodes reserved for the super user in the file system.  Inodes are structures used by Unix filesystems to store metadata about files.",
           "group": "inodes",
           "default": false
         },
         "df_inodes.used": {
           "type": "gauge",
-          "description": "Number of inodes that are used.",
+          "description": "Measures used inodes in the file system.  Inodes are structures used by Unix filesystems to store metadata about files.",
           "group": "inodes",
           "default": false
         },
         "percent_bytes.free": {
           "type": "gauge",
-          "description": "Free disk space on the file system, expressed as a percentage.",
+          "description": "Measures free disk space as a percentage of total disk space on this file system.",
           "group": "percentage",
           "default": false
         },
         "percent_bytes.reserved": {
           "type": "gauge",
-          "description": "Reserved disk space on the filesystem, expressed as a percentage.",
+          "description": "Measures disk space reserved for the super-user as a percentage of total disk space of this file system.",
           "group": "percentage",
           "default": false
         },
         "percent_bytes.used": {
           "type": "gauge",
-          "description": "Used disk space on the file system, expressed as a percentage.",
+          "description": "Measures used disk space as a percentage of total disk space of this file system.",
           "group": "percentage",
           "default": false
         },
         "percent_inodes.free": {
           "type": "gauge",
-          "description": "Free inodes on the file system, expressed as a percentage.",
+          "description": "Measures free inodes as a percentage of total inodes in the file system.  Inodes are structures used by file systems to store information about files (other than its content).",
           "group": null,
           "default": false
         },
         "percent_inodes.reserved": {
           "type": "gauge",
-          "description": "Reserved inodes on the file system, expressed as a percentage.",
+          "description": "Measures inodes reserved for the super-user as a percentage of total inodes in the file system.  Inodes are structures used by file systems to store information about files (other than its content).",
           "group": null,
           "default": false
         },
         "percent_inodes.used": {
           "type": "gauge",
-          "description": "Used inodes on the file system, expressed as a percentage.",
+          "description": "Measures used inodes as a percentage of total inodes in the file system.  Inodes are structures used by file systems to store information about files (other than its content).",
           "group": null,
           "default": false
         }
