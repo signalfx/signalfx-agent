@@ -43,11 +43,17 @@ KUBECTL_URL="https://storage.googleapis.com/kubernetes-release/release/${KUBECTL
 MINIKUBE_OPTIONS="--vm-driver=none --bootstrapper=${BOOTSTRAPPER} --kubernetes-version=${K8S_VERSION}"
 
 KUBEADM_OPTIONS="--feature-gates=CoreDNS=true \
+    --extra-config=kubeadm.ignore-preflight-errors=SystemVerification,FileContent--proc-sys-net-bridge-bridge-nf-call-iptables \
     --extra-config=kubelet.authorization-mode=AlwaysAllow \
     --extra-config=kubelet.anonymous-auth=true"
 
 if [ "$BOOTSTRAPPER" = "kubeadm" ]; then
     MINIKUBE_OPTIONS="$MINIKUBE_OPTIONS $KUBEADM_OPTIONS"
+elif [ "$BOOTSTRAPPER" = "localkube" ]; then
+    MINIKUBE_OPTIONS="$MINIKUBE_OPTIONS --extra-config=apiserver.Authorization.Mode=RBAC"
+else
+    echo "Unsupported bootstrapper \"${BOOTSTRAPPER}\"!"
+    exit 1
 fi
 
 function download_kubectl() {
@@ -60,18 +66,7 @@ function start_minikube() {
     if minikube delete >/dev/null 2>&1; then
         echo "Deleted minikube cluster"
     fi
-    if [ "$BOOTSTRAPPER" = "kubeadm" ]; then
-        # Initialize minikube but expect "kubeadm init" to fail due to preflight errors.
-        if ! minikube start $MINIKUBE_OPTIONS; then
-            # Run "kubeadm init" again but ignore preflight errors.
-            kubeadm init --config /var/lib/kubeadm.yaml --ignore-preflight-errors=all
-        fi
-    elif [ "$BOOTSTRAPPER" = "localkube" ]; then
-        minikube start $MINIKUBE_OPTIONS --extra-config=apiserver.Authorization.Mode=RBAC
-    else
-        echo "Unsupported bootstrapper \"${BOOTSTRAPPER}\"!"
-        exit 1
-    fi
+    minikube start $MINIKUBE_OPTIONS
 }
 
 function start_registry() {
