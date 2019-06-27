@@ -96,3 +96,54 @@ monitors:
                 },
             )
         ), "Didn't get metric"
+
+
+def test_statsd_monitor_aggregation():
+    """
+    Test conversion
+    """
+    with Agent.run(
+        """
+monitors:
+  - type: statsd
+    listenPort: 0
+    converters:
+    - pattern: 'cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}'
+      metricName: '{traffic}.{action}'
+"""
+    ) as agent:
+        port = get_statsd_port(agent)
+
+        assert wait_for(p(udp_port_open_locally, port)), "statsd port never opened!"
+        send_udp_message(
+            "localhost", port, "cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success:8|c"
+        )
+        send_udp_message("localhost", port, "cluster.cds_egress_ecommerce-demo-mesh_app-vn_tcp_8080.update_success:8|c")
+
+        assert wait_for(
+            p(
+                has_datapoint,
+                agent.fake_services,
+                metric_name="egress.update_success",
+                dimensions={
+                    "traffic": "egress",
+                    "mesh": "ecommerce-demo-mesh",
+                    "service": "gateway",
+                    "action": "update_success",
+                },
+            )
+        ), "Didn't get metric"
+
+        assert wait_for(
+            p(
+                has_datapoint,
+                agent.fake_services,
+                metric_name="egress.update_success",
+                dimensions={
+                    "traffic": "egress",
+                    "mesh": "ecommerce-demo-mesh",
+                    "service": "app",
+                    "action": "update_success",
+                },
+            )
+        ), "Didn't get metric"

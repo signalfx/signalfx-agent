@@ -19,10 +19,11 @@ type statsDListener struct {
 }
 
 type statsDMetric struct {
-	metricName string
-	metricType string
-	value      float64
-	dimensions map[string]string
+	rawMetricName string
+	metricName    string
+	metricType    string
+	value         float64
+	dimensions    map[string]string
 }
 
 func (sl *statsDListener) Listen() error {
@@ -150,10 +151,11 @@ func parseMetrics(raw []string, converters []*converter, prefix string) []*stats
 
 		if err == nil {
 			metrics = append(metrics, &statsDMetric{
-				metricName: metricName,
-				metricType: metricType,
-				value:      value,
-				dimensions: dims,
+				rawMetricName: rawMetricName,
+				metricName:    metricName,
+				metricType:    metricType,
+				value:         value,
+				dimensions:    dims,
 			})
 		} else {
 			logger.WithError(err).Errorf("Failed parsing metric value %s", strValue)
