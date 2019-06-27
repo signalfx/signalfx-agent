@@ -6,6 +6,7 @@ signalfx-agent*
 tmp/**
 local-etc/**
 build/**
+bundle/**
 internal/monitors/**/template.go
 internal/monitors/collectd/collectd.conf.go
 packaging/*/output

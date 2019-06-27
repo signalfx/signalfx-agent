@@ -263,4 +263,45 @@ check-links:
 	docker build -t check-links scripts/docs/check-links
 	docker run --rm -v $(CURDIR):/usr/src/signalfx-agent:ro check-links
 
+.PHONY: owasp-image-scan
+owasp-image-scan: IMAGE_NAME ?= quay.io/signalfx/signalfx-agent-dev:$(shell scripts/current-version)
+owasp-image-scan:
+	docker build -t dependency-check scripts/dependency-check
+	scripts/dependency-check/extract-image.sh $(IMAGE_NAME) "$(CURDIR)/bundle"
+	docker run --rm \
+		-v "$(CURDIR)":/usr/src/signalfx-agent \
+		-v "$(HOME)/.cache/dependency-check":/usr/share/dependency-check/data \
+		dependency-check \
+			--scan /usr/src/signalfx-agent/bundle \
+			--enableExperimental \
+			--propertyfile /usr/src/signalfx-agent/scripts/dependency-check/go.properties \
+			--suppression /usr/src/signalfx-agent/scripts/dependency-check/suppression.xml \
+			--project $(IMAGE_NAME) -o /usr/src/signalfx-agent/test_output \
+			--format JUNIT --format HTML --junitFailOnCVSS 9 --failOnCVSS 9 \
+			--exclude 'lib/python2.7/site-packages/pip/_vendor/'
+
+.PHONY: owasp-source-scan
+owasp-source-scan:
+	docker build -t dependency-check scripts/dependency-check
+	docker run --rm \
+		-v "$(CURDIR)":/usr/src/signalfx-agent \
+		-v "$(HOME)/.cache/dependency-check":/usr/share/dependency-check/data \
+		dependency-check \
+			--scan /usr/src/signalfx-agent \
+			--enableExperimental \
+			--propertyfile /usr/src/signalfx-agent/scripts/dependency-check/go.properties \
+			--suppression /usr/src/signalfx-agent/scripts/dependency-check/suppression.xml \
+			--project signalfx-agent -o /usr/src/signalfx-agent/test_output \
+			--format JUNIT --format HTML --junitFailOnCVSS 9 --failOnCVSS 9 \
+			--exclude 'bundle/' --exclude 'scripts/' --exclude 'tests/' --exclude 'test-services/' --exclude 'vendor/'
+
+.PHONY: gosec-scan
+gosec-scan:
+	mkdir -p test_output
+	docker run --rm \
+		-v "$(CURDIR)":/usr/src/signalfx-agent \
+		-w /usr/src/signalfx-agent \
+		securego/gosec:2.0.0 \
+			-severity high internal/...
+
 FORCE:

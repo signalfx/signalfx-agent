@@ -30,6 +30,7 @@
 /vendor.orig/
 __pycache__
 build/
+bundle/
 integration_results.*
 local-etc/
 test_output/

@@ -26,6 +26,11 @@ executors:
     docker:
      - image: alpine/helm:2.13.0
 
+  gosec:
+    working_directory: /usr/src/signalfx-agent
+    docker:
+      - image: securego/gosec:2.0.0
+        entrypoint: sh
 
 commands:
   goexecutor_setup:
@@ -537,6 +542,60 @@ jobs:
           fi
           make check-links
 
+  owasp_image_scan:
+    executor: machine_image
+    steps:
+      - checkout
+      - restore_cache:
+          key: "v1-dependency-check-cache"
+      - import_image
+      - run:
+          name: Run image scan
+          command: |
+            IMAGE_NAME="quay.io/signalfx/signalfx-agent-dev:latest" make owasp-image-scan || \
+            ( echo "Critical vulnerabilities found in agent image. Check the dependency-check-report.html artifact for details." >&2 && exit 1 )
+            # workaround for broken --junitFailOnCVSS option
+            sed -i 's|failures="[[:digit:]]\{1,\}"|failures="0"|g' test_output/dependency-check-junit.xml
+      - save_cache:
+          key: "v1-dependency-check-cache"
+          paths:
+            - /home/circleci/.cache/dependency-check
+      - save_test_results:
+          dir: /home/circleci/project/test_output
+
+  owasp_source_scan:
+    executor: machine_image
+    steps:
+      - checkout
+      - restore_cache:
+          key: "v1-dependency-check-cache"
+      - run:
+          name: Run source scan
+          command: |
+            make owasp-source-scan || \
+            ( echo "Critical vulnerabilities found in agent dependencies. Check the dependency-check-report.html artifact for details." >&2 && exit 1 )
+            # workaround for broken --junitFailOnCVSS option
+            sed -i 's|failures="[[:digit:]]\{1,\}"|failures="0"|g' test_output/dependency-check-junit.xml
+      - save_cache:
+          key: "v1-dependency-check-cache"
+          paths:
+            - /home/circleci/.cache/dependency-check
+      - save_test_results:
+          dir: /home/circleci/project/test_output
+
+  gosec_scan:
+    executor: gosec
+    steps:
+      - checkout
+      - run:
+          name: Run gosec scan
+          command: |
+            mkdir -p test_output
+            gosec -fmt=html -out=test_output/gosec-results.html -severity high internal/... || \
+            ( echo "High severity vulnerabilities found in agent source. Check the gosec-results.html artifact for details." >&2 && exit 1 )
+      - save_test_results:
+          dir: test_output
+
   update_stage_cache:
     docker:
       - image: docker:18.09
@@ -632,6 +691,11 @@ workflows:
           target: "python"
       - helm_check
       - check_links
+      - owasp_image_scan:
+          requires:
+            - build
+      - owasp_source_scan
+      - gosec_scan
 
   stage_cache_job:
     jobs:
