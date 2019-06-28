@@ -141,12 +141,12 @@ func aggregateMetrics(metrics []*statsDMetric) map[string]*statsDMetric {
 	metricsMap := make(map[string]*statsDMetric)
 
 	for _, metric := range metrics {
-		if _, exists := metricsMap[metric.metricName]; exists && metricTypeMap[metric.metricType] == datapoint.Count {
+		if _, exists := metricsMap[metric.rawMetricName]; exists && metricTypeMap[metric.metricType] == datapoint.Count {
 			// Add up
-			metricsMap[metric.metricName].value += metric.value
+			metricsMap[metric.rawMetricName].value += metric.value
 		} else {
 			// Create a new one or drop older metric by overwriting
-			metricsMap[metric.metricName] = metric
+			metricsMap[metric.rawMetricName] = metric
 		}
 	}
 
