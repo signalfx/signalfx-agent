@@ -46,6 +46,9 @@ monitor.
      -  Using a text editor, replace the default value `MY-CLUSTER` with the
          desired name for your cluster. This will appear in the dimension
          called `kubernetes_cluster` in SignalFx.
+     -  If you are not in the us0 realm, you must set the `signalFxRealm`
+         config option to the value of your realm. See the troubleshooting
+         section below for more details.
      -  If the agent will be sending data via a proxy, see [proxy
          support](https://github.com/signalfx/signalfx-agent#proxy-support).
      -  If docker and cadvisor metrics are not necessary for certain
@@ -99,6 +102,34 @@ monitor.
    from the agent.
 
 ### Troubleshooting
+
+##### Configure your endpoints
+
+By default, the Smart Agent will send data to the `us0` realm.
+If you see error messages such as 401 unauthorized token, you may be
+sending data to the incorrect realm. If you are not in the `us0` realm,
+you will need to explicitly set the `signalFxRealm` option in your config:
+
+```
+signalFxRealm: YOUR_SIGNALFX_REALM
+```
+
+To determine if you are in a different realm and need to
+explicitly set the endpoints, check your profile page in the SignalFx
+web application.
+
+If you want to explicitly set the ingest, API server, and trace endpoint URLs,
+you can set them individually like so:
+
+```
+ingestUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"
+apiUrl: "https://api.YOUR_SIGNALFX_REALM.signalfx.com"
+traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
+```
+
+They will default to the endpoints for the realm configured in `signalFxRealm`
+if not set.
+
 
 #### Kubelet auth failure
 If you see errors like this in the agent logs:
