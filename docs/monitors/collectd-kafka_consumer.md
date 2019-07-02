@@ -2,6 +2,14 @@
 
 # collectd/kafka_consumer
 
+Monitor Type: `collectd/kafka_consumer` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors a Java based Kafka consumer using GenericJMX.
 
 See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka)
@@ -29,14 +37,6 @@ collect the MBean referenced by `fetch-size-avg-per-topic`. Here is a
 [list](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)
 of metrics collected by default
 
-
-Monitor Type: `collectd/kafka_consumer`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

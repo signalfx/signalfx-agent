@@ -2,10 +2,36 @@
 
 # collectd/apache
 
+Monitor Type: `collectd/apache` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/apache))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors Apache webservice instances using the information provided by
 `mod_status`.
 
-To configure Apache to expose status metrics:
+### Worker states
+Apache worker threads can be in one of the following states:
+
+| State        | Remark                                  |
+|--------------|-----------------------------------------|
+| Open         | Open (unused) slot - no process         |
+| Waiting      | Idle and waiting for request            |
+| Sending      | Serving response                        |
+| KeepAlive    | Kept alive for possible next request    |
+| Idle_cleanup | Idle and marked for cleanup             |
+| Closing      | Closing connection                      |
+| Logging      | Writing to log file                     |
+| Reading      | Reading request                         |
+| Finishing    | Finishing as part of graceful shutdown  |
+| Starting     | Starting up to serve                    |
+
+<!--- SETUP --->
+## Apache Setup
+To configure the Apache webserver itself to expose status metrics:
 
 1. Enable the <a target="_blank" href="http://httpd.apache.org/docs/2.4/mod/mod_status.html">mod_status</a> module in your Apache server.
 2. Add the following configuration to your Apache server:
@@ -22,7 +48,8 @@ _Note_: Make sure that the URL you provide for your `mod_status` module
 ends in `?auto`. This returns the status page as `text/plain`, which this
 plugin requires.
 
-Example configuration in the Smart Agent:
+<!--- SETUP --->
+## Config Examples
 
 ```
 monitors:
@@ -42,30 +69,8 @@ monitors:
    url: "http://{{.Host}}:{{.Port}}/server-status?auto"
 ```
 
-## Worker states
-Apache worker threads can be in one of the following states:
+For a full list of options, see [Configuration](#configuration).
 
-| State        | Remark                                  |
-|--------------|-----------------------------------------|
-| Open         | Open (unused) slot - no process         |
-| Waiting      | Idle and waiting for request            |
-| Sending      | Serving response                        |
-| KeepAlive    | Kept alive for possible next request    |
-| Idle_cleanup | Idle and marked for cleanup             |
-| Closing      | Closing connection                      |
-| Logging      | Writing to log file                     |
-| Reading      | Reading request                         |
-| Finishing    | Finishing as part of graceful shutdown  |
-| Starting     | Starting up to serve                    |
-
-
-Monitor Type: `collectd/apache`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/apache)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

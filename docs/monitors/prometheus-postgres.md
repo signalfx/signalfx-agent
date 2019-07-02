@@ -2,20 +2,20 @@
 
 # prometheus/postgres
 
+Monitor Type: `prometheus/postgres` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus/postgres))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor scrapes [Prmoetheus PostgreSQL Server
 Exporter](https://github.com/wrouesnel/postgres_exporter) metrics and sends
 them to SignalFx.  It is a wrapper around the
 [prometheus-exporter](./prometheus-exporter.md) monitor that provides a
 restricted but expandable set of metrics.
 
-
-Monitor Type: `prometheus/postgres`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus/postgres)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

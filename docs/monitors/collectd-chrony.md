@@ -2,18 +2,18 @@
 
 # collectd/chrony
 
-Collectd NTP data from a chronyd instance
-
-See https://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_chrony
-
-
-Monitor Type: `collectd/chrony`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/chrony)
+Monitor Type: `collectd/chrony` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/chrony))
 
 **Accepts Endpoints**: No
 
 **Multiple Instances Allowed**: **No**
+
+## Overview
+
+Collectd NTP data from a chronyd instance
+
+See https://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_chrony
+
 
 ## Configuration
 

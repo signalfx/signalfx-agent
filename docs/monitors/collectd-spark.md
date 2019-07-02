@@ -2,6 +2,14 @@
 
 # collectd/spark
 
+Monitor Type: `collectd/spark` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/spark))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Collects metrics about a Spark cluster using the
 [collectd Spark Python plugin](https://github.com/signalfx/collectd-spark).
 Also see
@@ -28,14 +36,6 @@ monitors:
     collectApplicationMetrics: true
 ```
 
-
-Monitor Type: `collectd/spark`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/spark)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

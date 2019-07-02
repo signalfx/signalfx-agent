@@ -2,6 +2,14 @@
 
 # gitlab
 
+Monitor Type: `gitlab` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/gitlab))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 GitLab is an open-source web-based git repository manager developed by
 GitLab Inc. GitLab has built-in features for creating wiki pages,
 issue-tracking and CI/CD pipelines. GitLab is bundled with [Prometheus
@@ -142,14 +150,6 @@ monitors:
 
 You can, of course, use auto-discovery by specifying a `discoveryRule` instead of `host` and `port`.
 
-
-Monitor Type: `gitlab`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/gitlab)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

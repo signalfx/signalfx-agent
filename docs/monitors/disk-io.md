@@ -2,6 +2,14 @@
 
 # disk-io
 
+Monitor Type: `disk-io` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/diskio))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor reports I/O metrics about disks.
 
 On Linux hosts, this monitor relies on the `/proc` filesystem.
@@ -14,14 +22,6 @@ monitors:
  - type: disk-io
 ```
 
-
-Monitor Type: `disk-io`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/diskio)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

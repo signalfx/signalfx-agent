@@ -2,6 +2,14 @@
 
 # collectd/rabbitmq
 
+Monitor Type: `collectd/rabbitmq` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/rabbitmq))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors an instance of RabbitMQ using the
 [collectd RabbitMQ Python
 Plugin](https://github.com/signalfx/collectd-rabbitmq).
@@ -14,14 +22,6 @@ for more information.
 to get metrics pertaining to those facets of a RabbitMQ instance.  If none
 of them are enabled, no metrics will be sent.**
 
-
-Monitor Type: `collectd/rabbitmq`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/rabbitmq)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

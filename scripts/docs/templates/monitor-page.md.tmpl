@@ -20,17 +20,17 @@ The **nested** `{{.yamlName}}` config object has the following fields:
 {{ $doc_types := .doc_types -}}
 
 # {{.monitorType}}
-{{with .doc}}
-{{.}}
-{{- end }}
 
-Monitor Type: `{{.monitorType}}`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/{{.config.package}})
+Monitor Type: `{{.monitorType}}` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/{{.config.package}}))
 
 **Accepts Endpoints**: {{if .acceptsEndpoints}}**Yes**{{else}}No{{end}}
 
 **Multiple Instances Allowed**: {{if .singleInstance}}**No**{{else}}Yes{{end}}
+
+## Overview
+{{with .doc}}
+{{.}}
+{{- end }}
 
 ## Configuration
 

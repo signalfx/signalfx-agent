@@ -2,6 +2,14 @@
 
 # aspdotnet
 
+Monitor Type: `aspdotnet` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/aspdotnet))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 (Windows Only) This monitor reports metrics about requests, errors, sessions,
 worker processes for ASP.NET applications.
 
@@ -22,14 +30,6 @@ monitors:
  - type: aspdotnet
 ```
 
-
-Monitor Type: `aspdotnet`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/aspdotnet)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
 
 ## Configuration
 

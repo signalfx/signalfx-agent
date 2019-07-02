@@ -2,6 +2,14 @@
 
 # telegraf/tail
 
+Monitor Type: `telegraf/tail` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/tail))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor is based on the Telegraf tail plugin.  The monitor tails files and
 named pipes.  The Telegraf parser configured with this monitor extracts metrics in different
 [formats](https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md)
@@ -35,14 +43,6 @@ monitors:
      dataFormat: "influx"  # set the parser's dataFormat
 ```
 
-
-Monitor Type: `telegraf/tail`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/tail)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

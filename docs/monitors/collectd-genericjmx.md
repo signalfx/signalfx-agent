@@ -2,6 +2,14 @@
 
 # collectd/genericjmx
 
+Monitor Type: `collectd/genericjmx` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/genericjmx))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors Java services that expose metrics on
 JMX using collectd's GenericJMX plugin.
 
@@ -87,14 +95,6 @@ generaly indicate a similar cause.
 
  - https://realjenius.com/2012/11/21/java7-jmx-tunneling-freedom/
 
-
-Monitor Type: `collectd/genericjmx`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/genericjmx)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

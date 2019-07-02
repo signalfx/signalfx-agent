@@ -2,6 +2,14 @@
 
 # collectd/solr
 
+Monitor Type: `collectd/solr` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/solr))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors Solr instances.
 
 See https://github.com/signalfx/collectd-solr and
@@ -16,14 +24,6 @@ monitors:
   port: 8983
 ```
 
-
-Monitor Type: `collectd/solr`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/solr)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

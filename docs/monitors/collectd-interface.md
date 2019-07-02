@@ -2,6 +2,14 @@
 
 # collectd/interface
 
+Monitor Type: `collectd/interface` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/netinterface))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 Collectd stats about network interfaces on the
 system by using the [collectd interface
 plugin](https://collectd.org/wiki/index.php/Plugin:Interface).
@@ -10,14 +18,6 @@ See the [integrations
 doc](https://github.com/signalfx/integrations/tree/master/collectd-interface)
 for more information.
 
-
-Monitor Type: `collectd/interface`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/netinterface)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
 
 ## Configuration
 

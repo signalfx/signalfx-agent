@@ -2,6 +2,14 @@
 
 # sql
 
+Monitor Type: `sql` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/sql))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Run arbitrary SQL queries against a relational database and use the results to generate dataponts.
 
 For example, if you had a database table `customers` that looked like:
@@ -63,14 +71,6 @@ the `params` config option map.  You interpolate variables into it
 with the Go template syntax `{{.varname}}` (see example config
 above).
 
-
-Monitor Type: `sql`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/sql)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

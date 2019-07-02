@@ -2,6 +2,14 @@
 
 # telegraf/sqlserver
 
+Monitor Type: `telegraf/sqlserver` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/mssqlserver))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor reports metrics about Microsoft SQL servers.
 This monitor is based on the telegraf sqlserver plugin.  More information about the telegraf plugin
 can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/sqlserver).
@@ -48,14 +56,6 @@ monitors:
    appName: signalfxagent
 ```
 
-
-Monitor Type: `telegraf/sqlserver`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/mssqlserver)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

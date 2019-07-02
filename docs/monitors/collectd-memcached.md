@@ -2,6 +2,14 @@
 
 # collectd/memcached
 
+Monitor Type: `collectd/memcached` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/memcached))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors an instance of memcached using the
 [collectd memcached
 plugin](https://collectd.org/wiki/index.php/Plugin:memcached).
@@ -10,14 +18,6 @@ See the [integrations
 doc](https://github.com/signalfx/integrations/tree/master/collectd-memcached)
 for more information.
 
-
-Monitor Type: `collectd/memcached`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/memcached)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

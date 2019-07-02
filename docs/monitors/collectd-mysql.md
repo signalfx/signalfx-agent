@@ -2,6 +2,14 @@
 
 # collectd/mysql
 
+Monitor Type: `collectd/mysql` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/mysql))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors a MySQL database server using collectd's
 [MySQL plugin](https://collectd.org/wiki/index.php/Plugin:MySQL).
 
@@ -35,14 +43,6 @@ monitors:
    password: passwd
 ```
 
-
-Monitor Type: `collectd/mysql`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/mysql)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

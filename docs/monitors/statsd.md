@@ -2,6 +2,14 @@
 
 # statsd
 
+Monitor Type: `statsd` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/statsd))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 
 
 ### USAGE
@@ -42,14 +50,6 @@ will be reported as `egress.update_success`.
 
 ```
 
-
-Monitor Type: `statsd`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/statsd)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

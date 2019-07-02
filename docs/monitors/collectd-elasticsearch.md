@@ -2,6 +2,14 @@
 
 # collectd/elasticsearch
 
+Monitor Type: `collectd/elasticsearch` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/elasticsearch))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors ElasticSearch instances. We strongly recommend using the
 [elasticsearch](./elasticsearch.md) monitor instead, as it will
 scale much better.
@@ -9,14 +17,6 @@ scale much better.
 See https://github.com/signalfx/collectd-elasticsearch and
 https://github.com/signalfx/integrations/tree/master/elasticsearch
 
-
-Monitor Type: `collectd/elasticsearch`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/elasticsearch)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

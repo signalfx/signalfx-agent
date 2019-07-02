@@ -2,17 +2,17 @@
 
 # collectd/memory
 
-Sends memory usage stats for the underlying host.
-See https://collectd.org/wiki/index.php/Plugin:Memory
-
-
-Monitor Type: `collectd/memory`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/memory)
+Monitor Type: `collectd/memory` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/memory))
 
 **Accepts Endpoints**: No
 
 **Multiple Instances Allowed**: **No**
+
+## Overview
+
+Sends memory usage stats for the underlying host.
+See https://collectd.org/wiki/index.php/Plugin:Memory
+
 
 ## Configuration
 

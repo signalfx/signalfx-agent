@@ -2,6 +2,14 @@
 
 # collectd/jenkins
 
+Monitor Type: `collectd/jenkins` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/jenkins))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors jenkins by using the
 [jenkins collectd Python
 plugin](https://github.com/signalfx/collectd-jenkins), which collects
@@ -41,14 +49,6 @@ monitors:
   enhancedMetrics: true
 ```
 
-
-Monitor Type: `collectd/jenkins`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/jenkins)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

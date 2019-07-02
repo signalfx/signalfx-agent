@@ -2,6 +2,14 @@
 
 # collectd/hadoopjmx
 
+Monitor Type: `collectd/hadoopjmx` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Collects metrics about a Hadoop cluster using using collectd's GenericJMX plugin.
 
 Also see https://github.com/signalfx/integrations/tree/master/collectd-hadoop.
@@ -67,14 +75,6 @@ monitors:
 You may also configure the [collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoop.md)
 monitor to collect additional metrics about the hadoop cluster from the REST API
 
-
-Monitor Type: `collectd/hadoopjmx`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

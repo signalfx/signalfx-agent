@@ -2,6 +2,14 @@
 
 # collectd/redis
 
+Monitor Type: `collectd/redis` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/redis))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors a redis instance using the [collectd
 Python Redis plugin](https://github.com/signalfx/redis-collectd-plugin).
 
@@ -30,14 +38,6 @@ monitors:
     keyPattern: 'mylist*'
 ```
 
-
-Monitor Type: `collectd/redis`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/redis)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

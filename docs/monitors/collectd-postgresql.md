@@ -2,6 +2,14 @@
 
 # collectd/postgresql
 
+Monitor Type: `collectd/postgresql` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/postgresql))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 **This monitor is deprecated in favor of the [postgresql monitor](./postgresql.md).**
 
 Monitors a PostgreSQL database server using collectd's
@@ -64,14 +72,6 @@ parameters being passed in.
 See [PostgreSQL plugin](https://collectd.org/wiki/index.php/Plugin:PostgreSQL)
 for details.
 
-
-Monitor Type: `collectd/postgresql`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/postgresql)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

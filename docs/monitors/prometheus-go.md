@@ -2,6 +2,14 @@
 
 # prometheus/go
 
+Monitor Type: `prometheus/go` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus/go))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor scrapes [Prmoetheus Go
 collector](https://godoc.org/github.com/prometheus/client_golang/prometheus#NewGoCollector)
 and [Prometheus process
@@ -10,14 +18,6 @@ metrics from a Prometheus exporter and sends them to SignalFx.  It is a
 wrapper around the [prometheus-exporter](./prometheus-exporter.md) monitor
 that provides a restricted but expandable set of metrics.
 
-
-Monitor Type: `prometheus/go`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus/go)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

@@ -2,18 +2,18 @@
 
 # collectd/python
 
-This monitor runs arbitrary collectd Python
-plugins directly, apart from collectd.  It implements a mock collectd Python
-interface that supports most, but not all, of the real collectd.
-
-
-Monitor Type: `collectd/python`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/python)
+Monitor Type: `collectd/python` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/python))
 
 **Accepts Endpoints**: **Yes**
 
 **Multiple Instances Allowed**: Yes
+
+## Overview
+
+This monitor runs arbitrary collectd Python
+plugins directly, apart from collectd.  It implements a mock collectd Python
+interface that supports most, but not all, of the real collectd.
+
 
 ## Configuration
 

@@ -2,16 +2,16 @@
 
 # gitlab-gitaly
 
-This monitor scrapes the [Gitlab Gitaly GRPC server](https://docs.gitlab.com/ee/administration/gitaly/).  See the [Gitlab monitor](gitlab.md) for more information.
-
-
-Monitor Type: `gitlab-gitaly`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/gitlab)
+Monitor Type: `gitlab-gitaly` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/gitlab))
 
 **Accepts Endpoints**: **Yes**
 
 **Multiple Instances Allowed**: Yes
+
+## Overview
+
+This monitor scrapes the [Gitlab Gitaly GRPC server](https://docs.gitlab.com/ee/administration/gitaly/).  See the [Gitlab monitor](gitlab.md) for more information.
+
 
 ## Configuration
 

@@ -2,6 +2,14 @@
 
 # collectd/kong
 
+Monitor Type: `collectd/kong` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kong))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors a Kong instance using [collectd-kong](https://github.com/signalfx/collectd-kong).
 
 See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kong)
@@ -49,14 +57,6 @@ monitors:
       - "*SomeService*"
 ```
 
-
-Monitor Type: `collectd/kong`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kong)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

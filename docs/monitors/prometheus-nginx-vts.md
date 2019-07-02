@@ -2,20 +2,20 @@
 
 # prometheus/nginx-vts
 
+Monitor Type: `prometheus/nginx-vts` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus/nginxvts))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor scrapes [Prmoetheus Nginx VTS
 exporter](https://github.com/hnlq715/nginx-vts-exporter) metrics from a
 Prometheus exporter and sends them to SignalFx.  It is a wrapper around the
 [prometheus-exporter](./prometheus-exporter.md) monitor that provides a
 restricted but expandable set of metrics.
 
-
-Monitor Type: `prometheus/nginx-vts`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus/nginxvts)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

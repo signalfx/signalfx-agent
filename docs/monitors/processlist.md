@@ -2,6 +2,14 @@
 
 # processlist
 
+Monitor Type: `processlist` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/processlist))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 (Windows Only) This monitor reports processlist
 information for Windows Hosts.
 
@@ -12,14 +20,6 @@ monitors:
  - type: processlist
 ```
 
-
-Monitor Type: `processlist`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/processlist)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
 
 ## Configuration
 

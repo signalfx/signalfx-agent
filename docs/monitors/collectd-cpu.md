@@ -2,6 +2,14 @@
 
 # collectd/cpu
 
+Monitor Type: `collectd/cpu` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/cpu))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 This monitor collects cpu usage data using the
 collectd `cpu` plugin.  It aggregates the per-core CPU data into a single
 metric and sends it to the SignalFx Metadata plugin in collectd, where the
@@ -10,14 +18,6 @@ raw jiffy counts from the `cpu` plugin are converted to percent utilization
 
 See https://collectd.org/wiki/index.php/Plugin:CPU
 
-
-Monitor Type: `collectd/cpu`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/cpu)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
 
 ## Configuration
 

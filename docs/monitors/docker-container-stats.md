@@ -2,6 +2,14 @@
 
 # docker-container-stats
 
+Monitor Type: `docker-container-stats` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/docker))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor reads container stats from a
 Docker API server.  It is meant as a metric-compatible replacement of our
 [docker-collectd](https://github.com/signalfx/docker-collectd-plugin)
@@ -20,14 +28,6 @@ order to have permission to access the Docker API via the socket.
 
 Requires Docker API version 1.22+.
 
-
-Monitor Type: `docker-container-stats`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/docker)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

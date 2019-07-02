@@ -2,20 +2,20 @@
 
 # prometheus/node
 
+Monitor Type: `prometheus/node` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus/node))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor scrapes [Prmoetheus Node
 Exporter](https://github.com/prometheus/node_exporter) metrics and sends
 them to SignalFx.  It is a wrapper around the
 [prometheus-exporter](./prometheus-exporter.md) monitor that provides a
 restricted but expandable set of metrics.
 
-
-Monitor Type: `prometheus/node`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus/node)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

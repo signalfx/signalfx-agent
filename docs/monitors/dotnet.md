@@ -2,6 +2,14 @@
 
 # dotnet
 
+Monitor Type: `dotnet` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/dotnet))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 (Windows Only) This monitor reports metrics for .NET applications.
 
 The most critical .NET performance counters
@@ -30,14 +38,6 @@ monitors:
  - type: dotnet
 ```
 
-
-Monitor Type: `dotnet`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/dotnet)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
 
 ## Configuration
 

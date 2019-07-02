@@ -2,6 +2,14 @@
 
 # prometheus-exporter
 
+Monitor Type: `prometheus-exporter` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheusexporter))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor reads metrics from a [Prometheus
 exporter](https://prometheus.io/docs/instrumenting/exporters/) endpoint.
 
@@ -53,14 +61,6 @@ monitors:
      metric_source: prometheus
 ```
 
-
-Monitor Type: `prometheus-exporter`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheusexporter)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

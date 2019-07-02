@@ -2,19 +2,19 @@
 
 # collectd/vmem
 
+Monitor Type: `collectd/vmem` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/vmem))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 Collects information about the virtual memory
 subsystem of the kernel using the [collectd vmem
 plugin](https://collectd.org/wiki/index.php/Plugin:vmem).  There is no
 configuration available for this plugin.
 
-
-Monitor Type: `collectd/vmem`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/vmem)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
 
 ## Configuration
 

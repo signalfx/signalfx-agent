@@ -2,6 +2,14 @@
 
 # appmesh
 
+Monitor Type: `appmesh` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/appmesh))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor starts a StatsD monitor to listen to StatsD metrics emitted
 by AWS AppMesh Envoy Proxy.
 
@@ -37,14 +45,6 @@ monitors:
    metricPrefix: statsd.appmesh
 ```
 
-
-Monitor Type: `appmesh`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/appmesh)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

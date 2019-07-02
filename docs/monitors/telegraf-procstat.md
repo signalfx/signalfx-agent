@@ -2,6 +2,14 @@
 
 # telegraf/procstat
 
+Monitor Type: `telegraf/procstat` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/procstat))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor reports metrics about processes.
 This monitor is based on the Telegraf procstat plugin.  More information about the Telegraf plugin
 can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/procstat).
@@ -22,14 +30,6 @@ monitors:
    exe: "signalfx-agent*"
 ```
 
-
-Monitor Type: `telegraf/procstat`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/procstat)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

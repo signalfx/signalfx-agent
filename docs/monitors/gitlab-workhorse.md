@@ -2,6 +2,14 @@
 
 # gitlab-workhorse
 
+Monitor Type: `gitlab-workhorse` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/gitlab))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This is a monitor for [GitLab
 Workhorse](https://gitlab.com/gitlab-org/gitlab-workhorse), the GitLab
 service that handles slow HTTP requests.  Workhorse includes a built-in
@@ -18,14 +26,6 @@ monitors:
 
 See the [Gitlab monitor](gitlab.md) for more information.
 
-
-Monitor Type: `gitlab-workhorse`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/gitlab)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

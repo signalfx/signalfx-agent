@@ -2,19 +2,19 @@
 
 # collectd/mongodb
 
+Monitor Type: `collectd/mongodb` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/mongodb))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors an instance of MongoDB using the
 [collectd MongoDB Python plugin](https://github.com/signalfx/collectd-mongodb).
 
 Also see https://github.com/signalfx/integrations/tree/master/collectd-mongodb.
 
-
-Monitor Type: `collectd/mongodb`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/mongodb)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

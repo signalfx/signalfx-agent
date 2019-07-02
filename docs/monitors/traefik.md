@@ -2,6 +2,14 @@
 
 # traefik
 
+Monitor Type: `traefik` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/traefik))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Traefik is an open-source HTTP reverse proxy and load balancer. Traefik exports Prometheus metrics that can be
 scraped by the SignalFx Smart Agent. These metrics can be categorized into Traefik-related, entrypoint-related and
 backend-related metrics. The Traefik-related metrics are prefixed by `go_` and `process_`. The entrypoint-related
@@ -56,14 +64,6 @@ monitors:
     metric_source: traefik
 ```
 
-
-Monitor Type: `traefik`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/traefik)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

@@ -2,6 +2,14 @@
 
 # vmem
 
+Monitor Type: `vmem` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/vmem))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 Collects information about the virtual memory
 subsystem of the kernel.
 
@@ -15,14 +23,6 @@ monitors:
  - type: vmem
 ```
 
-
-Monitor Type: `vmem`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/vmem)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
 
 ## Configuration
 

@@ -2,6 +2,14 @@
 
 # postgresql
 
+Monitor Type: `postgresql` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/postgresql))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor pulls metrics from all PostgreSQL databases from a specific
 Postgres server instance.  It pulls basic information that is applicable
 to any database.
@@ -58,14 +66,6 @@ monitors:
            dimensionColumns: ["country", "status"]
 ```
 
-
-Monitor Type: `postgresql`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/postgresql)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

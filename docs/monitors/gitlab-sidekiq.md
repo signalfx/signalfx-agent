@@ -2,16 +2,16 @@
 
 # gitlab-sidekiq
 
-This monitor scrapes the Gitlab Sidekiq Prometheus Exporter.  See the [Gitlab monitor](gitlab.md) for more information.
-
-
-Monitor Type: `gitlab-sidekiq`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/gitlab)
+Monitor Type: `gitlab-sidekiq` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/gitlab))
 
 **Accepts Endpoints**: **Yes**
 
 **Multiple Instances Allowed**: Yes
+
+## Overview
+
+This monitor scrapes the Gitlab Sidekiq Prometheus Exporter.  See the [Gitlab monitor](gitlab.md) for more information.
+
 
 ## Configuration
 

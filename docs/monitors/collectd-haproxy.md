@@ -2,18 +2,18 @@
 
 # collectd/haproxy
 
-Monitors an HAProxy instance.
-
-See https://github.com/signalfx/integrations/tree/master/collectd-haproxy.
-
-
-Monitor Type: `collectd/haproxy`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/haproxy)
+Monitor Type: `collectd/haproxy` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/haproxy))
 
 **Accepts Endpoints**: **Yes**
 
 **Multiple Instances Allowed**: Yes
+
+## Overview
+
+Monitors an HAProxy instance.
+
+See https://github.com/signalfx/integrations/tree/master/collectd-haproxy.
+
 
 ## Configuration
 

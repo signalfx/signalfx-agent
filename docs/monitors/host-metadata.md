@@ -2,6 +2,14 @@
 
 # host-metadata
 
+Monitor Type: `host-metadata` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/metadata/hostmetadata))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 This monitor collects metadata properties about a
 host.  It is required for some views in SignalFx to operate.
 
@@ -26,14 +34,6 @@ Metadata updates occur on a sparse interval of approximately
 Setting the `Interval` configuration for this monitor will not affect the
 sparse interval on which metadata is collected.
 
-
-Monitor Type: `host-metadata`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/metadata/hostmetadata)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
 
 ## Configuration
 

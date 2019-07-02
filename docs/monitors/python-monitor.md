@@ -2,6 +2,14 @@
 
 # python-monitor
 
+Monitor Type: `python-monitor` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/pyrunner/signalfx))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor allows you to generate metrics from a Python script.
 
 Your Python code should be Python 2.7+ *AND* 3.0+ compatible.  The Python
@@ -63,14 +71,6 @@ monitors:
    myconfig: [1,2,3]
 ```
 
-
-Monitor Type: `python-monitor`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/pyrunner/signalfx)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

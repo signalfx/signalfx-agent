@@ -2,6 +2,14 @@
 
 # collectd/cassandra
 
+Monitor Type: `collectd/cassandra` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/cassandra))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors Cassandra using the Collectd GenericJMX plugin.  This is
 essentially a wrapper around the
 [collectd-genericjmx](./collectd-genericjmx.md) monitor that comes with a
@@ -16,14 +24,6 @@ Use this integration to monitor the following types of information from Cassandr
  - compaction activity
  - hint activity
 
-
-Monitor Type: `collectd/cassandra`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/cassandra)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

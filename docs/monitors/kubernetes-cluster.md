@@ -2,6 +2,14 @@
 
 # kubernetes-cluster
 
+Monitor Type: `kubernetes-cluster` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/kubernetes/cluster))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 *If you are using OpenShift there is an* [openshift-cluster](openshift-cluster.md)
 *monitor to be used instead of this monitor that contains additional OpenShift metrics.*
 
@@ -25,14 +33,6 @@ This monitor is similar to
 sends many of the same metrics, but in a way that is less verbose and better
 fitted for the SignalFx backend.
 
-
-Monitor Type: `kubernetes-cluster`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/kubernetes/cluster)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

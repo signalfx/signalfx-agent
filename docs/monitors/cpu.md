@@ -2,6 +2,14 @@
 
 # cpu
 
+Monitor Type: `cpu` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/cpu))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 This monitor reports cpu metrics.
 
 On Linux hosts, this monitor relies on the `/proc` filesystem.
@@ -14,14 +22,6 @@ monitors:
  - type: cpu
 ```
 
-
-Monitor Type: `cpu`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/cpu)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
 
 ## Configuration
 

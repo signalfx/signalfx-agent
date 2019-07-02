@@ -2,6 +2,14 @@
 
 # collectd/signalfx-metadata
 
+Monitor Type: `collectd/signalfx-metadata` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/metadata))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 Collectd Python plugin that aggregates
 various metrics from other collectd plugins.  It also sends host metadata to
 SignalFx through specially formatted events, and sends active process
@@ -10,14 +18,6 @@ SignalFx through specially formatted events, and sends active process
 See [Python plugin code](https://github.com/signalfx/collectd-signalfx/) and
 [Integrations docs](https://github.com/signalfx/integrations/tree/master/signalfx-metadata).
 
-
-Monitor Type: `collectd/signalfx-metadata`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/metadata)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
 
 ## Configuration
 

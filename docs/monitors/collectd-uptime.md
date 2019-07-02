@@ -2,18 +2,18 @@
 
 # collectd/uptime
 
-Sends a single metric of the total number of
-seconds the host has been up, using the [collectd uptime
-plugin](https://collectd.org/wiki/index.php/Plugin:Uptime).
-
-
-Monitor Type: `collectd/uptime`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/uptime)
+Monitor Type: `collectd/uptime` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/uptime))
 
 **Accepts Endpoints**: No
 
 **Multiple Instances Allowed**: **No**
+
+## Overview
+
+Sends a single metric of the total number of
+seconds the host has been up, using the [collectd uptime
+plugin](https://collectd.org/wiki/index.php/Plugin:Uptime).
+
 
 ## Configuration
 

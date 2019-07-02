@@ -2,6 +2,14 @@
 
 # cadvisor
 
+Monitor Type: `cadvisor` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/cadvisor))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor pulls metrics directly from cadvisor, which
 conventionally runs on port 4194, but can be configured to anything.  If you
 are running on Kubernetes, consider the [kubelet-stats](./kubelet-stats.md)
@@ -16,14 +24,6 @@ certain metrics.  Note that this will cause the built-in Docker dashboards
 to be blank, but container metrics will be available on the Kubernetes
 dashboards instead.
 
-
-Monitor Type: `cadvisor`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/cadvisor)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

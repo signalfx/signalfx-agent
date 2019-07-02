@@ -2,6 +2,14 @@
 
 # collectd/consul
 
+Monitor Type: `collectd/consul` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/consul))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors the Consul data store by using the
 [Consul collectd Python
 plugin](https://github.com/signalfx/collectd-consul), which collects metrics
@@ -31,14 +39,6 @@ This monitor should then be be configured with the `telemetryServer: true`
 option set. This will start a UDP server listening on `0.0.0.0:8125` by
 default.
 
-
-Monitor Type: `collectd/consul`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/consul)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

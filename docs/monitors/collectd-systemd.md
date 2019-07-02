@@ -2,6 +2,14 @@
 
 # collectd/systemd
 
+Monitor Type: `collectd/systemd` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/systemd))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This [SignalFx Smart Agent](https://github.com/signalfx/signalfx-agent) monitor collects metrics about the state of
 configured systemd services using the [collectd-systemd](https://github.com/signalfx/collectd-systemd)
 plugin. A service is in the state that a metric represents if the metric value is 1 and not in that state if the
@@ -41,14 +49,6 @@ monitors:
   sendActiveState: true
 ```
 
-
-Monitor Type: `collectd/systemd`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/systemd)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

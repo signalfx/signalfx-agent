@@ -2,6 +2,14 @@
 
 # telegraf/win_perf_counters
 
+Monitor Type: `telegraf/win_perf_counters` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/winperfcounters))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor reads Windows performance
 counters
 
@@ -25,14 +33,6 @@ monitors:
       measurement: "win_cpu"
 ```
 
-
-Monitor Type: `telegraf/win_perf_counters`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/winperfcounters)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

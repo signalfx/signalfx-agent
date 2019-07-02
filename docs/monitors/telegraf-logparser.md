@@ -2,6 +2,14 @@
 
 # telegraf/logparser
 
+Monitor Type: `telegraf/logparser` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/telegraflogparser))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor is based on the Telegraf logparser plugin.
 The monitor tails log files. More information about the Telegraf plugin
 can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/logparser).
@@ -21,14 +29,6 @@ Sample YAML configuration:
    timezone: UTC
 ```
 
-
-Monitor Type: `telegraf/logparser`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/telegraflogparser)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

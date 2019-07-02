@@ -2,6 +2,14 @@
 
 # windows-legacy
 
+Monitor Type: `windows-legacy` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/windowslegacy))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 (Windows Only) This monitor reports metrics for Windows system Performance Counters.
 The metric names are intended to match what was originally reported by
 the SignalFx [PerfCounterReporter](https://github.com/signalfx/PerfCounterReporter)
@@ -20,14 +28,6 @@ monitors:
  - type: windows-legacy
 ```
 
-
-Monitor Type: `windows-legacy`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/windowslegacy)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
 
 ## Configuration
 

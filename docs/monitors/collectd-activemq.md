@@ -2,6 +2,14 @@
 
 # collectd/activemq
 
+Monitor Type: `collectd/activemq` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/activemq))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 SignalFx's integration with ActiveMQ wraps the [Collectd GenericJMX
 monitor](https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-genericjmx.html)
 to monitor ActiveMQ.
@@ -28,14 +36,6 @@ monitors:
    port: 1099
 ```
 
-
-Monitor Type: `collectd/activemq`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/activemq)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

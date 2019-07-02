@@ -2,6 +2,14 @@
 
 # collectd/marathon
 
+Monitor Type: `collectd/marathon` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/marathon))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 Monitors a Mesos Marathon instance using the
 [collectd Marathon Python plugin](https://github.com/signalfx/collectd-marathon).
 
@@ -30,14 +38,6 @@ monitors:
     dcosAuthURL: https://leader.mesos/acs/api/v1/auth/login
 ```
 
-
-Monitor Type: `collectd/marathon`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/marathon)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: **No**
 
 ## Configuration
 

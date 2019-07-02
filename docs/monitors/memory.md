@@ -2,6 +2,14 @@
 
 # memory
 
+Monitor Type: `memory` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/memory))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 This monitor reports memory and memory utilization metrics.
 
 On Linux hosts, this monitor relies on the `/proc` filesystem.
@@ -14,14 +22,6 @@ monitors:
  - type: memory
 ```
 
-
-Monitor Type: `memory`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/memory)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
 
 ## Configuration
 

@@ -2,6 +2,14 @@
 
 # collectd/df
 
+Monitor Type: `collectd/df` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/df))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 Tracks free disk space on the host using the collectd [df
 plugin](https://collectd.org/wiki/index.php/Plugin:DF).
 
@@ -10,14 +18,6 @@ namespace that the agent is running in for this monitor to be able to
 collect statistics about that filesystem.  This is mostly an issue when
 running the agent in a container.
 
-
-Monitor Type: `collectd/df`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/df)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
 
 ## Configuration
 

@@ -2,6 +2,14 @@
 
 # collectd/hadoop
 
+Monitor Type: `collectd/hadoop` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoop))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Collects metrics about a Hadoop cluster using the
 [collectd Hadoop Python plugin](https://github.com/signalfx/collectd-hadoop).
 Also see
@@ -28,14 +36,6 @@ If a remote JMX port is exposed in the hadoop cluster, then
 you may also configure the [collectd/hadoopjmx](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoopjmx.md)
 monitor to collect additional metrics about the hadoop cluster.
 
-
-Monitor Type: `collectd/hadoop`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoop)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

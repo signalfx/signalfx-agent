@@ -2,6 +2,14 @@
 
 # collectd/couchbase
 
+Monitor Type: `collectd/couchbase` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/couchbase))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors [Couchbase](https://www.couchbase.com/) by using the [couchbase
 collectd Python plugin](https://github.com/signalfx/collectd-couchbase),
 which collects metrics from Couchbase server instances.
@@ -39,14 +47,6 @@ monitors:
   password: "password"
 ```
 
-
-Monitor Type: `collectd/couchbase`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/couchbase)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

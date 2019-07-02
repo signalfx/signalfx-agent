@@ -2,20 +2,20 @@
 
 # prometheus/prometheus
 
+Monitor Type: `prometheus/prometheus` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus/prometheus))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor scrapes [Prmoetheus server's own internal
 collector](https://prometheus.io/docs/prometheus/latest/getting_started/#configuring-prometheus-to-monitor-itself)
 metrics from a Prometheus exporter and sends them to SignalFx.  It is a
 wrapper around the [prometheus-exporter](./prometheus-exporter.md) monitor
 that provides a restricted but expandable set of metrics.
 
-
-Monitor Type: `prometheus/prometheus`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus/prometheus)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

@@ -2,6 +2,14 @@
 
 # collectd/openstack
 
+Monitor Type: `collectd/openstack` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/openstack))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors Openstack by using the
 [Openstack collectd Python
 plugin](https://github.com/signalfx/collectd-openstack), which collects metrics
@@ -15,14 +23,6 @@ monitors:
   password: "secret"
 ```
 
-
-Monitor Type: `collectd/openstack`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/openstack)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

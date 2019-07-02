@@ -2,6 +2,14 @@
 
 # internal-metrics
 
+Monitor Type: `internal-metrics` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/internalmetrics))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Emits metrics about the internal state of the
 agent.  Useful for debugging performance issues with the agent and to ensure
 the agent isn't overloaded.
@@ -16,14 +24,6 @@ monitors:
   - type: internal-metrics
 ```
 
-
-Monitor Type: `internal-metrics`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/internalmetrics)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

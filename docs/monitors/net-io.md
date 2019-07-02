@@ -2,6 +2,14 @@
 
 # net-io
 
+Monitor Type: `net-io` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/netio))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor reports I/O metrics about network interfaces.
 
 On Linux hosts, this monitor relies on the `/proc` filesystem.
@@ -14,14 +22,6 @@ monitors:
  - type: net-io
 ```
 
-
-Monitor Type: `net-io`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/netio)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

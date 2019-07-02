@@ -2,6 +2,14 @@
 
 # filesystems
 
+Monitor Type: `filesystems` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/filesystems))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor reports metrics about free disk space on mounted devices.
 
 On Linux hosts, this monitor relies on the `/proc` filesystem.
@@ -15,14 +23,6 @@ monitors:
    hostFSPath: /hostfs
 ```
 
-
-Monitor Type: `filesystems`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/filesystems)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

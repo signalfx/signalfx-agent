@@ -2,6 +2,14 @@
 
 # collectd/kafka
 
+Monitor Type: `collectd/kafka` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors a Kafka instance using collectd's
 GenericJMX plugin.
 
@@ -20,14 +28,6 @@ the underlying host.
 
 See https://github.com/signalfx/integrations/tree/master/collectd-kafka.
 
-
-Monitor Type: `collectd/kafka`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

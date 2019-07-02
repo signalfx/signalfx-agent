@@ -2,6 +2,14 @@
 
 # collectd/nginx
 
+Monitor Type: `collectd/nginx` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/nginx))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors an nginx instance using our fork of the
 collectd nginx plugin based on the [collectd nginx
 plugin](https://collectd.org/wiki/index.php/Plugin:nginx).
@@ -10,14 +18,6 @@ See the [integrations
 doc](https://github.com/signalfx/integrations/tree/master/collectd-nginx)
 for more information.
 
-
-Monitor Type: `collectd/nginx`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/nginx)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

@@ -2,6 +2,14 @@
 
 # collectd/kafka_producer
 
+Monitor Type: `collectd/kafka_producer` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaproducer))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors a Java based Kafka producer using GenericJMX.
 
 See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka)
@@ -21,14 +29,6 @@ monitors:
 
 Note that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new producer API.
 
-
-Monitor Type: `collectd/kafka_producer`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaproducer)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

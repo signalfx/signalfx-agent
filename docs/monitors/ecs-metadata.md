@@ -2,19 +2,19 @@
 
 # ecs-metadata
 
+Monitor Type: `ecs-metadata` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/ecs))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor reads container stats from a
 [ECS Task Metadata Endpoint version 2](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v2.html).
 
 This currently does not support CPU share/quota metrics.
 
-
-Monitor Type: `ecs-metadata`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/ecs)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
 

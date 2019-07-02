@@ -2,6 +2,14 @@
 
 # collectd/statsd
 
+Monitor Type: `collectd/statsd` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/statsd))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 The StatsD plugin for collectd listens for StatsD
 events, aggregates them and transmits them according to collectd's
 configuration. Use this plugin to send data from StatsD to SignalFx [statsd
@@ -71,14 +79,6 @@ monitors:
    timerPercentile: 90.0
 ```
 
-
-Monitor Type: `collectd/statsd`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/statsd)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
 
 ## Configuration
 

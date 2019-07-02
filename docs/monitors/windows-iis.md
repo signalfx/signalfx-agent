@@ -2,6 +2,14 @@
 
 # windows-iis
 
+Monitor Type: `windows-iis` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/windowsiis))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 (Windows Only) This monitor reports metrics for Windows Internet Information Services.
 It is used to drive the Windows IIS dashboard content.
 
@@ -22,14 +30,6 @@ monitors:
  - type: windows-iis
 ```
 
-
-Monitor Type: `windows-iis`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/windowsiis)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
 
 ## Configuration
 
