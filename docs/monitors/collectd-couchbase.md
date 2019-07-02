@@ -61,7 +61,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `collectTarget` | **yes** | `string` | Define what this Module block will monitor: "NODE", for a Couchbase node, or "BUCKET" for a Couchbase bucket. |
 | `collectBucket` | no | `string` | If CollectTarget is "BUCKET", CollectBucket specifies the name of the bucket that this will monitor. |
 | `clusterName` | no | `string` | Name of this Couchbase cluster. (**default**:"default") |
-| `collectMode` | no | `string` | Change to "detailed" to collect all available metrics from Couchbase stats API. Defaults to "default", collecting a curated set that works well with SignalFx. See [metric_info.py](https://github.com/signalfx/collectd-couchbase/blob/master/metric_info.py) for more information. |
+| `collectMode` | no | `string` | Change to "detailed" to collect all available metrics from Couchbase stats API. Defaults to "default", collecting a curated set that works well with SignalFx. |
 | `username` | no | `string` | Username to authenticate with |
 | `password` | no | `string` | Password to authenticate with |
 

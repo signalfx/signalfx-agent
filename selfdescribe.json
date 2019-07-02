@@ -3499,7 +3499,7 @@
           },
           {
             "yamlName": "collectMode",
-            "doc": "Change to \"detailed\" to collect all available metrics from Couchbase stats API. Defaults to \"default\", collecting a curated set that works well with SignalFx. See [metric_info.py](https://github.com/signalfx/collectd-couchbase/blob/master/metric_info.py) for more information.",
+            "doc": "Change to \"detailed\" to collect all available metrics from Couchbase stats API. Defaults to \"default\", collecting a curated set that works well with SignalFx.",
             "default": "",
             "required": false,
             "type": "string",
