@@ -39,7 +39,7 @@ type Config struct {
 	ClusterName string `yaml:"clusterName"`
 	// Change to "detailed" to collect all available metrics from Couchbase
 	// stats API. Defaults to "default", collecting a curated set that works
-	// well with SignalFx. See [metric_info.py](https://github.com/signalfx/collectd-couchbase/blob/master/metric_info.py) for more information.
+	// well with SignalFx.
 	CollectMode string `yaml:"collectMode"`
 	// Username to authenticate with
 	Username string `yaml:"username"`
