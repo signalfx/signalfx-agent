@@ -10,21 +10,43 @@ Monitor Type: `collectd/redis` ([Source](https://github.com/signalfx/signalfx-ag
 
 ## Overview
 
-Monitors a redis instance using the [collectd
-Python Redis plugin](https://github.com/signalfx/redis-collectd-plugin).
+Monitors a redis instance using the [collectd Python Redis
+plugin](https://github.com/signalfx/redis-collectd-plugin).  Supports Redis
+2.8 and later.
 
-See the [integrations
-doc](https://github.com/signalfx/integrations/tree/master/collectd-redis)
-for more information.
+You can capture any kind of Redis metrics like:
 
-Sample YAML configuration:
+ * Memory used
+ * Commands processed per second
+ * Number of connected clients and slaves
+ * Number of blocked clients
+ * Number of keys stored (per database)
+ * Uptime
+ * Changes since last save
+ * Replication delay (per slave)
 
-```yaml
-monitors:
-- type: collectd/redis
-  host: 127.0.0.1
-  port: 9100
-```
+
+<!--- OVERVIEW --->
+### Monitoring length of Redis lists
+
+To monitor the length of list keys, the key and database index must be
+specified in the config. Specify keys in the config file in the form
+`sendListLengths: [{databaseIndex: $db_index, keyPattern: "$key_name"}]`.
+`$key_name` can be a globbed pattern (only `*` is supported), in which case
+all keys matching that glob will be processed.  Don't forget to surround
+the pattern with double quotes or else the asterisks might be
+misinterpreted.  If any keys match the glob that are not lists, an error
+will be sent to the collectd logs.
+
+Lengths will be reported to SignalFx under the metric `gauge.key_llen`, a
+separate time series for each list.
+
+**Warning**: The `KEYS` command is used to match the globs so don't try and
+match something that is very big, as this command is not highly optimized and
+can block other commands from executing.
+
+Note: To avoid duplication reporting, this should only be reported in one node.
+Keys can be defined in either the master or slave config.
 
 Sample YAML configuration with list lengths:
 
@@ -38,8 +60,27 @@ monitors:
     keyPattern: 'mylist*'
 ```
 
+<!--- SETUP --->
+### Example Config
+
+```yaml
+monitors:
+- type: collectd/redis
+  host: 127.0.0.1
+  port: 9100
+```
+
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/redis
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**
@@ -135,6 +176,15 @@ that whitelist, then you need to add an item to the top-level
 `metricsToInclude` config option to override that whitelist (see [Inclusion
 filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
 copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
+
+## Dimensions
+
+The following dimensions may occur on metrics emitted by this monitor.  Some
+dimensions may be specific to certain metrics.
+
+| Name | Description |
+| ---  | ---         |
+| `plugin_instance` | Identifies the Redis instance -- will be of the form `<host>_<port>`. |
 
 
 

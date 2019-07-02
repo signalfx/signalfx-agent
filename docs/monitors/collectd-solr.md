@@ -10,12 +10,21 @@ Monitor Type: `collectd/solr` ([Source](https://github.com/signalfx/signalfx-age
 
 ## Overview
 
-Monitors Solr instances.
+Monitors Solr instances by using the [collectd Solr
+plugin](https://github.com/signalfx/collectd-solr).  Supports Solr 6.6 and
+later.
 
-See https://github.com/signalfx/collectd-solr and
-https://github.com/signalfx/integrations/tree/master/collectd-solr
+*NOTE: This plugin can collect metrics from Solr only when a Solr instance is running in SolrCloud mode*
 
-Sample YAML configuration:
+The [solr-collectd](https://github.com/signalfx/collectd-solr) plugin
+collects metrics from solr instances hitting these endpoints:
+
+ - [statistics](https://lucene.apache.org/solr/guide/6_6/performance-statistics-reference.html) (default metrics)
+ - [metrics](https://lucene.apache.org/solr/guide/6_6/metrics-reporting.html) (optional metrics)
+
+
+<!--- SETUP --->
+### Sample YAML configuration
 
 ```yaml
 monitors:
@@ -26,6 +35,15 @@ monitors:
 
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/solr
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

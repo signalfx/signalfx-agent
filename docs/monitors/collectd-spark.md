@@ -10,20 +10,26 @@ Monitor Type: `collectd/spark` ([Source](https://github.com/signalfx/signalfx-ag
 
 ## Overview
 
-Collects metrics about a Spark cluster using the
-[collectd Spark Python plugin](https://github.com/signalfx/collectd-spark).
-Also see
-https://github.com/signalfx/integrations/tree/master/collectd-spark.
+Collects metrics about a Spark cluster using the [collectd Spark Python
+plugin](https://github.com/signalfx/collectd-spark). That plugin collects
+metrics from Spark cluster and instances by hitting endpoints specified in
+Spark's [Monitoring and Instrumentation
+documentation](https://spark.apache.org/docs/latest/monitoring.html) under
+`REST API` and `Metrics`.
+
+We currently only support cluster modes Standalone, Mesos, and Hadoop Yarn
+via HTTP endpoints.
 
 You have to specify distinct monitor configurations and discovery rules for
 master and worker processes.  For the master configuration, set `isMaster`
 to true.
 
-We only support HTTP endpoints for now.
-
 When running Spark on Apache Hadoop / Yarn, this integration is only capable
 of reporting application metrics from the master node.  Please use the
 collectd/hadoop monitor to report on the health of the cluster.
+
+<!--- SETUP --->
+### Example config:
 
 An example configuration for monitoring applications on Yarn
 ```yaml
@@ -38,6 +44,15 @@ monitors:
 
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/spark
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**
@@ -178,6 +193,16 @@ that whitelist, then you need to add an item to the top-level
 `metricsToInclude` config option to override that whitelist (see [Inclusion
 filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
 copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
+
+## Dimensions
+
+The following dimensions may occur on metrics emitted by this monitor.  Some
+dimensions may be specific to certain metrics.
+
+| Name | Description |
+| ---  | ---         |
+| `cluster` | set to value corresponding to key `cluster` in configuration file |
+| `spark_process` | Either master or worker to differentiate master- and worker- specific metrics like master.apps and worker.coresFree |
 
 
 

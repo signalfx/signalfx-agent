@@ -2,7 +2,10 @@ monitors:
 - dimensions:
   doc: |
     Monitors a Kafka instance using collectd's
-    GenericJMX plugin.
+    GenericJMX plugin. See the [collectd/genericjmx
+    monitor](./collectd-genericjmx.md)[](sfx_link:java) for more information on
+    how to configure custom MBeans, as well as information on troubleshooting
+    JMX setup.
 
     This monitor has a set of [built in MBeans
     configured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka/mbeans.go)
@@ -13,11 +16,10 @@ monitors:
     is a good metric to monitor since it gives an understanding of how long brokers wait for
     requests to Zookeeper to be completed. Since Zookeeper is an integral part of a Kafka cluster,
     monitoring it using the [Zookeeper
-    monitor] (https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-zookeeper.html)
+    monitor](https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-zookeeper.html)[](sfx_link:zookeeper)
     is recommended. It is also a good idea to monitor disk utilization and network metrics of
     the underlying host.
 
-    See https://github.com/signalfx/integrations/tree/master/collectd-kafka.
   metrics:
     # Taken from genericjmx monitor. If you want to change them update genericjmx and update
     # all other monitors that use genericjmx with this same notice.

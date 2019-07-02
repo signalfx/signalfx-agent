@@ -12,7 +12,7 @@ Monitor Type: `collectd/cassandra` ([Source](https://github.com/signalfx/signalf
 
 Monitors Cassandra using the Collectd GenericJMX plugin.  This is
 essentially a wrapper around the
-[collectd-genericjmx](./collectd-genericjmx.md) monitor that comes with a
+[collectd-genericjmx](./collectd-genericjmx.md)[](sfx_link:java) monitor that comes with a
 set of predefined MBean definitions that a standard Cassandra deployment
 will expose.
 
@@ -24,8 +24,19 @@ Use this integration to monitor the following types of information from Cassandr
  - compaction activity
  - hint activity
 
+Supports Cassandra 2.0.10+.
+
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/cassandra
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

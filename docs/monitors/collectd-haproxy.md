@@ -10,12 +10,79 @@ Monitor Type: `collectd/haproxy` ([Source](https://github.com/signalfx/signalfx-
 
 ## Overview
 
-Monitors an HAProxy instance.
+This monitors an [HAProxy](http://www.haproxy.org/) instance.  Requires HAProxy 1.5+.
 
-See https://github.com/signalfx/integrations/tree/master/collectd-haproxy.
+<!--- SETUP --->
+### Socket Config
+The location of the HAProxy socket file is defined in the HAProxy config file, as in the following example:
+
+```
+global
+    daemon
+    stats socket /var/run/haproxy.sock
+    stats timeout 2m
+```
+
+Note: it is possible to use a tcp socket for stats in HAProxy. Users will
+first need to define in their collectd-haproxy plugin config file the tcp
+address for the socket, for example `localhost:9000`, and then in the
+haproxy.cfg file change the stats socket to listen on the same address
+```
+global
+    daemon
+    stats socket localhost:9000
+    stats timeout 2m
+```
+
+For a more restricted tcp socket, a backend server can be defined to listen
+to stats on localhost. A frontend proxy can use the backend server on a
+different port, with ACLs to restrict access. See below for example.
+
+```
+global
+    daemon
+    stats socket localhost:9000
+    stats timeout 2m
+
+backend stats-backend
+    mode tcp
+    server stats-localhost localhost:9000
+
+frontend stats-frontend
+    bind *:9001
+    default_backend stats-backend
+    acl ...
+    acl ...
+```
+
+<!--- SETUP --->
+### SELinux Setup
+
+If you have SELinux enabled, create a SELinux policy package downloading
+the [type enforcement
+file](https://github.com/signalfx/collectd-haproxy/blob/master/selinux/collectd-haproxy.te)
+to some place on your server.  Run the commands below to create and install
+the policy package.
+
+    $ checkmodule -M -m -o collectd-haproxy.mod collectd-haproxy.te
+    checkmodule:  loading policy configuration from collectd-haproxy.te
+    checkmodule:  policy configuration loaded
+    checkmodule:  writing binary representation (version 17) to collectd-haproxy.mod
+    $ semodule_package -o collectd-haproxy.pp -m collectd-haproxy.mod
+    $ sudo semodule -i collectd-haproxy.pp
+    $ sudo reboot
 
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/haproxy
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**
@@ -25,7 +92,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
 | `port` | no | `integer` |  (**default:** `0`) |
-| `proxiesToMonitor` | no | `list of strings` |  |
+| `proxiesToMonitor` | no | `list of strings` | A list of all the pxname(s) or svname(s) that you want to monitor (e.g. `["http-in", "server1", "backend"]`) |
 | `excludedMetrics` | no | `list of strings` | Deprecated.  Please use `datapointsToExclude` on the monitor config block instead. |
 | `enhancedMetrics` | no | `bool` |  (**default:** `false`) |
 

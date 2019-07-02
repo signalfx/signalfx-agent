@@ -18,6 +18,15 @@ See https://collectd.org/wiki/index.php/Plugin:Disk.
 
 ## Configuration
 
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/disk
+   ...  # Additional config
+```
+
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**
 

@@ -21,8 +21,10 @@ monitors:
     - [/coordinate/nodes](https://www.consul.io/api/coordinate.html#read-lan-coordinates)
     - [/health/state/any](https://www.consul.io/api/health.html#list-checks-in-state)
 
+    Supports Consul 0.7.0+.
 
-    ### Agent Statsd listener
+    <!--- SETUP --->
+    ## Agent Statsd listener
     If running Consul version below 0.9.1, configure the Consul agents that are
     to be monitored to send telemetry to a SignalFx Agent instance by adding
     the below configuration to Consul agents configuration file:
@@ -35,6 +37,7 @@ monitors:
     This monitor should then be be configured with the `telemetryServer: true`
     option set. This will start a UDP server listening on `0.0.0.0:8125` by
     default.
+
 
   metrics:
     consul.dns.stale_queries:

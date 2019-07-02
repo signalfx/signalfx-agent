@@ -10,9 +10,21 @@ Monitor Type: `collectd/mysql` ([Source](https://github.com/signalfx/signalfx-ag
 
 ## Overview
 
-Monitors a MySQL database server using collectd's
-[MySQL plugin](https://collectd.org/wiki/index.php/Plugin:MySQL).
+Monitors a MySQL database server using collectd's [MySQL
+plugin](https://collectd.org/wiki/index.php/Plugin:MySQL). It supports
+MySQL versions 5.x or later.
 
+This monitor connects to a MySQL instance and reports on the values
+returned by a `SHOW STATUS` command. This includes the following:
+
+  - Number of commands processed
+  - Table and row operations (handlers)
+  - State of the query cache
+  - Status of MySQL threads
+  - Network traffic
+
+<!--- SETUP --->
+### Note on localhost
 On Unix, MySQL programs treat the host name `localhost` specially, in a way
 that is likely different from what is expected compared to other
 network-based programs. For connections to `localhost`, MySQL programs
@@ -20,12 +32,17 @@ attempt to connect to the local server by using a Unix socket file. To ensure
 that the client makes a TCP/IP connection to the local server specify a host
 name value of `127.0.0.1`, or the IP address or name of the local server.
 
-You have to specify each database you want to monitor individually under the
-`databases` key.  If you have a common authentication to all databases being
-monitored, you can specify that in the top-level `username`/`password`
-options, otherwise they can be specified at the database level.
+<!--- SETUP --->
+### Databases
+You have to specify each database you want to monitor individually under
+the `databases` config option.  If you have a common authentication to all
+databases being monitored, you can specify that in the top-level
+`username`/`password` options, otherwise they can be specified at the
+database level.
 
-**Note:** The MySQL monitor supports MySQL versions 5.x or later.
+
+<!--- SETUP --->
+### Example Config
 
 Sample YAML configuration:
 
@@ -45,6 +62,15 @@ monitors:
 
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/mysql
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

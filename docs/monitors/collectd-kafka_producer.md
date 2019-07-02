@@ -32,6 +32,15 @@ Note that this monitor requires Kafka v0.9.0.0 or above and collects metrics fro
 
 ## Configuration
 
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/kafka_producer
+   ...  # Additional config
+```
+
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**
 

@@ -1,13 +1,18 @@
 monitors:
 - dimensions:
   doc: |
-    Monitors an instance of memcached using the
-    [collectd memcached
-    plugin](https://collectd.org/wiki/index.php/Plugin:memcached).
+    Monitors an instance of memcached using the [collectd memcached
+    plugin](https://collectd.org/wiki/index.php/Plugin:memcached).  Requires
+    Memcached 1.1 or later.
 
-    See the [integrations
-    doc](https://github.com/signalfx/integrations/tree/master/collectd-memcached)
-    for more information.
+    The monitor collects the following information from Memcached nodes:
+
+    * request information (including hits, misses & evictions)
+    * current connections
+    * net input/output bytes
+    * number of items cached
+
+    Documentation for Memcached can be found at https://github.com/memcached/memcached/wiki.
   metrics:
     df.cache.free:
       description: Unused storage bytes

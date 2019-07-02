@@ -3,8 +3,9 @@ monitors:
   doc: |
     This monitor pulls metrics from all PostgreSQL databases from a specific
     Postgres server instance.  It pulls basic information that is applicable
-    to any database.
+    to any database.  It gathers these metrics via SQL queries.
 
+    <!--- OVERVIEW --->
     ## Metrics about Queries
 
     In order to get metrics about query execution time, you must enable the
@@ -25,6 +26,7 @@ monitors:
 
     If you want to collect additional metrics about PostgreSQL, use the [sql monitor](./sql.md).
 
+    <!--- SETUP --->
     ## Example Configuration
 
     This example uses the [Vault remote config

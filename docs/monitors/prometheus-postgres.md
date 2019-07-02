@@ -19,6 +19,15 @@ restricted but expandable set of metrics.
 
 ## Configuration
 
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: prometheus/postgres
+   ...  # Additional config
+```
+
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**
 

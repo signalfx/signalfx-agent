@@ -8,6 +8,9 @@
         },
         {
             "pattern": "^https://leader\\.mesos"
+        },
+        {
+            "pattern": "^sfx_link"
         }
     ]
 }

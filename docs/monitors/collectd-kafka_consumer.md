@@ -10,10 +10,7 @@ Monitor Type: `collectd/kafka_consumer` ([Source](https://github.com/signalfx/si
 
 ## Overview
 
-Monitors a Java based Kafka consumer using GenericJMX.
-
-See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka)
-for more information.
+Monitors a Java based Kafka consumer using [collectd's GenericJMX plugin](./collectd-genericjmx.md)[](sfx_link:java).
 
 This monitor has a set of [built in MBeans
 configured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)
@@ -35,10 +32,19 @@ v0.9.0.0 which can cause the logs to flood with warnings related to the MBean no
 Use the `mBeansToOmit` config option in such cases. The above example configuration will not attempt to
 collect the MBean referenced by `fetch-size-avg-per-topic`. Here is a
 [list](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)
-of metrics collected by default
+of metrics collected by default.
 
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/kafka_consumer
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

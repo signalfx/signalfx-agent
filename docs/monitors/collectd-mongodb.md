@@ -10,13 +10,51 @@ Monitor Type: `collectd/mongodb` ([Source](https://github.com/signalfx/signalfx-
 
 ## Overview
 
-Monitors an instance of MongoDB using the
-[collectd MongoDB Python plugin](https://github.com/signalfx/collectd-mongodb).
+Monitors an instance of MongoDB using the [collectd MongoDB Python
+plugin](https://github.com/signalfx/collectd-mongodb).  Requires MongoDB
+2.6 or later.
 
-Also see https://github.com/signalfx/integrations/tree/master/collectd-mongodb.
+This monitor captures the following metrics about MongoDB generally:
+
+* memory
+* network input/output bytes count
+* heap usage
+* db connections
+* operations count
+* active client connections
+* queued operations
+
+The plugin also captures the following DB-specific metrics:
+
+* db size
+* db counters
+
+Documentation for MongoDB can be found [here](http://docs.mongodb.org/manual/).
+
+<!--- SETUP --->
+### Creating a MongoDB user for collectd
+
+If you're monitoring a secured MongoDB deployment, it is a good practice to create a MongoDB user with minimal read-only roles, as follows:
+
+```
+db.createUser( {
+  user: "collectd",
+  pwd: "collectd",
+  roles: [ { role: "readAnyDatabase", db: "admin" }, { role: "clusterMonitor", db: "admin" } ]
+});
+```
 
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/mongodb
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**
@@ -24,18 +62,18 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `host` | **yes** | `string` |  |
-| `port` | **yes** | `integer` |  |
-| `databases` | **yes** | `list of strings` |  |
-| `username` | no | `string` |  |
-| `password` | no | `string` |  |
-| `useTLS` | no | `bool` |  (**default:** `false`) |
-| `caCerts` | no | `string` |  |
-| `tlsClientCert` | no | `string` |  |
-| `tlsClientKey` | no | `string` |  |
-| `tlsClientKeyPassPhrase` | no | `string` |  |
-| `sendCollectionMetrics` | no | `bool` |  (**default:** `false`) |
-| `sendCollectionTopMetrics` | no | `bool` |  (**default:** `false`) |
+| `host` | **yes** | `string` | Host name/IP address of the Mongo instance |
+| `port` | **yes** | `integer` | Port of the Mongo instance (default: 27017) |
+| `databases` | **yes** | `list of strings` | Name(s) of database(s) that you would like metrics from. Note: the first database in this list must be "admin", as it is used to perform a `serverStatus()` command. |
+| `username` | no | `string` | The MongoDB user to connect as |
+| `password` | no | `string` | The password of the above user |
+| `useTLS` | no | `bool` | If true, will connect to Mongo using TLS (**default:** `false`) |
+| `caCerts` | no | `string` | Path to a CA cert that will be used to verify the certificate that Mongo presents (not needed if not using TLS or if Mongo's cert is signed by a globally trusted issuer already installed in the default location on your OS) |
+| `tlsClientCert` | no | `string` | Path to a client certificate (not needed unless your Mongo instance requires x509 client verification) |
+| `tlsClientKey` | no | `string` | Path to a client certificate key (not needed unless your Mongo instance requires x509 client verification, or if your client cert above has the key included) |
+| `tlsClientKeyPassPhrase` | no | `string` | Passphrase for the TLSClientKey above |
+| `sendCollectionMetrics` | no | `bool` | Whether to send collection level metrics or not (**default:** `false`) |
+| `sendCollectionTopMetrics` | no | `bool` | Whether to send collection level top (timing) metrics or not (**default:** `false`) |
 
 
 ## Metrics

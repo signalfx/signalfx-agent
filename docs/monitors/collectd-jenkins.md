@@ -13,7 +13,22 @@ Monitor Type: `collectd/jenkins` ([Source](https://github.com/signalfx/signalfx-
 Monitors jenkins by using the
 [jenkins collectd Python
 plugin](https://github.com/signalfx/collectd-jenkins), which collects
-metrics from jenkins instances
+metrics from Jenkins instances by hitting these endpoints:
+[../api/json](https://wiki.jenkins.io/display/jenkins/remote+access+api)
+(job metrics)  and
+[metrics/&lt;MetricsKey&gt;/..](https://wiki.jenkins.io/display/JENKINS/Metrics+Plugin)
+(default and optional Codahale/Dropwizard JVM metrics).
+
+Requires Jenkins 1.580.3 or later, as well as the Jenkins Metrics Plugin (see Setup).
+
+<!--- SETUP --->
+## Install Jenkins Metrics Plugin
+This monitor requires the Metrics Plugin in Jenkins. Go to `Manage Jenkins -> Manage Plugins -> Available -> Search "Metrics Plugin"`
+to find and install this plugin in your Jenkins UI.
+
+
+<!--- SETUP --->
+## Example Config
 
 Sample YAML configuration:
 
@@ -51,6 +66,15 @@ monitors:
 
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/jenkins
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

@@ -10,10 +10,11 @@ Monitor Type: `collectd/hadoop` ([Source](https://github.com/signalfx/signalfx-a
 
 ## Overview
 
-Collects metrics about a Hadoop cluster using the
-[collectd Hadoop Python plugin](https://github.com/signalfx/collectd-hadoop).
-Also see
-https://github.com/signalfx/integrations/tree/master/collectd-hadoop.
+Collects metrics about a Hadoop 2.0+ cluster using the [collectd Hadoop Python
+plugin](https://github.com/signalfx/collectd-hadoop). If a remote JMX port
+is exposed in the hadoop cluster, then you may also configure the
+[collectd/hadoopjmx](./collectd-hadoopjmx.md) monitor to collect additional
+metrics about the hadoop cluster.
 
 The `collectd/hadoop` monitor will collect metrics from the Resource Manager
 REST API for the following:
@@ -23,6 +24,19 @@ REST API for the following:
 - Cluster Nodes
 - MapReduce Jobs
 
+
+<!--- SETUP --->
+## Metric Endpoints in Hadoop
+See the following links for more information about specific metric endpoints:
+
+<a target="_blank" href="https://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-common/Metrics.html">https://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-common/Metrics.html</a>
+
+<a target="_blank" href="https://hadoop.apache.org/docs/r2.7.4/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html">https://hadoop.apache.org/docs/r2.7.4/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html</a>
+
+<a target="_blank" href="https://hadoop.apache.org/docs/current/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapredAppMasterRest.html">https://hadoop.apache.org/docs/current/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapredAppMasterRest.html</a>
+
+<!--- SETUP --->
+## Sample Config
 Sample YAML configuration:
 
 ```yaml
@@ -32,12 +46,17 @@ monitors:
   port: 8088
 ```
 
-If a remote JMX port is exposed in the hadoop cluster, then
-you may also configure the [collectd/hadoopjmx](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoopjmx.md)
-monitor to collect additional metrics about the hadoop cluster.
-
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/hadoop
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

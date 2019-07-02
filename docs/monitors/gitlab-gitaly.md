@@ -15,6 +15,15 @@ This monitor scrapes the [Gitlab Gitaly GRPC server](https://docs.gitlab.com/ee/
 
 ## Configuration
 
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: gitlab-gitaly
+   ...  # Additional config
+```
+
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**
 

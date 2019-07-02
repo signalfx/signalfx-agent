@@ -24,8 +24,10 @@ from Consul instances by hitting these endpoints:
 - [/coordinate/nodes](https://www.consul.io/api/coordinate.html#read-lan-coordinates)
 - [/health/state/any](https://www.consul.io/api/health.html#list-checks-in-state)
 
+Supports Consul 0.7.0+.
 
-### Agent Statsd listener
+<!--- SETUP --->
+## Agent Statsd listener
 If running Consul version below 0.9.1, configure the Consul agents that are
 to be monitored to send telemetry to a SignalFx Agent instance by adding
 the below configuration to Consul agents configuration file:
@@ -41,6 +43,15 @@ default.
 
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/consul
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

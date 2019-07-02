@@ -10,13 +10,21 @@ Monitor Type: `collectd/etcd` ([Source](https://github.com/signalfx/signalfx-age
 
 ## Overview
 
-Monitors an etcd key/value store.
+Monitors an etcd key/value store using the [collectd etcd Python plugin](https://github.com/signalfx/collectd-etcd).
 
-See https://github.com/signalfx/integrations/tree/master/collectd-etcd and
-https://github.com/signalfx/collectd-etcd
+Requires etcd 2.0.8 or later.
 
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/etcd
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

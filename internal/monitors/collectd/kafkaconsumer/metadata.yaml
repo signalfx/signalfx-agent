@@ -1,10 +1,7 @@
 monitors:
 - dimensions:
   doc: |
-    Monitors a Java based Kafka consumer using GenericJMX.
-
-    See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka)
-    for more information.
+    Monitors a Java based Kafka consumer using [collectd's GenericJMX plugin](./collectd-genericjmx.md)[](sfx_link:java).
 
     This monitor has a set of [built in MBeans
     configured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)
@@ -26,7 +23,7 @@ monitors:
     Use the `mBeansToOmit` config option in such cases. The above example configuration will not attempt to
     collect the MBean referenced by `fetch-size-avg-per-topic`. Here is a
     [list](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)
-    of metrics collected by default
+    of metrics collected by default.
   metrics:
     # Taken from genericjmx monitor. If you want to change them update genericjmx and update
     # all other monitors that use genericjmx with this same notice.

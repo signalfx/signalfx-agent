@@ -1,10 +1,9 @@
 monitors:
 - dimensions:
   doc: |
-    Monitors an etcd key/value store.
+    Monitors an etcd key/value store using the [collectd etcd Python plugin](https://github.com/signalfx/collectd-etcd).
 
-    See https://github.com/signalfx/integrations/tree/master/collectd-etcd and
-    https://github.com/signalfx/collectd-etcd
+    Requires etcd 2.0.8 or later.
   metrics:
     counter.etcd.leader.counts.fail:
       description: Total number of failed rpc requests to with a follower

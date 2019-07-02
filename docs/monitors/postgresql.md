@@ -12,8 +12,9 @@ Monitor Type: `postgresql` ([Source](https://github.com/signalfx/signalfx-agent/
 
 This monitor pulls metrics from all PostgreSQL databases from a specific
 Postgres server instance.  It pulls basic information that is applicable
-to any database.
+to any database.  It gathers these metrics via SQL queries.
 
+<!--- OVERVIEW --->
 ## Metrics about Queries
 
 In order to get metrics about query execution time, you must enable the
@@ -34,6 +35,7 @@ Tested with PostgreSQL 9.2+.
 
 If you want to collect additional metrics about PostgreSQL, use the [sql monitor](./sql.md).
 
+<!--- SETUP --->
 ## Example Configuration
 
 This example uses the [Vault remote config
@@ -68,6 +70,15 @@ monitors:
 
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: postgresql
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

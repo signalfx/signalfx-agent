@@ -1270,7 +1270,7 @@
       "monitorType": "collectd/activemq",
       "sendAll": false,
       "dimensions": null,
-      "doc": "SignalFx's integration with ActiveMQ wraps the [Collectd GenericJMX\nmonitor](https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-genericjmx.html)\nto monitor ActiveMQ.\n\nUse this monitor to gather the following types of information from ActiveMQ:\n\n* Broker (Totals per broker)\n* Queue (Queue status)\n* Topic (Topic status)\n\nFor more information on the built-in content available for this\nintegration, see [the integration docs](https://docs.signalfx.com/en/latest/integrations/integrations-reference/integrations.activemq.html).\n\nTo monitor the age of messages inside ActiveMQ queues, see [ActiveMQ\nmessage age listener](https://github.com/signalfx/integrations/tree/master/amq-message-age).\n\n## Example config\n\n```yaml\nmonitors:\n - type: collectd/activemq\n   host: localhost\n   # This is the remote JMX port for ActiveMQ\n   port: 1099\n```\n",
+      "doc": "SignalFx's integration with ActiveMQ wraps the [Collectd GenericJMX\nmonitor](https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-genericjmx.html)\nto monitor ActiveMQ.\n\nUse this monitor to gather the following types of information from ActiveMQ:\n\n* Broker (Totals per broker)\n* Queue (Queue status)\n* Topic (Topic status)\n\nTo monitor the age of messages inside ActiveMQ queues, see [ActiveMQ\nmessage age listener](https://github.com/signalfx/integrations/tree/master/amq-message-age)[](sfx_link:amq-message-age).\n\n\u003c!--- SETUP ---\u003e\n## Example config\n\n```yaml\nmonitors:\n - type: collectd/activemq\n   host: localhost\n   # This is the remote JMX port for ActiveMQ\n   port: 1099\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -1962,7 +1962,7 @@
       "monitorType": "collectd/cassandra",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors Cassandra using the Collectd GenericJMX plugin.  This is\nessentially a wrapper around the\n[collectd-genericjmx](./collectd-genericjmx.md) monitor that comes with a\nset of predefined MBean definitions that a standard Cassandra deployment\nwill expose.\n\nUse this integration to monitor the following types of information from Cassandra nodes:\n\n - read/write/range-slice requests\n - read/write/range-slice errors (timeouts and unavailable)\n - read/write/range-slice latency (median, 99th percentile, maximum)\n - compaction activity\n - hint activity\n",
+      "doc": "Monitors Cassandra using the Collectd GenericJMX plugin.  This is\nessentially a wrapper around the\n[collectd-genericjmx](./collectd-genericjmx.md)[](sfx_link:java) monitor that comes with a\nset of predefined MBean definitions that a standard Cassandra deployment\nwill expose.\n\nUse this integration to monitor the following types of information from Cassandra nodes:\n\n - read/write/range-slice requests\n - read/write/range-slice errors (timeouts and unavailable)\n - read/write/range-slice latency (median, 99th percentile, maximum)\n - compaction activity\n - hint activity\n\nSupports Cassandra 2.0.10+.\n",
       "groups": {
         "": {
           "description": "",
@@ -2461,7 +2461,7 @@
           "description": "The name of the consul datacenter"
         }
       },
-      "doc": "Monitors the Consul data store by using the\n[Consul collectd Python\nplugin](https://github.com/signalfx/collectd-consul), which collects metrics\nfrom Consul instances by hitting these endpoints:\n- [/agent/self](https://www.consul.io/api/agent.html#read-configuration)\n- [/agent/metrics](https://www.consul.io/api/agent.html#view-metrics)\n- [/catalog/nodes](https://www.consul.io/api/catalog.html#list-nodes)\n- [/catalog/node/:node](https://www.consul.io/api/catalog.html#list-services-for-node)\n- [/status/leader](https://www.consul.io/api/status.html#get-raft-leader)\n- [/status/peers](https://www.consul.io/api/status.html#list-raft-peers)\n- [/coordinate/datacenters](https://www.consul.io/api/coordinate.html#read-wan-coordinates)\n- [/coordinate/nodes](https://www.consul.io/api/coordinate.html#read-lan-coordinates)\n- [/health/state/any](https://www.consul.io/api/health.html#list-checks-in-state)\n\n\n### Agent Statsd listener\nIf running Consul version below 0.9.1, configure the Consul agents that are\nto be monitored to send telemetry to a SignalFx Agent instance by adding\nthe below configuration to Consul agents configuration file:\n\n```\n{\"telemetry\":\n  {\"statsd_address\": \"\u003cagent host\u003e:\u003cagent port, default 8125\u003e\"}\n}\n```\nThis monitor should then be be configured with the `telemetryServer: true`\noption set. This will start a UDP server listening on `0.0.0.0:8125` by\ndefault.\n",
+      "doc": "Monitors the Consul data store by using the\n[Consul collectd Python\nplugin](https://github.com/signalfx/collectd-consul), which collects metrics\nfrom Consul instances by hitting these endpoints:\n- [/agent/self](https://www.consul.io/api/agent.html#read-configuration)\n- [/agent/metrics](https://www.consul.io/api/agent.html#view-metrics)\n- [/catalog/nodes](https://www.consul.io/api/catalog.html#list-nodes)\n- [/catalog/node/:node](https://www.consul.io/api/catalog.html#list-services-for-node)\n- [/status/leader](https://www.consul.io/api/status.html#get-raft-leader)\n- [/status/peers](https://www.consul.io/api/status.html#list-raft-peers)\n- [/coordinate/datacenters](https://www.consul.io/api/coordinate.html#read-wan-coordinates)\n- [/coordinate/nodes](https://www.consul.io/api/coordinate.html#read-lan-coordinates)\n- [/health/state/any](https://www.consul.io/api/health.html#list-checks-in-state)\n\nSupports Consul 0.7.0+.\n\n\u003c!--- SETUP ---\u003e\n## Agent Statsd listener\nIf running Consul version below 0.9.1, configure the Consul agents that are\nto be monitored to send telemetry to a SignalFx Agent instance by adding\nthe below configuration to Consul agents configuration file:\n\n```\n{\"telemetry\":\n  {\"statsd_address\": \"\u003cagent host\u003e:\u003cagent port, default 8125\u003e\"}\n}\n```\nThis monitor should then be be configured with the `telemetryServer: true`\noption set. This will start a UDP server listening on `0.0.0.0:8125` by\ndefault.\n",
       "groups": {
         "": {
           "description": "",
@@ -2989,7 +2989,7 @@
       "monitorType": "collectd/couchbase",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors [Couchbase](https://www.couchbase.com/) by using the [couchbase\ncollectd Python plugin](https://github.com/signalfx/collectd-couchbase),\nwhich collects metrics from Couchbase server instances.\n\nFor general reference on how to monitor Couchbase, see \u003ca target=\"_blank\"\nhref=\"http://blog.couchbase.com/monitoring-couchbase-cluster\"\u003eCouchbase\nMonitoring\u003c/a\u003e and \u003ca target=\"_blank\"\nhref=\"http://developer.couchbase.com/documentation/server/4.0/monitoring/monitoring-rest.html\"\u003eMonitor\nusing the REST API\u003c/a\u003e.\n\n## Note on bucket metrics\n\nThis plugin emits some metrics about the bucket's performance across the\ncluster, and some metrics about the bucket's performance per node.\n\nMetrics beginning with `gauge.bucket.basic.*` and\n`gauge.bucket.quota.*` are reported once per cluster. All other\nbucket metrics (`gauge.bucket.*`) are reported by every node that hosts\nthat bucket. In order to analyze bucket performance for the entire bucket,\napply functions like Sum or Mean to group node-level metrics together by\nbucket.\n\n## Example Config\n\nSample YAML configuration with custom query:\n\n```yaml\nmonitors:\n- type: collectd/couchbase\n  host: 127.0.0.1\n  port: 8091\n  collectTarget: \"NODE\"\n  clusterName: \"my-cluster\"\n  username: \"user\"\n  password: \"password\"\n```\n",
+      "doc": "This is a Smart Agent monitor for [Couchbase](https://www.couchbase.com/)\nthat uses the [couchbase collectd Python\nplugin](https://github.com/signalfx/collectd-couchbase) to collect metrics\nfrom Couchbase server instances.\n\nFor general reference on how to monitor Couchbase, see \u003ca target=\"_blank\"\nhref=\"http://blog.couchbase.com/monitoring-couchbase-cluster\"\u003eCouchbase\nMonitoring\u003c/a\u003e and \u003ca target=\"_blank\"\nhref=\"http://developer.couchbase.com/documentation/server/4.0/monitoring/monitoring-rest.html\"\u003eMonitor\nusing the REST API\u003c/a\u003e.\n\n\u003c!--- METRICS ---\u003e\n## Note on bucket metrics\n\nThis plugin emits some metrics about the bucket's performance across the\ncluster, and some metrics about the bucket's performance per node.\n\nMetrics beginning with `gauge.bucket.basic.*` and\n`gauge.bucket.quota.*` are reported once per cluster. All other\nbucket metrics (`gauge.bucket.*`) are reported by every node that hosts\nthat bucket. In order to analyze bucket performance for the entire bucket,\napply functions like Sum or Mean to group node-level metrics together by\nbucket.\n\n\u003c!--- SETUP ---\u003e\n## Example Config\n\nSample YAML configuration with custom query:\n\n```yaml\nmonitors:\n- type: collectd/couchbase\n  host: 127.0.0.1\n  port: 8091\n  collectTarget: \"NODE\"\n  clusterName: \"my-cluster\"\n  username: \"user\"\n  password: \"password\"\n```\n",
       "groups": {
         "bucket": {
           "description": "Bucket metrics",
@@ -5630,7 +5630,7 @@
       "monitorType": "collectd/etcd",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors an etcd key/value store.\n\nSee https://github.com/signalfx/integrations/tree/master/collectd-etcd and\nhttps://github.com/signalfx/collectd-etcd\n",
+      "doc": "Monitors an etcd key/value store using the [collectd etcd Python plugin](https://github.com/signalfx/collectd-etcd).\n\nRequires etcd 2.0.8 or later.\n",
       "groups": {
         "": {
           "description": "",
@@ -5923,7 +5923,7 @@
       "monitorType": "collectd/genericjmx",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors Java services that expose metrics on\nJMX using collectd's GenericJMX plugin.\n\nSee the following for more information\n- https://github.com/signalfx/integrations/tree/master/collectd-genericjmx\n- https://collectd.org/documentation/manpages/collectd-java.5.shtml\n- https://collectd.org/wiki/index.php/Plugin:GenericJMX\n\nExample (gets the thread count from a standard JMX MBean available on all\nJava JMX-enabled apps):\n\n```yaml\n\nmonitors:\n - type: collectd/genericjmx\n   host: my-java-app\n   port: 7099\n   mBeanDefinitions:\n     threading:\n       objectName: java.lang:type=Threading\n       values:\n       - type: gauge\n         table: false\n         instancePrefix: jvm.threads.count\n         attribute: ThreadCount\n```\n## Troubleshooting\n\nExposing JMX in your Java application can be a tricky process.  Oracle has a\n[helpful guide for Java\n8](https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html)\nthat explains how to expose JMX metrics automatically by setting Java\nproperties on your application.  Here are a set of Java properties that are\nknown to work with Java 7+:\n\n```\njava \\\n  -Dcom.sun.management.jmxremote.port=5000 \\\n  -Dcom.sun.management.jmxremote.authenticate=false \\\n  -Dcom.sun.management.jmxremote.ssl=false \\\n  -Dcom.sun.management.jmxremote.rmi.port=5000 \\\n  ...\n```\n\nThis should work as long as the agent is allowed to access port 5000 on the\nJava app's host (i.e. there is no firewall blocking it).  Note that this\ndoes not enable authentication or encryption, but these can be added if\ndesired.\n\nAssuming you have the `host` config set to `172.17.0.3` and the port set to\n`5000` (this is a totally arbitrary port and your JMX app will probably be\nsomething different), here are some errors you might receive and their\nmeanings:\n\n### Connection Refused\n```\nCreating MBean server connection failed: java.io.IOException: Failed to retrieve RMIServer stub: javax.naming.ServiceUnavailableException [Root exception is java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection refused (Connection refused)]\n```\n\nThis error indicates that the JMX connect port is not open on the specified\nhost.  Confirm (via netstat/ss or some other tool) that this port\nis indeed open on the configured host, and is listening on an appropriate\naddress (i.e. if the agent is running on a remote server then JMX should not\nbe listening on localhost only).\n\n### RMI Connection Issues\n\n```\nCreating MBean server connection failed: java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection timed out (Connection timed out)\n```\n\nThis indicates that the JMX connect port was reached successfully, but the\nRMI port that it was directed to is being blocked, probably by a firewall.\nThe easiest thing to do here is to make sure the\n`com.sun.management.jmxremote.rmi.port` property in your Java app is set to\nthe same port as the JMX connect port.  There may be other variations of\nthis that say `Connection reset` or `Connection refused` but they all\ngeneraly indicate a similar cause.\n\n## Useful links\n\n - https://realjenius.com/2012/11/21/java7-jmx-tunneling-freedom/\n",
+      "doc": "Monitors Java services that expose metrics on JMX using collectd's\nGenericJMX plugin. The GenericJMX plugin reads Managed Beans (MBeans) from\nan MBeanServer using JMX. The monitor uses an embedded Java runtime in\ncollectd via the [Java\nplugin](https://github.com/signalfx/integrations/tree/master/collectd-java)\nof collectd.\n\nThe Java Management Extensions (JMX) is a generic framework to provide and\nquery various management information. The interface is used by the Java\nVirtual Machine (JVM) to provide information about the memory used, threads\nand so on. These basic performance values can therefore be collected for\nevery Java process without any support in the Java process itself.\n\nAdvanced Java processes can use the JMX interface to provide performance\ninformation themselves. The Apache Tomcat application server, for example,\nprovides information on the number of requests processed, the number of\nbytes sent, processing time, and thread counts.\n\nSee the following for more information\n- https://collectd.org/documentation/manpages/collectd-java.5.shtml\n- https://collectd.org/wiki/index.php/Plugin:GenericJMX\n\n\u003c!--- SETUP ---\u003e\n### Config Example\nExample (gets the thread count from a standard JMX MBean available on all\nJava JMX-enabled apps):\n\n```yaml\n\nmonitors:\n - type: collectd/genericjmx\n   host: my-java-app\n   port: 7099\n   mBeanDefinitions:\n     threading:\n       objectName: java.lang:type=Threading\n       values:\n       - type: gauge\n         table: false\n         instancePrefix: jvm.threads.count\n         attribute: ThreadCount\n```\n\n\u003c!--- SETUP ---\u003e\n## Troubleshooting\n\nExposing JMX in your Java application can be a tricky process.  Oracle has a\n[helpful guide for Java\n8](https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html)\nthat explains how to expose JMX metrics automatically by setting Java\nproperties on your application.  Here are a set of Java properties that are\nknown to work with Java 7+:\n\n```\njava \\\n  -Dcom.sun.management.jmxremote.port=5000 \\\n  -Dcom.sun.management.jmxremote.authenticate=false \\\n  -Dcom.sun.management.jmxremote.ssl=false \\\n  -Dcom.sun.management.jmxremote.rmi.port=5000 \\\n  ...\n```\n\nThis should work as long as the agent is allowed to access port 5000 on the\nJava app's host (i.e. there is no firewall blocking it).  Note that this\ndoes not enable authentication or encryption, but these can be added if\ndesired.\n\nAssuming you have the `host` config set to `172.17.0.3` and the port set to\n`5000` (this is a totally arbitrary port and your JMX app will probably be\nsomething different), here are some errors you might receive and their\nmeanings:\n\n### Connection Refused\n```\nCreating MBean server connection failed: java.io.IOException: Failed to retrieve RMIServer stub: javax.naming.ServiceUnavailableException [Root exception is java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection refused (Connection refused)]\n```\n\nThis error indicates that the JMX connect port is not open on the specified\nhost.  Confirm (via netstat/ss or some other tool) that this port\nis indeed open on the configured host, and is listening on an appropriate\naddress (i.e. if the agent is running on a remote server then JMX should not\nbe listening on localhost only).\n\n### RMI Connection Issues\n\n```\nCreating MBean server connection failed: java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection timed out (Connection timed out)\n```\n\nThis indicates that the JMX connect port was reached successfully, but the\nRMI port that it was directed to is being blocked, probably by a firewall.\nThe easiest thing to do here is to make sure the\n`com.sun.management.jmxremote.rmi.port` property in your Java app is set to\nthe same port as the JMX connect port.  There may be other variations of\nthis that say `Connection reset` or `Connection refused` but they all\ngeneraly indicate a similar cause.\n\n## Useful links\n\n - https://realjenius.com/2012/11/21/java7-jmx-tunneling-freedom/\n",
       "groups": {
         "jvm": {
           "description": "",
@@ -6203,7 +6203,7 @@
       "monitorType": "collectd/hadoop",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Collects metrics about a Hadoop cluster using the\n[collectd Hadoop Python plugin](https://github.com/signalfx/collectd-hadoop).\nAlso see\nhttps://github.com/signalfx/integrations/tree/master/collectd-hadoop.\n\nThe `collectd/hadoop` monitor will collect metrics from the Resource Manager\nREST API for the following:\n- Cluster Metrics\n- Cluster Scheduler\n- Cluster Applications\n- Cluster Nodes\n- MapReduce Jobs\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/hadoop\n  host: 127.0.0.1\n  port: 8088\n```\n\nIf a remote JMX port is exposed in the hadoop cluster, then\nyou may also configure the [collectd/hadoopjmx](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoopjmx.md)\nmonitor to collect additional metrics about the hadoop cluster.\n",
+      "doc": "Collects metrics about a Hadoop 2.0+ cluster using the [collectd Hadoop Python\nplugin](https://github.com/signalfx/collectd-hadoop). If a remote JMX port\nis exposed in the hadoop cluster, then you may also configure the\n[collectd/hadoopjmx](./collectd-hadoopjmx.md) monitor to collect additional\nmetrics about the hadoop cluster.\n\nThe `collectd/hadoop` monitor will collect metrics from the Resource Manager\nREST API for the following:\n- Cluster Metrics\n- Cluster Scheduler\n- Cluster Applications\n- Cluster Nodes\n- MapReduce Jobs\n\n\n\u003c!--- SETUP ---\u003e\n## Metric Endpoints in Hadoop\nSee the following links for more information about specific metric endpoints:\n\n\u003ca target=\"_blank\" href=\"https://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-common/Metrics.html\"\u003ehttps://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-common/Metrics.html\u003c/a\u003e\n\n\u003ca target=\"_blank\" href=\"https://hadoop.apache.org/docs/r2.7.4/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html\"\u003ehttps://hadoop.apache.org/docs/r2.7.4/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html\u003c/a\u003e\n\n\u003ca target=\"_blank\" href=\"https://hadoop.apache.org/docs/current/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapredAppMasterRest.html\"\u003ehttps://hadoop.apache.org/docs/current/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapredAppMasterRest.html\u003c/a\u003e\n\n\u003c!--- SETUP ---\u003e\n## Sample Config\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/hadoop\n  host: 127.0.0.1\n  port: 8088\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -7437,7 +7437,7 @@
       "monitorType": "collectd/hadoopjmx",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Collects metrics about a Hadoop cluster using using collectd's GenericJMX plugin.\n\nAlso see https://github.com/signalfx/integrations/tree/master/collectd-hadoop.\n\nTo enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively\n\n**hadoop-env.sh:**\n```sh\nexport HADOOP_NAMENODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5677 $HADOOP_NAMENODE_OPTS\"\nexport HADOOP_DATANODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5679 $HADOOP_DATANODE_OPTS\"\n```\n\n**yarn-env.sh:**\n```sh\nexport YARN_NODEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=8002 $YARN_NODEMANAGER_OPTS\"\nexport YARN_RESOURCEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5680 $YARN_RESOURCEMANAGER_OPTS\"\n```\n\nThis monitor has a set of built in MBeans configured for:\n  - [Name Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nameNodeMBeans.go)\n  - [Resource Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/resourceManagerMBeans.go)\n  - [Node Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nodeManagerMBeans.go)\n  - [Data Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/dataNodeMBeans.go)\n\nSample YAML configuration:\n\nName Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5677\n  nodeType: nameNode\n```\n\nResource Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5680\n  nodeType: resourceManager\n```\n\nNode Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 8002\n  nodeType: nodeManager\n```\n\nData Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5679\n  nodeType: dataNode\n```\n\nYou may also configure the [collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoop.md)\nmonitor to collect additional metrics about the hadoop cluster from the REST API\n",
+      "doc": "Collects metrics about a Hadoop 2.0+ cluster using using collectd's GenericJMX\nplugin. You may also configure the\n[collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoop.md)\nmonitor to collect additional metrics about the hadoop cluster from the\nREST API\n\nTo enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively\n\n**hadoop-env.sh:**\n```sh\nexport HADOOP_NAMENODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5677 $HADOOP_NAMENODE_OPTS\"\nexport HADOOP_DATANODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5679 $HADOOP_DATANODE_OPTS\"\n```\n\n**yarn-env.sh:**\n```sh\nexport YARN_NODEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=8002 $YARN_NODEMANAGER_OPTS\"\nexport YARN_RESOURCEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5680 $YARN_RESOURCEMANAGER_OPTS\"\n```\n\nThis monitor has a set of built in MBeans configured for:\n  - [Name Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nameNodeMBeans.go)\n  - [Resource Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/resourceManagerMBeans.go)\n  - [Node Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nodeManagerMBeans.go)\n  - [Data Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/dataNodeMBeans.go)\n\nSample YAML configuration:\n\nName Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5677\n  nodeType: nameNode\n```\n\nResource Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5680\n  nodeType: resourceManager\n```\n\nNode Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 8002\n  nodeType: nodeManager\n```\n\nData Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5679\n  nodeType: dataNode\n```\n",
       "groups": {
         "data-node": {
           "description": "Metrics for DataNodes containing HDFS files",
@@ -8116,7 +8116,7 @@
       "monitorType": "collectd/haproxy",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors an HAProxy instance.\n\nSee https://github.com/signalfx/integrations/tree/master/collectd-haproxy.\n",
+      "doc": "This monitors an [HAProxy](http://www.haproxy.org/) instance.  Requires HAProxy 1.5+.\n\n\u003c!--- SETUP ---\u003e\n### Socket Config\nThe location of the HAProxy socket file is defined in the HAProxy config file, as in the following example:\n\n```\nglobal\n    daemon\n    stats socket /var/run/haproxy.sock\n    stats timeout 2m\n```\n\nNote: it is possible to use a tcp socket for stats in HAProxy. Users will\nfirst need to define in their collectd-haproxy plugin config file the tcp\naddress for the socket, for example `localhost:9000`, and then in the\nhaproxy.cfg file change the stats socket to listen on the same address\n```\nglobal\n    daemon\n    stats socket localhost:9000\n    stats timeout 2m\n```\n\nFor a more restricted tcp socket, a backend server can be defined to listen\nto stats on localhost. A frontend proxy can use the backend server on a\ndifferent port, with ACLs to restrict access. See below for example.\n\n```\nglobal\n    daemon\n    stats socket localhost:9000\n    stats timeout 2m\n\nbackend stats-backend\n    mode tcp\n    server stats-localhost localhost:9000\n\nfrontend stats-frontend\n    bind *:9001\n    default_backend stats-backend\n    acl ...\n    acl ...\n```\n\n\u003c!--- SETUP ---\u003e\n### SELinux Setup\n\nIf you have SELinux enabled, create a SELinux policy package downloading\nthe [type enforcement\nfile](https://github.com/signalfx/collectd-haproxy/blob/master/selinux/collectd-haproxy.te)\nto some place on your server.  Run the commands below to create and install\nthe policy package.\n\n    $ checkmodule -M -m -o collectd-haproxy.mod collectd-haproxy.te\n    checkmodule:  loading policy configuration from collectd-haproxy.te\n    checkmodule:  policy configuration loaded\n    checkmodule:  writing binary representation (version 17) to collectd-haproxy.mod\n    $ semodule_package -o collectd-haproxy.pp -m collectd-haproxy.mod\n    $ sudo semodule -i collectd-haproxy.pp\n    $ sudo reboot\n",
       "groups": {
         "": {
           "description": "",
@@ -8676,7 +8676,7 @@
           },
           {
             "yamlName": "proxiesToMonitor",
-            "doc": "",
+            "doc": "A list of all the pxname(s) or svname(s) that you want to monitor (e.g. `[\"http-in\", \"server1\", \"backend\"]`)",
             "default": null,
             "required": false,
             "type": "slice",
@@ -8901,7 +8901,7 @@
       "monitorType": "collectd/jenkins",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors jenkins by using the\n[jenkins collectd Python\nplugin](https://github.com/signalfx/collectd-jenkins), which collects\nmetrics from jenkins instances\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/jenkins\n  host: 127.0.0.1\n  port: 8080\n  metricsKey: reallylongmetricskey\n```\n\nSample YAML configuration with specific enhanced metrics included\n\n```yaml\nmonitors:\n- type: collectd/jenkins\n  host: 127.0.0.1\n  port: 8080\n  metricsKey: reallylongmetricskey\n  includeMetrics:\n  - \"vm.daemon.count\"\n  - \"vm.terminated.count\"\n```\n\nSample YAML configuration with all enhanced metrics included\n\n```yaml\nmonitors:\n- type: collectd/jenkins\n  host: 127.0.0.1\n  port: 8080\n  metricsKey: reallylongmetricskey\n  enhancedMetrics: true\n```\n",
+      "doc": "Monitors jenkins by using the\n[jenkins collectd Python\nplugin](https://github.com/signalfx/collectd-jenkins), which collects\nmetrics from Jenkins instances by hitting these endpoints:\n[../api/json](https://wiki.jenkins.io/display/jenkins/remote+access+api)\n(job metrics)  and\n[metrics/\u0026lt;MetricsKey\u0026gt;/..](https://wiki.jenkins.io/display/JENKINS/Metrics+Plugin)\n(default and optional Codahale/Dropwizard JVM metrics).\n\nRequires Jenkins 1.580.3 or later, as well as the Jenkins Metrics Plugin (see Setup).\n\n\u003c!--- SETUP ---\u003e\n## Install Jenkins Metrics Plugin\nThis monitor requires the Metrics Plugin in Jenkins. Go to `Manage Jenkins -\u003e Manage Plugins -\u003e Available -\u003e Search \"Metrics Plugin\"`\nto find and install this plugin in your Jenkins UI.\n\n\n\u003c!--- SETUP ---\u003e\n## Example Config\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/jenkins\n  host: 127.0.0.1\n  port: 8080\n  metricsKey: reallylongmetricskey\n```\n\nSample YAML configuration with specific enhanced metrics included\n\n```yaml\nmonitors:\n- type: collectd/jenkins\n  host: 127.0.0.1\n  port: 8080\n  metricsKey: reallylongmetricskey\n  includeMetrics:\n  - \"vm.daemon.count\"\n  - \"vm.terminated.count\"\n```\n\nSample YAML configuration with all enhanced metrics included\n\n```yaml\nmonitors:\n- type: collectd/jenkins\n  host: 127.0.0.1\n  port: 8080\n  metricsKey: reallylongmetricskey\n  enhancedMetrics: true\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -9105,7 +9105,7 @@
       "monitorType": "collectd/kafka",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors a Kafka instance using collectd's\nGenericJMX plugin.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka/mbeans.go)\nfor which it pulls metrics from Kafka's JMX endpoint.\n\nNote that this monitor supports Kafka v0.8.2.x and above. For Kafka v1.x.x and above,\napart from the list of default metrics, kafka.server:type=ZooKeeperClientMetrics,name=ZooKeeperRequestLatencyMs\nis a good metric to monitor since it gives an understanding of how long brokers wait for\nrequests to Zookeeper to be completed. Since Zookeeper is an integral part of a Kafka cluster,\nmonitoring it using the [Zookeeper\nmonitor] (https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-zookeeper.html)\nis recommended. It is also a good idea to monitor disk utilization and network metrics of\nthe underlying host.\n\nSee https://github.com/signalfx/integrations/tree/master/collectd-kafka.\n",
+      "doc": "Monitors a Kafka instance using collectd's\nGenericJMX plugin. See the [collectd/genericjmx\nmonitor](./collectd-genericjmx.md)[](sfx_link:java) for more information on\nhow to configure custom MBeans, as well as information on troubleshooting\nJMX setup.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka/mbeans.go)\nfor which it pulls metrics from Kafka's JMX endpoint.\n\nNote that this monitor supports Kafka v0.8.2.x and above. For Kafka v1.x.x and above,\napart from the list of default metrics, kafka.server:type=ZooKeeperClientMetrics,name=ZooKeeperRequestLatencyMs\nis a good metric to monitor since it gives an understanding of how long brokers wait for\nrequests to Zookeeper to be completed. Since Zookeeper is an integral part of a Kafka cluster,\nmonitoring it using the [Zookeeper\nmonitor](https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-zookeeper.html)[](sfx_link:zookeeper)\nis recommended. It is also a good idea to monitor disk utilization and network metrics of\nthe underlying host.\n",
       "groups": {
         "": {
           "description": "",
@@ -9566,7 +9566,7 @@
       "monitorType": "collectd/kafka_consumer",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors a Java based Kafka consumer using GenericJMX.\n\nSee the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka)\nfor more information.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)\nfor which it pulls metrics from the Kafka consumer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_consumer\n    host: localhost\n    port: 9099\n    mBeansToOmit:\n      - fetch-size-avg-per-topic\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new consumer API.\nAlso, per-topic metrics that are collected by default are not available through the new consumer API in\nv0.9.0.0 which can cause the logs to flood with warnings related to the MBean not being found.\nUse the `mBeansToOmit` config option in such cases. The above example configuration will not attempt to\ncollect the MBean referenced by `fetch-size-avg-per-topic`. Here is a\n[list](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)\nof metrics collected by default\n",
+      "doc": "Monitors a Java based Kafka consumer using [collectd's GenericJMX plugin](./collectd-genericjmx.md)[](sfx_link:java).\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)\nfor which it pulls metrics from the Kafka consumer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_consumer\n    host: localhost\n    port: 9099\n    mBeansToOmit:\n      - fetch-size-avg-per-topic\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new consumer API.\nAlso, per-topic metrics that are collected by default are not available through the new consumer API in\nv0.9.0.0 which can cause the logs to flood with warnings related to the MBean not being found.\nUse the `mBeansToOmit` config option in such cases. The above example configuration will not attempt to\ncollect the MBean referenced by `fetch-size-avg-per-topic`. Here is a\n[list](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)\nof metrics collected by default.\n",
       "groups": {
         "": {
           "description": "",
@@ -10241,7 +10241,7 @@
       "monitorType": "collectd/kong",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors a Kong instance using [collectd-kong](https://github.com/signalfx/collectd-kong).\n\nSee the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kong)\nfor more information.\n\nThe `metrics` field below is populated with a set of metrics that are\ndescribed at https://github.com/signalfx/collectd-kong/blob/master/README.md.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n  - type: collectd/kong\n    host: 127.0.0.1\n    port: 8001\n    metrics:\n      - metric: request_latency\n        report: true\n      - metric: connections_accepted\n        report: false\n```\n\nSample YAML configuration with custom /signalfx route and white and blacklists\n\n```yaml\nmonitors:\n  - type: collectd/kong\n    host: 127.0.0.1\n    port: 8443\n    url: https://127.0.0.1:8443/routed_signalfx\n    authHeader:\n      header: Authorization\n      value: HeaderValue\n    metrics:\n      - metric: request_latency\n        report: true\n    reportStatusCodeGroups: true\n    statusCodes:\n      - 202\n      - 403\n      - 405\n      - 419\n      - \"5*\"\n    serviceNamesBlacklist:\n      - \"*SomeService*\"\n```\n",
+      "doc": "Monitors a Kong instance using\n[collectd-kong](https://github.com/signalfx/collectd-kong).  The Smart\nAgent includes collectd and this plugin as part of the standard\ninstallation, so no additional installation is required once you have the\nSmart Agent.\n\nThe SignalFx Kong collectd plugin provides users with the ability to gather\nand report their service traffic metrics with collectd, in tandem with\n[kong-plugin-signalfx](https://github.com/signalfx/kong-plugin-signalfx).\n\nThis plugin emits metrics for configurable request/response lifecycle groups including:\n\n* Counters for response counts\n* Counters for cumulative response and request sizes\n* Counters for cumulative request, upstream, and Kong latencies\n\nThese request/response lifecycle groups can be optionally partitioned by tunable levels of granularity by:\n\n* API or Service Name/ID\n* Route ID\n* Request HTTP Method\n* Response HTTP Status Code\n\nIn addition to these groups, system-wide connection stats can be provided, including:\n\n* A counter for total fielded requests\n* Gauges for active connections and their various states\n* A gauge for database connectivity\n\nThe `metrics` field below is populated with a set of metrics that are\ndescribed at https://github.com/signalfx/collectd-kong/blob/master/README.md.\n\n\u003c!--- SETUP ---\u003e\n### Install Kong Lua Plugin\n\nPlease download and install this Lua module on all Kong servers by\nfollowing [these instructions](https://github.com/signalfx/kong-plugin-signalfx/blob/master/README.md).\n\n### REQUIREMENTS AND DEPENDENCIES\n\nThis plugin requires:\n\n| Software          | Version        |\n|-------------------|----------------|\n| Kong | 0.11.2+ |\n| Configured [kong-plugin-signalfx](https://github.com/signalfx/kong-plugin-signalfx) | 0.0.1+ |\n\n\n\u003c!--- SETUP ---\u003e\n## Example Config\n#\nSample YAML configuration:\n\n```yaml\nmonitors:\n  - type: collectd/kong\n    host: 127.0.0.1\n    port: 8001\n    metrics:\n      - metric: request_latency\n        report: true\n      - metric: connections_accepted\n        report: false\n```\n\nSample YAML configuration with custom /signalfx route and white and blacklists\n\n```yaml\nmonitors:\n  - type: collectd/kong\n    host: 127.0.0.1\n    port: 8443\n    url: https://127.0.0.1:8443/routed_signalfx\n    authHeader:\n      header: Authorization\n      value: HeaderValue\n    metrics:\n      - metric: request_latency\n        report: true\n    reportStatusCodeGroups: true\n    statusCodes:\n      - 202\n      - 403\n      - 405\n      - 419\n      - \"5*\"\n    serviceNamesBlacklist:\n      - \"*SomeService*\"\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -10928,7 +10928,7 @@
       "monitorType": "collectd/memcached",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors an instance of memcached using the\n[collectd memcached\nplugin](https://collectd.org/wiki/index.php/Plugin:memcached).\n\nSee the [integrations\ndoc](https://github.com/signalfx/integrations/tree/master/collectd-memcached)\nfor more information.\n",
+      "doc": "Monitors an instance of memcached using the [collectd memcached\nplugin](https://collectd.org/wiki/index.php/Plugin:memcached).  Requires\nMemcached 1.1 or later.\n\nThe monitor collects the following information from Memcached nodes:\n\n* request information (including hits, misses \u0026 evictions)\n* current connections\n* net input/output bytes\n* number of items cached\n\nDocumentation for Memcached can be found at https://github.com/memcached/memcached/wiki.\n",
       "groups": {
         "": {
           "description": "",
@@ -11225,7 +11225,7 @@
           "description": "Port number of the MongoDB instance"
         }
       },
-      "doc": "Monitors an instance of MongoDB using the\n[collectd MongoDB Python plugin](https://github.com/signalfx/collectd-mongodb).\n\nAlso see https://github.com/signalfx/integrations/tree/master/collectd-mongodb.\n",
+      "doc": "Monitors an instance of MongoDB using the [collectd MongoDB Python\nplugin](https://github.com/signalfx/collectd-mongodb).  Requires MongoDB\n2.6 or later.\n\nThis monitor captures the following metrics about MongoDB generally:\n\n* memory\n* network input/output bytes count\n* heap usage\n* db connections\n* operations count\n* active client connections\n* queued operations\n\nThe plugin also captures the following DB-specific metrics:\n\n* db size\n* db counters\n\nDocumentation for MongoDB can be found [here](http://docs.mongodb.org/manual/).\n\n\u003c!--- SETUP ---\u003e\n### Creating a MongoDB user for collectd\n\nIf you're monitoring a secured MongoDB deployment, it is a good practice to create a MongoDB user with minimal read-only roles, as follows:\n\n```\ndb.createUser( {\n  user: \"collectd\",\n  pwd: \"collectd\",\n  roles: [ { role: \"readAnyDatabase\", db: \"admin\" }, { role: \"clusterMonitor\", db: \"admin\" } ]\n});\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -11779,7 +11779,7 @@
         "fields": [
           {
             "yamlName": "host",
-            "doc": "",
+            "doc": "Host name/IP address of the Mongo instance",
             "default": null,
             "required": true,
             "type": "string",
@@ -11787,7 +11787,7 @@
           },
           {
             "yamlName": "port",
-            "doc": "",
+            "doc": "Port of the Mongo instance (default: 27017)",
             "default": null,
             "required": true,
             "type": "uint16",
@@ -11795,7 +11795,7 @@
           },
           {
             "yamlName": "databases",
-            "doc": "",
+            "doc": "Name(s) of database(s) that you would like metrics from. Note: the first database in this list must be \"admin\", as it is used to perform a `serverStatus()` command.",
             "default": null,
             "required": true,
             "type": "slice",
@@ -11803,7 +11803,7 @@
           },
           {
             "yamlName": "username",
-            "doc": "",
+            "doc": "The MongoDB user to connect as",
             "default": "",
             "required": false,
             "type": "string",
@@ -11811,7 +11811,7 @@
           },
           {
             "yamlName": "password",
-            "doc": "",
+            "doc": "The password of the above user",
             "default": "",
             "required": false,
             "type": "string",
@@ -11819,7 +11819,7 @@
           },
           {
             "yamlName": "useTLS",
-            "doc": "",
+            "doc": "If true, will connect to Mongo using TLS",
             "default": "false",
             "required": false,
             "type": "bool",
@@ -11827,7 +11827,7 @@
           },
           {
             "yamlName": "caCerts",
-            "doc": "",
+            "doc": "Path to a CA cert that will be used to verify the certificate that Mongo presents (not needed if not using TLS or if Mongo's cert is signed by a globally trusted issuer already installed in the default location on your OS)",
             "default": "",
             "required": false,
             "type": "string",
@@ -11835,7 +11835,7 @@
           },
           {
             "yamlName": "tlsClientCert",
-            "doc": "",
+            "doc": "Path to a client certificate (not needed unless your Mongo instance requires x509 client verification)",
             "default": "",
             "required": false,
             "type": "string",
@@ -11843,7 +11843,7 @@
           },
           {
             "yamlName": "tlsClientKey",
-            "doc": "",
+            "doc": "Path to a client certificate key (not needed unless your Mongo instance requires x509 client verification, or if your client cert above has the key included)",
             "default": "",
             "required": false,
             "type": "string",
@@ -11851,7 +11851,7 @@
           },
           {
             "yamlName": "tlsClientKeyPassPhrase",
-            "doc": "",
+            "doc": "Passphrase for the TLSClientKey above",
             "default": "",
             "required": false,
             "type": "string",
@@ -11859,7 +11859,7 @@
           },
           {
             "yamlName": "sendCollectionMetrics",
-            "doc": "",
+            "doc": "Whether to send collection level metrics or not",
             "default": "false",
             "required": false,
             "type": "bool",
@@ -11867,7 +11867,7 @@
           },
           {
             "yamlName": "sendCollectionTopMetrics",
-            "doc": "",
+            "doc": "Whether to send collection level top (timing) metrics or not",
             "default": "false",
             "required": false,
             "type": "bool",
@@ -11882,7 +11882,7 @@
       "monitorType": "collectd/mysql",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors a MySQL database server using collectd's\n[MySQL plugin](https://collectd.org/wiki/index.php/Plugin:MySQL).\n\nOn Unix, MySQL programs treat the host name `localhost` specially, in a way\nthat is likely different from what is expected compared to other\nnetwork-based programs. For connections to `localhost`, MySQL programs\nattempt to connect to the local server by using a Unix socket file. To ensure\nthat the client makes a TCP/IP connection to the local server specify a host\nname value of `127.0.0.1`, or the IP address or name of the local server.\n\nYou have to specify each database you want to monitor individually under the\n`databases` key.  If you have a common authentication to all databases being\nmonitored, you can specify that in the top-level `username`/`password`\noptions, otherwise they can be specified at the database level.\n\n**Note:** The MySQL monitor supports MySQL versions 5.x or later.\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: collectd/mysql\n   host: 127.0.0.1\n   port: 3306\n   databases:\n     - name: dbname\n     - name: securedb\n       username: admin\n       password: s3cr3t\n   username: dbuser\n   password: passwd\n```\n",
+      "doc": "Monitors a MySQL database server using collectd's [MySQL\nplugin](https://collectd.org/wiki/index.php/Plugin:MySQL). It supports\nMySQL versions 5.x or later.\n\nThis monitor connects to a MySQL instance and reports on the values\nreturned by a `SHOW STATUS` command. This includes the following:\n\n  - Number of commands processed\n  - Table and row operations (handlers)\n  - State of the query cache\n  - Status of MySQL threads\n  - Network traffic\n\n\u003c!--- SETUP ---\u003e\n### Note on localhost\nOn Unix, MySQL programs treat the host name `localhost` specially, in a way\nthat is likely different from what is expected compared to other\nnetwork-based programs. For connections to `localhost`, MySQL programs\nattempt to connect to the local server by using a Unix socket file. To ensure\nthat the client makes a TCP/IP connection to the local server specify a host\nname value of `127.0.0.1`, or the IP address or name of the local server.\n\n\u003c!--- SETUP ---\u003e\n### Databases\nYou have to specify each database you want to monitor individually under\nthe `databases` config option.  If you have a common authentication to all\ndatabases being monitored, you can specify that in the top-level\n`username`/`password` options, otherwise they can be specified at the\ndatabase level.\n\n\n\u003c!--- SETUP ---\u003e\n### Example Config\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: collectd/mysql\n   host: 127.0.0.1\n   port: 3306\n   databases:\n     - name: dbname\n     - name: securedb\n       username: admin\n       password: s3cr3t\n   username: dbuser\n   password: passwd\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -13206,7 +13206,7 @@
       "monitorType": "collectd/nginx",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors an nginx instance using our fork of the\ncollectd nginx plugin based on the [collectd nginx\nplugin](https://collectd.org/wiki/index.php/Plugin:nginx).\n\nSee the [integrations\ndoc](https://github.com/signalfx/integrations/tree/master/collectd-nginx)\nfor more information.\n",
+      "doc": "Monitors an NGINX instance using our fork of the\ncollectd nginx plugin based on the [collectd nginx\nplugin](https://collectd.org/wiki/index.php/Plugin:nginx).\n\nNote that this montior requires special configuration enabled in NGINX (see Setup).\n\n\u003c!--- SETUP ---\u003e\n### NGINX-specific configuration\n\nYou must configure NGINX to expose status information by editing the NGINX\nconfiguration.  Please see\n[ngx_http_stub_status_module](http://nginx.org/en/docs/http/ngx_http_stub_status_module.html)\nfor a guide to configuring the NGINX stats module\n`ngx_http_stub_status_module`.\n",
       "groups": {
         "": {
           "description": "",
@@ -13225,49 +13225,49 @@
       "metrics": {
         "connections.accepted": {
           "type": "cumulative",
-          "description": "Connections accepted by Nginx Web Server",
+          "description": "Connections accepted by NGINX Web Server",
           "group": null,
           "default": true
         },
         "connections.failed": {
           "type": "cumulative",
-          "description": "Connections failed by the Nginx Web Server",
+          "description": "Connections failed by the NGINX Web Server",
           "group": null,
           "default": false
         },
         "connections.handled": {
           "type": "cumulative",
-          "description": "Connections handled by Nginx Web Server",
+          "description": "Connections handled by NGINX Web Server",
           "group": null,
           "default": true
         },
         "nginx_connections.active": {
           "type": "gauge",
-          "description": "Connections active in Nginx Web Server",
+          "description": "Connections active in NGINX Web Server",
           "group": null,
           "default": true
         },
         "nginx_connections.reading": {
           "type": "gauge",
-          "description": "Connections being read by Nginx Web Server",
+          "description": "Connections being read by NGINX Web Server",
           "group": null,
           "default": true
         },
         "nginx_connections.waiting": {
           "type": "gauge",
-          "description": "Connections waited on by Nginx Web Server",
+          "description": "Connections waited on by NGINX Web Server",
           "group": null,
           "default": true
         },
         "nginx_connections.writing": {
           "type": "gauge",
-          "description": "Connections being written by Nginx Web Server",
+          "description": "Connections being written by NGINX Web Server",
           "group": null,
           "default": true
         },
         "nginx_requests": {
           "type": "cumulative",
-          "description": "Requests handled by Nginx Web Server",
+          "description": "Requests handled by NGINX Web Server",
           "group": null,
           "default": true
         }
@@ -13343,8 +13343,15 @@
     {
       "monitorType": "collectd/openstack",
       "sendAll": false,
-      "dimensions": null,
-      "doc": "Monitors Openstack by using the\n[Openstack collectd Python\nplugin](https://github.com/signalfx/collectd-openstack), which collects metrics\nfrom Openstack instances\n\n```yaml\nmonitors:\n- type: collectd/openstack\n  authURL: \"http://192.168.11.111/identity/v3\"\n  username: \"admin\"\n  password: \"secret\"\n```\n",
+      "dimensions": {
+        "plugin": {
+          "description": "This is always set to `openstack`."
+        },
+        "plugin_instance": {
+          "description": "This will contain the project id and name of the project given in the configuration."
+        }
+      },
+      "doc": "Monitors [Openstack](https://www.openstack.org/) by using the [Openstack\ncollectd Python plugin](https://github.com/signalfx/collectd-openstack),\nwhich collects metrics from Openstack instances.  This plugin is installed\nwith the Smart Agent, so no additional installation is required to use this\nmontior.\n\nThis monitor covers the following Openstack components:\n\n* Nova (Compute)\n* Cinder (BlockStorge)\n* Neutron (Network)\n\nPlease see the reference for OpenStack [Monitoring](https://wiki.openstack.org/wiki/Operations/Monitoring).\n\n\u003c!--- SETUP ---\u003e\n### Deployment Host\n\nIdentify a host on which the SignalFx agent will run. This integration\ncollects data from OpenStack remotely via APIs, and so those API endpoints\nmust be visible to the host on which the agent runs.  We do not recommend\ninstalling the agent directly on a compute instance because a compute\ninstance/resource under one project cannot get stats about the resources\nunder other projects. Also, a compute instance may go down due to lack of\nresources in the project.\n\n\u003c!--- SETUP ---\u003e\n### Example config\n```yaml\nmonitors:\n- type: collectd/openstack\n  authURL: \"http://192.168.11.111/identity/v3\"\n  username: \"admin\"\n  password: \"secret\"\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -14586,7 +14593,7 @@
       "monitorType": "collectd/rabbitmq",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors an instance of RabbitMQ using the\n[collectd RabbitMQ Python\nPlugin](https://github.com/signalfx/collectd-rabbitmq).\n\nSee the [integration\ndoc](https://github.com/signalfx/integrations/tree/master/collectd-rabbitmq)\nfor more information.\n\n**Note that you must individually enable each of the five `collect*` options\nto get metrics pertaining to those facets of a RabbitMQ instance.  If none\nof them are enabled, no metrics will be sent.**\n",
+      "doc": "Monitors an instance of RabbitMQ using the [collectd RabbitMQ Python\nPlugin](https://github.com/signalfx/collectd-rabbitmq). This monitor uses\nthe [RabbitMQ Management HTTP\nAPI](https://www.rabbitmq.com/management.html) to poll for statistics on a\nRabbitMQ server, then reports them to the agent.  Works for RabbitMQ 3.0\nand later.\n\n**Note that you must individually enable each of the five `collect*`\noptions to get metrics pertaining to those facets of a RabbitMQ instance.\nIf none of them are enabled, no metrics will be sent.**\n",
       "groups": {
         "channel": {
           "description": "Channels metrics",
@@ -15490,8 +15497,12 @@
     {
       "monitorType": "collectd/redis",
       "sendAll": false,
-      "dimensions": null,
-      "doc": "Monitors a redis instance using the [collectd\nPython Redis plugin](https://github.com/signalfx/redis-collectd-plugin).\n\nSee the [integrations\ndoc](https://github.com/signalfx/integrations/tree/master/collectd-redis)\nfor more information.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/redis\n  host: 127.0.0.1\n  port: 9100\n```\n\nSample YAML configuration with list lengths:\n\n```yaml\nmonitors:\n- type: collectd/redis\n  host: 127.0.0.1\n  port: 9100\n  sendListLengths:\n  - databaseIndex: 0\n    keyPattern: 'mylist*'\n```\n",
+      "dimensions": {
+        "plugin_instance": {
+          "description": "Identifies the Redis instance -- will be of the form `\u003chost\u003e_\u003cport\u003e`."
+        }
+      },
+      "doc": "Monitors a redis instance using the [collectd Python Redis\nplugin](https://github.com/signalfx/redis-collectd-plugin).  Supports Redis\n2.8 and later.\n\nYou can capture any kind of Redis metrics like:\n\n * Memory used\n * Commands processed per second\n * Number of connected clients and slaves\n * Number of blocked clients\n * Number of keys stored (per database)\n * Uptime\n * Changes since last save\n * Replication delay (per slave)\n\n\n\u003c!--- OVERVIEW ---\u003e\n### Monitoring length of Redis lists\n\nTo monitor the length of list keys, the key and database index must be\nspecified in the config. Specify keys in the config file in the form\n`sendListLengths: [{databaseIndex: $db_index, keyPattern: \"$key_name\"}]`.\n`$key_name` can be a globbed pattern (only `*` is supported), in which case\nall keys matching that glob will be processed.  Don't forget to surround\nthe pattern with double quotes or else the asterisks might be\nmisinterpreted.  If any keys match the glob that are not lists, an error\nwill be sent to the collectd logs.\n\nLengths will be reported to SignalFx under the metric `gauge.key_llen`, a\nseparate time series for each list.\n\n**Warning**: The `KEYS` command is used to match the globs so don't try and\nmatch something that is very big, as this command is not highly optimized and\ncan block other commands from executing.\n\nNote: To avoid duplication reporting, this should only be reported in one node.\nKeys can be defined in either the master or slave config.\n\nSample YAML configuration with list lengths:\n\n```yaml\nmonitors:\n- type: collectd/redis\n  host: 127.0.0.1\n  port: 9100\n  sendListLengths:\n  - databaseIndex: 0\n    keyPattern: 'mylist*'\n```\n\n\u003c!--- SETUP ---\u003e\n### Example Config\n\n```yaml\nmonitors:\n- type: collectd/redis\n  host: 127.0.0.1\n  port: 9100\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -16009,7 +16020,7 @@
       "monitorType": "collectd/solr",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors Solr instances.\n\nSee https://github.com/signalfx/collectd-solr and\nhttps://github.com/signalfx/integrations/tree/master/collectd-solr\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/solr\n  host: 127.0.0.1\n  port: 8983\n```\n",
+      "doc": "Monitors Solr instances by using the [collectd Solr\nplugin](https://github.com/signalfx/collectd-solr).  Supports Solr 6.6 and\nlater.\n\n*NOTE: This plugin can collect metrics from Solr only when a Solr instance is running in SolrCloud mode*\n\nThe [solr-collectd](https://github.com/signalfx/collectd-solr) plugin\ncollects metrics from solr instances hitting these endpoints:\n\n - [statistics](https://lucene.apache.org/solr/guide/6_6/performance-statistics-reference.html) (default metrics)\n - [metrics](https://lucene.apache.org/solr/guide/6_6/metrics-reporting.html) (optional metrics)\n\n\n\u003c!--- SETUP ---\u003e\n### Sample YAML configuration\n\n```yaml\nmonitors:\n- type: collectd/solr\n  host: 127.0.0.1\n  port: 8983\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -16418,8 +16429,15 @@
     {
       "monitorType": "collectd/spark",
       "sendAll": false,
-      "dimensions": null,
-      "doc": "Collects metrics about a Spark cluster using the\n[collectd Spark Python plugin](https://github.com/signalfx/collectd-spark).\nAlso see\nhttps://github.com/signalfx/integrations/tree/master/collectd-spark.\n\nYou have to specify distinct monitor configurations and discovery rules for\nmaster and worker processes.  For the master configuration, set `isMaster`\nto true.\n\nWe only support HTTP endpoints for now.\n\nWhen running Spark on Apache Hadoop / Yarn, this integration is only capable\nof reporting application metrics from the master node.  Please use the\ncollectd/hadoop monitor to report on the health of the cluster.\n\nAn example configuration for monitoring applications on Yarn\n```yaml\nmonitors:\n  - type: collectd/spark\n    host: 000.000.000.000\n    port: 8088\n    clusterType: Yarn\n    isMaster: true\n    collectApplicationMetrics: true\n```\n",
+      "dimensions": {
+        "cluster": {
+          "description": "set to value corresponding to key `cluster` in configuration file"
+        },
+        "spark_process": {
+          "description": "Either master or worker to differentiate master- and worker- specific metrics like master.apps and worker.coresFree"
+        }
+      },
+      "doc": "Collects metrics about a Spark cluster using the [collectd Spark Python\nplugin](https://github.com/signalfx/collectd-spark). That plugin collects\nmetrics from Spark cluster and instances by hitting endpoints specified in\nSpark's [Monitoring and Instrumentation\ndocumentation](https://spark.apache.org/docs/latest/monitoring.html) under\n`REST API` and `Metrics`.\n\nWe currently only support cluster modes Standalone, Mesos, and Hadoop Yarn\nvia HTTP endpoints.\n\nYou have to specify distinct monitor configurations and discovery rules for\nmaster and worker processes.  For the master configuration, set `isMaster`\nto true.\n\nWhen running Spark on Apache Hadoop / Yarn, this integration is only capable\nof reporting application metrics from the master node.  Please use the\ncollectd/hadoop monitor to report on the health of the cluster.\n\n\u003c!--- SETUP ---\u003e\n### Example config:\n\nAn example configuration for monitoring applications on Yarn\n```yaml\nmonitors:\n  - type: collectd/spark\n    host: 000.000.000.000\n    port: 8088\n    clusterType: Yarn\n    isMaster: true\n    collectApplicationMetrics: true\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -17533,7 +17551,7 @@
       "monitorType": "collectd/zookeeper",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors an Apache Zookeeper instance.\n\nSee the [Python plugin\nsource](https://github.com/signalfx/collectd-zookeeper) and the\n[integrations repo\npage](https://github.com/signalfx/integrations/tree/master/collectd-zookeeper)\nfor more information.\n",
+      "doc": "Monitors an Apache Zookeeper instance using the [Zookeeper collectd\nplugin](https://github.com/signalfx/collectd-zookeeper). This plugin is\ninstalled with the Smart Agent so no additional installation is required to\nuse this monitor.  Supports Zookeeper 3.4.0 or later.\n",
       "groups": {
         "": {
           "description": "",
@@ -17664,7 +17682,7 @@
         "fields": [
           {
             "yamlName": "host",
-            "doc": "",
+            "doc": "Host or IP address of the Zookeeper node",
             "default": null,
             "required": true,
             "type": "string",
@@ -17672,7 +17690,7 @@
           },
           {
             "yamlName": "port",
-            "doc": "",
+            "doc": "Main port of the Zookeeper node",
             "default": null,
             "required": true,
             "type": "uint16",
@@ -17680,7 +17698,7 @@
           },
           {
             "yamlName": "name",
-            "doc": "",
+            "doc": "This will be the value of the `plugin_instance` dimension on emitted metrics, if provided.",
             "default": "",
             "required": false,
             "type": "string",
@@ -21690,7 +21708,7 @@
       "monitorType": "gitlab",
       "sendAll": false,
       "dimensions": null,
-      "doc": "GitLab is an open-source web-based git repository manager developed by\nGitLab Inc. GitLab has built-in features for creating wiki pages,\nissue-tracking and CI/CD pipelines. GitLab is bundled with [Prometheus\nexporters](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html)\nthat can be configured to export performance metrics of itself and that of\nthe bundled software that GitLab depends on. These exporters publish\nPrometheus metrics at endpoints are scraped by this monitor.\n\n### REQUIREMENTS AND DEPENDENCIES\n\n| Software | Version |\n|----------|---------|\n| GitLab   | 9.3+    |\n\n### INSTALLATION\n\n### CONFIGURATION\n#### GitLab Configuration\n\nFollow the instructions\n[here](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html)\nto configure the GitLab's Prometheus exporters to expose metric endpoint\ntargets. For GitLab Runner monitoring configuration go\n[here](https://docs.gitlab.com/runner/monitoring/README.html).\n\nNote that configuring GitLab by editing `/etc/gitlab/gitlab.rb` should be\naccompanied by running the command `gitlab-ctl reconfigure` in order for\nthe changes to take effect.\n\nAlso, configuring Nginx by editing the file\n`/var/opt/gitlab/nginx/conf/nginx-status.conf`, for instance, should be\naccompanied by running command `gitlab-ctl restart`. Note that changes to\nthe configuration file `/var/opt/gitlab/nginx/conf/nginx-status.conf` in\nparticular are erased by subsequent runs of command `gitlab-ctl\nreconfigure` because `gitlab-ctl reconfigure` restores the original\nconfiguration file.\n\nBelow is a list of some of the Prometheus endpoint targets with links to\ntheir respective configuration pages. Note that target `gitlab_monitor`\nmetrics are just targets `gitlab_monitor_database`,\n`gitlab_monitor_process` and `gitlab_monitor_sidekiq` metrics combined.\n\n| Agent Monitor Type    |     Gitlab Doc                           | Standard Port | Standard Path |\n|-----------------------|------------------------------------------|---------------|---------------|\n| gitlab | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_monitor_exporter.html) | 9168 | /metrics |\n| [gitlab-gitaly](gitlab-gitaly.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/gitaly/#doc-nav) | 9236 | /metrics |\n| [gitlab-sidekiq](gitlab-sidekiq.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8082 | /metrics |\n| [gitlab-unicorn](gitlab-unicorn.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_metrics.html#unicorn-metrics-available) | 8080 | /-/metrics |\n| [gitlab-workhorse](gitlab-workhorse.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9229 | /metrics |\n| [prometheus/nginx-vts](prometheus-nginx-vts.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8060 | /metrics |\n| [prometheus/node](prometheus-node.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/node_exporter.html) | 9100 | /metrics |\n| [promteheus/postgres](prometheus-postgres.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/postgres_exporter.html) | 9187 | /metrics |\n| [prometheus/prometheus](prometheus-prometheus.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9090 | /metrics |\n| [prometheus/redis](prometheus-redis.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/redis_exporter.html) | 9121 | /metrics |\n| [gitlab-runner](gitlab-runner.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9252 | /metrics |\n\nGitLab Prometheus exporters, Nginx and GitLab Runner must be configured to\nlisten to IP address(es) that include the IP address of the host or docker\ncontainer of the SignalFx Smart Agent. For example, the configuration below\nin `/etc/gitlab/gitlab.rb` configures the GitLab Postgres Prometheus\nexporter to allow network connections on port `9187` from any IP address.\n\n```\npostgres_exporter['listen_address'] = '0.0.0.0:9187'\n```\n\nThe above configuration can also be written as:\n\n```\npostgres_exporter['listen_address'] = ':9187'\n```\n\nBelow is part of file `/var/opt/gitlab/nginx/conf/nginx-status.conf`\nshowing the `location /metrics` block for metric related configuration.\nThis file configures Nginx. The statement `allow 172.17.0.0/16;` allows\nnetwork connection in the `172.17.0.0/16` IP range. The assumption is that\nthe IP address associated with the SignalFx Smart Agent is in that IP\nrange.\n\n```\nserver {\n    ...\n    location /metrics {\n    ...\n    allow 172.17.0.0/16;\n    deny all;\n    }\n}\n```\n\nBelow is part of the global section of `/etc/gitlab-runner/config.toml`. This file configures GitLab Runner. The statement below configures GitLab Runner's Prometheus metrics HTTP server to allows network connection on port `9252` from any IP address.\n\n```\nlisten_address = \"0.0.0.0:9252\"\n...\n\n```\n\n#### Sample Config\n\nTo monitor everything we support in Gitlab, use the following configuration in the Smart Agent config:\n\n```\nmonitors:\n - type: gitlab-unicorn\n   host: localhost\n   port: 8080\n\n - type: gitlab\n   host: localhost\n   port: 9168\n\n - type: gitlab-runner\n   host: localhost\n   port: 9252\n\n - type: gitlab-workhorse\n   host: localhost\n   port: 9229\n\n - type: gitlab-sidekiq\n   host: localhost\n   port: 8082\n\n - type: gitlab-gitaly\n   host: localhost\n   port: 9236\n   \n - type: prometheus/postgres\n   host: localhost\n   port: 9187\n\n - type: prometheus/nginx-vts\n   host: localhost\n   port: 8060\n\n```\n\nYou can, of course, use auto-discovery by specifying a `discoveryRule` instead of `host` and `port`.\n",
+      "doc": "GitLab is an open-source web-based git repository manager developed by\nGitLab Inc. GitLab has built-in features for creating wiki pages,\nissue-tracking and CI/CD pipelines. GitLab is bundled with [Prometheus\nexporters](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html)\nthat can be configured to export performance metrics of itself and that of\nthe bundled software that GitLab depends on. These exporters publish\nPrometheus metrics at endpoints are scraped by this monitor.\n\n### REQUIREMENTS AND DEPENDENCIES\n\n| Software | Version |\n|----------|---------|\n| GitLab   | 9.3+    |\n\n### INSTALLATION\n\n### CONFIGURATION\n#### GitLab Configuration\n\nFollow the instructions\n[here](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html)\nto configure the GitLab's Prometheus exporters to expose metric endpoint\ntargets. For GitLab Runner monitoring configuration go\n[here](https://docs.gitlab.com/runner/monitoring/README.html).\n\nNote that configuring GitLab by editing `/etc/gitlab/gitlab.rb` should be\naccompanied by running the command `gitlab-ctl reconfigure` in order for\nthe changes to take effect.\n\nAlso, configuring Nginx by editing the file\n`/var/opt/gitlab/nginx/conf/nginx-status.conf`, for instance, should be\naccompanied by running command `gitlab-ctl restart`. Note that changes to\nthe configuration file `/var/opt/gitlab/nginx/conf/nginx-status.conf` in\nparticular are erased by subsequent runs of command `gitlab-ctl\nreconfigure` because `gitlab-ctl reconfigure` restores the original\nconfiguration file.\n\nBelow is a list of some of the Prometheus endpoint targets with links to\ntheir respective configuration pages. Note that target `gitlab_monitor`\nmetrics are just targets `gitlab_monitor_database`,\n`gitlab_monitor_process` and `gitlab_monitor_sidekiq` metrics combined.\n\n| Agent Monitor Type    |     Gitlab Doc                           | Standard Port | Standard Path |\n|-----------------------|------------------------------------------|---------------|---------------|\n| gitlab | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_monitor_exporter.html) | 9168 | /metrics |\n| [gitlab-gitaly](./gitlab-gitaly.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/gitaly/#doc-nav) | 9236 | /metrics |\n| [gitlab-sidekiq](./gitlab-sidekiq.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8082 | /metrics |\n| [gitlab-unicorn](./gitlab-unicorn.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_metrics.html#unicorn-metrics-available) | 8080 | /-/metrics |\n| [gitlab-workhorse](./gitlab-workhorse.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9229 | /metrics |\n| [prometheus/nginx-vts](./prometheus-nginx-vts.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8060 | /metrics |\n| [prometheus/node](./prometheus-node.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/node_exporter.html) | 9100 | /metrics |\n| [promteheus/postgres](./prometheus-postgres.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/postgres_exporter.html) | 9187 | /metrics |\n| [prometheus/prometheus](./prometheus-prometheus.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9090 | /metrics |\n| [prometheus/redis](./prometheus-redis.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/redis_exporter.html) | 9121 | /metrics |\n| [gitlab-runner](./gitlab-runner.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9252 | /metrics |\n\nGitLab Prometheus exporters, Nginx and GitLab Runner must be configured to\nlisten to IP address(es) that include the IP address of the host or docker\ncontainer of the SignalFx Smart Agent. For example, the configuration below\nin `/etc/gitlab/gitlab.rb` configures the GitLab Postgres Prometheus\nexporter to allow network connections on port `9187` from any IP address.\n\n```\npostgres_exporter['listen_address'] = '0.0.0.0:9187'\n```\n\nThe above configuration can also be written as:\n\n```\npostgres_exporter['listen_address'] = ':9187'\n```\n\nBelow is part of file `/var/opt/gitlab/nginx/conf/nginx-status.conf`\nshowing the `location /metrics` block for metric related configuration.\nThis file configures Nginx. The statement `allow 172.17.0.0/16;` allows\nnetwork connection in the `172.17.0.0/16` IP range. The assumption is that\nthe IP address associated with the SignalFx Smart Agent is in that IP\nrange.\n\n```\nserver {\n    ...\n    location /metrics {\n    ...\n    allow 172.17.0.0/16;\n    deny all;\n    }\n}\n```\n\nBelow is part of the global section of `/etc/gitlab-runner/config.toml`. This file configures GitLab Runner. The statement below configures GitLab Runner's Prometheus metrics HTTP server to allows network connection on port `9252` from any IP address.\n\n```\nlisten_address = \"0.0.0.0:9252\"\n...\n\n```\n\n#### Sample Config\n\nTo monitor everything we support in Gitlab, use the following configuration in the Smart Agent config:\n\n```\nmonitors:\n - type: gitlab-unicorn\n   host: localhost\n   port: 8080\n\n - type: gitlab\n   host: localhost\n   port: 9168\n\n - type: gitlab-runner\n   host: localhost\n   port: 9252\n\n - type: gitlab-workhorse\n   host: localhost\n   port: 9229\n\n - type: gitlab-sidekiq\n   host: localhost\n   port: 8082\n\n - type: gitlab-gitaly\n   host: localhost\n   port: 9236\n\n - type: prometheus/postgres\n   host: localhost\n   port: 9187\n\n - type: prometheus/nginx-vts\n   host: localhost\n   port: 8060\n\n```\n\nYou can, of course, use auto-discovery by specifying a `discoveryRule` instead of `host` and `port`.\n",
       "groups": {
         "": {
           "description": "",
@@ -21753,7 +21771,7 @@
       "metrics": {
         "ci_stale_builds": {
           "type": "gauge",
-          "description": "ci_stale_builds metric",
+          "description": "",
           "group": null,
           "default": false
         },
@@ -21807,67 +21825,67 @@
         },
         "pg_stat_table_idx_tup_fetch": {
           "type": "gauge",
-          "description": "pg_stat_table_idx_tup_fetch metric",
+          "description": "",
           "group": null,
           "default": true
         },
         "pg_stat_table_n_dead_tup": {
           "type": "gauge",
-          "description": "pg_stat_table_n_dead_tup metric",
+          "description": "",
           "group": null,
           "default": false
         },
         "pg_stat_table_n_tup_del": {
           "type": "gauge",
-          "description": "pg_stat_table_n_tup_del metric",
+          "description": "",
           "group": null,
           "default": true
         },
         "pg_stat_table_n_tup_hot_upd": {
           "type": "gauge",
-          "description": "pg_stat_table_n_tup_hot_upd metric",
+          "description": "",
           "group": null,
           "default": false
         },
         "pg_stat_table_n_tup_ins": {
           "type": "gauge",
-          "description": "pg_stat_table_n_tup_ins metric",
+          "description": "",
           "group": null,
           "default": true
         },
         "pg_stat_table_n_tup_upd": {
           "type": "gauge",
-          "description": "pg_stat_table_n_tup_upd metric",
+          "description": "",
           "group": null,
           "default": true
         },
         "pg_stat_table_seq_scan": {
           "type": "gauge",
-          "description": "pg_stat_table_seq_scan metric",
+          "description": "",
           "group": null,
           "default": false
         },
         "pg_stat_table_seq_tup_read": {
           "type": "gauge",
-          "description": "pg_stat_table_seq_tup_read metric",
+          "description": "",
           "group": null,
           "default": true
         },
         "process_age_seconds": {
           "type": "gauge",
-          "description": "process_age_seconds metric",
+          "description": "",
           "group": null,
           "default": false
         },
         "process_count": {
           "type": "gauge",
-          "description": "process_count metric",
+          "description": "",
           "group": null,
           "default": true
         },
         "process_memory_bytes": {
           "type": "gauge",
-          "description": "process_memory_bytes metric",
+          "description": "",
           "group": null,
           "default": false
         },
@@ -22047,19 +22065,19 @@
         },
         "sidekiq_dead_jobs_total": {
           "type": "gauge",
-          "description": "sidekiq_dead_jobs_total metric",
+          "description": "",
           "group": null,
           "default": false
         },
         "sidekiq_queue_latency": {
           "type": "gauge",
-          "description": "sidekiq_queue_latency metric",
+          "description": "",
           "group": null,
           "default": true
         },
         "sidekiq_queue_size": {
           "type": "gauge",
-          "description": "sidekiq_queue_size metric",
+          "description": "",
           "group": null,
           "default": true
         }
@@ -25278,7 +25296,7 @@
           "description": "For query metrics, the user name of the user that executed the queries."
         }
       },
-      "doc": "This monitor pulls metrics from all PostgreSQL databases from a specific\nPostgres server instance.  It pulls basic information that is applicable\nto any database.\n\n## Metrics about Queries\n\nIn order to get metrics about query execution time, you must enable the\n`pg_stat_statements` extension.  This extension must be specified in the\n`shared_preload_libraries` config option in the main PostgreSQL\nconfiguration at server start up.  Then the extension must be enabled for\neach database by running `CREATE EXTENSION IF NOT EXISTS\npg_stat_statements;` on each database.\n\nNote that in order to get consistent and accurate query execution time\nmetrics, you must set the [pg_stat_statements.max config\noption](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631)\nto larger than the number of distinct queries on the server.\n\nHere is a [sample configuration of Postgres to enable statement tracking](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631).\n\nTested with PostgreSQL 9.2+.\n\nIf you want to collect additional metrics about PostgreSQL, use the [sql monitor](./sql.md).\n\n## Example Configuration\n\nThis example uses the [Vault remote config\nsource](https://github.com/signalfx/signalfx-agent/blob/master/docs/remote-config.md#nested-values-vault-only)\nto connect to PostgreSQL using the `params` map that allows you to pull\nout the username and password individually from Vault and interpolate\nthem into the `connectionString` config option.\n\n```yaml\nmonitors:\n - type: postgresql\n   connectionString: 'sslmode=disable user={{.username}} password={{.password}}'\n   params: \u0026psqlParams\n     username: {\"#from\": \"vault:secret/my-database[username]\"}\n     password: {\"#from\": \"vault:secret/my-database[password]\"}\n   discoveryRule: 'container_image =~ \"postgres\" \u0026\u0026 port == 5432'\n\n # This monitor will monitor additional queries from PostgreSQL using the\n # provided SQL queries.\n - type: sql\n   dbDriver: postgres\n   connectionString: 'sslmode=disable user={{.username}} password={{.password}}'\n   # This is a YAML reference to avoid duplicating the above config.\n   params: *psqlParams\n   queries:\n     - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'\n       metrics:\n         - metricName: \"customers\"\n           valueColumn: \"count\"\n           dimensionColumns: [\"country\", \"status\"]\n```\n",
+      "doc": "This monitor pulls metrics from all PostgreSQL databases from a specific\nPostgres server instance.  It pulls basic information that is applicable\nto any database.  It gathers these metrics via SQL queries.\n\n\u003c!--- OVERVIEW ---\u003e\n## Metrics about Queries\n\nIn order to get metrics about query execution time, you must enable the\n`pg_stat_statements` extension.  This extension must be specified in the\n`shared_preload_libraries` config option in the main PostgreSQL\nconfiguration at server start up.  Then the extension must be enabled for\neach database by running `CREATE EXTENSION IF NOT EXISTS\npg_stat_statements;` on each database.\n\nNote that in order to get consistent and accurate query execution time\nmetrics, you must set the [pg_stat_statements.max config\noption](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631)\nto larger than the number of distinct queries on the server.\n\nHere is a [sample configuration of Postgres to enable statement tracking](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631).\n\nTested with PostgreSQL 9.2+.\n\nIf you want to collect additional metrics about PostgreSQL, use the [sql monitor](./sql.md).\n\n\u003c!--- SETUP ---\u003e\n## Example Configuration\n\nThis example uses the [Vault remote config\nsource](https://github.com/signalfx/signalfx-agent/blob/master/docs/remote-config.md#nested-values-vault-only)\nto connect to PostgreSQL using the `params` map that allows you to pull\nout the username and password individually from Vault and interpolate\nthem into the `connectionString` config option.\n\n```yaml\nmonitors:\n - type: postgresql\n   connectionString: 'sslmode=disable user={{.username}} password={{.password}}'\n   params: \u0026psqlParams\n     username: {\"#from\": \"vault:secret/my-database[username]\"}\n     password: {\"#from\": \"vault:secret/my-database[password]\"}\n   discoveryRule: 'container_image =~ \"postgres\" \u0026\u0026 port == 5432'\n\n # This monitor will monitor additional queries from PostgreSQL using the\n # provided SQL queries.\n - type: sql\n   dbDriver: postgres\n   connectionString: 'sslmode=disable user={{.username}} password={{.password}}'\n   # This is a YAML reference to avoid duplicating the above config.\n   params: *psqlParams\n   queries:\n     - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'\n       metrics:\n         - metricName: \"customers\"\n           valueColumn: \"count\"\n           dimensionColumns: [\"country\", \"status\"]\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -30875,7 +30893,7 @@
       "monitorType": "statsd",
       "sendAll": true,
       "dimensions": null,
-      "doc": "\n\n### USAGE\n\n#### Adding dimensions to StatsD metrics\n\nThe StatsD monitor can parse keywords from a statsd metric name by a set of\nconverters that was configured by user.\n\n```\nconverters:\n  - pattern: \"cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}\"\n    ...\n```\n\nThis converter will parse `traffic`, `mesh`, `service` and `action` as dimensions\nfrom a metric name `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success`.\nIf a section has only a pair of brackets without a name, it will not capture a dimension.\n\nWhen multiple converters were provided, a metric will be converted by the first converter with a\nmatching pattern to the metric name.\n\n#### Formatting metric name\n\nYou can customize a metric name by providing a format string within the converter configuration.\n\n```\nconverters:\n  - pattern: \"cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}\"\n    metric: \"{traffic}.{action}\"\n```\n\nThe metrics which match to the given pattern will be reported to SignalFx as `{traffic}.{action}`.\nFor instance, metric `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success`\nwill be reported as `egress.update_success`.\n\n`metric` is required for a converter configuration. A converter will be disabled if `metric` is not provided.\n\n```\n",
+      "doc": "This monitor will receive and aggergate Statsd metrics and convert them to\ndatapoints.  It listens on a configured address and port in order to\nreceive the statsd metrics.  Note that this monitor does not support statsd\nextensions such as tags.\n\nSupports Spark 2.2.0 and later.\n\nThe monitor supports the `Counter`, `Timer`, `Gauge` and `Set` types which\nare dispatched as the SignalFx types `counter`, `gauge`, `gauge` and\n`gauge` respectively.\n\n**Note that datapoints will get a `host` dimension of the current host that\nthe agent is running on, not the host from which the statsd metric was\nsent.  For this reason, it is recommended to send statsd metrics to a local\nagent instance.**\n\n\u003c!--- SETUP ---\u003e\n#### Verifying installation\n\nYou can send StatsD metrics locally with `netcat` as follows, then verify\nin SignalFx that the metric arrived (assuming the default config).\n\n```\n$ echo \"statsd.test:1|g\" | nc -w 1 -u 127.0.0.1 8125\n```\n\n\u003c!--- SETUP ---\u003e\n#### Adding dimensions to StatsD metrics\n\nThe StatsD monitor can parse keywords from a statsd metric name by a set of\nconverters that was configured by user.\n\n```\nconverters:\n  - pattern: \"cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}\"\n    ...\n```\n\nThis converter will parse `traffic`, `mesh`, `service` and `action` as dimensions\nfrom a metric name `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success`.\nIf a section has only a pair of brackets without a name, it will not capture a dimension.\n\nWhen multiple converters were provided, a metric will be converted by the first converter with a\nmatching pattern to the metric name.\n\n\u003c!--- SETUP ---\u003e\n#### Formatting metric name\n\nYou can customize a metric name by providing a format string within the converter configuration.\n\n```\nconverters:\n  - pattern: \"cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}\"\n    metric: \"{traffic}.{action}\"\n```\n\nThe metrics which match to the given pattern will be reported to SignalFx as `{traffic}.{action}`.\nFor instance, metric `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success`\nwill be reported as `egress.update_success`.\n\n`metric` is required for a converter configuration. A converter will be disabled if `metric` is not provided.\n\n```\n",
       "groups": {},
       "metrics": null,
       "properties": null,

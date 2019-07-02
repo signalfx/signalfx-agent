@@ -20,12 +20,10 @@ Use this monitor to gather the following types of information from ActiveMQ:
 * Queue (Queue status)
 * Topic (Topic status)
 
-For more information on the built-in content available for this
-integration, see [the integration docs](https://docs.signalfx.com/en/latest/integrations/integrations-reference/integrations.activemq.html).
-
 To monitor the age of messages inside ActiveMQ queues, see [ActiveMQ
-message age listener](https://github.com/signalfx/integrations/tree/master/amq-message-age).
+message age listener](https://github.com/signalfx/integrations/tree/master/amq-message-age)[](sfx_link:amq-message-age).
 
+<!--- SETUP --->
 ## Example config
 
 ```yaml
@@ -38,6 +36,15 @@ monitors:
 
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/activemq
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

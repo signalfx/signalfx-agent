@@ -10,14 +10,57 @@ Monitor Type: `collectd/kong` ([Source](https://github.com/signalfx/signalfx-age
 
 ## Overview
 
-Monitors a Kong instance using [collectd-kong](https://github.com/signalfx/collectd-kong).
+Monitors a Kong instance using
+[collectd-kong](https://github.com/signalfx/collectd-kong).  The Smart
+Agent includes collectd and this plugin as part of the standard
+installation, so no additional installation is required once you have the
+Smart Agent.
 
-See the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kong)
-for more information.
+The SignalFx Kong collectd plugin provides users with the ability to gather
+and report their service traffic metrics with collectd, in tandem with
+[kong-plugin-signalfx](https://github.com/signalfx/kong-plugin-signalfx).
+
+This plugin emits metrics for configurable request/response lifecycle groups including:
+
+* Counters for response counts
+* Counters for cumulative response and request sizes
+* Counters for cumulative request, upstream, and Kong latencies
+
+These request/response lifecycle groups can be optionally partitioned by tunable levels of granularity by:
+
+* API or Service Name/ID
+* Route ID
+* Request HTTP Method
+* Response HTTP Status Code
+
+In addition to these groups, system-wide connection stats can be provided, including:
+
+* A counter for total fielded requests
+* Gauges for active connections and their various states
+* A gauge for database connectivity
 
 The `metrics` field below is populated with a set of metrics that are
 described at https://github.com/signalfx/collectd-kong/blob/master/README.md.
 
+<!--- SETUP --->
+### Install Kong Lua Plugin
+
+Please download and install this Lua module on all Kong servers by
+following [these instructions](https://github.com/signalfx/kong-plugin-signalfx/blob/master/README.md).
+
+### REQUIREMENTS AND DEPENDENCIES
+
+This plugin requires:
+
+| Software          | Version        |
+|-------------------|----------------|
+| Kong | 0.11.2+ |
+| Configured [kong-plugin-signalfx](https://github.com/signalfx/kong-plugin-signalfx) | 0.0.1+ |
+
+
+<!--- SETUP --->
+## Example Config
+#
 Sample YAML configuration:
 
 ```yaml
@@ -59,6 +102,15 @@ monitors:
 
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/kong
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**
