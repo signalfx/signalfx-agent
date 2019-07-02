@@ -42,6 +42,7 @@ monitor.
        SignalFx cluster role 
    -  [clusterrolebinding.yaml](https://github.com/signalfx/signalfx-agent/blob/master/deployments/k8s/clusterrolebinding.yaml):
        SignalFx cluster role binding 
+   - The `configmap.yaml` is your agent configuration. At a minimal, you will need to make the following changes:
 
      -  Using a text editor, replace the default value `MY-CLUSTER` with the
          desired name for your cluster. This will appear in the dimension
