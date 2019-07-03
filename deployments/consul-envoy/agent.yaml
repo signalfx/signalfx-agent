@@ -1,0 +1,19 @@
+# *Required* The access token for the org that you wish to send metrics to.
+signalFxAccessToken: {"#from": "env:ACCESS_TOKEN"}
+ingestUrl: {"#from": "env:INGEST_URL", optional: true}
+apiUrl: {"#from": "env:API_URL", optional: true}
+
+intervalSeconds: {"#from": "env:INTERVAL_SECONDS", default: 10}
+
+logging:
+  # Valid values are 'debug', 'info', 'warning', and 'error'
+  level: info
+
+monitors:
+  - type: statsd
+    listenPort: 8125
+    extraDimensions:
+      plugin: consul
+    converters:
+    - pattern: "consul.{mesh}.{service}.cluster.{}.{action}"
+      metricName: "{action}"
