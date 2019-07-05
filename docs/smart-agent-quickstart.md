@@ -1,132 +1,293 @@
-# Smart Agent Quick Start
-
-- [Deploy Directly on Host](#deploy-directly-on-host)
+# SignalFx Smart Agent Next Steps
 
 
-## Deploy Directly on Host
-
-This tutorial assumes you are starting fresh and have no existing collectd agent running on your instance.
-
-Certain installation statements include `YOUR_SIGNALFX_REALM`. If this value is not set, SignalFx assumes your organization is in the us0 realm. To determine if you are in a different realm and need to supply your realm value in those statements, check your profile page in the SignalFx web application. 
+__See [Overview](https://docs.signalfx.com/en/latest/integrations/agent/overview.html) for Smart Agent Installation on a Single Host.__
 
 
-#### Step 1: Download and install the agent
+After you have installed the SignalFx Smart Agent on a single host and discovered some of its capabilities, you may want to install the agent on multiple hosts. Those next steps are discussed below.
 
-##### Linux
+## Step 4. Install Smart Agent on Multiple Hosts
+
+Use Configuration Management tools or packages to install SignalFx Smart Agent on multiple hosts.
+
+### Configuration Management Tools
+
+We support the following configuration management tools to automate the installation process.
+
+_Chef:_  We offer a Chef cookbook to install and configure the agent. See the [cookbook source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/chef) and on the [Chef Supermarket](https://supermarket.chef.io/cookbooks/signalfx_agent).
+
+_Puppet:_  We also offer a Puppet manifest to install and configure the agent on Linux. See the [manifest source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/puppet) and on the [Puppet Forge](https://forge.puppet.com/signalfx/signalfx_agent/readme).
+
+_Ansible:_  We also offer an Ansible Role to install and configure the Smart Agent on Linux. See the [role source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/ansible).
+
+_Salt:_  We also offer a Salt Formula to install and configure the Smart Agent on Linux. See the [formula source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/salt).
+
+_Docker Image:_ See [Docker Deployment](https://github.com/signalfx/signalfx-agent/tree/master/deployments/docker) for more information.
+
+_Kubernetes:_  See our [Kubernetes setup instructions](https://github.com/signalfx/signalfx-agent/blob/master/docs/kubernetes-setup.md) and the documentation on [Monitoring Kubernetes](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html) for more information.
+
+_AWS Elastic Container Service (ECS):_ See the [ECS directory](https://github.com/signalfx/signalfx-agent/tree/master/deployments/ecs), which includes a sample config and task definition for the agent.
+
+### Packages
+
+We offer the agent in the following packages:
+
+#### Debian Package
+
+We provide a Debian package repository that you can use with the following commands:
 
 ```sh
-curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
-sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
+curl -sSL https://dl.signalfx.com/debian.gpg > /etc/apt/trusted.gpg.d/signalfx.gpg
+echo 'deb https://dl.signalfx.com/debs/signalfx-agent/final /' > /etc/apt/sources.list.d/signalfx-agent.list
+apt-get update
+apt-get install -y signalfx-agent
+
 ```
 
-##### Windows
 
-Ensure that the folowing dependencies are installed:
-- [.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
-- [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
+#### RPM Package
 
-Once the dependencies have been installed, use the following powershell script
-to install the agent.  The agent will be installed as a Windows service and will
-log to the Windows Event Log.
+We provide a RHEL/RPM package repository that you can use with the following commands:
 
 ```sh
-& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"; ingest_url = "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"; api_url = "https://api.YOUR_SIGNALFX_REALM.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
-```
+cat <<EOH > /etc/yum.repos.d/signalfx-agent.repo
+[signalfx-agent]
+name=SignalFx Agent Repository
+baseurl=https://dl.signalfx.com/rpms/signalfx-agent/final
+gpgcheck=1
+gpgkey=https://dl.signalfx.com/yum-rpm.key
+enabled=1
+EOH
 
-Your SignalFx API Token can be obtained from the Organization->Access Token tab in [SignalFx](https://app.signalfx.com).
-
-More detailed installation steps to install via a config management tool or using a containerized agent can be found [here](../README.md#installation).
-
-#### Step 2: Configuration
-
-The default configuration file should be located at `/etc/signalfx/agent.yaml` on Linux
-and `\ProgramData\SignalFxAgent\agent.yaml` on Windows.
-Also, by default, the file containing your SignalFx API token should be located at
-`/etc/signalfx/token` on Linux and `\ProgramData\SignalFxAgent\token` on Windows.
-
-In the referenced example agent.yaml configuration files below, the default
-location for the token file is used.
-
-- [Linux Default Configuration File](https://github.com/signalfx/signalfx-agent/blob/master/packaging/etc/agent.yaml)
-
-- [Windows Default Configuration File](https://github.com/signalfx/signalfx-agent/blob/master/packaging/win/agent.yaml)
-
-##### Configure your endpoints
-
-By default, the Smart Agent will send data to the `us0` realm.
-If you are not in this realm, you will need to explicitly set the
-`signalFxRealm` option in your config like this:
+yum install -y signalfx-agent
 
 ```
-signalFxRealm: YOUR_SIGNALFX_REALM
-```
 
-To determine if you are in a different realm and need to
-explicitly set the endpoints, check your profile page in the SignalFx
-web application.
 
-If you want to explicitly set the ingest, API server, and trace endpoint URLs,
-you can set them individually like so:
+## Step 5. Add a New Monitor 
 
-```
-ingestUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"
-apiUrl: "https://api.YOUR_SIGNALFX_REALM.signalfx.com"
-traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
-```
+You may also want to add and configure various monitors for your environment. 
 
-They will default to the endpoints for the realm configured in `signalFxRealm`
-if not set.
+* To [add a new monitor](#Monitors).
+* For [Common configuration options](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html).
+* For [Windows monitor configurations](https://docs.signalfx.com/en/latest/integrations/agent/windows.html).
+* For [Linux monitor configurations](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html)
 
-You can add more [monitors](./monitor-config.md) and configure them as appropriate.
 
-##### Example of adding a new monitor
+### Configure optional metrics for your monitors. 
 
-To start collecting apache metrics, you would add the [apache monitor](./monitors/collectd-apache.md) to the agent.yaml file.
-Your monitor list would then look similar to this:
+See individual monitor pages for your monitor from the lists in Step 5 or see the [Integrations tab](https://app.signalfx.com/#/integrations) in the SignalFx application for information on Monitor Services.
 
-```
+## Step 6. Add a New Observer 
+
+See [Observers](#Observers).
+
+## Step 7. Explore Dashboards to display and compare data from various sources. 
+
+See [Dashboards](https://docs.signalfx.com/en/latest/dashboards/index.html).
+
+See [Built-In Dashboards and Charts](https://docs.signalfx.com/en/latest/getting-started/built-in-content/built-in-dashboards.html) 
+
+See best practices for [Better Dashboards](https://docs.signalfx.com/en/latest/reference/best-practices/better-dashboards.html) 
+
+## To learn more about Smart Agent, see the [15-Minute SingnalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html). 
+
+
+## Additional material 
+
+### Monitors 
+
+You can add more monitors and configure them as appropriate.
+
+Example of adding a new monitor:
+
+To start collecting apache metrics, you would add the [apache monitor](https://github.com/signalfx/signalfx-agent/blob/master/docs/monitors/collectd-apache.md) to the agent.yaml file. Your monitor list would then look similar to this:
+
+
+```sh
 monitors:
   - type: collectd/cpu
-  .
-  .
-  .
+    .
+    .
+    .
   - type: collectd/apache
     host: localhost
     port: 80
-```
+ ```
+ 
+ 
+For complete details, see [Monitor Configuration](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html). 
 
-##### Example of adding a new observer
+### Observers 
 
-To start collecting docker container metrics, your first step would be to add a [docker observer](./observers/docker.md).
+Example of adding a new observer:
+
+To start collecting docker container metrics, first add a [docker observer](https://github.com/signalfx/signalfx-agent/blob/master/docs/observers/docker.md).
 
 Your observer list would then look similar to this:
 
-```
+```sh
 observers:
   - type: host
   - type: docker
 ```
 
-Next, you would add a [docker metrics monitor](./monitors/docker-container-stats.md) to the agent.yaml file. Your type list would now include this monitor (docker-container-stats):
+Next, add a [docker metrics monitor](https://github.com/signalfx/signalfx-agent/blob/master/docs/monitors/docker-container-stats.md) to the agent.yaml file. Your type list would now include this monitor (docker-container-stats) as shown below:
 
-```
+```sh
 monitors:
   - type: collectd/cpu
   - type: collectd/cpufreq
-  .
-  .
-  .
+    .
+    .
+    .
   - type: docker-container-stats
 ```
-
+ 
 The agent automatically picks up any changes to the configuration file, so a restart is not required.
+ 
+For complete details see [Observer Configuration](https://docs.signalfx.com/en/latest/integrations/agent/observer-config.html)
+ 
+## Other methods of installation 
 
-For troubleshooting, you can also check the status of the agent:
+### Linux Standalone tar.gz 
+
+If you don’t want to use a distro package, we offer a .tar.gz that can be deployed to the target host. This bundle is available for download on the [Github Releases Page](https://github.com/signalfx/signalfx-agent/releases) for each new release.
+
+To use the bundle:
+
+Unarchive it to a directory of your choice on the target system.
+
+Go into the unarchived signalfx-agent directory and run bin/patch-interpreter $(pwd). This ensures that the binaries in the bundle have the right loader set on them if your host loader is not compatible.
+
+Ensure a valid configuration file is available somewhere on the target system. The main thing that the distro packages provide – but that you will have to provide manually with the bundle – is a run directory for the Smart Agent to use. Because you aren’t installing from a package, there are three config options to particularly consider:
+
+- internalStatusHost - This is the host name that the Smart Agent will listen on so that the signalfx-agent status command can read diagnostic information from a running agent. This is also the host name the agent will listen on to serve internal metrics about the Smart Agent. These metrics can can be scraped by the internal-metrics monitor. This will default to localhost if left blank.
+
+- internalStatusPort - This is the port that the Smart Agent will listen on so that the signalfx-agentstatus command can read diagnostic information from a running agent. This is also the host name the Smart Agent will listen on to serve internal metrics about the Smart Agent. These metrics can can be scraped by the internal-metrics monitor. This will default to 8095.
+
+- collectd.configDir - This is where the Smart Agent writes the managed collectd config, since collectd can only be configured by files. Note that this entire dir will be wiped by the Smart Agent upon startup so that it doesn’t pick up stale collectd config, so be sure that it is not used for anything else. Also note that these files could have sensitive information in them if you have passwords configured for collectd monitors, so you might want to place this dir on a tmpfs mount to avoid credentials persisting on disk.
+
+See the section on [Privileges](#Privileges) for information on the capabilities the Smart Agent requires.
+
+Run the Smart Agent by invoking the archive path:
+
+```sh
+ signalfx-agent/bin/signalfx-agent -config <path to config.yaml>.
 
 ```
-sudo signalfx-agent status
+
+By default, the Smart Agent logs only to stdout/err. If you want to persist logs, you must direct the output to a log file or other log management system. See the signalfx-agent command doc for more information on supported command flags.
+
+
+### Windows Standalone .zip 
+
+If you don’t want to use the installer script, we offer a .zip that can be deployed to the target host. This bundle is available for download on the [Github Releases Page](https://github.com/signalfx/signalfx-agent/releases) for each new release.
+
+Before proceeding make sure the following requirements are installed.
+
+[.Net Framework 3.5 (Windows 8+)](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10)
+[Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
+
+To use the bundle:
+
+1. Unzip it to a directory of your choice on the target system.
+
+2. Ensure a valid configuration file is available somewhere on the target system. The main thing that the installer script provides – but that you will have to provide manually with the bundle – is a run directory for the Smart Agent to use. Because you aren’t installing from a package, there are two config options that you will especially want to consider:
+
+- internalStatusHost - This is the hostname that the Smart Agent will listen on so that the signalfx-agent status command can read diagnostic information from a running agent. This is also the host name the agent will listen on to serve internal metrics about the Smart Agent. These metrics can be scraped by the internal-metrics monitor. This will default to localhost if left blank.
+
+- internalStatusPort - This is the port that the Smart Agent will listen on so that the signalfx-agentstatus command can read diagnostic information from a running agent. This is also the host name the Smart Agent will listen on to serve internal metrics about the Smart Agent. These metrics can be scraped by the internal-metrics monitor. This will default to 8095.
+
+See the section on [Privileges](#Privileges) for information on the capabilities the Smart Agent requires.
+
+
+3. Run the Smart Agent by invoking the Smart Agent executable 
+
+```sh
+SignalFxAgent\bin\signalfx-agent.exe-config <path to config.yaml>. 
+
+```
+By default, the Smart Agent logs only to stdout/err. If you want to persist logs, you must direct the output to a log file or other log management system. See the [signalfx-agent command doc](https://github.com/signalfx/signalfx-agent/blob/master/docs/signalfx-agent.1.man) for more information on supported command flags.
+
+You may optionally install the Smart Agent as a Windows service by invoking the agent executable and specifying a few command line flags. The examples below show how to do install and start the Smart Agent as a Windows service.
+
+_Install Service_
+
+PS> SignalFx\SignalFxAgent\bin\signalfx-agent.exe -service "install" -logEvents -config <path to config file>
+ 
+_Start Service_
+
+PS> SignalFx\SignalFxAgent\bin\signalfx-agent.exe -service "start"
+
+### Privileges 
+
+_Linux:_ 
+
+When using the host observer, the Smart Agent requires the Linux capabilities DAC\_READ\_SEARCH and SYS\_PTRACE, both of which are necessary to allow the agent to determine which processes are listening on network ports on the host. Otherwise, there is nothing built into the Smart Agent that requires privileges. 
+
+When using a package to install the Smart Agent, the Smart Agent binary is given those capabilities in the package post-install script, but the Smart Agent is run as the signalfx-agent user. If you are not using the host observer, then you can strip those capabilities from the Smart Agent binary if so desired.
+
+You should generally not run the Smart Agent as root unless you can’t use capabilities for some reason.
+
+_Windows_ 
+
+On Windows the Smart Agent must be installed and run under an administrator account.
+
+### Configuration 
+
+The Smart Agent is configured primarily from a YAML file. By default, the Smart Agent config is installed at and looked for at /etc/signalfx/agent.yaml on Linux and \ProgramData\SignalFxAgent\agent.yaml on Windows. This can be overridden by the -config command line flag.
+
+For details see [Agent Configuration](https://docs.signalfx.com/en/latest/integrations/agent/config-schema.html). 
+
+For the full schema of the config, see Config Schema.
+For information on how to configure the Smart Agent from remote sources, such as other files on the filesystem or KV stores such as Etcd, see Remote Configuration.
+
+### Logging 
+
+#### Linux
+
+Currently the Smart Agent only supports logging to stdout/stderr, which will generally be redirected by the init scripts we provide to either a file at /var/log/signalfx-agent.log or to the systemd journal on newer distros. The default log level is info, which will log anything noteworthy in the Smart Agent without spamming the logs too much. Most of the info level logs are on startup and upon service discovery changes. debug will create very verbose log output and should only be used when trying to resolve a problem with the agent.
+
+
+#### Windows
+
+On Windows, the Smart Agent will log to the console when executed directly in a shell. If the Smart Agent is configured as a windows service, log events will be logged to the Windows Event Log. Use the Event Viewer application to read the logs. The Event Viewer is located under Start > Administrative Tools > EventViewer. You can see logged events from the Smart Agent service under Windows Logs > Application.
+
+
+### Proxy Support 
+
+To use an HTTP(S) proxy, set the environment variable HTTP\_PROXY and/or HTTPS\_PROXY in the container configuration to proxy either protocol. The SignalFx ingest and API servers both use HTTPS. If the NO\_PROXYenvvar exists, the Smart Agent will automatically append the local services to the envvar to not use the proxy.
+
+If the Smart Agent is running as a local service on the host, refer to the host’s service management documentation for how to pass environment variables to the agent service in order to enable proxy support when the Smart Agent service is started.
+
+For example, if the host services are managed by systemd, create the /etc/systemd/system/signalfx-agent.service.d/myproxy.conf file and add the following to the file:
+
+```sh
+
+[Service]
+Environment="HTTP\_PROXY=http://proxy.example.com:8080/"
+Environment="HTTPS\_PROXY=https://proxy.example.com:8081/"
+
 ```
 
-#### Step 3: Log into SignalFx and see your data!
+Then execute systemctl daemon-reload and systemctl restart signalfx-agent.service to restart the Smart Agent service with proxy support.
+
+### Diagnostics 
+
+The Smart Agent serves diagnostic information on an HTTP server at the address configured by the internalStatusHost and internalStatusPort option. As a convenience, the command signalfx-agentstatus will read this server and dump out its contents. That command will also explain how to get further diagnostic information.
+
+Also see the [FAQ](https://docs.signalfx.com/en/latest/integrations/agent/faq.html) for more troubleshooting help.
+
+### Development 
+If you want to contribute to the Smart Agent, see the Developer’s Guide.
+
+
+
+
+
+
+
+
 
 
