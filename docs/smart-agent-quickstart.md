@@ -146,7 +146,7 @@ monitors:
  
 The agent automatically picks up any changes to the configuration file, so a restart is not required.
  
-For complete details see [Observer Configuration](https://docs.signalfx.com/en/latest/integrations/agent/observer-config.html)
+For complete details see [Observer Configuration](https://docs.signalfx.com/en/latest/integrations/agent/observer-config.html).
  
 ## Other methods of installation 
 
@@ -187,6 +187,7 @@ If you don’t want to use the installer script, we offer a .zip that can be dep
 Before proceeding make sure the following requirements are installed.
 
 [.Net Framework 3.5 (Windows 8+)](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10)
+
 [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
 
 To use the bundle:
@@ -214,15 +215,19 @@ You may optionally install the Smart Agent as a Windows service by invoking the 
 
 _Install Service_
 
+```sh
 PS> SignalFx\SignalFxAgent\bin\signalfx-agent.exe -service "install" -logEvents -config <path to config file>
+````
  
 _Start Service_
 
+```sh
 PS> SignalFx\SignalFxAgent\bin\signalfx-agent.exe -service "start"
+````
 
 ### Privileges 
 
-_Linux:_ 
+_Linux_ 
 
 When using the host observer, the Smart Agent requires the Linux capabilities DAC\_READ\_SEARCH and SYS\_PTRACE, both of which are necessary to allow the agent to determine which processes are listening on network ports on the host. Otherwise, there is nothing built into the Smart Agent that requires privileges. 
 

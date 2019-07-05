@@ -68,7 +68,7 @@ configured in the writer, but this is generally only necessary if you have a ver
 
 ### Step 1. Install SignalFx Smart Agent on Single Host 
 
-_Note: Uninstall any existing collectd agent before installing SignalFx Smart Agent.__
+_Note: Uninstall any existing collectd agent before installing SignalFx Smart Agent._
 
 __Linux:__ The agent is available for Linux in both a containerized and standalone form. In both forms the dependencies are completely bundled along with the agent, including a Java JRE runtime and a Python runtime, so there are no additional dependencies required. The agent works on any modern Linux distribution (kernel version 2.6+).
 
@@ -87,7 +87,7 @@ __Windows:__ The agent is also available on Windows in standalone form.
 
 Ensure that the following dependencies are installed:
 
-[.Net Framework 3.5] (https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10)(Windows 8+)
+[.Net Framework 3.5] (https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
 
 [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
 
@@ -153,7 +153,7 @@ signalFxRealm: YOUR\_SIGNALFX_REALM
 
 To determine if you are in a different realm and need to explicitly set the endpoints, check your profile page in the SignalFx web application.
 
-_Configure your endpoints__
+_Configure your endpoints_
 
 If you want to explicitly set the ingest, API server, and trace endpoint URLs, you can set them individually like so:
 
