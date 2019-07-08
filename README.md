@@ -3,7 +3,7 @@
 [![GoDoc](https://godoc.org/github.com/signalfx/signalfx-agent?status.svg)](https://godoc.org/github.com/signalfx/signalfx-agent)
 [![CircleCI](https://circleci.com/gh/signalfx/signalfx-agent.svg?style=shield)](https://circleci.com/gh/signalfx/signalfx-agent)
 
-The SignalFx Smart Agent is a metric agent written in Go for monitoring infrastructure and application services in a variety of different environments. It is a successor to our previous [collectd agent](https://github.com/signalfx/collectd), and still uses that internally on Linux -- so any existing Python or C-based collectd plugins will still work without modification. On Windows collectd is not included, but the agent can run python-based collectd plugins without collectd. C-based collectd plugins are not available on Windows.
+The SignalFx Smart Agent is a metric agent written in Go for monitoring infrastructure and application services in a variety of environments. It is a successor to our previous [collectd agent](https://github.com/signalfx/collectd), and still uses collectd internally on Linux; any existing Python or C-based collectd plugins will still work without modification. On Windows collectd is not included, but the agent can run python-based collectd plugins without collectd. C-based collectd plugins are not available on Windows.
 
  - [Concepts](#concepts)
  - [Installation](#installation)
@@ -63,7 +63,7 @@ configured in the writer, but this is generally only necessary if you have a ver
 
 ### __Hello.__
 
-### __Get started using Smart Agent using the 3 steps below.__
+### __Get started with Smart Agent using the 3 steps below.__
 
 
 ### Step 1. Install SignalFx Smart Agent on Single Host 
@@ -80,7 +80,7 @@ To install the Smart Agent on a single Linux host, enter:
 
 ```sh
 curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
-sudo sh /tmp/signalfx-agent.sh --realm YOUR\_SIGNALFX\_REALM YOUR\_SIGNALFX\_API_TOKEN
+sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
 ````
 
 __Windows:__ The agent is also available on Windows in standalone form.
@@ -98,8 +98,8 @@ Ensure that the following dependencies are installed:
 To install the Smart Agent on a single Windows host, enter:
 
 ```sh
-& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access\_token = "YOUR\_SIGNALFX\_API\_TOKEN"};; 
-ingest\_url = "https://ingest.YOUR\_SIGNALFX\_REALM.signalfx.com"; api\_url = "https://api.YOUR\_SIGNALFX_REALM.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
+& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"};; 
+ingest_url = "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"; api_url = "https://api.YOUR_SIGNALFX_REALM.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
 ```
 
 The agent will be installed as a Windows service and will log to the Windows Event Log.
@@ -146,7 +146,7 @@ By default, the Smart Agent will send data to the us0 realm. If you are not in t
 
 ```sh
 
-signalFxRealm: YOUR\_SIGNALFX_REALM
+signalFxRealm: YOUR_SIGNALFX_REALM
 
 ```
 
@@ -159,9 +159,9 @@ If you want to explicitly set the ingest, API server, and trace endpoint URLs, y
 
 
 ```sh
-ingestUrl: "https://ingest.YOUR\_SIGNALFX\_REALM.signalfx.com"
-apiUrl: "https://api.YOUR\_SIGNALFX\_REALM.signalfx.com"
-traceEndpointUrl: "https://ingest.YOUR\_SIGNALFX\_REALM.signalfx.com/v1/trace"
+ingestUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"
+apiUrl: "https://api.YOUR_SIGNALFX_REALM.signalfx.com"
+traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
 ````
 
 
@@ -174,5 +174,5 @@ To troubleshoot your installation further, check the FAQ about troubleshooting [
 
 Installation is complete.
 
-For more information about SignalFx Smart Agent, see [Next Steps](https://docs.signalfx.com/en/latest/integrations/agent/smart-agent-quickstart.html). 
+To continue your exploration of SignalFx Smart Agent capabilities, see [Next Steps](https://docs.signalfx.com/en/latest/integrations/agent/smart-agent-quickstart.html). 
 

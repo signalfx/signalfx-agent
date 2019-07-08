@@ -76,7 +76,7 @@ You may also want to add and configure various monitors for your environment.
 
 ### Configure optional metrics for your monitors. 
 
-See individual monitor pages for your monitor from the lists in Step 5 or see the [Integrations tab](https://app.signalfx.com/#/integrations) in the SignalFx application for information on Monitor Services.
+See individual monitor pages for your monitor from the lists in Step 5 or see the [Integrations tab](https://app.signalfx.com/#/integrations) in the SignalFx application for Monitor Services.
 
 ## Step 6. Add a New Observer 
 
@@ -86,9 +86,9 @@ See [Observers](#Observers).
 
 See [Dashboards](https://docs.signalfx.com/en/latest/dashboards/index.html).
 
-See [Built-In Dashboards and Charts](https://docs.signalfx.com/en/latest/getting-started/built-in-content/built-in-dashboards.html) 
+See [Built-In Dashboards and Charts](https://docs.signalfx.com/en/latest/getting-started/built-in-content/built-in-dashboards.html). 
 
-See best practices for [Better Dashboards](https://docs.signalfx.com/en/latest/reference/best-practices/better-dashboards.html) 
+See best practices for [Better Dashboards](https://docs.signalfx.com/en/latest/reference/best-practices/better-dashboards.html). 
 
 ## To learn more about Smart Agent, see the [15-Minute SingnalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html). 
 
@@ -113,9 +113,9 @@ monitors:
   - type: collectd/apache
     host: localhost
     port: 80
- ```
- 
- 
+```
+
+
 For complete details, see [Monitor Configuration](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html). 
 
 ### Observers 
@@ -143,11 +143,11 @@ monitors:
     .
   - type: docker-container-stats
 ```
- 
+
 The agent automatically picks up any changes to the configuration file, so a restart is not required.
- 
+
 For complete details see [Observer Configuration](https://docs.signalfx.com/en/latest/integrations/agent/observer-config.html).
- 
+
 ## Other methods of installation 
 
 ### Linux Standalone tar.gz 
@@ -218,7 +218,7 @@ _Install Service_
 ```sh
 PS> SignalFx\SignalFxAgent\bin\signalfx-agent.exe -service "install" -logEvents -config <path to config file>
 ````
- 
+
 _Start Service_
 
 ```sh
@@ -271,8 +271,8 @@ For example, if the host services are managed by systemd, create the /etc/system
 ```sh
 
 [Service]
-Environment="HTTP\_PROXY=http://proxy.example.com:8080/"
-Environment="HTTPS\_PROXY=https://proxy.example.com:8081/"
+Environment="HTTP_PROXY=http://proxy.example.com:8080/"
+Environment="HTTPS_PROXY=https://proxy.example.com:8081/"
 
 ```
 
