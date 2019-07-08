@@ -1,7 +1,6 @@
 # Tests of the chef cookbook
 
 import json
-import re
 import tempfile
 from functools import partial as p
 from pathlib import Path
@@ -14,6 +13,7 @@ from tests.packaging.common import (
     INIT_SYSTEMD,
     INIT_UPSTART,
     get_agent_logs,
+    get_agent_version,
     is_agent_running_as_non_root,
     run_init_system_image,
 )
@@ -53,15 +53,6 @@ SUPPORTED_DISTROS = [
     ("centos6", INIT_UPSTART),
     ("centos7", INIT_SYSTEMD),
 ]
-
-
-def get_agent_version(cont):
-    code, output = cont.exec_run("signalfx-agent -version")
-    output = output.decode("utf-8").strip()
-    assert code == 0, "command 'signalfx-agent -version' failed:\n%s" % output
-    match = re.match("^.+?: (.+)?,", output)
-    assert match and match.group(1).strip(), "failed to parse agent version from command output:\n%s" % output
-    return match.group(1).strip()
 
 
 def run_chef_client(cont, agent_version=None):

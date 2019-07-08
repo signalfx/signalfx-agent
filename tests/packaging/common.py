@@ -1,3 +1,4 @@
+import re
 import subprocess
 import threading
 import time
@@ -182,3 +183,12 @@ def is_agent_running_as_non_root(container):
     code, output = container.exec_run("pgrep -u signalfx-agent signalfx-agent")
     print("pgrep check: %s" % output)
     return code == 0
+
+
+def get_agent_version(cont):
+    code, output = cont.exec_run("signalfx-agent -version")
+    output = output.decode("utf-8").strip()
+    assert code == 0, "command 'signalfx-agent -version' failed:\n%s" % output
+    match = re.match("^.+?: (.+)?,", output)
+    assert match and match.group(1).strip(), "failed to parse agent version from command output:\n%s" % output
+    return match.group(1).strip()
