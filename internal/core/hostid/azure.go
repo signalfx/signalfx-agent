@@ -57,15 +57,15 @@ func AzureUniqueID() string {
 		return fmt.Sprintf("%s/%s/microsoft.compute/virtualmachines/%s", compute.Doc.SubscriptionID, compute.Doc.ResourceGroupName, compute.Doc.Name)
 	}
 
-	parsedName := strings.Split(compute.Doc.Name, "_")
+	instanceID := strings.TrimLeft(compute.Doc.Name, compute.Doc.VMScaleSetName + "_")
 
 	// names of VM's in VMScalesets seem to follow the of `<scale-set-name>_<instance-id>`
 	// where scale-set-name is alphanumeric (and is the same as compute.vmScaleSetName
 	// field from the metadata endpoint)
-	if len(parsedName) != 2 {
+	if instanceID == "" {
 		return ""
 	}
 
-	return fmt.Sprintf("%s/%s/microsoft.compute/virtualmachinescalesets/%s/virtualmachines/%s", compute.Doc.SubscriptionID, compute.Doc.ResourceGroupName, compute.Doc.VMScaleSetName, parsedName[1])
+	return fmt.Sprintf("%s/%s/microsoft.compute/virtualmachinescalesets/%s/virtualmachines/%s", compute.Doc.SubscriptionID, compute.Doc.ResourceGroupName, compute.Doc.VMScaleSetName, instanceID)
 
 }
