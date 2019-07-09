@@ -4,7 +4,6 @@ Tests for the cadvisor monitor
 from functools import partial as p
 
 import pytest
-
 from tests.helpers.assertions import tcp_socket_open
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_container, wait_for
@@ -27,7 +26,7 @@ def run(config, metrics):
     )
     with run_container("google/cadvisor:latest", **cadvisor_opts) as cadvisor_container, run_container(
         # Run container to generate memory limit metric.
-        "alpine",
+        "alpine:3.9",
         command=["tail", "-f", "/dev/null"],
         mem_limit="64m",
     ):
