@@ -32,10 +32,12 @@ monitors:
 """
 
 
-def build_base_image(name, path=DOCKERFILES_DIR, dockerfile=None):
+def build_base_image(name, path=DOCKERFILES_DIR, dockerfile=None, buildargs=None):
     client = get_docker_client()
     dockerfile = dockerfile or Path(path) / f"Dockerfile.{name}"
-    image, _ = client.images.build(path=str(path), dockerfile=str(dockerfile), pull=True, rm=True, forcerm=True)
+    image, _ = client.images.build(
+        path=str(path), dockerfile=str(dockerfile), pull=True, rm=True, forcerm=True, buildargs=buildargs
+    )
 
     return image.id
 
@@ -138,8 +140,9 @@ def run_init_system_image(
     ingest_host="ingest.us0.signalfx.com",  # Whatever value is used here needs a self-signed cert in ./images/certs/
     api_host="api.us0.signalfx.com",  # Whatever value is used here needs a self-signed cert in ./images/certs/
     command=None,
-):
-    image_id = retry(lambda: build_base_image(base_image, path, dockerfile), docker.errors.BuildError)
+    buildargs=None,
+):  # pylint: disable=too-many-arguments
+    image_id = retry(lambda: build_base_image(base_image, path, dockerfile, buildargs), docker.errors.BuildError)
     print("Image ID: %s" % image_id)
     if with_socat:
         backend_ip = "127.0.0.1"

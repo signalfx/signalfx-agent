@@ -201,7 +201,15 @@ def _test_package_install(base_image, package_path, init_system):
         _, package_ext = os.path.splitext(package_path)
         copy_file_into_container(package_path, cont, "/opt/signalfx-agent%s" % package_ext)
 
-        code, output = cont.exec_run(INSTALL_COMMAND[package_ext])
+        if "opensuse" in base_image:
+            # suse-specific installation (this will usually be handled by the installer script)
+            code, output = cont.exec_run("zypper install -y -l libcap2 libcap-progs libpcap1 shadow")
+            assert code == 0, "Failed to install dependencies:\n%s" % output.decode("utf-8")
+            install_cmd = "rpm -ivh --nodeps /opt/signalfx-agent.rpm"
+        else:
+            install_cmd = INSTALL_COMMAND[package_ext]
+
+        code, output = cont.exec_run(install_cmd)
         print("Output of package install:")
         print_lines(output)
         assert code == 0, "Package could not be installed!"
@@ -300,6 +308,7 @@ def _test_package_upgrade(base_image, package_path, init_system):
         ("amazonlinux2", INIT_SYSTEMD),
         ("centos6", INIT_UPSTART),
         ("centos7", INIT_SYSTEMD),
+        ("opensuse15", INIT_SYSTEMD),
     ],
 )
 def test_rpm_package(base_image, init_system):

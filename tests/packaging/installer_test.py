@@ -12,6 +12,7 @@ from .common import (
     INIT_UPSTART,
     INSTALLER_PATH,
     get_agent_logs,
+    get_agent_version,
     is_agent_running_as_non_root,
     run_init_system_image,
 )
@@ -28,6 +29,7 @@ SUPPORTED_DISTROS = [
     ("amazonlinux2", INIT_SYSTEMD),
     ("centos6", INIT_UPSTART),
     ("centos7", INIT_SYSTEMD),
+    ("opensuse15", INIT_SYSTEMD),
 ]
 
 
@@ -46,7 +48,7 @@ def _run_tests(base_image, init_system, installer_args, **extra_run_kwargs):
 
         try:
             assert is_agent_running_as_non_root(cont), "Agent is running as root user"
-            yield backend
+            yield backend, cont
         finally:
             print("Agent log:")
             print_lines(get_agent_logs(cont, init_system))
@@ -54,7 +56,28 @@ def _run_tests(base_image, init_system, installer_args, **extra_run_kwargs):
 
 @pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
 def test_installer_on_all_distros(base_image, init_system):
-    with _run_tests(base_image, init_system, "MYTOKEN") as backend:
+    args = "MYTOKEN"
+    if "opensuse" in base_image:
+        # use rpm in test stage until the suse-supported rpm is released to final stage
+        args += " --test"
+    with _run_tests(base_image, init_system, args) as [backend, _]:
+        assert wait_for(
+            p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
+        ), "Datapoints didn't come through"
+
+
+@pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
+def test_installer_package_version(base_image, init_system):
+    version = "4.7.5"
+    args = f"--package-version {version}-1 MYTOKEN"
+    if "opensuse" in base_image:
+        # use rpm in test stage until the suse-supported rpm is released to final stage
+        version = "4.7.6~post"
+        args = f"--test --package-version {version}-1 MYTOKEN"
+    with _run_tests(base_image, init_system, args) as [backend, cont]:
+        installed_version = get_agent_version(cont)
+        version = version.replace("~", "-")
+        assert installed_version == version, f"Installed agent version is {installed_version} but should be {version}"
         assert wait_for(
             p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
         ), "Datapoints didn't come through"
@@ -67,7 +90,7 @@ def test_installer_different_realm():
         "MYTOKEN --realm us1",
         ingest_host="ingest.us1.signalfx.com",
         api_host="api.us1.signalfx.com",
-    ) as backend:
+    ) as [backend, _]:
         assert wait_for(
             p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
         ), "Datapoints didn't come through"
@@ -87,7 +110,7 @@ def first_host_dimension(backend):
 
 @pytest.mark.xfail(reason="won't pass until agent is released with default config with cluster option referencing file")
 def test_installer_cluster():
-    with _run_tests("ubuntu1804", INIT_SYSTEMD, "MYTOKEN --cluster prod") as backend:
+    with _run_tests("ubuntu1804", INIT_SYSTEMD, "MYTOKEN --cluster prod") as [backend, _]:
 
         def assert_cluster_property():
             host = first_host_dimension(backend)

@@ -9,7 +9,8 @@ WORKDIR /opt/cookbooks
 RUN curl -Lo windows.tar.gz https://supermarket.chef.io/cookbooks/windows/versions/4.3.4/download && \
     tar -xzf windows.tar.gz
 
-RUN yum install -y https://packages.chef.io/files/stable/chef/12.8.1/el/7/chef-12.8.1-1.el7.x86_64.rpm
+ARG CHEF_INSTALLER_ARGS
+RUN curl -L https://omnitruck.chef.io/install.sh | bash -s -- $CHEF_INSTALLER_ARGS
 
 RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i = \
     "systemd-tmpfiles-setup.service" ] || rm -f $i; done); \
