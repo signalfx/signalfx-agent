@@ -12,14 +12,14 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/internal/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/sirupsen/logrus"
 )
 
-// fetch the factory used to generate the perf counter plugin
-var factory = telegrafInputs.Inputs["win_services"]
+var logger = logrus.WithField("monitorType", monitorType)
 
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) (err error) {
-	plugin := factory().(*telegrafPlugin.WinServices)
+	plugin := telegrafInputs.Inputs["win_services"]().(*telegrafPlugin.WinServices)
 
 	// create the emitter
 	em := baseemitter.NewEmitter(m.Output, logger)

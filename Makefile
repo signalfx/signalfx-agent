@@ -8,6 +8,10 @@ MONITOR_CODE_GEN := ./monitor-code-gen
 endif
 NUM_CORES ?= $(shell getconf _NPROCESSORS_ONLN)
 
+.PHONY: clean
+clean:
+	find internal -name "genmetadata.go" -delete
+
 .PHONY: check
 check: lint vet test
 
@@ -18,9 +22,9 @@ compileDeps: templates code-gen internal/core/common/constants/versions.go
 code-gen: $(MONITOR_CODE_GEN)
 	$(MONITOR_CODE_GEN)
 
-$(MONITOR_CODE_GEN): $(wildcard cmd/monitorcodegen/*.go)
+$(MONITOR_CODE_GEN): $(wildcard cmd/monitorcodegen/*.go) cmd/monitorcodegen/genmetadata.tmpl
 ifeq ($(OS),Windows_NT)
-	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; monitor-code-gen }"
+	powershell $(CURDIR)/scripts/windows/make.ps1 monitor-code-gen
 else
 	go build -mod vendor -o $@ ./cmd/monitorcodegen
 endif
@@ -28,9 +32,9 @@ endif
 .PHONY: test
 test: compileDeps
 ifeq ($(OS),Windows_NT)
-	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; test }"
+	powershell $(CURDIR)/scripts/windows/make.ps1 test
 else
-	CGO_ENABLED=0 go test -mod vendor -p $(NUM_CORES) ./...
+	bash -euo pipefail -c "CGO_ENABLED=0 go test -mod vendor -p $(NUM_CORES) ./... | grep -v '\[no test files\]'"
 endif
 
 .PHONY: vet
@@ -45,7 +49,7 @@ vetall: compileDeps
 .PHONY: lint
 lint:
 ifeq ($(OS),Windows_NT)
-	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; lint }"
+	powershell $(CURDIR)/scripts/windows/make.ps1 lint
 else
 	CGO_ENABLED=0 golint -set_exit_status ./cmd/... ./internal/...
 endif
@@ -66,14 +70,14 @@ image:
 .PHONY: vendor
 vendor:
 ifeq ($(OS), Windows_NT)
-	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; vendor }"
+	powershell $(CURDIR)/scripts/windows/make.ps1 vendor
 else
 	go mod tidy && go mod vendor
 endif
 
 internal/core/common/constants/versions.go: FORCE
 ifeq ($(OS),Windows_NT)
-	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; versions_go }"
+	powershell $(CURDIR)/scripts/windows/make.ps1 versions_go
 else
 	AGENT_VERSION=$(AGENT_VERSION) COLLECTD_VERSION=$(COLLECTD_VERSION) BUILD_TIME=$(BUILD_TIME) scripts/make-versions
 endif
@@ -81,7 +85,7 @@ endif
 signalfx-agent: compileDeps
 	echo "building SignalFx agent for operating system: $(GOOS)"
 ifeq ($(OS),Windows_NT)
-	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; signalfx-agent $(AGENT_VERSION)}"
+	powershell $(CURDIR)/scripts/windows/make.ps1 signalfx-agent $(AGENT_VERSION)
 else
 	CGO_ENABLED=0 go build \
 		-mod vendor \
@@ -92,7 +96,7 @@ endif
 .PHONY: bundle
 bundle:
 ifeq ($(OS),Windows_NT)
-	powershell "& { . $(CURDIR)/scripts/windows/make.ps1; bundle $(COLLECTD_COMMIT)}"
+	powershell $(CURDIR)/scripts/windows/make.ps1 bundle $(COLLECTD_COMMIT)
 else
 	BUILD_BUNDLE=true COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) scripts/build
 endif
@@ -117,6 +121,9 @@ endif
 debug:
 	dlv debug ./cmd/agent
 
+ifdef dbus
+dbus_run_flags = --privileged -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
+endif
 
 ifneq ($(OS),Windows_NT)
 extra_run_flags = -v /:/hostfs:ro -v /var/run/docker.sock:/var/run/docker.sock:ro -v /tmp/scratch:/tmp/scratch
@@ -127,7 +134,7 @@ endif
 run-dev-image:
 	docker exec -it $(docker_env) signalfx-agent-dev /bin/bash -l -i || \
 	  docker run --rm -it \
-		$(extra_run_flags) \
+		$(dbus_run_flags) $(extra_run_flags) \
 		--cap-add DAC_READ_SEARCH \
 		--cap-add SYS_PTRACE \
 		-p 6060:6060 \
@@ -140,30 +147,13 @@ run-dev-image:
 		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
 		signalfx-agent-dev /bin/bash
 
-.PHONY: run-dev-image-sync
-run-dev-image-sync:
-	docker exec -it $(docker_env) signalfx-agent-dev-sync /bin/bash -l -i || \
-	  docker run --rm -it \
-		$(extra_run_flags) \
-		--cap-add DAC_READ_SEARCH \
-		--cap-add SYS_PTRACE \
-		-p 6061:6060 \
-		-p 9081:9080 \
-		-p 8096:8095 \
-		--name signalfx-agent-dev-sync \
-		-v signalfx-agent-sync:/usr/src/signalfx-agent:nocopy \
-		-v $(CURDIR)/local-etc:/etc/signalfx \
-		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
-		signalfx-agent-dev /bin/bash
-
 .PHONY: run-dev-image-commands
 run-dev-image-commands:
 	docker exec -t $(docker_env) signalfx-agent-dev /bin/bash -c '$(RUN_DEV_COMMANDS)'
 
 .PHONY: run-integration-tests
-run-integration-tests: MARKERS ?= not packaging and not installer and not k8s and not windows_only and not deployment and not perf_test
+run-integration-tests: MARKERS ?= integration
 run-integration-tests:
-	AGENT_BIN=/bundle/bin/signalfx-agent \
 	pytest \
 		-m "$(MARKERS)" \
 		-n auto \
@@ -173,18 +163,47 @@ run-integration-tests:
 		tests
 
 .PHONY: run-k8s-tests
-run-k8s-tests: MARKERS ?= (k8s or helm) and not collectd
-run-k8s-tests:
+run-k8s-tests: MARKERS ?= (kubernetes or helm) and not collectd
+run-k8s-tests: run-minikube push-minikube-agent
+	scripts/get-kubectl
 	pytest \
 		-m "$(MARKERS)" \
 		-n auto \
 		--verbose \
-		--exitfirst \
 		--html=test_output/k8s_results.html \
 		--self-contained-html \
-		tests || \
-	(docker ps | grep -q minikube && echo "minikube container is left running for debugging purposes"; return 1) && \
-	docker rm -fv minikube
+		tests
+
+K8S_VERSION ?= latest
+MINIKUBE_VERSION ?= $(shell scripts/determine-compatible-minikube.py $(K8S_VERSION))
+
+.PHONY: run-minikube
+run-minikube:
+	docker build \
+		-t minikube:$(MINIKUBE_VERSION) \
+		--build-arg 'MINIKUBE_VERSION=$(MINIKUBE_VERSION)' \
+		test-services/minikube
+
+	docker rm -fv minikube 2>/dev/null || true
+	docker run -d \
+		--name minikube \
+		--privileged \
+		-e K8S_VERSION=$(K8S_VERSION) \
+		-e TIMEOUT=$(MINIKUBE_TIMEOUT) \
+		-p 5000:5000 \
+		minikube:$(MINIKUBE_VERSION)
+
+	docker exec minikube start-minikube.sh
+
+	echo "Minikube is now running. Push up an agent image to localhost:5000/signalfx-agent:latest or run 'make push-minikube-agent'"
+
+.PHONY: push-minikube-agent
+push-minikube-agent:
+	PUSH_DOCKER_IMAGE=yes \
+	  AGENT_IMAGE_NAME=localhost:5000/signalfx-agent \
+	  AGENT_VERSION=latest \
+	  SKIP_BUILD_PULL=yes \
+	  $(MAKE) image
 
 .PHONY: docs
 docs:
@@ -239,10 +258,9 @@ run-devstack:
 run-chef-tests:
 	pytest -v -n auto -m chef --html=test_output/chef_results.html --self-contained-html tests/deployments
 
-K8S_VERSION ?= latest
-.PHONY: run-minikube
-run-minikube:
-	python -c 'from tests.helpers.kubernetes.minikube import Minikube; mk = Minikube(); mk.deploy("$(K8S_VERSION)")' && \
-	docker exec -it $(docker_env) minikube /bin/bash
+.PHONY: check-links
+check-links:
+	docker build -t check-links scripts/docs/check-links
+	docker run --rm -v $(CURDIR):/usr/src/signalfx-agent:ro check-links
 
 FORCE:

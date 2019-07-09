@@ -17,6 +17,10 @@ Monitor Type: `collectd/python`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | no | `string` | Host will be filled in by auto-discovery if this monitor has a discovery rule.  It can then be used under pluginConfig by the template `{{.Host}}` |
@@ -24,12 +28,11 @@ Monitor Type: `collectd/python`
 | `moduleName` | no | `string` | Corresponds to the ModuleName option in collectd-python |
 | `modulePaths` | no | `list of strings` | Corresponds to a set of ModulePath options in collectd-python |
 | `pluginConfig` | no | `map of any` | This is a yaml form of the collectd config. |
-| `typesDBPaths` | no | `list of strings` | A set of paths to [types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd types.db file. |
+| `typesDBPaths` | no | `list of strings` | A set of paths to [../types.db files](https://collectd.org/documentation/manpages/types.db.5.shtml) that are needed by your plugin.  If not specified, the runner will use the global collectd ../types.db file. |
 
 
 
-
-
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

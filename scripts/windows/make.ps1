@@ -1,5 +1,16 @@
+<#
+.PARAMETER Target
+    Build target to run (compile_deps, versions_go, signalfx-agent, monitor-code-gen,
+                         bundle, lint, vendor, unit_test, integration_test)
+#>
+param(
+    [Parameter(Mandatory=$true, Position=1)][string]$Target,
+    [Parameter(Mandatory=$false, ValueFromRemainingArguments=$true)]$Remaining
+)
+
 Set-PSDebug -Trace 1
 $env:CGO_ENABLED = 0
+$ErrorActionPreference = "Stop"
 
 $scriptDir = split-path -parent $MyInvocation.MyCommand.Definition
 . "$scriptDir\common.ps1"
@@ -29,14 +40,20 @@ function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalf
     compile_deps
 
     go build -mod vendor -o "$AGENT_BIN" github.com/signalfx/signalfx-agent/cmd/agent
-    if ($lastexitcode -ne 0){ throw }
+
+    if (!(Test-Path -Path "$AGENT_BIN")) {
+        throw "$AGENT_BIN not found!"
+    }
 }
 
 function monitor-code-gen([string]$AGENT_VERSION="", [string]$CODEGEN_BIN=".\monitor-code-gen.exe", [string]$COLLECTD_VERSION="") {
     versions_go
 
     go build -mod vendor -o "$CODEGEN_BIN" github.com/signalfx/signalfx-agent/cmd/monitorcodegen
-    if ($lastexitcode -ne 0){ throw }
+
+    if (!(Test-Path -Path "$CODEGEN_BIN")) {
+        throw "$CODEGEN_BIN not found!"
+    }
 }
 
 # make the build bundle
@@ -53,7 +70,6 @@ function bundle (
         [string]$PFX_PATH="",
         [string]$PFX_PASSWORD="",
         [string]$AGENT_NAME="SignalFxAgent") {
-
     if ($AGENT_VERSION -Eq ""){
         $AGENT_VERSION = getGitTag
     }
@@ -80,7 +96,6 @@ function bundle (
     if ($BUILD_AGENT) {
         Remove-Item -Recurse -Force "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe" -ErrorAction Ignore
         signalfx-agent -AGENT_VERSION "$AGENT_VERSION" -AGENT_BIN "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe"
-        if ($lastexitcode -ne 0){ throw }
     }
 
     if ($PFX_PATH -ne "" -And $PFX_PASSWORD -ne "") {
@@ -88,34 +103,26 @@ function bundle (
             throw "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe not found!"
         }
         signtool sign /f "$PFX_PATH" /p $PFX_PASSWORD /tr http://timestamp.digicert.com /fd sha256 /td SHA256 /n "SignalFx, Inc." "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe"
-        if ($lastexitcode -ne 0){ throw }
     }
 
     if (($DOWNLOAD_PYTHON -Or !(Test-Path -Path "$buildDir\python")) -And !$ONLY_BUILD_AGENT) {
         Remove-Item -Recurse -Force "$buildDir\python" -ErrorAction Ignore
         download_python -outputDir $buildDir
-        if ($lastexitcode -ne 0){ throw }
         install_python -buildDir $buildDir
-        if ($lastexitcode -ne 0){ throw }
         install_pip -buildDir $buildDir
-        if ($lastexitcode -ne 0){ throw }
     }
 
-    if (($DOWNLOAD_COLLECTD_PLUGINS -Or !(Test-Path -Path "$buildDir\plugins")) -And !$ONLY_BUILD_AGENT) {
-        Remove-Item -Recurse -Force "$buildDir\plugins\collectd" -ErrorAction Ignore
+    if (($DOWNLOAD_COLLECTD_PLUGINS -Or !(Test-Path -Path "$buildDir\collectd-python")) -And !$ONLY_BUILD_AGENT) {
+        Remove-Item -Recurse -Force "$buildDir\collectd-python" -ErrorAction Ignore
         bundle_python_runner -buildDir "$buildDir"
-        if ($lastexitcode -ne 0){ throw }
         get_collectd_plugins -buildDir "$buildDir"
-        if ($lastexitcode -ne 0){ throw }
     }
 
     if (($DOWNLOAD_COLLECTD -Or !(Test-Path -Path "$buildDir\collectd")) -And !$ONLY_BUILD_AGENT) {
         Remove-Item -Recurse -Force "$buildDir\collectd" -ErrorAction Ignore
         mkdir "$buildDir\collectd" -ErrorAction Ignore
         download_collectd -collectdCommit $COLLECTD_COMMIT -outputDir "$buildDir"
-        if ($lastexitcode -ne 0){ throw }
         unzip_file -zipFile "$buildDir\collectd.zip" -outputDir "$buildDir\collectd"
-        if ($lastexitcode -ne 0){ throw }
     }
 
     # copy default whitelist into agent directory
@@ -124,8 +131,8 @@ function bundle (
     copy_default_config -buildDir "$buildDir" -AGENT_NAME "$AGENT_NAME"
     # copy python into agent directory
     Copy-Item -Path "$buildDir\python" -Destination "$buildDir\$AGENT_NAME\python" -recurse -Force
-    # copy plugins into agent directory
-    Copy-Item -Path "$buildDir\plugins" -Destination "$buildDir\$AGENT_NAME\plugins" -recurse -Force
+    # copy Python plugins into agent directory
+    Copy-Item -Path "$buildDir\collectd-python" -Destination "$buildDir\$AGENT_NAME\collectd-python" -recurse -Force
     # copy types.db file into agent directory
     copy_types_db -collectdCommit $COLLECTD_COMMIT -buildDir "$buildDir" -agentName "$AGENT_NAME"
 
@@ -144,31 +151,31 @@ function bundle (
 
 function lint() {
     compile_deps
-    golint -set_exit_status ./cmd/... ./internal/...
-    if ($lastexitcode -ne 0){ throw }
+    golangci-lint run
 }
 
 function vendor() {
     go mod tidy
-    if ($lastexitcode -ne 0){ throw }
     go mod vendor
-    if ($lastexitcode -ne 0){ throw }
-}
-
-function vet() {
-    compile_deps
-    go vet -mod vendor ./... 2>&1 | Select-String -Pattern "\.go" | Select-String -NotMatch -Pattern "_test\.go" -outvariable gofiles
-    if ($gofiles){ Write-Host $gofiles; throw }
 }
 
 function unit_test() {
     compile_deps
     go generate -mod vendor ./internal/monitors/...
-    if ($lastexitcode -ne 0){ throw }
-    $(& go test -mod vendor -v ./... 2>&1; $rc=$lastexitcode) | go2xunit -output unit_results.xml
-    return $rc
+    $ErrorActionPreference = "Continue"
+    $output = & go test -mod vendor -v ./... 2>&1
+    if ($lastexitcode -gt 1){ throw $output }
+    Write-Output $output | go2xunit -output unit_results.xml
+    $ErrorActionPreference = "Stop"
 }
 
 function integration_test() {
     pytest -n auto -m 'windows or windows_only' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
+}
+
+if ($REMAINING.length -gt 0) {
+    $sb = [scriptblock]::create("$Target $REMAINING")
+    Invoke-Command -ScriptBlock $sb
+} else {
+    &$Target
 }

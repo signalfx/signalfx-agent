@@ -31,6 +31,10 @@ Monitor Type: `collectd/kafka`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host to connect to -- JMX must be configured for remote access and accessible from the agent |
@@ -38,9 +42,9 @@ Monitor Type: `collectd/kafka`
 | `name` | no | `string` |  |
 | `serviceName` | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the special property `sf_hostHasService` set to this value. |
 | `serviceURL` | no | `string` | The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. NOTE: under normal circumstances it is not advised to set this string directly - setting the host and port as specified above is preferred. (**default:** `service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi`) |
-| `instancePrefix` | no | `string` |  |
-| `username` | no | `string` |  |
-| `password` | no | `string` |  |
+| `instancePrefix` | no | `string` | Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, and the prefix specified in the MBean block will be appended to it |
+| `username` | no | `string` | Username to authenticate to the server |
+| `password` | no | `string` | User password to authenticate to the server |
 | `customDimensions` | no | `map of strings` | Takes in key-values pairs of custom dimensions at the connection level. |
 | `mBeansToCollect` | no | `list of strings` | A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected. |
 | `mBeansToOmit` | no | `list of strings` | A list of the MBeans to omit. This will come handy in cases where only a few MBeans need to omitted from the default list |
@@ -52,10 +56,10 @@ The **nested** `mBeanDefinitions` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `objectName` | no | `string` |  |
-| `instancePrefix` | no | `string` |  |
-| `instanceFrom` | no | `list of strings` |  |
-| `values` | no | `list of objects (see below)` |  |
+| `objectName` | no | `string` | Sets the pattern which is used to retrieve MBeans from the MBeanServer. If more than one MBean is returned you should use the `instanceFrom` option to make the identifiers unique |
+| `instancePrefix` | no | `string` | Prefixes the generated plugin instance with prefix |
+| `instanceFrom` | no | `list of strings` | The object names used by JMX to identify MBeans include so called "properties" which are basically key-value-pairs. If the given object name is not unique and multiple MBeans are returned, the values of those properties usually differ. You can use this option to build the plugin instance from the appropriate property values. This option is optional and may be repeated to generate the plugin instance from multiple property values |
+| `values` | no | `list of objects (see below)` | The `value` blocks map one or more attributes of an MBean to a value list in collectd. There must be at least one `value` block within each MBean block |
 | `dimensions` | no | `list of strings` |  |
 
 
@@ -63,78 +67,86 @@ The **nested** `values` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `type` | no | `string` |  |
-| `table` | no | `bool` |  (**default:** `false`) |
-| `instancePrefix` | no | `string` |  |
-| `instanceFrom` | no | `list of strings` |  |
-| `attribute` | no | `string` |  |
-
-
+| `type` | no | `string` | Sets the data set used within collectd to handle the values of the MBean attribute |
+| `table` | no | `bool` | Set this to true if the returned attribute is a composite type. If set to true, the keys within the composite type is appended to the type instance. (**default:** `false`) |
+| `instancePrefix` | no | `string` | Works like the option of the same name directly beneath the MBean block, but sets the type instance instead |
+| `instanceFrom` | no | `list of strings` | Works like the option of the same name directly beneath the MBean block, but sets the type instance instead |
+| `attribute` | no | `string` | Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true, path must point to a composite type, otherwise it must point to a numeric type. |
+| `attributes` | no | `list of strings` | The plural form of the `attribute` config above.  Used to derive multiple metrics from a single MBean. |
 
 
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `counter.kafka-all-bytes-in` | cumulative |  | Number of bytes received per second across all topics |
-| `counter.kafka-all-bytes-out` | cumulative |  | Number of bytes transmitted per second across all topics |
-| `counter.kafka-log-flushes` | cumulative |  | Number of log flushes per second |
-| `counter.kafka-messages-in` | cumulative | ✔ | Number of messages received per second across all topics |
-| `counter.kafka.fetch-consumer.total-time.count` | cumulative | ✔ | Number of fetch requests from consumers per second across all partitions |
-| `counter.kafka.fetch-follower.total-time.count` | cumulative |  | Number of fetch requests from followers per second across all partitions |
-| `counter.kafka.produce.total-time.99th` | gauge |  | 99th percentile of time in milliseconds to process produce requests |
-| `counter.kafka.produce.total-time.count` | cumulative | ✔ | Number of producer requests |
-| `counter.kafka.produce.total-time.median` | gauge |  | Median time it takes to process a produce request |
-| `gauge.kafka-active-controllers` | gauge | ✔ | Specifies if the broker an active controller |
-| `gauge.kafka-log-flush-time-ms` | gauge |  | Average number of milliseconds to flush a log |
-| `gauge.kafka-log-flush-time-ms-p95` | gauge |  | 95th percentile of log flush time in milliseconds |
-| `gauge.kafka-request-queue` | gauge | ✔ | Number of requests in the request queue across all partitions on the broker |
-| `gauge.kafka-underreplicated-partitions` | gauge | ✔ | Number of underreplicated partitions across all topics on the broker |
-| `gauge.kafka.fetch-consumer.total-time.99th` | gauge | ✔ | 99th percentile of time in milliseconds to process fetch requests from consumers |
-| `gauge.kafka.fetch-consumer.total-time.median` | gauge | ✔ | Median time it takes to process a fetch request from consumers |
-| `gauge.kafka.fetch-follower.total-time.99th` | gauge | ✔ | 99th percentile of time in milliseconds to process fetch requests from followers |
-| `gauge.kafka.fetch-follower.total-time.median` | gauge | ✔ | Median time it takes to process a fetch request from follower |
-| `kafka-isr-expands` | cumulative |  | When a broker is brought up after a failure, it starts catching up by reading from the leader. Once it is caught up, it gets added back to the ISR. |
-| `kafka-isr-shrinks` | cumulative |  | When a broker goes down, ISR for some of partitions will shrink. When that broker is up again, ISR will be expanded once the replicas are fully caught up. Other than that, the expected value for both ISR shrink rate and expansion rate is 0. |
-| `kafka-leader-election-rate` | cumulative |  | Number of leader elections |
-| `kafka-max-lag` | gauge |  | Maximum lag in messages between the follower and leader replicas |
-| `kafka-offline-partitions-count` | gauge |  | Number of partitions that don’t have an active leader and are hence not writable or readable |
-| `kafka-unclean-elections` | cumulative |  | Number of unclean leader elections. This happens when a leader goes down and an out-of-sync replica is chosen to be the leader |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+ - ***`counter.kafka-bytes-in`*** (*cumulative*)<br>    Number of bytes received per second across all topics
+ - ***`counter.kafka-bytes-out`*** (*cumulative*)<br>    Number of bytes transmitted per second across all topics
+ - ***`counter.kafka-isr-expands`*** (*cumulative*)<br>    When a broker is brought up after a failure, it starts catching up by reading from the leader. Once it is caught up, it gets added back to the ISR.
+ - ***`counter.kafka-isr-shrinks`*** (*cumulative*)<br>    When a broker goes down, ISR for some of partitions will shrink. When that broker is up again, ISR will be expanded once the replicas are fully caught up. Other than that, the expected value for both ISR shrink rate and expansion rate is 0.
+ - `counter.kafka-leader-election-rate` (*cumulative*)<br>    Number of leader elections
+ - ***`counter.kafka-messages-in`*** (*cumulative*)<br>    Number of messages received per second across all topics
+ - ***`counter.kafka-unclean-elections-rate`*** (*cumulative*)<br>    Number of unclean leader elections. This happens when a leader goes down and an out-of-sync replica is chosen to be the leader
+ - ***`counter.kafka.fetch-consumer.total-time.count`*** (*cumulative*)<br>    Number of fetch requests from consumers per second across all partitions
+ - `counter.kafka.fetch-follower.total-time.count` (*cumulative*)<br>    Number of fetch requests from followers per second across all partitions
+ - `counter.kafka.logs.flush-time.count` (*cumulative*)<br>    Number of log flushes
+ - ***`counter.kafka.produce.total-time.count`*** (*cumulative*)<br>    Number of producer requests
+ - ***`gauge.kafka-active-controllers`*** (*gauge*)<br>    Specifies if the broker an active controller
+ - ***`gauge.kafka-max-lag`*** (*gauge*)<br>    Maximum lag in messages between the follower and leader replicas
+ - ***`gauge.kafka-offline-partitions-count`*** (*gauge*)<br>    Number of partitions that don’t have an active leader and are hence not writable or readable
+ - ***`gauge.kafka-request-queue`*** (*gauge*)<br>    Number of requests in the request queue across all partitions on the broker
+ - ***`gauge.kafka-underreplicated-partitions`*** (*gauge*)<br>    Number of underreplicated partitions across all topics on the broker
+ - ***`gauge.kafka.fetch-consumer.total-time.99th`*** (*gauge*)<br>    99th percentile of time in milliseconds to process fetch requests from consumers
+ - ***`gauge.kafka.fetch-consumer.total-time.median`*** (*gauge*)<br>    Median time it takes to process a fetch request from consumers
+ - ***`gauge.kafka.fetch-follower.total-time.99th`*** (*gauge*)<br>    99th percentile of time in milliseconds to process fetch requests from followers
+ - ***`gauge.kafka.fetch-follower.total-time.median`*** (*gauge*)<br>    Median time it takes to process a fetch request from follower
+ - `gauge.kafka.logs.flush-time.99th` (*gauge*)<br>    99th percentile of time in milliseconds to flush logs
+ - `gauge.kafka.logs.flush-time.median` (*gauge*)<br>    Median time it takes to flush logs
+ - ***`gauge.kafka.produce.total-time.99th`*** (*gauge*)<br>    99th percentile of time in milliseconds to process produce requests
+ - ***`gauge.kafka.produce.total-time.median`*** (*gauge*)<br>    Median time it takes to process a produce request
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+#### Group jvm
+All of the following metrics are part of the `jvm` metric group. All of
+the non-default metrics below can be turned on by adding `jvm` to the
+monitor config option `extraGroups`:
+ - ***`gauge.jvm.threads.count`*** (*gauge*)<br>    Number of JVM threads
+ - ***`gauge.loaded_classes`*** (*gauge*)<br>    Number of classes loaded in the JVM
+ - ***`invocations`*** (*cumulative*)<br>    Total number of garbage collection events
+ - ***`jmx_memory.committed`*** (*gauge*)<br>    Amount of memory guaranteed to be available in bytes
+ - ***`jmx_memory.init`*** (*gauge*)<br>    Amount of initial memory at startup in bytes
+ - ***`jmx_memory.max`*** (*gauge*)<br>    Maximum amount of memory that can be used in bytes
+ - ***`jmx_memory.used`*** (*gauge*)<br>    Current memory usage in bytes
+ - ***`total_time_in_ms.collection_time`*** (*cumulative*)<br>    Amount of time spent garbage collecting in milliseconds
 
-```yaml
+### Non-default metrics (version 4.7.0+)
 
-metricsToInclude:
-  - metricNames:
-    - counter.kafka-all-bytes-in
-    - counter.kafka-all-bytes-out
-    - counter.kafka-log-flushes
-    - counter.kafka.fetch-follower.total-time.count
-    - counter.kafka.produce.total-time.99th
-    - counter.kafka.produce.total-time.median
-    - gauge.kafka-log-flush-time-ms
-    - gauge.kafka-log-flush-time-ms-p95
-    - kafka-isr-expands
-    - kafka-isr-shrinks
-    - kafka-leader-election-rate
-    - kafka-max-lag
-    - kafka-offline-partitions-count
-    - kafka-unclean-elections
-    monitorType: collectd/kafka
-```
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
+
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

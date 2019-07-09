@@ -1,22 +1,20 @@
-import glob
-import os
 import subprocess
-import tarfile
 import threading
 import time
 from contextlib import contextmanager
-from io import BytesIO
+from pathlib import Path
 
 import docker
 from tests.helpers import fake_backend
-from tests.helpers.util import get_docker_client, get_host_ip, retry, run_container
+from tests.helpers.util import get_docker_client, get_host_ip, pull_from_reader_in_background, retry, run_container
+from tests.paths import REPO_ROOT_DIR
 
-PROJECT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "../.."))
-PACKAGING_DIR = os.path.join(PROJECT_DIR, "packaging")
-INSTALLER_PATH = os.path.join(PROJECT_DIR, "deployments/installer/install.sh")
-RPM_OUTPUT_DIR = os.path.join(PACKAGING_DIR, "rpm/output/x86_64")
-DEB_OUTPUT_DIR = os.path.join(PACKAGING_DIR, "deb/output")
-DOCKERFILES_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), "images"))
+PACKAGING_DIR = REPO_ROOT_DIR / "packaging"
+DEPLOYMENTS_DIR = REPO_ROOT_DIR / "deployments"
+INSTALLER_PATH = DEPLOYMENTS_DIR / "installer/install.sh"
+RPM_OUTPUT_DIR = PACKAGING_DIR / "rpm/output/x86_64"
+DEB_OUTPUT_DIR = PACKAGING_DIR / "deb/output"
+DOCKERFILES_DIR = Path(__file__).parent.joinpath("images").resolve()
 
 INIT_SYSV = "sysv"
 INIT_UPSTART = "upstart"
@@ -35,9 +33,8 @@ monitors:
 
 def build_base_image(name, path=DOCKERFILES_DIR, dockerfile=None):
     client = get_docker_client()
-    if not dockerfile:
-        dockerfile = os.path.join(path, "Dockerfile.%s" % name)
-    image, _ = client.images.build(path=path, dockerfile=dockerfile, pull=True, rm=True, forcerm=True)
+    dockerfile = dockerfile or Path(path) / f"Dockerfile.{name}"
+    image, _ = client.images.build(path=str(path), dockerfile=str(dockerfile), pull=True, rm=True, forcerm=True)
 
     return image.id
 
@@ -67,12 +64,12 @@ def get_rpm_package_to_test():
 
 
 def get_package_to_test(output_dir, extension):
-    pkgs = glob.glob(os.path.join(output_dir, "*.%s" % extension))
+    pkgs = list(Path(output_dir).glob(f"*.{extension}"))
     if not pkgs:
-        raise AssertionError("No .%s files found in %s" % (extension, output_dir))
+        raise AssertionError(f"No .{extension} files found in {output_dir}")
 
     if len(pkgs) > 1:
-        raise AssertionError("More than one .%s file found in %s" % (extension, output_dir))
+        raise AssertionError(f"More than one .{extension} file found in {output_dir}")
 
     return pkgs[0]
 
@@ -91,7 +88,7 @@ def socat_https_proxy(container, target_host, target_port, source_host, bind_add
     cert = "/%s.cert" % source_host
     key = "/%s.key" % source_host
 
-    socat_bin = os.path.abspath(os.path.join(os.path.dirname(__file__), "images/socat"))
+    socat_bin = DOCKERFILES_DIR / "socat"
     stopped = False
     socket_path = "/tmp/scratch/%s-%s" % (source_host, container.id[:12])
 
@@ -109,6 +106,7 @@ def socat_https_proxy(container, target_host, target_port, source_host, bind_add
                     ]
                 )
             except docker.errors.APIError:
+                print("socat died, restarting...")
                 time.sleep(0.1)
 
     threading.Thread(target=keep_running_in_container, args=(container, socket_path)).start()
@@ -119,14 +117,7 @@ def socat_https_proxy(container, target_host, target_port, source_host, bind_add
         stderr=subprocess.STDOUT,
     )
 
-    def read_out(_p):
-        while True:
-            read_bytes = _p.stdout.read()
-            if not read_bytes:
-                return
-            print(read_bytes)
-
-    threading.Thread(target=read_out, args=(proc,)).start()
+    get_local_out = pull_from_reader_in_background(proc.stdout)
 
     try:
         yield
@@ -134,27 +125,7 @@ def socat_https_proxy(container, target_host, target_port, source_host, bind_add
         stopped = True
         # The socat instance in the container will die with the container
         proc.kill()
-
-
-# This is more convoluted that it should be but seems to be the simplest way in
-# the face of docker-in-docker environments where volume bind mounting is hard.
-def copy_file_into_container(path, container, target_path):
-    tario = BytesIO()
-    tar = tarfile.TarFile(fileobj=tario, mode="w")
-
-    with open(path, "rb") as fd:
-        info = tarfile.TarInfo(name=target_path)
-        info.size = os.path.getsize(path)
-
-        tar.addfile(info, fd)
-
-    tar.close()
-
-    container.put_archive("/", tario.getvalue())
-    # Apparently when the above `put_archive` call returns, the file isn't
-    # necessarily fully written in the container, so wait a bit to ensure it
-    # is.
-    time.sleep(2)
+        print(get_local_out())
 
 
 @contextmanager
@@ -165,6 +136,7 @@ def run_init_system_image(
     dockerfile=None,
     ingest_host="ingest.us0.signalfx.com",  # Whatever value is used here needs a self-signed cert in ./images/certs/
     api_host="api.us0.signalfx.com",  # Whatever value is used here needs a self-signed cert in ./images/certs/
+    command=None,
 ):
     image_id = retry(lambda: build_base_image(base_image, path, dockerfile), docker.errors.BuildError)
     print("Image ID: %s" % image_id)
@@ -187,12 +159,16 @@ def run_init_system_image(
                 api_host: backend.api_host,
             },
         }
+
+        if command:
+            container_options["command"] = command
+
         with run_container(image_id, wait_for_ip=True, **container_options) as cont:
             if with_socat:
                 # Proxy the backend calls through a fake HTTPS endpoint so that we
-                # don't have to change the default configuration included by the
+                # don't have to change the default configuration default by the
                 # package.  The base_image used should trust the self-signed certs
-                # included in the images dir so that the agent doesn't throw TLS
+                # default in the images dir so that the agent doesn't throw TLS
                 # verification errors.
                 with socat_https_proxy(
                     cont, backend.ingest_host, backend.ingest_port, ingest_host, "127.0.0.1"
@@ -206,13 +182,3 @@ def is_agent_running_as_non_root(container):
     code, output = container.exec_run("pgrep -u signalfx-agent signalfx-agent")
     print("pgrep check: %s" % output)
     return code == 0
-
-
-def path_exists_in_container(container, path):
-    code, _ = container.exec_run("test -e %s" % path)
-    return code == 0
-
-
-def get_container_file_content(container, path):
-    assert path_exists_in_container(container, path), "File %s does not exist!" % path
-    return container.exec_run("cat %s" % path)[1].decode("utf-8")

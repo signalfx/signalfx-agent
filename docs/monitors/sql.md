@@ -21,9 +21,14 @@ monitors:
     host: localhost
     port: 5432
     dbDriver: postgres
+    params:
+      user: admin
+      password: s3cr3t
     # The `host` and `port` values from above (or provided through auto-discovery) should be interpolated
     # to the connection string as appropriate for your database driver.
-    connectionString: 'host={{.host}} port={{.port}} dbname=main user=admin password=***** sslmode=disabled'
+    # Also, the values from the `params` config option above can be
+    # interpolated.
+    connectionString: 'host={{.host}} port={{.port}} dbname=main user={{.user}} password={{.password}} sslmode=disabled'
     queries:
       - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'
         metrics:
@@ -50,6 +55,14 @@ currently support and documentation on the connection string:
   - `mysql`: https://github.com/go-sql-driver/mysql#dsn-data-source-name
   - `mssql`: https://github.com/denisenkom/go-mssqldb#connection-parameters-and-dsn
 
+## Parameterized Connection String
+
+The `connectionString` config option acts as a template with a context
+consisting of the variables: `host`, `port`, and all the values from
+the `params` config option map.  You interpolate variables into it
+with the Go template syntax `{{.varname}}` (see example config
+above).
+
 
 Monitor Type: `sql`
 
@@ -61,10 +74,15 @@ Monitor Type: `sql`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | no | `string` |  |
 | `port` | no | `integer` |  (**default:** `0`) |
+| `params` | no | `map of strings` | Parameters to the connectionString that can be templated into that option using Go template syntax (e.g. `{{.key}}`). |
 | `dbDriver` | no | `string` | The database driver to use, valid values are `postgres` and `mysql`. |
 | `connectionString` | no | `string` | A URL or simple option string used to connect to the database. If using PostgreSQL, [see the list of connection string params](https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters). |
 | `queries` | **yes** | `list of objects (see below)` | A list of queries to make against the database that are used to generate datapoints. |
@@ -91,8 +109,7 @@ The **nested** `metrics` config object has the following fields:
 
 
 
-
-
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

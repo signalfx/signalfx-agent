@@ -129,10 +129,10 @@ func ReadConfig(configPath string, stop <-chan struct{}) ([]byte, <-chan []byte,
 		return nil, nil, err
 	}
 	if len(contentMap) > 1 {
-		return nil, nil, fmt.Errorf("Path %s resulted in multiple files", configPath)
+		return nil, nil, fmt.Errorf("path %s resulted in multiple files", configPath)
 	}
 	if len(contentMap) == 0 {
-		return nil, nil, fmt.Errorf("Config file %s could not be found", configPath)
+		return nil, nil, fmt.Errorf("config file %s could not be found", configPath)
 	}
 
 	configContent := contentMap[configPath]

@@ -33,7 +33,7 @@ import (
 )
 
 func init() {
-	monitors.Register("my-monitor",
+	monitors.RegisterWithMetadata(&monitorMetadata,
 		func() interface{} { return &Monitor{} },
 		&Config{})
 }
@@ -231,6 +231,10 @@ The `Shutdown()` method will not be called more than once.
 If your monitor's configuration is changed in the agent, the agent will
 shutdown existing monitors dependent on that config and recreate them with the
 new config.
+
+Note that `Shutdown` is **not** called if `Configure` returns an error, so the
+`Configure` method should clean up anything it may have started before
+returning the error.
 
 ## Documentation
 

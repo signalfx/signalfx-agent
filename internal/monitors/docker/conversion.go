@@ -41,7 +41,7 @@ func ConvertStatsToMetrics(container *dtypes.ContainerJSON, parsed *dtypes.Stats
 		if dps[i].Dimensions == nil {
 			dps[i].Dimensions = map[string]string{}
 		}
-		// Set to preverse compatibility with docker-collectd plugin
+		// Set to preserve compatibility with docker-collectd plugin
 		dps[i].Dimensions["plugin"] = "docker"
 		name := strings.TrimPrefix(container.Name, "/")
 		dps[i].Dimensions["container_name"] = name
@@ -70,6 +70,9 @@ func convertBlkioStats(stats *dtypes.BlkioStats, enhancedMetrics bool) []*datapo
 		"sectors_recursive":          stats.SectorsRecursive,
 	} {
 		for _, bs := range v {
+			if bs.Op == "" {
+				continue
+			}
 			metricName := "blkio." + k + "." + strings.ToLower(bs.Op)
 
 			if _, exists := basicBlockIOMetrics[metricName]; enhancedMetrics || exists {

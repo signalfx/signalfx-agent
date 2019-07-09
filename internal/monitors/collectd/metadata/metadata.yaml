@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions:
   doc: |
     Collectd Python plugin that aggregates
     various metrics from other collectd plugins.  It also sends host metadata to
@@ -9,35 +9,35 @@ monitors:
     See [Python plugin code](https://github.com/signalfx/collectd-signalfx/) and
     [Integrations docs](https://github.com/signalfx/integrations/tree/master/signalfx-metadata).
   metrics:
-  - description: Percent of CPU used on this host.
-    included: true
-    name: cpu.utilization
-    type: gauge
-  - description: Percent of CPU used on each core. `perCoreCPUUtil` config must be
-      set to true.
-    included: false
-    name: cpu.utilization_per_core
-    type: gauge
-  - description: Percent of disk space utilized on all volumes on this host.
-    included: true
-    name: disk.summary_utilization
-    type: gauge
-  - description: Percent of disk used on this volume.
-    included: true
-    name: disk.utilization
-    type: gauge
-  - description: Total number of disk read and write operations on this host.
-    included: true
-    name: disk_ops.total
-    type: cumulative
-  - description: Percent of memory in use on this host.
-    included: true
-    name: memory.utilization
-    type: gauge
-  - description: Total amount of inbound and outbound network traffic on this host,
-      in bytes.
-    included: true
-    name: network.total
-    type: cumulative
+    cpu.utilization:
+      description: Percent of CPU used on this host.
+      default: true
+      type: gauge
+    cpu.utilization_per_core:
+      description: Percent of CPU used on each core. `perCoreCPUUtil` config must
+        be set to true.
+      default: false
+      type: gauge
+    disk.summary_utilization:
+      description: Percent of disk space utilized on all volumes on this host.
+      default: true
+      type: gauge
+    disk.utilization:
+      description: Percent of disk used on this volume.
+      default: true
+      type: gauge
+    disk_ops.total:
+      description: Total number of disk read and write operations on this host.
+      default: true
+      type: cumulative
+    memory.utilization:
+      description: Percent of memory in use on this host.
+      default: true
+      type: gauge
+    network.total:
+      description: Total amount of inbound and outbound network traffic on this host,
+        in bytes.
+      default: true
+      type: cumulative
   monitorType: collectd/signalfx-metadata
-  properties: null
+  properties:

@@ -13,18 +13,16 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/utils"
 
 	log "github.com/sirupsen/logrus"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
 )
 
-const monitorType = "kubernetes-events"
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // EventInclusionSpec specifies a type of event to send

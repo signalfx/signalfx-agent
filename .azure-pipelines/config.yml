@@ -9,12 +9,6 @@ trigger:
     include:
     - v*
 
-pr:
-  autoCancel: true
-  branches:
-    include:
-    - master
-
 variables:
   AGENT_BIN: '$(Build.SourcesDirectory)\build\SignalFxAgent\bin\signalfx-agent.exe'
   GO111MODULE: 'on'
@@ -24,22 +18,29 @@ variables:
   TEST_SERVICES_DIR: '$(Build.SourcesDirectory)\test-services'
 
 jobs:
-- job: 'win_go_vet'
+- job: 'go_lint'
   pool:
-    vmImage: 'vs2015-win2012r2'
+    vmImage: 'ubuntu-16.04'
+  container: golang:1.12.1
   steps:
-  - template: 'templates/install-go.yml'
-  - powershell: 'powershell -command "& { . ./scripts/windows/make.ps1; vet }"'
-    displayName: 'Run go vet'
-- job: 'win_go_lint'
-  pool:
-    vmImage: 'vs2015-win2012r2'
-  steps:
-  - template: 'templates/install-go.yml'
-    parameters:
-      packages: 'golang.org/x/lint/golint'
-  - powershell: 'powershell -command "& { . ./scripts/windows/make.ps1; lint }"'
-    displayName: 'Run golint'
+  - script: |
+      set -euo pipefail
+
+      export GOPATH=/go
+      lintver="1.16.0"
+      curl -sfL https://github.com/golangci/golangci-lint/releases/download/v${lintver}/golangci-lint-${lintver}-linux-amd64.tar.gz > /tmp/golangci-lint.tar.gz
+      tar -xf /tmp/golangci-lint.tar.gz -C /tmp
+      chmod +x /tmp/golangci-lint-${lintver}-linux-amd64/golangci-lint
+      lintbin="/tmp/golangci-lint-${lintver}-linux-amd64/golangci-lint"
+
+      make compileDeps
+
+      echo 'Linting LINUX code'
+      CGO_ENABLED=0 GOGC=40 $lintbin run --deadline 5m
+
+      echo 'Linting WINDOWS code'
+      GOOS=windows CGO_ENABLED=0 GOGC=40 $lintbin run --deadline 5m
+
 - job: 'win_go_build'
   pool:
     vmImage: 'vs2015-win2012r2'
@@ -51,12 +52,13 @@ jobs:
       } else {
           $env:AGENT_VERSION = "$(Build.SourceVersion)"
       }
-      powershell -command "& { . ./scripts/windows/make.ps1; signalfx-agent }"
+      & ./scripts/windows/make.ps1 signalfx-agent
     displayName: 'Run go build'
   - task: PublishBuildArtifacts@1
     inputs:
       pathtoPublish: 'signalfx-agent.exe'
       artifactName: 'exe'
+
 - job: 'win_go_test'
   pool:
     vmImage: 'vs2015-win2012r2'
@@ -64,14 +66,17 @@ jobs:
   - template: 'templates/install-go.yml'
     parameters:
       packages: 'github.com/tebeka/go2xunit'
-  - powershell: 'powershell -command "& { . ./scripts/windows/make.ps1; unit_test }"'
+  - powershell: |
+      & ./scripts/windows/make.ps1 unit_test
     displayName: 'Run go test'
+    ignoreLASTEXITCODE: true
   - task: PublishTestResults@2
     inputs:
       searchFolder: '$(Build.SourcesDirectory)'
       testResultsFormat: 'JUnit'
       testResultsFiles: 'unit_results.xml'
       failTaskOnFailedTests: true
+
 - job: 'win_bundle_build'
   pool:
     vmImage: 'vs2015-win2012r2'
@@ -86,7 +91,7 @@ jobs:
       } else {
           $env:AGENT_VERSION = "$(Build.SourceVersion)"
       }
-      powershell -command "& { . ./scripts/windows/make.ps1; bundle }"
+      & ./scripts/windows/make.ps1 bundle
     displayName: 'Build bundle'
   - task: CopyFiles@2
     inputs:
@@ -100,11 +105,13 @@ jobs:
     inputs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
       artifactName: 'bundle'
+
 - template: 'templates/integration-tests.yml'
   parameters:
     dependsOn: 'win_bundle_build'
     jobName: 'win_2012_integration_tests'
     vmImage: 'vs2015-win2012r2'
+
 - template: 'templates/integration-tests.yml'
   parameters:
     dependsOn: 'win_bundle_build'

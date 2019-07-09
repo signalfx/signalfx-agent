@@ -1,55 +1,46 @@
-import os
 from functools import partial as p
+from pathlib import Path
 
 import pytest
-
 from tests.helpers.assertions import has_datapoint
-from tests.helpers.kubernetes.utils import run_k8s_monitors_test
-from tests.helpers.util import (
-    ensure_always,
-    get_monitor_dims_from_selfdescribe,
-    get_monitor_metrics_from_selfdescribe,
-    wait_for,
-)
+from tests.helpers.util import ensure_always, get_monitor_metrics_from_selfdescribe, wait_for
+from tests.paths import TEST_SERVICES_DIR
 
 pytestmark = [pytest.mark.kubernetes_cluster, pytest.mark.monitor_without_endpoints]
 
-
-def local_file(path):
-    return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)
+SCRIPT_DIR = Path(__file__).parent.resolve()
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
-def test_kubernetes_cluster_in_k8s(agent_image, minikube, k8s_test_timeout, k8s_namespace):
-    monitors = [{"type": "kubernetes-cluster", "kubernetesAPI": {"authType": "serviceAccount"}}]
-    run_k8s_monitors_test(
-        agent_image,
-        minikube,
-        monitors,
-        namespace=k8s_namespace,
-        expected_metrics=get_monitor_metrics_from_selfdescribe(monitors[0]["type"]),
-        expected_dims=get_monitor_dims_from_selfdescribe(monitors[0]["type"]),
-        test_timeout=k8s_test_timeout,
-    )
+def test_kubernetes_cluster_in_k8s(k8s_cluster):
+    config = """
+    monitors:
+     - type: kubernetes-cluster
+    """
+    yamls = [SCRIPT_DIR / "resource_quota.yaml", TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
+    with k8s_cluster.create_resources(yamls):
+        with k8s_cluster.run_agent(agent_yaml=config) as agent:
+            for metric in get_monitor_metrics_from_selfdescribe("kubernetes-cluster"):
+                if "replication_controller" in metric:
+                    continue
+                assert wait_for(p(has_datapoint, agent.fake_services, metric_name=metric))
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
-def test_resource_quota_metrics(agent_image, minikube, k8s_namespace):
-    yamls = [local_file("resource_quota.yaml")]
-    with minikube.create_resources(yamls, namespace=k8s_namespace):
+def test_resource_quota_metrics(k8s_cluster):
+    yamls = [SCRIPT_DIR / "resource_quota.yaml"]
+    with k8s_cluster.create_resources(yamls):
         config = """
             monitors:
             - type: kubernetes-cluster
               kubernetesAPI:
                 authType: serviceAccount
         """
-        with minikube.run_agent(agent_image, config=config, namespace=k8s_namespace) as [_, backend]:
+        with k8s_cluster.run_agent(agent_yaml=config) as agent:
             assert wait_for(
                 p(
                     has_datapoint,
-                    backend,
+                    agent.fake_services,
                     metric_name="kubernetes.resource_quota_hard",
                     dimensions={"quota_name": "object-quota-demo", "resource": "requests.cpu"},
                     value=100_000,
@@ -59,7 +50,7 @@ def test_resource_quota_metrics(agent_image, minikube, k8s_namespace):
             assert wait_for(
                 p(
                     has_datapoint,
-                    backend,
+                    agent.fake_services,
                     metric_name="kubernetes.resource_quota_hard",
                     dimensions={"quota_name": "object-quota-demo", "resource": "persistentvolumeclaims"},
                     value=4,
@@ -69,7 +60,7 @@ def test_resource_quota_metrics(agent_image, minikube, k8s_namespace):
             assert wait_for(
                 p(
                     has_datapoint,
-                    backend,
+                    agent.fake_services,
                     metric_name="kubernetes.resource_quota_used",
                     dimensions={"quota_name": "object-quota-demo", "resource": "persistentvolumeclaims"},
                     value=0,
@@ -79,7 +70,7 @@ def test_resource_quota_metrics(agent_image, minikube, k8s_namespace):
             assert wait_for(
                 p(
                     has_datapoint,
-                    backend,
+                    agent.fake_services,
                     metric_name="kubernetes.resource_quota_hard",
                     dimensions={"quota_name": "object-quota-demo", "resource": "services.loadbalancers"},
                     value=2,
@@ -87,11 +78,10 @@ def test_resource_quota_metrics(agent_image, minikube, k8s_namespace):
             )
 
 
-@pytest.mark.k8s
 @pytest.mark.kubernetes
-def test_kubernetes_cluster_namespace_scope(agent_image, minikube, k8s_namespace):
-    yamls = [local_file("good-pod.yaml"), local_file("bad-pod.yaml")]
-    with minikube.create_resources(yamls, namespace=k8s_namespace):
+def test_kubernetes_cluster_namespace_scope(k8s_cluster):
+    yamls = [SCRIPT_DIR / "good-pod.yaml", SCRIPT_DIR / "bad-pod.yaml"]
+    with k8s_cluster.create_resources(yamls):
         config = """
             monitors:
             - type: kubernetes-cluster
@@ -99,10 +89,10 @@ def test_kubernetes_cluster_namespace_scope(agent_image, minikube, k8s_namespace
                 authType: serviceAccount
               namespace: good
         """
-        with minikube.run_agent(agent_image, config=config, namespace=k8s_namespace) as [_, backend]:
+        with k8s_cluster.run_agent(agent_yaml=config) as agent:
             assert wait_for(
-                p(has_datapoint, backend, dimensions={"kubernetes_namespace": "good"})
+                p(has_datapoint, agent.fake_services, dimensions={"kubernetes_namespace": "good"})
             ), "timed out waiting for good pod metrics"
             assert ensure_always(
-                lambda: not has_datapoint(backend, dimensions={"kubernetes_namespace": "bad"})
+                lambda: not has_datapoint(agent.fake_services, dimensions={"kubernetes_namespace": "bad"})
             ), "got pod metrics from unspecified namespace"

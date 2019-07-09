@@ -16,10 +16,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	monitorType = "internal-metrics"
-)
-
 // Config for internal metric monitoring
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
@@ -41,7 +37,7 @@ type Monitor struct {
 }
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // Configure and kick off internal metric collection
@@ -54,7 +50,14 @@ func (m *Monitor) Configure(conf *Config) error {
 		Timeout: 5 * time.Second,
 	}
 
+	// Mark the first interval so that errors are suppressed due to the race
+	// between this monitor starting and the internal metrics service getting
+	// initialized
+	firstTime := true
+
 	utils.RunOnInterval(ctx, func() {
+		defer func() { firstTime = false }()
+
 		// Derive the url each time since the AgentMeta data can change but
 		// there is no notification system for it.
 		host := conf.Host
@@ -76,7 +79,9 @@ func (m *Monitor) Configure(conf *Config) error {
 
 		resp, err := client.Get(url)
 		if err != nil {
-			logger.WithError(err).Error("Could not connect to internal metric server")
+			if !firstTime {
+				logger.WithError(err).Error("Could not connect to internal metric server")
+			}
 			return
 		}
 		defer resp.Body.Close()

@@ -9,8 +9,9 @@ from textwrap import dedent
 import pytest
 import requests
 
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_trace_span, tcp_port_open_locally
-from tests.helpers.util import run_agent, wait_for
+from tests.helpers.util import wait_for
 
 pytestmark = [pytest.mark.trace_forwarder, pytest.mark.monitor_without_endpoints]
 
@@ -33,7 +34,7 @@ def test_trace_forwarder_monitor():
     Test basic functionality
     """
     port = random.randint(5001, 20000)
-    with run_agent(
+    with Agent.run(
         dedent(
             f"""
         hostname: "testhost"
@@ -42,7 +43,7 @@ def test_trace_forwarder_monitor():
             listenAddress: localhost:{port}
     """
         )
-    ) as [backend, _, _]:
+    ) as agent:
         assert wait_for(p(tcp_port_open_locally, port)), "trace forwarder port never opened!"
         resp = requests.post(
             f"http://localhost:{port}/v1/trace",
@@ -52,4 +53,4 @@ def test_trace_forwarder_monitor():
 
         assert resp.status_code == 200
 
-        assert wait_for(p(has_trace_span, backend, tags={"env": "prod"})), "Didn't get span tag"
+        assert wait_for(p(has_trace_span, agent.fake_services, tags={"env": "prod"})), "Didn't get span tag"

@@ -244,7 +244,7 @@ func (o *ECS) endpointsForContainer(cont ecs.Container, taskDimensions map[strin
 func (o *ECS) endpointForPort(portObj docker.ContPort, serviceContainer *services.Container, taskDimensions map[string]string) *services.ContainerEndpoint {
 	port := portObj.Int()
 	protocol := portObj.Proto()
-	id := serviceContainer.PrimaryName() + "-" + serviceContainer.ID[:12] + "-" + strconv.Itoa(int(port))
+	id := serviceContainer.PrimaryName() + "-" + serviceContainer.ID[:12] + "-" + strconv.Itoa(port)
 	if portObj.Name != "" {
 		id += "-" + portObj.Name
 	}

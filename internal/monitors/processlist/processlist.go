@@ -6,7 +6,6 @@ import (
 	"context"
 	"encoding/base64"
 	"fmt"
-	"math"
 	"runtime"
 	"time"
 
@@ -18,10 +17,7 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const (
-	monitorType = "processlist"
-	version     = "0.0.30"
-)
+const version = "0.0.30"
 
 // EVENT(objects.top-info): Process list event.
 
@@ -34,7 +30,7 @@ type Config struct {
 }
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // compresses the given byte array
@@ -43,14 +39,6 @@ func compressBytes(in []byte) (buf bytes.Buffer, err error) {
 	_, err = zlibCompressor.Write(in)
 	_ = zlibCompressor.Close()
 	return
-}
-
-// toTime returns the given seconds as a formatted string "min:sec.dec"
-func toTime(secs float64) string {
-	minutes := int(secs) / 60
-	seconds := math.Mod(secs, 60.0)
-	dec := math.Mod(seconds, 1.0) * 100
-	return fmt.Sprintf("%02d:%02.f.%02.f", minutes, seconds, dec)
 }
 
 // Monitor for Utilization

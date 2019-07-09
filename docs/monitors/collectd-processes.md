@@ -39,6 +39,10 @@ Monitor Type: `collectd/processes`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `processes` | no | `list of strings` | A list of process names to match |
@@ -47,9 +51,40 @@ Monitor Type: `collectd/processes`
 | `procFSPath` | no | `string` | (Deprecated) Please set the agent configuration `procPath` instead of this monitor configuration option. The path to the proc filesystem -- useful to override if the agent is running in a container. |
 
 
+## Metrics
+
+These are the metrics available for this monitor.
+This monitor emits all metrics by default; however, **none are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+-- they are all custom**.
 
 
 
-
+ - ***`disk_octets.read`*** (*cumulative*)<br>
+ - ***`disk_octets.write`*** (*cumulative*)<br>
+ - ***`fork_rate`*** (*cumulative*)<br>
+ - ***`io_octets.rx`*** (*cumulative*)<br>
+ - ***`io_octets.tx`*** (*cumulative*)<br>
+ - ***`io_ops.read`*** (*cumulative*)<br>
+ - ***`io_ops.write`*** (*cumulative*)<br>
+ - ***`ps_code`*** (*gauge*)<br>
+ - ***`ps_count.processes`*** (*gauge*)<br>
+ - ***`ps_count.threads`*** (*gauge*)<br>
+ - ***`ps_cputime.syst`*** (*cumulative*)<br>
+ - ***`ps_cputime.user`*** (*cumulative*)<br>
+ - ***`ps_data`*** (*gauge*)<br>
+ - ***`ps_pagefaults.majflt`*** (*cumulative*)<br>
+ - ***`ps_pagefaults.minflt`*** (*cumulative*)<br>
+ - ***`ps_rss`*** (*gauge*)<br>
+ - ***`ps_stacksize`*** (*gauge*)<br>
+ - ***`ps_state.blocked`*** (*gauge*)<br>
+ - ***`ps_state.paging`*** (*gauge*)<br>
+ - ***`ps_state.running`*** (*gauge*)<br>
+ - ***`ps_state.sleeping`*** (*gauge*)<br>
+ - ***`ps_state.stopped`*** (*gauge*)<br>
+ - ***`ps_state.zombies`*** (*gauge*)<br>
+ - ***`ps_vm`*** (*gauge*)<br>
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

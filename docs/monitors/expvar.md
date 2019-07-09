@@ -157,6 +157,10 @@ Monitor Type: `expvar`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host of the expvar endpoint |
@@ -182,78 +186,80 @@ The **nested** `dimensions` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `name` | no | `string` | Dimension name |
+| `name` | **yes** | `string` | Dimension name |
 | `JSONPath` | no | `string` | JSON path of the dimension value |
 | `value` | no | `string` | Dimension value |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `memstats.alloc` | gauge |  | Bytes of allocated heap objects. Same as memstats.heap_alloc |
-| `memstats.heap_alloc` | gauge | ✔ | Bytes of allocated heap objects |
-| `memstats.heap_sys` | gauge |  | Bytes of heap memory obtained from the OS |
-| `memstats.heap_idle` | gauge | ✔ | Bytes in idle (unused) spans |
-| `memstats.heap_inuse` | gauge | ✔ | Bytes in in-use spans |
-| `memstats.heap_released` | gauge | ✔ | Bytes of physical memory returned to the OS |
-| `memstats.heap_objects` | gauge | ✔ | Number of allocated heap objects |
-| `memstats.stack_inuse` | gauge | ✔ | Bytes in stack spans |
-| `memstats.stack_sys` | gauge | ✔ | Bytes of stack memory obtained from the OS |
-| `memstats.m_span_inuse` | gauge | ✔ | Bytes of allocated mspan structures |
-| `memstats.m_span_sys` | gauge | ✔ | Bytes of memory obtained from the OS for mspan |
-| `memstats.m_cache_inuse` | gauge | ✔ | Bytes of allocated mcache structures |
-| `memstats.m_cache_sys` | gauge | ✔ | Bytes of memory obtained from the OS for mcache structures |
-| `memstats.buck_hash_sys` | gauge | ✔ | Bytes of memory in profiling bucket hash tables |
-| `memstats.gc_sys` | gauge | ✔ | Bytes of memory in garbage collection metadata |
-| `memstats.other_sys` | gauge | ✔ | Bytes of memory in miscellaneous off-heap runtime allocations |
-| `memstats.sys` | gauge | ✔ | total bytes of memory obtained from the OS |
-| `memstats.next_gc` | gauge | ✔ | Target heap size of the next GC cycle |
-| `memstats.last_gc` | gauge | ✔ | The time the last garbage collection finished, as nanoseconds since 1970 (the UNIX epoch) |
-| `memstats.gccpu_fraction` | gauge | ✔ | The fraction of this program's available CPU time used by the GC since the program started |
-| `memstats.enable_gc` | gauge | ✔ | Boolean that indicates that GC is enabled. It is always true, even if GOGC=off |
-| `memstats.debug_gc` | gauge |  | memstats.debug_gc is currently unused |
-| `memstats.most_recent_gc_pause_ns` | gauge | ✔ | Most recent GC stop-the-world pause time in nanoseconds |
-| `memstats.most_recent_gc_pause_end` | gauge | ✔ | Most recent GC pause end time, as nanoseconds since 1970 (the UNIX epoch) |
-| `memstats.total_alloc` | counter | ✔ | Cumulative bytes allocated for heap objects |
-| `memstats.lookups` | counter | ✔ | Number of pointer lookups performed by the runtime |
-| `memstats.mallocs` | counter | ✔ | Cumulative count of heap objects allocated |
-| `memstats.frees` | counter | ✔ | Cumulative count of heap objects freed |
-| `memstats.pause_total_ns` | counter | ✔ | Cumulative nanoseconds in GC stop-the-world pauses since the program started |
-| `memstats.num_gc` | counter | ✔ | Number of completed GC cycles |
-| `memstats.num_forced_gc` | counter | ✔ | Number of GC cycles that were forced by the application calling the GC function |
-| `memstats.by_size.size` | counter |  | The maximum byte size of a class as identified by dimension class. It is the class interval upper limit. The values of dimension class are numbers between 0 and 60 inclusive. Consecutive classes are of consecutive dimension class values. The lower limit of a class is the upper limit of the consecutive class below. Metrics memstats.by_size.size, memstats.by_size.mallocs and memstats.by_size.frees of the same class are related |
-| `memstats.by_size.mallocs` | counter |  | Cumulative count of heap objects allocated in a class. The class is identified by dimension class and it is as described for metric memstats.by_size.size |
-| `memstats.by_size.frees` | counter |  | Cumulative count of heap objects freed in a class. The class is identified by dimension class and it is as described for metric memstats.by_size.size |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+ - `memstats.alloc` (*gauge*)<br>    Bytes of allocated heap objects. Same as memstats.heap_alloc
+ - ***`memstats.buck_hash_sys`*** (*gauge*)<br>    Bytes of memory in profiling bucket hash tables
+ - `memstats.by_size.frees` (*counter*)<br>    Cumulative count of heap objects freed in a class. The class is identified by dimension class and it is as described for metric memstats.by_size.size
+ - `memstats.by_size.mallocs` (*counter*)<br>    Cumulative count of heap objects allocated in a class. The class is identified by dimension class and it is as described for metric memstats.by_size.size
+ - `memstats.by_size.size` (*counter*)<br>    The maximum byte size of a class as identified by dimension class. It is the class interval upper limit. The values of dimension class are numbers between 0 and 60 inclusive. Consecutive classes are of consecutive dimension class values. The lower limit of a class is the upper limit of the consecutive class below. Metrics memstats.by_size.size, memstats.by_size.mallocs and memstats.by_size.frees of the same class are related
+ - `memstats.debug_gc` (*gauge*)<br>    memstats.debug_gc is currently unused
+ - ***`memstats.enable_gc`*** (*gauge*)<br>    Boolean that indicates that GC is enabled. It is always true, even if GOGC=off
+ - ***`memstats.frees`*** (*counter*)<br>    Cumulative count of heap objects freed
+ - ***`memstats.gc_sys`*** (*gauge*)<br>    Bytes of memory in garbage collection metadata
+ - ***`memstats.gccpu_fraction`*** (*gauge*)<br>    The fraction of this program's available CPU time used by the GC since the program started
+ - ***`memstats.heap_alloc`*** (*gauge*)<br>    Bytes of allocated heap objects
+ - ***`memstats.heap_idle`*** (*gauge*)<br>    Bytes in idle (unused) spans
+ - ***`memstats.heap_inuse`*** (*gauge*)<br>    Bytes in in-use spans
+ - ***`memstats.heap_objects`*** (*gauge*)<br>    Number of allocated heap objects
+ - ***`memstats.heap_released`*** (*gauge*)<br>    Bytes of physical memory returned to the OS
+ - `memstats.heap_sys` (*gauge*)<br>    Bytes of heap memory obtained from the OS
+ - ***`memstats.last_gc`*** (*gauge*)<br>    The time the last garbage collection finished, as nanoseconds since 1970 (the UNIX epoch)
+ - ***`memstats.lookups`*** (*counter*)<br>    Number of pointer lookups performed by the runtime
+ - ***`memstats.m_cache_inuse`*** (*gauge*)<br>    Bytes of allocated mcache structures
+ - ***`memstats.m_cache_sys`*** (*gauge*)<br>    Bytes of memory obtained from the OS for mcache structures
+ - ***`memstats.m_span_inuse`*** (*gauge*)<br>    Bytes of allocated mspan structures
+ - ***`memstats.m_span_sys`*** (*gauge*)<br>    Bytes of memory obtained from the OS for mspan
+ - ***`memstats.mallocs`*** (*counter*)<br>    Cumulative count of heap objects allocated
+ - ***`memstats.most_recent_gc_pause_end`*** (*gauge*)<br>    Most recent GC pause end time, as nanoseconds since 1970 (the UNIX epoch)
+ - ***`memstats.most_recent_gc_pause_ns`*** (*gauge*)<br>    Most recent GC stop-the-world pause time in nanoseconds
+ - ***`memstats.next_gc`*** (*gauge*)<br>    Target heap size of the next GC cycle
+ - ***`memstats.num_forced_gc`*** (*counter*)<br>    Number of GC cycles that were forced by the application calling the GC function
+ - ***`memstats.num_gc`*** (*counter*)<br>    Number of completed GC cycles
+ - ***`memstats.other_sys`*** (*gauge*)<br>    Bytes of memory in miscellaneous off-heap runtime allocations
+ - ***`memstats.pause_total_ns`*** (*counter*)<br>    Cumulative nanoseconds in GC stop-the-world pauses since the program started
+ - ***`memstats.stack_inuse`*** (*gauge*)<br>    Bytes in stack spans
+ - ***`memstats.stack_sys`*** (*gauge*)<br>    Bytes of stack memory obtained from the OS
+ - ***`memstats.sys`*** (*gauge*)<br>    total bytes of memory obtained from the OS
+ - ***`memstats.total_alloc`*** (*counter*)<br>    Cumulative bytes allocated for heap objects
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - memstats.alloc
-    - memstats.heap_sys
-    - memstats.debug_gc
-    - memstats.by_size.size
-    - memstats.by_size.mallocs
-    - memstats.by_size.frees
-    monitorType: expvar
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

@@ -3,7 +3,7 @@ package metrics
 import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/sfxclient"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 )
 
 func datapointsForNamespace(ns *v1.Namespace) []*datapoint.Datapoint {

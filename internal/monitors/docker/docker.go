@@ -19,16 +19,13 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/signalfx/signalfx-agent/internal/utils/filter"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 )
 
-const monitorType = "docker-container-stats"
 const dockerAPIVersion = "v1.22"
 
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
-
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // EnhancedMetricsConfig to decide if it will send out all custom metrics
@@ -72,11 +69,12 @@ type Config struct {
 
 // Monitor for Docker
 type Monitor struct {
-	Output  types.Output
+	Output  types.FilteringOutput
 	cancel  func()
 	ctx     context.Context
 	client  *docker.Client
 	timeout time.Duration
+	logger  logrus.FieldLogger
 }
 
 type dockerContainer struct {
@@ -86,6 +84,10 @@ type dockerContainer struct {
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
+
+	enhancedMetricsConfig := EnableExtraGroups(conf.EnhancedMetricsConfig, m.Output.EnabledMetrics())
+
 	defaultHeaders := map[string]string{"User-Agent": "signalfx-agent"}
 
 	var err error
@@ -123,11 +125,11 @@ func (m *Monitor) Configure(conf *Config) error {
 		defer lock.Unlock()
 
 		if new == nil || (!new.State.Running || new.State.Paused) {
-			logger.Debugf("Container %s is no longer running", id)
+			m.logger.Debugf("Container %s is no longer running", id)
 			delete(containers, id)
 			return
 		}
-		logger.Infof("Monitoring docker container %s", id)
+		m.logger.Infof("Monitoring docker container %s", id)
 		containers[id] = dockerContainer{
 			ContainerJSON: new,
 			EnvMap:        parseContainerEnvSlice(new.Config.Env),
@@ -138,10 +140,9 @@ func (m *Monitor) Configure(conf *Config) error {
 		// Repeat the watch setup in the face of errors in case the docker
 		// engine is non-responsive when the monitor starts.
 		if !isRegistered {
-			var err error
-			err = dockercommon.ListAndWatchContainers(m.ctx, m.client, changeHandler, imageFilter, logger)
+			err := dockercommon.ListAndWatchContainers(m.ctx, m.client, changeHandler, imageFilter, m.logger)
 			if err != nil {
-				logger.WithError(err).Error("Could not list docker containers")
+				m.logger.WithError(err).Error("Could not list docker containers")
 				return
 			}
 			isRegistered = true
@@ -151,12 +152,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		// only the map that holds them.
 		lock.Lock()
 		for id := range containers {
-			go m.fetchStats(containers[id], conf.LabelsToDimensions, conf.EnvToDimensions, EnhancedMetricsConfig{
-				EnableExtraBlockIOMetrics: conf.EnableExtraBlockIOMetrics,
-				EnableExtraCPUMetrics:     conf.EnableExtraCPUMetrics,
-				EnableExtraMemoryMetrics:  conf.EnableExtraMemoryMetrics,
-				EnableExtraNetworkMetrics: conf.EnableExtraNetworkMetrics,
-			})
+			go m.fetchStats(containers[id], conf.LabelsToDimensions, conf.EnvToDimensions, enhancedMetricsConfig)
 		}
 		lock.Unlock()
 
@@ -174,7 +170,7 @@ func (m *Monitor) fetchStats(container dockerContainer, labelMap map[string]stri
 	stats, err := m.client.ContainerStats(ctx, container.ID, false)
 	if err != nil {
 		cancel()
-		logger.WithError(err).Errorf("Could not fetch docker stats for container id %s", container.ID)
+		m.logger.WithError(err).Errorf("Could not fetch docker stats for container id %s", container.ID)
 		return
 	}
 
@@ -188,14 +184,14 @@ func (m *Monitor) fetchStats(container dockerContainer, labelMap map[string]stri
 		if err == io.EOF {
 			return
 		}
-		logger.WithError(err).Errorf("Could not parse docker stats for container id %s", container.ID)
+		m.logger.WithError(err).Errorf("Could not parse docker stats for container id %s", container.ID)
 		return
 	}
 
 	dps, err := ConvertStatsToMetrics(container.ContainerJSON, &parsed, enhancedMetricsConfig)
 	cancel()
 	if err != nil {
-		logger.WithError(err).Errorf("Could not convert docker stats for container id %s", container.ID)
+		m.logger.WithError(err).Errorf("Could not convert docker stats for container id %s", container.ID)
 		return
 	}
 
@@ -226,9 +222,57 @@ func parseContainerEnvSlice(env []string) map[string]string {
 	return out
 }
 
+// EnableExtraGroups enables extra metrics that were individually turned on
+// by ExtraMetrics/ExtraGroups configuration
+func EnableExtraGroups(initConf EnhancedMetricsConfig, enabledMetrics []string) EnhancedMetricsConfig {
+	groupEnableMap := map[string]bool{
+		groupBlkio:   initConf.EnableExtraBlockIOMetrics,
+		groupCPU:     initConf.EnableExtraCPUMetrics,
+		groupMemory:  initConf.EnableExtraMemoryMetrics,
+		groupNetwork: initConf.EnableExtraNetworkMetrics,
+	}
+
+	for _, metric := range enabledMetrics {
+		if metricInfo, ok := metricSet[metric]; ok {
+			groupEnableMap[metricInfo.Group] = true
+		}
+	}
+
+	return EnhancedMetricsConfig{
+		EnableExtraBlockIOMetrics: groupEnableMap[groupBlkio],
+		EnableExtraCPUMetrics:     groupEnableMap[groupCPU],
+		EnableExtraMemoryMetrics:  groupEnableMap[groupMemory],
+		EnableExtraNetworkMetrics: groupEnableMap[groupNetwork],
+	}
+}
+
 // Shutdown stops the metric sync
 func (m *Monitor) Shutdown() {
 	if m.cancel != nil {
 		m.cancel()
 	}
+
+}
+
+// GetExtraMetrics returns additional metrics that should be allowed through.
+func (c *Config) GetExtraMetrics() []string {
+	var extraMetrics []string
+
+	if c.EnableExtraBlockIOMetrics {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupBlkio]...)
+	}
+
+	if c.EnableExtraCPUMetrics {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupCPU]...)
+	}
+
+	if c.EnableExtraMemoryMetrics {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupMemory]...)
+	}
+
+	if c.EnableExtraNetworkMetrics {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupNetwork]...)
+	}
+
+	return extraMetrics
 }

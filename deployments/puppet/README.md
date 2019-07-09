@@ -10,10 +10,11 @@ class accepts the following parameters:
     for a full list of acceptable options.  The only required option is
     `signalFxAccessToken`.  Here is a basic config that will monitor a basic set of
     host-level components:
-    
+
     ```ruby
     $config = {
       signalFxAccessToken: "MY_TOKEN",
+      enableBuiltInFiltering: true,
       monitors: [
         {type: "collectd/cpu"},
         {type: "collectd/cpufreq"},
@@ -46,6 +47,12 @@ class accepts the following parameters:
 	 package revision that contains the agent version `3.0.1`).  Releases with
 	 package revision > 1 contain changes to some aspect of the packaging
 	 scripts (e.g. init scripts) but contain the same agent bundle.
+
+## Dependencies
+
+On Debian-based systems, the
+[puppetlabs/apt](https://forge.puppet.com/puppetlabs/apt) module is required to
+manage the SignalFx apt repository.
 
 ## Development
 

@@ -39,7 +39,7 @@ func getMostRecentGCPauseIndex(dpsMap map[string][]*datapoint.Datapoint) int64 {
 	return mostRecentGCPauseIndex
 }
 
-var slashLastRegexp = regexp.MustCompile("[^\\/]*$")
+var slashLastRegexp = regexp.MustCompile(`[^\/]*$`)
 
 func getApplicationName(values map[string]interface{}) (string, error) {
 	if cmdline, ok := values["cmdline"].([]interface{}); ok && len(cmdline) > 0 {

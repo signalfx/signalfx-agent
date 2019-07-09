@@ -14,12 +14,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "collectd/signalfx-metadata"
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			MonitorCore: *collectd.NewMonitorCore(CollectdTemplate),
 		}
@@ -75,13 +73,23 @@ type Config struct {
 // Validate will check the config for correctness.
 func (c *Config) Validate() error {
 	if c.DogStatsDPort != nil && c.Token == "" {
-		return errors.New("You must configure 'token' with your SignalFx access token when running the DogStatsD listener")
+		return errors.New("you must configure 'token' with your SignalFx access token when running the DogStatsD listener")
 	}
 	if c.DogStatsDPort == nil && (c.Token != "" || c.IngestEndpoint != "" || c.DogStatsDIP != "") {
-		return errors.New("Optional DogStatsD configurations have been set, but the DogStatsDPort is not configured")
+		return errors.New("optional DogStatsD configurations have been set, but the DogStatsDPort is not configured")
 	}
 	return nil
 }
+
+func (c *Config) GetExtraMetrics() []string {
+	var out []string
+	if c.PerCoreCPUUtil {
+		out = append(out, cpuUtilizationPerCore)
+	}
+	return out
+}
+
+var _ config.ExtraMetrics = &Config{}
 
 // Monitor is the main type that represents the monitor
 type Monitor struct {
@@ -100,7 +108,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	if conf.EtcPath != "" {
 		logger.Warningf("Please set the `etcPath` top level agent configuration instead of the monitor level configuration")
 	} else {
-		// get top level configuraiton for /etc path
+		// get top level configuration for /etc path
 		conf.EtcPath = hostfs.HostEtc()
 	}
 	return m.SetConfigurationAndRun(conf)

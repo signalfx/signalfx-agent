@@ -41,33 +41,37 @@ Monitor Type: `dotnet`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `counterRefreshInterval` | no | `int64` | (Windows Only) Number of seconds that wildcards in counter paths should be expanded and how often to refresh counters from configuration. (**default:** `60s`) |
 | `printValid` | no | `bool` | (Windows Only) Print out the configurations that match available performance counters.  This used for debugging. (**default:** `false`) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `net_clr_exceptions.num_exceps_thrown_sec` | gauge |  | The number of exceptions thrown by .NET applications. |
-| `net_clr_locksandthreads.contention_rate_sec` | gauge |  | The rate of thread of thread contention per second for .NET applications. |
-| `net_clr_locksandthreads.current_queue_length` | gauge |  | The current thread queue length for .NET applications. |
-| `net_clr_locksandthreads.num_of_current_logical_threads` | gauge |  | The number of current logical threads for .NET applications. |
-| `net_clr_locksandthreads.num_of_current_physical_threads` | gauge |  | The number of current physical threads for .NET applications. |
-| `net_clr_memory.num_bytes_in_all_heaps` | gauge |  | The number of bytes in all heaps for .NET applications. |
-| `net_clr_memory.num_gc_handles` | gauge |  | The number of garbage collection handles held by .NET applications. |
-| `net_clr_memory.num_of_pinned_objects` | gauge |  | The number of objects pinned in memory by .NET applications. |
-| `net_clr_memory.num_total_committed_bytes` | gauge |  | The total number of bytes committed to memory by .NET applications. |
-| `net_clr_memory.num_total_reserved_bytes` | gauge |  | The total number of bytes reserved by .NET applications. |
-| `net_clr_memory.pct_time_in_gc` | gauge |  | The percentage of time spent garbage collecting by .NET applications. |
+These are the metrics available for this monitor.
+This monitor emits all metrics by default; however, **none are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+-- they are all custom**.
 
 
 
+ - ***`net_clr_exceptions.num_exceps_thrown_sec`*** (*gauge*)<br>    The number of exceptions thrown by .NET applications.
+ - ***`net_clr_locksandthreads.contention_rate_sec`*** (*gauge*)<br>    The rate of thread of thread contention per second for .NET applications.
+ - ***`net_clr_locksandthreads.current_queue_length`*** (*gauge*)<br>    The current thread queue length for .NET applications.
+ - ***`net_clr_locksandthreads.num_of_current_logical_threads`*** (*gauge*)<br>    The number of current logical threads for .NET applications.
+ - ***`net_clr_locksandthreads.num_of_current_physical_threads`*** (*gauge*)<br>    The number of current physical threads for .NET applications.
+ - ***`net_clr_memory.num_bytes_in_all_heaps`*** (*gauge*)<br>    The number of bytes in all heaps for .NET applications.
+ - ***`net_clr_memory.num_gc_handles`*** (*gauge*)<br>    The number of garbage collection handles held by .NET applications.
+ - ***`net_clr_memory.num_of_pinned_objects`*** (*gauge*)<br>    The number of objects pinned in memory by .NET applications.
+ - ***`net_clr_memory.num_total_committed_bytes`*** (*gauge*)<br>    The total number of bytes committed to memory by .NET applications.
+ - ***`net_clr_memory.num_total_reserved_bytes`*** (*gauge*)<br>    The total number of bytes reserved by .NET applications.
+ - ***`net_clr_memory.pct_time_in_gc`*** (*gauge*)<br>    The percentage of time spent garbage collecting by .NET applications.
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

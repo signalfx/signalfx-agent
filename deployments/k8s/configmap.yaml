@@ -15,6 +15,8 @@ data:
 
     intervalSeconds: 10
 
+    cluster: MY-CLUSTER
+
     logging:
       level: info
 
@@ -135,11 +137,10 @@ data:
       timeout: 40
       logLevel: info
 
+    enableBuiltInFiltering: true
+
     metricsToExclude:
       # The StackDriver metadata-agent pod on GKE restarts every few minutes so
       # ignore its containers
       - dimensions:
           container_spec_name: metadata-agent
-      - '#from': /lib/whitelist.json
-        flatten: true
-

@@ -26,7 +26,7 @@ monitors:
 
     There are two ways you can implement a monitor in Python, a simple way or a
     complex, but more powerful way.  
-    
+
     ## Simple monitor 
     The simple way is to write a script that has a `run` function in it.  This
     function should accept two parameters: `config` and `output`.  The `run`
@@ -36,7 +36,7 @@ monitors:
     Here is [an example of a simple monitor](https://github.com/signalfx/signalfx-agent/tree/master/python/sample/monitor_simple.py).
 
     ## Complex monitor
-    
+
     If you need more power and flexibility in defining your monitor, you can
     use the complex monitor format.  With this, you define a class called
     `Monitor` in a Python module. Here is [a documented example of a complex
@@ -51,7 +51,7 @@ monitors:
     Python script in the `config` dictionary.
 
     ## Example Config
-    
+
     This shows loading a Python module from the agent repo using a single custom config value (`myconfig`):
 
     ```yaml
@@ -61,3 +61,4 @@ monitors:
        scriptFilePath: /usr/src/signalfx-agent/python/sample/monitor_complex.py
        myconfig: [1,2,3]
     ```
+  sendAll: true

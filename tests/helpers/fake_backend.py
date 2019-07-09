@@ -1,8 +1,10 @@
 import asyncio
 import gzip
+import json
 import socket
+import sys
 import threading
-from collections import defaultdict
+from collections import OrderedDict, defaultdict
 from contextlib import contextmanager
 from queue import Queue
 
@@ -12,13 +14,15 @@ from signalfx.generated_protocol_buffers import signal_fx_protocol_buffers_pb2 a
 
 # This module collects metrics from the agent and can echo them back out for
 # making assertions on the collected metrics.
+from tests.helpers.formatting import get_metric_type
 
 STOP = type("STOP", (), {})
 
 
-def free_tcp_socket(host="127.0.0.1"):
+def bind_tcp_socket(host="127.0.0.1", port=0):
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind((host, 0))
+    sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    sock.bind((host, port))
 
     return (sock, sock.getsockname()[1])
 
@@ -72,6 +76,15 @@ def _make_fake_ingest(datapoint_queue, events, spans):
 def _make_fake_api(dims):
     app = Sanic()
 
+    @app.get("/v2/dimension/<key>/<value>")
+    async def get_dim(_, key, value):
+        dim = dims.get(key, {}).get(value)
+        if not dim:
+            return response.json({}, status=404)
+        return response.json(
+            {"key": key, "value": value, "customProperties": dim.get("customProperties"), "tags": dim.get("tags")}
+        )
+
     @app.put("/v2/dimension/<key>/<value>")
     async def put_dim(request, key, value):
         content = request.json
@@ -84,9 +97,9 @@ def _make_fake_api(dims):
 # Starts up a new set of backend services that will run on a random port.  The
 # returned object will have properties on it for datapoints, events, and dims.
 # The fake servers will be stopped once the context manager block is exited.
-# pylint: disable=too-many-locals
+# pylint: disable=too-many-locals,too-many-statements
 @contextmanager
-def start(ip_addr="127.0.0.1"):
+def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0):
     # Data structures are thread-safe due to the GIL
     _dp_upload_queue = Queue()
     _datapoints = []
@@ -99,12 +112,14 @@ def start(ip_addr="127.0.0.1"):
     ingest_app = _make_fake_ingest(_dp_upload_queue, _events, _spans)
     api_app = _make_fake_api(_dims)
 
-    [ingest_sock, _ingest_port] = free_tcp_socket(ip_addr)
-    [api_sock, _api_port] = free_tcp_socket(ip_addr)
+    [ingest_sock, _ingest_port] = bind_tcp_socket(ip_addr, ingest_port)
+    [api_sock, _api_port] = bind_tcp_socket(ip_addr, api_port)
 
     loop = asyncio.new_event_loop()
 
     async def start_servers():
+        ingest_app.config.REQUEST_TIMEOUT = ingest_app.config.KEEP_ALIVE_TIMEOUT = 1000
+        api_app.config.REQUEST_TIMEOUT = api_app.config.KEEP_ALIVE_TIMEOUT = 1000
         ingest_server = ingest_app.create_server(sock=ingest_sock, access_log=False)
         api_server = api_app.create_server(sock=api_sock, access_log=False)
 
@@ -114,7 +129,10 @@ def start(ip_addr="127.0.0.1"):
     loop.create_task(start_servers())
     threading.Thread(target=loop.run_forever).start()
 
-    def add_datapoints():
+    def _add_datapoints():
+        """
+        This is an attempt at making the datapoint endpoint have more throughput for heavy load tests.
+        """
         while True:
             dp_upload = _dp_upload_queue.get()
             if dp_upload is STOP:
@@ -125,7 +143,7 @@ def start(ip_addr="127.0.0.1"):
                 for dim in dp.dimensions:
                     _datapoints_by_dim[f"{dim.key}:{dim.value}"].append(dp)
 
-    threading.Thread(target=add_datapoints).start()
+    threading.Thread(target=_add_datapoints).start()
 
     class FakeBackend:  # pylint: disable=too-few-public-methods
         ingest_host = ip_addr
@@ -142,6 +160,21 @@ def start(ip_addr="127.0.0.1"):
         events = _events
         spans = _spans
         dims = _dims
+
+        def dump_json(self):
+            out = OrderedDict()
+            dps = [dp[0] for dp in self.datapoints_by_metric.values()]
+            metrics = {(dp.metric, dp.metricType) for dp in dps}
+            out["metrics"] = {metric: {"type": get_metric_type(metric_type)} for metric, metric_type in sorted(metrics)}
+            out["dimensions"] = sorted(set(self.datapoints_by_dim))
+            out["common_dimensions"] = []
+
+            # Set dimensions that are present on all datapoints.
+            for dim, dps in self.datapoints_by_dim.items():
+                if len({dp.metric for dp in dps}) == len(metrics):
+                    out["common_dimensions"].append(dim)
+
+            json.dump(out, sys.stdout, indent=2)
 
         def reset_datapoints(self):
             self.datapoints.clear()

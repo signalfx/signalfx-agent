@@ -1,5 +1,5 @@
 monitors:
-- dimensions: null
+- dimensions:
   doc: |
     Collects metrics about a Hadoop cluster using the
     [collectd Hadoop Python plugin](https://github.com/signalfx/collectd-hadoop).
@@ -24,8 +24,774 @@ monitors:
     ```
 
     If a remote JMX port is exposed in the hadoop cluster, then
-    you may also configure the [collectd/hadoopjmx](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd/hadoopjmx)
+    you may also configure the [collectd/hadoopjmx](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoopjmx.md)
     monitor to collect additional metrics about the hadoop cluster.
-  metrics: null
+  groups:
+    cluster:
+      description:
+    leaf-queue:
+      description:
+    root-queue:
+      description:
+    queue-users:
+      description:
+    resource-objects:
+      description:
+    fifo-scheduler:
+      description:
+    applications:
+      description:
+    nodes:
+      description:
+    node-resources:
+      description:
+    mapreduce-jobs:
+      description:
+  metrics:
+    gauge.hadoop.cluster.metrics.active_nodes:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.allocated_mb:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.allocated_virtual_cores:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.apps_completed:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.apps_failed:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.apps_running:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.apps_submitted:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.available_mb:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.available_virtual_cores:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.decommissioned_nodes:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.lost_nodes:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.rebooted_nodes:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.reserved_mb:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.reserved_virtual_cores:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.total_mb:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.total_virtual_cores:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.cluster.metrics.unhealthy_nodes:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.mapreduce.job.elapsedTime:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.mapreduce.job.failedMapAttempts:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.mapreduce.job.failedReduceAttempts:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.mapreduce.job.mapsTotal:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.mapreduce.job.successfulMapAttempts:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.mapreduce.job.successfulReduceAttempts:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.allocatedMB:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.allocatedVCores:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.clusterUsagePercentage:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.memorySeconds:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.priority:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.progress:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.queueUsagePercentage:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.runningContainers:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.resource.manager.apps.vcoreSeconds:
+      description:
+      default: true
+      type: gauge
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.usedCapacity:
+      description:
+      default: true
+      type: gauge
+    counter.hadoop.cluster.metrics.total_mb:
+      description:
+      type: cumulative
+      default: false
+    counter.hadoop.cluster.metrics.total_nodes:
+      description:
+      type: cumulative
+      default: false
+    counter.hadoop.cluster.metrics.total_virtual_cores:
+      description:
+      type: cumulative
+      default: false
+    gauge.hadoop.cluster.metrics.apps_killed:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.cluster.metrics.apps_pending:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.cluster.metrics.containers_allocated:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.cluster.metrics.containers_pending:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.cluster.metrics.containers_reserved:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.nodes.availMemoryMB:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.nodes.availableVirtualCores:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.nodes.numContainers:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.nodes.usedMemoryMB:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.nodes.usedVirtualCores:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteCapacity:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteMaxCapacity:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.absoluteUsedCapacity:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.allocatedContainers:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.capacity:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.maxApplications:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.maxApplicationsPerUser:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.maxCapacity:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.numActiveApplications:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.numApplications:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.numContainers:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.numPendingApplications:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.pendingContainers:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.reservedContainers:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.userLimit:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.leaf.queue.userLimitFactor:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.root.queue.capacity:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.root.queue.maxCapacity:
+      description:
+      type: gauge
+      default: false
+    gauge.hadoop.resource.manager.scheduler.root.queue.usedCapacity:
+      description:
+      type: gauge
+      default: false
+    hadoop.cluster.metrics.active_nodes:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.allocated_mb:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.allocated_virtual_cores:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.apps_completed:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.apps_failed:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.apps_killed:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.apps_pending:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.apps_running:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.apps_submitted:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.available_mb:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.available_virtual_cores:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.containers_allocated:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.containers_pending:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.containers_reserved:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.decommissioned_nodes:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.lost_nodes:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.rebooted_nodes:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.reserved_mb:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.reserved_virtual_cores:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.total_mb:
+      description:
+      type: counter
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.total_nodes:
+      description:
+      type: counter
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.total_virtual_cores:
+      description:
+      type: counter
+      default: false
+      group: cluster
+    hadoop.cluster.metrics.unhealthy_nodes:
+      description:
+      type: gauge
+      default: false
+      group: cluster
+    hadoop.resource.manager.scheduler.leaf.queue.absoluteCapacity:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.absoluteMaxCapacity:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.absoluteUsedCapacity:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.capacity:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.maxActiveApplications:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.maxActiveApplicationsPerUser:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.maxApplications:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.maxApplicationsPerUser:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.maxCapacity:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.numActiveApplications:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.numApplications:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.numContainers:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.numPendingApplications:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.usedCapacity:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.userLimit:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.userLimitFactor:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.allocatedContainers:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.reservedContainers:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.leaf.queue.pendingContainers:
+      description:
+      type: gauge
+      default: false
+      group: leaf-queue
+    hadoop.resource.manager.scheduler.root.queue.capacity:
+      description:
+      type: gauge
+      default: false
+      group: root-queue
+    hadoop.resource.manager.scheduler.root.queue.usedCapacity:
+      description:
+      type: gauge
+      default: false
+      group: root-queue
+    hadoop.resource.manager.scheduler.root.queue.maxCapacity:
+      description:
+      type: gauge
+      default: false
+      group: root-queue
+    hadoop.resource.manager.scheduler.queue.users.numActiveApplications:
+      description:
+      type: gauge
+      default: false
+      group: queue-users
+    hadoop.resource.manager.scheduler.queue.users.numPendingApplications:
+      description:
+      type: gauge
+      default: false
+      group: queue-users
+    hadoop.resource.manager.scheduler.queue.resource.memory:
+      description:
+      type: gauge
+      default: false
+      group: resource-objects
+    hadoop.resource.manager.scheduler.queue.resource.vCores:
+      description:
+      type: gauge
+      default: false
+      group: resource-objects
+    hadoop.resource.manager.scheduler.fifo.capacity:
+      description:
+      type: gauge
+      default: false
+      group: fifo-scheduler
+    hadoop.resource.manager.scheduler.fifo.usedCapacity:
+      description:
+      type: gauge
+      default: false
+      group: fifo-scheduler
+    hadoop.resource.manager.scheduler.fifo.minQueueMemoryCapacity:
+      description:
+      type: gauge
+      default: false
+      group: fifo-scheduler
+    hadoop.resource.manager.scheduler.fifo.maxQueueMemoryCapacity:
+      description:
+      type: gauge
+      default: false
+      group: fifo-scheduler
+    hadoop.resource.manager.scheduler.fifo.numNodes:
+      description:
+      type: gauge
+      default: false
+      group: fifo-scheduler
+    hadoop.resource.manager.scheduler.fifo.usedNodeCapacity:
+      description:
+      type: gauge
+      default: false
+      group: fifo-scheduler
+    hadoop.resource.manager.scheduler.fifo.availNodeCapacity:
+      description:
+      type: gauge
+      default: false
+      group: fifo-scheduler
+    hadoop.resource.manager.scheduler.fifo.totalNodeCapacity:
+      description:
+      type: gauge
+      default: false
+      group: fifo-scheduler
+    hadoop.resource.manager.scheduler.fifo.numContainers:
+      description:
+      type: gauge
+      default: false
+      group: fifo-scheduler
+    hadoop.resource.manager.apps.progress:
+      description:
+      type: gauge
+      default: false
+      group: applications
+    hadoop.resource.manager.apps.priority:
+      description:
+      type: gauge
+      default: false
+      group: applications
+    hadoop.resource.manager.apps.allocatedMB:
+      description:
+      type: gauge
+      default: false
+      group: applications
+    hadoop.resource.manager.apps.allocatedVCores:
+      description:
+      type: gauge
+      default: false
+      group: applications
+    hadoop.resource.manager.apps.runningContainers:
+      description:
+      type: gauge
+      default: false
+      group: applications
+    hadoop.resource.manager.apps.memorySeconds:
+      description:
+      type: gauge
+      default: false
+      group: applications
+    hadoop.resource.manager.apps.vcoreSeconds:
+      description:
+      type: gauge
+      default: false
+      group: applications
+    hadoop.resource.manager.apps.queueUsagePercentage:
+      description:
+      type: gauge
+      default: false
+      group: applications
+    hadoop.resource.manager.apps.clusterUsagePercentage:
+      description:
+      type: gauge
+      default: false
+      group: applications
+    hadoop.resource.manager.apps.preemptedResourceMB:
+      description:
+      type: gauge
+      default: false
+      group: applications
+    hadoop.resource.manager.apps.preemptedResourceVCores:
+      description:
+      type: gauge
+      default: false
+      group: applications
+    hadoop.resource.manager.apps.numNonAMContainerPreempted:
+      description:
+      type: gauge
+      default: false
+      group: applications
+    hadoop.resource.manager.apps.numAMContainerPreempted:
+      description:
+      type: gauge
+      default: false
+      group: applications
+    hadoop.resource.manager.nodes.numContainers:
+      description:
+      type: gauge
+      default: false
+      group: nodes
+    hadoop.resource.manager.nodes.usedMemoryMB:
+      description:
+      type: gauge
+      default: false
+      group: nodes
+    hadoop.resource.manager.nodes.availMemoryMB:
+      description:
+      type: gauge
+      default: false
+      group: nodes
+    hadoop.resource.manager.nodes.usedVirtualCores:
+      description:
+      type: gauge
+      default: false
+      group: nodes
+    hadoop.resource.manager.nodes.availableVirtualCores:
+      description:
+      type: gauge
+      default: false
+      group: nodes
+    hadoop.resource.manager.node.nodePhysicalMemoryMB:
+      description:
+      type: gauge
+      default: false
+      group: node-resources
+    hadoop.resource.manager.node.nodeVirtualMemoryMB:
+      description:
+      type: gauge
+      default: false
+      group: node-resources
+    hadoop.resource.manager.node.nodeCPUUsage:
+      description:
+      type: gauge
+      default: false
+      group: node-resources
+    hadoop.mapreduce.job.elapsedTime:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.mapsTotal:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.mapsCompleted:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.reducesTotal:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.reducesCompleted:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.mapsPending:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.mapsRunning:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.reducesPending:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.newReduceAttempts:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.runningReduceAttempts:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.failedReduceAttempts:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.killedReduceAttempts:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.successfulReduceAttempts:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.newMapAttempts:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.runningMapAttempts:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.failedMapAttempts:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.killedMapAttempts:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
+    hadoop.mapreduce.job.successfulMapAttempts:
+      description:
+      type: gauge
+      default: false
+      group: mapreduce-jobs
   monitorType: collectd/hadoop
-  properties: null
+  properties:

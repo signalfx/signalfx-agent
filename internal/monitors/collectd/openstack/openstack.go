@@ -9,10 +9,8 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/openstack"
-
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
 				MonitorCore: pyrunner.New("sfxcollectd"),
@@ -53,8 +51,8 @@ type Monitor struct {
 func (m *Monitor) Configure(conf *Config) error {
 	conf.pyConf = &python.Config{
 		ModuleName:    "openstack_metrics",
-		ModulePaths:   []string{collectd.MakePath("openstack")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("openstack")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		MonitorConfig: conf.MonitorConfig,
 		PluginConfig: map[string]interface{}{
 			"AuthURL":         conf.AuthURL,

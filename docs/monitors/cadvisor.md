@@ -27,114 +27,95 @@ Monitor Type: `cadvisor`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `cadvisorURL` | no | `string` | Where to find cAdvisor (**default:** `http://localhost:4194`) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `container_cpu_cfs_periods` | counter |  | Total number of elapsed CFS enforcement intervals |
-| `container_cpu_cfs_throttled_periods` | counter |  | Total number of times tasks in the cgroup have been throttled |
-| `container_cpu_cfs_throttled_time` | counter |  | Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled |
-| `container_cpu_percent` | counter |  | Cumulative cpu utilization as a percentage of the total host CPU available.  This metric is equivalent to `container_cpu_utilization` / <# of CPUs/cores on host>. |
-| `container_cpu_system_seconds_total` | counter |  | Cumulative system cpu time consumed in nanoseconds |
-| `container_cpu_usage_seconds_total` | counter |  | Cumulative cpu time consumed per cpu in nanoseconds |
-| `container_cpu_user_seconds_total` | counter |  | Cumulative user cpu time consumed in nanoseconds |
-| `container_cpu_utilization` | counter | ✔ | Cumulative cpu utilization in percentages.  This is equivalent to "centicores", or hundreths of CPU cores consumed.  This metric is **NOT** normalized by the total # of cores on the system. |
-| `container_fs_io_current` | gauge |  | Number of I/Os currently in progress |
-| `container_fs_io_time_seconds_total` | counter |  | Cumulative count of seconds spent doing I/Os |
-| `container_fs_io_time_weighted_seconds_total` | counter |  | Cumulative weighted I/O time in seconds |
-| `container_fs_limit_bytes` | gauge |  | Number of bytes that the container may occupy on this filesystem |
-| `container_fs_read_seconds_total` | counter |  | Cumulative count of seconds spent reading |
-| `container_fs_reads_merged_total` | counter |  | Cumulative count of reads merged |
-| `container_fs_reads_total` | counter |  | Cumulative count of reads completed |
-| `container_fs_sector_reads_total` | counter |  | Cumulative count of sector reads completed |
-| `container_fs_sector_writes_total` | counter |  | Cumulative count of sector writes completed |
-| `container_fs_usage_bytes` | gauge |  | Number of bytes that are consumed by the container on this filesystem |
-| `container_fs_write_seconds_total` | counter |  | Cumulative count of seconds spent writing |
-| `container_fs_writes_merged_total` | counter |  | Cumulative count of writes merged |
-| `container_fs_writes_total` | counter |  | Cumulative count of writes completed |
-| `container_last_seen` | gauge |  | Last time a container was seen by the exporter |
-| `container_memory_failcnt` | counter |  | Number of memory usage hits limits |
-| `container_memory_failures_total` | counter | ✔ | Cumulative count of memory allocation failures |
-| `container_memory_usage_bytes` | gauge | ✔ | Current memory usage in bytes |
-| `container_memory_working_set_bytes` | gauge |  | Current working set in bytes |
-| `container_spec_cpu_period` | gauge | ✔ | The number of microseconds that the [CFS scheduler](https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt) uses as a window when limiting container processes |
-| `container_spec_cpu_quota` | gauge | ✔ | In CPU quota for the CFS process scheduler. In K8s this is equal to the containers's CPU limit as a fraction of 1 core and multiplied by the `container_spec_cpu_period`.  So if the CPU limit is `500m` (500 millicores) for a container and the `container_spec_cpu_period` is set to 100,000, this value will be 50,000. |
-| `container_spec_cpu_shares` | gauge |  | CPU share of the container |
-| `container_spec_memory_limit_bytes` | gauge | ✔ | Memory limit for the container. |
-| `container_spec_memory_swap_limit_bytes` | gauge |  | Memory swap limit for the container. |
-| `container_start_time_seconds` | gauge |  | Start time of the container since unix epoch in seconds. |
-| `container_tasks_state` | gauge |  | Number of tasks in given state |
-| `machine_cpu_cores` | gauge | ✔ | Number of CPU cores on the node. |
-| `machine_cpu_frequency_khz` | gauge |  | Node's CPU frequency. |
-| `machine_memory_bytes` | gauge | ✔ | Amount of memory installed on the node. |
-| `pod_network_receive_bytes_total` | counter | ✔ | Cumulative count of bytes received |
-| `pod_network_receive_errors_total` | counter | ✔ | Cumulative count of errors encountered while receiving |
-| `pod_network_receive_packets_dropped_total` | counter |  | Cumulative count of packets dropped while receiving |
-| `pod_network_receive_packets_total` | counter |  | Cumulative count of packets received |
-| `pod_network_transmit_bytes_total` | counter | ✔ | Cumulative count of bytes transmitted |
-| `pod_network_transmit_errors_total` | counter | ✔ | Cumulative count of errors encountered while transmitting |
-| `pod_network_transmit_packets_dropped_total` | counter |  | Cumulative count of packets dropped while transmitting |
-| `pod_network_transmit_packets_total` | counter |  | Cumulative count of packets transmitted |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+ - `container_cpu_cfs_periods` (*cumulative*)<br>    Total number of elapsed CFS enforcement intervals
+ - `container_cpu_cfs_throttled_periods` (*cumulative*)<br>    Total number of times tasks in the cgroup have been throttled
+ - `container_cpu_cfs_throttled_time` (*cumulative*)<br>    Total time duration, in nanoseconds, for which tasks in the cgroup have been throttled
+ - ***`container_cpu_percent`*** (*cumulative*)<br>    Cumulative cpu utilization as a percentage of the total host CPU available.  This metric is equivalent to `container_cpu_utilization` / <# of CPUs/cores on host>.
+ - `container_cpu_system_seconds_total` (*cumulative*)<br>    Cumulative system cpu time consumed in nanoseconds
+ - `container_cpu_usage_seconds_total` (*cumulative*)<br>    Cumulative cpu time consumed per cpu in nanoseconds
+ - `container_cpu_user_seconds_total` (*cumulative*)<br>    Cumulative user cpu time consumed in nanoseconds
+ - ***`container_cpu_utilization`*** (*cumulative*)<br>    Cumulative cpu utilization in percentages.  This is equivalent to "centicores", or hundreths of CPU cores consumed.  This metric is **NOT** normalized by the total # of cores on the system.
+ - `container_cpu_utilization_per_core` (*cumulative*)<br>    Cumulative cpu utilization in percentages per core
+ - `container_fs_io_current` (*gauge*)<br>    Number of I/Os currently in progress
+ - `container_fs_io_time_seconds_total` (*cumulative*)<br>    Cumulative count of seconds spent doing I/Os
+ - `container_fs_io_time_weighted_seconds_total` (*cumulative*)<br>    Cumulative weighted I/O time in seconds
+ - `container_fs_limit_bytes` (*gauge*)<br>    Number of bytes that the container may occupy on this filesystem
+ - ***`container_fs_read_seconds_total`*** (*cumulative*)<br>    Cumulative count of seconds spent reading
+ - `container_fs_reads_merged_total` (*cumulative*)<br>    Cumulative count of reads merged
+ - ***`container_fs_reads_total`*** (*cumulative*)<br>    Cumulative count of reads completed
+ - `container_fs_sector_reads_total` (*cumulative*)<br>    Cumulative count of sector reads completed
+ - `container_fs_sector_writes_total` (*cumulative*)<br>    Cumulative count of sector writes completed
+ - ***`container_fs_usage_bytes`*** (*gauge*)<br>    Number of bytes that are consumed by the container on this filesystem
+ - ***`container_fs_write_seconds_total`*** (*cumulative*)<br>    Cumulative count of seconds spent writing
+ - `container_fs_writes_merged_total` (*cumulative*)<br>    Cumulative count of writes merged
+ - ***`container_fs_writes_total`*** (*cumulative*)<br>    Cumulative count of writes completed
+ - `container_last_seen` (*gauge*)<br>    Last time a container was seen by the exporter
+ - `container_memory_failcnt` (*cumulative*)<br>    Number of memory usage hits limits
+ - ***`container_memory_failures_total`*** (*cumulative*)<br>    Cumulative count of memory allocation failures
+ - ***`container_memory_usage_bytes`*** (*gauge*)<br>    Current memory usage in bytes
+ - `container_memory_working_set_bytes` (*gauge*)<br>    Current working set in bytes
+ - ***`container_spec_cpu_period`*** (*gauge*)<br>    The number of microseconds that the [CFS scheduler](https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt) uses as a window when limiting container processes
+ - ***`container_spec_cpu_quota`*** (*gauge*)<br>    In CPU quota for the CFS process scheduler. In K8s this is equal to the containers's CPU limit as a fraction of 1 core and multiplied by the `container_spec_cpu_period`.  So if the CPU limit is `500m` (500 millicores) for a container and the `container_spec_cpu_period` is set to 100,000, this value will be 50,000.
+ - `container_spec_cpu_shares` (*gauge*)<br>    CPU share of the container
+ - ***`container_spec_memory_limit_bytes`*** (*gauge*)<br>    Memory limit for the container.
+ - `container_spec_memory_swap_limit_bytes` (*gauge*)<br>    Memory swap limit for the container.
+ - `container_start_time_seconds` (*gauge*)<br>    Start time of the container since unix epoch in seconds.
+ - `container_tasks_state` (*gauge*)<br>    Number of tasks in given state
+ - ***`machine_cpu_cores`*** (*gauge*)<br>    Number of CPU cores on the node.
+ - `machine_cpu_frequency_khz` (*gauge*)<br>    Node's CPU frequency.
+ - ***`machine_memory_bytes`*** (*gauge*)<br>    Amount of memory installed on the node.
+ - ***`pod_network_receive_bytes_total`*** (*cumulative*)<br>    Cumulative count of bytes received
+ - ***`pod_network_receive_errors_total`*** (*cumulative*)<br>    Cumulative count of errors encountered while receiving
+ - `pod_network_receive_packets_dropped_total` (*cumulative*)<br>    Cumulative count of packets dropped while receiving
+ - `pod_network_receive_packets_total` (*cumulative*)<br>    Cumulative count of packets received
+ - ***`pod_network_transmit_bytes_total`*** (*cumulative*)<br>    Cumulative count of bytes transmitted
+ - ***`pod_network_transmit_errors_total`*** (*cumulative*)<br>    Cumulative count of errors encountered while transmitting
+ - `pod_network_transmit_packets_dropped_total` (*cumulative*)<br>    Cumulative count of packets dropped while transmitting
+ - `pod_network_transmit_packets_total` (*cumulative*)<br>    Cumulative count of packets transmitted
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - container_cpu_cfs_periods
-    - container_cpu_cfs_throttled_periods
-    - container_cpu_cfs_throttled_time
-    - container_cpu_percent
-    - container_cpu_system_seconds_total
-    - container_cpu_usage_seconds_total
-    - container_cpu_user_seconds_total
-    - container_fs_io_current
-    - container_fs_io_time_seconds_total
-    - container_fs_io_time_weighted_seconds_total
-    - container_fs_limit_bytes
-    - container_fs_read_seconds_total
-    - container_fs_reads_merged_total
-    - container_fs_reads_total
-    - container_fs_sector_reads_total
-    - container_fs_sector_writes_total
-    - container_fs_usage_bytes
-    - container_fs_write_seconds_total
-    - container_fs_writes_merged_total
-    - container_fs_writes_total
-    - container_last_seen
-    - container_memory_failcnt
-    - container_memory_working_set_bytes
-    - container_spec_cpu_shares
-    - container_spec_memory_swap_limit_bytes
-    - container_start_time_seconds
-    - container_tasks_state
-    - machine_cpu_frequency_khz
-    - pod_network_receive_packets_dropped_total
-    - pod_network_receive_packets_total
-    - pod_network_transmit_packets_dropped_total
-    - pod_network_transmit_packets_total
-    monitorType: cadvisor
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 ## Dimensions
 

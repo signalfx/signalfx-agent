@@ -34,13 +34,14 @@ func (fp *fromPath) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	parts := strings.SplitN(str, ":", 2)
 
-	if len(parts) == 1 {
+	switch {
+	case len(parts) == 1:
 		fp.path = parts[0]
-	} else if runtime.GOOS == "windows" && []rune(parts[1])[0] == '\\' {
+	case runtime.GOOS == "windows" && []rune(parts[1])[0] == '\\':
 		// if running on windows identify the difference between drive letters
 		// and remote config protocols i.e: 'zk://' vs 'C:\'
 		fp.path = str
-	} else {
+	default:
 		fp.sourceName = parts[0]
 		fp.path = parts[1]
 	}

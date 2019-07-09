@@ -1,6 +1,7 @@
 package rabbitmq
 
 import (
+	"github.com/signalfx/golib/pointer"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 
 	"github.com/signalfx/signalfx-agent/internal/utils"
@@ -11,10 +12,8 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/rabbitmq"
-
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
 				MonitorCore: pyrunner.New("sfxcollectd"),
@@ -56,24 +55,46 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in python
 func (m *Monitor) Configure(conf *Config) error {
+	sendChannelMetrics := conf.CollectChannels
+	sendConnectionMetrics := conf.CollectConnections
+	sendExchangeMetrics := conf.CollectExchanges
+	sendNodeMetrics := conf.CollectNodes
+	sendQueueMetrics := conf.CollectQueues
+
+	if m.Output.HasEnabledMetricInGroup(groupChannel) {
+		sendChannelMetrics = pointer.Bool(true)
+	}
+	if m.Output.HasEnabledMetricInGroup(groupConnection) {
+		sendConnectionMetrics = pointer.Bool(true)
+	}
+	if m.Output.HasEnabledMetricInGroup(groupExchange) {
+		sendExchangeMetrics = pointer.Bool(true)
+	}
+	if m.Output.HasEnabledMetricInGroup(groupNode) {
+		sendNodeMetrics = pointer.Bool(true)
+	}
+	if m.Output.HasEnabledMetricInGroup(groupQueue) {
+		sendQueueMetrics = pointer.Bool(true)
+	}
+
 	conf.pyConf = &python.Config{
 		MonitorConfig: conf.MonitorConfig,
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "rabbitmq",
-		ModulePaths:   []string{collectd.MakePath("rabbitmq")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("rabbitmq")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
 			"Host":               conf.Host,
 			"Port":               conf.Port,
 			"BrokerName":         conf.BrokerName,
 			"Username":           conf.Username,
 			"Password":           conf.Password,
-			"CollectChannels":    conf.CollectChannels,
-			"CollectConnections": conf.CollectConnections,
-			"CollectExchanges":   conf.CollectExchanges,
-			"CollectNodes":       conf.CollectNodes,
-			"CollectQueues":      conf.CollectQueues,
+			"CollectChannels":    sendChannelMetrics,
+			"CollectConnections": sendConnectionMetrics,
+			"CollectExchanges":   sendExchangeMetrics,
+			"CollectNodes":       sendNodeMetrics,
+			"CollectQueues":      sendQueueMetrics,
 			"HTTPTimeout":        conf.HTTPTimeout,
 			"VerbosityLevel":     conf.VerbosityLevel,
 		},
@@ -94,4 +115,31 @@ func (m *Monitor) Configure(conf *Config) error {
 	conf.pyConf.PluginConfig["BrokerName"] = brokerName
 
 	return m.PyMonitor.Configure(conf)
+}
+
+// GetExtraMetrics returns additional metrics that should be allowed through.
+func (c *Config) GetExtraMetrics() []string {
+	var extraMetrics []string
+
+	if c.CollectChannels != nil && *c.CollectChannels {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupChannel]...)
+	}
+
+	if c.CollectConnections != nil && *c.CollectConnections {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupConnection]...)
+	}
+
+	if c.CollectExchanges != nil && *c.CollectExchanges {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupExchange]...)
+	}
+
+	if c.CollectNodes != nil && *c.CollectNodes {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupNode]...)
+	}
+
+	if c.CollectQueues != nil && *c.CollectQueues {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupQueue]...)
+	}
+
+	return extraMetrics
 }

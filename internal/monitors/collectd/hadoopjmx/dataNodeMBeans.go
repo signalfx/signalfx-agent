@@ -1,3 +1,5 @@
+// +build linux
+
 package hadoopjmx
 
 var defaultDataNodeMBeanYAML = `
@@ -74,7 +76,7 @@ hadoop-datanode-FsVolume:
     attribute: "FileIoErrorRateAvgTime"
 
 hadoop-datanode-activity:
-  objectName: "Hadoop:name=DataNodeActivity,service=DataNode"
+  objectName: "Hadoop:name=DataNodeActivity-*,service=DataNode"
   values:
   - instancePrefix: "hadoop-datanode-bytes-written"
     type: "counter"
@@ -96,7 +98,7 @@ hadoop-datanode-activity:
 hadoop-datanode-fs-data-set-state:
   objectName: "Hadoop:name=FSDatasetState,service=DataNode"
   values:
-  - instancePrefix: "hadoop-datanode-bytes-written"
+  - instancePrefix: "hadoop-datanode-fs-capacity"
     type: "gauge"
     table: false
     attribute: "Capacity"

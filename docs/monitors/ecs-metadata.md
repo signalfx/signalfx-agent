@@ -18,6 +18,10 @@ Monitor Type: `ecs-metadata`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `enableExtraBlockIOMetrics` | no | `bool` | Whether it will send all extra block IO metrics as well. (**default:** `false`) |
@@ -31,91 +35,93 @@ Monitor Type: `ecs-metadata`
 | `excludedImages` | no | `list of strings` | A list of filters of images to exclude.  Supports literals, globs, and regex. |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `blkio.io_service_bytes_recursive.async` | cumulative |  | Volume, in bytes, of asynchronous block I/O |
-| `blkio.io_service_bytes_recursive.read` | cumulative | ✔ | Volume, in bytes, of reads from block devices |
-| `blkio.io_service_bytes_recursive.sync` | cumulative |  | Volume, in bytes, of synchronous block I/O |
-| `blkio.io_service_bytes_recursive.total` | cumulative |  | Total volume, in bytes, of all block I/O |
-| `blkio.io_service_bytes_recursive.write` | cumulative | ✔ | Volume, in bytes, of writes to block devices |
-| `blkio.io_serviced_recursive.async` | cumulative |  | Number of asynchronous block I/O requests |
-| `blkio.io_serviced_recursive.read` | cumulative |  | Number of reads requests from block devices |
-| `blkio.io_serviced_recursive.sync` | cumulative |  | Number of synchronous block I/O requests |
-| `blkio.io_serviced_recursive.total` | cumulative |  | Total number of block I/O requests |
-| `blkio.io_serviced_recursive.write` | cumulative |  | Number of write requests to block devices |
-| `cpu.limit` | gauge |  | CPU usage limit of the container, in ECS vCPU units |
-| `cpu.percent` | gauge |  | Percentage of host CPU resources used by the container |
-| `cpu.percpu.usage` | cumulative |  | Jiffies of CPU time spent by the container, per CPU core |
-| `cpu.throttling_data.periods` | cumulative |  | Number of periods |
-| `cpu.throttling_data.throttled_periods` | cumulative |  | Number of periods throttled |
-| `cpu.throttling_data.throttled_time` | cumulative |  | Throttling time in nano seconds |
-| `cpu.usage.kernelmode` | cumulative |  | Jiffies of CPU time spent in kernel mode by the container |
-| `cpu.usage.system` | cumulative | ✔ | Jiffies of CPU time used by the system |
-| `cpu.usage.total` | cumulative | ✔ | Jiffies of CPU time used by the container |
-| `cpu.usage.usermode` | cumulative |  | Jiffies of CPU time spent in user mode by the container |
-| `memory.percent` | gauge |  | Percent of memory (0-100) used by the container relative to its limit (excludes page cache usage) |
-| `memory.stats.swap` | gauge |  | Bytes of swap memory used by container |
-| `memory.usage.limit` | gauge | ✔ | Memory usage limit of the container, in bytes |
-| `memory.usage.max` | gauge |  | Maximum measured memory usage of the container, in bytes |
-| `memory.usage.total` | gauge | ✔ | Bytes of memory used by the container |
-| `network.usage.rx_bytes` | cumulative | ✔ | Bytes received by the container via its network interface |
-| `network.usage.rx_dropped` | cumulative |  | Number of inbound network packets dropped by the container |
-| `network.usage.rx_errors` | cumulative |  | Errors receiving network packets |
-| `network.usage.rx_packets` | cumulative |  | Network packets received by the container via its network interface |
-| `network.usage.tx_bytes` | cumulative | ✔ | Bytes sent by the container via its network interface |
-| `network.usage.tx_dropped` | cumulative |  | Number of outbound network packets dropped by the container |
-| `network.usage.tx_errors` | cumulative |  | Errors sending network packets |
-| `network.usage.tx_packets` | cumulative |  | Network packets sent by the container via its network interface |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+#### Group blkio
+All of the following metrics are part of the `blkio` metric group. All of
+the non-default metrics below can be turned on by adding `blkio` to the
+monitor config option `extraGroups`:
+ - `blkio.io_service_bytes_recursive.async` (*cumulative*)<br>    Volume, in bytes, of asynchronous block I/O
+ - ***`blkio.io_service_bytes_recursive.read`*** (*cumulative*)<br>    Volume, in bytes, of reads from block devices
+ - `blkio.io_service_bytes_recursive.sync` (*cumulative*)<br>    Volume, in bytes, of synchronous block I/O
+ - `blkio.io_service_bytes_recursive.total` (*cumulative*)<br>    Total volume, in bytes, of all block I/O
+ - ***`blkio.io_service_bytes_recursive.write`*** (*cumulative*)<br>    Volume, in bytes, of writes to block devices
+ - `blkio.io_serviced_recursive.async` (*cumulative*)<br>    Number of asynchronous block I/O requests
+ - `blkio.io_serviced_recursive.read` (*cumulative*)<br>    Number of reads requests from block devices
+ - `blkio.io_serviced_recursive.sync` (*cumulative*)<br>    Number of synchronous block I/O requests
+ - `blkio.io_serviced_recursive.total` (*cumulative*)<br>    Total number of block I/O requests
+ - `blkio.io_serviced_recursive.write` (*cumulative*)<br>    Number of write requests to block devices
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+#### Group cpu
+All of the following metrics are part of the `cpu` metric group. All of
+the non-default metrics below can be turned on by adding `cpu` to the
+monitor config option `extraGroups`:
+ - `cpu.limit` (*gauge*)<br>    CPU usage limit of the container, in ECS vCPU units
+ - `cpu.percent` (*gauge*)<br>    Percentage of host CPU resources used by the container
+ - `cpu.percpu.usage` (*cumulative*)<br>    Jiffies of CPU time spent by the container, per CPU core
+ - `cpu.throttling_data.periods` (*cumulative*)<br>    Number of periods
+ - `cpu.throttling_data.throttled_periods` (*cumulative*)<br>    Number of periods throttled
+ - `cpu.throttling_data.throttled_time` (*cumulative*)<br>    Throttling time in nano seconds
+ - `cpu.usage.kernelmode` (*cumulative*)<br>    Jiffies of CPU time spent in kernel mode by the container
+ - ***`cpu.usage.system`*** (*cumulative*)<br>    Jiffies of CPU time used by the system
+ - ***`cpu.usage.total`*** (*cumulative*)<br>    Jiffies of CPU time used by the container
+ - `cpu.usage.usermode` (*cumulative*)<br>    Jiffies of CPU time spent in user mode by the container
 
-```yaml
+#### Group memory
+All of the following metrics are part of the `memory` metric group. All of
+the non-default metrics below can be turned on by adding `memory` to the
+monitor config option `extraGroups`:
+ - `memory.percent` (*gauge*)<br>    Percent of memory (0-100) used by the container relative to its limit (excludes page cache usage)
+ - `memory.stats.swap` (*gauge*)<br>    Bytes of swap memory used by container
+ - ***`memory.usage.limit`*** (*gauge*)<br>    Memory usage limit of the container, in bytes
+ - `memory.usage.max` (*gauge*)<br>    Maximum measured memory usage of the container, in bytes
+ - ***`memory.usage.total`*** (*gauge*)<br>    Bytes of memory used by the container
 
-metricsToInclude:
-  - metricNames:
-    - blkio.io_service_bytes_recursive.async
-    - blkio.io_service_bytes_recursive.sync
-    - blkio.io_service_bytes_recursive.total
-    - blkio.io_serviced_recursive.async
-    - blkio.io_serviced_recursive.read
-    - blkio.io_serviced_recursive.sync
-    - blkio.io_serviced_recursive.total
-    - blkio.io_serviced_recursive.write
-    - cpu.limit
-    - cpu.percent
-    - cpu.percpu.usage
-    - cpu.throttling_data.periods
-    - cpu.throttling_data.throttled_periods
-    - cpu.throttling_data.throttled_time
-    - cpu.usage.kernelmode
-    - cpu.usage.usermode
-    - memory.percent
-    - memory.stats.swap
-    - memory.usage.max
-    - network.usage.rx_dropped
-    - network.usage.rx_errors
-    - network.usage.rx_packets
-    - network.usage.tx_dropped
-    - network.usage.tx_errors
-    - network.usage.tx_packets
-    monitorType: ecs-metadata
-```
+#### Group network
+All of the following metrics are part of the `network` metric group. All of
+the non-default metrics below can be turned on by adding `network` to the
+monitor config option `extraGroups`:
+ - ***`network.usage.rx_bytes`*** (*cumulative*)<br>    Bytes received by the container via its network interface
+ - `network.usage.rx_dropped` (*cumulative*)<br>    Number of inbound network packets dropped by the container
+ - `network.usage.rx_errors` (*cumulative*)<br>    Errors receiving network packets
+ - `network.usage.rx_packets` (*cumulative*)<br>    Network packets received by the container via its network interface
+ - ***`network.usage.tx_bytes`*** (*cumulative*)<br>    Bytes sent by the container via its network interface
+ - `network.usage.tx_dropped` (*cumulative*)<br>    Number of outbound network packets dropped by the container
+ - `network.usage.tx_errors` (*cumulative*)<br>    Errors sending network packets
+ - `network.usage.tx_packets` (*cumulative*)<br>    Network packets sent by the container via its network interface
 
+### Non-default metrics (version 4.7.0+)
+
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
+
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
+
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

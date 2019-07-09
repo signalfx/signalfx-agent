@@ -40,9 +40,10 @@ Here is an example of a configuration with a custom Python plugin:
 ```
 
 We have many collectd plugins included in the image that are not exposed as
-monitors.  You can see the plugins in the `<AGENT_BUNDLE>/plugins/collectd`
-directory, where `<AGENT_BUNDLE>` is blank in the containerized version, and
-is normally `/usr/lib/signalfx-agent` in the non-containerized agent.
+monitors.  You can see the plugins in the `<AGENT_BUNDLE>/lib/collectd`
+directory, where `<AGENT_BUNDLE>` is the root of the filesystem in the
+containerized version, and is normally `/usr/lib/signalfx-agent` in the
+non-containerized agent.
 
 
 Monitor Type: `collectd/custom`
@@ -55,6 +56,10 @@ Monitor Type: `collectd/custom`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | no | `string` | This should generally not be set manually, but will be filled in by the agent if using service discovery. It can be accessed in the provided config template with `{{.Host}}`.  It will be set to the hostname or IP address of the discovered service. If you aren't using service discovery, you can just hardcode the host/port in the config template and ignore these fields. |
@@ -66,8 +71,7 @@ Monitor Type: `collectd/custom`
 
 
 
-
-
-
+The agent does not do any built-in filtering of metrics coming out of this
+monitor.
 
 

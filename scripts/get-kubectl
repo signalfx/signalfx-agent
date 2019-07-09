@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -euxo pipefail
+
+K8S_VERSION=${K8S_VERSION:-"latest"}
+INSTALL_DIR=${INSTALL_DIR:-"/usr/local/bin"}
+
+if [ "$K8S_VERSION" = "latest" ]; then
+    K8S_VERSION=$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)
+fi
+
+if [ ! -f ${INSTALL_DIR}/kubectl-${K8S_VERSION} ]; then
+    wget -O ${INSTALL_DIR}/kubectl-${K8S_VERSION} https://storage.googleapis.com/kubernetes-release/release/${K8S_VERSION}/bin/linux/amd64/kubectl
+    chmod a+x ${INSTALL_DIR}/kubectl-${K8S_VERSION}
+fi
+
+rm -f ${INSTALL_DIR}/kubectl
+ln -s ${INSTALL_DIR}/kubectl-${K8S_VERSION} ${INSTALL_DIR}/kubectl

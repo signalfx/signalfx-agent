@@ -46,7 +46,7 @@ func CopyTo(ptr interface{}) error {
 					if targetField.CanSet() && sourceField.Kind() == targetField.Kind() {
 						targetField.Set(v.Field(i))
 					} else {
-						return fmt.Errorf("Unable to copy struct %v to target %s", sourceField, target)
+						return fmt.Errorf("unable to copy struct %v to target %s", sourceField, target)
 					}
 				}
 			}
@@ -56,21 +56,21 @@ func CopyTo(ptr interface{}) error {
 }
 
 // isOSEligible - determines if the os is eligible from the array of strings
-func isOSEligible(OSString string) bool {
+func isOSEligible(osString string) bool {
 	// if the os string is empty
-	if OSString == "" {
+	if osString == "" {
 		return true
 	}
 	// check if the current os is explicitly excluded Ex. "!windows"
-	if strings.Contains(OSString, fmt.Sprintf("!%s", runtime.GOOS)) {
+	if strings.Contains(osString, fmt.Sprintf("!%s", runtime.GOOS)) {
 		return false
 	}
 	// check if the os is explicitly included Ex. "windows"
-	if strings.Contains(OSString, runtime.GOOS) {
+	if strings.Contains(osString, runtime.GOOS) {
 		return true
 	}
 	// check for explicitly defined operating systems Ex. windows != "linux"
-	operatingSystems := strings.Split(OSString, ",")
+	operatingSystems := strings.Split(osString, ",")
 	for _, f := range operatingSystems {
 		if !strings.Contains(f, "!") {
 			return false

@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"time"
 
+	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/internal/core/common/kubelet"
@@ -15,8 +15,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/observers"
 )
-
-var now = time.Now
 
 // phase is the pod's phase
 type phase string
@@ -48,8 +46,6 @@ const (
 // DIMENSION(container_spec_name): The short name of the container in the pod spec,
 // **NOT** the running container's name in the Docker engine
 
-var logger = log.WithFields(log.Fields{"observerType": observerType})
-
 // Config for Kubelet observer
 type Config struct {
 	config.ObserverConfig
@@ -69,10 +65,7 @@ func (c *Config) Validate() error {
 		c.KubeletAPI.ClientCertPath != "" ||
 		c.KubeletAPI.ClientKeyPath != "") &&
 		c.KubeletAPI.AuthType != kubelet.AuthTypeTLS {
-		logger.WithFields(log.Fields{
-			"kubeletAuthType": c.KubeletAPI.AuthType,
-		}).Warn("Kubelet TLS client auth config keys are set while authType is not 'tls'")
-		// Does not render invalid, but warn user nonetheless
+		return errors.New("kubelet TLS client auth config keys are set while authType is not 'tls'")
 	}
 
 	return nil
@@ -84,6 +77,7 @@ type Observer struct {
 	client           *kubelet.Client
 	serviceDiffer    *observers.ServiceDiffer
 	serviceCallbacks *observers.ServiceCallbacks
+	logger           logrus.FieldLogger
 }
 
 // pod structure from kubelet
@@ -129,6 +123,8 @@ func init() {
 
 // Configure the kubernetes observer/client
 func (k *Observer) Configure(config *Config) error {
+	k.logger = logrus.WithFields(logrus.Fields{"observerType": observerType})
+
 	var err error
 	k.client, err = kubelet.NewClient(&config.KubeletAPI)
 	if err != nil {
@@ -192,7 +188,7 @@ func (k *Observer) discover() []services.Endpoint {
 
 	pods, err := k.getPods()
 	if err != nil {
-		logger.WithFields(log.Fields{
+		k.logger.WithFields(log.Fields{
 			"error":      err,
 			"kubeletURL": k.config.KubeletAPI.URL,
 		}).Error("Could not get pods from Kubelet API")
@@ -206,7 +202,7 @@ func (k *Observer) discover() []services.Endpoint {
 		}
 
 		if len(podIP) == 0 {
-			logger.WithFields(log.Fields{
+			k.logger.WithFields(log.Fields{
 				"podName": pod.Metadata.Name,
 			}).Warn("Pod does not have an IP Address")
 			continue

@@ -34,102 +34,87 @@ Monitor Type: `gitlab-unicorn`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host of the exporter |
 | `port` | **yes** | `integer` | Port of the exporter |
+| `username` | no | `string` | Basic Auth username to use on each request, if any. |
+| `password` | no | `string` | Basic Auth password to use on each request, if any. |
 | `useHTTPS` | no | `bool` | If true, the agent will connect to the exporter using HTTPS instead of plain HTTP. (**default:** `false`) |
 | `skipVerify` | no | `bool` | If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified. (**default:** `false`) |
 | `metricPath` | no | `string` | Path to the metrics endpoint on the exporter server, usually `/metrics` (the default). (**default:** `/metrics`) |
 | `sendAllMetrics` | no | `bool` | Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors. (**default:** `false`) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `user_session_logins_total` | cumulative |  |  |
-| `unicorn_active_connections` | gauge |  |  |
-| `unicorn_queued_connections` | gauge |  |  |
-| `http_requests_total` | cumulative |  |  |
-| `gitlab_transaction_rails_queue_duration_total` | gauge |  |  |
-| `gitlab_rails_queue_duration_seconds_bucket` | cumulative |  |  |
-| `gitlab_rails_queue_duration_seconds_count` | cumulative |  |  |
-| `gitlab_rails_queue_duration_seconds` | cumulative |  |  |
-| `job_register_attempts_failed_total` | cumulative |  |  |
-| `job_register_attempts_total` | cumulative |  |  |
-| `gitlab_transaction_new_redis_connections_total` | cumulative |  |  |
-| `gitlab_transaction_view_duration_total` | cumulative |  |  |
-| `gitlab_transaction_cache_read_hit_count_total` | cumulative |  |  |
-| `gitlab_transaction_cache_read_miss_count_total` | cumulative |  |  |
-| `gitlab_auth_user_authenticated_total` | cumulative |  |  |
-| `gitlab_auth_user_unauthenticated_total` | cumulative |  |  |
-| `gitlab_banzai_cacheless_render_real_duration_seconds_bucket` | cumulative |  |  |
-| `gitlab_banzai_cacheless_render_real_duration_seconds_count` | cumulative |  |  |
-| `gitlab_banzai_cacheless_render_real_duration_seconds` | cumulative |  |  |
-| `gitlab_cache_misses_total` | cumulative |  |  |
-| `gitlab_cache_operation_duration_seconds_bucket` | cumulative |  |  |
-| `gitlab_cache_operation_duration_seconds_count` | cumulative |  |  |
-| `gitlab_cache_operation_duration_seconds` | cumulative |  |  |
-| `gitlab_sql_duration_seconds_bucket` | cumulative |  |  |
-| `gitlab_sql_duration_seconds_count` | cumulative |  |  |
-| `gitlab_sql_duration_seconds` | cumulative |  |  |
-| `gitlab_transaction_sidekiq_queue_duration_total` | gauge | ✔ |  |
-| `gitlab_transaction_duration_seconds_bucket` | cumulative |  |  |
-| `gitlab_transaction_duration_seconds_count` | cumulative |  |  |
-| `gitlab_transaction_duration_seconds` | cumulative |  |  |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+ - `gitlab_auth_user_authenticated_total` (*cumulative*)<br>
+ - `gitlab_auth_user_unauthenticated_total` (*cumulative*)<br>
+ - `gitlab_banzai_cacheless_render_real_duration_seconds` (*cumulative*)<br>
+ - `gitlab_banzai_cacheless_render_real_duration_seconds_bucket` (*cumulative*)<br>
+ - `gitlab_banzai_cacheless_render_real_duration_seconds_count` (*cumulative*)<br>
+ - `gitlab_cache_misses_total` (*cumulative*)<br>
+ - `gitlab_cache_operation_duration_seconds` (*cumulative*)<br>
+ - `gitlab_cache_operation_duration_seconds_bucket` (*cumulative*)<br>
+ - `gitlab_cache_operation_duration_seconds_count` (*cumulative*)<br>
+ - `gitlab_rails_queue_duration_seconds` (*cumulative*)<br>
+ - `gitlab_rails_queue_duration_seconds_bucket` (*cumulative*)<br>
+ - `gitlab_rails_queue_duration_seconds_count` (*cumulative*)<br>
+ - `gitlab_sql_duration_seconds` (*cumulative*)<br>
+ - `gitlab_sql_duration_seconds_bucket` (*cumulative*)<br>
+ - `gitlab_sql_duration_seconds_count` (*cumulative*)<br>
+ - `gitlab_transaction_cache_read_hit_count_total` (*cumulative*)<br>
+ - `gitlab_transaction_cache_read_miss_count_total` (*cumulative*)<br>
+ - `gitlab_transaction_duration_seconds` (*cumulative*)<br>
+ - `gitlab_transaction_duration_seconds_bucket` (*cumulative*)<br>
+ - `gitlab_transaction_duration_seconds_count` (*cumulative*)<br>
+ - `gitlab_transaction_new_redis_connections_total` (*cumulative*)<br>
+ - `gitlab_transaction_rails_queue_duration_total` (*gauge*)<br>
+ - ***`gitlab_transaction_sidekiq_queue_duration_total`*** (*gauge*)<br>
+ - `gitlab_transaction_view_duration_total` (*cumulative*)<br>
+ - `http_requests_total` (*cumulative*)<br>
+ - `job_register_attempts_failed_total` (*cumulative*)<br>
+ - `job_register_attempts_total` (*cumulative*)<br>
+ - `unicorn_active_connections` (*gauge*)<br>
+ - `unicorn_queued_connections` (*gauge*)<br>
+ - `user_session_logins_total` (*cumulative*)<br>
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - user_session_logins_total
-    - unicorn_active_connections
-    - unicorn_queued_connections
-    - http_requests_total
-    - gitlab_transaction_rails_queue_duration_total
-    - gitlab_rails_queue_duration_seconds_bucket
-    - gitlab_rails_queue_duration_seconds_count
-    - gitlab_rails_queue_duration_seconds
-    - job_register_attempts_failed_total
-    - job_register_attempts_total
-    - gitlab_transaction_new_redis_connections_total
-    - gitlab_transaction_view_duration_total
-    - gitlab_transaction_cache_read_hit_count_total
-    - gitlab_transaction_cache_read_miss_count_total
-    - gitlab_auth_user_authenticated_total
-    - gitlab_auth_user_unauthenticated_total
-    - gitlab_banzai_cacheless_render_real_duration_seconds_bucket
-    - gitlab_banzai_cacheless_render_real_duration_seconds_count
-    - gitlab_banzai_cacheless_render_real_duration_seconds
-    - gitlab_cache_misses_total
-    - gitlab_cache_operation_duration_seconds_bucket
-    - gitlab_cache_operation_duration_seconds_count
-    - gitlab_cache_operation_duration_seconds
-    - gitlab_sql_duration_seconds_bucket
-    - gitlab_sql_duration_seconds_count
-    - gitlab_sql_duration_seconds
-    - gitlab_transaction_duration_seconds_bucket
-    - gitlab_transaction_duration_seconds_count
-    - gitlab_transaction_duration_seconds
-    monitorType: gitlab-unicorn
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

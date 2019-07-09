@@ -1,16 +1,18 @@
 package selfdescribe
 
 import (
-	log "github.com/sirupsen/logrus"
 	"go/doc"
 	"reflect"
 	"sort"
+	"strconv"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 )
 
 type monitorDoc struct {
-	monitors.MonitorMetadata
+	MonitorMetadata
 	Config           structMetadata `json:"config"`
 	AcceptsEndpoints bool           `json:"acceptsEndpoints"`
 	SingleInstance   bool           `json:"singleInstance"`
@@ -21,7 +23,7 @@ func monitorsStructMetadata() []monitorDoc {
 	// Set to track undocumented monitors
 	monTypesSeen := map[string]bool{}
 
-	if packages, err := monitors.CollectMetadata("internal/monitors"); err != nil {
+	if packages, err := CollectMetadata("internal/monitors"); err != nil {
 		log.Fatal(err)
 	} else {
 		for _, pkg := range packages {
@@ -40,10 +42,29 @@ func monitorsStructMetadata() []monitorDoc {
 				checkDuplicateMetrics(pkg.Path, monitor.Metrics)
 				checkMetricTypes(pkg.Path, monitor.Metrics)
 
+				if monitor.Groups == nil {
+					monitor.Groups = make(map[string]*GroupMetadata)
+				}
+
+				for name, metric := range monitor.Metrics {
+					group := ""
+					if metric.Group != nil {
+						group = *metric.Group
+					}
+
+					if monitor.Groups[group] == nil {
+						monitor.Groups[group] = &GroupMetadata{}
+					}
+
+					groupMeta := monitor.Groups[group]
+					groupMeta.Metrics = append(groupMeta.Metrics, name)
+					sort.Strings(groupMeta.Metrics)
+				}
+
 				mc, _ := t.FieldByName("MonitorConfig")
 				mmd := monitorDoc{
 					Config: getStructMetadata(t),
-					MonitorMetadata: monitors.MonitorMetadata{
+					MonitorMetadata: MonitorMetadata{
 						SendAll:     monitor.SendAll,
 						MonitorType: monType,
 						Dimensions:  monitor.Dimensions,
@@ -52,8 +73,8 @@ func monitorsStructMetadata() []monitorDoc {
 						Properties:  monitor.Properties,
 						Doc:         monitor.Doc,
 					},
-					AcceptsEndpoints: mc.Tag.Get("acceptsEndpoints") == "true",
-					SingleInstance:   mc.Tag.Get("singleInstance") == "true",
+					AcceptsEndpoints: mc.Tag.Get("acceptsEndpoints") == strconv.FormatBool(true),
+					SingleInstance:   mc.Tag.Get("singleInstance") == strconv.FormatBool(true),
 				}
 				mmd.Config.Package = pkg.PackagePath
 
@@ -75,52 +96,48 @@ func monitorsStructMetadata() []monitorDoc {
 	return sms
 }
 
-func dimensionsFromNotes(allDocs []*doc.Package) []monitors.DimMetadata {
-	var dm []monitors.DimMetadata
+func dimensionsFromNotes(allDocs []*doc.Package) map[string]DimMetadata {
+	dm := map[string]DimMetadata{}
 	for _, note := range notesFromDocs(allDocs, "DIMENSION") {
-		dm = append(dm, monitors.DimMetadata{
-			Name:        note.UID,
+		dm[note.UID] = DimMetadata{
 			Description: commentTextToParagraphs(note.Body),
-		})
+		}
 	}
-	sort.Slice(dm, func(i, j int) bool {
-		return dm[i].Name < dm[j].Name
-	})
 	return dm
 }
 
-func checkDuplicateMetrics(path string, metrics []monitors.MetricMetadata) {
+func checkDuplicateMetrics(path string, metrics map[string]MetricMetadata) {
 	seen := map[string]bool{}
 
-	for i := range metrics {
-		if seen[metrics[i].Name] {
-			log.Errorf("duplicate metric '%s' found in %s", metrics[i].Name, path)
+	for metric := range metrics {
+		if seen[metric] {
+			log.Errorf("duplicate metric '%s' found in %s", metric, path)
 		}
-		seen[metrics[i].Name] = true
+		seen[metric] = true
 	}
 }
 
-func checkMetricTypes(path string, metrics []monitors.MetricMetadata) {
-	for i := range metrics {
-		t := metrics[i].Type
+func checkMetricTypes(path string, metrics map[string]MetricMetadata) {
+	for metric, info := range metrics {
+		t := info.Type
 		if t != "gauge" && t != "counter" && t != "cumulative" {
-			log.Errorf("Bad metric type '%s' for metric %s in %s", t, metrics[i].Name, path)
+			log.Errorf("Bad metric type '%s' for metric %s in %s", t, metric, path)
 		}
 	}
 }
 
-func checkSendAllLogic(monType string, metrics []monitors.MetricMetadata, sendAll bool) {
+func checkSendAllLogic(monType string, metrics map[string]MetricMetadata, sendAll bool) {
 	if len(metrics) == 0 {
 		return
 	}
 
-	hasIncluded := false
-	for i := range metrics {
-		hasIncluded = hasIncluded || metrics[i].Included
+	hasDefault := false
+	for _, metricInfo := range metrics {
+		hasDefault = hasDefault || metricInfo.Default
 	}
-	if hasIncluded && sendAll {
+	if hasDefault && sendAll {
 		log.Warnf("sendAll was specified on monitor type '%s' but some metrics were also marked as 'included'", monType)
-	} else if !hasIncluded && !sendAll {
+	} else if !hasDefault && !sendAll {
 		log.Warnf("sendAll was not specified on monitor type '%s' and no metrics are marked as 'included'", monType)
 	}
 }

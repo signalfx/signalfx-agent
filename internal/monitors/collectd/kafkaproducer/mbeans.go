@@ -1,3 +1,5 @@
+// +build linux
+
 package kafkaproducer
 
 var defaultMBeanYAML = `

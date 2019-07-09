@@ -44,8 +44,6 @@ func (ecs *envConfigSource) Get(path string) (map[string][]byte, uint64, error) 
 // WaitForChange does nothing with envvars.  Technically they can change within
 // the lifetime of the process but those changes are not picked up currently.
 func (ecs *envConfigSource) WaitForChange(path string, version uint64, stop <-chan struct{}) error {
-	select {
-	case <-stop:
-		return nil
-	}
+	<-stop
+	return nil
 }

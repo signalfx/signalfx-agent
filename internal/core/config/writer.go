@@ -30,7 +30,7 @@ type WriterConfig struct {
 	// Deprecated: use `maxRequests` instead.
 	DatapointMaxRequests int `yaml:"datapointMaxRequests"`
 	// The maximum number of concurrent requests to make to a single ingest server
-	// with datapoints/events/trace spans.  This number multipled by
+	// with datapoints/events/trace spans.  This number multiplied by
 	// `datapointMaxBatchSize` is more or less the maximum number of datapoints
 	// that can be "in-flight" at any given time.  Same thing for the
 	// `traceSpanMaxBatchSize` option and trace spans.
@@ -62,6 +62,8 @@ type WriterConfig struct {
 	LogEvents bool `yaml:"logEvents"`
 	// The analogue of `logDatapoints` for trace spans.
 	LogTraceSpans bool `yaml:"logTraceSpans"`
+	// If `true`, dimension updates will be logged at the INFO level.
+	LogDimensionUpdates bool `yaml:"logDimensionUpdates"`
 	// If true, and the log level is `debug`, filtered out datapoints will be
 	// logged.
 	LogDroppedDatapoints bool `yaml:"logDroppedDatapoints"`

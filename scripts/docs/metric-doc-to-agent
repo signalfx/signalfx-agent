@@ -1,33 +1,57 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-set -euo pipefail
+import os
+import sys
+from pathlib import Path
+from ruamel import yaml
 
-# Converts a set of metric docs in the integrations repo to the Go note
-# comments that are picked up by the selfdescribe module to generate agent
+# Converts a set of metric docs in the integrations repo to the metadata.yaml
+# format that are picked up by the selfdescribe module to generate agent
 # documentation.
 
 # E.g. to sync collectd-kafka run:
-# INTEGRATIONS_REPO=~/work/integrations ./metric-doc-to-agent collectd-kafka
+# INTEGRATIONS_REPO=~/work/integrations ./metric-doc-to-agent collectd-kafka internal/monitors/collectd/kafka
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR = Path(__file__).parent.resolve()
 
-INTEGRATION=$1
-INTEGRATIONS_REPO=${INTEGRATIONS_REPO:-$SCRIPT_DIR/../../../integrations}
+INTEGRATION = sys.argv[1]
+METADATA_DIR = Path(sys.argv[2]).resolve()
 
-test -d $INTEGRATIONS_REPO || \
-  (echo "Please set INTEGRATIONS_REPO to the local path to the SignalFx integrations repo" >&2 && exit 1)
+INTEGRATIONS_REPO = Path(os.environ.get("INTEGRATIONS_REPO", SCRIPT_DIR / "../../../integrations"))
 
-for f in ${INTEGRATIONS_REPO%/}/$INTEGRATION/docs/*.md; do
-  if [[ $f =~ "readme.md" ]]; then
-    continue
-  fi
-  metric_name=$(basename $f .md)
-  desc=$(head -n4 $f | yq r - 'brief')
-  type=$(head -n4 $f | yq r - 'metric_type')
+if not INTEGRATIONS_REPO.is_dir():
+    print("Please set INTEGRATIONS_REPO to the local path to the SignalFx integrations repo", file=sys.stderr)
+    sys.exit(1)
 
-  echo "// $type($metric_name): $desc" | \
-    sed -e 's/[cC]umulative[_ ][cC]ounter/CUMULATIVE/' | \
-    sed -e 's/gauge/GAUGE/' | \
-    sed -e 's/^counter/COUNTER/'
-  echo
-done
+metadata_path = METADATA_DIR / "metadata.yaml"
+metadata = yaml.round_trip_load(metadata_path.read_bytes())
+if len(metadata) != 1:
+    print("This script not meant for metadata.yaml with more than one monitor", file=sys.stderr)
+    sys.exit(2)
+
+metrics = metadata["monitors"][0]["metrics"]
+
+for f in (INTEGRATIONS_REPO / INTEGRATION).glob("docs/*.md"):
+    if f.name == "readme.md":
+        continue
+
+    metric_name = f.with_suffix("").name
+
+    if metric_name not in metrics:
+        metrics[metric_name] = {}
+
+    content = f.read_text()
+
+    meta = yaml.safe_load("\n".join(content.splitlines()[:4]))
+
+    typ = meta.get("metric_type")
+    if "cumulative" in typ.lower():
+        typ = "cumulative"
+
+    metrics[metric_name]["type"] = typ
+
+    desc = "\n".join(content.splitlines()[6:]).strip().lstrip("> ")
+    metrics[metric_name]["description"] = yaml.scalarstring.LiteralScalarString(desc)
+    metrics[metric_name].setdefault("default", False)
+
+metadata_path.write_text(yaml.round_trip_dump(metadata))

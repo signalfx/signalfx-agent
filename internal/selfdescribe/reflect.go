@@ -24,17 +24,17 @@ func getDefault(f reflect.StructField) interface{} {
 	if getRequired(f) {
 		return nil
 	}
-	if f.Tag.Get("noDefault") == "true" {
+	if f.Tag.Get("noDefault") == strconv.FormatBool(true) {
 		return nil
 	}
 
 	defTag := f.Tag.Get("default")
 	if defTag != "" {
-		// These are essentialy just noop defaults so don't return them
+		// These are essentially just noop defaults so don't return them
 		if defTag == "{}" || defTag == "[]" {
 			return ""
 		}
-		if strings.HasPrefix(defTag, "{") || strings.HasPrefix(defTag, "[") || defTag == "true" || defTag == "false" {
+		if strings.HasPrefix(defTag, "{") || strings.HasPrefix(defTag, "[") || defTag == strconv.FormatBool(true) || defTag == strconv.FormatBool(false) {
 			var out interface{}
 			err := json.Unmarshal([]byte(defTag), &out)
 			if err != nil {

@@ -2,8 +2,9 @@ from functools import partial as p
 
 import pytest
 
+from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint_with_metric_name
-from tests.helpers.util import run_agent, wait_for
+from tests.helpers.util import wait_for
 
 pytestmark = [pytest.mark.internal_metrics, pytest.mark.monitor_without_endpoints]
 
@@ -16,7 +17,7 @@ monitors:
 
 
 def test_internal_metrics():
-    with run_agent(CONFIG) as [backend, _, _]:
+    with Agent.run(CONFIG) as agent:
         assert wait_for(
-            p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
+            p(has_datapoint_with_metric_name, agent.fake_services, "sfxagent.datapoints_sent")
         ), "Didn't get internal metric datapoints"

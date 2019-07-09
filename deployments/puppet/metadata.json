@@ -1,11 +1,15 @@
 {
   "name": "signalfx-signalfx_agent",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": "SignalFx, Inc.",
   "summary": "This module installs the SignalFx SmartAgent via distro packages and configures it.",
   "license": "Apache-2.0",
   "source": "https://github.com/signalfx/signalfx-agent",
   "dependencies": [
+    {
+      "name": "puppetlabs/apt",
+      "version_requirement": ">= 4.1.0 <= 7.0.0"
+    }
   ],
   "operatingsystem_support": [
     {

@@ -6,13 +6,10 @@ package collectd
 
 import (
 	"bytes"
-	"fmt"
 	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
-	"regexp"
-	"runtime"
 	"sync"
 	"syscall"
 	"time"
@@ -52,7 +49,6 @@ type Manager struct {
 	// Map of each active monitor to its output instance
 	activeMonitors  map[types.MonitorID]types.Output
 	genericJMXUsers map[types.MonitorID]bool
-	active          bool
 	// The port of the active write server, will be 0 if write server isn't
 	// started yet.
 	writeServerPort int
@@ -221,19 +217,19 @@ func (cm *Manager) ManagedConfigDir() string {
 	return cm.conf.ManagedConfigDir()
 }
 
-// PluginDir returns the base directory that holds both C and Python plugins.
-func (cm *Manager) PluginDir() string {
+// BundleDir returns the base directory of the agent bundle.
+func (cm *Manager) BundleDir() string {
 	if cm.conf == nil {
 		// This is a programming bug if we get here.
 		panic("Collectd must be configured before any monitor tries to use it")
 	}
-	return filepath.Join(cm.conf.BundleDir, "plugins/collectd")
+	return cm.conf.BundleDir
 }
 
 // Manage the subprocess with a basic state machine.  This is a bit tricky
 // since we have config coming in asynchronously from multiple sources.  This
 // function should never return.  waitCh will be closed once the write server
-// is setup and right before it is actualy waiting for restart signals.
+// is setup and right before it is actually waiting for restart signals.
 func (cm *Manager) manageCollectd(initCh chan<- struct{}, terminated chan struct{}) {
 	state := Uninitialized
 	// The collectd process manager
@@ -312,7 +308,7 @@ func (cm *Manager) manageCollectd(initCh chan<- struct{}, terminated chan struct
 			}()
 
 			go func() {
-				cmd.Wait()
+				_ = cmd.Wait()
 				output.Close()
 				procDied <- struct{}{}
 			}()
@@ -332,18 +328,18 @@ func (cm *Manager) manageCollectd(initCh chan<- struct{}, terminated chan struct
 			}
 
 		case Restarting:
-			cmd.Process.Kill()
+			_ = cmd.Process.Kill()
 			<-procDied
 			state = Starting
 
 		case ShuttingDown:
-			cmd.Process.Kill()
+			_ = cmd.Process.Kill()
 			<-procDied
 			state = Stopped
 
 		case Stopped:
 			close(restartDebouncedStop)
-			writeServer.Shutdown()
+			_ = writeServer.Shutdown()
 			close(terminated)
 			return
 		}
@@ -402,13 +398,11 @@ func (cm *Manager) receiveDPs(dps []*datapoint.Datapoint) {
 		}
 
 		if output == nil {
-			if output == nil {
-				cm.logger.WithFields(log.Fields{
-					"monitorID": monitorID,
-					"datapoint": dps[i],
-				}).Error("Datapoint has an unknown monitorID")
-				continue
-			}
+			cm.logger.WithFields(log.Fields{
+				"monitorID": monitorID,
+				"datapoint": dps[i],
+			}).Error("Datapoint has an unknown monitorID")
+			continue
 		}
 
 		output.SendDatapoint(dps[i])
@@ -468,23 +462,13 @@ func (cm *Manager) rerenderConf(writeHTTPPort int) error {
 }
 
 func (cm *Manager) makeChildCommand() (*exec.Cmd, io.ReadCloser) {
-	loader := filepath.Join(cm.conf.BundleDir, "lib64/ld-linux-x86-64.so.2")
-	if runtime.GOARCH == "arm64" {
-		loader = filepath.Join(cm.conf.BundleDir, "lib/ld-linux-aarch64.so.1")
-	}
-
 	collectdBin := filepath.Join(cm.conf.BundleDir, "bin/collectd")
 	args := []string{"-f", "-C", cm.conf.ConfigFilePath()}
 
-	var cmd *exec.Cmd
 	// If running in a container where the bundle is the main filesystem, don't
 	// bother explicitly invoking through the loader (this happens
 	// automatically).
-	if cm.conf.BundleDir == "/" {
-		cmd = exec.Command(collectdBin, args...)
-	} else {
-		cmd = exec.Command(loader, append([]string{collectdBin}, args...)...)
-	}
+	cmd := exec.Command(collectdBin, args...)
 
 	// Send both stdout and stderr to the same buffer
 	r, w, err := os.Pipe()
@@ -495,7 +479,6 @@ func (cm *Manager) makeChildCommand() (*exec.Cmd, io.ReadCloser) {
 	cmd.Stdout = w
 	cmd.Stderr = w
 	cmd.Env = os.Environ()
-	cmd.Env = append(cmd.Env, fmt.Sprintf("LD_LIBRARY_PATH=%s", filepath.Join(cm.conf.BundleDir, "lib")))
 	cmd.Env = append(cmd.Env, config.BundlePythonHomeEnvvar())
 
 	cmd.SysProcAttr = &syscall.SysProcAttr{
@@ -506,5 +489,3 @@ func (cm *Manager) makeChildCommand() (*exec.Cmd, io.ReadCloser) {
 
 	return cmd, r
 }
-
-var collectdVersionRegexp = regexp.MustCompile(`collectd (?P<version>.*), http://collectd.org/`)

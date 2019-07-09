@@ -22,10 +22,8 @@ import (
 var logger = logrus.WithFields(logrus.Fields{"monitorType": monitorMetadata.MonitorType})
 
 func init() {
-	monitors.Register(monitorMetadata.MonitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
-
-type queryKey string
 
 // Query is used to configure a query statement and the resulting datapoints
 type Query struct {
@@ -62,6 +60,10 @@ type Config struct {
 	Host string `yaml:"host"`
 	Port uint16 `yaml:"port"`
 
+	// Parameters to the connectionString that can be templated into that option using
+	// Go template syntax (e.g. `{{.key}}`).
+	Params map[string]string `yaml:"params"`
+
 	// The database driver to use, valid values are `postgres` and `mysql`.
 	DBDriver string `yaml:"dbDriver"`
 	// A URL or simple option string used to connect to the database.
@@ -83,7 +85,7 @@ func (c *Config) Validate() error {
 	}
 
 	if len(c.Queries) == 0 {
-		return errors.New("You must specify at least one query")
+		return errors.New("must specify at least one query")
 	}
 
 	for i := range c.Queries {
@@ -105,6 +107,10 @@ func (c *Config) renderedDataSource() (string, error) {
 	if err != nil {
 		return "", err
 	}
+	for k, v := range c.Params {
+		context[k] = v
+	}
+
 	return utils.RenderSimpleTemplate(c.ConnectionString, context)
 }
 
@@ -131,7 +137,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	m.database, err = sql.Open(conf.DBDriver, dataSource)
 	if err != nil {
-		return fmt.Errorf("Could not handle %s database config: %v", conf.DBDriver, err)
+		return fmt.Errorf("could not handle %s database config: %v", conf.DBDriver, err)
 	}
 
 	for i := range conf.Queries {

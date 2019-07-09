@@ -26,12 +26,10 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const monitorType = "ecs-metadata"
-
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
-	monitors.Register(monitorType, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 // Config for this monitor
@@ -58,7 +56,7 @@ type Config struct {
 
 // Monitor for ECS Metadata
 type Monitor struct {
-	Output         types.Output
+	Output         types.FilteringOutput
 	cancel         func()
 	client         *http.Client
 	conf           *Config
@@ -90,6 +88,8 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	isRegistered := false
 
+	enhancedMetricsConfig := dmonitor.EnableExtraGroups(conf.EnhancedMetricsConfig, m.Output.EnabledMetrics())
+
 	utils.RunOnInterval(m.ctx, func() {
 		if !isRegistered {
 			task, err := fetchTaskMetadata(m.client, m.conf.MetadataEndpoint)
@@ -105,7 +105,7 @@ func (m *Monitor) Configure(conf *Config) error {
 			isRegistered = true
 		}
 
-		m.fetchStatsForAll()
+		m.fetchStatsForAll(enhancedMetricsConfig)
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil
@@ -133,7 +133,7 @@ func (m *Monitor) fetchContainer(dockerID string) (ecs.Container, error) {
 	return container, nil
 }
 
-func (m *Monitor) fetchStatsForAll() {
+func (m *Monitor) fetchStatsForAll(enhancedMetricsConfig dmonitor.EnhancedMetricsConfig) {
 	body, err := getMetadata(m.client, m.conf.StatsEndpoint)
 
 	if err != nil {
@@ -176,12 +176,6 @@ func (m *Monitor) fetchStatsForAll() {
 			},
 		}
 		containerStat := stats[dockerID]
-		enhancedMetricsConfig := dmonitor.EnhancedMetricsConfig{
-			EnableExtraBlockIOMetrics: m.conf.EnableExtraBlockIOMetrics,
-			EnableExtraCPUMetrics:     m.conf.EnableExtraCPUMetrics,
-			EnableExtraMemoryMetrics:  m.conf.EnableExtraMemoryMetrics,
-			EnableExtraNetworkMetrics: m.conf.EnableExtraNetworkMetrics,
-		}
 		dps, err := dmonitor.ConvertStatsToMetrics(containerJSON, &containerStat, enhancedMetricsConfig)
 
 		if err != nil {
@@ -221,6 +215,29 @@ func (m *Monitor) Shutdown() {
 	if m.cancel != nil {
 		m.cancel()
 	}
+}
+
+// GetExtraMetrics returns additional metrics that should be allowed through.
+func (c *Config) GetExtraMetrics() []string {
+	var extraMetrics []string
+
+	if c.EnableExtraBlockIOMetrics {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupBlkio]...)
+	}
+
+	if c.EnableExtraCPUMetrics {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupCPU]...)
+	}
+
+	if c.EnableExtraMemoryMetrics {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupMemory]...)
+	}
+
+	if c.EnableExtraNetworkMetrics {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupNetwork]...)
+	}
+
+	return extraMetrics
 }
 
 func getMetadata(client *http.Client, endpoint string) ([]byte, error) {
@@ -277,7 +294,7 @@ func getTaskLimitMetrics(container ecs.Container, enhancedMetricsConfig dmonitor
 	var taskLimitDps []*datapoint.Datapoint
 
 	if enhancedMetricsConfig.EnableExtraCPUMetrics {
-		cpuDp := sfxclient.Gauge("cpu.limit", nil, int64(container.Limits.CPU))
+		cpuDp := sfxclient.Gauge("cpu.limit", nil, container.Limits.CPU)
 
 		cpuDp.Dimensions = map[string]string{}
 		cpuDp.Dimensions["plugin"] = "ecs"

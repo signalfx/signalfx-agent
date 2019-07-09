@@ -8,8 +8,7 @@ import (
 	k8sutil "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
 	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
-	"k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/types"
+	v1 "k8s.io/api/core/v1"
 )
 
 func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
@@ -108,9 +107,4 @@ func phaseToInt(phase v1.PodPhase) int64 {
 	default:
 		return 5
 	}
-}
-
-// Container Id is not guaranteed to exist, so make our own
-func makeContUID(podUID types.UID, name string) ContainerID {
-	return ContainerID(string(podUID) + ":" + name)
 }

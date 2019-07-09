@@ -2,35 +2,33 @@
 
 # collectd/hadoopjmx
 
-Collects metrics about a Hadoop cluster using
-using collectd's GenericJMX plugin.
+Collects metrics about a Hadoop cluster using using collectd's GenericJMX plugin.
 
-Also see
-https://github.com/signalfx/integrations/tree/master/collectd-hadoop.
+Also see https://github.com/signalfx/integrations/tree/master/collectd-hadoop.
 
->To enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively
+To enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively
 
 **hadoop-env.sh:**
-```
+```sh
 export HADOOP_NAMENODE_OPTS="-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5677 $HADOOP_NAMENODE_OPTS"
 export HADOOP_DATANODE_OPTS="-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5679 $HADOOP_DATANODE_OPTS"
 ```
 
 **yarn-env.sh:**
-```
+```sh
 export YARN_NODEMANAGER_OPTS="-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=8002 $YARN_NODEMANAGER_OPTS"
 export YARN_RESOURCEMANAGER_OPTS="-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5680 $YARN_RESOURCEMANAGER_OPTS"
 ```
 
 This monitor has a set of built in MBeans configured for:
-- [Name Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nameNodeMBeans.go)
-- [Resource Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/resourceManagerMBeans.go)
-- [Node Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nodeManagerMBeans.go)
-- [Data Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/dataNodeMBeans.go)
+  - [Name Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nameNodeMBeans.go)
+  - [Resource Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/resourceManagerMBeans.go)
+  - [Node Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nodeManagerMBeans.go)
+  - [Data Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/dataNodeMBeans.go)
 
 Sample YAML configuration:
 
-	Name Node
+Name Node
 ```yaml
 monitors:
 - type: collectd/hadoopjmx
@@ -39,7 +37,7 @@ monitors:
   nodeType: nameNode
 ```
 
-	Resource Manager
+Resource Manager
 ```yaml
 monitors:
 - type: collectd/hadoopjmx
@@ -48,7 +46,7 @@ monitors:
   nodeType: resourceManager
 ```
 
-	Node Manager
+Node Manager
 ```yaml
 monitors:
 - type: collectd/hadoopjmx
@@ -57,7 +55,7 @@ monitors:
   nodeType: nodeManager
 ```
 
-	Data Node
+Data Node
 ```yaml
 monitors:
 - type: collectd/hadoopjmx
@@ -66,7 +64,7 @@ monitors:
   nodeType: dataNode
 ```
 
-You may also configure the [collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd/hadoop)
+You may also configure the [collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoop.md)
 monitor to collect additional metrics about the hadoop cluster from the REST API
 
 
@@ -80,6 +78,10 @@ Monitor Type: `collectd/hadoopjmx`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host to connect to -- JMX must be configured for remote access and accessible from the agent |
@@ -87,9 +89,9 @@ Monitor Type: `collectd/hadoopjmx`
 | `name` | no | `string` |  |
 | `serviceName` | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the special property `sf_hostHasService` set to this value. |
 | `serviceURL` | no | `string` | The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. NOTE: under normal circumstances it is not advised to set this string directly - setting the host and port as specified above is preferred. (**default:** `service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi`) |
-| `instancePrefix` | no | `string` |  |
-| `username` | no | `string` |  |
-| `password` | no | `string` |  |
+| `instancePrefix` | no | `string` | Prefixes the generated plugin instance with prefix. If a second `instancePrefix` is specified in a referenced MBean block, the prefix specified in the Connection block will appear at the beginning of the plugin instance, and the prefix specified in the MBean block will be appended to it |
+| `username` | no | `string` | Username to authenticate to the server |
+| `password` | no | `string` | User password to authenticate to the server |
 | `customDimensions` | no | `map of strings` | Takes in key-values pairs of custom dimensions at the connection level. |
 | `mBeansToCollect` | no | `list of strings` | A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected. |
 | `mBeansToOmit` | no | `list of strings` | A list of the MBeans to omit. This will come handy in cases where only a few MBeans need to omitted from the default list |
@@ -101,10 +103,10 @@ The **nested** `mBeanDefinitions` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `objectName` | no | `string` |  |
-| `instancePrefix` | no | `string` |  |
-| `instanceFrom` | no | `list of strings` |  |
-| `values` | no | `list of objects (see below)` |  |
+| `objectName` | no | `string` | Sets the pattern which is used to retrieve MBeans from the MBeanServer. If more than one MBean is returned you should use the `instanceFrom` option to make the identifiers unique |
+| `instancePrefix` | no | `string` | Prefixes the generated plugin instance with prefix |
+| `instanceFrom` | no | `list of strings` | The object names used by JMX to identify MBeans include so called "properties" which are basically key-value-pairs. If the given object name is not unique and multiple MBeans are returned, the values of those properties usually differ. You can use this option to build the plugin instance from the appropriate property values. This option is optional and may be repeated to generate the plugin instance from multiple property values |
+| `values` | no | `list of objects (see below)` | The `value` blocks map one or more attributes of an MBean to a value list in collectd. There must be at least one `value` block within each MBean block |
 | `dimensions` | no | `list of strings` |  |
 
 
@@ -112,16 +114,134 @@ The **nested** `values` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `type` | no | `string` |  |
-| `table` | no | `bool` |  (**default:** `false`) |
-| `instancePrefix` | no | `string` |  |
-| `instanceFrom` | no | `list of strings` |  |
-| `attribute` | no | `string` |  |
+| `type` | no | `string` | Sets the data set used within collectd to handle the values of the MBean attribute |
+| `table` | no | `bool` | Set this to true if the returned attribute is a composite type. If set to true, the keys within the composite type is appended to the type instance. (**default:** `false`) |
+| `instancePrefix` | no | `string` | Works like the option of the same name directly beneath the MBean block, but sets the type instance instead |
+| `instanceFrom` | no | `list of strings` | Works like the option of the same name directly beneath the MBean block, but sets the type instance instead |
+| `attribute` | no | `string` | Sets the name of the attribute from which to read the value. You can access the keys of composite types by using a dot to concatenate the key name to the attribute name. For example: “attrib0.key42”. If `table` is set to true, path must point to a composite type, otherwise it must point to a numeric type. |
+| `attributes` | no | `list of strings` | The plural form of the `attribute` config above.  Used to derive multiple metrics from a single MBean. |
 
 
+## Metrics
+
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
+#### Group data-node
+All of the following metrics are part of the `data-node` metric group. All of
+the non-default metrics below can be turned on by adding `data-node` to the
+monitor config option `extraGroups`:
+ - `counter.hadoop-datanode-blocks-read` (*cumulative*)<br>
+ - `counter.hadoop-datanode-blocks-written` (*cumulative*)<br>
+ - `counter.hadoop-datanode-bytes-read` (*cumulative*)<br>
+ - `counter.hadoop-datanode-bytes-written` (*cumulative*)<br>
+ - ***`gauge.hadoop-datanode-fs-capacity`*** (*gauge*)<br>
+ - ***`gauge.hadoop-datanode-fs-dfs-remaining`*** (*gauge*)<br>
+ - ***`gauge.hadoop-datanode-fs-dfs-used`*** (*gauge*)<br>
+ - `gauge.hadoop-datanode-info-xceiver` (*gauge*)<br>
+ - ***`gauge.hadoop-datanode-jvm-heap-used`*** (*gauge*)<br>
+ - `gauge.hadoop-datanode-jvm-non-heap-used` (*gauge*)<br>
+ - ***`gauge.hadoop-datanode-rpc-call-queue-length`*** (*gauge*)<br>
+ - ***`gauge.hadoop-datanode-rpc-open-connections`*** (*gauge*)<br>
+ - ***`gauge.hadoop-datanode-rpc-processing-avg`*** (*gauge*)<br>
+ - ***`gauge.hadoop-datanode-rpc-queue-time-avg`*** (*gauge*)<br>
 
+#### Group jvm
+All of the following metrics are part of the `jvm` metric group. All of
+the non-default metrics below can be turned on by adding `jvm` to the
+monitor config option `extraGroups`:
+ - ***`gauge.jvm.threads.count`*** (*gauge*)<br>    Number of JVM threads
+ - ***`gauge.loaded_classes`*** (*gauge*)<br>    Number of classes loaded in the JVM
+ - ***`invocations`*** (*cumulative*)<br>    Total number of garbage collection events
+ - ***`jmx_memory.committed`*** (*gauge*)<br>    Amount of memory guaranteed to be available in bytes
+ - ***`jmx_memory.init`*** (*gauge*)<br>    Amount of initial memory at startup in bytes
+ - ***`jmx_memory.max`*** (*gauge*)<br>    Maximum amount of memory that can be used in bytes
+ - ***`jmx_memory.used`*** (*gauge*)<br>    Current memory usage in bytes
+ - ***`total_time_in_ms.collection_time`*** (*cumulative*)<br>    Amount of time spent garbage collecting in milliseconds
+
+#### Group name-node
+All of the following metrics are part of the `name-node` metric group. All of
+the non-default metrics below can be turned on by adding `name-node` to the
+monitor config option `extraGroups`:
+ - `counter.hadoop-namenode-files-total` (*cumulative*)<br>
+ - ***`counter.hadoop-namenode-gc-count`*** (*cumulative*)<br>
+ - ***`counter.hadoop-namenode-gc-time`*** (*cumulative*)<br>
+ - ***`counter.hadoop-namenode-rpc-total-calls`*** (*cumulative*)<br>
+ - ***`counter.hadoop-namenode-total-load`*** (*cumulative*)<br>
+ - ***`counter.hadoop-namenode-volume-failures`*** (*cumulative*)<br>
+ - `gauge.hadoop-namenode-blocks-with-corrupt-replicas` (*gauge*)<br>
+ - `gauge.hadoop-namenode-capacity-remaining` (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-capacity-total`*** (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-capacity-used`*** (*gauge*)<br>
+ - `gauge.hadoop-namenode-corrupt-blocks` (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-current-heap-used`*** (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-dead-datanodes`*** (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-dfs-free`*** (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-live-datanodes`*** (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-max-heap`*** (*gauge*)<br>
+ - `gauge.hadoop-namenode-missing-blocks` (*gauge*)<br>
+ - `gauge.hadoop-namenode-percent-dfs-used` (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-percent-remaining`*** (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-rpc-avg-process-time`*** (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-rpc-avg-queue`*** (*gauge*)<br>
+ - `gauge.hadoop-namenode-stale-datanodes` (*gauge*)<br>
+ - ***`gauge.hadoop-namenode-under-replicated-blocks`*** (*gauge*)<br>
+
+#### Group node-manager
+All of the following metrics are part of the `node-manager` metric group. All of
+the non-default metrics below can be turned on by adding `node-manager` to the
+monitor config option `extraGroups`:
+ - `counter.hadoop-nodeManager-containers-failed` (*cumulative*)<br>
+ - `counter.hadoop-nodeManager-containers-launched` (*cumulative*)<br>
+ - `gauge.hadoop-nodeManager-allocated-memory` (*gauge*)<br>
+ - `gauge.hadoop-nodeManager-allocated-vcores` (*gauge*)<br>
+ - `gauge.hadoop-nodeManager-available-memory` (*gauge*)<br>
+ - `gauge.hadoop-nodeManager-available-vcores` (*gauge*)<br>
+
+#### Group resource-manager
+All of the following metrics are part of the `resource-manager` metric group. All of
+the non-default metrics below can be turned on by adding `resource-manager` to the
+monitor config option `extraGroups`:
+ - `gauge.hadoop-resourceManager-active-apps` (*gauge*)<br>
+ - `gauge.hadoop-resourceManager-active-nms` (*gauge*)<br>
+ - `gauge.hadoop-resourceManager-active-users` (*gauge*)<br>
+ - `gauge.hadoop-resourceManager-allocated-containers` (*gauge*)<br>
+ - `gauge.hadoop-resourceManager-allocated-memory` (*gauge*)<br>
+ - ***`gauge.hadoop-resourceManager-allocated-vcores`*** (*gauge*)<br>
+ - `gauge.hadoop-resourceManager-available-memory` (*gauge*)<br>
+ - ***`gauge.hadoop-resourceManager-available-vcores`*** (*gauge*)<br>
+ - `gauge.hadoop-resourceManager-heap-max` (*gauge*)<br>
+ - `gauge.hadoop-resourceManager-heap-used` (*gauge*)<br>
+
+### Non-default metrics (version 4.7.0+)
+
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
+
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
+
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

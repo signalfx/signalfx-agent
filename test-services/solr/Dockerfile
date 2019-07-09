@@ -1,3 +1,5 @@
 FROM quay.io/bitnami/solr:latest
 
-ENTRYPOINT ["solr", "start", "-c", "-f"]
+ENTRYPOINT ["bash", "-c"]
+CMD ["solr start -c -e techproducts && tail -f /dev/null"]
+

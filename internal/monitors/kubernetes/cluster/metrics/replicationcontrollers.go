@@ -2,7 +2,7 @@ package metrics
 
 import (
 	"github.com/signalfx/golib/datapoint"
-	"k8s.io/api/core/v1"
+	v1 "k8s.io/api/core/v1"
 )
 
 func datapointsForReplicationController(rc *v1.ReplicationController) []*datapoint.Datapoint {

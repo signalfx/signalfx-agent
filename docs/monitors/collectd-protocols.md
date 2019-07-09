@@ -21,45 +21,54 @@ Monitor Type: `collectd/protocols`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 This monitor has no configuration options.
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `protocol_counter.ActiveOpens` | cumulative | ✔ | The number of times TCP connections transitioned from the CLOSED state to the SYN-SENT state. |
-| `protocol_counter.CurrEstab` | cumulative |  | The number of TCP connections currently in either ESTABLISHED or CLOSE-WAIT state. |
-| `protocol_counter.DelayedACKs` | cumulative |  | The number of acknowledgements delayed by TCP Delayed Acknowledgement |
-| `protocol_counter.InDestUnreachs` | cumulative |  | The number of ICMP Destination Unreachable messages received |
-| `protocol_counter.PassiveOpens` | cumulative |  | The number of times that a server opened a connection, due to receiving a TCP SYN packet. |
-| `protocol_counter.RetransSegs` | cumulative |  | The total number of segments retransmitted |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+ - ***`protocol_counter.ActiveOpens`*** (*cumulative*)<br>    The number of times TCP connections transitioned from the CLOSED state to the SYN-SENT state.
+ - `protocol_counter.CurrEstab` (*cumulative*)<br>    The number of TCP connections currently in either ESTABLISHED or CLOSE-WAIT state.
+ - `protocol_counter.DelayedACKs` (*cumulative*)<br>    The number of acknowledgements delayed by TCP Delayed Acknowledgement
+ - `protocol_counter.InDestUnreachs` (*cumulative*)<br>    The number of ICMP Destination Unreachable messages received
+ - `protocol_counter.OutSegs` (*cumulative*)<br>    The total number of segments that have been sent, including those on current connections but excluding those containing only retransmitted octets.
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+ - `protocol_counter.PassiveOpens` (*cumulative*)<br>    The number of times that a server opened a connection, due to receiving a TCP SYN packet.
+ - `protocol_counter.RetransSegs` (*cumulative*)<br>    The total number of segments retransmitted
 
-```yaml
+### Non-default metrics (version 4.7.0+)
 
-metricsToInclude:
-  - metricNames:
-    - protocol_counter.CurrEstab
-    - protocol_counter.DelayedACKs
-    - protocol_counter.InDestUnreachs
-    - protocol_counter.PassiveOpens
-    - protocol_counter.RetransSegs
-    monitorType: collectd/protocols
-```
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
+
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

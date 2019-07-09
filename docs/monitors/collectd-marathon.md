@@ -41,6 +41,10 @@ Monitor Type: `collectd/marathon`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
@@ -51,59 +55,60 @@ Monitor Type: `collectd/marathon`
 | `dcosAuthURL` | no | `string` | The dcos authentication URL which the plugin uses to get authentication tokens from. Set scheme to "https" if operating DC/OS in strict mode and dcosAuthURL to "https://leader.mesos/acs/api/v1/auth/login" (which is the default DNS entry provided by DC/OS) |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `gauge.marathon-api-metric` | gauge |  | Metrics reported by the Marathon Metrics API |
-| `gauge.marathon.app.cpu.allocated` | gauge | ✔ | Number of CPUs allocated to an application |
-| `gauge.marathon.app.cpu.allocated.per.instance` | gauge | ✔ | Configured number of CPUs allocated to each application instance |
-| `gauge.marathon.app.delayed` | gauge |  | Indicates if the application is delayed or not |
-| `gauge.marathon.app.deployments.total` | gauge |  | Number of application deployments |
-| `gauge.marathon.app.disk.allocated` | gauge | ✔ | Storage allocated to a Marathon application |
-| `gauge.marathon.app.disk.allocated.per.instance` | gauge | ✔ | Configured storage allocated each to application instance |
-| `gauge.marathon.app.gpu.allocated` | gauge |  | GPU Allocated to a Marathon application |
-| `gauge.marathon.app.gpu.allocated.per.instance` | gauge |  | Configured number of GPUs allocated to each application instance |
-| `gauge.marathon.app.instances.total` | gauge | ✔ | Number of application instances |
-| `gauge.marathon.app.memory.allocated` | gauge | ✔ | Memory Allocated to a Marathon application |
-| `gauge.marathon.app.memory.allocated.per.instance` | gauge | ✔ | Configured amount of memory allocated to each application instance |
-| `gauge.marathon.app.tasks.running` | gauge | ✔ | Number tasks running for an application |
-| `gauge.marathon.app.tasks.staged` | gauge | ✔ | Number tasks staged for an application |
-| `gauge.marathon.app.tasks.unhealthy` | gauge | ✔ | Number unhealthy tasks for an application |
-| `gauge.marathon.task.healthchecks.failing.total` | gauge | ✔ | The number of failing health checks for a task |
-| `gauge.marathon.task.healthchecks.passing.total` | gauge | ✔ | The number of passing health checks for a task |
-| `gauge.marathon.task.staged.time.elapsed` | gauge |  | The amount of time the task spent in staging |
-| `gauge.marathon.task.start.time.elapsed` | gauge |  | Time elapsed since the task started |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+ - `gauge.marathon-api-metric` (*gauge*)<br>    Metrics reported by the Marathon Metrics API
+ - ***`gauge.marathon.app.cpu.allocated`*** (*gauge*)<br>    Number of CPUs allocated to an application
+ - ***`gauge.marathon.app.cpu.allocated.per.instance`*** (*gauge*)<br>    Configured number of CPUs allocated to each application instance
+ - `gauge.marathon.app.delayed` (*gauge*)<br>    Indicates if the application is delayed or not
+ - `gauge.marathon.app.deployments.total` (*gauge*)<br>    Number of application deployments
+ - ***`gauge.marathon.app.disk.allocated`*** (*gauge*)<br>    Storage allocated to a Marathon application
+ - ***`gauge.marathon.app.disk.allocated.per.instance`*** (*gauge*)<br>    Configured storage allocated each to application instance
+ - `gauge.marathon.app.gpu.allocated` (*gauge*)<br>    GPU Allocated to a Marathon application
+ - `gauge.marathon.app.gpu.allocated.per.instance` (*gauge*)<br>    Configured number of GPUs allocated to each application instance
+ - ***`gauge.marathon.app.instances.total`*** (*gauge*)<br>    Number of application instances
+ - ***`gauge.marathon.app.memory.allocated`*** (*gauge*)<br>    Memory Allocated to a Marathon application
+ - ***`gauge.marathon.app.memory.allocated.per.instance`*** (*gauge*)<br>    Configured amount of memory allocated to each application instance
+ - ***`gauge.marathon.app.tasks.running`*** (*gauge*)<br>    Number tasks running for an application
+ - ***`gauge.marathon.app.tasks.staged`*** (*gauge*)<br>    Number tasks staged for an application
+ - ***`gauge.marathon.app.tasks.unhealthy`*** (*gauge*)<br>    Number unhealthy tasks for an application
+ - ***`gauge.marathon.task.healthchecks.failing.total`*** (*gauge*)<br>    The number of failing health checks for a task
+ - ***`gauge.marathon.task.healthchecks.passing.total`*** (*gauge*)<br>    The number of passing health checks for a task
+ - `gauge.marathon.task.staged.time.elapsed` (*gauge*)<br>    The amount of time the task spent in staging
+ - `gauge.marathon.task.start.time.elapsed` (*gauge*)<br>    Time elapsed since the task started
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    - gauge.marathon-api-metric
-    - gauge.marathon.app.delayed
-    - gauge.marathon.app.deployments.total
-    - gauge.marathon.app.gpu.allocated
-    - gauge.marathon.app.gpu.allocated.per.instance
-    - gauge.marathon.task.staged.time.elapsed
-    - gauge.marathon.task.start.time.elapsed
-    monitorType: collectd/marathon
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 

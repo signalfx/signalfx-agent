@@ -142,7 +142,7 @@ func (c *esClient) fetchJSON(url string, obj interface{}) error {
 	defer res.Body.Close()
 
 	if res.StatusCode != 200 {
-		return fmt.Errorf("Received status code that's not 200: %s, url: %s", string(res.Status), url)
+		return fmt.Errorf("received status code that's not 200: %s, url: %s", res.Status, url)
 	}
 
 	err = json.NewDecoder(res.Body).Decode(obj)

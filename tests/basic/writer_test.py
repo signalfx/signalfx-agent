@@ -1,7 +1,8 @@
 import time
 from textwrap import dedent
 
-from tests.helpers.util import container_ip, run_agent, run_service
+from tests.helpers.agent import Agent
+from tests.helpers.util import container_ip, run_service
 
 BASIC_CONFIG = """
 monitors:
@@ -17,7 +18,7 @@ def test_writer_no_skipped_datapoints():
     """
     num_metrics = 1000
     with run_service("dpgen", environment={"NUM_METRICS": num_metrics}) as dpgen_cont:
-        with run_agent(
+        with Agent.run(
             dedent(
                 f"""
              writer:
@@ -31,21 +32,21 @@ def test_writer_no_skipped_datapoints():
                intervalSeconds: 1
         """
             )
-        ) as [backend, _, _]:
+        ) as agent:
             time.sleep(10)
             dpgen_cont.remove(force=True, v=True)
             time.sleep(2)
 
-            assert backend.datapoints, "Didn't get any datapoints"
-            assert len(backend.datapoints) % num_metrics == 0, "Didn't get 1000n datapoints"
+            assert agent.fake_services.datapoints, "Didn't get any datapoints"
+            assert len(agent.fake_services.datapoints) % num_metrics == 0, "Didn't get 1000n datapoints"
             for i in range(0, num_metrics):
                 assert (
                     len(
                         [
                             dp
-                            for dp in backend.datapoints
+                            for dp in agent.fake_services.datapoints
                             if [dim for dim in dp.dimensions if dim.key == "index" and dim.value == str(i)]
                         ]
                     )
-                    == len(backend.datapoints) / num_metrics
+                    == len(agent.fake_services.datapoints) / num_metrics
                 ), "Didn't get each datapoint n times"

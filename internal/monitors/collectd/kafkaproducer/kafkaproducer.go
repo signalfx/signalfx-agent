@@ -8,8 +8,6 @@ import (
 	yaml "gopkg.in/yaml.v2"
 )
 
-const monitorType = "collectd/kafka_producer"
-
 var serviceName = "kafka_producer"
 
 // Monitor is the main type that represents the monitor
@@ -25,7 +23,7 @@ func init() {
 	}
 	defaultMBeans = defaultMBeans.MergeWith(genericjmx.DefaultMBeans)
 
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			genericjmx.NewJMXMonitorCore(defaultMBeans, serviceName),
 		}

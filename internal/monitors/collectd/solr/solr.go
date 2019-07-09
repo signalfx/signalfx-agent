@@ -8,10 +8,8 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
 )
 
-const monitorType = "collectd/solr"
-
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
 				MonitorCore: pyrunner.New("sfxcollectd"),
@@ -36,6 +34,15 @@ type Config struct {
 	ExcludeMetrics []string `yaml:"excludeMetrics"`
 }
 
+func (c *Config) GetExtraMetrics() []string {
+	if c.EnhancedMetrics != nil && *c.EnhancedMetrics {
+		return []string{"*"}
+	}
+	return c.IncludeMetrics
+}
+
+var _ config.ExtraMetrics = &Config{}
+
 // PythonConfig returns the embedded python.Config struct from the interface
 func (c *Config) PythonConfig() *python.Config {
 	return c.pyConf
@@ -53,8 +60,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		Host:          conf.Host,
 		Port:          conf.Port,
 		ModuleName:    "solr_collectd",
-		ModulePaths:   []string{collectd.MakePath("solr")},
-		TypesDBPaths:  []string{collectd.MakePath("types.db")},
+		ModulePaths:   []string{collectd.MakePythonPluginPath("solr")},
+		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
 			"Host":            conf.Host,
 			"Port":            conf.Port,

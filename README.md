@@ -19,6 +19,7 @@ The agent has three main components:
 
 * The _Writer_ that sends the metrics collected by monitors to SignalFx.
 
+
 ### Observers
 
 Observers watch the various environments that we support to discover running
@@ -41,7 +42,7 @@ Many of the monitors are built around [collectd](https://collectd.org), an open
 source third-party monitor, and use it to collect metrics. Some other monitors
 do not use collectd. However, either type is configured in the same way.
 
-For a list of supported monitors and their configurations, 
+For a list of supported monitors and their configurations,
 see [Monitor Config](./docs/monitor-config.md).
 
 The agent is primarily intended to monitor services/applications running on the
@@ -70,7 +71,7 @@ configured in the writer, but this is generally only necessary if you have a ver
 
 _Note: Uninstall any existing collectd agent before installing SignalFx Smart Agent._
 
-__Linux:__ The agent is available for Linux in both a containerized and standalone form. In both forms the dependencies are completely bundled along with the agent, including a Java JRE runtime and a Python runtime, so there are no additional dependencies required. The agent works on any modern Linux distribution (kernel version 2.6+).
+__Linux:__ The dependencies are completely bundled along with the agent, including a Java JRE runtime and a Python runtime, so there are no additional dependencies required. The agent works on any modern Linux distribution (kernel version 2.6+).
 
 Get your API_TOKEN from: /etc/signalfx/token 
 
@@ -83,7 +84,7 @@ curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
 sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
 ````
 
-__Windows:__ The agent is also available on Windows in standalone form.
+__Windows:__ 
 
 Ensure that the following dependencies are installed:
 
@@ -103,6 +104,7 @@ ingest_url = "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"; api_url = "https
 ```
 
 The agent will be installed as a Windows service and will log to the Windows Event Log.
+
 
 ### Step 2. Confirm your Installation 
 
@@ -163,7 +165,6 @@ ingestUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"
 apiUrl: "https://api.YOUR_SIGNALFX_REALM.signalfx.com"
 traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
 ````
-
 
 This will default to the endpoints for the realm configured in signalFxRealm if not set.
 

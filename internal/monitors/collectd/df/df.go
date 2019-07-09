@@ -10,10 +10,8 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
 
-const monitorType = "collectd/df"
-
 func init() {
-	monitors.Register(monitorType, func() interface{} {
+	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			MonitorCore: *collectd.NewMonitorCore(CollectdTemplate),
 		}
@@ -30,7 +28,7 @@ type Config struct {
 
 	// If true, the filesystems selected by `fsTypes` and `mountPoints` will be
 	// excluded and all others included.
-	IgnoreSelected *bool `yaml:"ignoreSelected"`
+	IgnoreSelected *bool `yaml:"ignoreSelected" default:"true"`
 
 	// The filesystem types to include/exclude.
 	FSTypes []string `yaml:"fsTypes" default:"[\"aufs\", \"overlay\", \"tmpfs\", \"proc\", \"sysfs\", \"nsfs\", \"cgroup\", \"devpts\", \"selinuxfs\", \"devtmpfs\", \"debugfs\", \"mqueue\", \"hugetlbfs\", \"securityfs\", \"pstore\", \"binfmt_misc\", \"autofs\"]"`
@@ -51,13 +49,44 @@ type Monitor struct {
 	collectd.MonitorCore
 }
 
-// Configure configures and runs the plugin in collectd
-func (m *Monitor) Configure(conf *Config) error {
-	t := true
-	// Default to true.  Ideally don't have bools that default to true but this
-	// one is pretty essential.
-	if conf.IgnoreSelected == nil {
-		conf.IgnoreSelected = &t
+// GetExtraMetrics returns additional metrics to allow through.
+func (c *Config) GetExtraMetrics() []string {
+	var extraMetrics []string
+	if c.ReportInodes {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupInodes]...)
 	}
-	return m.SetConfigurationAndRun(conf)
+	if c.ValuesPercentage {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupPercentage]...)
+	}
+	if c.ReportInodes && c.ValuesPercentage {
+		extraMetrics = append(extraMetrics, percentInodesFree, percentInodesReserved, percentInodesUsed)
+	}
+	return extraMetrics
+}
+
+// Configure configures and runs the plugin in collectd
+func (m *Monitor) Configure(config *Config) error {
+	// conf is a config shallow copy that will be mutated and used to configure moni tor
+	conf := *config
+	// Setting group flags in conf for enable extra metrics
+	if m.Output.HasEnabledMetricInGroup(groupInodes) {
+		conf.ReportInodes = true
+	}
+	if m.Output.HasEnabledMetricInGroup(groupPercentage) {
+		conf.ValuesPercentage = true
+	}
+	if m.isReportInodesAndValuesPercentageMetric() {
+		conf.ReportInodes = true
+		conf.ValuesPercentage = true
+	}
+	return m.SetConfigurationAndRun(&conf)
+}
+
+func (m *Monitor) isReportInodesAndValuesPercentageMetric() bool {
+	for _, metric := range m.Output.EnabledMetrics() {
+		if metric == percentInodesFree || metric == percentInodesReserved || metric == percentInodesUsed {
+			return true
+		}
+	}
+	return false
 }

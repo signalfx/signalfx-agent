@@ -52,6 +52,10 @@ Monitor Type: `collectd/jenkins`
 
 ## Configuration
 
+**For a list of monitor options that are common to all monitors, see [Common
+Configuration](../monitor-config.md#common-configuration).**
+
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` |  |
@@ -66,47 +70,55 @@ Monitor Type: `collectd/jenkins`
 | `sslCACerts` | no | `string` | Path to the ca file |
 
 
-
-
 ## Metrics
 
-The following table lists the metrics available for this monitor. Metrics that are marked as Included are standard metrics and are monitored by default.
-
-| Name | Type | Included | Description |
-| ---  | ---  | ---    | ---         |
-| `gauge.jenkins.job.duration` | gauge | ✔ | Time taken to complete the job in ms. |
-| `gauge.jenkins.node.executor.count.value` | gauge | ✔ | Total Number of executors in an instance |
-| `gauge.jenkins.node.executor.in-use.value` | gauge | ✔ | Total number of executors being used in an instance |
-| `gauge.jenkins.node.health-check.score` | gauge | ✔ | Mean health score of an instance |
-| `gauge.jenkins.node.health.disk.space` | gauge | ✔ | Binary value of disk space health |
-| `gauge.jenkins.node.health.plugins` | gauge | ✔ | Boolean value indicating state of plugins |
-| `gauge.jenkins.node.health.temporary.space` | gauge | ✔ | Binary value of temporary space health |
-| `gauge.jenkins.node.health.thread-deadlock` | gauge | ✔ | Boolean value indicating a deadlock |
-| `gauge.jenkins.node.online.status` | gauge | ✔ | Boolean value of instance is reachable or not |
-| `gauge.jenkins.node.queue.size.value` | gauge | ✔ | Total number pending jobs in queue |
-| `gauge.jenkins.node.slave.online.status` | gauge | ✔ | Boolean value for slave is reachable or not |
-| `gauge.jenkins.node.vm.memory.heap.usage` | gauge | ✔ | Percent utilization of the heap memory |
-| `gauge.jenkins.node.vm.memory.non-heap.used` | gauge | ✔ | Total amount of non-heap memory used |
-| `gauge.jenkins.node.vm.memory.total.used` | gauge | ✔ | Total Memory used by instance |
+These are the metrics available for this monitor.
+Metrics that are categorized as
+[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+(*default*) are ***in bold and italics*** in the list below.
 
 
-To specify custom metrics you want to monitor, add a `metricsToInclude` filter
-to the agent configuration, as shown in the code snippet below. The snippet
-lists all available custom metrics. You can copy and paste the snippet into
-your configuration file, then delete any custom metrics that you do not want
-sent.
+ - ***`gauge.jenkins.job.duration`*** (*gauge*)<br>    Time taken to complete the job in ms.
+ - ***`gauge.jenkins.node.executor.count.value`*** (*gauge*)<br>    Total Number of executors in an instance
+ - ***`gauge.jenkins.node.executor.in-use.value`*** (*gauge*)<br>    Total number of executors being used in an instance
+ - ***`gauge.jenkins.node.health-check.score`*** (*gauge*)<br>    Mean health score of an instance
+ - ***`gauge.jenkins.node.health.disk.space`*** (*gauge*)<br>    Binary value of disk space health
+ - ***`gauge.jenkins.node.health.plugins`*** (*gauge*)<br>    Boolean value indicating state of plugins
+ - ***`gauge.jenkins.node.health.temporary.space`*** (*gauge*)<br>    Binary value of temporary space health
+ - ***`gauge.jenkins.node.health.thread-deadlock`*** (*gauge*)<br>    Boolean value indicating a deadlock
+ - ***`gauge.jenkins.node.online.status`*** (*gauge*)<br>    Boolean value of instance is reachable or not
+ - ***`gauge.jenkins.node.queue.size.value`*** (*gauge*)<br>    Total number pending jobs in queue
+ - ***`gauge.jenkins.node.slave.online.status`*** (*gauge*)<br>    Boolean value for slave is reachable or not
+ - ***`gauge.jenkins.node.vm.memory.heap.usage`*** (*gauge*)<br>    Percent utilization of the heap memory
+ - ***`gauge.jenkins.node.vm.memory.non-heap.used`*** (*gauge*)<br>    Total amount of non-heap memory used
+ - ***`gauge.jenkins.node.vm.memory.total.used`*** (*gauge*)<br>    Total Memory used by instance
 
-Note that some of the custom metrics require you to set a flag as well as add
-them to the list. Check the monitor configuration file to see if a flag is
-required for gathering additional metrics.
+### Non-default metrics (version 4.7.0+)
 
-```yaml
+**The following information applies to the agent version 4.7.0+ that has
+`enableBuiltInFiltering: true` set on the top level of the agent config.**
 
-metricsToInclude:
-  - metricNames:
-    monitorType: collectd/jenkins
-```
+To emit metrics that are not _default_, you can add those metrics in the
+generic monitor-level `extraMetrics` config option.  Metrics that are derived
+from specific configuration options that do not appear in the above list of
+metrics do not need to be added to `extraMetrics`.
 
+To see a list of metrics that will be emitted you can run `agent-status
+monitors` after configuring this monitor in a running agent instance.
+
+### Legacy non-default metrics (version < 4.7.0)
+
+**The following information only applies to agent version older than 4.7.0. If
+you have a newer agent and have set `enableBuiltInFiltering: true` at the top
+level of your agent config, see the section above. See upgrade instructions in
+[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+
+If you have a reference to the `whitelist.json` in your agent's top-level
+`metricsToExclude` config option, and you want to emit metrics that are not in
+that whitelist, then you need to add an item to the top-level
+`metricsToInclude` config option to override that whitelist (see [Inclusion
+filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 
 
