@@ -24,13 +24,34 @@ end
 
 if platform_family?('debian')
   include_recipe 'signalfx_agent::deb_repo'
-elsif platform_family?('rhel', 'amazon', 'fedora')
+elsif platform_family?('rhel', 'amazon', 'fedora', 'suse', 'opensuse')
   include_recipe 'signalfx_agent::yum_repo'
 end
 
 case node['platform_family']
 when 'windows'
   include_recipe 'signalfx_agent::win'
+when 'suse', 'opensuse'
+  zypper_package 'install-deps' do
+    package_name %w(libcap2 libcap-progs libpcap1 shadow)
+  end
+  tmpdir = Dir.mktmpdir
+  if node['signalfx_agent']['package_version'].nil?
+    package_name = "signalfx-agent"
+  else
+    package_name = "signalfx-agent-#{node['signalfx_agent']['package_version']}"
+  end
+  execute 'download-agent' do
+    command "zypper --pkg-cache-dir=#{tmpdir} download #{package_name}"
+  end
+  execute 'install-agent' do
+    command "rpm -U --nodeps --oldpackage #{tmpdir}/signalfx-agent/signalfx-agent*.rpm"
+    notifies :restart, 'service[signalfx-agent]', :delayed
+  end
+  directory tmpdir do
+    action :delete
+    recursive true
+  end
 else
   package 'signalfx-agent' do # ~FC009
     action :install
