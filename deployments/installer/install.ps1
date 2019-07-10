@@ -152,7 +152,7 @@ function verify_access_token([string]$access_token="", [string]$ingest_url=$INGE
     echo $url
     try {
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        $resp = Invoke-WebRequest -Uri $url -Method POST -ContentType "application/json" -Headers @{"X-Sf-Token"="$access_token"} -Body "[]"
+        $resp = Invoke-WebRequest -Uri $url -Method POST -ContentType "application/json" -Headers @{"X-Sf-Token"="$access_token"} -Body "[]" -UseBasicParsing
     } catch {
         $err = $_.Exception.Message
         $message = "
