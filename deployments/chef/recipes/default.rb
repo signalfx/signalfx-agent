@@ -41,12 +41,18 @@ when 'suse', 'opensuse'
                  else
                    "signalfx-agent-#{node['signalfx_agent']['package_version']}"
                  end
+  installed_version = "\"$(zypper -q search -isxn signalfx-agent | grep signalfx-agent | cut -d'|' -f4)\""
+  latest_version = "\"$(zypper -q search -sxn signalfx-agent | grep signalfx-agent | cut -d'|' -f4 | head -n1)\""
   execute 'download-agent' do
     command "zypper --pkg-cache-dir=#{tmpdir} download #{package_name}"
+    only_if "test #{installed_version} != #{latest_version}"
+    notifies :install, 'rpm_package[signalfx-agent]', :immediately
   end
-  execute 'install-agent' do
-    command "rpm -U --nodeps --oldpackage #{tmpdir}/signalfx-agent/signalfx-agent*.rpm"
+  rpm_package 'signalfx-agent' do
+    source lazy { Dir.glob("#{tmpdir}/signalfx-agent/signalfx-agent*.rpm")[0] }
+    options '--nodeps'
     notifies :restart, 'service[signalfx-agent]', :delayed
+    action :nothing
   end
   directory tmpdir do
     action :delete

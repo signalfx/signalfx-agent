@@ -39,7 +39,7 @@ enabled=1
       command 'zypper -n clean -a -r signalfx-agent'
     end
     execute 'zypper-refresh' do
-      command 'zypper -n refresh'
+      command 'zypper -n refresh -r signalfx-agent'
     end
   else
     execute 'yum-clean' do
