@@ -61,21 +61,20 @@ configured in the writer, but this is generally only necessary if you have a ver
 
 ## Installation
 
-
-### __Hello.__
-
 ### __Get started with Smart Agent using the 3 steps below.__
+
+####_Uninstall any existing collectd agent before installing SignalFx Smart Agent._
 
 
 ### Step 1. Install SignalFx Smart Agent on Single Host 
 
-_Note: Uninstall any existing collectd agent before installing SignalFx Smart Agent._
+__Linux:__ Dependencies are completely bundled along with the agent, including a Java JRE runtime and a Python runtime, so there are no additional dependencies required. The agent works on any modern Linux distribution (kernel version 2.6+).
 
-__Linux:__ The dependencies are completely bundled along with the agent, including a Java JRE runtime and a Python runtime, so there are no additional dependencies required. The agent works on any modern Linux distribution (kernel version 2.6+).
+If you are not installing from the tile on the Integrations page:
 
-Get your API_TOKEN from: /etc/signalfx/token 
+- Get your API_TOKEN from: __Organization Settings => Access Token__ tab in the SignalFx application. 
 
-Determine YOUR\_SIGNAL\_FX_REALM from: your profile page in the SignalFx web application.
+- Determine YOUR\_SIGNAL_FX_REALM from: your profile page in the SignalFx web application.
 
 To install the Smart Agent on a single Linux host, enter:
 
@@ -84,17 +83,15 @@ curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
 sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
 ````
 
-__Windows:__ 
+__Windows:__ Ensure that the following dependencies are installed:
 
-Ensure that the following dependencies are installed:
-
-[.Net Framework 3.5] (https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
+[.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
 
 [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
 
-* Get your API\_TOKEN from:  __\ProgramData\SignalFxAgent\token or the Organization->Access Token__ tab in the SignalFx application.
+* Get your API\_TOKEN from:  __Organization Settings => Access Token__ tab in the SignalFx application.
 
-* Get YOUR\_SIGNAL\_FX_REALM from: your profile page in the SignalFx web application.
+* Determine YOUR\_SIGNAL\_FX_REALM from: your profile page in the SignalFx web application.
 
 To install the Smart Agent on a single Windows host, enter:
 
@@ -147,9 +144,7 @@ By default, the Smart Agent will send data to the us0 realm. If you are not in t
 
 
 ```sh
-
 signalFxRealm: YOUR_SIGNALFX_REALM
-
 ```
 
 

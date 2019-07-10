@@ -3,10 +3,11 @@
 
 __See [Overview](https://docs.signalfx.com/en/latest/integrations/agent/overview.html) for Smart Agent Installation on a Single Host.__
 
-
 After you have installed the SignalFx Smart Agent on a single host and discovered some of its capabilities, you may want to install the agent on multiple hosts. Those next steps are discussed below.
 
-## Step 4. Install Smart Agent on Multiple Hosts
+
+
+## Install Smart Agent on Multiple Hosts
 
 Use Configuration Management tools or packages to install SignalFx Smart Agent on multiple hosts.
 
@@ -64,7 +65,8 @@ yum install -y signalfx-agent
 ```
 
 
-## Step 5. Add a New Monitor 
+
+## Add a New Monitor 
 
 You may also want to add and configure various monitors for your environment. 
 
@@ -76,21 +78,28 @@ You may also want to add and configure various monitors for your environment.
 
 ### Configure optional metrics for your monitors. 
 
-See individual monitor pages for your monitor from the lists in Step 5 or see the [Integrations tab](https://app.signalfx.com/#/integrations) in the SignalFx application for Monitor Services.
+For metric configuration for your monitor, see individual Windows or Linux monitor pages from the lists directly above or see the Integrations tab in the SignalFx application for Monitor Services.
 
-## Step 6. Add a New Observer 
+
+
+## Add a New Observer 
 
 See [Observers](#Observers).
 
-## Step 7. Explore Dashboards to display and compare data from various sources. 
 
-See [Dashboards](https://docs.signalfx.com/en/latest/dashboards/index.html).
+
+## Explore Dashboards to display and compare data from various sources. 
 
 See [Built-In Dashboards and Charts](https://docs.signalfx.com/en/latest/getting-started/built-in-content/built-in-dashboards.html). 
 
+If you plan to create your own [custom dashboards](https://docs.signalfx.com/en/latest/dashboards/dashboard-basics.html#custom-dashboard-groups).
+
 See best practices for [Better Dashboards](https://docs.signalfx.com/en/latest/reference/best-practices/better-dashboards.html). 
 
-## To learn more about Smart Agent, see the [15-Minute SingnalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html). 
+
+
+###To learn more about how your data is presented in SignalFx, see the [15-Minute SingnalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html). 
+
 
 
 ## Additional material 
@@ -147,6 +156,8 @@ monitors:
 The agent automatically picks up any changes to the configuration file, so a restart is not required.
 
 For complete details see [Observer Configuration](https://docs.signalfx.com/en/latest/integrations/agent/observer-config.html).
+
+
 
 ## Other methods of installation 
 
@@ -224,6 +235,8 @@ _Start Service_
 ```sh
 PS> SignalFx\SignalFxAgent\bin\signalfx-agent.exe -service "start"
 ````
+
+
 
 ### Privileges 
 
