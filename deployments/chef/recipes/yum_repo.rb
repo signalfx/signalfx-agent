@@ -1,9 +1,9 @@
 if platform_family?('suse', 'opensuse')
   is_suse = true
-  repo_path = "/etc/zypp/repos.d"
+  repo_path = '/etc/zypp/repos.d'
 else
   is_suse = false
-  repo_path = "/etc/yum.repos.d"
+  repo_path = '/etc/yum.repos.d'
 end
 
 if Gem::Requirement.new('>= 12.14').satisfied_by?(Gem::Version.new(Chef::VERSION)) && !is_suse
@@ -36,10 +36,10 @@ enabled=1
 
   if is_suse
     execute 'zypper-clean' do
-      command "zypper -n clean -a -r signalfx-agent"
+      command 'zypper -n clean -a -r signalfx-agent'
     end
     execute 'zypper-refresh' do
-      command "zypper -n refresh"
+      command 'zypper -n refresh'
     end
   else
     execute 'yum-clean' do

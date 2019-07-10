@@ -36,11 +36,11 @@ when 'suse', 'opensuse'
     package_name %w(libcap2 libcap-progs libpcap1 shadow)
   end
   tmpdir = Dir.mktmpdir
-  if node['signalfx_agent']['package_version'].nil?
-    package_name = "signalfx-agent"
-  else
-    package_name = "signalfx-agent-#{node['signalfx_agent']['package_version']}"
-  end
+  package_name = if node['signalfx_agent']['package_version'].nil?
+                   'signalfx-agent'
+                 else
+                   "signalfx-agent-#{node['signalfx_agent']['package_version']}"
+                 end
   execute 'download-agent' do
     command "zypper --pkg-cache-dir=#{tmpdir} download #{package_name}"
   end
