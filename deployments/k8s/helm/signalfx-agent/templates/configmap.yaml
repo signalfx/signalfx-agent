@@ -94,6 +94,7 @@ data:
       dockerURL: unix:///var/run/docker.sock
       excludedImages:
        - '*pause-amd64*'
+       - 'k8s.gcr.io/pause*'
       labelsToDimensions:
         io.kubernetes.container.name: container_spec_name
         io.kubernetes.pod.name: kubernetes_pod_name
