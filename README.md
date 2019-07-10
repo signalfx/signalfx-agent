@@ -114,7 +114,7 @@ sudo signalfx-agent status
 The response you will see is:
 
 ```sh
-SignalFx Agent version:           4.5.0
+SignalFx Agent version:           4.7.6
 Agent uptime:                     8m44s
 Observers active:                 host
 Active Monitors:                  16
