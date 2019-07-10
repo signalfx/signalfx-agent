@@ -63,7 +63,7 @@ configured in the writer, but this is generally only necessary if you have a ver
 
 ### __Get started with Smart Agent using the 3 steps below.__
 
-####_Uninstall any existing collectd agent before installing SignalFx Smart Agent._
+#### _Uninstall any existing collectd agent before installing SignalFx Smart Agent._
 
 
 ### Step 1. Install SignalFx Smart Agent on Single Host 
