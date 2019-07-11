@@ -36,16 +36,18 @@ when 'suse', 'opensuse'
     package_name %w(libcap2 libcap-progs libpcap1 shadow)
   end
   tmpdir = Dir.mktmpdir
-  package_name = if node['signalfx_agent']['package_version'].nil?
-                   'signalfx-agent'
-                 else
-                   "signalfx-agent-#{node['signalfx_agent']['package_version']}"
-                 end
-  installed_version = "\"$(zypper -q search -isxn signalfx-agent | grep signalfx-agent | cut -d'|' -f4)\""
-  latest_version = "\"$(zypper -q search -sxn signalfx-agent | grep signalfx-agent | cut -d'|' -f4 | head -n1)\""
+  installed_version = "$(zypper -q search -isxn signalfx-agent | grep signalfx-agent | cut -d'|' -f4 | xargs)"
+  if node['signalfx_agent']['package_version'].nil?
+    package_name = 'signalfx-agent'
+    # get latest available version from repo with zypper
+    package_version = "$(zypper -q search -sxn signalfx-agent | grep signalfx-agent | cut -d'|' -f4 | head -n1 | xargs)"
+  else
+    package_name = "signalfx-agent-#{node['signalfx_agent']['package_version']}"
+    package_version = node['signalfx_agent']['package_version']
+  end
   execute 'download-agent' do
     command "zypper --pkg-cache-dir=#{tmpdir} download #{package_name}"
-    only_if "test #{installed_version} != #{latest_version}"
+    only_if "test \"#{installed_version}\" != \"#{package_version}\""
     notifies :install, 'rpm_package[signalfx-agent]', :immediately
   end
   rpm_package 'signalfx-agent' do
