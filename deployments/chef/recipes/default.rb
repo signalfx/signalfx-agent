@@ -53,6 +53,7 @@ when 'suse', 'opensuse'
   rpm_package 'signalfx-agent' do
     source lazy { Dir.glob("#{tmpdir}/signalfx-agent/signalfx-agent*.rpm")[0] }
     options '--nodeps'
+    allow_downgrade true
     notifies :restart, 'service[signalfx-agent]', :delayed
     action :nothing
   end
