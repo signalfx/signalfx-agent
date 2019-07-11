@@ -238,12 +238,13 @@ install_with_apt() {
 
 install_yum_repo() {
   local stage="$1"
+  local repo_path="${2:-/etc/yum.repos.d}"
   local gpgcheck=1
   if [ "$stage" = "test" ]; then
     gpgcheck=0
   fi
 
-  cat <<EOH > /etc/yum.repos.d/signalfx-agent.repo
+  cat <<EOH > ${repo_path}/signalfx-agent.repo
 [signalfx-agent]
 name=SignalFx Agent Repository
 baseurl=$(repo_for_stage $rpm_repo_base $stage)
@@ -262,6 +263,21 @@ install_with_yum() {
   fi
 
   yum install -y signalfx-agent${version_flag}
+}
+
+install_with_zypper() {
+  local package_version="$1"
+  local version_flag=
+  if test -n "$package_version"; then
+    version_flag="-${package_version}"
+  fi
+
+  zypper -n refresh
+  zypper install -y -l libcap2 libcap-progs libpcap1 shadow
+  local tmpdir=$(mktemp -d)
+  zypper --pkg-cache-dir=${tmpdir} download signalfx-agent${version_flag}
+  rpm -ivh --nodeps ${tmpdir}/signalfx-agent/signalfx-agent*.rpm
+  rm -rf ${tmpdir}
 }
 
 ensure_not_installed() {
@@ -345,6 +361,10 @@ install() {
     amzn|centos|rhel)
       install_yum_repo "$stage"
       install_with_yum "$package_version"
+      ;;
+    sles|opensuse*)
+      install_yum_repo "$stage" "/etc/zypp/repos.d"
+      install_with_zypper "$package_version"
       ;;
     *)
       echo "Your distro ($distro) is not supported or could not be determined" >&2

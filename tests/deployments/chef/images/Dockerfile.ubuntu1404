@@ -11,8 +11,8 @@ WORKDIR /opt/cookbooks
 RUN curl -Lo windows.tar.gz https://supermarket.chef.io/cookbooks/windows/versions/4.3.4/download && \
     tar -xzf windows.tar.gz
 
-RUN curl -Lo /tmp/chef.deb https://packages.chef.io/files/stable/chef/14.0.190/ubuntu/14.04/chef_14.0.190-1_amd64.deb && \
-    dpkg -i /tmp/chef.deb
+ARG CHEF_INSTALLER_ARGS
+RUN curl -L https://omnitruck.chef.io/install.sh | bash -s -- $CHEF_INSTALLER_ARGS
 
 RUN rm /usr/sbin/policy-rc.d; \
 	rm /sbin/initctl; dpkg-divert --rename --remove /sbin/initctl

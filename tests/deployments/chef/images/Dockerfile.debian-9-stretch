@@ -9,8 +9,8 @@ WORKDIR /opt/cookbooks
 RUN curl -Lo windows.tar.gz https://supermarket.chef.io/cookbooks/windows/versions/4.3.4/download && \
     tar -xzf windows.tar.gz
 
-RUN curl -Lo /tmp/chef.deb https://packages.chef.io/files/stable/chef/14.2.0/debian/9/chef_14.2.0-1_amd64.deb && \
-    dpkg -i /tmp/chef.deb
+ARG CHEF_INSTALLER_ARGS
+RUN curl -L https://omnitruck.chef.io/install.sh | bash -s -- $CHEF_INSTALLER_ARGS
 
 COPY tests/packaging/images/socat /bin/socat
 

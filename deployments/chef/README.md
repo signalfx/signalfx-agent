@@ -33,6 +33,9 @@ attribute above.  For Windows, it is equivalent to the agent version attribute.
 be `final` (default, for main releases), `beta` (for beta releases), or `test`
 (for unsigned test releases).
 
+**Note:** SLES and openSUSE are only supported with cookbook versions 0.3.0 and newer,
+and agent versions 4.7.7 and newer.
+
 `node['signalfx_agent']['conf']`: Agent configuration object.  Everything
 underneath this object gets directly converted to YAML and becomes the agent
 config file.  See the [Agent Config

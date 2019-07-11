@@ -58,7 +58,7 @@ install -p -m 644 %{_sourcedir}/signalfx-agent.1 $RPM_BUILD_ROOT/%{_mandir}/man1
 
 %pre
 getent passwd signalfx-agent >/dev/null || \
-  useradd --system --home-dir %{bundle_dir} --no-create-home --shell /sbin/nologin signalfx-agent
+  useradd --system --user-group --home-dir %{bundle_dir} --no-create-home --shell /sbin/nologin signalfx-agent
 
 %post
 if [ $1 -ge 1 ] ; then

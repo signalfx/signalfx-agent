@@ -1,5 +1,12 @@
+if platform_family?('suse', 'opensuse')
+  is_suse = true
+  repo_path = '/etc/zypp/repos.d'
+else
+  is_suse = false
+  repo_path = '/etc/yum.repos.d'
+end
 
-if Gem::Requirement.new('>= 12.14').satisfied_by?(Gem::Version.new(Chef::VERSION))
+if Gem::Requirement.new('>= 12.14').satisfied_by?(Gem::Version.new(Chef::VERSION)) && !is_suse
   yum_repository 'signalfx-agent' do
     description 'SignalFx Agent Repository'
     baseurl "#{node['signalfx_agent']['rhel_repo_url']}/#{node['signalfx_agent']['package_stage']}"
@@ -9,7 +16,7 @@ if Gem::Requirement.new('>= 12.14').satisfied_by?(Gem::Version.new(Chef::VERSION
     action :create
   end
 else
-  file '/etc/yum.repos.d/signalfx-agent.repo' do
+  file "#{repo_path}/signalfx-agent.repo" do
     content <<-EOH
 [signalfx-agent]
 name=SignalFx Agent Repository
@@ -27,11 +34,19 @@ enabled=1
     action :nothing
   end
 
-  execute 'yum-clean' do
-    command "yum clean all --disablerepo='*' --enablerepo='signalfx-agent'"
-  end
-
-  execute 'yum-metadata-refresh' do
-    command "yum -q -y makecache --disablerepo=* --enablerepo='signalfx-agent'"
+  if is_suse
+    execute 'zypper-clean' do
+      command 'zypper -n clean -a -r signalfx-agent'
+    end
+    execute 'zypper-refresh' do
+      command 'zypper -n refresh -r signalfx-agent'
+    end
+  else
+    execute 'yum-clean' do
+      command "yum clean all --disablerepo='*' --enablerepo='signalfx-agent'"
+    end
+    execute 'yum-metadata-refresh' do
+      command "yum -q -y makecache --disablerepo=* --enablerepo='signalfx-agent'"
+    end
   end
 end

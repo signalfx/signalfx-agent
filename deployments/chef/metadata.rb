@@ -9,7 +9,9 @@ chef_version '>= 12.1' if respond_to?(:chef_version)
 supports 'amazon'
 supports 'centos'
 supports 'debian'
+supports 'opensuse'
 supports 'redhat'
+supports 'suse'
 supports 'ubuntu'
 supports 'windows'
 
