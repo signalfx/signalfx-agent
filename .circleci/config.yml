@@ -450,9 +450,9 @@ jobs:
                 $CHEF_DEV foodcritic .
                 $CHEF_DEV cookstyle .
                 if [ $CIRCLE_NODE_INDEX -eq 0 ]; then
-                    echo "export TEST_MARKERS='chef and not upgrade_downgrade'" >> $BASH_ENV
+                    echo "export TEST_MARKERS='chef and rpm'" >> $BASH_ENV
                 else
-                    echo "export TEST_MARKERS='chef and upgrade_downgrade'" >> $BASH_ENV
+                    echo "export TEST_MARKERS='chef and deb'" >> $BASH_ENV
                 fi
                 ;;
             puppet)
