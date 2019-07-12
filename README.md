@@ -63,7 +63,7 @@ configured in the writer, but this is generally only necessary if you have a ver
 
 ### __Get started with Smart Agent using the 3 steps below.__
 
-####_Uninstall any existing collectd agent before installing SignalFx Smart Agent._
+#### _Uninstall any existing collectd agent before installing SignalFx Smart Agent._
 
 
 ### Step 1. Install SignalFx Smart Agent on Single Host 
@@ -114,7 +114,7 @@ sudo signalfx-agent status
 The response you will see is:
 
 ```sh
-SignalFx Agent version:           4.5.0
+SignalFx Agent version:           4.7.6
 Agent uptime:                     8m44s
 Observers active:                 host
 Active Monitors:                  16
