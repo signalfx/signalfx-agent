@@ -195,3 +195,12 @@ def get_agent_version(cont):
     match = re.match("^.+?: (.+)?,", output)
     assert match and match.group(1).strip(), "failed to parse agent version from command output:\n%s" % output
     return match.group(1).strip()
+
+
+def get_win_agent_version(agent_path=r"C:\Program Files\SignalFx\SignalFxAgent\bin\signalfx-agent.exe"):
+    proc = subprocess.run(agent_path + " -version", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+    output = proc.stdout.decode("utf-8")
+    assert proc.returncode == 0, "command '%s -version' failed:\n%s" % (agent_path, output)
+    match = re.match("^.+?: (.+)?,", output)
+    assert match and match.group(1).strip(), "failed to parse agent version from command output:\n%s" % output
+    return match.group(1).strip()
