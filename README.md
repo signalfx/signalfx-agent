@@ -7,27 +7,18 @@ The SignalFx Smart Agent is a metric agent written in Go for monitoring infrastr
 
  - [Concepts](#concepts)
  - [Installation](#installation)
- - [Configuration](#configuration)
+
 
 ## Concepts
 
 The agent has three main components:
 
-* _Observers_ that discover applications and services running on the host
-
 * _Monitors_ that collect metrics from the host and applications
 
-* The _Writer_ that sends the metrics collected by monitors to SignalFx.
+* _Observers_ that discover applications and services running on the host
 
+* a _Writer_ that sends the metrics collected by monitors to SignalFx.
 
-### Observers
-
-Observers watch the various environments that we support to discover running
-services and automatically configure the agent to send metrics for those
-services.
-
-For a list of supported observers and their configurations,
-see [Observer Config](./docs/observer-config.md).
 
 ### Monitors
 
@@ -53,18 +44,28 @@ machine that the agent is running on.  This allows everything to have a
 consistent `host` dimension so that metrics can be matched to a specific
 machine during metric analysis.
 
+### Observers
+
+Observers watch the various environments that we support to discover running
+services and automatically configure the agent to send metrics for those
+services.
+
+For a list of supported observers and their configurations,
+see [Observer Config](./docs/observer-config.md).
+
 ### Writer
 The writer collects metrics emitted by the configured monitors and sends them
 to SignalFx on a regular basis.  There are a few things that can be
-configured in the writer, but this is generally only necessary if you have a very large number of metrics flowing through a single agent.
+[configured](./docs/config-schema.md#writer) in the writer, but this is generally only necessary if you have a very large number of metrics flowing through a single agent.
 
 
 ## Installation
 
+The instructions below are for a command-line installation of a single agent. For other installation options, including bulk deployments, see the Advanced Configuration Options in [Advanced Configuration Options](https://docs.signalfx.com/en/latest/integrations/agent/smart-agent-quickstart.html).
+
 ### __Get started with Smart Agent using the 3 steps below.__
 
-#### _Uninstall any existing collectd agent before installing SignalFx Smart Agent._
-
+_Note: if you have previously configured another metric collection agent on your host such as Collectd you should uninstall or disable that agent before installing the SignalFx Smart Agent._
 
 ### Step 1. Install SignalFx Smart Agent on Single Host 
 
@@ -111,7 +112,7 @@ To confirm the SignalFx Smart Agent installation is functional on either platfor
 sudo signalfx-agent status
 ````
 
-The response you will see is:
+The response you will see is similar to the one below:
 
 ```sh
 SignalFx Agent version:           4.7.6

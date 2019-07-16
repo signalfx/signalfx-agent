@@ -1,33 +1,11 @@
 # SignalFx Smart Agent Next Steps
 
 
-__See [Overview](https://docs.signalfx.com/en/latest/integrations/agent/overview.html) for Smart Agent Installation on a Single Host.__
+__See [Overview](https://docs.signalfx.com/en/latest/integrations/agent/overview.html) for simplified Smart Agent command-line installation on a single host.__
 
-After you have installed the SignalFx Smart Agent on a single host and discovered some of its capabilities, you may want to install the agent on multiple hosts. Those next steps are discussed below.
+## Advanced Installation on a Single Host
 
-
-
-## Install Smart Agent on Multiple Hosts
-
-Use Configuration Management tools or packages to install SignalFx Smart Agent on multiple hosts.
-
-### Configuration Management Tools
-
-We support the following configuration management tools to automate the installation process.
-
-_Chef:_  We offer a Chef cookbook to install and configure the agent. See the [cookbook source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/chef) and on the [Chef Supermarket](https://supermarket.chef.io/cookbooks/signalfx_agent).
-
-_Puppet:_  We also offer a Puppet manifest to install and configure the agent on Linux. See the [manifest source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/puppet) and on the [Puppet Forge](https://forge.puppet.com/signalfx/signalfx_agent/readme).
-
-_Ansible:_  We also offer an Ansible Role to install and configure the Smart Agent on Linux. See the [role source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/ansible).
-
-_Salt:_  We also offer a Salt Formula to install and configure the Smart Agent on Linux. See the [formula source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/salt).
-
-_Docker Image:_ See [Docker Deployment](https://github.com/signalfx/signalfx-agent/tree/master/deployments/docker) for more information.
-
-_Kubernetes:_  See our [Kubernetes setup instructions](https://github.com/signalfx/signalfx-agent/blob/master/docs/kubernetes-setup.md) and the documentation on [Monitoring Kubernetes](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html) for more information.
-
-_AWS Elastic Container Service (ECS):_ See the [ECS directory](https://github.com/signalfx/signalfx-agent/tree/master/deployments/ecs), which includes a sample config and task definition for the agent.
+Packages and other methods of installation on a single host are discussed below.
 
 ### Packages
 
@@ -64,102 +42,6 @@ yum install -y signalfx-agent
 
 ```
 
-
-
-## Add a New Monitor 
-
-You may also want to add and configure various monitors for your environment. 
-
-* To [add a new monitor](#Monitors).
-* For [Common configuration options](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html).
-* For [Windows monitor configurations](https://docs.signalfx.com/en/latest/integrations/agent/windows.html).
-* For [Linux monitor configurations](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html)
-
-
-### Configure optional metrics for your monitors. 
-
-For metric configuration for your monitor, see individual Windows or Linux monitor pages from the lists directly above or see the Integrations tab in the SignalFx application for Monitor Services.
-
-
-
-## Add a New Observer 
-
-See [Observers](#Observers).
-
-
-
-## Explore Dashboards to display and compare data from various sources. 
-
-See [Built-In Dashboards and Charts](https://docs.signalfx.com/en/latest/getting-started/built-in-content/built-in-dashboards.html). 
-
-If you plan to create your own [custom dashboards](https://docs.signalfx.com/en/latest/dashboards/dashboard-basics.html#custom-dashboard-groups).
-
-See best practices for [Better Dashboards](https://docs.signalfx.com/en/latest/reference/best-practices/better-dashboards.html). 
-
-
-
-###To learn more about how your data is presented in SignalFx, see the [15-Minute SingnalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html). 
-
-
-
-## Additional material 
-
-### Monitors 
-
-You can add more monitors and configure them as appropriate.
-
-Example of adding a new monitor:
-
-To start collecting apache metrics, you would add the [apache monitor](https://github.com/signalfx/signalfx-agent/blob/master/docs/monitors/collectd-apache.md) to the agent.yaml file. Your monitor list would then look similar to this:
-
-
-```sh
-monitors:
-  - type: collectd/cpu
-    .
-    .
-    .
-  - type: collectd/apache
-    host: localhost
-    port: 80
-```
-
-
-For complete details, see [Monitor Configuration](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html). 
-
-### Observers 
-
-Example of adding a new observer:
-
-To start collecting docker container metrics, first add a [docker observer](https://github.com/signalfx/signalfx-agent/blob/master/docs/observers/docker.md).
-
-Your observer list would then look similar to this:
-
-```sh
-observers:
-  - type: host
-  - type: docker
-```
-
-Next, add a [docker metrics monitor](https://github.com/signalfx/signalfx-agent/blob/master/docs/monitors/docker-container-stats.md) to the agent.yaml file. Your type list would now include this monitor (docker-container-stats) as shown below:
-
-```sh
-monitors:
-  - type: collectd/cpu
-  - type: collectd/cpufreq
-    .
-    .
-    .
-  - type: docker-container-stats
-```
-
-The agent automatically picks up any changes to the configuration file, so a restart is not required.
-
-For complete details see [Observer Configuration](https://docs.signalfx.com/en/latest/integrations/agent/observer-config.html).
-
-
-
-## Other methods of installation 
 
 ### Linux Standalone tar.gz 
 
@@ -237,6 +119,98 @@ PS> SignalFx\SignalFxAgent\bin\signalfx-agent.exe -service "start"
 ````
 
 
+## Install Smart Agent on Multiple Hosts
+
+After you have installed the SignalFx Smart Agent on a single host and discovered some of its capabilities, you may want to install the agent on multiple hosts using Configuration Management tools.
+
+### Configuration Management Tools
+
+We support the following configuration management tools to automate the Smart Agent installation process for multiple hosts.
+
+_Kubernetes:_  See [Kubernetes Setup](https://github.com/signalfx/signalfx-agent/blob/master/docs/kubernetes-setup.md) and the documentation on [Monitoring Kubernetes](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html) for more information.
+
+_Docker Image:_ See [Docker Deployment](https://github.com/signalfx/signalfx-agent/tree/master/deployments/docker) for more information.
+
+_AWS Elastic Container Service (ECS):_ See the [ECS directory](https://github.com/signalfx/signalfx-agent/tree/master/deployments/ecs), which includes a sample config and task definition for the agent.
+
+_Chef:_  We offer a Chef cookbook to install and configure the agent. See the [cookbook source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/chef) and on the [Chef Supermarket](https://supermarket.chef.io/cookbooks/signalfx_agent).
+
+_Puppet:_  We also offer a Puppet manifest to install and configure the agent on Linux. See the [manifest source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/puppet) and on the [Puppet Forge](https://forge.puppet.com/signalfx/signalfx_agent/readme).
+
+_Ansible:_  We also offer an Ansible Role to install and configure the Smart Agent on Linux. See the [role source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/ansible).
+
+_Salt:_  We also offer a Salt Formula to install and configure the Smart Agent on Linux. See the [formula source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/salt).
+
+
+### Configuration 
+
+The Smart Agent is configured primarily from a YAML file. By default, the Smart Agent config is installed at and looked for at /etc/signalfx/agent.yaml on Linux and \ProgramData\SignalFxAgent\agent.yaml on Windows. This can be overridden by the -config command line flag.
+
+For details see [Agent Configuration](https://docs.signalfx.com/en/latest/integrations/agent/config-schema.html). 
+
+For the full schema of the config, see Config Schema.
+For information on how to configure the Smart Agent from remote sources, such as other files on the filesystem or KV stores such as Etcd, see Remote Configuration.
+
+
+## Add Monitors 
+
+You may also want to add and configure various monitors for your environment. A limited set of Smart Agent monitors are configured by default in the config file, and many more are available. See the Integrations page for monitor selection.
+
+
+* For [Common configuration options](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html).
+* For [Windows monitor configurations](https://docs.signalfx.com/en/latest/integrations/agent/windows.html).
+* For [Linux monitor configurations](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html)
+
+### Configure optional metrics for your monitors. 
+
+For metric configuration for your monitor, see individual Windows or Linux monitor pages from the lists directly above or see the Integrations tab in the SignalFx application for Monitor Services.
+
+
+## Explore Dashboards to display and compare data from various sources. 
+
+See [Built-In Dashboards and Charts](https://docs.signalfx.com/en/latest/getting-started/built-in-content/built-in-dashboards.html). 
+
+If you plan to create your own [custom dashboards](https://docs.signalfx.com/en/latest/dashboards/dashboard-basics.html#custom-dashboard-groups).
+
+See best practices for [Better Dashboards](https://docs.signalfx.com/en/latest/reference/best-practices/better-dashboards.html). 
+
+
+###To learn more about how your data is presented in SignalFx, see the [15-Minute SingnalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html). 
+
+
+## Additional material 
+
+
+### Observers 
+
+Example of adding a new observer:
+
+To start collecting docker container metrics, first add a [docker observer](https://github.com/signalfx/signalfx-agent/blob/master/docs/observers/docker.md).
+
+Your observer list would then look similar to this:
+
+```sh
+observers:
+  - type: host
+  - type: docker
+```
+
+Next, add a [docker metrics monitor](https://github.com/signalfx/signalfx-agent/blob/master/docs/monitors/docker-container-stats.md) to the agent.yaml file. Your type list would now include this monitor (docker-container-stats) as shown below:
+
+```sh
+monitors:
+  - type: collectd/cpu
+  - type: collectd/cpufreq
+    .
+    .
+    .
+  - type: docker-container-stats
+```
+
+The agent automatically picks up any changes to the configuration file, so a restart is not required.
+
+For complete details see [Observer Configuration](https://docs.signalfx.com/en/latest/integrations/agent/observer-config.html).
+
 
 ### Privileges 
 
@@ -252,14 +226,6 @@ _Windows_
 
 On Windows the Smart Agent must be installed and run under an administrator account.
 
-### Configuration 
-
-The Smart Agent is configured primarily from a YAML file. By default, the Smart Agent config is installed at and looked for at /etc/signalfx/agent.yaml on Linux and \ProgramData\SignalFxAgent\agent.yaml on Windows. This can be overridden by the -config command line flag.
-
-For details see [Agent Configuration](https://docs.signalfx.com/en/latest/integrations/agent/config-schema.html). 
-
-For the full schema of the config, see Config Schema.
-For information on how to configure the Smart Agent from remote sources, such as other files on the filesystem or KV stores such as Etcd, see Remote Configuration.
 
 ### Logging 
 
