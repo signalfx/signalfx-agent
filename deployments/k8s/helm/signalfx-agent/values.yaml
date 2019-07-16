@@ -61,7 +61,7 @@ agentConfig:
 # values of `ingestUrl`, `traceEndpointUrl` and `apiUrl` will be automatically
 # set based on this realm value.  If unset, it defaults to the original us0
 # realm in the agent.
-signalFxRealm:
+signalFxRealm:  #Propose adding this to the required parameters since trials are no longer going to default us0, also lets provide an example of the syntax like this: signalFxRealm: us1
 
 # The URL of SignalFx ingest server. Should be overridden if using the SignalFx
 # Gateway. If you want to send trace spans to a different location, set the
@@ -110,7 +110,7 @@ kubeletAPI:
 
 # Any values put in this object correspond to the 'collectd' config block of
 # the agent config
-collectd: {}
+collectd: {}  #we should be setting up the smart agent not the collectd agent.
 
 # How often to send cAdvisor-based container metrics.  Defaults to whatever is
 # in metricIntervalSeconds.
