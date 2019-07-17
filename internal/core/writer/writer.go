@@ -222,7 +222,7 @@ func (sw *SignalFxWriter) preprocessDatapoint(dp *datapoint.Datapoint) {
 
 func (sw *SignalFxWriter) sendDatapoints(dps []*datapoint.Datapoint) error {
 	// This sends synchonously
-	err := sw.client.AddDatapoints(context.Background(), dps)
+	err := sw.client.AddDatapoints(sw.ctx, dps)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
