@@ -10,7 +10,7 @@ class signalfx_agent::win_repo (
   $versionfile_path = "${agent_location}version.txt"
 
   $url = "https://${repo_base}/windows/${package_stage}/zip/SignalFxAgent-${version}-win64.zip"
-  $zipfile_location = "${agent_location}\SignalFxAgent-${version}-win64.zip"
+  $zipfile_location = "${agent_location}\\SignalFxAgent-${version}-win64.zip"
 
   file { $agent_location:
     ensure  => 'directory',

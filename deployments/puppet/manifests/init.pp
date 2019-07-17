@@ -6,7 +6,7 @@ class signalfx_agent (
   $config_file_path = $::osfamily ? {
     'debian'  => '/etc/signalfx/agent.yaml',
     'redhat'  => '/etc/signalfx/agent.yaml',
-    'windows' => 'C:\ProgramData\SignalFxAgent\agent.yaml',
+    'windows' => 'C:\\ProgramData\\SignalFxAgent\\agent.yaml',
     'default' => '/etc/signalfx/agent.yaml'
   },
   $version          = 'latest'
@@ -24,7 +24,7 @@ class signalfx_agent (
       name            => 'signalfx-agent',
       provider        => 'windows',
       ensure          => 'installed',
-      source          => "${agent_location}\SignalFxAgent\bin\\signalfx-agent.exe",
+      source          => "${agent_location}\\SignalFxAgent\\bin\\signalfx-agent.exe",
       install_options => [{ '-service' => '"install"' }, '-logEvents', { '-config' => $config_file_path }],
       notify          => Service["signalfx-agent"],
     }
