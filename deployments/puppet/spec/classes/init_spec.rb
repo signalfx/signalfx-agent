@@ -3,6 +3,7 @@ require 'spec_helper'
 describe 'signalfx_agent' do
   let(:title) { 'signalfx_agent' }
   let(:params) { { 'config' => {} } }
+  let (:facts) { { :osfamily => 'redhat'} }
 
   it "fails without access token" do
     is_expected.to compile.and_raise_error(/signalFxAccessToken/)
