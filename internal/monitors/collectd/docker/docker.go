@@ -26,11 +26,16 @@ type Config struct {
 	// https://github.com/signalfx/docker-collectd-plugin#extracting-additional-dimensions).
 	Dimensions map[string]string `yaml:"dimensions"`
 	// URL of the Docker engine, can be a unix socket path.
-	DockerURL           string            `yaml:"dockerURL" validate:"required"`
-	ExcludedImages      []string          `yaml:"excludedImages"`
-	ExcludedNames       []string          `yaml:"excludedNames"`
-	ExcludedLabels      map[string]string `yaml:"excludedLabels"`
-	CollectNetworkStats bool              `yaml:"collectNetworkStats"`
+	DockerURL string `yaml:"dockerURL" validate:"required"`
+	// A list of images to exclude from monitoring
+	ExcludedImages []string `yaml:"excludedImages"`
+	// A list of container names to exclude from monitoring
+	ExcludedNames []string `yaml:"excludedNames"`
+	// A map of label keys/values that will cause a container to be ignored.
+	ExcludedLabels map[string]string `yaml:"excludedLabels"`
+	// If true, will collect network stats about a container (will not work in
+	// some environments like Kubernetes).
+	CollectNetworkStats bool `yaml:"collectNetworkStats"`
 }
 
 // Monitor is the main type that represents the monitor
