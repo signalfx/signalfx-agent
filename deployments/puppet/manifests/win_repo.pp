@@ -17,18 +17,14 @@ class signalfx_agent::win_repo (
     replace => 'no',
   }
 
-  ->
-
-  exec { 'stop-agent':
+  -> exec { 'stop-agent':
     command  =>
       'if (((Get-CimInstance -ClassName win32_service -Filter "Name = \'signalfx-agent\'" | Select Name, State).Name)){Stop-Service -Name \'signalfx-agent\'}'
     ,
     provider => 'powershell',
   }
 
-  ->
-
-  archive { $zipfile_location:
+  -> archive { $zipfile_location:
     ensure       => present,
     source       => $url,
     extract_path => $agent_location,
@@ -36,12 +32,9 @@ class signalfx_agent::win_repo (
     user         => 'Administrator',
     extract      => true,
     cleanup      => true,
-    notify       => Package[$service_name],
   }
 
-  ~>
-
-  tidy { $agent_location: # cleanup attribute of Archive resource type does not work
+  -> tidy { $agent_location: # cleanup attribute of Archive resource type does not work
     recurse => 1,
     matches => ['*.zip'],
   }

@@ -20,6 +20,9 @@ class signalfx_agent (
 
   if $::osfamily == 'windows' {
     $agent_location = 'C:\Program Files\SignalFx\\'
+    $split_config_file_path = $config_file_path.split("\\\\")
+    $config_parent_directory_path = $split_config_file_path[0, - 2].join("\\")
+
     package { $service_name:
       name            => 'signalfx-agent',
       provider        => 'windows',
@@ -30,6 +33,9 @@ class signalfx_agent (
     }
   }
   else {
+    $split_config_file_path = $config_file_path.split("/")
+    $config_parent_directory_path = $split_config_file_path[0, - 2].join("/")
+
     package { $service_name:
       ensure => $version
     }
@@ -49,21 +55,9 @@ class signalfx_agent (
       }
     }
     'windows': {
-      $split_config_file_path = $config_file_path.split("\\\\")
-      $config_parent_directory_path = $split_config_file_path[0, - 2].join("\\")
-
-      file { $config_parent_directory_path:
-        ensure  => 'directory',
-        replace => 'no',
-      }
-
-      ->
-
       File[$config_file_path]
 
-      ->
-
-      class { 'signalfx_agent::win_repo':
+      -> class { 'signalfx_agent::win_repo':
         repo_base        => $repo_base,
         package_stage    => $package_stage,
         version          => $version,
@@ -84,11 +78,16 @@ class signalfx_agent (
     enable => true,
   }
 
+  file { $config_parent_directory_path:
+    ensure  => 'directory',
+    replace => 'no',
+  }
+
   file { $config_file_path:
     ensure  => 'file',
     content => template('signalfx_agent/agent.yaml.erb'),
     mode    => '0600',
   }
 
-  File[$config_file_path] ~> Service[$service_name]
+  File[$config_parent_directory_path] ~> File[$config_file_path] ~> Service[$service_name]
 }
