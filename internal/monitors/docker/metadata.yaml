@@ -322,6 +322,11 @@ monitors:
       default: false
       type: gauge
       group: memory
+    memory.stats.shmem:
+      description: "Amount of [Shared Memory](https://www.kernel.org/doc/gorman/html/understand/understand015.html) used by the container, in bytes."
+      default: false
+      type: gauge
+      group: memory
     memory.stats.swap:
       description: Bytes of swap memory used by container
       default: false
@@ -398,6 +403,16 @@ monitors:
       group: memory
     memory.stats.total_rss_huge:
       description: Total amount of memory due to anonymous transparent hugepages.
+      default: false
+      type: gauge
+      group: memory
+    memory.stats.total_shmem:
+      description: "Available amount of [Shared Memory](https://www.kernel.org/doc/gorman/html/understand/understand015.html) used by the container, in bytes."
+      default: false
+      type: gauge
+      group: memory
+    memory.stats.total_swap:
+      description: "Total amount of swap memory available to this container"
       default: false
       type: gauge
       group: memory

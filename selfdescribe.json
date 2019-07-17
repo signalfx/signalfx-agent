@@ -18519,6 +18519,7 @@
             "memory.stats.pgpgout",
             "memory.stats.rss",
             "memory.stats.rss_huge",
+            "memory.stats.shmem",
             "memory.stats.swap",
             "memory.stats.total_active_anon",
             "memory.stats.total_active_file",
@@ -18533,6 +18534,8 @@
             "memory.stats.total_pgpgout",
             "memory.stats.total_rss",
             "memory.stats.total_rss_huge",
+            "memory.stats.total_shmem",
+            "memory.stats.total_swap",
             "memory.stats.total_unevictable",
             "memory.stats.total_writeback",
             "memory.stats.unevictable",
@@ -18917,6 +18920,12 @@
           "group": "memory",
           "default": false
         },
+        "memory.stats.shmem": {
+          "type": "gauge",
+          "description": "Amount of [Shared Memory](https://www.kernel.org/doc/gorman/html/understand/understand015.html) used by the container, in bytes.",
+          "group": "memory",
+          "default": false
+        },
         "memory.stats.swap": {
           "type": "gauge",
           "description": "Bytes of swap memory used by container",
@@ -18998,6 +19007,18 @@
         "memory.stats.total_rss_huge": {
           "type": "gauge",
           "description": "Total amount of memory due to anonymous transparent hugepages.",
+          "group": "memory",
+          "default": false
+        },
+        "memory.stats.total_shmem": {
+          "type": "gauge",
+          "description": "Available amount of [Shared Memory](https://www.kernel.org/doc/gorman/html/understand/understand015.html) used by the container, in bytes.",
+          "group": "memory",
+          "default": false
+        },
+        "memory.stats.total_swap": {
+          "type": "gauge",
+          "description": "Total amount of swap memory available to this container",
           "group": "memory",
           "default": false
         },

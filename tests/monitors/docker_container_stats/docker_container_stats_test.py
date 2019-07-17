@@ -174,7 +174,10 @@ def test_docker_default():
 
 ENHANCED_METRICS = METADATA.all_metrics - {
     "memory.stats.swap",
+    "memory.stats.total_swap",
     # The following metrics are inconsistent across docker versions
+    "memory.stats.shmem",
+    "memory.stats.total_shmem",
     "blkio.io_time_recursive.async",
     "blkio.io_time_recursive.sync",
     "blkio.io_time_recursive.write",
