@@ -37,11 +37,24 @@ jobs:
       pytest --version
     displayName: 'Install pytest'
   - powershell: |
+      choco install -y chef-client
+      $env:PATH += ";C:\opscode\chef\bin"
+      echo "##vso[task.setvariable variable=PATH]$env:PATH"
+    displayName: 'Install chef-client'
+  - powershell: |
+      mkdir c:\chef\cookbooks -ea 0
+      cd c:\chef\cookbooks
+      curl -outfile windows.tar.gz https://supermarket.chef.io/cookbooks/windows/versions/6.0.0/download
+      tar -zxvf .\windows.tar.gz
+    displayName: 'Install windows cookbook'
+  - powershell: |
       echo "Executing '$env:MARKERS' tests"
+      cp -r deployments\chef c:\chef\cookbooks\signalfx_agent
       pytest -n auto -m "$env:MARKERS" --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
       if ($lastexitcode -gt 1) { throw }
     env:
       MARKERS: ${{ parameters.markers }}
+    ignoreLASTEXITCODE: true
     displayName: 'Run pytest'
   - task: PublishBuildArtifacts@1
     inputs:
