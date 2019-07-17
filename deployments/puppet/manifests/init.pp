@@ -1,13 +1,38 @@
 # Main class that installs and configures the agent
 class signalfx_agent (
-    $config,
-    $package_stage = 'final',
-    $repo_base = 'dl.signalfx.com',
-    $config_file_path = '/etc/signalfx/agent.yaml',
-    $version = 'latest') {
+  $config,
+  $package_stage    = 'final',
+  $repo_base        = 'dl.signalfx.com',
+  $config_file_path = $::osfamily ? {
+    'debian'  => '/etc/signalfx/agent.yaml',
+    'redhat'  => '/etc/signalfx/agent.yaml',
+    'windows' => 'C:\ProgramData\SignalFxAgent\agent.yaml',
+    'default' => '/etc/signalfx/agent.yaml'
+  },
+  $version          = 'latest'
+) {
+
+  $service_name = 'signalfx-agent'
 
   if !$config['signalFxAccessToken'] {
     fail("The \$config parameter must contain a 'signalFxAccessToken'")
+  }
+
+  if $::osfamily == 'windows' {
+    $agent_location = 'C:\Program Files\SignalFx\\'
+    package { $service_name:
+      name            => 'signalfx-agent',
+      provider        => 'windows',
+      ensure          => 'installed',
+      source          => "${agent_location}\SignalFxAgent\bin\\signalfx-agent.exe",
+      install_options => [{ '-service' => '"install"' }, '-logEvents', { '-config' => $config_file_path }],
+      notify          => Service["signalfx-agent"],
+    }
+  }
+  else {
+    package { $service_name:
+      ensure => $version
+    }
   }
 
   case $::osfamily {
@@ -23,25 +48,47 @@ class signalfx_agent (
         package_stage => $package_stage,
       }
     }
+    'windows': {
+      $split_config_file_path = $config_file_path.split("\\\\")
+      $config_parent_directory_path = $split_config_file_path[0, - 2].join("\\")
+
+      file { $config_parent_directory_path:
+        ensure  => 'directory',
+        replace => 'no',
+      }
+
+      ->
+
+      File[$config_file_path]
+
+      ->
+
+      class { 'signalfx_agent::win_repo':
+        repo_base        => $repo_base,
+        package_stage    => $package_stage,
+        version          => $version,
+        config_file_path => $config_file_path,
+        agent_location   => $agent_location,
+        service_name     => $service_name,
+      }
+    }
     default: {
       fail("Your OS (${::osfamily}) is not supported by the SignalFx Agent")
     }
   }
 
-  -> package { 'signalfx-agent':
-    ensure => $version
+  -> Package[$service_name]
+
+  -> service { $service_name:
+    ensure => true,
+    enable => true,
   }
 
-  -> file { $config_file_path:
+  file { $config_file_path:
     ensure  => 'file',
     content => template('signalfx_agent/agent.yaml.erb'),
     mode    => '0600',
   }
 
-  -> service { 'signalfx-agent':
-    ensure => true,
-    enable => true,
-  }
-
-  File[$config_file_path] ~> Service['signalfx-agent']
+  File[$config_file_path] ~> Service[$service_name]
 }
