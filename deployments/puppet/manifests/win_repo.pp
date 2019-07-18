@@ -1,3 +1,4 @@
+# Downloads the SignalFx Agent executable
 class signalfx_agent::win_repo (
   $repo_base,
   $package_stage,
@@ -7,34 +8,28 @@ class signalfx_agent::win_repo (
   $service_name,
 ) {
 
-  $versionfile_path = "${agent_location}version.txt"
-
   $url = "https://${repo_base}/windows/${package_stage}/zip/SignalFxAgent-${version}-win64.zip"
   $zipfile_location = "${agent_location}\\SignalFxAgent-${version}-win64.zip"
 
   file { $agent_location:
     ensure  => 'directory',
-    replace => 'no',
   }
 
-  -> exec { 'stop-agent':
-    command  =>
-      'if (((Get-CimInstance -ClassName win32_service -Filter "Name = \'signalfx-agent\'" | Select Name, State).Name)){Stop-Service -Name \'signalfx-agent\'}'
-    ,
+  -> exec { 'Stop SignalFx Agent':
+    command  => "Stop-Service -Name \'${service_name}\'",
+    onlyif   => "((Get-CimInstance -ClassName win32_service -Filter 'Name = \'${service_name}\'' | Select Name, State).Name)",
     provider => 'powershell',
   }
 
   -> archive { $zipfile_location:
-    ensure       => present,
     source       => $url,
     extract_path => $agent_location,
     group        => 'Administrator',
     user         => 'Administrator',
     extract      => true,
-    cleanup      => true,
   }
 
-  -> tidy { $agent_location: # cleanup attribute of Archive resource type does not work
+  -> tidy { $agent_location:
     recurse => 1,
     matches => ['*.zip'],
   }

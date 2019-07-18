@@ -9,7 +9,8 @@ class signalfx_agent (
     'windows' => 'C:\\ProgramData\\SignalFxAgent\\agent.yaml',
     'default' => '/etc/signalfx/agent.yaml'
   },
-  $version          = 'latest'
+  $agent_version    = 'latest',
+  $package_revision = '1',
 ) {
 
   $service_name = 'signalfx-agent'
@@ -19,7 +20,7 @@ class signalfx_agent (
   }
 
   if $::osfamily == 'windows' {
-    $agent_location = 'C:\Program Files\SignalFx\\'
+    $agent_location = "C:\Program Files\SignalFx\\"
     $split_config_file_path = $config_file_path.split("\\\\")
     $config_parent_directory_path = $split_config_file_path[0, - 2].join("\\")
 
@@ -29,12 +30,17 @@ class signalfx_agent (
       ensure          => 'installed',
       source          => "${agent_location}\\SignalFxAgent\\bin\\signalfx-agent.exe",
       install_options => [{ '-service' => '"install"' }, '-logEvents', { '-config' => $config_file_path }],
-      notify          => Service["signalfx-agent"],
     }
   }
   else {
     $split_config_file_path = $config_file_path.split("/")
     $config_parent_directory_path = $split_config_file_path[0, - 2].join("/")
+
+    unless $agent_version == 'latest' {
+      $version = "${agent_version}-${package_revision}"
+    } else {
+      $version = $agent_version
+    }
 
     package { $service_name:
       ensure => $version
@@ -60,7 +66,7 @@ class signalfx_agent (
       -> class { 'signalfx_agent::win_repo':
         repo_base        => $repo_base,
         package_stage    => $package_stage,
-        version          => $version,
+        version          => $agent_version,
         config_file_path => $config_file_path,
         agent_location   => $agent_location,
         service_name     => $service_name,
@@ -80,7 +86,6 @@ class signalfx_agent (
 
   file { $config_parent_directory_path:
     ensure  => 'directory',
-    replace => 'no',
   }
 
   file { $config_file_path:
