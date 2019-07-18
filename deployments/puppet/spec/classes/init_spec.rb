@@ -10,6 +10,9 @@ describe 'signalfx_agent' do
   end
 
   on_supported_os.each do |os, facts|
+    if os.include? "windows"
+        next
+    end
     context "on #{os}" do
       let(:params) { { 'config' => {
         :signalFxAccessToken => "testing",
