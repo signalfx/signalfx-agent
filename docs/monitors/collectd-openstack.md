@@ -63,6 +63,7 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
+| `pythonBinary` | no | `string` | Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well. |
 | `authURL` | **yes** | `string` | Keystone authentication URL/endpoint for the OpenStack cloud |
 | `username` | **yes** | `string` | Username to authenticate with keystone identity |
 | `password` | **yes** | `string` | Password to authenticate with keystone identity |

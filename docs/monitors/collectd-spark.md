@@ -60,6 +60,7 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
+| `pythonBinary` | no | `string` | Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well. |
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `isMaster` | no | `bool` | Set to `true` when monitoring a master Spark node (**default:** `false`) |

@@ -62,6 +62,7 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
+| `pythonBinary` | no | `string` | Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well. |
 | `host` | **yes** | `string` | Host name/IP address of the Mongo instance |
 | `port` | **yes** | `integer` | Port of the Mongo instance (default: 27017) |
 | `databases` | **yes** | `list of strings` | Name(s) of database(s) that you would like metrics from. Note: the first database in this list must be "admin", as it is used to perform a `serverStatus()` command. |

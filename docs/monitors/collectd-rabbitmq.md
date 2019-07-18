@@ -39,6 +39,7 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
+| `pythonBinary` | no | `string` | Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well. |
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `integer` |  |
 | `brokerName` | no | `string` | The name of the particular RabbitMQ instance.  Can be a Go template using other config options. This will be used as the `plugin_instance` dimension. (**default:** `{{.host}}-{{.port}}`) |
