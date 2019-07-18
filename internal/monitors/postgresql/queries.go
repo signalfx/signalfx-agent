@@ -53,7 +53,7 @@ var defaultServerQueries = []sql.Query{
 var makeDefaultDBQueries = func(dbname string) []sql.Query {
 	return []sql.Query{
 		{
-			Query: `SELECT tablespace, relname as table, pg_stat_user_tables.schemaname, n_live_tup, n_tup_ins, n_tup_upd, n_tup_del, seq_scan, COALESCE(idx_scan, 0) as idx_scan, pg_relation_size(relid) as size, 'user' as type from pg_stat_user_tables INNER JOIN pg_tables ON (pg_stat_user_tables.relname = pg_tables.tablename AND pg_stat_user_tables.schemaname = pg_tables.schemaname);`,
+			Query: `SELECT tablespace, relname as table, pg_stat_user_tables.schemaname, n_live_tup, n_tup_ins, n_tup_upd, n_tup_del, seq_scan, COALESCE(idx_scan, 0) as idx_scan, pg_relation_size(relid) as size, 'user' as type from pg_stat_user_tables INNER JOIN pg_tables ON (pg_stat_user_tables.relname = pg_tables.tablename AND pg_stat_user_tables.schemaname = pg_tables.schemaname) WHERE idx_scan IS NOT NULL AND pg_relation_size(relid) IS NOT NULL;`,
 			Metrics: []sql.Metric{
 				{
 					MetricName:       "postgres_rows_inserted",
