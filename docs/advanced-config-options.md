@@ -161,12 +161,12 @@ You may also want to add and configure various monitors for your environment. A 
 * For [Windows monitor configurations](https://docs.signalfx.com/en/latest/integrations/agent/windows.html).
 * For [Linux monitor configurations](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html)
 
-### Configure optional metrics for your monitors. 
+### Configure optional metrics for your monitors 
 
 For metric configuration for your monitor, see individual Windows or Linux monitor pages from the lists directly above or see the Integrations tab in the SignalFx application for Monitor Services.
 
 
-## Explore Dashboards to display and compare data from various sources. 
+## Explore Dashboards to display and compare data from various sources 
 
 See [Built-In Dashboards and Charts](https://docs.signalfx.com/en/latest/getting-started/built-in-content/built-in-dashboards.html). 
 
@@ -175,7 +175,7 @@ If you plan to create your own [custom dashboards](https://docs.signalfx.com/en/
 See best practices for [Better Dashboards](https://docs.signalfx.com/en/latest/reference/best-practices/better-dashboards.html). 
 
 
-###To learn more about how your data is presented in SignalFx, see the [15-Minute SingnalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html). 
+### To learn more about how your data is presented in SignalFx, see the [15-Minute SingnalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html). 
 
 
 ## Additional material 
