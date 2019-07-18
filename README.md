@@ -17,7 +17,7 @@ The agent has three main components:
 
 * _Observers_ that discover applications and services running on the host
 
-* a _Writer_ that sends the metrics collected by monitors to SignalFx.
+* a _Writer_ that sends the metrics collected by monitors to SignalFx
 
 
 ### Monitors
@@ -61,11 +61,11 @@ to SignalFx on a regular basis.  There are a few things that can be
 
 ## Installation
 
-The instructions below are for a command-line installation of a single agent. For other installation options, including bulk deployments, see the Advanced Configuration Options in [Advanced Configuration Options](https://docs.signalfx.com/en/latest/integrations/agent/smart-agent-quickstart.html).
+The instructions below are for a command-line installation of a single agent. For other installation options, including bulk deployments, see the Advanced Installation in [Advanced Configuration Options](https://docs.signalfx.com/en/latest/integrations/agent/advanced-config-options.html).
 
 ### __Get started with Smart Agent using the 3 steps below.__
 
-_Note: if you have previously configured another metric collection agent on your host such as Collectd you should uninstall or disable that agent before installing the SignalFx Smart Agent._
+_Note: if you have previously configured another metric collection agent on your host such as collectd, uninstall or disable that agent before installing the SignalFx Smart Agent._
 
 ### Step 1. Install SignalFx Smart Agent on Single Host 
 
@@ -171,5 +171,5 @@ To troubleshoot your installation further, check the FAQ about troubleshooting [
 
 Installation is complete.
 
-To continue your exploration of SignalFx Smart Agent capabilities, see [Next Steps](https://docs.signalfx.com/en/latest/integrations/agent/smart-agent-quickstart.html). 
+To continue your exploration of SignalFx Smart Agent capabilities, see [Advanced Configuration Options](https://docs.signalfx.com/en/latest/integrations/agent/advanced-config-options.html). 
 
