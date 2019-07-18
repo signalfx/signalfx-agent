@@ -20,7 +20,7 @@ class signalfx_agent (
   }
 
   if $::osfamily == 'windows' {
-    $agent_location = "C:\Program Files\SignalFx\\"
+    $agent_location = "C:\\Program Files\\SignalFx\\"
     $split_config_file_path = $config_file_path.split("\\\\")
     $config_parent_directory_path = $split_config_file_path[0, - 2].join("\\")
 
