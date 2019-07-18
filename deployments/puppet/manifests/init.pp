@@ -9,8 +9,8 @@ class signalfx_agent (
     'windows' => 'C:\\ProgramData\\SignalFxAgent\\agent.yaml',
     'default' => '/etc/signalfx/agent.yaml'
   },
-  $agent_version    = 'latest',
-  $package_revision = '1',
+  $agent_version    = '',
+  $package_version = 'latest',
 ) {
 
   $service_name = 'signalfx-agent'
@@ -36,10 +36,10 @@ class signalfx_agent (
     $split_config_file_path = $config_file_path.split("/")
     $config_parent_directory_path = $split_config_file_path[0, - 2].join("/")
 
-    unless $agent_version == 'latest' {
-      $version = "${agent_version}-${package_revision}"
+    unless $package_version == 'latest' {
+      $version = "${agent_version}-1"
     } else {
-      $version = $agent_version
+      $version = $package_version
     }
 
     package { $service_name:

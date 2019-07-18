@@ -42,11 +42,15 @@ class accepts the following parameters:
  - `$config_file_path`: The path of the config file that will be rendered by the
    module (**default:** '/etc/signalfx/agent.yaml')
 
- - `$version`: The agent package version.  This is of the form `<agent
-	 version>-<package revision>` (e.g. package version `3.0.1-1` is the first
-	 package revision that contains the agent version `3.0.1`).  Releases with
-	 package revision > 1 contain changes to some aspect of the packaging
-	 scripts (e.g. init scripts) but contain the same agent bundle.
+ - `$agent_version`: The agent release version, in the form `1.1.1`.  This
+   corresponds to the [Github
+   releases](https://github.com/signalfx/signalfx-agent/releases) _without_
+   the `v` prefix.
+
+ - `$package_version`: The agent package version (optional).  If not specified,
+   for deb/rpm systems, this is automatically set to `<agent_version>-1` based
+   on the `$agent_version` attribute above. For Windows, it is equivalent to
+   the agent version attribute. 
 
 ## Dependencies
 
