@@ -36,7 +36,7 @@ type Config struct {
 	// The mount paths to include/exclude, is interpreted as a regex if
 	// surrounded by `/`.  Note that you need to include the full path as the
 	// agent will see it, irrespective of the hostFSPath option.
-	MountPoints    []string `yaml:"mountPoints" default:"[\"/^/var/lib/docker/containers/\", \"/^/var/lib/rkt/pods/\", \"/^/net//\", \"/^/smb//\"]"`
+	MountPoints    []string `yaml:"mountPoints" default:"[\"/^/var/lib/docker/\", \"/^/var/lib/rkt/pods/\", \"/^/net//\", \"/^/smb//\"]"`
 	ReportByDevice bool     `yaml:"reportByDevice" default:"false"`
 	ReportInodes   bool     `yaml:"reportInodes" default:"false"`
 
