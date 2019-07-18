@@ -4,15 +4,15 @@ class signalfx_agent::win_repo (
   $package_stage,
   $version,
   $config_file_path,
-  $agent_location,
+  $installation_directory,
   $service_name,
 ) {
 
   $url = "https://${repo_base}/windows/${package_stage}/zip/SignalFxAgent-${version}-win64.zip"
-  $zipfile_location = "${agent_location}\\SignalFxAgent-${version}-win64.zip"
+  $zipfile_location = "${installation_directory}\\SignalFxAgent-${version}-win64.zip"
 
-  file { $agent_location:
-    ensure  => 'directory',
+  file { $installation_directory:
+    ensure => 'directory',
   }
 
   -> exec { 'Stop SignalFx Agent':
@@ -23,13 +23,13 @@ class signalfx_agent::win_repo (
 
   -> archive { $zipfile_location:
     source       => $url,
-    extract_path => $agent_location,
+    extract_path => $installation_directory,
     group        => 'Administrator',
     user         => 'Administrator',
     extract      => true,
   }
 
-  -> tidy { $agent_location:
+  -> tidy { $installation_directory:
     recurse => 1,
     matches => ['*.zip'],
   }

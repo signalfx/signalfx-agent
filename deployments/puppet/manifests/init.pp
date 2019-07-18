@@ -1,16 +1,17 @@
 # Main class that installs and configures the agent
 class signalfx_agent (
   $config,
-  $package_stage    = 'final',
-  $repo_base        = 'dl.signalfx.com',
-  $config_file_path = $::osfamily ? {
+  $package_stage          = 'final',
+  $repo_base              = 'dl.signalfx.com',
+  $config_file_path       = $::osfamily ? {
     'debian'  => '/etc/signalfx/agent.yaml',
     'redhat'  => '/etc/signalfx/agent.yaml',
     'windows' => 'C:\\ProgramData\\SignalFxAgent\\agent.yaml',
     'default' => '/etc/signalfx/agent.yaml'
   },
-  $agent_version    = '',
-  $package_version = 'latest',
+  $agent_version          = '',
+  $package_version        = '',
+  $installation_directory = 'C:\\Program Files\\SignalFx\\',
 ) {
 
   $service_name = 'signalfx-agent'
@@ -20,7 +21,6 @@ class signalfx_agent (
   }
 
   if $::osfamily == 'windows' {
-    $agent_location = "C:\\Program Files\\SignalFx\\"
     $split_config_file_path = $config_file_path.split("\\\\")
     $config_parent_directory_path = $split_config_file_path[0, - 2].join("\\")
 
@@ -28,7 +28,7 @@ class signalfx_agent (
       name            => 'signalfx-agent',
       provider        => 'windows',
       ensure          => 'installed',
-      source          => "${agent_location}\\SignalFxAgent\\bin\\signalfx-agent.exe",
+      source          => "${installation_directory}\\SignalFxAgent\\bin\\signalfx-agent.exe",
       install_options => [{ '-service' => '"install"' }, '-logEvents', { '-config' => $config_file_path }],
     }
   }
@@ -36,8 +36,12 @@ class signalfx_agent (
     $split_config_file_path = $config_file_path.split("/")
     $config_parent_directory_path = $split_config_file_path[0, - 2].join("/")
 
-    unless $package_version == 'latest' {
-      $version = "${agent_version}-1"
+    if $package_version == '' {
+      if $agent_version == '' {
+        $version = 'latest'
+      } else {
+        $version = "${agent_version}-1"
+      }
     } else {
       $version = $package_version
     }
@@ -64,12 +68,12 @@ class signalfx_agent (
       File[$config_file_path]
 
       -> class { 'signalfx_agent::win_repo':
-        repo_base        => $repo_base,
-        package_stage    => $package_stage,
-        version          => $agent_version,
-        config_file_path => $config_file_path,
-        agent_location   => $agent_location,
-        service_name     => $service_name,
+        repo_base              => $repo_base,
+        package_stage          => $package_stage,
+        version                => $agent_version,
+        config_file_path       => $config_file_path,
+        installation_directory => $installation_directory,
+        service_name           => $service_name,
       }
     }
     default: {
@@ -85,7 +89,7 @@ class signalfx_agent (
   }
 
   file { $config_parent_directory_path:
-    ensure  => 'directory',
+    ensure => 'directory',
   }
 
   file { $config_file_path:

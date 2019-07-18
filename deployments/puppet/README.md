@@ -45,18 +45,28 @@ class accepts the following parameters:
  - `$agent_version`: The agent release version, in the form `1.1.1`.  This
    corresponds to the [Github
    releases](https://github.com/signalfx/signalfx-agent/releases) _without_
-   the `v` prefix.
+   the `v` prefix. This option is **required** on Windows.
 
- - `$package_version`: The agent package version (optional).  If not specified,
-   for deb/rpm systems, this is automatically set to `<agent_version>-1` based
-   on the `$agent_version` attribute above. For Windows, it is equivalent to
-   the agent version attribute. 
+ - `$package_version`: The agent package version.  If not specified, for deb/rpm
+   systems, this is automatically set to `<agent_version>-1` based on the
+   `$agent_version` attribute above. For Windows, it is equivalent to the 
+   agent version attribute. If set, `$package_version` will take precedence
+   over `$agent_version`. On Windows, this option is not relevant.
+
+ - `$installation_directory`: Valid only on Windows. The path where the SignalFx
+   Agent should be downloaded to. (**default:** 'C:\\Program Files\\SignalFx\\')
 
 ## Dependencies
 
 On Debian-based systems, the
 [puppetlabs/apt](https://forge.puppet.com/puppetlabs/apt) module is required to
 manage the SignalFx apt repository.
+
+On Windows-based systems SignalFx Agent Puppet module has the following dependencies:
+
+- [puppet/archive](https://forge.puppet.com/puppet/archive)
+
+- [puppetlabs/powershell](https://forge.puppet.com/puppetlabs/powershell)
 
 ## Development
 
@@ -68,7 +78,7 @@ directory called `signalfx_agent` and then run:
 puppet apply --modulepath <parent dir of signalfx_agent> -e 'class { signalfx_agent: 
   config => {
     signalFxAccessToken => 'test',
-  }
+  }, agent_version => '1.1.1'
 }'
 ```
 
