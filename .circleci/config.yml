@@ -457,7 +457,8 @@ jobs:
                 ;;
             puppet)
                 docker run --rm \
-                    -e "CI_SPEC_OPTIONS=--format RspecJunitFormatter -o ~/testresults/puppetspec.xml" \
+                    -v ~/testresults:/testresults \
+                    -e "CI_SPEC_OPTIONS=--format RspecJunitFormatter -o /testresults/puppetspec.xml" \
                     signalfx-agent-puppet-dev \
                     rake spec
                 docker run --rm \
