@@ -139,6 +139,7 @@ monitor config option `extraGroups`:
  - `memory.stats.pgpgout` (*cumulative*)<br>    Number of uncharging events to the memory cgroup. Uncharging events happen each time a page is unaccounted from the cgroup.
  - `memory.stats.rss` (*gauge*)<br>    The amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps.
  - `memory.stats.rss_huge` (*gauge*)<br>    Amount of memory due to anonymous transparent hugepages.
+ - `memory.stats.shmem` (*gauge*)<br>    Amount of [Shared Memory](https://www.kernel.org/doc/gorman/html/understand/understand015.html) used by the container, in bytes.
  - `memory.stats.swap` (*gauge*)<br>    Bytes of swap memory used by container
  - `memory.stats.total_active_anon` (*gauge*)<br>    Total amount of memory that has been identified as active by the kernel. Anonymous memory is memory that is not linked to disk pages.
  - `memory.stats.total_active_file` (*gauge*)<br>    Total amount of active file cache memory. Cache memory = active_file + inactive_file + tmpfs
@@ -153,6 +154,8 @@ monitor config option `extraGroups`:
  - `memory.stats.total_pgpgout` (*cumulative*)<br>    Total number of uncharging events
  - `memory.stats.total_rss` (*gauge*)<br>    Total amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps.
  - `memory.stats.total_rss_huge` (*gauge*)<br>    Total amount of memory due to anonymous transparent hugepages.
+ - `memory.stats.total_shmem` (*gauge*)<br>    Available amount of [Shared Memory](https://www.kernel.org/doc/gorman/html/understand/understand015.html) used by the container, in bytes.
+ - `memory.stats.total_swap` (*gauge*)<br>    Total amount of swap memory available to this container
  - `memory.stats.total_unevictable` (*gauge*)<br>    Total amount of memory that can not be reclaimed
  - `memory.stats.total_writeback` (*gauge*)<br>    Total amount of memory from file/anon cache that are queued for syncing to the disk
  - `memory.stats.unevictable` (*gauge*)<br>    The amount of memory that cannot be reclaimed.
