@@ -74,7 +74,7 @@
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 4.7.0 <= 6.6.0"
+      "version_requirement": ">= 5.0.0"
     }
   ],
   "pdk-version": "1.4.1",
