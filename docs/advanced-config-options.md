@@ -1,7 +1,7 @@
 # SignalFx Smart Agent Advanced Configuration Options
 
 
-__See [Overview](https://docs.signalfx.com/en/latest/integrations/agent/overview.html) for simplified Smart Agent command-line installation on a single host.__
+__See [SignalFx Smart Agent Quick Install](https://docs.signalfx.com/en/latest/integrations/agent/docs/quick-install.html) for simplified Smart Agent command-line installation on a single host.__
 
 ## Advanced Installation on a Single Host
 
@@ -175,7 +175,7 @@ If you plan to create your own [custom dashboards](https://docs.signalfx.com/en/
 See best practices for [Better Dashboards](https://docs.signalfx.com/en/latest/reference/best-practices/better-dashboards.html). 
 
 
-### To learn more about how your data is presented in SignalFx, see the [15-Minute SingnalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html). 
+_To learn more about how your data is presented in SignalFx, see the [15-Minute SingnalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html)__. 
 
 
 ## Additional material 
