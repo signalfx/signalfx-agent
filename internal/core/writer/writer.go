@@ -74,6 +74,8 @@ type SignalFxWriter struct {
 
 	// Datapoints sent in the last minute
 	datapointsLastMinute int64
+	// Datapoints that tried to be sent but couldn't in the last minute
+	datapointsFailedLastMinute int64
 	// Events sent in the last minute
 	eventsLastMinute int64
 	// Spans sent in the last minute
@@ -86,6 +88,7 @@ type SignalFxWriter struct {
 	dpsSent                 int64
 	dpsReceived             int64
 	dpsFiltered             int64
+	dpsFailedToSend         int64
 	traceSpanRequestsActive int64
 	traceSpansInFlight      int64
 	traceSpansSent          int64
@@ -355,10 +358,14 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 			atomic.AddInt64(&sw.dpsInFlight, dpCount)
 
 			log.Debugf("Sending dpBuffer[%d:%d]", low, high)
-			_ = sw.sendDatapoints(dpBuffer[low:high])
+			err := sw.sendDatapoints(dpBuffer[low:high])
+			if err != nil {
+				atomic.AddInt64(&sw.dpsFailedToSend, dpCount)
+			} else {
+				atomic.AddInt64(&sw.dpsSent, dpCount)
+			}
 
 			atomic.AddInt64(&sw.dpsInFlight, -dpCount)
-			atomic.AddInt64(&sw.dpsSent, dpCount)
 
 			requestDoneCh <- struct{}{}
 		}(lastHighStarted, newHigh)

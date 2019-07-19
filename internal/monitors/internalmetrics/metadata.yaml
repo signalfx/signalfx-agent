@@ -66,6 +66,13 @@ monitors:
         last started
       default: true
       type: cumulative
+    sfxagent.datapoints_failed:
+      description: |
+        The total number of datapoints that tried to be sent but could not be
+        by the agent writer since it last started.  This can be due to network
+        failures or an incorrect access token, among other things.
+      default: true
+      type: cumulative
     sfxagent.datapoints_waiting:
       description: The total number of datapoints that have been accepted by the writer
         but have yet to be sent out to ingest over HTTP.  If this continues to grow

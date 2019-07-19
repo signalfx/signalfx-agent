@@ -23366,6 +23366,7 @@
             "sfxagent.configured_monitors",
             "sfxagent.datapoint_channel_len",
             "sfxagent.datapoint_requests_active",
+            "sfxagent.datapoints_failed",
             "sfxagent.datapoints_filtered",
             "sfxagent.datapoints_in_flight",
             "sfxagent.datapoints_received",
@@ -23424,6 +23425,12 @@
         "sfxagent.datapoint_requests_active": {
           "type": "gauge",
           "description": "The total number of outstanding requests to ingest currently active.  If this is consistently hovering around the `writer.maxRequests` setting, that setting should probably be increased to give the agent more bandwidth to send datapoints.",
+          "group": null,
+          "default": true
+        },
+        "sfxagent.datapoints_failed": {
+          "type": "cumulative",
+          "description": "The total number of datapoints that tried to be sent but could not be\nby the agent writer since it last started.  This can be due to network\nfailures or an incorrect access token, among other things.\n",
           "group": null,
           "default": true
         },

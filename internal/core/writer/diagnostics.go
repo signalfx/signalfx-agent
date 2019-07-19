@@ -17,6 +17,7 @@ func (sw *SignalFxWriter) maintainLastMinuteActivity() {
 	defer t.Stop()
 
 	var dpSamples [6]int64
+	var dpFailedSamples [6]int64
 	var eventSamples [6]int64
 	var spanSamples [6]int64
 	idx := 0
@@ -27,6 +28,9 @@ func (sw *SignalFxWriter) maintainLastMinuteActivity() {
 		case <-t.C:
 			sw.datapointsLastMinute = atomic.LoadInt64(&sw.dpsSent) - dpSamples[idx]
 			dpSamples[idx] += sw.datapointsLastMinute
+
+			sw.datapointsFailedLastMinute = atomic.LoadInt64(&sw.dpsFailedToSend) - dpFailedSamples[idx]
+			dpFailedSamples[idx] += sw.datapointsFailedLastMinute
 
 			sw.eventsLastMinute = atomic.LoadInt64(&sw.eventsSent) - eventSamples[idx]
 			eventSamples[idx] += sw.eventsLastMinute
@@ -45,10 +49,12 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 	return fmt.Sprintf(
 		"Global Dimensions:                %s\n"+
 			"Datapoints sent (last minute):    %d\n"+
+			"Datapoints failed (last minute):  %d\n"+
 			"Events Sent (last minute):        %d\n"+
 			"Trace Spans Sent (last minute):   %d",
 		utils.FormatStringMapCompact(utils.MergeStringMaps(sw.conf.GlobalDimensions, sw.hostIDDims)),
 		sw.datapointsLastMinute,
+		sw.datapointsFailedLastMinute,
 		sw.eventsLastMinute,
 		sw.spansLastMinute)
 }
@@ -60,6 +66,7 @@ func (sw *SignalFxWriter) InternalMetrics() []*datapoint.Datapoint {
 		sfxclient.CumulativeP("sfxagent.datapoints_sent", nil, &sw.dpsSent),
 		sfxclient.CumulativeP("sfxagent.datapoints_produced", nil, &sw.dpsReceived),
 		sfxclient.CumulativeP("sfxagent.datapoints_filtered", nil, &sw.dpsFiltered),
+		sfxclient.CumulativeP("sfxagent.datapoints_failed", nil, &sw.dpsFailedToSend),
 		sfxclient.CumulativeP("sfxagent.events_sent", nil, &sw.eventsSent),
 		sfxclient.Gauge("sfxagent.datapoint_channel_len", nil, int64(len(sw.dpChan))),
 		sfxclient.Gauge("sfxagent.datapoints_in_flight", nil, atomic.LoadInt64(&sw.dpsInFlight)),
