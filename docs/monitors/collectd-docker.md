@@ -37,10 +37,10 @@ Configuration](../monitor-config.md#common-configuration).**
 | --- | --- | --- | --- |
 | `dimensions` | no | `map of strings` | A set of dimensions to add to container metrics (see https://github.com/signalfx/docker-collectd-plugin#extracting-additional-dimensions). |
 | `dockerURL` | **yes** | `string` | URL of the Docker engine, can be a unix socket path. |
-| `excludedImages` | no | `list of strings` |  |
-| `excludedNames` | no | `list of strings` |  |
-| `excludedLabels` | no | `map of strings` |  |
-| `collectNetworkStats` | no | `bool` |  (**default:** `false`) |
+| `excludedImages` | no | `list of strings` | A list of images to exclude from monitoring |
+| `excludedNames` | no | `list of strings` | A list of container names to exclude from monitoring |
+| `excludedLabels` | no | `map of strings` | A map of label keys/values that will cause a container to be ignored. |
+| `collectNetworkStats` | no | `bool` | If true, will collect network stats about a container (will not work in some environments like Kubernetes). (**default:** `false`) |
 
 
 ## Metrics
