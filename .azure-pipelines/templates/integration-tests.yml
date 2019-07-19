@@ -3,7 +3,7 @@ parameters:
   displayName: ''
   jobName: ''
   vmImage: ''
-  markers: 'windows or windows_only'
+  markers: '(windows or windows_only) and not deployment'
 
 jobs:
 - job: ${{ parameters.jobName }}
@@ -37,32 +37,42 @@ jobs:
       pytest --version
     displayName: 'Install pytest'
   - powershell: |
-      choco install -y chef-client
-      $env:PATH += ";C:\opscode\chef\bin"
-      echo "##vso[task.setvariable variable=PATH]$env:PATH"
-    displayName: 'Install chef-client'
-  - powershell: |
-      mkdir c:\chef\cookbooks -ea 0
-      cd c:\chef\cookbooks
-      curl -outfile windows.tar.gz https://supermarket.chef.io/cookbooks/windows/versions/6.0.0/download
-      tar -zxvf .\windows.tar.gz
-    displayName: 'Install windows cookbook'
-  - powershell: |
+      mkdir test_output
       echo "Executing '$env:MARKERS' tests"
-      cp -r deployments\chef c:\chef\cookbooks\signalfx_agent
-      pytest -n auto -m "$env:MARKERS" --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
+      pytest -n auto -m "$env:MARKERS" --verbose --junitxml=test_output/integration_results.xml --html=test_output/integration_results.html --self-contained-html tests
       if ($lastexitcode -gt 1) { throw }
     env:
       MARKERS: ${{ parameters.markers }}
     ignoreLASTEXITCODE: true
     displayName: 'Run pytest'
+  - powershell: |
+      choco install -y chef-client
+      $env:PATH += ";C:\opscode\chef\bin"
+      echo "##vso[task.setvariable variable=PATH]$env:PATH"
+      mkdir c:\chef\cookbooks -ea 0
+      cd c:\chef\cookbooks
+      curl -outfile windows.tar.gz https://supermarket.chef.io/cookbooks/windows/versions/6.0.0/download
+      tar -zxvf .\windows.tar.gz
+    displayName: 'Install chef dependencies'
+  - powershell: |
+      .\scripts\windows\uninstall-agent.ps1
+      cp -r deployments\chef c:\chef\cookbooks\signalfx_agent
+      pytest -m "chef and windows_only" --verbose --junitxml=test_output/chef_results.xml --html=test_output/chef_results.html --self-contained-html tests
+      if ($lastexitcode -gt 1) { throw }
+    ignoreLASTEXITCODE: true
+    displayName: 'Run chef tests'
+  - powershell: |
+      pytest -m "puppet and windows_only" --verbose --junitxml=test_output/puppet_results.xml --html=test_output/puppet_results.html --self-contained-html tests
+      if ($lastexitcode -gt 1) { throw }
+    ignoreLASTEXITCODE: true
+    displayName: 'Run puppet tests'
   - task: PublishBuildArtifacts@1
     inputs:
-      pathtoPublish: 'integration_results.html'
+      pathtoPublish: 'test_output'
       artifactName: ${{ parameters.jobName }}
   - task: PublishTestResults@2
     inputs:
       searchFolder: '$(Build.SourcesDirectory)'
       testResultsFormat: 'JUnit'
-      testResultsFiles: 'integration_results.xml'
+      testResultsFiles: 'test_output/*.xml'
       failTaskOnFailedTests: true
