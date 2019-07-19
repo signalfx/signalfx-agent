@@ -6,4 +6,10 @@ fixtures:
     apt:
       repo: "puppetlabs/apt"
       ref: "7.0.0"
+    archive:
+      repo: "puppet/archive"
+      ref: "4.1.0"
+    powershell:
+      repo: "puppetlabs/powershell"
+      ref: "2.3.0"
 

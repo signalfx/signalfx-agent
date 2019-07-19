@@ -9,6 +9,14 @@
     {
       "name": "puppetlabs/apt",
       "version_requirement": ">= 4.1.0 <= 7.0.0"
+    },
+    {
+      "name": "puppet/archive",
+      "version_requirement": "<= 4.1.0"
+    },
+    {
+      "name": "puppetlabs/powershell",
+      "version_requirement": "<= 2.3.0"
     }
   ],
   "operatingsystem_support": [
@@ -54,12 +62,19 @@
         "14.04",
         "16.04"
       ]
+    },
+    {
+      "operatingsystem": "Windows",
+      "operatingsystemrelease": [
+        "2012 R2",
+        "2016"
+      ]
     }
   ],
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 4.7.0 < 6.0.0"
+      "version_requirement": ">= 5.0.0"
     }
   ],
   "pdk-version": "1.4.1",
