@@ -2,6 +2,14 @@
 
 # cadvisor
 
+Monitor Type: `cadvisor` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/cadvisor))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor pulls metrics directly from cadvisor, which
 conventionally runs on port 4194, but can be configured to anything.  If you
 are running on Kubernetes, consider the [kubelet-stats](./kubelet-stats.md)
@@ -17,15 +25,16 @@ to be blank, but container metrics will be available on the Kubernetes
 dashboards instead.
 
 
-Monitor Type: `cadvisor`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/cadvisor)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: cadvisor
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

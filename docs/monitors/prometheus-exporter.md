@@ -2,6 +2,14 @@
 
 # prometheus-exporter
 
+Monitor Type: `prometheus-exporter` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheusexporter))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor reads metrics from a [Prometheus
 exporter](https://prometheus.io/docs/instrumenting/exporters/) endpoint.
 
@@ -54,15 +62,16 @@ monitors:
 ```
 
 
-Monitor Type: `prometheus-exporter`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheusexporter)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: prometheus-exporter
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

@@ -2,6 +2,14 @@
 
 # gitlab-unicorn
 
+Monitor Type: `gitlab-unicorn` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/gitlab))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This is a monitor for GitLab's Unicorn server.  The Unicorn server comes
 with a Prometheus exporter that runs by default on port 8080 at the path
 `/-/metrics`.  The IP address of the SignalFx Smart Agent container or
@@ -24,15 +32,16 @@ The available metrics are [documented by GitLab](https://gitlab.com/gitlab-org/g
 See the [Gitlab monitor](gitlab.md) for more information.
 
 
-Monitor Type: `gitlab-unicorn`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/gitlab)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: gitlab-unicorn
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

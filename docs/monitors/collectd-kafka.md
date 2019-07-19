@@ -2,8 +2,19 @@
 
 # collectd/kafka
 
+Monitor Type: `collectd/kafka` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors a Kafka instance using collectd's
-GenericJMX plugin.
+GenericJMX plugin. See the [collectd/genericjmx
+monitor](./collectd-genericjmx.md)[](sfx_link:java) for more information on
+how to configure custom MBeans, as well as information on troubleshooting
+JMX setup.
 
 This monitor has a set of [built in MBeans
 configured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka/mbeans.go)
@@ -14,22 +25,21 @@ apart from the list of default metrics, kafka.server:type=ZooKeeperClientMetrics
 is a good metric to monitor since it gives an understanding of how long brokers wait for
 requests to Zookeeper to be completed. Since Zookeeper is an integral part of a Kafka cluster,
 monitoring it using the [Zookeeper
-monitor] (https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-zookeeper.html)
+monitor](https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-zookeeper.html)[](sfx_link:zookeeper)
 is recommended. It is also a good idea to monitor disk utilization and network metrics of
 the underlying host.
 
-See https://github.com/signalfx/integrations/tree/master/collectd-kafka.
-
-
-Monitor Type: `collectd/kafka`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/kafka
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

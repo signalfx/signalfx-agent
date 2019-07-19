@@ -2,21 +2,30 @@
 
 # collectd/disk
 
+Monitor Type: `collectd/disk` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/disk))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 This monitor collects information about the usage of
 physical disks and logical disks (partitions).
 
 See https://collectd.org/wiki/index.php/Plugin:Disk.
 
 
-Monitor Type: `collectd/disk`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/disk)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/disk
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

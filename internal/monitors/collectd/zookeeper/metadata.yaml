@@ -1,13 +1,10 @@
 monitors:
 - dimensions:
   doc: |
-    Monitors an Apache Zookeeper instance.
-
-    See the [Python plugin
-    source](https://github.com/signalfx/collectd-zookeeper) and the
-    [integrations repo
-    page](https://github.com/signalfx/integrations/tree/master/collectd-zookeeper)
-    for more information.
+    Monitors an Apache Zookeeper instance using the [Zookeeper collectd
+    plugin](https://github.com/signalfx/collectd-zookeeper). This plugin is
+    installed with the Smart Agent so no additional installation is required to
+    use this monitor.  Supports Zookeeper 3.4.0 or later.
   metrics:
     counter.zk_packets_received:
       description: Count of the number of ZooKeeper packets received by a server

@@ -2,21 +2,30 @@
 
 # collectd/cpufreq
 
+Monitor Type: `collectd/cpufreq` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/cpufreq))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 Monitors the actual clock speed of each CPU on a
 host.  Useful for systems that vary the clock speed to conserve energy.
 
 See https://collectd.org/wiki/index.php/Plugin:CPUFreq
 
 
-Monitor Type: `collectd/cpufreq`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/cpufreq)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/cpufreq
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

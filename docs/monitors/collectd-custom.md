@@ -2,6 +2,14 @@
 
 # collectd/custom
 
+Monitor Type: `collectd/custom` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/custom))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor lets you provide custom collectd
 configuration to be run by the managed collectd instance.  You can provide
 configuration for as many plugins as you want in a single instance of this
@@ -46,15 +54,16 @@ containerized version, and is normally `/usr/lib/signalfx-agent` in the
 non-containerized agent.
 
 
-Monitor Type: `collectd/custom`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/custom)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/custom
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

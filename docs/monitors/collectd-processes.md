@@ -2,6 +2,14 @@
 
 # collectd/processes
 
+Monitor Type: `collectd/processes` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/processes))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 Gathers information about processes running on
 the host.  See
 https://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_processes
@@ -29,15 +37,16 @@ their process metrics aggregated together and sent with a `plugin_instance`
 value of `docker`.
 
 
-Monitor Type: `collectd/processes`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/processes)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/processes
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

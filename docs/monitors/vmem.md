@@ -2,6 +2,14 @@
 
 # vmem
 
+Monitor Type: `vmem` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/vmem))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 Collects information about the virtual memory
 subsystem of the kernel.
 
@@ -16,15 +24,16 @@ monitors:
 ```
 
 
-Monitor Type: `vmem`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/vmem)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: vmem
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

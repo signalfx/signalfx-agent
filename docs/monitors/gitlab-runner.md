@@ -2,6 +2,14 @@
 
 # gitlab-runner
 
+Monitor Type: `gitlab-runner` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/gitlab))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitor for the [Gitlab runner service](https://docs.gitlab.com/runner/).  This usually runs on port 9252, so to monitor an instance on the same host as the agent, you can do:
 
 ```yaml
@@ -16,15 +24,16 @@ For more information on configuring monitoring within Gitlab runner itself, see 
 See the [Gitlab monitor](gitlab.md) for more information.
 
 
-Monitor Type: `gitlab-runner`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/gitlab)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: gitlab-runner
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

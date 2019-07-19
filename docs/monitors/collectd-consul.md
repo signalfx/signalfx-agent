@@ -2,6 +2,14 @@
 
 # collectd/consul
 
+Monitor Type: `collectd/consul` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/consul))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors the Consul data store by using the
 [Consul collectd Python
 plugin](https://github.com/signalfx/collectd-consul), which collects metrics
@@ -16,8 +24,10 @@ from Consul instances by hitting these endpoints:
 - [/coordinate/nodes](https://www.consul.io/api/coordinate.html#read-lan-coordinates)
 - [/health/state/any](https://www.consul.io/api/health.html#list-checks-in-state)
 
+Supports Consul 0.7.0+.
 
-### Agent Statsd listener
+<!--- SETUP --->
+## Agent Statsd listener
 If running Consul version below 0.9.1, configure the Consul agents that are
 to be monitored to send telemetry to a SignalFx Agent instance by adding
 the below configuration to Consul agents configuration file:
@@ -32,15 +42,16 @@ option set. This will start a UDP server listening on `0.0.0.0:8125` by
 default.
 
 
-Monitor Type: `collectd/consul`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/consul)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/consul
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

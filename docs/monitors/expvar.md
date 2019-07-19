@@ -2,6 +2,14 @@
 
 # expvar
 
+Monitor Type: `expvar` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/expvar))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 The expvar monitor is a SignalFx Smart Agent monitor that scrapes metrics from variables exposed in JSON
 format at an HTTP endpoint by [expvar](https://golang.org/pkg/expvar/). The monitor uses configured paths
 to get metric and dimension values from fetched JSON objects.
@@ -147,15 +155,16 @@ DO NOT configure the monitor for memstats metrics because they are standard metr
 memstats was used to provide a realistic example.
 
 
-Monitor Type: `expvar`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/expvar)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: expvar
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

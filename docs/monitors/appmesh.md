@@ -2,6 +2,14 @@
 
 # appmesh
 
+Monitor Type: `appmesh` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/appmesh))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor starts a StatsD monitor to listen to StatsD metrics emitted
 by AWS AppMesh Envoy Proxy.
 
@@ -38,15 +46,16 @@ monitors:
 ```
 
 
-Monitor Type: `appmesh`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/appmesh)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: appmesh
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

@@ -2,19 +2,28 @@
 
 # kubelet-stats
 
-This monitor pulls cadvisor metrics through a
-Kubernetes kubelet instance via the `/stats/container` endpoint.
-
-
-Monitor Type: `kubelet-stats`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/cadvisor)
+Monitor Type: `kubelet-stats` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/cadvisor))
 
 **Accepts Endpoints**: No
 
 **Multiple Instances Allowed**: Yes
 
+## Overview
+
+This monitor pulls cadvisor metrics through a
+Kubernetes kubelet instance via the `/stats/container` endpoint.
+
+
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: kubelet-stats
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

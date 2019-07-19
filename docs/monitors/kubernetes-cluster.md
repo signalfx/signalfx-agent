@@ -2,6 +2,14 @@
 
 # kubernetes-cluster
 
+Monitor Type: `kubernetes-cluster` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/kubernetes/cluster))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 *If you are using OpenShift there is an* [openshift-cluster](openshift-cluster.md)
 *monitor to be used instead of this monitor that contains additional OpenShift metrics.*
 
@@ -26,15 +34,16 @@ sends many of the same metrics, but in a way that is less verbose and better
 fitted for the SignalFx backend.
 
 
-Monitor Type: `kubernetes-cluster`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/kubernetes/cluster)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: kubernetes-cluster
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

@@ -2,6 +2,14 @@
 
 # prometheus/postgres
 
+Monitor Type: `prometheus/postgres` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus/postgres))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor scrapes [Prmoetheus PostgreSQL Server
 Exporter](https://github.com/wrouesnel/postgres_exporter) metrics and sends
 them to SignalFx.  It is a wrapper around the
@@ -9,15 +17,16 @@ them to SignalFx.  It is a wrapper around the
 restricted but expandable set of metrics.
 
 
-Monitor Type: `prometheus/postgres`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus/postgres)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: prometheus/postgres
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

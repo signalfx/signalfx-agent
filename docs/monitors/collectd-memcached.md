@@ -2,24 +2,38 @@
 
 # collectd/memcached
 
-Monitors an instance of memcached using the
-[collectd memcached
-plugin](https://collectd.org/wiki/index.php/Plugin:memcached).
-
-See the [integrations
-doc](https://github.com/signalfx/integrations/tree/master/collectd-memcached)
-for more information.
-
-
-Monitor Type: `collectd/memcached`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/memcached)
+Monitor Type: `collectd/memcached` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/memcached))
 
 **Accepts Endpoints**: **Yes**
 
 **Multiple Instances Allowed**: Yes
 
+## Overview
+
+Monitors an instance of memcached using the [collectd memcached
+plugin](https://collectd.org/wiki/index.php/Plugin:memcached).  Requires
+Memcached 1.1 or later.
+
+The monitor collects the following information from Memcached nodes:
+
+* request information (including hits, misses & evictions)
+* current connections
+* net input/output bytes
+* number of items cached
+
+Documentation for Memcached can be found at https://github.com/memcached/memcached/wiki.
+
+
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/memcached
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

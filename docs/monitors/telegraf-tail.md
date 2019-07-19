@@ -2,6 +2,14 @@
 
 # telegraf/tail
 
+Monitor Type: `telegraf/tail` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/tail))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor is based on the Telegraf tail plugin.  The monitor tails files and
 named pipes.  The Telegraf parser configured with this monitor extracts metrics in different
 [formats](https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md)
@@ -36,15 +44,16 @@ monitors:
 ```
 
 
-Monitor Type: `telegraf/tail`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/tail)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: telegraf/tail
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

@@ -2,6 +2,14 @@
 
 # python-monitor
 
+Monitor Type: `python-monitor` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/pyrunner/signalfx))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor allows you to generate metrics from a Python script.
 
 Your Python code should be Python 2.7+ *AND* 3.0+ compatible.  The Python
@@ -64,15 +72,16 @@ monitors:
 ```
 
 
-Monitor Type: `python-monitor`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/pyrunner/signalfx)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: python-monitor
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

@@ -2,6 +2,14 @@
 
 # prometheus/nginx-vts
 
+Monitor Type: `prometheus/nginx-vts` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus/nginxvts))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor scrapes [Prmoetheus Nginx VTS
 exporter](https://github.com/hnlq715/nginx-vts-exporter) metrics from a
 Prometheus exporter and sends them to SignalFx.  It is a wrapper around the
@@ -9,15 +17,16 @@ Prometheus exporter and sends them to SignalFx.  It is a wrapper around the
 restricted but expandable set of metrics.
 
 
-Monitor Type: `prometheus/nginx-vts`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus/nginxvts)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: prometheus/nginx-vts
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

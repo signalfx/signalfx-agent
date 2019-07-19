@@ -2,14 +2,38 @@
 
 # collectd/genericjmx
 
-Monitors Java services that expose metrics on
-JMX using collectd's GenericJMX plugin.
+Monitor Type: `collectd/genericjmx` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/genericjmx))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
+Monitors Java services that expose metrics on JMX using collectd's
+GenericJMX plugin. The GenericJMX plugin reads Managed Beans (MBeans) from
+an MBeanServer using JMX. The monitor uses an embedded Java runtime in
+collectd via the [Java
+plugin](https://github.com/signalfx/integrations/tree/master/collectd-java)
+of collectd.
+
+The Java Management Extensions (JMX) is a generic framework to provide and
+query various management information. The interface is used by the Java
+Virtual Machine (JVM) to provide information about the memory used, threads
+and so on. These basic performance values can therefore be collected for
+every Java process without any support in the Java process itself.
+
+Advanced Java processes can use the JMX interface to provide performance
+information themselves. The Apache Tomcat application server, for example,
+provides information on the number of requests processed, the number of
+bytes sent, processing time, and thread counts.
 
 See the following for more information
-- https://github.com/signalfx/integrations/tree/master/collectd-genericjmx
 - https://collectd.org/documentation/manpages/collectd-java.5.shtml
 - https://collectd.org/wiki/index.php/Plugin:GenericJMX
 
+<!--- SETUP --->
+### Config Example
 Example (gets the thread count from a standard JMX MBean available on all
 Java JMX-enabled apps):
 
@@ -28,6 +52,8 @@ monitors:
          instancePrefix: jvm.threads.count
          attribute: ThreadCount
 ```
+
+<!--- SETUP --->
 ## Troubleshooting
 
 Exposing JMX in your Java application can be a tricky process.  Oracle has a
@@ -88,15 +114,16 @@ generaly indicate a similar cause.
  - https://realjenius.com/2012/11/21/java7-jmx-tunneling-freedom/
 
 
-Monitor Type: `collectd/genericjmx`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/genericjmx)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/genericjmx
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

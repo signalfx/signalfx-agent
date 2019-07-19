@@ -2,6 +2,14 @@
 
 # sql
 
+Monitor Type: `sql` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/sql))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Run arbitrary SQL queries against a relational database and use the results to generate dataponts.
 
 For example, if you had a database table `customers` that looked like:
@@ -64,15 +72,16 @@ with the Go template syntax `{{.varname}}` (see example config
 above).
 
 
-Monitor Type: `sql`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/sql)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: sql
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

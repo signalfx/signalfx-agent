@@ -2,6 +2,14 @@
 
 # cpu
 
+Monitor Type: `cpu` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/cpu))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 This monitor reports cpu metrics.
 
 On Linux hosts, this monitor relies on the `/proc` filesystem.
@@ -15,15 +23,16 @@ monitors:
 ```
 
 
-Monitor Type: `cpu`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/cpu)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: cpu
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

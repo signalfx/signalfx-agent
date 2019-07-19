@@ -3,10 +3,39 @@ monitors:
     plugin_instance:
       description: Port number of the MongoDB instance
   doc: |
-    Monitors an instance of MongoDB using the
-    [collectd MongoDB Python plugin](https://github.com/signalfx/collectd-mongodb).
+    Monitors an instance of MongoDB using the [collectd MongoDB Python
+    plugin](https://github.com/signalfx/collectd-mongodb).  Requires MongoDB
+    2.6 or later.
 
-    Also see https://github.com/signalfx/integrations/tree/master/collectd-mongodb.
+    This monitor captures the following metrics about MongoDB generally:
+
+    * memory
+    * network input/output bytes count
+    * heap usage
+    * db connections
+    * operations count
+    * active client connections
+    * queued operations
+
+    The plugin also captures the following DB-specific metrics:
+
+    * db size
+    * db counters
+
+    Documentation for MongoDB can be found [here](http://docs.mongodb.org/manual/).
+
+    <!--- SETUP --->
+    ### Creating a MongoDB user for collectd
+
+    If you're monitoring a secured MongoDB deployment, it is a good practice to create a MongoDB user with minimal read-only roles, as follows:
+
+    ```
+    db.createUser( {
+      user: "collectd",
+      pwd: "collectd",
+      roles: [ { role: "readAnyDatabase", db: "admin" }, { role: "clusterMonitor", db: "admin" } ]
+    });
+    ```
   metrics:
     counter.backgroundFlushing.flushes:
       description: Number of times the database has been flushed
@@ -301,7 +330,6 @@ monitors:
       default: false
       type: cumulative
     gauge.numExtents:
-      description:
       default: false
       type: gauge
     counter.lock.Global.acquireCount.write:

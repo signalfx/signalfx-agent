@@ -2,6 +2,14 @@
 
 # telegraf/statsd
 
+Monitor Type: `telegraf/statsd` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/telegrafstatsd))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor acts as a Telegraf StatsD listener for receiving telegrafstatsd metrics.
 This monitor is based on the Telegraf Statsd input plugin.  More information about the Telegraf plugin
 can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/statsd).
@@ -26,15 +34,16 @@ monitors:
 ```
 
 
-Monitor Type: `telegraf/statsd`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/telegrafstatsd)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: telegraf/statsd
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

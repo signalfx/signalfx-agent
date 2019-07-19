@@ -2,24 +2,30 @@
 
 # collectd/zookeeper
 
-Monitors an Apache Zookeeper instance.
-
-See the [Python plugin
-source](https://github.com/signalfx/collectd-zookeeper) and the
-[integrations repo
-page](https://github.com/signalfx/integrations/tree/master/collectd-zookeeper)
-for more information.
-
-
-Monitor Type: `collectd/zookeeper`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/zookeeper)
+Monitor Type: `collectd/zookeeper` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/zookeeper))
 
 **Accepts Endpoints**: **Yes**
 
 **Multiple Instances Allowed**: Yes
 
+## Overview
+
+Monitors an Apache Zookeeper instance using the [Zookeeper collectd
+plugin](https://github.com/signalfx/collectd-zookeeper). This plugin is
+installed with the Smart Agent so no additional installation is required to
+use this monitor.  Supports Zookeeper 3.4.0 or later.
+
+
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/zookeeper
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**
@@ -27,9 +33,9 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `host` | **yes** | `string` |  |
-| `port` | **yes** | `integer` |  |
-| `name` | no | `string` |  |
+| `host` | **yes** | `string` | Host or IP address of the Zookeeper node |
+| `port` | **yes** | `integer` | Main port of the Zookeeper node |
+| `name` | no | `string` | This will be the value of the `plugin_instance` dimension on emitted metrics, if provided. |
 
 
 ## Metrics

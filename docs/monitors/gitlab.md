@@ -2,6 +2,14 @@
 
 # gitlab
 
+Monitor Type: `gitlab` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/gitlab))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 GitLab is an open-source web-based git repository manager developed by
 GitLab Inc. GitLab has built-in features for creating wiki pages,
 issue-tracking and CI/CD pipelines. GitLab is bundled with [Prometheus
@@ -47,16 +55,16 @@ metrics are just targets `gitlab_monitor_database`,
 | Agent Monitor Type    |     Gitlab Doc                           | Standard Port | Standard Path |
 |-----------------------|------------------------------------------|---------------|---------------|
 | gitlab | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_monitor_exporter.html) | 9168 | /metrics |
-| [gitlab-gitaly](gitlab-gitaly.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/gitaly/#doc-nav) | 9236 | /metrics |
-| [gitlab-sidekiq](gitlab-sidekiq.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8082 | /metrics |
-| [gitlab-unicorn](gitlab-unicorn.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_metrics.html#unicorn-metrics-available) | 8080 | /-/metrics |
-| [gitlab-workhorse](gitlab-workhorse.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9229 | /metrics |
-| [prometheus/nginx-vts](prometheus-nginx-vts.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8060 | /metrics |
-| [prometheus/node](prometheus-node.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/node_exporter.html) | 9100 | /metrics |
-| [promteheus/postgres](prometheus-postgres.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/postgres_exporter.html) | 9187 | /metrics |
-| [prometheus/prometheus](prometheus-prometheus.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9090 | /metrics |
-| [prometheus/redis](prometheus-redis.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/redis_exporter.html) | 9121 | /metrics |
-| [gitlab-runner](gitlab-runner.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9252 | /metrics |
+| [gitlab-gitaly](./gitlab-gitaly.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/gitaly/#doc-nav) | 9236 | /metrics |
+| [gitlab-sidekiq](./gitlab-sidekiq.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8082 | /metrics |
+| [gitlab-unicorn](./gitlab-unicorn.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_metrics.html#unicorn-metrics-available) | 8080 | /-/metrics |
+| [gitlab-workhorse](./gitlab-workhorse.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9229 | /metrics |
+| [prometheus/nginx-vts](./prometheus-nginx-vts.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8060 | /metrics |
+| [prometheus/node](./prometheus-node.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/node_exporter.html) | 9100 | /metrics |
+| [promteheus/postgres](./prometheus-postgres.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/postgres_exporter.html) | 9187 | /metrics |
+| [prometheus/prometheus](./prometheus-prometheus.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9090 | /metrics |
+| [prometheus/redis](./prometheus-redis.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/redis_exporter.html) | 9121 | /metrics |
+| [gitlab-runner](./gitlab-runner.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9252 | /metrics |
 
 GitLab Prometheus exporters, Nginx and GitLab Runner must be configured to
 listen to IP address(es) that include the IP address of the host or docker
@@ -129,7 +137,7 @@ monitors:
  - type: gitlab-gitaly
    host: localhost
    port: 9236
-   
+
  - type: prometheus/postgres
    host: localhost
    port: 9187
@@ -143,15 +151,16 @@ monitors:
 You can, of course, use auto-discovery by specifying a `discoveryRule` instead of `host` and `port`.
 
 
-Monitor Type: `gitlab`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/gitlab)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: gitlab
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**
@@ -177,7 +186,7 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `ci_stale_builds` (*gauge*)<br>    ci_stale_builds metric
+ - `ci_stale_builds` (*gauge*)<br>
  - `gitlab_cache_misses_total` (*cumulative*)<br>
  - `gitlab_database_rows` (*gauge*)<br>
  - `gitlab_projects_with_jid` (*gauge*)<br>
@@ -186,17 +195,17 @@ Metrics that are categorized as
  - `http_request_duration_seconds` (*cumulative*)<br>
  - `http_request_duration_seconds_bucket` (*cumulative*)<br>
  - `http_request_duration_seconds_count` (*cumulative*)<br>
- - ***`pg_stat_table_idx_tup_fetch`*** (*gauge*)<br>    pg_stat_table_idx_tup_fetch metric
- - `pg_stat_table_n_dead_tup` (*gauge*)<br>    pg_stat_table_n_dead_tup metric
- - ***`pg_stat_table_n_tup_del`*** (*gauge*)<br>    pg_stat_table_n_tup_del metric
- - `pg_stat_table_n_tup_hot_upd` (*gauge*)<br>    pg_stat_table_n_tup_hot_upd metric
- - ***`pg_stat_table_n_tup_ins`*** (*gauge*)<br>    pg_stat_table_n_tup_ins metric
- - ***`pg_stat_table_n_tup_upd`*** (*gauge*)<br>    pg_stat_table_n_tup_upd metric
- - `pg_stat_table_seq_scan` (*gauge*)<br>    pg_stat_table_seq_scan metric
- - ***`pg_stat_table_seq_tup_read`*** (*gauge*)<br>    pg_stat_table_seq_tup_read metric
- - `process_age_seconds` (*gauge*)<br>    process_age_seconds metric
- - ***`process_count`*** (*gauge*)<br>    process_count metric
- - `process_memory_bytes` (*gauge*)<br>    process_memory_bytes metric
+ - ***`pg_stat_table_idx_tup_fetch`*** (*gauge*)<br>
+ - `pg_stat_table_n_dead_tup` (*gauge*)<br>
+ - ***`pg_stat_table_n_tup_del`*** (*gauge*)<br>
+ - `pg_stat_table_n_tup_hot_upd` (*gauge*)<br>
+ - ***`pg_stat_table_n_tup_ins`*** (*gauge*)<br>
+ - ***`pg_stat_table_n_tup_upd`*** (*gauge*)<br>
+ - `pg_stat_table_seq_scan` (*gauge*)<br>
+ - ***`pg_stat_table_seq_tup_read`*** (*gauge*)<br>
+ - `process_age_seconds` (*gauge*)<br>
+ - ***`process_count`*** (*gauge*)<br>
+ - `process_memory_bytes` (*gauge*)<br>
  - `ruby_file_descriptors` (*gauge*)<br>
  - `ruby_gc_duration_seconds_total` (*cumulative*)<br>
  - `ruby_gc_stat_count` (*gauge*)<br>
@@ -226,9 +235,9 @@ Metrics that are categorized as
  - `ruby_gc_stat_total_freed_pages` (*gauge*)<br>
  - `ruby_memory_bytes` (*gauge*)<br>
  - `ruby_sampler_duration_seconds_total` (*cumulative*)<br>
- - `sidekiq_dead_jobs_total` (*gauge*)<br>    sidekiq_dead_jobs_total metric
- - ***`sidekiq_queue_latency`*** (*gauge*)<br>    sidekiq_queue_latency metric
- - ***`sidekiq_queue_size`*** (*gauge*)<br>    sidekiq_queue_size metric
+ - `sidekiq_dead_jobs_total` (*gauge*)<br>
+ - ***`sidekiq_queue_latency`*** (*gauge*)<br>
+ - ***`sidekiq_queue_size`*** (*gauge*)<br>
 
 ### Non-default metrics (version 4.7.0+)
 

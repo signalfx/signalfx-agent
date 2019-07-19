@@ -46,16 +46,16 @@ monitors:
     | Agent Monitor Type    |     Gitlab Doc                           | Standard Port | Standard Path |
     |-----------------------|------------------------------------------|---------------|---------------|
     | gitlab | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_monitor_exporter.html) | 9168 | /metrics |
-    | [gitlab-gitaly](gitlab-gitaly.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/gitaly/#doc-nav) | 9236 | /metrics |
-    | [gitlab-sidekiq](gitlab-sidekiq.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8082 | /metrics |
-    | [gitlab-unicorn](gitlab-unicorn.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_metrics.html#unicorn-metrics-available) | 8080 | /-/metrics |
-    | [gitlab-workhorse](gitlab-workhorse.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9229 | /metrics |
-    | [prometheus/nginx-vts](prometheus-nginx-vts.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8060 | /metrics |
-    | [prometheus/node](prometheus-node.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/node_exporter.html) | 9100 | /metrics |
-    | [promteheus/postgres](prometheus-postgres.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/postgres_exporter.html) | 9187 | /metrics |
-    | [prometheus/prometheus](prometheus-prometheus.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9090 | /metrics |
-    | [prometheus/redis](prometheus-redis.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/redis_exporter.html) | 9121 | /metrics |
-    | [gitlab-runner](gitlab-runner.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9252 | /metrics |
+    | [gitlab-gitaly](./gitlab-gitaly.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/gitaly/#doc-nav) | 9236 | /metrics |
+    | [gitlab-sidekiq](./gitlab-sidekiq.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8082 | /metrics |
+    | [gitlab-unicorn](./gitlab-unicorn.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_metrics.html#unicorn-metrics-available) | 8080 | /-/metrics |
+    | [gitlab-workhorse](./gitlab-workhorse.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9229 | /metrics |
+    | [prometheus/nginx-vts](./prometheus-nginx-vts.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8060 | /metrics |
+    | [prometheus/node](./prometheus-node.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/node_exporter.html) | 9100 | /metrics |
+    | [promteheus/postgres](./prometheus-postgres.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/postgres_exporter.html) | 9187 | /metrics |
+    | [prometheus/prometheus](./prometheus-prometheus.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9090 | /metrics |
+    | [prometheus/redis](./prometheus-redis.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/redis_exporter.html) | 9121 | /metrics |
+    | [gitlab-runner](./gitlab-runner.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9252 | /metrics |
 
     GitLab Prometheus exporters, Nginx and GitLab Runner must be configured to
     listen to IP address(es) that include the IP address of the host or docker
@@ -128,7 +128,7 @@ monitors:
      - type: gitlab-gitaly
        host: localhost
        port: 9236
-       
+
      - type: prometheus/postgres
        host: localhost
        port: 9187
@@ -143,211 +143,159 @@ monitors:
 
   metrics:
     ci_stale_builds:
-      description: ci_stale_builds metric
       default:
       type: gauge
     gitlab_database_rows:
-      description:
       default:
       type: gauge
     process_memory_bytes:
-      description: process_memory_bytes metric
       default:
       type: gauge
     process_age_seconds:
-      description: process_age_seconds metric
       default:
       type: gauge
     process_count:
-      description: process_count metric
       default: true
       type: gauge
     sidekiq_queue_size:
-      description: sidekiq_queue_size metric
       default: true
       type: gauge
     sidekiq_queue_latency:
-      description: sidekiq_queue_latency metric
       default: true
       type: gauge
     sidekiq_dead_jobs_total:
-      description: sidekiq_dead_jobs_total metric
       default:
       type: gauge
     gitlab_projects_with_jid:
-      description:
       default:
       type: gauge
     gitlab_projects_without_jid:
-      description:
       default:
       type: gauge
     gitlab_stuck_import_jobs_worker_runs_total:
-      description:
       default:
       type: cumulative
     gitlab_cache_misses_total:
-      description:
       default:
       type: cumulative
     http_request_duration_seconds_bucket:
-      description:
       default:
       type: cumulative
     http_request_duration_seconds_count:
-      description:
       default:
       type: cumulative
     http_request_duration_seconds:
-      description:
       default:
       type: cumulative
     ruby_file_descriptors:
-      description:
       default:
       type: gauge
     ruby_gc_duration_seconds_total:
-      description:
       default:
       type: cumulative
     ruby_gc_stat_count:
-      description:
       default:
       type: gauge
     ruby_gc_stat_heap_allocatable_pages:
-      description:
       default:
       type: gauge
     ruby_gc_stat_heap_allocated_pages:
-      description:
       default:
       type: gauge
     ruby_gc_stat_heap_available_slots:
-      description:
       default:
       type: gauge
     ruby_gc_stat_heap_eden_pages:
-      description:
       default:
       type: gauge
     ruby_gc_stat_heap_final_slots:
-      description:
       default:
       type: gauge
     ruby_gc_stat_heap_free_slots:
-      description:
       default:
       type: gauge
     ruby_gc_stat_heap_live_slots:
-      description:
       default:
       type: gauge
     ruby_gc_stat_heap_marked_slots:
-      description:
       default:
       type: gauge
     ruby_gc_stat_heap_sorted_length:
-      description:
       default:
       type: gauge
     ruby_gc_stat_heap_tomb_pages:
-      description:
       default:
       type: gauge
     ruby_gc_stat_major_gc_count:
-      description:
       default:
       type: gauge
     ruby_gc_stat_malloc_increase_bytes:
-      description:
       default:
       type: gauge
     ruby_gc_stat_malloc_increase_bytes_limit:
-      description:
       default:
       type: gauge
     ruby_gc_stat_minor_gc_count:
-      description:
       default:
       type: gauge
     ruby_gc_stat_old_objects:
-      description:
       default:
       type: gauge
     ruby_gc_stat_old_objects_limit:
-      description:
       default:
       type: gauge
     ruby_gc_stat_oldmalloc_increase_bytes:
-      description:
       default:
       type: gauge
     ruby_gc_stat_oldmalloc_increase_bytes_limit:
-      description:
       default:
       type: gauge
     ruby_gc_stat_remembered_wb_unprotected_objects:
-      description:
       default:
       type: gauge
     ruby_gc_stat_remembered_wb_unprotected_objects_limit:
-      description:
       default:
       type: gauge
     ruby_gc_stat_total_allocated_objects:
-      description:
       default:
       type: gauge
     ruby_gc_stat_total_allocated_pages:
-      description:
       default:
       type: gauge
     ruby_gc_stat_total_freed_objects:
-      description:
       default:
       type: gauge
     ruby_gc_stat_total_freed_pages:
-      description:
       default:
       type: gauge
     ruby_memory_bytes:
-      description:
       default:
       type: gauge
     ruby_sampler_duration_seconds_total:
-      description:
       default:
       type: cumulative
     pg_stat_table_seq_tup_read:
-      description: pg_stat_table_seq_tup_read metric
       default: true
       type: gauge
     pg_stat_table_idx_tup_fetch:
-      description: pg_stat_table_idx_tup_fetch metric
       default: true
       type: gauge
     pg_stat_table_n_tup_ins:
-      description: pg_stat_table_n_tup_ins metric
       default: true
       type: gauge
     pg_stat_table_n_tup_upd:
-      description: pg_stat_table_n_tup_upd metric
       default: true
       type: gauge
     pg_stat_table_n_tup_del:
-      description: pg_stat_table_n_tup_del metric
       default: true
       type: gauge
     pg_stat_table_n_tup_hot_upd:
-      description: pg_stat_table_n_tup_hot_upd metric
       default:
       type: gauge
     pg_stat_table_n_dead_tup:
-      description: pg_stat_table_n_dead_tup metric
       default:
       type: gauge
     pg_stat_table_seq_scan:
-      description: pg_stat_table_seq_scan metric
       default:
       type: gauge
 - monitorType: gitlab-workhorse

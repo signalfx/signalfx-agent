@@ -2,20 +2,29 @@
 
 # collectd/health-checker
 
-A simple Collectd Python-based monitor
-that hits an endpoint and checks if the configured JSON value is returned in
-the response body.
-
-
-Monitor Type: `collectd/health-checker`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/healthchecker)
+Monitor Type: `collectd/health-checker` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/healthchecker))
 
 **Accepts Endpoints**: **Yes**
 
 **Multiple Instances Allowed**: Yes
 
+## Overview
+
+A simple Collectd Python-based monitor
+that hits an endpoint and checks if the configured JSON value is returned in
+the response body.
+
+
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/health-checker
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

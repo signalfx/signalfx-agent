@@ -2,6 +2,14 @@
 
 # collectd/marathon
 
+Monitor Type: `collectd/marathon` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/marathon))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 Monitors a Mesos Marathon instance using the
 [collectd Marathon Python plugin](https://github.com/signalfx/collectd-marathon).
 
@@ -31,15 +39,16 @@ monitors:
 ```
 
 
-Monitor Type: `collectd/marathon`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/marathon)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: **No**
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/marathon
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

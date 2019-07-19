@@ -2,6 +2,14 @@
 
 # elasticsearch
 
+Monitor Type: `elasticsearch` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/elasticsearch))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor collects stats from Elasticsearch. It collects node, cluster
 and index level stats. This monitor is compatible with the current collectd
 plugin found [here] (https://github.com/signalfx/collectd-elasticsearch) in
@@ -125,15 +133,16 @@ For more information on the built-in content we have for Elasticsearch,
 here](https://github.com/signalfx/integrations/tree/master/elasticsearch).
 
 
-Monitor Type: `elasticsearch`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/elasticsearch)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: elasticsearch
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

@@ -2,24 +2,40 @@
 
 # collectd/nginx
 
-Monitors an nginx instance using our fork of the
-collectd nginx plugin based on the [collectd nginx
-plugin](https://collectd.org/wiki/index.php/Plugin:nginx).
-
-See the [integrations
-doc](https://github.com/signalfx/integrations/tree/master/collectd-nginx)
-for more information.
-
-
-Monitor Type: `collectd/nginx`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/nginx)
+Monitor Type: `collectd/nginx` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/nginx))
 
 **Accepts Endpoints**: **Yes**
 
 **Multiple Instances Allowed**: Yes
 
+## Overview
+
+Monitors an NGINX instance using our fork of the
+collectd nginx plugin based on the [collectd nginx
+plugin](https://collectd.org/wiki/index.php/Plugin:nginx).
+
+Note that this montior requires special configuration enabled in NGINX (see Setup).
+
+<!--- SETUP --->
+### NGINX-specific configuration
+
+You must configure NGINX to expose status information by editing the NGINX
+configuration.  Please see
+[ngx_http_stub_status_module](http://nginx.org/en/docs/http/ngx_http_stub_status_module.html)
+for a guide to configuring the NGINX stats module
+`ngx_http_stub_status_module`.
+
+
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/nginx
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**
@@ -44,14 +60,14 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`connections.accepted`*** (*cumulative*)<br>    Connections accepted by Nginx Web Server
- - `connections.failed` (*cumulative*)<br>    Connections failed by the Nginx Web Server
- - ***`connections.handled`*** (*cumulative*)<br>    Connections handled by Nginx Web Server
- - ***`nginx_connections.active`*** (*gauge*)<br>    Connections active in Nginx Web Server
- - ***`nginx_connections.reading`*** (*gauge*)<br>    Connections being read by Nginx Web Server
- - ***`nginx_connections.waiting`*** (*gauge*)<br>    Connections waited on by Nginx Web Server
- - ***`nginx_connections.writing`*** (*gauge*)<br>    Connections being written by Nginx Web Server
- - ***`nginx_requests`*** (*cumulative*)<br>    Requests handled by Nginx Web Server
+ - ***`connections.accepted`*** (*cumulative*)<br>    Connections accepted by NGINX Web Server
+ - `connections.failed` (*cumulative*)<br>    Connections failed by the NGINX Web Server
+ - ***`connections.handled`*** (*cumulative*)<br>    Connections handled by NGINX Web Server
+ - ***`nginx_connections.active`*** (*gauge*)<br>    Connections active in NGINX Web Server
+ - ***`nginx_connections.reading`*** (*gauge*)<br>    Connections being read by NGINX Web Server
+ - ***`nginx_connections.waiting`*** (*gauge*)<br>    Connections waited on by NGINX Web Server
+ - ***`nginx_connections.writing`*** (*gauge*)<br>    Connections being written by NGINX Web Server
+ - ***`nginx_requests`*** (*cumulative*)<br>    Requests handled by NGINX Web Server
 
 ### Non-default metrics (version 4.7.0+)
 

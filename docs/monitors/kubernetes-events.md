@@ -2,6 +2,14 @@
 
 # kubernetes-events
 
+Monitor Type: `kubernetes-events` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/kubernetes/events))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor sends Kubernetes events as SignalFx
 events.  Upon startup, it will send all of the events that K8s has that are
 still persisted and then send any new events that come in.  The various
@@ -31,15 +39,16 @@ Example YAML Configuration
 Event names will match the `reason` name.
 
 
-Monitor Type: `kubernetes-events`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/kubernetes/events)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: kubernetes-events
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

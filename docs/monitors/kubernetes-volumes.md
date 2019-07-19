@@ -2,6 +2,14 @@
 
 # kubernetes-volumes
 
+Monitor Type: `kubernetes-volumes` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/kubernetes/volumes))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor sends usage stats about volumes
 mounted to Kubernetes pods (e.g. free space/inodes).  This information is
 gotten from the Kubelet /stats/summary endpoint.  The normal `collectd/df`
@@ -15,15 +23,16 @@ Dimensions that identify the underlying volume source will be added for
 easily added as needed.
 
 
-Monitor Type: `kubernetes-volumes`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/kubernetes/volumes)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: kubernetes-volumes
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

@@ -2,28 +2,36 @@
 
 # collectd/rabbitmq
 
-Monitors an instance of RabbitMQ using the
-[collectd RabbitMQ Python
-Plugin](https://github.com/signalfx/collectd-rabbitmq).
-
-See the [integration
-doc](https://github.com/signalfx/integrations/tree/master/collectd-rabbitmq)
-for more information.
-
-**Note that you must individually enable each of the five `collect*` options
-to get metrics pertaining to those facets of a RabbitMQ instance.  If none
-of them are enabled, no metrics will be sent.**
-
-
-Monitor Type: `collectd/rabbitmq`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/rabbitmq)
+Monitor Type: `collectd/rabbitmq` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/rabbitmq))
 
 **Accepts Endpoints**: **Yes**
 
 **Multiple Instances Allowed**: Yes
 
+## Overview
+
+Monitors an instance of RabbitMQ using the [collectd RabbitMQ Python
+Plugin](https://github.com/signalfx/collectd-rabbitmq). This monitor uses
+the [RabbitMQ Management HTTP
+API](https://www.rabbitmq.com/management.html) to poll for statistics on a
+RabbitMQ server, then reports them to the agent.  Works for RabbitMQ 3.0
+and later.
+
+**Note that you must individually enable each of the five `collect*`
+options to get metrics pertaining to those facets of a RabbitMQ instance.
+If none of them are enabled, no metrics will be sent.**
+
+
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/rabbitmq
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

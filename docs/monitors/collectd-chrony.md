@@ -2,20 +2,29 @@
 
 # collectd/chrony
 
-Collectd NTP data from a chronyd instance
-
-See https://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_chrony
-
-
-Monitor Type: `collectd/chrony`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/chrony)
+Monitor Type: `collectd/chrony` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/chrony))
 
 **Accepts Endpoints**: No
 
 **Multiple Instances Allowed**: **No**
 
+## Overview
+
+Collectd NTP data from a chronyd instance
+
+See https://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_chrony
+
+
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/chrony
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

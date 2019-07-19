@@ -2,6 +2,14 @@
 
 # windows-iis
 
+Monitor Type: `windows-iis` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/windowsiis))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 (Windows Only) This monitor reports metrics for Windows Internet Information Services.
 It is used to drive the Windows IIS dashboard content.
 
@@ -23,15 +31,16 @@ monitors:
 ```
 
 
-Monitor Type: `windows-iis`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/windowsiis)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: windows-iis
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

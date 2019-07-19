@@ -26,20 +26,40 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig     `yaml:",inline" acceptsEndpoints:"true"`
-	pyConf                   *python.Config
-	Host                     string   `yaml:"host" validate:"required"`
-	Port                     uint16   `yaml:"port" validate:"required"`
-	Databases                []string `yaml:"databases" validate:"required"`
-	Username                 string   `yaml:"username"`
-	Password                 string   `yaml:"password" neverLog:"true"`
-	UseTLS                   *bool    `yaml:"useTLS"`
-	CACerts                  string   `yaml:"caCerts"`
-	TLSClientCert            string   `yaml:"tlsClientCert"`
-	TLSClientKey             string   `yaml:"tlsClientKey"`
-	TLSClientKeyPassPhrase   string   `yaml:"tlsClientKeyPassPhrase"`
-	SendCollectionMetrics    *bool    `yaml:"sendCollectionMetrics"`
-	SendCollectionTopMetrics *bool    `yaml:"sendCollectionTopMetrics"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	pyConf               *python.Config
+	// Host name/IP address of the Mongo instance
+	Host string `yaml:"host" validate:"required"`
+	// Port of the Mongo instance (default: 27017)
+	Port uint16 `yaml:"port" validate:"required"`
+	// Name(s) of database(s) that you would like metrics from. Note: the first
+	// database in this list must be "admin", as it is used to perform a
+	// `serverStatus()` command.
+	Databases []string `yaml:"databases" validate:"required"`
+	// The MongoDB user to connect as
+	Username string `yaml:"username"`
+	// The password of the above user
+	Password string `yaml:"password" neverLog:"true"`
+	// If true, will connect to Mongo using TLS
+	UseTLS *bool `yaml:"useTLS"`
+	// Path to a CA cert that will be used to verify the certificate that Mongo
+	// presents (not needed if not using TLS or if Mongo's cert is signed by a
+	// globally trusted issuer already installed in the default location on
+	// your OS)
+	CACerts string `yaml:"caCerts"`
+	// Path to a client certificate (not needed unless your Mongo instance
+	// requires x509 client verification)
+	TLSClientCert string `yaml:"tlsClientCert"`
+	// Path to a client certificate key (not needed unless your Mongo instance
+	// requires x509 client verification, or if your client cert above has the
+	// key included)
+	TLSClientKey string `yaml:"tlsClientKey"`
+	// Passphrase for the TLSClientKey above
+	TLSClientKeyPassPhrase string `yaml:"tlsClientKeyPassPhrase"`
+	// Whether to send collection level metrics or not
+	SendCollectionMetrics *bool `yaml:"sendCollectionMetrics"`
+	// Whether to send collection level top (timing) metrics or not
+	SendCollectionTopMetrics *bool `yaml:"sendCollectionTopMetrics"`
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface

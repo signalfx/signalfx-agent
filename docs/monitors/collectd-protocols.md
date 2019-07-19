@@ -2,6 +2,14 @@
 
 # collectd/protocols
 
+Monitor Type: `collectd/protocols` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/protocols))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 Gathers metrics about the network protocol
 stacks running on the system by using the [collectd protocols
 plugin](https://collectd.org/wiki/index.php/Plugin:Protocols).
@@ -11,15 +19,16 @@ doc](https://github.com/signalfx/integrations/tree/master/collectd-protocols)
 for more information.
 
 
-Monitor Type: `collectd/protocols`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/protocols)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/protocols
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

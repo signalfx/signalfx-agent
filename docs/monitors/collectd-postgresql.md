@@ -2,6 +2,14 @@
 
 # collectd/postgresql
 
+Monitor Type: `collectd/postgresql` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/postgresql))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 **This monitor is deprecated in favor of the [postgresql monitor](./postgresql.md).**
 
 Monitors a PostgreSQL database server using collectd's
@@ -65,15 +73,16 @@ See [PostgreSQL plugin](https://collectd.org/wiki/index.php/Plugin:PostgreSQL)
 for details.
 
 
-Monitor Type: `collectd/postgresql`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/postgresql)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/postgresql
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

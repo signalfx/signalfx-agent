@@ -2,6 +2,14 @@
 
 # collectd/docker
 
+Monitor Type: `collectd/docker` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/docker))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Pulls container stats from the Docker Engine.  We
 strongly recommend using the
 [docker-container-stats](./docker-container-stats.md) monitor instead, as it
@@ -10,15 +18,16 @@ will scale to large number of containers much better.
 See https://github.com/signalfx/docker-collectd-plugin.
 
 
-Monitor Type: `collectd/docker`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/docker)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/docker
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

@@ -2,6 +2,14 @@
 
 # telegraf/win_perf_counters
 
+Monitor Type: `telegraf/win_perf_counters` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/winperfcounters))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor reads Windows performance
 counters
 
@@ -26,15 +34,16 @@ monitors:
 ```
 
 
-Monitor Type: `telegraf/win_perf_counters`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/winperfcounters)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: telegraf/win_perf_counters
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

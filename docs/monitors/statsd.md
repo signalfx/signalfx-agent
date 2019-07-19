@@ -2,10 +2,41 @@
 
 # statsd
 
+Monitor Type: `statsd` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/statsd))
 
+**Accepts Endpoints**: No
 
-### USAGE
+**Multiple Instances Allowed**: Yes
 
+## Overview
+
+This monitor will receive and aggergate Statsd metrics and convert them to
+datapoints.  It listens on a configured address and port in order to
+receive the statsd metrics.  Note that this monitor does not support statsd
+extensions such as tags.
+
+Supports Spark 2.2.0 and later.
+
+The monitor supports the `Counter`, `Timer`, `Gauge` and `Set` types which
+are dispatched as the SignalFx types `counter`, `gauge`, `gauge` and
+`gauge` respectively.
+
+**Note that datapoints will get a `host` dimension of the current host that
+the agent is running on, not the host from which the statsd metric was
+sent.  For this reason, it is recommended to send statsd metrics to a local
+agent instance.**
+
+<!--- SETUP --->
+#### Verifying installation
+
+You can send StatsD metrics locally with `netcat` as follows, then verify
+in SignalFx that the metric arrived (assuming the default config).
+
+```
+$ echo "statsd.test:1|g" | nc -w 1 -u 127.0.0.1 8125
+```
+
+<!--- SETUP --->
 #### Adding dimensions to StatsD metrics
 
 The StatsD monitor can parse keywords from a statsd metric name by a set of
@@ -24,6 +55,7 @@ If a section has only a pair of brackets without a name, it will not capture a d
 When multiple converters were provided, a metric will be converted by the first converter with a
 matching pattern to the metric name.
 
+<!--- SETUP --->
 #### Formatting metric name
 
 You can customize a metric name by providing a format string within the converter configuration.
@@ -43,15 +75,16 @@ will be reported as `egress.update_success`.
 ```
 
 
-Monitor Type: `statsd`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/statsd)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: statsd
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

@@ -2,6 +2,14 @@
 
 # prometheus/redis
 
+Monitor Type: `prometheus/redis` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus/redis))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor scrapes [Prmoetheus Redis
 Exporter](https://github.com/oliver006/redis_exporter) metrics and sends
 them to SignalFx.  It is a wrapper around the
@@ -9,15 +17,16 @@ them to SignalFx.  It is a wrapper around the
 restricted but expandable set of metrics.
 
 
-Monitor Type: `prometheus/redis`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/prometheus/redis)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: prometheus/redis
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

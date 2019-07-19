@@ -2,11 +2,41 @@
 
 # collectd/openstack
 
-Monitors Openstack by using the
-[Openstack collectd Python
-plugin](https://github.com/signalfx/collectd-openstack), which collects metrics
-from Openstack instances
+Monitor Type: `collectd/openstack` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/openstack))
 
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
+Monitors [Openstack](https://www.openstack.org/) by using the [Openstack
+collectd Python plugin](https://github.com/signalfx/collectd-openstack),
+which collects metrics from Openstack instances.  This plugin is installed
+with the Smart Agent, so no additional installation is required to use this
+montior.
+
+This monitor covers the following Openstack components:
+
+* Nova (Compute)
+* Cinder (BlockStorge)
+* Neutron (Network)
+
+Please see the reference for OpenStack [Monitoring](https://wiki.openstack.org/wiki/Operations/Monitoring).
+
+<!--- SETUP --->
+### Deployment Host
+
+Identify a host on which the SignalFx agent will run. This integration
+collects data from OpenStack remotely via APIs, and so those API endpoints
+must be visible to the host on which the agent runs.  We do not recommend
+installing the agent directly on a compute instance because a compute
+instance/resource under one project cannot get stats about the resources
+under other projects. Also, a compute instance may go down due to lack of
+resources in the project.
+
+<!--- SETUP --->
+### Example config
 ```yaml
 monitors:
 - type: collectd/openstack
@@ -16,15 +46,16 @@ monitors:
 ```
 
 
-Monitor Type: `collectd/openstack`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/openstack)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/openstack
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**
@@ -130,6 +161,16 @@ that whitelist, then you need to add an item to the top-level
 `metricsToInclude` config option to override that whitelist (see [Inclusion
 filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
 copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
+
+## Dimensions
+
+The following dimensions may occur on metrics emitted by this monitor.  Some
+dimensions may be specific to certain metrics.
+
+| Name | Description |
+| ---  | ---         |
+| `plugin` | This is always set to `openstack`. |
+| `plugin_instance` | This will contain the project id and name of the project given in the configuration. |
 
 
 

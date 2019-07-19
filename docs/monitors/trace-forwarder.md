@@ -2,6 +2,14 @@
 
 # trace-forwarder
 
+Monitor Type: `trace-forwarder` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/traceforwarder))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 Runs an HTTP server that listens for trace spans
 and forwards them to SignalFx (or the configured ingest host in the `writer`
 section of the agent config).  This supports the same span formats that our
@@ -9,15 +17,16 @@ ingest server supports and at the same path (`/v1/trace`).  By default, the
 server listens on localhost port 9080 but can be configured to anything.
 
 
-Monitor Type: `trace-forwarder`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/traceforwarder)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: trace-forwarder
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

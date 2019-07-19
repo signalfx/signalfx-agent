@@ -2,6 +2,14 @@
 
 # filesystems
 
+Monitor Type: `filesystems` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/filesystems))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor reports metrics about free disk space on mounted devices.
 
 On Linux hosts, this monitor relies on the `/proc` filesystem.
@@ -16,15 +24,16 @@ monitors:
 ```
 
 
-Monitor Type: `filesystems`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/filesystems)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: filesystems
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

@@ -3,7 +3,7 @@ monitors:
   doc: |
     Monitors Cassandra using the Collectd GenericJMX plugin.  This is
     essentially a wrapper around the
-    [collectd-genericjmx](./collectd-genericjmx.md) monitor that comes with a
+    [collectd-genericjmx](./collectd-genericjmx.md)[](sfx_link:java) monitor that comes with a
     set of predefined MBean definitions that a standard Cassandra deployment
     will expose.
 
@@ -14,6 +14,8 @@ monitors:
      - read/write/range-slice latency (median, 99th percentile, maximum)
      - compaction activity
      - hint activity
+
+    Supports Cassandra 2.0.10+.
   metrics:
     # Taken from genericjmx monitor. If you want to change them update genericjmx and update
     # all other monitors that use genericjmx with this same notice.

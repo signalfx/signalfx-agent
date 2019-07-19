@@ -2,9 +2,19 @@
 
 # collectd/hadoopjmx
 
-Collects metrics about a Hadoop cluster using using collectd's GenericJMX plugin.
+Monitor Type: `collectd/hadoopjmx` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx))
 
-Also see https://github.com/signalfx/integrations/tree/master/collectd-hadoop.
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
+Collects metrics about a Hadoop 2.0+ cluster using using collectd's GenericJMX
+plugin. You may also configure the
+[collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoop.md)
+monitor to collect additional metrics about the hadoop cluster from the
+REST API
 
 To enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively
 
@@ -64,19 +74,17 @@ monitors:
   nodeType: dataNode
 ```
 
-You may also configure the [collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoop.md)
-monitor to collect additional metrics about the hadoop cluster from the REST API
-
-
-Monitor Type: `collectd/hadoopjmx`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
 
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/hadoopjmx
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

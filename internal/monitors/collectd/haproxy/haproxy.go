@@ -29,9 +29,10 @@ func init() {
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 	pyConf               *python.Config
-	Host                 string   `yaml:"host" validate:"required"`
-	Port                 uint16   `yaml:"port"`
-	ProxiesToMonitor     []string `yaml:"proxiesToMonitor"`
+	Host                 string `yaml:"host" validate:"required"`
+	Port                 uint16 `yaml:"port"`
+	// A list of all the pxname(s) or svname(s) that you want to monitor (e.g. `["http-in", "server1", "backend"]`)
+	ProxiesToMonitor []string `yaml:"proxiesToMonitor"`
 	// Deprecated.  Please use `datapointsToExclude` on the monitor config
 	// block instead.
 	ExcludedMetrics []string `yaml:"excludedMetrics"`

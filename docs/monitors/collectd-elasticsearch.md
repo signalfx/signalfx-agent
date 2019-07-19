@@ -2,6 +2,14 @@
 
 # collectd/elasticsearch
 
+Monitor Type: `collectd/elasticsearch` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/elasticsearch))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 Monitors ElasticSearch instances. We strongly recommend using the
 [elasticsearch](./elasticsearch.md) monitor instead, as it will
 scale much better.
@@ -10,15 +18,16 @@ See https://github.com/signalfx/collectd-elasticsearch and
 https://github.com/signalfx/integrations/tree/master/elasticsearch
 
 
-Monitor Type: `collectd/elasticsearch`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/elasticsearch)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/elasticsearch
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

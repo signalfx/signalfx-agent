@@ -2,9 +2,18 @@
 
 # collectd/couchbase
 
-Monitors [Couchbase](https://www.couchbase.com/) by using the [couchbase
-collectd Python plugin](https://github.com/signalfx/collectd-couchbase),
-which collects metrics from Couchbase server instances.
+Monitor Type: `collectd/couchbase` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/couchbase))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
+This is a Smart Agent monitor for [Couchbase](https://www.couchbase.com/)
+that uses the [couchbase collectd Python
+plugin](https://github.com/signalfx/collectd-couchbase) to collect metrics
+from Couchbase server instances.
 
 For general reference on how to monitor Couchbase, see <a target="_blank"
 href="http://blog.couchbase.com/monitoring-couchbase-cluster">Couchbase
@@ -12,6 +21,7 @@ Monitoring</a> and <a target="_blank"
 href="http://developer.couchbase.com/documentation/server/4.0/monitoring/monitoring-rest.html">Monitor
 using the REST API</a>.
 
+<!--- METRICS --->
 ## Note on bucket metrics
 
 This plugin emits some metrics about the bucket's performance across the
@@ -24,6 +34,7 @@ that bucket. In order to analyze bucket performance for the entire bucket,
 apply functions like Sum or Mean to group node-level metrics together by
 bucket.
 
+<!--- SETUP --->
 ## Example Config
 
 Sample YAML configuration with custom query:
@@ -40,15 +51,16 @@ monitors:
 ```
 
 
-Monitor Type: `collectd/couchbase`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/couchbase)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: collectd/couchbase
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

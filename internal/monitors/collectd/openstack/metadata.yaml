@@ -1,11 +1,37 @@
 monitors:
 - dimensions:
+    plugin:
+      description: This is always set to `openstack`.
+    plugin_instance:
+      description: This will contain the project id and name of the project given in the configuration.
   doc: |
-    Monitors Openstack by using the
-    [Openstack collectd Python
-    plugin](https://github.com/signalfx/collectd-openstack), which collects metrics
-    from Openstack instances
+    Monitors [Openstack](https://www.openstack.org/) by using the [Openstack
+    collectd Python plugin](https://github.com/signalfx/collectd-openstack),
+    which collects metrics from Openstack instances.  This plugin is installed
+    with the Smart Agent, so no additional installation is required to use this
+    montior.
 
+    This monitor covers the following Openstack components:
+
+    * Nova (Compute)
+    * Cinder (BlockStorge)
+    * Neutron (Network)
+
+    Please see the reference for OpenStack [Monitoring](https://wiki.openstack.org/wiki/Operations/Monitoring).
+
+    <!--- SETUP --->
+    ### Deployment Host
+
+    Identify a host on which the SignalFx agent will run. This integration
+    collects data from OpenStack remotely via APIs, and so those API endpoints
+    must be visible to the host on which the agent runs.  We do not recommend
+    installing the agent directly on a compute instance because a compute
+    instance/resource under one project cannot get stats about the resources
+    under other projects. Also, a compute instance may go down due to lack of
+    resources in the project.
+
+    <!--- SETUP --->
+    ### Example config
     ```yaml
     monitors:
     - type: collectd/openstack

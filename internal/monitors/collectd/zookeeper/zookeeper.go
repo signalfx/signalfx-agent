@@ -24,9 +24,13 @@ func init() {
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 	pyConf               *python.Config
-	Host                 string `yaml:"host" validate:"required"`
-	Port                 uint16 `yaml:"port" validate:"required"`
-	Name                 string `yaml:"name"`
+	// Host or IP address of the Zookeeper node
+	Host string `yaml:"host" validate:"required"`
+	// Main port of the Zookeeper node
+	Port uint16 `yaml:"port" validate:"required"`
+	// This will be the value of the `plugin_instance` dimension on emitted
+	// metrics, if provided.
+	Name string `yaml:"name"`
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface

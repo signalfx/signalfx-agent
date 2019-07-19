@@ -2,6 +2,14 @@
 
 # processlist
 
+Monitor Type: `processlist` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/processlist))
+
+**Accepts Endpoints**: No
+
+**Multiple Instances Allowed**: **No**
+
+## Overview
+
 (Windows Only) This monitor reports processlist
 information for Windows Hosts.
 
@@ -13,15 +21,16 @@ monitors:
 ```
 
 
-Monitor Type: `processlist`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/processlist)
-
-**Accepts Endpoints**: No
-
-**Multiple Instances Allowed**: **No**
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: processlist
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**

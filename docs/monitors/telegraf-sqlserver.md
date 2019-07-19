@@ -2,6 +2,14 @@
 
 # telegraf/sqlserver
 
+Monitor Type: `telegraf/sqlserver` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/mssqlserver))
+
+**Accepts Endpoints**: **Yes**
+
+**Multiple Instances Allowed**: Yes
+
+## Overview
+
 This monitor reports metrics about Microsoft SQL servers.
 This monitor is based on the telegraf sqlserver plugin.  More information about the telegraf plugin
 can be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/sqlserver).
@@ -49,15 +57,16 @@ monitors:
 ```
 
 
-Monitor Type: `telegraf/sqlserver`
-
-[Monitor Source Code](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/mssqlserver)
-
-**Accepts Endpoints**: **Yes**
-
-**Multiple Instances Allowed**: Yes
-
 ## Configuration
+
+To activate this monitor in the Smart Agent, add the following to your
+agent config:
+
+```
+monitors:  # All monitor config goes under this key
+ - type: telegraf/sqlserver
+   ...  # Additional config
+```
 
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**
