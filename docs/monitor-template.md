@@ -1,66 +1,18 @@
-#monitor_template in github
+#monitor template
 
-Headings and associated links can be deleted if you are sure they are not used.
-
-
-
-_INSTALLATION TAB_
+###signalfx-agent repo/docs
 
 
+
+_OVERVIEW TAB_ (on top)
 
 \<monitor logo>
-# \<Monitor name>
 
-- [Requirements and Dependancies](#requirements-and-dependancies)
-- [Installation](#installation)
-- [Configuration](#configuration)
-
-## Requirements and Dependencies
-
-in table format if possible
-
-## Installation
-
-Steps to install this monitor are described below.
-
-__Step 1.__ 
-
-__Step 2.__ 
-
-__Step 3.__ 
-
-## Configuration
-
-The configuration options are described below with sample code snippets.
-
-| Config option | Required | Type                 | Description                  |
-| ------------- | -------- | -------------------- | ---------------------------- |
-| `kubeletAPI`  | no       | `object (see below)` | Kubelet client configuration |
-
-```sh
-snippets
-```
-
-
-
-
-
-_FEATURES TAB_
-
-
-
-# Monitor Features
-
-- [Description](#description)
-- [Dashboards](#dashboards)
-- [Infrastructure Navigator Views](#infrastructure-navigator-views)
-
-## Description
+# \<Monitor name> Overview
 
 Monitors \<what> using the information provided by \<what> which collects metrics from \<what> instances by hitting these endpoints: 
 * <link to item>
 * <link to item>
-
 
 For more information on the source data, see <https://...>
 
@@ -72,32 +24,78 @@ Accepts Endpoints: <yes/no>
 
 Multiple Instances Allowed: <yes/no>
 
-
-## Dashboards
-
-The following are examples of built-in dashboards that can be used with your monitor. 
+Metadata associated with the \<name> collectd plugin can be found _here_. The relevant code for the plugin can be found _here_.
 
 
+_SETUP TAB_
 
-## Infrastructure Navigator Views
+- [Installation](#installation)
+- [Configuration](#configuration)]
+- [Implementation](#implementation)
 
-The following are built-in navigator views appropriate for this monitor.
+## Installation
 
+Steps to install this monitor are described below. 
 
+Step 1. 
+
+Step 2. 
+
+## Configuration 
+
+| Config option | Required | Type                 | Description                  |
+| ------------- | -------- | -------------------- | ---------------------------- |
+| `kubeletAPI`  | no       | `object (see below)` | Kubelet client configuration |
+
+The **nested** `kubeletAPI` config object has the following fields:
+
+| Config option | Required | Type     | Description                                                  |
+| ------------- | -------- | -------- | ------------------------------------------------------------ |
+| `url`         | no       | `string` | URL of the Kubelet instance.  This will default to `https://<current node hostname>:10250` if not provided. |
+| `authType`    | no       | `string` | Can be `none` for no auth, `tls` for TLS client cert auth, or `serviceAccount` to use the pod default service account token to authenticate. (**default:** `none`) |
+| `skipVerify`  | no       | `bool`   | Whether to skip verification of the Kubelet TLS cert (**default:** `true`) |
+
+### YAML config
+
+Sample YAML config with custom query:
+
+```sh
+monitors:
+- type: collectd/couchbase
+  host: 127.0.0.1
+  port: 8091
+  collectTarget: "NODE"
+  clusterName: "my-cluster"
+  username: "user"
+  password: "password" 
+```
+
+### More Configuration options
+
+In addition to the common configuration options shown [here](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html), the following configuration options can be set:
+
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| item 1 | no | `string` | description
+| `item2` | no | `string` | description
+
+## Implementation
+
+After installation, implement this monitor following the steps below.
+
+1. 
+
+2. 
 
 
 
 _METRICS TAB_
 
-
-
 # Metrics
 
 - [Metrics](#metrics)
-
-- [Custom metric configuration](#custom-metric-configuration)
-
 - [Dimensions](#dimensions)
+
 
 ## Metrics
 
@@ -107,7 +105,7 @@ In addition to the common default metrics that are described [here](https://docs
 
 - Metrics that are not marked as Included are custom metrics, such as system or service metrics that you configure the Smart Agent to send outside of the default set of metrics. Your SignalFx subscription allows you to send a certain number of custom metrics.
 
-You may need to add a flag to these metrics. Check the configuration file for comments about flag requirements.
+You may need to add a flag to these metrics. Check the config file for flag requirements.
 
 
 | Name | Type | Included | Description |
@@ -121,9 +119,9 @@ You may need to add a flag to these metrics. Check the configuration file for co
 
 To collect custom metrics, you must configure your monitor to listen for those metrics and then send those metrics to the agent.
 
-To specify custom metrics, add a _metricsToInclude_ filter to the agent configuration file, as shown in the code snippet below. The sample snippet lists all available custom metrics. Copy and paste the snippet into your monitor configuration file, then delete any custom metrics that you do not want.
+To specify custom metrics, add a _metricsToInclude_ filter to the agent configuration file, as shown in the code snippet below. The snippet lists all available custom metrics. Copy and paste the snippet into your monitor configuration file, then delete any custom metrics that you do not want.
 
-Note that some of the custom metrics require you to set a flag in addition to adding them to the _metricsToInclude_ list. Check the monitor configuration file to see if a flag is required for gathering custom metrics.
+Note that some of the custom metrics require you to set a flag in addition to adding them to the metricsToInclude list. Check the monitor configuration file to see if a flag is required for gathering custom metrics.
 
 ```
 sh
@@ -142,8 +140,8 @@ The following dimensions may occur on metrics emitted by this monitor. Some dime
 | ---  | ---         |
 | `container_id` | The ID of the running container |
 | `container_image` | The container image name |
-| `container_name` | The container name as it appears in the pod spec, the same as container_spec_name but retained for backwards compatibility. |
-| `container_spec_name` | The container name as it appears in the pod spec |
+| `container_name` | The container's name as it appears in the pod spec, the same as container_spec_name but retained for backwards compatibility. |
+| `container_spec_name` | The container's name as it appears in the pod spec |
 
 
 
@@ -151,57 +149,35 @@ The following dimensions may occur on metrics emitted by this monitor. Some dime
 
 _TROUBLESHOOTING TAB_
 
+# Troubleshooting
+
+- [Verify installation](#verify-installation)
+- [Troubleshooting monitor operation](#troubleshooting-monitor-operations)
 
 
-# Troubleshooting 
+## Verify Installation
 
-- [Confirm Installation](#confirm-installation)
-- [Troubleshooting Monitor Operation](#troubleshooting-monitor-operation)
-
-## Confirm Installation
-
-To confirm your installation is functioning properly enter:
-
-<This is troubleshooting the monitor installation.>
-
-The response you see is:
+To confirm that your installation is installed properly...
 
 
 ## Troubleshooting Monitor Operation
 
-<This is troubleshooting the monitor functioning.>
-
-
-
-
-
-_USAGE TAB_
-
-
-
-
-# Monitor Usage 
-
-- [How to](#how-to) 
-- [Sample code for the how to](#sample-code-for-the-how-to])
-
-## How To
-
-<Examples of how to use the monitor, dashboards, and metrics for a meaningful task. Discussion. >
-
-
-## Sample code for the how to
-
-<This is where you can put the sample coding that matches the "how to" section above.>
+To identify and resolve faulty monitor operation...
 
 
 
 
 
 
+_CONFIGURATION TAB_
+
+- [Requirements and Dependencies](requirements-and-dependencies)
+- [Configuration options](configuration-options)
 
 
+## Requirements and Dependencies
+
+<text or table format>
 
 
-
-
+## Configuration options
