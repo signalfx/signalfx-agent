@@ -272,7 +272,7 @@ install_with_zypper() {
     version_flag="-${package_version}"
   fi
 
-  zypper -n refresh
+  zypper -n --gpg-auto-import-keys refresh
   zypper install -y -l libcap2 libcap-progs libpcap1 shadow
   local tmpdir=$(mktemp -d)
   zypper --pkg-cache-dir=${tmpdir} download signalfx-agent${version_flag}
