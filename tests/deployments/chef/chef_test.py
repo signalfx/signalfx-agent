@@ -68,8 +68,8 @@ RPM_DISTROS = [
 CHEF_VERSIONS = os.environ.get("CHEF_VERSIONS", "latest").split(",")
 
 STAGE = os.environ.get("STAGE", "final")
-INITIAL_VERSION = os.environ.get("INITIAL_VERSION", "4.7.5")
-UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "4.7.6")
+INITIAL_VERSION = os.environ.get("INITIAL_VERSION", "4.7.7")
+UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "4.7.8")
 
 
 def run_chef_client(cont, chef_version, agent_version=None, stage=STAGE):
@@ -99,16 +99,6 @@ def run_chef_client(cont, chef_version, agent_version=None, stage=STAGE):
 )
 @pytest.mark.parametrize("chef_version", CHEF_VERSIONS)
 def test_chef(base_image, init_system, chef_version):
-    if "opensuse" in base_image:
-        # use test stage until the suse-supported rpm is released to final stage
-        stage = "test"
-        initial_version = "4.7.5~post"
-        upgrade_version = "4.7.6~post"
-    else:
-        stage = STAGE
-        initial_version = INITIAL_VERSION
-        upgrade_version = UPGRADE_VERSION
-
     dockerfile = DOCKERFILES_DIR / f"Dockerfile.{base_image}"
     buildargs = {"CHEF_INSTALLER_ARGS": ""}
     if chef_version != "latest":
@@ -118,20 +108,20 @@ def test_chef(base_image, init_system, chef_version):
         backend,
     ]:
         try:
-            installed_version = run_chef_client(cont, chef_version, initial_version, stage).replace("-", "~")
-            assert installed_version == initial_version, "installed agent version is '%s', expected '%s'" % (
+            installed_version = run_chef_client(cont, chef_version, INITIAL_VERSION, STAGE).replace("-", "~")
+            assert installed_version == INITIAL_VERSION, "installed agent version is '%s', expected '%s'" % (
                 installed_version,
-                initial_version,
+                INITIAL_VERSION,
             )
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
             # upgrade agent
-            installed_version = run_chef_client(cont, chef_version, upgrade_version, stage).replace("-", "~")
-            assert installed_version == upgrade_version, "installed agent version is '%s', expected '%s'" % (
+            installed_version = run_chef_client(cont, chef_version, UPGRADE_VERSION, STAGE).replace("-", "~")
+            assert installed_version == UPGRADE_VERSION, "installed agent version is '%s', expected '%s'" % (
                 installed_version,
-                upgrade_version,
+                UPGRADE_VERSION,
             )
             backend.reset_datapoints()
             assert wait_for(
@@ -140,10 +130,10 @@ def test_chef(base_image, init_system, chef_version):
 
             # downgrade agent for distros that support package downgrades
             if base_image not in ("debian-7-wheezy", "debian-8-jessie", "ubuntu1404"):
-                installed_version = run_chef_client(cont, chef_version, initial_version, stage).replace("-", "~")
-                assert installed_version == initial_version, "installed agent version is '%s', expected '%s'" % (
+                installed_version = run_chef_client(cont, chef_version, INITIAL_VERSION, STAGE).replace("-", "~")
+                assert installed_version == INITIAL_VERSION, "installed agent version is '%s', expected '%s'" % (
                     installed_version,
-                    initial_version,
+                    INITIAL_VERSION,
                 )
                 backend.reset_datapoints()
                 assert wait_for(
