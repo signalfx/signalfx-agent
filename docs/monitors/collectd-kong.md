@@ -118,6 +118,7 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
+| `pythonBinary` | no | `string` | Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well. |
 | `host` | **yes** | `string` | Kong host to connect with (used for autodiscovery and URL) |
 | `port` | **yes** | `integer` | Port for kong-plugin-signalfx hosting server (used for autodiscovery and URL) |
 | `name` | no | `string` | Registration name when using multiple instances in Smart Agent |

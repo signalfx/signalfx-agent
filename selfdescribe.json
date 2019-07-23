@@ -2885,6 +2885,14 @@
         "package": "internal/monitors/collectd/consul",
         "fields": [
           {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "host",
             "doc": "",
             "default": null,
@@ -3457,6 +3465,14 @@
         "doc": "Config is the monitor-specific config with the generic config embedded",
         "package": "internal/monitors/collectd/couchbase",
         "fields": [
+          {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
           {
             "yamlName": "host",
             "doc": "",
@@ -5489,6 +5505,14 @@
         "package": "internal/monitors/collectd/elasticsearch",
         "fields": [
           {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "host",
             "doc": "",
             "default": null,
@@ -5850,6 +5874,14 @@
         "doc": "Config is the monitor-specific config with the generic config embedded",
         "package": "internal/monitors/collectd/etcd",
         "fields": [
+          {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
           {
             "yamlName": "host",
             "doc": "",
@@ -7405,6 +7437,14 @@
         "package": "internal/monitors/collectd/hadoop",
         "fields": [
           {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "host",
             "doc": "Resource Manager Hostname",
             "default": null,
@@ -8659,6 +8699,14 @@
         "package": "internal/monitors/collectd/haproxy",
         "fields": [
           {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "host",
             "doc": "",
             "default": null,
@@ -8717,6 +8765,14 @@
         "doc": "Config is the monitor-specific config with the generic config embedded",
         "package": "internal/monitors/collectd/healthchecker",
         "fields": [
+          {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
           {
             "yamlName": "host",
             "doc": "",
@@ -9016,6 +9072,14 @@
         "doc": "Config is the monitor-specific config with the generic config embedded",
         "package": "internal/monitors/collectd/jenkins",
         "fields": [
+          {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
           {
             "yamlName": "host",
             "doc": "",
@@ -10357,6 +10421,14 @@
         "package": "internal/monitors/collectd/kong",
         "fields": [
           {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "host",
             "doc": "Kong host to connect with (used for autodiscovery and URL)",
             "default": null,
@@ -10871,6 +10943,14 @@
         "doc": "Config is the monitor-specific config with the generic config embedded",
         "package": "internal/monitors/collectd/marathon",
         "fields": [
+          {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
           {
             "yamlName": "host",
             "doc": "",
@@ -11777,6 +11857,14 @@
         "doc": "Config is the monitor-specific config with the generic config embedded",
         "package": "internal/monitors/collectd/mongodb",
         "fields": [
+          {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
           {
             "yamlName": "host",
             "doc": "Host name/IP address of the Mongo instance",
@@ -13754,6 +13842,14 @@
         "package": "internal/monitors/collectd/openstack",
         "fields": [
           {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "authURL",
             "doc": "Keystone authentication URL/endpoint for the OpenStack cloud",
             "default": null,
@@ -14536,6 +14632,14 @@
         "doc": "Config specifies configurations that are specific to the individual python based monitor",
         "package": "internal/monitors/collectd/python",
         "fields": [
+          {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
           {
             "yamlName": "host",
             "doc": "Host will be filled in by auto-discovery if this monitor has a discovery rule.  It can then be used under pluginConfig by the template `{{.Host}}`",
@@ -15394,6 +15498,14 @@
         "package": "internal/monitors/collectd/rabbitmq",
         "fields": [
           {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "host",
             "doc": "",
             "default": null,
@@ -15785,6 +15897,14 @@
         "doc": "Config is the monitor-specific config with the generic config embedded",
         "package": "internal/monitors/collectd/redis",
         "fields": [
+          {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
           {
             "yamlName": "host",
             "doc": "",
@@ -16373,6 +16493,14 @@
         "doc": "Config is the monitor-specific config with the generic config embedded",
         "package": "internal/monitors/collectd/solr",
         "fields": [
+          {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
           {
             "yamlName": "host",
             "doc": "",
@@ -17085,6 +17213,14 @@
         "package": "internal/monitors/collectd/spark",
         "fields": [
           {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "host",
             "doc": "",
             "default": null,
@@ -17680,6 +17816,14 @@
         "doc": "Config is the monitor-specific config with the generic config embedded",
         "package": "internal/monitors/collectd/zookeeper",
         "fields": [
+          {
+            "yamlName": "pythonBinary",
+            "doc": "Path to a python binary that should be used to execute the Python code. If not set, a built-in runtime will be used.  Can include arguments to the binary as well.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
           {
             "yamlName": "host",
             "doc": "Host or IP address of the Zookeeper node",

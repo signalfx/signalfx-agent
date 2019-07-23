@@ -165,6 +165,7 @@ func (mc *MonitorCore) runWithRestart(runtimeConf RuntimeConfig, handler func(Me
 		}()
 
 		err = mc.run(runtimeConf, stdin, stdout)
+		mc.configCond.Broadcast()
 
 		stdin.Close()
 		stdout.Close()

@@ -26,6 +26,7 @@ func init() {
 type Config struct {
 	// Make this single instance since we can't add dimensions
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true" singleInstance:"true"`
+	python.CommonConfig  `yaml:",inline"`
 	pyConf               *python.Config
 	Host                 string `yaml:"host" validate:"required"`
 	Port                 uint16 `yaml:"port" validate:"required"`
@@ -44,6 +45,7 @@ type Config struct {
 
 // PythonConfig returns the embedded python.Config struct from the interface
 func (c *Config) PythonConfig() *python.Config {
+	c.pyConf.CommonConfig = c.CommonConfig
 	return c.pyConf
 }
 

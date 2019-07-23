@@ -10,7 +10,9 @@ import (
 	"fmt"
 	"html/template"
 	"io"
+	"os"
 	"strconv"
+	"strings"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/mailru/easyjson"
@@ -43,9 +45,18 @@ type PyConfig interface {
 	PythonConfig() *Config
 }
 
+// CommonConfig for all Python-based monitors
+type CommonConfig struct {
+	// Path to a python binary that should be used to execute the Python code.
+	// If not set, a built-in runtime will be used.  Can include arguments to
+	// the binary as well.
+	PythonBinary string `yaml:"pythonBinary" json:"pythonBinary"`
+}
+
 // Config specifies configurations that are specific to the individual python based monitor
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	CommonConfig         `yaml:",inline"`
 	// Host will be filled in by auto-discovery if this monitor has a discovery
 	// rule.  It can then be used under pluginConfig by the template
 	// `{{.Host}}`
@@ -119,7 +130,16 @@ func (m *PyMonitor) Configure(conf PyConfig) error {
 		}
 	}
 
-	return m.MonitorCore.ConfigureInPython(pyconf, nil, func(dataReader pyrunner.MessageReceiver) {
+	runtimeConf := m.DefaultRuntimeConfig()
+	pyBin := conf.PythonConfig().PythonBinary
+	if pyBin != "" {
+		args := strings.Fields(pyBin)
+		runtimeConf.PythonBinary = args[0]
+		runtimeConf.PythonEnv = os.Environ()
+		runtimeConf.PythonArgs = append(runtimeConf.PythonArgs, args[1:]...)
+	}
+
+	return m.MonitorCore.ConfigureInPython(pyconf, runtimeConf, func(dataReader pyrunner.MessageReceiver) {
 		for {
 			m.Logger().Debug("Waiting for messages")
 			msgType, payloadReader, err := dataReader.RecvMessage()

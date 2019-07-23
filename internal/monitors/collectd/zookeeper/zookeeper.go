@@ -23,6 +23,7 @@ func init() {
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	python.CommonConfig  `yaml:",inline"`
 	pyConf               *python.Config
 	// Host or IP address of the Zookeeper node
 	Host string `yaml:"host" validate:"required"`
@@ -35,6 +36,7 @@ type Config struct {
 
 // PythonConfig returns the embedded python.Config struct from the interface
 func (c *Config) PythonConfig() *python.Config {
+	c.pyConf.CommonConfig = c.CommonConfig
 	return c.pyConf
 }
 
