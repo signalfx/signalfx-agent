@@ -148,7 +148,7 @@ The Smart Agent is configured primarily from a YAML file. By default, the Smart 
 
 For details see [Agent Configuration](https://docs.signalfx.com/en/latest/integrations/agent/config-schema.html).
 
-For the full schema of the config, see Config Schema.
+For the full schema of the config, see [Config Schema](https://docs.signalfx.com/en/latest/integrations/agent/config-schema.html#config-schema).
 For information on how to configure the Smart Agent from remote sources, such as other files on the filesystem or KV stores such as Etcd, see Remote Configuration.
 
 
@@ -175,7 +175,7 @@ If you plan to create your own [custom dashboards](https://docs.signalfx.com/en/
 See best practices for [Better Dashboards](https://docs.signalfx.com/en/latest/reference/best-practices/better-dashboards.html).
 
 
-__To learn more about how your data is presented in SignalFx, see the [15-Minute SingnalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html)__. 
+__To learn more about how your data is presented in SignalFx, see the [15-Minute SingnalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html)__.
 
 
 ## Additional material
