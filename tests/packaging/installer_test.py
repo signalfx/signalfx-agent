@@ -57,9 +57,6 @@ def _run_tests(base_image, init_system, installer_args, **extra_run_kwargs):
 @pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
 def test_installer_on_all_distros(base_image, init_system):
     args = "MYTOKEN"
-    if "opensuse" in base_image:
-        # use rpm in test stage until the suse-supported rpm is released to final stage
-        args += " --test"
     with _run_tests(base_image, init_system, args) as [backend, _]:
         assert wait_for(
             p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
@@ -67,17 +64,15 @@ def test_installer_on_all_distros(base_image, init_system):
 
 
 @pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
-def test_installer_package_version(base_image, init_system):
-    version = "4.7.5"
-    args = f"--package-version {version}-1 MYTOKEN"
-    if "opensuse" in base_image:
-        # use rpm in test stage until the suse-supported rpm is released to final stage
-        version = "4.7.6~post"
-        args = f"--test --package-version {version}-1 MYTOKEN"
+@pytest.mark.parametrize("agent_version", ["4.7.8"])
+def test_installer_package_version(base_image, init_system, agent_version):
+    args = f"--package-version {agent_version}-1 MYTOKEN"
     with _run_tests(base_image, init_system, args) as [backend, cont]:
         installed_version = get_agent_version(cont)
-        version = version.replace("~", "-")
-        assert installed_version == version, f"Installed agent version is {installed_version} but should be {version}"
+        agent_version = agent_version.replace("~", "-")
+        assert (
+            installed_version == agent_version
+        ), f"Installed agent version is {installed_version} but should be {agent_version}"
         assert wait_for(
             p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
         ), "Datapoints didn't come through"
