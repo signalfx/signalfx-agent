@@ -1,3 +1,4 @@
+import os
 import re
 import subprocess
 import threading
@@ -6,6 +7,7 @@ from contextlib import contextmanager
 from pathlib import Path
 
 import docker
+import requests
 from tests.helpers import fake_backend
 from tests.helpers.util import get_docker_client, get_host_ip, pull_from_reader_in_background, retry, run_container
 from tests.paths import REPO_ROOT_DIR
@@ -16,6 +18,11 @@ INSTALLER_PATH = DEPLOYMENTS_DIR / "installer/install.sh"
 RPM_OUTPUT_DIR = PACKAGING_DIR / "rpm/output/x86_64"
 DEB_OUTPUT_DIR = PACKAGING_DIR / "deb/output"
 DOCKERFILES_DIR = Path(__file__).parent.joinpath("images").resolve()
+WIN_AGENT_LATEST_URL = "https://dl.signalfx.com/windows/{stage}/zip/latest/latest.txt"
+WIN_AGENT_PATH = r"C:\Program Files\SignalFx\SignalFxAgent\bin\signalfx-agent.exe"
+WIN_REPO_ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", ".."))
+WIN_INSTALLER_PATH = os.path.join(WIN_REPO_ROOT_DIR, "deployments", "installer", "install.ps1")
+WIN_UNINSTALLER_PATH = os.path.join(WIN_REPO_ROOT_DIR, "scripts", "windows", "uninstall-agent.ps1")
 
 INIT_SYSV = "sysv"
 INIT_UPSTART = "upstart"
@@ -197,10 +204,37 @@ def get_agent_version(cont):
     return match.group(1).strip()
 
 
-def get_win_agent_version(agent_path=r"C:\Program Files\SignalFx\SignalFxAgent\bin\signalfx-agent.exe"):
-    proc = subprocess.run(agent_path + " -version", stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+def run_win_command(cmd, returncodes=None, shell=True, **kwargs):
+    if returncodes is None:
+        returncodes = [0]
+    print('running "%s" ...' % cmd)
+    proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=shell, **kwargs)
     output = proc.stdout.decode("utf-8")
-    assert proc.returncode == 0, "command '%s -version' failed:\n%s" % (agent_path, output)
+    if returncodes:
+        assert proc.returncode in returncodes, output
+    print(output)
+    return proc
+
+
+def get_win_agent_version(agent_path=WIN_AGENT_PATH):
+    proc = run_win_command([agent_path, "-version"])
+    output = proc.stdout.decode("utf-8")
     match = re.match("^.+?: (.+)?,", output)
     assert match and match.group(1).strip(), "failed to parse agent version from command output:\n%s" % output
     return match.group(1).strip()
+
+
+def running_in_azure_pipelines():
+    return os.environ.get("AZURE_HTTP_USER_AGENT") is not None
+
+
+def has_choco():
+    return run_win_command("choco --version", []).returncode == 0
+
+
+def uninstall_win_agent():
+    run_win_command(f'powershell.exe "{WIN_UNINSTALLER_PATH}"')
+
+
+def get_latest_win_agent_version(stage="final"):
+    return requests.get(WIN_AGENT_LATEST_URL.format(stage=stage)).text.strip()

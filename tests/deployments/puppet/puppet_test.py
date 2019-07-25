@@ -1,7 +1,6 @@
 import os
 import shutil
 import string
-import subprocess
 import sys
 import tempfile
 from functools import partial as p
@@ -16,11 +15,16 @@ from tests.helpers.util import print_lines, wait_for, copy_file_into_container
 from tests.packaging.common import (
     INIT_SYSTEMD,
     INIT_UPSTART,
+    WIN_REPO_ROOT_DIR,
     get_agent_logs,
     get_agent_version,
     get_win_agent_version,
+    has_choco,
     is_agent_running_as_non_root,
     run_init_system_image,
+    run_win_command,
+    running_in_azure_pipelines,
+    uninstall_win_agent,
 )
 from tests.paths import REPO_ROOT_DIR
 
@@ -141,18 +145,6 @@ def test_puppet(base_image, init_system):
             print_lines(get_agent_logs(cont, init_system))
 
 
-def run_win_command(cmd, returncodes=None):
-    if returncodes is None:
-        returncodes = [0]
-    print('running "%s" ...' % cmd)
-    proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True)
-    output = proc.stdout.decode("utf-8")
-    if returncodes:
-        assert proc.returncode in returncodes, output
-    print(output)
-    return proc
-
-
 def get_win_puppet_version():
     return run_win_command("puppet --version").stdout.decode("utf-8").strip()
 
@@ -173,13 +165,13 @@ def run_win_puppet_agent(backend, monitors, agent_version=None, stage=STAGE):
 
 
 if sys.platform == "win32":
-    WIN_PUPPET_VERSIONS = (
-        ["5.0.0", "latest"] if os.environ.get("USERNAME") == "VssAdministrator" else [get_win_puppet_version()]
-    )
+    if running_in_azure_pipelines() or has_choco():
+        WIN_PUPPET_VERSIONS = os.environ.get("PUPPET_VERSIONS", "latest").split(",")
+    else:
+        # assume system already has puppet installed
+        WIN_PUPPET_VERSIONS = [get_win_puppet_version()]
 else:
     WIN_PUPPET_VERSIONS = []
-WIN_REPO_ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", "..", ".."))
-WIN_UNINSTALL_SCRIPT_PATH = os.path.join(WIN_REPO_ROOT_DIR, "scripts", "windows", "uninstall-agent.ps1")
 WIN_PUPPET_BIN_DIR = r"C:\Program Files\Puppet Labs\Puppet\bin"
 WIN_PUPPET_MODULE_SRC_DIR = os.path.join(WIN_REPO_ROOT_DIR, "deployments", "puppet")
 WIN_PUPPET_MODULE_DEST_DIR = r"C:\ProgramData\PuppetLabs\code\environments\production\modules\signalfx_agent"
@@ -189,8 +181,8 @@ WIN_PUPPET_MODULE_DEST_DIR = r"C:\ProgramData\PuppetLabs\code\environments\produ
 @pytest.mark.skipif(sys.platform != "win32", reason="only runs on windows")
 @pytest.mark.parametrize("puppet_version", WIN_PUPPET_VERSIONS)
 def test_puppet_on_windows(puppet_version):
-    run_win_command(f"powershell.exe '{WIN_UNINSTALL_SCRIPT_PATH}'")
-    if os.environ.get("USERNAME") == "VssAdministrator":
+    uninstall_win_agent()
+    if running_in_azure_pipelines() or has_choco():
         if puppet_version == "latest":
             run_win_command(f"choco upgrade -y -f puppet-agent")
         else:
