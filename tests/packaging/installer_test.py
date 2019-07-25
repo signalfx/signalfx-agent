@@ -137,9 +137,11 @@ def test_win_installer(agent_version):
         try:
             if agent_version == "latest":
                 agent_version = get_latest_win_agent_version(stage="final")
-                installed_version = run_win_installer(backend, "MYTOKEN -stage final")
+                installed_version = run_win_installer(backend, "-access_token MYTOKEN -stage final")
             else:
-                installed_version = run_win_installer(backend, f"MYTOKEN -stage final -agent_version {agent_version}")
+                installed_version = run_win_installer(
+                    backend, f"-access_token MYTOKEN -stage final -agent_version {agent_version}"
+                )
             assert installed_version == agent_version, "installed agent version is '%s', expected '%s'" % (
                 installed_version,
                 agent_version,

@@ -225,7 +225,7 @@ def get_win_agent_version(agent_path=WIN_AGENT_PATH):
 
 
 def running_in_azure_pipelines():
-    return os.environ.get("USERNAME") == "VssAdministrator" or os.environ.get("AZURE_HTTP_USER_AGENT")
+    return os.environ.get("AZURE_HTTP_USER_AGENT") is not None
 
 
 def has_choco():
