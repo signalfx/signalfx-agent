@@ -179,6 +179,14 @@
         }
       },
       {
+        "yamlName": "dimensionsToExclude",
+        "doc": "A list of dimensions names to drop from datapoints emitted by the monitor(s) created from this configuration.",
+        "default": "",
+        "required": false,
+        "type": "slice",
+        "elementKind": ""
+      },
+      {
         "yamlName": "disableHostDimensions",
         "doc": "Some monitors pull metrics from services not running on the same host and should not get the host-specific dimensions set on them (e.g. `host`, `AWSUniqueId`, etc).  Setting this to `true` causes those dimensions to be omitted.  You can disable this globally with the `disableHostDimensions` option on the top level of the config.",
         "default": false,
@@ -35932,6 +35940,14 @@
                   }
                 ]
               }
+            },
+            {
+              "yamlName": "dimensionsToExclude",
+              "doc": "A list of dimensions names to drop from datapoints emitted by the monitor(s) created from this configuration.",
+              "default": "",
+              "required": false,
+              "type": "slice",
+              "elementKind": ""
             },
             {
               "yamlName": "disableHostDimensions",

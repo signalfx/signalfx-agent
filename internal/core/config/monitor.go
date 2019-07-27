@@ -60,6 +60,9 @@ type MonitorConfig struct {
 	// filtering](https://github.com/signalfx/signalfx-agent/tree/master/docs/filtering.md#monitor-level-filtering)
 	// for examples and more information.
 	DatapointsToExclude []MetricFilter `yaml:"datapointsToExclude" json:"datapointsToExclude" default:"[]"`
+	// A list of dimensions names to drop from datapoints emitted by the
+	// monitor(s) created from this configuration.
+	DimensionsToExclude []string `yaml:"dimensionsToExclude" json:"dimensionsToExclude" default:"[]"`
 	// Some monitors pull metrics from services not running on the same host
 	// and should not get the host-specific dimensions set on them (e.g.
 	// `host`, `AWSUniqueId`, etc).  Setting this to `true` causes those

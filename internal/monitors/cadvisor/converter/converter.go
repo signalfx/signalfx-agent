@@ -669,10 +669,6 @@ func (c *CadvisorCollector) sendDatapoint(dp *datapoint.Datapoint) {
 		dims[k] = v
 	}
 
-	// remove high cardinality dimensions
-	delete(dims, "id")
-	delete(dims, "name")
-
 	c.sendDP(dp)
 }
 

@@ -34,7 +34,7 @@ if not set.
 
 ## Config Schema
 
-  
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `signalFxAccessToken` | no | string | The access token for the org that should receive the metrics emitted by the agent. |
@@ -103,6 +103,7 @@ The following are generic options that apply to all monitors.  Each monitor type
 | `solo` | no | bool | If one or more configurations have this set to true, only those configurations will be considered. This setting can be useful for testing. (**default:** `false`) |
 | `metricsToExclude` | no | [list of objects (see below)](#metricstoexclude) | DEPRECATED in favor of the `datapointsToExclude` option.  That option handles negation of filter items differently. |
 | `datapointsToExclude` | no | [list of objects (see below)](#datapointstoexclude) | A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](https://github.com/signalfx/signalfx-agent/tree/master/docs/filtering.md#monitor-level-filtering) for examples and more information. |
+| `dimensionsToExclude` | no | list of strings | A list of dimensions names to drop from datapoints emitted by the monitor(s) created from this configuration. |
 | `disableHostDimensions` | no | bool | Some monitors pull metrics from services not running on the same host and should not get the host-specific dimensions set on them (e.g. `host`, `AWSUniqueId`, etc).  Setting this to `true` causes those dimensions to be omitted.  You can disable this globally with the `disableHostDimensions` option on the top level of the config. (**default:** `false`) |
 | `disableEndpointDimensions` | no | bool | This can be set to true if you don't want to include the dimensions that are specific to the endpoint that was discovered by an observer.  This is useful when you have an endpoint whose identity is not particularly important since it acts largely as a proxy or adapter for other metrics. (**default:** `false`) |
 | `dimensionTransformations` | no | map of strings | A map from dimension names emitted by the monitor to the desired dimension name that will be emitted in the datapoint that goes to SignalFx.  This can be useful if you have custom metrics from your applications and want to make the dimensions from a monitor match those. Also can be useful when scraping free-form metrics, say with the `prometheus-exporter` monitor.  Right now, only static key/value transformations are supported.  Note that filtering by dimensions will be done on the *original* dimension name and not the new name. |
@@ -372,23 +373,23 @@ where applicable:
 
 
 ```yaml
-  signalFxAccessToken: 
-  ingestUrl: 
-  traceEndpointUrl: 
-  apiUrl: 
+  signalFxAccessToken:
+  ingestUrl:
+  traceEndpointUrl:
+  apiUrl:
   signalFxRealm: "us0"
-  hostname: 
-  useFullyQualifiedHost: 
+  hostname:
+  useFullyQualifiedHost:
   disableHostDimensions: false
   intervalSeconds: 10
-  globalDimensions: 
+  globalDimensions:
   sendMachineID: false
-  cluster: 
+  cluster:
   syncClusterOnHostDimension: false
   validateDiscoveryRules: true
   observers: []
   monitors: []
-  writer: 
+  writer:
     datapointMaxBatchSize: 1000
     maxDatapointsBuffered: 5000
     traceSpanMaxBatchSize: 1000
@@ -408,10 +409,10 @@ where applicable:
     staleServiceTimeout: "5m"
     traceHostCorrelationMetricsInterval: "1m"
     maxTraceSpansInFlight: 100000
-  logging: 
+  logging:
     level: "info"
     format: "text"
-  collectd: 
+  collectd:
     disableCollectd: false
     timeout: 40
     readThreads: 5
@@ -432,44 +433,44 @@ where applicable:
   profiling: false
   profilingHost: "127.0.0.1"
   profilingPort: 6060
-  bundleDir: 
-  scratch: 
-  configSources: 
+  bundleDir:
+  scratch:
+  configSources:
     watch: true
-    file: 
+    file:
       pollRateSeconds: 5
-    zookeeper: 
+    zookeeper:
       endpoints: []
       timeoutSeconds: 10
-    etcd2: 
+    etcd2:
       endpoints: []
-      username: 
-      password: 
-    consul: 
-      endpoint: 
-      username: 
-      password: 
-      token: 
-      datacenter: 
-    vault: 
-      vaultAddr: 
-      vaultToken: 
+      username:
+      password:
+    consul:
+      endpoint:
+      username:
+      password:
+      token:
+      datacenter:
+    vault:
+      vaultAddr:
+      vaultToken:
       kvV2PollInterval: "60s"
-      authMethod: 
-      iam: 
-        awsAccessKeyId: 
-        awsSecretAccessKey: 
-        awsSecurityToken: 
-        headerValue: 
-        mount: 
-        role: 
-      gcp: 
-        role: 
-        mount: 
-        credentials: 
-        jwt_exp: 
-        service_account: 
-        project: 
+      authMethod:
+      iam:
+        awsAccessKeyId:
+        awsSecretAccessKey:
+        awsSecurityToken:
+        headerValue:
+        mount:
+        role:
+      gcp:
+        role:
+        mount:
+        credentials:
+        jwt_exp:
+        service_account:
+        project:
   procPath: "/proc"
   etcPath: "/etc"
   varPath: "/var"

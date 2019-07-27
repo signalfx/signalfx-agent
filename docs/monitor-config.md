@@ -33,6 +33,7 @@ The following config options are common to all monitors:
 | `solo` | `false` | no | `bool` | If one or more configurations have this set to true, only those configurations will be considered. This setting can be useful for testing. |
 | `metricsToExclude` |  | no | `list of objects` | DEPRECATED in favor of the `datapointsToExclude` option.  That option handles negation of filter items differently. |
 | `datapointsToExclude` |  | no | `list of objects` | A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](https://github.com/signalfx/signalfx-agent/tree/master/docs/filtering.md#monitor-level-filtering) for examples and more information. |
+| `dimensionsToExclude` | no | list of strings | A list of dimensions names to drop from datapoints emitted by the monitor(s) created from this configuration. |
 | `disableHostDimensions` | `false` | no | `bool` | Some monitors pull metrics from services not running on the same host and should not get the host-specific dimensions set on them (e.g. `host`, `AWSUniqueId`, etc).  Setting this to `true` causes those dimensions to be omitted.  You can disable this globally with the `disableHostDimensions` option on the top level of the config. |
 | `disableEndpointDimensions` | `false` | no | `bool` | This can be set to true if you don't want to include the dimensions that are specific to the endpoint that was discovered by an observer.  This is useful when you have an endpoint whose identity is not particularly important since it acts largely as a proxy or adapter for other metrics. |
 | `dimensionTransformations` |  | no | `map of strings` | A map from dimension names emitted by the monitor to the desired dimension name that will be emitted in the datapoint that goes to SignalFx.  This can be useful if you have custom metrics from your applications and want to make the dimensions from a monitor match those. Also can be useful when scraping free-form metrics, say with the `prometheus-exporter` monitor.  Right now, only static key/value transformations are supported.  Note that filtering by dimensions will be done on the *original* dimension name and not the new name. |
@@ -143,5 +144,3 @@ These are all of the monitors included in the agent, along with their possible c
 - [vmem](./monitors/vmem.md)
 - [windows-iis](./monitors/windows-iis.md)
 - [windows-legacy](./monitors/windows-legacy.md)
-
-

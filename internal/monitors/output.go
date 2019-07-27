@@ -24,6 +24,7 @@ type monitorOutput struct {
 	spanChan                  chan<- *trace.Span
 	dimPropChan               chan<- *types.DimProperties
 	extraDims                 map[string]string
+	excludeDims               []string
 	dimensionTransformations  map[string]string
 }
 
@@ -68,6 +69,13 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 			dp.Dimensions[newName] = v
 			delete(dp.Dimensions, origName)
 		}
+	}
+
+	// Finally, remove any dimensions which the monitor has been configured to exclude.
+	// This includes monitor specific dimensions, and extra dimensions add via config
+	// or code.
+	for _, excludeDim := range mo.excludeDims {
+		delete(dp.Dimensions, excludeDim)
 	}
 
 	mo.dpChan <- dp
