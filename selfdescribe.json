@@ -22251,7 +22251,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config for this monitor",
+        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -22432,7 +22432,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config for this monitor",
+        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -22599,7 +22599,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config for this monitor",
+        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -22822,7 +22822,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config for this monitor",
+        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -23122,7 +23122,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config for this monitor",
+        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -23394,7 +23394,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config for this monitor",
+        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -24230,6 +24230,1987 @@
         ]
       },
       "acceptsEndpoints": false,
+      "singleInstance": false
+    },
+    {
+      "monitorType": "kubernetes-apiserver",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "This monitor queries the Kubernetes API server for kube-apiserver metrics in Prometheus format.\nThe monitor queries path `/metrics` by default when no path is configured. The monitor converts\nthe Prometheus metric types to SignalFx metric types as described [here](prometheus-exporter.md)\n\nExample YAML Configuration\n\n  ```\n  monitors:\n  - type: kubernetes-apiserver\n    extraDimensions:\n      metric_source: kubernetes-apiserver\n  ```\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "apiserver_current_inflight_requests",
+            "apiserver_init_events",
+            "apiserver_longrunning_gauge",
+            "apiserver_registered_watchers",
+            "authenticated_user_requests",
+            "kubernetes_build_info"
+          ]
+        },
+        "admission_quota_controller": {
+          "description": "",
+          "metrics": [
+            "admission_quota_controller_adds",
+            "admission_quota_controller_depth",
+            "admission_quota_controller_longest_running_processor_microseconds",
+            "admission_quota_controller_queue_latency",
+            "admission_quota_controller_queue_latency_count",
+            "admission_quota_controller_queue_latency_quantile",
+            "admission_quota_controller_unfinished_work_seconds",
+            "admission_quota_controller_work_duration",
+            "admission_quota_controller_work_duration_count",
+            "admission_quota_controller_work_duration_quantile"
+          ]
+        },
+        "api_service_open_api_aggregation_controller": {
+          "description": "",
+          "metrics": [
+            "APIServiceOpenAPIAggregationControllerQueue1_adds",
+            "APIServiceOpenAPIAggregationControllerQueue1_depth",
+            "APIServiceOpenAPIAggregationControllerQueue1_longest_running_processor_microseconds",
+            "APIServiceOpenAPIAggregationControllerQueue1_queue_latency",
+            "APIServiceOpenAPIAggregationControllerQueue1_queue_latency_count",
+            "APIServiceOpenAPIAggregationControllerQueue1_queue_latency_quantile",
+            "APIServiceOpenAPIAggregationControllerQueue1_retries",
+            "APIServiceOpenAPIAggregationControllerQueue1_unfinished_work_seconds",
+            "APIServiceOpenAPIAggregationControllerQueue1_work_duration",
+            "APIServiceOpenAPIAggregationControllerQueue1_work_duration_count",
+            "APIServiceOpenAPIAggregationControllerQueue1_work_duration_quantile"
+          ]
+        },
+        "api_service_registration_controller": {
+          "description": "",
+          "metrics": [
+            "APIServiceRegistrationController_adds",
+            "APIServiceRegistrationController_depth",
+            "APIServiceRegistrationController_longest_running_processor_microseconds",
+            "APIServiceRegistrationController_queue_latency",
+            "APIServiceRegistrationController_queue_latency_count",
+            "APIServiceRegistrationController_queue_latency_quantile",
+            "APIServiceRegistrationController_retries",
+            "APIServiceRegistrationController_unfinished_work_seconds",
+            "APIServiceRegistrationController_work_duration",
+            "APIServiceRegistrationController_work_duration_count",
+            "APIServiceRegistrationController_work_duration_quantile"
+          ]
+        },
+        "apiserver_admission_controller": {
+          "description": "",
+          "metrics": [
+            "apiserver_admission_controller_admission_duration_seconds",
+            "apiserver_admission_controller_admission_duration_seconds_bucket",
+            "apiserver_admission_controller_admission_duration_seconds_count",
+            "apiserver_admission_controller_admission_latencies_milliseconds",
+            "apiserver_admission_controller_admission_latencies_milliseconds_bucket",
+            "apiserver_admission_controller_admission_latencies_milliseconds_count"
+          ]
+        },
+        "apiserver_admission_step_admission": {
+          "description": "",
+          "metrics": [
+            "apiserver_admission_step_admission_duration_seconds",
+            "apiserver_admission_step_admission_duration_seconds_bucket",
+            "apiserver_admission_step_admission_duration_seconds_count",
+            "apiserver_admission_step_admission_duration_seconds_summary",
+            "apiserver_admission_step_admission_duration_seconds_summary_count",
+            "apiserver_admission_step_admission_duration_seconds_summary_quantile",
+            "apiserver_admission_step_admission_latencies_milliseconds",
+            "apiserver_admission_step_admission_latencies_milliseconds_bucket",
+            "apiserver_admission_step_admission_latencies_milliseconds_count",
+            "apiserver_admission_step_admission_latencies_milliseconds_summary",
+            "apiserver_admission_step_admission_latencies_milliseconds_summary_count",
+            "apiserver_admission_step_admission_latencies_milliseconds_summary_quantile"
+          ]
+        },
+        "apiserver_audit": {
+          "description": "",
+          "metrics": [
+            "apiserver_audit_event",
+            "apiserver_audit_requests_rejected"
+          ]
+        },
+        "apiserver_client": {
+          "description": "",
+          "metrics": [
+            "apiserver_client_certificate_expiration_seconds",
+            "apiserver_client_certificate_expiration_seconds_bucket",
+            "apiserver_client_certificate_expiration_seconds_count"
+          ]
+        },
+        "apiserver_request": {
+          "description": "",
+          "metrics": [
+            "apiserver_request",
+            "apiserver_request_count",
+            "apiserver_request_duration_seconds",
+            "apiserver_request_duration_seconds_bucket",
+            "apiserver_request_duration_seconds_count",
+            "apiserver_request_latencies",
+            "apiserver_request_latencies_bucket",
+            "apiserver_request_latencies_count",
+            "apiserver_request_latencies_summary",
+            "apiserver_request_latencies_summary_count",
+            "apiserver_request_latencies_summary_quantile"
+          ]
+        },
+        "apiserver_response": {
+          "description": "",
+          "metrics": [
+            "apiserver_response_sizes",
+            "apiserver_response_sizes_bucket",
+            "apiserver_response_sizes_count"
+          ]
+        },
+        "apiserver_storage": {
+          "description": "",
+          "metrics": [
+            "apiserver_storage_data_key_generation_duration_seconds",
+            "apiserver_storage_data_key_generation_duration_seconds_bucket",
+            "apiserver_storage_data_key_generation_duration_seconds_count",
+            "apiserver_storage_data_key_generation_failures",
+            "apiserver_storage_data_key_generation_latencies_microseconds",
+            "apiserver_storage_data_key_generation_latencies_microseconds_bucket",
+            "apiserver_storage_data_key_generation_latencies_microseconds_count",
+            "apiserver_storage_envelope_transformation_cache_misses"
+          ]
+        },
+        "autoregister": {
+          "description": "",
+          "metrics": [
+            "autoregister_adds",
+            "autoregister_depth",
+            "autoregister_longest_running_processor_microseconds",
+            "autoregister_queue_latency",
+            "autoregister_queue_latency_count",
+            "autoregister_queue_latency_quantile",
+            "autoregister_retries",
+            "autoregister_unfinished_work_seconds",
+            "autoregister_work_duration",
+            "autoregister_work_duration_count",
+            "autoregister_work_duration_quantile"
+          ]
+        },
+        "available_condition_controller": {
+          "description": "",
+          "metrics": [
+            "AvailableConditionController_adds",
+            "AvailableConditionController_depth",
+            "AvailableConditionController_longest_running_processor_microseconds",
+            "AvailableConditionController_queue_latency",
+            "AvailableConditionController_queue_latency_count",
+            "AvailableConditionController_queue_latency_quantile",
+            "AvailableConditionController_retries",
+            "AvailableConditionController_unfinished_work_seconds",
+            "AvailableConditionController_work_duration",
+            "AvailableConditionController_work_duration_count",
+            "AvailableConditionController_work_duration_quantile"
+          ]
+        },
+        "crd_autoregistration_controller": {
+          "description": "",
+          "metrics": [
+            "crd_autoregistration_controller_adds",
+            "crd_autoregistration_controller_depth",
+            "crd_autoregistration_controller_longest_running_processor_microseconds",
+            "crd_autoregistration_controller_queue_latency",
+            "crd_autoregistration_controller_queue_latency_count",
+            "crd_autoregistration_controller_queue_latency_quantile",
+            "crd_autoregistration_controller_retries",
+            "crd_autoregistration_controller_unfinished_work_seconds",
+            "crd_autoregistration_controller_work_duration",
+            "crd_autoregistration_controller_work_duration_count",
+            "crd_autoregistration_controller_work_duration_quantile"
+          ]
+        },
+        "crd_establishing": {
+          "description": "",
+          "metrics": [
+            "crdEstablishing_adds",
+            "crdEstablishing_depth",
+            "crdEstablishing_longest_running_processor_microseconds",
+            "crdEstablishing_queue_latency",
+            "crdEstablishing_queue_latency_count",
+            "crdEstablishing_queue_latency_quantile",
+            "crdEstablishing_retries",
+            "crdEstablishing_unfinished_work_seconds",
+            "crdEstablishing_work_duration",
+            "crdEstablishing_work_duration_count",
+            "crdEstablishing_work_duration_quantile"
+          ]
+        },
+        "crd_finalizer": {
+          "description": "",
+          "metrics": [
+            "crd_finalizer_adds",
+            "crd_finalizer_depth",
+            "crd_finalizer_longest_running_processor_microseconds",
+            "crd_finalizer_queue_latency",
+            "crd_finalizer_queue_latency_count",
+            "crd_finalizer_queue_latency_quantile",
+            "crd_finalizer_retries",
+            "crd_finalizer_unfinished_work_seconds",
+            "crd_finalizer_work_duration",
+            "crd_finalizer_work_duration_count",
+            "crd_finalizer_work_duration_quantile"
+          ]
+        },
+        "crd_naming_condition_controller": {
+          "description": "",
+          "metrics": [
+            "crd_naming_condition_controller_adds",
+            "crd_naming_condition_controller_depth",
+            "crd_naming_condition_controller_longest_running_processor_microseconds",
+            "crd_naming_condition_controller_queue_latency",
+            "crd_naming_condition_controller_queue_latency_count",
+            "crd_naming_condition_controller_queue_latency_quantile",
+            "crd_naming_condition_controller_retries",
+            "crd_naming_condition_controller_unfinished_work_seconds",
+            "crd_naming_condition_controller_work_duration",
+            "crd_naming_condition_controller_work_duration_count",
+            "crd_naming_condition_controller_work_duration_quantile"
+          ]
+        },
+        "discovery_controller": {
+          "description": "",
+          "metrics": [
+            "DiscoveryController_adds",
+            "DiscoveryController_depth",
+            "DiscoveryController_longest_running_processor_microseconds",
+            "DiscoveryController_queue_latency",
+            "DiscoveryController_queue_latency_count",
+            "DiscoveryController_queue_latency_quantile",
+            "DiscoveryController_retries",
+            "DiscoveryController_unfinished_work_seconds",
+            "DiscoveryController_work_duration",
+            "DiscoveryController_work_duration_count",
+            "DiscoveryController_work_duration_quantile"
+          ]
+        },
+        "etcd": {
+          "description": "",
+          "metrics": [
+            "etcd_helper_cache_entry",
+            "etcd_helper_cache_entry_count",
+            "etcd_helper_cache_hit",
+            "etcd_helper_cache_hit_count",
+            "etcd_helper_cache_miss",
+            "etcd_helper_cache_miss_count",
+            "etcd_object_counts",
+            "etcd_request_cache_add_duration_seconds",
+            "etcd_request_cache_add_duration_seconds_bucket",
+            "etcd_request_cache_add_duration_seconds_count",
+            "etcd_request_cache_add_latencies_summary",
+            "etcd_request_cache_add_latencies_summary_count",
+            "etcd_request_cache_add_latencies_summary_quantile",
+            "etcd_request_cache_get_duration_seconds",
+            "etcd_request_cache_get_duration_seconds_bucket",
+            "etcd_request_cache_get_duration_seconds_count",
+            "etcd_request_cache_get_latencies_summary",
+            "etcd_request_cache_get_latencies_summary_count",
+            "etcd_request_cache_get_latencies_summary_quantile"
+          ]
+        },
+        "grpc_client": {
+          "description": "",
+          "metrics": [
+            "grpc_client_handled",
+            "grpc_client_msg_received",
+            "grpc_client_msg_sent",
+            "grpc_client_started"
+          ]
+        },
+        "http_request": {
+          "description": "",
+          "metrics": [
+            "http_request_duration_microseconds",
+            "http_request_duration_microseconds_count",
+            "http_request_duration_microseconds_quantile",
+            "http_request_size_bytes",
+            "http_request_size_bytes_count",
+            "http_request_size_bytes_quantile",
+            "http_requests"
+          ]
+        },
+        "http_response": {
+          "description": "",
+          "metrics": [
+            "http_response_size_bytes",
+            "http_response_size_bytes_count",
+            "http_response_size_bytes_quantile"
+          ]
+        },
+        "prometheus_go": {
+          "description": "",
+          "metrics": [
+            "go_gc_duration_seconds",
+            "go_gc_duration_seconds_count",
+            "go_gc_duration_seconds_quantile",
+            "go_goroutines",
+            "go_info",
+            "go_memstats_alloc_bytes",
+            "go_memstats_buck_hash_sys_bytes",
+            "go_memstats_frees",
+            "go_memstats_gc_cpu_fraction",
+            "go_memstats_gc_sys_bytes",
+            "go_memstats_heap_alloc_bytes",
+            "go_memstats_heap_idle_bytes",
+            "go_memstats_heap_inuse_bytes",
+            "go_memstats_heap_objects",
+            "go_memstats_heap_released_bytes",
+            "go_memstats_heap_sys_bytes",
+            "go_memstats_last_gc_time_seconds",
+            "go_memstats_lookups",
+            "go_memstats_mallocs",
+            "go_memstats_mcache_inuse_bytes",
+            "go_memstats_mcache_sys_bytes",
+            "go_memstats_mspan_inuse_bytes",
+            "go_memstats_mspan_sys_bytes",
+            "go_memstats_next_gc_bytes",
+            "go_memstats_other_sys_bytes",
+            "go_memstats_stack_inuse_bytes",
+            "go_memstats_stack_sys_bytes",
+            "go_memstats_sys_bytes",
+            "go_threads"
+          ]
+        },
+        "prometheus_process": {
+          "description": "",
+          "metrics": [
+            "process_cpu_seconds",
+            "process_max_fds",
+            "process_open_fds",
+            "process_resident_memory_bytes",
+            "process_start_time_seconds",
+            "process_virtual_memory_bytes",
+            "process_virtual_memory_max_bytes"
+          ]
+        },
+        "rest_client": {
+          "description": "",
+          "metrics": [
+            "rest_client_request_duration_seconds",
+            "rest_client_request_duration_seconds_bucket",
+            "rest_client_request_duration_seconds_count",
+            "rest_client_request_latency_seconds",
+            "rest_client_request_latency_seconds_bucket",
+            "rest_client_request_latency_seconds_count",
+            "rest_client_requests"
+          ]
+        },
+        "ssh_tunnel": {
+          "description": "",
+          "metrics": [
+            "ssh_tunnel_open_count",
+            "ssh_tunnel_open_fail_count"
+          ]
+        },
+        "token": {
+          "description": "",
+          "metrics": [
+            "get_token_count",
+            "get_token_fail_count"
+          ]
+        },
+        "workqueue": {
+          "description": "",
+          "metrics": [
+            "workqueue_adds",
+            "workqueue_depth",
+            "workqueue_longest_running_processor_seconds",
+            "workqueue_queue_duration_seconds",
+            "workqueue_queue_duration_seconds_bucket",
+            "workqueue_queue_duration_seconds_count",
+            "workqueue_retries",
+            "workqueue_unfinished_work_seconds",
+            "workqueue_work_duration_seconds",
+            "workqueue_work_duration_seconds_bucket",
+            "workqueue_work_duration_seconds_count"
+          ]
+        }
+      },
+      "metrics": {
+        "APIServiceOpenAPIAggregationControllerQueue1_adds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: APIServiceOpenAPIAggregationControllerQueue1",
+          "group": "api_service_open_api_aggregation_controller",
+          "default": false
+        },
+        "APIServiceOpenAPIAggregationControllerQueue1_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: APIServiceOpenAPIAggregationControllerQueue1",
+          "group": "api_service_open_api_aggregation_controller",
+          "default": false
+        },
+        "APIServiceOpenAPIAggregationControllerQueue1_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for APIServiceOpenAPIAggregationControllerQueue1 been running.",
+          "group": "api_service_open_api_aggregation_controller",
+          "default": false
+        },
+        "APIServiceOpenAPIAggregationControllerQueue1_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueAPIServiceOpenAPIAggregationControllerQueue1 before being requested. (sum)",
+          "group": "api_service_open_api_aggregation_controller",
+          "default": false
+        },
+        "APIServiceOpenAPIAggregationControllerQueue1_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueAPIServiceOpenAPIAggregationControllerQueue1 before being requested. (count)",
+          "group": "api_service_open_api_aggregation_controller",
+          "default": false
+        },
+        "APIServiceOpenAPIAggregationControllerQueue1_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueueAPIServiceOpenAPIAggregationControllerQueue1 before being requested. (quantized)",
+          "group": "api_service_open_api_aggregation_controller",
+          "default": false
+        },
+        "APIServiceOpenAPIAggregationControllerQueue1_retries": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: APIServiceOpenAPIAggregationControllerQueue1",
+          "group": "api_service_open_api_aggregation_controller",
+          "default": false
+        },
+        "APIServiceOpenAPIAggregationControllerQueue1_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work APIServiceOpenAPIAggregationControllerQueue1 has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": "api_service_open_api_aggregation_controller",
+          "default": false
+        },
+        "APIServiceOpenAPIAggregationControllerQueue1_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueAPIServiceOpenAPIAggregationControllerQueue1 takes. (sum)",
+          "group": "api_service_open_api_aggregation_controller",
+          "default": false
+        },
+        "APIServiceOpenAPIAggregationControllerQueue1_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueAPIServiceOpenAPIAggregationControllerQueue1 takes. (count)",
+          "group": "api_service_open_api_aggregation_controller",
+          "default": false
+        },
+        "APIServiceOpenAPIAggregationControllerQueue1_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueueAPIServiceOpenAPIAggregationControllerQueue1 takes. (quantized)",
+          "group": "api_service_open_api_aggregation_controller",
+          "default": false
+        },
+        "APIServiceRegistrationController_adds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: APIServiceRegistrationController",
+          "group": "api_service_registration_controller",
+          "default": false
+        },
+        "APIServiceRegistrationController_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: APIServiceRegistrationController",
+          "group": "api_service_registration_controller",
+          "default": false
+        },
+        "APIServiceRegistrationController_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for APIServiceRegistrationController been running.",
+          "group": "api_service_registration_controller",
+          "default": false
+        },
+        "APIServiceRegistrationController_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueAPIServiceRegistrationController before being requested. (sum)",
+          "group": "api_service_registration_controller",
+          "default": false
+        },
+        "APIServiceRegistrationController_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueAPIServiceRegistrationController before being requested. (count)",
+          "group": "api_service_registration_controller",
+          "default": false
+        },
+        "APIServiceRegistrationController_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueueAPIServiceRegistrationController before being requested. (quantized)",
+          "group": "api_service_registration_controller",
+          "default": false
+        },
+        "APIServiceRegistrationController_retries": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: APIServiceRegistrationController",
+          "group": "api_service_registration_controller",
+          "default": false
+        },
+        "APIServiceRegistrationController_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work APIServiceRegistrationController has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": "api_service_registration_controller",
+          "default": false
+        },
+        "APIServiceRegistrationController_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueAPIServiceRegistrationController takes. (sum)",
+          "group": "api_service_registration_controller",
+          "default": false
+        },
+        "APIServiceRegistrationController_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueAPIServiceRegistrationController takes. (count)",
+          "group": "api_service_registration_controller",
+          "default": false
+        },
+        "APIServiceRegistrationController_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueueAPIServiceRegistrationController takes. (quantized)",
+          "group": "api_service_registration_controller",
+          "default": false
+        },
+        "AvailableConditionController_adds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: AvailableConditionController",
+          "group": "available_condition_controller",
+          "default": false
+        },
+        "AvailableConditionController_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: AvailableConditionController",
+          "group": "available_condition_controller",
+          "default": false
+        },
+        "AvailableConditionController_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for AvailableConditionController been running.",
+          "group": "available_condition_controller",
+          "default": false
+        },
+        "AvailableConditionController_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueAvailableConditionController before being requested. (sum)",
+          "group": "available_condition_controller",
+          "default": false
+        },
+        "AvailableConditionController_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueAvailableConditionController before being requested. (count)",
+          "group": "available_condition_controller",
+          "default": false
+        },
+        "AvailableConditionController_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueueAvailableConditionController before being requested. (quantized)",
+          "group": "available_condition_controller",
+          "default": false
+        },
+        "AvailableConditionController_retries": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: AvailableConditionController",
+          "group": "available_condition_controller",
+          "default": false
+        },
+        "AvailableConditionController_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work AvailableConditionController has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": "available_condition_controller",
+          "default": false
+        },
+        "AvailableConditionController_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueAvailableConditionController takes. (sum)",
+          "group": "available_condition_controller",
+          "default": false
+        },
+        "AvailableConditionController_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueAvailableConditionController takes. (count)",
+          "group": "available_condition_controller",
+          "default": false
+        },
+        "AvailableConditionController_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueueAvailableConditionController takes. (quantized)",
+          "group": "available_condition_controller",
+          "default": false
+        },
+        "DiscoveryController_adds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: DiscoveryController",
+          "group": "discovery_controller",
+          "default": false
+        },
+        "DiscoveryController_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: DiscoveryController",
+          "group": "discovery_controller",
+          "default": false
+        },
+        "DiscoveryController_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for DiscoveryController been running.",
+          "group": "discovery_controller",
+          "default": false
+        },
+        "DiscoveryController_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueDiscoveryController before being requested. (sum)",
+          "group": "discovery_controller",
+          "default": false
+        },
+        "DiscoveryController_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueDiscoveryController before being requested. (count)",
+          "group": "discovery_controller",
+          "default": false
+        },
+        "DiscoveryController_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueueDiscoveryController before being requested. (quantized)",
+          "group": "discovery_controller",
+          "default": false
+        },
+        "DiscoveryController_retries": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: DiscoveryController",
+          "group": "discovery_controller",
+          "default": false
+        },
+        "DiscoveryController_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work DiscoveryController has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": "discovery_controller",
+          "default": false
+        },
+        "DiscoveryController_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueDiscoveryController takes. (sum)",
+          "group": "discovery_controller",
+          "default": false
+        },
+        "DiscoveryController_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueDiscoveryController takes. (count)",
+          "group": "discovery_controller",
+          "default": false
+        },
+        "DiscoveryController_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueueDiscoveryController takes. (quantized)",
+          "group": "discovery_controller",
+          "default": false
+        },
+        "admission_quota_controller_adds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: admission_quota_controller",
+          "group": "admission_quota_controller",
+          "default": false
+        },
+        "admission_quota_controller_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: admission_quota_controller",
+          "group": "admission_quota_controller",
+          "default": false
+        },
+        "admission_quota_controller_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for admission_quota_controller been running.",
+          "group": "admission_quota_controller",
+          "default": false
+        },
+        "admission_quota_controller_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueadmission_quota_controller before being requested. (sum)",
+          "group": "admission_quota_controller",
+          "default": false
+        },
+        "admission_quota_controller_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueadmission_quota_controller before being requested. (count)",
+          "group": "admission_quota_controller",
+          "default": false
+        },
+        "admission_quota_controller_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueueadmission_quota_controller before being requested. (quantized)",
+          "group": "admission_quota_controller",
+          "default": false
+        },
+        "admission_quota_controller_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work admission_quota_controller has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": "admission_quota_controller",
+          "default": false
+        },
+        "admission_quota_controller_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueadmission_quota_controller takes. (sum)",
+          "group": "admission_quota_controller",
+          "default": false
+        },
+        "admission_quota_controller_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueadmission_quota_controller takes. (count)",
+          "group": "admission_quota_controller",
+          "default": false
+        },
+        "admission_quota_controller_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueueadmission_quota_controller takes. (quantized)",
+          "group": "admission_quota_controller",
+          "default": false
+        },
+        "apiserver_admission_controller_admission_duration_seconds": {
+          "type": "cumulative",
+          "description": "Admission controller latency histogram in seconds, identified by name and broken out for each operation and API resource and type (validate or admit). (sum)",
+          "group": "apiserver_admission_controller",
+          "default": false
+        },
+        "apiserver_admission_controller_admission_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Admission controller latency histogram in seconds, identified by name and broken out for each operation and API resource and type (validate or admit). (bucket)",
+          "group": "apiserver_admission_controller",
+          "default": false
+        },
+        "apiserver_admission_controller_admission_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Admission controller latency histogram in seconds, identified by name and broken out for each operation and API resource and type (validate or admit). (count)",
+          "group": "apiserver_admission_controller",
+          "default": false
+        },
+        "apiserver_admission_controller_admission_latencies_milliseconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Admission controller latency histogram in milliseconds, identified by name and broken out for each operation and API resource and type (validate or admit). (sum)",
+          "group": "apiserver_admission_controller",
+          "default": false
+        },
+        "apiserver_admission_controller_admission_latencies_milliseconds_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Admission controller latency histogram in milliseconds, identified by name and broken out for each operation and API resource and type (validate or admit). (bucket)",
+          "group": "apiserver_admission_controller",
+          "default": false
+        },
+        "apiserver_admission_controller_admission_latencies_milliseconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Admission controller latency histogram in milliseconds, identified by name and broken out for each operation and API resource and type (validate or admit). (count)",
+          "group": "apiserver_admission_controller",
+          "default": false
+        },
+        "apiserver_admission_step_admission_duration_seconds": {
+          "type": "cumulative",
+          "description": "Admission sub-step latency histogram in seconds, broken out for each operation and API resource and step type (validate or admit). (sum)",
+          "group": "apiserver_admission_step_admission",
+          "default": false
+        },
+        "apiserver_admission_step_admission_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Admission sub-step latency histogram in seconds, broken out for each operation and API resource and step type (validate or admit). (bucket)",
+          "group": "apiserver_admission_step_admission",
+          "default": false
+        },
+        "apiserver_admission_step_admission_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Admission sub-step latency histogram in seconds, broken out for each operation and API resource and step type (validate or admit). (count)",
+          "group": "apiserver_admission_step_admission",
+          "default": false
+        },
+        "apiserver_admission_step_admission_duration_seconds_summary": {
+          "type": "cumulative",
+          "description": "Admission sub-step latency summary in seconds, broken out for each operation and API resource and step type (validate or admit). (sum)",
+          "group": "apiserver_admission_step_admission",
+          "default": false
+        },
+        "apiserver_admission_step_admission_duration_seconds_summary_count": {
+          "type": "cumulative",
+          "description": "Admission sub-step latency summary in seconds, broken out for each operation and API resource and step type (validate or admit). (count)",
+          "group": "apiserver_admission_step_admission",
+          "default": false
+        },
+        "apiserver_admission_step_admission_duration_seconds_summary_quantile": {
+          "type": "gauge",
+          "description": "Admission sub-step latency summary in seconds, broken out for each operation and API resource and step type (validate or admit). (quantized)",
+          "group": "apiserver_admission_step_admission",
+          "default": false
+        },
+        "apiserver_admission_step_admission_latencies_milliseconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Admission sub-step latency histogram in milliseconds, broken out for each operation and API resource and step type (validate or admit). (sum)",
+          "group": "apiserver_admission_step_admission",
+          "default": false
+        },
+        "apiserver_admission_step_admission_latencies_milliseconds_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Admission sub-step latency histogram in milliseconds, broken out for each operation and API resource and step type (validate or admit). (bucket)",
+          "group": "apiserver_admission_step_admission",
+          "default": false
+        },
+        "apiserver_admission_step_admission_latencies_milliseconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Admission sub-step latency histogram in milliseconds, broken out for each operation and API resource and step type (validate or admit). (count)",
+          "group": "apiserver_admission_step_admission",
+          "default": false
+        },
+        "apiserver_admission_step_admission_latencies_milliseconds_summary": {
+          "type": "cumulative",
+          "description": "(Deprecated) Admission sub-step latency summary in milliseconds, broken out for each operation and API resource and step type (validate or admit). (sum)",
+          "group": "apiserver_admission_step_admission",
+          "default": false
+        },
+        "apiserver_admission_step_admission_latencies_milliseconds_summary_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Admission sub-step latency summary in milliseconds, broken out for each operation and API resource and step type (validate or admit). (count)",
+          "group": "apiserver_admission_step_admission",
+          "default": false
+        },
+        "apiserver_admission_step_admission_latencies_milliseconds_summary_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) Admission sub-step latency summary in milliseconds, broken out for each operation and API resource and step type (validate or admit). (quantized)",
+          "group": "apiserver_admission_step_admission",
+          "default": false
+        },
+        "apiserver_audit_event": {
+          "type": "cumulative",
+          "description": "Counter of audit events generated and sent to the audit backend.",
+          "group": "apiserver_audit",
+          "default": false
+        },
+        "apiserver_audit_requests_rejected": {
+          "type": "cumulative",
+          "description": "Counter of apiserver requests rejected due to an error in audit logging backend.",
+          "group": "apiserver_audit",
+          "default": false
+        },
+        "apiserver_client_certificate_expiration_seconds": {
+          "type": "cumulative",
+          "description": "Distribution of the remaining lifetime on the certificate used to authenticate a request. (sum)",
+          "group": "apiserver_client",
+          "default": false
+        },
+        "apiserver_client_certificate_expiration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Distribution of the remaining lifetime on the certificate used to authenticate a request. (bucket)",
+          "group": "apiserver_client",
+          "default": false
+        },
+        "apiserver_client_certificate_expiration_seconds_count": {
+          "type": "cumulative",
+          "description": "Distribution of the remaining lifetime on the certificate used to authenticate a request. (count)",
+          "group": "apiserver_client",
+          "default": false
+        },
+        "apiserver_current_inflight_requests": {
+          "type": "gauge",
+          "description": "Maximal number of currently used inflight request limit of this apiserver per request kind in last second.",
+          "group": null,
+          "default": false
+        },
+        "apiserver_init_events": {
+          "type": "cumulative",
+          "description": "Counter of init events processed in watchcache broken by resource type",
+          "group": null,
+          "default": false
+        },
+        "apiserver_longrunning_gauge": {
+          "type": "gauge",
+          "description": "Gauge of all active long-running apiserver requests broken out by verb, group, version, resource, scope and component. Not all requests are tracked this way.",
+          "group": null,
+          "default": false
+        },
+        "apiserver_registered_watchers": {
+          "type": "gauge",
+          "description": "Number of currently registered watchers for a given resources",
+          "group": null,
+          "default": false
+        },
+        "apiserver_request": {
+          "type": "cumulative",
+          "description": "Counter of apiserver requests broken out for each verb, dry run value, group, version, resource, scope, component, client, and HTTP response contentType and code.",
+          "group": "apiserver_request",
+          "default": true
+        },
+        "apiserver_request_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Counter of apiserver requests broken out for each verb, group, version, resource, scope, component, client, and HTTP response contentType and code.",
+          "group": "apiserver_request",
+          "default": false
+        },
+        "apiserver_request_duration_seconds": {
+          "type": "cumulative",
+          "description": "Response latency distribution in seconds for each verb, dry run value, group, version, resource, subresource, scope and component. (sum)",
+          "group": "apiserver_request",
+          "default": true
+        },
+        "apiserver_request_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Response latency distribution in seconds for each verb, dry run value, group, version, resource, subresource, scope and component. (bucket)",
+          "group": "apiserver_request",
+          "default": true
+        },
+        "apiserver_request_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Response latency distribution in seconds for each verb, dry run value, group, version, resource, subresource, scope and component. (count)",
+          "group": "apiserver_request",
+          "default": true
+        },
+        "apiserver_request_latencies": {
+          "type": "cumulative",
+          "description": "(Deprecated) Response latency distribution in microseconds for each verb, group, version, resource, subresource, scope and component. (sum)",
+          "group": "apiserver_request",
+          "default": false
+        },
+        "apiserver_request_latencies_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Response latency distribution in microseconds for each verb, group, version, resource, subresource, scope and component. (bucket)",
+          "group": "apiserver_request",
+          "default": false
+        },
+        "apiserver_request_latencies_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Response latency distribution in microseconds for each verb, group, version, resource, subresource, scope and component. (count)",
+          "group": "apiserver_request",
+          "default": false
+        },
+        "apiserver_request_latencies_summary": {
+          "type": "cumulative",
+          "description": "(Deprecated) Response latency summary in microseconds for each verb, group, version, resource, subresource, scope and component. (sum)",
+          "group": "apiserver_request",
+          "default": false
+        },
+        "apiserver_request_latencies_summary_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Response latency summary in microseconds for each verb, group, version, resource, subresource, scope and component. (count)",
+          "group": "apiserver_request",
+          "default": false
+        },
+        "apiserver_request_latencies_summary_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) Response latency summary in microseconds for each verb, group, version, resource, subresource, scope and component. (quantized)",
+          "group": "apiserver_request",
+          "default": false
+        },
+        "apiserver_response_sizes": {
+          "type": "cumulative",
+          "description": "Response size distribution in bytes for each group, version, verb, resource, subresource, scope and component. (sum)",
+          "group": "apiserver_response",
+          "default": false
+        },
+        "apiserver_response_sizes_bucket": {
+          "type": "cumulative",
+          "description": "Response size distribution in bytes for each group, version, verb, resource, subresource, scope and component. (bucket)",
+          "group": "apiserver_response",
+          "default": false
+        },
+        "apiserver_response_sizes_count": {
+          "type": "cumulative",
+          "description": "Response size distribution in bytes for each group, version, verb, resource, subresource, scope and component. (count)",
+          "group": "apiserver_response",
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_duration_seconds": {
+          "type": "cumulative",
+          "description": "Latencies in seconds of data encryption key(DEK) generation operations. (sum)",
+          "group": "apiserver_storage",
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Latencies in seconds of data encryption key(DEK) generation operations. (bucket)",
+          "group": "apiserver_storage",
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Latencies in seconds of data encryption key(DEK) generation operations. (count)",
+          "group": "apiserver_storage",
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_failures": {
+          "type": "cumulative",
+          "description": "Total number of failed data encryption key(DEK) generation operations.",
+          "group": "apiserver_storage",
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_latencies_microseconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Latencies in microseconds of data encryption key(DEK) generation operations. (sum)",
+          "group": "apiserver_storage",
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_latencies_microseconds_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Latencies in microseconds of data encryption key(DEK) generation operations. (bucket)",
+          "group": "apiserver_storage",
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_latencies_microseconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Latencies in microseconds of data encryption key(DEK) generation operations. (count)",
+          "group": "apiserver_storage",
+          "default": false
+        },
+        "apiserver_storage_envelope_transformation_cache_misses": {
+          "type": "cumulative",
+          "description": "Total number of cache misses while accessing key decryption key(KEK).",
+          "group": "apiserver_storage",
+          "default": false
+        },
+        "authenticated_user_requests": {
+          "type": "cumulative",
+          "description": "Counter of authenticated requests broken out by username.",
+          "group": null,
+          "default": false
+        },
+        "autoregister_adds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: autoregister",
+          "group": "autoregister",
+          "default": false
+        },
+        "autoregister_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: autoregister",
+          "group": "autoregister",
+          "default": false
+        },
+        "autoregister_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for autoregister been running.",
+          "group": "autoregister",
+          "default": false
+        },
+        "autoregister_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueautoregister before being requested. (sum)",
+          "group": "autoregister",
+          "default": false
+        },
+        "autoregister_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueautoregister before being requested. (count)",
+          "group": "autoregister",
+          "default": false
+        },
+        "autoregister_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueueautoregister before being requested. (quantized)",
+          "group": "autoregister",
+          "default": false
+        },
+        "autoregister_retries": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: autoregister",
+          "group": "autoregister",
+          "default": false
+        },
+        "autoregister_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work autoregister has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": "autoregister",
+          "default": false
+        },
+        "autoregister_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueautoregister takes. (sum)",
+          "group": "autoregister",
+          "default": false
+        },
+        "autoregister_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueautoregister takes. (count)",
+          "group": "autoregister",
+          "default": false
+        },
+        "autoregister_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueueautoregister takes. (quantized)",
+          "group": "autoregister",
+          "default": false
+        },
+        "crdEstablishing_adds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: crdEstablishing",
+          "group": "crd_establishing",
+          "default": false
+        },
+        "crdEstablishing_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: crdEstablishing",
+          "group": "crd_establishing",
+          "default": false
+        },
+        "crdEstablishing_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for crdEstablishing been running.",
+          "group": "crd_establishing",
+          "default": false
+        },
+        "crdEstablishing_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuecrdEstablishing before being requested. (sum)",
+          "group": "crd_establishing",
+          "default": false
+        },
+        "crdEstablishing_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuecrdEstablishing before being requested. (count)",
+          "group": "crd_establishing",
+          "default": false
+        },
+        "crdEstablishing_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuecrdEstablishing before being requested. (quantized)",
+          "group": "crd_establishing",
+          "default": false
+        },
+        "crdEstablishing_retries": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: crdEstablishing",
+          "group": "crd_establishing",
+          "default": false
+        },
+        "crdEstablishing_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work crdEstablishing has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": "crd_establishing",
+          "default": false
+        },
+        "crdEstablishing_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuecrdEstablishing takes. (sum)",
+          "group": "crd_establishing",
+          "default": false
+        },
+        "crdEstablishing_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuecrdEstablishing takes. (count)",
+          "group": "crd_establishing",
+          "default": false
+        },
+        "crdEstablishing_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuecrdEstablishing takes. (quantized)",
+          "group": "crd_establishing",
+          "default": false
+        },
+        "crd_autoregistration_controller_adds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: crd_autoregistration_controller",
+          "group": "crd_autoregistration_controller",
+          "default": false
+        },
+        "crd_autoregistration_controller_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: crd_autoregistration_controller",
+          "group": "crd_autoregistration_controller",
+          "default": false
+        },
+        "crd_autoregistration_controller_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for crd_autoregistration_controller been running.",
+          "group": "crd_autoregistration_controller",
+          "default": false
+        },
+        "crd_autoregistration_controller_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuecrd_autoregistration_controller before being requested. (sum)",
+          "group": "crd_autoregistration_controller",
+          "default": false
+        },
+        "crd_autoregistration_controller_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuecrd_autoregistration_controller before being requested. (count)",
+          "group": "crd_autoregistration_controller",
+          "default": false
+        },
+        "crd_autoregistration_controller_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuecrd_autoregistration_controller before being requested. (quantized)",
+          "group": "crd_autoregistration_controller",
+          "default": false
+        },
+        "crd_autoregistration_controller_retries": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: crd_autoregistration_controller",
+          "group": "crd_autoregistration_controller",
+          "default": false
+        },
+        "crd_autoregistration_controller_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work crd_autoregistration_controller has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": "crd_autoregistration_controller",
+          "default": false
+        },
+        "crd_autoregistration_controller_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuecrd_autoregistration_controller takes. (sum)",
+          "group": "crd_autoregistration_controller",
+          "default": false
+        },
+        "crd_autoregistration_controller_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuecrd_autoregistration_controller takes. (count)",
+          "group": "crd_autoregistration_controller",
+          "default": false
+        },
+        "crd_autoregistration_controller_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuecrd_autoregistration_controller takes. (quantized)",
+          "group": "crd_autoregistration_controller",
+          "default": false
+        },
+        "crd_finalizer_adds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: crd_finalizer",
+          "group": "crd_finalizer",
+          "default": false
+        },
+        "crd_finalizer_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: crd_finalizer",
+          "group": "crd_finalizer",
+          "default": false
+        },
+        "crd_finalizer_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for crd_finalizer been running.",
+          "group": "crd_finalizer",
+          "default": false
+        },
+        "crd_finalizer_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuecrd_finalizer before being requested. (sum)",
+          "group": "crd_finalizer",
+          "default": false
+        },
+        "crd_finalizer_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuecrd_finalizer before being requested. (count)",
+          "group": "crd_finalizer",
+          "default": false
+        },
+        "crd_finalizer_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuecrd_finalizer before being requested. (quantized)",
+          "group": "crd_finalizer",
+          "default": false
+        },
+        "crd_finalizer_retries": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: crd_finalizer",
+          "group": "crd_finalizer",
+          "default": false
+        },
+        "crd_finalizer_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work crd_finalizer has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": "crd_finalizer",
+          "default": false
+        },
+        "crd_finalizer_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuecrd_finalizer takes. (sum)",
+          "group": "crd_finalizer",
+          "default": false
+        },
+        "crd_finalizer_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuecrd_finalizer takes. (count)",
+          "group": "crd_finalizer",
+          "default": false
+        },
+        "crd_finalizer_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuecrd_finalizer takes. (quantized)",
+          "group": "crd_finalizer",
+          "default": false
+        },
+        "crd_naming_condition_controller_adds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: crd_naming_condition_controller",
+          "group": "crd_naming_condition_controller",
+          "default": false
+        },
+        "crd_naming_condition_controller_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: crd_naming_condition_controller",
+          "group": "crd_naming_condition_controller",
+          "default": false
+        },
+        "crd_naming_condition_controller_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for crd_naming_condition_controller been running.",
+          "group": "crd_naming_condition_controller",
+          "default": false
+        },
+        "crd_naming_condition_controller_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuecrd_naming_condition_controller before being requested. (sum)",
+          "group": "crd_naming_condition_controller",
+          "default": false
+        },
+        "crd_naming_condition_controller_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuecrd_naming_condition_controller before being requested. (count)",
+          "group": "crd_naming_condition_controller",
+          "default": false
+        },
+        "crd_naming_condition_controller_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuecrd_naming_condition_controller before being requested. (quantized)",
+          "group": "crd_naming_condition_controller",
+          "default": false
+        },
+        "crd_naming_condition_controller_retries": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: crd_naming_condition_controller",
+          "group": "crd_naming_condition_controller",
+          "default": false
+        },
+        "crd_naming_condition_controller_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work crd_naming_condition_controller has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": "crd_naming_condition_controller",
+          "default": false
+        },
+        "crd_naming_condition_controller_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuecrd_naming_condition_controller takes. (sum)",
+          "group": "crd_naming_condition_controller",
+          "default": false
+        },
+        "crd_naming_condition_controller_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuecrd_naming_condition_controller takes. (count)",
+          "group": "crd_naming_condition_controller",
+          "default": false
+        },
+        "crd_naming_condition_controller_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuecrd_naming_condition_controller takes. (quantized)",
+          "group": "crd_naming_condition_controller",
+          "default": false
+        },
+        "etcd_helper_cache_entry": {
+          "type": "cumulative",
+          "description": "Counter of etcd helper cache entries. This can be different from etcd_helper_cache_miss_count because two concurrent threads can miss the cache and generate the same entry twice.",
+          "group": "etcd",
+          "default": true
+        },
+        "etcd_helper_cache_entry_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Counter of etcd helper cache entries. This can be different from etcd_helper_cache_miss_count because two concurrent threads can miss the cache and generate the same entry twice.",
+          "group": "etcd",
+          "default": false
+        },
+        "etcd_helper_cache_hit": {
+          "type": "cumulative",
+          "description": "Counter of etcd helper cache hits.",
+          "group": "etcd",
+          "default": true
+        },
+        "etcd_helper_cache_hit_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Counter of etcd helper cache hits.",
+          "group": "etcd",
+          "default": false
+        },
+        "etcd_helper_cache_miss": {
+          "type": "cumulative",
+          "description": "Counter of etcd helper cache miss.",
+          "group": "etcd",
+          "default": true
+        },
+        "etcd_helper_cache_miss_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Counter of etcd helper cache miss.",
+          "group": "etcd",
+          "default": false
+        },
+        "etcd_object_counts": {
+          "type": "gauge",
+          "description": "Number of stored objects at the time of last check split by kind.",
+          "group": "etcd",
+          "default": true
+        },
+        "etcd_request_cache_add_duration_seconds": {
+          "type": "cumulative",
+          "description": "Latency in seconds of adding an object to etcd cache (sum)",
+          "group": "etcd",
+          "default": true
+        },
+        "etcd_request_cache_add_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Latency in seconds of adding an object to etcd cache (bucket)",
+          "group": "etcd",
+          "default": true
+        },
+        "etcd_request_cache_add_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Latency in seconds of adding an object to etcd cache (count)",
+          "group": "etcd",
+          "default": true
+        },
+        "etcd_request_cache_add_latencies_summary": {
+          "type": "cumulative",
+          "description": "(Deprecated) Latency in microseconds of adding an object to etcd cache (sum)",
+          "group": "etcd",
+          "default": false
+        },
+        "etcd_request_cache_add_latencies_summary_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Latency in microseconds of adding an object to etcd cache (count)",
+          "group": "etcd",
+          "default": false
+        },
+        "etcd_request_cache_add_latencies_summary_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) Latency in microseconds of adding an object to etcd cache (quantized)",
+          "group": "etcd",
+          "default": false
+        },
+        "etcd_request_cache_get_duration_seconds": {
+          "type": "cumulative",
+          "description": "Latency in seconds of getting an object from etcd cache (sum)",
+          "group": "etcd",
+          "default": true
+        },
+        "etcd_request_cache_get_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Latency in seconds of getting an object from etcd cache (bucket)",
+          "group": "etcd",
+          "default": true
+        },
+        "etcd_request_cache_get_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Latency in seconds of getting an object from etcd cache (count)",
+          "group": "etcd",
+          "default": true
+        },
+        "etcd_request_cache_get_latencies_summary": {
+          "type": "cumulative",
+          "description": "(Deprecated) Latency in microseconds of getting an object from etcd cache (sum)",
+          "group": "etcd",
+          "default": false
+        },
+        "etcd_request_cache_get_latencies_summary_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Latency in microseconds of getting an object from etcd cache (count)",
+          "group": "etcd",
+          "default": false
+        },
+        "etcd_request_cache_get_latencies_summary_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) Latency in microseconds of getting an object from etcd cache (quantized)",
+          "group": "etcd",
+          "default": false
+        },
+        "get_token_count": {
+          "type": "cumulative",
+          "description": "Counter of total Token() requests to the alternate token source",
+          "group": "token",
+          "default": true
+        },
+        "get_token_fail_count": {
+          "type": "cumulative",
+          "description": "Counter of failed Token() requests to the alternate token source",
+          "group": "token",
+          "default": true
+        },
+        "go_gc_duration_seconds": {
+          "type": "cumulative",
+          "description": "A summary of the GC invocation durations. (sum)",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_gc_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "A summary of the GC invocation durations. (count)",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_gc_duration_seconds_quantile": {
+          "type": "gauge",
+          "description": "A summary of the GC invocation durations. (quantized)",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_goroutines": {
+          "type": "gauge",
+          "description": "Number of goroutines that currently exist.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_info": {
+          "type": "gauge",
+          "description": "Information about the Go environment.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_alloc_bytes": {
+          "type": "cumulative",
+          "description": "Total number of bytes allocated, even if freed.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_buck_hash_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used by the profiling bucket hash table.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_frees": {
+          "type": "cumulative",
+          "description": "Total number of frees.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_gc_cpu_fraction": {
+          "type": "gauge",
+          "description": "The fraction of this program's available CPU time used by the GC since the program started.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_gc_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for garbage collection system metadata.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_heap_alloc_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes allocated and still in use.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_heap_idle_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes waiting to be used.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_heap_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes that are in use.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_heap_objects": {
+          "type": "gauge",
+          "description": "Number of allocated objects.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_heap_released_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes released to OS.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_heap_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes obtained from system.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_last_gc_time_seconds": {
+          "type": "gauge",
+          "description": "Number of seconds since 1970 of last garbage collection.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_lookups": {
+          "type": "cumulative",
+          "description": "Total number of pointer lookups.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_mallocs": {
+          "type": "cumulative",
+          "description": "Total number of mallocs.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_mcache_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by mcache structures.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_mcache_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for mcache structures obtained from system.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_mspan_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by mspan structures.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_mspan_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for mspan structures obtained from system.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_next_gc_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes when next garbage collection will take place.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_other_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for other system allocations.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_stack_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by the stack allocator.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_stack_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes obtained from system for stack allocator.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_memstats_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes obtained from system.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "go_threads": {
+          "type": "gauge",
+          "description": "Number of OS threads created.",
+          "group": "prometheus_go",
+          "default": false
+        },
+        "grpc_client_handled": {
+          "type": "cumulative",
+          "description": "Total number of RPCs completed by the client, regardless of success or failure.",
+          "group": "grpc_client",
+          "default": false
+        },
+        "grpc_client_msg_received": {
+          "type": "cumulative",
+          "description": "Total number of RPC stream messages received by the client.",
+          "group": "grpc_client",
+          "default": false
+        },
+        "grpc_client_msg_sent": {
+          "type": "cumulative",
+          "description": "Total number of gRPC stream messages sent by the client.",
+          "group": "grpc_client",
+          "default": false
+        },
+        "grpc_client_started": {
+          "type": "cumulative",
+          "description": "Total number of RPCs started on the client.",
+          "group": "grpc_client",
+          "default": false
+        },
+        "http_request_duration_microseconds": {
+          "type": "cumulative",
+          "description": "The HTTP request latencies in microseconds. (sum)",
+          "group": "http_request",
+          "default": false
+        },
+        "http_request_duration_microseconds_count": {
+          "type": "cumulative",
+          "description": "The HTTP request latencies in microseconds. (count)",
+          "group": "http_request",
+          "default": false
+        },
+        "http_request_duration_microseconds_quantile": {
+          "type": "gauge",
+          "description": "The HTTP request latencies in microseconds. (quantized)",
+          "group": "http_request",
+          "default": false
+        },
+        "http_request_size_bytes": {
+          "type": "cumulative",
+          "description": "The HTTP request sizes in bytes. (sum)",
+          "group": "http_request",
+          "default": false
+        },
+        "http_request_size_bytes_count": {
+          "type": "cumulative",
+          "description": "The HTTP request sizes in bytes. (count)",
+          "group": "http_request",
+          "default": false
+        },
+        "http_request_size_bytes_quantile": {
+          "type": "gauge",
+          "description": "The HTTP request sizes in bytes. (quantized)",
+          "group": "http_request",
+          "default": false
+        },
+        "http_requests": {
+          "type": "cumulative",
+          "description": "Total number of HTTP requests made.",
+          "group": "http_request",
+          "default": false
+        },
+        "http_response_size_bytes": {
+          "type": "cumulative",
+          "description": "The HTTP response sizes in bytes. (sum)",
+          "group": "http_response",
+          "default": false
+        },
+        "http_response_size_bytes_count": {
+          "type": "cumulative",
+          "description": "The HTTP response sizes in bytes. (count)",
+          "group": "http_response",
+          "default": false
+        },
+        "http_response_size_bytes_quantile": {
+          "type": "gauge",
+          "description": "The HTTP response sizes in bytes. (quantized)",
+          "group": "http_response",
+          "default": false
+        },
+        "kubernetes_build_info": {
+          "type": "gauge",
+          "description": "A metric with a constant '1' value labeled by major, minor, git version, git commit, git tree state, build date, Go version, and compiler from which Kubernetes was built, and platform on which it is running.",
+          "group": null,
+          "default": true
+        },
+        "process_cpu_seconds": {
+          "type": "cumulative",
+          "description": "Total user and system CPU time spent in seconds.",
+          "group": "prometheus_process",
+          "default": false
+        },
+        "process_max_fds": {
+          "type": "gauge",
+          "description": "Maximum number of open file descriptors.",
+          "group": "prometheus_process",
+          "default": false
+        },
+        "process_open_fds": {
+          "type": "gauge",
+          "description": "Number of open file descriptors.",
+          "group": "prometheus_process",
+          "default": false
+        },
+        "process_resident_memory_bytes": {
+          "type": "gauge",
+          "description": "Resident memory size in bytes.",
+          "group": "prometheus_process",
+          "default": false
+        },
+        "process_start_time_seconds": {
+          "type": "gauge",
+          "description": "Start time of the process since unix epoch in seconds.",
+          "group": "prometheus_process",
+          "default": false
+        },
+        "process_virtual_memory_bytes": {
+          "type": "gauge",
+          "description": "Virtual memory size in bytes.",
+          "group": "prometheus_process",
+          "default": false
+        },
+        "process_virtual_memory_max_bytes": {
+          "type": "gauge",
+          "description": "Maximum amount of virtual memory available in bytes.",
+          "group": "prometheus_process",
+          "default": false
+        },
+        "rest_client_request_duration_seconds": {
+          "type": "cumulative",
+          "description": "Request latency in seconds. Broken down by verb and URL. (sum)",
+          "group": "rest_client",
+          "default": false
+        },
+        "rest_client_request_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Request latency in seconds. Broken down by verb and URL. (bucket)",
+          "group": "rest_client",
+          "default": false
+        },
+        "rest_client_request_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Request latency in seconds. Broken down by verb and URL. (count)",
+          "group": "rest_client",
+          "default": false
+        },
+        "rest_client_request_latency_seconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Request latency in seconds. Broken down by verb and URL. (sum)",
+          "group": "rest_client",
+          "default": false
+        },
+        "rest_client_request_latency_seconds_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Request latency in seconds. Broken down by verb and URL. (bucket)",
+          "group": "rest_client",
+          "default": false
+        },
+        "rest_client_request_latency_seconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Request latency in seconds. Broken down by verb and URL. (count)",
+          "group": "rest_client",
+          "default": false
+        },
+        "rest_client_requests": {
+          "type": "cumulative",
+          "description": "Number of HTTP requests, partitioned by status code, method, and host.",
+          "group": "rest_client",
+          "default": false
+        },
+        "ssh_tunnel_open_count": {
+          "type": "cumulative",
+          "description": "Counter of ssh tunnel total open attempts",
+          "group": "ssh_tunnel",
+          "default": false
+        },
+        "ssh_tunnel_open_fail_count": {
+          "type": "cumulative",
+          "description": "Counter of ssh tunnel failed open attempts",
+          "group": "ssh_tunnel",
+          "default": false
+        },
+        "workqueue_adds": {
+          "type": "cumulative",
+          "description": "Total number of adds handled by workqueue",
+          "group": "workqueue",
+          "default": true
+        },
+        "workqueue_depth": {
+          "type": "gauge",
+          "description": "Current depth of workqueue",
+          "group": "workqueue",
+          "default": true
+        },
+        "workqueue_longest_running_processor_seconds": {
+          "type": "gauge",
+          "description": "How many seconds has the longest running processor for workqueue been running.",
+          "group": "workqueue",
+          "default": true
+        },
+        "workqueue_queue_duration_seconds": {
+          "type": "cumulative",
+          "description": "How long in seconds an item stays in workqueue before being requested. (sum)",
+          "group": "workqueue",
+          "default": true
+        },
+        "workqueue_queue_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "How long in seconds an item stays in workqueue before being requested. (bucket)",
+          "group": "workqueue",
+          "default": true
+        },
+        "workqueue_queue_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "How long in seconds an item stays in workqueue before being requested. (count)",
+          "group": "workqueue",
+          "default": true
+        },
+        "workqueue_retries": {
+          "type": "cumulative",
+          "description": "Total number of retries handled by workqueue",
+          "group": "workqueue",
+          "default": true
+        },
+        "workqueue_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "How many seconds of work has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": "workqueue",
+          "default": true
+        },
+        "workqueue_work_duration_seconds": {
+          "type": "cumulative",
+          "description": "How long in seconds processing an item from workqueue takes. (sum)",
+          "group": "workqueue",
+          "default": true
+        },
+        "workqueue_work_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "How long in seconds processing an item from workqueue takes. (bucket)",
+          "group": "workqueue",
+          "default": true
+        },
+        "workqueue_work_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "How long in seconds processing an item from workqueue takes. (count)",
+          "group": "workqueue",
+          "default": true
+        }
+      },
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config is the config for this monitor and implements ConfigInterface.",
+        "package": "internal/monitors/kubernetes/apiserver",
+        "fields": [
+          {
+            "yamlName": "kubernetesAPI",
+            "doc": "Configuration of the Kubernetes API client.",
+            "default": "",
+            "required": false,
+            "type": "struct",
+            "elementKind": "",
+            "elementStruct": {
+              "name": "APIConfig",
+              "doc": "APIConfig contains options relevant to connecting to the K8s API",
+              "package": "internal/core/common/kubernetes",
+              "fields": [
+                {
+                  "yamlName": "authType",
+                  "doc": "How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), `serviceAccount` (to use the standard service account token provided to the agent pod), or `kubeConfig` to use credentials from `~/.kube/config`.",
+                  "default": "serviceAccount",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                },
+                {
+                  "yamlName": "skipVerify",
+                  "doc": "Whether to skip verifying the TLS cert from the API server.  Almost never needed.",
+                  "default": false,
+                  "required": false,
+                  "type": "bool",
+                  "elementKind": ""
+                },
+                {
+                  "yamlName": "clientCertPath",
+                  "doc": "The path to the TLS client cert on the pod's filesystem, if using `tls` auth.",
+                  "default": "",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                },
+                {
+                  "yamlName": "clientKeyPath",
+                  "doc": "The path to the TLS client key on the pod's filesystem, if using `tls` auth.",
+                  "default": "",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                },
+                {
+                  "yamlName": "caCertPath",
+                  "doc": "Path to a CA certificate to use when verifying the API server's TLS cert.  Generally this is provided by K8s alongside the service account token, which will be picked up automatically, so this should rarely be necessary to specify.",
+                  "default": "",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                }
+              ]
+            }
+          },
+          {
+            "yamlName": "metricPath",
+            "doc": "Path to the metrics endpoint on server, usually `/metrics` (the default).",
+            "default": "/metrics",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
       "singleInstance": false
     },
     {
@@ -25660,7 +27641,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config for this monitor",
+        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
         "package": "internal/monitors/prometheusexporter",
         "fields": [
           {
@@ -33959,7 +35940,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config for this monitor",
+        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
         "package": "internal/monitors/traefik",
         "fields": [
           {

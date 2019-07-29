@@ -1,0 +1,106 @@
+#!python3
+
+import sys
+
+from pathlib import Path
+from prometheus_client.parser import text_string_to_metric_families
+from ruamel import yaml
+
+# Input should be prometheus output.
+
+if sys.stdin.isatty():
+    sys.exit("error: pipe in Prometheus scrape output")
+
+if len(sys.argv) != 2:
+    sys.exit("error: argument should be a metadata.yaml file")
+
+meta = Path(sys.argv[1])
+
+meta.parent.mkdir(parents=True, exist_ok=True)
+
+if meta.exists():
+    doc = yaml.round_trip_load(meta.read_text())
+else:
+    doc = {}
+
+# metrics = {}
+
+# for entry in text_string_to_metric_families(sys.stdin.read()):
+#     metrics[entry.name] = entry.documentation
+
+monitors = doc.setdefault("monitors", [])
+
+if len(monitors) > 1:
+    sys.exit("can't handle more than one monitor")
+
+monitor = {}
+
+if len(monitors) == 0:
+    monitors.append(monitor)
+else:
+    monitor = monitors[0]
+
+doc_metrics = monitor.setdefault("metrics", {})
+
+for metric in text_string_to_metric_families(sys.stdin.read()):
+    if metric.type == "gauge":
+        metric_entry = doc_metrics.setdefault(metric.name, {})
+        metric_entry.setdefault("default", False)
+        metric_entry.update({
+            "description": metric.documentation,
+            "type": "gauge"
+        })
+    elif metric.type == "counter":
+        metric_entry = doc_metrics.setdefault(metric.name, {})
+        metric_entry.setdefault("default", False)
+        metric_entry.update({
+            "description": metric.documentation,
+            "type": "cumulative"
+        })
+    elif metric.type == "summary":
+        count_metric = doc_metrics.setdefault(f"{metric.name}_count", {})
+        count_metric.setdefault("default", False)
+        count_metric.update({
+            "description": f"{metric.documentation} (count)",
+            "type": "cumulative"
+        })
+
+        sum_metric = doc_metrics.setdefault(metric.name, {})
+        sum_metric.setdefault("default", False)
+        sum_metric.update({
+            "description": f"{metric.documentation} (sum)",
+            "type": "cumulative"
+        })
+
+        quantile_metric = doc_metrics.setdefault(f"{metric.name}_quantile", {})
+        quantile_metric.setdefault("default", False)
+        quantile_metric.update({
+            "description": f"{metric.documentation} (quantized)",
+            "type": "gauge",
+        })
+    elif metric.type == "histogram":
+        count_metric = doc_metrics.setdefault(f"{metric.name}_count", {})
+        count_metric.setdefault("default", False)
+        count_metric.update({
+            "description": f"{metric.documentation} (count)",
+            "type": "cumulative"
+        })
+
+        sum_metric = doc_metrics.setdefault(metric.name, {})
+        sum_metric.setdefault("default", False)
+        sum_metric.update({
+            "description": f"{metric.documentation} (sum)",
+            "type": "cumulative"
+        })
+
+        bucket_metric = doc_metrics.setdefault(f"{metric.name}_bucket", {})
+        bucket_metric.setdefault("default", False)
+        bucket_metric.update({
+            "description": f"{metric.documentation} (bucket)",
+            "type": "cumulative"
+        })
+    else:
+        raise Exception(f"metric {metric.name} has unknown metric type {metric.type}")
+
+with open(meta, "wt") as f:
+    yaml.round_trip_dump(doc, f, default_flow_style=False)
