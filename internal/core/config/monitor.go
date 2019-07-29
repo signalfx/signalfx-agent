@@ -78,7 +78,9 @@ type MonitorConfig struct {
 	// Also can be useful when scraping free-form metrics, say with the
 	// `prometheus-exporter` monitor.  Right now, only static key/value
 	// transformations are supported.  Note that filtering by dimensions will
-	// be done on the *original* dimension name and not the new name.
+	// be done on the *original* dimension name and not the new name. Note that
+	// it is possible to remove unwanted dimensions via this configuration, by
+	// making the desired dimension name an empty string.
 	DimensionTransformations map[string]string `yaml:"dimensionTransformations" json:"dimensionTransformations"`
 	// Extra metrics to enable besides the default included ones.  This is an
 	// [overridable filter](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filtering).
