@@ -1,4 +1,4 @@
-# SignalFx Smart Agent Advanced Configuration Options
+# SignalFx Smart Agent Advanced Installation Options
 
 
 __See [SignalFx Smart Agent Quick Install](https://docs.signalfx.com/en/latest/integrations/agent/docs/quick-install.html) for simplified Smart Agent command-line installation on a single host.__
