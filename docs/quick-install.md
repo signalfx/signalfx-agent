@@ -59,11 +59,7 @@ to SignalFx on a regular basis.  There are a few things that can be
 
 ## Installation
 
-<<<<<<< HEAD
 The instructions below are for a command-line installation of a single agent. For other installation options, including bulk deployments, see the Advanced Installation in [Advanced Installation Options](./advanced-install-options.md).
-=======
-The instructions below are for a command-line installation of a single agent. For other installation options, including bulk deployments, see the Advanced Installation in [Advanced Configuration Options](./advanced-config-options.md).
->>>>>>> 7396c764... rechecked quick-install and advance-config-options
 
 ### __Get started with Smart Agent using the 3 steps below.__
 
