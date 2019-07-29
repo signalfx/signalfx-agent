@@ -1,0 +1,21 @@
+parameters:
+  paths: ''
+
+steps:
+- bash: |
+    echo '##vso[task.setvariable variable=hasChanges]true'
+    if [[ -z "$PATHS" || "$(Build.SourceBranchName)" = "master" || "$(Build.SourceBranch)" =~ ^refs/tags/ ]]; then
+        exit 0
+    fi
+    if [[ "$(Build.SourceBranchName)" = "merge" ]]; then
+        export CIRCLE_BRANCH="$(System.PullRequest.SourceBranch)"
+    else
+        export CIRCLE_BRANCH="$(Build.SourceBranchName)"
+    fi
+    git checkout $CIRCLE_BRANCH
+    if ! scripts/changes-include-dir $PATHS; then
+        echo "no changes for $PATHS"
+        echo '##vso[task.setvariable variable=hasChanges]false'
+    fi
+  env:
+    PATHS: ${{ parameters.paths }}

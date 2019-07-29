@@ -1,0 +1,54 @@
+parameters:
+  markers: 'windows or windows_only'
+  options: ''
+  changesInclude: ''
+
+steps:
+- template: 'changes-include.yml'
+  parameters:
+    paths: ${{ parameters.changesInclude }}
+- template: 'install-choco.yml'
+- powershell: |
+    if ((Get-Command "conda.exe" -ErrorAction SilentlyContinue) -eq $null) {
+        choco install -y --no-progress --limitoutput miniconda3
+        $env:PATH = "C:\tools\miniconda3\Scripts;C:\tools\miniconda3;C:\tools\miniconda3\Library\bin;$env:PATH"
+        echo "##vso[task.setvariable variable=PATH]$env:PATH"
+        $env:LIB = "C:\tools\miniconda3\Library\lib;$env:LIB"
+        echo "##vso[task.setvariable variable=LIB]$env:LIB"
+    } else {
+        echo "conda already installed"
+    }
+    conda --version
+  displayName: 'Install conda'
+  condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
+- powershell: |
+    conda install --yes python=3.6.7 pip=10.0.1
+    python --version
+    pip --version
+    pip install -q -r tests\requirements.txt
+    pytest --version
+  displayName: 'Install pytest'
+  condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
+- powershell: |
+    mkdir test_output -ea 0
+    echo "Executing '$env:MARKERS' tests"
+    pytest -m "$env:MARKERS" $env:OPTIONS --verbose --junitxml=test_output/test_results.xml --html=test_output/test_results.html --self-contained-html tests
+    if ($lastexitcode -gt 1) { throw }
+  env:
+    MARKERS: ${{ parameters.markers }}
+    OPTIONS: ${{ parameters.options }}
+  ignoreLASTEXITCODE: true
+  displayName: 'Run pytest'
+  condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
+- task: PublishBuildArtifacts@1
+  inputs:
+    pathtoPublish: 'test_output'
+    artifactName: $(Agent.JobName)
+  condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
+- task: PublishTestResults@2
+  inputs:
+    searchFolder: '$(Build.SourcesDirectory)'
+    testResultsFormat: 'JUnit'
+    testResultsFiles: 'test_output/*.xml'
+    failTaskOnFailedTests: true
+  condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
