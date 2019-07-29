@@ -11,7 +11,6 @@ import (
 
 func helperTestMonitorOuput() (*monitorOutput, error) {
 	config := &config.MonitorConfig{}
-
 	var metadata *Metadata
 
 	monFiltering, err := newMonitorFiltering(config, metadata)
@@ -25,7 +24,6 @@ func helperTestMonitorOuput() (*monitorOutput, error) {
 		monitorFiltering: monFiltering,
 	}
 	return output, nil
-
 }
 
 func TestSendDatapoint(t *testing.T) {
@@ -109,5 +107,4 @@ func TestSendDatapoint(t *testing.T) {
 
 	// Make sure it's come through as expected
 	assert.Equal(t, map[string]string{"testDim1": "testValue1"}, resultDp.Dimensions)
-
 }
