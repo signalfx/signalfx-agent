@@ -65,7 +65,10 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 
 	for origName, newName := range mo.dimensionTransformations {
 		if v, ok := dp.Dimensions[origName]; ok {
-			dp.Dimensions[newName] = v
+			// If the new name is not an empty string transform the dimension
+			if len(newName) > 0 {
+				dp.Dimensions[newName] = v
+			}
 			delete(dp.Dimensions, origName)
 		}
 	}
