@@ -106,14 +106,86 @@ jobs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
       artifactName: 'bundle'
 
-- template: 'templates/integration-tests.yml'
-  parameters:
-    dependsOn: 'win_bundle_build'
-    jobName: 'win_2012_integration_tests'
+- job: 'win_2012_integration_tests'
+  pool:
     vmImage: 'vs2015-win2012r2'
+  dependsOn: 'win_bundle_build'
+  steps:
+  - template: 'templates/extract-bundle.yml'
+  # Install IIS for windows-iis integration test.
+  - template: 'templates/install-choco.yml'
+    parameters:
+      packages: '--source windowsfeatures IIS-WebServerRole'
+  - template: 'templates/run-pytest.yml'
+    parameters:
+      markers: '(windows or windows_only) and not deployment and not installer'
+      options: '-n4'
 
-- template: 'templates/integration-tests.yml'
-  parameters:
-    dependsOn: 'win_bundle_build'
-    jobName: 'win_2016_integration_tests'
+- job: 'win_2016_integration_tests'
+  pool:
     vmImage: 'vs2017-win2016'
+  dependsOn: 'win_bundle_build'
+  steps:
+  - template: 'templates/extract-bundle.yml'
+  # Install IIS for windows-iis integration test.
+  - template: 'templates/install-choco.yml'
+    parameters:
+      packages: '--source windowsfeatures IIS-WebServerRole'
+  - template: 'templates/run-pytest.yml'
+    parameters:
+      markers: '(windows or windows_only) and not deployment and not installer'
+      options: '-n4'
+
+- job: 'win_2012_chef_tests'
+  pool:
+    vmImage: 'vs2015-win2012r2'
+  steps:
+  - template: 'templates/run-pytest.yml'
+    parameters:
+      markers: 'chef and windows_only'
+      changesInclude: 'deployments/chef tests/deployments/chef tests/packaging/common.py'
+
+- job: 'win_2016_chef_tests'
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - template: 'templates/run-pytest.yml'
+    parameters:
+      markers: 'chef and windows_only'
+      changesInclude: 'deployments/chef tests/deployments/chef tests/packaging/common.py'
+
+- job: 'win_2012_puppet_tests'
+  pool:
+    vmImage: 'vs2015-win2012r2'
+  steps:
+  - template: 'templates/run-pytest.yml'
+    parameters:
+      markers: 'puppet and windows_only'
+      changesInclude: 'deployments/puppet tests/deployments/puppet tests/packaging/common.py'
+
+- job: 'win_2016_puppet_tests'
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - template: 'templates/run-pytest.yml'
+    parameters:
+      markers: 'puppet and windows_only'
+      changesInclude: 'deployments/puppet tests/deployments/puppet tests/packaging/common.py'
+
+- job: 'win_2012_installer_tests'
+  pool:
+    vmImage: 'vs2015-win2012r2'
+  steps:
+  - template: 'templates/run-pytest.yml'
+    parameters:
+      markers: 'installer and windows_only'
+      changesInclude: 'deployments/installer tests/packaging'
+
+- job: 'win_2016_installer_tests'
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - template: 'templates/run-pytest.yml'
+    parameters:
+      markers: 'installer and windows_only'
+      changesInclude: 'deployments/installer tests/packaging'
