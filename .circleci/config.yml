@@ -358,6 +358,34 @@ jobs:
           pytest_options: "-n auto -m 'installer'"
           tests_dir: "./tests/packaging/"
 
+  build_package:
+    executor: machine_image
+    parameters:
+      package_type:
+        default: "rpm"
+        type: enum
+        enum: ["rpm", "deb"]
+    environment:
+      PACKAGE_TYPE: "<< parameters.package_type >>"
+    steps:
+      - checkout
+      - run: |
+          mkdir -p /tmp/workspace/packaging/$PACKAGE_TYPE/output
+          if [ "$CIRCLE_BRANCH" != "master" ]; then
+              if ! scripts/changes-include-dir Dockerfile packaging/$PACKAGE_TYPE packaging/etc tests/packaging scripts/patch-interpreter scripts/patch-rpath; then
+                  echo "packaging code has not changed, skipping $PACKAGE_TYPE build!"
+                  touch ~/.skip
+                  exit 0
+              fi
+          fi
+          export PULL_CACHE=yes
+          make $PACKAGE_TYPE-test-package
+          cp -rf packaging/$PACKAGE_TYPE/output/* /tmp/workspace/packaging/$PACKAGE_TYPE/output/
+      - persist_to_workspace:
+          root: /tmp/workspace
+          paths:
+            - packaging/<< parameters.package_type >>/output
+
   package_tests:
     executor: machine_image
     parallelism: 2
@@ -370,22 +398,23 @@ jobs:
       PACKAGE_TYPE: "<< parameters.package_type >>"
     steps:
       - checkout
+      - attach_workspace:
+          at: /tmp/workspace
       - run: |
           if [ "$CIRCLE_BRANCH" != "master" ]; then
-              if ! scripts/changes-include-dir Dockerfile packaging tests/packaging scripts/patch-interpreter scripts/patch-rpath; then
+              if ! scripts/changes-include-dir Dockerfile packaging/$PACKAGE_TYPE packaging/etc tests/packaging scripts/patch-interpreter scripts/patch-rpath; then
                   echo "packaging code has not changed, skipping tests!"
                   touch ~/.skip
                   exit 0
               fi
           fi
-          export PULL_CACHE=yes
-          make << parameters.package_type >>-test-package
           # Run non-upgrade tests on node 0, and upgrade tests on node 1
           if [ $CIRCLE_NODE_INDEX -eq 0 ]; then
-              echo "export TEST_MARKERS='<< parameters.package_type >> and not upgrade'" >> $BASH_ENV
+              echo "export TEST_MARKERS='$PACKAGE_TYPE and not upgrade'" >> $BASH_ENV
           else
-              echo "export TEST_MARKERS='<< parameters.package_type >> and upgrade'" >> $BASH_ENV
+              echo "export TEST_MARKERS='$PACKAGE_TYPE and upgrade'" >> $BASH_ENV
           fi
+          ln -s /tmp/workspace/packaging/$PACKAGE_TYPE/output packaging/$PACKAGE_TYPE/output
       - run_pytest:
           pytest_options: "-n auto -m \"$TEST_MARKERS\""
           tests_dir: "./tests/packaging"
@@ -606,12 +635,22 @@ workflows:
             - helm_check
       - docs_test
       - installer_tests
+      - build_package:
+          name: "build_rpm_package"
+          package_type: "rpm"
       - package_tests:
           name: "rpm_package_tests"
           package_type: "rpm"
+          requires:
+            - build_rpm_package
+      - build_package:
+          name: "build_deb_package"
+          package_type: "deb"
       - package_tests:
           name: "deb_package_tests"
           package_type: "deb"
+          requires:
+            - build_deb_package
       - bundle_tests
       - deployment_tests:
           name: "chef_tests"
