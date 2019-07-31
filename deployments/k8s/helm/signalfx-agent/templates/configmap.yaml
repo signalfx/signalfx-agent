@@ -69,11 +69,6 @@ data:
     - type: collectd/uptime
     - type: collectd/vmem
 
-    - type: collectd/processes
-      processes:
-      - collectd
-      - signalfx-agent
-
     - type: kubelet-stats
       {{- if .Values.containerStatsIntervalSeconds }}
       intervalSeconds: {{ .Values.containerStatsIntervalSeconds }}
