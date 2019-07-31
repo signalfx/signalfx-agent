@@ -1,3 +1,18 @@
+# Creates/sets global variable 'hasChanges' that can be used in subsequent task conditions based on
+# whether 'paths' (space-separated string of files/directories) have changes compared to master.
+
+# If 'paths' is empty or if the building branch is master or a tag, 'hasChanges' will be set to 'true'.
+
+# Usage example:
+# steps:
+# - template: 'changes-include.yml'
+#   parameters:
+#     paths: 'somefile somedir'
+# - powershell: |
+#     echo "this will run if somefile or somedir has changes"
+#   condition: ne(variables.hasChanges, 'false')
+
+
 parameters:
   paths: ''
 
