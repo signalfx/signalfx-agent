@@ -6,6 +6,7 @@ import os
 import re
 import sys
 import yaml
+from distutils import dir_util
 from nltk.tokenize import sent_tokenize
 from pathlib import Path
 
@@ -172,6 +173,16 @@ def sync_agent_quick_install():
 
     target_path.write_text(
         fixup_relative_agent_doc_paths(AGENT_README_HEADER + smart_agent_quick_install_path.read_text()))
+    print("Constructing Agent README")
+
+
+def move_agent_docs():
+    """
+    Copy Agent docs from https://github.com/signalfx/signalfx-agent/tree/master/docs
+    to the integrations repo
+    """
+    dir_util.copy_tree(str(AGENT_DOCS), str(INTEGRATIONS_REPO_SMART_AGENT_DIR / "for_product_docs"))
+    print("Copying docs from https://github.com/signalfx/signalfx-agent/tree/master/docs")
 
 
 def run():
@@ -188,7 +199,9 @@ def run():
             continue
         sync_metrics(package_path, monitor_type, integrations_dir)
         sync_docs(monitor_type, integrations_dir)
-        sync_agent_quick_install()
+
+    sync_agent_quick_install()
+    move_agent_docs()
 
 
 if __name__ == "__main__":
