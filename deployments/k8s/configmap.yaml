@@ -43,11 +43,6 @@ data:
     - type: collectd/uptime
     - type: collectd/vmem
 
-    - type: collectd/processes
-      processes:
-      - collectd
-      - signalfx-agent
-
     - type: kubelet-stats
       kubeletAPI:
         authType: serviceAccount
