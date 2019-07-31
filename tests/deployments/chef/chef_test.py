@@ -184,7 +184,6 @@ def run_win_chef_client(backend, agent_version, stage):
         installed_version,
         agent_version,
     )
-    backend.reset_datapoints()
 
 
 def run_win_chef_setup(chef_version):
@@ -223,12 +222,14 @@ def test_chef_on_windows(chef_version):
 
             # upgrade agent
             run_win_chef_client(backend, UPGRADE_VERSION, STAGE)
+            backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
             # downgrade agent
             run_win_chef_client(backend, INITIAL_VERSION, STAGE)
+            backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"

@@ -102,7 +102,6 @@ def run_puppet_agent(cont, backend, monitors, agent_version, stage):
         agent_version,
     )
     assert is_agent_running_as_non_root(cont), "Agent is not running as non-root user"
-    backend.reset_datapoints()
 
 
 @pytest.mark.parametrize(
@@ -135,12 +134,14 @@ def test_puppet(base_image, init_system, puppet_release):
 
             # upgrade agent
             run_puppet_agent(cont, backend, monitors, UPGRADE_VERSION, STAGE)
+            backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
             # downgrade agent
             run_puppet_agent(cont, backend, monitors, INITIAL_VERSION, STAGE)
+            backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
@@ -148,6 +149,7 @@ def test_puppet(base_image, init_system, puppet_release):
             # change agent config
             monitors = '{ type => "internal-metrics" },'
             run_puppet_agent(cont, backend, monitors, INITIAL_VERSION, STAGE)
+            backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
             ), "Didn't get internal metric datapoints"
@@ -164,13 +166,12 @@ def run_win_puppet_agent(backend, monitors, agent_version, stage):
         with open(manifest_path, "w+") as fd:
             fd.write(config)
         cmd = f"puppet apply {manifest_path}"
-        run_win_command(cmd, [0, 2])
+        run_win_command(cmd, returncodes=[0, 2])
     installed_version = get_win_agent_version()
     assert installed_version == agent_version, "installed agent version is '%s', expected '%s'" % (
         installed_version,
         agent_version,
     )
-    backend.reset_datapoints()
 
 
 def run_win_puppet_setup(puppet_version):
@@ -204,12 +205,14 @@ def test_puppet_on_windows(puppet_version):
 
             # upgrade agent
             run_win_puppet_agent(backend, monitors, UPGRADE_VERSION, STAGE)
+            backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
             # downgrade agent
             run_win_puppet_agent(backend, monitors, INITIAL_VERSION, STAGE)
+            backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
@@ -217,6 +220,7 @@ def test_puppet_on_windows(puppet_version):
             # change agent config
             monitors = '{ type => "internal-metrics" },'
             run_win_puppet_agent(backend, monitors, INITIAL_VERSION, STAGE)
+            backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
             ), "Didn't get internal metric datapoints"
