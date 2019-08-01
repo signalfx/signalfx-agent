@@ -205,6 +205,15 @@ def convert_markdown_subsections_to_htmls(content):
     return re.sub(MARKDOWN_SUBSECTION_LINK_PATTERN, r"\1html\2", content)
 
 
+def fixup_headers_in_agent_readme(content):
+    content = content.replace("# Quick Install", "## Quick Install")
+    content = content.replace("## Concepts", "### Concepts")
+    content = content.replace("### Monitors", "#### Monitors")
+    content = content.replace("### Observers", "#### Observers")
+    content = content.replace("### Writer", "#### Writer")
+    return content
+
+
 def sync_agent_quick_install():
     """
     Construct README for SignalFx Agent from quick-install.md file here:
@@ -214,13 +223,14 @@ def sync_agent_quick_install():
     target_path = INTEGRATIONS_REPO_SMART_AGENT_DIR / "README.md"
     smart_agent_quick_install_path = AGENT_DOCS / "quick-install.md"
 
-    target_path.write_text(
-        convert_markdown_subsections_to_htmls(convert_markdowns_to_htmls(fixup_relative_agent_doc_paths(
-            AUTO_GENERATION_TEMPLATE + AGENT_README_HEADER + smart_agent_quick_install_path.read_text())
-        )
-        )
-    )
     print("Constructing Agent README")
+
+    target_path.write_text(convert_markdown_subsections_to_htmls(convert_markdowns_to_htmls(
+        fixup_relative_agent_doc_paths(
+            AUTO_GENERATION_TEMPLATE + AGENT_README_HEADER + fixup_headers_in_agent_readme(
+                smart_agent_quick_install_path.read_text())))
+    )
+    )
 
 
 PRODUCT_DOCS_REPO = "agent_docs"

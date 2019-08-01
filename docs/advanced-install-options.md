@@ -61,7 +61,7 @@ Ensure a valid configuration file is available somewhere on the target system. T
 
 - collectd.configDir - This is where the Smart Agent writes the managed collectd config, since collectd can only be configured by files. Note that this entire dir will be wiped by the Smart Agent upon startup so that it doesn’t pick up stale collectd config, so be sure that it is not used for anything else. Also note that these files could have sensitive information in them if you have passwords configured for collectd monitors, so you might want to place this dir on a tmpfs mount to avoid credentials persisting on disk.
 
-See the section on [Privileges](#Privileges) for information on the capabilities the Smart Agent requires.
+See the section on [Privileges](#privileges) for information on the capabilities the Smart Agent requires.
 
 Run the Smart Agent by invoking the archive path:
 

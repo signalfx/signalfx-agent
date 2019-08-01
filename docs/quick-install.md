@@ -1,3 +1,4 @@
+<!--- OVERVIEW --->
 # Quick Install
 
 
@@ -56,12 +57,12 @@ The writer collects metrics emitted by the configured monitors and sends them
 to SignalFx on a regular basis.  There are a few things that can be
 [configured](./config-schema.md#writer) in the writer, but this is generally only necessary if you have a very large number of metrics flowing through a single agent.
 
-
+<!--- SETUP --->
 ## Installation
 
 The instructions below are for a command-line installation of a single agent. For other installation options, including bulk deployments, see the Advanced Installation in [Advanced Installation Options](./advanced-install-options.md).
 
-### __Get started with Smart Agent using the 3 steps below.__
+__Get started with Smart Agent using the 3 steps below.__
 
 _Note: if you have previously configured another metric collection agent on your host such as collectd, uninstall or disable that agent before installing the SignalFx Smart Agent._
 
@@ -80,7 +81,7 @@ To install the Smart Agent on a single Linux host, enter:
 ```sh
 curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
 sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
-````
+```
 
 __Windows:__ Ensure that the following dependencies are installed:
 
@@ -108,7 +109,7 @@ To confirm the SignalFx Smart Agent installation is functional on either platfor
 
 ```sh
 sudo signalfx-agent status
-````
+```
 
 The response you will see is similar to the one below:
 
@@ -124,7 +125,7 @@ Global Dimensions:                {host: my-host-1}
 Datapoints sent (last minute):    1614
 Events Sent (last minute):        0
 Trace Spans Sent (last minute):   0
-````
+```
 
 To verify the installation, you can run the following commands:
 
@@ -133,7 +134,7 @@ signalfx-agent status config - show resolved config in use by agent
 signalfx-agent status endpoints - show discovered endpoints
 signalfx-agent status monitors - show active monitors
 signalfx-agent status all - show everything
-````
+```
 
 #### Troubleshoot any discrepancies in the Installation 
 
@@ -158,7 +159,7 @@ If you want to explicitly set the ingest, API server, and trace endpoint URLs, y
 ingestUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"
 apiUrl: "https://api.YOUR_SIGNALFX_REALM.signalfx.com"
 traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
-````
+```
 
 This will default to the endpoints for the realm configured in signalFxRealm if not set.
 
