@@ -162,12 +162,12 @@ traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
 
 This will default to the endpoints for the realm configured in signalFxRealm if not set.
 
-To troubleshoot your installation further, check the FAQ about troubleshooting [here](https://docs.signalfx.com/en/latest/integrations/agent/faq.html).
+To troubleshoot your installation further, check the FAQ about troubleshooting [here](./faq.md).
 
 
 ### Step 3. Login to SignalFx and discover your data displays. 
 
 Installation is complete.
 
-To continue your exploration of SignalFx Smart Agent capabilities, see [Advanced Installation Options](https://docs.signalfx.com/en/latest/integrations/agent/advanced-install-options.html). 
+To continue your exploration of SignalFx Smart Agent capabilities, see [Advanced Installation Options](./advanced-install-options.md).
 

@@ -137,7 +137,7 @@ def fixup_relative_monitor_paths(content):
 
 def fixup_relative_agent_doc_paths(content):
     return fixup_relative_paths(
-        r"\1(https://github.com/signalfx/signalfx-agent/tree/master/docs/\2)", content
+        r"\1(https://docs.signalfx.com/en/latest/integrations/agent/\2)", content
     )
 
 
@@ -162,6 +162,13 @@ AGENT_README_HEADER = """
 """
 
 
+MARKDOWN_LINK_PATTERN = re.compile(r"(\(https://docs.signalfx.com/en/latest/integrations/agent/.+?\.)md(.*?\))")
+
+
+def convert_markdowns_to_htmls(content):
+    return re.sub(MARKDOWN_LINK_PATTERN, r"\1html\2", content)
+
+
 def sync_agent_quick_install():
     """
     Construct README for SignalFx Agent from quick-install.md file here:
@@ -172,7 +179,10 @@ def sync_agent_quick_install():
     smart_agent_quick_install_path = AGENT_DOCS / "quick-install.md"
 
     target_path.write_text(
-        fixup_relative_agent_doc_paths(AGENT_README_HEADER + smart_agent_quick_install_path.read_text()))
+        convert_markdowns_to_htmls(fixup_relative_agent_doc_paths(
+            AGENT_README_HEADER + smart_agent_quick_install_path.read_text())
+        )
+    )
     print("Constructing Agent README")
 
 
