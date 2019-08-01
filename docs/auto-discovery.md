@@ -118,7 +118,7 @@ For example (making use of YAML references to reduce repetition):
     password: s3cr3t
     host: es
     port: 9200
-
+  
   - <<: *es
     host: es2
     port: 9300

@@ -194,6 +194,7 @@ AGENT_README_HEADER = """
 """
 
 MARKDOWN_LINK_PATTERN = re.compile(r"(\(https://docs.signalfx.com/en/latest/integrations/agent/.+?\.)md(.*?\))")
+MARKDOWN_SUBSECTION_LINK_PATTERN = re.compile(r"(\[.*?\])\((\.\.?/.+?)\)", flags=re.DOTALL)
 
 
 def convert_markdowns_to_htmls(content):
@@ -249,10 +250,7 @@ def sync_markdown_files(source_file_path):
     print(f"Syncing Agent docs: {str(relative_path)}")
 
     target_path.write_text(
-        convert_markdowns_to_htmls(fixup_relative_agent_doc_paths(
             AUTO_GENERATION_TEMPLATE + source_file_path.read_text())
-        )
-    )
 
 
 def run():

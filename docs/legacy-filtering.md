@@ -31,7 +31,7 @@ enabled).
 **PARTIALLY DEPRECATED** -- The following information is about filtering
 datapoints at a global level (i.e. outside of monitor configuration).  It will
 continue to work, but we recommend putting filter definitions [at the monitor
-level](#additional-monitor-level-filtering) instead.
+level](./filtering.md#additional-monitor-level-filtering) instead.
 
 Filters can be specified with the `metricsToExclude` config at the top-level of
 the agent config.  This parameter should be a list of filters that specify the

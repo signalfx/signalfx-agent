@@ -24,7 +24,7 @@ Monitors collect metrics from the host system and services.  They are
 configured under the `monitors` list in the agent config.  For
 application specific monitors, you can define discovery rules in your monitor
 configuration. A separate monitor instance is created for each discovered
-instance of applications that match a discovery rule. See [Auto
+instance of applications that match a discovery rule. See [Endpoint
 Discovery](./auto-discovery.md) for more information.
 
 Many of the monitors are built around [collectd](https://collectd.org), an open

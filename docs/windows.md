@@ -5,7 +5,7 @@ The agent supports standalone installations on Windows Server 2008 and above.
 ## Installation
 
 To get started deploying the Smart Agent directly on a Windows host, see the
-[Smart Agent Quickstart](./smart-agent-quickstart.md) guide.
+[Quick Install](./quick-install.md) guide.
 
 ## Monitor Support
 

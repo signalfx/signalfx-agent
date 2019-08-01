@@ -51,7 +51,7 @@ To use the bundle:
 
 Unarchive it to a directory of your choice on the target system.
 
-Go into the unarchived signalfx-agent directory and run bin/patch-interpreter $(pwd). This ensures that the binaries in the bundle have the right loader set on them if your host loader is not compatible.
+Go into the unarchived signalfx-agent directory and run `bin/patch-interpreter $(pwd)`. This ensures that the binaries in the bundle have the right loader set on them if your host loader is not compatible.
 
 Ensure a valid configuration file is available somewhere on the target system. The main thing that the distro packages provide – but that you will have to provide manually with the bundle – is a run directory for the Smart Agent to use. Because you aren’t installing from a package, there are three config options to particularly consider:
 
@@ -93,7 +93,7 @@ To use the bundle:
 
 - internalStatusPort - This is the port that the Smart Agent will listen on so that the signalfx-agentstatus command can read diagnostic information from a running agent. This is also the host name the Smart Agent will listen on to serve internal metrics about the Smart Agent. These metrics can be scraped by the internal-metrics monitor. This will default to 8095.
 
-See the section on [Privileges](#Privileges) for information on the capabilities the Smart Agent requires.
+See the section on [Privileges](#privileges) for information on the capabilities the Smart Agent requires.
 
 
 3. Run the Smart Agent by invoking the Smart Agent executable
@@ -185,7 +185,7 @@ __To learn more about how your data is presented in SignalFx, see the [15-Minute
 
 Example of adding a new observer:
 
-To start collecting docker container metrics, first add a [docker observer](https://github.com/signalfx/signalfx-agent/blob/master/docs/observers/docker.md).
+To start collecting docker container metrics, first add a [docker observer](./observers/docker.md).
 
 Your observer list would then look similar to this:
 
@@ -195,7 +195,7 @@ observers:
   - type: docker
 ```
 
-Next, add a [docker metrics monitor](https://github.com/signalfx/signalfx-agent/blob/master/docs/monitors/docker-container-stats.md) to the agent.yaml file. Your type list would now include this monitor (docker-container-stats) as shown below:
+Next, add a [docker metrics monitor](./monitors/docker-container-stats.md) to the agent.yaml file. Your type list would now include this monitor (docker-container-stats) as shown below:
 
 ```sh
 monitors:
