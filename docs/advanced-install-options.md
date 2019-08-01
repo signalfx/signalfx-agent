@@ -1,7 +1,7 @@
 # Advanced Installation Options
 
 
-__See [Quick Install](https://docs.signalfx.com/en/latest/integrations/agent/docs/quick-install.html) for simplified Smart Agent command-line installation on a single host.__
+__See [Quick Install](./quick-install.md) for simplified Smart Agent command-line installation on a single host.__
 
 ## Advanced Installation on a Single Host
 
