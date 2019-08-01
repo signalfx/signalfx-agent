@@ -27,21 +27,21 @@ monitors:
     # metrics to be sent, excluding all other metrics that start with
     # 'node_filesystem_'.
     - metricNames:
-       - node_filesystem_*
+       - node_filesystem_.*
        - '!node_filesystem_free_bytes'
        - '!node_filesystem_readonly'
 
     # This filter causes all network metrics, *except* for those about eth0, to
     # be dropped.
-    - metricName: node_network_*
+    - metricName: node_network_.*
       dimensions:
         interface: [ '*', '!eth0' ]
 
     # This filter causes all datapoints that start with 'node_disk_' that have
     a 'device' dimension that starts with 'sr' to be dropped.
-    - metricName: node_disk_*
+    - metricName: node_disk_.*
       dimensions:
-        device: sr*
+        device: sr.*
 ```
 
 The behavior is that datapoints are processed through each filter item in the
@@ -75,8 +75,8 @@ will be applied to all properties the agent emits, so be careful when scoping.
 
 Properties and dimensions (both names and values) can be either
 globbed (i.e. where `*` is a wildcard for zero or more characters, and `?` is
-a wildcard for a single character) or specified as a Go-compatible regular
-expression (the value must be surrounded by `/` to be considered a regex).
+zero or one character) or specified as a Go-compatible regular expression
+(the value must be surrounded by `/` to be considered a regex).
 
 Sometimes it is easier to whitelist the properties you want to allow through,
 and not allow any others.
@@ -104,16 +104,16 @@ Examples:
        dimensionName: kubernetes_pod_uid
 
     # Do not sync any property beginning with 'load_balancer' to 'kubernetes_pod_uid'
-    - propertyName: "load_balancer*"
+    - propertyName: "load_balancer.*"
       dimensionName: kubernetes_pod_uid
 
     # Do not sync any property name 'pod-template-hash' beginning with value '123'
     # on a dimension name `kubernetes_pod_uid` with a dimension value starting
     # with 'abc'
     - propertyName: pod-template-hash
-      propertyValue: "123*"
+      propertyValue: "123.*"
       dimensionName: kubernetes_pod_uid
-      dimensionValue: "abc*"
+      dimensionValue: "abc.*"
 ```
 
 ## Overridable filters
