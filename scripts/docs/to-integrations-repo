@@ -194,11 +194,15 @@ AGENT_README_HEADER = """
 """
 
 MARKDOWN_LINK_PATTERN = re.compile(r"(\(https://docs.signalfx.com/en/latest/integrations/agent/.+?\.)md(.*?\))")
-MARKDOWN_SUBSECTION_LINK_PATTERN = re.compile(r"(\[.*?\])\((\.\.?/.+?)\)", flags=re.DOTALL)
+MARKDOWN_SUBSECTION_LINK_PATTERN = re.compile(r"(\[.*?\]\(\.\.?/.+?\.)md(\#.+?\))", flags=re.DOTALL)
 
 
 def convert_markdowns_to_htmls(content):
     return re.sub(MARKDOWN_LINK_PATTERN, r"\1html\2", content)
+
+
+def convert_markdown_subsections_to_htmls(content):
+    return re.sub(MARKDOWN_SUBSECTION_LINK_PATTERN, r"\1html\2", content)
 
 
 def sync_agent_quick_install():
@@ -211,14 +215,15 @@ def sync_agent_quick_install():
     smart_agent_quick_install_path = AGENT_DOCS / "quick-install.md"
 
     target_path.write_text(
-        convert_markdowns_to_htmls(fixup_relative_agent_doc_paths(
+        convert_markdown_subsections_to_htmls(convert_markdowns_to_htmls(fixup_relative_agent_doc_paths(
             AUTO_GENERATION_TEMPLATE + AGENT_README_HEADER + smart_agent_quick_install_path.read_text())
+        )
         )
     )
     print("Constructing Agent README")
 
 
-PRODUCT_DOCS_REPO = "for_product_docs"
+PRODUCT_DOCS_REPO = "agent_docs"
 
 
 def sync_agent_docs():
@@ -250,7 +255,8 @@ def sync_markdown_files(source_file_path):
     print(f"Syncing Agent docs: {str(relative_path)}")
 
     target_path.write_text(
-            AUTO_GENERATION_TEMPLATE + source_file_path.read_text())
+        convert_markdown_subsections_to_htmls(AUTO_GENERATION_TEMPLATE + source_file_path.read_text())
+    )
 
 
 def run():
