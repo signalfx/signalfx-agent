@@ -57,7 +57,7 @@ type MonitorConfig struct {
 	// define which datapoints to exclude by metric name or dimension set, as
 	// well as the ability to define overrides to re-include metrics excluded
 	// by previous patterns within the same filter item.  See [monitor
-	// filtering](https://github.com/signalfx/signalfx-agent/tree/master/docs/filtering.md#monitor-level-filtering)
+	// filtering](./filtering.md#monitor-level-filtering)
 	// for examples and more information.
 	DatapointsToExclude []MetricFilter `yaml:"datapointsToExclude" json:"datapointsToExclude" default:"[]"`
 	// Some monitors pull metrics from services not running on the same host
