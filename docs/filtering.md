@@ -75,8 +75,8 @@ will be applied to all properties the agent emits, so be careful when scoping.
 
 Properties and dimensions (both names and values) can be either
 globbed (i.e. where `*` is a wildcard for zero or more characters, and `?` is
-zero or one character) or specified as a Go-compatible regular expression
-(the value must be surrounded by `/` to be considered a regex).
+zero or one character, prefer one character) or specified as a Go-compatible
+regular expression (the value must be surrounded by `/` to be considered a regex).
 
 Sometimes it is easier to whitelist the properties you want to allow through,
 and not allow any others.

@@ -40,9 +40,9 @@ sparingly, as every single datapoint emitted by monitors must be processed by
 these filters, resulting in higher CPU usage.
 
 Metric names and dimension values can be either globbed (i.e. where `*` is a
-wildcard for zero or more characters, and `?` is a wildcard for a single
-character) or specified as a Go-compatible regular expression (the value must
-be surrounded by `/` to be considered a regex).
+wildcard for zero or more characters, and `?` is zero or one character, prefer
+one character) or specified as a Go-compatible regular expression (the value
+must be surrounded by `/` to be considered a regex).
 
 You can limit the scope of a filter to a specific monitor type with the
 `monitorType` option in the filter item.  This value matches the monitor type
@@ -66,7 +66,7 @@ Examples:
   # If a metric matches any one of these filters it will be excluded.
   metricsToExclude:
     # Excludes all metrics that start with 'container_spec_memory_'
-    - metricName: container_spec_memory_*
+    - metricName: container_spec_memory_.*
 
     # Excludes multiple metric names in a single filter
     - metricNames:
@@ -85,7 +85,7 @@ Examples:
     # This filter will only match against datapoints from the collectd/df
     # monitor
     - dimensions:
-        plugin_instance: dm-*
+        plugin_instance: dm-.*
       monitorType: collectd/df
 
     # This only allows cpu and memory metrics from the docker monitor to come
@@ -93,8 +93,8 @@ Examples:
     # other monitors will not be excluded since this filter is scoped to a
     # single monitor.
     - metricNames:
-      - cpu*
-      - memory*
+      - cpu.*
+      - memory.*
       monitorType: collectd/docker
       negated: true
 
