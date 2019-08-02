@@ -206,7 +206,9 @@ def convert_markdown_subsections_to_htmls(content):
 
 
 def fixup_headers_in_agent_readme(content):
-    content = content.replace("# Quick Install", "## Quick Install")
+    content = content.replace("# Quick Install", "## <!-- -->")
+    content = content.replace(" - [Concepts](#concepts)", "")
+    content = content.replace(" - [Installation](#installation)", "")
     content = content.replace("## Concepts", "### Concepts")
     content = content.replace("### Monitors", "#### Monitors")
     content = content.replace("### Observers", "#### Observers")

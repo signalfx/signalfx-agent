@@ -34,7 +34,7 @@ if not set.
 
 ## Config Schema
 
-  
+
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `signalFxAccessToken` | no | string | The access token for the org that should receive the metrics emitted by the agent. |
