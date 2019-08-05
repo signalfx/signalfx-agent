@@ -213,6 +213,7 @@ def fixup_headers_in_agent_readme(content):
     content = content.replace("### Monitors", "#### Monitors")
     content = content.replace("### Observers", "#### Observers")
     content = content.replace("### Writer", "#### Writer")
+
     return content
 
 
@@ -239,6 +240,10 @@ PRODUCT_DOCS_REPO = "agent_docs"
 
 
 def sync_agent_docs():
+    """
+    Sync Agent docs from here:
+    https://github.com/signalfx/signalfx-agent/tree/master/docs
+    """
     target_dir_parent_path = INTEGRATIONS_REPO_SMART_AGENT_DIR / PRODUCT_DOCS_REPO
     target_dir_parent_path.mkdir(parents=True, exist_ok=True)
 
@@ -271,6 +276,15 @@ def sync_markdown_files(source_file_path):
     )
 
 
+def sync_agent_metrics():
+    """
+    Sync Agent internal metrics from here:
+    https://github.com/signalfx/signalfx-agent/blob/master/internal/monitors/internalmetrics/metadata.yaml
+    """
+
+    sync_metrics("internal/monitors/internalmetrics", "internal-metrics", "signalfx-agent")
+
+
 def run():
     mon_type_filters = None
     if len(sys.argv) > 1:
@@ -288,6 +302,7 @@ def run():
 
     sync_agent_quick_install()
     sync_agent_docs()
+    sync_agent_metrics()
 
 
 if __name__ == "__main__":
