@@ -11,7 +11,7 @@ class signalfx_agent (
   },
   $agent_version          = '',
   $package_version        = '',
-  $installation_directory = 'C:\\Program Files\\SignalFx\\',
+  $installation_directory = 'C:\\Program Files\\SignalFx',
 ) {
 
   $service_name = 'signalfx-agent'
