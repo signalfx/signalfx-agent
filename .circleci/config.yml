@@ -463,7 +463,7 @@ jobs:
                     rake spec
                 docker run --rm \
                     signalfx-agent-puppet-dev \
-                    puppet-lint .
+                    puppet-lint --fail-on-warnings .
                 if [ $CIRCLE_NODE_INDEX -eq 0 ]; then
                     echo "export TEST_MARKERS='puppet and rpm'" >> $BASH_ENV
                 else
