@@ -1,0 +1,36 @@
+# Creates/sets global variable 'hasChanges' that can be used in subsequent task conditions based on
+# whether 'paths' (space-separated string of files/directories) have changes compared to master.
+
+# If 'paths' is empty or if the building branch is master or a tag, 'hasChanges' will be set to 'true'.
+
+# Usage example:
+# steps:
+# - template: 'changes-include.yml'
+#   parameters:
+#     paths: 'somefile somedir'
+# - powershell: |
+#     echo "this will run if somefile or somedir has changes"
+#   condition: ne(variables.hasChanges, 'false')
+
+
+parameters:
+  paths: ''
+
+steps:
+- bash: |
+    echo '##vso[task.setvariable variable=hasChanges]true'
+    if [[ -z "$PATHS" || "$(Build.SourceBranchName)" = "master" || "$(Build.SourceBranch)" =~ ^refs/tags/ ]]; then
+        exit 0
+    fi
+    if [[ "$(Build.SourceBranchName)" = "merge" ]]; then
+        export CIRCLE_BRANCH="$(System.PullRequest.SourceBranch)"
+    else
+        export CIRCLE_BRANCH="$(Build.SourceBranchName)"
+    fi
+    git checkout $CIRCLE_BRANCH
+    if ! scripts/changes-include-dir $PATHS; then
+        echo "no changes for $PATHS"
+        echo '##vso[task.setvariable variable=hasChanges]false'
+    fi
+  env:
+    PATHS: ${{ parameters.paths }}

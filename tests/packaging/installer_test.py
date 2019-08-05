@@ -1,20 +1,30 @@
 # Tests of the installer script
 
+import os
+import sys
 from contextlib import contextmanager
 from functools import partial as p
 
 import pytest
+
+from tests.helpers.agent import ensure_fake_backend
 from tests.helpers.assertions import has_datapoint_with_dim
+from tests.helpers.formatting import print_dp_or_event
 from tests.helpers.util import copy_file_into_container, print_lines, wait_for, wait_for_assertion
 
 from .common import (
     INIT_SYSTEMD,
     INIT_UPSTART,
     INSTALLER_PATH,
+    WIN_INSTALLER_PATH,
     get_agent_logs,
     get_agent_version,
+    get_latest_win_agent_version,
+    get_win_agent_version,
     is_agent_running_as_non_root,
     run_init_system_image,
+    run_win_command,
+    uninstall_win_agent,
 )
 
 pytestmark = pytest.mark.installer
@@ -31,6 +41,8 @@ SUPPORTED_DISTROS = [
     ("centos7", INIT_SYSTEMD),
     ("opensuse15", INIT_SYSTEMD),
 ]
+
+AGENT_VERSIONS = os.environ.get("AGENT_VERSIONS", "4.7.7,latest").split(",")
 
 
 @contextmanager
@@ -55,24 +67,16 @@ def _run_tests(base_image, init_system, installer_args, **extra_run_kwargs):
 
 
 @pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
-def test_installer_on_all_distros(base_image, init_system):
-    args = "MYTOKEN"
-    with _run_tests(base_image, init_system, args) as [backend, _]:
-        assert wait_for(
-            p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
-        ), "Datapoints didn't come through"
-
-
-@pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
-@pytest.mark.parametrize("agent_version", ["4.7.8"])
-def test_installer_package_version(base_image, init_system, agent_version):
-    args = f"--package-version {agent_version}-1 MYTOKEN"
+@pytest.mark.parametrize("agent_version", AGENT_VERSIONS)
+def test_installer_on_all_distros(base_image, init_system, agent_version):
+    args = "MYTOKEN" if agent_version == "latest" else f"--package-version {agent_version}-1 MYTOKEN"
     with _run_tests(base_image, init_system, args) as [backend, cont]:
-        installed_version = get_agent_version(cont)
-        agent_version = agent_version.replace("~", "-")
-        assert (
-            installed_version == agent_version
-        ), f"Installed agent version is {installed_version} but should be {agent_version}"
+        if agent_version != "latest":
+            installed_version = get_agent_version(cont)
+            agent_version = agent_version.replace("~", "-")
+            assert (
+                installed_version == agent_version
+            ), f"Installed agent version is {installed_version} but should be {agent_version}"
         assert wait_for(
             p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
         ), "Datapoints didn't come through"
@@ -116,3 +120,39 @@ def test_installer_cluster():
             assert dim["tags"] in [None, []]
 
         wait_for_assertion(assert_cluster_property)
+
+
+def run_win_installer(backend, args=""):
+    installer_cmd = f'"{WIN_INSTALLER_PATH}" -ingest_url {backend.ingest_url} -api_url {backend.api_url} {args}'.strip()
+    run_win_command(f"powershell {installer_cmd}", cwd="c:\\")
+    return get_win_agent_version()
+
+
+@pytest.mark.windows_only
+@pytest.mark.skipif(sys.platform != "win32", reason="only runs on windows")
+@pytest.mark.parametrize("agent_version", AGENT_VERSIONS)
+def test_win_installer(agent_version):
+    uninstall_win_agent()
+    with ensure_fake_backend() as backend:
+        try:
+            args = "-access_token MYTOKEN -stage final"
+            if agent_version == "latest":
+                agent_version = get_latest_win_agent_version(stage="final")
+            else:
+                args += f" -agent_version {agent_version}"
+            installed_version = run_win_installer(backend, args)
+            assert installed_version == agent_version, "installed agent version is '%s', expected '%s'" % (
+                installed_version,
+                agent_version,
+            )
+            assert wait_for(
+                p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
+            ), "Datapoints didn't come through"
+        finally:
+            print("\nDatapoints received:")
+            for dp in backend.datapoints:
+                print_dp_or_event(dp)
+            print("\nEvents received:")
+            for event in backend.events:
+                print_dp_or_event(event)
+            print(f"\nDimensions set: {backend.dims}")
