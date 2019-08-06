@@ -45,6 +45,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `host` | no | `string` | Defaults to the top-level `internalStatusHost` option |
 | `port` | no | `integer` | Defaults to the top-level `internalStatusPort` option |
 | `path` | no | `string` | The HTTP request path to use to retrieve the metrics (**default:** `/metrics`) |
+| `overrideHostDim` | no | `bool` | If true, `host` dimensions will be set with the agent's hostname (**default:** `false`) |
 
 
 ## Metrics

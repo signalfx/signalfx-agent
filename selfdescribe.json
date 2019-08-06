@@ -23792,6 +23792,14 @@
             "required": false,
             "type": "string",
             "elementKind": ""
+          },
+          {
+            "yamlName": "overrideHostDim",
+            "doc": "If true, `host` dimensions will be set with the agent's hostname",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
           }
         ]
       },

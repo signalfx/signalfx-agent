@@ -16,6 +16,9 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// hostDim is the host dimension key
+const hostDim = "host"
+
 // Config for internal metric monitoring
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
@@ -26,6 +29,8 @@ type Config struct {
 	Port uint16 `yaml:"port" noDefault:"true"`
 	// The HTTP request path to use to retrieve the metrics
 	Path string `yaml:"path" default:"/metrics"`
+	// If true, `host` dimensions will be set with the agent's hostname
+	OverrideHostDim bool `yaml:"overrideHostDim" default:"false"`
 }
 
 // Monitor for collecting internal metrics from the simple server that dumps
@@ -93,9 +98,19 @@ func (m *Monitor) Configure(conf *Config) error {
 			return
 		}
 
-		for _, dp := range dps {
-			m.Output.SendDatapoint(dp)
+		if conf.OverrideHostDim {
+			for _, dp := range dps {
+				if _, ok := dp.Dimensions[hostDim]; ok {
+					delete(dp.Dimensions, hostDim)
+				}
+				m.Output.SendDatapoint(dp)
+			}
+		} else {
+			for _, dp := range dps {
+				m.Output.SendDatapoint(dp)
+			}
 		}
+
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil
