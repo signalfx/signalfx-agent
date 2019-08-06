@@ -195,6 +195,7 @@ AGENT_README_HEADER = """
 
 MARKDOWN_LINK_PATTERN = re.compile(r"(\(https://docs.signalfx.com/en/latest/integrations/agent/.+?\.)md(.*?\))")
 MARKDOWN_SUBSECTION_LINK_PATTERN = re.compile(r"(\[.*?\]\(\.\.?/.+?\.)md(\#.+?\))", flags=re.DOTALL)
+SFX_APP_LINK_PATTERN = re.compile('\[\]\(sfx_link:.+?\)')
 
 
 def convert_markdowns_to_htmls(content):
@@ -215,6 +216,10 @@ def fixup_headers_in_agent_readme(content):
     content = content.replace("### Writer", "#### Writer")
 
     return content
+
+
+def remove_sfx_app_links(content):
+    return re.sub(SFX_APP_LINK_PATTERN, r"", content)
 
 
 def sync_agent_quick_install():
@@ -272,7 +277,9 @@ def sync_markdown_files(source_file_path):
     print(f"Syncing Agent docs: {str(relative_path)}")
 
     target_path.write_text(
-        convert_markdown_subsections_to_htmls(AUTO_GENERATION_TEMPLATE + source_file_path.read_text())
+        remove_sfx_app_links(
+            convert_markdown_subsections_to_htmls(AUTO_GENERATION_TEMPLATE + source_file_path.read_text())
+        )
     )
 
 
