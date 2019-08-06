@@ -47,6 +47,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/postgresql"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/processlist"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheus/go"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheus/haproxy"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheus/nginxvts"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheus/node"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/prometheus/postgres"
