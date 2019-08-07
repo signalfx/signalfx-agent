@@ -20,7 +20,9 @@ function get_collectd_plugins ([string]$buildDir=$BUILD_DIR) {
     $python = "$buildDir\python\python.exe"
     $env:PYTHONHOME="$buildDir\python"
     & $python -m pip install -qq -r $requirements
+    if ($lastexitcode -ne 0){ throw $output }
     & $python $script $collectdPlugins
+    if ($lastexitcode -ne 0){ throw $output }
     & $python -m pip list
     # unset the python home enviornment variable
     Remove-Item Env:\PYTHONHOME
@@ -64,8 +66,10 @@ function install_pip([string]$buildDir=$BUILD_DIR) {
     $arguments = "-m", "ensurepip", "--upgrade"
     $env:PYTHONHOME="$buildDir\python"
     & $python $arguments
+    if ($lastexitcode -ne 0){ throw $output }
     & $python -m pip -V
     & $python -m pip install -qq --upgrade pip==18.0
+    if ($lastexitcode -ne 0){ throw $output }
     & $python -m pip -V
     # unset the python home enviornment variable
     Remove-Item Env:\PYTHONHOME
@@ -78,10 +82,12 @@ function bundle_python_runner($buildDir=".\build") {
     $arguments = "-m", "pip", "install", "-qq", "$bundlePath", "--upgrade"
     $env:PYTHONHOME="$buildDir\python"
     & $python $arguments
+    if ($lastexitcode -ne 0){ throw $output }
 
     # Install the WMI package on windows as a convenience.
     $wmiInstallArgs = "-m", "pip", "install", "-qq", "WMI==1.4.9"
     & $python $wmiInstallArgs
+    if ($lastexitcode -ne 0){ throw $output }
 
     # unset the python home enviornment variable
     Remove-Item Env:\PYTHONHOME
