@@ -170,7 +170,13 @@ function unit_test() {
 }
 
 function integration_test() {
-    pytest -n auto -m 'windows or windows_only' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
+    if ($env:AGENT_BIN) {
+        pytest -n4 -m '(windows or windows_only) and not deployment and not installer' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
+    } else {
+        $env:AGENT_BIN = ".\build\SignalFxAgent\bin\signalfx-agent.exe"
+        pytest -n4 -m '(windows or windows_only) and not deployment and not installer' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
+        Remove-Item env:AGENT_BIN
+    }
 }
 
 if ($REMAINING.length -gt 0) {
