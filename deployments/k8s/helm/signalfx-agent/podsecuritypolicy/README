@@ -1,0 +1,65 @@
+### PSP for SignalFx Agent via Helm Chart
+
+# SignalFx Monitoring with Pod Security Policy
+
+SignalFx monitoring for the cluster and pods are provided by the following [helm chart] located in helm's chart repository. Pod Security Policy is giving additional capability to secure PODs for SignalFx monitoring
+
+## Configuration
+
+The `values.yaml` file contains all the values for the signalfx helm chart possible. For 99% of use cases, the values in the file will be defaulted, but there are a few that you may want to take notice and or change.  For options not discussed in this document, please refer to the [helm chart] for additional documentation and configuration.
+
+privileged_psp : This policy will be implicitly accessible to cluster admins and chosen by default since they have access to all resources. This policy is the least restrictive users can create.
+
+Restricted_psp : This policy we will explicitly assign to all authenticated users. It denies running as root or escalating to root, requires a security profile, limits volume types, and a few other aspects.
+
+* PSPs allow to control following aspects for Signalfx agent :
+
+- The ability to run privileged containers and control privilege escalation
+- Access to host filesystems
+- Usage of volume types
+- And a few other aspects including AppArmor, sysctl, and seccomp profiles
+
+## Pre-requisites 
+
+- All Chart dependencies should also be submitted independently
+- Must pass the linter (helm lint)
+- Must successfully launch with default values (helm install .)
+
+## Installation Procedures
+
+1. If you are running a cluster that has the PodSecurityPolicy Admission Controller enabled, then you will need to install the Pod Security Policy:
+
+    ```sh
+    kubectl apply -f podsecuritypolicy.yaml
+    ```
+
+2. For privileged psp to use following yaml 
+
+    ```sh
+    kubectl apply -f privileged-sfx-agent.yaml
+    ```
+
+3. For Restricted psp to use following yaml 
+
+    ```sh
+    kubectl apply -f restricted-sfx-agent.yaml
+    ```
+
+4. Verify that the correct access was assigned for SFX agent
+
+* This will tell you, if you, an admin can use the privileged policy:
+	```sh
+	kubectl auth can-i use psp/privileged
+	You should see “yes”.
+	```
+
+* kubectl allows you to pose as other users using --as to perform operations, but you can also use it to inspect permissions:
+	```sh
+	kubectl auth can-i use psp/privileged --as-group=system:authenticated --as=any-user
+	You should see “no”.
+	```
+
+	```sh
+	kubectl auth can-i use psp/restricted --as-group=system:authenticated --as=any-user
+	You should see “yes”.
+	```
