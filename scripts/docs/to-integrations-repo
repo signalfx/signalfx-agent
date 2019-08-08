@@ -207,6 +207,9 @@ def convert_markdown_subsections_to_htmls(content):
 
 
 def fixup_headers_in_agent_readme(content):
+    # This is a hack in place for the README to surfaced in desired
+    # manner on the tile, so that the magic comment has an invisible
+    # header to use
     content = content.replace("# Quick Install", "## <!-- -->")
     content = content.replace(" - [Concepts](#concepts)", "")
     content = content.replace(" - [Installation](#installation)", "")
@@ -222,6 +225,13 @@ def remove_sfx_app_links(content):
     return re.sub(SFX_APP_LINK_PATTERN, r"", content)
 
 
+def fixup_moved_links(content):
+    content = content.replace("(./observer-config.md)", "(./observers/_observer-config.md)")
+    content = content.replace("(./monitor-config.md)", "(./monitors/_monitor-config.md)")
+
+    return content
+
+
 def sync_agent_quick_install():
     """
     Construct README for SignalFx Agent from quick-install.md file here:
@@ -234,11 +244,8 @@ def sync_agent_quick_install():
     print("Constructing Agent README")
 
     target_path.write_text(convert_markdown_subsections_to_htmls(convert_markdowns_to_htmls(
-        fixup_relative_agent_doc_paths(
-            AUTO_GENERATION_TEMPLATE + AGENT_README_HEADER + fixup_headers_in_agent_readme(
-                smart_agent_quick_install_path.read_text())))
-    )
-    )
+        fixup_relative_agent_doc_paths(AUTO_GENERATION_TEMPLATE + AGENT_README_HEADER + fixup_headers_in_agent_readme(
+            fixup_moved_links(smart_agent_quick_install_path.read_text()))))))
 
 
 PRODUCT_DOCS_REPO = "agent_docs"

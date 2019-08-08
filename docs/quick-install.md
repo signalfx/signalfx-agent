@@ -26,14 +26,14 @@ configured under the `monitors` list in the agent config.  For
 application specific monitors, you can define discovery rules in your monitor
 configuration. A separate monitor instance is created for each discovered
 instance of applications that match a discovery rule. See [Endpoint
-Discovery](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) for more information.
+Discovery](./auto-discovery.md) for more information.
 
 Many of the monitors are built around [collectd](https://collectd.org), an open
 source third-party monitor, and use it to collect metrics. Some other monitors
 do not use collectd. However, either type is configured in the same way.
 
 For a list of supported monitors and their configurations,
-see [Monitor Config](https://docs.signalfx.com/en/latest/integrations/agent/monitor-config.html).
+see [Monitor Config](./monitor-config.md).
 
 The agent is primarily intended to monitor services/applications running on the
 same host as the agent.  This is in keeping with the collectd model.  The main
@@ -50,17 +50,17 @@ services and automatically configure the agent to send metrics for those
 services.
 
 For a list of supported observers and their configurations,
-see [Observer Config](https://docs.signalfx.com/en/latest/integrations/agent//observer-config.html).
+see [Observer Config](./observer-config.md).
 
 ### Writer
 The writer collects metrics emitted by the configured monitors and sends them
 to SignalFx on a regular basis.  There are a few things that can be
-[configured](https://docs.signalfx.com/en/latest/integrations/agent/config-schema.html#writer) in the writer, but this is generally only necessary if you have a very large number of metrics flowing through a single agent.
+[configured](./config-schema.md#writer) in the writer, but this is generally only necessary if you have a very large number of metrics flowing through a single agent.
 
 
 ## Installation
 
-The instructions below are for a command-line installation of a single agent. For other installation options, including bulk deployments, see the Advanced Installation in [Advanced Installation Options](https://docs.signalfx.com/en/latest/integrations/agent/advanced-install-options.html).
+The instructions below are for a command-line installation of a single agent. For other installation options, including bulk deployments, see the Advanced Installation in [Advanced Installation Options](./advanced-install-options.md).
 
 __Get started with Smart Agent using the 3 steps below.__
 
@@ -163,13 +163,13 @@ traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
 
 This will default to the endpoints for the realm configured in signalFxRealm if not set.
 
-To troubleshoot your installation further, check the FAQ about troubleshooting [here](https://docs.signalfx.com/en/latest/integrations/agent/faq.html).
+To troubleshoot your installation further, check the FAQ about troubleshooting [here](./faq.md).
 
 
 ### Step 3. Login to SignalFx and discover your data displays. 
 
 Installation is complete.
 
-To continue your exploration of SignalFx Smart Agent capabilities, see [Advanced Installation Options](https://docs.signalfx.com/en/latest/integrations/agent/advanced-install-options.html).
+To continue your exploration of SignalFx Smart Agent capabilities, see [Advanced Installation Options](./advanced-install-options.md).
 
 __To learn more about how your data is presented in SignalFx, see the [15-Minute SignalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html)__.
