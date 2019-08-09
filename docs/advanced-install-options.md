@@ -1,7 +1,7 @@
-# SignalFx Smart Agent Advanced Installation Options
+# Advanced Installation Options
 
 
-__See [SignalFx Smart Agent Quick Install](https://docs.signalfx.com/en/latest/integrations/agent/docs/quick-install.html) for simplified Smart Agent command-line installation on a single host.__
+__See [Quick Install](./quick-install.md) for simplified Smart Agent command-line installation on a single host.__
 
 ## Advanced Installation on a Single Host
 
@@ -49,21 +49,21 @@ If you don’t want to use a distro package, we offer a .tar.gz that can be depl
 
 To use the bundle:
 
-Unarchive it to a directory of your choice on the target system.
+1. Unarchive it to a directory of your choice on the target system.
 
-Go into the unarchived signalfx-agent directory and run bin/patch-interpreter $(pwd). This ensures that the binaries in the bundle have the right loader set on them if your host loader is not compatible.
+2. Go into the unarchived signalfx-agent directory and run `bin/patch-interpreter $(pwd)`. This ensures that the binaries in the bundle have the right loader set on them if your host loader is not compatible.
 
-Ensure a valid configuration file is available somewhere on the target system. The main thing that the distro packages provide – but that you will have to provide manually with the bundle – is a run directory for the Smart Agent to use. Because you aren’t installing from a package, there are three config options to particularly consider:
+3. Ensure a valid configuration file is available somewhere on the target system. The main thing that the distro packages provide – but that you will have to provide manually with the bundle – is a run directory for the Smart Agent to use. Because you aren’t installing from a package, there are three config options to particularly consider:
 
-- internalStatusHost - This is the host name that the Smart Agent will listen on so that the signalfx-agent status command can read diagnostic information from a running agent. This is also the host name the agent will listen on to serve internal metrics about the Smart Agent. These metrics can can be scraped by the internal-metrics monitor. This will default to localhost if left blank.
+    - internalStatusHost - This is the host name that the Smart Agent will listen on so that the signalfx-agent status command can read diagnostic information from a running agent. This is also the host name the agent will listen on to serve internal metrics about the Smart Agent. These metrics can can be scraped by the internal-metrics monitor. This will default to localhost if left blank.
 
-- internalStatusPort - This is the port that the Smart Agent will listen on so that the signalfx-agentstatus command can read diagnostic information from a running agent. This is also the host name the Smart Agent will listen on to serve internal metrics about the Smart Agent. These metrics can can be scraped by the internal-metrics monitor. This will default to 8095.
+    - internalStatusPort - This is the port that the Smart Agent will listen on so that the signalfx-agentstatus command can read diagnostic information from a running agent. This is also the host name the Smart Agent will listen on to serve internal metrics about the Smart Agent. These metrics can can be scraped by the internal-metrics monitor. This will default to 8095.
 
-- collectd.configDir - This is where the Smart Agent writes the managed collectd config, since collectd can only be configured by files. Note that this entire dir will be wiped by the Smart Agent upon startup so that it doesn’t pick up stale collectd config, so be sure that it is not used for anything else. Also note that these files could have sensitive information in them if you have passwords configured for collectd monitors, so you might want to place this dir on a tmpfs mount to avoid credentials persisting on disk.
+    - collectd.configDir - This is where the Smart Agent writes the managed collectd config, since collectd can only be configured by files. Note that this entire dir will be wiped by the Smart Agent upon startup so that it doesn’t pick up stale collectd config, so be sure that it is not used for anything else. Also note that these files could have sensitive information in them if you have passwords configured for collectd monitors, so you might want to place this dir on a tmpfs mount to avoid credentials persisting on disk.
 
-See the section on [Privileges](#Privileges) for information on the capabilities the Smart Agent requires.
+    See the section on [Privileges](#privileges) for information on the capabilities the Smart Agent requires.
 
-Run the Smart Agent by invoking the archive path:
+4.Run the Smart Agent by invoking the archive path:
 
 ```sh
  signalfx-agent/bin/signalfx-agent -config <path to config.yaml>.
@@ -89,12 +89,11 @@ To use the bundle:
 
 2. Ensure a valid configuration file is available somewhere on the target system. The main thing that the installer script provides – but that you will have to provide manually with the bundle – is a run directory for the Smart Agent to use. Because you aren’t installing from a package, there are two config options that you will especially want to consider:
 
-- internalStatusHost - This is the hostname that the Smart Agent will listen on so that the signalfx-agent status command can read diagnostic information from a running agent. This is also the host name the agent will listen on to serve internal metrics about the Smart Agent. These metrics can be scraped by the internal-metrics monitor. This will default to localhost if left blank.
+    - internalStatusHost - This is the hostname that the Smart Agent will listen on so that the signalfx-agent status command can read diagnostic information from a running agent. This is also the host name the agent will listen on to serve internal metrics about the Smart Agent. These metrics can be scraped by the internal-metrics monitor. This will default to localhost if left blank.
 
-- internalStatusPort - This is the port that the Smart Agent will listen on so that the signalfx-agentstatus command can read diagnostic information from a running agent. This is also the host name the Smart Agent will listen on to serve internal metrics about the Smart Agent. These metrics can be scraped by the internal-metrics monitor. This will default to 8095.
+    - internalStatusPort - This is the port that the Smart Agent will listen on so that the signalfx-agentstatus command can read diagnostic information from a running agent. This is also the host name the Smart Agent will listen on to serve internal metrics about the Smart Agent. These metrics can be scraped by the internal-metrics monitor. This will default to 8095.
 
-See the section on [Privileges](#Privileges) for information on the capabilities the Smart Agent requires.
-
+    See the section on [Privileges](#privileges) for information on the capabilities the Smart Agent requires.
 
 3. Run the Smart Agent by invoking the Smart Agent executable
 
@@ -175,7 +174,7 @@ If you plan to create your own [custom dashboards](https://docs.signalfx.com/en/
 See best practices for [Better Dashboards](https://docs.signalfx.com/en/latest/reference/best-practices/better-dashboards.html).
 
 
-__To learn more about how your data is presented in SignalFx, see the [15-Minute SingnalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html)__.
+__To learn more about how your data is presented in SignalFx, see the [15-Minute SignalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html)__.
 
 
 ## Additional material
@@ -185,7 +184,7 @@ __To learn more about how your data is presented in SignalFx, see the [15-Minute
 
 Example of adding a new observer:
 
-To start collecting docker container metrics, first add a [docker observer](https://github.com/signalfx/signalfx-agent/blob/master/docs/observers/docker.md).
+To start collecting docker container metrics, first add a [docker observer](./observers/docker.md).
 
 Your observer list would then look similar to this:
 
@@ -195,7 +194,7 @@ observers:
   - type: docker
 ```
 
-Next, add a [docker metrics monitor](https://github.com/signalfx/signalfx-agent/blob/master/docs/monitors/docker-container-stats.md) to the agent.yaml file. Your type list would now include this monitor (docker-container-stats) as shown below:
+Next, add a [docker metrics monitor](./monitors/docker-container-stats.md) to the agent.yaml file. Your type list would now include this monitor (docker-container-stats) as shown below:
 
 ```sh
 monitors:

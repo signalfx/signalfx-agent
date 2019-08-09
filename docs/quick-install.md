@@ -1,4 +1,5 @@
-# SignalFx Smart Agent Quick Install
+<!--- OVERVIEW --->
+# Quick Install
 
 
 The SignalFx Smart Agent is a metric agent written in Go for monitoring infrastructure and application services in a variety of environments. It is a successor to our previous [collectd agent](https://github.com/signalfx/collectd), and still uses collectd internally on Linux; any existing Python or C-based collectd plugins will still work without modification. On Windows collectd is not included, but the agent can run python-based collectd plugins without collectd. C-based collectd plugins are not available on Windows.
@@ -24,7 +25,7 @@ Monitors collect metrics from the host system and services.  They are
 configured under the `monitors` list in the agent config.  For
 application specific monitors, you can define discovery rules in your monitor
 configuration. A separate monitor instance is created for each discovered
-instance of applications that match a discovery rule. See [Auto
+instance of applications that match a discovery rule. See [Endpoint
 Discovery](./auto-discovery.md) for more information.
 
 Many of the monitors are built around [collectd](https://collectd.org), an open
@@ -61,7 +62,7 @@ to SignalFx on a regular basis.  There are a few things that can be
 
 The instructions below are for a command-line installation of a single agent. For other installation options, including bulk deployments, see the Advanced Installation in [Advanced Installation Options](./advanced-install-options.md).
 
-### __Get started with Smart Agent using the 3 steps below.__
+__Get started with Smart Agent using the 3 steps below.__
 
 _Note: if you have previously configured another metric collection agent on your host such as collectd, uninstall or disable that agent before installing the SignalFx Smart Agent._
 
@@ -80,7 +81,7 @@ To install the Smart Agent on a single Linux host, enter:
 ```sh
 curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
 sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
-````
+```
 
 __Windows:__ Ensure that the following dependencies are installed:
 
@@ -108,7 +109,7 @@ To confirm the SignalFx Smart Agent installation is functional on either platfor
 
 ```sh
 sudo signalfx-agent status
-````
+```
 
 The response you will see is similar to the one below:
 
@@ -124,7 +125,7 @@ Global Dimensions:                {host: my-host-1}
 Datapoints sent (last minute):    1614
 Events Sent (last minute):        0
 Trace Spans Sent (last minute):   0
-````
+```
 
 To verify the installation, you can run the following commands:
 
@@ -133,7 +134,7 @@ signalfx-agent status config - show resolved config in use by agent
 signalfx-agent status endpoints - show discovered endpoints
 signalfx-agent status monitors - show active monitors
 signalfx-agent status all - show everything
-````
+```
 
 #### Troubleshoot any discrepancies in the Installation 
 
@@ -158,16 +159,17 @@ If you want to explicitly set the ingest, API server, and trace endpoint URLs, y
 ingestUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"
 apiUrl: "https://api.YOUR_SIGNALFX_REALM.signalfx.com"
 traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
-````
+```
 
 This will default to the endpoints for the realm configured in signalFxRealm if not set.
 
-To troubleshoot your installation further, check the FAQ about troubleshooting [here](https://docs.signalfx.com/en/latest/integrations/agent/faq.html).
+To troubleshoot your installation further, check the FAQ about troubleshooting [here](./faq.md).
 
 
 ### Step 3. Login to SignalFx and discover your data displays. 
 
 Installation is complete.
 
-To continue your exploration of SignalFx Smart Agent capabilities, see [Advanced Installation Options](https://docs.signalfx.com/en/latest/integrations/agent/advanced-install-options.html). 
+To continue your exploration of SignalFx Smart Agent capabilities, see [Advanced Installation Options](./advanced-install-options.md).
 
+__To learn more about how your data is presented in SignalFx, see the [15-Minute SignalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html)__.

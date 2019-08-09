@@ -125,7 +125,7 @@
       },
       {
         "yamlName": "datapointsToExclude",
-        "doc": "A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](https://github.com/signalfx/signalfx-agent/tree/master/docs/filtering.md#monitor-level-filtering) for examples and more information.",
+        "doc": "A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](./filtering.md#additional-monitor-level-filtering) for examples and more information.",
         "default": "",
         "required": false,
         "type": "slice",
@@ -38051,7 +38051,7 @@
             },
             {
               "yamlName": "datapointsToExclude",
-              "doc": "A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](https://github.com/signalfx/signalfx-agent/tree/master/docs/filtering.md#monitor-level-filtering) for examples and more information.",
+              "doc": "A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](./filtering.md#additional-monitor-level-filtering) for examples and more information.",
               "default": "",
               "required": false,
               "type": "slice",

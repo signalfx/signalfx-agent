@@ -82,7 +82,7 @@ contains its own Python runtime, but has an external depencency on the
 in order to operate.  The agent supports Windows Server 2008 and above.
 
 To get started deploying the Smart Agent directly on a host, see the
-[Smart Agent Quickstart](./docs/smart-agent-quickstart.md) guide.
+[Smart Agent Quick Install](./docs/quick-install.md) guide.
 
 ### Deployment
 We support the following deployment/configuration management tools to automate the
