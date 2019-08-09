@@ -128,6 +128,10 @@ monitors:
       description: Last time a container was seen by the exporter
       default: false
       type: gauge
+    container_memory_rss:
+      type: gauge
+      default: false
+      description: Current RSS memory usage in bytes
     container_memory_failcnt:
       description: Number of memory usage hits limits
       default: false

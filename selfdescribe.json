@@ -951,6 +951,7 @@
             "container_last_seen",
             "container_memory_failcnt",
             "container_memory_failures_total",
+            "container_memory_rss",
             "container_memory_usage_bytes",
             "container_memory_working_set_bytes",
             "container_spec_cpu_period",
@@ -1124,6 +1125,12 @@
           "description": "Cumulative count of memory allocation failures",
           "group": null,
           "default": true
+        },
+        "container_memory_rss": {
+          "type": "gauge",
+          "description": "Current RSS memory usage in bytes",
+          "group": null,
+          "default": false
         },
         "container_memory_usage_bytes": {
           "type": "gauge",
@@ -23854,6 +23861,7 @@
             "container_last_seen",
             "container_memory_failcnt",
             "container_memory_failures_total",
+            "container_memory_rss",
             "container_memory_usage_bytes",
             "container_memory_working_set_bytes",
             "container_spec_cpu_period",
@@ -24027,6 +24035,12 @@
           "description": "Cumulative count of memory allocation failures",
           "group": null,
           "default": true
+        },
+        "container_memory_rss": {
+          "type": "gauge",
+          "description": "Current RSS memory usage in bytes",
+          "group": null,
+          "default": false
         },
         "container_memory_usage_bytes": {
           "type": "gauge",
