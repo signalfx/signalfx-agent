@@ -48,6 +48,10 @@ func datapointsForNode(
 func dimPropsForNode(node *v1.Node, useNodeName bool) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(node.Labels)
 
+	for _, taint := range node.Spec.Taints {
+		tags["taint_"+taint.Key+"="+taint.Value+":"+string(taint.Effect)] = true
+	}
+
 	if len(props) == 0 && len(tags) == 0 {
 		return nil
 	}
