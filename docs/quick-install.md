@@ -74,7 +74,7 @@ If you are not installing from the tile on the Integrations page:
 
 - Get your API_TOKEN from: __Organization Settings => Access Token__ tab in the SignalFx application. 
 
-- Determine YOUR\_SIGNAL_FX_REALM from: your profile page in the SignalFx web application.
+- Determine YOUR\_SIGNAL_FX_REALM from your [profile page](https://docs.signalfx.com/en/latest/getting-started/get-around-ui.html#user-profile-avatar-and-color-theme) in the SignalFx web application.
 
 To install the Smart Agent on a single Linux host, enter:
 
