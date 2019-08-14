@@ -41,6 +41,7 @@ class Agent:
         agent_conf = yaml.safe_load(agent_yaml)
         agent_conf.setdefault("observers", [])
         agent_conf.setdefault("monitors", [])
+        agent_conf.setdefault("writer", {"propertiesSendDelaySeconds": 1})
         agent_conf.setdefault("globalDimensions", {"kubernetes_cluster": self.namespace})
         agent_conf.setdefault("intervalSeconds", 5)
         agent_conf.setdefault("enableBuiltInFiltering", True)

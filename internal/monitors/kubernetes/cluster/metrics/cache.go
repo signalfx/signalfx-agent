@@ -10,6 +10,7 @@ import (
 	k8sutil "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
 	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
 	log "github.com/sirupsen/logrus"
+	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -132,6 +133,10 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 	case *v1.Service:
 		dc.handleAddService(o)
 		kind = "Service"
+	case *appsv1.StatefulSet:
+		dps = datapointsForStatefulSet(o)
+		dimProps = dimPropsForStatefulSet(o)
+		kind = "StatefulSet"
 	case *quota.ClusterResourceQuota:
 		dps = datapointsForClusterQuotas(o)
 		kind = "ClusterResourceQuota"

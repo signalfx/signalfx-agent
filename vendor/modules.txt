@@ -634,6 +634,7 @@ gopkg.in/tomb.v1
 # gopkg.in/yaml.v2 v2.2.2
 gopkg.in/yaml.v2
 # k8s.io/api v0.0.0-20181110191121-a33c8200050f
+k8s.io/api/apps/v1
 k8s.io/api/core/v1
 k8s.io/api/extensions/v1beta1
 k8s.io/api/apps/v1beta1
@@ -641,7 +642,6 @@ k8s.io/api/authentication/v1
 k8s.io/api/policy/v1beta1
 k8s.io/api/admissionregistration/v1alpha1
 k8s.io/api/admissionregistration/v1beta1
-k8s.io/api/apps/v1
 k8s.io/api/apps/v1beta2
 k8s.io/api/authentication/v1beta1
 k8s.io/api/authorization/v1
@@ -679,8 +679,8 @@ k8s.io/apimachinery/pkg/util/net
 k8s.io/apimachinery/pkg/util/sets
 k8s.io/apimachinery/pkg/util/errors
 k8s.io/apimachinery/pkg/util/validation
-k8s.io/apimachinery/pkg/api/resource
 k8s.io/apimachinery/pkg/util/intstr
+k8s.io/apimachinery/pkg/api/resource
 k8s.io/apimachinery/pkg/selection
 k8s.io/apimachinery/pkg/conversion
 k8s.io/apimachinery/pkg/conversion/queryparams

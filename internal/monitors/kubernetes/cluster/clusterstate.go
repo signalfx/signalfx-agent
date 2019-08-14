@@ -12,6 +12,7 @@ import (
 
 	quota "github.com/openshift/api/quota/v1"
 	quotav1 "github.com/openshift/client-go/quota/clientset/versioned/typed/quota/v1"
+	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/fields"
@@ -66,6 +67,7 @@ func (cs *State) Start() {
 
 	coreClient := cs.clientset.CoreV1().RESTClient()
 	extV1beta1Client := cs.clientset.ExtensionsV1beta1().RESTClient()
+	appsV1Client := cs.clientset.AppsV1().RESTClient()
 
 	if cs.quotaClient != nil {
 		cs.beginSyncForType(ctx, &quota.ClusterResourceQuota{}, "clusterresourcequotas", v1.NamespaceAll,
@@ -75,6 +77,7 @@ func (cs *State) Start() {
 	cs.beginSyncForType(ctx, &v1.Pod{}, "pods", cs.namespace, coreClient)
 	cs.beginSyncForType(ctx, &v1beta1.DaemonSet{}, "daemonsets", cs.namespace, extV1beta1Client)
 	cs.beginSyncForType(ctx, &v1beta1.Deployment{}, "deployments", cs.namespace, extV1beta1Client)
+	cs.beginSyncForType(ctx, &appsv1.StatefulSet{}, "statefulsets", cs.namespace, appsV1Client)
 	cs.beginSyncForType(ctx, &v1.ReplicationController{}, "replicationcontrollers", cs.namespace, coreClient)
 	cs.beginSyncForType(ctx, &v1beta1.ReplicaSet{}, "replicasets", cs.namespace, extV1beta1Client)
 	cs.beginSyncForType(ctx, &v1.ResourceQuota{}, "resourcequotas", cs.namespace, coreClient)

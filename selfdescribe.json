@@ -26277,7 +26277,11 @@
             "kubernetes.replication_controller.available",
             "kubernetes.replication_controller.desired",
             "kubernetes.resource_quota_hard",
-            "kubernetes.resource_quota_used"
+            "kubernetes.resource_quota_used",
+            "kubernetes.stateful_set.current",
+            "kubernetes.stateful_set.desired",
+            "kubernetes.stateful_set.ready",
+            "kubernetes.stateful_set.updated"
           ]
         }
       },
@@ -26368,7 +26372,7 @@
         },
         "kubernetes.replication_controller.desired": {
           "type": "gauge",
-          "description": "Number of desired pods",
+          "description": "Number of desired pods (the `spec.replicas` field)",
           "group": null,
           "default": true
         },
@@ -26381,6 +26385,30 @@
         "kubernetes.resource_quota_used": {
           "type": "gauge",
           "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.stateful_set.current": {
+          "type": "gauge",
+          "description": "The number of pods created by the StatefulSet controller from the\nStatefulSet version indicated by `current_revision` property on the\n`kubernetes_uid` dimension for this StatefulSet.\n",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.stateful_set.desired": {
+          "type": "gauge",
+          "description": "Number of desired pods in the stateful set (the `spec.replicas` field)",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.stateful_set.ready": {
+          "type": "gauge",
+          "description": "Number of pods created by the stateful set that have the `Ready` condition",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.stateful_set.updated": {
+          "type": "gauge",
+          "description": "The number of pods created by the StatefulSet controller from the\nStatefulSet version indicated by the `update_revision` property on the\n`kubernetes_uid` dimension for this StatefulSet.\n",
           "group": null,
           "default": true
         }
@@ -27024,6 +27052,10 @@
             "kubernetes.replication_controller.desired",
             "kubernetes.resource_quota_hard",
             "kubernetes.resource_quota_used",
+            "kubernetes.stateful_set.current",
+            "kubernetes.stateful_set.desired",
+            "kubernetes.stateful_set.ready",
+            "kubernetes.stateful_set.updated",
             "openshift.appliedclusterquota.cpu.hard",
             "openshift.appliedclusterquota.cpu.used",
             "openshift.appliedclusterquota.memory.hard",
@@ -27142,7 +27174,7 @@
         },
         "kubernetes.replication_controller.desired": {
           "type": "gauge",
-          "description": "Number of desired pods",
+          "description": "Number of desired pods (the `spec.replicas` field)",
           "group": null,
           "default": true
         },
@@ -27155,6 +27187,30 @@
         "kubernetes.resource_quota_used": {
           "type": "gauge",
           "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.stateful_set.current": {
+          "type": "gauge",
+          "description": "The number of pods created by the StatefulSet controller from the\nStatefulSet version indicated by `current_revision` property on the\n`kubernetes_uid` dimension for this StatefulSet.\n",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.stateful_set.desired": {
+          "type": "gauge",
+          "description": "Number of desired pods in the stateful set (the `spec.replicas` field)",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.stateful_set.ready": {
+          "type": "gauge",
+          "description": "Number of pods created by the stateful set that have the `Ready` condition",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.stateful_set.updated": {
+          "type": "gauge",
+          "description": "The number of pods created by the StatefulSet controller from the\nStatefulSet version indicated by the `update_revision` property on the\n`kubernetes_uid` dimension for this StatefulSet.\n",
           "group": null,
           "default": true
         },

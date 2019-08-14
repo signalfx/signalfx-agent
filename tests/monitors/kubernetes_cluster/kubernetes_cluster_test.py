@@ -2,7 +2,7 @@ from functools import partial as p
 from pathlib import Path
 
 import pytest
-from tests.helpers.assertions import has_datapoint
+from tests.helpers.assertions import has_all_dim_props, has_datapoint
 from tests.helpers.util import ensure_always, get_monitor_metrics_from_selfdescribe, wait_for
 from tests.paths import TEST_SERVICES_DIR
 
@@ -96,3 +96,39 @@ def test_kubernetes_cluster_namespace_scope(k8s_cluster):
             assert ensure_always(
                 lambda: not has_datapoint(agent.fake_services, dimensions={"kubernetes_namespace": "bad"})
             ), "got pod metrics from unspecified namespace"
+
+
+@pytest.mark.kubernetes
+def test_stateful_sets(k8s_cluster):
+    yamls = [SCRIPT_DIR / "statefulset.yaml"]
+    with k8s_cluster.create_resources(yamls) as resources:
+        config = """
+            monitors:
+            - type: kubernetes-cluster
+              kubernetesAPI:
+                authType: serviceAccount
+        """
+        with k8s_cluster.run_agent(agent_yaml=config) as agent:
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, dimensions={"kubernetes_name": "web"}), timeout_seconds=600
+            ), "timed out waiting for statefulset metric"
+
+            assert wait_for(
+                p(
+                    has_datapoint,
+                    agent.fake_services,
+                    metric_name="kubernetes.stateful_set.desired",
+                    value=3,
+                    dimensions={"kubernetes_name": "web"},
+                )
+            ), "timed out waiting for statefulset metric"
+
+            assert wait_for(
+                p(
+                    has_all_dim_props,
+                    agent.fake_services,
+                    dim_name="kubernetes_uid",
+                    dim_value=resources[0].metadata.uid,
+                    props={"kubernetes_name": "web", "k8s_workload": "StatefulSet"},
+                )
+            )
