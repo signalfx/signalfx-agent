@@ -22,7 +22,7 @@ type monitorOutput struct {
 	dpChan                    chan<- *datapoint.Datapoint
 	eventChan                 chan<- *event.Event
 	spanChan                  chan<- *trace.Span
-	dimPropChan               chan<- *types.DimProperties
+	dimensionChan             chan<- *types.Dimension
 	extraDims                 map[string]string
 	dimensionTransformations  map[string]string
 }
@@ -92,8 +92,8 @@ func (mo *monitorOutput) SendSpan(span *trace.Span) {
 	mo.spanChan <- span
 }
 
-func (mo *monitorOutput) SendDimensionProps(dimProps *types.DimProperties) {
-	mo.dimPropChan <- dimProps
+func (mo *monitorOutput) SendDimensionUpdate(dimensions *types.Dimension) {
+	mo.dimensionChan <- dimensions
 }
 
 // AddExtraDimension can be called by monitors *before* datapoints are flowing

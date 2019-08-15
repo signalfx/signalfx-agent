@@ -1,9 +1,12 @@
 package types
 
-// DimProperties represents a set of properties associated with a given
-// dimension value
-type DimProperties struct {
-	Dimension
+// Dimension represents a SignalFx dimension object and its associated
+// properties and tags.
+type Dimension struct {
+	// Name of the dimension
+	Name string
+	// Value of the dimension
+	Value string
 	// Properties to be set on the dimension
 	Properties map[string]string
 	// Tags to apply to the dimension value
@@ -14,31 +17,37 @@ type DimProperties struct {
 	MergeIntoExisting bool
 }
 
-// Dimension represents a specific dimension value
-type Dimension struct {
-	// Name of the dimension
-	Name string
-	// Value of the dimension
+// DimensionKey is what uniquely identifies a dimension, its name and value
+// together.
+type DimensionKey struct {
+	Name  string
 	Value string
 }
 
-// Copy creates a copy of the the given dimProps object
-func (dp *DimProperties) Copy() *DimProperties {
-	clonedDimension := dp.Dimension
+func (d *Dimension) Key() DimensionKey {
+	return DimensionKey{
+		Name:  d.Name,
+		Value: d.Value,
+	}
+}
 
+// Copy creates a copy of the the given Dimension object
+func (d *Dimension) Copy() *Dimension {
 	clonedProperties := make(map[string]string)
-	for k, v := range dp.Properties {
+	for k, v := range d.Properties {
 		clonedProperties[k] = v
 	}
 
 	clonedTags := make(map[string]bool)
-	for k, v := range dp.Tags {
+	for k, v := range d.Tags {
 		clonedTags[k] = v
 	}
 
-	return &DimProperties{
-		Dimension:  clonedDimension,
-		Properties: clonedProperties,
-		Tags:       clonedTags,
+	return &Dimension{
+		Name:              d.Name,
+		Value:             d.Value,
+		Properties:        clonedProperties,
+		Tags:              clonedTags,
+		MergeIntoExisting: d.MergeIntoExisting,
 	}
 }

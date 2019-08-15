@@ -13,19 +13,19 @@ import (
 // TestOutput can be used in place of the normal monitor outut to provide a
 // simpler way of testing monitor output.
 type TestOutput struct {
-	dpChan      chan *datapoint.Datapoint
-	eventChan   chan *event.Event
-	spanChan    chan *trace.Span
-	dimPropChan chan *types.DimProperties
+	dpChan    chan *datapoint.Datapoint
+	eventChan chan *event.Event
+	spanChan  chan *trace.Span
+	dimChan   chan *types.Dimension
 }
 
 // NewTestOutput creates a new initialized TestOutput instance
 func NewTestOutput() *TestOutput {
 	return &TestOutput{
-		dpChan:      make(chan *datapoint.Datapoint, 1000),
-		eventChan:   make(chan *event.Event, 1000),
-		spanChan:    make(chan *trace.Span, 1000),
-		dimPropChan: make(chan *types.DimProperties, 1000),
+		dpChan:    make(chan *datapoint.Datapoint, 1000),
+		eventChan: make(chan *event.Event, 1000),
+		spanChan:  make(chan *trace.Span, 1000),
+		dimChan:   make(chan *types.Dimension, 1000),
 	}
 }
 
@@ -49,9 +49,9 @@ func (to *TestOutput) SendSpan(span *trace.Span) {
 	to.spanChan <- span
 }
 
-// SendDimensionProps accepts a dim prop update and sticks it in a buffered queue
-func (to *TestOutput) SendDimensionProps(dimProps *types.DimProperties) {
-	to.dimPropChan <- dimProps
+// SendDimensionUpdate accepts a dim prop update and sticks it in a buffered queue
+func (to *TestOutput) SendDimensionUpdate(dims *types.Dimension) {
+	to.dimChan <- dims
 }
 
 // AddExtraDimension is a noop here
@@ -115,14 +115,14 @@ loop:
 // the internal queue until it either gets the expected count or waitSeconds
 // seconds have elapsed.  It then returns those dimension property updates.  It
 // will never return more than 'count' objects.
-func (to *TestOutput) WaitForDimensionProps(count, waitSeconds int) []*types.DimProperties {
-	var dps []*types.DimProperties
+func (to *TestOutput) WaitForDimensions(count, waitSeconds int) []*types.Dimension {
+	var dps []*types.Dimension
 	timeout := time.After(time.Duration(waitSeconds) * time.Second)
 
 loop:
 	for {
 		select {
-		case dp := <-to.dimPropChan:
+		case dp := <-to.dimChan:
 			dps = append(dps, dp)
 			if len(dps) >= count {
 				break loop

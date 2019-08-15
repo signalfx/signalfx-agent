@@ -49,7 +49,7 @@ func datapointsForHpa(hpa *v2beta1.HorizontalPodAutoscaler) []*datapoint.Datapoi
 	}, newStatusDatapoints(hpa, dimensions)...)
 }
 
-func dimPropsForHpa(hpa *v2beta1.HorizontalPodAutoscaler) *types.DimProperties {
+func dimensionForHpa(hpa *v2beta1.HorizontalPodAutoscaler) *types.Dimension {
 	props, tags := k8sutils.PropsAndTagsFromLabels(hpa.Labels)
 
 	for _, or := range hpa.OwnerReferences {
@@ -62,11 +62,9 @@ func dimPropsForHpa(hpa *v2beta1.HorizontalPodAutoscaler) *types.DimProperties {
 		return nil
 	}
 
-	return &types.DimProperties{
-		Dimension: types.Dimension{
-			Name:  "kubernetes_uid",
-			Value: string(hpa.UID),
-		},
+	return &types.Dimension{
+		Name:       "kubernetes_uid",
+		Value:      string(hpa.UID),
 		Properties: props,
 		Tags:       tags,
 	}

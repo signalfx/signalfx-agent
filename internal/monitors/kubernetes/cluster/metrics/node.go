@@ -46,7 +46,7 @@ func datapointsForNode(
 	return datapoints
 }
 
-func dimPropsForNode(node *v1.Node, useNodeName bool) *atypes.DimProperties {
+func dimensionForNode(node *v1.Node, useNodeName bool) *atypes.Dimension {
 	props, tags := k8sutil.PropsAndTagsFromLabels(node.Labels)
 	_ = getPropsFromTaints(node.Spec.Taints)
 
@@ -54,14 +54,14 @@ func dimPropsForNode(node *v1.Node, useNodeName bool) *atypes.DimProperties {
 		return nil
 	}
 
-	dim := atypes.Dimension{
+	dim := &atypes.Dimension{
 		Name:  "kubernetes_node",
 		Value: node.Name,
 	}
 
 	if !useNodeName {
 		machineID := node.Status.NodeInfo.MachineID
-		dim = atypes.Dimension{
+		dim = &atypes.Dimension{
 			Name:  "machine_id",
 			Value: machineID,
 		}
@@ -77,11 +77,9 @@ func dimPropsForNode(node *v1.Node, useNodeName bool) *atypes.DimProperties {
 		machineIDToNodeNameMap[machineID] = node.Name
 	}
 
-	return &atypes.DimProperties{
-		Dimension:  dim,
-		Properties: props,
-		Tags:       tags,
-	}
+	dim.Properties = props
+	dim.Tags = tags
+	return dim
 }
 
 func getPropsFromTaints(taints []v1.Taint) map[string]string {

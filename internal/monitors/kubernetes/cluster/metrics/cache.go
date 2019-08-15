@@ -34,7 +34,7 @@ var logger = log.WithFields(log.Fields{
 type DatapointCache struct {
 	sync.Mutex
 	dpCache                    map[types.UID][]*datapoint.Datapoint
-	dimPropCache               map[types.UID]*atypes.DimProperties
+	dimCache                   map[types.UID]*atypes.Dimension
 	uidKindCache               map[types.UID]string
 	podCache                   *k8sutil.PodCache
 	serviceCache               *k8sutil.ServiceCache
@@ -48,7 +48,7 @@ type DatapointCache struct {
 func NewDatapointCache(useNodeName bool, nodeConditionTypesToReport []string) *DatapointCache {
 	return &DatapointCache{
 		dpCache:                    make(map[types.UID][]*datapoint.Datapoint),
-		dimPropCache:               make(map[types.UID]*atypes.DimProperties),
+		dimCache:                   make(map[types.UID]*atypes.Dimension),
 		uidKindCache:               make(map[types.UID]string),
 		podCache:                   k8sutil.NewPodCache(),
 		serviceCache:               k8sutil.NewServiceCache(),
@@ -92,7 +92,7 @@ func (dc *DatapointCache) DeleteByKey(key interface{}) {
 	}
 	delete(dc.uidKindCache, cacheKey)
 	delete(dc.dpCache, cacheKey)
-	delete(dc.dimPropCache, cacheKey)
+	delete(dc.dimCache, cacheKey)
 }
 
 // HandleDelete accepts an object that has been deleted and removes the
@@ -115,12 +115,12 @@ func (dc *DatapointCache) HandleDelete(oldObj runtime.Object) interface{} {
 // nolint: funlen
 func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 	var dps []*datapoint.Datapoint
-	var dimProps *atypes.DimProperties
+	var dim *atypes.Dimension
 	var kind string
 
 	switch o := newObj.(type) {
 	case *v1.Pod:
-		dps, dimProps = dc.handleAddPod(o)
+		dps, dim = dc.handleAddPod(o)
 		kind = "Pod"
 	case *v1.Namespace:
 		dps = datapointsForNamespace(o)
@@ -130,42 +130,42 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 		kind = "ReplicationController"
 	case *appsv1.DaemonSet:
 		dps = datapointsForDaemonSet(o)
-		dimProps = dimPropsForDaemonSet(o)
+		dim = dimensionForDaemonSet(o)
 		kind = "DaemonSet"
 	case *appsv1.Deployment:
 		dps = datapointsForDeployment(o)
-		dimProps = dimPropsForDeployment(o)
+		dim = dimensionForDeployment(o)
 		kind = "Deployment"
 	case *appsv1.ReplicaSet:
-		dps, dimProps = dc.handleAddReplicaSet(o)
+		dps, dim = dc.handleAddReplicaSet(o)
 		kind = "ReplicaSet"
 	case *v1.ResourceQuota:
 		dps = datapointsForResourceQuota(o)
 		kind = "ResourceQuota"
 	case *v1.Node:
 		dps = datapointsForNode(o, dc.useNodeName, dc.nodeConditionTypesToReport)
-		dimProps = dimPropsForNode(o, dc.useNodeName)
+		dim = dimensionForNode(o, dc.useNodeName)
 		kind = "Node"
 	case *v1.Service:
 		dc.handleAddService(o)
 		kind = "Service"
 	case *appsv1.StatefulSet:
 		dps = datapointsForStatefulSet(o)
-		dimProps = dimPropsForStatefulSet(o)
+		dim = dimensionForStatefulSet(o)
 		kind = "StatefulSet"
 	case *quota.ClusterResourceQuota:
 		dps = datapointsForClusterQuotas(o)
 		kind = "ClusterResourceQuota"
 	case *batchv1.Job:
-		dps, dimProps = dc.handleAddJob(o)
+		dps, dim = dc.handleAddJob(o)
 		kind = "Job"
 	case *batchv1beta1.CronJob:
 		dps = datapointsForCronJob(o)
-		dimProps = dimPropsForCronJob(o)
+		dim = dimensionForCronJob(o)
 		kind = "CronJob"
 	case *v2beta1.HorizontalPodAutoscaler:
 		dps = datapointsForHpa(o)
-		dimProps = dimPropsForHpa(o)
+		dim = dimensionForHpa(o)
 		kind = "HorizontalPodAutoscaler"
 	default:
 		log.WithFields(log.Fields{
@@ -189,23 +189,23 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 	if kind != "" {
 		dc.uidKindCache[key] = kind
 	}
-	if dimProps != nil {
-		dc.addDimPropsToCache(key, dimProps)
+	if dim != nil {
+		dc.addDimToCache(key, dim)
 	}
 
 	return key
 }
 
-// addDimPropsToCache maps and syncs properties from different resources together and adds
+// addDimToCache maps and syncs properties from different resources together and adds
 // them to the cache
-func (dc *DatapointCache) addDimPropsToCache(key types.UID, dimProps *atypes.DimProperties) {
-	dc.dimPropCache[key] = dimProps
+func (dc *DatapointCache) addDimToCache(key types.UID, dim *atypes.Dimension) {
+	dc.dimCache[key] = dim
 }
 
 // handleAddPod adds a pod to the internal pod cache and gets the
-// datapoints and dimProps for the pod.
+// datapoints and dim for the pod.
 func (dc *DatapointCache) handleAddPod(pod *v1.Pod) ([]*datapoint.Datapoint,
-	*atypes.DimProperties) {
+	*atypes.Dimension) {
 	if !dc.podCache.IsCached(pod) {
 		dc.podCache.AddPod(pod)
 	}
@@ -213,8 +213,8 @@ func (dc *DatapointCache) handleAddPod(pod *v1.Pod) ([]*datapoint.Datapoint,
 	dps := datapointsForPod(pod)
 
 	if cachedPod != nil {
-		dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
-		return dps, dimProps
+		dim := dimensionForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
+		return dps, dim
 	}
 	return dps, nil
 }
@@ -229,9 +229,9 @@ func (dc *DatapointCache) handleAddService(svc *v1.Service) {
 			for _, podUID := range dc.podCache.GetPodsInNamespace(svc.Namespace) {
 				cachedPod := dc.podCache.GetCachedPod(podUID)
 				if cachedPod != nil {
-					dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
-					if dimProps != nil {
-						dc.addDimPropsToCache(podUID, dimProps)
+					dim := dimensionForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
+					if dim != nil {
+						dc.addDimToCache(podUID, dim)
 					}
 				}
 			}
@@ -249,9 +249,9 @@ func (dc *DatapointCache) handleDeleteService(svcUID types.UID) error {
 	for _, podUID := range cachedPods {
 		cachedPod := dc.podCache.GetCachedPod(podUID)
 		if cachedPod != nil {
-			dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
-			if dimProps != nil {
-				dc.addDimPropsToCache(podUID, dimProps)
+			dim := dimensionForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
+			if dim != nil {
+				dc.addDimToCache(podUID, dim)
 			}
 		}
 	}
@@ -259,45 +259,45 @@ func (dc *DatapointCache) handleDeleteService(svcUID types.UID) error {
 }
 
 // handleAddReplicaSet adds a replicaset to the internal cache and
-// returns the datapoints and dimProps for the replicaset.
-func (dc *DatapointCache) handleAddReplicaSet(rs *appsv1.ReplicaSet) ([]*datapoint.Datapoint, *atypes.DimProperties) {
+// returns the datapoints and dim for the replicaset.
+func (dc *DatapointCache) handleAddReplicaSet(rs *appsv1.ReplicaSet) ([]*datapoint.Datapoint, *atypes.Dimension) {
 	if !dc.replicaSetCache.IsCached(rs) {
 		dc.replicaSetCache.AddReplicaSet(rs)
 		for _, podUID := range dc.podCache.GetPodsInNamespace(rs.Namespace) {
 			cachedPod := dc.podCache.GetCachedPod(podUID)
 			if cachedPod != nil {
-				dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
-				if dimProps != nil {
-					dc.addDimPropsToCache(podUID, dimProps)
+				dim := dimensionForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
+				if dim != nil {
+					dc.addDimToCache(podUID, dim)
 				}
 			}
 		}
 	}
 	dps := datapointsForReplicaSet(rs)
-	dimProps := dimPropsForReplicaSet(rs)
-	return dps, dimProps
+	dim := dimensionForReplicaSet(rs)
+	return dps, dim
 }
 
-// handleAddJob adds a job to the internal cache and returns the datapoints and dimProps
+// handleAddJob adds a job to the internal cache and returns the datapoints and dim
 // for the given job. Jobs should always be created before pods, but incase we receive
 // the job out of sync, we can still check if the pod came in before the job.
 // Potential optimization would be to not check this and always assume they come in order.
-func (dc *DatapointCache) handleAddJob(job *batchv1.Job) ([]*datapoint.Datapoint, *atypes.DimProperties) {
+func (dc *DatapointCache) handleAddJob(job *batchv1.Job) ([]*datapoint.Datapoint, *atypes.Dimension) {
 	if !dc.jobCache.IsCached(job) {
 		dc.jobCache.AddJob(job)
 		for _, podUID := range dc.podCache.GetPodsInNamespace(job.Namespace) {
 			cachedPod := dc.podCache.GetCachedPod(podUID)
 			if cachedPod != nil {
-				dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
-				if dimProps != nil {
-					dc.addDimPropsToCache(podUID, dimProps)
+				dim := dimensionForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
+				if dim != nil {
+					dc.addDimToCache(podUID, dim)
 				}
 			}
 		}
 	}
 	dps := datapointsForJob(job)
-	dimProps := dimPropsForJob(job)
-	return dps, dimProps
+	dim := dimensionForJob(job)
+	return dps, dim
 
 }
 
@@ -322,19 +322,19 @@ func (dc *DatapointCache) AllDatapoints() []*datapoint.Datapoint {
 	return dps
 }
 
-// AllDimProperties returns any dimension properties pertaining to the cluster
-func (dc *DatapointCache) AllDimProperties() []*atypes.DimProperties {
-	dimProps := make([]*atypes.DimProperties, 0)
+// AllDimensions returns any dimension properties pertaining to the cluster
+func (dc *DatapointCache) AllDimensions() []*atypes.Dimension {
+	dim := make([]*atypes.Dimension, 0)
 
 	dc.Lock()
 	defer dc.Unlock()
 
-	for k := range dc.dimPropCache {
-		if dc.dimPropCache[k] != nil {
-			clonedDimProps := dc.dimPropCache[k].Copy()
-			dimProps = append(dimProps, clonedDimProps)
+	for k := range dc.dimCache {
+		if dc.dimCache[k] != nil {
+			clonedDim := dc.dimCache[k].Copy()
+			dim = append(dim, clonedDim)
 		}
 	}
 
-	return dimProps
+	return dim
 }

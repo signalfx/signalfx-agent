@@ -51,7 +51,7 @@ func datapointsForStatefulSet(ss *appsv1.StatefulSet) []*datapoint.Datapoint {
 	}
 }
 
-func dimPropsForStatefulSet(ss *appsv1.StatefulSet) *atypes.DimProperties {
+func dimensionForStatefulSet(ss *appsv1.StatefulSet) *atypes.Dimension {
 	props, tags := k8sutil.PropsAndTagsFromLabels(ss.Labels)
 	props["kubernetes_workload"] = "StatefulSet"
 	props["kubernetes_workload_name"] = ss.Name
@@ -68,11 +68,9 @@ func dimPropsForStatefulSet(ss *appsv1.StatefulSet) *atypes.DimProperties {
 		return nil
 	}
 
-	return &atypes.DimProperties{
-		Dimension: atypes.Dimension{
-			Name:  "kubernetes_uid",
-			Value: string(ss.UID),
-		},
+	return &atypes.Dimension{
+		Name:       "kubernetes_uid",
+		Value:      string(ss.UID),
 		Properties: props,
 		Tags:       tags,
 	}

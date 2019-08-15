@@ -141,128 +141,114 @@ func TestFilters(t *testing.T) {
 		assert.False(t, f.MatchesDimension("kubernetes_pod_uid", "123"))
 	})
 
-	t.Run("Filter a dimprops object given dimension name", func(t *testing.T) {
+	t.Run("Filter a dimension object given dimension name", func(t *testing.T) {
 		f, _ := New([]string{"*"}, []string{"*"},
 			[]string{"kubernetes_pod_uid"}, []string{"*"})
 
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc"}
-		dimProps := &types.DimProperties{
-			Dimension: types.Dimension{
-				Name:  "kubernetes_pod_uid",
-				Value: "789",
-			},
+		dim := &types.Dimension{
+			Name:       "kubernetes_pod_uid",
+			Value:      "789",
 			Properties: properties,
 			Tags:       nil,
 		}
 
-		filtered := f.FilterDimProps(dimProps)
+		filtered := f.FilterDimension(dim)
 		assert.Len(t, filtered.Properties, 0)
 		assert.Nil(t, filtered.Tags)
 	})
 
-	t.Run("Filter a dimprops object given property name", func(t *testing.T) {
+	t.Run("Filter a dimension object given property name", func(t *testing.T) {
 		f, _ := New([]string{"pod-template-hash"}, []string{"*"},
 			[]string{"*"}, []string{"*"})
 
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc"}
-		dimProps := &types.DimProperties{
-			Dimension: types.Dimension{
-				Name:  "kubernetes_pod_uid",
-				Value: "789",
-			},
+		dim := &types.Dimension{
+			Name:       "kubernetes_pod_uid",
+			Value:      "789",
 			Properties: properties,
 			Tags:       nil,
 		}
-		filteredDimProps := f.FilterDimProps(dimProps)
+		filteredDimension := f.FilterDimension(dim)
 
 		expectedProperties := map[string]string{"replicaSet": "abc"}
-		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
+		assert.Equal(t, filteredDimension.Properties, expectedProperties)
 	})
 
-	t.Run("Filter a dimprops object given property value", func(t *testing.T) {
+	t.Run("Filter a dimension object given property value", func(t *testing.T) {
 		f, _ := New([]string{"*"}, []string{"123"},
 			[]string{"*"}, []string{"*"})
 
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc"}
-		dimProps := &types.DimProperties{
-			Dimension: types.Dimension{
-				Name:  "kubernetes_pod_uid",
-				Value: "789",
-			},
+		dim := &types.Dimension{
+			Name:       "kubernetes_pod_uid",
+			Value:      "789",
 			Properties: properties,
 			Tags:       nil,
 		}
 
-		filteredDimProps := f.FilterDimProps(dimProps)
+		filteredDimension := f.FilterDimension(dim)
 
 		expectedProperties := map[string]string{"replicaSet": "abc"}
-		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
+		assert.Equal(t, filteredDimension.Properties, expectedProperties)
 	})
 
-	t.Run("Filter a dimprops object given property name and value", func(t *testing.T) {
+	t.Run("Filter a dimension object given property name and value", func(t *testing.T) {
 		f, _ := New([]string{"pod-template-hash"}, []string{"123"},
 			[]string{"*"}, []string{"*"})
 
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
-		dimProps := &types.DimProperties{
-			Dimension: types.Dimension{
-				Name:  "kubernetes_pod_uid",
-				Value: "789",
-			},
+		dim := &types.Dimension{
+			Name:       "kubernetes_pod_uid",
+			Value:      "789",
 			Properties: properties,
 			Tags:       nil,
 		}
-		filteredDimProps := f.FilterDimProps(dimProps)
+		filteredDimension := f.FilterDimension(dim)
 		expectedProperties := map[string]string{"replicaSet": "abc", "service_uid": "123"}
-		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
+		assert.Equal(t, filteredDimension.Properties, expectedProperties)
 	})
 
-	t.Run("Filter a dimprops object given dimension value", func(t *testing.T) {
+	t.Run("Filter a dimension object given dimension value", func(t *testing.T) {
 		f, _ := New([]string{"*"}, []string{"*"},
 			[]string{"*"}, []string{"789"})
 
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc"}
-		dimProps := &types.DimProperties{
-			Dimension: types.Dimension{
-				Name:  "kubernetes_pod_uid",
-				Value: "789",
-			},
+		dim := &types.Dimension{
+			Name:       "kubernetes_pod_uid",
+			Value:      "789",
 			Properties: properties,
 			Tags:       nil,
 		}
 
-		filtered := f.FilterDimProps(dimProps)
+		filtered := f.FilterDimension(dim)
 		assert.Len(t, filtered.Properties, 0)
 		assert.Nil(t, filtered.Tags)
 	})
 
-	t.Run("Filter a dimprops object given dimension name and property name", func(t *testing.T) {
+	t.Run("Filter a dimension object given dimension name and property name", func(t *testing.T) {
 		f, _ := New([]string{"pod-template-hash"}, []string{"*"},
 			[]string{"kubernetes_pod_uid"}, []string{"*"})
 
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
 		nodeProperties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
-		dimProps := &types.DimProperties{
-			Dimension: types.Dimension{
-				Name:  "kubernetes_pod_uid",
-				Value: "789",
-			},
+		dim := &types.Dimension{
+			Name:       "kubernetes_pod_uid",
+			Value:      "789",
 			Properties: properties,
 			Tags:       nil,
 		}
-		dimPropsNode := &types.DimProperties{
-			Dimension: types.Dimension{
-				Name:  "kubernetes_node",
-				Value: "minikube",
-			},
+		dimNode := &types.Dimension{
+			Name:       "kubernetes_node",
+			Value:      "minikube",
 			Properties: nodeProperties,
 			Tags:       nil,
 		}
-		filteredDimProps := f.FilterDimProps(dimProps)
-		nodeFilteredDimProps := f.FilterDimProps(dimPropsNode)
+		filteredDimension := f.FilterDimension(dim)
+		nodeFilteredDimension := f.FilterDimension(dimNode)
 		expectedProperties := map[string]string{"replicaSet": "abc", "service_uid": "123"}
-		assert.Equal(t, filteredDimProps.Properties, expectedProperties)
-		assert.Equal(t, nodeFilteredDimProps.Properties, properties)
+		assert.Equal(t, filteredDimension.Properties, expectedProperties)
+		assert.Equal(t, nodeFilteredDimension.Properties, properties)
 	})
 
 	// negation tests

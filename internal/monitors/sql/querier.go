@@ -20,7 +20,7 @@ type querier struct {
 	metricToIndex             map[*Metric]int
 	dimensionColumnSets       []map[string]bool
 	datapoints                []*datapoint.Datapoint
-	dimensionProperties       [][]*types.DimProperties
+	dimensions                [][]*types.Dimension
 	rowSliceCached            []interface{}
 	logger                    logrus.FieldLogger
 	logQueries                bool
@@ -40,7 +40,7 @@ func newQuerier(query *Query, logQueries bool) *querier {
 		dimensionColumnSets[i] = map[string]bool{}
 	}
 
-	dimensionProperties := make([][]*types.DimProperties, len(query.Metrics))
+	dimensions := make([][]*types.Dimension, len(query.Metrics))
 
 	// Make a set of cloneable datapoints that already have metric name and
 	// type set since it never changes with the same metric config.
@@ -56,7 +56,7 @@ func newQuerier(query *Query, logQueries bool) *querier {
 			dimensionColumnSets[i][strings.ToLower(dim)] = true
 		}
 
-		dimensionProperties[i] = make([]*types.DimProperties, 0)
+		dimensions[i] = make([]*types.Dimension, 0)
 		for dim, propColumns := range m.DimensionPropertyColumns {
 			dimColumn := strings.ToLower(dim)
 			if dimensionColumnSets[i][dimColumn] {
@@ -64,10 +64,8 @@ func newQuerier(query *Query, logQueries bool) *querier {
 				for _, p := range propColumns {
 					props[strings.ToLower(p)] = ""
 				}
-				dimensionProperties[i] = append(dimensionProperties[i], &types.DimProperties{
-					Dimension: types.Dimension{
-						Name: dimColumn,
-					},
+				dimensions[i] = append(dimensions[i], &types.Dimension{
+					Name:       dimColumn,
 					Properties: props,
 				})
 			}
@@ -83,7 +81,7 @@ func newQuerier(query *Query, logQueries bool) *querier {
 		valueColumnNamesToMetrics: valueColumnNamesToMetrics,
 		metricToIndex:             metricToIndex,
 		dimensionColumnSets:       dimensionColumnSets,
-		dimensionProperties:       dimensionProperties,
+		dimensions:                dimensions,
 		logger:                    logger.WithField("statement", query.Query),
 		logQueries:                logQueries,
 	}
@@ -97,7 +95,7 @@ func (q *querier) doQuery(ctx context.Context, database *sql.DB, output types.Ou
 	for rows.Next() {
 		// We can just reuse the rowSlice for every row since it will reset
 		// itself.
-		dps, props, err := q.convertCurrentRowToDatapointAndProperties(rows)
+		dps, dims, err := q.convertCurrentRowToDatapointAndDimensions(rows)
 		if err != nil {
 			return err
 		}
@@ -109,17 +107,16 @@ func (q *querier) doQuery(ctx context.Context, database *sql.DB, output types.Ou
 			}
 			output.SendDatapoint(dps[i])
 		}
-		for i := range props {
-			for _, prop := range props[i] {
-				output.SendDimensionProps(prop)
+		for i := range dims {
+			for _, dim := range dims[i] {
+				output.SendDimensionUpdate(dim)
 			}
 		}
 	}
 	return rows.Close()
 }
 
-func (q *querier) convertCurrentRowToDatapointAndProperties(rows *sql.Rows) ([]*datapoint.Datapoint, [][]*types.DimProperties, error) {
-
+func (q *querier) convertCurrentRowToDatapointAndDimensions(rows *sql.Rows) ([]*datapoint.Datapoint, [][]*types.Dimension, error) {
 	rowScanSlice, err := q.getRowSlice(rows)
 	if err != nil {
 		return nil, nil, err
@@ -146,16 +143,14 @@ func (q *querier) convertCurrentRowToDatapointAndProperties(rows *sql.Rows) ([]*
 	}
 
 	// Clone all properties before updating them
-	for i := range q.dimensionProperties {
-		for j := range q.dimensionProperties[i] {
+	for i := range q.dimensions {
+		for j := range q.dimensions[i] {
 			props := make(map[string]string)
-			for propName := range q.dimensionProperties[i][j].Properties {
+			for propName := range q.dimensions[i][j].Properties {
 				props[propName] = ""
 			}
-			q.dimensionProperties[i][j] = &types.DimProperties{
-				Dimension: types.Dimension{
-					Name: q.dimensionProperties[i][j].Name,
-				},
+			q.dimensions[i][j] = &types.Dimension{
+				Name:       q.dimensions[i][j].Name,
 				Properties: props,
 			}
 		}
@@ -185,14 +180,14 @@ func (q *querier) convertCurrentRowToDatapointAndProperties(rows *sql.Rows) ([]*
 				dimVal = ""
 			}
 			for j := range q.query.Metrics {
-				for _, dimProperties := range q.dimensionProperties[j] {
-					if strings.EqualFold(dimProperties.Dimension.Name, columnNames[i]) {
-						dimProperties.Dimension.Name = columnNames[i]
-						dimProperties.Dimension.Value = dimVal
+				for _, dim := range q.dimensions[j] {
+					if strings.EqualFold(dim.Name, columnNames[i]) {
+						dim.Name = columnNames[i]
+						dim.Value = dimVal
 					}
-					for k := range dimProperties.Properties {
+					for k := range dim.Properties {
 						if strings.EqualFold(columnNames[i], k) {
-							dimProperties.Properties[k] = utils.TruncateDimensionValue(dimVal)
+							dim.Properties[k] = utils.TruncateDimensionValue(dimVal)
 						}
 					}
 				}
@@ -205,7 +200,7 @@ func (q *querier) convertCurrentRowToDatapointAndProperties(rows *sql.Rows) ([]*
 		}
 	}
 
-	return q.datapoints, q.dimensionProperties, nil
+	return q.datapoints, q.dimensions, nil
 }
 
 func (q *querier) getRowSlice(rows *sql.Rows) ([]interface{}, error) {

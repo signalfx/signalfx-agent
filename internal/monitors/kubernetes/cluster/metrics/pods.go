@@ -50,8 +50,8 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 	return dps
 }
 
-func dimPropsForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache,
-	rsc *k8sutil.ReplicaSetCache, jc *k8sutil.JobCache) *atypes.DimProperties {
+func dimensionForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache,
+	rsc *k8sutil.ReplicaSetCache, jc *k8sutil.JobCache) *atypes.Dimension {
 	props, tags := k8sutil.PropsAndTagsFromLabels(cachedPod.LabelSet)
 
 	props["pod_creation_timestamp"] = cachedPod.CreationTimestamp.Format(time.RFC3339)
@@ -93,11 +93,9 @@ func dimPropsForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache,
 		return nil
 	}
 
-	return &atypes.DimProperties{
-		Dimension: atypes.Dimension{
-			Name:  "kubernetes_pod_uid",
-			Value: string(cachedPod.UID),
-		},
+	return &atypes.Dimension{
+		Name:       "kubernetes_pod_uid",
+		Value:      string(cachedPod.UID),
 		Properties: props,
 		Tags:       tags,
 	}

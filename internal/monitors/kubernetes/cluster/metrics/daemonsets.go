@@ -46,7 +46,7 @@ func datapointsForDaemonSet(ds *appsv1.DaemonSet) []*datapoint.Datapoint {
 	}
 }
 
-func dimPropsForDaemonSet(ds *appsv1.DaemonSet) *atypes.DimProperties {
+func dimensionForDaemonSet(ds *appsv1.DaemonSet) *atypes.Dimension {
 	props, tags := k8sutil.PropsAndTagsFromLabels(ds.Labels)
 	props["kubernetes_workload"] = "DaemonSet"
 	props["kubernetes_workload_name"] = ds.Name
@@ -61,11 +61,9 @@ func dimPropsForDaemonSet(ds *appsv1.DaemonSet) *atypes.DimProperties {
 		return nil
 	}
 
-	return &atypes.DimProperties{
-		Dimension: atypes.Dimension{
-			Name:  "kubernetes_uid",
-			Value: string(ds.UID),
-		},
+	return &atypes.Dimension{
+		Name:       "kubernetes_uid",
+		Value:      string(ds.UID),
 		Properties: props,
 		Tags:       tags,
 	}
