@@ -10,10 +10,10 @@ type FilterSet struct {
 	Filters []DimPropsFilter
 }
 
-// FilterDimProps sends a *types.DimProperties through each of the filters in the set
+// FilterDimProps sends a *types.Dimension through each of the filters in the set
 // and filters properties. All original properties will be returned if no filter matches
 //, or a subset of the original if some are filtered, or nil if all are filtered.
-func (fs *FilterSet) FilterDimProps(dimProps *types.DimProperties) *types.DimProperties {
+func (fs *FilterSet) FilterDimProps(dimProps *types.Dimension) *types.Dimension {
 	filteredDimProps := &(*dimProps)
 	for _, f := range fs.Filters {
 		filteredDimProps = f.FilterDimProps(filteredDimProps)

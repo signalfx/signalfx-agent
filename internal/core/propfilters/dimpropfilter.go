@@ -15,7 +15,7 @@ import (
 // All properties matched will be filtered.
 type DimPropsFilter interface {
 	// Filters out properties from DimProperties object
-	FilterDimProps(dimProps *types.DimProperties) *types.DimProperties
+	FilterDimProps(dimProps *types.Dimension) *types.Dimension
 	MatchesDimension(name string, value string) bool
 	FilterProperties(properties map[string]string) map[string]string
 }
@@ -78,7 +78,7 @@ func New(propertyNames []string, propertyValues []string, dimensionNames []strin
 
 // Filter applies the filter to the given DimProperties and returns a new
 // filtered DimProperties
-func (f *basicDimPropsFilter) FilterDimProps(dimProps *types.DimProperties) *types.DimProperties {
+func (f *basicDimPropsFilter) FilterDimProps(dimProps *types.Dimension) *types.Dimension {
 	if dimProps == nil {
 		return nil
 	}
@@ -90,8 +90,9 @@ func (f *basicDimPropsFilter) FilterDimProps(dimProps *types.DimProperties) *typ
 		filteredProperties = dimProps.Properties
 	}
 
-	return &types.DimProperties{
-		Dimension:  dimProps.Dimension,
+	return &types.Dimension{
+		Name:       dimProps.Name,
+		Value:      dimProps.Value,
 		Properties: filteredProperties,
 		Tags:       dimProps.Tags,
 	}

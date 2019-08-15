@@ -198,15 +198,13 @@ func (m *Monitor) fetchStatsForAll(enhancedMetricsConfig dmonitor.EnhancedMetric
 			m.Output.SendDatapoint(dps[i])
 		}
 
-		containerProps := &types.DimProperties{
-			Dimension: types.Dimension{
-				Name:  "container_name",
-				Value: container.Name,
-			},
+		containerProps := &types.Dimension{
+			Name:       "container_name",
+			Value:      container.Name,
 			Properties: map[string]string{"known_status": container.KnownStatus},
 			Tags:       nil,
 		}
-		m.Output.SendDimensionProps(containerProps)
+		m.Output.SendDimensionUpdate(containerProps)
 	}
 }
 

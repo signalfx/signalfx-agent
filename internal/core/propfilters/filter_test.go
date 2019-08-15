@@ -146,11 +146,9 @@ func TestFilters(t *testing.T) {
 			[]string{"kubernetes_pod_uid"}, []string{"*"})
 
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc"}
-		dimProps := &types.DimProperties{
-			Dimension: types.Dimension{
-				Name:  "kubernetes_pod_uid",
-				Value: "789",
-			},
+		dimProps := &types.Dimension{
+			Name:       "kubernetes_pod_uid",
+			Value:      "789",
 			Properties: properties,
 			Tags:       nil,
 		}
@@ -165,11 +163,9 @@ func TestFilters(t *testing.T) {
 			[]string{"*"}, []string{"*"})
 
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc"}
-		dimProps := &types.DimProperties{
-			Dimension: types.Dimension{
-				Name:  "kubernetes_pod_uid",
-				Value: "789",
-			},
+		dimProps := &types.Dimension{
+			Name:       "kubernetes_pod_uid",
+			Value:      "789",
 			Properties: properties,
 			Tags:       nil,
 		}
@@ -184,11 +180,9 @@ func TestFilters(t *testing.T) {
 			[]string{"*"}, []string{"*"})
 
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc"}
-		dimProps := &types.DimProperties{
-			Dimension: types.Dimension{
-				Name:  "kubernetes_pod_uid",
-				Value: "789",
-			},
+		dimProps := &types.Dimension{
+			Name:       "kubernetes_pod_uid",
+			Value:      "789",
 			Properties: properties,
 			Tags:       nil,
 		}
@@ -204,11 +198,9 @@ func TestFilters(t *testing.T) {
 			[]string{"*"}, []string{"*"})
 
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
-		dimProps := &types.DimProperties{
-			Dimension: types.Dimension{
-				Name:  "kubernetes_pod_uid",
-				Value: "789",
-			},
+		dimProps := &types.Dimension{
+			Name:       "kubernetes_pod_uid",
+			Value:      "789",
 			Properties: properties,
 			Tags:       nil,
 		}
@@ -222,11 +214,9 @@ func TestFilters(t *testing.T) {
 			[]string{"*"}, []string{"789"})
 
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc"}
-		dimProps := &types.DimProperties{
-			Dimension: types.Dimension{
-				Name:  "kubernetes_pod_uid",
-				Value: "789",
-			},
+		dimProps := &types.Dimension{
+			Name:       "kubernetes_pod_uid",
+			Value:      "789",
 			Properties: properties,
 			Tags:       nil,
 		}
@@ -242,19 +232,15 @@ func TestFilters(t *testing.T) {
 
 		properties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
 		nodeProperties := map[string]string{"pod-template-hash": "123", "replicaSet": "abc", "service_uid": "123"}
-		dimProps := &types.DimProperties{
-			Dimension: types.Dimension{
-				Name:  "kubernetes_pod_uid",
-				Value: "789",
-			},
+		dimProps := &types.Dimension{
+			Name:       "kubernetes_pod_uid",
+			Value:      "789",
 			Properties: properties,
 			Tags:       nil,
 		}
-		dimPropsNode := &types.DimProperties{
-			Dimension: types.Dimension{
-				Name:  "kubernetes_node",
-				Value: "minikube",
-			},
+		dimPropsNode := &types.Dimension{
+			Name:       "kubernetes_node",
+			Value:      "minikube",
 			Properties: nodeProperties,
 			Tags:       nil,
 		}

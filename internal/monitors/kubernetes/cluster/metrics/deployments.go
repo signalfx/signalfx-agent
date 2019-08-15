@@ -25,7 +25,7 @@ func datapointsForDeployment(dep *v1beta1.Deployment) []*datapoint.Datapoint {
 		*dep.Spec.Replicas, dep.Status.AvailableReplicas)
 }
 
-func dimPropsForDeployment(dep *v1beta1.Deployment) *atypes.DimProperties {
+func dimPropsForDeployment(dep *v1beta1.Deployment) *atypes.Dimension {
 	props, tags := k8sutil.PropsAndTagsFromLabels(dep.Labels)
 	props["deployment"] = dep.Name
 
@@ -38,11 +38,9 @@ func dimPropsForDeployment(dep *v1beta1.Deployment) *atypes.DimProperties {
 		return nil
 	}
 
-	return &atypes.DimProperties{
-		Dimension: atypes.Dimension{
-			Name:  "kubernetes_uid",
-			Value: string(dep.UID),
-		},
+	return &atypes.Dimension{
+		Name:       "kubernetes_uid",
+		Value:      string(dep.UID),
 		Properties: props,
 		Tags:       tags,
 	}

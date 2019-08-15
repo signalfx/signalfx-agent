@@ -56,7 +56,7 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 }
 
 func dimPropsForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache,
-	rsc *k8sutil.ReplicaSetCache) *atypes.DimProperties {
+	rsc *k8sutil.ReplicaSetCache) *atypes.Dimension {
 	props, tags := k8sutil.PropsAndTagsFromLabels(cachedPod.LabelSet)
 	for _, or := range cachedPod.OwnerReferences {
 		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
@@ -82,11 +82,9 @@ func dimPropsForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache,
 		return nil
 	}
 
-	return &atypes.DimProperties{
-		Dimension: atypes.Dimension{
-			Name:  "kubernetes_pod_uid",
-			Value: string(cachedPod.UID),
-		},
+	return &atypes.Dimension{
+		Name:       "kubernetes_pod_uid",
+		Value:      string(cachedPod.UID),
 		Properties: props,
 		Tags:       tags,
 	}

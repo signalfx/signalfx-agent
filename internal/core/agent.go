@@ -31,21 +31,21 @@ const (
 	// under extremely heavy load.
 	datapointChanCapacity = 3000
 	eventChanCapacity     = 100
-	dimPropChanCapacity   = 100
+	dimensionChanCapacity = 100
 	traceSpanChanCapacity = 3000
 )
 
 // Agent is what hooks up observers, monitors, and the datapoint writer.
 type Agent struct {
-	observers    *observers.ObserverManager
-	monitors     *monitors.MonitorManager
-	writer       *writer.SignalFxWriter
-	meta         *meta.AgentMeta
-	lastConfig   *config.Config
-	dpChan       chan *datapoint.Datapoint
-	eventChan    chan *event.Event
-	propertyChan chan *types.DimProperties
-	spanChan     chan *trace.Span
+	observers     *observers.ObserverManager
+	monitors      *monitors.MonitorManager
+	writer        *writer.SignalFxWriter
+	meta          *meta.AgentMeta
+	lastConfig    *config.Config
+	dpChan        chan *datapoint.Datapoint
+	eventChan     chan *event.Event
+	dimensionChan chan *types.Dimension
+	spanChan      chan *trace.Span
 
 	diagnosticServer     *http.Server
 	profileServerRunning bool
@@ -55,11 +55,11 @@ type Agent struct {
 // NewAgent creates an unconfigured agent instance
 func NewAgent() *Agent {
 	agent := Agent{
-		dpChan:       make(chan *datapoint.Datapoint, datapointChanCapacity),
-		eventChan:    make(chan *event.Event, eventChanCapacity),
-		propertyChan: make(chan *types.DimProperties, dimPropChanCapacity),
-		spanChan:     make(chan *trace.Span, traceSpanChanCapacity),
-		startTime:    time.Now(),
+		dpChan:        make(chan *datapoint.Datapoint, datapointChanCapacity),
+		eventChan:     make(chan *event.Event, eventChanCapacity),
+		dimensionChan: make(chan *types.Dimension, dimensionChanCapacity),
+		spanChan:      make(chan *trace.Span, traceSpanChanCapacity),
+		startTime:     time.Now(),
 	}
 
 	agent.observers = &observers.ObserverManager{
@@ -73,7 +73,7 @@ func NewAgent() *Agent {
 	agent.monitors = monitors.NewMonitorManager(agent.meta)
 	agent.monitors.DPs = agent.dpChan
 	agent.monitors.Events = agent.eventChan
-	agent.monitors.DimensionProps = agent.propertyChan
+	agent.monitors.DimensionUpdates = agent.dimensionChan
 	agent.monitors.TraceSpans = agent.spanChan
 	return &agent
 }
@@ -103,7 +103,7 @@ func (a *Agent) configure(conf *config.Config) {
 			a.writer.Shutdown()
 		}
 		var err error
-		a.writer, err = writer.New(&conf.Writer, a.dpChan, a.eventChan, a.propertyChan, a.spanChan)
+		a.writer, err = writer.New(&conf.Writer, a.dpChan, a.eventChan, a.dimensionChan, a.spanChan)
 		if err != nil {
 			// This is a catastrophic error if we can't write datapoints.
 			log.WithError(err).Error("Could not configure SignalFx datapoint writer, unable to start up")
@@ -112,7 +112,7 @@ func (a *Agent) configure(conf *config.Config) {
 	}
 
 	if conf.Cluster != "" {
-		startSyncClusterProperty(a.propertyChan, conf.Cluster, hostDims, conf.SyncClusterOnHostDimension)
+		startSyncClusterProperty(a.dimensionChan, conf.Cluster, hostDims, conf.SyncClusterOnHostDimension)
 	}
 
 	a.meta.InternalStatusHost = conf.InternalStatusHost
@@ -211,7 +211,7 @@ func StreamDatapoints(configPath string, metric string, dims string) (io.ReadClo
 	return streamDatapoints(conf.InternalStatusHost, conf.InternalStatusPort, metric, dims)
 }
 
-func startSyncClusterProperty(propertyChan chan *types.DimProperties, cluster string, hostDims map[string]string, setOnHost bool) {
+func startSyncClusterProperty(dimChan chan *types.Dimension, cluster string, hostDims map[string]string, setOnHost bool) {
 	for dimName, dimValue := range hostDims {
 		if len(hostDims) > 1 && dimName == "host" && !setOnHost {
 			// If we also have a platform-specific host-id dimension that isn't
@@ -221,11 +221,9 @@ func startSyncClusterProperty(propertyChan chan *types.DimProperties, cluster st
 			continue
 		}
 		log.Infof("Setting cluster:%s property on %s:%s dimension", cluster, dimName, dimValue)
-		propertyChan <- &types.DimProperties{
-			Dimension: types.Dimension{
-				Name:  dimName,
-				Value: dimValue,
-			},
+		dimChan <- &types.Dimension{
+			Name:  dimName,
+			Value: dimValue,
 			Properties: map[string]string{
 				"cluster": cluster,
 			},

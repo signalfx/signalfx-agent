@@ -32,10 +32,10 @@ type MonitorManager struct {
 	// Map of service endpoints that have been discovered
 	discoveredEndpoints map[services.ID]services.Endpoint
 
-	DPs            chan<- *datapoint.Datapoint
-	Events         chan<- *event.Event
-	DimensionProps chan<- *types.DimProperties
-	TraceSpans     chan<- *trace.Span
+	DPs              chan<- *datapoint.Datapoint
+	Events           chan<- *event.Event
+	DimensionUpdates chan<- *types.Dimension
+	TraceSpans       chan<- *trace.Span
 
 	// TODO: AgentMeta is rather hacky so figure out a better way to share agent
 	// metadata with monitors
@@ -361,7 +361,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		endpoint:                  endpoint,
 		dpChan:                    mm.DPs,
 		eventChan:                 mm.Events,
-		dimPropChan:               mm.DimensionProps,
+		dimensionChan:             mm.DimensionUpdates,
 		spanChan:                  mm.TraceSpans,
 		extraDims:                 map[string]string{},
 		dimensionTransformations:  coreConfig.DimensionTransformations,

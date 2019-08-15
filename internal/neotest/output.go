@@ -16,7 +16,7 @@ type TestOutput struct {
 	dpChan      chan *datapoint.Datapoint
 	eventChan   chan *event.Event
 	spanChan    chan *trace.Span
-	dimPropChan chan *types.DimProperties
+	dimPropChan chan *types.Dimension
 }
 
 // NewTestOutput creates a new initialized TestOutput instance
@@ -25,7 +25,7 @@ func NewTestOutput() *TestOutput {
 		dpChan:      make(chan *datapoint.Datapoint, 1000),
 		eventChan:   make(chan *event.Event, 1000),
 		spanChan:    make(chan *trace.Span, 1000),
-		dimPropChan: make(chan *types.DimProperties, 1000),
+		dimPropChan: make(chan *types.Dimension, 1000),
 	}
 }
 
@@ -49,8 +49,8 @@ func (to *TestOutput) SendSpan(span *trace.Span) {
 	to.spanChan <- span
 }
 
-// SendDimensionProps accepts a dim prop update and sticks it in a buffered queue
-func (to *TestOutput) SendDimensionProps(dimProps *types.DimProperties) {
+// SendDimensionUpdate accepts a dim prop update and sticks it in a buffered queue
+func (to *TestOutput) SendDimensionUpdate(dimProps *types.Dimension) {
 	to.dimPropChan <- dimProps
 }
 
@@ -115,8 +115,8 @@ loop:
 // the internal queue until it either gets the expected count or waitSeconds
 // seconds have elapsed.  It then returns those dimension property updates.  It
 // will never return more than 'count' objects.
-func (to *TestOutput) WaitForDimensionProps(count, waitSeconds int) []*types.DimProperties {
-	var dps []*types.DimProperties
+func (to *TestOutput) WaitForDimensionProps(count, waitSeconds int) []*types.Dimension {
+	var dps []*types.Dimension
 	timeout := time.After(time.Duration(waitSeconds) * time.Second)
 
 loop:

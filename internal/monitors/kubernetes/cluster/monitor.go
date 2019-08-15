@@ -173,7 +173,7 @@ func (m *Monitor) sendLatestProps() {
 	dimProps := m.datapointCache.AllDimProperties()
 
 	for i := range dimProps {
-		m.Output.SendDimensionProps(dimProps[i])
+		m.Output.SendDimensionUpdate(dimProps[i])
 	}
 }
 

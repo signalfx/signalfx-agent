@@ -30,7 +30,7 @@ var logger = log.WithFields(log.Fields{
 type DatapointCache struct {
 	sync.Mutex
 	dpCache                    map[types.UID][]*datapoint.Datapoint
-	dimPropCache               map[types.UID]*atypes.DimProperties
+	dimPropCache               map[types.UID]*atypes.Dimension
 	uidKindCache               map[types.UID]string
 	podCache                   *k8sutil.PodCache
 	serviceCache               *k8sutil.ServiceCache
@@ -43,7 +43,7 @@ type DatapointCache struct {
 func NewDatapointCache(useNodeName bool, nodeConditionTypesToReport []string) *DatapointCache {
 	return &DatapointCache{
 		dpCache:                    make(map[types.UID][]*datapoint.Datapoint),
-		dimPropCache:               make(map[types.UID]*atypes.DimProperties),
+		dimPropCache:               make(map[types.UID]*atypes.Dimension),
 		uidKindCache:               make(map[types.UID]string),
 		podCache:                   k8sutil.NewPodCache(),
 		serviceCache:               k8sutil.NewServiceCache(),
@@ -99,7 +99,7 @@ func (dc *DatapointCache) HandleDelete(oldObj runtime.Object) interface{} {
 // cache as needed.  MUST HOLD LOCK!!
 func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 	var dps []*datapoint.Datapoint
-	var dimProps *atypes.DimProperties
+	var dimProps *atypes.Dimension
 	var kind string
 
 	switch o := newObj.(type) {
@@ -166,14 +166,14 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 
 // addDimPropsToCache maps and syncs properties from different resources together and adds
 // them to the cache
-func (dc *DatapointCache) addDimPropsToCache(key types.UID, dimProps *atypes.DimProperties) {
+func (dc *DatapointCache) addDimPropsToCache(key types.UID, dimProps *atypes.Dimension) {
 	dc.dimPropCache[key] = dimProps
 }
 
 // handleAddPod adds a pod to the internal pod cache and gets the
 // datapoints and dimProps for the pod.
 func (dc *DatapointCache) handleAddPod(pod *v1.Pod) ([]*datapoint.Datapoint,
-	*atypes.DimProperties) {
+	*atypes.Dimension) {
 	if !dc.podCache.IsCached(pod) {
 		dc.podCache.AddPod(pod)
 	}
@@ -222,7 +222,7 @@ func (dc *DatapointCache) handleDeleteService(svcUID types.UID) {
 
 // handleAddReplicaSet adds a replicaset to the internal cache and
 // returns the datapoints and dimProps for the replicaset.
-func (dc *DatapointCache) handleAddReplicaSet(rs *v1beta1.ReplicaSet) ([]*datapoint.Datapoint, *atypes.DimProperties) {
+func (dc *DatapointCache) handleAddReplicaSet(rs *v1beta1.ReplicaSet) ([]*datapoint.Datapoint, *atypes.Dimension) {
 	if !dc.replicaSetCache.IsCached(rs) {
 		dc.replicaSetCache.AddReplicaSet(rs)
 		for _, podUID := range dc.podCache.GetPodsInNamespace(rs.Namespace) {
@@ -262,8 +262,8 @@ func (dc *DatapointCache) AllDatapoints() []*datapoint.Datapoint {
 }
 
 // AllDimProperties returns any dimension properties pertaining to the cluster
-func (dc *DatapointCache) AllDimProperties() []*atypes.DimProperties {
-	dimProps := make([]*atypes.DimProperties, 0)
+func (dc *DatapointCache) AllDimProperties() []*atypes.Dimension {
+	dimProps := make([]*atypes.Dimension, 0)
 
 	dc.Lock()
 	defer dc.Unlock()
