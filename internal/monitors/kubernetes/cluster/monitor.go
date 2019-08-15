@@ -148,7 +148,7 @@ func (m *Monitor) Start() error {
 			case <-ticker.C:
 				if shouldReport {
 					m.sendLatestDatapoints()
-					m.sendLatestProps()
+					m.sendLatestDimensions()
 				}
 			}
 		}
@@ -169,11 +169,11 @@ func (m *Monitor) sendLatestDatapoints() {
 	}
 }
 
-func (m *Monitor) sendLatestProps() {
-	dimProps := m.datapointCache.AllDimProperties()
+func (m *Monitor) sendLatestDimensions() {
+	dims := m.datapointCache.AllDimensions()
 
-	for i := range dimProps {
-		m.Output.SendDimensionProps(dimProps[i])
+	for i := range dims {
+		m.Output.SendDimensionUpdate(dims[i])
 	}
 }
 

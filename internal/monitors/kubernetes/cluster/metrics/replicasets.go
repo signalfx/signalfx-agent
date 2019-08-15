@@ -26,7 +26,7 @@ func datapointsForReplicaSet(rs *appsv1.ReplicaSet) []*datapoint.Datapoint {
 		*rs.Spec.Replicas, rs.Status.AvailableReplicas)
 }
 
-func dimPropsForReplicaSet(rs *appsv1.ReplicaSet) *atypes.DimProperties {
+func dimensionForReplicaSet(rs *appsv1.ReplicaSet) *atypes.Dimension {
 	props, tags := k8sutil.PropsAndTagsFromLabels(rs.Labels)
 	props["kubernetes_workload_name"] = rs.Name
 	props["kubernetes_workload"] = "ReplicaSet"
@@ -41,11 +41,9 @@ func dimPropsForReplicaSet(rs *appsv1.ReplicaSet) *atypes.DimProperties {
 		return nil
 	}
 
-	return &atypes.DimProperties{
-		Dimension: atypes.Dimension{
-			Name:  "kubernetes_uid",
-			Value: string(rs.UID),
-		},
+	return &atypes.Dimension{
+		Name:       "kubernetes_uid",
+		Value:      string(rs.UID),
 		Properties: props,
 		Tags:       tags,
 	}

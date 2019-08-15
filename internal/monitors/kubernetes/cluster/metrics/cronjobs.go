@@ -28,7 +28,7 @@ func datapointsForCronJob(cj *batchv1beta1.CronJob) []*datapoint.Datapoint {
 	}
 }
 
-func dimPropsForCronJob(cj *batchv1beta1.CronJob) *atypes.DimProperties {
+func dimensionForCronJob(cj *batchv1beta1.CronJob) *atypes.Dimension {
 	props, tags := k8sutil.PropsAndTagsFromLabels(cj.Labels)
 
 	props["cronjob_creation_timestamp"] = cj.GetCreationTimestamp().Format(time.RFC3339)
@@ -46,11 +46,9 @@ func dimPropsForCronJob(cj *batchv1beta1.CronJob) *atypes.DimProperties {
 		return nil
 	}
 
-	return &atypes.DimProperties{
-		Dimension: atypes.Dimension{
-			Name:  "kubernetes_uid",
-			Value: string(cj.UID),
-		},
+	return &atypes.Dimension{
+		Name:       "kubernetes_uid",
+		Value:      string(cj.UID),
 		Properties: props,
 		Tags:       tags,
 	}

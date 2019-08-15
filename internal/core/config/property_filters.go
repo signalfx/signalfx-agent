@@ -19,7 +19,7 @@ type PropertyFilterConfig struct {
 }
 
 // MakePropertyFilter returns an actual filter instance from the config
-func (pfc *PropertyFilterConfig) MakePropertyFilter() (propfilters.DimPropsFilter, error) {
+func (pfc *PropertyFilterConfig) MakePropertyFilter() (propfilters.DimensionFilter, error) {
 	pfc.PropertyName = setDefault(pfc.PropertyName)
 	pfc.PropertyValue = setDefault(pfc.PropertyValue)
 	pfc.DimensionName = setDefault(pfc.DimensionName)
@@ -41,7 +41,7 @@ func setDefault(s *string) *string {
 }
 
 func makePropertyFilterSet(conf []PropertyFilterConfig) (*propfilters.FilterSet, error) {
-	fs := make([]propfilters.DimPropsFilter, 0)
+	fs := make([]propfilters.DimensionFilter, 0)
 	for _, pte := range conf {
 		f, err := pte.MakePropertyFilter()
 		if err != nil {

@@ -8,20 +8,20 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/utils/filter"
 )
 
-// DimPropsFilter is designed to filter SignalFx property objects.  It
+// DimensionFilter is designed to filter SignalFx property objects.  It
 // can filter based on property names, property values, dimension names,
 // and dimension values. It also supports both static, globbed, and regex
 // patterns for filter values.
 // All properties matched will be filtered.
-type DimPropsFilter interface {
-	// Filters out properties from DimProperties object
-	FilterDimProps(dimProps *types.DimProperties) *types.DimProperties
+type DimensionFilter interface {
+	// Filters out properties from Dimension object
+	FilterDimension(dim *types.Dimension) *types.Dimension
 	MatchesDimension(name string, value string) bool
 	FilterProperties(properties map[string]string) map[string]string
 }
 
-// basicDimPropsFilter is an implementation of DimPropsFilter
-type basicDimPropsFilter struct {
+// basicDimensionFilter is an implementation of DimensionFilter
+type basicDimensionFilter struct {
 	propertyNameFilter   filter.StringFilter
 	propertyValueFilter  filter.StringFilter
 	dimensionNameFilter  filter.StringFilter
@@ -30,7 +30,7 @@ type basicDimPropsFilter struct {
 
 // New returns a new filter with the given configuration
 func New(propertyNames []string, propertyValues []string, dimensionNames []string,
-	dimensionValues []string) (DimPropsFilter, error) {
+	dimensionValues []string) (DimensionFilter, error) {
 
 	var propertyNameFilter filter.StringFilter
 	if len(propertyNames) > 0 {
@@ -68,7 +68,7 @@ func New(propertyNames []string, propertyValues []string, dimensionNames []strin
 		}
 	}
 
-	return &basicDimPropsFilter{
+	return &basicDimensionFilter{
 		propertyNameFilter:   propertyNameFilter,
 		propertyValueFilter:  propertyValueFilter,
 		dimensionNameFilter:  dimensionNameFilter,
@@ -76,30 +76,31 @@ func New(propertyNames []string, propertyValues []string, dimensionNames []strin
 	}, nil
 }
 
-// Filter applies the filter to the given DimProperties and returns a new
-// filtered DimProperties
-func (f *basicDimPropsFilter) FilterDimProps(dimProps *types.DimProperties) *types.DimProperties {
-	if dimProps == nil {
+// Filter applies the filter to the given Dimension and returns a new
+// filtered Dimensions
+func (f *basicDimensionFilter) FilterDimension(dim *types.Dimension) *types.Dimension {
+	if dim == nil {
 		return nil
 	}
 	var filteredProperties map[string]string
 
-	if f.MatchesDimension(dimProps.Name, dimProps.Value) {
-		filteredProperties = f.FilterProperties(dimProps.Properties)
+	if f.MatchesDimension(dim.Name, dim.Value) {
+		filteredProperties = f.FilterProperties(dim.Properties)
 	} else {
-		filteredProperties = dimProps.Properties
+		filteredProperties = dim.Properties
 	}
 
-	return &types.DimProperties{
-		Dimension:  dimProps.Dimension,
+	return &types.Dimension{
+		Name:       dim.Name,
+		Value:      dim.Value,
 		Properties: filteredProperties,
-		Tags:       dimProps.Tags,
+		Tags:       dim.Tags,
 	}
 }
 
 // FilterProperties uses the propertyNameFilter and propertyValueFilter given to
 // filter out properties in a map if either the name or value matches
-func (f *basicDimPropsFilter) FilterProperties(properties map[string]string) map[string]string {
+func (f *basicDimensionFilter) FilterProperties(properties map[string]string) map[string]string {
 	filteredProperties := make(map[string]string, len(properties))
 	for propName, propValue := range properties {
 		if (!f.propertyNameFilter.Matches(propName)) ||
@@ -113,6 +114,6 @@ func (f *basicDimPropsFilter) FilterProperties(properties map[string]string) map
 
 // MatchesDimension checks both dimensionNameFilter and dimensionValueFilter
 // and if both match, returns true
-func (f *basicDimPropsFilter) MatchesDimension(name string, value string) bool {
+func (f *basicDimensionFilter) MatchesDimension(name string, value string) bool {
 	return f.dimensionNameFilter.Matches(name) && f.dimensionValueFilter.Matches(value)
 }

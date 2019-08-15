@@ -52,7 +52,7 @@ func datapointsForJob(job *batchv1.Job) []*datapoint.Datapoint {
 	}
 }
 
-func dimPropsForJob(job *batchv1.Job) *atypes.DimProperties {
+func dimensionForJob(job *batchv1.Job) *atypes.Dimension {
 	props, tags := k8sutil.PropsAndTagsFromLabels(job.Labels)
 
 	props["kubernetes_workload"] = "Job"
@@ -68,11 +68,9 @@ func dimPropsForJob(job *batchv1.Job) *atypes.DimProperties {
 		return nil
 	}
 
-	return &atypes.DimProperties{
-		Dimension: atypes.Dimension{
-			Name:  "kubernetes_uid",
-			Value: string(job.UID),
-		},
+	return &atypes.Dimension{
+		Name:       "kubernetes_uid",
+		Value:      string(job.UID),
 		Properties: props,
 		Tags:       tags,
 	}

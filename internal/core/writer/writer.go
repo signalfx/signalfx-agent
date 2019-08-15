@@ -25,7 +25,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
-	"github.com/signalfx/signalfx-agent/internal/core/writer/properties"
+	"github.com/signalfx/signalfx-agent/internal/core/writer/dimensions"
 	"github.com/signalfx/signalfx-agent/internal/core/writer/tap"
 	"github.com/signalfx/signalfx-agent/internal/core/writer/tracetracker"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -44,15 +44,15 @@ const (
 // receives events/datapoints on two buffered channels and writes them to
 // SignalFx on a regular interval.
 type SignalFxWriter struct {
-	client        *sfxclient.HTTPSink
-	dimPropClient *properties.DimensionPropertyClient
+	client          *sfxclient.HTTPSink
+	dimensionClient *dimensions.DimensionClient
 
 	// Monitors should send datapoints to this
 	dpChan chan *datapoint.Datapoint
 	// Monitors should send events to this
-	eventChan    chan *event.Event
-	spanChan     chan *trace.Span
-	propertyChan chan *types.DimProperties
+	eventChan     chan *event.Event
+	spanChan      chan *trace.Span
+	dimensionChan chan *types.Dimension
 
 	ctx    context.Context
 	cancel context.CancelFunc
@@ -100,30 +100,30 @@ type SignalFxWriter struct {
 
 // New creates a new un-configured writer
 func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan chan *event.Event,
-	propertyChan chan *types.DimProperties, spanChan chan *trace.Span) (*SignalFxWriter, error) {
+	dimensionChan chan *types.Dimension, spanChan chan *trace.Span) (*SignalFxWriter, error) {
 	logger := utils.NewThrottledLogger(logrus.WithFields(log.Fields{"component": "writer"}), 20*time.Second)
 
 	ctx, cancel := context.WithCancel(context.Background())
 
-	dimPropClient, err := properties.NewDimensionPropertyClient(ctx, conf)
+	dimensionClient, err := dimensions.NewDimensionClient(ctx, conf)
 	if err != nil {
 		cancel()
 		return nil, err
 	}
 
 	sw := &SignalFxWriter{
-		ctx:           ctx,
-		cancel:        cancel,
-		conf:          conf,
-		logger:        logger,
-		client:        sfxclient.NewHTTPSink(),
-		dimPropClient: dimPropClient,
-		hostIDDims:    conf.HostIDDims,
-		dpChan:        dpChan,
-		eventChan:     eventChan,
-		spanChan:      spanChan,
-		propertyChan:  propertyChan,
-		startTime:     time.Now(),
+		ctx:             ctx,
+		cancel:          cancel,
+		conf:            conf,
+		logger:          logger,
+		client:          sfxclient.NewHTTPSink(),
+		dimensionClient: dimensionClient,
+		hostIDDims:      conf.HostIDDims,
+		dpChan:          dpChan,
+		eventChan:       eventChan,
+		spanChan:        spanChan,
+		dimensionChan:   dimensionChan,
+		startTime:       time.Now(),
 		dpBufferPool: &sync.Pool{
 			New: func() interface{} {
 				return make([]*datapoint.Datapoint, 0, conf.DatapointMaxBatchSize)
@@ -192,9 +192,9 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 		return nil, err
 	}
 
-	sw.dimPropClient.Start()
+	sw.dimensionClient.Start()
 	go sw.listenForDatapoints()
-	go sw.listenForEventsAndDimProps()
+	go sw.listenForEventsAndDimensionUpdates()
 	go sw.listenForTraceSpans()
 
 	log.Infof("Sending datapoints to %s", sw.client.DatapointEndpoint)
@@ -450,7 +450,7 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 	}
 }
 
-func (sw *SignalFxWriter) listenForEventsAndDimProps() {
+func (sw *SignalFxWriter) listenForEventsAndDimensionUpdates() {
 	eventTicker := time.NewTicker(time.Duration(sw.conf.EventSendIntervalSeconds) * time.Second)
 	defer eventTicker.Stop()
 
@@ -484,11 +484,11 @@ func (sw *SignalFxWriter) listenForEventsAndDimProps() {
 				}(sw.eventBuffer)
 				initEventBuffer()
 			}
-		case dimProps := <-sw.propertyChan:
-			if err := sw.dimPropClient.AcceptDimProp(dimProps); err != nil {
+		case dim := <-sw.dimensionChan:
+			if err := sw.dimensionClient.AcceptDimension(dim); err != nil {
 				log.WithFields(log.Fields{
-					"dimName":  dimProps.Dimension.Name,
-					"dimValue": dimProps.Dimension.Value,
+					"dimName":  dim.Name,
+					"dimValue": dim.Value,
 				}).WithError(err).Warn("Dropping dimension update")
 			}
 		}

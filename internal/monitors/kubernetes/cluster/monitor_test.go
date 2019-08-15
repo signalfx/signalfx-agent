@@ -148,14 +148,14 @@ var _ = Describe("Kubernetes plugin", func() {
 		Expect(dps[2].Metric).To(Equal("kubernetes.container_ready"))
 		Expect(intValue(dps[2].Value)).To(Equal(int64(1)))
 
-		dimProps := output.WaitForDimensionProps(1, 3)
-		Expect(len(dimProps)).Should(Equal(1))
-		Expect(dimProps[0].Name).Should(Equal("kubernetes_pod_uid"))
-		Expect(dimProps[0].Value).Should(Equal("abcd"))
-		Expect(dimProps[0].Properties["daemonSet"]).Should(Equal("MySet"))
+		dims := output.WaitForDimensions(1, 3)
+		Expect(len(dims)).Should(Equal(1))
+		Expect(dims[0].Name).Should(Equal("kubernetes_pod_uid"))
+		Expect(dims[0].Value).Should(Equal("abcd"))
+		Expect(dims[0].Properties["daemonSet"]).Should(Equal("MySet"))
 
-		dims := dps[0].Dimensions
-		Expect(dims["metric_source"]).To(Equal("kubernetes"))
+		firstDim := dps[0].Dimensions
+		Expect(firstDim["metric_source"]).To(Equal("kubernetes"))
 
 		fakeK8s.CreateOrReplaceResource(&v1.Pod{
 			TypeMeta: metav1.TypeMeta{
