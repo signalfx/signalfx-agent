@@ -35,6 +35,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/elasticsearch"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/expvar"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/filesystems"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/forwarder"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/gitlab"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/internalmetrics"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes"

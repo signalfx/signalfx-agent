@@ -32912,6 +32912,49 @@
       "singleInstance": false
     },
     {
+      "monitorType": "signalfx-forwarder",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "Runs an HTTP server that listens for SignalFx datapoints and trace spans\nand forwards them to SignalFx (or the configured ingest host in the\n`writer` section of the agent config).  This supports the latest formats\nfor datapoints (v2) and spans (v1) that our ingest server supports and at\nthe same path (`/v2/datapoint`, `/v1/trace`).  By default, the server listens on\nlocalhost port 9080 but can be configured to anything.\n",
+      "groups": {},
+      "metrics": null,
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "internal/monitors/forwarder",
+        "fields": [
+          {
+            "yamlName": "listenAddress",
+            "doc": "The host:port on which to listen for datapoints.  The listening server accepts datapoints on the same HTTP path that ingest/gateway accepts them (e.g. `/v2/datapoint`, `/v1/trace`).  Requests to other paths will return 404s.",
+            "default": "127.0.0.1:9080",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "serverTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "5s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendInternalMetrics",
+            "doc": "Whether to emit internal metrics about the HTTP listener",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": false,
+      "singleInstance": true
+    },
+    {
       "monitorType": "sql",
       "sendAll": true,
       "dimensions": null,
@@ -35559,7 +35602,7 @@
         "fields": [
           {
             "yamlName": "listenAddress",
-            "doc": "The host:port on which to listen for spans.  This server accepts spans in all of the formats that we support on our regular ingest server.  The listening server accepts spans on the same HTTP path that ingest accepts them (e.g. `/v1/trace`).  Requests to other paths will return 404s.",
+            "doc": "The host:port on which to listen for datapoints.  The listening server accepts datapoints on the same HTTP path that ingest/gateway accepts them (e.g. `/v2/datapoint`, `/v1/trace`).  Requests to other paths will return 404s.",
             "default": "127.0.0.1:9080",
             "required": false,
             "type": "string",
@@ -35575,7 +35618,7 @@
           },
           {
             "yamlName": "sendInternalMetrics",
-            "doc": "Whether to send internal metrics about the HTTP listener",
+            "doc": "Whether to emit internal metrics about the HTTP listener",
             "default": false,
             "required": false,
             "type": "bool",
