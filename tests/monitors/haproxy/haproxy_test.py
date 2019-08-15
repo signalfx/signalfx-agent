@@ -15,7 +15,7 @@ METADATA = Metadata.from_package("collectd/haproxy")
 EXPECTED_DEFAULTS = METADATA.default_metrics
 
 
-@pytest.mark.parametrize("version", ["1.9", "latest"])
+@pytest.mark.parametrize("version", ["1.9"])
 def test_haproxy_basic(version):
     with run_service("haproxy", buildargs={"HAPROXY_VERSION": version}) as service_container:
         host = container_ip(service_container)
