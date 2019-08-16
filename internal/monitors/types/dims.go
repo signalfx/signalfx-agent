@@ -11,9 +11,11 @@ type Dimension struct {
 	Properties map[string]string
 	// Tags to apply to the dimension value
 	Tags map[string]bool
-	// Whether to do a query of existing dimension properties/tags and merge
-	// the given values into those before updating, or whether to entirely
-	// replace the set of properties/tags.
+	// Whether to merge the given properties/tags into an existing dimension,
+	// or whether to entirely replace the set of properties/tags.
+	// When this is true, you can delete tags by setting the value in Tags to
+	// `false`, and you can delete properties by setting the value in
+	// Properties to `nil`.
 	MergeIntoExisting bool
 }
 
@@ -24,6 +26,7 @@ type DimensionKey struct {
 	Value string
 }
 
+// Key of the dimension, which is its name and value combined.
 func (dp *Dimension) Key() DimensionKey {
 	return DimensionKey{
 		Name:  dp.Name,
