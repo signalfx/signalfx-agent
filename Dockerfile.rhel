@@ -20,6 +20,7 @@ USER root
 CMD ["/usr/bin/signalfx-agent"]
 
 COPY packaging/rpm/signalfx-agent.repo /etc/yum.repos.d/signalfx-agent.repo
+RUN rpm --import https://dl.signalfx.com/yum-rpm.key
 
 RUN microdnf install --enablerepo=rhel-7-server-rpms signalfx-agent-${AGENT_VERSION}-1 &&\
     microdnf clean all
