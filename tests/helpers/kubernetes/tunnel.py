@@ -8,7 +8,7 @@ import yaml
 from kubernetes import client as kube_client
 from tests.helpers.util import pull_from_reader_in_background, wait_for
 
-from .utils import get_pod_logs, pod_is_ready
+from .utils import get_pod_logs, pod_is_ready, K8S_CREATE_TIMEOUT
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 
@@ -24,7 +24,7 @@ def deploy_fake_backend_proxy_pod(namespace):
     pod = corev1.create_namespaced_pod(body=yaml.safe_load(pod_yaml), namespace=namespace)
     name = pod.metadata.name
     try:
-        assert wait_for(p(pod_is_ready, name, namespace=namespace), timeout_seconds=45)
+        assert wait_for(p(pod_is_ready, name, namespace=namespace), timeout_seconds=K8S_CREATE_TIMEOUT)
         yield corev1.read_namespaced_pod(name, namespace=namespace).status.pod_ip
     finally:
         print("Fake backend proxy logs: %s" % (get_pod_logs(name, namespace=namespace)))

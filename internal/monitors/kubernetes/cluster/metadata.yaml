@@ -133,6 +133,31 @@ common:
         `kubernetes_uid` dimension for this StatefulSet.
       default: true
       type: gauge
+    kubernetes.job.completions:
+      description: The desired number of successfully finished pods the job should be
+        run with.
+      default: true
+      type: gauge
+    kubernetes.job.parallelism:
+      description: The max desired number of pods the job should run at any given time.
+      default: true
+      type: gauge
+    kubernetes.job.active:
+      description: The number of actively running pods for a job.
+      default: true
+      type: gauge
+    kubernetes.job.succeeded:
+      description: The number of pods which reached phase Succeeded for a job.
+      default: true
+      type: counter
+    kubernetes.job.failed:
+      description: The number of pods which reased phase Failed for a job.
+      default: true
+      type: counter
+    kubernetes.cronjob.active:
+      description: The number of actively running jobs for a cronjob.
+      default: true
+      type: gauge
   properties:
     <node label>:
       description: All non-blank labels on a given node will be synced as properties

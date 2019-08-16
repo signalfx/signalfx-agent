@@ -17,7 +17,11 @@ def test_kubernetes_cluster_in_k8s(k8s_cluster):
     monitors:
      - type: kubernetes-cluster
     """
-    yamls = [SCRIPT_DIR / "resource_quota.yaml", TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
+    yamls = [
+        SCRIPT_DIR / "resource_quota.yaml",
+        TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml",
+        SCRIPT_DIR / "cronjob.yaml",
+    ]
     with k8s_cluster.create_resources(yamls):
         with k8s_cluster.run_agent(agent_yaml=config) as agent:
             for metric in get_monitor_metrics_from_selfdescribe("kubernetes-cluster"):
@@ -131,4 +135,71 @@ def test_stateful_sets(k8s_cluster):
                     dim_value=resources[0].metadata.uid,
                     props={"kubernetes_name": "web", "k8s_workload": "StatefulSet"},
                 )
+            )
+
+
+@pytest.mark.kubernetes
+def test_jobs(k8s_cluster):
+    yamls = [SCRIPT_DIR / "job.yaml"]
+    with k8s_cluster.create_resources(yamls) as resources:
+        config = """
+            monitors:
+            - type: kubernetes-cluster
+              kubernetesAPI:
+                authType: serviceAccount
+        """
+        with k8s_cluster.run_agent(agent_yaml=config) as agent:
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, dimensions={"kubernetes_name": "pi"}), timeout_seconds=600
+            ), f"timed out waiting for job metric"
+
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, metric_name="kubernetes.job.completions")
+            ), f"timed out waiting for job metric completions"
+
+            assert wait_for(
+                p(
+                    has_all_dim_props,
+                    agent.fake_services,
+                    dim_name="kubernetes_uid",
+                    dim_value=resources[0].metadata.uid,
+                    props={"k8s_workload": "Job", "kubernetes_name": "pi"},
+                ),
+                timeout_seconds=300,
+            )
+
+
+@pytest.mark.kubernetes
+def test_cronjobs(k8s_cluster):
+    yamls = [SCRIPT_DIR / "cronjob.yaml"]
+    with k8s_cluster.create_resources(yamls) as resources:
+        config = """
+            monitors:
+            - type: kubernetes-cluster
+              kubernetesAPI:
+                authType: serviceAccount
+        """
+        with k8s_cluster.run_agent(agent_yaml=config) as agent:
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, dimensions={"kubernetes_name": "pi-cron"}), timeout_seconds=600
+            ), "timed out waiting for cronjob metric"
+
+            assert wait_for(
+                p(
+                    has_datapoint,
+                    agent.fake_services,
+                    metric_name="kubernetes.cronjob.active",
+                    dimensions={"kubernetes_name": "pi-cron"},
+                )
+            ), "timed out waiting for cronjob metric 'kubernetes.cronjob.active'"
+
+            assert wait_for(
+                p(
+                    has_all_dim_props,
+                    agent.fake_services,
+                    dim_name="kubernetes_uid",
+                    dim_value=resources[0].metadata.uid,
+                    props={"k8s_workload": "CronJob", "kubernetes_name": "pi-cron"},
+                ),
+                timeout_seconds=300,
             )

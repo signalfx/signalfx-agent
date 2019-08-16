@@ -57,24 +57,33 @@ func NewFakeK8s() *FakeK8s {
 
 	r := mux.NewRouter()
 
+	r.HandleFunc("/api/v1/{resource}", f.handleListResource).Methods("GET")
 	r.HandleFunc(`/api/v1/namespaces`, f.handleCreateOrReplaceResource).Methods("POST")
 	r.HandleFunc(`/api/v1/namespaces`, f.handleCreateOrReplaceResource).Methods("PUT")
 	r.HandleFunc(`/api/v1/namespaces`, f.handleCreateOrReplaceResource).Methods("DELETE")
-
-	r.HandleFunc(`/api/v1/namespaces/{namespace}/{resource}/{name}`, f.handleGetResourceByName).Methods("GET")
-	r.HandleFunc(`/apis/extensions/v1beta1/namespaces/{namespace}/{resource}/{name}`, f.handleGetResourceByName).Methods("GET")
-
 	r.HandleFunc("/api/v1/namespaces/{namespace}/{resource}", f.handleListResource).Methods("GET")
-	r.HandleFunc("/apis/extensions/v1beta1/namespaces/{namespace}/{resource}", f.handleListResource).Methods("GET")
-	r.HandleFunc("/apis/extensions/v1beta1/{resource}", f.handleListResource).Methods("GET")
-	r.HandleFunc("/api/v1/{resource}", f.handleListResource).Methods("GET")
-
-	r.HandleFunc("/apis/extensions/v1beta1/namespaces/{namespace}/{resource}", f.handleCreateOrReplaceResource).Methods("POST")
-	r.HandleFunc("/apis/extensions/v1beta1/namespaces/{namespace}/{resource}/{name}", f.handleDeleteResource).Methods("DELETE")
-
 	r.HandleFunc(`/api/v1/namespaces/{namespace}/{resource}`, f.handleCreateOrReplaceResource).Methods("POST")
 	r.HandleFunc(`/api/v1/namespaces/{namespace}/{resource}/{name}`, f.handleCreateOrReplaceResource).Methods("PUT")
 	r.HandleFunc(`/api/v1/namespaces/{namespace}/{resource}/{name}`, f.handleDeleteResource).Methods("DELETE")
+	r.HandleFunc(`/api/v1/namespaces/{namespace}/{resource}/{name}`, f.handleGetResourceByName).Methods("GET")
+
+	r.HandleFunc("/apis/extensions/v1beta1/{resource}", f.handleListResource).Methods("GET")
+	r.HandleFunc(`/apis/extensions/v1beta1/namespaces/{namespace}/{resource}/{name}`, f.handleGetResourceByName).Methods("GET")
+	r.HandleFunc("/apis/extensions/v1beta1/namespaces/{namespace}/{resource}", f.handleListResource).Methods("GET")
+	r.HandleFunc("/apis/extensions/v1beta1/namespaces/{namespace}/{resource}", f.handleCreateOrReplaceResource).Methods("POST")
+	r.HandleFunc("/apis/extensions/v1beta1/namespaces/{namespace}/{resource}/{name}", f.handleDeleteResource).Methods("DELETE")
+
+	r.HandleFunc("/apis/batch/v1/{resource}", f.handleListResource).Methods("GET")
+	r.HandleFunc("/apis/batch/v1/namespaces/{namespace}/{resource}", f.handleListResource).Methods("GET")
+	r.HandleFunc("/apis/batch/v1/namespaces/{namespace}/{resource}", f.handleCreateOrReplaceResource).Methods("POST")
+	r.HandleFunc(`/apis/batch/v1/namespaces/{namespace}/{resource}/{name}`, f.handleGetResourceByName).Methods("GET")
+	r.HandleFunc("/apis/batch/v1/namespaces/{namespace}/{resource}/{name}", f.handleDeleteResource).Methods("DELETE")
+
+	r.HandleFunc("/apis/batch/v1beta1/{resource}", f.handleListResource).Methods("GET")
+	r.HandleFunc("/apis/batch/v1beta1/namespaces/{namespace}/{resource}", f.handleListResource).Methods("GET")
+	r.HandleFunc("/apis/batch/v1beta1/namespaces/{namespace}/{resource}", f.handleCreateOrReplaceResource).Methods("POST")
+	r.HandleFunc(`/apis/batch/v1beta1/namespaces/{namespace}/{resource}/{name}`, f.handleGetResourceByName).Methods("GET")
+	r.HandleFunc("/apis/batch/v1beta1/namespaces/{namespace}/{resource}/{name}", f.handleDeleteResource).Methods("DELETE")
 
 	r.Use(loggingMiddleware)
 
@@ -355,6 +364,10 @@ func pluralNameToKind(name string) resourceKind {
 		return "Secret"
 	case "services":
 		return "Service"
+	case "jobs":
+		return "Job"
+	case "cronjobs":
+		return "CronJob"
 	default:
 		panic("Unknown resource type: " + name)
 	}
@@ -381,6 +394,10 @@ func typeMeta(rt resourceKind) metav1.TypeMeta {
 		return metav1.TypeMeta{Kind: "SecretList", APIVersion: "v1"}
 	case "Service":
 		return metav1.TypeMeta{Kind: "ServiceList", APIVersion: "v1"}
+	case "Job":
+		return metav1.TypeMeta{Kind: "JobList", APIVersion: "batch/v1"}
+	case "CronJob":
+		return metav1.TypeMeta{Kind: "CronJobList", APIVersion: "batch/v1beta1"}
 	default:
 		panic("Unknown resource type: " + string(rt))
 	}
