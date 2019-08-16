@@ -2,7 +2,7 @@
 
 # postgresql
 
-Monitor Type: `postgresql` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/postgresql))
+Monitor Type: `postgresql` (<a target="_blank" href="https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/postgresql">Source</a>)
 
 **Accepts Endpoints**: **Yes**
 
@@ -25,21 +25,19 @@ each database by running `CREATE EXTENSION IF NOT EXISTS
 pg_stat_statements;` on each database.
 
 Note that in order to get consistent and accurate query execution time
-metrics, you must set the [pg_stat_statements.max config
-option](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631)
+metrics, you must set the <a target="_blank" href="https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631">pg_stat_statements.max config option</a>
 to larger than the number of distinct queries on the server.
 
-Here is a [sample configuration of Postgres to enable statement tracking](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631).
+Here is a <a target="_blank" href="https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631">sample configuration of Postgres to enable statement tracking</a>.
 
 Tested with PostgreSQL 9.2+.
 
-If you want to collect additional metrics about PostgreSQL, use the [sql monitor](./sql.md).
+If you want to collect additional metrics about PostgreSQL, use the <a target="_blank" href="./sql.md">sql monitor</a>.
 
 <!--- SETUP --->
 ## Example Configuration
 
-This example uses the [Vault remote config
-source](https://github.com/signalfx/signalfx-agent/blob/master/docs/remote-config.md#nested-values-vault-only)
+This example uses the <a target="_blank" href="https://github.com/signalfx/signalfx-agent/blob/master/docs/remote-config.md#nested-values-vault-only">Vault remote config source</a>
 to connect to PostgreSQL using the `params` map that allows you to pull
 out the username and password individually from Vault and interpolate
 them into the `connectionString` config option.
@@ -80,8 +78,7 @@ monitors:  # All monitor config goes under this key
    ...  # Additional config
 ```
 
-**For a list of monitor options that are common to all monitors, see [Common
-Configuration](../monitor-config.md#common-configuration).**
+**For a list of monitor options that are common to all monitors, see <a target="_blank" href="../monitor-config.md#common-configuration">Common Configuration</a>.**
 
 
 | Config option | Required | Type | Description |
@@ -90,7 +87,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `port` | no | `integer` |  (**default:** `0`) |
 | `connectionString` | no | `string` | See https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters. |
 | `params` | no | `map of strings` | Parameters to the connection string that can be templated into the connection string with the syntax `{{.key}}`. |
-| `databases` | no | `list of strings` | List of databases to send database-specific metrics about.  If omitted, metrics about all databases will be sent.  This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). (**default:** `[*]`) |
+| `databases` | no | `list of strings` | List of databases to send database-specific metrics about.  If omitted, metrics about all databases will be sent.  This is an <a target="_blank" href="https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters">overridable set</a>. (**default:** `[*]`) |
 | `databasePollIntervalSeconds` | no | `integer` | How frequently to poll for new/deleted databases in the DB server. Defaults to the same as `intervalSeconds` if not set. (**default:** `0`) |
 
 
@@ -98,7 +95,7 @@ Configuration](../monitor-config.md#common-configuration).**
 
 These are the metrics available for this monitor.
 Metrics that are categorized as
-[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+<a target="_blank" href="https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics">container/host</a>
 (*default*) are ***in bold and italics*** in the list below.
 
 
@@ -107,14 +104,14 @@ Metrics that are categorized as
  - ***`postgres_deadlocks`*** (*cumulative*)<br>    Total number of deadlocks detected by the system
  - ***`postgres_index_scans`*** (*cumulative*)<br>    Total number of index scans on the `table`.
  - ***`postgres_live_rows`*** (*gauge*)<br>    Number of rows live (not deleted) in the `table`.
- - ***`postgres_query_count`*** (*cumulative*)<br>    Total number of queries executed on the `database`, broken down by `user`.  Note that the accuracy of this metric depends on the PostgreSQL [pg_stat_statements.max config option](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631) being large enough to hold all queries.
+ - ***`postgres_query_count`*** (*cumulative*)<br>    Total number of queries executed on the `database`, broken down by `user`.  Note that the accuracy of this metric depends on the PostgreSQL <a target="_blank" href="https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631">pg_stat_statements.max config option</a> being large enough to hold all queries.
 
  - ***`postgres_query_time`*** (*cumulative*)<br>    Total time taken to execute queries on the `database`, broken down by `user`.
  - ***`postgres_rows_deleted`*** (*cumulative*)<br>    Number of rows deleted from the `table`.
  - ***`postgres_rows_inserted`*** (*cumulative*)<br>    Number of rows inserted into the `table`.
  - ***`postgres_rows_updated`*** (*cumulative*)<br>    Number of rows updated in the `table`.
  - ***`postgres_sequential_scans`*** (*cumulative*)<br>    Total number of sequential scans on the `table`.
- - ***`postgres_sessions`*** (*gauge*)<br>    Number of sessions currently on the server instance.  The `state` dimension will specify which which type of session (see `state` row of [pg_stat_activity](https://www.postgresql.org/docs/9.2/monitoring-stats.html#PG-STAT-ACTIVITY-VIEW)).
+ - ***`postgres_sessions`*** (*gauge*)<br>    Number of sessions currently on the server instance.  The `state` dimension will specify which which type of session (see `state` row of <a target="_blank" href="https://www.postgresql.org/docs/9.2/monitoring-stats.html#PG-STAT-ACTIVITY-VIEW">pg_stat_activity</a>).
 
  - ***`postgres_table_size`*** (*gauge*)<br>    The size in bytes of the `table` on disk.
 
@@ -136,13 +133,12 @@ monitors` after configuring this monitor in a running agent instance.
 **The following information only applies to agent version older than 4.7.0. If
 you have a newer agent and have set `enableBuiltInFiltering: true` at the top
 level of your agent config, see the section above. See upgrade instructions in
-[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+<a target="_blank" href="../legacy-filtering.md#old-style-whitelist-filtering">Old-style whitelist filtering</a>.**
 
 If you have a reference to the `whitelist.json` in your agent's top-level
 `metricsToExclude` config option, and you want to emit metrics that are not in
 that whitelist, then you need to add an item to the top-level
-`metricsToInclude` config option to override that whitelist (see [Inclusion
-filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+`metricsToInclude` config option to override that whitelist (see <a target="_blank" href="../legacy-filtering.md#inclusion-filtering">Inclusion filtering</a>.  Or you can just
 copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 ## Dimensions

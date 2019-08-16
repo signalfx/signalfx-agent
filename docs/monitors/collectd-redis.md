@@ -2,7 +2,7 @@
 
 # collectd/redis
 
-Monitor Type: `collectd/redis` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/redis))
+Monitor Type: `collectd/redis` (<a target="_blank" href="https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/redis">Source</a>)
 
 **Accepts Endpoints**: **Yes**
 
@@ -10,8 +10,7 @@ Monitor Type: `collectd/redis` ([Source](https://github.com/signalfx/signalfx-ag
 
 ## Overview
 
-Monitors a redis instance using the [collectd Python Redis
-plugin](https://github.com/signalfx/redis-collectd-plugin).  Supports Redis
+Monitors a redis instance using the <a target="_blank" href="https://github.com/signalfx/redis-collectd-plugin">collectd Python Redis plugin</a>.  Supports Redis
 2.8 and later.
 
 You can capture any kind of Redis metrics like:
@@ -82,8 +81,7 @@ monitors:  # All monitor config goes under this key
    ...  # Additional config
 ```
 
-**For a list of monitor options that are common to all monitors, see [Common
-Configuration](../monitor-config.md#common-configuration).**
+**For a list of monitor options that are common to all monitors, see <a target="_blank" href="../monitor-config.md#common-configuration">Common Configuration</a>.**
 
 
 | Config option | Required | Type | Description |
@@ -108,7 +106,7 @@ The **nested** `sendListLengths` config object has the following fields:
 
 These are the metrics available for this monitor.
 Metrics that are categorized as
-[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+<a target="_blank" href="https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics">container/host</a>
 (*default*) are ***in bold and italics*** in the list below.
 
 
@@ -169,13 +167,12 @@ monitors` after configuring this monitor in a running agent instance.
 **The following information only applies to agent version older than 4.7.0. If
 you have a newer agent and have set `enableBuiltInFiltering: true` at the top
 level of your agent config, see the section above. See upgrade instructions in
-[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+<a target="_blank" href="../legacy-filtering.md#old-style-whitelist-filtering">Old-style whitelist filtering</a>.**
 
 If you have a reference to the `whitelist.json` in your agent's top-level
 `metricsToExclude` config option, and you want to emit metrics that are not in
 that whitelist, then you need to add an item to the top-level
-`metricsToInclude` config option to override that whitelist (see [Inclusion
-filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+`metricsToInclude` config option to override that whitelist (see <a target="_blank" href="../legacy-filtering.md#inclusion-filtering">Inclusion filtering</a>.  Or you can just
 copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 ## Dimensions

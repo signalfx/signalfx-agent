@@ -2,7 +2,7 @@
 
 # gitlab
 
-Monitor Type: `gitlab` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/gitlab))
+Monitor Type: `gitlab` (<a target="_blank" href="https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/gitlab">Source</a>)
 
 **Accepts Endpoints**: **Yes**
 
@@ -12,8 +12,7 @@ Monitor Type: `gitlab` ([Source](https://github.com/signalfx/signalfx-agent/tree
 
 GitLab is an open-source web-based git repository manager developed by
 GitLab Inc. GitLab has built-in features for creating wiki pages,
-issue-tracking and CI/CD pipelines. GitLab is bundled with [Prometheus
-exporters](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html)
+issue-tracking and CI/CD pipelines. GitLab is bundled with <a target="_blank" href="https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html">Prometheus exporters</a>
 that can be configured to export performance metrics of itself and that of
 the bundled software that GitLab depends on. These exporters publish
 Prometheus metrics at endpoints are scraped by this monitor.
@@ -30,10 +29,10 @@ Prometheus metrics at endpoints are scraped by this monitor.
 #### GitLab Configuration
 
 Follow the instructions
-[here](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html)
+<a target="_blank" href="https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html">here</a>
 to configure the GitLab's Prometheus exporters to expose metric endpoint
 targets. For GitLab Runner monitoring configuration go
-[here](https://docs.gitlab.com/runner/monitoring/README.html).
+<a target="_blank" href="https://docs.gitlab.com/runner/monitoring/README.html">here</a>.
 
 Note that configuring GitLab by editing `/etc/gitlab/gitlab.rb` should be
 accompanied by running the command `gitlab-ctl reconfigure` in order for
@@ -54,17 +53,17 @@ metrics are just targets `gitlab_monitor_database`,
 
 | Agent Monitor Type    |     Gitlab Doc                           | Standard Port | Standard Path |
 |-----------------------|------------------------------------------|---------------|---------------|
-| gitlab | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_monitor_exporter.html) | 9168 | /metrics |
-| [gitlab-gitaly](./gitlab-gitaly.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/gitaly/#doc-nav) | 9236 | /metrics |
-| [gitlab-sidekiq](./gitlab-sidekiq.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8082 | /metrics |
-| [gitlab-unicorn](./gitlab-unicorn.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_metrics.html#unicorn-metrics-available) | 8080 | /-/metrics |
-| [gitlab-workhorse](./gitlab-workhorse.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9229 | /metrics |
-| [prometheus/nginx-vts](./prometheus-nginx-vts.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8060 | /metrics |
-| [prometheus/node](./prometheus-node.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/node_exporter.html) | 9100 | /metrics |
-| [promteheus/postgres](./prometheus-postgres.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/postgres_exporter.html) | 9187 | /metrics |
-| [prometheus/prometheus](./prometheus-prometheus.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9090 | /metrics |
-| [prometheus/redis](./prometheus-redis.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/redis_exporter.html) | 9121 | /metrics |
-| [gitlab-runner](./gitlab-runner.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9252 | /metrics |
+| gitlab | <a target="_blank" href="https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_monitor_exporter.html">Gitlab doc</a>\ | 9168 | /metrics |
+| <a target="_blank" href="./gitlab-gitaly.md">gitlab-gitaly</a>\ | <a target="_blank" href="https://docs.gitlab.com/ee/administration/gitaly/#doc-nav">Gitlab doc</a>\ | 9236 | /metrics |
+| <a target="_blank" href="./gitlab-sidekiq.md">gitlab-sidekiq</a>\ | <a target="_blank" href="https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html">Gitlab doc</a> | 8082 | /metrics |
+| <a target="_blank" href="./gitlab-unicorn.md">gitlab-unicorn</a>\ | <a target="_blank" href="https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_metrics.html#unicorn-metrics-available">Gitlab doc</a> | 8080 | /-/metrics |
+| <a target="_blank" href="./gitlab-workhorse.md">gitlab-workhorse</a>\ | <a target="_blank" href="https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html">Gitlab doc</a> | 9229 | /metrics |
+| <a target="_blank" href="./prometheus-nginx-vts.md">prometheus/nginx-vts</a>\ | <a target="_blank" href="https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html">Gitlab doc</a> | 8060 | /metrics |
+| <a target="_blank" href="./prometheus-node.md">prometheus/node</a>\ | <a target="_blank" href="https://docs.gitlab.com/ee/administration/monitoring/prometheus/node_exporter.html">Gitlab doc</a> | 9100 | /metrics |
+| <a target="_blank" href="./prometheus-postgres.md">promteheus/postgres</a>\ | <a target="_blank" href="https://docs.gitlab.com/ee/administration/monitoring/prometheus/postgres_exporter.html">Gitlab doc</a> | 9187 | /metrics |
+| <a target="_blank" href="./prometheus-prometheus.md">prometheus/prometheus</a>\ | <a target="_blank" href="https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html">Gitlab doc</a> | 9090 | /metrics |
+| <a target="_blank" href="./prometheus-redis.md">prometheus/redis</a>\ | <a target="_blank" href="https://docs.gitlab.com/ee/administration/monitoring/prometheus/redis_exporter.html">Gitlab doc</a> | 9121 | /metrics |
+| <a target="_blank" href="./gitlab-runner.md">gitlab-runner</a>\ | <a target="_blank" href="https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html">Gitlab doc</a> | 9252 | /metrics |
 
 GitLab Prometheus exporters, Nginx and GitLab Runner must be configured to
 listen to IP address(es) that include the IP address of the host or docker
@@ -162,8 +161,7 @@ monitors:  # All monitor config goes under this key
    ...  # Additional config
 ```
 
-**For a list of monitor options that are common to all monitors, see [Common
-Configuration](../monitor-config.md#common-configuration).**
+**For a list of monitor options that are common to all monitors, see <a target="_blank" href="../monitor-config.md#common-configuration">Common Configuration</a>.**
 
 
 | Config option | Required | Type | Description |
@@ -182,7 +180,7 @@ Configuration](../monitor-config.md#common-configuration).**
 
 These are the metrics available for this monitor.
 Metrics that are categorized as
-[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+<a target="_blank" href="https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics">container/host</a>
 (*default*) are ***in bold and italics*** in the list below.
 
 
@@ -257,13 +255,12 @@ monitors` after configuring this monitor in a running agent instance.
 **The following information only applies to agent version older than 4.7.0. If
 you have a newer agent and have set `enableBuiltInFiltering: true` at the top
 level of your agent config, see the section above. See upgrade instructions in
-[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+<a target="_blank" href="../legacy-filtering.md#old-style-whitelist-filtering">Old-style whitelist filtering</a>.**
 
 If you have a reference to the `whitelist.json` in your agent's top-level
 `metricsToExclude` config option, and you want to emit metrics that are not in
 that whitelist, then you need to add an item to the top-level
-`metricsToInclude` config option to override that whitelist (see [Inclusion
-filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+`metricsToInclude` config option to override that whitelist (see <a target="_blank" href="../legacy-filtering.md#inclusion-filtering">Inclusion filtering</a>.  Or you can just
 copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 

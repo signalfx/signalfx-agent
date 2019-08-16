@@ -2,7 +2,7 @@
 
 # statsd
 
-Monitor Type: `statsd` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/statsd))
+Monitor Type: `statsd` (<a target="_blank" href="https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/statsd">Source</a>)
 
 **Accepts Endpoints**: No
 
@@ -86,8 +86,7 @@ monitors:  # All monitor config goes under this key
    ...  # Additional config
 ```
 
-**For a list of monitor options that are common to all monitors, see [Common
-Configuration](../monitor-config.md#common-configuration).**
+**For a list of monitor options that are common to all monitors, see <a target="_blank" href="../monitor-config.md#common-configuration">Common Configuration</a>.**
 
 
 | Config option | Required | Type | Description |

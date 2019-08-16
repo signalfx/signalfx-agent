@@ -2,7 +2,7 @@
 
 # collectd/kong
 
-Monitor Type: `collectd/kong` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kong))
+Monitor Type: `collectd/kong` (<a target="_blank" href="https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kong">Source</a>)
 
 **Accepts Endpoints**: **Yes**
 
@@ -11,14 +11,14 @@ Monitor Type: `collectd/kong` ([Source](https://github.com/signalfx/signalfx-age
 ## Overview
 
 Monitors a Kong instance using
-[collectd-kong](https://github.com/signalfx/collectd-kong).  The Smart
+<a target="_blank" href="https://github.com/signalfx/collectd-kong">collectd-kong</a>.  The Smart
 Agent includes collectd and this plugin as part of the standard
 installation, so no additional installation is required once you have the
 Smart Agent.
 
 The SignalFx Kong collectd plugin provides users with the ability to gather
 and report their service traffic metrics with collectd, in tandem with
-[kong-plugin-signalfx](https://github.com/signalfx/kong-plugin-signalfx).
+<a target="_blank" href="https://github.com/signalfx/kong-plugin-signalfx">kong-plugin-signalfx</a>.
 
 This plugin emits metrics for configurable request/response lifecycle groups including:
 
@@ -46,7 +46,7 @@ described at https://github.com/signalfx/collectd-kong/blob/master/README.md.
 ### Install Kong Lua Plugin
 
 Please download and install this Lua module on all Kong servers by
-following [these instructions](https://github.com/signalfx/kong-plugin-signalfx/blob/master/README.md).
+following <a target="_blank" href="https://github.com/signalfx/kong-plugin-signalfx/blob/master/README.md">these instructions</a>.
 
 ### REQUIREMENTS AND DEPENDENCIES
 
@@ -55,7 +55,7 @@ This plugin requires:
 | Software          | Version        |
 |-------------------|----------------|
 | Kong | 0.11.2+ |
-| Configured [kong-plugin-signalfx](https://github.com/signalfx/kong-plugin-signalfx) | 0.0.1+ |
+| Configured <a target="_blank" href="https://github.com/signalfx/kong-plugin-signalfx">kong-plugin-signalfx</a> | 0.0.1+ |
 
 
 <!--- SETUP --->
@@ -112,8 +112,7 @@ monitors:  # All monitor config goes under this key
    ...  # Additional config
 ```
 
-**For a list of monitor options that are common to all monitors, see [Common
-Configuration](../monitor-config.md#common-configuration).**
+**For a list of monitor options that are common to all monitors, see <a target="_blank" href="../monitor-config.md#common-configuration">Common Configuration</a>.**
 
 
 | Config option | Required | Type | Description |
@@ -174,7 +173,7 @@ The **nested** `metrics` config object has the following fields:
 
 These are the metrics available for this monitor.
 Metrics that are categorized as
-[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+<a target="_blank" href="https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics">container/host</a>
 (*default*) are ***in bold and italics*** in the list below.
 
 
@@ -211,13 +210,12 @@ monitors` after configuring this monitor in a running agent instance.
 **The following information only applies to agent version older than 4.7.0. If
 you have a newer agent and have set `enableBuiltInFiltering: true` at the top
 level of your agent config, see the section above. See upgrade instructions in
-[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+<a target="_blank" href="../legacy-filtering.md#old-style-whitelist-filtering">Old-style whitelist filtering</a>.**
 
 If you have a reference to the `whitelist.json` in your agent's top-level
 `metricsToExclude` config option, and you want to emit metrics that are not in
 that whitelist, then you need to add an item to the top-level
-`metricsToInclude` config option to override that whitelist (see [Inclusion
-filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+`metricsToInclude` config option to override that whitelist (see <a target="_blank" href="../legacy-filtering.md#inclusion-filtering">Inclusion filtering</a>.  Or you can just
 copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 

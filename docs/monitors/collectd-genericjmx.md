@@ -2,7 +2,7 @@
 
 # collectd/genericjmx
 
-Monitor Type: `collectd/genericjmx` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/genericjmx))
+Monitor Type: `collectd/genericjmx` (<a target="_blank" href="https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/genericjmx">Source</a>)
 
 **Accepts Endpoints**: **Yes**
 
@@ -13,11 +13,10 @@ Monitor Type: `collectd/genericjmx` ([Source](https://github.com/signalfx/signal
 Monitors Java services that expose metrics on JMX using collectd's
 GenericJMX plugin. The GenericJMX plugin reads Managed Beans (MBeans) from
 an MBeanServer using JMX. The monitor uses an embedded Java runtime in
-collectd via the [Java
-plugin](https://github.com/signalfx/integrations/tree/master/collectd-java)
-of collectd.
+collectd via the <a target="_blank" href="https://github.com/signalfx/integrations/tree/master/collectd-java">Java
+plugin</a> of collectd.
 
-The Java Management Extensions (JMX) is a generic framework to provide and
+The Java Management Extensions (JMX) is a g eneric framework to provide and
 query various management information. The interface is used by the Java
 Virtual Machine (JVM) to provide information about the memory used, threads
 and so on. These basic performance values can therefore be collected for
@@ -57,8 +56,7 @@ monitors:
 ## Troubleshooting
 
 Exposing JMX in your Java application can be a tricky process.  Oracle has a
-[helpful guide for Java
-8](https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html)
+<a target="_blank" href="https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html">helpful guide for Java 8</a>
 that explains how to expose JMX metrics automatically by setting Java
 properties on your application.  Here are a set of Java properties that are
 known to work with Java 7+:
@@ -125,8 +123,7 @@ monitors:  # All monitor config goes under this key
    ...  # Additional config
 ```
 
-**For a list of monitor options that are common to all monitors, see [Common
-Configuration](../monitor-config.md#common-configuration).**
+**For a list of monitor options that are common to all monitors, see <a target="_blank" href="../monitor-config.md#common-configuration">Common Configuration</a>.**
 
 
 | Config option | Required | Type | Description |
@@ -142,7 +139,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `customDimensions` | no | `map of strings` | Takes in key-values pairs of custom dimensions at the connection level. |
 | `mBeansToCollect` | no | `list of strings` | A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected. |
 | `mBeansToOmit` | no | `list of strings` | A list of the MBeans to omit. This will come handy in cases where only a few MBeans need to omitted from the default list |
-| `mBeanDefinitions` | no | `map of objects (see below)` | Specifies how to map JMX MBean values to metrics.  If using a specific service monitor such as cassandra, kafka, or activemq, they come pre-loaded with a set of mappings, and any that you add in this option will be merged with those.  See [collectd GenericJMX](https://collectd.org/documentation/manpages/collectd-java.5.shtml#genericjmx_plugin) for more details. |
+| `mBeanDefinitions` | no | `map of objects (see below)` | Specifies how to map JMX MBean values to metrics.  If using a specific service monitor such as cassandra, kafka, or activemq, they come pre-loaded with a set of mappings, and any that you add in this option will be merged with those.  See <a target="_blank" href="https://collectd.org/documentation/manpages/collectd-java.5.shtml#genericjmx_plugin">collectd GenericJMX</a> for more details. |
 
 
 The **nested** `mBeanDefinitions` config object has the following fields:
@@ -172,7 +169,7 @@ The **nested** `values` config object has the following fields:
 
 These are the metrics available for this monitor.
 Metrics that are categorized as
-[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+<a target="_blank" href="https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics">container/host</a>
 (*default*) are ***in bold and italics*** in the list below.
 
 
@@ -207,13 +204,12 @@ monitors` after configuring this monitor in a running agent instance.
 **The following information only applies to agent version older than 4.7.0. If
 you have a newer agent and have set `enableBuiltInFiltering: true` at the top
 level of your agent config, see the section above. See upgrade instructions in
-[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+<a target="_blank" href="../legacy-filtering.md#old-style-whitelist-filtering">Old-style whitelist filtering</a>.**
 
 If you have a reference to the `whitelist.json` in your agent's top-level
 `metricsToExclude` config option, and you want to emit metrics that are not in
 that whitelist, then you need to add an item to the top-level
-`metricsToInclude` config option to override that whitelist (see [Inclusion
-filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+`metricsToInclude` config option to override that whitelist (see <a target="_blank" href="../legacy-filtering.md#inclusion-filtering">Inclusion filtering</a>.  Or you can just
 copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 

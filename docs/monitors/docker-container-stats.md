@@ -2,7 +2,7 @@
 
 # docker-container-stats
 
-Monitor Type: `docker-container-stats` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/docker))
+Monitor Type: `docker-container-stats` (<a target="_blank" href="https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/docker">Source</a>)
 
 **Accepts Endpoints**: No
 
@@ -12,14 +12,12 @@ Monitor Type: `docker-container-stats` ([Source](https://github.com/signalfx/sig
 
 This monitor reads container stats from a
 Docker API server.  It is meant as a metric-compatible replacement of our
-[docker-collectd](https://github.com/signalfx/docker-collectd-plugin)
+<a target="_blank" href="https://github.com/signalfx/docker-collectd-plugin">docker-collectd</a>
 plugin, which scales rather poorly against a large number of containers.
 
 This currently does not support CPU share/quota metrics.
 
-For more information on block IO metrics, see [the Linux cgroup block io
-controller
-doc](https://www.kernel.org/doc/Documentation/cgroup-v1/blkio-controller.txt).
+For more information on block IO metrics, see <a target="_blank" href="https://www.kernel.org/doc/Documentation/cgroup-v1/blkio-controller.txt">the Linux cgroup block io controller doc</a>.
 
 If you are running the agent directly on a host (outside of a container
 itself) and you are using the default Docker UNIX socket URL, you will
@@ -40,8 +38,7 @@ monitors:  # All monitor config goes under this key
    ...  # Additional config
 ```
 
-**For a list of monitor options that are common to all monitors, see [Common
-Configuration](../monitor-config.md#common-configuration).**
+**For a list of monitor options that are common to all monitors, see <a target="_blank" href="../monitor-config.md#common-configuration">Common Configuration</a>.**
 
 
 | Config option | Required | Type | Description |
@@ -61,7 +58,7 @@ Configuration](../monitor-config.md#common-configuration).**
 
 These are the metrics available for this monitor.
 Metrics that are categorized as
-[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+<a target="_blank" href="https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics">container/host</a>
 (*default*) are ***in bold and italics*** in the list below.
 
 
@@ -139,7 +136,7 @@ monitor config option `extraGroups`:
  - `memory.stats.pgpgout` (*cumulative*)<br>    Number of uncharging events to the memory cgroup. Uncharging events happen each time a page is unaccounted from the cgroup.
  - `memory.stats.rss` (*gauge*)<br>    The amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps.
  - `memory.stats.rss_huge` (*gauge*)<br>    Amount of memory due to anonymous transparent hugepages.
- - `memory.stats.shmem` (*gauge*)<br>    Amount of [Shared Memory](https://www.kernel.org/doc/gorman/html/understand/understand015.html) used by the container, in bytes.
+ - `memory.stats.shmem` (*gauge*)<br>    Amount of <a target="_blank" href="https://www.kernel.org/doc/gorman/html/understand/understand015.html">Shared Memory</a> used by the container, in bytes.
  - `memory.stats.swap` (*gauge*)<br>    Bytes of swap memory used by container
  - `memory.stats.total_active_anon` (*gauge*)<br>    Total amount of memory that has been identified as active by the kernel. Anonymous memory is memory that is not linked to disk pages.
  - `memory.stats.total_active_file` (*gauge*)<br>    Total amount of active file cache memory. Cache memory = active_file + inactive_file + tmpfs
@@ -154,7 +151,7 @@ monitor config option `extraGroups`:
  - `memory.stats.total_pgpgout` (*cumulative*)<br>    Total number of uncharging events
  - `memory.stats.total_rss` (*gauge*)<br>    Total amount of memory that doesn’t correspond to anything on disk: stacks, heaps, and anonymous memory maps.
  - `memory.stats.total_rss_huge` (*gauge*)<br>    Total amount of memory due to anonymous transparent hugepages.
- - `memory.stats.total_shmem` (*gauge*)<br>    Available amount of [Shared Memory](https://www.kernel.org/doc/gorman/html/understand/understand015.html) used by the container, in bytes.
+ - `memory.stats.total_shmem` (*gauge*)<br>    Available amount of <a target="_blank" href="https://www.kernel.org/doc/gorman/html/understand/understand015.html">Shared Memory</a> used by the container, in bytes.
  - `memory.stats.total_swap` (*gauge*)<br>    Total amount of swap memory available to this container
  - `memory.stats.total_unevictable` (*gauge*)<br>    Total amount of memory that can not be reclaimed
  - `memory.stats.total_writeback` (*gauge*)<br>    Total amount of memory from file/anon cache that are queued for syncing to the disk
@@ -195,13 +192,12 @@ monitors` after configuring this monitor in a running agent instance.
 **The following information only applies to agent version older than 4.7.0. If
 you have a newer agent and have set `enableBuiltInFiltering: true` at the top
 level of your agent config, see the section above. See upgrade instructions in
-[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+<a target="_blank" href="../legacy-filtering.md#old-style-whitelist-filtering">Old-style whitelist filtering</a>.**
 
 If you have a reference to the `whitelist.json` in your agent's top-level
 `metricsToExclude` config option, and you want to emit metrics that are not in
 that whitelist, then you need to add an item to the top-level
-`metricsToInclude` config option to override that whitelist (see [Inclusion
-filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+`metricsToInclude` config option to override that whitelist (see <a target="_blank" href="../legacy-filtering.md#inclusion-filtering">Inclusion filtering</a>.  Or you can just
 copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 

@@ -2,7 +2,7 @@
 
 # collectd/consul
 
-Monitor Type: `collectd/consul` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/consul))
+Monitor Type: `collectd/consul` (<a target="_blank" href="https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/consul">Source</a>)
 
 **Accepts Endpoints**: **Yes**
 
@@ -11,8 +11,8 @@ Monitor Type: `collectd/consul` ([Source](https://github.com/signalfx/signalfx-a
 ## Overview
 
 Monitors the Consul data store by using the
-[Consul collectd Python
-plugin](https://github.com/signalfx/collectd-consul), which collects metrics
+<a target="_blank" href="https://github.com/signalfx/collectd-consul">Consul collectd Python
+plugin</a>, which collects metrics
 from Consul instances by hitting these endpoints:
 - [/agent/self](https://www.consul.io/api/agent.html#read-configuration)
 - [/agent/metrics](https://www.consul.io/api/agent.html#view-metrics)
@@ -53,8 +53,7 @@ monitors:  # All monitor config goes under this key
    ...  # Additional config
 ```
 
-**For a list of monitor options that are common to all monitors, see [Common
-Configuration](../monitor-config.md#common-configuration).**
+**For a list of monitor options that are common to all monitors, see <a target="_blank" href="../monitor-config.md#common-configuration">Common Configuration</a>.**
 
 
 | Config option | Required | Type | Description |
@@ -78,7 +77,7 @@ Configuration](../monitor-config.md#common-configuration).**
 
 These are the metrics available for this monitor.
 Metrics that are categorized as
-[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+<a target="_blank" href="https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics">container/host</a>
 (*default*) are ***in bold and italics*** in the list below.
 
 
@@ -159,13 +158,12 @@ monitors` after configuring this monitor in a running agent instance.
 **The following information only applies to agent version older than 4.7.0. If
 you have a newer agent and have set `enableBuiltInFiltering: true` at the top
 level of your agent config, see the section above. See upgrade instructions in
-[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+<a target="_blank" href="../legacy-filtering.md#old-style-whitelist-filtering">Old-style whitelist filtering</a>.**
 
 If you have a reference to the `whitelist.json` in your agent's top-level
 `metricsToExclude` config option, and you want to emit metrics that are not in
 that whitelist, then you need to add an item to the top-level
-`metricsToInclude` config option to override that whitelist (see [Inclusion
-filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+`metricsToInclude` config option to override that whitelist (see <a target="_blank" href="../legacy-filtering.md#inclusion-filtering">Inclusion filtering</a>.  Or you can just
 copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 ## Dimensions

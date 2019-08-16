@@ -2,7 +2,7 @@
 
 # collectd/activemq
 
-Monitor Type: `collectd/activemq` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/activemq))
+Monitor Type: `collectd/activemq` (<a target="_blank" href="https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/activemq">Source</a>)
 
 **Accepts Endpoints**: **Yes**
 
@@ -10,8 +10,8 @@ Monitor Type: `collectd/activemq` ([Source](https://github.com/signalfx/signalfx
 
 ## Overview
 
-SignalFx's integration with ActiveMQ wraps the [Collectd GenericJMX
-monitor](https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-genericjmx.html)
+SignalFx's integration with ActiveMQ wraps the <a target="_blank" href="https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-genericjmx.html">Collectd GenericJMX
+monitor</a>
 to monitor ActiveMQ.
 
 Use this monitor to gather the following types of information from ActiveMQ:
@@ -46,8 +46,7 @@ monitors:  # All monitor config goes under this key
    ...  # Additional config
 ```
 
-**For a list of monitor options that are common to all monitors, see [Common
-Configuration](../monitor-config.md#common-configuration).**
+**For a list of monitor options that are common to all monitors, see <a target="_blank" href="../monitor-config.md#common-configuration">Common Configuration</a>.**
 
 
 | Config option | Required | Type | Description |
@@ -63,7 +62,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `customDimensions` | no | `map of strings` | Takes in key-values pairs of custom dimensions at the connection level. |
 | `mBeansToCollect` | no | `list of strings` | A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected. |
 | `mBeansToOmit` | no | `list of strings` | A list of the MBeans to omit. This will come handy in cases where only a few MBeans need to omitted from the default list |
-| `mBeanDefinitions` | no | `map of objects (see below)` | Specifies how to map JMX MBean values to metrics.  If using a specific service monitor such as cassandra, kafka, or activemq, they come pre-loaded with a set of mappings, and any that you add in this option will be merged with those.  See [collectd GenericJMX](https://collectd.org/documentation/manpages/collectd-java.5.shtml#genericjmx_plugin) for more details. |
+| `mBeanDefinitions` | no | `map of objects (see below)` | Specifies how to map JMX MBean values to metrics.  If using a specific service monitor such as cassandra, kafka, or activemq, they come pre-loaded with a set of mappings, and any that you add in this option will be merged with those.  See <a target="_blank" href="https://collectd.org/documentation/manpages/collectd-java.5.shtml#genericjmx_plugin">collectd GenericJMX</a> for more details. |
 
 
 The **nested** `mBeanDefinitions` config object has the following fields:
@@ -93,7 +92,7 @@ The **nested** `values` config object has the following fields:
 
 These are the metrics available for this monitor.
 Metrics that are categorized as
-[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+<a target="_blank" href="https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics">container/host</a>
 (*default*) are ***in bold and italics*** in the list below.
 
 
@@ -161,13 +160,12 @@ monitors` after configuring this monitor in a running agent instance.
 **The following information only applies to agent version older than 4.7.0. If
 you have a newer agent and have set `enableBuiltInFiltering: true` at the top
 level of your agent config, see the section above. See upgrade instructions in
-[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+<a target="_blank" href="../legacy-filtering.md#old-style-whitelist-filtering">Old-style whitelist filtering</a>.**
 
 If you have a reference to the `whitelist.json` in your agent's top-level
 `metricsToExclude` config option, and you want to emit metrics that are not in
 that whitelist, then you need to add an item to the top-level
-`metricsToInclude` config option to override that whitelist (see [Inclusion
-filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+`metricsToInclude` config option to override that whitelist (see <a target="_blank" href="../legacy-filtering.md#inclusion-filtering">Inclusion filtering</a>.  Or you can just
 copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 

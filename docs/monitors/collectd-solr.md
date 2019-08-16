@@ -2,7 +2,7 @@
 
 # collectd/solr
 
-Monitor Type: `collectd/solr` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/solr))
+Monitor Type: `collectd/solr` (<a target="_blank" href="https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/solr">Source</a>)
 
 **Accepts Endpoints**: **Yes**
 
@@ -10,17 +10,16 @@ Monitor Type: `collectd/solr` ([Source](https://github.com/signalfx/signalfx-age
 
 ## Overview
 
-Monitors Solr instances by using the [collectd Solr
-plugin](https://github.com/signalfx/collectd-solr).  Supports Solr 6.6 and
+Monitors Solr instances by using the <a target="_blank" href="https://github.com/signalfx/collectd-solr">collectd Solr plugin</a>.  Supports Solr 6.6 and
 later.
 
 *NOTE: This plugin can collect metrics from Solr only when a Solr instance is running in SolrCloud mode*
 
-The [solr-collectd](https://github.com/signalfx/collectd-solr) plugin
+The <a target="_blank" href="https://github.com/signalfx/collectd-solr">solr-collectd</a> plugin
 collects metrics from solr instances hitting these endpoints:
 
- - [statistics](https://lucene.apache.org/solr/guide/6_6/performance-statistics-reference.html) (default metrics)
- - [metrics](https://lucene.apache.org/solr/guide/6_6/metrics-reporting.html) (optional metrics)
+ - <a target="_blank" href="https://lucene.apache.org/solr/guide/6_6/performance-statistics-reference.html">statistics</a> (default metrics)
+ - <a target="_blank" href="https://lucene.apache.org/solr/guide/6_6/metrics-reporting.html">metrics</a> (optional metrics)
 
 
 <!--- SETUP --->
@@ -45,8 +44,7 @@ monitors:  # All monitor config goes under this key
    ...  # Additional config
 ```
 
-**For a list of monitor options that are common to all monitors, see [Common
-Configuration](../monitor-config.md#common-configuration).**
+**For a list of monitor options that are common to all monitors, see <a target="_blank" href="../monitor-config.md#common-configuration">Common Configuration</a>.**
 
 
 | Config option | Required | Type | Description |
@@ -64,7 +62,7 @@ Configuration](../monitor-config.md#common-configuration).**
 
 These are the metrics available for this monitor.
 Metrics that are categorized as
-[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+<a target="_blank" href="https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics">container/host</a>
 (*default*) are ***in bold and italics*** in the list below.
 
 
@@ -135,13 +133,12 @@ monitors` after configuring this monitor in a running agent instance.
 **The following information only applies to agent version older than 4.7.0. If
 you have a newer agent and have set `enableBuiltInFiltering: true` at the top
 level of your agent config, see the section above. See upgrade instructions in
-[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+<a target="_blank" href="../legacy-filtering.md#old-style-whitelist-filtering">Old-style whitelist filtering</a>.**
 
 If you have a reference to the `whitelist.json` in your agent's top-level
 `metricsToExclude` config option, and you want to emit metrics that are not in
 that whitelist, then you need to add an item to the top-level
-`metricsToInclude` config option to override that whitelist (see [Inclusion
-filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+`metricsToInclude` config option to override that whitelist (see <a target="_blank" href="../legacy-filtering.md#inclusion-filtering">Inclusion filtering</a>.  Or you can just
 copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 

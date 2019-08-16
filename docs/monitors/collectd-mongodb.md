@@ -2,7 +2,7 @@
 
 # collectd/mongodb
 
-Monitor Type: `collectd/mongodb` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/mongodb))
+Monitor Type: `collectd/mongodb` (<a target="_blank" href="https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/mongodb">Source</a>)
 
 **Accepts Endpoints**: **Yes**
 
@@ -10,8 +10,7 @@ Monitor Type: `collectd/mongodb` ([Source](https://github.com/signalfx/signalfx-
 
 ## Overview
 
-Monitors an instance of MongoDB using the [collectd MongoDB Python
-plugin](https://github.com/signalfx/collectd-mongodb).  Requires MongoDB
+Monitors an instance of MongoDB using the <a target="_blank" href="https://github.com/signalfx/collectd-mongodb">collectd MongoDB Python plugin</a>.  Requires MongoDB
 2.6 or later.
 
 This monitor captures the following metrics about MongoDB generally:
@@ -29,7 +28,7 @@ The plugin also captures the following DB-specific metrics:
 * db size
 * db counters
 
-Documentation for MongoDB can be found [here](http://docs.mongodb.org/manual/).
+Documentation for MongoDB can be found <a target="_blank" href="http://docs.mongodb.org/manual/">here</a>.
 
 <!--- SETUP --->
 ### Creating a MongoDB user for collectd
@@ -56,8 +55,7 @@ monitors:  # All monitor config goes under this key
    ...  # Additional config
 ```
 
-**For a list of monitor options that are common to all monitors, see [Common
-Configuration](../monitor-config.md#common-configuration).**
+**For a list of monitor options that are common to all monitors, see <a target="_blank" href="../monitor-config.md#common-configuration">Common Configuration</a>.**
 
 
 | Config option | Required | Type | Description |
@@ -81,7 +79,7 @@ Configuration](../monitor-config.md#common-configuration).**
 
 These are the metrics available for this monitor.
 Metrics that are categorized as
-[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
+<a target="_blank" href="https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics">container/host</a>
 (*default*) are ***in bold and italics*** in the list below.
 
 
@@ -189,13 +187,12 @@ monitors` after configuring this monitor in a running agent instance.
 **The following information only applies to agent version older than 4.7.0. If
 you have a newer agent and have set `enableBuiltInFiltering: true` at the top
 level of your agent config, see the section above. See upgrade instructions in
-[Old-style whitelist filtering](../legacy-filtering.md#old-style-whitelist-filtering).**
+<a target="_blank" href="../legacy-filtering.md#old-style-whitelist-filtering">Old-style whitelist filtering</a>.**
 
 If you have a reference to the `whitelist.json` in your agent's top-level
 `metricsToExclude` config option, and you want to emit metrics that are not in
 that whitelist, then you need to add an item to the top-level
-`metricsToInclude` config option to override that whitelist (see [Inclusion
-filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
+`metricsToInclude` config option to override that whitelist (see <a target="_blank" href="../legacy-filtering.md#inclusion-filtering">Inclusion filtering</a>.  Or you can just
 copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 ## Dimensions
