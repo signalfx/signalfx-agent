@@ -118,6 +118,7 @@ commands:
             else
                 TESTS=$TESTS_DIR
             fi
+            export PATH=$PATH:/snap/bin
             echo "Executing test(s) from $TESTS"
             if [ "<< parameters.with_sudo >>" = "true" ]; then
                 sudo -E $PYENV_ROOT/shims/pytest << parameters.pytest_options >> $PYTEST_OPTIONS $TESTS
@@ -126,25 +127,6 @@ commands:
             fi
       - save_test_results
 
-  install_kubectl:
-    parameters:
-      version:
-        type: string
-        default: v1.14.0
-    steps:
-      - restore_cache:
-          key: "v2-kubectl-binary-<< parameters.version >>"
-      - run:
-          name: Install Kubectl
-          command: |
-            [[ -f /home/circleci/bin/kubectl || -f ~/.skip ]] && exit 0
-            wget -O /home/circleci/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/<< parameters.version >>/bin/linux/amd64/kubectl
-            chmod a+x /home/circleci/bin/kubectl
-      - save_cache:
-          key: "v2-kubectl-binary-<< parameters.version >>"
-          paths:
-            - /home/circleci/bin/kubectl
-
   install_helm:
     parameters:
       version:
@@ -152,19 +134,20 @@ commands:
         default: v2.13.0
     steps:
       - restore_cache:
-          key: "v1-helm-binary-<< parameters.version >>"
+          key: "helm-binary-v1-<< parameters.version >>"
       - run:
           name: Install Helm
           command: |
-            [[ -f /home/circleci/bin/helm || -f ~/.skip ]] && exit 0
+            [[ -f /home/circleci/bin/helm ]] && exit 0
             wget -O /tmp/helm.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-<< parameters.version >>-linux-amd64.tar.gz
             tar -zxvf /tmp/helm.tar.gz -C /tmp
             mv /tmp/linux-amd64/helm /home/circleci/bin/helm
             chmod a+x /home/circleci/bin/helm
       - save_cache:
-          key: "v1-helm-binary-<< parameters.version >>"
+          key: "helm-binary-v1-<< parameters.version >>"
           paths:
             - /home/circleci/bin/helm
+
 jobs:
   build:
     executor: docker1809
@@ -305,10 +288,14 @@ jobs:
     parameters:
       k8s_version:
         type: string
+      channel:
+        type: string
+        default: stable
     environment:
       K8S_VERSION: "<< parameters.k8s_version >>"
-      K8S_MIN_VERSION: "v1.9.0"
-      K8S_MAX_VERSION: "v1.15.0"
+      CHANNEL: "<< parameters.channel >>"
+      K8S_MIN_VERSION: "1.10"
+      K8S_MAX_VERSION: "1.15"
       K8S_SFX_AGENT: "quay.io/signalfx/signalfx-agent-dev:latest"
       MARKERS: "kubernetes"
     steps:
@@ -318,7 +305,7 @@ jobs:
           command: |
             if [ "$CIRCLE_BRANCH" = "master" ] || scripts/changes-include-dir deployments/k8s tests/deployments/helm; then
                 # Run k8s and helm tests for all K8S versions if branch is master or there are deployment changes
-                echo "MARKERS='kubernetes or helm'" >> $BASH_ENV
+                echo "export MARKERS='kubernetes or helm'" >> $BASH_ENV
             elif ! scripts/changes-include-dir Gopkg.toml $(find . -iname "*k8s*" -o -iname "*kube*" | sed 's|^\./||' | grep -v '^docs/'); then
                 # Only run k8s tests for K8S_MIN_VERSION and K8S_MAX_VERSION if there are no relevant changes.
                 if [[ "$K8S_VERSION" != "$K8S_MIN_VERSION" && "$K8S_VERSION" != "$K8S_MAX_VERSION" ]]; then
@@ -327,20 +314,25 @@ jobs:
                     exit 0
                 fi
             fi
-
-            make run-minikube
-      - install_kubectl:
-          version: "<< parameters.k8s_version >>"
+      - run:
+          name: Install and start microk8s
+          command: |
+            [ -f ~/.skip ] && exit 0
+            sudo apt-get update
+            sudo apt-get install -y snapd
+            sudo bash -ex test-services/microk8s/start-microk8s.sh
+            export PATH=$PATH:/snap/bin
+            kubectl config view --raw > kubeconfig
       - install_helm
       - import_image
       - run:
-          name: Push image to minikube
+          name: Push image to local registry
           command: |
             [ -f ~/.skip ] && exit 0
             docker tag quay.io/signalfx/signalfx-agent-dev:latest localhost:5000/signalfx-agent:latest
             docker push localhost:5000/signalfx-agent:latest
       - run_pytest:
-          pytest_options: "-n4 -m \"$MARKERS\""
+          pytest_options: "-n4 -m \"$MARKERS\" --no-use-minikube --agent-image-name=localhost:32000/signalfx-agent:latest --kubeconfig=kubeconfig"
 
   installer_tests:
     executor: machine_image
@@ -563,44 +555,38 @@ workflows:
           requires:
             - build
       - k8s_integration_tests:
-          name: "k8s_v1.15.0_integration_tests"
-          k8s_version: "v1.15.0"
+          name: "k8s_v1.15_integration_tests"
+          k8s_version: "1.15"
           requires:
             - build
             - helm_check
       - k8s_integration_tests:
-          name: "k8s_v1.14.0_integration_tests"
-          k8s_version: "v1.14.0"
+          name: "k8s_v1.14_integration_tests"
+          k8s_version: "1.14"
           requires:
             - build
             - helm_check
       - k8s_integration_tests:
-          name: "k8s_v1.13.0_integration_tests"
-          k8s_version: "v1.13.0"
+          name: "k8s_v1.13_integration_tests"
+          k8s_version: "1.13"
           requires:
             - build
             - helm_check
       - k8s_integration_tests:
-          name: "k8s_v1.12.0_integration_tests"
-          k8s_version: "v1.12.0"
+          name: "k8s_v1.12_integration_tests"
+          k8s_version: "1.12"
           requires:
             - build
             - helm_check
       - k8s_integration_tests:
-          name: "k8s_v1.11.0_integration_tests"
-          k8s_version: "v1.11.0"
+          name: "k8s_v1.11_integration_tests"
+          k8s_version: "1.11"
           requires:
             - build
             - helm_check
       - k8s_integration_tests:
-          name: "k8s_v1.10.0_integration_tests"
-          k8s_version: "v1.10.0"
-          requires:
-            - build
-            - helm_check
-      - k8s_integration_tests:
-          name: "k8s_v1.9.0_integration_tests"
-          k8s_version: "v1.9.0"
+          name: "k8s_v1.10_integration_tests"
+          k8s_version: "1.10"
           requires:
             - build
             - helm_check
