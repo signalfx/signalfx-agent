@@ -2,9 +2,11 @@ package prometheusexporter
 
 import (
 	"context"
+	"io"
 	"sync"
 	"time"
 
+	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/utils"
@@ -71,11 +73,19 @@ func (m *Monitor) readSendCloseAsync(conf ConfigInterface) {
 			return
 		}
 		decoder := expfmt.NewDecoder(bodyReader, format)
+
 		var dps []*datapoint.Datapoint
-		if dps, err = decodeMetrics(decoder); err != nil {
-			m.loggingEntry.WithError(err).Error("Could not decode prometheus metrics from response body")
-			return
+		for {
+			var mf dto.MetricFamily
+			if err := decoder.Decode(&mf); err != nil {
+				if err == io.EOF {
+					break
+				}
+				m.loggingEntry.WithError(err).Warnf("Could not parse prometheus exporter metric")
+			}
+			dps = append(dps, convertMetricFamily(&mf)...)
 		}
+
 		now := time.Now()
 		for i := range dps {
 			dps[i].Timestamp = now
