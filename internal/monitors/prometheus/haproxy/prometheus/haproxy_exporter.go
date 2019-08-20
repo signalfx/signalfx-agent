@@ -11,7 +11,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package haproxy
+package exporter
 
 import (
 	"crypto/tls"
@@ -19,7 +19,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	_ "net/http/pprof"
@@ -31,9 +30,7 @@ import (
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/prometheus/common/log"
-	"github.com/prometheus/common/version"
 	//"gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -427,74 +424,74 @@ func filterServerMetrics(filter string) (map[int]*prometheus.Desc, error) {
 	return metrics, nil
 }
 
-type ExporterConfig struct {
-	// Address to listen on for web interface and telemetry.
-	ListenAddress string  `yaml:"listenAddress" default:":9101"`
-	// Path under which to expose metrics.
-	MetricsPath  string  `yaml:"metricPath" default:"/metrics"`
-	// URI on which to scrape HAProxy.
-	ScrapeURI string `yaml:"scrapeURI" default:"http://localhost/;csv"`
-	// Flag that enables SSL certificate verification for the scrape URI.
-	SSLVerify bool `yaml:"sslVerify" default:"true"`
-	// Comma-separated list of exported server metrics. See http://cbonte.github.io/haproxy-dconv/configuration-1.5.html#9.1
-	ServerMetricFields string `yaml:"serverMetricFields"`
-	// Timeout for trying to get stats from HAProxy.
-	TimeoutSeconds int `yaml:"timeoutSeconds", default:"5"`
-	// Path to HAProxy pid file.
-	//
-	// If provided, the standard process metrics get exported for the HAProxy process, prefixed with
-	// 'haproxy_process_...'. The haproxy_process exporter needs to have read access to files owned by the
-	// HAProxy process. Depends on the availability of /proc.
-	//
-	// https://prometheus.io/docs/instrumenting/writing_clientlibs/#process-metrics.
-	PidFile string `yaml:"pidFile"`
-}
-
-func (conf *ExporterConfig) Run() {
-	if strings.TrimSpace(conf.ServerMetricFields) == "" {
-		conf.ServerMetricFields = serverMetrics.String()
-	}
-
-	selectedServerMetrics, err := filterServerMetrics(conf.ServerMetricFields)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	exporter, err := NewExporter(conf.ScrapeURI, conf.SSLVerify, selectedServerMetrics, time.Duration(conf.TimeoutSeconds) * time.Second)
-	if err != nil {
-		log.Fatal(err)
-	}
-	prometheus.MustRegister(exporter)
-	prometheus.MustRegister(version.NewCollector("haproxy_exporter"))
-
-	if conf.PidFile != "" {
-		procExporter := prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{
-			PidFn: func() (int, error) {
-				content, err := ioutil.ReadFile(conf.PidFile)
-				if err != nil {
-					return 0, fmt.Errorf("can't read pid file: %s", err)
-				}
-				value, err := strconv.Atoi(strings.TrimSpace(string(content)))
-				if err != nil {
-					return 0, fmt.Errorf("can't parse pid file: %s", err)
-				}
-				return value, nil
-			},
-			Namespace: namespace,
-		})
-		prometheus.MustRegister(procExporter)
-	}
-
-	log.Infoln("Listening on", conf.ListenAddress)
-	http.Handle(conf.MetricsPath, promhttp.Handler())
-	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		w.Write([]byte(`<html>
-             <head><title>Haproxy Exporter</title></head>
-             <body>
-             <h1>Haproxy Exporter</h1>
-             <p><a href='` + conf.MetricsPath + `'>Metrics</a></p>
-             </body>
-             </html>`))
-	})
-	log.Fatal(http.ListenAndServe(conf.ListenAddress, nil))
-}
+//func main() {
+//	const pidFileHelpText = `Path to HAProxy pid file.
+//
+//	If provided, the standard process metrics get exported for the HAProxy
+//	process, prefixed with 'haproxy_process_...'. The haproxy_process exporter
+//	needs to have read access to files owned by the HAProxy process. Depends on
+//	the availability of /proc.
+//
+//	https://prometheus.io/docs/instrumenting/writing_clientlibs/#process-metrics.`
+//
+//	var (
+//		listenAddress             = kingpin.Flag("web.listen-address", "Address to listen on for web interface and telemetry.").Default(":9101").String()
+//		metricsPath               = kingpin.Flag("web.telemetry-path", "Path under which to expose metrics.").Default("/metrics").String()
+//		haProxyScrapeURI          = kingpin.Flag("haproxy.scrape-uri", "URI on which to scrape HAProxy.").Default("http://localhost/;csv").String()
+//		haProxySSLVerify          = kingpin.Flag("haproxy.ssl-verify", "Flag that enables SSL certificate verification for the scrape URI").Default("true").Bool()
+//		haProxyServerMetricFields = kingpin.Flag("haproxy.server-metric-fields", "Comma-separated list of exported server metrics. See http://cbonte.github.io/haproxy-dconv/configuration-1.5.html#9.1").Default(serverMetrics.String()).String()
+//		haProxyTimeout            = kingpin.Flag("haproxy.timeout", "Timeout for trying to get stats from HAProxy.").Default("5s").Duration()
+//		haProxyPidFile            = kingpin.Flag("haproxy.pid-file", pidFileHelpText).Default("").String()
+//	)
+//
+//	log.AddFlags(kingpin.CommandLine)
+//	kingpin.Version(version.Print("haproxy_exporter"))
+//	kingpin.HelpFlag.Short('h')
+//	kingpin.Parse()
+//
+//	selectedServerMetrics, err := filterServerMetrics(*haProxyServerMetricFields)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//
+//	log.Infoln("Starting haproxy_exporter", version.Info())
+//	log.Infoln("Build context", version.BuildContext())
+//
+//	exporter, err := NewExporter(*haProxyScrapeURI, *haProxySSLVerify, selectedServerMetrics, *haProxyTimeout)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//	prometheus.MustRegister(exporter)
+//	prometheus.MustRegister(version.NewCollector("haproxy_exporter"))
+//
+//	if *haProxyPidFile != "" {
+//		procExporter := prometheus.NewProcessCollector(prometheus.ProcessCollectorOpts{
+//			PidFn: func() (int, error) {
+//				content, err := ioutil.ReadFile(*haProxyPidFile)
+//				if err != nil {
+//					return 0, fmt.Errorf("can't read pid file: %s", err)
+//				}
+//				value, err := strconv.Atoi(strings.TrimSpace(string(content)))
+//				if err != nil {
+//					return 0, fmt.Errorf("can't parse pid file: %s", err)
+//				}
+//				return value, nil
+//			},
+//			Namespace: namespace,
+//		})
+//		prometheus.MustRegister(procExporter)
+//	}
+//
+//	log.Infoln("Listening on", *listenAddress)
+//	http.Handle(*metricsPath, promhttp.Handler())
+//	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+//		w.Write([]byte(`<html>
+//             <head><title>Haproxy Exporter</title></head>
+//             <body>
+//             <h1>Haproxy Exporter</h1>
+//             <p><a href='` + *metricsPath + `'>Metrics</a></p>
+//             </body>
+//             </html>`))
+//	})
+//	log.Fatal(http.ListenAndServe(*listenAddress, nil))
+//}

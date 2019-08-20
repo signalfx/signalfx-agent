@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
+	"github.com/signalfx/signalfx-agent/internal/utils"
 	"go/format"
 	"html/template"
 	"io/ioutil"
@@ -11,6 +12,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strings"
 	"unicode"
 
@@ -72,11 +74,9 @@ func generate(templateFile string, force bool) error {
 	tmpl, err := template.New(generatedMetadataTemplate).Option("missingkey=error").Funcs(template.FuncMap{
 		"formatVariable": func(s string) (string, error) {
 			formatted, err := formatVariable(s)
-
 			if err != nil {
 				return "", err
 			}
-
 			if exportVars {
 				runes := []rune(formatted)
 				runes[0] = unicode.ToUpper(runes[0])
@@ -97,6 +97,16 @@ func generate(templateFile string, force bool) error {
 			}
 		},
 		"deref": func(p *string) string { return *p },
+		"newStringSlice": func() []string { return []string{} },
+		"appendString": func(slice []string, elems ...string) []string { return append(slice, elems...) },
+		"uniqueStrings": func(slice []string) []string {
+			uniqueStrings := utils.UniqueStrings(slice)
+			sort.Strings(uniqueStrings)
+			return uniqueStrings
+		},
+		"title": func(s string) string {
+			return strings.Title(s)
+		},
 	}).ParseFiles(templateFile)
 
 	if err != nil {
