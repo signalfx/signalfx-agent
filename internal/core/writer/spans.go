@@ -2,13 +2,13 @@ package writer
 
 import (
 	"context"
-	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"os"
 	"sync/atomic"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/trace"
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/internal/core/writer/tracetracker"
 	"github.com/signalfx/signalfx-agent/internal/utils"
