@@ -7,6 +7,6 @@ const (
 	AgentVersionEnvVar = "SIGNALFX_AGENT_VERSION"
 	// BundleDirEnvVar is a path to the root of the collectd/python bundle
 	BundleDirEnvVar = "SIGNALFX_BUNDLE_DIR"
-	// Tag key for signalfx smartagent version
+	// SmartAgentVersionTagKey is the tag key for signalfx smartagent version
 	SmartAgentVersionTagKey = "signalfx.smartagent.version"
 )
