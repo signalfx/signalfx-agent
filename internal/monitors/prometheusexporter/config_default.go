@@ -3,6 +3,8 @@ package prometheusexporter
 import (
 	"crypto/tls"
 	"fmt"
+	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"io"
 	"net/http"
 	"strings"
@@ -99,6 +101,19 @@ func (c *Config) GetInterval() time.Duration {
 // GetMonitorType is a ConfigInterface method implementation for getting the monitor type.
 func (c *Config) GetMonitorType() string {
 	return monitorType
+}
+
+// NewDatapointSender is a ConfigInterface method implementation that creates the default datapoint sender.
+func (c *Config) NewDatapointSender() *DatapointSender {
+	return &DatapointSender{
+		SendDatapoints: func(output types.Output, dps []*datapoint.Datapoint) {
+			now := time.Now()
+			for i := range dps {
+				dps[i].Timestamp = now
+				output.SendDatapoint(dps[i])
+			}
+		},
+	}
 }
 
 func (c *Config) GetExtraMetrics() []string {

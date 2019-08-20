@@ -1,7 +1,9 @@
 package haproxy
 
 import (
+	"context"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
+	exporter "github.com/signalfx/signalfx-agent/internal/monitors/prometheus/haproxy/prometheus"
 	"github.com/signalfx/signalfx-agent/internal/monitors/prometheusexporter"
 )
 
@@ -9,27 +11,18 @@ func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
-// Config is the config for this monitor.
-// Config implements ConfigInterface through prometheusexporter.Config.
-type Config struct {
-	prometheusexporter.Config                 `yaml:",inline" acceptsEndpoints:"true"`
-	exporter                  *ExporterConfig `yaml:"exporter"`
-}
-
-// Validate k8s-specific configuration.
-func (c *Config) Validate() error {
-	return nil
-}
-
-// Monitor for prometheus exporter metrics
+// Monitor for Prometheus server metrics Exporter
 type Monitor struct {
 	prometheusexporter.Monitor
 }
 
 // Configure the monitor and kick off volume metric syncing
-func (m *Monitor) Configure(conf Config) error {
-	if conf.exporter != nil {
-		conf.exporter.Run()
+func (m *Monitor) Configure(conf *Config) error {
+	conf.SetExporterDefaults()
+	m.Ctx, m.Cancel = context.WithCancel(context.Background())
+	if conf.ExporterConfig != nil {
+		exporter.StartServer(conf.ExporterConfig, m.Ctx)
 	}
-	return m.Monitor.Configure(&conf)
+	return m.Monitor.Configure(conf)
 }
+

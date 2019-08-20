@@ -40,11 +40,18 @@ const (
 
 var {{"metricSet" | formatVariable}} = map[string]monitors.MetricInfo {
 {{- range $metric, $info := .metrics}}
-	{{- if $info.Group}}
-		{{$metric | formatVariable}}: {Type: {{$info.Type | convertMetricType}}, Group: {{$info.Group | deref | printf "group.%s" | formatVariable}}},
-	{{- else}}
-		{{$metric | formatVariable}}: {Type: {{$info.Type | convertMetricType}}},
-	{{- end}}
+	{{$metric | formatVariable}}: { Type: {{- $info.Type | convertMetricType -}},
+	{{- if $info.Group -}}
+		Group: {{- $info.Group | deref | printf "group.%s" | formatVariable -}},
+	{{- end -}}
+	{{- if $info.Dimensions -}}
+		Dimensions: map[string]string{
+			{{- range $info.Dimensions -}}
+			"{{.Key}}": "{{.Val}}",
+			{{- end -}}
+		},
+	{{- end -}}
+	},
 {{- end}}
 }
 
@@ -68,6 +75,36 @@ var {{"groupMetricsMap" | formatVariable}} = map[string][]string {
 	},
 {{- end}}
 }
+
+{{- $keys := newStringSlice -}}
+{{- range $metric, $info := .metrics}}
+    {{- range $info.Aliases}}
+        {{- $keys = appendString $keys .Key -}}
+    {{- end}}
+{{- end}}
+{{if gt (len $keys) 0 -}}
+type (
+	Metric string
+	Key string
+	Val string
+)
+{{- range $key := uniqueStrings $keys}}
+    const aliasKey{{$key | formatVariable | title}} = Key("{{$key}}")
+{{- end}}
+{{with .metrics}}
+var {{"aliases" | formatVariable}} = map[Metric]map[Key]Val {
+    {{- range $metric, $info := .}}
+        {{- if $info.Aliases}}
+            {{$metric | formatVariable}}: {
+                {{- range $info.Aliases}}
+                    aliasKey{{.Key | formatVariable | title}}: "{{.Val}}",
+                {{- end}}
+            },
+        {{- end}}
+    {{- end}}
+}
+{{end}}
+{{end}}
 
 {{range .monitors}}
 var {{if gt (len $.monitors) 1 -}}

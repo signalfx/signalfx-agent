@@ -2,13 +2,12 @@ package prometheusexporter
 
 import (
 	"context"
-	"sync"
-	"time"
-
+	"fmt"
 	"github.com/prometheus/common/expfmt"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/sirupsen/logrus"
+	"sync"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -28,8 +27,8 @@ type Monitor struct {
 	ExtraDimensions map[string]string
 	// If true, IncludedMetrics is ignored and everything is sent.
 	SendAll      bool
-	ctx          context.Context
-	cancel       func()
+	Ctx          context.Context
+	Cancel       func()
 	client       *Client
 	loggingEntry *logrus.Entry
 	isConfigured bool
@@ -49,7 +48,10 @@ func (m *Monitor) configureOnceSync(conf ConfigInterface) {
 	m.mux.Lock()
 	defer m.mux.Unlock()
 	if !m.isConfigured {
-		m.ctx, m.cancel = context.WithCancel(context.Background())
+		if m.Ctx == nil {
+			fmt.Printf("configureOnceSync() m.Ctx %+v", m.Ctx)
+			m.Ctx, m.Cancel = context.WithCancel(context.Background())
+		}
 		m.loggingEntry = logrus.WithFields(logrus.Fields{"monitorType": conf.GetMonitorType()})
 		if m.client, m.configErr = conf.NewClient(); m.configErr != nil {
 			m.loggingEntry.WithError(m.configErr).Error("Could not create prometheus client")
@@ -59,7 +61,7 @@ func (m *Monitor) configureOnceSync(conf ConfigInterface) {
 }
 
 func (m *Monitor) readSendCloseAsync(conf ConfigInterface) {
-	utils.RunOnInterval(m.ctx, func() {
+	utils.RunOnInterval(m.Ctx, func() {
 		bodyReader, format, err := m.client.GetBodyReader()
 		defer func() {
 			if bodyReader != nil {
@@ -76,17 +78,15 @@ func (m *Monitor) readSendCloseAsync(conf ConfigInterface) {
 			m.loggingEntry.WithError(err).Error("Could not decode prometheus metrics from response body")
 			return
 		}
-		now := time.Now()
-		for i := range dps {
-			dps[i].Timestamp = now
-			m.Output.SendDatapoint(dps[i])
-		}
+		dpSender := conf.NewDatapointSender()
+		dpSender.SendDatapoints(m.Output, dps)
 	}, conf.GetInterval())
 }
 
 // Shutdown stops the metric sync
 func (m *Monitor) Shutdown() {
-	if m.cancel != nil {
-		m.cancel()
+	fmt.Printf("Shutdown(): %+v", m.Ctx)
+	if m.Cancel != nil {
+		m.Cancel()
 	}
 }
