@@ -15,7 +15,6 @@ from typing import Dict, List
 import docker
 import netifaces as ni
 import yaml
-
 from tests.helpers.assertions import regex_search_matches_output
 from tests.paths import SELFDESCRIBE_JSON, TEST_SERVICES_DIR
 
@@ -56,6 +55,21 @@ def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
             return True
         if time.time() - start > timeout_seconds:
             return False
+        time.sleep(interval_seconds)
+
+
+def wait_for_value(func, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
+    """
+    Waits for func to return a non-None value and returns that value.  If the
+    func is still returning None after the timeout, returns None to the caller.
+    """
+    start = time.time()
+    while True:
+        val = func()
+        if val is not None:
+            return val
+        if time.time() - start > timeout_seconds:
+            return None
         time.sleep(interval_seconds)
 
 

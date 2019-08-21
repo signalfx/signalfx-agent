@@ -26803,6 +26803,78 @@
       "singleInstance": false
     },
     {
+      "monitorType": "logstash-tcp",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "Fetches events from the [logstash tcp output\nplugin](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-tcp.html)\noperating in either `server` or `client` mode and converts them to SignalFx\ndatapoints.  It is meant to be used in conjunction with the Logstash\n[Metrics filter\nplugin](https://www.elastic.co/guide/en/logstash/current/plugins-filters-metrics.html)\nthat turns events into metrics.\n\nYou can only use auto-discovery when this monitor is in `client` mode.\n\n\u003c!--- SETUP ---\u003e\n### Example Logstash Config\n\nThis is a somewhat contrived example that shows the use of both `timer` and\n`meter` metrics from the Logstash Metrics filter plugin:\n\n```\ninput {\n  file {\n    path =\u003e \"/var/log/auth.log\"\n    start_position =\u003e \"beginning\"\n    tags =\u003e [\"auth_log\"]\n  }\n\n  # A contrived file that contains timing messages\n  file {\n    path =\u003e \"/var/log/durations.log\"\n    tags =\u003e [\"duration_log\"]\n    start_position =\u003e \"beginning\"\n  }\n}\n\nfilter {\n  if \"duration_log\" in [tags] {\n    dissect {\n      mapping =\u003e {\n        \"message\" =\u003e \"Processing took %{duration} seconds\"\n      }\n      convert_datatype =\u003e {\n        \"duration\" =\u003e \"float\"\n      }\n    }\n    if \"_dissectfailure\" not in [tags] { # Filter out bad events\n      metrics {\n        timer =\u003e { \"process_time\" =\u003e \"%{duration}\" }\n        flush_interval =\u003e 10\n        # This makes the timing stats pertain to only the previous 5 minutes\n        # instead of since Logstash last started.\n        clear_interval =\u003e 300\n        add_field =\u003e {\"type\" =\u003e \"processing\"}\n        add_tag =\u003e \"metric\"\n      }\n    }\n  }\n  # Count the number of logins via SSH from /var/log/auth.log\n  if \"auth_log\" in [tags] and [message] =~ /sshd.*session opened/ {\n    metrics {\n      # This determines how often metric events will be sent to the agent, and\n      # thus how often datapoints will be emitted.\n      flush_interval =\u003e 10\n      # The name of the meter will be used to construct the name of the metric\n      # in SignalFx.  For this example, a datapoint called `logins.count` would\n      # be generated.\n      add_tag =\u003e \"metric\"\n    }\n  }\n}\n\noutput {\n  # This can be helpful to debug\n  stdout { codec =\u003e rubydebug }\n\n  if \"metric\" in [tags] {\n    tcp {\n      port =\u003e 8900\n      # The agent will connect to Logstash\n      mode =\u003e \"server\"\n      # Needs to be '0.0.0.0' if running in a container.\n      host =\u003e \"127.0.0.1\"\n    }\n  }\n}\n```\n",
+      "groups": {},
+      "metrics": null,
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "internal/monitors/logstash/tcp",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "If `mode: server`, the local IP address to listen on.  If `mode: client`, the Logstash host/ip to connect to.",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "If `mode: server`, the local port to listen on.  If `mode: client`, the port of the Logstash TCP output plugin.  If port is `0`, a random listening port is assigned by the kernel.",
+            "default": 0,
+            "required": false,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "mode",
+            "doc": "Whether to act as a `server` or `client`.  The corresponding setting in the Logtash `tcp` output plugin should be set to the opposite of this.",
+            "default": "client",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "desiredTimerFields",
+            "doc": "",
+            "default": [
+              "mean",
+              "max",
+              "p99",
+              "count"
+            ],
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "reconnectDelay",
+            "doc": "How long to wait before reconnecting if the TCP connection cannot be made or after it gets broken.",
+            "default": "5s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "debugEvents",
+            "doc": "If true, events received from Logstash will be dumped to the agent's stdout in deserialized form",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "memory",
       "sendAll": false,
       "dimensions": null,
