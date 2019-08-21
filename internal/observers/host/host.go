@@ -8,6 +8,8 @@ import (
 	"strconv"
 	"syscall"
 
+	"github.com/shirou/gopsutil/net"
+	"github.com/shirou/gopsutil/process"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
@@ -34,7 +36,6 @@ type Observer struct {
 	serviceCallbacks *observers.ServiceCallbacks
 	serviceDiffer    *observers.ServiceDiffer
 	config           *Config
-	hostInfoProvider hostInfoProvider
 	logger           logrus.FieldLogger
 }
 
@@ -48,7 +49,6 @@ func init() {
 	observers.Register(observerType, func(cbs *observers.ServiceCallbacks) interface{} {
 		return &Observer{
 			serviceCallbacks: cbs,
-			hostInfoProvider: &defaultHostInfoProvider{},
 		}
 	}, &Config{})
 }
@@ -84,55 +84,81 @@ func portTypeToProtocol(t uint32) services.PortType {
 }
 
 func (o *Observer) discover() []services.Endpoint {
-	conns, err := o.hostInfoProvider.AllConnectionStats()
+	conns, err := net.Connections("all")
 	if err != nil {
 		o.logger.WithError(err).Error("Could not get local network listeners")
 		return nil
 	}
 
 	endpoints := make([]services.Endpoint, 0, len(conns))
-	for _, c := range conns {
+	connsByPID := make(map[int32][]*net.ConnectionStat)
+	for i := range conns {
+		c := conns[i]
 		// TODO: Add support for ipv6 to all observers
-		isIPSocket := c.Family == syscall.AF_INET
+		isIPSocket := c.Family == syscall.AF_INET || c.Family == syscall.AF_INET6
 		isTCPOrUDP := c.Type == syscall.SOCK_STREAM || c.Type == syscall.SOCK_DGRAM
-		isListening := c.Status == "LISTEN"
+		// UDP doesn't have any status
+		isUDPOrListening := c.Type == syscall.SOCK_DGRAM || c.Status == "LISTEN"
+		// UDP is "listening" when it has a remote port of 0
+		isTCPOrHasNoRemotePort := c.Type == syscall.SOCK_STREAM || c.Raddr.Port == 0
 
 		// PID of 0 means that the listening file descriptor couldn't be mapped
 		// back to a process's set of open file descriptors in /proc
-		if !isIPSocket || !isTCPOrUDP || !isListening || c.Pid == 0 {
+		if !isIPSocket || !isTCPOrUDP || !isUDPOrListening || !isTCPOrHasNoRemotePort || c.Pid == 0 {
+			continue
+		}
+		connsByPID[c.Pid] = append(connsByPID[c.Pid], &c)
+	}
+
+	for pid, conns := range connsByPID {
+		proc, err := process.NewProcess(pid)
+
+		if err != nil {
+			o.logger.WithFields(log.Fields{
+				"pid": pid,
+				"err": err,
+			}).Warn("Could not examine process (it might have terminated already)")
 			continue
 		}
 
-		name, err := o.hostInfoProvider.ProcessNameFromPID(c.Pid)
+		name, err := proc.Name()
 		if err != nil {
-			o.logger.WithFields(log.Fields{
-				"pid":          c.Pid,
-				"localAddress": c.Laddr.IP,
-				"localPort":    c.Laddr.Port,
-				"err":          err,
-			}).Warn("Could not determine process name")
+			o.logger.WithField("pid", pid).Error("Could not get process name")
+			continue
+		}
+
+		args, err := proc.Cmdline()
+		if err != nil {
+			o.logger.WithField("pid", pid).Error("Could not get process args")
 			continue
 		}
 
 		dims := map[string]string{
-			"pid": strconv.Itoa(int(c.Pid)),
+			"pid": strconv.Itoa(int(pid)),
 		}
 
-		se := services.NewEndpointCore(
-			fmt.Sprintf("%s-%d-%d", c.Laddr.IP, c.Laddr.Port, c.Pid), name, observerType, dims)
+		for _, c := range conns {
+			se := services.NewEndpointCore(
+				fmt.Sprintf("%s-%d-%s-%d", c.Laddr.IP, c.Laddr.Port, portTypeToProtocol(c.Type), pid), name, observerType, dims)
 
-		ip := c.Laddr.IP
-		// An IP addr of 0.0.0.0 means it listens on all interfaces, including
-		// localhost, so use that since we can't actually connect to 0.0.0.0.
-		if ip == "0.0.0.0" {
-			ip = "127.0.0.1"
+			se.AddExtraField("command", args)
+
+			ip := c.Laddr.IP
+			// An IP addr of 0.0.0.0 means it listens on all interfaces, including
+			// localhost, so use that since we can't actually connect to 0.0.0.0.
+			if ip == "0.0.0.0" {
+				ip = "127.0.0.1"
+			}
+
+			se.Host = ip
+			if c.Family == syscall.AF_INET6 {
+				se.Host = "[" + se.Host + "]"
+			}
+			se.Port = uint16(c.Laddr.Port)
+			se.PortType = portTypeToProtocol(c.Type)
+
+			endpoints = append(endpoints, se)
 		}
-
-		se.Host = ip
-		se.Port = uint16(c.Laddr.Port)
-		se.PortType = portTypeToProtocol(c.Type)
-
-		endpoints = append(endpoints, se)
 	}
 	return endpoints
 }
