@@ -28,7 +28,7 @@ Then you can install the agent using the chart name `signalfx/signalfx-agent`.
 
 ## Configuration
 
-### Configuring your realm
+## Configuring your realm
 By default, the Smart Agent will send data to the `us0` realm. If you are
 not in this realm, you will need to explicitly set the `signalFxRealm` option
 in the agent configuration. To determine if you are in a different realm,
@@ -56,15 +56,11 @@ OpenShift-specific functionality:
 `$ helm install --set signalFxAccessToken=<YOUR_ACCESS_TOKEN> --set clusterName=<YOUR_CLUSTER_NAME> --set agentVersion=<VERSION_NUMBER> --set signalFxRealm=<YOUR_SIGNALFX_REALM> signalfx/signalfx-agent --set kubernetesDistro=openshift`
 
 
-### PSP for SignalFx Agent via Helm Chart
-
-# SignalFx Monitoring with Pod Security Policy
+## PSP(Pod Security Policy) for SignalFx Agent via Helm Chart
 
 SignalFx monitoring for the cluster and pods are provided by the following [helm chart] located in helm's chart repository. Pod Security Policy is giving additional capability to secure PODs for SignalFx monitoring
 
 ## Configuration
-
-The `values.yaml` file contains all the values for the signalfx helm chart possible. For 99% of use cases, the values in the file will be defaulted, but there are a few that you may want to take notice and or change.  For options not discussed in this document, please refer to the [helm chart] for additional documentation and configuration.
 
 privileged_psp : This policy will be implicitly accessible to cluster admins and chosen by default since they have access to all resources. This policy is the least restrictive users can create.
 
@@ -121,4 +117,3 @@ Restricted_psp : This policy we will explicitly assign to all authenticated user
 	kubectl auth can-i use psp/restricted --as-group=system:authenticated --as=any-user
 	You should see “yes”.
 	```
-
