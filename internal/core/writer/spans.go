@@ -2,7 +2,6 @@ package writer
 
 import (
 	"context"
-	"os"
 	"sync/atomic"
 
 	"github.com/davecgh/go-spew/spew"
@@ -154,7 +153,7 @@ func (sw *SignalFxWriter) preprocessSpan(span *trace.Span) {
 	}
 
 	// adding smart agent version as a tag
-	span.Tags[constants.SmartAgentVersionTagKey] = os.Getenv(constants.AgentVersionEnvVar)
+	span.Tags["signalfx.smartagent.version"] = constants.Version
 	if sw.conf.LogTraceSpans {
 		log.Debugf("Sending trace span:\n%s", spew.Sdump(span))
 	}
