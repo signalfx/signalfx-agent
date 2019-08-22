@@ -32,7 +32,7 @@ const (
 // APIConfig contains config specific to the KubeletAPI
 type APIConfig struct {
 	// URL of the Kubelet instance.  This will default to `https://<current
-	// node hostname>:10250` if not provided.
+	// node hostname>:10255` if not provided.
 	URL string `yaml:"url"`
 	// Can be `none` for no auth, `tls` for TLS client cert auth, or
 	// `serviceAccount` to use the pod's default service account token to
@@ -74,7 +74,7 @@ func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 		if err != nil {
 			return nil, err
 		}
-		kubeletAPI.URL = fmt.Sprintf("https://%s:10250", hostname)
+		kubeletAPI.URL = fmt.Sprintf("https://%s:10255", hostname)
 	}
 
 	tlsConfig := &tls.Config{}

@@ -137,7 +137,7 @@ If you see errors like this in the agent logs:
 
 `Couldn't get machine info: Kubelet request failed - "401 Unauthorized", response: "Unauthorized"`
 
-`Couldn't get cAdvisor container stats" error="failed to get all container stats from Kubelet URL "https://localhost:10250/stats/container/": Kubelet request failed - "401 Unauthorized", response: "Unauthorized"`
+`Couldn't get cAdvisor container stats" error="failed to get all container stats from Kubelet URL "https://localhost:10255/stats/container/": Kubelet request failed - "401 Unauthorized", response: "Unauthorized"`
 
 This means that the agent cannot authenticate to the kubelet.  Assuming you
 have the ClusterRole and ClusterRoleBinding properly applied to the agent
