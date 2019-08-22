@@ -120,6 +120,9 @@ class Agent:
                     for event in self.fake_services.events:
                         print_dp_or_event(event)
                     print(f"\nDimensions set: {self.fake_services.dims}")
+                    print("\nSpans received:")
+                    for span in self.fake_services.spans:
+                        print(span)
 
     @classmethod
     @contextmanager

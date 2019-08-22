@@ -66,7 +66,7 @@ def _make_fake_ingest(datapoint_queue, events, spans):
     @app.post("/v1/trace")
     async def handle_trace(request):
         spans.extend(request.json)
-        return response.json([])
+        return response.json("OK")
 
     return app
 
