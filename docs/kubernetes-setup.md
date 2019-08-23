@@ -142,21 +142,10 @@ If you see errors like this in the agent logs:
 This means that the agent cannot authenticate to the kubelet.  Assuming you
 have the ClusterRole and ClusterRoleBinding properly applied to the agent
 container's service account, this could indicate that the kubelet doesn't honor
-RBAC authentication.  Many times in this case, the kubelet will expose a
+RBAC authentication. Many times in this case, the kubelet will expose a
 separate endpoint on port 10255 that allows reading stats and metrics about the
-kubelet.  You can configure the agent to read from this port with the following
-config:
-
-```
-monitors:
- - type: kubelet-stats
-   kubeletAPI:
-     authType: none
-     url: http://localhost:10255
-```
-
-This would replace the original `kubelet-stats` monitor config in the
-`configmap.yaml` above.
+kubelet. The `kubelet-stats` monitor uses this endpoint by default when a Kubelet
+URL is not specified.
 
 ## Discovering your services
 
@@ -384,20 +373,10 @@ PKS is identical because of the similar lack of reliable machine ids.
 ## Google Container Engine (GKE)
 
 On GKE, access to the kubelet is highly restricted and service accounts will
-not work (at least as of GKE 1.9.4).  In those environments, you can use the
-alternative, non-secure port 10255 on the kubelet in the `kubelet-stats`
-monitor to get container metrics.  The config for that monitor will look like:
-
-```
-monitors:
- - type: kubelet-stats
-   kubeletAPI:
-     authType: none
-     url: http://localhost:10255
-```
-
-As long as you use our standard RBAC resources, this should be the only
-modification needed to accommodate GKE.
+not work (at least as of GKE 1.9.4).  In those environments, non-secure port
+10255 is used to collect container metrics. As long as you use our standard
+RBAC resources, the `kubelet-stats` monitor should be able to collect metrics
+with its default configuration.
 
 ## OpenShift
 
