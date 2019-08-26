@@ -104,9 +104,6 @@ func generate(templateFile string, force bool) error {
 			sort.Strings(uniqueStrings)
 			return uniqueStrings
 		},
-		"title": func(s string) string {
-			return strings.Title(s)
-		},
 	}).ParseFiles(templateFile)
 
 	if err != nil {

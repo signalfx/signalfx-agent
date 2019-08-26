@@ -30,7 +30,11 @@ var {{"groupSet" | formatVariable}} = map[string]bool {
 {{with .metrics}}
 const (
 {{- range $metric, $info := .}}
-	{{$metric | formatVariable}} = "{{$metric}}"
+	{{- if $info.Name}}
+		{{$metric | formatVariable}} = "{{$info.Name}}"
+	{{- else}}
+		{{$metric | formatVariable}} = "{{$metric}}"
+	{{- end}}
 {{- with $info.Alias}}
 	{{. | formatVariable}} = "{{.}}"
 {{- end}}
@@ -83,21 +87,22 @@ var {{"groupMetricsMap" | formatVariable}} = map[string][]string {
     {{- end}}
 {{- end}}
 {{if gt (len $keys) 0 -}}
+// Map keys and value types for metric aliases.
 type (
 	Metric string
 	Key string
-	Val string
 )
+// Map keys for metric aliases.
 {{- range $key := uniqueStrings $keys}}
-    const aliasKey{{$key | formatVariable | title}} = Key("{{$key}}")
+    const {{$key | formatVariable}} = Key("{{$key}}")
 {{- end}}
 {{with .metrics}}
-var {{"aliases" | formatVariable}} = map[Metric]map[Key]Val {
+var {{"aliases" | formatVariable}} = map[Metric]map[Key]string {
     {{- range $metric, $info := .}}
         {{- if $info.Aliases}}
             {{$metric | formatVariable}}: {
                 {{- range $info.Aliases}}
-                    aliasKey{{.Key | formatVariable | title}}: "{{.Val}}",
+                    {{.Key | formatVariable}}: "{{.Val}}",
                 {{- end}}
             },
         {{- end}}

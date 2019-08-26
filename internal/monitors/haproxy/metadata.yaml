@@ -1,0 +1,542 @@
+monitors:
+  - monitorType: haproxy
+    metrics:
+      pxname:
+        default: false
+        description: 'Proxy name. Possible values for listeners, frontends, backends, and servers.'
+        type: gauge
+      svname:
+        default: false
+        description: 'Service name (FRONTEND for frontend, BACKEND for backend, any name for server/listener).
+        Values reported for listeners, frontends, backends, and servers.'
+        type: gauge
+      qcur:
+        default: true
+        description: 'Number of current queued requests. For the backend this reports the number queued without
+        a server assigned. Values reported for backends and servers.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.queue_current
+      qmax:
+        default: false
+        description: The max value of qcur. Values reported for backends and servers.
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.queue_max
+      scur:
+        default: true
+        description: 'Number current sessions. Values reported for listeners, frontends, backends, and servers.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.session_current
+      smax:
+        default: false
+        description: 'The value of scur. Values reported for listeners, frontends, backends, and servers.'
+        type: gauge
+      slim:
+        default: false
+        description: 'The configured number of sessions limit. Values reported for listeners, frontends, backends,
+        and servers.'
+        type: gauge
+      stot:
+        default: false
+        description: 'The cumulative number of sessions. Values reported for listeners, frontends, backends, and servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.session_total
+      bin:
+        default: true
+        description: 'Total number of incoming bytes. Values reported for listeners, frontends, backends, and servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.bytes_in
+      bout:
+        default: true
+        description: 'Total number of outgoing bytes. Values reported for listeners, frontends, backends, and servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.bytes_out
+      dreq:
+        default: true
+        description: 'Number of requests denied because of security concerns. For tcp this is because of a
+        matched tcp-request content rule. For http this is because of a matched http-request or tarpit rule.
+        Values reported for listeners, frontends, and backends.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.denied_request
+      dresp:
+        default: true
+        description: 'Number of responses denied because of security concerns. For http this is because of a
+        matched http-request rule, or "option checkcache". Values reported for listeners, frontends, backends, and
+        servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.denied_response
+      ereq:
+        default: true
+        description: 'Number of request errors. Some of the possible causes are: early termination from the
+        client, before the request has been sent, read error from the client, client timeout, client closed
+        connection, various bad requests from the client, request was tarpitted. Values reported for listeners and
+        frontends.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.error_request
+      econ:
+        default: true
+        description: 'Number of requests that encountered an error trying to connect to a backend server.
+        The backend stat is the sum of the stat for all servers of that backend, plus any connection errors not
+        associated with a particular server (such as the backend having no active servers). Values reported for
+        backends and servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.error_connectiont
+      eresp:
+        default: true
+        description: "Number of response errors. srv_abrt will be counted here also. Some other errors are:
+        write error on the client socket (won't be counted for the server stat), failure applying filters to the
+        response. Values reported for backends and servers."
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.error_response
+      wretr:
+        default: true
+        description: 'Number of times a connection to a server was retried. Values reported for backends and servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.retries
+      wredis:
+        default: true
+        description: 'Number of times a request was redispatched to another server. The server value counts the number
+        of times that server was switched away from. Values reported for backends and servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.redispatched
+      status:
+        default: false
+        description: 'Status (UP/DOWN/NOLB/MAINT/MAINT(via)/MAINT(resolution)...). Values reported for listeners,
+        frontends, backends, and servers.'
+        type: gauge
+      weight:
+        default: false
+        description: 'Total weight (backend), server weight (server). Values reported for backends and servers.'
+        type: cumulative
+      act:
+        default: false
+        description: 'Number of active servers (backend), server is active (server). Values reported for backends
+        and servers.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.active_servers
+      bck:
+        default: false
+        description: 'Number of backup servers (backend), server is backup (server). Values reported for backends
+        and servers.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.backup_servers
+      chkfail:
+        default: false
+        description: 'Number of failed checks. (Only counts checks failed when the server is up.). Values reported
+        for servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.failed_checks
+      chkdown:
+        default: false
+        description: 'Number of UP->DOWN transitions. The backend counter counts transitions to the whole backend
+        being down, rather than the sum of the counters for each server. Values reported for backends and servers.'
+        type: cumulative
+      lastchg:
+        default: false
+        description: 'Number of seconds since the last UP<->DOWN transition. Values reported for backends and servers.'
+        type: gauge
+      downtime:
+        default: false
+        description: 'Total downtime (in seconds). The value for the backend is the downtime for the whole backend,
+        not the sum of the server downtime. Values reported for backends and servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.downtime
+      qlimit:
+        default: false
+        description: 'Configured maxqueue for the server, or nothing in the value is 0 (default, meaning no limit).
+        Values reported for servers.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.queue_limit
+      pid:
+        default: false
+        description: 'Process id (0 for first instance, 1 for second, ...). Values reported for listeners, frontends,
+        backends, and servers.'
+        type: gauge
+      iid:
+        default: false
+        description: 'Unique proxy id. Values reported for listeners, frontends, backends, and servers.'
+        type: gauge
+      sid:
+        default: false
+        description: 'Server id (unique inside a proxy). Values reported for listeners, frontends, backends, and
+        servers.'
+        type: gauge
+      throttle:
+        default: false
+        description: 'Current throttle percentage for the server, when slowstart is active, or no value if not in
+        slowstart. Values reported for servers.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.throttle
+      lbtot:
+        default: true
+        description: 'Total number of times a server was selected, either for new sessions, or when re-dispatching.
+        The server counter is the number of times that server was selected. Values reported for backends and
+        servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: counter.server_selected_total
+      tracked:
+        default: false
+        description: 'Id of proxy/server if tracking is enabled. Values reported for servers.'
+        type: gauge
+      typ:
+        name: 'type'
+        default: false
+        description: '(0=frontend, 1=backend, 2=server, 3=socket/listener). Values reported for listeners, frontends,
+        backends, and servers.'
+        type: gauge
+      rate:
+        default: true
+        description: 'Number of sessions per second over last elapsed second. Values reported for frontends, backends,
+        and servers.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.session_rate
+      rate_lim:
+        default: false
+        description: 'Configured limit on new sessions per second. Values reported for frontends.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.session_rate_limit
+      rate_max:
+        default: false
+        description: 'Max number of new sessions per second. Values reported for frontends, backends, and servers.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.session_rate_max
+      check_status:
+        default: false
+        description: 'Status of last health check, one of:
+        UNK     -> unknown
+        INI     -> initializing
+        SOCKERR -> socket error
+        L4OK    -> check passed on layer 4, no upper layers testing enabled
+        L4TOUT  -> layer 1-4 timeout
+        L4CON   -> layer 1-4 connection problem, for example "Connection refused" (tcp rst) or "No route to host" (icmp)
+        L6OK    -> check passed on layer 6
+        L6TOUT  -> layer 6 (SSL) timeout
+        L6RSP   -> layer 6 invalid response - protocol error
+        L7OK    -> check passed on layer 7
+        L7OKC   -> check conditionally passed on layer 7, for example 404 with disable-on-404
+        L7TOUT  -> layer 7 (HTTP/SMTP) timeout
+        L7RSP   -> layer 7 invalid response - protocol error
+        L7STS   -> layer 7 response error, for example HTTP 5xx
+        Notice: If a check is currently running, the last known status will be reported, prefixed with "* ". e. g. "* L7OK".
+        Values reported for servers.'
+        type: gauge
+      check_code:
+        default: false
+        description: 'Layer 5-7 code, if available. Values reported for servers.'
+        type: gauge
+      check_duration:
+        default: false
+        description: 'Time in ms took to finish last health check. Values reported for servers.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.check_duration
+      hrsp_1xx:
+        default: false
+        description: 'HTTP responses with 1xx code. Values reported for frontends, backends, and servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.response_1xx
+      hrsp_2xx:
+        default: true
+        description: 'HTTP responses with 2xx code. Values reported for frontends, backends, and servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.response_2xx
+      hrsp_3xx:
+        default: false
+        description: 'HTTP responses with 3xx code. Values reported for frontends, backends, and servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.response_3xx
+      hrsp_4xx:
+        default: true
+        description: 'HTTP responses with 4xx code. Values reported for frontends, backends, and servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.response_4xx
+      hrsp_5xx:
+        default: true
+        description: 'HTTP responses with 5xx code. Values reported for frontends, backends, and servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.response_5xx
+      hrsp_other:
+        default: false
+        description: 'HTTP responses with other codes (protocol error). Values reported for frontends, backends, and servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.response_other
+      hanafail:
+        default: false
+        description: 'Failed health checks details. Values reported for servers.'
+        type: cumulative
+      req_rate:
+        default: true
+        description: 'HTTP requests per second over last elapsed second. Values reported for frontends.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.request_rate
+      req_rate_max:
+        default: false
+        description: 'Max number of HTTP requests per second observed. Values reported for frontends.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.request_rate_max
+      req_tot:
+        default: false
+        description: 'Total number of HTTP requests received. Values reported for frontends and backends.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.request_total
+      cli_abrt:
+        default: false
+        description: 'Number of data transfers aborted by the client. Values reported for backends and servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.cli_abrt
+      srv_abrt:
+        default: false
+        description: 'Number of data transfers aborted by the server (inc. in eresp). Values reported for backends and servers.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.srv_abrt
+      comp_in:
+        default: false
+        description: 'Number of HTTP response bytes fed to the compressor. Values reported for frontends and backends.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.comp_in
+      comp_out:
+        default: false
+        description: 'Number of HTTP response bytes emitted by the compressor. Values reported for frontends and backends.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.comp_out
+      comp_byp:
+        default: false
+        description: 'Number of bytes that bypassed the HTTP compressor (CPU/BW limit). Values reported for frontends and backends.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.comp_byp
+      comp_rsp:
+        default: false
+        description: 'Number of HTTP responses that were compressed. Values reported for frontends and backends.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: derive.comp_rsp
+      lastsess:
+        default: false
+        description: 'Number of seconds since last session assigned to server/backend. Values reported for backends and servers.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.last_session
+      last_chk:
+        default: false
+        description: 'Last health check contents or textual error. Values reported for servers.'
+        type: gauge
+      last_agt:
+        default: false
+        description: 'Last agent check contents or textual error. Values reported for servers.'
+        type: gauge
+      qtime:
+        default: false
+        description: 'The average queue time in ms over the 1024 last requests. Values reported for backends and servers.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.queue_time_avg
+      ctime:
+        default: false
+        description: 'The average connect time in ms over the 1024 last requests. Values reported for backends and servers.'
+        type: gauge
+      rtime:
+        default: false
+        description: 'The average response time in ms over the 1024 last requests (0 for TCP). Values reported for backends and servers.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.response_time_avg
+      ttime:
+        default: false
+        description: 'The average total session time in ms over the 1024 last requests. Values reported for backends and servers.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.session_time_average
+      agent_status:
+        default: false
+        description: 'Status of last agent check, one of:
+        UNK     -> unknown
+        INI     -> initializing
+        SOCKERR -> socket error
+        L4OK    -> check passed on layer 4, no upper layers testing enabled
+        L4TOUT  -> layer 1-4 timeout
+        L4CON   -> layer 1-4 connection problem, for example "Connection refused" (tcp rst) or "No route to host" (icmp)
+        L7OK    -> agent reported "up"
+        L7STS   -> agent reported "fail", "stop", or "down"
+        Values reported for servers.'
+        type: gauge
+      agent_code:
+        default: false
+        description: 'Numeric code reported by agent if any (unused for now). Values reported for servers.'
+        type: gauge
+      agent_duration:
+        default: false
+        description: 'Time in ms taken to finish last check. Values reported for servers.'
+        type: gauge
+#      check_desc:
+#        default: false
+#        description: 'Short human-readable description of check_status. Values reported for servers.'
+#        type:
+#      agent_desc:
+#        default: false
+#        description: 'Short human-readable description of agent_status. Values reported for servers.'
+#        type:
+      check_rise:
+        default: false
+        description: "Server's 'rise' parameter used by checks. Values reported for servers."
+        type: gauge
+      check_fall:
+        default: false
+        description: "Server's 'fall' parameter used by checks. Values reported for servers."
+        type: gauge
+      check_health:
+        default: false
+        description: "Server's health check value between 0 and rise+fall-1. Values reported for servers."
+        type: gauge
+      agent_rise:
+        default: false
+        description: "Agent's 'rise' parameter, normally 1. Values reported for servers."
+        type: gauge
+      agent_fall:
+        default: false
+        description: "Agent's 'fall' parameter, normally 1. Values reported for servers."
+        type: gauge
+      agent_health:
+        default: false
+        description: "Agent's health parameter, between 0 and rise+fall-1. Values reported for servers."
+        type: gauge
+#      addr:
+#        default: false
+#        description: 'address:port or "unix". IPv6 has brackets around the address.. Values reported for listeners and servers.'
+#        type:
+#      cookie:
+#        default: false
+#        description: "Server's cookie value or backend's cookie name. Values reported for backend and servers."
+#        type:
+      mode:
+        default: false
+        description: 'Proxy mode (tcp, http, health, unknown). Values reported for listeners, frontends, backends, and servers.'
+        type: gauge
+      algo:
+        default: false
+        description: 'Load balancing algorithm. Values reported for backends.'
+        type: gauge
+      conn_rate:
+        default: true
+        description: 'Number of connections over the last elapsed second. Values reported for frontends.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val:  gauge.connection_rate
+      conn_rate_max:
+        default: false
+        description: 'Highest known conn_rate. Values reported for frontends.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.connection_rate_max
+      conn_tot:
+        default: false
+        description: 'Cumulative number of connections. Values reported for frontends.'
+        type: cumulative
+        aliases:
+          - key: signalfx-name
+            val: counter.connection_total
+      intercepted:
+        default: false
+        description: 'Cumulative cum. number of intercepted requests (monitor, stats). Values reported for frontends and backends.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.intercepted_requests
+      dcon:
+        default: false
+        description: 'Requests denied by "tcp-request connection" rules. Values reported for listeners and frontends.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.denied_tcp_connections
+      dses:
+        default: false
+        description: 'Requests denied by "tcp-request session" rules. Values reported for listeners and frontends.'
+        type: gauge
+        aliases:
+          - key: signalfx-name
+            val: gauge.denied_tcp_sessions
+      wrew:
+        default: false
+        description: 'Cumulative number of failed header rewriting warnings. Values reported for listeners, frontends, backends, and servers.'
+        type: cumulative
