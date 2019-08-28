@@ -15,6 +15,7 @@ import (
 	"github.com/mitchellh/hashstructure"
 	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
+	"github.com/signalfx/signalfx-agent/internal/core/config/cluster"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources"
 	"github.com/signalfx/signalfx-agent/internal/core/config/validation"
 	"github.com/signalfx/signalfx-agent/internal/utils"
@@ -79,7 +80,8 @@ type Config struct {
 	Cluster string `yaml:"cluster"`
 	// If true, force syncing of the `cluster` property on the `host` dimension,
 	// even when cloud-specific dimensions are present.
-	SyncClusterOnHostDimension bool `yaml:"syncClusterOnHostDimension"`
+	SyncClusterOnHostDimension bool                     `yaml:"syncClusterOnHostDimension"`
+	Clustering                 cluster.ClusteringConfig `yaml:"clustering"`
 	// If true, a warning will be emitted if a discovery rule contains
 	// variables that will never possibly match a rule.  If using multiple
 	// observers, it is convenient to set this to false to suppress spurious

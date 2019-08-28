@@ -360,7 +360,6 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 			dpCount := int64(high - low)
 			atomic.AddInt64(&sw.dpsInFlight, dpCount)
 
-			log.Debugf("Sending dpBuffer[%d:%d]", low, high)
 			err := sw.sendDatapoints(dpBuffer[low:high])
 			if err != nil {
 				atomic.AddInt64(&sw.dpsFailedToSend, dpCount)

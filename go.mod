@@ -24,6 +24,7 @@ require (
 	github.com/aws/aws-sdk-go v1.18.4 // indirect
 	github.com/bmizerany/perks v0.0.0-20141205001514-d9a9656a3a4b // indirect
 	github.com/boombuler/barcode v1.0.0 // indirect
+	github.com/bradfitz/gomemcache v0.0.0-20190329173943-551aad21a668
 	github.com/briankassouf/jose v0.9.1 // indirect
 	github.com/cenkalti/backoff v2.1.1+incompatible // indirect
 	github.com/centrify/cloud-golang-sdk v0.0.0-20190214225812-119110094d0f // indirect

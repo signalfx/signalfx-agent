@@ -25,7 +25,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/cluster/metrics"
-	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/leadership"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 )
 
@@ -115,18 +114,8 @@ func (m *Monitor) Start() error {
 		return err
 	}
 
-	var leaderCh <-chan bool
-	var unregister func()
-
-	if m.config.AlwaysClusterReporter {
-		clusterState.Start()
-	} else {
-		var err error
-		leaderCh, unregister, err = leadership.RequestLeaderNotification(clusterState.clientset.CoreV1())
-		if err != nil {
-			return err
-		}
-	}
+	shouldReport = true
+	clusterState.Start()
 
 	go func() {
 		defer ticker.Stop()
@@ -134,19 +123,8 @@ func (m *Monitor) Start() error {
 		for {
 			select {
 			case <-m.stop:
-				if unregister != nil {
-					unregister()
-				}
 				clusterState.Stop()
 				return
-			case isLeader := <-leaderCh:
-				if isLeader {
-					shouldReport = true
-					clusterState.Start()
-				} else {
-					shouldReport = false
-					clusterState.Stop()
-				}
 			case <-ticker.C:
 				if shouldReport {
 					m.sendLatestDatapoints()

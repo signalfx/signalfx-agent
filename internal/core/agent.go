@@ -130,8 +130,14 @@ func (a *Agent) configure(conf *config.Config) {
 	a.meta.InternalStatusHost = conf.InternalStatusHost
 	a.meta.InternalStatusPort = conf.InternalStatusPort
 
+	elector, err := conf.Clustering.CreateElector(context.TODO(), hostDims)
+	if err != nil {
+		log.WithError(err).Error("Could not configure agent clustering")
+		os.Exit(5)
+	}
+
 	// The order of Configure calls is very important!
-	a.monitors.Configure(conf.Monitors, &conf.Collectd, conf.IntervalSeconds, conf.EnableBuiltInFiltering)
+	a.monitors.Configure(conf.Monitors, &conf.Collectd, conf.IntervalSeconds, conf.EnableBuiltInFiltering, elector)
 	a.observers.Configure(conf.Observers)
 	a.lastConfig = conf
 }
@@ -149,7 +155,6 @@ func (a *Agent) endpointRemoved(service services.Endpoint) {
 func (a *Agent) shutdown() {
 	a.observers.Shutdown()
 	a.monitors.Shutdown()
-	//neopy.Instance().Shutdown()
 	a.writer.Shutdown()
 	if a.diagnosticServer != nil {
 		a.diagnosticServer.Close()

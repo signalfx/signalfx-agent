@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"reflect"
 
@@ -30,6 +31,23 @@ type MonitorConfig struct {
 	// errors.  The top-level setting `validateDiscoveryRules` acts as a
 	// default if this isn't set.
 	ValidateDiscoveryRule *bool `yaml:"validateDiscoveryRule"`
+	// The maximum number of instances of this monitor to instantiate
+	// throughout an entire cluster of agents.  This is useful if this monitor
+	// is configured to watch something that is not specific to the node that
+	// the agent is running on (e.g. a high-level set of metrics describing
+	// multiple nodes, or metrics from a serice running on a service on which
+	// you cannot run the agent), but you don't want to craft a config for the
+	// agent that is specific to certain nodes.  It also provides some
+	// fault-tolerance in the face of agents crashing since another agent will
+	// take over the instance if another dies.  Clustering is determined by the
+	// top-level `clustering` config.  The instances are considered the same
+	// across agent instances if they have the same config values. Note that in
+	// order to set this to 2 or more, the monitor has to support partitioning
+	// the workload between multiple instances to have any effect. The same
+	// monitor config cannot have both a discovery rule and set this value.  A
+	// value of 0 (the default) means the monitor can have an unlimited number
+	// of instances.
+	MaxInstancesPerCluster uint `yaml:"maxInstancesPerCluster"`
 	// A set of extra dimensions (key:value pairs) to include on datapoints emitted by the
 	// monitor(s) created from this configuration. To specify metrics from this
 	// monitor should be high-resolution, add the dimension `sf_hires: 1`
@@ -98,6 +116,7 @@ type MonitorConfig struct {
 	Hostname        string          `yaml:"-" json:"-"`
 	ValidationError string          `yaml:"-" json:"-" hash:"ignore"`
 	MonitorID       types.MonitorID `yaml:"-" hash:"ignore"`
+	InstanceIdx     uint            `yaml:"-" hash:"ignore"`
 }
 
 var _ CustomConfigurable = &MonitorConfig{}
@@ -111,6 +130,9 @@ func (mc *MonitorConfig) Validate() error {
 	}
 	if _, err = mc.NewFilterSet(); err != nil {
 		return err
+	}
+	if mc.DiscoveryRule != "" && mc.MaxInstancesPerCluster != 0 {
+		return fmt.Errorf("cannot use discoveryRule with maxInstancesPerCluster")
 	}
 	return nil
 }

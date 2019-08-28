@@ -8,7 +8,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/common/kubernetes"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/leadership"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 
@@ -90,36 +89,14 @@ func (m *Monitor) start(k8sClient *k8s.Clientset, alwaysReport bool) error {
 		}, syncStopper)
 	}
 
-	var leaderCh <-chan bool
-	var unregister func()
-	if alwaysReport {
-		logger.Info("This instance will send K8s events")
-		runSync()
-	} else {
-		var err error
-		leaderCh, unregister, err = leadership.RequestLeaderNotification(k8sClient.CoreV1())
-		if err != nil {
-			return err
-		}
-	}
+	logger.Info("This instance will send K8s events")
+	runSync()
 
 	go func() {
 		for {
 			select {
-			case isLeader := <-leaderCh:
-				if isLeader {
-					logger.Info("This instance is now the leader and will send events")
-					runSync()
-				} else {
-					logger.Info("No longer leader")
-					close(syncStopper)
-					syncStopper = nil
-				}
 			case <-m.stopper:
 				logger.Info("Stopping k8s event syncing")
-				if unregister != nil {
-					unregister()
-				}
 				if syncStopper != nil {
 					close(syncStopper)
 				}

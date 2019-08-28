@@ -29,6 +29,14 @@
         "elementKind": ""
       },
       {
+        "yamlName": "maxInstancesPerCluster",
+        "doc": "The maximum number of instances of this monitor to instantiate throughout an entire cluster of agents.  This is useful if this monitor is configured to watch something that is not specific to the node that the agent is running on (e.g. a high-level set of metrics describing multiple nodes, or metrics from a serice running on a service on which you cannot run the agent), but you don't want to craft a config for the agent that is specific to certain nodes.  It also provides some fault-tolerance in the face of agents crashing since another agent will take over the instance if another dies.  Clustering is determined by the top-level `clustering` config.  The instances are considered the same across agent instances if they have the same config values. Note that in order to set this to 2 or more, the monitor has to support partitioning the workload between multiple instances to have any effect. The same monitor config cannot have both a discovery rule and set this value.  A value of 0 (the default) means the monitor can have an unlimited number of instances.",
+        "default": 0,
+        "required": false,
+        "type": "uint",
+        "elementKind": ""
+      },
+      {
         "yamlName": "extraDimensions",
         "doc": "A set of extra dimensions (key:value pairs) to include on datapoints emitted by the monitor(s) created from this configuration. To specify metrics from this monitor should be high-resolution, add the dimension `sf_hires: 1`",
         "default": null,
@@ -47701,6 +47709,146 @@
         "elementKind": ""
       },
       {
+        "yamlName": "clustering",
+        "doc": "",
+        "default": null,
+        "required": false,
+        "type": "struct",
+        "elementKind": "",
+        "elementStruct": {
+          "name": "ClusteringConfig",
+          "doc": "ClusteringConfig describes how to cluster the agents, if desired.",
+          "package": "internal/core/config/cluster",
+          "fields": [
+            {
+              "yamlName": "type",
+              "doc": "How to cluster the agents.",
+              "default": "",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "kubernetes",
+              "doc": "",
+              "default": null,
+              "required": false,
+              "type": "struct",
+              "elementKind": "",
+              "elementStruct": {
+                "name": "KubernetesConfig",
+                "doc": "KubernetesConfig is some common K8s config used by multiple monitors",
+                "package": "internal/core/config/cluster",
+                "fields": [
+                  {
+                    "yamlName": "kubernetesAPI",
+                    "doc": "Config for the K8s API client",
+                    "default": "",
+                    "required": false,
+                    "type": "struct",
+                    "elementKind": "",
+                    "elementStruct": {
+                      "name": "APIConfig",
+                      "doc": "APIConfig contains options relevant to connecting to the K8s API",
+                      "package": "internal/core/common/kubernetes",
+                      "fields": [
+                        {
+                          "yamlName": "authType",
+                          "doc": "How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), `serviceAccount` (to use the standard service account token provided to the agent pod), or `kubeConfig` to use credentials from `~/.kube/config`.",
+                          "default": "serviceAccount",
+                          "required": false,
+                          "type": "string",
+                          "elementKind": ""
+                        },
+                        {
+                          "yamlName": "skipVerify",
+                          "doc": "Whether to skip verifying the TLS cert from the API server.  Almost never needed.",
+                          "default": false,
+                          "required": false,
+                          "type": "bool",
+                          "elementKind": ""
+                        },
+                        {
+                          "yamlName": "clientCertPath",
+                          "doc": "The path to the TLS client cert on the pod's filesystem, if using `tls` auth.",
+                          "default": "",
+                          "required": false,
+                          "type": "string",
+                          "elementKind": ""
+                        },
+                        {
+                          "yamlName": "clientKeyPath",
+                          "doc": "The path to the TLS client key on the pod's filesystem, if using `tls` auth.",
+                          "default": "",
+                          "required": false,
+                          "type": "string",
+                          "elementKind": ""
+                        },
+                        {
+                          "yamlName": "caCertPath",
+                          "doc": "Path to a CA certificate to use when verifying the API server's TLS cert.  Generally this is provided by K8s alongside the service account token, which will be picked up automatically, so this should rarely be necessary to specify.",
+                          "default": "",
+                          "required": false,
+                          "type": "string",
+                          "elementKind": ""
+                        }
+                      ]
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "yamlName": "memcached",
+              "doc": "",
+              "default": null,
+              "required": false,
+              "type": "struct",
+              "elementKind": "",
+              "elementStruct": {
+                "name": "MemcachedConfig",
+                "doc": "MemcachedConfig is the config for the Memcached clustering option.",
+                "package": "internal/core/config/cluster",
+                "fields": [
+                  {
+                    "yamlName": "hosts",
+                    "doc": "The Memcached hosts to use.  The list must match on each agent instance in the same \"cluster\".",
+                    "default": null,
+                    "required": false,
+                    "type": "slice",
+                    "elementKind": "string"
+                  },
+                  {
+                    "yamlName": "expiration",
+                    "doc": "How long an agent that claims a key will keep it.  No other agents can obtain it within this amount of time after the agent gets it or renews it.",
+                    "default": "60s",
+                    "required": false,
+                    "type": "int64",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "retryTimeout",
+                    "doc": "How often for non-elected agent instances to retry getting the key",
+                    "default": "30s",
+                    "required": false,
+                    "type": "int64",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "renewalDeadline",
+                    "doc": "How long after obtaining/renewing a claim that the elected agent instance will renew it again.",
+                    "default": "45s",
+                    "required": false,
+                    "type": "int64",
+                    "elementKind": ""
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      {
         "yamlName": "validateDiscoveryRules",
         "doc": "If true, a warning will be emitted if a discovery rule contains variables that will never possibly match a rule.  If using multiple observers, it is convenient to set this to false to suppress spurious errors.",
         "default": true,
@@ -47765,6 +47913,14 @@
               "default": "false",
               "required": false,
               "type": "bool",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "maxInstancesPerCluster",
+              "doc": "The maximum number of instances of this monitor to instantiate throughout an entire cluster of agents.  This is useful if this monitor is configured to watch something that is not specific to the node that the agent is running on (e.g. a high-level set of metrics describing multiple nodes, or metrics from a serice running on a service on which you cannot run the agent), but you don't want to craft a config for the agent that is specific to certain nodes.  It also provides some fault-tolerance in the face of agents crashing since another agent will take over the instance if another dies.  Clustering is determined by the top-level `clustering` config.  The instances are considered the same across agent instances if they have the same config values. Note that in order to set this to 2 or more, the monitor has to support partitioning the workload between multiple instances to have any effect. The same monitor config cannot have both a discovery rule and set this value.  A value of 0 (the default) means the monitor can have an unlimited number of instances.",
+              "default": 0,
+              "required": false,
+              "type": "uint",
               "elementKind": ""
             },
             {

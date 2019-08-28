@@ -1,13 +1,11 @@
 package core
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/leadership"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
@@ -29,10 +27,10 @@ func (a *Agent) DiagnosticText(section string) string {
 				a.monitors.SummaryDiagnosticText() + "\n" +
 				a.writer.DiagnosticText() + "\n"
 
-		k8sLeader := leadership.CurrentLeader()
-		if k8sLeader != "" {
-			out += fmt.Sprintf("Kubernetes Leader Node:           %s\n", k8sLeader)
-		}
+		//k8sLeader := leadership.CurrentLeader()
+		//if k8sLeader != "" {
+		//	out += fmt.Sprintf("Kubernetes Leader Node:           %s\n", k8sLeader)
+		//}
 
 		if section == "" {
 			out += "\n" + utils.StripIndent(`

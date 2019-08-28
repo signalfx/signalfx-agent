@@ -1,14 +1,17 @@
 package monitors
 
 import (
+	"context"
 	"fmt"
 	"sync"
+	"time"
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/event"
 	"github.com/signalfx/golib/trace"
+	"github.com/signalfx/signalfx-agent/internal/core/cluster"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/meta"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
@@ -24,13 +27,18 @@ import (
 // rule (a "static" monitor), it will be started immediately (as soon as
 // Configure is called).
 type MonitorManager struct {
+	ctx    context.Context
+	cancel context.CancelFunc
+
 	monitorConfigs map[uint64]config.MonitorCustomConfig
 	// Keep track of which services go with which monitor
-	activeMonitors []*ActiveMonitor
-	badConfigs     map[uint64]*config.MonitorConfig
-	lock           sync.Mutex
+	activeMonitors          []*ActiveMonitor
+	standbyMonitorCancelers map[uint64]context.CancelFunc
+	badConfigs              map[uint64]*config.MonitorConfig
+	lock                    sync.Mutex
 	// Map of service endpoints that have been discovered
 	discoveredEndpoints map[services.ID]services.Endpoint
+	clusterElector      *cluster.MultiElector
 
 	DPs              chan<- *datapoint.Datapoint
 	Events           chan<- *event.Event
@@ -48,23 +56,29 @@ type MonitorManager struct {
 
 // NewMonitorManager creates a new instance of the MonitorManager
 func NewMonitorManager(agentMeta *meta.AgentMeta) *MonitorManager {
+	ctx, cancel := context.WithCancel(context.Background())
+
 	return &MonitorManager{
-		monitorConfigs:      make(map[uint64]config.MonitorCustomConfig),
-		activeMonitors:      make([]*ActiveMonitor, 0),
-		badConfigs:          make(map[uint64]*config.MonitorConfig),
-		discoveredEndpoints: make(map[services.ID]services.Endpoint),
-		idGenerator:         utils.NewIDGenerator(),
-		agentMeta:           agentMeta,
+		ctx:                     ctx,
+		cancel:                  cancel,
+		monitorConfigs:          make(map[uint64]config.MonitorCustomConfig),
+		activeMonitors:          make([]*ActiveMonitor, 0),
+		standbyMonitorCancelers: make(map[uint64]context.CancelFunc),
+		badConfigs:              make(map[uint64]*config.MonitorConfig),
+		discoveredEndpoints:     make(map[services.ID]services.Endpoint),
+		idGenerator:             utils.NewIDGenerator(),
+		agentMeta:               agentMeta,
 	}
 }
 
 // Configure receives a list of monitor configurations.  It will start up any
 // static monitors and watch discovered services to see if any match dynamic
 // monitors.
-func (mm *MonitorManager) Configure(confs []config.MonitorConfig, collectdConf *config.CollectdConfig, intervalSeconds int, enableBuiltInFiltering bool) {
+func (mm *MonitorManager) Configure(confs []config.MonitorConfig, collectdConf *config.CollectdConfig, intervalSeconds int, enableBuiltInFiltering bool, clusterElector *cluster.MultiElector) {
 	mm.lock.Lock()
 	defer mm.lock.Unlock()
 
+	mm.clusterElector = clusterElector
 	mm.intervalSeconds = intervalSeconds
 	mm.enableBuiltInFiltering = enableBuiltInFiltering
 	for i := range confs {
@@ -176,7 +190,8 @@ func (mm *MonitorManager) handleNewConfig(conf *config.MonitorConfig) (config.Mo
 
 	// No discovery rule means that the monitor should run from the start
 	if conf.DiscoveryRule == "" {
-		return monConfig, mm.createAndConfigureNewMonitor(monConfig, nil)
+		_, err := mm.instantiateMonitor(monConfig, nil)
+		return monConfig, err
 	}
 
 	mm.makeMonitorsForMatchingEndpoints(monConfig)
@@ -240,7 +255,7 @@ func (mm *MonitorManager) monitorEndpointIfRuleMatches(config config.MonitorCust
 		return false, nil
 	}
 
-	err := mm.createAndConfigureNewMonitor(config, endpoint)
+	_, err := mm.instantiateMonitor(config, endpoint)
 	if err != nil {
 		return true, err
 	}
@@ -287,7 +302,7 @@ func (mm *MonitorManager) monitorSelfConfiguredEndpoint(endpoint services.Endpoi
 		return err
 	}
 
-	if err = mm.createAndConfigureNewMonitor(monConfig, endpoint); err != nil {
+	if _, err = mm.instantiateMonitor(monConfig, endpoint); err != nil {
 		return err
 	}
 	return nil
@@ -315,8 +330,91 @@ func (mm *MonitorManager) findConfigForMonitorAndRun(endpoint services.Endpoint)
 	}
 }
 
+func waitForSelection(ctx context.Context, noticeCh cluster.NoticeCh) (cluster.ElectionResult, error) {
+	select {
+	case <-ctx.Done():
+		return cluster.ElectionResult{}, ctx.Err()
+	case result, ok := <-noticeCh:
+		if !ok {
+			return cluster.ElectionResult{}, errors.New("elector shut down unexpectedly")
+		}
+		return result, nil
+	}
+}
+
+func (mm *MonitorManager) instantiateMonitor(config config.MonitorCustomConfig, endpoint services.Endpoint) (*ActiveMonitor, error) {
+	coreConfig := config.MonitorConfigCore()
+	// 0 means an unlimited number of instances per cluster.
+	if coreConfig.MaxInstancesPerCluster != 0 {
+		if endpoint != nil {
+			// This should have been pre-validated.
+			panic("clustering cannot be used with discovery")
+		}
+
+		if mm.clusterElector == nil {
+			return nil, errors.New("no cluster elector configured, cannot limit number of instances of monitor")
+		}
+
+		configHash := coreConfig.Hash()
+		key := fmt.Sprintf("%s-%d", coreConfig.Type, configHash)
+		noticeCh, unsubscribe, err := mm.clusterElector.RegisterCandidateInstance(key, coreConfig.MaxInstancesPerCluster)
+		if err != nil {
+			return nil, err
+		}
+
+		ctx, cancel := context.WithCancel(mm.ctx)
+
+		go func() {
+			var active *ActiveMonitor
+			var lastErr error
+
+			for {
+				result, err := waitForSelection(ctx, noticeCh)
+				if err != nil {
+					unsubscribe()
+					if err == context.Canceled {
+						// The standby was shut down
+						return
+					}
+					log.WithError(err).Error("Could not wait for standby monitor to be selected")
+					time.Sleep(10 * time.Second)
+					continue
+				}
+
+				if result.IsElected {
+					log.Infof("Got elected for %s", key)
+					active, lastErr = mm.createAndConfigureNewMonitor(config, endpoint)
+					if lastErr != nil {
+						log.WithFields(log.Fields{
+							"type": coreConfig.Type,
+							"err":  err,
+						}).Error("Could not configure monitor after it was selected to run in the cluster")
+						continue
+					}
+				} else {
+					if active == nil {
+						if lastErr == nil {
+							log.Warnf("Should not have gotten deselected in cluster with no active monitor")
+						}
+						continue
+					}
+					active.doomed = true
+					mm.deleteDoomedMonitors()
+				}
+			}
+		}()
+		mm.standbyMonitorCancelers[coreConfig.Hash()] = cancel
+		log.WithFields(log.Fields{
+			"monitorType": coreConfig.Type,
+		}).Info("Monitor standing by for cluster election")
+		return nil, nil
+	}
+
+	return mm.createAndConfigureNewMonitor(config, endpoint)
+}
+
 // endpoint may be nil for static monitors
-func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCustomConfig, endpoint services.Endpoint) error {
+func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCustomConfig, endpoint services.Endpoint) (*ActiveMonitor, error) {
 	id := types.MonitorID(mm.idGenerator())
 	coreConfig := config.MonitorConfigCore()
 	monitorType := coreConfig.Type
@@ -329,7 +427,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 
 	instance := newMonitor(config.MonitorConfigCore().Type)
 	if instance == nil {
-		return errors.Errorf("Could not create new monitor of type %s", monitorType)
+		return nil, errors.Errorf("Could not create new monitor of type %s", monitorType)
 	}
 
 	// Make metadata nil if we aren't using built in filtering and then none of
@@ -349,7 +447,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 
 	monFiltering, err := newMonitorFiltering(config, metadata)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	am := &ActiveMonitor{
@@ -362,7 +460,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 
 	renderedConf, err := renderConfig(config, endpoint)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	output := &monitorOutput{
@@ -384,11 +482,11 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 	am.output = output
 
 	if err := am.configureMonitor(renderedConf); err != nil {
-		return err
+		return nil, err
 	}
 	mm.activeMonitors = append(mm.activeMonitors, am)
 
-	return nil
+	return am, nil
 }
 
 func (mm *MonitorManager) monitorsForEndpointID(id services.ID) (out []*ActiveMonitor) {
@@ -436,10 +534,14 @@ func (mm *MonitorManager) isEndpointMonitored(endpoint services.Endpoint) bool {
 }
 
 func (mm *MonitorManager) deleteMonitorsByConfigHash(hash uint64) {
+	if cancel := mm.standbyMonitorCancelers[hash]; cancel != nil {
+		cancel()
+	}
 	for i := range mm.activeMonitors {
 		if mm.activeMonitors[i].configHash == hash {
 			log.WithFields(log.Fields{
-				"config": mm.activeMonitors[i].config,
+				"type": mm.activeMonitors[i].config.MonitorConfigCore().Type,
+				"id":   mm.activeMonitors[i].id,
 			}).Info("Shutting down monitor due to config hash change")
 			mm.activeMonitors[i].doomed = true
 		}
@@ -472,6 +574,10 @@ func (mm *MonitorManager) deleteDoomedMonitors() {
 func (mm *MonitorManager) Shutdown() {
 	mm.lock.Lock()
 	defer mm.lock.Unlock()
+
+	if mm.cancel != nil {
+		mm.cancel()
+	}
 
 	for i := range mm.activeMonitors {
 		mm.activeMonitors[i].doomed = true

@@ -10,7 +10,6 @@ import (
 	"github.com/signalfx/golib/sfxclient"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
-	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/leadership"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
@@ -142,6 +141,6 @@ func (mm *MonitorManager) InternalMetrics() []*datapoint.Datapoint {
 		sfxclient.Gauge("sfxagent.active_monitors", nil, int64(len(mm.activeMonitors))),
 		sfxclient.Gauge("sfxagent.configured_monitors", nil, int64(len(mm.monitorConfigs))),
 		sfxclient.Gauge("sfxagent.discovered_endpoints", nil, int64(len(mm.discoveredEndpoints))),
-		sfxclient.Gauge("sfxagent.k8s_leader", map[string]string{"leader_node": leadership.CurrentLeader()}, 1),
+		//sfxclient.Gauge("sfxagent.k8s_leader", map[string]string{"leader_node": leadership.CurrentLeader()}, 1),
 	}
 }
