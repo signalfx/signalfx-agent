@@ -91,7 +91,7 @@ func (mm *MonitorManager) DiagnosticText() string {
 	for i := range mm.activeMonitors {
 		am := mm.activeMonitors[i]
 
-		serviceStats := ""
+		serviceStats := "Not using auto-discovery"
 		if am.endpoint != nil {
 			serviceStats = fmt.Sprintf(
 				`Discovery Rule: %s
@@ -103,7 +103,8 @@ Monitored Endpoint ID: %s`,
 			`%s. %s
     Reporting Interval (seconds): %d
 %s
-%s    Config:
+%s
+    Config:
 %s
 `,
 			am.config.MonitorConfigCore().MonitorID,
