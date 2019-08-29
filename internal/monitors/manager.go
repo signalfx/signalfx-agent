@@ -421,7 +421,7 @@ func (mm *MonitorManager) EndpointRemoved(endpoint services.Endpoint) {
 
 	log.WithFields(log.Fields{
 		"endpoint": endpoint,
-	}).Info("No longer considering endpoint")
+	}).Debug("No longer considering endpoint")
 }
 
 func (mm *MonitorManager) isEndpointMonitored(endpoint services.Endpoint) bool {

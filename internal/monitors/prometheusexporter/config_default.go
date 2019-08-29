@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io"
 	"net/http"
-	"strings"
 	"time"
 
 	"github.com/prometheus/common/expfmt"
@@ -59,10 +58,6 @@ func (c *Config) NewClient() (*Client, error) {
 		scheme = "http"
 	}
 	host := c.Host
-	// Handle IPv6 addresses properly
-	if strings.ContainsAny(host, ":") {
-		host = "[" + host + "]"
-	}
 	url := fmt.Sprintf("%s://%s:%d%s", scheme, host, c.Port, c.MetricPath)
 	return &Client{
 		GetBodyReader: func() (bodyReader io.ReadCloser, format expfmt.Format, err error) {
