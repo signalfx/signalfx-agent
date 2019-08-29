@@ -56,7 +56,7 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 }
 
 func dimPropsForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache,
-	rsc *k8sutil.ReplicaSetCache) *atypes.DimProperties {
+	rsc *k8sutil.ReplicaSetCache, jc *k8sutil.JobCache) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(cachedPod.LabelSet)
 	for _, or := range cachedPod.OwnerReferences {
 		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
@@ -67,6 +67,15 @@ func dimPropsForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache,
 	serviceTags := sc.GetMatchingServices(cachedPod)
 	for _, tag := range serviceTags {
 		tags["kubernetes_service_"+tag] = true
+	}
+
+	// if pod was created by a job, check if it was created by a cronjob and sync property if so
+	if jobName, exists := props["job"]; exists {
+		cronjobName, cronjobUID := jc.GetMatchingCronJob(cachedPod.Namespace, jobName)
+		if cronjobName != nil {
+			props["cronJob"] = *cronjobName
+			props["cronJob_uid"] = string(cronjobUID)
+		}
 	}
 
 	// if pod was created by a replicaSet, sync its deployment name as a property

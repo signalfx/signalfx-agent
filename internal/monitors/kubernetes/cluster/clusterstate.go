@@ -13,6 +13,8 @@ import (
 	quota "github.com/openshift/api/quota/v1"
 	quotav1 "github.com/openshift/client-go/quota/clientset/versioned/typed/quota/v1"
 	appsv1 "k8s.io/api/apps/v1"
+	batchv1 "k8s.io/api/batch/v1"
+	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/fields"
@@ -68,7 +70,8 @@ func (cs *State) Start() {
 	coreClient := cs.clientset.CoreV1().RESTClient()
 	extV1beta1Client := cs.clientset.ExtensionsV1beta1().RESTClient()
 	appsV1Client := cs.clientset.AppsV1().RESTClient()
-
+	batchV1Client := cs.clientset.BatchV1().RESTClient()
+	batchBetaV1Client := cs.clientset.BatchV1beta1().RESTClient()
 	if cs.quotaClient != nil {
 		cs.beginSyncForType(ctx, &quota.ClusterResourceQuota{}, "clusterresourcequotas", v1.NamespaceAll,
 			cs.quotaClient.RESTClient())
@@ -82,6 +85,8 @@ func (cs *State) Start() {
 	cs.beginSyncForType(ctx, &v1beta1.ReplicaSet{}, "replicasets", cs.namespace, extV1beta1Client)
 	cs.beginSyncForType(ctx, &v1.ResourceQuota{}, "resourcequotas", cs.namespace, coreClient)
 	cs.beginSyncForType(ctx, &v1.Service{}, "services", cs.namespace, coreClient)
+	cs.beginSyncForType(ctx, &batchv1.Job{}, "jobs", cs.namespace, batchV1Client)
+	cs.beginSyncForType(ctx, &batchv1beta1.CronJob{}, "cronjobs", cs.namespace, batchBetaV1Client)
 	// Node and Namespace are NOT namespaced resources, so we don't need to
 	// fetch them if we are scoped to a specific namespace
 	if cs.namespace == "" {

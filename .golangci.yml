@@ -20,6 +20,11 @@ issues:
       linters:
         - gosec
 
+    - path: internal/monitors/kubernetes/cluster
+      text: Job
+      linters:
+        - goconst
+
 linters:
   enable-all: true
   disable:
@@ -36,6 +41,7 @@ linters:
     - prealloc
     # There are many legitimate uses of globals
     - gochecknoglobals
+
 
 run:
   modules-download-mode: vendor

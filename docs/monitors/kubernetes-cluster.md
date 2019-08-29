@@ -79,12 +79,18 @@ Metrics that are categorized as
 
  - ***`kubernetes.container_ready`*** (*gauge*)<br>    Whether a container has passed its readiness probe (0 for no, 1 for yes)
  - ***`kubernetes.container_restart_count`*** (*gauge*)<br>    How many times the container has restarted in the recent past.  This value is pulled directly from [the K8s API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core) and the value can go indefinitely high and be reset to 0 at any time depending on how your [kubelet is configured to prune dead containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/). It is best to not depend too much on the exact value but rather look at it as either `== 0`, in which case you can conclude there were no restarts in the recent past, or `> 0`, in which case you can conclude there were restarts in the recent past, and not try and analyze the value beyond that.
+ - ***`kubernetes.cronjob.active`*** (*gauge*)<br>    The number of actively running jobs for a cronjob.
  - ***`kubernetes.daemon_set.current_scheduled`*** (*gauge*)<br>    The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod
  - ***`kubernetes.daemon_set.desired_scheduled`*** (*gauge*)<br>    The total number of nodes that should be running the daemon pod (including nodes currently running the daemon pod)
  - ***`kubernetes.daemon_set.misscheduled`*** (*gauge*)<br>    The number of nodes that are running the daemon pod, but are not supposed to run the daemon pod
  - ***`kubernetes.daemon_set.ready`*** (*gauge*)<br>    The number of nodes that should be running the daemon pod and have one or more of the daemon pod running and ready
  - ***`kubernetes.deployment.available`*** (*gauge*)<br>    Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.
  - ***`kubernetes.deployment.desired`*** (*gauge*)<br>    Number of desired pods in this deployment
+ - ***`kubernetes.job.active`*** (*gauge*)<br>    The number of actively running pods for a job.
+ - ***`kubernetes.job.completions`*** (*gauge*)<br>    The desired number of successfully finished pods the job should be run with.
+ - ***`kubernetes.job.failed`*** (*counter*)<br>    The number of pods which reased phase Failed for a job.
+ - ***`kubernetes.job.parallelism`*** (*gauge*)<br>    The max desired number of pods the job should run at any given time.
+ - ***`kubernetes.job.succeeded`*** (*counter*)<br>    The number of pods which reached phase Succeeded for a job.
  - ***`kubernetes.namespace_phase`*** (*gauge*)<br>    The current phase of namespaces (`1` for _active_ and `0` for _terminating_)
  - ***`kubernetes.node_ready`*** (*gauge*)<br>    Whether this node is ready (1), not ready (0) or in an unknown state (-1)
  - ***`kubernetes.pod_phase`*** (*gauge*)<br>    Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown)

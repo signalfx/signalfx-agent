@@ -26263,12 +26263,18 @@
           "metrics": [
             "kubernetes.container_ready",
             "kubernetes.container_restart_count",
+            "kubernetes.cronjob.active",
             "kubernetes.daemon_set.current_scheduled",
             "kubernetes.daemon_set.desired_scheduled",
             "kubernetes.daemon_set.misscheduled",
             "kubernetes.daemon_set.ready",
             "kubernetes.deployment.available",
             "kubernetes.deployment.desired",
+            "kubernetes.job.active",
+            "kubernetes.job.completions",
+            "kubernetes.job.failed",
+            "kubernetes.job.parallelism",
+            "kubernetes.job.succeeded",
             "kubernetes.namespace_phase",
             "kubernetes.node_ready",
             "kubernetes.pod_phase",
@@ -26295,6 +26301,12 @@
         "kubernetes.container_restart_count": {
           "type": "gauge",
           "description": "How many times the container has restarted in the recent past.  This value is pulled directly from [the K8s API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core) and the value can go indefinitely high and be reset to 0 at any time depending on how your [kubelet is configured to prune dead containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/). It is best to not depend too much on the exact value but rather look at it as either `== 0`, in which case you can conclude there were no restarts in the recent past, or `\u003e 0`, in which case you can conclude there were restarts in the recent past, and not try and analyze the value beyond that.",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.cronjob.active": {
+          "type": "gauge",
+          "description": "The number of actively running jobs for a cronjob.",
           "group": null,
           "default": true
         },
@@ -26331,6 +26343,36 @@
         "kubernetes.deployment.desired": {
           "type": "gauge",
           "description": "Number of desired pods in this deployment",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.job.active": {
+          "type": "gauge",
+          "description": "The number of actively running pods for a job.",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.job.completions": {
+          "type": "gauge",
+          "description": "The desired number of successfully finished pods the job should be run with.",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.job.failed": {
+          "type": "counter",
+          "description": "The number of pods which reased phase Failed for a job.",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.job.parallelism": {
+          "type": "gauge",
+          "description": "The max desired number of pods the job should run at any given time.",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.job.succeeded": {
+          "type": "counter",
+          "description": "The number of pods which reached phase Succeeded for a job.",
           "group": null,
           "default": true
         },
@@ -27037,12 +27079,18 @@
           "metrics": [
             "kubernetes.container_ready",
             "kubernetes.container_restart_count",
+            "kubernetes.cronjob.active",
             "kubernetes.daemon_set.current_scheduled",
             "kubernetes.daemon_set.desired_scheduled",
             "kubernetes.daemon_set.misscheduled",
             "kubernetes.daemon_set.ready",
             "kubernetes.deployment.available",
             "kubernetes.deployment.desired",
+            "kubernetes.job.active",
+            "kubernetes.job.completions",
+            "kubernetes.job.failed",
+            "kubernetes.job.parallelism",
+            "kubernetes.job.succeeded",
             "kubernetes.namespace_phase",
             "kubernetes.node_ready",
             "kubernetes.pod_phase",
@@ -27100,6 +27148,12 @@
           "group": null,
           "default": true
         },
+        "kubernetes.cronjob.active": {
+          "type": "gauge",
+          "description": "The number of actively running jobs for a cronjob.",
+          "group": null,
+          "default": true
+        },
         "kubernetes.daemon_set.current_scheduled": {
           "type": "gauge",
           "description": "The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod",
@@ -27133,6 +27187,36 @@
         "kubernetes.deployment.desired": {
           "type": "gauge",
           "description": "Number of desired pods in this deployment",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.job.active": {
+          "type": "gauge",
+          "description": "The number of actively running pods for a job.",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.job.completions": {
+          "type": "gauge",
+          "description": "The desired number of successfully finished pods the job should be run with.",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.job.failed": {
+          "type": "counter",
+          "description": "The number of pods which reased phase Failed for a job.",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.job.parallelism": {
+          "type": "gauge",
+          "description": "The max desired number of pods the job should run at any given time.",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.job.succeeded": {
+          "type": "counter",
+          "description": "The number of pods which reached phase Succeeded for a job.",
           "group": null,
           "default": true
         },
