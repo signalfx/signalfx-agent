@@ -96,7 +96,7 @@ common:
       default: true
       type: gauge
     kubernetes.replication_controller.desired:
-      description: Number of desired pods
+      description: Number of desired pods (the `spec.replicas` field)
       default: true
       type: gauge
     kubernetes.resource_quota_hard:
@@ -109,6 +109,28 @@ common:
       description: The usage for a particular resource in a specific namespace.  Will
         only be sent if a quota is specified.  CPU requests/limits will be sent as
         millicores.
+      default: true
+      type: gauge
+    kubernetes.stateful_set.desired:
+      description: Number of desired pods in the stateful set (the `spec.replicas` field)
+      default: true
+      type: gauge
+    kubernetes.stateful_set.ready:
+      description: Number of pods created by the stateful set that have the `Ready` condition
+      default: true
+      type: gauge
+    kubernetes.stateful_set.current:
+      description: |
+        The number of pods created by the StatefulSet controller from the
+        StatefulSet version indicated by `current_revision` property on the
+        `kubernetes_uid` dimension for this StatefulSet.
+      default: true
+      type: gauge
+    kubernetes.stateful_set.updated:
+      description: |
+        The number of pods created by the StatefulSet controller from the
+        StatefulSet version indicated by the `update_revision` property on the
+        `kubernetes_uid` dimension for this StatefulSet.
       default: true
       type: gauge
   properties:

@@ -91,9 +91,19 @@ Metrics that are categorized as
  - ***`kubernetes.replica_set.available`*** (*gauge*)<br>    Total number of available pods (ready for at least minReadySeconds) targeted by this replica set
  - ***`kubernetes.replica_set.desired`*** (*gauge*)<br>    Number of desired pods in this replica set
  - ***`kubernetes.replication_controller.available`*** (*gauge*)<br>    Total number of available pods (ready for at least minReadySeconds) targeted by this replication controller.
- - ***`kubernetes.replication_controller.desired`*** (*gauge*)<br>    Number of desired pods
+ - ***`kubernetes.replication_controller.desired`*** (*gauge*)<br>    Number of desired pods (the `spec.replicas` field)
  - ***`kubernetes.resource_quota_hard`*** (*gauge*)<br>    The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.
  - ***`kubernetes.resource_quota_used`*** (*gauge*)<br>    The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.
+ - ***`kubernetes.stateful_set.current`*** (*gauge*)<br>    The number of pods created by the StatefulSet controller from the
+    StatefulSet version indicated by `current_revision` property on the
+    `kubernetes_uid` dimension for this StatefulSet.
+
+ - ***`kubernetes.stateful_set.desired`*** (*gauge*)<br>    Number of desired pods in the stateful set (the `spec.replicas` field)
+ - ***`kubernetes.stateful_set.ready`*** (*gauge*)<br>    Number of pods created by the stateful set that have the `Ready` condition
+ - ***`kubernetes.stateful_set.updated`*** (*gauge*)<br>    The number of pods created by the StatefulSet controller from the
+    StatefulSet version indicated by the `update_revision` property on the
+    `kubernetes_uid` dimension for this StatefulSet.
+
 
 ### Non-default metrics (version 4.7.0+)
 
