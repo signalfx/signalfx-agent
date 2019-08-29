@@ -20,8 +20,7 @@ issues:
       linters:
         - gosec
 
-    - path: internal/monitors/kubernetes/cluster
-      text: Job
+    - path: internal/monitors/kubernetes/cluster/metrics
       linters:
         - goconst
 

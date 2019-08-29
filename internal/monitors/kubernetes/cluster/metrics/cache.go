@@ -128,6 +128,7 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 		kind = "ReplicationController"
 	case *v1beta1.DaemonSet:
 		dps = datapointsForDaemonSet(o)
+		dimProps = dimPropsForDaemonSet(o)
 		kind = "DaemonSet"
 	case *v1beta1.Deployment:
 		dps = datapointsForDeployment(o)
