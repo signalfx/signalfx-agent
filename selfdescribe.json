@@ -24184,7 +24184,7 @@
               "fields": [
                 {
                   "yamlName": "url",
-                  "doc": "URL of the Kubelet instance.  This will default to `https://\u003ccurrent node hostname\u003e:10250` if not provided.",
+                  "doc": "URL of the Kubelet instance.  This will default to `http://\u003ccurrent node hostname\u003e:10255` if not provided.",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -26755,7 +26755,7 @@
               "fields": [
                 {
                   "yamlName": "url",
-                  "doc": "URL of the Kubelet instance.  This will default to `https://\u003ccurrent node hostname\u003e:10250` if not provided.",
+                  "doc": "URL of the Kubelet instance.  This will default to `http://\u003ccurrent node hostname\u003e:10255` if not provided.",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -37436,7 +37436,7 @@
             "fields": [
               {
                 "yamlName": "url",
-                "doc": "URL of the Kubelet instance.  This will default to `https://\u003ccurrent node hostname\u003e:10250` if not provided.",
+                "doc": "URL of the Kubelet instance.  This will default to `http://\u003ccurrent node hostname\u003e:10255` if not provided.",
                 "default": "",
                 "required": false,
                 "type": "string",
