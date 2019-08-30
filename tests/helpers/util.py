@@ -1,3 +1,4 @@
+import asyncio
 import io
 import os
 import random
@@ -15,7 +16,6 @@ from typing import Dict, List
 import docker
 import netifaces as ni
 import yaml
-
 from tests.helpers.assertions import regex_search_matches_output
 from tests.paths import SELFDESCRIBE_JSON, TEST_SERVICES_DIR
 
@@ -339,3 +339,27 @@ def path_exists_in_container(container, path):
 def get_container_file_content(container, path):
     assert path_exists_in_container(container, path), "File %s does not exist!" % path
     return container.exec_run("cat %s" % path)[1].decode("utf-8")
+
+
+@contextmanager
+def run_simple_sanic_app(app):
+    app_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    app_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    app_sock.bind(("127.0.0.1", 0))
+
+    port = app_sock.getsockname()[1]
+
+    loop = asyncio.new_event_loop()
+
+    async def start_server():
+        server = app.create_server(sock=app_sock, access_log=False)
+        loop.create_task(server)
+
+    loop.create_task(start_server())
+    threading.Thread(target=loop.run_forever).start()
+
+    try:
+        yield port
+    finally:
+        app_sock.close()
+        loop.stop()
