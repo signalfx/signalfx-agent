@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+	"sync"
 	"testing"
 
 	"github.com/signalfx/signalfx-agent/internal/core/services"
@@ -17,7 +18,7 @@ var (
 	exe, _ = os.Executable()
 )
 
-func openTestTCPPorts(t *testing.T) []net.Addr {
+func openTestTCPPorts(t *testing.T) []*net.TCPListener {
 	tcpLocalhost, err := net.ListenTCP("tcp", &net.TCPAddr{
 		IP:   net.ParseIP("127.0.0.1"),
 		Port: 0,
@@ -36,14 +37,14 @@ func openTestTCPPorts(t *testing.T) []net.Addr {
 	})
 	require.Nil(t, err)
 
-	return []net.Addr{
-		tcpLocalhost.Addr(),
-		tcpV6Localhost.Addr(),
-		tcpAllPorts.Addr(),
+	return []*net.TCPListener{
+		tcpLocalhost,
+		tcpV6Localhost,
+		tcpAllPorts,
 	}
 }
 
-func openTestUDPPorts(t *testing.T) []net.Addr {
+func openTestUDPPorts(t *testing.T) []*net.UDPConn {
 	udpLocalhost, err := net.ListenUDP("udp", &net.UDPAddr{
 		IP:   net.ParseIP("127.0.0.1"),
 		Port: 0,
@@ -62,10 +63,10 @@ func openTestUDPPorts(t *testing.T) []net.Addr {
 	})
 	require.Nil(t, err)
 
-	return []net.Addr{
-		udpLocalhost.LocalAddr(),
-		udpV6Localhost.LocalAddr(),
-		udpAllPorts.LocalAddr(),
+	return []*net.UDPConn{
+		udpLocalhost,
+		udpV6Localhost,
+		udpAllPorts,
 	}
 }
 
@@ -77,6 +78,7 @@ func Test_HostObserver(t *testing.T) {
 	}
 
 	var o *Observer
+	var lock sync.Mutex
 	var endpoints map[services.ID]services.Endpoint
 
 	startObserver := func() {
@@ -84,8 +86,16 @@ func Test_HostObserver(t *testing.T) {
 
 		o = &Observer{
 			serviceCallbacks: &observers.ServiceCallbacks{
-				Added:   func(se services.Endpoint) { endpoints[se.Core().ID] = se },
-				Removed: func(se services.Endpoint) { delete(endpoints, se.Core().ID) },
+				Added: func(se services.Endpoint) {
+					lock.Lock()
+					endpoints[se.Core().ID] = se
+					lock.Unlock()
+				},
+				Removed: func(se services.Endpoint) {
+					lock.Lock()
+					delete(endpoints, se.Core().ID)
+					lock.Unlock()
+				},
 			},
 		}
 		err := o.Configure(config)
@@ -95,16 +105,17 @@ func Test_HostObserver(t *testing.T) {
 	}
 
 	t.Run("Basic connections", func(t *testing.T) {
-		tcpPorts := openTestTCPPorts(t)
-		udpPorts := openTestUDPPorts(t)
+		tcpConns := openTestTCPPorts(t)
+		udpConns := openTestUDPPorts(t)
 
 		startObserver()
 
-		require.True(t, len(endpoints) >= 6)
+		lock.Lock()
+		require.True(t, len(endpoints) >= len(tcpConns)+len(udpConns))
 
 		t.Run("TCP ports", func(t *testing.T) {
-			for _, addr := range tcpPorts {
-				host, port, _ := net.SplitHostPort(addr.String())
+			for _, conn := range tcpConns {
+				host, port, _ := net.SplitHostPort(conn.Addr().String())
 				expectedID := fmt.Sprintf("%s-%s-TCP-%d", host, port, selfPid)
 				e := endpoints[services.ID(expectedID)].(*services.EndpointCore)
 				require.NotNil(t, e)
@@ -117,8 +128,8 @@ func Test_HostObserver(t *testing.T) {
 		})
 
 		t.Run("UDP Ports", func(t *testing.T) {
-			for _, addr := range udpPorts {
-				host, port, _ := net.SplitHostPort(addr.String())
+			for _, conn := range udpConns {
+				host, port, _ := net.SplitHostPort(conn.LocalAddr().String())
 				expectedID := fmt.Sprintf("%s-%s-UDP-%d", host, port, selfPid)
 				e := endpoints[services.ID(expectedID)].(*services.EndpointCore)
 				require.NotNil(t, e)
@@ -128,5 +139,8 @@ func Test_HostObserver(t *testing.T) {
 				require.Equal(t, services.UDP, e.PortType)
 			}
 		})
+
+		lock.Unlock()
+		o.Shutdown()
 	})
 }
