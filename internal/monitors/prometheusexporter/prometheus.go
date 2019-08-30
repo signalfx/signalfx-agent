@@ -8,7 +8,6 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
-	"strings"
 	"time"
 
 	"k8s.io/client-go/rest"
@@ -96,12 +95,6 @@ type fetcher func() (io.ReadCloser, expfmt.Format, error)
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(logrus.Fields{"monitorType": m.monitorName})
 
-	host := conf.Host
-	// Handle IPv6 addresses properly
-	if strings.ContainsAny(host, ":") {
-		host = "[" + host + "]"
-	}
-
 	var bearerToken string
 
 	if conf.UseServiceAccount {
@@ -127,7 +120,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	} else {
 		scheme = "http"
 	}
-	url := fmt.Sprintf("%s://%s:%d%s", scheme, host, conf.Port, conf.MetricPath)
+	url := fmt.Sprintf("%s://%s:%d%s", scheme, conf.Host, conf.Port, conf.MetricPath)
 
 	fetch := func() (io.ReadCloser, expfmt.Format, error) {
 		req, err := http.NewRequest("GET", url, nil)
