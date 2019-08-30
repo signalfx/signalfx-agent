@@ -1,66 +1,92 @@
 monitors:
   - monitorType: haproxy
+    doc: |
+      This monitor scrapes HAProxy statistics from an HTTP endpoint and UNIX socket.
     metrics:
       pxname:
         default: false
         description: 'Proxy name. Possible values for listeners, frontends, backends, and servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       svname:
         default: false
         description: 'Service name (FRONTEND for frontend, BACKEND for backend, any name for server/listener).
         Values reported for listeners, frontends, backends, and servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       qcur:
         default: true
         description: 'Number of current queued requests. For the backend this reports the number queued without
         a server assigned. Values reported for backends and servers.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.queue_current
       qmax:
         default: false
         description: The max value of qcur. Values reported for backends and servers.
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.queue_max
       scur:
         default: true
         description: 'Number current sessions. Values reported for listeners, frontends, backends, and servers.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.session_current
       smax:
         default: false
         description: 'The value of scur. Values reported for listeners, frontends, backends, and servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       slim:
         default: false
         description: 'The configured number of sessions limit. Values reported for listeners, frontends, backends,
         and servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       stot:
         default: false
         description: 'The cumulative number of sessions. Values reported for listeners, frontends, backends, and servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.session_total
       bin:
         default: true
         description: 'Total number of incoming bytes. Values reported for listeners, frontends, backends, and servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.bytes_in
       bout:
         default: true
         description: 'Total number of outgoing bytes. Values reported for listeners, frontends, backends, and servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.bytes_out
       dreq:
         default: true
@@ -68,8 +94,10 @@ monitors:
         matched tcp-request content rule. For http this is because of a matched http-request or tarpit rule.
         Values reported for listeners, frontends, and backends.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.denied_request
       dresp:
         default: true
@@ -77,8 +105,10 @@ monitors:
         matched http-request rule, or "option checkcache". Values reported for listeners, frontends, backends, and
         servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.denied_response
       ereq:
         default: true
@@ -87,8 +117,10 @@ monitors:
         connection, various bad requests from the client, request was tarpitted. Values reported for listeners and
         frontends.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.error_request
       econ:
         default: true
@@ -97,8 +129,10 @@ monitors:
         associated with a particular server (such as the backend having no active servers). Values reported for
         backends and servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.error_connectiont
       eresp:
         default: true
@@ -106,29 +140,38 @@ monitors:
         write error on the client socket (won't be counted for the server stat), failure applying filters to the
         response. Values reported for backends and servers."
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.error_response
       wretr:
         default: true
         description: 'Number of times a connection to a server was retried. Values reported for backends and servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.retries
       wredis:
         default: true
         description: 'Number of times a request was redispatched to another server. The server value counts the number
         of times that server was switched away from. Values reported for backends and servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.redispatched
       status:
         default: false
         description: 'Status (UP/DOWN/NOLB/MAINT/MAINT(via)/MAINT(resolution)...). Values reported for listeners,
         frontends, backends, and servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       weight:
         default: false
         description: 'Total weight (backend), server weight (server). Values reported for backends and servers.'
@@ -138,24 +181,30 @@ monitors:
         description: 'Number of active servers (backend), server is active (server). Values reported for backends
         and servers.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.active_servers
       bck:
         default: false
         description: 'Number of backup servers (backend), server is backup (server). Values reported for backends
         and servers.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.backup_servers
       chkfail:
         default: false
         description: 'Number of failed checks. (Only counts checks failed when the server is up.). Values reported
         for servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.failed_checks
       chkdown:
         default: false
@@ -166,43 +215,61 @@ monitors:
         default: false
         description: 'Number of seconds since the last UP<->DOWN transition. Values reported for backends and servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       downtime:
         default: false
         description: 'Total downtime (in seconds). The value for the backend is the downtime for the whole backend,
         not the sum of the server downtime. Values reported for backends and servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.downtime
       qlimit:
         default: false
         description: 'Configured maxqueue for the server, or nothing in the value is 0 (default, meaning no limit).
         Values reported for servers.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.queue_limit
       pid:
         default: false
         description: 'Process id (0 for first instance, 1 for second, ...). Values reported for listeners, frontends,
         backends, and servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       iid:
         default: false
         description: 'Unique proxy id. Values reported for listeners, frontends, backends, and servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       sid:
         default: false
         description: 'Server id (unique inside a proxy). Values reported for listeners, frontends, backends, and
         servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       throttle:
         default: false
         description: 'Current throttle percentage for the server, when slowstart is active, or no value if not in
         slowstart. Values reported for servers.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.throttle
       lbtot:
         default: true
@@ -210,40 +277,54 @@ monitors:
         The server counter is the number of times that server was selected. Values reported for backends and
         servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: counter.server_selected_total
       tracked:
         default: false
         description: 'Id of proxy/server if tracking is enabled. Values reported for servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       typ:
         name: 'type'
         default: false
         description: '(0=frontend, 1=backend, 2=server, 3=socket/listener). Values reported for listeners, frontends,
         backends, and servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       rate:
         default: true
         description: 'Number of sessions per second over last elapsed second. Values reported for frontends, backends,
         and servers.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.session_rate
       rate_lim:
         default: false
         description: 'Configured limit on new sessions per second. Values reported for frontends.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.session_rate_limit
       rate_max:
         default: false
         description: 'Max number of new sessions per second. Values reported for frontends, backends, and servers.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.session_rate_max
       check_status:
         default: false
@@ -265,58 +346,78 @@ monitors:
         Notice: If a check is currently running, the last known status will be reported, prefixed with "* ". e. g. "* L7OK".
         Values reported for servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       check_code:
         default: false
         description: 'Layer 5-7 code, if available. Values reported for servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       check_duration:
         default: false
         description: 'Time in ms took to finish last health check. Values reported for servers.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.check_duration
       hrsp_1xx:
         default: false
         description: 'HTTP responses with 1xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.response_1xx
       hrsp_2xx:
         default: true
         description: 'HTTP responses with 2xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.response_2xx
       hrsp_3xx:
         default: false
         description: 'HTTP responses with 3xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.response_3xx
       hrsp_4xx:
         default: true
         description: 'HTTP responses with 4xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.response_4xx
       hrsp_5xx:
         default: true
         description: 'HTTP responses with 5xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.response_5xx
       hrsp_other:
         default: false
         description: 'HTTP responses with other codes (protocol error). Values reported for frontends, backends, and servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.response_other
       hanafail:
         default: false
@@ -326,104 +427,139 @@ monitors:
         default: true
         description: 'HTTP requests per second over last elapsed second. Values reported for frontends.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.request_rate
       req_rate_max:
         default: false
         description: 'Max number of HTTP requests per second observed. Values reported for frontends.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.request_rate_max
       req_tot:
         default: false
         description: 'Total number of HTTP requests received. Values reported for frontends and backends.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.request_total
       cli_abrt:
         default: false
         description: 'Number of data transfers aborted by the client. Values reported for backends and servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.cli_abrt
       srv_abrt:
         default: false
         description: 'Number of data transfers aborted by the server (inc. in eresp). Values reported for backends and servers.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.srv_abrt
       comp_in:
         default: false
         description: 'Number of HTTP response bytes fed to the compressor. Values reported for frontends and backends.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.comp_in
       comp_out:
         default: false
         description: 'Number of HTTP response bytes emitted by the compressor. Values reported for frontends and backends.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.comp_out
       comp_byp:
         default: false
         description: 'Number of bytes that bypassed the HTTP compressor (CPU/BW limit). Values reported for frontends and backends.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.comp_byp
       comp_rsp:
         default: false
         description: 'Number of HTTP responses that were compressed. Values reported for frontends and backends.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: derive.comp_rsp
       lastsess:
         default: false
         description: 'Number of seconds since last session assigned to server/backend. Values reported for backends and servers.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.last_session
       last_chk:
         default: false
         description: 'Last health check contents or textual error. Values reported for servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       last_agt:
         default: false
         description: 'Last agent check contents or textual error. Values reported for servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       qtime:
         default: false
         description: 'The average queue time in ms over the 1024 last requests. Values reported for backends and servers.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.queue_time_avg
       ctime:
         default: false
         description: 'The average connect time in ms over the 1024 last requests. Values reported for backends and servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       rtime:
         default: false
         description: 'The average response time in ms over the 1024 last requests (0 for TCP). Values reported for backends and servers.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.response_time_avg
       ttime:
         default: false
         description: 'The average total session time in ms over the 1024 last requests. Values reported for backends and servers.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.session_time_average
       agent_status:
         default: false
@@ -438,14 +574,23 @@ monitors:
         L7STS   -> agent reported "fail", "stop", or "down"
         Values reported for servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       agent_code:
         default: false
         description: 'Numeric code reported by agent if any (unused for now). Values reported for servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       agent_duration:
         default: false
         description: 'Time in ms taken to finish last check. Values reported for servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
 #      check_desc:
 #        default: false
 #        description: 'Short human-readable description of check_status. Values reported for servers.'
@@ -458,26 +603,44 @@ monitors:
         default: false
         description: "Server's 'rise' parameter used by checks. Values reported for servers."
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       check_fall:
         default: false
         description: "Server's 'fall' parameter used by checks. Values reported for servers."
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       check_health:
         default: false
         description: "Server's health check value between 0 and rise+fall-1. Values reported for servers."
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       agent_rise:
         default: false
         description: "Agent's 'rise' parameter, normally 1. Values reported for servers."
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       agent_fall:
         default: false
         description: "Agent's 'fall' parameter, normally 1. Values reported for servers."
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       agent_health:
         default: false
         description: "Agent's health parameter, between 0 and rise+fall-1. Values reported for servers."
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
 #      addr:
 #        default: false
 #        description: 'address:port or "unix". IPv6 has brackets around the address.. Values reported for listeners and servers.'
@@ -490,53 +653,299 @@ monitors:
         default: false
         description: 'Proxy mode (tcp, http, health, unknown). Values reported for listeners, frontends, backends, and servers.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       algo:
         default: false
         description: 'Load balancing algorithm. Values reported for backends.'
         type: gauge
+        properties:
+          - key: cmd
+            val: 'show stat'
       conn_rate:
         default: true
         description: 'Number of connections over the last elapsed second. Values reported for frontends.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val:  gauge.connection_rate
       conn_rate_max:
         default: false
         description: 'Highest known conn_rate. Values reported for frontends.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.connection_rate_max
       conn_tot:
         default: false
         description: 'Cumulative number of connections. Values reported for frontends.'
         type: cumulative
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: counter.connection_total
       intercepted:
         default: false
         description: 'Cumulative cum. number of intercepted requests (monitor, stats). Values reported for frontends and backends.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.intercepted_requests
       dcon:
         default: false
         description: 'Requests denied by "tcp-request connection" rules. Values reported for listeners and frontends.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.denied_tcp_connections
       dses:
         default: false
         description: 'Requests denied by "tcp-request session" rules. Values reported for listeners and frontends.'
         type: gauge
-        aliases:
-          - key: signalfx-name
+        properties:
+          - key: cmd
+            val: 'show stat'
+          - key: sfxName
             val: gauge.denied_tcp_sessions
       wrew:
         default: false
         description: 'Cumulative number of failed header rewriting warnings. Values reported for listeners, frontends, backends, and servers.'
         type: cumulative
+        properties:
+          - key: cmd
+            val: 'show stat'
+      CompressBpsIn:
+        description: Corresponds to the current HAProxy process `CompressBpsIn` value given by the `show info` cmd.
+        default: false
+        type: cumulative
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: derive.compress_bps_in
+      CompressBpsOut:
+        description: Corresponds to the current HAProxy process `CompressBpsOut` value given by the `show info` cmd.
+        default: false
+        type: cumulative
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: derive.compress_bps_out
+      CumConns:
+        description: Corresponds to the current HAProxy process `CumConns` value given by the `show info` cmd. Cumulative number of connections.
+        default: false
+        type: cumulative
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: derive.connections
+      CumReq:
+        description: Corresponds to the current HAProxy process `CumReq` value given by the `show info` cmd.
+        default: true
+        type: cumulative
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: derive.requests
+      SslCacheLookups:
+        description: Corresponds to the current HAProxy process `SslCacheLookups` value given by the `show info` cmd.
+        default: false
+        type: cumulative
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: derive.ssl_cache_lookups
+      SslCacheMisses:
+        description: Corresponds to the current HAProxy process `SslCacheMisses` value given by the `show info` cmd.
+        default: false
+        type: cumulative
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: derive.ssl_cache_misses
+      CumSslConns:
+        description: Corresponds to the current HAProxy process `CumSslConns` value given by the `show info` cmd.
+        default: false
+        type: cumulative
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: derive.ssl_connections
+      Uptime_sec:
+        description: Corresponds to the current HAProxy process `Uptime_sec` value given by the `show info` cmd.
+        default: false
+        type: cumulative
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: derive.uptime_seconds
+      CurrConns:
+        description: Corresponds to the current HAProxy process `CurrConns` value given by the `show info` cmd.
+        default: false
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.current_connections
+      CurrSslConns:
+        description: Corresponds to the current HAProxy process `CurrSslConns` value given by the `show info` cmd.
+        default: false
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.current_ssl_connections
+      Idle_pct:
+        description: Corresponds to the current HAProxy process `Idle_pct` value given by the `show info` cmd. Ratio of system polling time versus total time.
+        default: true
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.idle_pct
+      MaxConnRate:
+        description: Corresponds to the current HAProxy process `MaxConnRate` value given by the `show info` cmd.
+        default: false
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.max_connection_rate
+      MaxConn:
+        description: Corresponds to the current HAProxy process `MaxConn` value given by the `show info` cmd.
+        default: false
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.max_connections
+      MaxPipes:
+        description: Corresponds to the current HAProxy process `MaxPipes` value given by the `show info` cmd.
+        default: false
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.max_pipes
+      MaxSessRate:
+        description: Corresponds to the current HAProxy process `MaxSessRate` value given by the `show info` cmd.
+        default: false
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.max_session_rate
+      MaxSslConns:
+        description: Corresponds to the current HAProxy process `MaxSslConns` value given by the `show info` cmd.
+        default: false
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.max_ssl_connections
+      PipesFree:
+        description: Corresponds to the current HAProxy process `PipesFree` value given by the `show info` cmd.
+        default: false
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.pipes_free
+      PipesUsed:
+        description: Corresponds to the current HAProxy process `PipesUsed` value given by the `show info` cmd.
+        default: false
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.pipes_used
+      Run_queue:
+        description: Corresponds to the current HAProxy process `Run_queue` value given by the `show info` cmd.
+        default: false
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.run_queue
+      SessRate:
+        description: Corresponds to the current HAProxy process `SessRate` value given by the `show info` cmd.
+        default: false
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.session_rate_all
+      SslBackendKeyRate:
+        description: Corresponds to the current HAProxy process `SslBackendKeyRate` value given by the `show info` cmd.
+        default: false
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.ssl_backend_key_rate
+      SslFrontendKeyRate:
+        description: Corresponds to the current HAProxy process `SslFrontendKeyRate` value given by the `show info` cmd.
+        default: false
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.ssl_frontend_key_rate
+      SslRate:
+        description: Corresponds to the current HAProxy process `SslRate` value given by the `show info` cmd.
+        default: false
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.ssl_rate
+      Tasks:
+        description: Corresponds to the current HAProxy process `Tasks` value given by the `show info` cmd.
+        default: false
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.tasks
+      ZlibMemUsage:
+        description: Corresponds to the current HAProxy process `ZlibMemUsage` value given by the `show info` cmd.
+        default: false
+        type: gauge
+        properties:
+          - key: cmd
+            val: 'show info'
+          - key: sfxName
+            val: gauge.zlib_mem_usage

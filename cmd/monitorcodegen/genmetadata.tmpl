@@ -81,28 +81,33 @@ var {{"groupMetricsMap" | formatVariable}} = map[string][]string {
 }
 
 {{- $keys := newStringSlice -}}
+{{- $values := newStringSlice -}}
 {{- range $metric, $info := .metrics}}
-    {{- range $info.Aliases}}
+    {{- range $info.MetricProperties}}
         {{- $keys = appendString $keys .Key -}}
+        {{- $values = appendString $values .Val -}}
     {{- end}}
 {{- end}}
 {{if gt (len $keys) 0 -}}
-// Map keys and value types for metric aliases.
-type (
-	Metric string
-	Key string
-)
-// Map keys for metric aliases.
+// Metric properties keys.
+const (
 {{- range $key := uniqueStrings $keys}}
-    const {{$key | formatVariable}} = Key("{{$key}}")
+    {{$key | formatVariable}}Key = "{{$key}}"
 {{- end}}
+)
+// Metric properties values.
+const (
+{{- range $value := uniqueStrings $values}}
+    {{$value | formatVariable}}Value = "{{$value}}"
+{{- end}}
+)
 {{with .metrics}}
-var {{"aliases" | formatVariable}} = map[Metric]map[Key]string {
+var {{"metricProperties" | formatVariable}} = map[string]map[string]string {
     {{- range $metric, $info := .}}
-        {{- if $info.Aliases}}
+        {{- if $info.MetricProperties}}
             {{$metric | formatVariable}}: {
-                {{- range $info.Aliases}}
-                    {{.Key | formatVariable}}: "{{.Val}}",
+                {{- range $info.MetricProperties}}
+                    {{.Key | formatVariable}}Key: {{.Val | formatVariable}}Value,
                 {{- end}}
             },
         {{- end}}

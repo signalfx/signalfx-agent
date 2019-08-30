@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"github.com/signalfx/signalfx-agent/internal/utils"
 	"go/format"
 	"html/template"
 	"io/ioutil"
@@ -15,6 +14,8 @@ import (
 	"sort"
 	"strings"
 	"unicode"
+
+	"github.com/signalfx/signalfx-agent/internal/utils"
 
 	"github.com/signalfx/signalfx-agent/internal/selfdescribe"
 	log "github.com/sirupsen/logrus"
@@ -96,9 +97,9 @@ func generate(templateFile string, force bool) error {
 				return "", fmt.Errorf("unknown metric type %s", metricType)
 			}
 		},
-		"deref": func(p *string) string { return *p },
+		"deref":          func(p *string) string { return *p },
 		"newStringSlice": func() []string { return []string{} },
-		"appendString": func(slice []string, elems ...string) []string { return append(slice, elems...) },
+		"appendString":   func(slice []string, elems ...string) []string { return append(slice, elems...) },
 		"uniqueStrings": func(slice []string) []string {
 			uniqueStrings := utils.UniqueStrings(slice)
 			sort.Strings(uniqueStrings)
