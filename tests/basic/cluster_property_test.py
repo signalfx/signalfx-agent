@@ -58,8 +58,7 @@ def test_cluster_prop_sync_cluster_on_host_dim():
         syncClusterOnHostDimension: true
         writer:
           propertiesSendDelaySeconds: 1
-    """,
-        extra_env={"MY_NODE_NAME": "testnode"},
+    """
     ) as agent:
 
         def assert_cluster_property():
@@ -67,33 +66,5 @@ def test_cluster_prop_sync_cluster_on_host_dim():
             dim = agent.fake_services.dims["host"]["myhost"]
             assert dim["customProperties"] == {"cluster": "prod"}
             assert dim["tags"] in [None, []]
-
-            assert "testnode" in agent.fake_services.dims["kubernetes_node"]
-            dim = agent.fake_services.dims["kubernetes_node"]["testnode"]
-            assert dim["customProperties"] == {"cluster": "prod"}
-            assert dim["tags"] in [None, []]
-
-        wait_for_assertion(assert_cluster_property)
-
-
-def test_cluster_prop_platform_dim_get_priority():
-    with Agent.run(
-        """
-        cluster: prod
-        hostname: myhost
-        writer:
-          propertiesSendDelaySeconds: 1
-    """,
-        extra_env={"MY_NODE_NAME": "testnode"},
-    ) as agent:
-
-        def assert_cluster_property():
-            assert "testnode" in agent.fake_services.dims["kubernetes_node"]
-            dim = agent.fake_services.dims["kubernetes_node"]["testnode"]
-            assert dim["customProperties"] == {"cluster": "prod"}
-            assert dim["tags"] in [None, []]
-
-            # Ensure it doesn't get synced to host dim
-            assert "myhost" not in agent.fake_services.dims["host"]
 
         wait_for_assertion(assert_cluster_property)
