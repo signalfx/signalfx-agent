@@ -24,6 +24,7 @@ type CachedPod struct {
 	LabelSet        labels.Set
 	OwnerReferences []metav1.OwnerReference
 	Namespace       string
+	Tolerations     []v1.Toleration
 }
 
 func newCachedPod(pod *v1.Pod) *CachedPod {
@@ -32,6 +33,7 @@ func newCachedPod(pod *v1.Pod) *CachedPod {
 		LabelSet:        labels.Set(pod.Labels),
 		OwnerReferences: pod.OwnerReferences,
 		Namespace:       pod.Namespace,
+		Tolerations:     pod.Spec.Tolerations,
 	}
 }
 

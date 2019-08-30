@@ -1,6 +1,7 @@
 package metrics
 
 import (
+	"regexp"
 	"strings"
 	"time"
 
@@ -63,6 +64,11 @@ func dimPropsForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache,
 		props[utils.LowercaseFirstChar(or.Kind)+"_uid"] = string(or.UID)
 	}
 
+	tolerationProps := getPropsFromTolerations(cachedPod.Tolerations)
+	for k, v := range tolerationProps {
+		props[k] = v
+	}
+
 	// if pod is selected by a service, sync service as a tag
 	serviceTags := sc.GetMatchingServices(cachedPod)
 	for _, tag := range serviceTags {
@@ -99,6 +105,25 @@ func dimPropsForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache,
 		Properties: props,
 		Tags:       tags,
 	}
+}
+
+func getPropsFromTolerations(tolerations []v1.Toleration) map[string]string {
+	unsupportedPattern := regexp.MustCompile("[^a-zA-Z0-9_-]")
+
+	props := make(map[string]string)
+
+	for _, t := range tolerations {
+		keyValueCombo := "toleration_" + t.Key + "_" + t.Value
+		keyValueCombo = unsupportedPattern.ReplaceAllString(keyValueCombo, "_")
+
+		if _, exists := props[keyValueCombo]; exists {
+			props[keyValueCombo] += ("," + string(t.Effect))
+		} else {
+			props[keyValueCombo] = string(t.Effect)
+		}
+	}
+
+	return props
 }
 
 func phaseToInt(phase v1.PodPhase) int64 {
