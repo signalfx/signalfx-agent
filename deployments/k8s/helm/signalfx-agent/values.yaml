@@ -23,6 +23,14 @@ rollingUpdateMaxUnavailable: 1
 # Namespace to deploy agent in (Optional: Will default to release namespace)
 namespace:
 
+# Specify PSP (Pod Security Policy) (Optional: default to not using PSP mode if no values are provided by the user)
+pspMode:
+
+if $pspMode == 'restricted'
+    pspMode: 'restricted'
+else if $pspMode == 'privileged'
+    pspMode: 'privileged'
+
 # RBAC config for the agent
 rbac:
   create: true
