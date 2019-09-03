@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"errors"
+
 	batchv1 "k8s.io/api/batch/v1"
 	"k8s.io/apimachinery/pkg/types"
 )
@@ -86,13 +88,19 @@ func (jc *JobCache) AddJob(job *batchv1.Job) bool {
 }
 
 // DeleteByKey removes a job from the cache given a UID
-func (jc *JobCache) DeleteByKey(jobUID types.UID) {
-	namespace := jc.cachedJobs[jobUID].Namespace
-	delete(jc.namespaceJobUIDCache[namespace], jobUID)
-	if len(jc.namespaceJobUIDCache[namespace]) == 0 {
-		delete(jc.namespaceJobUIDCache, namespace)
+func (jc *JobCache) DeleteByKey(jobUID types.UID) error {
+	cachedJob, exists := jc.cachedJobs[jobUID]
+	if !exists {
+		// could not exist if k8s events come in out of order
+		// possible to occur on start up from a race condition
+		return errors.New("job does not exist in internal cache")
+	}
+	delete(jc.namespaceJobUIDCache[cachedJob.Namespace], jobUID)
+	if len(jc.namespaceJobUIDCache[cachedJob.Namespace]) == 0 {
+		delete(jc.namespaceJobUIDCache, cachedJob.Namespace)
 	}
 	delete(jc.cachedJobs, jobUID)
+	return nil
 }
 
 // GetMatchingCronJob finds a matching cronjob given a namespace and job name
