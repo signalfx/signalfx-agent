@@ -23,11 +23,6 @@ if meta.exists():
 else:
     doc = {}
 
-# metrics = {}
-
-# for entry in text_string_to_metric_families(sys.stdin.read()):
-#     metrics[entry.name] = entry.documentation
-
 monitors = doc.setdefault("monitors", [])
 
 if len(monitors) > 1:
@@ -46,59 +41,41 @@ for metric in text_string_to_metric_families(sys.stdin.read()):
     if metric.type == "gauge":
         metric_entry = doc_metrics.setdefault(metric.name, {})
         metric_entry.setdefault("default", False)
-        metric_entry.update({
-            "description": metric.documentation,
-            "type": "gauge"
-        })
+        metric_entry.update({"description": metric.documentation, "type": "gauge"})
     elif metric.type == "counter":
-        metric_entry = doc_metrics.setdefault(metric.name, {})
+        name = metric.name
+        # It seems the metric name has _total on the end except if total is already
+        # in the name.
+        if "total" not in name:
+            name += "_total"
+
+        metric_entry = doc_metrics.setdefault(name, {})
         metric_entry.setdefault("default", False)
-        metric_entry.update({
-            "description": metric.documentation,
-            "type": "cumulative"
-        })
+        metric_entry.update({"description": metric.documentation, "type": "cumulative"})
     elif metric.type == "summary":
         count_metric = doc_metrics.setdefault(f"{metric.name}_count", {})
         count_metric.setdefault("default", False)
-        count_metric.update({
-            "description": f"{metric.documentation} (count)",
-            "type": "cumulative"
-        })
+        count_metric.update({"description": f"{metric.documentation} (count)", "type": "cumulative"})
 
         sum_metric = doc_metrics.setdefault(metric.name, {})
         sum_metric.setdefault("default", False)
-        sum_metric.update({
-            "description": f"{metric.documentation} (sum)",
-            "type": "cumulative"
-        })
+        sum_metric.update({"description": f"{metric.documentation} (sum)", "type": "cumulative"})
 
         quantile_metric = doc_metrics.setdefault(f"{metric.name}_quantile", {})
         quantile_metric.setdefault("default", False)
-        quantile_metric.update({
-            "description": f"{metric.documentation} (quantized)",
-            "type": "gauge",
-        })
+        quantile_metric.update({"description": f"{metric.documentation} (quantized)", "type": "gauge"})
     elif metric.type == "histogram":
         count_metric = doc_metrics.setdefault(f"{metric.name}_count", {})
         count_metric.setdefault("default", False)
-        count_metric.update({
-            "description": f"{metric.documentation} (count)",
-            "type": "cumulative"
-        })
+        count_metric.update({"description": f"{metric.documentation} (count)", "type": "cumulative"})
 
         sum_metric = doc_metrics.setdefault(metric.name, {})
         sum_metric.setdefault("default", False)
-        sum_metric.update({
-            "description": f"{metric.documentation} (sum)",
-            "type": "cumulative"
-        })
+        sum_metric.update({"description": f"{metric.documentation} (sum)", "type": "cumulative"})
 
         bucket_metric = doc_metrics.setdefault(f"{metric.name}_bucket", {})
         bucket_metric.setdefault("default", False)
-        bucket_metric.update({
-            "description": f"{metric.documentation} (bucket)",
-            "type": "cumulative"
-        })
+        bucket_metric.update({"description": f"{metric.documentation} (bucket)", "type": "cumulative"})
     else:
         raise Exception(f"metric {metric.name} has unknown metric type {metric.type}")
 

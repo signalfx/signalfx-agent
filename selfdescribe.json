@@ -22258,7 +22258,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -22304,6 +22304,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -22439,7 +22447,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -22485,6 +22493,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -22606,7 +22622,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -22652,6 +22668,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -22829,7 +22853,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -22875,6 +22899,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -23129,7 +23161,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -23175,6 +23207,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -23401,7 +23441,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -23447,6 +23487,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -26156,70 +26204,79 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/kubernetes/apiserver",
         "fields": [
           {
-            "yamlName": "kubernetesAPI",
-            "doc": "Configuration of the Kubernetes API client.",
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
             "required": false,
-            "type": "struct",
-            "elementKind": "",
-            "elementStruct": {
-              "name": "APIConfig",
-              "doc": "APIConfig contains options relevant to connecting to the K8s API",
-              "package": "internal/core/common/kubernetes",
-              "fields": [
-                {
-                  "yamlName": "authType",
-                  "doc": "How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), `serviceAccount` (to use the standard service account token provided to the agent pod), or `kubeConfig` to use credentials from `~/.kube/config`.",
-                  "default": "serviceAccount",
-                  "required": false,
-                  "type": "string",
-                  "elementKind": ""
-                },
-                {
-                  "yamlName": "skipVerify",
-                  "doc": "Whether to skip verifying the TLS cert from the API server.  Almost never needed.",
-                  "default": false,
-                  "required": false,
-                  "type": "bool",
-                  "elementKind": ""
-                },
-                {
-                  "yamlName": "clientCertPath",
-                  "doc": "The path to the TLS client cert on the pod's filesystem, if using `tls` auth.",
-                  "default": "",
-                  "required": false,
-                  "type": "string",
-                  "elementKind": ""
-                },
-                {
-                  "yamlName": "clientKeyPath",
-                  "doc": "The path to the TLS client key on the pod's filesystem, if using `tls` auth.",
-                  "default": "",
-                  "required": false,
-                  "type": "string",
-                  "elementKind": ""
-                },
-                {
-                  "yamlName": "caCertPath",
-                  "doc": "Path to a CA certificate to use when verifying the API server's TLS cert.  Generally this is provided by K8s alongside the service account token, which will be picked up automatically, so this should rarely be necessary to specify.",
-                  "default": "",
-                  "required": false,
-                  "type": "string",
-                  "elementKind": ""
-                }
-              ]
-            }
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "skipVerify",
+            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
           },
           {
             "yamlName": "metricPath",
-            "doc": "Path to the metrics endpoint on server, usually `/metrics` (the default).",
+            "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
             "default": "/metrics",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendAllMetrics",
+            "doc": "Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors.",
+            "default": false,
+            "required": false,
+            "type": "bool",
             "elementKind": ""
           }
         ]
@@ -26676,6 +26733,930 @@
         ]
       },
       "acceptsEndpoints": false,
+      "singleInstance": false
+    },
+    {
+      "monitorType": "kubernetes-scheduler",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "Exports Prometheus metrics from the [kube-scheduler](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-scheduler).\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "apiserver_audit_event_total",
+            "apiserver_audit_requests_rejected_total",
+            "apiserver_client_certificate_expiration_seconds",
+            "apiserver_client_certificate_expiration_seconds_bucket",
+            "apiserver_client_certificate_expiration_seconds_count",
+            "apiserver_storage_data_key_generation_duration_seconds",
+            "apiserver_storage_data_key_generation_duration_seconds_bucket",
+            "apiserver_storage_data_key_generation_duration_seconds_count",
+            "apiserver_storage_data_key_generation_failures_total",
+            "apiserver_storage_data_key_generation_latencies_microseconds",
+            "apiserver_storage_data_key_generation_latencies_microseconds_bucket",
+            "apiserver_storage_data_key_generation_latencies_microseconds_count",
+            "apiserver_storage_envelope_transformation_cache_misses_total",
+            "go_gc_duration_seconds",
+            "go_gc_duration_seconds_count",
+            "go_gc_duration_seconds_quantile",
+            "go_goroutines",
+            "go_info",
+            "go_memstats_alloc_bytes",
+            "go_memstats_alloc_bytes_total",
+            "go_memstats_buck_hash_sys_bytes",
+            "go_memstats_frees_total",
+            "go_memstats_gc_cpu_fraction",
+            "go_memstats_gc_sys_bytes",
+            "go_memstats_heap_alloc_bytes",
+            "go_memstats_heap_idle_bytes",
+            "go_memstats_heap_inuse_bytes",
+            "go_memstats_heap_objects",
+            "go_memstats_heap_released_bytes",
+            "go_memstats_heap_sys_bytes",
+            "go_memstats_last_gc_time_seconds",
+            "go_memstats_lookups_total",
+            "go_memstats_mallocs_total",
+            "go_memstats_mcache_inuse_bytes",
+            "go_memstats_mcache_sys_bytes",
+            "go_memstats_mspan_inuse_bytes",
+            "go_memstats_mspan_sys_bytes",
+            "go_memstats_next_gc_bytes",
+            "go_memstats_other_sys_bytes",
+            "go_memstats_stack_inuse_bytes",
+            "go_memstats_stack_sys_bytes",
+            "go_memstats_sys_bytes",
+            "go_threads",
+            "http_request_duration_microseconds",
+            "http_request_duration_microseconds_count",
+            "http_request_duration_microseconds_quantile",
+            "http_request_size_bytes",
+            "http_request_size_bytes_count",
+            "http_request_size_bytes_quantile",
+            "http_requests_total",
+            "http_response_size_bytes",
+            "http_response_size_bytes_count",
+            "http_response_size_bytes_quantile",
+            "kubernetes_build_info",
+            "leader_election_master_status",
+            "process_cpu_seconds_total",
+            "process_max_fds",
+            "process_open_fds",
+            "process_resident_memory_bytes",
+            "process_start_time_seconds",
+            "process_virtual_memory_bytes",
+            "process_virtual_memory_max_bytes",
+            "rest_client_request_duration_seconds",
+            "rest_client_request_duration_seconds_bucket",
+            "rest_client_request_duration_seconds_count",
+            "rest_client_request_latency_seconds",
+            "rest_client_request_latency_seconds_bucket",
+            "rest_client_request_latency_seconds_count",
+            "rest_client_requests_total",
+            "scheduler_binding_duration_seconds",
+            "scheduler_binding_duration_seconds_bucket",
+            "scheduler_binding_duration_seconds_count",
+            "scheduler_binding_latency_microseconds",
+            "scheduler_binding_latency_microseconds_bucket",
+            "scheduler_binding_latency_microseconds_count",
+            "scheduler_e2e_scheduling_duration_seconds",
+            "scheduler_e2e_scheduling_duration_seconds_bucket",
+            "scheduler_e2e_scheduling_duration_seconds_count",
+            "scheduler_e2e_scheduling_latency_microseconds",
+            "scheduler_e2e_scheduling_latency_microseconds_bucket",
+            "scheduler_e2e_scheduling_latency_microseconds_count",
+            "scheduler_pending_pods",
+            "scheduler_pod_preemption_victims",
+            "scheduler_schedule_attempts_total",
+            "scheduler_scheduling_algorithm_duration_seconds",
+            "scheduler_scheduling_algorithm_duration_seconds_bucket",
+            "scheduler_scheduling_algorithm_duration_seconds_count",
+            "scheduler_scheduling_algorithm_latency_microseconds",
+            "scheduler_scheduling_algorithm_latency_microseconds_bucket",
+            "scheduler_scheduling_algorithm_latency_microseconds_count",
+            "scheduler_scheduling_algorithm_predicate_evaluation",
+            "scheduler_scheduling_algorithm_predicate_evaluation_bucket",
+            "scheduler_scheduling_algorithm_predicate_evaluation_count",
+            "scheduler_scheduling_algorithm_predicate_evaluation_seconds",
+            "scheduler_scheduling_algorithm_predicate_evaluation_seconds_bucket",
+            "scheduler_scheduling_algorithm_predicate_evaluation_seconds_count",
+            "scheduler_scheduling_algorithm_preemption_evaluation",
+            "scheduler_scheduling_algorithm_preemption_evaluation_bucket",
+            "scheduler_scheduling_algorithm_preemption_evaluation_count",
+            "scheduler_scheduling_algorithm_preemption_evaluation_seconds",
+            "scheduler_scheduling_algorithm_preemption_evaluation_seconds_bucket",
+            "scheduler_scheduling_algorithm_preemption_evaluation_seconds_count",
+            "scheduler_scheduling_algorithm_priority_evaluation",
+            "scheduler_scheduling_algorithm_priority_evaluation_bucket",
+            "scheduler_scheduling_algorithm_priority_evaluation_count",
+            "scheduler_scheduling_algorithm_priority_evaluation_seconds",
+            "scheduler_scheduling_algorithm_priority_evaluation_seconds_bucket",
+            "scheduler_scheduling_algorithm_priority_evaluation_seconds_count",
+            "scheduler_scheduling_duration_seconds",
+            "scheduler_scheduling_duration_seconds_count",
+            "scheduler_scheduling_duration_seconds_quantile",
+            "scheduler_scheduling_latency_seconds",
+            "scheduler_scheduling_latency_seconds_count",
+            "scheduler_scheduling_latency_seconds_quantile",
+            "scheduler_total_preemption_attempts",
+            "scheduler_volume_scheduling_duration_seconds",
+            "scheduler_volume_scheduling_duration_seconds_bucket",
+            "scheduler_volume_scheduling_duration_seconds_count"
+          ]
+        }
+      },
+      "metrics": {
+        "apiserver_audit_event_total": {
+          "type": "cumulative",
+          "description": "Counter of audit events generated and sent to the audit backend.",
+          "group": null,
+          "default": false
+        },
+        "apiserver_audit_requests_rejected_total": {
+          "type": "cumulative",
+          "description": "Counter of apiserver requests rejected due to an error in audit logging backend.",
+          "group": null,
+          "default": false
+        },
+        "apiserver_client_certificate_expiration_seconds": {
+          "type": "cumulative",
+          "description": "Distribution of the remaining lifetime on the certificate used to authenticate a request. (sum)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_client_certificate_expiration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Distribution of the remaining lifetime on the certificate used to authenticate a request. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_client_certificate_expiration_seconds_count": {
+          "type": "cumulative",
+          "description": "Distribution of the remaining lifetime on the certificate used to authenticate a request. (count)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_duration_seconds": {
+          "type": "cumulative",
+          "description": "Latencies in seconds of data encryption key(DEK) generation operations. (sum)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Latencies in seconds of data encryption key(DEK) generation operations. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Latencies in seconds of data encryption key(DEK) generation operations. (count)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_failures_total": {
+          "type": "cumulative",
+          "description": "Total number of failed data encryption key(DEK) generation operations.",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_latencies_microseconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Latencies in microseconds of data encryption key(DEK) generation operations. (sum)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_latencies_microseconds_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Latencies in microseconds of data encryption key(DEK) generation operations. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_latencies_microseconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Latencies in microseconds of data encryption key(DEK) generation operations. (count)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_envelope_transformation_cache_misses_total": {
+          "type": "cumulative",
+          "description": "Total number of cache misses while accessing key decryption key(KEK).",
+          "group": null,
+          "default": false
+        },
+        "go_gc_duration_seconds": {
+          "type": "cumulative",
+          "description": "A summary of the GC invocation durations. (sum)",
+          "group": null,
+          "default": false
+        },
+        "go_gc_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "A summary of the GC invocation durations. (count)",
+          "group": null,
+          "default": false
+        },
+        "go_gc_duration_seconds_quantile": {
+          "type": "gauge",
+          "description": "A summary of the GC invocation durations. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "go_goroutines": {
+          "type": "gauge",
+          "description": "Number of goroutines that currently exist.",
+          "group": null,
+          "default": false
+        },
+        "go_info": {
+          "type": "gauge",
+          "description": "Information about the Go environment.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_alloc_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_alloc_bytes_total": {
+          "type": "cumulative",
+          "description": "Total number of bytes allocated, even if freed.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_buck_hash_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used by the profiling bucket hash table.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_frees_total": {
+          "type": "cumulative",
+          "description": "Total number of frees.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_gc_cpu_fraction": {
+          "type": "gauge",
+          "description": "The fraction of this program's available CPU time used by the GC since the program started.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_gc_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for garbage collection system metadata.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_alloc_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_idle_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes waiting to be used.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes that are in use.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_objects": {
+          "type": "gauge",
+          "description": "Number of allocated objects.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_released_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes released to OS.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_last_gc_time_seconds": {
+          "type": "gauge",
+          "description": "Number of seconds since 1970 of last garbage collection.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_lookups_total": {
+          "type": "cumulative",
+          "description": "Total number of pointer lookups.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mallocs_total": {
+          "type": "cumulative",
+          "description": "Total number of mallocs.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mcache_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by mcache structures.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mcache_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for mcache structures obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mspan_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by mspan structures.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mspan_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for mspan structures obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_next_gc_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes when next garbage collection will take place.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_other_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for other system allocations.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_stack_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_stack_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes obtained from system for stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_threads": {
+          "type": "gauge",
+          "description": "Number of OS threads created.",
+          "group": null,
+          "default": false
+        },
+        "http_request_duration_microseconds": {
+          "type": "cumulative",
+          "description": "The HTTP request latencies in microseconds. (sum)",
+          "group": null,
+          "default": false
+        },
+        "http_request_duration_microseconds_count": {
+          "type": "cumulative",
+          "description": "The HTTP request latencies in microseconds. (count)",
+          "group": null,
+          "default": false
+        },
+        "http_request_duration_microseconds_quantile": {
+          "type": "gauge",
+          "description": "The HTTP request latencies in microseconds. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "http_request_size_bytes": {
+          "type": "cumulative",
+          "description": "The HTTP request sizes in bytes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "http_request_size_bytes_count": {
+          "type": "cumulative",
+          "description": "The HTTP request sizes in bytes. (count)",
+          "group": null,
+          "default": false
+        },
+        "http_request_size_bytes_quantile": {
+          "type": "gauge",
+          "description": "The HTTP request sizes in bytes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "http_requests_total": {
+          "type": "cumulative",
+          "description": "Total number of HTTP requests made.",
+          "group": null,
+          "default": false
+        },
+        "http_response_size_bytes": {
+          "type": "cumulative",
+          "description": "The HTTP response sizes in bytes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "http_response_size_bytes_count": {
+          "type": "cumulative",
+          "description": "The HTTP response sizes in bytes. (count)",
+          "group": null,
+          "default": false
+        },
+        "http_response_size_bytes_quantile": {
+          "type": "gauge",
+          "description": "The HTTP response sizes in bytes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "kubernetes_build_info": {
+          "type": "gauge",
+          "description": "A metric with a constant '1' value labeled by major, minor, git version, git commit, git tree state, build date, Go version, and compiler from which Kubernetes was built, and platform on which it is running.",
+          "group": null,
+          "default": false
+        },
+        "leader_election_master_status": {
+          "type": "gauge",
+          "description": "Gauge of if the reporting system is master of the relevant lease, 0 indicates backup, 1 indicates master. 'name' is the string used to identify the lease. Please make sure to group by name.",
+          "group": null,
+          "default": false
+        },
+        "process_cpu_seconds_total": {
+          "type": "cumulative",
+          "description": "Total user and system CPU time spent in seconds.",
+          "group": null,
+          "default": false
+        },
+        "process_max_fds": {
+          "type": "gauge",
+          "description": "Maximum number of open file descriptors.",
+          "group": null,
+          "default": false
+        },
+        "process_open_fds": {
+          "type": "gauge",
+          "description": "Number of open file descriptors.",
+          "group": null,
+          "default": false
+        },
+        "process_resident_memory_bytes": {
+          "type": "gauge",
+          "description": "Resident memory size in bytes.",
+          "group": null,
+          "default": false
+        },
+        "process_start_time_seconds": {
+          "type": "gauge",
+          "description": "Start time of the process since unix epoch in seconds.",
+          "group": null,
+          "default": false
+        },
+        "process_virtual_memory_bytes": {
+          "type": "gauge",
+          "description": "Virtual memory size in bytes.",
+          "group": null,
+          "default": false
+        },
+        "process_virtual_memory_max_bytes": {
+          "type": "gauge",
+          "description": "Maximum amount of virtual memory available in bytes.",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_duration_seconds": {
+          "type": "cumulative",
+          "description": "Request latency in seconds. Broken down by verb and URL. (sum)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Request latency in seconds. Broken down by verb and URL. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Request latency in seconds. Broken down by verb and URL. (count)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_latency_seconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Request latency in seconds. Broken down by verb and URL. (sum)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_latency_seconds_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Request latency in seconds. Broken down by verb and URL. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_latency_seconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Request latency in seconds. Broken down by verb and URL. (count)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_requests_total": {
+          "type": "cumulative",
+          "description": "Number of HTTP requests, partitioned by status code, method, and host.",
+          "group": null,
+          "default": false
+        },
+        "scheduler_binding_duration_seconds": {
+          "type": "cumulative",
+          "description": "Binding latency in seconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_binding_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Binding latency in seconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_binding_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Binding latency in seconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_binding_latency_microseconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Binding latency in microseconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_binding_latency_microseconds_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Binding latency in microseconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_binding_latency_microseconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Binding latency in microseconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_e2e_scheduling_duration_seconds": {
+          "type": "cumulative",
+          "description": "E2e scheduling latency in seconds (scheduling algorithm + binding) (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_e2e_scheduling_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "E2e scheduling latency in seconds (scheduling algorithm + binding) (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_e2e_scheduling_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "E2e scheduling latency in seconds (scheduling algorithm + binding) (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_e2e_scheduling_latency_microseconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) E2e scheduling latency in microseconds (scheduling algorithm + binding) (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_e2e_scheduling_latency_microseconds_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) E2e scheduling latency in microseconds (scheduling algorithm + binding) (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_e2e_scheduling_latency_microseconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) E2e scheduling latency in microseconds (scheduling algorithm + binding) (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_pending_pods": {
+          "type": "gauge",
+          "description": "Number of pending pods, by the queue type. 'active' means number of pods in activeQ; 'backoff' means number of pods in backoffQ; 'unschedulable' means number of pods in unschedulableQ.",
+          "group": null,
+          "default": false
+        },
+        "scheduler_pod_preemption_victims": {
+          "type": "gauge",
+          "description": "Number of selected preemption victims",
+          "group": null,
+          "default": false
+        },
+        "scheduler_schedule_attempts_total": {
+          "type": "cumulative",
+          "description": "Number of attempts to schedule pods, by the result. 'unschedulable' means a pod could not be scheduled, while 'error' means an internal scheduler problem.",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_duration_seconds": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm latency in seconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm latency in seconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm latency in seconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_latency_microseconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm latency in microseconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_latency_microseconds_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm latency in microseconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_latency_microseconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm latency in microseconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_predicate_evaluation": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm predicate evaluation duration in microseconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_predicate_evaluation_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm predicate evaluation duration in microseconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_predicate_evaluation_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm predicate evaluation duration in microseconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_predicate_evaluation_seconds": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm predicate evaluation duration in seconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_predicate_evaluation_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm predicate evaluation duration in seconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_predicate_evaluation_seconds_count": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm predicate evaluation duration in seconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_preemption_evaluation": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm preemption evaluation duration in microseconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_preemption_evaluation_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm preemption evaluation duration in microseconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_preemption_evaluation_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm preemption evaluation duration in microseconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_preemption_evaluation_seconds": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm preemption evaluation duration in seconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_preemption_evaluation_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm preemption evaluation duration in seconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_preemption_evaluation_seconds_count": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm preemption evaluation duration in seconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_priority_evaluation": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm priority evaluation duration in microseconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_priority_evaluation_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm priority evaluation duration in microseconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_priority_evaluation_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm priority evaluation duration in microseconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_priority_evaluation_seconds": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm priority evaluation duration in seconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_priority_evaluation_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm priority evaluation duration in seconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_priority_evaluation_seconds_count": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm priority evaluation duration in seconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_duration_seconds": {
+          "type": "cumulative",
+          "description": "Scheduling latency in seconds split by sub-parts of the scheduling operation (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Scheduling latency in seconds split by sub-parts of the scheduling operation (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_duration_seconds_quantile": {
+          "type": "gauge",
+          "description": "Scheduling latency in seconds split by sub-parts of the scheduling operation (quantized)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_latency_seconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling latency in seconds split by sub-parts of the scheduling operation (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_latency_seconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling latency in seconds split by sub-parts of the scheduling operation (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_latency_seconds_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) Scheduling latency in seconds split by sub-parts of the scheduling operation (quantized)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_total_preemption_attempts": {
+          "type": "cumulative",
+          "description": "Total preemption attempts in the cluster till now",
+          "group": null,
+          "default": false
+        },
+        "scheduler_volume_scheduling_duration_seconds": {
+          "type": "cumulative",
+          "description": "Volume scheduling stage latency (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_volume_scheduling_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Volume scheduling stage latency (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_volume_scheduling_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Volume scheduling stage latency (count)",
+          "group": null,
+          "default": false
+        }
+      },
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "internal/monitors/kubernetes/scheduler",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "skipVerify",
+            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "metricPath",
+            "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
+            "default": "/metrics",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendAllMetrics",
+            "doc": "Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
       "singleInstance": false
     },
     {
@@ -27867,7 +28848,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/prometheusexporter",
         "fields": [
           {
@@ -27913,6 +28894,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -28268,6 +29257,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
             "yamlName": "metricPath",
             "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
             "default": "/metrics",
@@ -28478,6 +29475,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -29674,6 +30679,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -31457,6 +32470,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
             "yamlName": "metricPath",
             "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
             "default": "/metrics",
@@ -32541,6 +33562,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
             "yamlName": "metricPath",
             "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
             "default": "/metrics",
@@ -33038,6 +34067,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -36209,7 +37246,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/traefik",
         "fields": [
           {
@@ -36255,6 +37292,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",

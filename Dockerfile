@@ -297,6 +297,7 @@ ENV useful_bins=" \
   /bin/rm \
   /bin/sh \
   /bin/ss \
+  /bin/tar \
   /bin/umount \
   /usr/bin/curl \
   /usr/bin/dirname \

@@ -1,10 +1,7 @@
 package prometheusexporter
 
 import (
-	"io"
 	"strconv"
-
-	"github.com/prometheus/common/expfmt"
 
 	dto "github.com/prometheus/client_model/go"
 	"github.com/signalfx/golib/datapoint"
@@ -46,19 +43,6 @@ func convertMetricFamily(mf *dto.MetricFamily) []*datapoint.Datapoint {
 		return makeHistogramDatapoints(*mf.Name, mf.Metric)
 	default:
 		return nil
-	}
-}
-
-func decodeMetrics(decoder expfmt.Decoder) (dps []*datapoint.Datapoint, err error) {
-	for {
-		var mf dto.MetricFamily
-		if err = decoder.Decode(&mf); err != nil {
-			if err == io.EOF {
-				err = nil
-			}
-			return
-		}
-		dps = append(dps, convertMetricFamily(&mf)...)
 	}
 }
 
