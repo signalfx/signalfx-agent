@@ -116,6 +116,7 @@ These are all of the monitors included in the agent, along with their possible c
 - [kubernetes-cluster](./monitors/kubernetes-cluster.md)
 - [kubernetes-events](./monitors/kubernetes-events.md)
 - [kubernetes-volumes](./monitors/kubernetes-volumes.md)
+- [logstash-tcp](./monitors/logstash-tcp.md)
 - [memory](./monitors/memory.md)
 - [net-io](./monitors/net-io.md)
 - [openshift-cluster](./monitors/openshift-cluster.md)
