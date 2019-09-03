@@ -382,8 +382,8 @@ github.com/openshift/api/quota/v1
 github.com/openshift/client-go/quota/clientset/versioned/typed/quota/v1
 github.com/openshift/client-go/quota/clientset/versioned/scheme
 # github.com/opentracing/opentracing-go v1.0.2
-github.com/opentracing/opentracing-go/ext
 github.com/opentracing/opentracing-go
+github.com/opentracing/opentracing-go/ext
 github.com/opentracing/opentracing-go/log
 # github.com/patrickmn/go-cache v2.1.0+incompatible
 github.com/patrickmn/go-cache
@@ -432,7 +432,7 @@ github.com/signalfx/gateway/sampling
 github.com/signalfx/gateway/etcdIntf
 # github.com/signalfx/gohistogram v0.0.0-20160107210732-1ccfd2ff5083
 github.com/signalfx/gohistogram
-# github.com/signalfx/golib v2.3.3+incompatible
+# github.com/signalfx/golib v2.4.2-0.20190903181250-4f1b4f58e494+incompatible
 github.com/signalfx/golib/datapoint
 github.com/signalfx/golib/event
 github.com/signalfx/golib/sfxclient
@@ -501,6 +501,7 @@ golang.org/x/crypto/ed25519/internal/edwards25519
 golang.org/x/crypto/blake2b
 # golang.org/x/net v0.0.0-20190318221613-d196dffd7c2b
 golang.org/x/net/http2
+golang.org/x/net/context
 golang.org/x/net/proxy
 golang.org/x/net/http/httpguts
 golang.org/x/net/http2/hpack
@@ -508,7 +509,6 @@ golang.org/x/net/idna
 golang.org/x/net/internal/socks
 golang.org/x/net/html/charset
 golang.org/x/net/context/ctxhttp
-golang.org/x/net/context
 golang.org/x/net/html
 golang.org/x/net/ipv4
 golang.org/x/net/ipv6
@@ -622,8 +622,6 @@ gopkg.in/go-playground/validator.v9
 gopkg.in/go-playground/validator.v9/translations/en
 # gopkg.in/inf.v0 v0.9.1
 gopkg.in/inf.v0
-# gopkg.in/logfmt.v0 v0.1.0
-gopkg.in/logfmt.v0
 # gopkg.in/square/go-jose.v2 v2.3.0
 gopkg.in/square/go-jose.v2/jwt
 gopkg.in/square/go-jose.v2
