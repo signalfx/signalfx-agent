@@ -276,8 +276,6 @@ RUN apt install -y openjdk-8-jre-headless &&\
 	rm -rf /opt/root/jvm/docs &&\
 	rm -rf /opt/root/jvm/man
 
-RUN curl -Lo /opt/signalfx_types_db https://raw.githubusercontent.com/signalfx/integrations/master/collectd-java/signalfx_types_db
-
 COPY scripts/collect-libs /opt/collect-libs
 
 ENV useful_bins=" \
@@ -356,7 +354,7 @@ COPY --from=extra-packages /opt/root/bin/ /bin/
 COPY --from=collectd /usr/share/collectd/postgresql_default.conf /postgresql_default.conf
 COPY --from=collectd /usr/share/collectd/types.db /types.db
 COPY --from=collectd /usr/share/collectd/java/ /collectd-java/
-COPY --from=extra-packages /opt/signalfx_types_db /collectd-java/
+COPY internal/monitors/collectd/signalfx_types.db /collectd-java/signalfx_types_db
 
 # Pull in Python collectd plugin scripts
 COPY --from=python-plugins /opt/collectd-python/ /collectd-python/

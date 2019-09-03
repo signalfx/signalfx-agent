@@ -4,6 +4,8 @@ go 1.12
 
 replace github.com/creasty/defaults => github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 
+replace git.apache.org/thrift.git => github.com/apache/thrift v0.0.0-20180411174621-858809fad01d // indirect
+
 require (
 	cloud.google.com/go v0.35.1 // indirect
 	collectd.org v0.3.0 // indirect
