@@ -181,7 +181,6 @@ REQUIRED_AGENT_DOCS = {
         'auto-discovery',
         'filtering',
         'remote-config',
-        'kubernetes-setup',
         'windows',
         'faq',
         'legacy-filtering',
