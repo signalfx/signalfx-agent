@@ -13,14 +13,12 @@ type Config struct {
 	Username string `yaml:"username"`
 	// Basic Auth password to use on each request, if any.
 	Password string `yaml:"password" neverLog:"true"`
-	// URI on which to scrape HAProxy.
-	ScrapeURI string `yaml:"scrapeURI" default:"http://localhost/;csv"`
+	// URL on which to scrape HAProxy.
+	URL string `yaml:"url" validate:"required"`
 	// Flag that enables SSL certificate verification for the scrape URI.
 	SSLVerify bool `yaml:"sslVerify" default:"true"`
 	// Timeout for trying to get stats from HAProxy. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration
 	Timeout time.Duration `yaml:"timeout" default:"5s"`
-	// Flag that enables renaming haproxy stats to equivalent SignalFx metric names.
-	UseSfxNames bool `yaml:"useSfxNames" default:"true"`
 }
 
 // GetMonitorType is a ConfigInterface method implementation for getting the monitor type.

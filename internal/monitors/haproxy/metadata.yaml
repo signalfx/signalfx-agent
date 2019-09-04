@@ -1,116 +1,132 @@
 monitors:
   - monitorType: haproxy
     doc: |
-      This monitor scrapes HAProxy statistics from an HTTP endpoint and UNIX socket.
+      This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics from an HTTP endpoint or a UNIX socket.
+      Requires HAProxy 1.8+.
+
+      <!--- SETUP --->
+      ### HTTP Endpoint Config
+      HAProxy stats must be enabled as described [here](https://www.haproxy.com/blog/exploring-the-haproxy-stats-page/).
+      Define the HAProxy monitor in the agent configuration file and provide the csv export url where HAProxy
+      stats are served in csv format. This monitor supports basic HTTP authentication. Simply provide the
+      username and password if required as shown below.
+      ```
+      ...
+      monitors:
+        - type: haproxy
+          url: "http://localhost:8404/stats?stats;csv"
+          username: "my username"
+          password: "my password"
+      ...
+      ```
+
+      Note: The HAProxy process level stats given by the [show info](https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.3-show%20info) command
+      are not available at the HTTP endpoint. Scrape stats from the unix socket instead to include the process level metrics.
+
+      ### Unix Socket Config
+      The location of the HAProxy socket file is defined in the HAProxy config file, as in the following example:
+      ```
+      global
+          daemon
+          stats socket /var/run/haproxy.sock
+          stats timeout 2m
+      ```
+      For the given location of the socket file configure the HAProxy monitor url as such:
+      ```
+      ...
+      monitors:
+        - type: haproxy
+          url: "unix:/var/run/haproxy.sock"
+      ...
+      ```
+    dimensions:
+      proxy_name:
+        description: HAProxy configured proxy name. Possible values for listeners, frontends, backends, and servers.
+      service_name:
+        description: HAProxy configured service name. Possible values are FRONTEND for frontend, BACKEND for backend, configured name for server/listener.
+      process_num:
+        description: A number assigned to an HAProxy process instance (0 for first instance, 1 for second, ...).
     metrics:
-      pxname:
-        default: false
-        description: 'Proxy name. Possible values for listeners, frontends, backends, and servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      svname:
-        default: false
-        description: 'Service name (FRONTEND for frontend, BACKEND for backend, any name for server/listener).
-        Values reported for listeners, frontends, backends, and servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      qcur:
+#      pxname:
+#        default: false
+#        description: 'Proxy name. Possible values for listeners, frontends, backends, and servers.'
+#        type: gauge
+#      svname:
+#        default: false
+#        description: 'Service name (FRONTEND for frontend, BACKEND for backend, any name for server/listener).
+#        Values reported for listeners, frontends, backends, and servers.'
+#        type: gauge
+      gauge.queue_current:
         default: true
         description: 'Number of current queued requests. For the backend this reports the number queued without
         a server assigned. Values reported for backends and servers.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.queue_current
-      qmax:
+          - key: originMetric
+            val: qcur
+      gauge.queue_max:
         default: false
         description: The max value of qcur. Values reported for backends and servers.
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.queue_max
-      scur:
+          - key: originMetric
+            val: qmax
+      gauge.session_current:
         default: true
         description: 'Number current sessions. Values reported for listeners, frontends, backends, and servers.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.session_current
-      smax:
-        default: false
-        description: 'The value of scur. Values reported for listeners, frontends, backends, and servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      slim:
-        default: false
-        description: 'The configured number of sessions limit. Values reported for listeners, frontends, backends,
-        and servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      stot:
+          - key: originMetric
+            val: scur
+#      smax:
+#        default: false
+#        description: 'The value of scur. Values reported for listeners, frontends, backends, and servers.'
+#        type: gauge
+#      slim:
+#        default: false
+#        description: 'The configured number of sessions limit. Values reported for listeners, frontends, backends,
+#        and servers.'
+#        type: gauge
+      derive.session_total:
         default: false
         description: 'The cumulative number of sessions. Values reported for listeners, frontends, backends, and servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.session_total
-      bin:
+          - key: originMetric
+            val: stot
+      derive.bytes_in:
         default: true
         description: 'Total number of incoming bytes. Values reported for listeners, frontends, backends, and servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.bytes_in
-      bout:
+          - key: originMetric
+            val: bin
+      derive.bytes_out:
         default: true
         description: 'Total number of outgoing bytes. Values reported for listeners, frontends, backends, and servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.bytes_out
-      dreq:
+          - key: originMetric
+            val: bout
+      derive.denied_request:
         default: true
         description: 'Number of requests denied because of security concerns. For tcp this is because of a
         matched tcp-request content rule. For http this is because of a matched http-request or tarpit rule.
         Values reported for listeners, frontends, and backends.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.denied_request
-      dresp:
+          - key: originMetric
+            val: dreq
+      derive.denied_response:
         default: true
         description: 'Number of responses denied because of security concerns. For http this is because of a
         matched http-request rule, or "option checkcache". Values reported for listeners, frontends, backends, and
         servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.denied_response
-      ereq:
+          - key: originMetric
+            val: dresp
+      derive.error_request:
         default: true
         description: 'Number of request errors. Some of the possible causes are: early termination from the
         client, before the request has been sent, read error from the client, client timeout, client closed
@@ -118,11 +134,9 @@ monitors:
         frontends.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.error_request
-      econ:
+          - key: originMetric
+            val: ereq
+      derive.error_connectiont:
         default: true
         description: 'Number of requests that encountered an error trying to connect to a backend server.
         The backend stat is the sum of the stat for all servers of that backend, plus any connection errors not
@@ -130,822 +144,620 @@ monitors:
         backends and servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.error_connectiont
-      eresp:
+          - key: originMetric
+            val: econ
+      derive.error_response:
         default: true
         description: "Number of response errors. srv_abrt will be counted here also. Some other errors are:
         write error on the client socket (won't be counted for the server stat), failure applying filters to the
         response. Values reported for backends and servers."
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.error_response
-      wretr:
+          - key: originMetric
+            val: eresp
+      derive.retries:
         default: true
         description: 'Number of times a connection to a server was retried. Values reported for backends and servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.retries
-      wredis:
+          - key: originMetric
+            val: wretr
+      derive.redispatched:
         default: true
         description: 'Number of times a request was redispatched to another server. The server value counts the number
         of times that server was switched away from. Values reported for backends and servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.redispatched
-      status:
-        default: false
-        description: 'Status (UP/DOWN/NOLB/MAINT/MAINT(via)/MAINT(resolution)...). Values reported for listeners,
-        frontends, backends, and servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      weight:
-        default: false
-        description: 'Total weight (backend), server weight (server). Values reported for backends and servers.'
-        type: cumulative
-      act:
+          - key: originMetric
+            val: wredis
+#      status:
+#        default: false
+#        description: 'Status (UP/DOWN/NOLB/MAINT/MAINT(via)/MAINT(resolution)...). Values reported for listeners,
+#        frontends, backends, and servers.'
+#        type: gauge
+#      weight:
+#        default: false
+#        description: 'Total weight (backend), server weight (server). Values reported for backends and servers.'
+#        type: cumulative
+      gauge.active_servers:
         default: false
         description: 'Number of active servers (backend), server is active (server). Values reported for backends
         and servers.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.active_servers
-      bck:
+          - key: originMetric
+            val: act
+      gauge.backup_servers:
         default: false
         description: 'Number of backup servers (backend), server is backup (server). Values reported for backends
         and servers.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.backup_servers
-      chkfail:
+          - key: originMetric
+            val: bck
+      derive.failed_checks:
         default: false
         description: 'Number of failed checks. (Only counts checks failed when the server is up.). Values reported
         for servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.failed_checks
-      chkdown:
-        default: false
-        description: 'Number of UP->DOWN transitions. The backend counter counts transitions to the whole backend
-        being down, rather than the sum of the counters for each server. Values reported for backends and servers.'
-        type: cumulative
-      lastchg:
-        default: false
-        description: 'Number of seconds since the last UP<->DOWN transition. Values reported for backends and servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      downtime:
+          - key: originMetric
+            val: chkfail
+#      chkdown:
+#        default: false
+#        description: 'Number of UP->DOWN transitions. The backend counter counts transitions to the whole backend
+#        being down, rather than the sum of the counters for each server. Values reported for backends and servers.'
+#        type: cumulative
+#      lastchg:
+#        default: false
+#        description: 'Number of seconds since the last UP<->DOWN transition. Values reported for backends and servers.'
+#        type: gauge
+      derive.downtime:
         default: false
         description: 'Total downtime (in seconds). The value for the backend is the downtime for the whole backend,
         not the sum of the server downtime. Values reported for backends and servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.downtime
-      qlimit:
+          - key: originMetric
+            val: downtime
+      gauge.queue_limit:
         default: false
         description: 'Configured maxqueue for the server, or nothing in the value is 0 (default, meaning no limit).
         Values reported for servers.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.queue_limit
-      pid:
-        default: false
-        description: 'Process id (0 for first instance, 1 for second, ...). Values reported for listeners, frontends,
-        backends, and servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      iid:
-        default: false
-        description: 'Unique proxy id. Values reported for listeners, frontends, backends, and servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      sid:
-        default: false
-        description: 'Server id (unique inside a proxy). Values reported for listeners, frontends, backends, and
-        servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      throttle:
+          - key: originMetric
+            val: qlimit
+#      pid:
+#        default: false
+#        description: 'Process id (0 for first instance, 1 for second, ...). Values reported for listeners, frontends,
+#        backends, and servers.'
+#        type: gauge
+#      iid:
+#        default: false
+#        description: 'Unique proxy id. Values reported for listeners, frontends, backends, and servers.'
+#        type: gauge
+#      sid:
+#        default: false
+#        description: 'Server id (unique inside a proxy). Values reported for listeners, frontends, backends, and
+#        servers.'
+#        type: gauge
+      gauge.throttle:
         default: false
         description: 'Current throttle percentage for the server, when slowstart is active, or no value if not in
         slowstart. Values reported for servers.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.throttle
-      lbtot:
+          - key: originMetric
+            val: throttle
+      counter.server_selected_total:
         default: true
         description: 'Total number of times a server was selected, either for new sessions, or when re-dispatching.
         The server counter is the number of times that server was selected. Values reported for backends and
         servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: counter.server_selected_total
-      tracked:
-        default: false
-        description: 'Id of proxy/server if tracking is enabled. Values reported for servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      typ:
-        name: 'type'
-        default: false
-        description: '(0=frontend, 1=backend, 2=server, 3=socket/listener). Values reported for listeners, frontends,
-        backends, and servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      rate:
+          - key: originMetric
+            val: lbtot
+#      tracked:
+#        default: false
+#        description: 'Id of proxy/server if tracking is enabled. Values reported for servers.'
+#        type: gauge
+#      typ:
+#        name: 'type'
+#        default: false
+#        description: '(0=frontend, 1=backend, 2=server, 3=socket/listener). Values reported for listeners, frontends,
+#        backends, and servers.'
+#        type: gauge
+      gauge.session_rate:
         default: true
         description: 'Number of sessions per second over last elapsed second. Values reported for frontends, backends,
         and servers.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.session_rate
-      rate_lim:
+          - key: originMetric
+            val: rate
+      gauge.session_rate_limit:
         default: false
         description: 'Configured limit on new sessions per second. Values reported for frontends.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.session_rate_limit
-      rate_max:
+          - key: originMetric
+            val: rate_lim
+      gauge.session_rate_max:
         default: false
         description: 'Max number of new sessions per second. Values reported for frontends, backends, and servers.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.session_rate_max
-      check_status:
-        default: false
-        description: 'Status of last health check, one of:
-        UNK     -> unknown
-        INI     -> initializing
-        SOCKERR -> socket error
-        L4OK    -> check passed on layer 4, no upper layers testing enabled
-        L4TOUT  -> layer 1-4 timeout
-        L4CON   -> layer 1-4 connection problem, for example "Connection refused" (tcp rst) or "No route to host" (icmp)
-        L6OK    -> check passed on layer 6
-        L6TOUT  -> layer 6 (SSL) timeout
-        L6RSP   -> layer 6 invalid response - protocol error
-        L7OK    -> check passed on layer 7
-        L7OKC   -> check conditionally passed on layer 7, for example 404 with disable-on-404
-        L7TOUT  -> layer 7 (HTTP/SMTP) timeout
-        L7RSP   -> layer 7 invalid response - protocol error
-        L7STS   -> layer 7 response error, for example HTTP 5xx
-        Notice: If a check is currently running, the last known status will be reported, prefixed with "* ". e. g. "* L7OK".
-        Values reported for servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      check_code:
-        default: false
-        description: 'Layer 5-7 code, if available. Values reported for servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      check_duration:
+          - key: originMetric
+            val: rate_max
+#      check_status:
+#        default: false
+#        description: 'Status of last health check, one of:
+#        UNK     -> unknown
+#        INI     -> initializing
+#        SOCKERR -> socket error
+#        L4OK    -> check passed on layer 4, no upper layers testing enabled
+#        L4TOUT  -> layer 1-4 timeout
+#        L4CON   -> layer 1-4 connection problem, for example "Connection refused" (tcp rst) or "No route to host" (icmp)
+#        L6OK    -> check passed on layer 6
+#        L6TOUT  -> layer 6 (SSL) timeout
+#        L6RSP   -> layer 6 invalid response - protocol error
+#        L7OK    -> check passed on layer 7
+#        L7OKC   -> check conditionally passed on layer 7, for example 404 with disable-on-404
+#        L7TOUT  -> layer 7 (HTTP/SMTP) timeout
+#        L7RSP   -> layer 7 invalid response - protocol error
+#        L7STS   -> layer 7 response error, for example HTTP 5xx
+#        Notice: If a check is currently running, the last known status will be reported, prefixed with "* ". e. g. "* L7OK".
+#        Values reported for servers.'
+#        type: gauge
+#      check_code:
+#        default: false
+#        description: 'Layer 5-7 code, if available. Values reported for servers.'
+#        type: gauge
+      gauge.check_duration:
         default: false
         description: 'Time in ms took to finish last health check. Values reported for servers.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.check_duration
-      hrsp_1xx:
+          - key: originMetric
+            val: check_duration
+      derive.response_1xx:
         default: false
         description: 'HTTP responses with 1xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.response_1xx
-      hrsp_2xx:
+          - key: originMetric
+            val: hrsp_1xx
+      derive.response_2xx:
         default: true
         description: 'HTTP responses with 2xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.response_2xx
-      hrsp_3xx:
+          - key: originMetric
+            val: hrsp_2xx
+      derive.response_3xx:
         default: false
         description: 'HTTP responses with 3xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.response_3xx
-      hrsp_4xx:
+          - key: originMetric
+            val: hrsp_3xx
+      derive.response_4xx:
         default: true
         description: 'HTTP responses with 4xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.response_4xx
-      hrsp_5xx:
+          - key: originMetric
+            val: hrsp_4xx
+      derive.response_5xx:
         default: true
         description: 'HTTP responses with 5xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.response_5xx
-      hrsp_other:
+          - key: originMetric
+            val: hrsp_5xx
+      derive.response_other:
         default: false
         description: 'HTTP responses with other codes (protocol error). Values reported for frontends, backends, and servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.response_other
-      hanafail:
-        default: false
-        description: 'Failed health checks details. Values reported for servers.'
-        type: cumulative
-      req_rate:
+          - key: originMetric
+            val: hrsp_other
+#      hanafail:
+#        default: false
+#        description: 'Failed health checks details. Values reported for servers.'
+#        type: cumulative
+      gauge.request_rate:
         default: true
         description: 'HTTP requests per second over last elapsed second. Values reported for frontends.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.request_rate
-      req_rate_max:
+          - key: originMetric
+            val: req_rate
+      gauge.request_rate_max:
         default: false
         description: 'Max number of HTTP requests per second observed. Values reported for frontends.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.request_rate_max
-      req_tot:
+          - key: originMetric
+            val: req_rate_max
+      derive.request_total:
         default: false
         description: 'Total number of HTTP requests received. Values reported for frontends and backends.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.request_total
-      cli_abrt:
+          - key: originMetric
+            val: req_tot
+      derive.cli_abrt:
         default: false
         description: 'Number of data transfers aborted by the client. Values reported for backends and servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.cli_abrt
-      srv_abrt:
+          - key: originMetric
+            val: cli_abrt
+      derive.srv_abrt:
         default: false
         description: 'Number of data transfers aborted by the server (inc. in eresp). Values reported for backends and servers.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.srv_abrt
-      comp_in:
+          - key: originMetric
+            val: srv_abrt
+      derive.comp_in:
         default: false
         description: 'Number of HTTP response bytes fed to the compressor. Values reported for frontends and backends.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.comp_in
-      comp_out:
+          - key: originMetric
+            val: comp_in
+      derive.comp_out:
         default: false
         description: 'Number of HTTP response bytes emitted by the compressor. Values reported for frontends and backends.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.comp_out
-      comp_byp:
+          - key: originMetric
+            val: comp_out
+      derive.comp_byp:
         default: false
         description: 'Number of bytes that bypassed the HTTP compressor (CPU/BW limit). Values reported for frontends and backends.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.comp_byp
-      comp_rsp:
+          - key: originMetric
+            val: comp_byp
+      derive.comp_rsp:
         default: false
         description: 'Number of HTTP responses that were compressed. Values reported for frontends and backends.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: derive.comp_rsp
-      lastsess:
+          - key: originMetric
+            val: comp_rsp
+      gauge.last_session:
         default: false
         description: 'Number of seconds since last session assigned to server/backend. Values reported for backends and servers.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.last_session
-      last_chk:
-        default: false
-        description: 'Last health check contents or textual error. Values reported for servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      last_agt:
-        default: false
-        description: 'Last agent check contents or textual error. Values reported for servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      qtime:
+          - key: originMetric
+            val: lastsess
+#      last_chk:
+#        default: false
+#        description: 'Last health check contents or textual error. Values reported for servers.'
+#        type: gauge
+#      last_agt:
+#        default: false
+#        description: 'Last agent check contents or textual error. Values reported for servers.'
+#        type: gauge
+      gauge.queue_time_avg:
         default: false
         description: 'The average queue time in ms over the 1024 last requests. Values reported for backends and servers.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.queue_time_avg
-      ctime:
-        default: false
-        description: 'The average connect time in ms over the 1024 last requests. Values reported for backends and servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      rtime:
+          - key: originMetric
+            val: qtime
+#      ctime:
+#        default: false
+#        description: 'The average connect time in ms over the 1024 last requests. Values reported for backends and servers.'
+#        type: gauge
+      gauge.response_time_avg:
         default: false
         description: 'The average response time in ms over the 1024 last requests (0 for TCP). Values reported for backends and servers.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.response_time_avg
-      ttime:
+          - key: originMetric
+            val: rtime
+      gauge.session_time_average:
         default: false
         description: 'The average total session time in ms over the 1024 last requests. Values reported for backends and servers.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.session_time_average
-      agent_status:
-        default: false
-        description: 'Status of last agent check, one of:
-        UNK     -> unknown
-        INI     -> initializing
-        SOCKERR -> socket error
-        L4OK    -> check passed on layer 4, no upper layers testing enabled
-        L4TOUT  -> layer 1-4 timeout
-        L4CON   -> layer 1-4 connection problem, for example "Connection refused" (tcp rst) or "No route to host" (icmp)
-        L7OK    -> agent reported "up"
-        L7STS   -> agent reported "fail", "stop", or "down"
-        Values reported for servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      agent_code:
-        default: false
-        description: 'Numeric code reported by agent if any (unused for now). Values reported for servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      agent_duration:
-        default: false
-        description: 'Time in ms taken to finish last check. Values reported for servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-#      check_desc:
+          - key: originMetric
+            val: ttime
+#      agent_status:
 #        default: false
-#        description: 'Short human-readable description of check_status. Values reported for servers.'
-#        type:
-#      agent_desc:
+#        description: 'Status of last agent check, one of:
+#        UNK     -> unknown
+#        INI     -> initializing
+#        SOCKERR -> socket error
+#        L4OK    -> check passed on layer 4, no upper layers testing enabled
+#        L4TOUT  -> layer 1-4 timeout
+#        L4CON   -> layer 1-4 connection problem, for example "Connection refused" (tcp rst) or "No route to host" (icmp)
+#        L7OK    -> agent reported "up"
+#        L7STS   -> agent reported "fail", "stop", or "down"
+#        Values reported for servers.'
+#        type: gauge
+#      agent_code:
 #        default: false
-#        description: 'Short human-readable description of agent_status. Values reported for servers.'
-#        type:
-      check_rise:
-        default: false
-        description: "Server's 'rise' parameter used by checks. Values reported for servers."
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      check_fall:
-        default: false
-        description: "Server's 'fall' parameter used by checks. Values reported for servers."
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      check_health:
-        default: false
-        description: "Server's health check value between 0 and rise+fall-1. Values reported for servers."
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      agent_rise:
-        default: false
-        description: "Agent's 'rise' parameter, normally 1. Values reported for servers."
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      agent_fall:
-        default: false
-        description: "Agent's 'fall' parameter, normally 1. Values reported for servers."
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      agent_health:
-        default: false
-        description: "Agent's health parameter, between 0 and rise+fall-1. Values reported for servers."
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-#      addr:
+#        description: 'Numeric code reported by agent if any (unused for now). Values reported for servers.'
+#        type: gauge
+#      agent_duration:
 #        default: false
-#        description: 'address:port or "unix". IPv6 has brackets around the address.. Values reported for listeners and servers.'
-#        type:
-#      cookie:
+#        description: 'Time in ms taken to finish last check. Values reported for servers.'
+#        type: gauge
+##      check_desc:
+##        default: false
+##        description: 'Short human-readable description of check_status. Values reported for servers.'
+##        type:
+##      agent_desc:
+##        default: false
+##        description: 'Short human-readable description of agent_status. Values reported for servers.'
+##        type:
+#      check_rise:
 #        default: false
-#        description: "Server's cookie value or backend's cookie name. Values reported for backend and servers."
-#        type:
-      mode:
-        default: false
-        description: 'Proxy mode (tcp, http, health, unknown). Values reported for listeners, frontends, backends, and servers.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      algo:
-        default: false
-        description: 'Load balancing algorithm. Values reported for backends.'
-        type: gauge
-        properties:
-          - key: cmd
-            val: 'show stat'
-      conn_rate:
+#        description: "Server's 'rise' parameter used by checks. Values reported for servers."
+#        type: gauge
+#      check_fall:
+#        default: false
+#        description: "Server's 'fall' parameter used by checks. Values reported for servers."
+#        type: gauge
+#      check_health:
+#        default: false
+#        description: "Server's health check value between 0 and rise+fall-1. Values reported for servers."
+#        type: gauge
+#      agent_rise:
+#        default: false
+#        description: "Agent's 'rise' parameter, normally 1. Values reported for servers."
+#        type: gauge
+#      agent_fall:
+#        default: false
+#        description: "Agent's 'fall' parameter, normally 1. Values reported for servers."
+#        type: gauge
+#      agent_health:
+#        default: false
+#        description: "Agent's health parameter, between 0 and rise+fall-1. Values reported for servers."
+#        type: gauge
+##      addr:
+##        default: false
+##        description: 'address:port or "unix". IPv6 has brackets around the address.. Values reported for listeners and servers.'
+##        type:
+##      cookie:
+##        default: false
+##        description: "Server's cookie value or backend's cookie name. Values reported for backend and servers."
+##        type:
+#      mode:
+#        default: false
+#        description: 'Proxy mode (tcp, http, health, unknown). Values reported for listeners, frontends, backends, and servers.'
+#        type: gauge
+#      algo:
+#        default: false
+#        description: 'Load balancing algorithm. Values reported for backends.'
+#        type: gauge
+      gauge.connection_rate:
         default: true
         description: 'Number of connections over the last elapsed second. Values reported for frontends.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val:  gauge.connection_rate
-      conn_rate_max:
+          - key: originMetric
+            val: conn_rate
+      gauge.connection_rate_max:
         default: false
         description: 'Highest known conn_rate. Values reported for frontends.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.connection_rate_max
-      conn_tot:
+          - key: originMetric
+            val: conn_rate_max
+      counter.connection_total:
         default: false
         description: 'Cumulative number of connections. Values reported for frontends.'
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: counter.connection_total
-      intercepted:
+          - key: originMetric
+            val: conn_tot
+      gauge.intercepted_requests:
         default: false
         description: 'Cumulative cum. number of intercepted requests (monitor, stats). Values reported for frontends and backends.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.intercepted_requests
-      dcon:
+          - key: originMetric
+            val: intercepted
+      gauge.denied_tcp_connections:
         default: false
         description: 'Requests denied by "tcp-request connection" rules. Values reported for listeners and frontends.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.denied_tcp_connections
-      dses:
+          - key: originMetric
+            val: dcon
+      gauge.denied_tcp_sessions:
         default: false
         description: 'Requests denied by "tcp-request session" rules. Values reported for listeners and frontends.'
         type: gauge
         properties:
-          - key: cmd
-            val: 'show stat'
-          - key: sfxName
-            val: gauge.denied_tcp_sessions
-      wrew:
-        default: false
-        description: 'Cumulative number of failed header rewriting warnings. Values reported for listeners, frontends, backends, and servers.'
-        type: cumulative
-        properties:
-          - key: cmd
-            val: 'show stat'
-      CompressBpsIn:
+          - key: originMetric
+            val: dses
+#      wrew:
+#        default: false
+#        description: 'Cumulative number of failed header rewriting warnings. Values reported for listeners, frontends, backends, and servers.'
+#        type: cumulative
+      derive.compress_bps_in:
         description: Corresponds to the current HAProxy process `CompressBpsIn` value given by the `show info` cmd.
         default: false
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: derive.compress_bps_in
-      CompressBpsOut:
+          - key: originMetric
+            val: CompressBpsIn
+      derive.compress_bps_out:
         description: Corresponds to the current HAProxy process `CompressBpsOut` value given by the `show info` cmd.
         default: false
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: derive.compress_bps_out
-      CumConns:
+          - key: originMetric
+            val: CompressBpsOut
+      derive.connections:
         description: Corresponds to the current HAProxy process `CumConns` value given by the `show info` cmd. Cumulative number of connections.
         default: false
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: derive.connections
-      CumReq:
+          - key: originMetric
+            val: CumConns
+      derive.requests:
         description: Corresponds to the current HAProxy process `CumReq` value given by the `show info` cmd.
         default: true
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: derive.requests
-      SslCacheLookups:
+          - key: originMetric
+            val: CumReq
+      derive.ssl_cache_lookups:
         description: Corresponds to the current HAProxy process `SslCacheLookups` value given by the `show info` cmd.
         default: false
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: derive.ssl_cache_lookups
-      SslCacheMisses:
+          - key: originMetric
+            val: SslCacheLookups
+      derive.ssl_cache_misses:
         description: Corresponds to the current HAProxy process `SslCacheMisses` value given by the `show info` cmd.
         default: false
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: derive.ssl_cache_misses
-      CumSslConns:
+          - key: originMetric
+            val: SslCacheMisses
+      derive.ssl_connections:
         description: Corresponds to the current HAProxy process `CumSslConns` value given by the `show info` cmd.
         default: false
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: derive.ssl_connections
-      Uptime_sec:
+          - key: originMetric
+            val: CumSslConns
+      derive.uptime_seconds:
         description: Corresponds to the current HAProxy process `Uptime_sec` value given by the `show info` cmd.
         default: false
         type: cumulative
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: derive.uptime_seconds
-      CurrConns:
+          - key: originMetric
+            val: Uptime_sec
+      gauge.current_connections:
         description: Corresponds to the current HAProxy process `CurrConns` value given by the `show info` cmd.
         default: false
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.current_connections
-      CurrSslConns:
+          - key: originMetric
+            val: CurrConns
+      gauge.current_ssl_connections:
         description: Corresponds to the current HAProxy process `CurrSslConns` value given by the `show info` cmd.
         default: false
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.current_ssl_connections
-      Idle_pct:
+          - key: originMetric
+            val: CurrSslConns
+      gauge.idle_pct:
         description: Corresponds to the current HAProxy process `Idle_pct` value given by the `show info` cmd. Ratio of system polling time versus total time.
         default: true
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.idle_pct
-      MaxConnRate:
+          - key: originMetric
+            val: Idle_pct
+      gauge.max_connection_rate:
         description: Corresponds to the current HAProxy process `MaxConnRate` value given by the `show info` cmd.
         default: false
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.max_connection_rate
-      MaxConn:
+          - key: originMetric
+            val: MaxConnRate
+      gauge.max_connections:
         description: Corresponds to the current HAProxy process `MaxConn` value given by the `show info` cmd.
         default: false
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.max_connections
-      MaxPipes:
+          - key: originMetric
+            val: MaxConn
+      gauge.max_pipes:
         description: Corresponds to the current HAProxy process `MaxPipes` value given by the `show info` cmd.
         default: false
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.max_pipes
-      MaxSessRate:
+          - key: originMetric
+            val: MaxPipes
+      gauge.max_session_rate:
         description: Corresponds to the current HAProxy process `MaxSessRate` value given by the `show info` cmd.
         default: false
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.max_session_rate
-      MaxSslConns:
+          - key: originMetric
+            val: MaxSessRate
+      gauge.max_ssl_connections:
         description: Corresponds to the current HAProxy process `MaxSslConns` value given by the `show info` cmd.
         default: false
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.max_ssl_connections
-      PipesFree:
+          - key: originMetric
+            val: MaxSslConns
+      gauge.pipes_free:
         description: Corresponds to the current HAProxy process `PipesFree` value given by the `show info` cmd.
         default: false
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.pipes_free
-      PipesUsed:
+          - key: originMetric
+            val: PipesFree
+      gauge.pipes_used:
         description: Corresponds to the current HAProxy process `PipesUsed` value given by the `show info` cmd.
         default: false
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.pipes_used
-      Run_queue:
+          - key: originMetric
+            val: PipesUsed
+      gauge.run_queue:
         description: Corresponds to the current HAProxy process `Run_queue` value given by the `show info` cmd.
         default: false
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.run_queue
-      SessRate:
+          - key: originMetric
+            val: Run_queue
+      gauge.session_rate_all:
         description: Corresponds to the current HAProxy process `SessRate` value given by the `show info` cmd.
         default: false
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.session_rate_all
-      SslBackendKeyRate:
+          - key: originMetric
+            val: SessRate
+      gauge.ssl_backend_key_rate:
         description: Corresponds to the current HAProxy process `SslBackendKeyRate` value given by the `show info` cmd.
         default: false
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.ssl_backend_key_rate
-      SslFrontendKeyRate:
+          - key: originMetric
+            val: SslBackendKeyRate
+      gauge.ssl_frontend_key_rate:
         description: Corresponds to the current HAProxy process `SslFrontendKeyRate` value given by the `show info` cmd.
         default: false
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.ssl_frontend_key_rate
-      SslRate:
+          - key: originMetric
+            val: SslFrontendKeyRate
+      gauge.ssl_rate:
         description: Corresponds to the current HAProxy process `SslRate` value given by the `show info` cmd.
         default: false
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.ssl_rate
-      Tasks:
+          - key: originMetric
+            val: SslRate
+      gauge.tasks:
         description: Corresponds to the current HAProxy process `Tasks` value given by the `show info` cmd.
         default: false
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.tasks
-      ZlibMemUsage:
+          - key: originMetric
+            val: Tasks
+      gauge.zlib_mem_usage:
         description: Corresponds to the current HAProxy process `ZlibMemUsage` value given by the `show info` cmd.
         default: false
         type: gauge
         properties:
-          - key: cmd
-            val: 'show info'
-          - key: sfxName
-            val: gauge.zlib_mem_usage
+          - key: originMetric
+            val: ZlibMemUsage
