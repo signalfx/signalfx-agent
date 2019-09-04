@@ -31,6 +31,11 @@ func Uint32(i uint32) *uint32 {
 	return &i
 }
 
+// Uint64 returns a pointer to a uint64
+func Uint64(i uint64) *uint64 {
+	return &i
+}
+
 // String returns a pointer to a string
 func String(i string) *string {
 	return &i
@@ -49,6 +54,11 @@ func Int64(i int64) *int64 {
 // Bool returns a pointer to a bool
 func Bool(b bool) *bool {
 	return &b
+}
+
+// Float32 returns a pointer to a float32
+func Float32(f float32) *float32 {
+	return &f
 }
 
 // Float64 returns a pointer to a float64

@@ -118,7 +118,11 @@ func (c *Counter) AddSpans(ctx context.Context, spans []*trace.Span, next trace.
 	atomic.AddInt64(&c.CallsInFlight, -1)
 	if err != nil && spanfilter.IsInvalid(err) {
 		atomic.AddInt64(&c.TotalProcessErrors, 1)
-		atomic.AddInt64(&c.ProcessErrorSpans, int64(len(spans)))
+		if m, ok := err.(*spanfilter.Map); ok {
+			atomic.AddInt64(&c.ProcessErrorSpans, int64(len(m.Invalid)))
+		} else {
+			atomic.AddInt64(&c.ProcessErrorSpans, int64(len(spans)))
+		}
 		c.logErrMsg(ctx, err, "Unable to process spans")
 	}
 	return err
