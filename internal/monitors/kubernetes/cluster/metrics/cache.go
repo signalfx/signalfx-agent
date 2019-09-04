@@ -72,15 +72,22 @@ func keyForObject(obj runtime.Object) (types.UID, error) {
 // same type returned by Handle[Add|Delete].  MUST HOLD LOCK!
 func (dc *DatapointCache) DeleteByKey(key interface{}) {
 	cacheKey := key.(types.UID)
+	var err error
 	switch dc.uidKindCache[cacheKey] {
 	case "Pod":
-		dc.podCache.DeleteByKey(cacheKey)
+		err = dc.podCache.DeleteByKey(cacheKey)
 	case "Service":
-		dc.handleDeleteService(cacheKey)
+		err = dc.handleDeleteService(cacheKey)
 	case "ReplicaSet":
-		dc.replicaSetCache.DeleteByKey(cacheKey)
+		err = dc.replicaSetCache.DeleteByKey(cacheKey)
 	case "Job":
-		dc.jobCache.DeleteByKey(cacheKey)
+		err = dc.jobCache.DeleteByKey(cacheKey)
+	}
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"UID":   cacheKey,
+		}).Error("an error occurred while deleting a key from an internal cache")
 	}
 	delete(dc.uidKindCache, cacheKey)
 	delete(dc.dpCache, cacheKey)
@@ -226,8 +233,12 @@ func (dc *DatapointCache) handleAddService(svc *v1.Service) {
 
 // handleDeleteService will remove a service from the internal cache
 // and remove the service tags on it's matching pods.
-func (dc *DatapointCache) handleDeleteService(svcUID types.UID) {
-	for _, podUID := range dc.serviceCache.DeleteByKey(svcUID) {
+func (dc *DatapointCache) handleDeleteService(svcUID types.UID) error {
+	cachedPods, err := dc.serviceCache.DeleteByKey(svcUID)
+	if err != nil {
+		return err
+	}
+	for _, podUID := range cachedPods {
 		cachedPod := dc.podCache.GetCachedPod(podUID)
 		if cachedPod != nil {
 			dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
@@ -236,6 +247,7 @@ func (dc *DatapointCache) handleDeleteService(svcUID types.UID) {
 			}
 		}
 	}
+	return nil
 }
 
 // handleAddReplicaSet adds a replicaset to the internal cache and

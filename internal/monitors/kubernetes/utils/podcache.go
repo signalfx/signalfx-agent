@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"reflect"
 
 	v1 "k8s.io/api/core/v1"
@@ -68,13 +69,20 @@ func (pc *PodCache) AddPod(pod *v1.Pod) {
 }
 
 // DeleteByKey removes a pod from the cache given a UID
-func (pc *PodCache) DeleteByKey(key types.UID) {
-	namespace := pc.cachedPods[key].Namespace
-	delete(pc.namespacePodUIDCache[namespace], key)
-	if len(pc.namespacePodUIDCache[namespace]) == 0 {
-		delete(pc.namespacePodUIDCache, namespace)
+func (pc *PodCache) DeleteByKey(key types.UID) error {
+	cachedPod, exists := pc.cachedPods[key]
+	if !exists {
+		// This could happen if we receive a k8s event out of order
+		// For example, if a pod deletion event comes in before
+		// a pod creation event somehow.
+		return errors.New("pod does not exist in internal cache")
+	}
+	delete(pc.namespacePodUIDCache[cachedPod.Namespace], key)
+	if len(pc.namespacePodUIDCache[cachedPod.Namespace]) == 0 {
+		delete(pc.namespacePodUIDCache, cachedPod.Namespace)
 	}
 	delete(pc.cachedPods, key)
+	return nil
 }
 
 // GetLabels retrieves a pod's cached label set
