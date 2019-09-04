@@ -213,6 +213,13 @@ func StreamDatapoints(configPath string, metric string, dims string) (io.ReadClo
 
 func startSyncClusterProperty(propertyChan chan *types.DimProperties, cluster string, hostDims map[string]string, setOnHost bool) {
 	for dimName, dimValue := range hostDims {
+		// Exclude kubernetes_node since it is also managed by the
+		// kubernetes-cluster monitor and it is very tricky getting them to
+		// merge cleanly without it clobbing the cluster property.
+		if dimName == "kubernetes_node" {
+			continue
+		}
+
 		if len(hostDims) > 1 && dimName == "host" && !setOnHost {
 			// If we also have a platform-specific host-id dimension that isn't
 			// the generic 'host' dimension, then skip setting the property on
