@@ -30,11 +30,7 @@ var {{"groupSet" | formatVariable}} = map[string]bool {
 {{with .metrics}}
 const (
 {{- range $metric, $info := .}}
-	{{- if $info.Name}}
-		{{$metric | formatVariable}} = "{{$info.Name}}"
-	{{- else}}
-		{{$metric | formatVariable}} = "{{$metric}}"
-	{{- end}}
+	{{$metric | formatVariable}} = "{{$metric}}"
 {{- with $info.Alias}}
 	{{. | formatVariable}} = "{{.}}"
 {{- end}}

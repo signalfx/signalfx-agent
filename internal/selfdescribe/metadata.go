@@ -23,7 +23,6 @@ type dimension struct {
 
 // MetricMetadata contains a metric's metadata.
 type MetricMetadata struct {
-	Name             string           `json:"name,omitempty"`
 	Alias            string           `json:"alias,omitempty"`
 	Type             string           `json:"type"`
 	Description      string           `json:"description"`
