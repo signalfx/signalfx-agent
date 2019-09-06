@@ -3,9 +3,11 @@ package metrics
 import (
 	"time"
 
-	"k8s.io/api/extensions/v1beta1"
-
 	"github.com/signalfx/golib/datapoint"
+	k8sutil "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
+	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
+	"github.com/signalfx/signalfx-agent/internal/utils"
+	"k8s.io/api/extensions/v1beta1"
 )
 
 func datapointsForDaemonSet(ds *v1beta1.DaemonSet) []*datapoint.Datapoint {
@@ -41,5 +43,28 @@ func datapointsForDaemonSet(ds *v1beta1.DaemonSet) []*datapoint.Datapoint {
 			datapoint.NewIntValue(int64(ds.Status.NumberReady)),
 			datapoint.Gauge,
 			time.Now()),
+	}
+}
+
+func dimPropsForDaemonSet(ds *v1beta1.DaemonSet) *atypes.DimProperties {
+	props, tags := k8sutil.PropsAndTagsFromLabels(ds.Labels)
+	props["k8s_workload"] = "DaemonSet"
+
+	for _, or := range ds.OwnerReferences {
+		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
+		props[utils.LowercaseFirstChar(or.Kind)+"_uid"] = string(or.UID)
+	}
+
+	if len(props) == 0 && len(tags) == 0 {
+		return nil
+	}
+
+	return &atypes.DimProperties{
+		Dimension: atypes.Dimension{
+			Name:  "kubernetes_uid",
+			Value: string(ds.UID),
+		},
+		Properties: props,
+		Tags:       tags,
 	}
 }

@@ -27,6 +27,7 @@ func datapointsForReplicaSet(rs *v1beta1.ReplicaSet) []*datapoint.Datapoint {
 func dimPropsForReplicaSet(rs *v1beta1.ReplicaSet) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(rs.Labels)
 	props["name"] = rs.Name
+	props["k8s_workload"] = "ReplicaSet"
 
 	for _, or := range rs.OwnerReferences {
 		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
