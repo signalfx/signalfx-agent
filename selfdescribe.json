@@ -26365,7 +26365,7 @@
           "type": "gauge",
           "description": "The number of actively running jobs for a cronjob.",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.daemon_set.current_scheduled": {
           "type": "gauge",
@@ -26407,31 +26407,31 @@
           "type": "gauge",
           "description": "The number of actively running pods for a job.",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.job.completions": {
           "type": "gauge",
           "description": "The desired number of successfully finished pods the job should be run with.",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.job.failed": {
           "type": "counter",
           "description": "The number of pods which reased phase Failed for a job.",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.job.parallelism": {
           "type": "gauge",
           "description": "The max desired number of pods the job should run at any given time.",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.job.succeeded": {
           "type": "counter",
           "description": "The number of pods which reached phase Succeeded for a job.",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.namespace_phase": {
           "type": "gauge",
@@ -26491,25 +26491,25 @@
           "type": "gauge",
           "description": "The number of pods created by the StatefulSet controller from the\nStatefulSet version indicated by `current_revision` property on the\n`kubernetes_uid` dimension for this StatefulSet.\n",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.stateful_set.desired": {
           "type": "gauge",
           "description": "Number of desired pods in the stateful set (the `spec.replicas` field)",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.stateful_set.ready": {
           "type": "gauge",
           "description": "Number of pods created by the stateful set that have the `Ready` condition",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.stateful_set.updated": {
           "type": "gauge",
           "description": "The number of pods created by the StatefulSet controller from the\nStatefulSet version indicated by the `update_revision` property on the\n`kubernetes_uid` dimension for this StatefulSet.\n",
           "group": null,
-          "default": true
+          "default": false
         }
       },
       "properties": {
@@ -28205,7 +28205,7 @@
           "type": "gauge",
           "description": "The number of actively running jobs for a cronjob.",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.daemon_set.current_scheduled": {
           "type": "gauge",
@@ -28247,31 +28247,31 @@
           "type": "gauge",
           "description": "The number of actively running pods for a job.",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.job.completions": {
           "type": "gauge",
           "description": "The desired number of successfully finished pods the job should be run with.",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.job.failed": {
           "type": "counter",
           "description": "The number of pods which reased phase Failed for a job.",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.job.parallelism": {
           "type": "gauge",
           "description": "The max desired number of pods the job should run at any given time.",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.job.succeeded": {
           "type": "counter",
           "description": "The number of pods which reached phase Succeeded for a job.",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.namespace_phase": {
           "type": "gauge",
@@ -28331,25 +28331,25 @@
           "type": "gauge",
           "description": "The number of pods created by the StatefulSet controller from the\nStatefulSet version indicated by `current_revision` property on the\n`kubernetes_uid` dimension for this StatefulSet.\n",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.stateful_set.desired": {
           "type": "gauge",
           "description": "Number of desired pods in the stateful set (the `spec.replicas` field)",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.stateful_set.ready": {
           "type": "gauge",
           "description": "Number of pods created by the stateful set that have the `Ready` condition",
           "group": null,
-          "default": true
+          "default": false
         },
         "kubernetes.stateful_set.updated": {
           "type": "gauge",
           "description": "The number of pods created by the StatefulSet controller from the\nStatefulSet version indicated by the `update_revision` property on the\n`kubernetes_uid` dimension for this StatefulSet.\n",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.appliedclusterquota.cpu.hard": {
           "type": "gauge",

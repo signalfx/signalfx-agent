@@ -20,7 +20,6 @@ def test_kubernetes_cluster_in_k8s(k8s_cluster):
     yamls = [
         SCRIPT_DIR / "resource_quota.yaml",
         TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml",
-        SCRIPT_DIR / "cronjob.yaml",
         SCRIPT_DIR / "statefulset.yaml",
     ]
     with k8s_cluster.create_resources(yamls):
@@ -112,6 +111,8 @@ def test_stateful_sets(k8s_cluster):
             - type: kubernetes-cluster
               kubernetesAPI:
                 authType: serviceAccount
+              extraMetrics:
+                - kubernetes.stateful_set.desired
         """
         with k8s_cluster.run_agent(agent_yaml=config) as agent:
             assert wait_for(
@@ -148,6 +149,8 @@ def test_jobs(k8s_cluster):
             - type: kubernetes-cluster
               kubernetesAPI:
                 authType: serviceAccount
+              extraMetrics:
+                - kubernetes.job.completions
         """
         with k8s_cluster.run_agent(agent_yaml=config) as agent:
             assert wait_for(
@@ -179,6 +182,8 @@ def test_cronjobs(k8s_cluster):
             - type: kubernetes-cluster
               kubernetesAPI:
                 authType: serviceAccount
+              extraMetrics:
+                - kubernetes.cronjob.active
         """
         with k8s_cluster.run_agent(agent_yaml=config) as agent:
             assert wait_for(
