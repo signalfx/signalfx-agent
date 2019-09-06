@@ -220,7 +220,7 @@ def test_service_tag_sync():
                             return False
                 return True
 
-            assert wait_for(missing_service_tags, interval_seconds=2, timeout_seconds=60)
+            assert wait_for(missing_service_tags, interval_seconds=2, timeout_seconds=90)
 
             agent.pprof_client.assert_goroutine_count_under(150)
             agent.pprof_client.assert_heap_alloc_under(200 * 1024 * 1024)
