@@ -91,7 +91,7 @@ class Agent:
             print("Deleted RBAC resources")
 
     @contextmanager
-    def deploy(self, agent_yaml=None):
+    def deploy(self, agent_yaml=None, wait_for_ready=True):
         with self.deploy_unique_rbac_resources():
             secret = None
             daemonset = None
@@ -109,7 +109,9 @@ class Agent:
                 daemonset_base["spec"]["template"]["spec"]["containers"][0]["imagePullPolicy"] = "Always"
                 daemonset_base["spec"]["template"]["spec"]["containers"][0]["image"] = self.agent_image_name
                 daemonset_base["spec"]["template"]["spec"]["containers"][0]["resources"] = {"requests": {"cpu": "50m"}}
-                daemonset = utils.create_daemonset(body=daemonset_base, namespace=self.namespace)
+                daemonset = utils.create_daemonset(
+                    body=daemonset_base, namespace=self.namespace, wait_for_ready=wait_for_ready
+                )
                 print(f"Created agent daemonset:\n{daemonset_base}")
 
                 yield

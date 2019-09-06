@@ -48,11 +48,6 @@ type Config struct {
 	// monitored.  If omitted (blank) all supported resources across all
 	// namespaces will be monitored.
 	Namespace string `yaml:"namespace"`
-	// If set to true, the Kubernetes node name will be used as the dimension
-	// to which to sync properties about each respective node.  This is
-	// necessary if your cluster's machines do not have unique machine-id
-	// values, as can happen when machine images are improperly cloned.
-	UseNodeName bool `yaml:"useNodeName"`
 	// Config for the K8s API client
 	KubernetesAPI *kubernetes.APIConfig `yaml:"kubernetesAPI" default:"{}"`
 	// A list of node status condition types to report as metrics.  The metrics
@@ -96,7 +91,7 @@ func (m *Monitor) Configure(config *Config) error {
 		return fmt.Errorf("could not create Kubernetes REST config: %s", err)
 	}
 
-	m.datapointCache = metrics.NewDatapointCache(config.UseNodeName, m.config.NodeConditionTypesToReport)
+	m.datapointCache = metrics.NewDatapointCache(m.config.NodeConditionTypesToReport)
 	m.stop = make(chan struct{})
 
 	return m.Start()

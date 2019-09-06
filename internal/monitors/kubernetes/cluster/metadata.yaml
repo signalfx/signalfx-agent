@@ -6,8 +6,8 @@ common:
       description: The name of the resource that the metric describes
     kubernetes_namespace:
       description: The namespace of the resource that the metric describes
-    kubernetes_node:
-      description: The name of the node, as defined by the `name` field of the node
+    kubernetes_node_uid:
+      description: The UID of the node, as defined by the `uid` field of the node
         resource.
     kubernetes_pod_uid:
       description: The UID of the pod that the metric describes
@@ -160,11 +160,10 @@ common:
       type: gauge
   properties:
     <node label>:
-      description: All non-blank labels on a given node will be synced as properties
-        to the `machine_id` or `kubernetes_node` dimension value for that node.  Which
-        dimension gets the properties is determined by the `useNodeName` config option.  Any
-        blank values will be synced as tags on that same dimension.
-      dimension: machine_id/kubernetes_node
+      description: All non-blank labels on a given node will be synced as
+        properties to the `kubernetes_node_uid` dimension value for that node.
+        Any blank values will be synced as tags on that same dimension.
+      dimension: kubernetes_node_uid
     <pod label>:
       description: Any labels with non-blank values on the pod will be synced as properties
         to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as
