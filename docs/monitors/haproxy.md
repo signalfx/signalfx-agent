@@ -25,8 +25,8 @@ username and password if required as shown below:
 monitors:
   - type: haproxy
     url: "http://localhost:8404/stats?stats;csv"
-    username: "my username"
-    password: "my password"
+    username: "your username here"
+    password: "your password here"
 ...
 ```
 Note: The HAProxy process level stats given by the [show info](https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.3-show%20info) command
