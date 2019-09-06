@@ -58,7 +58,7 @@ def test_logstash_tcp_client(version):
         )
 
         with Agent.run(config) as agent:
-            assert wait_for(p(tcp_socket_open, host, 8900), timeout_seconds=120), "logstash didn't start"
+            assert wait_for(p(tcp_socket_open, host, 8900), timeout_seconds=180), "logstash didn't start"
             assert wait_for(p(has_datapoint, agent.fake_services, "logins.count", value=7, dimensions={}))
             assert wait_for(p(has_datapoint, agent.fake_services, "process_time.count", value=7, dimensions={}))
             assert wait_for(p(has_datapoint, agent.fake_services, "process_time.mean", value=4, dimensions={}))
@@ -104,7 +104,7 @@ def test_logstash_tcp_server(version):
             )
 
             assert wait_for(
-                p(has_datapoint, agent.fake_services, "logins.count", value=7, dimensions={}), timeout_seconds=120
+                p(has_datapoint, agent.fake_services, "logins.count", value=7, dimensions={}), timeout_seconds=180
             )
             assert wait_for(p(has_datapoint, agent.fake_services, "process_time.count", value=7, dimensions={}))
             assert wait_for(p(has_datapoint, agent.fake_services, "process_time.mean", value=4, dimensions={}))
