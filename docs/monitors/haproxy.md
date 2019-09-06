@@ -11,14 +11,14 @@ Monitor Type: `haproxy` ([Source](https://github.com/signalfx/signalfx-agent/tre
 ## Overview
 
 This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics from an HTTP endpoint or a UNIX socket.
-It requires HAProxy 1.8+. All metrics have a `process_num` dimension which is the index of the HAProxy
-process that the metric pertains to.
+It requires HAProxy 1.8+ and supports running HAProxy in multi-process mode where the HAProxy process each
+metric pertains to is indicated by the metric dimension `process_num`.
 
 <!--- SETUP --->
 ### HTTP Endpoint Config
 HAProxy stats must be enabled as described [here](https://www.haproxy.com/blog/exploring-the-haproxy-stats-page/).
-Define the HAProxy monitor in the agent configuration file and provide the `csv export` url where HAProxy
-stats are served in csv format. This monitor supports basic HTTP authentication. Simply provide the
+Define the HAProxy monitor in the agent configuration file and provide the `csv export` URL where HAProxy
+stats are served in CSV format. This monitor supports basic HTTP authentication. Simply provide the
 username and password if required as shown below:
 ```
 ...
@@ -29,12 +29,11 @@ monitors:
     password: "my password"
 ...
 ```
-
 Note: The HAProxy process level stats given by the [show info](https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.3-show%20info) command
-are not available at the HTTP endpoint. Scrape stats from the unix socket instead to include the `show info`
+are not available at the HTTP endpoint. Scrape stats from the UNIX socket instead to include the `show info`
 command metrics.
 
-### Unix Socket Config
+### UNIX Socket Config
 The location of the HAProxy socket file is defined in the HAProxy config file, as in the following example:
 ```
 global
@@ -42,7 +41,7 @@ global
     stats socket /var/run/haproxy.sock
     stats timeout 2m
 ```
-For the given location of the socket file configure the HAProxy monitor url as shown below:
+For the given location of the socket file, configure the HAProxy monitor URL as shown below:
 ```
 ...
 monitors:
@@ -50,7 +49,6 @@ monitors:
     url: "unix:/var/run/haproxy.sock"
 ...
 ```
-
 Note: The agent process needs read/write permissions to the HAProxy socket file.
 
 

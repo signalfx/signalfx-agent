@@ -2,13 +2,13 @@ monitors:
   - monitorType: haproxy
     doc: |
       This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics from an HTTP endpoint or a UNIX socket.
-      It requires HAProxy 1.8+. All metrics have a `process_num` dimension which is the index of the HAProxy
-      process that the metric pertains to.
+      It requires HAProxy 1.8+ and supports running HAProxy in multi-process mode where the HAProxy process each
+      metric pertains to is indicated by the metric dimension `process_num`.
 
       <!--- SETUP --->
       ### HTTP Endpoint Config
       HAProxy stats must be enabled as described [here](https://www.haproxy.com/blog/exploring-the-haproxy-stats-page/).
-      Define the HAProxy monitor in the agent configuration file and provide the `csv export` url where HAProxy
+      Define the HAProxy monitor in the agent configuration file and provide the `csv export` URL where HAProxy
       stats are served in CSV format. This monitor supports basic HTTP authentication. Simply provide the
       username and password if required as shown below:
       ```
@@ -20,12 +20,11 @@ monitors:
           password: "my password"
       ...
       ```
-
       Note: The HAProxy process level stats given by the [show info](https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.3-show%20info) command
-      are not available at the HTTP endpoint. Scrape stats from the unix socket instead to include the `show info`
+      are not available at the HTTP endpoint. Scrape stats from the UNIX socket instead to include the `show info`
       command metrics.
 
-      ### Unix Socket Config
+      ### UNIX Socket Config
       The location of the HAProxy socket file is defined in the HAProxy config file, as in the following example:
       ```
       global
@@ -33,7 +32,7 @@ monitors:
           stats socket /var/run/haproxy.sock
           stats timeout 2m
       ```
-      For the given location of the socket file configure the HAProxy monitor url as shown below:
+      For the given location of the socket file, configure the HAProxy monitor URL as shown below:
       ```
       ...
       monitors:
@@ -41,7 +40,6 @@ monitors:
           url: "unix:/var/run/haproxy.sock"
       ...
       ```
-
       Note: The agent process needs read/write permissions to the HAProxy socket file.
     dimensions:
       proxy_name:
@@ -51,15 +49,6 @@ monitors:
       process_num:
         description: A number assigned to an HAProxy process instance (0 for first instance, 1 for second, ...).
     metrics:
-#      pxname:
-#        default: false
-#        description: 'Proxy name. Possible values for listeners, frontends, backends, and servers.'
-#        type: gauge
-#      svname:
-#        default: false
-#        description: 'Service name (FRONTEND for frontend, BACKEND for backend, any name for server/listener).
-#        Values reported for listeners, frontends, backends, and servers.'
-#        type: gauge
       gauge.queue_current:
         default: true
         description: 'Number of current queued requests. For the backend this reports the number queued without
@@ -82,15 +71,6 @@ monitors:
         properties:
           - key: originMetric
             val: scur
-#      smax:
-#        default: false
-#        description: 'The value of scur. Values reported for listeners, frontends, backends, and servers.'
-#        type: gauge
-#      slim:
-#        default: false
-#        description: 'The configured number of sessions limit. Values reported for listeners, frontends, backends,
-#        and servers.'
-#        type: gauge
       derive.session_total:
         default: false
         description: 'The cumulative number of sessions. Values reported for listeners, frontends, backends, and servers.'
@@ -174,15 +154,6 @@ monitors:
         properties:
           - key: originMetric
             val: wredis
-#      status:
-#        default: false
-#        description: 'Status (UP/DOWN/NOLB/MAINT/MAINT(via)/MAINT(resolution)...). Values reported for listeners,
-#        frontends, backends, and servers.'
-#        type: gauge
-#      weight:
-#        default: false
-#        description: 'Total weight (backend), server weight (server). Values reported for backends and servers.'
-#        type: cumulative
       gauge.active_servers:
         default: false
         description: 'Number of active servers (backend), server is active (server). Values reported for backends
@@ -207,15 +178,6 @@ monitors:
         properties:
           - key: originMetric
             val: chkfail
-#      chkdown:
-#        default: false
-#        description: 'Number of UP->DOWN transitions. The backend counter counts transitions to the whole backend
-#        being down, rather than the sum of the counters for each server. Values reported for backends and servers.'
-#        type: cumulative
-#      lastchg:
-#        default: false
-#        description: 'Number of seconds since the last UP<->DOWN transition. Values reported for backends and servers.'
-#        type: gauge
       derive.downtime:
         default: false
         description: 'Total downtime (in seconds). The value for the backend is the downtime for the whole backend,
@@ -232,20 +194,6 @@ monitors:
         properties:
           - key: originMetric
             val: qlimit
-#      pid:
-#        default: false
-#        description: 'Process id (0 for first instance, 1 for second, ...). Values reported for listeners, frontends,
-#        backends, and servers.'
-#        type: gauge
-#      iid:
-#        default: false
-#        description: 'Unique proxy id. Values reported for listeners, frontends, backends, and servers.'
-#        type: gauge
-#      sid:
-#        default: false
-#        description: 'Server id (unique inside a proxy). Values reported for listeners, frontends, backends, and
-#        servers.'
-#        type: gauge
       gauge.throttle:
         default: false
         description: 'Current throttle percentage for the server, when slowstart is active, or no value if not in
@@ -263,16 +211,6 @@ monitors:
         properties:
           - key: originMetric
             val: lbtot
-#      tracked:
-#        default: false
-#        description: 'Id of proxy/server if tracking is enabled. Values reported for servers.'
-#        type: gauge
-#      typ:
-#        name: 'type'
-#        default: false
-#        description: '(0=frontend, 1=backend, 2=server, 3=socket/listener). Values reported for listeners, frontends,
-#        backends, and servers.'
-#        type: gauge
       gauge.session_rate:
         default: true
         description: 'Number of sessions per second over last elapsed second. Values reported for frontends, backends,
@@ -295,30 +233,6 @@ monitors:
         properties:
           - key: originMetric
             val: rate_max
-#      check_status:
-#        default: false
-#        description: 'Status of last health check, one of:
-#        UNK     -> unknown
-#        INI     -> initializing
-#        SOCKERR -> socket error
-#        L4OK    -> check passed on layer 4, no upper layers testing enabled
-#        L4TOUT  -> layer 1-4 timeout
-#        L4CON   -> layer 1-4 connection problem, for example "Connection refused" (tcp rst) or "No route to host" (icmp)
-#        L6OK    -> check passed on layer 6
-#        L6TOUT  -> layer 6 (SSL) timeout
-#        L6RSP   -> layer 6 invalid response - protocol error
-#        L7OK    -> check passed on layer 7
-#        L7OKC   -> check conditionally passed on layer 7, for example 404 with disable-on-404
-#        L7TOUT  -> layer 7 (HTTP/SMTP) timeout
-#        L7RSP   -> layer 7 invalid response - protocol error
-#        L7STS   -> layer 7 response error, for example HTTP 5xx
-#        Notice: If a check is currently running, the last known status will be reported, prefixed with "* ". e. g. "* L7OK".
-#        Values reported for servers.'
-#        type: gauge
-#      check_code:
-#        default: false
-#        description: 'Layer 5-7 code, if available. Values reported for servers.'
-#        type: gauge
       gauge.check_duration:
         default: false
         description: 'Time in ms took to finish last health check. Values reported for servers.'
@@ -368,10 +282,6 @@ monitors:
         properties:
           - key: originMetric
             val: hrsp_other
-#      hanafail:
-#        default: false
-#        description: 'Failed health checks details. Values reported for servers.'
-#        type: cumulative
       gauge.request_rate:
         default: true
         description: 'HTTP requests per second over last elapsed second. Values reported for frontends.'
@@ -442,14 +352,6 @@ monitors:
         properties:
           - key: originMetric
             val: lastsess
-#      last_chk:
-#        default: false
-#        description: 'Last health check contents or textual error. Values reported for servers.'
-#        type: gauge
-#      last_agt:
-#        default: false
-#        description: 'Last agent check contents or textual error. Values reported for servers.'
-#        type: gauge
       gauge.queue_time_avg:
         default: false
         description: 'The average queue time in ms over the 1024 last requests. Values reported for backends and servers.'
@@ -457,10 +359,6 @@ monitors:
         properties:
           - key: originMetric
             val: qtime
-#      ctime:
-#        default: false
-#        description: 'The average connect time in ms over the 1024 last requests. Values reported for backends and servers.'
-#        type: gauge
       gauge.response_time_avg:
         default: false
         description: 'The average response time in ms over the 1024 last requests (0 for TCP). Values reported for backends and servers.'
@@ -475,75 +373,6 @@ monitors:
         properties:
           - key: originMetric
             val: ttime
-#      agent_status:
-#        default: false
-#        description: 'Status of last agent check, one of:
-#        UNK     -> unknown
-#        INI     -> initializing
-#        SOCKERR -> socket error
-#        L4OK    -> check passed on layer 4, no upper layers testing enabled
-#        L4TOUT  -> layer 1-4 timeout
-#        L4CON   -> layer 1-4 connection problem, for example "Connection refused" (tcp rst) or "No route to host" (icmp)
-#        L7OK    -> agent reported "up"
-#        L7STS   -> agent reported "fail", "stop", or "down"
-#        Values reported for servers.'
-#        type: gauge
-#      agent_code:
-#        default: false
-#        description: 'Numeric code reported by agent if any (unused for now). Values reported for servers.'
-#        type: gauge
-#      agent_duration:
-#        default: false
-#        description: 'Time in ms taken to finish last check. Values reported for servers.'
-#        type: gauge
-##      check_desc:
-##        default: false
-##        description: 'Short human-readable description of check_status. Values reported for servers.'
-##        type:
-##      agent_desc:
-##        default: false
-##        description: 'Short human-readable description of agent_status. Values reported for servers.'
-##        type:
-#      check_rise:
-#        default: false
-#        description: "Server's 'rise' parameter used by checks. Values reported for servers."
-#        type: gauge
-#      check_fall:
-#        default: false
-#        description: "Server's 'fall' parameter used by checks. Values reported for servers."
-#        type: gauge
-#      check_health:
-#        default: false
-#        description: "Server's health check value between 0 and rise+fall-1. Values reported for servers."
-#        type: gauge
-#      agent_rise:
-#        default: false
-#        description: "Agent's 'rise' parameter, normally 1. Values reported for servers."
-#        type: gauge
-#      agent_fall:
-#        default: false
-#        description: "Agent's 'fall' parameter, normally 1. Values reported for servers."
-#        type: gauge
-#      agent_health:
-#        default: false
-#        description: "Agent's health parameter, between 0 and rise+fall-1. Values reported for servers."
-#        type: gauge
-##      addr:
-##        default: false
-##        description: 'address:port or "unix". IPv6 has brackets around the address.. Values reported for listeners and servers.'
-##        type:
-##      cookie:
-##        default: false
-##        description: "Server's cookie value or backend's cookie name. Values reported for backend and servers."
-##        type:
-#      mode:
-#        default: false
-#        description: 'Proxy mode (tcp, http, health, unknown). Values reported for listeners, frontends, backends, and servers.'
-#        type: gauge
-#      algo:
-#        default: false
-#        description: 'Load balancing algorithm. Values reported for backends.'
-#        type: gauge
       gauge.connection_rate:
         default: true
         description: 'Number of connections over the last elapsed second. Values reported for frontends.'
@@ -586,10 +415,6 @@ monitors:
         properties:
           - key: originMetric
             val: dses
-#      wrew:
-#        default: false
-#        description: 'Cumulative number of failed header rewriting warnings. Values reported for listeners, frontends, backends, and servers.'
-#        type: cumulative
       derive.compress_bps_in:
         description: Corresponds to the current HAProxy process `CompressBpsIn` value given by the `show info` cmd.
         default: false
