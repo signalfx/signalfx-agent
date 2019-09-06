@@ -23,8 +23,6 @@ data:
     globalDimensions:
       kubernetes_cluster: MY-CLUSTER
 
-    sendMachineID: false
-
     observers:
     - type: k8s-api
 
@@ -49,7 +47,6 @@ data:
 
     # Collects k8s cluster-level metrics
     - type: kubernetes-cluster
-      useNodeName: true
 
     - type: docker-container-stats
       dockerURL: unix:///var/run/docker.sock

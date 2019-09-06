@@ -289,13 +289,14 @@ def daemonset_is_ready(name, namespace="default"):
     return False
 
 
-def create_daemonset(body, namespace=None, timeout=K8S_CREATE_TIMEOUT):
+def create_daemonset(body, namespace=None, timeout=K8S_CREATE_TIMEOUT, wait_for_ready=True):
     name = body["metadata"]["name"]
     api = api_client_from_version(body["apiVersion"])
     daemonset = create_resource(body, api, namespace=namespace, timeout=timeout)
-    assert wait_for(p(daemonset_is_ready, name, namespace=namespace), timeout_seconds=timeout), (
-        'timed out waiting for daemonset "%s" to be ready!' % name
-    )
+    if wait_for_ready:
+        assert wait_for(p(daemonset_is_ready, name, namespace=namespace), timeout_seconds=timeout), (
+            'timed out waiting for daemonset "%s" to be ready!' % name
+        )
     return daemonset
 
 
