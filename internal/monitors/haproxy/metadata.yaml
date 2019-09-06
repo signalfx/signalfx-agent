@@ -9,7 +9,7 @@ monitors:
       ### HTTP Endpoint Config
       HAProxy stats must be enabled as described [here](https://www.haproxy.com/blog/exploring-the-haproxy-stats-page/).
       Define the HAProxy monitor in the agent configuration file and provide the `csv export` url where HAProxy
-      stats are served in csv format. This monitor supports basic HTTP authentication. Simply provide the
+      stats are served in CSV format. This monitor supports basic HTTP authentication. Simply provide the
       username and password if required as shown below:
       ```
       ...
