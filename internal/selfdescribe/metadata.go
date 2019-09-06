@@ -30,7 +30,6 @@ type MetricMetadata struct {
 	Group            *string          `json:"group"`
 	Default          bool             `json:"default" default:"false"`
 	MetricProperties []metricProperty `json:"properties,omitempty" yaml:"properties,omitempty"`
-	Dimensions       []dimension      `json:"dimensions,omitempty" yaml:"dimensions,omitempty"`
 }
 
 // PropMetadata contains a property's metadata.
