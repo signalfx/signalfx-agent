@@ -190,6 +190,14 @@ def _test_service_status_redirect(container):
     assert code == 0 and "/lib/systemd/system/signalfx-agent.service; enabled" in output.decode("utf-8")
 
 
+def _test_agent_status(container):
+    for arg in ["", "all", "monitors", "config", "endpoints"]:
+        cmd = f"agent-status {arg}" if arg else "agent-status"
+        print(f"Running '{cmd}' ...")
+        code, output = container.exec_run(cmd)
+        assert code == 0, output.decode("utf-8")
+
+
 INSTALL_COMMAND = {
     ".rpm": "yum --nogpgcheck localinstall -y /opt/signalfx-agent.rpm",
     ".deb": "dpkg -i /opt/signalfx-agent.deb",
@@ -234,6 +242,7 @@ def _test_package_install(base_image, package_path, init_system):
             _test_system_restart(cont, init_system, backend)
             if init_system == INIT_SYSTEMD:
                 _test_service_status_redirect(cont)
+            _test_agent_status(cont)
         finally:
             cont.reload()
             if cont.status.lower() == "running":
@@ -293,6 +302,7 @@ def _test_package_upgrade(base_image, package_path, init_system):
             _test_system_restart(cont, init_system, backend)
             if init_system == INIT_SYSTEMD:
                 _test_service_status_redirect(cont)
+            _test_agent_status(cont)
         finally:
             cont.reload()
             if cont.status.lower() == "running":
