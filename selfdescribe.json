@@ -9957,7 +9957,7 @@
       "monitorType": "collectd/kafka_producer",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors a Java based Kafka producer using GenericJMX.\n\nSee the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka)\nfor more information.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaproducer/mbeans.go)\nfor which it pulls metrics from the Kafka producer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_producer\n    host: localhost\n    port: 8099\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new producer API.\n",
+      "doc": "Monitors a Java based Kafka producer using GenericJMX.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaproducer/mbeans.go)\nfor which it pulls metrics from the Kafka producer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_producer\n    host: localhost\n    port: 8099\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new producer API.\n",
       "groups": {
         "": {
           "description": "",
@@ -10800,7 +10800,7 @@
       "monitorType": "collectd/marathon",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors a Mesos Marathon instance using the\n[collectd Marathon Python plugin](https://github.com/signalfx/collectd-marathon).\n\nSee the [integrations\ndoc](https://github.com/signalfx/integrations/tree/master/collectd-marathon)\nfor more information on configuration.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n  - type: collectd/marathon\n    host: 127.0.0.1\n    port: 8080\n    scheme: http\n```\n\nSample YAML configuration for DC/OS:\n\n```yaml\nmonitors:\n  - type: collectd/marathon\n    host: 127.0.0.1\n    port: 8080\n    scheme: https\n    dcosAuthURL: https://leader.mesos/acs/api/v1/auth/login\n```\n",
+      "doc": "Monitors a Mesos Marathon instance using the\n[collectd Marathon Python plugin](https://github.com/signalfx/collectd-marathon).\n\nSee the [integrations\ndoc](https://docs.signalfx.com/en/latest/integrations/integrations-reference/integrations.marathon.html)\nfor more information on configuration.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n  - type: collectd/marathon\n    host: 127.0.0.1\n    port: 8080\n    scheme: http\n```\n\nSample YAML configuration for DC/OS:\n\n```yaml\nmonitors:\n  - type: collectd/marathon\n    host: 127.0.0.1\n    port: 8080\n    scheme: https\n    dcosAuthURL: https://leader.mesos/acs/api/v1/auth/login\n```\n",
       "groups": {
         "": {
           "description": "",
