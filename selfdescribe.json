@@ -23549,9 +23549,6 @@
             "derive.comp_in",
             "derive.comp_out",
             "derive.comp_rsp",
-            "derive.compress_bps_in",
-            "derive.compress_bps_out",
-            "derive.connections",
             "derive.denied_request",
             "derive.denied_response",
             "derive.downtime",
@@ -23561,7 +23558,6 @@
             "derive.failed_checks",
             "derive.redispatched",
             "derive.request_total",
-            "derive.requests",
             "derive.response_1xx",
             "derive.response_2xx",
             "derive.response_3xx",
@@ -23571,29 +23567,15 @@
             "derive.retries",
             "derive.session_total",
             "derive.srv_abrt",
-            "derive.ssl_cache_lookups",
-            "derive.ssl_cache_misses",
-            "derive.ssl_connections",
-            "derive.uptime_seconds",
             "gauge.active_servers",
             "gauge.backup_servers",
             "gauge.check_duration",
             "gauge.connection_rate",
             "gauge.connection_rate_max",
-            "gauge.current_connections",
-            "gauge.current_ssl_connections",
             "gauge.denied_tcp_connections",
             "gauge.denied_tcp_sessions",
-            "gauge.idle_pct",
             "gauge.intercepted_requests",
             "gauge.last_session",
-            "gauge.max_connection_rate",
-            "gauge.max_connections",
-            "gauge.max_pipes",
-            "gauge.max_session_rate",
-            "gauge.max_ssl_connections",
-            "gauge.pipes_free",
-            "gauge.pipes_used",
             "gauge.queue_current",
             "gauge.queue_limit",
             "gauge.queue_max",
@@ -23601,18 +23583,41 @@
             "gauge.request_rate",
             "gauge.request_rate_max",
             "gauge.response_time_avg",
-            "gauge.run_queue",
             "gauge.session_current",
             "gauge.session_rate",
-            "gauge.session_rate_all",
             "gauge.session_rate_limit",
             "gauge.session_rate_max",
             "gauge.session_time_average",
+            "gauge.throttle"
+          ]
+        },
+        "showInfoCmd": {
+          "description": "",
+          "metrics": [
+            "derive.compress_bps_in",
+            "derive.compress_bps_out",
+            "derive.connections",
+            "derive.requests",
+            "derive.ssl_cache_lookups",
+            "derive.ssl_cache_misses",
+            "derive.ssl_connections",
+            "derive.uptime_seconds",
+            "gauge.current_connections",
+            "gauge.current_ssl_connections",
+            "gauge.idle_pct",
+            "gauge.max_connection_rate",
+            "gauge.max_connections",
+            "gauge.max_pipes",
+            "gauge.max_session_rate",
+            "gauge.max_ssl_connections",
+            "gauge.pipes_free",
+            "gauge.pipes_used",
+            "gauge.run_queue",
+            "gauge.session_rate_all",
             "gauge.ssl_backend_key_rate",
             "gauge.ssl_frontend_key_rate",
             "gauge.ssl_rate",
             "gauge.tasks",
-            "gauge.throttle",
             "gauge.zlib_mem_usage"
           ]
         }
@@ -23729,7 +23734,7 @@
         "derive.compress_bps_in": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `CompressBpsIn` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -23741,7 +23746,7 @@
         "derive.compress_bps_out": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `CompressBpsOut` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -23753,7 +23758,7 @@
         "derive.connections": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `CumConns` value given by the `show info` cmd. Cumulative number of connections.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -23873,7 +23878,7 @@
         "derive.requests": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `CumReq` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": true,
           "properties": [
             {
@@ -23993,7 +23998,7 @@
         "derive.ssl_cache_lookups": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `SslCacheLookups` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24005,7 +24010,7 @@
         "derive.ssl_cache_misses": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `SslCacheMisses` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24017,7 +24022,7 @@
         "derive.ssl_connections": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `CumSslConns` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24029,7 +24034,7 @@
         "derive.uptime_seconds": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `Uptime_sec` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24101,7 +24106,7 @@
         "gauge.current_connections": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `CurrConns` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24113,7 +24118,7 @@
         "gauge.current_ssl_connections": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `CurrSslConns` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24149,7 +24154,7 @@
         "gauge.idle_pct": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `Idle_pct` value given by the `show info` cmd. Ratio of system polling time versus total time.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": true,
           "properties": [
             {
@@ -24185,7 +24190,7 @@
         "gauge.max_connection_rate": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `MaxConnRate` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24197,7 +24202,7 @@
         "gauge.max_connections": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `MaxConn` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24209,7 +24214,7 @@
         "gauge.max_pipes": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `MaxPipes` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24221,7 +24226,7 @@
         "gauge.max_session_rate": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `MaxSessRate` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24233,7 +24238,7 @@
         "gauge.max_ssl_connections": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `MaxSslConns` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24245,7 +24250,7 @@
         "gauge.pipes_free": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `PipesFree` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24257,7 +24262,7 @@
         "gauge.pipes_used": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `PipesUsed` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24353,7 +24358,7 @@
         "gauge.run_queue": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `Run_queue` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24389,7 +24394,7 @@
         "gauge.session_rate_all": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `SessRate` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24437,7 +24442,7 @@
         "gauge.ssl_backend_key_rate": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `SslBackendKeyRate` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24449,7 +24454,7 @@
         "gauge.ssl_frontend_key_rate": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `SslFrontendKeyRate` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24461,7 +24466,7 @@
         "gauge.ssl_rate": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `SslRate` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24473,7 +24478,7 @@
         "gauge.tasks": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `Tasks` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24497,7 +24502,7 @@
         "gauge.zlib_mem_usage": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `ZlibMemUsage` value given by the `show info` cmd.",
-          "group": null,
+          "group": "showInfoCmd",
           "default": false,
           "properties": [
             {
@@ -24553,6 +24558,14 @@
             "required": false,
             "type": "int64",
             "elementKind": ""
+          },
+          {
+            "yamlName": "proxiesToMonitor",
+            "doc": "A list of the pxname(s) and svname(s) to monitor (e.g. `[\"http-in\", \"server1\", \"backend\"]`). If empty then metrics of all proxies will be reported.",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
           }
         ]
       },

@@ -18,9 +18,12 @@ import (
 	logger "github.com/sirupsen/logrus"
 )
 
-func newStatPageDatapoints(body io.ReadCloser, sfxMetricNames map[string]string) []*datapoint.Datapoint {
+func newStatPageDatapoints(body io.ReadCloser, sfxMetricNames map[string]string, proxiesToMonitor map[string]bool) []*datapoint.Datapoint {
 	dps := make([]*datapoint.Datapoint, 0)
 	for _, metricValuePairs := range statsPageMetricValuePairs(body) {
+		if len(proxiesToMonitor) != 0 && (proxiesToMonitor[metricValuePairs["pxname"]] || proxiesToMonitor[metricValuePairs["svname"]]) {
+			continue
+		}
 		for metric, value := range metricValuePairs {
 			if dp := newDatapoint(sfxMetricNames[metric], value); dp != nil {
 				dp.Dimensions["proxy_name"] = metricValuePairs["pxname"]
@@ -33,8 +36,8 @@ func newStatPageDatapoints(body io.ReadCloser, sfxMetricNames map[string]string)
 	return dps
 }
 
-func newShowStatCommandDatapoints(body io.ReadCloser, sfxMetricNames map[string]string) []*datapoint.Datapoint {
-	return newStatPageDatapoints(body, sfxMetricNames)
+func newShowStatCommandDatapoints(body io.ReadCloser, sfxMetricNames map[string]string, proxiesToMonitor map[string]bool) []*datapoint.Datapoint {
+	return newStatPageDatapoints(body, sfxMetricNames, proxiesToMonitor)
 }
 
 func newShowInfoCommandDatapoints(body io.ReadCloser, sfxMetricNames map[string]string) []*datapoint.Datapoint {

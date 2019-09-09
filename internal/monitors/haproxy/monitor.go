@@ -35,8 +35,12 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	for sfxMetric, originMetric := range metricProperties {
 		m.sfxMetricsByOrigin[originMetric[originMetricKey]] = strings.TrimSpace(sfxMetric)
 	}
+	proxiesToMonitor := map[string]bool{}
+	for _, proxy := range conf.ProxiesToMonitor {
+		proxiesToMonitor[proxy] = true
+	}
 	utils.RunOnInterval(m.ctx, func() {
-		for _, dp := range m.getDatapoints(conf) {
+		for _, dp := range m.getDatapoints(conf, proxiesToMonitor) {
 			m.Output.SendDatapoint(dp)
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
@@ -50,7 +54,7 @@ func (m *Monitor) Shutdown() {
 	}
 }
 
-func (m *Monitor) getDatapoints(conf *Config) []*datapoint.Datapoint {
+func (m *Monitor) getDatapoints(conf *Config, proxiesToMonitor map[string]bool) []*datapoint.Datapoint {
 	u, err := url.Parse(conf.URL)
 	if err != nil {
 		logger.Errorf("cannot parse url %s status. %v", conf.URL, err)
@@ -63,7 +67,7 @@ func (m *Monitor) getDatapoints(conf *Config) []*datapoint.Datapoint {
 			logger.Errorf("can't scrape HAProxy: %v", err)
 			return nil
 		}
-		return newStatPageDatapoints(body, m.sfxMetricsByOrigin)
+		return newStatPageDatapoints(body, m.sfxMetricsByOrigin, proxiesToMonitor)
 	case "unix":
 		showStatBody, err := commandReader(u, "show stat\n", conf.Timeout)
 		if err != nil {
@@ -74,7 +78,7 @@ func (m *Monitor) getDatapoints(conf *Config) []*datapoint.Datapoint {
 			logger.Errorf("can't scrape HAProxy: %v", err)
 			return nil
 		}
-		return append(newShowStatCommandDatapoints(showStatBody, m.sfxMetricsByOrigin), newShowInfoCommandDatapoints(showInfoBody, m.sfxMetricsByOrigin)...)
+		return append(newShowStatCommandDatapoints(showStatBody, m.sfxMetricsByOrigin, proxiesToMonitor), newShowInfoCommandDatapoints(showInfoBody, m.sfxMetricsByOrigin)...)
 	default:
 		logger.Errorf("unsupported scheme: %q", u.Scheme)
 		return nil

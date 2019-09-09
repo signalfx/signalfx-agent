@@ -19,6 +19,9 @@ type Config struct {
 	SSLVerify bool `yaml:"sslVerify" default:"true"`
 	// Timeout for trying to get stats from HAProxy. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration
 	Timeout time.Duration `yaml:"timeout" default:"5s"`
+	// A list of the pxname(s) and svname(s) to monitor (e.g. `["http-in", "server1", "backend"]`).
+	// If empty then metrics of all proxies will be reported.
+	ProxiesToMonitor []string `yaml:"proxiesToMonitor"`
 }
 
 // GetMonitorType is a ConfigInterface method implementation for getting the monitor type.

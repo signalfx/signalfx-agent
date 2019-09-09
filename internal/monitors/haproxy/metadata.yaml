@@ -419,6 +419,7 @@ monitors:
         description: Corresponds to the current HAProxy process `CompressBpsIn` value given by the `show info` cmd.
         default: false
         type: cumulative
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: CompressBpsIn
@@ -426,6 +427,7 @@ monitors:
         description: Corresponds to the current HAProxy process `CompressBpsOut` value given by the `show info` cmd.
         default: false
         type: cumulative
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: CompressBpsOut
@@ -433,6 +435,7 @@ monitors:
         description: Corresponds to the current HAProxy process `CumConns` value given by the `show info` cmd. Cumulative number of connections.
         default: false
         type: cumulative
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: CumConns
@@ -440,6 +443,7 @@ monitors:
         description: Corresponds to the current HAProxy process `CumReq` value given by the `show info` cmd.
         default: true
         type: cumulative
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: CumReq
@@ -447,6 +451,7 @@ monitors:
         description: Corresponds to the current HAProxy process `SslCacheLookups` value given by the `show info` cmd.
         default: false
         type: cumulative
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: SslCacheLookups
@@ -454,6 +459,7 @@ monitors:
         description: Corresponds to the current HAProxy process `SslCacheMisses` value given by the `show info` cmd.
         default: false
         type: cumulative
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: SslCacheMisses
@@ -461,6 +467,7 @@ monitors:
         description: Corresponds to the current HAProxy process `CumSslConns` value given by the `show info` cmd.
         default: false
         type: cumulative
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: CumSslConns
@@ -468,6 +475,7 @@ monitors:
         description: Corresponds to the current HAProxy process `Uptime_sec` value given by the `show info` cmd.
         default: false
         type: cumulative
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: Uptime_sec
@@ -475,6 +483,7 @@ monitors:
         description: Corresponds to the current HAProxy process `CurrConns` value given by the `show info` cmd.
         default: false
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: CurrConns
@@ -482,6 +491,7 @@ monitors:
         description: Corresponds to the current HAProxy process `CurrSslConns` value given by the `show info` cmd.
         default: false
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: CurrSslConns
@@ -489,6 +499,7 @@ monitors:
         description: Corresponds to the current HAProxy process `Idle_pct` value given by the `show info` cmd. Ratio of system polling time versus total time.
         default: true
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: Idle_pct
@@ -496,6 +507,7 @@ monitors:
         description: Corresponds to the current HAProxy process `MaxConnRate` value given by the `show info` cmd.
         default: false
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: MaxConnRate
@@ -503,6 +515,7 @@ monitors:
         description: Corresponds to the current HAProxy process `MaxConn` value given by the `show info` cmd.
         default: false
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: MaxConn
@@ -510,6 +523,7 @@ monitors:
         description: Corresponds to the current HAProxy process `MaxPipes` value given by the `show info` cmd.
         default: false
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: MaxPipes
@@ -517,6 +531,7 @@ monitors:
         description: Corresponds to the current HAProxy process `MaxSessRate` value given by the `show info` cmd.
         default: false
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: MaxSessRate
@@ -524,6 +539,7 @@ monitors:
         description: Corresponds to the current HAProxy process `MaxSslConns` value given by the `show info` cmd.
         default: false
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: MaxSslConns
@@ -531,6 +547,7 @@ monitors:
         description: Corresponds to the current HAProxy process `PipesFree` value given by the `show info` cmd.
         default: false
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: PipesFree
@@ -538,6 +555,7 @@ monitors:
         description: Corresponds to the current HAProxy process `PipesUsed` value given by the `show info` cmd.
         default: false
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: PipesUsed
@@ -545,6 +563,7 @@ monitors:
         description: Corresponds to the current HAProxy process `Run_queue` value given by the `show info` cmd.
         default: false
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: Run_queue
@@ -552,6 +571,7 @@ monitors:
         description: Corresponds to the current HAProxy process `SessRate` value given by the `show info` cmd.
         default: false
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: SessRate
@@ -559,6 +579,7 @@ monitors:
         description: Corresponds to the current HAProxy process `SslBackendKeyRate` value given by the `show info` cmd.
         default: false
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: SslBackendKeyRate
@@ -566,6 +587,7 @@ monitors:
         description: Corresponds to the current HAProxy process `SslFrontendKeyRate` value given by the `show info` cmd.
         default: false
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: SslFrontendKeyRate
@@ -573,6 +595,7 @@ monitors:
         description: Corresponds to the current HAProxy process `SslRate` value given by the `show info` cmd.
         default: false
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: SslRate
@@ -580,6 +603,7 @@ monitors:
         description: Corresponds to the current HAProxy process `Tasks` value given by the `show info` cmd.
         default: false
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: Tasks
@@ -587,6 +611,7 @@ monitors:
         description: Corresponds to the current HAProxy process `ZlibMemUsage` value given by the `show info` cmd.
         default: false
         type: gauge
+        group: showInfoCmd
         properties:
           - key: originMetric
             val: ZlibMemUsage
