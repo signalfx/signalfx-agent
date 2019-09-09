@@ -80,7 +80,7 @@ type Config struct {
 	// be a port number.  This is useful for annotations like
 	// `prometheus.io/port: 9230`.  If you don't already have preexisting
 	// annotations like this, we recommend using the [SignalFx-specific
-	// annotations](https://docs.signalfx.com/en/latest/integrations/agent/kubernetes-setup.html#config-via-k8s-annotations).
+	// annotations](https://docs.signalfx.com/en/latest/kubernetes/k8s-monitors-observers.html#config-via-k8s-annotations).
 	AdditionalPortAnnotations []string `yaml:"additionalPortAnnotations"`
 }
 
