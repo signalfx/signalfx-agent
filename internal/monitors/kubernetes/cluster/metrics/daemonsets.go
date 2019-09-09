@@ -48,7 +48,7 @@ func datapointsForDaemonSet(ds *v1beta1.DaemonSet) []*datapoint.Datapoint {
 
 func dimPropsForDaemonSet(ds *v1beta1.DaemonSet) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(ds.Labels)
-	props["k8s_workload"] = "DaemonSet"
+	props["kubernetes_workload"] = "DaemonSet"
 
 	for _, or := range ds.OwnerReferences {
 		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
