@@ -5,9 +5,11 @@
 import os
 import re
 import sys
-import yaml
-from nltk.tokenize import sent_tokenize
 from pathlib import Path
+
+import yaml
+
+from nltk.tokenize import sent_tokenize
 
 try:
     import nltk
@@ -79,7 +81,7 @@ def sync_metrics(package_path, monitor_type, integrations_dir):
             print(f"Syncing metrics for {monitor_type}")
             metric_yaml = generate_metric_yaml(mon)
             out_path = INTEGRATIONS_REPO / integrations_dir / "metrics.yaml"
-            out_path.write_text(metric_yaml)
+            out_path.write_text(metric_yaml, encoding="utf-8")
             break
     else:
         raise ValueError(f"monitor type {monitor_type} not found in {package_path}")
@@ -114,10 +116,13 @@ def sync_docs(monitor_type, integrations_dir):
     target_path.write_text(
         fixup_overview_header(
             fixup_relative_monitor_paths(
-                AUTO_GENERATION_TEMPLATE + AGENT_MONITOR_BLURB.format(
-                    monitor_type=monitor_type) + monitor_doc_path.read_text()),
+                AUTO_GENERATION_TEMPLATE
+                + AGENT_MONITOR_BLURB.format(monitor_type=monitor_type)
+                + monitor_doc_path.read_text(encoding="utf-8")
+            ),
             monitor_type=monitor_type,
-        )
+        ),
+        encoding="utf-8",
     )
 
 
@@ -135,18 +140,14 @@ def fixup_relative_monitor_paths(content):
     """
     Replaces relative links within the scope of monitor docs with respective github links
     """
-    return fixup_relative_paths(
-        r"\1(https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/\2)", content
-    )
+    return fixup_relative_paths(r"\1(https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/\2)", content)
 
 
 def fixup_relative_agent_doc_paths(content):
     """
     Replaces relative links within the scope of agent docs with respective product-docs links
     """
-    return fixup_relative_paths(
-        r"\1(https://docs.signalfx.com/en/latest/integrations/agent/\2)", content
-    )
+    return fixup_relative_paths(r"\1(https://docs.signalfx.com/en/latest/integrations/agent/\2)", content)
 
 
 OVERVIEW_REPLACEMENT = """
@@ -168,23 +169,20 @@ def fixup_overview_header(content, monitor_type):
 # directories specified will be synced to the integrations repo. The below dictionary is populated from
 # https://github.com/signalfx/signalfx-agent/tree/master/docs/
 REQUIRED_AGENT_DOCS = {
-    'directories': [
-        'monitors',
-        'observers',
+    "directories": ["monitors", "observers"],
+    "md_files": [
+        "quick-install",
+        "advanced-install-options",
+        "config-schema",
+        "observer-config",
+        "monitor-config",
+        "auto-discovery",
+        "filtering",
+        "remote-config",
+        "windows",
+        "faq",
+        "legacy-filtering",
     ],
-    'md_files': [
-        'quick-install',
-        'advanced-install-options',
-        'config-schema',
-        'observer-config',
-        'monitor-config',
-        'auto-discovery',
-        'filtering',
-        'remote-config',
-        'windows',
-        'faq',
-        'legacy-filtering',
-    ]
 }
 
 AGENT_README_HEADER = """
@@ -194,7 +192,7 @@ AGENT_README_HEADER = """
 
 MARKDOWN_LINK_PATTERN = re.compile(r"(\(https://docs.signalfx.com/en/latest/integrations/agent/.+?\.)md(.*?\))")
 MARKDOWN_SUBSECTION_LINK_PATTERN = re.compile(r"(\[.*?\]\(\.\.?/.+?\.)md(\#.+?\))", flags=re.DOTALL)
-SFX_APP_LINK_PATTERN = re.compile('\[\]\(sfx_link:.+?\)')
+SFX_APP_LINK_PATTERN = re.compile("\[\]\(sfx_link:.+?\)")
 
 
 def convert_markdowns_to_htmls(content):
@@ -242,9 +240,20 @@ def sync_agent_quick_install():
 
     print("Constructing Agent README")
 
-    target_path.write_text(convert_markdown_subsections_to_htmls(convert_markdowns_to_htmls(
-        fixup_relative_agent_doc_paths(AUTO_GENERATION_TEMPLATE + AGENT_README_HEADER + fixup_headers_in_agent_readme(
-            fixup_moved_links(smart_agent_quick_install_path.read_text()))))))
+    target_path.write_text(
+        convert_markdown_subsections_to_htmls(
+            convert_markdowns_to_htmls(
+                fixup_relative_agent_doc_paths(
+                    AUTO_GENERATION_TEMPLATE
+                    + AGENT_README_HEADER
+                    + fixup_headers_in_agent_readme(
+                        fixup_moved_links(smart_agent_quick_install_path.read_text(encoding="utf-8"))
+                    )
+                )
+            )
+        ),
+        encoding="utf-8",
+    )
 
 
 PRODUCT_DOCS_REPO = "agent_docs"
@@ -258,7 +267,7 @@ def sync_agent_docs():
     target_dir_parent_path = INTEGRATIONS_REPO_SMART_AGENT_DIR / PRODUCT_DOCS_REPO
     target_dir_parent_path.mkdir(parents=True, exist_ok=True)
 
-    for dir in REQUIRED_AGENT_DOCS['directories']:
+    for dir in REQUIRED_AGENT_DOCS["directories"]:
         full_dir_path = AGENT_DOCS / dir
         assert full_dir_path.is_dir(), full_dir_path
 
@@ -269,7 +278,7 @@ def sync_agent_docs():
         for full_file_path in full_dir_path.iterdir():
             sync_markdown_files(full_file_path)
 
-    for file in REQUIRED_AGENT_DOCS['md_files']:
+    for file in REQUIRED_AGENT_DOCS["md_files"]:
         full_file_path = AGENT_DOCS / ("%s.md" % file)
         sync_markdown_files(full_file_path)
 
@@ -284,8 +293,11 @@ def sync_markdown_files(source_file_path):
 
     target_path.write_text(
         remove_sfx_app_links(
-            convert_markdown_subsections_to_htmls(AUTO_GENERATION_TEMPLATE + source_file_path.read_text())
-        )
+            convert_markdown_subsections_to_htmls(
+                AUTO_GENERATION_TEMPLATE + source_file_path.read_text(encoding="utf-8")
+            )
+        ),
+        encoding="utf-8",
     )
 
 
