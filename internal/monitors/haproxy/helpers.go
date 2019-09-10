@@ -18,7 +18,7 @@ import (
 	logger "github.com/sirupsen/logrus"
 )
 
-// Original HAProxy metric names.
+// Map of HAProxy metrics name to their equivalent SignalFx names.
 var sfxMetricsMap = map[string]string{
 	"conn_tot":           counterConnectionTotal,
 	"lbtot":              counterServerSelectedTotal,
@@ -120,12 +120,11 @@ func newShowStatCommandDatapoints(body io.ReadCloser, proxiesToMonitor map[strin
 
 func newShowInfoCommandDatapoints(body io.ReadCloser) []*datapoint.Datapoint {
 	dps := make([]*datapoint.Datapoint, 0)
-	for _, metricValuePairs := range showInfoCommandMetricValuePairs(body) {
-		for metric, value := range metricValuePairs {
-			if dp := newDatapoint(sfxMetricsMap[metric], value); dp != nil {
-				dp.Dimensions["process_num"] = metricValuePairs["Process_num"]
-				dps = append(dps, dp)
-			}
+	metricValuePairs := showInfoCommandMetricValuePairs(body)
+	for metric, value := range metricValuePairs {
+		if dp := newDatapoint(sfxMetricsMap[metric], value); dp != nil {
+			dp.Dimensions["process_num"] = metricValuePairs["Process_num"]
+			dps = append(dps, dp)
 		}
 	}
 	return dps
@@ -152,22 +151,19 @@ func statsPageMetricValuePairs(body io.ReadCloser) map[int]map[string]string {
 	return rows
 }
 
-func showInfoCommandMetricValuePairs(body io.ReadCloser) map[int]map[string]string {
+func showInfoCommandMetricValuePairs(body io.ReadCloser) map[string]string {
 	defer closeBody(body)
 	sc := bufio.NewScanner(body)
-	rows := map[int]map[string]string{}
+	row := map[string]string{}
 	for sc.Scan() {
 		s := strings.SplitN(sc.Text(), ":", 2)
 		if len(s) != 2 {
 			logger.Debugf("could not split string '%s' into 2 substrings using separator ':'", sc.Text())
 			continue
 		}
-		if rows[0] == nil {
-			rows[0] = map[string]string{}
-		}
-		rows[0][strings.TrimSpace(s[0])] = strings.TrimSpace(s[1])
+		row[strings.TrimSpace(s[0])] = strings.TrimSpace(s[1])
 	}
-	return rows
+	return row
 }
 
 func csvReader(conf *Config) (io.ReadCloser, error) {
