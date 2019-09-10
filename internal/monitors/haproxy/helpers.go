@@ -18,14 +18,92 @@ import (
 	logger "github.com/sirupsen/logrus"
 )
 
-func newStatPageDatapoints(body io.ReadCloser, sfxMetricNames map[string]string, proxiesToMonitor map[string]bool) []*datapoint.Datapoint {
+// Original HAProxy metric names.
+var sfxMetricsMap = map[string]string{
+	"conn_tot":           counterConnectionTotal,
+	"lbtot":              counterServerSelectedTotal,
+	"bin":                deriveBytesIn,
+	"bout":               deriveBytesOut,
+	"cli_abrt":           deriveCliAbrt,
+	"comp_byp":           deriveCompByp,
+	"comp_in":            deriveCompIn,
+	"comp_out":           deriveCompOut,
+	"comp_rsp":           deriveCompRsp,
+	"CompressBpsIn":      deriveCompressBpsIn,
+	"CompressBpsOut":     deriveCompressBpsOut,
+	"CumConns":           deriveConnections,
+	"dreq":               deriveDeniedRequest,
+	"dresp":              deriveDeniedResponse,
+	"downtime":           deriveDowntime,
+	"econ":               deriveErrorConnectiont,
+	"ereq":               deriveErrorRequest,
+	"eresp":              deriveErrorResponse,
+	"chkfail":            deriveFailedChecks,
+	"wredis":             deriveRedispatched,
+	"req_tot":            deriveRequestTotal,
+	"CumReq":             deriveRequests,
+	"hrsp_1xx":           deriveResponse1xx,
+	"hrsp_2xx":           deriveResponse2xx,
+	"hrsp_3xx":           deriveResponse3xx,
+	"hrsp_4xx":           deriveResponse4xx,
+	"hrsp_5xx":           deriveResponse5xx,
+	"hrsp_other":         deriveResponseOther,
+	"wretr":              deriveRetries,
+	"stot":               deriveSessionTotal,
+	"srv_abrt":           deriveSrvAbrt,
+	"SslCacheLookups":    deriveSslCacheLookups,
+	"SslCacheMisses":     deriveSslCacheMisses,
+	"CumSslConns":        deriveSslConnections,
+	"Uptime_sec":         deriveUptimeSeconds,
+	"act":                gaugeActiveServers,
+	"bck":                gaugeBackupServers,
+	"check_duration":     gaugeCheckDuration,
+	"conn_rate":          gaugeConnectionRate,
+	"conn_rate_max":      gaugeConnectionRateMax,
+	"CurrConns":          gaugeCurrentConnections,
+	"CurrSslConns":       gaugeCurrentSslConnections,
+	"dcon":               gaugeDeniedTCPConnections,
+	"dses":               gaugeDeniedTCPSessions,
+	"Idle_pct":           gaugeIdlePct,
+	"intercepted":        gaugeInterceptedRequests,
+	"lastsess":           gaugeLastSession,
+	"MaxConnRate":        gaugeMaxConnectionRate,
+	"MaxConn":            gaugeMaxConnections,
+	"MaxPipes":           gaugeMaxPipes,
+	"MaxSessRate":        gaugeMaxSessionRate,
+	"MaxSslConns":        gaugeMaxSslConnections,
+	"PipesFree":          gaugePipesFree,
+	"PipesUsed":          gaugePipesUsed,
+	"qcur":               gaugeQueueCurrent,
+	"qlimit":             gaugeQueueLimit,
+	"qmax":               gaugeQueueMax,
+	"qtime":              gaugeQueueTimeAvg,
+	"req_rate":           gaugeRequestRate,
+	"req_rate_max":       gaugeRequestRateMax,
+	"rtime":              gaugeResponseTimeAvg,
+	"Run_queue":          gaugeRunQueue,
+	"scur":               gaugeSessionCurrent,
+	"rate":               gaugeSessionRate,
+	"SessRate":           gaugeSessionRateAll,
+	"rate_lim":           gaugeSessionRateLimit,
+	"rate_max":           gaugeSessionRateMax,
+	"ttime":              gaugeSessionTimeAverage,
+	"SslBackendKeyRate":  gaugeSslBackendKeyRate,
+	"SslFrontendKeyRate": gaugeSslFrontendKeyRate,
+	"SslRate":            gaugeSslRate,
+	"Tasks":              gaugeTasks,
+	"throttle":           gaugeThrottle,
+	"ZlibMemUsage":       gaugeZlibMemUsage,
+}
+
+func newStatPageDatapoints(body io.ReadCloser, proxiesToMonitor map[string]bool) []*datapoint.Datapoint {
 	dps := make([]*datapoint.Datapoint, 0)
 	for _, metricValuePairs := range statsPageMetricValuePairs(body) {
 		if len(proxiesToMonitor) != 0 && !proxiesToMonitor[metricValuePairs["pxname"]] && !proxiesToMonitor[metricValuePairs["svname"]] {
 			continue
 		}
 		for metric, value := range metricValuePairs {
-			if dp := newDatapoint(sfxMetricNames[metric], value); dp != nil {
+			if dp := newDatapoint(sfxMetricsMap[metric], value); dp != nil {
 				dp.Dimensions["proxy_name"] = metricValuePairs["pxname"]
 				dp.Dimensions["service_name"] = metricValuePairs["svname"]
 				dp.Dimensions["process_num"] = metricValuePairs["pid"]
@@ -36,15 +114,15 @@ func newStatPageDatapoints(body io.ReadCloser, sfxMetricNames map[string]string,
 	return dps
 }
 
-func newShowStatCommandDatapoints(body io.ReadCloser, sfxMetricNames map[string]string, proxiesToMonitor map[string]bool) []*datapoint.Datapoint {
-	return newStatPageDatapoints(body, sfxMetricNames, proxiesToMonitor)
+func newShowStatCommandDatapoints(body io.ReadCloser, proxiesToMonitor map[string]bool) []*datapoint.Datapoint {
+	return newStatPageDatapoints(body, proxiesToMonitor)
 }
 
-func newShowInfoCommandDatapoints(body io.ReadCloser, sfxMetricNames map[string]string) []*datapoint.Datapoint {
+func newShowInfoCommandDatapoints(body io.ReadCloser) []*datapoint.Datapoint {
 	dps := make([]*datapoint.Datapoint, 0)
 	for _, metricValuePairs := range showInfoCommandMetricValuePairs(body) {
 		for metric, value := range metricValuePairs {
-			if dp := newDatapoint(sfxMetricNames[metric], value); dp != nil {
+			if dp := newDatapoint(sfxMetricsMap[metric], value); dp != nil {
 				dp.Dimensions["process_num"] = metricValuePairs["Process_num"]
 				dps = append(dps, dp)
 			}
@@ -53,7 +131,7 @@ func newShowInfoCommandDatapoints(body io.ReadCloser, sfxMetricNames map[string]
 	return dps
 }
 
-func statsPageMetricValuePairs(body io.ReadCloser) map[int]map[string]string /*([]*datapoint.Datapoint, error)*/ {
+func statsPageMetricValuePairs(body io.ReadCloser) map[int]map[string]string {
 	defer closeBody(body)
 	r := csv.NewReader(body)
 	r.TrimLeadingSpace = true
@@ -74,7 +152,7 @@ func statsPageMetricValuePairs(body io.ReadCloser) map[int]map[string]string /*(
 	return rows
 }
 
-func showInfoCommandMetricValuePairs(body io.ReadCloser) map[int]map[string]string /*([]*datapoint.Datapoint, error)*/ {
+func showInfoCommandMetricValuePairs(body io.ReadCloser) map[int]map[string]string {
 	defer closeBody(body)
 	sc := bufio.NewScanner(body)
 	rows := map[int]map[string]string{}

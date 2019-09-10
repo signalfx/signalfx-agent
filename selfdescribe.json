@@ -23627,889 +23627,445 @@
           "type": "cumulative",
           "description": "Cumulative number of connections. Values reported for frontends.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "conn_tot"
-            }
-          ]
+          "default": false
         },
         "counter.server_selected_total": {
           "type": "cumulative",
           "description": "Total number of times a server was selected, either for new sessions, or when re-dispatching. The server counter is the number of times that server was selected. Values reported for backends and servers.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "lbtot"
-            }
-          ]
+          "default": true
         },
         "derive.bytes_in": {
           "type": "cumulative",
           "description": "Total number of incoming bytes. Values reported for listeners, frontends, backends, and servers.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "bin"
-            }
-          ]
+          "default": true
         },
         "derive.bytes_out": {
           "type": "cumulative",
           "description": "Total number of outgoing bytes. Values reported for listeners, frontends, backends, and servers.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "bout"
-            }
-          ]
+          "default": true
         },
         "derive.cli_abrt": {
           "type": "cumulative",
           "description": "Number of data transfers aborted by the client. Values reported for backends and servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "cli_abrt"
-            }
-          ]
+          "default": false
         },
         "derive.comp_byp": {
           "type": "cumulative",
           "description": "Number of bytes that bypassed the HTTP compressor (CPU/BW limit). Values reported for frontends and backends.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "comp_byp"
-            }
-          ]
+          "default": false
         },
         "derive.comp_in": {
           "type": "cumulative",
           "description": "Number of HTTP response bytes fed to the compressor. Values reported for frontends and backends.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "comp_in"
-            }
-          ]
+          "default": false
         },
         "derive.comp_out": {
           "type": "cumulative",
           "description": "Number of HTTP response bytes emitted by the compressor. Values reported for frontends and backends.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "comp_out"
-            }
-          ]
+          "default": false
         },
         "derive.comp_rsp": {
           "type": "cumulative",
           "description": "Number of HTTP responses that were compressed. Values reported for frontends and backends.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "comp_rsp"
-            }
-          ]
+          "default": false
         },
         "derive.compress_bps_in": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `CompressBpsIn` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "CompressBpsIn"
-            }
-          ]
+          "default": false
         },
         "derive.compress_bps_out": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `CompressBpsOut` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "CompressBpsOut"
-            }
-          ]
+          "default": false
         },
         "derive.connections": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `CumConns` value given by the `show info` cmd. Cumulative number of connections.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "CumConns"
-            }
-          ]
+          "default": false
         },
         "derive.denied_request": {
           "type": "cumulative",
           "description": "Number of requests denied because of security concerns. For tcp this is because of a matched tcp-request content rule. For http this is because of a matched http-request or tarpit rule. Values reported for listeners, frontends, and backends.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "dreq"
-            }
-          ]
+          "default": true
         },
         "derive.denied_response": {
           "type": "cumulative",
           "description": "Number of responses denied because of security concerns. For http this is because of a matched http-request rule, or \"option checkcache\". Values reported for listeners, frontends, backends, and servers.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "dresp"
-            }
-          ]
+          "default": true
         },
         "derive.downtime": {
           "type": "cumulative",
           "description": "Total downtime (in seconds). The value for the backend is the downtime for the whole backend, not the sum of the server downtime. Values reported for backends and servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "downtime"
-            }
-          ]
+          "default": false
         },
         "derive.error_connectiont": {
           "type": "cumulative",
           "description": "Number of requests that encountered an error trying to connect to a backend server. The backend stat is the sum of the stat for all servers of that backend, plus any connection errors not associated with a particular server (such as the backend having no active servers). Values reported for backends and servers.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "econ"
-            }
-          ]
+          "default": true
         },
         "derive.error_request": {
           "type": "cumulative",
           "description": "Number of request errors. Some of the possible causes are: early termination from the client, before the request has been sent, read error from the client, client timeout, client closed connection, various bad requests from the client, request was tarpitted. Values reported for listeners and frontends.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "ereq"
-            }
-          ]
+          "default": true
         },
         "derive.error_response": {
           "type": "cumulative",
           "description": "Number of response errors. srv_abrt will be counted here also. Some other errors are: write error on the client socket (won't be counted for the server stat), failure applying filters to the response. Values reported for backends and servers.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "eresp"
-            }
-          ]
+          "default": true
         },
         "derive.failed_checks": {
           "type": "cumulative",
           "description": "Number of failed checks. (Only counts checks failed when the server is up.). Values reported for servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "chkfail"
-            }
-          ]
+          "default": false
         },
         "derive.redispatched": {
           "type": "cumulative",
           "description": "Number of times a request was redispatched to another server. The server value counts the number of times that server was switched away from. Values reported for backends and servers.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "wredis"
-            }
-          ]
+          "default": true
         },
         "derive.request_total": {
           "type": "cumulative",
           "description": "Total number of HTTP requests received. Values reported for frontends and backends.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "req_tot"
-            }
-          ]
+          "default": false
         },
         "derive.requests": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `CumReq` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "CumReq"
-            }
-          ]
+          "default": true
         },
         "derive.response_1xx": {
           "type": "cumulative",
           "description": "HTTP responses with 1xx code. Values reported for frontends, backends, and servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "hrsp_1xx"
-            }
-          ]
+          "default": false
         },
         "derive.response_2xx": {
           "type": "cumulative",
           "description": "HTTP responses with 2xx code. Values reported for frontends, backends, and servers.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "hrsp_2xx"
-            }
-          ]
+          "default": true
         },
         "derive.response_3xx": {
           "type": "cumulative",
           "description": "HTTP responses with 3xx code. Values reported for frontends, backends, and servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "hrsp_3xx"
-            }
-          ]
+          "default": false
         },
         "derive.response_4xx": {
           "type": "cumulative",
           "description": "HTTP responses with 4xx code. Values reported for frontends, backends, and servers.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "hrsp_4xx"
-            }
-          ]
+          "default": true
         },
         "derive.response_5xx": {
           "type": "cumulative",
           "description": "HTTP responses with 5xx code. Values reported for frontends, backends, and servers.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "hrsp_5xx"
-            }
-          ]
+          "default": true
         },
         "derive.response_other": {
           "type": "cumulative",
           "description": "HTTP responses with other codes (protocol error). Values reported for frontends, backends, and servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "hrsp_other"
-            }
-          ]
+          "default": false
         },
         "derive.retries": {
           "type": "cumulative",
           "description": "Number of times a connection to a server was retried. Values reported for backends and servers.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "wretr"
-            }
-          ]
+          "default": true
         },
         "derive.session_total": {
           "type": "cumulative",
           "description": "The cumulative number of sessions. Values reported for listeners, frontends, backends, and servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "stot"
-            }
-          ]
+          "default": false
         },
         "derive.srv_abrt": {
           "type": "cumulative",
           "description": "Number of data transfers aborted by the server (inc. in eresp). Values reported for backends and servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "srv_abrt"
-            }
-          ]
+          "default": false
         },
         "derive.ssl_cache_lookups": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `SslCacheLookups` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "SslCacheLookups"
-            }
-          ]
+          "default": false
         },
         "derive.ssl_cache_misses": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `SslCacheMisses` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "SslCacheMisses"
-            }
-          ]
+          "default": false
         },
         "derive.ssl_connections": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `CumSslConns` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "CumSslConns"
-            }
-          ]
+          "default": false
         },
         "derive.uptime_seconds": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `Uptime_sec` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "Uptime_sec"
-            }
-          ]
+          "default": false
         },
         "gauge.active_servers": {
           "type": "gauge",
           "description": "Number of active servers (backend), server is active (server). Values reported for backends and servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "act"
-            }
-          ]
+          "default": false
         },
         "gauge.backup_servers": {
           "type": "gauge",
           "description": "Number of backup servers (backend), server is backup (server). Values reported for backends and servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "bck"
-            }
-          ]
+          "default": false
         },
         "gauge.check_duration": {
           "type": "gauge",
           "description": "Time in ms took to finish last health check. Values reported for servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "check_duration"
-            }
-          ]
+          "default": false
         },
         "gauge.connection_rate": {
           "type": "gauge",
           "description": "Number of connections over the last elapsed second. Values reported for frontends.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "conn_rate"
-            }
-          ]
+          "default": true
         },
         "gauge.connection_rate_max": {
           "type": "gauge",
           "description": "Highest known conn_rate. Values reported for frontends.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "conn_rate_max"
-            }
-          ]
+          "default": false
         },
         "gauge.current_connections": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `CurrConns` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "CurrConns"
-            }
-          ]
+          "default": false
         },
         "gauge.current_ssl_connections": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `CurrSslConns` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "CurrSslConns"
-            }
-          ]
+          "default": false
         },
         "gauge.denied_tcp_connections": {
           "type": "gauge",
           "description": "Requests denied by \"tcp-request connection\" rules. Values reported for listeners and frontends.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "dcon"
-            }
-          ]
+          "default": false
         },
         "gauge.denied_tcp_sessions": {
           "type": "gauge",
           "description": "Requests denied by \"tcp-request session\" rules. Values reported for listeners and frontends.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "dses"
-            }
-          ]
+          "default": false
         },
         "gauge.idle_pct": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `Idle_pct` value given by the `show info` cmd. Ratio of system polling time versus total time.",
           "group": "showInfoCmd",
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "Idle_pct"
-            }
-          ]
+          "default": true
         },
         "gauge.intercepted_requests": {
           "type": "gauge",
           "description": "Cumulative cum. number of intercepted requests (monitor, stats). Values reported for frontends and backends.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "intercepted"
-            }
-          ]
+          "default": false
         },
         "gauge.last_session": {
           "type": "gauge",
           "description": "Number of seconds since last session assigned to server/backend. Values reported for backends and servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "lastsess"
-            }
-          ]
+          "default": false
         },
         "gauge.max_connection_rate": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `MaxConnRate` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "MaxConnRate"
-            }
-          ]
+          "default": false
         },
         "gauge.max_connections": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `MaxConn` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "MaxConn"
-            }
-          ]
+          "default": false
         },
         "gauge.max_pipes": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `MaxPipes` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "MaxPipes"
-            }
-          ]
+          "default": false
         },
         "gauge.max_session_rate": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `MaxSessRate` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "MaxSessRate"
-            }
-          ]
+          "default": false
         },
         "gauge.max_ssl_connections": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `MaxSslConns` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "MaxSslConns"
-            }
-          ]
+          "default": false
         },
         "gauge.pipes_free": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `PipesFree` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "PipesFree"
-            }
-          ]
+          "default": false
         },
         "gauge.pipes_used": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `PipesUsed` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "PipesUsed"
-            }
-          ]
+          "default": false
         },
         "gauge.queue_current": {
           "type": "gauge",
           "description": "Number of current queued requests. For the backend this reports the number queued without a server assigned. Values reported for backends and servers.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "qcur"
-            }
-          ]
+          "default": true
         },
         "gauge.queue_limit": {
           "type": "gauge",
           "description": "Configured maxqueue for the server, or nothing in the value is 0 (default, meaning no limit). Values reported for servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "qlimit"
-            }
-          ]
+          "default": false
         },
         "gauge.queue_max": {
           "type": "gauge",
           "description": "The max value of qcur. Values reported for backends and servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "qmax"
-            }
-          ]
+          "default": false
         },
         "gauge.queue_time_avg": {
           "type": "gauge",
           "description": "The average queue time in ms over the 1024 last requests. Values reported for backends and servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "qtime"
-            }
-          ]
+          "default": false
         },
         "gauge.request_rate": {
           "type": "gauge",
           "description": "HTTP requests per second over last elapsed second. Values reported for frontends.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "req_rate"
-            }
-          ]
+          "default": true
         },
         "gauge.request_rate_max": {
           "type": "gauge",
           "description": "Max number of HTTP requests per second observed. Values reported for frontends.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "req_rate_max"
-            }
-          ]
+          "default": false
         },
         "gauge.response_time_avg": {
           "type": "gauge",
           "description": "The average response time in ms over the 1024 last requests (0 for TCP). Values reported for backends and servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "rtime"
-            }
-          ]
+          "default": false
         },
         "gauge.run_queue": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `Run_queue` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "Run_queue"
-            }
-          ]
+          "default": false
         },
         "gauge.session_current": {
           "type": "gauge",
           "description": "Number current sessions. Values reported for listeners, frontends, backends, and servers.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "scur"
-            }
-          ]
+          "default": true
         },
         "gauge.session_rate": {
           "type": "gauge",
           "description": "Number of sessions per second over last elapsed second. Values reported for frontends, backends, and servers.",
           "group": null,
-          "default": true,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "rate"
-            }
-          ]
+          "default": true
         },
         "gauge.session_rate_all": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `SessRate` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "SessRate"
-            }
-          ]
+          "default": false
         },
         "gauge.session_rate_limit": {
           "type": "gauge",
           "description": "Configured limit on new sessions per second. Values reported for frontends.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "rate_lim"
-            }
-          ]
+          "default": false
         },
         "gauge.session_rate_max": {
           "type": "gauge",
           "description": "Max number of new sessions per second. Values reported for frontends, backends, and servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "rate_max"
-            }
-          ]
+          "default": false
         },
         "gauge.session_time_average": {
           "type": "gauge",
           "description": "The average total session time in ms over the 1024 last requests. Values reported for backends and servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "ttime"
-            }
-          ]
+          "default": false
         },
         "gauge.ssl_backend_key_rate": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `SslBackendKeyRate` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "SslBackendKeyRate"
-            }
-          ]
+          "default": false
         },
         "gauge.ssl_frontend_key_rate": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `SslFrontendKeyRate` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "SslFrontendKeyRate"
-            }
-          ]
+          "default": false
         },
         "gauge.ssl_rate": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `SslRate` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "SslRate"
-            }
-          ]
+          "default": false
         },
         "gauge.tasks": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `Tasks` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "Tasks"
-            }
-          ]
+          "default": false
         },
         "gauge.throttle": {
           "type": "gauge",
           "description": "Current throttle percentage for the server, when slowstart is active, or no value if not in slowstart. Values reported for servers.",
           "group": null,
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "throttle"
-            }
-          ]
+          "default": false
         },
         "gauge.zlib_mem_usage": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `ZlibMemUsage` value given by the `show info` cmd.",
           "group": "showInfoCmd",
-          "default": false,
-          "properties": [
-            {
-              "key": "originMetric",
-              "val": "ZlibMemUsage"
-            }
-          ]
+          "default": false
         }
       },
       "properties": null,

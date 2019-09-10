@@ -23,8 +23,3 @@ type Config struct {
 	// If empty then metrics of all proxies will be reported.
 	ProxiesToMonitor []string `yaml:"proxiesToMonitor"`
 }
-
-// GetMonitorType is a ConfigInterface method implementation for getting the monitor type.
-func (c *Config) GetMonitorType() string {
-	return monitorType
-}

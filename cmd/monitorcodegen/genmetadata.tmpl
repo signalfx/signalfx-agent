@@ -69,42 +69,6 @@ var {{"groupMetricsMap" | formatVariable}} = map[string][]string {
 {{- end}}
 }
 
-{{- $keys := newStringSlice -}}
-{{- $values := newStringSlice -}}
-{{- range $metric, $info := .metrics}}
-    {{- range $info.MetricProperties}}
-        {{- $keys = appendString $keys .Key -}}
-        {{- $values = appendString $values .Val -}}
-    {{- end}}
-{{- end}}
-{{if gt (len $keys) 0 -}}
-// Metric properties keys.
-const (
-{{- range $key := uniqueStrings $keys}}
-    {{$key | formatVariable}}Key = "{{$key}}"
-{{- end}}
-)
-// Metric properties values.
-const (
-{{- range $value := uniqueStrings $values}}
-    {{$value | formatVariable}}Value = "{{$value}}"
-{{- end}}
-)
-{{with .metrics}}
-var {{"metricProperties" | formatVariable}} = map[string]map[string]string {
-    {{- range $metric, $info := .}}
-        {{- if $info.MetricProperties}}
-            {{$metric | formatVariable}}: {
-                {{- range $info.MetricProperties}}
-                    {{.Key | formatVariable}}Key: {{.Val | formatVariable}}Value,
-                {{- end}}
-            },
-        {{- end}}
-    {{- end}}
-}
-{{end}}
-{{end}}
-
 {{range .monitors}}
 var {{if gt (len $.monitors) 1 -}}
 {{- (printf "%s.%s" .MonitorType "monitorMetadata") | formatVariable -}}

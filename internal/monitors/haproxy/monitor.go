@@ -3,7 +3,6 @@ package haproxy
 import (
 	"context"
 	"net/url"
-	"strings"
 
 	"github.com/signalfx/golib/datapoint"
 	logger "github.com/sirupsen/logrus"
@@ -22,19 +21,14 @@ func init() {
 
 // Monitor for Prometheus server metrics Exporter
 type Monitor struct {
-	Output             types.Output
-	cancel             context.CancelFunc
-	ctx                context.Context
-	sfxMetricsByOrigin map[string]string
+	Output types.Output
+	cancel context.CancelFunc
+	ctx    context.Context
 }
 
 // Configure the haproxy monitor
 func (m *Monitor) Configure(conf *Config) (err error) {
 	m.ctx, m.cancel = context.WithCancel(context.Background())
-	m.sfxMetricsByOrigin = map[string]string{}
-	for sfxMetric, originMetric := range metricProperties {
-		m.sfxMetricsByOrigin[originMetric[originMetricKey]] = strings.TrimSpace(sfxMetric)
-	}
 	proxiesToMonitor := map[string]bool{}
 	for _, proxy := range conf.ProxiesToMonitor {
 		proxiesToMonitor[proxy] = true
@@ -67,7 +61,7 @@ func (m *Monitor) getDatapoints(conf *Config, proxiesToMonitor map[string]bool) 
 			logger.Errorf("can't scrape HAProxy: %v", err)
 			return nil
 		}
-		return newStatPageDatapoints(body, m.sfxMetricsByOrigin, proxiesToMonitor)
+		return newStatPageDatapoints(body, proxiesToMonitor)
 	case "unix":
 		showStatBody, err := commandReader(u, "show stat\n", conf.Timeout)
 		if err != nil {
@@ -78,7 +72,7 @@ func (m *Monitor) getDatapoints(conf *Config, proxiesToMonitor map[string]bool) 
 			logger.Errorf("can't scrape HAProxy: %v", err)
 			return nil
 		}
-		return append(newShowStatCommandDatapoints(showStatBody, m.sfxMetricsByOrigin, proxiesToMonitor), newShowInfoCommandDatapoints(showInfoBody, m.sfxMetricsByOrigin)...)
+		return append(newShowStatCommandDatapoints(showStatBody, proxiesToMonitor), newShowInfoCommandDatapoints(showInfoBody)...)
 	default:
 		logger.Errorf("unsupported scheme: %q", u.Scheme)
 		return nil

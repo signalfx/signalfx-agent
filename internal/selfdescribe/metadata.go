@@ -11,24 +11,13 @@ import (
 
 const monitorMetadataFile = "metadata.yaml"
 
-type metricProperty struct {
-	Key string `json:"key,omitempty" yaml:"key,omitempty"`
-	Val string `json:"val,omitempty" yaml:"val,omitempty"`
-}
-
-type dimension struct {
-	Key string `json:"key,omitempty" yaml:"key,omitempty"`
-	Val string `json:"val,omitempty" yaml:"val,omitempty"`
-}
-
 // MetricMetadata contains a metric's metadata.
 type MetricMetadata struct {
-	Alias            string           `json:"alias,omitempty"`
-	Type             string           `json:"type"`
-	Description      string           `json:"description"`
-	Group            *string          `json:"group"`
-	Default          bool             `json:"default" default:"false"`
-	MetricProperties []metricProperty `json:"properties,omitempty" yaml:"properties,omitempty"`
+	Alias       string  `json:"alias,omitempty"`
+	Type        string  `json:"type"`
+	Description string  `json:"description"`
+	Group       *string `json:"group"`
+	Default     bool    `json:"default" default:"false"`
 }
 
 // PropMetadata contains a property's metadata.

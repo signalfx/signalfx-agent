@@ -54,62 +54,38 @@ monitors:
         description: 'Number of current queued requests. For the backend this reports the number queued without
         a server assigned. Values reported for backends and servers.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: qcur
       gauge.queue_max:
         default: false
         description: The max value of qcur. Values reported for backends and servers.
         type: gauge
-        properties:
-          - key: originMetric
-            val: qmax
       gauge.session_current:
         default: true
         description: 'Number current sessions. Values reported for listeners, frontends, backends, and servers.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: scur
       derive.session_total:
         default: false
         description: 'The cumulative number of sessions. Values reported for listeners, frontends, backends, and servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: stot
       derive.bytes_in:
         default: true
         description: 'Total number of incoming bytes. Values reported for listeners, frontends, backends, and servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: bin
       derive.bytes_out:
         default: true
         description: 'Total number of outgoing bytes. Values reported for listeners, frontends, backends, and servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: bout
       derive.denied_request:
         default: true
         description: 'Number of requests denied because of security concerns. For tcp this is because of a
         matched tcp-request content rule. For http this is because of a matched http-request or tarpit rule.
         Values reported for listeners, frontends, and backends.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: dreq
       derive.denied_response:
         default: true
         description: 'Number of responses denied because of security concerns. For http this is because of a
         matched http-request rule, or "option checkcache". Values reported for listeners, frontends, backends, and
         servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: dresp
       derive.error_request:
         default: true
         description: 'Number of request errors. Some of the possible causes are: early termination from the
@@ -117,9 +93,6 @@ monitors:
         connection, various bad requests from the client, request was tarpitted. Values reported for listeners and
         frontends.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: ereq
       derive.error_connectiont:
         default: true
         description: 'Number of requests that encountered an error trying to connect to a backend server.
@@ -127,491 +100,296 @@ monitors:
         associated with a particular server (such as the backend having no active servers). Values reported for
         backends and servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: econ
       derive.error_response:
         default: true
         description: "Number of response errors. srv_abrt will be counted here also. Some other errors are:
         write error on the client socket (won't be counted for the server stat), failure applying filters to the
         response. Values reported for backends and servers."
         type: cumulative
-        properties:
-          - key: originMetric
-            val: eresp
       derive.retries:
         default: true
         description: 'Number of times a connection to a server was retried. Values reported for backends and servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: wretr
       derive.redispatched:
         default: true
         description: 'Number of times a request was redispatched to another server. The server value counts the number
         of times that server was switched away from. Values reported for backends and servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: wredis
       gauge.active_servers:
         default: false
         description: 'Number of active servers (backend), server is active (server). Values reported for backends
         and servers.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: act
       gauge.backup_servers:
         default: false
         description: 'Number of backup servers (backend), server is backup (server). Values reported for backends
         and servers.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: bck
       derive.failed_checks:
         default: false
         description: 'Number of failed checks. (Only counts checks failed when the server is up.). Values reported
         for servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: chkfail
       derive.downtime:
         default: false
         description: 'Total downtime (in seconds). The value for the backend is the downtime for the whole backend,
         not the sum of the server downtime. Values reported for backends and servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: downtime
       gauge.queue_limit:
         default: false
         description: 'Configured maxqueue for the server, or nothing in the value is 0 (default, meaning no limit).
         Values reported for servers.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: qlimit
       gauge.throttle:
         default: false
         description: 'Current throttle percentage for the server, when slowstart is active, or no value if not in
         slowstart. Values reported for servers.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: throttle
       counter.server_selected_total:
         default: true
         description: 'Total number of times a server was selected, either for new sessions, or when re-dispatching.
         The server counter is the number of times that server was selected. Values reported for backends and
         servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: lbtot
       gauge.session_rate:
         default: true
         description: 'Number of sessions per second over last elapsed second. Values reported for frontends, backends,
         and servers.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: rate
       gauge.session_rate_limit:
         default: false
         description: 'Configured limit on new sessions per second. Values reported for frontends.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: rate_lim
       gauge.session_rate_max:
         default: false
         description: 'Max number of new sessions per second. Values reported for frontends, backends, and servers.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: rate_max
       gauge.check_duration:
         default: false
         description: 'Time in ms took to finish last health check. Values reported for servers.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: check_duration
       derive.response_1xx:
         default: false
         description: 'HTTP responses with 1xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: hrsp_1xx
       derive.response_2xx:
         default: true
         description: 'HTTP responses with 2xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: hrsp_2xx
       derive.response_3xx:
         default: false
         description: 'HTTP responses with 3xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: hrsp_3xx
       derive.response_4xx:
         default: true
         description: 'HTTP responses with 4xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: hrsp_4xx
       derive.response_5xx:
         default: true
         description: 'HTTP responses with 5xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: hrsp_5xx
       derive.response_other:
         default: false
         description: 'HTTP responses with other codes (protocol error). Values reported for frontends, backends, and servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: hrsp_other
       gauge.request_rate:
         default: true
         description: 'HTTP requests per second over last elapsed second. Values reported for frontends.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: req_rate
       gauge.request_rate_max:
         default: false
         description: 'Max number of HTTP requests per second observed. Values reported for frontends.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: req_rate_max
       derive.request_total:
         default: false
         description: 'Total number of HTTP requests received. Values reported for frontends and backends.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: req_tot
       derive.cli_abrt:
         default: false
         description: 'Number of data transfers aborted by the client. Values reported for backends and servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: cli_abrt
       derive.srv_abrt:
         default: false
         description: 'Number of data transfers aborted by the server (inc. in eresp). Values reported for backends and servers.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: srv_abrt
       derive.comp_in:
         default: false
         description: 'Number of HTTP response bytes fed to the compressor. Values reported for frontends and backends.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: comp_in
       derive.comp_out:
         default: false
         description: 'Number of HTTP response bytes emitted by the compressor. Values reported for frontends and backends.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: comp_out
       derive.comp_byp:
         default: false
         description: 'Number of bytes that bypassed the HTTP compressor (CPU/BW limit). Values reported for frontends and backends.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: comp_byp
       derive.comp_rsp:
         default: false
         description: 'Number of HTTP responses that were compressed. Values reported for frontends and backends.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: comp_rsp
       gauge.last_session:
         default: false
         description: 'Number of seconds since last session assigned to server/backend. Values reported for backends and servers.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: lastsess
       gauge.queue_time_avg:
         default: false
         description: 'The average queue time in ms over the 1024 last requests. Values reported for backends and servers.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: qtime
       gauge.response_time_avg:
         default: false
         description: 'The average response time in ms over the 1024 last requests (0 for TCP). Values reported for backends and servers.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: rtime
       gauge.session_time_average:
         default: false
         description: 'The average total session time in ms over the 1024 last requests. Values reported for backends and servers.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: ttime
       gauge.connection_rate:
         default: true
         description: 'Number of connections over the last elapsed second. Values reported for frontends.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: conn_rate
       gauge.connection_rate_max:
         default: false
         description: 'Highest known conn_rate. Values reported for frontends.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: conn_rate_max
       counter.connection_total:
         default: false
         description: 'Cumulative number of connections. Values reported for frontends.'
         type: cumulative
-        properties:
-          - key: originMetric
-            val: conn_tot
       gauge.intercepted_requests:
         default: false
         description: 'Cumulative cum. number of intercepted requests (monitor, stats). Values reported for frontends and backends.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: intercepted
       gauge.denied_tcp_connections:
         default: false
         description: 'Requests denied by "tcp-request connection" rules. Values reported for listeners and frontends.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: dcon
       gauge.denied_tcp_sessions:
         default: false
         description: 'Requests denied by "tcp-request session" rules. Values reported for listeners and frontends.'
         type: gauge
-        properties:
-          - key: originMetric
-            val: dses
       derive.compress_bps_in:
         description: Corresponds to the current HAProxy process `CompressBpsIn` value given by the `show info` cmd.
         default: false
         type: cumulative
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: CompressBpsIn
       derive.compress_bps_out:
         description: Corresponds to the current HAProxy process `CompressBpsOut` value given by the `show info` cmd.
         default: false
         type: cumulative
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: CompressBpsOut
       derive.connections:
         description: Corresponds to the current HAProxy process `CumConns` value given by the `show info` cmd. Cumulative number of connections.
         default: false
         type: cumulative
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: CumConns
       derive.requests:
         description: Corresponds to the current HAProxy process `CumReq` value given by the `show info` cmd.
         default: true
         type: cumulative
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: CumReq
       derive.ssl_cache_lookups:
         description: Corresponds to the current HAProxy process `SslCacheLookups` value given by the `show info` cmd.
         default: false
         type: cumulative
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: SslCacheLookups
       derive.ssl_cache_misses:
         description: Corresponds to the current HAProxy process `SslCacheMisses` value given by the `show info` cmd.
         default: false
         type: cumulative
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: SslCacheMisses
       derive.ssl_connections:
         description: Corresponds to the current HAProxy process `CumSslConns` value given by the `show info` cmd.
         default: false
         type: cumulative
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: CumSslConns
       derive.uptime_seconds:
         description: Corresponds to the current HAProxy process `Uptime_sec` value given by the `show info` cmd.
         default: false
         type: cumulative
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: Uptime_sec
       gauge.current_connections:
         description: Corresponds to the current HAProxy process `CurrConns` value given by the `show info` cmd.
         default: false
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: CurrConns
       gauge.current_ssl_connections:
         description: Corresponds to the current HAProxy process `CurrSslConns` value given by the `show info` cmd.
         default: false
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: CurrSslConns
       gauge.idle_pct:
         description: Corresponds to the current HAProxy process `Idle_pct` value given by the `show info` cmd. Ratio of system polling time versus total time.
         default: true
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: Idle_pct
       gauge.max_connection_rate:
         description: Corresponds to the current HAProxy process `MaxConnRate` value given by the `show info` cmd.
         default: false
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: MaxConnRate
       gauge.max_connections:
         description: Corresponds to the current HAProxy process `MaxConn` value given by the `show info` cmd.
         default: false
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: MaxConn
       gauge.max_pipes:
         description: Corresponds to the current HAProxy process `MaxPipes` value given by the `show info` cmd.
         default: false
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: MaxPipes
       gauge.max_session_rate:
         description: Corresponds to the current HAProxy process `MaxSessRate` value given by the `show info` cmd.
         default: false
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: MaxSessRate
       gauge.max_ssl_connections:
         description: Corresponds to the current HAProxy process `MaxSslConns` value given by the `show info` cmd.
         default: false
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: MaxSslConns
       gauge.pipes_free:
         description: Corresponds to the current HAProxy process `PipesFree` value given by the `show info` cmd.
         default: false
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: PipesFree
       gauge.pipes_used:
         description: Corresponds to the current HAProxy process `PipesUsed` value given by the `show info` cmd.
         default: false
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: PipesUsed
       gauge.run_queue:
         description: Corresponds to the current HAProxy process `Run_queue` value given by the `show info` cmd.
         default: false
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: Run_queue
       gauge.session_rate_all:
         description: Corresponds to the current HAProxy process `SessRate` value given by the `show info` cmd.
         default: false
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: SessRate
       gauge.ssl_backend_key_rate:
         description: Corresponds to the current HAProxy process `SslBackendKeyRate` value given by the `show info` cmd.
         default: false
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: SslBackendKeyRate
       gauge.ssl_frontend_key_rate:
         description: Corresponds to the current HAProxy process `SslFrontendKeyRate` value given by the `show info` cmd.
         default: false
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: SslFrontendKeyRate
       gauge.ssl_rate:
         description: Corresponds to the current HAProxy process `SslRate` value given by the `show info` cmd.
         default: false
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: SslRate
       gauge.tasks:
         description: Corresponds to the current HAProxy process `Tasks` value given by the `show info` cmd.
         default: false
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: Tasks
       gauge.zlib_mem_usage:
         description: Corresponds to the current HAProxy process `ZlibMemUsage` value given by the `show info` cmd.
         default: false
         type: gauge
         group: showInfoCmd
-        properties:
-          - key: originMetric
-            val: ZlibMemUsage
