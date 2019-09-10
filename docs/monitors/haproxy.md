@@ -10,9 +10,9 @@ Monitor Type: `haproxy` ([Source](https://github.com/signalfx/signalfx-agent/tre
 
 ## Overview
 
-This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics from an HTTP endpoint or a UNIX socket.
-It requires HAProxy 1.8+ and supports running HAProxy in multi-process mode where the HAProxy process each
-metric pertains to is indicated by the metric dimension `process_num`.
+This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics (i.e. metrics) from a configured stats
+HTTP endpoint or UNIX socket. It requires HAProxy 1.8+ and supports running HAProxy in multi-process mode where
+the HAProxy process each metric pertains to is indicated by the metric dimension `process_num`.
 
 <!--- SETUP --->
 ### HTTP Endpoint Config
@@ -29,9 +29,9 @@ monitors:
     password: "your password here"
 ...
 ```
-Note: The HAProxy process level stats given by the [show info](https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.3-show%20info) command
-are not available at the HTTP endpoint. Scrape stats from the UNIX socket instead to include the `show info`
-command metrics.
+Note: Only stats pertaining to the configured proxies (i.e. listeners, frontends, backends, and servers)
+are available from an HTTP endpoint. HAProxy process level stats given by command [show info](https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.3-show%20info)
+are not available. The `show info` stats can only be scraped from a configured stats UNIX socket.
 
 ### UNIX Socket Config
 The location of the HAProxy socket file is defined in the HAProxy config file, as in the following example:
@@ -135,9 +135,9 @@ Metrics that are categorized as
  - `gauge.session_time_average` (*gauge*)<br>    The average total session time in ms over the 1024 last requests. Values reported for backends and servers.
  - `gauge.throttle` (*gauge*)<br>    Current throttle percentage for the server, when slowstart is active, or no value if not in slowstart. Values reported for servers.
 
-#### Group showInfoCmd
-All of the following metrics are part of the `showInfoCmd` metric group. All of
-the non-default metrics below can be turned on by adding `showInfoCmd` to the
+#### Group UnixSocketOnly
+All of the following metrics are part of the `UnixSocketOnly` metric group. All of
+the non-default metrics below can be turned on by adding `UnixSocketOnly` to the
 monitor config option `extraGroups`:
  - `derive.compress_bps_in` (*cumulative*)<br>    Corresponds to the current HAProxy process `CompressBpsIn` value given by the `show info` cmd.
  - `derive.compress_bps_out` (*cumulative*)<br>    Corresponds to the current HAProxy process `CompressBpsOut` value given by the `show info` cmd.

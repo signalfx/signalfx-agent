@@ -1,9 +1,9 @@
 monitors:
   - monitorType: haproxy
     doc: |
-      This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics from an HTTP endpoint or a UNIX socket.
-      It requires HAProxy 1.8+ and supports running HAProxy in multi-process mode where the HAProxy process each
-      metric pertains to is indicated by the metric dimension `process_num`.
+      This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics (i.e. metrics) from a configured stats
+      HTTP endpoint or UNIX socket. It requires HAProxy 1.8+ and supports running HAProxy in multi-process mode where
+      the HAProxy process each metric pertains to is indicated by the metric dimension `process_num`.
 
       <!--- SETUP --->
       ### HTTP Endpoint Config
@@ -20,9 +20,9 @@ monitors:
           password: "your password here"
       ...
       ```
-      Note: The HAProxy process level stats given by the [show info](https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.3-show%20info) command
-      are not available at the HTTP endpoint. Scrape stats from the UNIX socket instead to include the `show info`
-      command metrics.
+      Note: Only stats pertaining to the configured proxies (i.e. listeners, frontends, backends, and servers)
+      are available from an HTTP endpoint. HAProxy process level stats given by command [show info](https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.3-show%20info)
+      are not available. The `show info` stats can only be scraped from a configured stats UNIX socket.
 
       ### UNIX Socket Config
       The location of the HAProxy socket file is defined in the HAProxy config file, as in the following example:
@@ -272,124 +272,124 @@ monitors:
         description: Corresponds to the current HAProxy process `CompressBpsIn` value given by the `show info` cmd.
         default: false
         type: cumulative
-        group: showInfoCmd
+        group: UnixSocketOnly
       derive.compress_bps_out:
         description: Corresponds to the current HAProxy process `CompressBpsOut` value given by the `show info` cmd.
         default: false
         type: cumulative
-        group: showInfoCmd
+        group: UnixSocketOnly
       derive.connections:
         description: Corresponds to the current HAProxy process `CumConns` value given by the `show info` cmd. Cumulative number of connections.
         default: false
         type: cumulative
-        group: showInfoCmd
+        group: UnixSocketOnly
       derive.requests:
         description: Corresponds to the current HAProxy process `CumReq` value given by the `show info` cmd.
         default: true
         type: cumulative
-        group: showInfoCmd
+        group: UnixSocketOnly
       derive.ssl_cache_lookups:
         description: Corresponds to the current HAProxy process `SslCacheLookups` value given by the `show info` cmd.
         default: false
         type: cumulative
-        group: showInfoCmd
+        group: UnixSocketOnly
       derive.ssl_cache_misses:
         description: Corresponds to the current HAProxy process `SslCacheMisses` value given by the `show info` cmd.
         default: false
         type: cumulative
-        group: showInfoCmd
+        group: UnixSocketOnly
       derive.ssl_connections:
         description: Corresponds to the current HAProxy process `CumSslConns` value given by the `show info` cmd.
         default: false
         type: cumulative
-        group: showInfoCmd
+        group: UnixSocketOnly
       derive.uptime_seconds:
         description: Corresponds to the current HAProxy process `Uptime_sec` value given by the `show info` cmd.
         default: false
         type: cumulative
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.current_connections:
         description: Corresponds to the current HAProxy process `CurrConns` value given by the `show info` cmd.
         default: false
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.current_ssl_connections:
         description: Corresponds to the current HAProxy process `CurrSslConns` value given by the `show info` cmd.
         default: false
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.idle_pct:
         description: Corresponds to the current HAProxy process `Idle_pct` value given by the `show info` cmd. Ratio of system polling time versus total time.
         default: true
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.max_connection_rate:
         description: Corresponds to the current HAProxy process `MaxConnRate` value given by the `show info` cmd.
         default: false
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.max_connections:
         description: Corresponds to the current HAProxy process `MaxConn` value given by the `show info` cmd.
         default: false
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.max_pipes:
         description: Corresponds to the current HAProxy process `MaxPipes` value given by the `show info` cmd.
         default: false
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.max_session_rate:
         description: Corresponds to the current HAProxy process `MaxSessRate` value given by the `show info` cmd.
         default: false
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.max_ssl_connections:
         description: Corresponds to the current HAProxy process `MaxSslConns` value given by the `show info` cmd.
         default: false
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.pipes_free:
         description: Corresponds to the current HAProxy process `PipesFree` value given by the `show info` cmd.
         default: false
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.pipes_used:
         description: Corresponds to the current HAProxy process `PipesUsed` value given by the `show info` cmd.
         default: false
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.run_queue:
         description: Corresponds to the current HAProxy process `Run_queue` value given by the `show info` cmd.
         default: false
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.session_rate_all:
         description: Corresponds to the current HAProxy process `SessRate` value given by the `show info` cmd.
         default: false
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.ssl_backend_key_rate:
         description: Corresponds to the current HAProxy process `SslBackendKeyRate` value given by the `show info` cmd.
         default: false
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.ssl_frontend_key_rate:
         description: Corresponds to the current HAProxy process `SslFrontendKeyRate` value given by the `show info` cmd.
         default: false
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.ssl_rate:
         description: Corresponds to the current HAProxy process `SslRate` value given by the `show info` cmd.
         default: false
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.tasks:
         description: Corresponds to the current HAProxy process `Tasks` value given by the `show info` cmd.
         default: false
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly
       gauge.zlib_mem_usage:
         description: Corresponds to the current HAProxy process `ZlibMemUsage` value given by the `show info` cmd.
         default: false
         type: gauge
-        group: showInfoCmd
+        group: UnixSocketOnly

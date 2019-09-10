@@ -23535,7 +23535,7 @@
           "description": "HAProxy configured service name. Possible values are FRONTEND for frontend, BACKEND for backend, configured name for server/listener."
         }
       },
-      "doc": "This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics from an HTTP endpoint or a UNIX socket.\nIt requires HAProxy 1.8+ and supports running HAProxy in multi-process mode where the HAProxy process each\nmetric pertains to is indicated by the metric dimension `process_num`.\n\n\u003c!--- SETUP ---\u003e\n### HTTP Endpoint Config\nHAProxy stats must be enabled as described [here](https://www.haproxy.com/blog/exploring-the-haproxy-stats-page/).\nDefine the HAProxy monitor in the agent configuration file and provide the `csv export` URL where HAProxy\nstats are served in CSV format. This monitor supports basic HTTP authentication. Simply provide the\nusername and password if required as shown below:\n```\n...\nmonitors:\n  - type: haproxy\n    url: \"http://localhost:8404/stats?stats;csv\"\n    username: \"your username here\"\n    password: \"your password here\"\n...\n```\nNote: The HAProxy process level stats given by the [show info](https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.3-show%20info) command\nare not available at the HTTP endpoint. Scrape stats from the UNIX socket instead to include the `show info`\ncommand metrics.\n\n### UNIX Socket Config\nThe location of the HAProxy socket file is defined in the HAProxy config file, as in the following example:\n```\nglobal\n    daemon\n    stats socket /var/run/haproxy.sock\n    stats timeout 2m\n```\nFor the given location of the socket file, configure the HAProxy monitor URL as shown below:\n```\n...\nmonitors:\n  - type: haproxy\n    url: \"unix:/var/run/haproxy.sock\"\n...\n```\nNote: The agent process needs read/write permissions to the HAProxy socket file.\n",
+      "doc": "This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics (i.e. metrics) from a configured stats\nHTTP endpoint or UNIX socket. It requires HAProxy 1.8+ and supports running HAProxy in multi-process mode where\nthe HAProxy process each metric pertains to is indicated by the metric dimension `process_num`.\n\n\u003c!--- SETUP ---\u003e\n### HTTP Endpoint Config\nHAProxy stats must be enabled as described [here](https://www.haproxy.com/blog/exploring-the-haproxy-stats-page/).\nDefine the HAProxy monitor in the agent configuration file and provide the `csv export` URL where HAProxy\nstats are served in CSV format. This monitor supports basic HTTP authentication. Simply provide the\nusername and password if required as shown below:\n```\n...\nmonitors:\n  - type: haproxy\n    url: \"http://localhost:8404/stats?stats;csv\"\n    username: \"your username here\"\n    password: \"your password here\"\n...\n```\nNote: Only stats pertaining to the configured proxies (i.e. listeners, frontends, backends, and servers)\nare available from an HTTP endpoint. HAProxy process level stats given by command [show info](https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.3-show%20info)\nare not available. The `show info` stats can only be scraped from a configured stats UNIX socket.\n\n### UNIX Socket Config\nThe location of the HAProxy socket file is defined in the HAProxy config file, as in the following example:\n```\nglobal\n    daemon\n    stats socket /var/run/haproxy.sock\n    stats timeout 2m\n```\nFor the given location of the socket file, configure the HAProxy monitor URL as shown below:\n```\n...\nmonitors:\n  - type: haproxy\n    url: \"unix:/var/run/haproxy.sock\"\n...\n```\nNote: The agent process needs read/write permissions to the HAProxy socket file.\n",
       "groups": {
         "": {
           "description": "",
@@ -23591,7 +23591,7 @@
             "gauge.throttle"
           ]
         },
-        "showInfoCmd": {
+        "UnixSocketOnly": {
           "description": "",
           "metrics": [
             "derive.compress_bps_in",
@@ -23680,19 +23680,19 @@
         "derive.compress_bps_in": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `CompressBpsIn` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "derive.compress_bps_out": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `CompressBpsOut` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "derive.connections": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `CumConns` value given by the `show info` cmd. Cumulative number of connections.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "derive.denied_request": {
@@ -23752,7 +23752,7 @@
         "derive.requests": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `CumReq` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": true
         },
         "derive.response_1xx": {
@@ -23812,25 +23812,25 @@
         "derive.ssl_cache_lookups": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `SslCacheLookups` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "derive.ssl_cache_misses": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `SslCacheMisses` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "derive.ssl_connections": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `CumSslConns` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "derive.uptime_seconds": {
           "type": "cumulative",
           "description": "Corresponds to the current HAProxy process `Uptime_sec` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "gauge.active_servers": {
@@ -23866,13 +23866,13 @@
         "gauge.current_connections": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `CurrConns` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "gauge.current_ssl_connections": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `CurrSslConns` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "gauge.denied_tcp_connections": {
@@ -23890,7 +23890,7 @@
         "gauge.idle_pct": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `Idle_pct` value given by the `show info` cmd. Ratio of system polling time versus total time.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": true
         },
         "gauge.intercepted_requests": {
@@ -23908,43 +23908,43 @@
         "gauge.max_connection_rate": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `MaxConnRate` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "gauge.max_connections": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `MaxConn` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "gauge.max_pipes": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `MaxPipes` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "gauge.max_session_rate": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `MaxSessRate` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "gauge.max_ssl_connections": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `MaxSslConns` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "gauge.pipes_free": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `PipesFree` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "gauge.pipes_used": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `PipesUsed` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "gauge.queue_current": {
@@ -23992,7 +23992,7 @@
         "gauge.run_queue": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `Run_queue` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "gauge.session_current": {
@@ -24010,7 +24010,7 @@
         "gauge.session_rate_all": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `SessRate` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "gauge.session_rate_limit": {
@@ -24034,25 +24034,25 @@
         "gauge.ssl_backend_key_rate": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `SslBackendKeyRate` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "gauge.ssl_frontend_key_rate": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `SslFrontendKeyRate` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "gauge.ssl_rate": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `SslRate` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "gauge.tasks": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `Tasks` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         },
         "gauge.throttle": {
@@ -24064,7 +24064,7 @@
         "gauge.zlib_mem_usage": {
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `ZlibMemUsage` value given by the `show info` cmd.",
-          "group": "showInfoCmd",
+          "group": "UnixSocketOnly",
           "default": false
         }
       },
