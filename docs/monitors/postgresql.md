@@ -31,7 +31,7 @@ to larger than the number of distinct queries on the server.
 
 Here is a [sample configuration of Postgres to enable statement tracking](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631).
 
-Tested with PostgreSQL 9.2+.
+Tested with PostgreSQL `9.2+`.
 
 If you want to collect additional metrics about PostgreSQL, use the [sql monitor](./sql.md).
 
