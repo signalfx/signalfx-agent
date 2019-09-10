@@ -3,6 +3,7 @@ FROM ubuntu:18.04
 WORKDIR /root
 
 # install dependencies
+RUN sed -i -e 's|^deb http://.*\.ubuntu.com/ubuntu/\?|deb mirror://mirrors.ubuntu.com/mirrors.txt|' /etc/apt/sources.list
 RUN apt-get update \
     && apt-get install -y \
     curl \

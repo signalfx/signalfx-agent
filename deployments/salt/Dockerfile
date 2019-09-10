@@ -5,6 +5,7 @@
 FROM ubuntu:16.04
 
 # Update System
+RUN sed -i -e 's|^deb http://.*\.ubuntu.com/ubuntu/\?|deb mirror://mirrors.ubuntu.com/mirrors.txt|' /etc/apt/sources.list
 RUN apt-get update && apt-get upgrade -y -o DPkg::Options::=--force-confold
 
 

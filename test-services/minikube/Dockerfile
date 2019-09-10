@@ -19,6 +19,7 @@
 FROM ubuntu:16.04
 # Install minikube dependencies
 ENV DEBIAN_FRONTEND=noninteractive
+RUN sed -i -e 's|^deb http://.*\.ubuntu.com/ubuntu/\?|deb mirror://mirrors.ubuntu.com/mirrors.txt|' /etc/apt/sources.list
 RUN apt-get update -y && \
     apt-get -yy -q --no-install-recommends install \
     apt-transport-https \
