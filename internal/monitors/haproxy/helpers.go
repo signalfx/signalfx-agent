@@ -21,7 +21,7 @@ import (
 func newStatPageDatapoints(body io.ReadCloser, sfxMetricNames map[string]string, proxiesToMonitor map[string]bool) []*datapoint.Datapoint {
 	dps := make([]*datapoint.Datapoint, 0)
 	for _, metricValuePairs := range statsPageMetricValuePairs(body) {
-		if len(proxiesToMonitor) != 0 && (proxiesToMonitor[metricValuePairs["pxname"]] || proxiesToMonitor[metricValuePairs["svname"]]) {
+		if len(proxiesToMonitor) != 0 && !proxiesToMonitor[metricValuePairs["pxname"]] && !proxiesToMonitor[metricValuePairs["svname"]] {
 			continue
 		}
 		for metric, value := range metricValuePairs {
