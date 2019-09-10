@@ -29,6 +29,13 @@ type Config struct {
 
 	Host string `yaml:"host"`
 	Port uint16 `yaml:"port"`
+	// The "master" database to which the agent first connects to query the
+	// list of databases available in the server.  This database should be
+	// accessible to the user specified with `connectionString` and `params`
+	// below, and that user should have permission to query `pg_database`.  If
+	// you want to filter which databases are monitored, use the `databases`
+	// option below.
+	MasterDBName string `yaml:"masterDBName" default:"postgres"`
 
 	// See
 	// https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters.
@@ -82,7 +89,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		return fmt.Errorf("could not render connectionString template: %v", err)
 	}
 
-	m.database, err = dbsql.Open("postgres", connStr+" dbname=postgres")
+	m.database, err = dbsql.Open("postgres", connStr+" dbname="+m.conf.MasterDBName)
 	if err != nil {
 		return err
 	}
@@ -211,7 +218,7 @@ func (m *Monitor) monitorServer() (*sql.Monitor, error) {
 
 	return sqlMon, sqlMon.Configure(&sql.Config{
 		MonitorConfig:    m.conf.MonitorConfig,
-		ConnectionString: connStr + " dbname=postgres",
+		ConnectionString: connStr + " dbname=" + m.conf.MasterDBName,
 		DBDriver:         "postgres",
 		Queries:          defaultServerQueries,
 	})
