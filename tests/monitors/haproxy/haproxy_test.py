@@ -1,82 +1,103 @@
 from functools import partial as p
 
 import pytest
-import requests
+
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_datapoint, tcp_socket_open
+from tests.helpers.assertions import datapoints_have_some_or_all_dims, has_log_message
 from tests.helpers.metadata import Metadata
-from tests.helpers.util import container_ip, run_service, wait_for, wait_for_assertion
+from tests.helpers.util import container_ip, run_service, ensure_always
 from tests.helpers.verify import verify
 
-pytestmark = [pytest.mark.collectd, pytest.mark.haproxy, pytest.mark.monitor_with_endpoints]
+pytestmark = [pytest.mark.haproxy, pytest.mark.monitor_with_endpoints]
 
-METADATA = Metadata.from_package("collectd/haproxy")
+METADATA = Metadata.from_package("haproxy")
 
 EXPECTED_DEFAULTS = METADATA.default_metrics
 
 
 @pytest.mark.parametrize("version", ["1.9"])
-def test_haproxy_basic(version):
+def test_haproxy_default_metrics_from_stats_page(version):
     with run_service("haproxy", buildargs={"HAPROXY_VERSION": version}) as service_container:
         host = container_ip(service_container)
-        assert wait_for(p(tcp_socket_open, host, 9000)), "haproxy not listening on port"
-
         with Agent.run(
             f"""
            monitors:
-           - type: collectd/haproxy
-             host: {host}
-             port: 9000
-             enhancedMetrics: false
+           - type: haproxy
+             url: http://{host}:8080/stats?stats;csv
            """
         ) as agent:
-            requests.get(f"http://{host}:80", timeout=5)
-            requests.get(f"http://{host}:80", timeout=5)
-            verify(agent, EXPECTED_DEFAULTS, 10)
+            verify(agent, EXPECTED_DEFAULTS - METADATA.metrics_by_group["showInfoCmd"], 10)
+            assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
-def test_haproxy_extra_metrics_enables_enhanced_metrics():
-    with run_service("haproxy", buildargs={"HAPROXY_VERSION": "1.9"}) as service_container:
+@pytest.mark.parametrize("version", ["1.9"])
+def test_haproxy_default_metrics_from_stats_page_proxies_to_monitor_frontend_200s(version):
+    with run_service("haproxy", buildargs={"HAPROXY_VERSION": version}) as service_container:
         host = container_ip(service_container)
-        assert wait_for(p(tcp_socket_open, host, 9000)), "haproxy not listening on port"
-
         with Agent.run(
             f"""
            monitors:
-           - type: collectd/haproxy
-             host: {host}
-             port: 9000
-             extraMetrics:
-              - gauge.tasks
+           - type: haproxy
+             url: http://{host}:8080/stats?stats;csv
+             proxiesToMonitor: ["FRONTEND", "200s"]
            """
         ) as agent:
-            target_metric = "gauge.tasks"
-            assert target_metric in METADATA.nondefault_metrics
+            assert ensure_always(
+                p(
+                    datapoints_have_some_or_all_dims,
+                    agent.fake_services,
+                    {"proxy_name": "200s", "service_name": "FRONTEND"},
+                ),
+                10,
+            )
+            assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
-            def test():
-                assert has_datapoint(agent.fake_services, metric_name=target_metric)
 
-            wait_for_assertion(test)
-
-
-def test_haproxy_enhanced_metrics_enables_filter_passthrough():
-    with run_service("haproxy", buildargs={"HAPROXY_VERSION": "1.9"}) as service_container:
+@pytest.mark.parametrize("version", ["1.9"])
+def test_haproxy_default_metrics_from_stats_page_basic_auth(version):
+    with run_service("haproxy", buildargs={"HAPROXY_VERSION": version}) as service_container:
         host = container_ip(service_container)
-        assert wait_for(p(tcp_socket_open, host, 9000)), "haproxy not listening on port"
-
         with Agent.run(
             f"""
            monitors:
-           - type: collectd/haproxy
-             host: {host}
-             port: 9000
-             enhancedMetrics: true
+           - type: haproxy
+             username: a_username
+             password: a_password
+             url: http://{host}:8081/stats?stats;csv
+             proxiesToMonitor: ["FRONTEND", "200s"]
            """
         ) as agent:
-            target_metric = "gauge.tasks"
-            assert target_metric in METADATA.nondefault_metrics
+            assert ensure_always(
+                p(
+                    datapoints_have_some_or_all_dims,
+                    agent.fake_services,
+                    {"proxy_name": "200s", "service_name": "FRONTEND"},
+                ),
+                10,
+            )
+            assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
-            def test():
-                assert has_datapoint(agent.fake_services, metric_name=target_metric)
 
-            wait_for_assertion(test)
+@pytest.mark.parametrize("version", ["1.9"])
+def test_haproxy_default_metrics_from_stats_page_basic_auth_wrong_password(version):
+    with run_service("haproxy", buildargs={"HAPROXY_VERSION": version}) as service_container:
+        host = container_ip(service_container)
+        with Agent.run(
+            f"""
+           monitors:
+           - type: haproxy
+             username: a_username
+             password: a_wrong_password
+             url: http://{host}:8081/stats?stats;csv
+             proxiesToMonitor: ["FRONTEND", "200s"]
+           """
+        ) as agent:
+            assert ensure_always(
+                p(
+                    datapoints_have_some_or_all_dims,
+                    agent.fake_services,
+                    {"proxy_name": "200s", "service_name": "FRONTEND"},
+                ),
+                10,
+            )
+            assert has_log_message(agent.output.lower(), "error"), "error found in agent output!"
