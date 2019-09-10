@@ -3,6 +3,7 @@ FROM ubuntu:18.04
 WORKDIR /root
 
 # install dependencies
+RUN sed -i 's|^deb http://.*\.\?archive\.ubuntu.com|deb http://us.archive.ubuntu.com|' /etc/apt/sources.list
 RUN apt-get update \
     && apt-get install -y \
     curl \

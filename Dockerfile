@@ -3,6 +3,7 @@ ARG GO_VERSION=1.12.1
 ###### Agent Build Image ########
 FROM ubuntu:16.04 as agent-builder
 
+RUN sed -i 's|^deb http://.*\.\?archive\.ubuntu.com|deb http://us.archive.ubuntu.com|' /etc/apt/sources.list
 RUN apt update &&\
     apt install -y curl wget pkg-config parallel
 
@@ -45,6 +46,7 @@ ARG PYTHON_VERSION=2.7.16
 
 ENV DEBIAN_FRONTEND noninteractive
 
+RUN sed -i 's|^deb http://.*\.\?archive\.ubuntu.com|deb http://us.archive.ubuntu.com|' /etc/apt/sources.list
 RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
     apt-get update &&\
     apt-get install -y \
@@ -260,6 +262,7 @@ FROM ubuntu:16.04 as extra-packages
 
 ARG TARGET_ARCH
 
+RUN sed -i 's|^deb http://.*\.\?archive\.ubuntu.com|deb http://us.archive.ubuntu.com|' /etc/apt/sources.list
 RUN apt update &&\
     apt install -y \
 	  curl \
@@ -390,6 +393,7 @@ FROM ubuntu:18.04 as dev-extras
 
 ARG TARGET_ARCH
 
+RUN sed -i 's|^deb http://.*\.\?archive\.ubuntu.com|deb http://us.archive.ubuntu.com|' /etc/apt/sources.list
 RUN apt update &&\
     apt install -y \
       curl \
@@ -465,6 +469,7 @@ RUN /bundle/bin/patch-interpreter /bundle
 ####### Pandoc Converter ########
 FROM ubuntu:16.04 as pandoc-converter
 
+RUN sed -i 's|^deb http://.*\.\?archive\.ubuntu.com|deb http://us.archive.ubuntu.com|' /etc/apt/sources.list
 RUN apt update &&\
     apt install -y pandoc
 

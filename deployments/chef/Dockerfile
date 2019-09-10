@@ -1,5 +1,6 @@
 FROM ubuntu:16.04
 
+RUN sed -i 's|^deb http://.*\.\?archive\.ubuntu.com|deb http://us.archive.ubuntu.com|' /etc/apt/sources.list
 RUN apt update &&\
     apt install -y wget vim apt-transport-https
 

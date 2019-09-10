@@ -5,6 +5,7 @@
 FROM ubuntu:16.04
 
 # Update System
+RUN sed -i 's|^deb http://.*\.\?archive\.ubuntu.com|deb http://us.archive.ubuntu.com|' /etc/apt/sources.list
 RUN apt-get update && apt-get upgrade -y -o DPkg::Options::=--force-confold
 
 

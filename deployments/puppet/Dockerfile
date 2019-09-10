@@ -3,6 +3,7 @@ FROM ubuntu:16.04
 ENV PATH=$PATH:/opt/puppetlabs/bin:/opt/puppetlabs/pdk/bin
 
 WORKDIR /tmp
+RUN sed -i 's|^deb http://.*\.\?archive\.ubuntu.com|deb http://us.archive.ubuntu.com|' /etc/apt/sources.list
 RUN apt update &&\
     apt install -y make wget vim gcc ruby ruby-dev libxml2 libxml2-dev libxslt1-dev git &&\
 	wget https://apt.puppetlabs.com/puppet5-release-xenial.deb &&\

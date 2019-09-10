@@ -3,6 +3,7 @@ FROM ubuntu:16.04
 ENV JMX_PORT=7099
 EXPOSE 7099
 
+RUN sed -i 's|^deb http://.*\.\?archive\.ubuntu.com|deb http://us.archive.ubuntu.com|' /etc/apt/sources.list
 RUN apt-get update
 RUN apt-get install -y wget
 RUN apt-get install -y default-jre
