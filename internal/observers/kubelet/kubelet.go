@@ -14,6 +14,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/observers"
+	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
 // phase is the pod's phase
@@ -25,9 +26,9 @@ const (
 	runningPhase phase = "Running"
 )
 
-// OBSERVER(k8s-kubelet): Discovers service endpoints running on the same node
-// as the agent by querying the local kubelet instance.  It is generally
-// recommended to use the [k8s-api](./k8s-api.md) observer because
+// OBSERVER(k8s-kubelet): **DEPRECATED** Discovers service endpoints running on
+// the same node as the agent by querying the local kubelet instance.  It is
+// generally recommended to use the [k8s-api](./k8s-api.md) observer because
 // authentication to the local kubelet can be more difficult to setup, and also
 // the kubelet API is technically not documented for public consumption, so
 // this observer may break more easily in future K8s versions.
@@ -208,53 +209,81 @@ func (k *Observer) discover() []services.Endpoint {
 			continue
 		}
 
+		dims := map[string]string{
+			"kubernetes_pod_name":  pod.Metadata.Name,
+			"kubernetes_pod_uid":   pod.Metadata.UID,
+			"kubernetes_namespace": pod.Metadata.Namespace,
+		}
+
+		orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, services.PRIVATE)
+
 		for _, container := range pod.Spec.Containers {
-			dims := map[string]string{
-				"container_spec_name":  container.Name,
-				"kubernetes_pod_name":  pod.Metadata.Name,
-				"kubernetes_pod_uid":   pod.Metadata.UID,
-				"kubernetes_namespace": pod.Metadata.Namespace,
+			var containerState string
+			var containerID string
+			var containerName string
+
+			containerDims := utils.MergeStringMaps(dims, map[string]string{
+				"container_spec_name": container.Name,
+			})
+
+			for _, status := range pod.Status.ContainerStatuses {
+				if container.Name != status.Name {
+					continue
+				}
+
+				if _, ok := status.State["running"]; !ok {
+					// Container is not running.
+					continue
+				}
+
+				containerState = "running"
+				containerID = status.ContainerID
+				containerName = status.Name
 			}
-			orchestration := services.NewOrchestration("kubernetes", services.KUBERNETES, services.PRIVATE)
+
+			if containerState != "running" {
+				continue
+			}
+
+			endpointContainer := &services.Container{
+				ID:      containerID,
+				Names:   []string{containerName},
+				Image:   container.Image,
+				Command: "",
+				State:   containerState,
+				Labels:  pod.Metadata.Labels,
+			}
 
 			for _, port := range container.Ports {
-				for _, status := range pod.Status.ContainerStatuses {
-					// Could possibly be made more efficient by creating maps
-					// keyed by name to match up container status and ports.
-					if container.Name != status.Name {
-						continue
-					}
+				id := fmt.Sprintf("%s-%s-%d", pod.Metadata.Name, pod.Metadata.UID[:7], port.ContainerPort)
 
-					containerState := "running"
-					if _, ok := status.State[containerState]; !ok {
-						// Container is not running.
-						continue
-					}
+				endpoint := services.NewEndpointCore(id, port.Name, observerType, containerDims)
+				endpoint.Host = podIP
+				endpoint.PortType = port.Protocol
+				endpoint.Port = port.ContainerPort
+				endpoint.Target = services.TargetTypeHostPort
 
-					id := fmt.Sprintf("%s-%s-%d", pod.Metadata.Name, pod.Metadata.UID[:7], port.ContainerPort)
-
-					endpoint := services.NewEndpointCore(id, port.Name, observerType, dims)
-					endpoint.Host = podIP
-					endpoint.PortType = port.Protocol
-					endpoint.Port = port.ContainerPort
-
-					container := &services.Container{
-						ID:      status.ContainerID,
-						Names:   []string{status.Name},
-						Image:   container.Image,
-						Command: "",
-						State:   containerState,
-						Labels:  pod.Metadata.Labels,
-					}
-					instances = append(instances, &services.ContainerEndpoint{
-						EndpointCore:  *endpoint,
-						AltPort:       0,
-						Container:     *container,
-						Orchestration: *orchestration,
-					})
-				}
+				instances = append(instances, &services.ContainerEndpoint{
+					EndpointCore:  *endpoint,
+					AltPort:       0,
+					Container:     *endpointContainer,
+					Orchestration: *orchestration,
+				})
 			}
 		}
+
+		// No ports were declared. Create an endpoint with no port that can later be user-defined.
+		id := fmt.Sprintf("%s-%s-portless", pod.Metadata.Name, pod.Metadata.UID[:7])
+		endpoint := services.NewEndpointCore(id, "", observerType, dims)
+		endpoint.Host = podIP
+		endpoint.PortType = services.UNKNOWN
+		endpoint.Port = 0
+		endpoint.Target = services.TargetTypePod
+		instances = append(instances, &services.ContainerEndpoint{
+			EndpointCore:  *endpoint,
+			AltPort:       0,
+			Orchestration: *orchestration,
+		})
 	}
 
 	return instances

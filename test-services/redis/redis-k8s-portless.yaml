@@ -1,0 +1,26 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-portless-only
+  labels:
+    app: redis-portless
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis-portless
+  template:
+    metadata:
+      labels:
+        app: redis-portless
+    spec:
+      containers:
+        - name: redis
+          image: redis:latest
+          readinessProbe:
+            tcpSocket:
+              port: 6379
+            initialDelaySeconds: 5
+            periodSeconds: 5
+            timeoutSeconds: 5

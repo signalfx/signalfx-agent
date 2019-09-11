@@ -40,7 +40,6 @@ var _ = Describe("Kubernetes Observer", func() {
 		// automatically by k8s in containers running in a real k8s env
 		os.Setenv("KUBERNETES_SERVICE_HOST", K8sURL.Hostname())
 		os.Setenv("KUBERNETES_SERVICE_PORT", K8sURL.Port())
-
 	})
 
 	startObserver := func() {
@@ -63,6 +62,48 @@ var _ = Describe("Kubernetes Observer", func() {
 	AfterEach(func() {
 		observer.Shutdown()
 		fakeK8s.Close()
+	})
+
+	It("Makes a port-less pod endpoint", func() {
+		fakeK8s.SetInitialList([]runtime.Object{
+			&v1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "test1",
+					UID:  "abcdefghij",
+				},
+				Status: v1.PodStatus{
+					Phase: v1.PodRunning,
+					PodIP: "10.0.4.3",
+					ContainerStatuses: []v1.ContainerStatus{
+						{
+							Name:         "container1",
+							RestartCount: 5,
+							State: v1.ContainerState{
+								Running: &v1.ContainerStateRunning{},
+							},
+						},
+					},
+				},
+				Spec: v1.PodSpec{
+					Containers: []v1.Container{
+						{
+							Name: "container1",
+						},
+					},
+				},
+			},
+		})
+
+		startObserver()
+
+		Eventually(func() int { return len(endpoints) }).Should(Equal(1))
+		Expect(endpoints["test1-abcdefg-pod"].Core().Host).To(Equal("10.0.4.3"))
+		Expect(endpoints["test1-abcdefg-pod"].Core().Port).To(Equal(uint16(0)))
+		Expect(endpoints["test1-abcdefg-pod"].Core().DerivedFields()["pod_spec"].(*v1.PodSpec).Containers[0].Name).To(Equal("container1"))
 	})
 
 	It("Converts a pod to a set of endpoints", func() {
@@ -107,7 +148,9 @@ var _ = Describe("Kubernetes Observer", func() {
 
 		startObserver()
 
-		Eventually(func() int { return len(endpoints) }).Should(Equal(1))
+		Eventually(func() int { return len(endpoints) }).Should(Equal(2))
+		Expect(endpoints["test1-abcdefg-pod"].Core().Host).To(Equal("10.0.4.3"))
+		Expect(endpoints["test1-abcdefg-pod"].Core().Port).To(Equal(uint16(0)))
 		Expect(endpoints["test1-abcdefg-80"].Core().Host).To(Equal("10.0.4.3"))
 		Expect(endpoints["test1-abcdefg-80"].Core().Port).To(Equal(uint16(80)))
 	})
@@ -189,7 +232,7 @@ var _ = Describe("Kubernetes Observer", func() {
 
 		startObserver()
 
-		Eventually(func() int { return len(endpoints) }).Should(Equal(2))
+		Eventually(func() int { return len(endpoints) }).Should(Equal(3))
 		Expect(endpoints["test1-abcdefg-443"].Core().MonitorType).To(Equal(""))
 		Expect(endpoints["test1-abcdefg-443"].Core().Configuration["myVar"]).To(Equal("abcde"))
 		Expect(endpoints["test1-abcdefg-80"].Core().MonitorType).To(Equal("mongo"))

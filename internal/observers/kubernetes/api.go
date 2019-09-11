@@ -58,6 +58,15 @@ const (
 // DIMENSION(container_spec_name): The short name of the container in the pod spec,
 // **NOT** the running container's name in the Docker engine
 
+// ENDPOINT_VAR(kubernetes_annotations): The set of annotations on the
+// discovered pod.
+
+// ENDPOINT_VAR(pod_spec): The full pod spec object, as represented by the Go
+// K8s client library (client-go): https://godoc.org/k8s.io/api/core/v1#PodSpec.
+
+// ENDPOINT_VAR(pod_metadata): The full pod metadata object, as represented by the Go
+// K8s client library (client-go): https://godoc.org/k8s.io/apimachinery/pkg/apis/meta/v1#ObjectMeta.
+
 func init() {
 	observers.Register(observerType, func(cbs *observers.ServiceCallbacks) interface{} {
 		return &Observer{
@@ -231,13 +240,24 @@ func (o *Observer) endpointsInPod(pod *v1.Pod, client *k8s.Clientset, portAnnota
 		"kubernetes_namespace": pod.Namespace,
 	}
 
+	makeBaseEndpoint := func(idSuffix string, name string) *services.EndpointCore {
+		id := fmt.Sprintf("%s-%s-%s", pod.Name, pod.UID[:7], idSuffix)
+
+		endpoint := services.NewEndpointCore(id, name, observerType, podDims)
+
+		endpoint.Host = podIP
+
+		endpoint.AddExtraField("kubernetes_annotations", pod.Annotations)
+		endpoint.AddExtraField("pod_metadata", &pod.ObjectMeta)
+		endpoint.AddExtraField("pod_spec", &pod.Spec)
+
+		return endpoint
+	}
+
 	for _, container := range pod.Spec.Containers {
 		var containerState string
 		var containerID string
 		var containerName string
-
-		dims := utils.CloneStringMap(podDims)
-		dims["container_spec_name"] = container.Name
 
 		for _, status := range pod.Status.ContainerStatuses {
 			if container.Name != status.Name {
@@ -256,12 +276,21 @@ func (o *Observer) endpointsInPod(pod *v1.Pod, client *k8s.Clientset, portAnnota
 			continue
 		}
 
+		endpointContainer := &services.Container{
+			ID:      containerID,
+			Names:   []string{containerName},
+			Image:   container.Image,
+			Command: "",
+			State:   containerState,
+			Labels:  pod.Labels,
+		}
+
 		for _, port := range container.Ports {
 			portsSeen[port.ContainerPort] = true
 
-			id := fmt.Sprintf("%s-%s-%d", pod.Name, pod.UID[:7], port.ContainerPort)
+			endpoint := makeBaseEndpoint(fmt.Sprintf("%d", port.ContainerPort), port.Name)
 
-			endpoint := services.NewEndpointCore(id, port.Name, observerType, dims)
+			endpoint.AddDimension("container_spec_name", container.Name)
 
 			portAnnotations := annotationConfs.FilterByPortOrPortName(port.ContainerPort, port.Name)
 			monitorType, extraConf, err := configFromAnnotations(container.Name, portAnnotations, pod, client)
@@ -274,42 +303,28 @@ func (o *Observer) endpointsInPod(pod *v1.Pod, client *k8s.Clientset, portAnnota
 				endpoint.MonitorType = monitorType
 			}
 
-			endpoint.Host = podIP
 			endpoint.PortType = services.PortType(port.Protocol)
 			endpoint.Port = uint16(port.ContainerPort)
-
-			container := &services.Container{
-				ID:      containerID,
-				Names:   []string{containerName},
-				Image:   container.Image,
-				Command: "",
-				State:   containerState,
-				Labels:  pod.Labels,
-			}
-
-			endpoint.AddExtraField("kubernetes_annotations", pod.Annotations)
+			endpoint.Target = services.TargetTypeHostPort
 
 			endpoints = append(endpoints, &services.ContainerEndpoint{
 				EndpointCore:  *endpoint,
 				AltPort:       0,
-				Container:     *container,
+				Container:     *endpointContainer,
 				Orchestration: *orchestration,
 			})
 		}
 	}
 
-	annotationConfsByPort := annotationConfs.GroupByPortNumber()
-
 	// Cover all non-declared ports that were specified in annotations
-	for portNum, acs := range annotationConfsByPort {
+	for portNum, acs := range annotationConfs.GroupByPortNumber() {
 		if portsSeen[portNum] {
 			// This would have been handled in the above loop.
 			continue
 		}
 
-		id := fmt.Sprintf("%s-%s-%d", pod.Name, pod.UID[:7], portNum)
+		endpoint := makeBaseEndpoint(fmt.Sprintf("%d", portNum), "")
 
-		endpoint := services.NewEndpointCore(id, "", observerType, podDims)
 		monitorType, extraConf, err := configFromAnnotations("", acs, pod, client)
 		if err != nil {
 			log.WithFields(log.Fields{
@@ -319,10 +334,9 @@ func (o *Observer) endpointsInPod(pod *v1.Pod, client *k8s.Clientset, portAnnota
 			endpoint.Configuration = extraConf
 			endpoint.MonitorType = monitorType
 		}
-		endpoint.Host = podIP
 		endpoint.PortType = services.UNKNOWN
 		endpoint.Port = uint16(portNum)
-		endpoint.AddExtraField("kubernetes_annotations", pod.Annotations)
+		endpoint.Target = services.TargetTypeHostPort
 
 		endpoints = append(endpoints, &services.ContainerEndpoint{
 			EndpointCore:  *endpoint,
@@ -330,6 +344,11 @@ func (o *Observer) endpointsInPod(pod *v1.Pod, client *k8s.Clientset, portAnnota
 			Orchestration: *orchestration,
 		})
 	}
+
+	// Create a "port-less" endpoint for the entire pod
+	endpoint := makeBaseEndpoint("pod", pod.Name)
+	endpoints = append(endpoints, NewPodEndpoint(endpoint, orchestration))
+
 	return endpoints
 }
 

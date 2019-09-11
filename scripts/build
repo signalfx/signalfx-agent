@@ -27,7 +27,7 @@ then
   tar -C $tmpdir -zcf $output_tar.gz .
 fi
 
-if [[ "${PUSH_DOCKER_IMAGE-}" = "yes" ]]
+if [[ "${PUSH-}" = "yes" ]]
 then
     docker push ${AGENT_IMAGE_NAME}:${AGENT_VERSION}
 fi

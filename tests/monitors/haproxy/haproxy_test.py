@@ -1,11 +1,10 @@
 from functools import partial as p
 
 import pytest
-
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import datapoints_have_some_or_all_dims, has_log_message, any_metric_found
+from tests.helpers.assertions import any_metric_found, datapoints_have_some_or_all_dims, has_log_message
 from tests.helpers.metadata import Metadata
-from tests.helpers.util import container_ip, run_service, ensure_always
+from tests.helpers.util import container_ip, ensure_always, run_service
 from tests.helpers.verify import verify
 
 pytestmark = [pytest.mark.haproxy, pytest.mark.monitor_with_endpoints]
@@ -34,7 +33,6 @@ def test_haproxy_default_metrics_from_stats_page(version):
            """
         ) as agent:
             verify(agent, EXPECTED_DEFAULTS - EXPECTED_DEFAULTS_FROM_SOCKET, 10)
-            assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
 @pytest.mark.parametrize("version", ["1.8"])
@@ -50,7 +48,6 @@ def test_haproxy_default_metrics_from_stats_page_by_discovery_rule(version):
            """
         ) as agent:
             verify(agent, EXPECTED_DEFAULTS - EXPECTED_DEFAULTS_FROM_SOCKET, 10)
-            assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
 @pytest.mark.parametrize("version", ["1.8"])
@@ -67,7 +64,6 @@ def test_haproxy_default_and_status_metrics_from_stats_page(version):
            """
         ) as agent:
             verify(agent, (EXPECTED_DEFAULTS | {status_metric}) - EXPECTED_DEFAULTS_FROM_SOCKET, 10)
-            assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
 @pytest.mark.parametrize("version", ["1.8"])
@@ -90,7 +86,6 @@ def test_haproxy_default_metrics_from_stats_page_proxies_to_monitor_frontend_200
                 ),
                 10,
             )
-            assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
             assert any_metric_found(agent.fake_services, ["haproxy_response_2xx"])
 
 
@@ -116,7 +111,6 @@ def test_haproxy_default_metrics_from_stats_page_basic_auth(version):
                 ),
                 10,
             )
-            assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
             assert any_metric_found(agent.fake_services, ["haproxy_response_2xx"])
 
 

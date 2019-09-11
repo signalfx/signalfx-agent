@@ -89,3 +89,35 @@ def test_k8s_annotations_with_alt_ports(k8s_cluster):
         """
         with k8s_cluster.run_agent(config) as agent:
             assert wait_for(p(has_datapoint, agent.fake_services, metric_name="consul_runtime_malloc_count"))
+
+
+@pytest.mark.kubernetes
+def test_k8s_portless_pod(k8s_cluster):
+    with k8s_cluster.create_resources([TEST_SERVICES_DIR / "redis" / "redis-k8s-portless.yaml"]):
+        config = """
+            observers:
+            - type: k8s-api
+
+            monitors:
+            - type: collectd/redis
+              discoveryRule: target == "pod" && kubernetes_pod_name =~ "redis-portless-only"
+              port: 6379
+         """
+        with k8s_cluster.run_agent(config) as agent:
+            assert wait_for(p(has_datapoint, agent.fake_services, metric_name="bytes.used_memory_rss"))
+
+
+@pytest.mark.kubernetes
+def test_k8s_portless_pods_with_declared_port(k8s_cluster):
+    with k8s_cluster.create_resources([TEST_SERVICES_DIR / "redis" / "redis-k8s.yaml"]):
+        config = """
+            observers:
+            - type: k8s-api
+
+            monitors:
+            - type: collectd/redis
+              discoveryRule: target == "pod" && kubernetes_pod_name =~ "redis-deployment"
+              port: 6379
+         """
+        with k8s_cluster.run_agent(config) as agent:
+            assert wait_for(p(has_datapoint, agent.fake_services, metric_name="bytes.used_memory_rss"))

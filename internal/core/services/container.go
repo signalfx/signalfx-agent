@@ -20,7 +20,10 @@ type Container struct {
 	State string `yaml:"container_state"`
 	// A map that contains container label key/value pairs. You can use the
 	// `Contains` and `Get` helper functions in discovery rules to make use of
-	// this. See [Endpoint Discovery](../auto-discovery.md#additional-functions).
+	// this. See [Endpoint
+	// Discovery](../auto-discovery.md#additional-functions). For containers
+	// managed by Kubernetes, this will be set to the pod's labels, as
+	// individual containers do not have labels in Kubernetes proper.
 	Labels map[string]string `yaml:"container_labels"`
 }
 

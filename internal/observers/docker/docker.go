@@ -232,15 +232,6 @@ func (docker *Docker) endpointsForContainer(cont *dtypes.ContainerJSON) []servic
 	instances := make([]services.Endpoint, 0)
 
 	if cont.State.Running && !cont.State.Paused {
-		serviceContainer := &services.Container{
-			ID:      cont.ID,
-			Names:   []string{cont.Name},
-			Image:   cont.Config.Image,
-			Command: strings.Join(cont.Config.Cmd, " "),
-			State:   cont.State.Status,
-			Labels:  cont.Config.Labels,
-		}
-
 		labelConfigs := GetConfigLabels(cont.Config.Labels)
 		knownPorts := map[ContPort]bool{}
 
@@ -253,8 +244,7 @@ func (docker *Docker) endpointsForContainer(cont *dtypes.ContainerJSON) []servic
 		}
 
 		for portObj := range knownPorts {
-
-			endpoint := docker.endpointForPort(portObj, cont, serviceContainer)
+			endpoint := docker.endpointForPort(portObj, cont)
 
 			// the endpoint was not set, so we'll drop it
 			if endpoint == nil {
@@ -268,26 +258,25 @@ func (docker *Docker) endpointsForContainer(cont *dtypes.ContainerJSON) []servic
 
 			instances = append(instances, endpoint)
 		}
+
+		// Add an "port-less" endpoint that identifies the container in
+		// general.
+		containerEndpoint := docker.makeBaseEndpointForContainer(cont, "portless", strings.TrimLeft(cont.Name, "/"))
+		containerEndpoint.Target = services.TargetTypeContainer
+		instances = append(instances, containerEndpoint)
 	}
 
 	return instances
 }
 
-func (docker *Docker) endpointForPort(portObj ContPort, cont *dtypes.ContainerJSON, serviceContainer *services.Container) *services.ContainerEndpoint {
-	port := portObj.Int()
-	protocol := portObj.Proto()
-
-	mappedPort, mappedIP := dockercommon.FindHostMappedPort(cont, portObj.Port)
-
-	// if IgnoreNonHostBindings is set to true and there isn't a host binding
-	// return nil to skip this endpoint
-	if docker.config.IgnoreNonHostBindings && mappedPort == 0 && mappedIP == "" {
-		return nil
-	}
-
-	id := serviceContainer.PrimaryName() + "-" + cont.ID[:12] + "-" + strconv.Itoa(port)
-	if portObj.Name != "" {
-		id += "-" + portObj.Name
+func (docker *Docker) makeBaseEndpointForContainer(cont *dtypes.ContainerJSON, idSuffix, name string) *services.ContainerEndpoint {
+	serviceContainer := &services.Container{
+		ID:      cont.ID,
+		Names:   []string{cont.Name},
+		Image:   cont.Config.Image,
+		Command: strings.Join(cont.Config.Cmd, " "),
+		State:   cont.State.Status,
+		Labels:  cont.Config.Labels,
 	}
 
 	orchDims := map[string]string{}
@@ -297,8 +286,9 @@ func (docker *Docker) endpointForPort(portObj ContPort, cont *dtypes.ContainerJS
 		}
 	}
 
+	id := serviceContainer.PrimaryName() + "-" + serviceContainer.ID[:12] + "-" + idSuffix
 	endpoint := &services.ContainerEndpoint{
-		EndpointCore:  *services.NewEndpointCore(id, portObj.Name, observerType, orchDims),
+		EndpointCore:  *services.NewEndpointCore(id, name, observerType, orchDims),
 		Container:     *serviceContainer,
 		Orchestration: *services.NewOrchestration("docker", services.DOCKER, services.PRIVATE),
 	}
@@ -312,9 +302,38 @@ func (docker *Docker) endpointForPort(portObj ContPort, cont *dtypes.ContainerJS
 			endpoint.Host = n.IPAddress
 			break
 		}
+
+		// If we still haven't gotten a host at this point and we are using
+		// host bindings, just make it localhost.
+		if endpoint.Host == "" && docker.config.UseHostBindings {
+			endpoint.Host = "127.0.0.1"
+		}
 	}
 
+	return endpoint
+}
+
+func (docker *Docker) endpointForPort(portObj ContPort, cont *dtypes.ContainerJSON) *services.ContainerEndpoint {
+	port := portObj.Int()
+	protocol := portObj.Proto()
+
+	mappedPort, mappedIP := dockercommon.FindHostMappedPort(cont, portObj.Port)
+
+	// if IgnoreNonHostBindings is set to true and there isn't a host binding
+	// return nil to skip this endpoint
+	if docker.config.IgnoreNonHostBindings && mappedPort == 0 && mappedIP == "" {
+		return nil
+	}
+
+	idSuffix := strconv.Itoa(port)
+	if portObj.Name != "" {
+		idSuffix += "-" + portObj.Name
+	}
+
+	endpoint := docker.makeBaseEndpointForContainer(cont, idSuffix, portObj.Name)
+
 	endpoint.PortType = services.PortType(strings.ToUpper(protocol))
+	endpoint.Target = services.TargetTypeHostPort
 
 	if docker.config.UseHostBindings && mappedPort != 0 && mappedIP != "" {
 		endpoint.Orchestration.PortPref = services.PUBLIC

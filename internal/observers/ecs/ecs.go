@@ -198,26 +198,17 @@ func (o *ECS) discover() []services.Endpoint {
 	var out []services.Endpoint
 
 	for i := range metadata.Containers {
-		endpoints := o.endpointsForContainer(metadata.Containers[i], metadata.GetDimensions())
+		endpoints := o.endpointsForContainer(&metadata.Containers[i], metadata.GetDimensions())
 		out = append(out, endpoints...)
 	}
 
 	return out
 }
 
-func (o *ECS) endpointsForContainer(cont ecs.Container, taskDimensions map[string]string) []services.Endpoint {
+func (o *ECS) endpointsForContainer(cont *ecs.Container, taskDims map[string]string) []services.Endpoint {
 	instances := make([]services.Endpoint, 0)
 
 	if cont.KnownStatus == "RUNNING" {
-		hostIP := cont.Networks[0].IPAddresses[0]
-		serviceContainer := &services.Container{
-			ID:     cont.DockerID,
-			Names:  []string{cont.Name},
-			Image:  cont.Image,
-			State:  cont.KnownStatus,
-			Labels: cont.Labels,
-		}
-
 		labelConfigs := docker.GetConfigLabels(cont.Labels)
 		knownPorts := map[docker.ContPort]bool{}
 
@@ -226,9 +217,8 @@ func (o *ECS) endpointsForContainer(cont ecs.Container, taskDimensions map[strin
 		}
 
 		for portObj := range knownPorts {
-			endpoint := o.endpointForPort(portObj, serviceContainer, taskDimensions)
+			endpoint := o.endpointForPort(portObj, cont, taskDims)
 
-			endpoint.Host = hostIP
 			if labelConf := labelConfigs[portObj]; labelConf != nil {
 				endpoint.MonitorType = labelConf.MonitorType
 				endpoint.Configuration = labelConf.Configuration
@@ -236,38 +226,68 @@ func (o *ECS) endpointsForContainer(cont ecs.Container, taskDimensions map[strin
 
 			instances = append(instances, endpoint)
 		}
+
+		// Add an "port-less" endpoint that identifies the container in
+		// general.
+		containerEndpoint := o.makeBaseEndpointForContainer(
+			cont,
+			"portless",
+			strings.TrimLeft(cont.Name, "/"),
+			taskDims)
+		containerEndpoint.Target = services.TargetTypeContainer
+		instances = append(instances, containerEndpoint)
 	}
 
 	return instances
 }
 
-func (o *ECS) endpointForPort(portObj docker.ContPort, serviceContainer *services.Container, taskDimensions map[string]string) *services.ContainerEndpoint {
-	port := portObj.Int()
-	protocol := portObj.Proto()
-	id := serviceContainer.PrimaryName() + "-" + serviceContainer.ID[:12] + "-" + strconv.Itoa(port)
-	if portObj.Name != "" {
-		id += "-" + portObj.Name
+func (o *ECS) makeBaseEndpointForContainer(cont *ecs.Container, idSuffix, name string, taskDims map[string]string) *services.ContainerEndpoint {
+	hostIP := cont.Networks[0].IPAddresses[0]
+
+	serviceContainer := &services.Container{
+		ID:     cont.DockerID,
+		Names:  []string{cont.Name},
+		Image:  cont.Image,
+		State:  cont.KnownStatus,
+		Labels: cont.Labels,
 	}
 
 	orchDims := map[string]string{}
-	for dimName, v := range taskDimensions {
+	for dimName, v := range taskDims {
 		orchDims[dimName] = v
 	}
 	for k, dimName := range o.config.LabelsToDimensions {
-		if v := serviceContainer.Labels[k]; v != "" {
+		if v := cont.Labels[k]; v != "" {
 			orchDims[dimName] = v
 		}
 	}
 
+	id := serviceContainer.PrimaryName() + "-" + serviceContainer.ID[:12] + "-" + idSuffix
 	endpoint := &services.ContainerEndpoint{
-		EndpointCore:  *services.NewEndpointCore(id, portObj.Name, observerType, orchDims),
+		EndpointCore:  *services.NewEndpointCore(id, name, observerType, orchDims),
 		Container:     *serviceContainer,
 		Orchestration: *services.NewOrchestration("ecs", services.ECS, services.PRIVATE),
 	}
+	endpoint.Host = hostIP
+
+	return endpoint
+}
+
+func (o *ECS) endpointForPort(portObj docker.ContPort, cont *ecs.Container, taskDims map[string]string) *services.ContainerEndpoint {
+	port := portObj.Int()
+	protocol := portObj.Proto()
+
+	idSuffix := strconv.Itoa(port)
+	if portObj.Name != "" {
+		idSuffix += "-" + portObj.Name
+	}
+
+	endpoint := o.makeBaseEndpointForContainer(cont, idSuffix, portObj.Name, taskDims)
 
 	endpoint.Port = uint16(port)
 	endpoint.AltPort = uint16(port)
 	endpoint.PortType = services.PortType(strings.ToUpper(protocol))
+	endpoint.Target = services.TargetTypeHostPort
 
 	return endpoint
 }
