@@ -1,5 +1,6 @@
 import os
 import random
+import shlex
 import string
 import subprocess
 import time
@@ -59,12 +60,15 @@ class Cluster:
         """
         if namespace is None:
             namespace = self.test_namespace
-        args = f"kubectl --kubeconfig {self.kube_config_path} -n {namespace}"
+        args = ["kubectl", "-n", namespace]
+        if self.kube_config_path:
+            args += ["--kubeconfig", self.kube_config_path]
         if self.kube_context:
-            args += f" --context {self.kube_context}"
-        args += f" {command}"
+            args += ["--context", self.kube_context]
 
-        proc = subprocess.run(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")
+        args += shlex.split(command)
+
+        proc = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")
         assert proc.returncode == 0, f"{args}:\n{proc.stdout}"
         return proc.stdout
 

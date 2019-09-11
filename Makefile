@@ -205,7 +205,7 @@ run-minikube:
 
 .PHONY: push-minikube-agent
 push-minikube-agent:
-	PUSH_DOCKER_IMAGE=yes \
+	PUSH=yes \
 	  AGENT_IMAGE_NAME=localhost:5000/signalfx-agent \
 	  AGENT_VERSION=latest \
 	  SKIP_BUILD_PULL=yes \

@@ -40,19 +40,20 @@ def start_tunneling_fake_service(local_host, local_port, namespace, kube_config_
     Run the client.sh script that sets up a remote tunnel from the cluster back
     to the fake backend components running locally.
     """
-    proc = subprocess.Popen(
-        ["/bin/bash", f"{SCRIPT_DIR}/tunnel/client.sh"],
-        env={
-            "KUBECONFIG": kube_config_path,
+    env = dict(os.environ)
+    env.update(
+        {
             "KUBE_CONTEXT": context or "",
+            "KUBECONFIG": kube_config_path or "",
             "LOCAL_HOST": local_host,
             "LOCAL_PORT": str(local_port),
             "REMOTE_PORT": str(local_port),
             "NAMESPACE": namespace,
-            "PATH": os.environ.get("PATH"),
-        },
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
+        }
+    )
+
+    proc = subprocess.Popen(
+        ["/bin/bash", f"{SCRIPT_DIR}/tunnel/client.sh"], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
     )
 
     get_output = pull_from_reader_in_background(proc.stdout)

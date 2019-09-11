@@ -159,6 +159,7 @@ func (o *Observer) discover() []services.Endpoint {
 			}
 			se.Port = uint16(c.Laddr.Port)
 			se.PortType = portTypeToProtocol(c.Type)
+			se.Target = services.TargetTypeHostPort
 
 			endpoints = append(endpoints, se)
 		}

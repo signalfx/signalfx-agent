@@ -39757,6 +39757,12 @@
           "description": "The first and primary name of the container as it is known to the container runtime (e.g. Docker)."
         },
         {
+          "name": "has_port",
+          "type": "string",
+          "elementKind": "",
+          "description": "Set to `true` if the endpoint has a port assigned to it.  This will be `false` for endpoints that represent a host/container as a whole."
+        },
+        {
           "name": "ip_address",
           "type": "string",
           "elementKind": "",
@@ -39808,7 +39814,7 @@
           "name": "container_labels",
           "type": "map",
           "elementKind": "string",
-          "description": "A map that contains container label key/value pairs. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions)."
+          "description": "A map that contains container label key/value pairs. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions). For containers managed by Kubernetes, this will be set to the pod's labels, as individual containers do not have labels in Kubernetes proper."
         },
         {
           "name": "container_names",
@@ -39844,7 +39850,7 @@
           "name": "name",
           "type": "string",
           "elementKind": "",
-          "description": "A observer assigned name of the endpoint"
+          "description": "A observer assigned name of the endpoint. For example, if using the `k8s-api` observer, `name` will be the port name in the pod spec, if any."
         },
         {
           "name": "orchestrator",
@@ -39869,6 +39875,12 @@
           "type": "string",
           "elementKind": "",
           "description": "TCP or UDP"
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "elementKind": "",
+          "description": "The type of the thing that this endpoint directly refers to.  If the endpoint has a host and port associated with it (most common), the value will be `hostport`.  Other possible values are: `pod`, `container`, `host`.  See the docs for the specific observer you are using for more details on what types that observer emits."
         }
       ]
     },
@@ -39914,6 +39926,12 @@
           "description": "The first and primary name of the container as it is known to the container runtime (e.g. Docker)."
         },
         {
+          "name": "has_port",
+          "type": "string",
+          "elementKind": "",
+          "description": "Set to `true` if the endpoint has a port assigned to it.  This will be `false` for endpoints that represent a host/container as a whole."
+        },
+        {
           "name": "ip_address",
           "type": "string",
           "elementKind": "",
@@ -39965,7 +39983,7 @@
           "name": "container_labels",
           "type": "map",
           "elementKind": "string",
-          "description": "A map that contains container label key/value pairs. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions)."
+          "description": "A map that contains container label key/value pairs. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions). For containers managed by Kubernetes, this will be set to the pod's labels, as individual containers do not have labels in Kubernetes proper."
         },
         {
           "name": "container_names",
@@ -40001,7 +40019,7 @@
           "name": "name",
           "type": "string",
           "elementKind": "",
-          "description": "A observer assigned name of the endpoint"
+          "description": "A observer assigned name of the endpoint. For example, if using the `k8s-api` observer, `name` will be the port name in the pod spec, if any."
         },
         {
           "name": "orchestrator",
@@ -40026,6 +40044,12 @@
           "type": "string",
           "elementKind": "",
           "description": "TCP or UDP"
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "elementKind": "",
+          "description": "The type of the thing that this endpoint directly refers to.  If the endpoint has a host and port associated with it (most common), the value will be `hostport`.  Other possible values are: `pod`, `container`, `host`.  See the docs for the specific observer you are using for more details on what types that observer emits."
         }
       ]
     },
@@ -40055,6 +40079,12 @@
           "type": "string",
           "elementKind": "",
           "description": "The full command used to invoke this process, including the executable itself at the beginning."
+        },
+        {
+          "name": "has_port",
+          "type": "string",
+          "elementKind": "",
+          "description": "Set to `true` if the endpoint has a port assigned to it.  This will be `false` for endpoints that represent a host/container as a whole."
         },
         {
           "name": "ip_address",
@@ -40090,7 +40120,7 @@
           "name": "name",
           "type": "string",
           "elementKind": "",
-          "description": "A observer assigned name of the endpoint"
+          "description": "A observer assigned name of the endpoint. For example, if using the `k8s-api` observer, `name` will be the port name in the pod spec, if any."
         },
         {
           "name": "port",
@@ -40103,6 +40133,12 @@
           "type": "string",
           "elementKind": "",
           "description": "TCP or UDP"
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "elementKind": "",
+          "description": "The type of the thing that this endpoint directly refers to.  If the endpoint has a host and port associated with it (most common), the value will be `hostport`.  Other possible values are: `pod`, `container`, `host`.  See the docs for the specific observer you are using for more details on what types that observer emits."
         }
       ]
     },
@@ -40215,16 +40251,40 @@
           "description": "The first and primary name of the container as it is known to the container runtime (e.g. Docker)."
         },
         {
+          "name": "has_port",
+          "type": "string",
+          "elementKind": "",
+          "description": "Set to `true` if the endpoint has a port assigned to it.  This will be `false` for endpoints that represent a host/container as a whole."
+        },
+        {
           "name": "ip_address",
           "type": "string",
           "elementKind": "",
           "description": "The IP address of the endpoint if the `host` is in the from of an IPv4 address"
         },
         {
+          "name": "kubernetes_annotations",
+          "type": "string",
+          "elementKind": "",
+          "description": "The set of annotations on the discovered pod."
+        },
+        {
           "name": "network_port",
           "type": "string",
           "elementKind": "",
           "description": "An alias for `port`"
+        },
+        {
+          "name": "pod_metadata",
+          "type": "string",
+          "elementKind": "",
+          "description": "The full pod metadata object, as represented by the Go K8s client library (client-go): https://godoc.org/k8s.io/apimachinery/pkg/apis/meta/v1#ObjectMeta."
+        },
+        {
+          "name": "pod_spec",
+          "type": "string",
+          "elementKind": "",
+          "description": "The full pod spec object, as represented by the Go K8s client library (client-go): https://godoc.org/k8s.io/api/core/v1#PodSpec."
         },
         {
           "name": "private_port",
@@ -40266,7 +40326,7 @@
           "name": "container_labels",
           "type": "map",
           "elementKind": "string",
-          "description": "A map that contains container label key/value pairs. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions)."
+          "description": "A map that contains container label key/value pairs. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions). For containers managed by Kubernetes, this will be set to the pod's labels, as individual containers do not have labels in Kubernetes proper."
         },
         {
           "name": "container_names",
@@ -40302,7 +40362,7 @@
           "name": "name",
           "type": "string",
           "elementKind": "",
-          "description": "A observer assigned name of the endpoint"
+          "description": "A observer assigned name of the endpoint. For example, if using the `k8s-api` observer, `name` will be the port name in the pod spec, if any."
         },
         {
           "name": "orchestrator",
@@ -40327,12 +40387,18 @@
           "type": "string",
           "elementKind": "",
           "description": "TCP or UDP"
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "elementKind": "",
+          "description": "The type of the thing that this endpoint directly refers to.  If the endpoint has a host and port associated with it (most common), the value will be `hostport`.  Other possible values are: `pod`, `container`, `host`.  See the docs for the specific observer you are using for more details on what types that observer emits."
         }
       ]
     },
     {
       "name": "Config",
-      "doc": " Discovers service endpoints running on the same node\nas the agent by querying the local kubelet instance.  It is generally\nrecommended to use the [k8s-api](./k8s-api.md) observer because\nauthentication to the local kubelet can be more difficult to setup, and also\nthe kubelet API is technically not documented for public consumption, so\nthis observer may break more easily in future K8s versions.\n",
+      "doc": " **DEPRECATED** Discovers service endpoints running on\nthe same node as the agent by querying the local kubelet instance.  It is\ngenerally recommended to use the [k8s-api](./k8s-api.md) observer because\nauthentication to the local kubelet can be more difficult to setup, and also\nthe kubelet API is technically not documented for public consumption, so\nthis observer may break more easily in future K8s versions.\n",
       "package": "internal/observers/kubelet",
       "fields": [
         {
@@ -40447,6 +40513,12 @@
           "description": "The first and primary name of the container as it is known to the container runtime (e.g. Docker)."
         },
         {
+          "name": "has_port",
+          "type": "string",
+          "elementKind": "",
+          "description": "Set to `true` if the endpoint has a port assigned to it.  This will be `false` for endpoints that represent a host/container as a whole."
+        },
+        {
           "name": "ip_address",
           "type": "string",
           "elementKind": "",
@@ -40498,7 +40570,7 @@
           "name": "container_labels",
           "type": "map",
           "elementKind": "string",
-          "description": "A map that contains container label key/value pairs. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions)."
+          "description": "A map that contains container label key/value pairs. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions). For containers managed by Kubernetes, this will be set to the pod's labels, as individual containers do not have labels in Kubernetes proper."
         },
         {
           "name": "container_names",
@@ -40534,7 +40606,7 @@
           "name": "name",
           "type": "string",
           "elementKind": "",
-          "description": "A observer assigned name of the endpoint"
+          "description": "A observer assigned name of the endpoint. For example, if using the `k8s-api` observer, `name` will be the port name in the pod spec, if any."
         },
         {
           "name": "orchestrator",
@@ -40559,6 +40631,12 @@
           "type": "string",
           "elementKind": "",
           "description": "TCP or UDP"
+        },
+        {
+          "name": "target",
+          "type": "string",
+          "elementKind": "",
+          "description": "The type of the thing that this endpoint directly refers to.  If the endpoint has a host and port associated with it (most common), the value will be `hostport`.  Other possible values are: `pod`, `container`, `host`.  See the docs for the specific observer you are using for more details on what types that observer emits."
         }
       ]
     }
