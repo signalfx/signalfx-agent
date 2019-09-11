@@ -14,7 +14,7 @@ Monitors Java services that expose metrics on JMX using collectd's
 GenericJMX plugin. The GenericJMX plugin reads Managed Beans (MBeans) from
 an MBeanServer using JMX. The monitor uses an embedded Java runtime in
 collectd via the [Java
-plugin](https://github.com/signalfx/integrations/tree/master/collectd-java)
+plugin](https://github.com/signalfx/integrations/tree/master/java)
 of collectd.
 
 The Java Management Extensions (JMX) is a generic framework to provide and
