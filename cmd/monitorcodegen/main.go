@@ -72,9 +72,11 @@ func generate(templateFile string, force bool) error {
 	tmpl, err := template.New(generatedMetadataTemplate).Option("missingkey=error").Funcs(template.FuncMap{
 		"formatVariable": func(s string) (string, error) {
 			formatted, err := formatVariable(s)
+
 			if err != nil {
 				return "", err
 			}
+
 			if exportVars {
 				runes := []rune(formatted)
 				runes[0] = unicode.ToUpper(runes[0])

@@ -10,13 +10,13 @@ Monitor Type: `haproxy` ([Source](https://github.com/signalfx/signalfx-agent/tre
 
 ## Overview
 
-This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics (i.e. metrics) from a configured stats
+This monitor scrapes [HAProxy](http://www.haproxy_org/) statistics (i.e. metrics) from a configured stats
 HTTP endpoint or UNIX socket. It requires HAProxy 1.8+ and supports running HAProxy in multi-process mode where
 the HAProxy process each metric pertains to is indicated by the metric dimension `process_num`.
 
 <!--- SETUP --->
 ### HTTP Endpoint Config
-HAProxy stats must be enabled as described [here](https://www.haproxy.com/blog/exploring-the-haproxy-stats-page/).
+HAProxy stats must be enabled as described [here](https://www.haproxy_com/blog/exploring-the-haproxy-stats-page/).
 Define the HAProxy monitor in the agent configuration file and provide the `csv export` URL where HAProxy
 stats are served in CSV format. This monitor supports basic HTTP authentication. Simply provide the
 username and password if required as shown below:
@@ -38,7 +38,7 @@ The location of the HAProxy socket file is defined in the HAProxy config file, a
 ```
 global
     daemon
-    stats socket /var/run/haproxy.sock
+    stats socket /var/run/haproxy_sock
     stats timeout 2m
 ```
 For the given location of the socket file, configure the HAProxy monitor URL as shown below:
@@ -46,7 +46,7 @@ For the given location of the socket file, configure the HAProxy monitor URL as 
 ...
 monitors:
   - type: haproxy
-    url: "unix:/var/run/haproxy.sock"
+    url: "unix:/var/run/haproxy_sock"
 ...
 ```
 Note: The agent process needs read/write permissions to the HAProxy socket file.
@@ -85,85 +85,85 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `counter.connection_total` (*cumulative*)<br>    Cumulative number of connections. Values reported for frontends.
- - ***`counter.server_selected_total`*** (*cumulative*)<br>    Total number of times a server was selected, either for new sessions, or when re-dispatching. The server counter is the number of times that server was selected. Values reported for backends and servers.
- - ***`derive.bytes_in`*** (*cumulative*)<br>    Total number of incoming bytes. Values reported for listeners, frontends, backends, and servers.
- - ***`derive.bytes_out`*** (*cumulative*)<br>    Total number of outgoing bytes. Values reported for listeners, frontends, backends, and servers.
- - `derive.cli_abrt` (*cumulative*)<br>    Number of data transfers aborted by the client. Values reported for backends and servers.
- - `derive.comp_byp` (*cumulative*)<br>    Number of bytes that bypassed the HTTP compressor (CPU/BW limit). Values reported for frontends and backends.
- - `derive.comp_in` (*cumulative*)<br>    Number of HTTP response bytes fed to the compressor. Values reported for frontends and backends.
- - `derive.comp_out` (*cumulative*)<br>    Number of HTTP response bytes emitted by the compressor. Values reported for frontends and backends.
- - `derive.comp_rsp` (*cumulative*)<br>    Number of HTTP responses that were compressed. Values reported for frontends and backends.
- - ***`derive.denied_request`*** (*cumulative*)<br>    Number of requests denied because of security concerns. For tcp this is because of a matched tcp-request content rule. For http this is because of a matched http-request or tarpit rule. Values reported for listeners, frontends, and backends.
- - ***`derive.denied_response`*** (*cumulative*)<br>    Number of responses denied because of security concerns. For http this is because of a matched http-request rule, or "option checkcache". Values reported for listeners, frontends, backends, and servers.
- - `derive.downtime` (*cumulative*)<br>    Total downtime (in seconds). The value for the backend is the downtime for the whole backend, not the sum of the server downtime. Values reported for backends and servers.
- - ***`derive.error_connectiont`*** (*cumulative*)<br>    Number of requests that encountered an error trying to connect to a backend server. The backend stat is the sum of the stat for all servers of that backend, plus any connection errors not associated with a particular server (such as the backend having no active servers). Values reported for backends and servers.
- - ***`derive.error_request`*** (*cumulative*)<br>    Number of request errors. Some of the possible causes are: early termination from the client, before the request has been sent, read error from the client, client timeout, client closed connection, various bad requests from the client, request was tarpitted. Values reported for listeners and frontends.
- - ***`derive.error_response`*** (*cumulative*)<br>    Number of response errors. srv_abrt will be counted here also. Some other errors are: write error on the client socket (won't be counted for the server stat), failure applying filters to the response. Values reported for backends and servers.
- - `derive.failed_checks` (*cumulative*)<br>    Number of failed checks. (Only counts checks failed when the server is up.). Values reported for servers.
- - ***`derive.redispatched`*** (*cumulative*)<br>    Number of times a request was redispatched to another server. The server value counts the number of times that server was switched away from. Values reported for backends and servers.
- - `derive.request_total` (*cumulative*)<br>    Total number of HTTP requests received. Values reported for frontends and backends.
- - `derive.response_1xx` (*cumulative*)<br>    HTTP responses with 1xx code. Values reported for frontends, backends, and servers.
- - ***`derive.response_2xx`*** (*cumulative*)<br>    HTTP responses with 2xx code. Values reported for frontends, backends, and servers.
- - `derive.response_3xx` (*cumulative*)<br>    HTTP responses with 3xx code. Values reported for frontends, backends, and servers.
- - ***`derive.response_4xx`*** (*cumulative*)<br>    HTTP responses with 4xx code. Values reported for frontends, backends, and servers.
- - ***`derive.response_5xx`*** (*cumulative*)<br>    HTTP responses with 5xx code. Values reported for frontends, backends, and servers.
- - `derive.response_other` (*cumulative*)<br>    HTTP responses with other codes (protocol error). Values reported for frontends, backends, and servers.
- - ***`derive.retries`*** (*cumulative*)<br>    Number of times a connection to a server was retried. Values reported for backends and servers.
- - `derive.session_total` (*cumulative*)<br>    The cumulative number of sessions. Values reported for listeners, frontends, backends, and servers.
- - `derive.srv_abrt` (*cumulative*)<br>    Number of data transfers aborted by the server (inc. in eresp). Values reported for backends and servers.
- - `gauge.active_servers` (*gauge*)<br>    Number of active servers (backend), server is active (server). Values reported for backends and servers.
- - `gauge.backup_servers` (*gauge*)<br>    Number of backup servers (backend), server is backup (server). Values reported for backends and servers.
- - `gauge.check_duration` (*gauge*)<br>    Time in ms took to finish last health check. Values reported for servers.
- - ***`gauge.connection_rate`*** (*gauge*)<br>    Number of connections over the last elapsed second. Values reported for frontends.
- - `gauge.connection_rate_max` (*gauge*)<br>    Highest known conn_rate. Values reported for frontends.
- - `gauge.denied_tcp_connections` (*gauge*)<br>    Requests denied by "tcp-request connection" rules. Values reported for listeners and frontends.
- - `gauge.denied_tcp_sessions` (*gauge*)<br>    Requests denied by "tcp-request session" rules. Values reported for listeners and frontends.
- - `gauge.intercepted_requests` (*gauge*)<br>    Cumulative cum. number of intercepted requests (monitor, stats). Values reported for frontends and backends.
- - `gauge.last_session` (*gauge*)<br>    Number of seconds since last session assigned to server/backend. Values reported for backends and servers.
- - ***`gauge.queue_current`*** (*gauge*)<br>    Number of current queued requests. For the backend this reports the number queued without a server assigned. Values reported for backends and servers.
- - `gauge.queue_limit` (*gauge*)<br>    Configured maxqueue for the server, or nothing in the value is 0 (default, meaning no limit). Values reported for servers.
- - `gauge.queue_max` (*gauge*)<br>    The max value of qcur. Values reported for backends and servers.
- - `gauge.queue_time_avg` (*gauge*)<br>    The average queue time in ms over the 1024 last requests. Values reported for backends and servers.
- - ***`gauge.request_rate`*** (*gauge*)<br>    HTTP requests per second over last elapsed second. Values reported for frontends.
- - `gauge.request_rate_max` (*gauge*)<br>    Max number of HTTP requests per second observed. Values reported for frontends.
- - `gauge.response_time_avg` (*gauge*)<br>    The average response time in ms over the 1024 last requests (0 for TCP). Values reported for backends and servers.
- - ***`gauge.session_current`*** (*gauge*)<br>    Number current sessions. Values reported for listeners, frontends, backends, and servers.
- - ***`gauge.session_rate`*** (*gauge*)<br>    Number of sessions per second over last elapsed second. Values reported for frontends, backends, and servers.
- - `gauge.session_rate_limit` (*gauge*)<br>    Configured limit on new sessions per second. Values reported for frontends.
- - `gauge.session_rate_max` (*gauge*)<br>    Max number of new sessions per second. Values reported for frontends, backends, and servers.
- - `gauge.session_time_average` (*gauge*)<br>    The average total session time in ms over the 1024 last requests. Values reported for backends and servers.
- - `gauge.throttle` (*gauge*)<br>    Current throttle percentage for the server, when slowstart is active, or no value if not in slowstart. Values reported for servers.
+ - `haproxy_active_servers` (*gauge*)<br>    Number of active servers (backend), server is active (server). Values reported for backends and servers.
+ - `haproxy_backup_servers` (*gauge*)<br>    Number of backup servers (backend), server is backup (server). Values reported for backends and servers.
+ - ***`haproxy_bytes_in`*** (*cumulative*)<br>    Total number of incoming bytes. Values reported for listeners, frontends, backends, and servers.
+ - ***`haproxy_bytes_out`*** (*cumulative*)<br>    Total number of outgoing bytes. Values reported for listeners, frontends, backends, and servers.
+ - `haproxy_check_duration` (*gauge*)<br>    Time in ms took to finish last health check. Values reported for servers.
+ - `haproxy_client_aborts` (*cumulative*)<br>    Number of data transfers aborted by the client. Values reported for backends and servers.
+ - `haproxy_compress_bypass` (*cumulative*)<br>    Number of bytes that bypassed the HTTP compressor (CPU/BW limit). Values reported for frontends and backends.
+ - `haproxy_compress_in` (*cumulative*)<br>    Number of HTTP response bytes fed to the compressor. Values reported for frontends and backends.
+ - `haproxy_compress_out` (*cumulative*)<br>    Number of HTTP response bytes emitted by the compressor. Values reported for frontends and backends.
+ - `haproxy_compress_responses` (*cumulative*)<br>    Number of HTTP responses that were compressed. Values reported for frontends and backends.
+ - ***`haproxy_connection_rate`*** (*gauge*)<br>    Number of connections over the last elapsed second. Values reported for frontends.
+ - `haproxy_connection_rate_max` (*gauge*)<br>    Highest known conn_rate. Values reported for frontends.
+ - `haproxy_connection_total` (*cumulative*)<br>    Cumulative number of connections. Values reported for frontends.
+ - ***`haproxy_denied_request`*** (*cumulative*)<br>    Number of requests denied because of security concerns. For tcp this is because of a matched tcp-request content rule. For http this is because of a matched http-request or tarpit rule. Values reported for listeners, frontends, and backends.
+ - ***`haproxy_denied_response`*** (*cumulative*)<br>    Number of responses denied because of security concerns. For http this is because of a matched http-request rule, or "option checkcache". Values reported for listeners, frontends, backends, and servers.
+ - `haproxy_denied_tcp_connections` (*gauge*)<br>    Requests denied by "tcp-request connection" rules. Values reported for listeners and frontends.
+ - `haproxy_denied_tcp_sessions` (*gauge*)<br>    Requests denied by "tcp-request session" rules. Values reported for listeners and frontends.
+ - `haproxy_downtime` (*cumulative*)<br>    Total downtime (in seconds). The value for the backend is the downtime for the whole backend, not the sum of the server downtime. Values reported for backends and servers.
+ - ***`haproxy_error_connections`*** (*cumulative*)<br>    Number of requests that encountered an error trying to connect to a backend server. The backend stat is the sum of the stat for all servers of that backend, plus any connection errors not associated with a particular server (such as the backend having no active servers). Values reported for backends and servers.
+ - ***`haproxy_error_request`*** (*cumulative*)<br>    Number of request errors. Some of the possible causes are: early termination from the client, before the request has been sent, read error from the client, client timeout, client closed connection, various bad requests from the client, request was tarpitted. Values reported for listeners and frontends.
+ - ***`haproxy_error_response`*** (*cumulative*)<br>    Number of response errors. haproxy_server_aborts will be counted here also. Some other errors are: write error on the client socket (won't be counted for the server stat), failure applying filters to the response. Values reported for backends and servers.
+ - `haproxy_failed_checks` (*cumulative*)<br>    Number of failed checks. (Only counts checks failed when the server is up.). Values reported for servers.
+ - `haproxy_intercepted_requests` (*gauge*)<br>    Cumulative number of intercepted requests (monitor, stats). Values reported for frontends and backends.
+ - `haproxy_last_session` (*gauge*)<br>    Number of seconds since last session assigned to server/backend. Values reported for backends and servers.
+ - ***`haproxy_queue_current`*** (*gauge*)<br>    Number of current queued requests. For the backend this reports the number queued without a server assigned. Values reported for backends and servers.
+ - `haproxy_queue_limit` (*gauge*)<br>    Configured maxqueue for the server, or nothing in the value is 0 (default, meaning no limit). Values reported for servers.
+ - `haproxy_queue_max` (*gauge*)<br>    The max value of qcur. Values reported for backends and servers.
+ - `haproxy_queue_time_average` (*gauge*)<br>    The average queue time in ms over the 1024 last requests. Values reported for backends and servers.
+ - ***`haproxy_redispatched`*** (*cumulative*)<br>    Number of times a request was redispatched to another server. The server value counts the number of times that server was switched away from. Values reported for backends and servers.
+ - ***`haproxy_request_rate`*** (*gauge*)<br>    HTTP requests per second over last elapsed second. Values reported for frontends.
+ - `haproxy_request_rate_max` (*gauge*)<br>    Max number of HTTP requests per second observed. Values reported for frontends.
+ - `haproxy_request_total` (*cumulative*)<br>    Total number of HTTP requests received. Values reported for frontends and backends.
+ - `haproxy_response_1xx` (*cumulative*)<br>    HTTP responses with 1xx code. Values reported for frontends, backends, and servers.
+ - ***`haproxy_response_2xx`*** (*cumulative*)<br>    HTTP responses with 2xx code. Values reported for frontends, backends, and servers.
+ - `haproxy_response_3xx` (*cumulative*)<br>    HTTP responses with 3xx code. Values reported for frontends, backends, and servers.
+ - ***`haproxy_response_4xx`*** (*cumulative*)<br>    HTTP responses with 4xx code. Values reported for frontends, backends, and servers.
+ - ***`haproxy_response_5xx`*** (*cumulative*)<br>    HTTP responses with 5xx code. Values reported for frontends, backends, and servers.
+ - `haproxy_response_other` (*cumulative*)<br>    HTTP responses with other codes (protocol error). Values reported for frontends, backends, and servers.
+ - `haproxy_response_time_average` (*gauge*)<br>    The average response time in ms over the 1024 last requests (0 for TCP). Values reported for backends and servers.
+ - ***`haproxy_retries`*** (*cumulative*)<br>    Number of times a connection to a server was retried. Values reported for backends and servers.
+ - `haproxy_server_aborts` (*cumulative*)<br>    Number of data transfers aborted by the server (inc. in eresp). Values reported for backends and servers.
+ - ***`haproxy_server_selected_total`*** (*cumulative*)<br>    Total number of times a server was selected, either for new sessions, or when re-dispatching. The server counter is the number of times that server was selected. Values reported for backends and servers.
+ - ***`haproxy_session_current`*** (*gauge*)<br>    Number current sessions. Values reported for listeners, frontends, backends, and servers.
+ - ***`haproxy_session_rate`*** (*gauge*)<br>    Number of sessions per second over last elapsed second. Values reported for frontends, backends, and servers.
+ - `haproxy_session_rate_limit` (*gauge*)<br>    Configured limit on new sessions per second. Values reported for frontends.
+ - `haproxy_session_rate_max` (*gauge*)<br>    Max number of new sessions per second. Values reported for frontends, backends, and servers.
+ - `haproxy_session_time_average` (*gauge*)<br>    The average total session time in ms over the 1024 last requests. Values reported for backends and servers.
+ - `haproxy_session_total` (*cumulative*)<br>    The cumulative number of sessions. Values reported for listeners, frontends, backends, and servers.
+ - `haproxy_throttle` (*gauge*)<br>    Current throttle percentage for the server, when slowstart is active, or no value if not in slowstart. Values reported for servers.
 
 #### Group UnixSocketOnly
 All of the following metrics are part of the `UnixSocketOnly` metric group. All of
 the non-default metrics below can be turned on by adding `UnixSocketOnly` to the
 monitor config option `extraGroups`:
- - `derive.compress_bps_in` (*cumulative*)<br>    Corresponds to the current HAProxy process `CompressBpsIn` value given by the `show info` cmd.
- - `derive.compress_bps_out` (*cumulative*)<br>    Corresponds to the current HAProxy process `CompressBpsOut` value given by the `show info` cmd.
- - `derive.connections` (*cumulative*)<br>    Corresponds to the current HAProxy process `CumConns` value given by the `show info` cmd. Cumulative number of connections.
- - ***`derive.requests`*** (*cumulative*)<br>    Corresponds to the current HAProxy process `CumReq` value given by the `show info` cmd.
- - `derive.ssl_cache_lookups` (*cumulative*)<br>    Corresponds to the current HAProxy process `SslCacheLookups` value given by the `show info` cmd.
- - `derive.ssl_cache_misses` (*cumulative*)<br>    Corresponds to the current HAProxy process `SslCacheMisses` value given by the `show info` cmd.
- - `derive.ssl_connections` (*cumulative*)<br>    Corresponds to the current HAProxy process `CumSslConns` value given by the `show info` cmd.
- - `derive.uptime_seconds` (*cumulative*)<br>    Corresponds to the current HAProxy process `Uptime_sec` value given by the `show info` cmd.
- - `gauge.current_connections` (*gauge*)<br>    Corresponds to the current HAProxy process `CurrConns` value given by the `show info` cmd.
- - `gauge.current_ssl_connections` (*gauge*)<br>    Corresponds to the current HAProxy process `CurrSslConns` value given by the `show info` cmd.
- - ***`gauge.idle_pct`*** (*gauge*)<br>    Corresponds to the current HAProxy process `Idle_pct` value given by the `show info` cmd. Ratio of system polling time versus total time.
- - `gauge.max_connection_rate` (*gauge*)<br>    Corresponds to the current HAProxy process `MaxConnRate` value given by the `show info` cmd.
- - `gauge.max_connections` (*gauge*)<br>    Corresponds to the current HAProxy process `MaxConn` value given by the `show info` cmd.
- - `gauge.max_pipes` (*gauge*)<br>    Corresponds to the current HAProxy process `MaxPipes` value given by the `show info` cmd.
- - `gauge.max_session_rate` (*gauge*)<br>    Corresponds to the current HAProxy process `MaxSessRate` value given by the `show info` cmd.
- - `gauge.max_ssl_connections` (*gauge*)<br>    Corresponds to the current HAProxy process `MaxSslConns` value given by the `show info` cmd.
- - `gauge.pipes_free` (*gauge*)<br>    Corresponds to the current HAProxy process `PipesFree` value given by the `show info` cmd.
- - `gauge.pipes_used` (*gauge*)<br>    Corresponds to the current HAProxy process `PipesUsed` value given by the `show info` cmd.
- - `gauge.run_queue` (*gauge*)<br>    Corresponds to the current HAProxy process `Run_queue` value given by the `show info` cmd.
- - `gauge.session_rate_all` (*gauge*)<br>    Corresponds to the current HAProxy process `SessRate` value given by the `show info` cmd.
- - `gauge.ssl_backend_key_rate` (*gauge*)<br>    Corresponds to the current HAProxy process `SslBackendKeyRate` value given by the `show info` cmd.
- - `gauge.ssl_frontend_key_rate` (*gauge*)<br>    Corresponds to the current HAProxy process `SslFrontendKeyRate` value given by the `show info` cmd.
- - `gauge.ssl_rate` (*gauge*)<br>    Corresponds to the current HAProxy process `SslRate` value given by the `show info` cmd.
- - `gauge.tasks` (*gauge*)<br>    Corresponds to the current HAProxy process `Tasks` value given by the `show info` cmd.
- - `gauge.zlib_mem_usage` (*gauge*)<br>    Corresponds to the current HAProxy process `ZlibMemUsage` value given by the `show info` cmd.
+ - `haproxy_compress_bits_per_second_in` (*cumulative*)<br>    Corresponds to the current HAProxy process `CompressBpsIn` value given by the `show info` cmd.
+ - `haproxy_compress_bits_per_second_out` (*cumulative*)<br>    Corresponds to the current HAProxy process `CompressBpsOut` value given by the `show info` cmd.
+ - `haproxy_connections` (*cumulative*)<br>    Corresponds to the current HAProxy process `CumConns` value given by the `show info` cmd. Cumulative number of connections.
+ - `haproxy_current_connections` (*gauge*)<br>    Corresponds to the current HAProxy process `CurrConns` value given by the `show info` cmd.
+ - `haproxy_current_ssl_connections` (*gauge*)<br>    Corresponds to the current HAProxy process `CurrSslConns` value given by the `show info` cmd.
+ - ***`haproxy_idle_percent`*** (*gauge*)<br>    Corresponds to the current HAProxy process `Idle_pct` value given by the `show info` cmd. Ratio of system polling time versus total time.
+ - `haproxy_max_connection_rate` (*gauge*)<br>    Corresponds to the current HAProxy process `MaxConnRate` value given by the `show info` cmd.
+ - `haproxy_max_connections` (*gauge*)<br>    Corresponds to the current HAProxy process `MaxConn` value given by the `show info` cmd.
+ - `haproxy_max_pipes` (*gauge*)<br>    Corresponds to the current HAProxy process `MaxPipes` value given by the `show info` cmd.
+ - `haproxy_max_session_rate` (*gauge*)<br>    Corresponds to the current HAProxy process `MaxSessRate` value given by the `show info` cmd.
+ - `haproxy_max_ssl_connections` (*gauge*)<br>    Corresponds to the current HAProxy process `MaxSslConns` value given by the `show info` cmd.
+ - `haproxy_pipes_free` (*gauge*)<br>    Corresponds to the current HAProxy process `PipesFree` value given by the `show info` cmd.
+ - `haproxy_pipes_used` (*gauge*)<br>    Corresponds to the current HAProxy process `PipesUsed` value given by the `show info` cmd.
+ - ***`haproxy_requests`*** (*cumulative*)<br>    Corresponds to the current HAProxy process `CumReq` value given by the `show info` cmd.
+ - `haproxy_run_queue` (*gauge*)<br>    Corresponds to the current HAProxy process `Run_queue` value given by the `show info` cmd.
+ - `haproxy_session_rate_all` (*gauge*)<br>    Corresponds to the current HAProxy process `SessRate` value given by the `show info` cmd.
+ - `haproxy_ssl_backend_key_rate` (*gauge*)<br>    Corresponds to the current HAProxy process `SslBackendKeyRate` value given by the `show info` cmd.
+ - `haproxy_ssl_cache_lookups` (*cumulative*)<br>    Corresponds to the current HAProxy process `SslCacheLookups` value given by the `show info` cmd.
+ - `haproxy_ssl_cache_misses` (*cumulative*)<br>    Corresponds to the current HAProxy process `SslCacheMisses` value given by the `show info` cmd.
+ - `haproxy_ssl_connections` (*cumulative*)<br>    Corresponds to the current HAProxy process `CumSslConns` value given by the `show info` cmd.
+ - `haproxy_ssl_frontend_key_rate` (*gauge*)<br>    Corresponds to the current HAProxy process `SslFrontendKeyRate` value given by the `show info` cmd.
+ - `haproxy_ssl_rate` (*gauge*)<br>    Corresponds to the current HAProxy process `SslRate` value given by the `show info` cmd.
+ - `haproxy_tasks` (*gauge*)<br>    Corresponds to the current HAProxy process `Tasks` value given by the `show info` cmd.
+ - `haproxy_uptime_seconds` (*cumulative*)<br>    Corresponds to the current HAProxy process `Uptime_sec` value given by the `show info` cmd.
+ - `haproxy_zlib_memory_usage` (*gauge*)<br>    Corresponds to the current HAProxy process `ZlibMemUsage` value given by the `show info` cmd.
 
 ### Non-default metrics (version 4.7.0+)
 

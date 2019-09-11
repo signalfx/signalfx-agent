@@ -1,13 +1,13 @@
 monitors:
   - monitorType: haproxy
     doc: |
-      This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics (i.e. metrics) from a configured stats
+      This monitor scrapes [HAProxy](http://www.haproxy_org/) statistics (i.e. metrics) from a configured stats
       HTTP endpoint or UNIX socket. It requires HAProxy 1.8+ and supports running HAProxy in multi-process mode where
       the HAProxy process each metric pertains to is indicated by the metric dimension `process_num`.
 
       <!--- SETUP --->
       ### HTTP Endpoint Config
-      HAProxy stats must be enabled as described [here](https://www.haproxy.com/blog/exploring-the-haproxy-stats-page/).
+      HAProxy stats must be enabled as described [here](https://www.haproxy_com/blog/exploring-the-haproxy-stats-page/).
       Define the HAProxy monitor in the agent configuration file and provide the `csv export` URL where HAProxy
       stats are served in CSV format. This monitor supports basic HTTP authentication. Simply provide the
       username and password if required as shown below:
@@ -29,7 +29,7 @@ monitors:
       ```
       global
           daemon
-          stats socket /var/run/haproxy.sock
+          stats socket /var/run/haproxy_sock
           stats timeout 2m
       ```
       For the given location of the socket file, configure the HAProxy monitor URL as shown below:
@@ -37,359 +37,359 @@ monitors:
       ...
       monitors:
         - type: haproxy
-          url: "unix:/var/run/haproxy.sock"
+          url: "unix:/var/run/haproxy_sock"
       ...
       ```
       Note: The agent process needs read/write permissions to the HAProxy socket file.
     dimensions:
       proxy_name:
-        description: HAProxy configured proxy name. Possible values for listeners, frontends, backends, and servers.
+        description: 'HAProxy configured proxy name. Possible values for listeners, frontends, backends, and servers.'
       service_name:
-        description: HAProxy configured service name. Possible values are FRONTEND for frontend, BACKEND for backend, configured name for server/listener.
+        description: 'HAProxy configured service name. Possible values are FRONTEND for frontend, BACKEND for backend, configured name for server/listener.'
       process_num:
-        description: A number assigned to an HAProxy process instance (0 for first instance, 1 for second, ...).
+        description: 'A number assigned to an HAProxy process instance (0 for first instance, 1 for second, ...).'
     metrics:
-      gauge.queue_current:
+      haproxy_queue_current:
         default: true
         description: 'Number of current queued requests. For the backend this reports the number queued without
         a server assigned. Values reported for backends and servers.'
         type: gauge
-      gauge.queue_max:
+      haproxy_queue_max:
         default: false
-        description: The max value of qcur. Values reported for backends and servers.
+        description: 'The max value of qcur. Values reported for backends and servers.'
         type: gauge
-      gauge.session_current:
+      haproxy_session_current:
         default: true
         description: 'Number current sessions. Values reported for listeners, frontends, backends, and servers.'
         type: gauge
-      derive.session_total:
+      haproxy_session_total:
         default: false
         description: 'The cumulative number of sessions. Values reported for listeners, frontends, backends, and servers.'
         type: cumulative
-      derive.bytes_in:
+      haproxy_bytes_in:
         default: true
         description: 'Total number of incoming bytes. Values reported for listeners, frontends, backends, and servers.'
         type: cumulative
-      derive.bytes_out:
+      haproxy_bytes_out:
         default: true
         description: 'Total number of outgoing bytes. Values reported for listeners, frontends, backends, and servers.'
         type: cumulative
-      derive.denied_request:
+      haproxy_denied_request:
         default: true
         description: 'Number of requests denied because of security concerns. For tcp this is because of a
         matched tcp-request content rule. For http this is because of a matched http-request or tarpit rule.
         Values reported for listeners, frontends, and backends.'
         type: cumulative
-      derive.denied_response:
+      haproxy_denied_response:
         default: true
         description: 'Number of responses denied because of security concerns. For http this is because of a
         matched http-request rule, or "option checkcache". Values reported for listeners, frontends, backends, and
         servers.'
         type: cumulative
-      derive.error_request:
+      haproxy_error_request:
         default: true
         description: 'Number of request errors. Some of the possible causes are: early termination from the
         client, before the request has been sent, read error from the client, client timeout, client closed
         connection, various bad requests from the client, request was tarpitted. Values reported for listeners and
         frontends.'
         type: cumulative
-      derive.error_connectiont:
+      haproxy_error_connections:
         default: true
         description: 'Number of requests that encountered an error trying to connect to a backend server.
         The backend stat is the sum of the stat for all servers of that backend, plus any connection errors not
         associated with a particular server (such as the backend having no active servers). Values reported for
         backends and servers.'
         type: cumulative
-      derive.error_response:
+      haproxy_error_response:
         default: true
-        description: "Number of response errors. srv_abrt will be counted here also. Some other errors are:
+        description: "Number of response errors. haproxy_server_aborts will be counted here also. Some other errors are:
         write error on the client socket (won't be counted for the server stat), failure applying filters to the
         response. Values reported for backends and servers."
         type: cumulative
-      derive.retries:
+      haproxy_retries:
         default: true
         description: 'Number of times a connection to a server was retried. Values reported for backends and servers.'
         type: cumulative
-      derive.redispatched:
+      haproxy_redispatched:
         default: true
         description: 'Number of times a request was redispatched to another server. The server value counts the number
         of times that server was switched away from. Values reported for backends and servers.'
         type: cumulative
-      gauge.active_servers:
+      haproxy_active_servers:
         default: false
         description: 'Number of active servers (backend), server is active (server). Values reported for backends
         and servers.'
         type: gauge
-      gauge.backup_servers:
+      haproxy_backup_servers:
         default: false
         description: 'Number of backup servers (backend), server is backup (server). Values reported for backends
         and servers.'
         type: gauge
-      derive.failed_checks:
+      haproxy_failed_checks:
         default: false
         description: 'Number of failed checks. (Only counts checks failed when the server is up.). Values reported
         for servers.'
         type: cumulative
-      derive.downtime:
+      haproxy_downtime:
         default: false
         description: 'Total downtime (in seconds). The value for the backend is the downtime for the whole backend,
         not the sum of the server downtime. Values reported for backends and servers.'
         type: cumulative
-      gauge.queue_limit:
+      haproxy_queue_limit:
         default: false
         description: 'Configured maxqueue for the server, or nothing in the value is 0 (default, meaning no limit).
         Values reported for servers.'
         type: gauge
-      gauge.throttle:
+      haproxy_throttle:
         default: false
         description: 'Current throttle percentage for the server, when slowstart is active, or no value if not in
         slowstart. Values reported for servers.'
         type: gauge
-      counter.server_selected_total:
+      haproxy_server_selected_total:
         default: true
         description: 'Total number of times a server was selected, either for new sessions, or when re-dispatching.
         The server counter is the number of times that server was selected. Values reported for backends and
         servers.'
         type: cumulative
-      gauge.session_rate:
+      haproxy_session_rate:
         default: true
         description: 'Number of sessions per second over last elapsed second. Values reported for frontends, backends,
         and servers.'
         type: gauge
-      gauge.session_rate_limit:
+      haproxy_session_rate_limit:
         default: false
         description: 'Configured limit on new sessions per second. Values reported for frontends.'
         type: gauge
-      gauge.session_rate_max:
+      haproxy_session_rate_max:
         default: false
         description: 'Max number of new sessions per second. Values reported for frontends, backends, and servers.'
         type: gauge
-      gauge.check_duration:
+      haproxy_check_duration:
         default: false
         description: 'Time in ms took to finish last health check. Values reported for servers.'
         type: gauge
-      derive.response_1xx:
+      haproxy_response_1xx:
         default: false
         description: 'HTTP responses with 1xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
-      derive.response_2xx:
+      haproxy_response_2xx:
         default: true
         description: 'HTTP responses with 2xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
-      derive.response_3xx:
+      haproxy_response_3xx:
         default: false
         description: 'HTTP responses with 3xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
-      derive.response_4xx:
+      haproxy_response_4xx:
         default: true
         description: 'HTTP responses with 4xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
-      derive.response_5xx:
+      haproxy_response_5xx:
         default: true
         description: 'HTTP responses with 5xx code. Values reported for frontends, backends, and servers.'
         type: cumulative
-      derive.response_other:
+      haproxy_response_other:
         default: false
         description: 'HTTP responses with other codes (protocol error). Values reported for frontends, backends, and servers.'
         type: cumulative
-      gauge.request_rate:
+      haproxy_request_rate:
         default: true
         description: 'HTTP requests per second over last elapsed second. Values reported for frontends.'
         type: gauge
-      gauge.request_rate_max:
+      haproxy_request_rate_max:
         default: false
         description: 'Max number of HTTP requests per second observed. Values reported for frontends.'
         type: gauge
-      derive.request_total:
+      haproxy_request_total:
         default: false
         description: 'Total number of HTTP requests received. Values reported for frontends and backends.'
         type: cumulative
-      derive.cli_abrt:
+      haproxy_client_aborts:
         default: false
         description: 'Number of data transfers aborted by the client. Values reported for backends and servers.'
         type: cumulative
-      derive.srv_abrt:
+      haproxy_server_aborts:
         default: false
         description: 'Number of data transfers aborted by the server (inc. in eresp). Values reported for backends and servers.'
         type: cumulative
-      derive.comp_in:
+      haproxy_compress_in:
         default: false
         description: 'Number of HTTP response bytes fed to the compressor. Values reported for frontends and backends.'
         type: cumulative
-      derive.comp_out:
+      haproxy_compress_out:
         default: false
         description: 'Number of HTTP response bytes emitted by the compressor. Values reported for frontends and backends.'
         type: cumulative
-      derive.comp_byp:
+      haproxy_compress_bypass:
         default: false
         description: 'Number of bytes that bypassed the HTTP compressor (CPU/BW limit). Values reported for frontends and backends.'
         type: cumulative
-      derive.comp_rsp:
+      haproxy_compress_responses:
         default: false
         description: 'Number of HTTP responses that were compressed. Values reported for frontends and backends.'
         type: cumulative
-      gauge.last_session:
+      haproxy_last_session:
         default: false
         description: 'Number of seconds since last session assigned to server/backend. Values reported for backends and servers.'
         type: gauge
-      gauge.queue_time_avg:
+      haproxy_queue_time_average:
         default: false
         description: 'The average queue time in ms over the 1024 last requests. Values reported for backends and servers.'
         type: gauge
-      gauge.response_time_avg:
+      haproxy_response_time_average:
         default: false
         description: 'The average response time in ms over the 1024 last requests (0 for TCP). Values reported for backends and servers.'
         type: gauge
-      gauge.session_time_average:
+      haproxy_session_time_average:
         default: false
         description: 'The average total session time in ms over the 1024 last requests. Values reported for backends and servers.'
         type: gauge
-      gauge.connection_rate:
+      haproxy_connection_rate:
         default: true
         description: 'Number of connections over the last elapsed second. Values reported for frontends.'
         type: gauge
-      gauge.connection_rate_max:
+      haproxy_connection_rate_max:
         default: false
         description: 'Highest known conn_rate. Values reported for frontends.'
         type: gauge
-      counter.connection_total:
+      haproxy_connection_total:
         default: false
         description: 'Cumulative number of connections. Values reported for frontends.'
         type: cumulative
-      gauge.intercepted_requests:
+      haproxy_intercepted_requests:
         default: false
-        description: 'Cumulative cum. number of intercepted requests (monitor, stats). Values reported for frontends and backends.'
+        description: 'Cumulative number of intercepted requests (monitor, stats). Values reported for frontends and backends.'
         type: gauge
-      gauge.denied_tcp_connections:
+      haproxy_denied_tcp_connections:
         default: false
         description: 'Requests denied by "tcp-request connection" rules. Values reported for listeners and frontends.'
         type: gauge
-      gauge.denied_tcp_sessions:
+      haproxy_denied_tcp_sessions:
         default: false
         description: 'Requests denied by "tcp-request session" rules. Values reported for listeners and frontends.'
         type: gauge
-      derive.compress_bps_in:
-        description: Corresponds to the current HAProxy process `CompressBpsIn` value given by the `show info` cmd.
+      haproxy_compress_bits_per_second_in:
+        description: 'Corresponds to the current HAProxy process `CompressBpsIn` value given by the `show info` cmd.'
         default: false
         type: cumulative
         group: UnixSocketOnly
-      derive.compress_bps_out:
-        description: Corresponds to the current HAProxy process `CompressBpsOut` value given by the `show info` cmd.
+      haproxy_compress_bits_per_second_out:
+        description: 'Corresponds to the current HAProxy process `CompressBpsOut` value given by the `show info` cmd.'
         default: false
         type: cumulative
         group: UnixSocketOnly
-      derive.connections:
-        description: Corresponds to the current HAProxy process `CumConns` value given by the `show info` cmd. Cumulative number of connections.
+      haproxy_connections:
+        description: 'Corresponds to the current HAProxy process `CumConns` value given by the `show info` cmd. Cumulative number of connections.'
         default: false
         type: cumulative
         group: UnixSocketOnly
-      derive.requests:
-        description: Corresponds to the current HAProxy process `CumReq` value given by the `show info` cmd.
+      haproxy_requests:
+        description: 'Corresponds to the current HAProxy process `CumReq` value given by the `show info` cmd.'
         default: true
         type: cumulative
         group: UnixSocketOnly
-      derive.ssl_cache_lookups:
-        description: Corresponds to the current HAProxy process `SslCacheLookups` value given by the `show info` cmd.
+      haproxy_ssl_cache_lookups:
+        description: 'Corresponds to the current HAProxy process `SslCacheLookups` value given by the `show info` cmd.'
         default: false
         type: cumulative
         group: UnixSocketOnly
-      derive.ssl_cache_misses:
-        description: Corresponds to the current HAProxy process `SslCacheMisses` value given by the `show info` cmd.
+      haproxy_ssl_cache_misses:
+        description: 'Corresponds to the current HAProxy process `SslCacheMisses` value given by the `show info` cmd.'
         default: false
         type: cumulative
         group: UnixSocketOnly
-      derive.ssl_connections:
-        description: Corresponds to the current HAProxy process `CumSslConns` value given by the `show info` cmd.
+      haproxy_ssl_connections:
+        description: 'Corresponds to the current HAProxy process `CumSslConns` value given by the `show info` cmd.'
         default: false
         type: cumulative
         group: UnixSocketOnly
-      derive.uptime_seconds:
-        description: Corresponds to the current HAProxy process `Uptime_sec` value given by the `show info` cmd.
+      haproxy_uptime_seconds:
+        description: 'Corresponds to the current HAProxy process `Uptime_sec` value given by the `show info` cmd.'
         default: false
         type: cumulative
         group: UnixSocketOnly
-      gauge.current_connections:
-        description: Corresponds to the current HAProxy process `CurrConns` value given by the `show info` cmd.
+      haproxy_current_connections:
+        description: 'Corresponds to the current HAProxy process `CurrConns` value given by the `show info` cmd.'
         default: false
         type: gauge
         group: UnixSocketOnly
-      gauge.current_ssl_connections:
-        description: Corresponds to the current HAProxy process `CurrSslConns` value given by the `show info` cmd.
+      haproxy_current_ssl_connections:
+        description: 'Corresponds to the current HAProxy process `CurrSslConns` value given by the `show info` cmd.'
         default: false
         type: gauge
         group: UnixSocketOnly
-      gauge.idle_pct:
-        description: Corresponds to the current HAProxy process `Idle_pct` value given by the `show info` cmd. Ratio of system polling time versus total time.
+      haproxy_idle_percent:
+        description: 'Corresponds to the current HAProxy process `Idle_pct` value given by the `show info` cmd. Ratio of system polling time versus total time.'
         default: true
         type: gauge
         group: UnixSocketOnly
-      gauge.max_connection_rate:
-        description: Corresponds to the current HAProxy process `MaxConnRate` value given by the `show info` cmd.
+      haproxy_max_connection_rate:
+        description: 'Corresponds to the current HAProxy process `MaxConnRate` value given by the `show info` cmd.'
         default: false
         type: gauge
         group: UnixSocketOnly
-      gauge.max_connections:
-        description: Corresponds to the current HAProxy process `MaxConn` value given by the `show info` cmd.
+      haproxy_max_connections:
+        description: 'Corresponds to the current HAProxy process `MaxConn` value given by the `show info` cmd.'
         default: false
         type: gauge
         group: UnixSocketOnly
-      gauge.max_pipes:
-        description: Corresponds to the current HAProxy process `MaxPipes` value given by the `show info` cmd.
+      haproxy_max_pipes:
+        description: 'Corresponds to the current HAProxy process `MaxPipes` value given by the `show info` cmd.'
         default: false
         type: gauge
         group: UnixSocketOnly
-      gauge.max_session_rate:
-        description: Corresponds to the current HAProxy process `MaxSessRate` value given by the `show info` cmd.
+      haproxy_max_session_rate:
+        description: 'Corresponds to the current HAProxy process `MaxSessRate` value given by the `show info` cmd.'
         default: false
         type: gauge
         group: UnixSocketOnly
-      gauge.max_ssl_connections:
-        description: Corresponds to the current HAProxy process `MaxSslConns` value given by the `show info` cmd.
+      haproxy_max_ssl_connections:
+        description: 'Corresponds to the current HAProxy process `MaxSslConns` value given by the `show info` cmd.'
         default: false
         type: gauge
         group: UnixSocketOnly
-      gauge.pipes_free:
-        description: Corresponds to the current HAProxy process `PipesFree` value given by the `show info` cmd.
+      haproxy_pipes_free:
+        description: 'Corresponds to the current HAProxy process `PipesFree` value given by the `show info` cmd.'
         default: false
         type: gauge
         group: UnixSocketOnly
-      gauge.pipes_used:
-        description: Corresponds to the current HAProxy process `PipesUsed` value given by the `show info` cmd.
+      haproxy_pipes_used:
+        description: 'Corresponds to the current HAProxy process `PipesUsed` value given by the `show info` cmd.'
         default: false
         type: gauge
         group: UnixSocketOnly
-      gauge.run_queue:
-        description: Corresponds to the current HAProxy process `Run_queue` value given by the `show info` cmd.
+      haproxy_run_queue:
+        description: 'Corresponds to the current HAProxy process `Run_queue` value given by the `show info` cmd.'
         default: false
         type: gauge
         group: UnixSocketOnly
-      gauge.session_rate_all:
-        description: Corresponds to the current HAProxy process `SessRate` value given by the `show info` cmd.
+      haproxy_session_rate_all:
+        description: 'Corresponds to the current HAProxy process `SessRate` value given by the `show info` cmd.'
         default: false
         type: gauge
         group: UnixSocketOnly
-      gauge.ssl_backend_key_rate:
-        description: Corresponds to the current HAProxy process `SslBackendKeyRate` value given by the `show info` cmd.
+      haproxy_ssl_backend_key_rate:
+        description: 'Corresponds to the current HAProxy process `SslBackendKeyRate` value given by the `show info` cmd.'
         default: false
         type: gauge
         group: UnixSocketOnly
-      gauge.ssl_frontend_key_rate:
-        description: Corresponds to the current HAProxy process `SslFrontendKeyRate` value given by the `show info` cmd.
+      haproxy_ssl_frontend_key_rate:
+        description: 'Corresponds to the current HAProxy process `SslFrontendKeyRate` value given by the `show info` cmd.'
         default: false
         type: gauge
         group: UnixSocketOnly
-      gauge.ssl_rate:
-        description: Corresponds to the current HAProxy process `SslRate` value given by the `show info` cmd.
+      haproxy_ssl_rate:
+        description: 'Corresponds to the current HAProxy process `SslRate` value given by the `show info` cmd.'
         default: false
         type: gauge
         group: UnixSocketOnly
-      gauge.tasks:
-        description: Corresponds to the current HAProxy process `Tasks` value given by the `show info` cmd.
+      haproxy_tasks:
+        description: 'Corresponds to the current HAProxy process `Tasks` value given by the `show info` cmd.'
         default: false
         type: gauge
         group: UnixSocketOnly
-      gauge.zlib_mem_usage:
-        description: Corresponds to the current HAProxy process `ZlibMemUsage` value given by the `show info` cmd.
+      haproxy_zlib_memory_usage:
+        description: 'Corresponds to the current HAProxy process `ZlibMemUsage` value given by the `show info` cmd.'
         default: false
         type: gauge
         group: UnixSocketOnly
