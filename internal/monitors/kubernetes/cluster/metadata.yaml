@@ -113,50 +113,50 @@ common:
       type: gauge
     kubernetes.stateful_set.desired:
       description: Number of desired pods in the stateful set (the `spec.replicas` field)
-      default: true
+      default: false
       type: gauge
     kubernetes.stateful_set.ready:
       description: Number of pods created by the stateful set that have the `Ready` condition
-      default: true
+      default: false
       type: gauge
     kubernetes.stateful_set.current:
       description: |
         The number of pods created by the StatefulSet controller from the
         StatefulSet version indicated by `current_revision` property on the
         `kubernetes_uid` dimension for this StatefulSet.
-      default: true
+      default: false
       type: gauge
     kubernetes.stateful_set.updated:
       description: |
         The number of pods created by the StatefulSet controller from the
         StatefulSet version indicated by the `update_revision` property on the
         `kubernetes_uid` dimension for this StatefulSet.
-      default: true
+      default: false
       type: gauge
     kubernetes.job.completions:
       description: The desired number of successfully finished pods the job should be
         run with.
-      default: true
+      default: false
       type: gauge
     kubernetes.job.parallelism:
       description: The max desired number of pods the job should run at any given time.
-      default: true
+      default: false
       type: gauge
     kubernetes.job.active:
       description: The number of actively running pods for a job.
-      default: true
+      default: false
       type: gauge
     kubernetes.job.succeeded:
       description: The number of pods which reached phase Succeeded for a job.
-      default: true
+      default: false
       type: counter
     kubernetes.job.failed:
       description: The number of pods which reased phase Failed for a job.
-      default: true
+      default: false
       type: counter
     kubernetes.cronjob.active:
       description: The number of actively running jobs for a cronjob.
-      default: true
+      default: false
       type: gauge
   properties:
     <node label>:
