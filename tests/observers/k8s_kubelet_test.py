@@ -13,6 +13,8 @@ def test_k8s_kubelet_observer_basic(k8s_cluster):
         config = f"""
             observers:
              - type: k8s-kubelet
+               kubeletAPI:
+                 authType: serviceAccount
             monitors:
              - type: collectd/nginx
                discoveryRule: 'discovered_by == "k8s-kubelet" && kubernetes_namespace == "{k8s_cluster.test_namespace}" && port == 80 && container_spec_name == "nginx"'
