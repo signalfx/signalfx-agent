@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 from tests.helpers.assertions import has_all_dim_props, has_datapoint
-from tests.helpers.util import ensure_always, get_monitor_metrics_from_selfdescribe, wait_for
+from tests.helpers.util import ensure_always, get_default_monitor_metrics_from_selfdescribe, wait_for
 from tests.paths import TEST_SERVICES_DIR
 
 pytestmark = [pytest.mark.kubernetes_cluster, pytest.mark.monitor_without_endpoints]
@@ -17,14 +17,10 @@ def test_kubernetes_cluster_in_k8s(k8s_cluster):
     monitors:
      - type: kubernetes-cluster
     """
-    yamls = [
-        SCRIPT_DIR / "resource_quota.yaml",
-        TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml",
-        SCRIPT_DIR / "statefulset.yaml",
-    ]
+    yamls = [SCRIPT_DIR / "resource_quota.yaml", TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
     with k8s_cluster.create_resources(yamls):
         with k8s_cluster.run_agent(agent_yaml=config) as agent:
-            for metric in get_monitor_metrics_from_selfdescribe("kubernetes-cluster"):
+            for metric in get_default_monitor_metrics_from_selfdescribe("kubernetes-cluster"):
                 if "replication_controller" in metric:
                     continue
                 assert wait_for(p(has_datapoint, agent.fake_services, metric_name=metric))
