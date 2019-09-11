@@ -96,17 +96,37 @@ var sfxMetricsMap = map[string]string{
 	"ZlibMemUsage":       gaugeZlibMemUsage,
 }
 
-func newStatPageDatapoints(body io.ReadCloser, proxiesToMonitor map[string]bool) []*datapoint.Datapoint {
+// Creates datapoints by fetching csv stats from an http endpoint.
+func newStatsPageDps(conf *Config, proxies map[string]bool) []*datapoint.Datapoint {
+	body, err := csvReader(conf)
+	if err != nil {
+		logger.Errorf("cannot scrape HAProxy: %v", err)
+		return nil
+	}
+	return newStatsDps(body, proxies)
+}
+
+// Creates datapoints by running the show stats command.
+func newStatsCmdDps(u *url.URL, timeout time.Duration, proxies map[string]bool) []*datapoint.Datapoint {
+	body, err := cmdReader(u, "show stat\n", timeout)
+	if err != nil {
+		logger.Errorf("cannot scrape HAProxy: %v", err)
+	}
+	return newStatsDps(body, proxies)
+}
+
+// Creates datapoints by reading csv stats.
+func newStatsDps(body io.ReadCloser, proxiesToMonitor map[string]bool) []*datapoint.Datapoint {
 	dps := make([]*datapoint.Datapoint, 0)
-	for _, metricValuePairs := range statsPageMetricValuePairs(body) {
+	for _, metricValuePairs := range statsMetricValuePairs(body) {
 		if len(proxiesToMonitor) != 0 && !proxiesToMonitor[metricValuePairs["pxname"]] && !proxiesToMonitor[metricValuePairs["svname"]] {
 			continue
 		}
 		for metric, value := range metricValuePairs {
-			if dp := newDatapoint(sfxMetricsMap[metric], value); dp != nil {
+			if dp := newDp(sfxMetricsMap[metric], value); dp != nil {
 				dp.Dimensions["proxy_name"] = metricValuePairs["pxname"]
 				dp.Dimensions["service_name"] = metricValuePairs["svname"]
-				dp.Dimensions["process_num"] = metricValuePairs["pid"]
+				dp.Dimensions["process_num"] = pidPlusPlus(metricValuePairs["pid"])
 				dps = append(dps, dp)
 			}
 		}
@@ -114,15 +134,17 @@ func newStatPageDatapoints(body io.ReadCloser, proxiesToMonitor map[string]bool)
 	return dps
 }
 
-func newShowStatCommandDatapoints(body io.ReadCloser, proxiesToMonitor map[string]bool) []*datapoint.Datapoint {
-	return newStatPageDatapoints(body, proxiesToMonitor)
-}
-
-func newShowInfoCommandDatapoints(body io.ReadCloser) []*datapoint.Datapoint {
+// Creates datapoints from the show info command.
+func newInfoDps(u *url.URL, timeout time.Duration) []*datapoint.Datapoint {
+	body, err := cmdReader(u, "show info\n", timeout)
+	if err != nil {
+		logger.Errorf("cannot scrape HAProxy: %v", err)
+		return nil
+	}
 	dps := make([]*datapoint.Datapoint, 0)
-	metricValuePairs := showInfoCommandMetricValuePairs(body)
+	metricValuePairs := infoMetricValuePairs(body)
 	for metric, value := range metricValuePairs {
-		if dp := newDatapoint(sfxMetricsMap[metric], value); dp != nil {
+		if dp := newDp(sfxMetricsMap[metric], value); dp != nil {
 			dp.Dimensions["process_num"] = metricValuePairs["Process_num"]
 			dps = append(dps, dp)
 		}
@@ -130,7 +152,7 @@ func newShowInfoCommandDatapoints(body io.ReadCloser) []*datapoint.Datapoint {
 	return dps
 }
 
-func statsPageMetricValuePairs(body io.ReadCloser) map[int]map[string]string {
+func statsMetricValuePairs(body io.ReadCloser) map[int]map[string]string {
 	defer closeBody(body)
 	r := csv.NewReader(body)
 	r.TrimLeadingSpace = true
@@ -151,7 +173,7 @@ func statsPageMetricValuePairs(body io.ReadCloser) map[int]map[string]string {
 	return rows
 }
 
-func showInfoCommandMetricValuePairs(body io.ReadCloser) map[string]string {
+func infoMetricValuePairs(body io.ReadCloser) map[string]string {
 	defer closeBody(body)
 	sc := bufio.NewScanner(body)
 	row := map[string]string{}
@@ -187,7 +209,7 @@ func csvReader(conf *Config) (io.ReadCloser, error) {
 	return res.Body, nil
 }
 
-func commandReader(u *url.URL, cmd string, timeout time.Duration) (io.ReadCloser, error) {
+func cmdReader(u *url.URL, cmd string, timeout time.Duration) (io.ReadCloser, error) {
 	f, err := net.DialTimeout("unix", u.Path, timeout)
 	if err != nil {
 		return nil, err
@@ -208,7 +230,7 @@ func commandReader(u *url.URL, cmd string, timeout time.Duration) (io.ReadCloser
 	return f, nil
 }
 
-func newDatapoint(metric string, value string) *datapoint.Datapoint {
+func newDp(metric string, value string) *datapoint.Datapoint {
 	if metric == "" || value == "" {
 		return nil
 	}
@@ -246,4 +268,13 @@ func closeBody(body io.ReadCloser) {
 	if body != nil {
 		body.Close()
 	}
+}
+
+func pidPlusPlus(pid string) string {
+	i, err := strconv.Atoi(pid)
+	if err != nil {
+		logger.Errorf("failed to increment pid by 1")
+		return pid
+	}
+	return strconv.Itoa(i + 1)
 }

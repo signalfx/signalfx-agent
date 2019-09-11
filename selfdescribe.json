@@ -24093,7 +24093,7 @@
           },
           {
             "yamlName": "url",
-            "doc": "URL on which to scrape HAProxy.",
+            "doc": "URL on which to scrape HAProxy. The URL scheme `http://` is designated as http-type configuration while `unix://` socket-type.",
             "default": null,
             "required": true,
             "type": "string",
@@ -24116,7 +24116,7 @@
             "elementKind": ""
           },
           {
-            "yamlName": "proxiesToMonitor",
+            "yamlName": "proxies",
             "doc": "A list of the pxname(s) and svname(s) to monitor (e.g. `[\"http-in\", \"server1\", \"backend\"]`). If empty then metrics of all proxies will be reported.",
             "default": null,
             "required": false,

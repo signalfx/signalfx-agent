@@ -26,7 +26,7 @@ def test_haproxy_default_metrics_from_stats_page(version):
              url: http://{host}:8080/stats?stats;csv
            """
         ) as agent:
-            verify(agent, EXPECTED_DEFAULTS - METADATA.metrics_by_group["showInfoCmd"], 10)
+            verify(agent, EXPECTED_DEFAULTS - METADATA.metrics_by_group["UnixSocketOnly"], 10)
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
@@ -39,7 +39,7 @@ def test_haproxy_default_metrics_from_stats_page_proxies_to_monitor_frontend_200
            monitors:
            - type: haproxy
              url: http://{host}:8080/stats?stats;csv
-             proxiesToMonitor: ["FRONTEND", "200s"]
+             proxies: ["FRONTEND", "200s"]
            """
         ) as agent:
             assert ensure_always(
@@ -64,7 +64,7 @@ def test_haproxy_default_metrics_from_stats_page_basic_auth(version):
              username: a_username
              password: a_password
              url: http://{host}:8081/stats?stats;csv
-             proxiesToMonitor: ["FRONTEND", "200s"]
+             proxies: ["FRONTEND", "200s"]
            """
         ) as agent:
             assert ensure_always(
@@ -89,7 +89,7 @@ def test_haproxy_default_metrics_from_stats_page_basic_auth_wrong_password(versi
              username: a_username
              password: a_wrong_password
              url: http://{host}:8081/stats?stats;csv
-             proxiesToMonitor: ["FRONTEND", "200s"]
+             proxies: ["FRONTEND", "200s"]
            """
         ) as agent:
             assert ensure_always(
