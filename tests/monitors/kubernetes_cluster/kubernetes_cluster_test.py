@@ -22,6 +22,7 @@ def test_kubernetes_cluster_in_k8s(k8s_cluster):
         TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml",
         SCRIPT_DIR / "cronjob.yaml",
         SCRIPT_DIR / "statefulset.yaml",
+        SCRIPT_DIR / "job.yaml",
     ]
     with k8s_cluster.create_resources(yamls):
         with k8s_cluster.run_agent(agent_yaml=config) as agent:
