@@ -55,7 +55,7 @@ func datapointsForJob(job *batchv1.Job) []*datapoint.Datapoint {
 func dimPropsForJob(job *batchv1.Job) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(job.Labels)
 
-	props["k8s_workload"] = "Job"
+	props["kubernetes_workload"] = "Job"
 
 	for _, or := range job.OwnerReferences {
 		props[utils.LowercaseFirstChar(or.Kind)] = or.Name

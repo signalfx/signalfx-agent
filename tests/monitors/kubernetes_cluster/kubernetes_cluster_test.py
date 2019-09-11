@@ -134,7 +134,7 @@ def test_stateful_sets(k8s_cluster):
                     agent.fake_services,
                     dim_name="kubernetes_uid",
                     dim_value=resources[0].metadata.uid,
-                    props={"k8s_workload": "StatefulSet"},
+                    props={"kubernetes_workload": "StatefulSet"},
                 )
             )
 
@@ -164,7 +164,7 @@ def test_jobs(k8s_cluster):
                     agent.fake_services,
                     dim_name="kubernetes_uid",
                     dim_value=resources[0].metadata.uid,
-                    props={"k8s_workload": "Job"},
+                    props={"kubernetes_workload": "Job"},
                 ),
                 timeout_seconds=300,
             )
@@ -200,7 +200,7 @@ def test_cronjobs(k8s_cluster):
                     agent.fake_services,
                     dim_name="kubernetes_uid",
                     dim_value=resources[0].metadata.uid,
-                    props={"k8s_workload": "CronJob"},
+                    props={"kubernetes_workload": "CronJob"},
                 ),
                 timeout_seconds=300,
             )
