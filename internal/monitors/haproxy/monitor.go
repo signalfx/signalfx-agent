@@ -7,8 +7,6 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
-	logger "github.com/sirupsen/logrus"
-
 	"github.com/signalfx/signalfx-agent/internal/utils"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors"
@@ -48,8 +46,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 			return append(newStatsCmdDps(u, conf.Timeout, proxies), newInfoDps(u, conf.Timeout)...)
 		}
 	default:
-		logger.Errorf("unsupported scheme: %q", u.Scheme)
-		return nil
+		return fmt.Errorf("unsupported scheme: %q", u.Scheme)
 	}
 	utils.RunOnInterval(m.ctx, func() {
 		for _, dp := range m.getDps(conf) {
