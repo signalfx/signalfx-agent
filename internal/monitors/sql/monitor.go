@@ -51,6 +51,8 @@ type Metric struct {
 	// manually change the type in SignalFx, as it is set in the system based
 	// on the first type seen.
 	IsCumulative bool `yaml:"isCumulative"`
+	// The mapping between dimensions and the columns to be used to attach respective properties
+	DimensionPropertyColumns map[string][]string `yaml:"dimensionPropertyColumns"`
 }
 
 // Config for this monitor

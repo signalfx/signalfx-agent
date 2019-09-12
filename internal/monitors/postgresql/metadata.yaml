@@ -142,3 +142,13 @@ monitors:
       description: Number of rows live (not deleted) in the `table`.
       default: true
       type: gauge
+    postgres_most_frequent_queries:
+      description: Top N most frequently executed queries broken down by `database`
+      default: false
+      type: cumulative
+      group: queries
+    postgres_longest_running_queries:
+      description: Top N queries based on the execution time broken down by `database`
+      default: false
+      type: cumulative
+      group: queries
