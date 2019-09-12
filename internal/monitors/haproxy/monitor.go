@@ -29,10 +29,10 @@ const maxRoutines = 16
 // processes. Likewise process-related 'info' stats have Process_num. The info stats do however have Nbproc which gives
 // the number of processes stat. But, info stats are not available through http.
 //
-// This monitor assigns the pid and Process_num stats to dimension process_num. It finds the number of processes
-// dynamically by evaluating the maximum value of dimension process_num over time. It fetches HAProxy stats repeatedly
-// if necessary in order to get stats for all HAProxy processes. It fetches stats repeatedly if necessary within the
-// configured timeout duration.
+// This monitor assigns the pid stat and Process_num info to dimension process_num. It finds the number of running
+// HAProxy processes dynamically by evaluating the maximum value of dimension process_num over time. It fetches HAProxy
+// stats repeatedly if necessary in order to get stats for all processes. It fetches stats repeatedly if necessary
+// within the configured timeout duration.
 type Monitor struct {
 	Output  types.Output
 	cancel  context.CancelFunc
