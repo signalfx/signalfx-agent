@@ -185,8 +185,11 @@ func (m *Monitor) fetchCsv(body io.Reader) []*datapoint.Datapoint {
 			if dp := toDp(sfxMetricsMap[metric], value); dp != nil {
 				dp.Dimensions["proxy_name"] = metricValuePairs["pxname"]
 				dp.Dimensions["service_name"] = metricValuePairs["svname"]
-				// WARNING: It says in docs https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.1 that
-				// pid is a whole number but it is actually a natural number like Process_num.
+				// WARNING: Both pid and Process_num are indexes identifying HAProxy process. pid in the context of
+				// proxy stats and Process_num in the context of HAProxy process info. It says in the docs
+				// https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.1 that pid is zero-based. But, it is
+				// exactly the same as Process_num, a natural number. We therefore assign pid and Process_num to
+				// dimension process_num without modification.
 				dp.Dimensions["process_num"] = metricValuePairs["pid"]
 				dps = append(dps, dp)
 			}
@@ -299,6 +302,11 @@ func (m *Monitor) fetchRepeatedlySocketInfo(ctx context.Context, conf *Config, n
 			}
 			for metric, value := range metricValuePairs {
 				if dp := toDp(sfxMetricsMap[metric], value); dp != nil {
+					// WARNING: Both pid and Process_num are indexes identifying HAProxy process. pid in the context of
+					// proxy stats and Process_num in the context of HAProxy process info. It says in the docs
+					// https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.1 that pid is zero-based. But, it is
+					// exactly the same as Process_num, a natural number. We therefore assign pid and Process_num to
+					// dimension process_num without modification.
 					dp.Dimensions["process_num"] = metricValuePairs["Process_num"]
 					dps = append(dps, dp)
 				}
