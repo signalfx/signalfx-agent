@@ -114,7 +114,13 @@ func getPropsFromTolerations(tolerations []v1.Toleration) map[string]string {
 	props := make(map[string]string)
 
 	for _, t := range tolerations {
-		keyValueCombo := "toleration_" + t.Key + "_" + t.Value
+		keyValueCombo := "toleration"
+		if len(t.Key) > 0 {
+			keyValueCombo += ("_" + t.Key)
+		}
+		if len(t.Value) > 0 {
+			keyValueCombo += ("_" + t.Value)
+		}
 		keyValueCombo = unsupportedPattern.ReplaceAllString(keyValueCombo, "_")
 
 		if _, exists := props[keyValueCombo]; exists {
