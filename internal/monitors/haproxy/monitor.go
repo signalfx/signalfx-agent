@@ -13,6 +13,7 @@ import (
 
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+	logger "github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -49,14 +50,17 @@ type dpsChans struct {
 // Config for this monitor
 func (m *Monitor) Configure(conf *Config) (err error) {
 	m.ctx, m.cancel = context.WithCancel(context.Background())
+
 	m.url, err = url.Parse(conf.URL)
 	if err != nil {
 		return fmt.Errorf("cannot parse url %s status. %v", conf.URL, err)
 	}
+
 	m.proxies = map[string]bool{}
 	for _, proxy := range conf.Proxies {
 		m.proxies[proxy] = true
 	}
+
 	switch m.url.Scheme {
 	case "http", "https", "file":
 		m.fetch = m.fetchAllHTTP
@@ -76,6 +80,8 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		for _, dp := range m.fetch(ctx, conf, numProcesses) {
 			if p, err := strconv.Atoi(dp.Dimensions["process_num"]); err == nil && p > maxProcessNum {
 				maxProcessNum = p
+			} else if err != nil {
+				logger.Errorf("failed to convert into int value %s of dimension process_num. %+v", dp.Dimensions["process_num"], err)
 			}
 			m.Output.SendDatapoint(dp)
 		}

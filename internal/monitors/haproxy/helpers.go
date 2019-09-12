@@ -102,9 +102,9 @@ var sfxMetricsMap = map[string]string{
 func (m *Monitor) fetchAllHTTP(ctx context.Context, conf *Config, numProcesses int) []*datapoint.Datapoint {
 	var statsChans dpsChans
 	var wg sync.WaitGroup
-	for i := 0; i < min(maxRoutines, numProcesses); i++ {
+	for i := 0; i < min1(maxRoutines, numProcesses); i++ {
 		wg.Add(1)
-		go m.multiFetchHTTP(ctx, conf, numProcesses, &wg, &statsChans)
+		go m.fetchRepeatedlyHTTP(ctx, conf, numProcesses, &wg, &statsChans)
 	}
 	wg.Wait()
 	dps := make([]*datapoint.Datapoint, 0)
@@ -118,11 +118,11 @@ func (m *Monitor) fetchAllHTTP(ctx context.Context, conf *Config, numProcesses i
 func (m *Monitor) fetchAllSocket(ctx context.Context, conf *Config, numProcesses int) []*datapoint.Datapoint {
 	var statsChans, infoChans dpsChans
 	var wg sync.WaitGroup
-	for i := 0; i < min(maxRoutines, numProcesses); i++ {
+	for i := 0; i < min1(maxRoutines, numProcesses); i++ {
 		wg.Add(1)
-		go m.multiFetchSocket(ctx, conf, numProcesses, &wg, &statsChans)
+		go m.fetchRepeatedlySocket(ctx, conf, numProcesses, &wg, &statsChans)
 		wg.Add(1)
-		go m.multiFetchSocketInfo(ctx, conf, numProcesses, &wg, &infoChans)
+		go m.fetchRepeatedlySocketInfo(ctx, conf, numProcesses, &wg, &infoChans)
 	}
 	wg.Wait()
 	dps := make([]*datapoint.Datapoint, 0)
@@ -136,7 +136,7 @@ func (m *Monitor) fetchAllSocket(ctx context.Context, conf *Config, numProcesses
 }
 
 // Writes into channel, csv stats datapoints fetched through http.
-func (m *Monitor) multiFetchHTTP(ctx context.Context, conf *Config, numProcesses int, wg *sync.WaitGroup, statsChans *dpsChans) {
+func (m *Monitor) fetchRepeatedlyHTTP(ctx context.Context, conf *Config, numProcesses int, wg *sync.WaitGroup, statsChans *dpsChans) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -240,7 +240,7 @@ func readCsv(body io.Reader) map[int]map[string]string {
 }
 
 // Writes into channel, csv stats datapoints fetch through unix socket command 'show stats'.
-func (m *Monitor) multiFetchSocket(ctx context.Context, conf *Config, numProcesses int, wg *sync.WaitGroup, statsChans *dpsChans) {
+func (m *Monitor) fetchRepeatedlySocket(ctx context.Context, conf *Config, numProcesses int, wg *sync.WaitGroup, statsChans *dpsChans) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -279,7 +279,7 @@ func (m *Monitor) fetchSocket(conf *Config) ([]*datapoint.Datapoint, error) {
 }
 
 // Writes into channel, info datapoints fetch through unix socket command 'show info'.
-func (m *Monitor) multiFetchSocketInfo(ctx context.Context, conf *Config, numProcesses int, wg *sync.WaitGroup, infoChans *dpsChans) {
+func (m *Monitor) fetchRepeatedlySocketInfo(ctx context.Context, conf *Config, numProcesses int, wg *sync.WaitGroup, infoChans *dpsChans) {
 	for {
 		select {
 		case <-ctx.Done():
@@ -404,9 +404,12 @@ func closeBody(body io.ReadCloser) {
 	}
 }
 
-func min(a, b int) int {
-	if a < b {
+// Returns the min parameter with 1 as the absolute min
+func min1(a, b int) int {
+	if a < b && a > 0 {
 		return a
+	} else if b > 0 {
+		return b
 	}
-	return b
+	return 1
 }
