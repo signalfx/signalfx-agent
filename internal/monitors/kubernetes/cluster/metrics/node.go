@@ -94,7 +94,13 @@ func getPropsFromTaints(taints []v1.Taint) map[string]string {
 	props := make(map[string]string)
 
 	for _, t := range taints {
-		keyValueCombo := "taint_" + t.Key + "_" + t.Value
+		keyValueCombo := "taint"
+		if len(t.Key) > 0 {
+			keyValueCombo += ("_" + t.Key)
+		}
+		if len(t.Value) > 0 {
+			keyValueCombo += ("_" + t.Value)
+		}
 		keyValueCombo = unsupportedPattern.ReplaceAllString(keyValueCombo, "_")
 
 		if _, exists := props[keyValueCombo]; exists {
