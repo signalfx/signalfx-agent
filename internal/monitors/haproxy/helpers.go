@@ -100,15 +100,15 @@ var sfxMetricsMap = map[string]string{
 
 // Creates datapoints for all HAProxy processes from csv stats fetched through http.
 func (m *Monitor) fetchAllHTTP(ctx context.Context, conf *Config, numProcesses int) []*datapoint.Datapoint {
-	var statsChans dpsChans
+	var statsDpsChans dpsChans
 	var wg sync.WaitGroup
 	for i := 0; i < min1(maxRoutines, numProcesses); i++ {
 		wg.Add(1)
-		go m.fetchRepeatedlyHTTP(ctx, conf, numProcesses, &wg, &statsChans)
+		go m.fetchRepeatedlyHTTP(ctx, conf, numProcesses, &wg, &statsDpsChans)
 	}
 	wg.Wait()
 	dps := make([]*datapoint.Datapoint, 0)
-	for _, v := range statsChans.chans {
+	for _, v := range statsDpsChans.chans {
 		dps = append(dps, <-v...)
 	}
 	return dps
@@ -116,20 +116,20 @@ func (m *Monitor) fetchAllHTTP(ctx context.Context, conf *Config, numProcesses i
 
 // Creates datapoints for all HAProxy processes from stats and info fetched through socket.
 func (m *Monitor) fetchAllSocket(ctx context.Context, conf *Config, numProcesses int) []*datapoint.Datapoint {
-	var statsChans, infoChans dpsChans
+	var statsDpsChans, infoDpsChans dpsChans
 	var wg sync.WaitGroup
 	for i := 0; i < min1(maxRoutines, numProcesses); i++ {
 		wg.Add(1)
-		go m.fetchRepeatedlySocket(ctx, conf, numProcesses, &wg, &statsChans)
+		go m.fetchRepeatedlySocket(ctx, conf, numProcesses, &wg, &statsDpsChans)
 		wg.Add(1)
-		go m.fetchRepeatedlySocketInfo(ctx, conf, numProcesses, &wg, &infoChans)
+		go m.fetchRepeatedlySocketInfo(ctx, conf, numProcesses, &wg, &infoDpsChans)
 	}
 	wg.Wait()
 	dps := make([]*datapoint.Datapoint, 0)
-	for _, v := range statsChans.chans {
+	for _, v := range statsDpsChans.chans {
 		dps = append(dps, <-v...)
 	}
-	for _, v := range infoChans.chans {
+	for _, v := range infoDpsChans.chans {
 		dps = append(dps, <-v...)
 	}
 	return dps
@@ -137,7 +137,9 @@ func (m *Monitor) fetchAllSocket(ctx context.Context, conf *Config, numProcesses
 
 // Writes into channel, csv stats datapoints fetched through http.
 func (m *Monitor) fetchRepeatedlyHTTP(ctx context.Context, conf *Config, numProcesses int, wg *sync.WaitGroup, statsChans *dpsChans) {
-	for {
+	timer := time.NewTicker(1 * time.Second)
+	defer timer.Stop()
+	for _ = range timer.C {
 		select {
 		case <-ctx.Done():
 			logger.Errorf("failed to write 'show stats' datapoint to channel: %+v", ctx.Err())
@@ -244,7 +246,9 @@ func readCsv(body io.Reader) map[int]map[string]string {
 
 // Writes into channel, csv stats datapoints fetch through unix socket command 'show stats'.
 func (m *Monitor) fetchRepeatedlySocket(ctx context.Context, conf *Config, numProcesses int, wg *sync.WaitGroup, statsChans *dpsChans) {
-	for {
+	timer := time.NewTicker(1 * time.Second)
+	defer timer.Stop()
+	for _ = range timer.C {
 		select {
 		case <-ctx.Done():
 			logger.Errorf("failed to write 'show stats' datapoint to channel: %+v", ctx.Err())
@@ -283,7 +287,9 @@ func (m *Monitor) fetchSocket(conf *Config) ([]*datapoint.Datapoint, error) {
 
 // Writes into channel, info datapoints fetch through unix socket command 'show info'.
 func (m *Monitor) fetchRepeatedlySocketInfo(ctx context.Context, conf *Config, numProcesses int, wg *sync.WaitGroup, infoChans *dpsChans) {
-	for {
+	timer := time.NewTicker(1 * time.Second)
+	defer timer.Stop()
+	for _ = range timer.C {
 		select {
 		case <-ctx.Done():
 			logger.Errorf("failed to write stats datapoint to channel: %+v", ctx.Err())

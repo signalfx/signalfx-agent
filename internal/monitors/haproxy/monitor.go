@@ -38,7 +38,6 @@ type Monitor struct {
 	cancel  context.CancelFunc
 	ctx     context.Context
 	url     *url.URL
-	fetch   func(context.Context, *Config, int) []*datapoint.Datapoint
 	proxies map[string]bool
 }
 
@@ -61,23 +60,26 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		m.proxies[proxy] = true
 	}
 
+	var fetch   func(context.Context, *Config, int) []*datapoint.Datapoint
+
 	switch m.url.Scheme {
 	case "http", "https", "file":
-		m.fetch = m.fetchAllHTTP
+		fetch = m.fetchAllHTTP
 	case "unix":
-		m.fetch = m.fetchAllSocket
+		fetch = m.fetchAllSocket
 	default:
 		return fmt.Errorf("unsupported scheme: %q", m.url.Scheme)
 	}
 
 	numProcesses := 1
 
+	interval := time.Duration(conf.IntervalSeconds)*time.Second
 	utils.RunOnInterval(m.ctx, func() {
 		// max process_num dimension value seen in datapoints
 		maxProcessNum := 1
-		ctx, cancel := context.WithTimeout(m.ctx, conf.Timeout)
+		ctx, cancel := context.WithTimeout(m.ctx, interval)
 		defer cancel()
-		for _, dp := range m.fetch(ctx, conf, numProcesses) {
+		for _, dp := range fetch(ctx, conf, numProcesses) {
 			if p, err := strconv.Atoi(dp.Dimensions["process_num"]); err == nil && p > maxProcessNum {
 				maxProcessNum = p
 			} else if err != nil {
@@ -86,7 +88,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 			m.Output.SendDatapoint(dp)
 		}
 		numProcesses = maxProcessNum
-	}, time.Duration(conf.IntervalSeconds)*time.Second)
+	}, interval)
 	return nil
 }
 
