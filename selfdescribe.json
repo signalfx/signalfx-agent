@@ -27139,6 +27139,14 @@
           "dimension": "kubernetes_pod_uid",
           "description": "Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension."
         },
+        "container_status": {
+          "dimension": "container_id",
+          "description": "Status of the container such as `running`, `waiting` or `terminated` are synced to the `container_id` dimension."
+        },
+        "container_status_reason": {
+          "dimension": "container_id",
+          "description": "Reason why a container is in a particular state. This property is synced to `container_id` only if the value of `cotnainer_status` is either `waiting` or `terminated`."
+        },
         "cronjob_creation_timestamp": {
           "dimension": "kubernetes_uid",
           "description": "Timestamp representing the server time when the cron job was created and is in UTC. This property is synced onto `kubernetes_uid`."
@@ -29831,6 +29839,14 @@
         "\u003cpod label\u003e": {
           "dimension": "kubernetes_pod_uid",
           "description": "Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension."
+        },
+        "container_status": {
+          "dimension": "container_id",
+          "description": "Status of the container such as `running`, `waiting` or `terminated` are synced to the `container_id` dimension."
+        },
+        "container_status_reason": {
+          "dimension": "container_id",
+          "description": "Reason why a container is in a particular state. This property is synced to `container_id` only if the value of `cotnainer_status` is either `waiting` or `terminated`."
         },
         "cronjob_creation_timestamp": {
           "dimension": "kubernetes_uid",

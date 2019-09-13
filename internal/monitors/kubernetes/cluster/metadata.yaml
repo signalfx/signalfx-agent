@@ -198,7 +198,15 @@ common:
       description: Timestamp representing the server time when the stateful set was created and
         is in UTC. This property is synced onto `kubernetes_uid`.
       dimension: kubernetes_uid
-
+    container_status:
+      description: Status of the container such as `running`, `waiting` or `terminated` are
+        synced to the `container_id` dimension.
+      dimension: container_id
+    container_status_reason:
+      description: Reason why a container is in a particular state. This property is synced
+        to `container_id` only if the value of `cotnainer_status` is either `waiting` or
+        `terminated`.
+      dimension: container_id
 
 monitors:
 - <<: *common
