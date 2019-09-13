@@ -88,11 +88,11 @@ Configuration](../monitor-config.md#common-configuration).**
 | --- | --- | --- | --- |
 | `host` | no | `string` |  |
 | `port` | no | `integer` |  (**default:** `0`) |
-| `masterDBName` | no | `string` | The "master" database to which the agent first connects to query the list of databases available in the server.  This database should be accessible to the user specified with `connectionString` and `params` below, and that user should have permission to query `pg_database`.  If you want to filter which databases are monitored, use the `databases` option below. (**default:** `postgres`) |
 | `connectionString` | no | `string` | See https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters. |
 | `params` | no | `map of strings` | Parameters to the connection string that can be templated into the connection string with the syntax `{{.key}}`. |
 | `databases` | no | `list of strings` | List of databases to send database-specific metrics about.  If omitted, metrics about all databases will be sent.  This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). (**default:** `[*]`) |
 | `databasePollIntervalSeconds` | no | `integer` | How frequently to poll for new/deleted databases in the DB server. Defaults to the same as `intervalSeconds` if not set. (**default:** `0`) |
+| `topQueryLimit` | no | `integer` | The number of top queries to consider when publishing query-related metrics (**default:** `10`) |
 
 
 ## Metrics
@@ -118,6 +118,13 @@ Metrics that are categorized as
  - ***`postgres_sessions`*** (*gauge*)<br>    Number of sessions currently on the server instance.  The `state` dimension will specify which which type of session (see `state` row of [pg_stat_activity](https://www.postgresql.org/docs/9.2/monitoring-stats.html#PG-STAT-ACTIVITY-VIEW)).
 
  - ***`postgres_table_size`*** (*gauge*)<br>    The size in bytes of the `table` on disk.
+
+#### Group queries
+All of the following metrics are part of the `queries` metric group. All of
+the non-default metrics below can be turned on by adding `queries` to the
+monitor config option `extraGroups`:
+ - `postgres_longest_running_queries` (*cumulative*)<br>    Top N queries based on the execution time broken down by `database`
+ - `postgres_most_frequent_queries` (*cumulative*)<br>    Top N most frequently executed queries broken down by `database`
 
 ### Non-default metrics (version 4.7.0+)
 

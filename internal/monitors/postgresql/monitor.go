@@ -129,9 +129,11 @@ func (m *Monitor) Configure(conf *Config) error {
 		return fmt.Errorf("could not monitor postgresql server: %v", err)
 	}
 
-	m.statementsMonitor, err = m.monitorStatements()
-	if err != nil {
-		logger.WithError(err).Errorf("Could not monitor queries: %v", err)
+	if m.Output.HasEnabledMetricInGroup(groupQueries) {
+		m.statementsMonitor, err = m.monitorStatements()
+		if err != nil {
+			logger.WithError(err).Errorf("Could not monitor queries: %v", err)
+		}
 	}
 
 	utils.RunOnInterval(m.ctx, func() {

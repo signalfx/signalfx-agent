@@ -10,6 +10,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -175,7 +176,7 @@ func (q *querier) convertCurrentRowToDatapointAndProperties(rows *sql.Rows) ([]*
 					}
 					for k := range dimProperties.Properties {
 						if strings.EqualFold(columnNames[i], k) {
-							dimProperties.Properties[k] = truncateString(dimVal, 256)
+							dimProperties.Properties[k] = utils.TruncateDimensionValue(dimVal)
 						}
 					}
 				}
@@ -189,14 +190,6 @@ func (q *querier) convertCurrentRowToDatapointAndProperties(rows *sql.Rows) ([]*
 	}
 
 	return q.datapoints, q.dimensionProperties, nil
-}
-
-func truncateString(v string, l int) string {
-	if len(v) > l {
-		nv := (v)[:l]
-		return nv
-	}
-	return v
 }
 
 func (q *querier) getRowSlice(rows *sql.Rows) ([]interface{}, error) {
