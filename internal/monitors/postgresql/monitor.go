@@ -245,7 +245,7 @@ func (m *Monitor) monitorStatements() (*sql.Monitor, error) {
 
 	return sqlMon, sqlMon.Configure(&sql.Config{
 		MonitorConfig:    m.conf.MonitorConfig,
-		ConnectionString: connStr + " dbname=postgres",
+		ConnectionString: connStr + " dbname=" + m.conf.MasterDBName,
 		DBDriver:         "postgres",
 		Queries:          makeDefaultStatementsQueries(m.conf.TopQueryLimit),
 	})

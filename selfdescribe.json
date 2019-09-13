@@ -28800,6 +28800,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "masterDBName",
+            "doc": "The \"master\" database to which the agent first connects to query the list of databases available in the server.  This database should be accessible to the user specified with `connectionString` and `params` below, and that user should have permission to query `pg_database`.  If you want to filter which databases are monitored, use the `databases` option below.",
+            "default": "postgres",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "connectionString",
             "doc": "See https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters.",
             "default": "",
