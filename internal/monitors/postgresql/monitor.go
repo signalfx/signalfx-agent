@@ -238,7 +238,6 @@ func (m *Monitor) monitorServer() (*sql.Monitor, error) {
 }
 
 func (m *Monitor) monitorStatements() (*sql.Monitor, error) {
-	logger.Infof("Now monitoring PostgreSQL statements")
 	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
 
 	connStr, err := m.conf.connStr()

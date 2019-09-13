@@ -145,6 +145,22 @@ func (q *querier) convertCurrentRowToDatapointAndProperties(rows *sql.Rows) ([]*
 		q.datapoints[i].Meta = map[interface{}]interface{}{}
 	}
 
+	// Clone all properties before updating them
+	for i := range q.dimensionProperties {
+		for j := range q.dimensionProperties[i] {
+			props := make(map[string]string)
+			for propName := range q.dimensionProperties[i][j].Properties {
+				props[propName] = ""
+			}
+			q.dimensionProperties[i][j] = &types.DimProperties{
+				Dimension: types.Dimension{
+					Name: q.dimensionProperties[i][j].Name,
+				},
+				Properties: props,
+			}
+		}
+	}
+
 	for i := range rowScanSlice {
 		switch v := rowScanSlice[i].(type) {
 		case *sql.NullFloat64:
