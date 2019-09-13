@@ -88,6 +88,8 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.conf = conf
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 
+	queriesGroupEnabled := m.Output.HasEnabledMetricInGroup(groupQueries)
+
 	connStr, err := conf.connStr()
 	if err != nil {
 		return fmt.Errorf("could not render connectionString template: %v", err)
@@ -129,7 +131,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		return fmt.Errorf("could not monitor postgresql server: %v", err)
 	}
 
-	if m.Output.HasEnabledMetricInGroup(groupQueries) {
+	if queriesGroupEnabled {
 		m.statementsMonitor, err = m.monitorStatements()
 		if err != nil {
 			logger.WithError(err).Errorf("Could not monitor queries: %v", err)
@@ -236,6 +238,7 @@ func (m *Monitor) monitorServer() (*sql.Monitor, error) {
 }
 
 func (m *Monitor) monitorStatements() (*sql.Monitor, error) {
+	logger.Infof("Now monitoring PostgreSQL statements")
 	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
 
 	connStr, err := m.conf.connStr()
