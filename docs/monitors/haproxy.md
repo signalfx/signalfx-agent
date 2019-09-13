@@ -116,7 +116,7 @@ Metrics that are categorized as
  - ***`haproxy_redispatched`*** (*cumulative*)<br>    Number of times a request was redispatched to another server. The server value counts the number of times that server was switched away from. Values reported for backends and servers.
  - ***`haproxy_request_rate`*** (*gauge*)<br>    HTTP requests per second over last elapsed second. Values reported for frontends.
  - `haproxy_request_rate_max` (*gauge*)<br>    Max number of HTTP requests per second observed. Values reported for frontends.
- - `haproxy_request_total` (*cumulative*)<br>    Total number of HTTP requests received. Values reported for frontends and backends.
+ - ***`haproxy_request_total`*** (*cumulative*)<br>    Total number of HTTP requests received. Values reported for frontends and backends.
  - `haproxy_response_1xx` (*cumulative*)<br>    HTTP responses with 1xx code. Values reported for frontends, backends, and servers.
  - ***`haproxy_response_2xx`*** (*cumulative*)<br>    HTTP responses with 2xx code. Values reported for frontends, backends, and servers.
  - `haproxy_response_3xx` (*cumulative*)<br>    HTTP responses with 3xx code. Values reported for frontends, backends, and servers.

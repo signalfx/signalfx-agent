@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"strconv"
-	"sync"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
@@ -19,8 +17,6 @@ import (
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
-
-const maxRoutines = 16
 
 // Monitor for reporting HAProxy stats.
 //
@@ -41,11 +37,6 @@ type Monitor struct {
 	proxies map[string]bool
 }
 
-type dpsChans struct {
-	chans map[string]chan []*datapoint.Datapoint
-	lock  sync.Mutex
-}
-
 // Config for this monitor
 func (m *Monitor) Configure(conf *Config) (err error) {
 	m.ctx, m.cancel = context.WithCancel(context.Background())
@@ -60,7 +51,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		m.proxies[proxy] = true
 	}
 
-	var fetch   func(context.Context, *Config, int) []*datapoint.Datapoint
+	var fetch func(context.Context, *Config, int) []*datapoint.Datapoint
 
 	switch m.url.Scheme {
 	case "http", "https", "file":
@@ -71,23 +62,37 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		return fmt.Errorf("unsupported scheme: %q", m.url.Scheme)
 	}
 
-	numProcesses := 1
+	numProcesses, intervalNum, reportedPids := 1, 1, map[string]int{}
 
-	interval := time.Duration(conf.IntervalSeconds)*time.Second
+	interval := time.Duration(conf.IntervalSeconds) * time.Second
+
 	utils.RunOnInterval(m.ctx, func() {
-		// max process_num dimension value seen in datapoints
-		maxProcessNum := 1
 		ctx, cancel := context.WithTimeout(m.ctx, interval)
 		defer cancel()
+
 		for _, dp := range fetch(ctx, conf, numProcesses) {
-			if p, err := strconv.Atoi(dp.Dimensions["process_num"]); err == nil && p > maxProcessNum {
-				maxProcessNum = p
-			} else if err != nil {
-				logger.Errorf("failed to convert into int value %s of dimension process_num. %+v", dp.Dimensions["process_num"], err)
-			}
+			reportedPids[dp.Dimensions["process_num"]] = intervalNum
 			m.Output.SendDatapoint(dp)
 		}
-		numProcesses = maxProcessNum
+
+		// Delete pids not reported after 5 intervals and reset interval numbers.
+		if intervalNum == 5 {
+			intervalNum = 0
+			for k, v := range reportedPids {
+				if v == 0 {
+					delete(reportedPids, k)
+					continue
+				}
+				reportedPids[k] = intervalNum
+			}
+		}
+		intervalNum++
+
+		// Count reported pids to get number of processes. If none reported, assign 1 for next interval.
+		if numProcesses = len(reportedPids); numProcesses == 0 {
+			logger.Errorf("cannot find running HAProxy process(es).")
+			numProcesses = 1
+		}
 	}, interval)
 	return nil
 }
