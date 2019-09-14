@@ -24117,7 +24117,7 @@
           },
           {
             "yamlName": "proxies",
-            "doc": "A list of the pxname(s) and svname(s) to monitor (e.g. `[\"http-in\", \"server1\", \"backend\"]`). If empty then metrics of all proxies will be reported.",
+            "doc": "A list of the pxname(s) and svname(s) to monitor (e.g. `[\"http-in\", \"server1\", \"backend\"]`). If empty then metrics for all proxies will be reported.",
             "default": null,
             "required": false,
             "type": "slice",

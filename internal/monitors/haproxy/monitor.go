@@ -30,70 +30,60 @@ func init() {
 // stats repeatedly if necessary in order to get stats for all processes. It fetches stats repeatedly if necessary
 // within the configured timeout duration.
 type Monitor struct {
-	Output  types.Output
-	cancel  context.CancelFunc
-	ctx     context.Context
-	url     *url.URL
-	proxies map[string]bool
+	Output types.Output
+	cancel context.CancelFunc
+	ctx    context.Context
 }
 
 // Config for this monitor
 func (m *Monitor) Configure(conf *Config) (err error) {
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 
-	m.url, err = url.Parse(conf.URL)
+	url, err := url.Parse(conf.URL)
 	if err != nil {
 		return fmt.Errorf("cannot parse url %s status. %v", conf.URL, err)
 	}
 
-	m.proxies = map[string]bool{}
-	for _, proxy := range conf.Proxies {
-		m.proxies[proxy] = true
-	}
-
 	var fetch func(context.Context, *Config, int) []*datapoint.Datapoint
-
-	switch m.url.Scheme {
+	switch url.Scheme {
 	case "http", "https", "file":
-		fetch = m.fetchAllHTTP
+		fetch = mergeHTTP
 	case "unix":
-		fetch = m.fetchAllSocket
+		fetch = mergeSocket
 	default:
-		return fmt.Errorf("unsupported scheme: %q", m.url.Scheme)
+		return fmt.Errorf("unsupported scheme: %q", url.Scheme)
 	}
 
-	numProcesses, intervalNum, reportedPids := 1, 1, map[string]int{}
+	numProcesses, purgeCountDown, pidCache := 1, 6, map[string]bool{}
 
 	interval := time.Duration(conf.IntervalSeconds) * time.Second
 
 	utils.RunOnInterval(m.ctx, func() {
 		ctx, cancel := context.WithTimeout(m.ctx, interval)
 		defer cancel()
-
 		for _, dp := range fetch(ctx, conf, numProcesses) {
-			reportedPids[dp.Dimensions["process_num"]] = intervalNum
+			dp.Dimensions["plugin"] = "haproxy"
+			pidCache[dp.Dimensions["process_num"]] = true
 			m.Output.SendDatapoint(dp)
 		}
-
-		// Delete pids not reported after 5 intervals and reset interval numbers.
-		if intervalNum == 5 {
-			intervalNum = 0
-			for k, v := range reportedPids {
-				if v == 0 {
-					delete(reportedPids, k)
+		// Purge stale pids unseen after count down to 0.
+		if purgeCountDown--; purgeCountDown == 0 {
+			for pid, hit := range pidCache {
+				if !hit {
+					delete(pidCache, pid)
 					continue
 				}
-				reportedPids[k] = intervalNum
+				pidCache[pid] = false
 			}
+			purgeCountDown = 6
 		}
-		intervalNum++
-
-		// Count reported pids to get number of processes. If none reported, assign 1 for next interval.
-		if numProcesses = len(reportedPids); numProcesses == 0 {
-			logger.Errorf("cannot find running HAProxy process(es).")
+		// Count pids to get number of processes. Assign 1 if none seen.
+		if numProcesses = len(pidCache); numProcesses == 0 {
+			logger.Errorf("got no HAProxy process pid")
 			numProcesses = 1
 		}
 	}, interval)
+
 	return nil
 }
 

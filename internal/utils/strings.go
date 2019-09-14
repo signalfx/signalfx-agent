@@ -113,3 +113,14 @@ func ChunkScanner(output io.Reader) *bufio.Scanner {
 	})
 	return s
 }
+
+func TrimAllSpaces(s string) string {
+	var b strings.Builder
+	b.Grow(len(s))
+	for _, ch := range s {
+		if !unicode.IsSpace(ch) {
+			b.WriteRune(ch)
+		}
+	}
+	return b.String()
+}

@@ -74,7 +74,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `url` | **yes** | `string` | URL on which to scrape HAProxy. The URL scheme `http://` is designated as http-type configuration while `unix://` socket-type. |
 | `sslVerify` | no | `bool` | Flag that enables SSL certificate verification for the scrape URI. (**default:** `true`) |
 | `timeout` | no | `int64` | Timeout for trying to get stats from HAProxy. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration (**default:** `5s`) |
-| `proxies` | no | `list of strings` | A list of the pxname(s) and svname(s) to monitor (e.g. `["http-in", "server1", "backend"]`). If empty then metrics of all proxies will be reported. |
+| `proxies` | no | `list of strings` | A list of the pxname(s) and svname(s) to monitor (e.g. `["http-in", "server1", "backend"]`). If empty then metrics for all proxies will be reported. |
 
 
 ## Metrics

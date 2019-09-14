@@ -3,7 +3,7 @@ from functools import partial as p
 import pytest
 
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import datapoints_have_some_or_all_dims, has_log_message
+from tests.helpers.assertions import datapoints_have_some_or_all_dims, has_log_message, any_metric_found
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, run_service, ensure_always
 from tests.helpers.verify import verify
@@ -51,6 +51,7 @@ def test_haproxy_default_metrics_from_stats_page_proxies_to_monitor_frontend_200
                 10,
             )
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
+            assert any_metric_found(agent.fake_services, ["haproxy_response_2xx"])
 
 
 @pytest.mark.parametrize("version", ["1.9"])
@@ -76,19 +77,21 @@ def test_haproxy_default_metrics_from_stats_page_basic_auth(version):
                 10,
             )
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
+            assert any_metric_found(agent.fake_services, ["haproxy_response_2xx"])
 
 
 @pytest.mark.parametrize("version", ["1.9"])
 def test_haproxy_default_metrics_from_stats_page_basic_auth_wrong_password(version):
     with run_service("haproxy", buildargs={"HAPROXY_VERSION": version}) as service_container:
         host = container_ip(service_container)
+        url = f"http://{host}:8081/stats?stats;csv"
         with Agent.run(
             f"""
            monitors:
            - type: haproxy
              username: a_username
              password: a_wrong_password
-             url: http://{host}:8081/stats?stats;csv
+             url: {url}
              proxies: ["FRONTEND", "200s"]
            """
         ) as agent:
