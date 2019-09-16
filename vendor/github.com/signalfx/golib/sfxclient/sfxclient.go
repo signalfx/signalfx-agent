@@ -210,7 +210,9 @@ func (s *Scheduler) Var() expvar.Var {
 func (s *Scheduler) CollectDatapoints() []*datapoint.Datapoint {
 	s.callbackMutex.Lock()
 	defer s.callbackMutex.Unlock()
-	return s.collectDatapoints()
+	datapoints := s.collectDatapoints()
+	s.prependPrefix(datapoints)
+	return datapoints
 }
 
 // collectDatapoints gives a scheduler an external endpoint to be called and is not thread safe

@@ -2,12 +2,14 @@ package hostmetadata
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"time"
 
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/host"
@@ -24,10 +26,12 @@ var HostEtc = func() string {
 	return "/etc"
 }
 
+const cpuTimeout = 10 * time.Second
+
 // Map library functions to unexported package variables for testing purposes.
 // It would be great if we could patch this somehow
-var cpuInfo = cpu.Info
-var cpuCounts = cpu.Counts
+var cpuInfo = cpu.InfoWithContext
+var cpuCounts = cpu.CountsWithContext
 var memVirtualMemory = mem.VirtualMemory
 var hostInfo = host.Info
 
@@ -59,14 +63,19 @@ func GetCPU() (info *CPU, err error) {
 
 	// get physical cpu stats
 	var cpus []cpu.InfoStat
-	if cpus, err = cpuInfo(); err != nil {
+
+	// On Windows this can sometimes take longer than the default timeout (3 seconds).
+	ctx, cancel := context.WithTimeout(context.Background(), cpuTimeout)
+	defer cancel()
+
+	if cpus, err = cpuInfo(ctx); err != nil {
 		return info, err
 	}
 
 	info.HostPhysicalCPUs = len(cpus)
 
 	// get logical cpu stats
-	if info.HostLogicalCPUs, err = cpuCounts(true); err != nil {
+	if info.HostLogicalCPUs, err = cpuCounts(ctx, true); err != nil {
 		return info, err
 	}
 
