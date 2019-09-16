@@ -26520,6 +26520,10 @@
         "\u003cpod label\u003e": {
           "dimension": "kubernetes_pod_uid",
           "description": "Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension."
+        },
+        "creation_timestamp": {
+          "dimension": "kubernetes_pod_uid/kubernetes_uid",
+          "description": "CreationTimestamp is a timestamp representing the server time when this object was created and is in UTC. This property is synced onto `kubernetes_pod_uid` or `kubernetes_uid` depending on whether it's a node or Kubernetes workload."
         }
       },
       "metricsExhaustive": false,
@@ -28528,6 +28532,10 @@
         "\u003cpod label\u003e": {
           "dimension": "kubernetes_pod_uid",
           "description": "Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension."
+        },
+        "creation_timestamp": {
+          "dimension": "kubernetes_pod_uid/kubernetes_uid",
+          "description": "CreationTimestamp is a timestamp representing the server time when this object was created and is in UTC. This property is synced onto `kubernetes_pod_uid` or `kubernetes_uid` depending on whether it's a node or Kubernetes workload."
         }
       },
       "metricsExhaustive": false,
