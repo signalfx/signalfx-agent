@@ -432,7 +432,7 @@ github.com/signalfx/gateway/sampling
 github.com/signalfx/gateway/etcdIntf
 # github.com/signalfx/gohistogram v0.0.0-20160107210732-1ccfd2ff5083
 github.com/signalfx/gohistogram
-# github.com/signalfx/golib v2.4.2-0.20190904165708-6359a7820a6b+incompatible
+# github.com/signalfx/golib v2.4.3+incompatible
 github.com/signalfx/golib/datapoint
 github.com/signalfx/golib/event
 github.com/signalfx/golib/sfxclient
