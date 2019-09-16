@@ -26,7 +26,7 @@ $(MONITOR_CODE_GEN): $(wildcard cmd/monitorcodegen/*.go) cmd/monitorcodegen/genm
 ifeq ($(OS),Windows_NT)
 	powershell $(CURDIR)/scripts/windows/make.ps1 monitor-code-gen
 else
-	go build -mod vendor -o $@ ./cmd/monitorcodegen
+	go build -o $@ ./cmd/monitorcodegen
 endif
 
 .PHONY: test
@@ -34,17 +34,17 @@ test: compileDeps
 ifeq ($(OS),Windows_NT)
 	powershell $(CURDIR)/scripts/windows/make.ps1 test
 else
-	bash -euo pipefail -c "CGO_ENABLED=0 go test -mod vendor -p $(NUM_CORES) ./... | grep -v '\[no test files\]'"
+	bash -euo pipefail -c "CGO_ENABLED=0 go test -p $(NUM_CORES) ./... | grep -v '\[no test files\]'"
 endif
 
 .PHONY: vet
 vet: compileDeps
 	# Only consider it a failure if issues are in non-test files
-	! CGO_ENABLED=0 go vet -mod vendor ./... 2>&1 | tee /dev/tty | grep '.go' | grep -v '_test.go'
+	! CGO_ENABLED=0 go vet ./... 2>&1 | tee /dev/tty | grep '.go' | grep -v '_test.go'
 
 .PHONY: vetall
 vetall: compileDeps
-	CGO_ENABLED=0 go vet -mod vendor ./...
+	CGO_ENABLED=0 go vet ./...
 
 .PHONY: lint
 lint:
@@ -67,12 +67,12 @@ endif
 image:
 	COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) ./scripts/build
 
-.PHONY: vendor
-vendor:
+.PHONY: tidy
+tidy:
 ifeq ($(OS), Windows_NT)
-	powershell $(CURDIR)/scripts/windows/make.ps1 vendor
+	powershell $(CURDIR)/scripts/windows/make.ps1 tidy
 else
-	go mod tidy && go mod vendor
+	go mod tidy
 endif
 
 internal/core/common/constants/versions.go: FORCE
@@ -88,7 +88,6 @@ ifeq ($(OS),Windows_NT)
 	powershell $(CURDIR)/scripts/windows/make.ps1 signalfx-agent $(AGENT_VERSION)
 else
 	CGO_ENABLED=0 go build \
-		-mod vendor \
 		-o signalfx-agent \
 		./cmd/agent
 endif
