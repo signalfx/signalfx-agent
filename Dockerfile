@@ -23,6 +23,7 @@ COPY scripts/collectd-template-to-go ./scripts/
 COPY Makefile .
 COPY go.mod go.sum ./
 COPY internal/ ./internal/
+RUN go mod download
 
 ARG collectd_version=""
 ARG agent_version="latest"
