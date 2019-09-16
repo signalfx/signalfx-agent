@@ -43,4 +43,4 @@ linters:
 
 
 run:
-  modules-download-mode: vendor
+  modules-download-mode: readonly
