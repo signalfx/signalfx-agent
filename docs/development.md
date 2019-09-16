@@ -139,14 +139,8 @@ run for that commit.
 We are using [Go modules](https://github.com/golang/go/wiki/Modules) to manage
 dependencies.
 
-We commit all of our go dependencies to the git repository.  This results in a
-significantly larger repository but makes the agent build more self-contained
-and consistent.
-
-If you add another Go package dependency, you can just run `go get
-<package>@<optional_version>`.  Then run `go mod tidy && go mod vendor` and
-commit the new vendored source to the repository in the same commit that
-depends on the new dependencies.
+If you add another Go package dependency, run `go mod tidy` and commit the
+updated `go.mod` and `go.sum` to the repository.
 
 
 ## Development in Kubernetes (K8s)
