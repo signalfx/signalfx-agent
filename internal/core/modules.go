@@ -39,6 +39,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/gitlab"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/internalmetrics"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/logstash/logstash"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/logstash/tcp"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/memory"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/metadata/hostmetadata"

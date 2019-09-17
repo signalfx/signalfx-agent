@@ -2,7 +2,7 @@ from functools import partial as p
 from pathlib import Path
 
 import pytest
-from tests.helpers.assertions import has_all_dim_props, has_datapoint
+from tests.helpers.assertions import any_dim_val_has_prop, has_all_dim_props, has_datapoint
 from tests.helpers.util import (
     ensure_always,
     get_default_monitor_metrics_from_selfdescribe,
@@ -209,6 +209,29 @@ def test_cronjobs(k8s_cluster):
                     props={"kubernetes_workload": "CronJob"},
                 ),
                 timeout_seconds=300,
+            )
+
+
+@pytest.mark.kubernetes
+def test_creation_timestamp(k8s_cluster):
+    config = """
+    monitors:
+     - type: kubernetes-cluster
+    """
+    yamls = [SCRIPT_DIR / "resource_quota.yaml", TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
+    with k8s_cluster.create_resources(yamls):
+        with k8s_cluster.run_agent(agent_yaml=config) as agent:
+            assert wait_for(
+                p(any_dim_val_has_prop, agent.fake_services, dim_name="kubernetes_uid", prop_name="creation_timestamp")
+            )
+
+            assert wait_for(
+                p(
+                    any_dim_val_has_prop,
+                    agent.fake_services,
+                    dim_name="kubernetes_pod_uid",
+                    prop_name="creation_timestamp",
+                )
             )
 
 

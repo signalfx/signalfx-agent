@@ -26520,6 +26520,10 @@
         "\u003cpod label\u003e": {
           "dimension": "kubernetes_pod_uid",
           "description": "Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension."
+        },
+        "creation_timestamp": {
+          "dimension": "kubernetes_pod_uid/kubernetes_uid",
+          "description": "CreationTimestamp is a timestamp representing the server time when this object was created and is in UTC. This property is synced onto `kubernetes_pod_uid` or `kubernetes_uid` depending on whether it's a node or Kubernetes workload."
         }
       },
       "metricsExhaustive": false,
@@ -27846,6 +27850,663 @@
       "singleInstance": false
     },
     {
+      "monitorType": "logstash",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "Monitors the health and performance of Logstash deployments through \nLogstash's [Monitoring APIs](https://www.elastic.co/guide/en/logstash/current/monitoring.html#monitoring-common-options).\n",
+      "groups": {
+        "events": {
+          "description": "Events metrics",
+          "metrics": [
+            "node.stats.events.events.duration_in_millis",
+            "node.stats.events.events.filtered",
+            "node.stats.events.events.in",
+            "node.stats.events.events.out",
+            "node.stats.events.events.queue_push_duration_in_millis"
+          ]
+        },
+        "hot_threads": {
+          "description": "Hot Threads metrics",
+          "metrics": [
+            "node.hot_threads.hot_threads.busiest_threads",
+            "node.hot_threads.hot_threads.threads.percent_of_cpu_time"
+          ]
+        },
+        "jvm": {
+          "description": "JVM metrics",
+          "metrics": [
+            "node.stats.jvm.jvm.gc.collectors.old.collection_count",
+            "node.stats.jvm.jvm.gc.collectors.old.collection_time_in_millis",
+            "node.stats.jvm.jvm.gc.collectors.young.collection_count",
+            "node.stats.jvm.jvm.gc.collectors.young.collection_time_in_millis",
+            "node.stats.jvm.jvm.mem.heap_committed_in_bytes",
+            "node.stats.jvm.jvm.mem.heap_max_in_bytes",
+            "node.stats.jvm.jvm.mem.heap_used_in_bytes",
+            "node.stats.jvm.jvm.mem.heap_used_percent",
+            "node.stats.jvm.jvm.mem.non_heap_committed_in_bytes",
+            "node.stats.jvm.jvm.mem.non_heap_used_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.old.committed_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.old.max_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.old.peak_max_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.old.peak_used_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.old.used_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.survivor.committed_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.survivor.max_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.survivor.peak_max_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.survivor.peak_used_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.survivor.used_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.young.committed_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.young.max_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.young.peak_max_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.young.peak_used_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.young.used_in_bytes",
+            "node.stats.jvm.jvm.threads.count",
+            "node.stats.jvm.jvm.threads.peak_count",
+            "node.stats.jvm.jvm.uptime_in_millis"
+          ]
+        },
+        "os": {
+          "description": "OS metrics",
+          "metrics": [
+            "node.os.os.available_processors",
+            "node.stats.os.os.cgroup.cpu.cfs_period_micros",
+            "node.stats.os.os.cgroup.cpu.cfs_quota_micros",
+            "node.stats.os.os.cgroup.cpu.stat.number_of_elapsed_periods",
+            "node.stats.os.os.cgroup.cpu.stat.number_of_times_throttled",
+            "node.stats.os.os.cgroup.cpu.stat.time_throttled_nanos",
+            "node.stats.os.os.cgroup.cpuacct.usage_nanos"
+          ]
+        },
+        "pipeline": {
+          "description": "",
+          "metrics": [
+            "node.pipelines.batch_delay",
+            "node.pipelines.batch_size",
+            "node.pipelines.workers",
+            "node.stats.pipelines.events.duration_in_millis",
+            "node.stats.pipelines.events.filtered",
+            "node.stats.pipelines.events.in",
+            "node.stats.pipelines.events.out",
+            "node.stats.pipelines.events.queue_push_duration_in_millis",
+            "node.stats.pipelines.plugins.codecs.decode.duration_in_millis",
+            "node.stats.pipelines.plugins.codecs.decode.out",
+            "node.stats.pipelines.plugins.codecs.decode.writes_in",
+            "node.stats.pipelines.plugins.codecs.encode.duration_in_millis",
+            "node.stats.pipelines.plugins.codecs.encode.writes_in",
+            "node.stats.pipelines.plugins.filters.events.duration_in_millis",
+            "node.stats.pipelines.plugins.filters.events.in",
+            "node.stats.pipelines.plugins.filters.events.out",
+            "node.stats.pipelines.plugins.inputs.events.out",
+            "node.stats.pipelines.plugins.inputs.events.queue_push_duration_in_millis",
+            "node.stats.pipelines.plugins.outputs.events.duration_in_millis",
+            "node.stats.pipelines.plugins.outputs.events.in",
+            "node.stats.pipelines.plugins.outputs.events.out",
+            "node.stats.pipelines.queue.events_count",
+            "node.stats.pipelines.queue.max_queue_size_in_bytes",
+            "node.stats.pipelines.queue.queue_size_in_bytes",
+            "node.stats.pipelines.reloads.failures",
+            "node.stats.pipelines.reloads.successes"
+          ]
+        },
+        "pipelines": {
+          "description": "Pipelines metrics",
+          "metrics": null
+        },
+        "plugins": {
+          "description": "Plugins metrics",
+          "metrics": [
+            "node.plugins.total"
+          ]
+        },
+        "process": {
+          "description": "Process metrics",
+          "metrics": [
+            "node.stats.process.process.cpu.load_average.15m",
+            "node.stats.process.process.cpu.load_average.1m",
+            "node.stats.process.process.cpu.load_average.5m",
+            "node.stats.process.process.cpu.percent",
+            "node.stats.process.process.cpu.total_in_millis",
+            "node.stats.process.process.max_file_descriptors",
+            "node.stats.process.process.mem.total_virtual_in_bytes",
+            "node.stats.process.process.open_file_descriptors",
+            "node.stats.process.process.peak_open_file_descriptors"
+          ]
+        },
+        "reloads": {
+          "description": "Reloads metrics",
+          "metrics": [
+            "node.stats.reloads.reloads.failures",
+            "node.stats.reloads.reloads.successes"
+          ]
+        }
+      },
+      "metrics": {
+        "node.hot_threads.hot_threads.busiest_threads": {
+          "type": "gauge",
+          "description": "",
+          "group": "hot_threads",
+          "default": false
+        },
+        "node.hot_threads.hot_threads.threads.percent_of_cpu_time": {
+          "type": "gauge",
+          "description": "",
+          "group": "hot_threads",
+          "default": false
+        },
+        "node.os.os.available_processors": {
+          "type": "gauge",
+          "description": "Number of available processors",
+          "group": "os",
+          "default": false
+        },
+        "node.pipelines.batch_delay": {
+          "type": "gauge",
+          "description": "",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.pipelines.batch_size": {
+          "type": "gauge",
+          "description": "",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.pipelines.workers": {
+          "type": "gauge",
+          "description": "Number of workers in pipelines",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.plugins.total": {
+          "type": "gauge",
+          "description": "Number of plugins",
+          "group": "plugins",
+          "default": true
+        },
+        "node.stats.events.events.duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration of events",
+          "group": "events",
+          "default": true
+        },
+        "node.stats.events.events.filtered": {
+          "type": "cumulative",
+          "description": "Number of filtered events",
+          "group": "events",
+          "default": true
+        },
+        "node.stats.events.events.in": {
+          "type": "cumulative",
+          "description": "Number of received events",
+          "group": "events",
+          "default": true
+        },
+        "node.stats.events.events.out": {
+          "type": "cumulative",
+          "description": "Number of events sent out",
+          "group": "events",
+          "default": true
+        },
+        "node.stats.events.events.queue_push_duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration that events waited in queue before being processed",
+          "group": "events",
+          "default": true
+        },
+        "node.stats.jvm.jvm.gc.collectors.old.collection_count": {
+          "type": "cumulative",
+          "description": "Total number of garbage collection events",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.gc.collectors.old.collection_time_in_millis": {
+          "type": "cumulative",
+          "description": "Amount of time spent garbage collecting in milliseconds",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.gc.collectors.young.collection_count": {
+          "type": "cumulative",
+          "description": "Total number of garbage collection events",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.gc.collectors.young.collection_time_in_millis": {
+          "type": "cumulative",
+          "description": "Amount of time spent garbage collecting in milliseconds",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.heap_committed_in_bytes": {
+          "type": "gauge",
+          "description": "Total heap committed by the process",
+          "group": "jvm",
+          "default": true
+        },
+        "node.stats.jvm.jvm.mem.heap_max_in_bytes": {
+          "type": "gauge",
+          "description": "Max memory being used",
+          "group": "jvm",
+          "default": true
+        },
+        "node.stats.jvm.jvm.mem.heap_used_in_bytes": {
+          "type": "gauge",
+          "description": "Total heap used",
+          "group": "jvm",
+          "default": true
+        },
+        "node.stats.jvm.jvm.mem.heap_used_percent": {
+          "type": "gauge",
+          "description": "Total heap used in percentage",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.non_heap_committed_in_bytes": {
+          "type": "gauge",
+          "description": "Total non-heap memory committed by the process",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.non_heap_used_in_bytes": {
+          "type": "gauge",
+          "description": "Total non-heap memory used",
+          "group": "jvm",
+          "default": true
+        },
+        "node.stats.jvm.jvm.mem.pools.old.committed_in_bytes": {
+          "type": "gauge",
+          "description": "Memory guaranteed to be available to JVM non-heap by Old gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.old.max_in_bytes": {
+          "type": "gauge",
+          "description": "Max memory being used by Old Gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.old.peak_max_in_bytes": {
+          "type": "gauge",
+          "description": "Memory used by Old gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.old.peak_used_in_bytes": {
+          "type": "gauge",
+          "description": "Peak memory used by Old gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.old.used_in_bytes": {
+          "type": "gauge",
+          "description": "Memory being used by Old Gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.survivor.committed_in_bytes": {
+          "type": "gauge",
+          "description": "Memory guaranteed to be available to JVM non-heap by Survivor space",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.survivor.max_in_bytes": {
+          "type": "gauge",
+          "description": "Max memory being used by Survivor space",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.survivor.peak_max_in_bytes": {
+          "type": "gauge",
+          "description": "Memory used by Survivor space",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.survivor.peak_used_in_bytes": {
+          "type": "gauge",
+          "description": "Peak memory used by Survivor space",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.survivor.used_in_bytes": {
+          "type": "gauge",
+          "description": "Memory being used by Survivor space",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.young.committed_in_bytes": {
+          "type": "gauge",
+          "description": "Memory guaranteed to be available to JVM non-heap by Young gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.young.max_in_bytes": {
+          "type": "gauge",
+          "description": "Max memory being used by Young Gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.young.peak_max_in_bytes": {
+          "type": "gauge",
+          "description": "Memory used by Young gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.young.peak_used_in_bytes": {
+          "type": "gauge",
+          "description": "Peak memory used by Young gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.young.used_in_bytes": {
+          "type": "gauge",
+          "description": "Memory being used by Young Gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.threads.count": {
+          "type": "gauge",
+          "description": "Number of JVM threads",
+          "group": "jvm",
+          "default": true
+        },
+        "node.stats.jvm.jvm.threads.peak_count": {
+          "type": "gauge",
+          "description": "Highest number of JVM threads",
+          "group": "jvm",
+          "default": true
+        },
+        "node.stats.jvm.jvm.uptime_in_millis": {
+          "type": "gauge",
+          "description": "Uptime length of JVM",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.os.os.cgroup.cpu.cfs_period_micros": {
+          "type": "gauge",
+          "description": "",
+          "group": "os",
+          "default": false
+        },
+        "node.stats.os.os.cgroup.cpu.cfs_quota_micros": {
+          "type": "gauge",
+          "description": "",
+          "group": "os",
+          "default": false
+        },
+        "node.stats.os.os.cgroup.cpu.stat.number_of_elapsed_periods": {
+          "type": "cumulative",
+          "description": "",
+          "group": "os",
+          "default": false
+        },
+        "node.stats.os.os.cgroup.cpu.stat.number_of_times_throttled": {
+          "type": "cumulative",
+          "description": "",
+          "group": "os",
+          "default": false
+        },
+        "node.stats.os.os.cgroup.cpu.stat.time_throttled_nanos": {
+          "type": "cumulative",
+          "description": "",
+          "group": "os",
+          "default": false
+        },
+        "node.stats.os.os.cgroup.cpuacct.usage_nanos": {
+          "type": "gauge",
+          "description": "",
+          "group": "os",
+          "default": false
+        },
+        "node.stats.pipelines.events.duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration of events in pipelines",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.events.filtered": {
+          "type": "cumulative",
+          "description": "Number of filtered events in pipelines",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.events.in": {
+          "type": "cumulative",
+          "description": "Number of received events in pipelines",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.events.out": {
+          "type": "cumulative",
+          "description": "Number of events sent out from pipelines",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.events.queue_push_duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration that events waited in queue before being processed in pipelines",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.plugins.codecs.decode.duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration of decode events in codec plugins",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.plugins.codecs.decode.out": {
+          "type": "cumulative",
+          "description": "Number of decode events sent out from codecs",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.plugins.codecs.decode.writes_in": {
+          "type": "cumulative",
+          "description": "Number of received decode events in codecs",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.plugins.codecs.encode.duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration of encode events in codec plugins",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.plugins.codecs.encode.writes_in": {
+          "type": "cumulative",
+          "description": "Number of received encode events in codecs",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.plugins.filters.events.duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration of events in filter plugins",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.plugins.filters.events.in": {
+          "type": "cumulative",
+          "description": "Number of received events in filters",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.plugins.filters.events.out": {
+          "type": "cumulative",
+          "description": "Number of events sent out from filters",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.plugins.inputs.events.out": {
+          "type": "cumulative",
+          "description": "Number of events sent out from inputs",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.plugins.inputs.events.queue_push_duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration that events waited in queue before being processed in inputs",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.plugins.outputs.events.duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration of events in output plugins",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.plugins.outputs.events.in": {
+          "type": "cumulative",
+          "description": "Number of received events in output plugins",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.plugins.outputs.events.out": {
+          "type": "cumulative",
+          "description": "Number of events sent out from output plugins",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.queue.events_count": {
+          "type": "gauge",
+          "description": "Number of events waiting in queue",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.queue.max_queue_size_in_bytes": {
+          "type": "gauge",
+          "description": "Max queue size in pipelines",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.queue.queue_size_in_bytes": {
+          "type": "gauge",
+          "description": "Queue size in pipelines",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.reloads.failures": {
+          "type": "cumulative",
+          "description": "Number of failed reloads",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.reloads.successes": {
+          "type": "cumulative",
+          "description": "Number of successful reloads",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.process.process.cpu.load_average.15m": {
+          "type": "gauge",
+          "description": "CPU Load average in 15 minutes",
+          "group": "process",
+          "default": false
+        },
+        "node.stats.process.process.cpu.load_average.1m": {
+          "type": "gauge",
+          "description": "CPU Load average in 1 minute",
+          "group": "process",
+          "default": false
+        },
+        "node.stats.process.process.cpu.load_average.5m": {
+          "type": "gauge",
+          "description": "CPU Load average in 5 minutes",
+          "group": "process",
+          "default": false
+        },
+        "node.stats.process.process.cpu.percent": {
+          "type": "gauge",
+          "description": "CPU usage in percent",
+          "group": "process",
+          "default": true
+        },
+        "node.stats.process.process.cpu.total_in_millis": {
+          "type": "cumulative",
+          "description": "Total CPU time (in milliseconds) used by the process on which the process is running",
+          "group": "process",
+          "default": false
+        },
+        "node.stats.process.process.max_file_descriptors": {
+          "type": "gauge",
+          "description": "Number of opened file descriptors associated with the current process",
+          "group": "process",
+          "default": false
+        },
+        "node.stats.process.process.mem.total_virtual_in_bytes": {
+          "type": "gauge",
+          "description": "Size of the virtual memory of this process",
+          "group": "process",
+          "default": false
+        },
+        "node.stats.process.process.open_file_descriptors": {
+          "type": "gauge",
+          "description": "Number of currently open file descriptors",
+          "group": "process",
+          "default": false
+        },
+        "node.stats.process.process.peak_open_file_descriptors": {
+          "type": "gauge",
+          "description": "Peak number of currently open file descriptors",
+          "group": "process",
+          "default": false
+        },
+        "node.stats.reloads.reloads.failures": {
+          "type": "cumulative",
+          "description": "Number of failed reloads",
+          "group": "reloads",
+          "default": false
+        },
+        "node.stats.reloads.reloads.successes": {
+          "type": "cumulative",
+          "description": "Number of successful reloads",
+          "group": "reloads",
+          "default": false
+        }
+      },
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "internal/monitors/logstash/logstash",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "The hostname of Logstash monitoring API",
+            "default": "127.0.0.1",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "The port number of Logstash monitoring API",
+            "default": 9600,
+            "required": false,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the host using HTTPS instead of plain HTTP.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "timeoutSeconds",
+            "doc": "The maximum amount of time to wait for API requests",
+            "default": 5,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "logstash-tcp",
       "sendAll": false,
       "dimensions": null,
@@ -28520,6 +29181,10 @@
         "\u003cpod label\u003e": {
           "dimension": "kubernetes_pod_uid",
           "description": "Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension."
+        },
+        "creation_timestamp": {
+          "dimension": "kubernetes_pod_uid/kubernetes_uid",
+          "description": "CreationTimestamp is a timestamp representing the server time when this object was created and is in UTC. This property is synced onto `kubernetes_pod_uid` or `kubernetes_uid` depending on whether it's a node or Kubernetes workload."
         }
       },
       "metricsExhaustive": false,
@@ -28833,7 +29498,7 @@
       "monitorType": "prometheus-exporter",
       "sendAll": true,
       "dimensions": null,
-      "doc": "This monitor reads metrics from a [Prometheus\nexporter](https://prometheus.io/docs/instrumenting/exporters/) endpoint.\n\nAll metric types are supported.  See\nhttps://prometheus.io/docs/concepts/metric_types/ for a description of the\nPrometheus metric types.  The conversion happens as follows:\n\n - Gauges are converted directly to SignalFx gauges\n - Counters are converted directly to SignalFx cumulative counters\n - Untyped metrics are converted directly to SignalFx gauges\n - Summary metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each quantile value is converted to a gauge called\n     `\u003cbasename\u003e_quantile` and will include a dimension called `quantile` that\n     specifies the quantile.\n - Histogram metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each histogram bucket is converted to a cumulative counter called\n     `\u003cbasename\u003e_bucket` and will include a dimension called `upper_bound` that\n     specifies the maximum value in that bucket.  This metric specifies the\n     number of events with a value that is less than or equal to the upper\n     bound.\n\nAll Prometheus labels will be converted directly to SignalFx dimensions.\n\nThis supports service discovery so you can set a discovery rule such as:\n\n`port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 containerImage =~ \"exporter\"`\n\nassuming you are running exporters in container images that have the word\n\"exporter\" in them and fall within the standard exporter port range.  In\nK8s, you could also try matching on the container port name as defined in\nthe pod spec, which is the `name` variable in discovery rules for the\n`k8s-api` observer.\n\nFiltering can be very useful here since exporters tend to be fairly verbose.\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: prometheus-exporter\n   discoveryRule: port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 container_image =~ \"exporter\"\n   extraDimensions:\n     metric_source: prometheus\n```\n",
+      "doc": "This monitor reads metrics from a [Prometheus\nexporter](https://prometheus.io/docs/instrumenting/exporters/) endpoint.\n\nAll metric types are supported.  See\nhttps://prometheus.io/docs/concepts/metric_types/ for a description of the\nPrometheus metric types.  The conversion happens as follows:\n\n - Gauges are converted directly to SignalFx gauges\n - Counters are converted directly to SignalFx cumulative counters\n - Untyped metrics are converted directly to SignalFx gauges\n - Summary metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each quantile value is converted to a gauge called\n     `\u003cbasename\u003e_quantile` and will include a dimension called `quantile` that\n     specifies the quantile.\n - Histogram metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each histogram bucket is converted to a cumulative counter called\n     `\u003cbasename\u003e_bucket` and will include a dimension called `upper_bound` that\n     specifies the maximum value in that bucket.  This metric specifies the\n     number of events with a value that is less than or equal to the upper\n     bound.\n\nAll Prometheus labels will be converted directly to SignalFx dimensions.\n\nThis supports service discovery so you can set a discovery rule such as:\n\n`port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 containerImage =~ \"exporter\"`\n\nassuming you are running exporters in container images that have the word\n\"exporter\" in them and fall within the standard exporter port range.  In\nK8s, you could also try matching on the container port name as defined in\nthe pod spec, which is the `name` variable in discovery rules for the\n`k8s-api` observer.\n\nFiltering can be very useful here since exporters tend to be fairly verbose.\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: prometheus-exporter\n   discoveryRule: port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 container_image =~ \"exporter\"\n   extraDimensions:\n     metric_source: prometheus\n```\n\n## Authentication\nFor basic HTTP authentication use the `username` and `password` options.\n\nOn Kubernetes if the monitored service requires authentication use the `useServiceAccount`\noption to use the service account of the agent when connecting. Make sure that the\nSignalFx Agent service account has sufficient permissions for the monitored service.\n\n## Troubleshooting\n* Log contains the error `net/http: HTTP/1.x transport connection broken: malformed HTTP response`\n\n    **Solution**: enable HTTPS with `useHTTPS`.\n\n* Log contains the error `forbidden: User \\\"system:anonymous\\\" cannot get path \\\"/metrics\\\"`\n\n    **Solution**: enable `useServiceAccount` and make sure the service account SignalFx agent\n    is running with has the necessary permissions.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
