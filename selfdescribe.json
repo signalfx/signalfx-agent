@@ -23525,17 +23525,26 @@
       "monitorType": "haproxy",
       "sendAll": false,
       "dimensions": {
-        "process_num": {
-          "description": "A number assigned to an HAProxy process instance (0 for first instance, 1 for second, ...)."
+        "process_id": {
+          "description": "A number assigned to an HAProxy process instance (1 for first instance, 2 for second, ...)."
         },
         "proxy_name": {
           "description": "HAProxy configured proxy name. Possible values for listeners, frontends, backends, and servers."
         },
+        "server_id": {
+          "description": "Server id (unique inside a proxy)"
+        },
         "service_name": {
           "description": "HAProxy configured service name. Possible values are FRONTEND for frontend, BACKEND for backend, configured name for server/listener."
+        },
+        "type": {
+          "description": "Proxy type id (0=frontend, 1=backend, 2=server, 3=socket/listener)."
+        },
+        "unique_proxy_id": {
+          "description": "A unique proxy id"
         }
       },
-      "doc": "This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics (i.e. metrics) from a configured stats\nHTTP endpoint or UNIX socket. It requires HAProxy 1.8+ and supports running HAProxy in multi-process mode where\nthe HAProxy process each metric pertains to is indicated by the metric dimension `process_num`.\n\n\u003c!--- SETUP ---\u003e\n### HTTP Endpoint Config\nHAProxy stats must be enabled as described [here](https://www.haproxy.com/blog/exploring-the-haproxy-stats-page/).\nDefine the HAProxy monitor in the agent configuration file and provide the `csv export` URL where HAProxy\nstats are served in CSV format. This monitor supports basic HTTP authentication. Simply provide the\nusername and password if required as shown below:\n```\n...\nmonitors:\n  - type: haproxy\n    url: \"http://localhost:8404/stats?stats;csv\"\n    username: \"your username here\"\n    password: \"your password here\"\n...\n```\nNote: Only stats pertaining to the configured proxies (i.e. listeners, frontends, backends, and servers)\nare available from an HTTP endpoint. HAProxy process level stats given by command [show info](https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.3-show%20info)\nare not available. The `show info` stats can only be scraped from a configured stats UNIX socket.\n\n### UNIX Socket Config\nThe location of the HAProxy socket file is defined in the HAProxy config file, as in the following example:\n```\nglobal\n    daemon\n    stats socket /var/run/haproxy_sock\n    stats timeout 2m\n```\nFor the given location of the socket file, configure the HAProxy monitor URL as shown below:\n```\n...\nmonitors:\n  - type: haproxy\n    url: \"unix:/var/run/haproxy_sock\"\n...\n```\nNote: The agent process needs read/write permissions to the HAProxy socket file.\n",
+      "doc": "This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics (i.e. metrics) from a configured stats\nHTTP endpoint or UNIX socket. It requires HAProxy 1.8+ and supports running HAProxy in multi-process mode where\nthe HAProxy process each metric pertains to is indicated by the metric dimension `process_id`.\n\n\u003c!--- SETUP ---\u003e\n### HTTP Endpoint Config\nHAProxy stats must be enabled as described [here](https://www.haproxy.com/blog/exploring-the-haproxy-stats-page/).\nDefine the HAProxy monitor in the agent configuration file and provide the `csv export` URL where HAProxy\nstats are served in CSV format. This monitor supports basic HTTP authentication. Simply provide the\nusername and password if required as shown below:\n```\n...\nmonitors:\n  - type: haproxy\n    url: \"http://localhost:8404/stats?stats;csv\"\n    username: \"your username here\"\n    password: \"your password here\"\n...\n```\nNote: Only stats pertaining to the configured proxies (i.e. listeners, frontends, backends, and servers)\nare available from an HTTP endpoint. HAProxy process level stats given by command [show info](https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.3-show%20info)\nare not available. The `show info` stats can only be scraped from a configured stats UNIX socket.\n\n### UNIX Socket Config\nThe location of the HAProxy socket file is defined in the HAProxy config file, as in the following example:\n```\nglobal\n    daemon\n    stats socket /var/run/haproxy_sock\n    stats timeout 2m\n```\nFor the given location of the socket file, configure the HAProxy monitor URL as shown below:\n```\n...\nmonitors:\n  - type: haproxy\n    url: \"unix:/var/run/haproxy_sock\"\n...\n```\nNote: The agent process needs read/write permissions to the HAProxy socket file.\n",
       "groups": {
         "": {
           "description": "",
@@ -24006,7 +24015,7 @@
           "type": "gauge",
           "description": "The average total session time in ms over the 1024 last requests. Values reported for backends and servers.",
           "group": null,
-          "default": false
+          "default": true
         },
         "haproxy_session_total": {
           "type": "cumulative",

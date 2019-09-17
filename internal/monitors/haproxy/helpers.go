@@ -164,7 +164,7 @@ func statsJob(ctx context.Context, fn func(*Config, map[string]bool) ([]*datapoi
 				logger.Errorf("Failed to fetch proxy stats: %+v", err)
 				return
 			}
-			jobKey := "stats" + dps[0].Dimensions["process_num"]
+			jobKey := "stats" + dps[0].Dimensions["process_id"]
 			if updateChan(jobs, jobKey, dpsChan, dps) {
 				return
 			}
@@ -196,12 +196,12 @@ func infoJob(ctx context.Context, conf *Config, wg *sync.WaitGroup, dpsChan chan
 					// proxy stats and Process_num in the context of HAProxy process info. It says in the docs
 					// https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.1 that pid is zero-based. But, we
 					// find that pid is exactly the same as Process_num, a natural number. We therefore assign pid and
-					// Process_num to dimension process_num without modifying them to match.
-					dp.Dimensions["process_num"] = infoPairs["Process_num"]
+					// Process_num to dimension process_id without modifying them to match.
+					dp.Dimensions["process_id"] = infoPairs["Process_num"]
 					dps = append(dps, dp)
 				}
 			}
-			jobKey := "info" + dps[0].Dimensions["process_num"]
+			jobKey := "info" + dps[0].Dimensions["process_id"]
 			if updateChan(jobs, jobKey, dpsChan, dps) {
 				return
 			}
@@ -239,12 +239,15 @@ func jobHelper(conf *Config, reader func(*Config, string) (io.ReadCloser, error)
 			if dp := newDp(sfxMetricsMap[metric], value); dp != nil {
 				dp.Dimensions["proxy_name"] = headerValuePairs["pxname"]
 				dp.Dimensions["service_name"] = headerValuePairs["svname"]
+				dp.Dimensions["type"] = headerValuePairs["type"]
+				dp.Dimensions["server_id"] = headerValuePairs["sid"]
+				dp.Dimensions["unique_proxy_id"] = headerValuePairs["iid"]
 				// WARNING: Both pid and Process_num are HAProxy process identifiers. pid in the context of
 				// proxy stats and Process_num in the context of HAProxy process info. It says in the docs
 				// https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.1 that pid is zero-based. But, we
 				// find that pid is exactly the same as Process_num, a natural number. We therefore assign pid and
-				// Process_num to dimension process_num without modifying them to match.
-				dp.Dimensions["process_num"] = headerValuePairs["pid"]
+				// Process_num to dimension process_id without modifying them to match.
+				dp.Dimensions["process_id"] = headerValuePairs["pid"]
 				dps = append(dps, dp)
 			}
 		}

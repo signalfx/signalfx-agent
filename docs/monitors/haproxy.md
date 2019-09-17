@@ -12,7 +12,7 @@ Monitor Type: `haproxy` ([Source](https://github.com/signalfx/signalfx-agent/tre
 
 This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics (i.e. metrics) from a configured stats
 HTTP endpoint or UNIX socket. It requires HAProxy 1.8+ and supports running HAProxy in multi-process mode where
-the HAProxy process each metric pertains to is indicated by the metric dimension `process_num`.
+the HAProxy process each metric pertains to is indicated by the metric dimension `process_id`.
 
 <!--- SETUP --->
 ### HTTP Endpoint Config
@@ -131,7 +131,7 @@ Metrics that are categorized as
  - ***`haproxy_session_rate`*** (*gauge*)<br>    Number of sessions per second over last elapsed second. Values reported for frontends, backends, and servers.
  - `haproxy_session_rate_limit` (*gauge*)<br>    Configured limit on new sessions per second. Values reported for frontends.
  - `haproxy_session_rate_max` (*gauge*)<br>    Max number of new sessions per second. Values reported for frontends, backends, and servers.
- - `haproxy_session_time_average` (*gauge*)<br>    The average total session time in ms over the 1024 last requests. Values reported for backends and servers.
+ - ***`haproxy_session_time_average`*** (*gauge*)<br>    The average total session time in ms over the 1024 last requests. Values reported for backends and servers.
  - `haproxy_session_total` (*cumulative*)<br>    The cumulative number of sessions. Values reported for listeners, frontends, backends, and servers.
  - `haproxy_throttle` (*gauge*)<br>    Current throttle percentage for the server, when slowstart is active, or no value if not in slowstart. Values reported for servers.
 
@@ -200,9 +200,12 @@ dimensions may be specific to certain metrics.
 
 | Name | Description |
 | ---  | ---         |
-| `process_num` | A number assigned to an HAProxy process instance (0 for first instance, 1 for second, ...). |
+| `process_id` | A number assigned to an HAProxy process instance (1 for first instance, 2 for second, ...). |
 | `proxy_name` | HAProxy configured proxy name. Possible values for listeners, frontends, backends, and servers. |
+| `server_id` | Server id (unique inside a proxy) |
 | `service_name` | HAProxy configured service name. Possible values are FRONTEND for frontend, BACKEND for backend, configured name for server/listener. |
+| `type` | Proxy type id (0=frontend, 1=backend, 2=server, 3=socket/listener). |
+| `unique_proxy_id` | A unique proxy id |
 
 
 

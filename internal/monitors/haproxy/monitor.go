@@ -30,7 +30,7 @@ func init() {
 // http.
 //
 // This monitor turns proxy stats and process info into metric datapoints. It finds the total number of HAProxy
-// processes dynamically over time by counting the number of unique process_num in datapoints collected. process_num is
+// processes dynamically over time by counting the number of unique process_id in datapoints collected. process_id is
 // a datapoint dimension containing the pid value for proxy stats and Process_num for process info. Datapoints for
 // multiple HAProxy processes are fetched concurrently.
 type Monitor struct {
@@ -85,7 +85,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		defer cancel()
 		for _, dp := range fetch(ctx, conf, numP, proxies) {
 			dp.Dimensions["plugin"] = "haproxy"
-			pCache[dp.Dimensions["process_num"]] = true
+			pCache[dp.Dimensions["process_id"]] = true
 			m.Output.SendDatapoint(dp)
 		}
 		if refreshCountDown--; refreshCountDown == 0 {
