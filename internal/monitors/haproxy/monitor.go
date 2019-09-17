@@ -98,14 +98,14 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 			}
 			refreshCountDown = 30
 		}
-		logger.Debugf("Discovered %d HAProxy processes in this collection interval", len(pCache))
+		logger.Debugf("Discovered %d HAProxy processes in this interval", len(pCache))
 		if numP = len(pCache); numP == 0 {
 			errmsg := "all"
 			if len(conf.Proxies) > 0 {
 				errmsg = fmt.Sprintf("%+v", conf.Proxies)
 			}
 			logger.Errorf("Failed to create datapoints. Monitored proxies: %s", errmsg)
-			logger.Errorf("Discovered %d HAProxy processes in this collection interval. Run in debug mode to see discovered process for all collection intervals", len(pCache))
+			logger.Errorf("Discovered %d HAProxy processes in this interval. Run in debug mode to see the number of discovered processes at each intervals", len(pCache))
 			numP = 1
 		}
 	}, interval)
