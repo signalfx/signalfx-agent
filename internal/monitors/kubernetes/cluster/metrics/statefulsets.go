@@ -56,6 +56,7 @@ func dimPropsForStatefulSet(ss *appsv1.StatefulSet) *atypes.DimProperties {
 	props["kubernetes_workload"] = "StatefulSet"
 	props["current_revision"] = ss.Status.CurrentRevision
 	props["update_revision"] = ss.Status.UpdateRevision
+	props["creation_timestamp"] = ss.GetCreationTimestamp().Format(time.RFC3339)
 
 	for _, or := range ss.OwnerReferences {
 		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
