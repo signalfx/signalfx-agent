@@ -393,3 +393,8 @@ monitors:
         default: false
         type: gauge
         group: UnixSocketOnly
+      haproxy_connection_rate_all:
+        description: 'Corresponds to the current HAProxy process `ConnRate` value given by the `show info` cmd.'
+        default: true
+        type: gauge
+        group: UnixSocketOnly

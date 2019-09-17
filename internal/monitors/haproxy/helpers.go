@@ -98,6 +98,7 @@ var sfxMetricsMap = map[string]string{
 	"Tasks":              haproxyTasks,
 	"throttle":           haproxyThrottle,
 	"ZlibMemUsage":       haproxyZlibMemoryUsage,
+	"ConnRate":           haproxyConnectionRateAll,
 }
 
 const (
