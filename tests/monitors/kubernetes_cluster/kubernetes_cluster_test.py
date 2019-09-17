@@ -235,4 +235,10 @@ def test_container_properties(k8s_cluster):
     yamls = [SCRIPT_DIR / "resource_quota.yaml", TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
     with k8s_cluster.create_resources(yamls):
         with k8s_cluster.run_agent(agent_yaml=config) as agent:
-            p(any_dim_val_has_prop, agent.fake_services, dim_name="container_id", prop_name="container_status")
+            p(
+                any_dim_val_has_prop,
+                agent.fake_services,
+                dim_name="container_id",
+                prop_name="container_status",
+                prop_vals={"running", "waiting", "terminated"},
+            )

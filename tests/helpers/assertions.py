@@ -368,10 +368,12 @@ def has_all_dim_props(fake_services, dim_name, dim_value, props):
     return True
 
 
-def any_dim_val_has_prop(fake_services, dim_name, prop_name):
+def any_dim_val_has_prop(fake_services, dim_name, prop_name, prop_vals=None):
     """
     Tests if the given dimension has a property regardless of the values of
-    dimensions or properties
+    dimensions or properties. If prop_vals contains a set of values, this
+    method ensures properties with key prop_name have only one of the values
+    provided in prop_vals
     """
     dim = fake_services.dims[dim_name]
 
@@ -381,5 +383,7 @@ def any_dim_val_has_prop(fake_services, dim_name, prop_name):
     for dim_value in dim.values():
         props = dim_value.get("customProperties", {})
         if props is not None:
-            return prop_name in props
+            if not prop_vals:
+                return prop_name in props
+            return prop_name in props and props[prop_name] in prop_vals
     return False
