@@ -1,13 +1,13 @@
 monitors:
   - monitorType: haproxy
     doc: |
-      This monitor scrapes [HAProxy](http://www.haproxy_org/) statistics (i.e. metrics) from a configured stats
+      This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics (i.e. metrics) from a configured stats
       HTTP endpoint or UNIX socket. It requires HAProxy 1.8+ and supports running HAProxy in multi-process mode where
       the HAProxy process each metric pertains to is indicated by the metric dimension `process_num`.
 
       <!--- SETUP --->
       ### HTTP Endpoint Config
-      HAProxy stats must be enabled as described [here](https://www.haproxy_com/blog/exploring-the-haproxy-stats-page/).
+      HAProxy stats must be enabled as described [here](https://www.haproxy.com/blog/exploring-the-haproxy-stats-page/).
       Define the HAProxy monitor in the agent configuration file and provide the `csv export` URL where HAProxy
       stats are served in CSV format. This monitor supports basic HTTP authentication. Simply provide the
       username and password if required as shown below:
