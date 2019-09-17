@@ -14,7 +14,7 @@ func datapointsForDaemonSet(ds *v1beta1.DaemonSet) []*datapoint.Datapoint {
 	dimensions := map[string]string{
 		"metric_source":        "kubernetes",
 		"kubernetes_namespace": ds.Namespace,
-		"uid":                  string(ds.UID),
+		"kubernetes_uid":       string(ds.UID),
 		"kubernetes_name":      ds.Name,
 	}
 
