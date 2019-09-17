@@ -23596,6 +23596,7 @@
           "metrics": [
             "haproxy_compress_bits_per_second_in",
             "haproxy_compress_bits_per_second_out",
+            "haproxy_connection_rate_all",
             "haproxy_connections",
             "haproxy_current_connections",
             "haproxy_current_ssl_connections",
@@ -23699,6 +23700,12 @@
           "type": "gauge",
           "description": "Number of connections over the last elapsed second. Values reported for frontends.",
           "group": null,
+          "default": true
+        },
+        "haproxy_connection_rate_all": {
+          "type": "gauge",
+          "description": "Corresponds to the current HAProxy process `ConnRate` value given by the `show info` cmd.",
+          "group": "UnixSocketOnly",
           "default": true
         },
         "haproxy_connection_rate_max": {

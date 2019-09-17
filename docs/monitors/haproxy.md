@@ -141,6 +141,7 @@ the non-default metrics below can be turned on by adding `UnixSocketOnly` to the
 monitor config option `extraGroups`:
  - `haproxy_compress_bits_per_second_in` (*cumulative*)<br>    Corresponds to the current HAProxy process `CompressBpsIn` value given by the `show info` cmd.
  - `haproxy_compress_bits_per_second_out` (*cumulative*)<br>    Corresponds to the current HAProxy process `CompressBpsOut` value given by the `show info` cmd.
+ - ***`haproxy_connection_rate_all`*** (*gauge*)<br>    Corresponds to the current HAProxy process `ConnRate` value given by the `show info` cmd.
  - `haproxy_connections` (*cumulative*)<br>    Corresponds to the current HAProxy process `CumConns` value given by the `show info` cmd. Cumulative number of connections.
  - `haproxy_current_connections` (*gauge*)<br>    Corresponds to the current HAProxy process `CurrConns` value given by the `show info` cmd.
  - `haproxy_current_ssl_connections` (*gauge*)<br>    Corresponds to the current HAProxy process `CurrSslConns` value given by the `show info` cmd.

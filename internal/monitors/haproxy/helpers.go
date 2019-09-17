@@ -147,7 +147,7 @@ func fetchSocket(ctx context.Context, conf *Config, numProcesses int, proxies ma
 	return dps
 }
 
-// Writes http and socket fetched proxy stats datapoints of a process into dps channel.
+// Sends http and socket fetched proxy stats datapoints of a process into dps channel.
 func statsJob(ctx context.Context, fn func(*Config, map[string]bool) ([]*datapoint.Datapoint, error), conf *Config, wg *sync.WaitGroup, dpsChan chan []*datapoint.Datapoint, jobs map[string]bool, proxies map[string]bool) {
 	defer wg.Done()
 	defer close(dpsChan)
@@ -156,12 +156,12 @@ func statsJob(ctx context.Context, fn func(*Config, map[string]bool) ([]*datapoi
 	for range timer.C {
 		select {
 		case <-ctx.Done():
-			logger.Debugf("Failed to write proxy stats datapoints to channel: %+v", ctx.Err())
+			logger.Debugf("Failed to send proxy stats datapoints to channel: %+v", ctx.Err())
 			return
 		default:
 			dps, err := fn(conf, proxies)
 			if err != nil {
-				logger.Errorf("Failed to scrape proxy stats: %+v", err)
+				logger.Errorf("Failed to fetch proxy stats: %+v", err)
 				return
 			}
 			jobKey := "stats" + dps[0].Dimensions["process_num"]
@@ -172,7 +172,7 @@ func statsJob(ctx context.Context, fn func(*Config, map[string]bool) ([]*datapoi
 	}
 }
 
-// Writes socket fetched process info datapoints of a process into dps channel.
+// Sends socket fetched process info datapoints of a process into dps channel.
 func infoJob(ctx context.Context, conf *Config, wg *sync.WaitGroup, dpsChan chan []*datapoint.Datapoint, jobs map[string]bool) {
 	defer wg.Done()
 	defer close(dpsChan)
@@ -181,13 +181,13 @@ func infoJob(ctx context.Context, conf *Config, wg *sync.WaitGroup, dpsChan chan
 	for range timer.C {
 		select {
 		case <-ctx.Done():
-			logger.Debugf("Failed to write process info datapoints to channel. %+v", ctx.Err())
+			logger.Debugf("Failed to send process info datapoints to channel. %+v", ctx.Err())
 			return
 		default:
 			dps := make([]*datapoint.Datapoint, 0)
 			infoPairs, err := infoMap(conf)
 			if err != nil {
-				logger.Errorf("Failed to scrape process info data: %+v", err)
+				logger.Errorf("Failed to fetch process info data: %+v", err)
 				return
 			}
 			for metric, value := range infoPairs {
