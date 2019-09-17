@@ -31,6 +31,7 @@ func datapointsForCronJob(cj *batchv1beta1.CronJob) []*datapoint.Datapoint {
 func dimPropsForCronJob(cj *batchv1beta1.CronJob) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(cj.Labels)
 
+	props["creation_timestamp"] = cj.GetCreationTimestamp().Format(time.RFC3339)
 	props["kubernetes_workload"] = "CronJob"
 	props["schedule"] = cj.Spec.Schedule
 	props["concurrency_policy"] = string(cj.Spec.ConcurrencyPolicy)
