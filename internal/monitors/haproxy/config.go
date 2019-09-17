@@ -1,7 +1,6 @@
 package haproxy
 
 import (
-	"sync"
 	"time"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -23,27 +22,4 @@ type Config struct {
 	// A list of the pxname(s) and svname(s) to monitor (e.g. `["http-in", "server1", "backend"]`).
 	// If empty then metrics for all proxies will be reported.
 	Proxies []string `yaml:"proxies"`
-}
-
-var proxyCache map[string]bool
-var once sync.Once
-
-func (c *Config) hasProxies(proxies ...string) bool {
-	if len(c.Proxies) == 0 {
-		return false
-	}
-	if proxyCache == nil {
-		once.Do(func() {
-			proxyCache = map[string]bool{}
-			for _, proxy := range c.Proxies {
-				proxyCache[proxy] = true
-			}
-		})
-	}
-	for _, p := range proxies {
-		if !proxyCache[p] {
-			return false
-		}
-	}
-	return true
 }

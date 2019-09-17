@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
@@ -20,15 +21,18 @@ func init() {
 
 // Monitor for reporting HAProxy stats.
 //
-// In multi-process mode HAProxy reports stats/info randomly one process at a time upon query. There is no stat for
-// the number of processes for proxy-related 'csv' stats. There is however, stat pid which is an index for individual
-// processes. Likewise process-related 'info' stats have Process_num. The info stats do however have Nbproc which gives
-// the number of processes stat. But, info stats are not available through http.
+// In multi-process mode, you get query results from a single randomly selected HAProxy process. Proxy statistics
+// (proxy stats) can be queried through http and UNIX socket. HAProxy process information (process info) is only
+// available through UNIX socket. There is no proxy stat for the total number of processes. There is however, stat pid
+// which is an integer identifier assigned to individual processes. pid is bounded by the total number of processes.
+// It is not the usual OS assigned process identifier. Process info has Process_num which is equivalent to pid. Process
+// info does however have Nbproc which gives the total number of processes. But, process info is not available through
+// http.
 //
-// This monitor assigns the pid stat and Process_num info to dimension process_num. It finds the number of running
-// HAProxy processes dynamically by evaluating the maximum value of dimension process_num over time. It fetches HAProxy
-// stats repeatedly if necessary in order to get stats for all processes. It fetches stats repeatedly if necessary
-// within the configured timeout duration.
+// This monitor turns proxy stats and process info into metric datapoints. It finds the total number of HAProxy
+// processes dynamically over time by counting the number of unique process_num in datapoints collected. process_num is
+// a datapoint dimension containing the pid value for proxy stats and Process_num for process info. Datapoints for
+// multiple HAProxy processes are fetched concurrently.
 type Monitor struct {
 	Output types.Output
 	cancel context.CancelFunc
@@ -44,43 +48,64 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		return fmt.Errorf("cannot parse url %s status. %v", conf.URL, err)
 	}
 
-	var fetch func(context.Context, *Config, int) []*datapoint.Datapoint
-	switch url.Scheme {
-	case "http", "https", "file":
-		fetch = mergeHTTP
-	case "unix":
-		fetch = mergeSocket
-	default:
-		return fmt.Errorf("unsupported scheme: %q", url.Scheme)
+	proxies := map[string]bool{}
+	for _, p := range conf.Proxies {
+		switch strings.ToLower(strings.TrimSpace(p)) {
+		case "frontend":
+			proxies["FRONTEND"] = true
+		case "backend":
+			proxies["BACKEND"] = true
+		default:
+			proxies[p] = true
+		}
 	}
 
-	numProcesses, purgeCountDown, pidCache := 1, 6, map[string]bool{}
+	var fetch func(context.Context, *Config, int, map[string]bool) []*datapoint.Datapoint
+
+	switch url.Scheme {
+	case "http", "https", "file":
+		fetch = fetchHTTP
+	case "unix":
+		fetch = fetchSocket
+	default:
+		return fmt.Errorf("unsupported scheme:%q", url.Scheme)
+	}
+
+	// Map for caching process numbers in intervals.
+	pCache := map[string]bool{}
+	// Number of processes. Equal to length of non-empty cache.
+	numP := 1
+	// Number of intervals before refreshing pCache.
+	refreshCountDown := 6
 
 	interval := time.Duration(conf.IntervalSeconds) * time.Second
 
 	utils.RunOnInterval(m.ctx, func() {
 		ctx, cancel := context.WithTimeout(m.ctx, interval)
 		defer cancel()
-		for _, dp := range fetch(ctx, conf, numProcesses) {
+		for _, dp := range fetch(ctx, conf, numP, proxies) {
 			dp.Dimensions["plugin"] = "haproxy"
-			pidCache[dp.Dimensions["process_num"]] = true
+			pCache[dp.Dimensions["process_num"]] = true
 			m.Output.SendDatapoint(dp)
 		}
-		// Purge stale pids unseen after count down to 0.
-		if purgeCountDown--; purgeCountDown == 0 {
-			for pid, hit := range pidCache {
+		if refreshCountDown--; refreshCountDown == 0 {
+			for pNum, hit := range pCache {
 				if !hit {
-					delete(pidCache, pid)
+					delete(pCache, pNum)
 					continue
 				}
-				pidCache[pid] = false
+				pCache[pNum] = false
 			}
-			purgeCountDown = 6
+			refreshCountDown = 6
 		}
-		// Count pids to get number of processes. Assign 1 if none seen.
-		if numProcesses = len(pidCache); numProcesses == 0 {
-			logger.Errorf("got no HAProxy process pid")
-			numProcesses = 1
+		logger.Debugf("Discovered %d HAProxy processes", len(pCache))
+		if numP = len(pCache); numP == 0 {
+			errmsg := "all"
+			if len(conf.Proxies) > 0 {
+				errmsg = fmt.Sprintf("%+v", conf.Proxies)
+			}
+			logger.Errorf("Failed to create datapoints. Monitored proxies: %s", errmsg)
+			numP = 1
 		}
 	}, interval)
 
