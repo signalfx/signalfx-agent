@@ -173,10 +173,10 @@ func statsJob(ctx context.Context, fn func(*Config, map[string]bool) ([]*datapoi
 
 // Writes socket fetched process info datapoints of a process into dps channel.
 func infoJob(ctx context.Context, conf *Config, wg *sync.WaitGroup, dpsChan chan []*datapoint.Datapoint, jobs map[string]bool) {
-	timer := time.NewTicker(tickInterval)
-	defer timer.Stop()
 	defer wg.Done()
 	defer close(dpsChan)
+	timer := time.NewTicker(tickInterval)
+	defer timer.Stop()
 	for range timer.C {
 		select {
 		case <-ctx.Done():

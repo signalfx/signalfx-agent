@@ -76,7 +76,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// Number of processes. Equal to length of non-empty cache.
 	numP := 1
 	// Number of intervals before refreshing pCache.
-	refreshCountDown := 6
+	refreshCountDown := 30
 
 	interval := time.Duration(conf.IntervalSeconds) * time.Second
 
@@ -96,7 +96,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 				}
 				pCache[pNum] = false
 			}
-			refreshCountDown = 6
+			refreshCountDown = 30
 		}
 		logger.Debugf("Discovered %d HAProxy processes", len(pCache))
 		if numP = len(pCache); numP == 0 {
