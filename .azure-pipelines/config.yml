@@ -12,8 +12,8 @@ trigger:
 variables:
   AGENT_BIN: '$(Build.SourcesDirectory)\build\SignalFxAgent\bin\signalfx-agent.exe'
   GO111MODULE: 'on'
-  GOPATH: 'c:\gopath'
-  GOBIN: '$(GOPATH)\bin'
+  GOPATH: '$(Pipeline.Workspace)/go'
+  GOBIN: '$(GOPATH)/bin'
   SANIC_NO_UVLOOP: 'true'
   TEST_SERVICES_DIR: '$(Build.SourcesDirectory)\test-services'
 
@@ -26,7 +26,6 @@ jobs:
   - script: |
       set -euo pipefail
 
-      export GOPATH=/go
       lintver="1.16.0"
       curl -sfL https://github.com/golangci/golangci-lint/releases/download/v${lintver}/golangci-lint-${lintver}-linux-amd64.tar.gz > /tmp/golangci-lint.tar.gz
       tar -xf /tmp/golangci-lint.tar.gz -C /tmp
