@@ -45,6 +45,19 @@ def has_datapoint_with_dim(fake_services, key, value):
     return has_datapoint_with_all_dims(fake_services, {key: value})
 
 
+# Tests if all datapoints received have some or all the given dims.
+def datapoints_have_some_or_all_dims(fake_services, dims):
+    for dp in fake_services.datapoints:
+        has_dim = False
+        for dp_dim in dp.dimensions:
+            if dims.get(dp_dim.key) == dp_dim.value:
+                has_dim = True
+                break
+        if not has_dim:
+            return False
+    return True
+
+
 def has_no_datapoint(fake_services, metric_name=None, dimensions=None, value=None, metric_type=None):
     """
     Returns True is there are no datapoints matching the given parameters

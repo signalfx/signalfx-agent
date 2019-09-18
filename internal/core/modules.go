@@ -37,6 +37,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/filesystems"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/forwarder"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/gitlab"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/haproxy"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/internalmetrics"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/logstash/logstash"
