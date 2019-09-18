@@ -68,11 +68,13 @@ _Note: if you have previously configured another metric collection agent on your
 
 ### Step 1. Install SignalFx Smart Agent on Single Host
 
-__Linux:__ Dependencies are completely bundled along with the agent, including a Java JRE runtime and a Python runtime, so there are no additional dependencies required. The agent works on any modern Linux distribution (kernel version 2.6+).
+__Linux:__
 
-For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy and run the pre-populated installation code.
+Before you attempt to install the agent, please note that dependencies are completely bundled along with the agent, including a Java JRE runtime and a Python runtime; no additional dependencies required are required. Additionally, the agent works on any modern Linux distribution (kernel version 2.6+).
 
-If you are reading this document directly from the *Integrations* page, then simply copy and run the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)  
+For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy the pre-populated installation code.
+
+If you are reading this document directly from the *Integrations* page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)  
 
 ```sh
 curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
@@ -91,15 +93,15 @@ If you are reading this document from the SignalFX documentation site, then Sign
 
 __Windows:__
 
-Before you attempt to install the SignalFX Smart Agent, verify that the following dependencies are already installed:
+Before you attempt to install the agent, verify that the following dependencies are already installed:
 
 [.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
 
 [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
 
-For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy and run the pre-populated installation code.
+For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy the pre-populated installation code.
 
-If you are reading this document directly from the *Integrations* page, then simply copy and run the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)  
+If you are reading this document directly from the *Integrations* page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)  
 
 ```sh
 & {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"};;
