@@ -10,7 +10,7 @@ Monitor Type: `haproxy` ([Source](https://github.com/signalfx/signalfx-agent/tre
 
 ## Overview
 
-This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics (i.e. metrics) from a configured stats
+This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics (i.e. metrics) from a configured
 HTTP endpoint or UNIX socket. It requires HAProxy 1.8+ and supports scraping metrics for HAProxy running in
 multi-process mode. In multi-process mode, HAProxy must be configured to enable stats on different URLs/socket
 paths for the processes.
@@ -35,17 +35,17 @@ monitors:
 ```
 Note: Only stats pertaining to the configured proxies (i.e. listeners, frontends, backends, and servers)
 are available from the HTTP url. HAProxy process level stats given by command [show info](https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.3-show%20info)
-are not available. The `show info` stats can only be scraped from an HAProxy configured stats UNIX socket.
+are not available. The `show info` stats can only be scraped from a UNIX socket.
 
 ### UNIX Socket Config
-The location of the HAProxy socket file is defined in the HAProxy config file, as in the following example:
+The location of the HAProxy socket file is defined in the HAProxy config file. For example:
 ```
 global
     daemon
     stats socket /var/run/haproxy.sock
     stats timeout 2m
 ```
-For the given location of the socket file, configure the monitor URL as shown below:
+For the above location of the socket file, configure the monitor URL as shown below:
 ```
 ...
 monitors:
@@ -95,13 +95,19 @@ Metrics that are categorized as
  - ***`haproxy_bytes_out`*** (*cumulative*)<br>    Total number of outgoing bytes. Values reported for listeners, frontends, backends, and servers.
  - `haproxy_check_duration` (*gauge*)<br>    Time in ms took to finish last health check. Values reported for servers.
  - `haproxy_client_aborts` (*cumulative*)<br>    Number of data transfers aborted by the client. Values reported for backends and servers.
+ - `haproxy_compress_bits_per_second_in` (*cumulative*)<br>    Corresponds to the HAProxy process `CompressBpsIn` value given by the `show info` command issued over UNIX socket.
+ - `haproxy_compress_bits_per_second_out` (*cumulative*)<br>    Corresponds to the HAProxy process `CompressBpsOut` value given by the `show info` command issued over UNIX socket.
  - `haproxy_compress_bypass` (*cumulative*)<br>    Number of bytes that bypassed the HTTP compressor (CPU/BW limit). Values reported for frontends and backends.
  - `haproxy_compress_in` (*cumulative*)<br>    Number of HTTP response bytes fed to the compressor. Values reported for frontends and backends.
  - `haproxy_compress_out` (*cumulative*)<br>    Number of HTTP response bytes emitted by the compressor. Values reported for frontends and backends.
  - `haproxy_compress_responses` (*cumulative*)<br>    Number of HTTP responses that were compressed. Values reported for frontends and backends.
  - `haproxy_connection_rate` (*gauge*)<br>    Number of connections over the last elapsed second. Values reported for frontends.
+ - ***`haproxy_connection_rate_all`*** (*gauge*)<br>    Corresponds to the HAProxy process `ConnRate` value given by the `show info` command issued over UNIX socket.
  - `haproxy_connection_rate_max` (*gauge*)<br>    Highest known conn_rate. Values reported for frontends.
  - `haproxy_connection_total` (*cumulative*)<br>    Cumulative number of connections. Values reported for frontends.
+ - `haproxy_connections` (*cumulative*)<br>    Corresponds to the HAProxy process `CumConns` value given by the `show info` command issued over UNIX socket. Cumulative number of connections.
+ - `haproxy_current_connections` (*gauge*)<br>    Corresponds to the HAProxy process `CurrConns` value given by the `show info` command issued over UNIX socket.
+ - `haproxy_current_ssl_connections` (*gauge*)<br>    Corresponds to the HAProxy process `CurrSslConns` value given by the `show info` command issued over UNIX socket.
  - ***`haproxy_denied_request`*** (*cumulative*)<br>    Number of requests denied because of security concerns. For tcp this is because of a matched tcp-request content rule. For http this is because of a matched http-request or tarpit rule. Values reported for listeners, frontends, and backends.
  - ***`haproxy_denied_response`*** (*cumulative*)<br>    Number of responses denied because of security concerns. For http this is because of a matched http-request rule, or "option checkcache". Values reported for listeners, frontends, backends, and servers.
  - `haproxy_denied_tcp_connections` (*gauge*)<br>    Requests denied by "tcp-request connection" rules. Values reported for listeners and frontends.
@@ -111,8 +117,16 @@ Metrics that are categorized as
  - ***`haproxy_error_request`*** (*cumulative*)<br>    Number of request errors. Some of the possible causes are: early termination from the client, before the request has been sent, read error from the client, client timeout, client closed connection, various bad requests from the client, request was tarpitted. Values reported for listeners and frontends.
  - ***`haproxy_error_response`*** (*cumulative*)<br>    Number of response errors. haproxy_server_aborts will be counted here also. Some other errors are: write error on the client socket (won't be counted for the server stat), failure applying filters to the response. Values reported for backends and servers.
  - `haproxy_failed_checks` (*cumulative*)<br>    Number of failed checks. (Only counts checks failed when the server is up.). Values reported for servers.
+ - ***`haproxy_idle_percent`*** (*gauge*)<br>    Corresponds to the HAProxy process `Idle_pct` value given by the `show info` command issued over UNIX socket. Ratio of system polling time versus total time.
  - `haproxy_intercepted_requests` (*gauge*)<br>    Cumulative number of intercepted requests (monitor, stats). Values reported for frontends and backends.
  - `haproxy_last_session` (*gauge*)<br>    Number of seconds since last session assigned to server/backend. Values reported for backends and servers.
+ - `haproxy_max_connection_rate` (*gauge*)<br>    Corresponds to the HAProxy process `MaxConnRate` value given by the `show info` command issued over UNIX socket.
+ - `haproxy_max_connections` (*gauge*)<br>    Corresponds to the HAProxy process `MaxConn` value given by the `show info` command issued over UNIX socket.
+ - `haproxy_max_pipes` (*gauge*)<br>    Corresponds to the HAProxy process `MaxPipes` value given by the `show info` command issued over UNIX socket.
+ - `haproxy_max_session_rate` (*gauge*)<br>    Corresponds to the HAProxy process `MaxSessRate` value given by the `show info` command issued over UNIX socket.
+ - `haproxy_max_ssl_connections` (*gauge*)<br>    Corresponds to the HAProxy process `MaxSslConns` value given by the `show info` command issued over UNIX socket.
+ - `haproxy_pipes_free` (*gauge*)<br>    Corresponds to the HAProxy process `PipesFree` value given by the `show info` command issued over UNIX socket.
+ - `haproxy_pipes_used` (*gauge*)<br>    Corresponds to the HAProxy process `PipesUsed` value given by the `show info` command issued over UNIX socket.
  - ***`haproxy_queue_current`*** (*gauge*)<br>    Number of current queued requests. For the backend this reports the number queued without a server assigned. Values reported for backends and servers.
  - `haproxy_queue_limit` (*gauge*)<br>    Configured maxqueue for the server, or nothing in the value is 0 (default, meaning no limit). Values reported for servers.
  - `haproxy_queue_max` (*gauge*)<br>    The max value of qcur. Values reported for backends and servers.
@@ -121,6 +135,7 @@ Metrics that are categorized as
  - ***`haproxy_request_rate`*** (*gauge*)<br>    HTTP requests per second over last elapsed second. Values reported for frontends.
  - `haproxy_request_rate_max` (*gauge*)<br>    Max number of HTTP requests per second observed. Values reported for frontends.
  - `haproxy_request_total` (*cumulative*)<br>    Total number of HTTP requests received. Values reported for frontends and backends.
+ - ***`haproxy_requests`*** (*cumulative*)<br>    Corresponds to the HAProxy process `CumReq` value given by the `show info` command issued over UNIX socket.
  - `haproxy_response_1xx` (*cumulative*)<br>    HTTP responses with 1xx code. Values reported for frontends, backends, and servers.
  - ***`haproxy_response_2xx`*** (*cumulative*)<br>    HTTP responses with 2xx code. Values reported for frontends, backends, and servers.
  - `haproxy_response_3xx` (*cumulative*)<br>    HTTP responses with 3xx code. Values reported for frontends, backends, and servers.
@@ -129,46 +144,26 @@ Metrics that are categorized as
  - `haproxy_response_other` (*cumulative*)<br>    HTTP responses with other codes (protocol error). Values reported for frontends, backends, and servers.
  - ***`haproxy_response_time_average`*** (*gauge*)<br>    The average response time in ms over the 1024 last requests (0 for TCP). Values reported for backends and servers.
  - ***`haproxy_retries`*** (*cumulative*)<br>    Number of times a connection to a server was retried. Values reported for backends and servers.
+ - `haproxy_run_queue` (*gauge*)<br>    Corresponds to the HAProxy process `Run_queue` value given by the `show info` command issued over UNIX socket.
  - `haproxy_server_aborts` (*cumulative*)<br>    Number of data transfers aborted by the server (inc. in eresp). Values reported for backends and servers.
  - ***`haproxy_server_selected_total`*** (*cumulative*)<br>    Total number of times a server was selected, either for new sessions, or when re-dispatching. The server counter is the number of times that server was selected. Values reported for backends and servers.
  - ***`haproxy_session_current`*** (*gauge*)<br>    Number current sessions. Values reported for listeners, frontends, backends, and servers.
  - ***`haproxy_session_rate`*** (*gauge*)<br>    Number of sessions per second over last elapsed second. Values reported for frontends, backends, and servers.
+ - ***`haproxy_session_rate_all`*** (*gauge*)<br>    Corresponds to the HAProxy process `SessRate` value given by the `show info` command issued over UNIX socket.
  - `haproxy_session_rate_limit` (*gauge*)<br>    Configured limit on new sessions per second. Values reported for frontends.
  - `haproxy_session_rate_max` (*gauge*)<br>    Max number of new sessions per second. Values reported for frontends, backends, and servers.
  - ***`haproxy_session_time_average`*** (*gauge*)<br>    The average total session time in ms over the 1024 last requests. Values reported for backends and servers.
  - `haproxy_session_total` (*cumulative*)<br>    The cumulative number of sessions. Values reported for listeners, frontends, backends, and servers.
+ - `haproxy_ssl_backend_key_rate` (*gauge*)<br>    Corresponds to the HAProxy process `SslBackendKeyRate` value given by the `show info` command issued over UNIX socket.
+ - `haproxy_ssl_cache_lookups` (*cumulative*)<br>    Corresponds to the HAProxy process `SslCacheLookups` value given by the `show info` command issued over UNIX socket.
+ - `haproxy_ssl_cache_misses` (*cumulative*)<br>    Corresponds to the HAProxy process `SslCacheMisses` value given by the `show info` command issued over UNIX socket.
+ - `haproxy_ssl_connections` (*cumulative*)<br>    Corresponds to the HAProxy process `CumSslConns` value given by the `show info` command issued over UNIX socket.
+ - `haproxy_ssl_frontend_key_rate` (*gauge*)<br>    Corresponds to the HAProxy process `SslFrontendKeyRate` value given by the `show info` command issued over UNIX socket.
+ - `haproxy_ssl_rate` (*gauge*)<br>    Corresponds to the HAProxy process `SslRate` value given by the `show info` command issued over UNIX socket.
+ - `haproxy_tasks` (*gauge*)<br>    Corresponds to the HAProxy process `Tasks` value given by the `show info` command issued over UNIX socket.
  - `haproxy_throttle` (*gauge*)<br>    Current throttle percentage for the server, when slowstart is active, or no value if not in slowstart. Values reported for servers.
-
-#### Group UnixSocketOnly
-All of the following metrics are part of the `UnixSocketOnly` metric group. All of
-the non-default metrics below can be turned on by adding `UnixSocketOnly` to the
-monitor config option `extraGroups`:
- - `haproxy_compress_bits_per_second_in` (*cumulative*)<br>    Corresponds to the current HAProxy process `CompressBpsIn` value given by the `show info` cmd.
- - `haproxy_compress_bits_per_second_out` (*cumulative*)<br>    Corresponds to the current HAProxy process `CompressBpsOut` value given by the `show info` cmd.
- - ***`haproxy_connection_rate_all`*** (*gauge*)<br>    Corresponds to the current HAProxy process `ConnRate` value given by the `show info` cmd.
- - `haproxy_connections` (*cumulative*)<br>    Corresponds to the current HAProxy process `CumConns` value given by the `show info` cmd. Cumulative number of connections.
- - `haproxy_current_connections` (*gauge*)<br>    Corresponds to the current HAProxy process `CurrConns` value given by the `show info` cmd.
- - `haproxy_current_ssl_connections` (*gauge*)<br>    Corresponds to the current HAProxy process `CurrSslConns` value given by the `show info` cmd.
- - ***`haproxy_idle_percent`*** (*gauge*)<br>    Corresponds to the current HAProxy process `Idle_pct` value given by the `show info` cmd. Ratio of system polling time versus total time.
- - `haproxy_max_connection_rate` (*gauge*)<br>    Corresponds to the current HAProxy process `MaxConnRate` value given by the `show info` cmd.
- - `haproxy_max_connections` (*gauge*)<br>    Corresponds to the current HAProxy process `MaxConn` value given by the `show info` cmd.
- - `haproxy_max_pipes` (*gauge*)<br>    Corresponds to the current HAProxy process `MaxPipes` value given by the `show info` cmd.
- - `haproxy_max_session_rate` (*gauge*)<br>    Corresponds to the current HAProxy process `MaxSessRate` value given by the `show info` cmd.
- - `haproxy_max_ssl_connections` (*gauge*)<br>    Corresponds to the current HAProxy process `MaxSslConns` value given by the `show info` cmd.
- - `haproxy_pipes_free` (*gauge*)<br>    Corresponds to the current HAProxy process `PipesFree` value given by the `show info` cmd.
- - `haproxy_pipes_used` (*gauge*)<br>    Corresponds to the current HAProxy process `PipesUsed` value given by the `show info` cmd.
- - ***`haproxy_requests`*** (*cumulative*)<br>    Corresponds to the current HAProxy process `CumReq` value given by the `show info` cmd.
- - `haproxy_run_queue` (*gauge*)<br>    Corresponds to the current HAProxy process `Run_queue` value given by the `show info` cmd.
- - ***`haproxy_session_rate_all`*** (*gauge*)<br>    Corresponds to the current HAProxy process `SessRate` value given by the `show info` cmd.
- - `haproxy_ssl_backend_key_rate` (*gauge*)<br>    Corresponds to the current HAProxy process `SslBackendKeyRate` value given by the `show info` cmd.
- - `haproxy_ssl_cache_lookups` (*cumulative*)<br>    Corresponds to the current HAProxy process `SslCacheLookups` value given by the `show info` cmd.
- - `haproxy_ssl_cache_misses` (*cumulative*)<br>    Corresponds to the current HAProxy process `SslCacheMisses` value given by the `show info` cmd.
- - `haproxy_ssl_connections` (*cumulative*)<br>    Corresponds to the current HAProxy process `CumSslConns` value given by the `show info` cmd.
- - `haproxy_ssl_frontend_key_rate` (*gauge*)<br>    Corresponds to the current HAProxy process `SslFrontendKeyRate` value given by the `show info` cmd.
- - `haproxy_ssl_rate` (*gauge*)<br>    Corresponds to the current HAProxy process `SslRate` value given by the `show info` cmd.
- - `haproxy_tasks` (*gauge*)<br>    Corresponds to the current HAProxy process `Tasks` value given by the `show info` cmd.
- - `haproxy_uptime_seconds` (*cumulative*)<br>    Corresponds to the current HAProxy process `Uptime_sec` value given by the `show info` cmd.
- - `haproxy_zlib_memory_usage` (*gauge*)<br>    Corresponds to the current HAProxy process `ZlibMemUsage` value given by the `show info` cmd.
+ - `haproxy_uptime_seconds` (*cumulative*)<br>    Corresponds to the HAProxy process `Uptime_sec` value given by the `show info` command issued over UNIX socket.
+ - `haproxy_zlib_memory_usage` (*gauge*)<br>    Corresponds to the HAProxy process `ZlibMemUsage` value given by the `show info` command issued over UNIX socket.
 
 ### Non-default metrics (version 4.7.0+)
 
