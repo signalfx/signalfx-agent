@@ -70,7 +70,7 @@ _Note: if you have previously configured another metric collection agent on your
 
 __Linux:__
 
-Before you attempt to install the agent, please note that dependencies are completely bundled along with the agent, including a Java JRE runtime and a Python runtime; no additional dependencies required are required. Additionally, the agent works on any modern Linux distribution (kernel version 2.6+).
+Before you attempt to install the agent, please note that dependencies are completely bundled along with the agent, including a Java JRE runtime and a Python runtime; no additional dependencies are required. Additionally, the agent works on any modern Linux distribution (kernel version 2.6+).
 
 For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy the pre-populated installation code.
 
