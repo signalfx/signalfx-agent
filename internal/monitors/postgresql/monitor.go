@@ -50,6 +50,9 @@ type Config struct {
 	// How frequently to poll for new/deleted databases in the DB server.
 	// Defaults to the same as `intervalSeconds` if not set.
 	DatabasePollIntervalSeconds int `yaml:"databasePollIntervalSeconds"`
+
+	// The number of top queries to consider when publishing query-related metrics
+	TopQueryLimit int `default:"10" yaml:"topQueryLimit"`
 }
 
 func (c *Config) connStr() (string, error) {
@@ -75,14 +78,17 @@ type Monitor struct {
 
 	database *dbsql.DB
 
-	monitoredDBs  map[string]*sql.Monitor
-	serverMonitor *sql.Monitor
+	monitoredDBs      map[string]*sql.Monitor
+	serverMonitor     *sql.Monitor
+	statementsMonitor *sql.Monitor
 }
 
 // Configure the monitor and kick off metric collection
 func (m *Monitor) Configure(conf *Config) error {
 	m.conf = conf
 	m.ctx, m.cancel = context.WithCancel(context.Background())
+
+	queriesGroupEnabled := m.Output.HasEnabledMetricInGroup(groupQueries)
 
 	connStr, err := conf.connStr()
 	if err != nil {
@@ -123,6 +129,13 @@ func (m *Monitor) Configure(conf *Config) error {
 	if err != nil {
 		m.database.Close()
 		return fmt.Errorf("could not monitor postgresql server: %v", err)
+	}
+
+	if queriesGroupEnabled {
+		m.statementsMonitor, err = m.monitorStatements()
+		if err != nil {
+			logger.WithError(err).Errorf("Could not monitor queries: %v", err)
+		}
 	}
 
 	utils.RunOnInterval(m.ctx, func() {
@@ -224,6 +237,22 @@ func (m *Monitor) monitorServer() (*sql.Monitor, error) {
 	})
 }
 
+func (m *Monitor) monitorStatements() (*sql.Monitor, error) {
+	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
+
+	connStr, err := m.conf.connStr()
+	if err != nil {
+		return nil, err
+	}
+
+	return sqlMon, sqlMon.Configure(&sql.Config{
+		MonitorConfig:    m.conf.MonitorConfig,
+		ConnectionString: connStr + " dbname=" + m.conf.MasterDBName,
+		DBDriver:         "postgres",
+		Queries:          makeDefaultStatementsQueries(m.conf.TopQueryLimit),
+	})
+}
+
 // Shutdown this monitor and the nested sql ones
 func (m *Monitor) Shutdown() {
 	m.Lock()
@@ -243,5 +272,9 @@ func (m *Monitor) Shutdown() {
 
 	if m.serverMonitor != nil {
 		m.serverMonitor.Shutdown()
+	}
+
+	if m.statementsMonitor != nil {
+		m.statementsMonitor.Shutdown()
 	}
 }

@@ -29340,6 +29340,13 @@
             "postgres_sessions",
             "postgres_table_size"
           ]
+        },
+        "queries": {
+          "description": "",
+          "metrics": [
+            "postgres_longest_running_queries",
+            "postgres_most_frequent_queries"
+          ]
         }
       },
       "metrics": {
@@ -29372,6 +29379,18 @@
           "description": "Number of rows live (not deleted) in the `table`.",
           "group": null,
           "default": true
+        },
+        "postgres_longest_running_queries": {
+          "type": "cumulative",
+          "description": "Top N queries based on the execution time broken down by `database`",
+          "group": "queries",
+          "default": false
+        },
+        "postgres_most_frequent_queries": {
+          "type": "cumulative",
+          "description": "Top N most frequently executed queries broken down by `database`",
+          "group": "queries",
+          "default": false
         },
         "postgres_query_count": {
           "type": "cumulative",
@@ -29483,6 +29502,14 @@
             "yamlName": "databasePollIntervalSeconds",
             "doc": "How frequently to poll for new/deleted databases in the DB server. Defaults to the same as `intervalSeconds` if not set.",
             "default": 0,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "topQueryLimit",
+            "doc": "The number of top queries to consider when publishing query-related metrics",
+            "default": 10,
             "required": false,
             "type": "int",
             "elementKind": ""
@@ -35001,6 +35028,14 @@
                         "required": false,
                         "type": "bool",
                         "elementKind": ""
+                      },
+                      {
+                        "yamlName": "dimensionPropertyColumns",
+                        "doc": "The mapping between dimensions and the columns to be used to attach respective properties",
+                        "default": null,
+                        "required": false,
+                        "type": "map",
+                        "elementKind": "slice"
                       }
                     ]
                   }

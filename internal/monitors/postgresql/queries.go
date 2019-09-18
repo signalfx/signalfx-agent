@@ -135,3 +135,34 @@ var makeDefaultDBQueries = func(dbname string) []sql.Query {
 	}
 
 }
+
+var makeDefaultStatementsQueries = func(limit int) []sql.Query {
+	return []sql.Query{
+		{
+			Query:  `SELECT datname as database, usename as user, queryid, query, calls FROM (SELECT * FROM (SELECT ROW_NUMBER() OVER (PARTITION BY dbid ORDER BY calls DESC) AS r, s.* FROM pg_stat_statements s) q WHERE q.r <= $1) p, pg_stat_database d, pg_user u WHERE p.dbid = d.datid AND p.userid = u.usesysid;`,
+			Params: []interface{}{limit},
+			Metrics: []sql.Metric{
+				{
+					MetricName:               "postgres_most_frequent_queries",
+					ValueColumn:              "calls",
+					DimensionColumns:         []string{"database", "user", "queryid"},
+					IsCumulative:             true,
+					DimensionPropertyColumns: map[string][]string{"queryid": {"query"}},
+				},
+			},
+		},
+		{
+			Query:  `SELECT datname as database, usename as user, queryid, query, total_time FROM (SELECT * FROM (SELECT ROW_NUMBER() OVER (PARTITION BY dbid ORDER BY total_time DESC) AS r, s.* FROM pg_stat_statements s) q WHERE q.r <= $1) p, pg_stat_database d, pg_user u WHERE p.dbid = d.datid AND p.userid = u.usesysid;`,
+			Params: []interface{}{limit},
+			Metrics: []sql.Metric{
+				{
+					MetricName:               "postgres_longest_running_queries",
+					ValueColumn:              "total_time",
+					DimensionColumns:         []string{"database", "user", "queryid"},
+					IsCumulative:             true,
+					DimensionPropertyColumns: map[string][]string{"queryid": {"query"}},
+				},
+			},
+		},
+	}
+}
