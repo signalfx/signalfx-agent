@@ -211,7 +211,7 @@ monitors:
         description: 'Max number of HTTP requests per second observed. Values reported for frontends.'
         type: gauge
       haproxy_request_total:
-        default: true
+        default: false
         description: 'Total number of HTTP requests received. Values reported for frontends and backends.'
         type: cumulative
       haproxy_client_aborts:

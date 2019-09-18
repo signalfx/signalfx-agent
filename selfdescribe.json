@@ -23907,7 +23907,7 @@
           "type": "cumulative",
           "description": "Total number of HTTP requests received. Values reported for frontends and backends.",
           "group": null,
-          "default": true
+          "default": false
         },
         "haproxy_requests": {
           "type": "cumulative",
