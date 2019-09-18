@@ -120,14 +120,12 @@ jobs:
   dependsOn: 'win_bundle_build'
   steps:
   - template: 'templates/extract-bundle.yml'
-  # Install IIS for windows-iis integration test.
-  - template: 'templates/install-choco.yml'
-    parameters:
-      packages: '--source windowsfeatures IIS-WebServerRole'
   - template: 'templates/run-pytest.yml'
     parameters:
       markers: '(windows or windows_only) and not deployment and not installer'
       options: '-n4'
+      # Install IIS for windows-iis integration test.
+      chocoPackages: '--source windowsfeatures IIS-WebServerRole'
 
 - job: 'win_2016_integration_tests'
   pool:
@@ -135,14 +133,12 @@ jobs:
   dependsOn: 'win_bundle_build'
   steps:
   - template: 'templates/extract-bundle.yml'
-  # Install IIS for windows-iis integration test.
-  - template: 'templates/install-choco.yml'
-    parameters:
-      packages: '--source windowsfeatures IIS-WebServerRole'
   - template: 'templates/run-pytest.yml'
     parameters:
       markers: '(windows or windows_only) and not deployment and not installer'
       options: '-n4'
+      # Install IIS for windows-iis integration test.
+      chocoPackages: '--source windowsfeatures IIS-WebServerRole'
 
 - job: 'win_2012_chef_tests'
   pool:
