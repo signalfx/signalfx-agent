@@ -23709,7 +23709,7 @@
           "type": "gauge",
           "description": "Number of connections over the last elapsed second. Values reported for frontends.",
           "group": null,
-          "default": true
+          "default": false
         },
         "haproxy_connection_rate_all": {
           "type": "gauge",
@@ -23883,7 +23883,7 @@
           "type": "gauge",
           "description": "The average queue time in ms over the 1024 last requests. Values reported for backends and servers.",
           "group": null,
-          "default": false
+          "default": true
         },
         "haproxy_redispatched": {
           "type": "cumulative",
@@ -23955,7 +23955,7 @@
           "type": "gauge",
           "description": "The average response time in ms over the 1024 last requests (0 for TCP). Values reported for backends and servers.",
           "group": null,
-          "default": false
+          "default": true
         },
         "haproxy_retries": {
           "type": "cumulative",
@@ -23997,7 +23997,7 @@
           "type": "gauge",
           "description": "Corresponds to the current HAProxy process `SessRate` value given by the `show info` cmd.",
           "group": "UnixSocketOnly",
-          "default": false
+          "default": true
         },
         "haproxy_session_rate_limit": {
           "type": "gauge",

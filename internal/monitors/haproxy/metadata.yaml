@@ -243,11 +243,11 @@ monitors:
         description: 'Number of seconds since last session assigned to server/backend. Values reported for backends and servers.'
         type: gauge
       haproxy_queue_time_average:
-        default: false
+        default: true
         description: 'The average queue time in ms over the 1024 last requests. Values reported for backends and servers.'
         type: gauge
       haproxy_response_time_average:
-        default: false
+        default: true
         description: 'The average response time in ms over the 1024 last requests (0 for TCP). Values reported for backends and servers.'
         type: gauge
       haproxy_session_time_average:
@@ -255,7 +255,7 @@ monitors:
         description: 'The average total session time in ms over the 1024 last requests. Values reported for backends and servers.'
         type: gauge
       haproxy_connection_rate:
-        default: true
+        default: false
         description: 'Number of connections over the last elapsed second. Values reported for frontends.'
         type: gauge
       haproxy_connection_rate_max:
@@ -375,7 +375,7 @@ monitors:
         group: UnixSocketOnly
       haproxy_session_rate_all:
         description: 'Corresponds to the current HAProxy process `SessRate` value given by the `show info` cmd.'
-        default: false
+        default: true
         type: gauge
         group: UnixSocketOnly
       haproxy_ssl_backend_key_rate:
