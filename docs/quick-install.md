@@ -60,50 +60,64 @@ to SignalFx on a regular basis.  There are a few things that can be
 
 ## Installation
 
-The instructions below are for a command-line installation of a single agent. For other installation options, including bulk deployments, see the Advanced Installation in [Advanced Installation Options](./advanced-install-options.md).
+The instructions below are for a command-line installation of a single agent on a single host. For other installation options, including bulk deployments, see the Advanced Installation in [Advanced Installation Options](./advanced-install-options.md).
 
 __Get started with Smart Agent using the 3 steps below.__
 
 _Note: if you have previously configured another metric collection agent on your host such as collectd, uninstall or disable that agent before installing the SignalFx Smart Agent._
 
-### Step 1. Install SignalFx Smart Agent on Single Host 
+### Step 1. Install SignalFx Smart Agent on Single Host
 
 __Linux:__ Dependencies are completely bundled along with the agent, including a Java JRE runtime and a Python runtime, so there are no additional dependencies required. The agent works on any modern Linux distribution (kernel version 2.6+).
 
-If you are not installing from the tile on the Integrations page:
+For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy and run the pre-populated installation code.
 
-- Get your API_TOKEN from: __Organization Settings => Access Token__ tab in the SignalFx application. 
-
-- Determine YOUR\_SIGNAL_FX_REALM from your [profile page](https://docs.signalfx.com/en/latest/getting-started/get-around-ui.html#user-profile-avatar-and-color-theme) in the SignalFx web application.
-
-To install the Smart Agent on a single Linux host, enter:
+If you are reading this document directly from the *Integrations* page, then simply copy and run the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)  
 
 ```sh
 curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
 sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
 ```
 
-__Windows:__ Ensure that the following dependencies are installed:
+If you are reading this document from the SignalFX documentation site, then SignalFX recommends that you access the *Integrations* page to locate the installation code:  
+
+1. Log into SignalFx, and in the top navigation bar, click *Integrations*.
+2. Under *Essential Services*, click *SignalFX Smart Agent*.
+3. Click *Setup*.
+4. Locate the code box for *Linux* users.
+5. Copy and paste the code into your command line to run. (The code within the tile is already populated with your *realm* and your organization's *access token*.)  
+
+
+
+__Windows:__
+
+Before you attempt to install the SignalFX Smart Agent, verify that the following dependencies are already installed:
 
 [.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
 
 [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
 
-* Get your API\_TOKEN from:  __Organization Settings => Access Token__ tab in the SignalFx application.
+For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy and run the pre-populated installation code.
 
-* Determine YOUR\_SIGNAL\_FX_REALM from: your profile page in the SignalFx web application.
-
-To install the Smart Agent on a single Windows host, enter:
+If you are reading this document directly from the *Integrations* page, then simply copy and run the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)  
 
 ```sh
-& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"};; 
+& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"};;
 ingest_url = "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"; api_url = "https://api.YOUR_SIGNALFX_REALM.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
 ```
+
+If you are reading this document from the SignalFX documentation site, then SignalFX recommends that you access the *Integrations* page to locate the installation code:  
+
+1. Log into SignalFx, and in the top navigation bar, click *Integrations*.
+2. Under *Essential Services*, click *SignalFX Smart Agent*.
+3. Click *Setup*.
+4. Locate the code box for *Linux* users.
+5. Copy and paste the code into your command line to run. (The code within the tile is already populated with your *realm* and your organization's *access token*.)  
 
 The agent will be installed as a Windows service and will log to the Windows Event Log.
 
 
-### Step 2. Confirm your Installation 
+### Step 2. Confirm your Installation
 
 To confirm the SignalFx Smart Agent installation is functional on either platform, enter:
 
@@ -136,9 +150,9 @@ signalfx-agent status monitors - show active monitors
 signalfx-agent status all - show everything
 ```
 
-#### Troubleshoot any discrepancies in the Installation 
+#### Troubleshoot any discrepancies in the Installation
 
-##### Realm 
+##### Realm
 
 By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to explicitly set the signalFxRealm option in your config like this:
 
@@ -166,7 +180,7 @@ This will default to the endpoints for the realm configured in signalFxRealm if 
 To troubleshoot your installation further, check the FAQ about troubleshooting [here](./faq.md).
 
 
-### Step 3. Login to SignalFx and discover your data displays. 
+### Step 3. Login to SignalFx and discover your data displays.
 
 Installation is complete.
 
