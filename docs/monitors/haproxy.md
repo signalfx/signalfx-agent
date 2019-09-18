@@ -13,7 +13,7 @@ Monitor Type: `haproxy` ([Source](https://github.com/signalfx/signalfx-agent/tre
 This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics (i.e. metrics) from a configured
 HTTP endpoint or UNIX socket. It requires HAProxy 1.8+ and supports scraping metrics for HAProxy running in
 multi-process mode. In multi-process mode, HAProxy must be configured to enable stats on different URLs/socket
-paths for the processes.
+paths for the processes and for each URL/path a monitor instance needs to be defined and configured.
 
 <!--- SETUP --->
 ### HTTP Endpoint Config

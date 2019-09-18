@@ -14,6 +14,13 @@ METADATA = Metadata.from_package("haproxy")
 
 EXPECTED_DEFAULTS = METADATA.default_metrics
 
+EXPECTED_DEFAULTS_FROM_SOCKET = {
+    "haproxy_connection_rate_all",
+    "haproxy_idle_percent",
+    "haproxy_requests",
+    "haproxy_session_rate_all",
+}
+
 
 @pytest.mark.parametrize("version", ["1.9"])
 def test_haproxy_default_metrics_from_stats_page(version):
@@ -26,7 +33,8 @@ def test_haproxy_default_metrics_from_stats_page(version):
              url: http://{host}:8080/stats?stats;csv
            """
         ) as agent:
-            verify(agent, EXPECTED_DEFAULTS - METADATA.metrics_by_group["UnixSocketOnly"], 10)
+
+            verify(agent, EXPECTED_DEFAULTS - EXPECTED_DEFAULTS_FROM_SOCKET, 10)
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
