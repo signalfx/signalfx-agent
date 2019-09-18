@@ -59,7 +59,7 @@ func newQuerier(query *Query, logQueries bool) *querier {
 		dimensionProperties[i] = make([]*types.DimProperties, 0)
 		for dim, propColumns := range m.DimensionPropertyColumns {
 			dimColumn := strings.ToLower(dim)
-			if _, ok := dimensionColumnSets[i][strings.ToLower(dim)]; ok {
+			if dimensionColumnSets[i][dimColumn] {
 				props := make(map[string]string)
 				for _, p := range propColumns {
 					props[strings.ToLower(p)] = ""
