@@ -2,7 +2,6 @@ package haproxy
 
 import (
 	"bufio"
-	"context"
 	"crypto/tls"
 	"encoding/csv"
 	"errors"
@@ -13,7 +12,6 @@ import (
 	"net/url"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/signalfx/signalfx-agent/internal/utils"
@@ -101,135 +99,29 @@ var sfxMetricsMap = map[string]string{
 	"ConnRate":           haproxyConnectionRateAll,
 }
 
-const (
-	tickInterval = 1000 * time.Millisecond
-)
-
-var jobsLock sync.Mutex
-
-// Merges proxy stats datapoints of processes fetched through http.
-func fetchHTTP(ctx context.Context, conf *Config, numProcesses int, proxies map[string]bool) []*datapoint.Datapoint {
-	jobs := make(map[string]bool, numProcesses)
-	dpsChans := make([]chan []*datapoint.Datapoint, numProcesses)
-	var wg sync.WaitGroup
-	for i := 0; i < numProcesses; i++ {
-		i := i
-		dpsChans[i] = make(chan []*datapoint.Datapoint, 1)
-		wg.Add(1)
-		go statsJob(ctx, httpJob, conf, &wg, dpsChans[i], jobs, proxies)
-	}
-	wg.Wait()
-	dps := make([]*datapoint.Datapoint, 0)
-	for _, v := range dpsChans {
-		dps = append(dps, <-v...)
-	}
-	return dps
+// Fetches proxy stats datapoints from an http endpoint.
+func statsHTTP(conf *Config, pxs proxies) []*datapoint.Datapoint {
+	return statsHelper(conf, httpReader, "GET", pxs)
 }
 
-// Merges proxy stats datapoints of processes fetched from unix socket.
-func fetchSocket(ctx context.Context, conf *Config, numProcesses int, proxies map[string]bool) []*datapoint.Datapoint {
-	jobs := make(map[string]bool, 2*numProcesses)
-	dpsChans := make([]chan []*datapoint.Datapoint, 2*numProcesses)
-	var wg sync.WaitGroup
-	for i := 0; i < numProcesses; i++ {
-		i := i
-		dpsChans[i] = make(chan []*datapoint.Datapoint, 1)
-		dpsChans[i+numProcesses] = make(chan []*datapoint.Datapoint, 1)
-		wg.Add(2)
-		go statsJob(ctx, socketJob, conf, &wg, dpsChans[i], jobs, proxies)
-		go infoJob(ctx, conf, &wg, dpsChans[i+numProcesses], jobs)
-	}
-	wg.Wait()
-	dps := make([]*datapoint.Datapoint, 0)
-	for _, v := range dpsChans {
-		dps = append(dps, <-v...)
-	}
-	return dps
+// Fetches proxy stats datapoints from a unix socket.
+func statsSocket(conf *Config, pxs proxies) []*datapoint.Datapoint {
+	return statsHelper(conf, socketReader, "show stat\n", pxs)
 }
 
-// Sends http and socket fetched proxy stats datapoints of a process into dps channel.
-func statsJob(ctx context.Context, fn func(*Config, map[string]bool) ([]*datapoint.Datapoint, error), conf *Config, wg *sync.WaitGroup, dpsChan chan []*datapoint.Datapoint, jobs map[string]bool, proxies map[string]bool) {
-	defer wg.Done()
-	defer close(dpsChan)
-	timer := time.NewTicker(tickInterval)
-	defer timer.Stop()
-	for range timer.C {
-		select {
-		case <-ctx.Done():
-			logger.Debugf("Failed to send proxy stats datapoints to channel: %+v", ctx.Err())
-			return
-		default:
-			dps, err := fn(conf, proxies)
-			if err != nil {
-				logger.Errorf("Failed to fetch proxy stats: %+v", err)
-				return
-			}
-			jobKey := "stats" + dps[0].Dimensions["process_id"]
-			if updateChan(jobs, jobKey, dpsChan, dps) {
-				return
-			}
-		}
-	}
-}
-
-// Sends socket fetched process info datapoints of a process into dps channel.
-func infoJob(ctx context.Context, conf *Config, wg *sync.WaitGroup, dpsChan chan []*datapoint.Datapoint, jobs map[string]bool) {
-	defer wg.Done()
-	defer close(dpsChan)
-	timer := time.NewTicker(tickInterval)
-	defer timer.Stop()
-	for range timer.C {
-		select {
-		case <-ctx.Done():
-			logger.Debugf("Failed to send process info datapoints to channel. %+v", ctx.Err())
-			return
-		default:
-			dps := make([]*datapoint.Datapoint, 0)
-			infoPairs, err := infoMap(conf)
-			if err != nil {
-				logger.Errorf("Failed to fetch process info data: %+v", err)
-				return
-			}
-			for metric, value := range infoPairs {
-				if dp := newDp(sfxMetricsMap[metric], value); dp != nil {
-					// WARNING: Both pid and Process_num are HAProxy process identifiers. pid in the context of
-					// proxy stats and Process_num in the context of HAProxy process info. It says in the docs
-					// https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.1 that pid is zero-based. But, we
-					// find that pid is exactly the same as Process_num, a natural number. We therefore assign pid and
-					// Process_num to dimension process_id without modifying them to match.
-					dp.Dimensions["process_id"] = infoPairs["Process_num"]
-					dps = append(dps, dp)
-				}
-			}
-			jobKey := "info" + dps[0].Dimensions["process_id"]
-			if updateChan(jobs, jobKey, dpsChan, dps) {
-				return
-			}
-		}
-	}
-}
-
-// Fetches proxy stats datapoints of a process through http.
-func httpJob(conf *Config, proxies map[string]bool) ([]*datapoint.Datapoint, error) {
-	return jobHelper(conf, httpReader, "GET", proxies)
-}
-
-// Fetches proxy stats datapoints of a process from unix socket.
-func socketJob(conf *Config, proxies map[string]bool) ([]*datapoint.Datapoint, error) {
-	return jobHelper(conf, socketReader, "show stat\n", proxies)
-}
-
-// A second order function for taking http and socket functions that fetch proxy stats datapoints of a process.
-func jobHelper(conf *Config, reader func(*Config, string) (io.ReadCloser, error), cmd string, proxies map[string]bool) ([]*datapoint.Datapoint, error) {
+// A second order function for taking http and socket functions that fetch proxy stats datapoints.
+func statsHelper(conf *Config, reader func(*Config, string) (io.ReadCloser, error), cmd string, proxies map[string]bool) []*datapoint.Datapoint {
 	body, err := reader(conf, cmd)
 	defer closeBody(body)
 	if err != nil {
-		return nil, err
+		logger.Error(err)
+		return nil
 	}
 	dps := make([]*datapoint.Datapoint, 0)
 	csvMap, err := statsMap(body)
 	if err != nil {
-		return nil, err
+		logger.Error(err)
+		return nil
 	}
 	for _, headerValuePairs := range csvMap {
 		if len(proxies) != 0 && !proxies[headerValuePairs["pxname"]] && !proxies[headerValuePairs["svname"]] {
@@ -253,9 +145,32 @@ func jobHelper(conf *Config, reader func(*Config, string) (io.ReadCloser, error)
 		}
 	}
 	if len(dps) == 0 {
-		return nil, fmt.Errorf("failed to create proxy stats datapoints")
+		logger.Errorf("failed to create proxy stats datapoints")
+		return nil
 	}
-	return dps, nil
+	return dps
+}
+
+// Fetches process info datapoints from a unix socket.
+func infoSocket(conf *Config, _ proxies) []*datapoint.Datapoint {
+	dps := make([]*datapoint.Datapoint, 0)
+	infoPairs, err := infoMap(conf)
+	if err != nil {
+		logger.Error(err)
+		return nil
+	}
+	for metric, value := range infoPairs {
+		if dp := newDp(sfxMetricsMap[metric], value); dp != nil {
+			// WARNING: Both pid and Process_num are HAProxy process identifiers. pid in the context of
+			// proxy stats and Process_num in the context of HAProxy process info. It says in the docs
+			// https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.1 that pid is zero-based. But, we
+			// find that pid is exactly the same as Process_num, a natural number. We therefore assign pid and
+			// Process_num to dimension process_id without modifying them to match.
+			dp.Dimensions["process_id"] = infoPairs["Process_num"]
+			dps = append(dps, dp)
+		}
+	}
+	return dps
 }
 
 // Fetches and convert proxy stats in csv format to map.
@@ -394,15 +309,4 @@ func closeBody(body io.ReadCloser) {
 	if body != nil {
 		body.Close()
 	}
-}
-
-func updateChan(jobs map[string]bool, jobKey string, dpsChan chan []*datapoint.Datapoint, dps []*datapoint.Datapoint) bool {
-	jobsLock.Lock()
-	defer jobsLock.Unlock()
-	if !jobs[jobKey] {
-		dpsChan <- dps
-		jobs[jobKey] = true
-		return true
-	}
-	return false
 }

@@ -9,13 +9,13 @@ import (
 // Config is the config for this monitor.
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	// URL on which to scrape HAProxy. Scheme `http://` for http-type and `unix://` socket-type urls.
+	URL string `yaml:"url" validate:"required"`
 	// Basic Auth username to use on each request, if any.
 	Username string `yaml:"username"`
 	// Basic Auth password to use on each request, if any.
 	Password string `yaml:"password" neverLog:"true"`
-	// URL on which to scrape HAProxy. The URL scheme `http://` is designated as http-type configuration while `unix://` socket-type.
-	URL string `yaml:"url" validate:"required"`
-	// Flag that enables SSL certificate verification for the scrape URI.
+	// Flag that enables SSL certificate verification for the scrape URL.
 	SSLVerify bool `yaml:"sslVerify" default:"true"`
 	// Timeout for trying to get stats from HAProxy. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration
 	Timeout time.Duration `yaml:"timeout" default:"5s"`

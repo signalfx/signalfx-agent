@@ -11,15 +11,17 @@ Monitor Type: `haproxy` ([Source](https://github.com/signalfx/signalfx-agent/tre
 ## Overview
 
 This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics (i.e. metrics) from a configured stats
-HTTP endpoint or UNIX socket. It requires HAProxy 1.8+ and supports running HAProxy in multi-process mode where
-the HAProxy process each metric pertains to is indicated by the metric dimension `process_id`.
+HTTP endpoint or UNIX socket. It requires HAProxy 1.8+ and supports scraping metrics for HAProxy running in
+multi-process mode. In multi-process mode, HAProxy must be configured to enable stats on different URLs/socket
+paths for the processes.
 
 <!--- SETUP --->
 ### HTTP Endpoint Config
 HAProxy stats must be enabled as described [here](https://www.haproxy.com/blog/exploring-the-haproxy-stats-page/).
 Define the HAProxy monitor in the agent configuration file and provide the `csv export` URL where HAProxy
 stats are served in CSV format. This monitor supports basic HTTP authentication. Simply provide the
-username and password if required as shown below:
+username and password. In multi-process mode, declare and configure monitors for each stats HTTP endpoint. Below
+below is an example showing stats enable on 2 URLs.
 ```
 ...
 monitors:
@@ -27,26 +29,28 @@ monitors:
     url: "http://localhost:8404/stats?stats;csv"
     username: "your username here"
     password: "your password here"
+  - type: haproxy
+    url: "http://localhost:6000/stats?stats;csv"
 ...
 ```
 Note: Only stats pertaining to the configured proxies (i.e. listeners, frontends, backends, and servers)
-are available from an HTTP endpoint. HAProxy process level stats given by command [show info](https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.3-show%20info)
-are not available. The `show info` stats can only be scraped from a configured stats UNIX socket.
+are available from the HTTP url. HAProxy process level stats given by command [show info](https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.3-show%20info)
+are not available. The `show info` stats can only be scraped from an HAProxy configured stats UNIX socket.
 
 ### UNIX Socket Config
 The location of the HAProxy socket file is defined in the HAProxy config file, as in the following example:
 ```
 global
     daemon
-    stats socket /var/run/haproxy_sock
+    stats socket /var/run/haproxy.sock
     stats timeout 2m
 ```
-For the given location of the socket file, configure the HAProxy monitor URL as shown below:
+For the given location of the socket file, configure the monitor URL as shown below:
 ```
 ...
 monitors:
   - type: haproxy
-    url: "unix:/var/run/haproxy_sock"
+    url: "unix:///var/run/haproxy.sock"
 ...
 ```
 Note: The agent process needs read/write permissions to the HAProxy socket file.
@@ -69,10 +73,10 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
+| `url` | **yes** | `string` | URL on which to scrape HAProxy. Scheme `http://` for http-type and `unix://` socket-type urls. |
 | `username` | no | `string` | Basic Auth username to use on each request, if any. |
 | `password` | no | `string` | Basic Auth password to use on each request, if any. |
-| `url` | **yes** | `string` | URL on which to scrape HAProxy. The URL scheme `http://` is designated as http-type configuration while `unix://` socket-type. |
-| `sslVerify` | no | `bool` | Flag that enables SSL certificate verification for the scrape URI. (**default:** `true`) |
+| `sslVerify` | no | `bool` | Flag that enables SSL certificate verification for the scrape URL. (**default:** `true`) |
 | `timeout` | no | `int64` | Timeout for trying to get stats from HAProxy. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration (**default:** `5s`) |
 | `proxies` | no | `list of strings` | A list of the pxname(s) and svname(s) to monitor (e.g. `["http-in", "server1", "backend"]`). If empty then metrics for all proxies will be reported. |
 
