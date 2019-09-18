@@ -234,6 +234,15 @@ def test_creation_timestamp(k8s_cluster):
                 )
             )
 
+            assert wait_for(
+                p(
+                    any_dim_val_has_prop,
+                    agent.fake_services,
+                    dim_name="kubernetes_node_uid",
+                    prop_name="creation_timestamp",
+                )
+            )
+
 
 @pytest.mark.kubernetes
 def test_node_metrics_and_props(k8s_cluster):
