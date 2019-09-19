@@ -210,7 +210,7 @@ func (c *Config) setupEnvironment() {
 	}
 	os.Setenv(constants.BundleDirEnvVar, c.BundleDir)
 
-	os.Setenv("JAVA_HOME", filepath.Join(c.BundleDir, "jvm/java-8-openjdk-amd64"))
+	os.Setenv("JAVA_HOME", filepath.Join(c.BundleDir, "jvm"))
 	// set the environment variables for gopsutil based on configured values
 	os.Setenv(hostfs.HostProcVar, c.ProcPath)
 	os.Setenv(hostfs.HostEtcVar, c.EtcPath)

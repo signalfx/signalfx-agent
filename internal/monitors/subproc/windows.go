@@ -1,6 +1,6 @@
 // +build windows
 
-package pyrunner
+package subproc
 
 import (
 	"os"

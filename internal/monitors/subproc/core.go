@@ -1,6 +1,6 @@
-// Package pyrunner holds the logic for managing Python plugins using a
-// subprocess running Python.
-package pyrunner
+// Package subproc holds the logic for managing monitors that run in a
+// subprocess.
+package subproc
 
 import (
 	"bytes"
@@ -21,18 +21,18 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// RuntimeConfig for Python
+// RuntimeConfig for subprocs
 type RuntimeConfig struct {
-	PythonBinary string
-	PythonArgs   []string
+	Binary string
+	Args   []string
 	// Envvars in the form "key=value".
-	PythonEnv []string
+	Env []string
 }
 
-// PythonRuntimeCustomizable can be implemented by runners that use MonitorCore
-// to provide extra config about the Python runtime to use.
-type PythonRuntimeCustomizable interface {
-	PythonRuntimeConfig() RuntimeConfig
+// RuntimeCustomizable can be implemented by runners that use MonitorCore
+// to provide extra config about the subprocess runtime to use.
+type RuntimeCustomizable interface {
+	RuntimeConfig() RuntimeConfig
 }
 
 // MonitorCore is the adapter to the Python monitor runner process.  It
@@ -47,10 +47,9 @@ type PythonRuntimeCustomizable interface {
 type MonitorCore struct {
 	ctx     context.Context
 	cancel  func()
-	handler func(MessageReceiver)
+	handler MessageHandler
 
-	pythonPkg string
-	logger    log.FieldLogger
+	logger log.FieldLogger
 
 	// Conditional signal that the goroutine that sends does the configuration
 	// request sets when configure has been completed.  configResult will hold
@@ -64,14 +63,13 @@ type MonitorCore struct {
 }
 
 // New returns a new uninitialized monitor core
-func New(pythonPkg string) *MonitorCore {
+func New() *MonitorCore {
 	ctx, cancel := context.WithCancel(context.Background())
 
 	return &MonitorCore{
 		logger:     log.StandardLogger(),
 		ctx:        ctx,
 		cancel:     cancel,
-		pythonPkg:  pythonPkg,
 		configCond: sync.Cond{L: &sync.Mutex{}},
 	}
 
@@ -82,31 +80,17 @@ func (mc *MonitorCore) Logger() log.FieldLogger {
 	return mc.logger
 }
 
-// DefaultRuntimeConfig returns the runtime config that uses the bundled Python
-// runtime.
-func (mc *MonitorCore) DefaultRuntimeConfig() *RuntimeConfig {
-	// The PYTHONHOME envvar is set in agent core when config is processed.
-	env := os.Environ()
-	env = append(env, config.BundlePythonHomeEnvvar())
-
-	return &RuntimeConfig{
-		PythonBinary: defaultPythonBinaryExecutable(),
-		PythonArgs:   defaultPythonBinaryArgs(mc.pythonPkg),
-		PythonEnv:    env,
-	}
-}
-
 // run the python subprocess and block until it returns.  Messages from stderr
 // (which is remapped to stdout in the Python process, so any "print"-like
 // output from Python) will be logged as error logs in the agent.
 func (mc *MonitorCore) run(runtimeConf RuntimeConfig, stdin io.Reader, stdout io.Writer) error {
 	mc.logger.Info("Starting Python runner child process")
 
-	cmd := exec.CommandContext(mc.ctx, runtimeConf.PythonBinary, runtimeConf.PythonArgs...)
+	cmd := exec.CommandContext(mc.ctx, runtimeConf.Binary, runtimeConf.Args...)
 	cmd.SysProcAttr = procAttrs()
 	cmd.Stdin = stdin
 	cmd.Stdout = stdout
-	cmd.Env = runtimeConf.PythonEnv
+	cmd.Env = runtimeConf.Env
 
 	// Stderr is just the normal output from the Python code that isn't
 	// specially encoded
@@ -139,7 +123,7 @@ func (mc *MonitorCore) run(runtimeConf RuntimeConfig, stdin io.Reader, stdout io
 
 // run the Python subprocess, restarting it if it stops while this monitor is
 // still active.
-func (mc *MonitorCore) runWithRestart(runtimeConf RuntimeConfig, handler func(MessageReceiver), configBytes []byte) {
+func (mc *MonitorCore) runWithRestart(runtimeConf RuntimeConfig, handler MessageHandler, configBytes []byte) {
 	for {
 		messages, stdin, stdout, err := makePipes()
 		if err != nil {
@@ -161,7 +145,7 @@ func (mc *MonitorCore) runWithRestart(runtimeConf RuntimeConfig, handler func(Me
 				return
 			}
 
-			handler(messages)
+			handler.ProcessMessages(mc.ctx, messages)
 		}()
 
 		err = mc.run(runtimeConf, stdin, stdout)
@@ -202,13 +186,22 @@ func makePipes() (*messageReadWriter, io.ReadCloser, io.WriteCloser, error) {
 	}, stdinReader, stdoutWriter, nil
 }
 
-// ConfigureInPython sends the given config to the python subproc and returns
+// MessageHandler is what monitors that use MonitorCore should provide to deal
+// with messages that come in after a successful Configure call to the
+// subprocess.  MontiorCore.ConfigureInSubproc handles configuring the
+// subprocess monitor and collecting the result.
+type MessageHandler interface {
+	ProcessMessages(context.Context, MessageReceiver)
+	HandleLogMessage(io.Reader) error
+}
+
+// ConfigureInSubproc sends the given config to the python subproc and returns
 // whether configuration was successful.  This method should only be called
 // once for the lifetime of the monitor.  The returned MessageReceiver can be
-// used to get datapoints/events out of the Python process, the exact format
+// used to get datapoints/events out of the subprocess, the exact format
 // of the data is left up to the users of this core.
-func (mc *MonitorCore) ConfigureInPython(config config.MonitorCustomConfig,
-	runtimeConfig *RuntimeConfig, handler func(MessageReceiver)) error {
+func (mc *MonitorCore) ConfigureInSubproc(config config.MonitorCustomConfig,
+	runtimeConfig *RuntimeConfig, handler MessageHandler) error {
 	if mc.handler != nil {
 		panic("ConfigureInPython should only be called once")
 	}
@@ -226,10 +219,6 @@ func (mc *MonitorCore) ConfigureInPython(config config.MonitorCustomConfig,
 
 	mc.configCond.L.Lock()
 	defer mc.configCond.L.Unlock()
-
-	if runtimeConfig == nil {
-		runtimeConfig = mc.DefaultRuntimeConfig()
-	}
 
 	go mc.runWithRestart(*runtimeConfig, handler, jsonBytes)
 	mc.configCond.Wait()
@@ -275,7 +264,7 @@ func (mc *MonitorCore) waitForConfigure(messages MessageReceiver) (*configResult
 			}
 			return &result, nil
 		case MessageTypeLog:
-			if err := mc.HandleLogMessage(payloadReader); err != nil {
+			if err := mc.handler.HandleLogMessage(payloadReader); err != nil {
 				mc.logger.WithError(err).Error("Could not read log message from Python")
 			}
 		default:

@@ -1,6 +1,6 @@
-// +build linux
+// +build darwin
 
-package pyrunner
+package subproc
 
 import (
 	"os"
@@ -10,18 +10,14 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 )
 
-// The Linux specific process attribute that make the Python runner be in the
+// The Darwin specific process attribute that make the Python runner be in the
 // same process group as the agent so they get shutdown together.
 func procAttrs() *syscall.SysProcAttr {
-	return &syscall.SysProcAttr{
-		// This is Linux-specific and will cause collectd to be killed by the OS if
-		// the agent dies
-		Pdeathsig: syscall.SIGTERM,
-	}
+	return &syscall.SysProcAttr{}
 }
 
 func defaultPythonBinaryExecutable() string {
-	return filepath.Join(os.Getenv(constants.BundleDirEnvVar), "bin", "python")
+	return filepath.Join(os.Getenv(constants.BundleDirEnvVar), "bin/python")
 }
 
 func defaultPythonBinaryArgs(pkgName string) []string {
