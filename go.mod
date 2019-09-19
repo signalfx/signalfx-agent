@@ -62,6 +62,7 @@ require (
 	github.com/go-stomp/stomp v2.0.2+incompatible // indirect
 	github.com/gobwas/glob v0.2.3
 	github.com/gocql/gocql v0.0.0-20190301043612-f6df8288f9b4 // indirect
+	github.com/gogo/protobuf v1.1.1
 	github.com/golang/groupcache v0.0.0-20180203143532-66deaeb636df // indirect
 	github.com/google/cadvisor v0.26.1
 	github.com/google/gofuzz v0.0.0-20170612174753-24818f796faf // indirect

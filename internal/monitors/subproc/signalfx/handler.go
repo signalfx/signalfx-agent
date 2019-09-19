@@ -1,13 +1,16 @@
 package signalfx
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"io"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/gogo/protobuf/proto"
 	"github.com/mailru/easyjson"
 	"github.com/signalfx/com_signalfx_metrics_protobuf"
 	"github.com/signalfx/gateway/protocol/signalfx"
@@ -18,7 +21,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const messageTypeDatapointList subproc.MessageType = 200
+const messageTypeDatapointJSONList subproc.MessageType = 200
+const messageTypeDatapointProtobufList subproc.MessageType = 201
 
 type JSONHandler struct {
 	Output types.Output
@@ -46,21 +50,26 @@ func (h *JSONHandler) ProcessMessages(ctx context.Context, dataReader subproc.Me
 		}
 
 		if err := h.handleMessage(msgType, payloadReader); err != nil {
-			h.Logger.WithError(err).Error("Could not handle message from Python")
+			h.Logger.WithError(err).Error("Could not handle message from subprocess monitor")
 			continue
 		}
 	}
 }
 
+var buffs = sync.Pool{
+	New: func() interface{} {
+		return new(bytes.Buffer)
+	},
+}
+
 func (h *JSONHandler) handleMessage(msgType subproc.MessageType, payloadReader io.Reader) error {
 	switch msgType {
-	case messageTypeDatapointList:
+	case messageTypeDatapointJSONList:
 		// The following is copied from github.com/signalfx/gateway
 		var d signalfxformat.JSONDatapointV2
 		if err := easyjson.UnmarshalFromReader(payloadReader, &d); err != nil {
 			return err
 		}
-		dps := make([]*datapoint.Datapoint, 0, len(d))
 		for metricType, datapoints := range d {
 			if len(datapoints) > 0 {
 				mt, ok := com_signalfx_metrics_protobuf.MetricType_value[strings.ToUpper(metricType)]
@@ -75,16 +84,31 @@ func (h *JSONHandler) handleMessage(msgType subproc.MessageType, payloadReader i
 						continue
 					}
 					dp := datapoint.New(jsonDatapoint.Metric, jsonDatapoint.Dimensions, v, fromMT(com_signalfx_metrics_protobuf.MetricType(mt)), fromTs(jsonDatapoint.Timestamp))
-					dps = append(dps, dp)
+					h.Output.SendDatapoint(dp)
 				}
 			}
 		}
-		for i := range dps {
-			h.Output.SendDatapoint(dps[i])
+
+	case messageTypeDatapointProtobufList:
+		jeff := buffs.Get().(*bytes.Buffer)
+		defer buffs.Put(jeff)
+		jeff.Reset()
+		if _, err := jeff.ReadFrom(payloadReader); err != nil {
+			return err
+		}
+		var msg com_signalfx_metrics_protobuf.DataPointUploadMessage
+		if err := proto.Unmarshal(jeff.Bytes(), &msg); err != nil {
+			return err
+		}
+		for _, protoDb := range msg.GetDatapoints() {
+			if dp, err := signalfx.NewProtobufDataPointWithType(protoDb, com_signalfx_metrics_protobuf.MetricType_GAUGE); err == nil {
+				h.Output.SendDatapoint(dp)
+			}
 		}
 
 	case subproc.MessageTypeLog:
 		return h.HandleLogMessage(payloadReader)
+
 	default:
 		return fmt.Errorf("unknown message type received %d", msgType)
 	}
@@ -120,7 +144,7 @@ func fromTs(ts int64) time.Time {
 	return time.Now().Add(-time.Duration(time.Millisecond.Nanoseconds() * ts))
 }
 
-// LogMessage represents the log message that comes back from python
+// LogMessage represents the log message that comes back from subprocs
 type LogMessage struct {
 	Message     string  `json:"message"`
 	Level       string  `json:"level"`
@@ -154,6 +178,7 @@ func HandleLogMessage(logReader io.Reader, logger logrus.FieldLogger) error {
 	case "WARNING":
 		logger.WithFields(fields).Warn(msg.Message)
 	case "ERROR":
+	case "SEVERE":
 		logger.WithFields(fields).Error(msg.Message)
 	case "CRITICAL":
 		logger.WithFields(fields).Errorf("CRITICAL: %s", msg.Message)

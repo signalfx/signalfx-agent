@@ -1,8 +1,7 @@
-// Package subproc contains a monitor that runs Collectd Python plugins
+// Package python contains a monitor that runs Collectd Python plugins
 // directly in a subprocess.  It uses the logic in internal/monitors/subproc
 // to do most of the work of managing a Python subprocess and doing the
 // configuration/shutdown calls.
-
 package python
 
 import (

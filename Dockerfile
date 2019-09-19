@@ -22,8 +22,8 @@ COPY scripts/make-templates scripts/make-versions ./scripts/
 COPY scripts/collectd-template-to-go ./scripts/
 COPY Makefile .
 COPY go.mod go.sum ./
-COPY internal/ ./internal/
 RUN go mod download
+COPY internal/ ./internal/
 
 ARG collectd_version=""
 ARG agent_version="latest"
@@ -162,8 +162,8 @@ ENV CFLAGS "-Wall -fPIC $extra_cflags"
 ENV CXXFLAGS $CFLAGS
 
 # In the bundle, the java plugin so will live in /lib/collectd and the JVM
-# exists at /jvm
-ENV JAVA_LDFLAGS "-Wl,-rpath -Wl,\$\$\ORIGIN/../../jvm/jre/lib/${TARGET_ARCH}/server"
+# exists at /jre
+ENV JAVA_LDFLAGS "-Wl,-rpath -Wl,\$\$\ORIGIN/../../jre/lib/${TARGET_ARCH}/server"
 
 RUN autoreconf -vif &&\
     ./configure \
@@ -250,10 +250,28 @@ RUN find $PYTHONHOME -name "*.pyc" -o -name "*.pyo" | xargs rm
 # We don't support compiling extension modules so don't need this directory
 RUN rm -rf $PYTHONHOME/lib/python2.7/config-*-linux-gnu
 
-####### Extra packages that don't make sense to pull down in any other stage ########
-FROM ubuntu:16.04 as extra-packages
+######### Java monitor dependencies and monitor jar compilation
+FROM ubuntu:16.04 as java
+
+RUN apt update &&\
+    apt install -y openjdk-8-jdk maven
 
 ARG TARGET_ARCH
+
+RUN mkdir -p /opt/root &&\
+    cp -rL /usr/lib/jvm/java-8-openjdk-${TARGET_ARCH}/jre /opt/root/jre &&\
+	rm -rf /opt/root/jre/man
+
+COPY java/ /usr/src/agent-java/
+RUN cd /usr/src/agent-java/runner &&\
+    mvn clean install
+
+RUN cd /usr/src/agent-java/jmx &&\
+    mvn clean package
+
+
+####### Extra packages that don't make sense to pull down in any other stage ########
+FROM ubuntu:16.04 as extra-packages
 
 RUN apt update &&\
     apt install -y \
@@ -264,12 +282,6 @@ RUN apt update &&\
 	  netcat.openbsd \
 	  realpath \
 	  vim
-
-RUN apt install -y openjdk-8-jre-headless &&\
-    mkdir -p /opt/root &&\
-    cp -rL /usr/lib/jvm/java-8-openjdk-${TARGET_ARCH} /opt/root/jvm &&\
-	rm -rf /opt/root/jvm/docs &&\
-	rm -rf /opt/root/jvm/man
 
 COPY scripts/collect-libs /opt/collect-libs
 
@@ -320,6 +332,8 @@ COPY --from=collectd /usr/sbin/collectd /opt/root/bin/collectd
 COPY --from=collectd /opt/deps/ /opt/root/lib/
 COPY --from=collectd /usr/lib/collectd/*.so /opt/root/lib/collectd/
 
+COPY --from=java /opt/root/jre/ /opt/root/jre/
+
 COPY scripts/patch-rpath /usr/bin/
 RUN patch-rpath /opt/root
 
@@ -341,7 +355,8 @@ COPY --from=collectd /usr/local/bin/patchelf /bin/
 COPY --from=extra-packages /lib/*-linux-gnu/ld-2.23.so /bin/ld-linux.so
 
 # Java dependencies
-COPY --from=extra-packages /opt/root/jvm/ /jvm
+COPY --from=extra-packages /opt/root/jre/ /jre
+COPY --from=java /usr/src/agent-java/jmx/target/agent-jmx-monitor-1.0-SNAPSHOT.jar /lib/jmx-monitor.jar
 
 COPY --from=extra-packages /opt/root/lib/ /lib/
 COPY --from=extra-packages /opt/root/bin/ /bin/
@@ -391,7 +406,6 @@ RUN apt update &&\
       sudo \
       vim \
       wget
-
 
 ENV SIGNALFX_BUNDLE_DIR=/bundle \
     TEST_SERVICES_DIR=/usr/src/signalfx-agent/test-services \

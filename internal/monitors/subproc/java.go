@@ -15,7 +15,10 @@ func DefaultJavaRuntimeConfig(jarPath string) *RuntimeConfig {
 
 	return &RuntimeConfig{
 		Binary: filepath.Join(javaHome, "bin/java"),
-		Args:   []string{"-jar", jarPath},
-		Env:    env,
+		Args: []string{
+			// Enable assertions by default
+			"-ea",
+		},
+		Env: env,
 	}
 }

@@ -4,9 +4,11 @@ import (
 	"encoding/binary"
 	"errors"
 	"io"
+
+	"github.com/sirupsen/logrus"
 )
 
-// MessageType is the type of the message going to the python runner
+// MessageType is the type of the message going to the subprocess runner
 type MessageType uint32
 
 // MessageTypes that are standard
@@ -28,7 +30,7 @@ type messageReadWriter struct {
 	lastPayloadReader *io.LimitedReader
 }
 
-// MessageReceiver can get messages from Python
+// MessageReceiver can get messages from subprocesses
 type MessageReceiver interface {
 	RecvMessage() (MessageType, io.Reader, error)
 }
@@ -46,13 +48,13 @@ func (m *messageReadWriter) RecvMessage() (MessageType, io.Reader, error) {
 		return MessageTypeNone, nil, err
 	}
 
-	msgType := MessageType(binary.LittleEndian.Uint32(buf[:]))
+	msgType := MessageType(binary.BigEndian.Uint32(buf[:]))
 
 	if _, err := io.ReadFull(m.Reader, buf[:]); err != nil {
 		return MessageTypeNone, nil, err
 	}
 
-	size := binary.LittleEndian.Uint32(buf[:])
+	size := binary.BigEndian.Uint32(buf[:])
 
 	payloadReader := &io.LimitedReader{
 		R: m.Reader,
@@ -68,12 +70,14 @@ func (m *messageReadWriter) RecvMessage() (MessageType, io.Reader, error) {
 func (m *messageReadWriter) SendMessage(msgType MessageType, payload []byte) error {
 	var buf [4]byte
 
-	binary.LittleEndian.PutUint32(buf[:], uint32(msgType))
+	logrus.Debugf("Sending message to subproc (type %d): %s", msgType, payload)
+
+	binary.BigEndian.PutUint32(buf[:], uint32(msgType))
 	if _, err := m.Writer.Write(buf[:]); err != nil {
 		return err
 	}
 
-	binary.LittleEndian.PutUint32(buf[:], uint32(len(payload)))
+	binary.BigEndian.PutUint32(buf[:], uint32(len(payload)))
 	if _, err := m.Writer.Write(buf[:]); err != nil {
 		return err
 	}

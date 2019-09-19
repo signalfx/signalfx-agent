@@ -85,8 +85,8 @@ class PipeMessageReader(_PipeMessageBase):
         """
         Block until we receive a complete message from the pipe
         """
-        msg_type = struct.unpack("i", self.file.read(4))[0]
-        size = struct.unpack("i", self.file.read(4))[0]
+        msg_type = struct.unpack(">i", self.file.read(4))[0]
+        size = struct.unpack(">i", self.file.read(4))[0]
         msg = self.file.read(size)
 
         logger.debug("Received control message: %s", msg)
@@ -116,6 +116,6 @@ class PipeMessageWriter(_PipeMessageBase):
         msg_bytes = ujson.dumps(msg_obj).encode("utf-8")
 
         with self.lock:
-            self.file.write(struct.pack("i", msg_type))
-            self.file.write(struct.pack("i", len(msg_bytes)))
+            self.file.write(struct.pack(">i", msg_type))
+            self.file.write(struct.pack(">i", len(msg_bytes)))
             self.file.write(msg_bytes)

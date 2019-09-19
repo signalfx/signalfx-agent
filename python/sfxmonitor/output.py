@@ -43,7 +43,7 @@ class Output(object):
     def send_datapoints(self, datapoints):
         """
         Sends a set of datapoints back up to the agent.  `datapoints` should be
-        a list of `sfxmoniotr.datapoint.Datapoint` instances.
+        a list of `sfxmonitor.datapoint.Datapoint` instances.
         """
         # This prevents deadlock with the ready_event flag.
         if threading.current_thread().ident == self.creator_tid:

@@ -14,7 +14,7 @@ import (
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
-		return &JavaMonitor{
+		return &Monitor{
 			MonitorCore: subproc.New(),
 		}
 	}, &Config{})
@@ -37,9 +37,15 @@ type Config struct {
 	// By default, the agent will use its bundled Java runtime (Java 8) If you
 	// wish to use a Java runtime that already exists on the system, specify
 	// the full path to the `java` binary here, e.g. `/usr/bin/java`.
-	JavaBinary   string   `yaml:"javaBinary" json:"javaBinary"`
-	ClassPath    []string `yaml:"classPath" json:"classPath"`
-	CustomConfig `yaml:",inline" json:"-" neverLog:"true"`
+	JavaBinary string `yaml:"javaBinary" json:"javaBinary"`
+	// The class within the specified `jarFilePath` that contains a main method
+	// to execute.
+	MainClass string `yaml:"mainClass" json:"mainClass"`
+	// Additional class paths to set on the invoked Java subprocess.
+	ClassPath []string `yaml:"classPath" json:"classPath"`
+	// Additional flags to the Java subprocess
+	ExtraJavaArgs []string `yaml:"extraJavaArgs" json:"extraJavaArgs"`
+	CustomConfig  `yaml:",inline" json:"-" neverLog:"true"`
 }
 
 // MarshalJSON flattens out the CustomConfig provided by the user into a single
@@ -68,26 +74,52 @@ func (c Config) MarshalJSON() ([]byte, error) {
 	return json.Marshal(m)
 }
 
-// JavaMonitor that runs Java monitors as a subprocess
-type JavaMonitor struct {
+// Monitor that runs Java monitors as a subprocess
+type Monitor struct {
 	*subproc.MonitorCore
 
 	Output types.Output
 }
 
+func NewMonitorCore() *Monitor {
+	return &Monitor{
+		MonitorCore: subproc.New(),
+	}
+}
+
 // Configure starts the subprocess and configures the plugin
-func (m *JavaMonitor) Configure(conf *Config) error {
+func (m *Monitor) Configure(conf *Config) error {
 	runtimeConf := subproc.DefaultJavaRuntimeConfig(conf.JarFilePath)
 	if conf.JavaBinary != "" {
 		runtimeConf.Binary = conf.JavaBinary
 		runtimeConf.Env = os.Environ()
 	} else {
-		// Pass down the default runtime binary to the Python script if it
+		// Pass down the default runtime binary to the Java app if it
 		// needs it
 		conf.JavaBinary = runtimeConf.Binary
 	}
-	if len(conf.ClassPath) > 0 {
-		runtimeConf.Env = append(runtimeConf.Env, "CLASSPATH="+strings.Join(conf.ClassPath, ";"))
+	classPath := append([]string(nil), conf.ClassPath...)
+	if len(conf.MainClass) > 0 {
+		classPath = append(classPath, conf.JarFilePath)
+	}
+
+	if len(classPath) > 0 {
+		runtimeConf.Args = append(runtimeConf.Args, []string{
+			"-cp",
+			strings.Join(classPath, ";"),
+		}...)
+	}
+
+	runtimeConf.Args = append(runtimeConf.Args, conf.ExtraJavaArgs...)
+
+	// This has to go last on the args
+	if len(conf.MainClass) > 0 {
+		runtimeConf.Args = append(runtimeConf.Args, conf.MainClass)
+	} else {
+		runtimeConf.Args = append(runtimeConf.Args, []string{
+			"-jar",
+			conf.JarFilePath,
+		}...)
 	}
 
 	handler := &signalfx.JSONHandler{

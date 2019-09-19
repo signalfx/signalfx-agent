@@ -35,15 +35,15 @@ type RuntimeCustomizable interface {
 	RuntimeConfig() RuntimeConfig
 }
 
-// MonitorCore is the adapter to the Python monitor runner process.  It
-// communiates with Python using named pipes.  Each general type of Python
-// plugin (e.g. Datadog, collectd, etc.) should get its own generic monitor
+// MonitorCore is the adapter to the subprocess monitor runner.  It communiates
+// with the subprocess using named pipes.  Each general type of subprocess
+// monitor (e.g. Datadog, collectd, Java, etc.) should get its own generic monitor
 // struct that uses this adapter by embedding it.
 //
-// This will run a single, dedicated Python subprocess that actually runs the
-// Python monitoring code.  Getting data/metrics/events out of the Python code
-// is the responsibility of modules that embed this MonitorCore, hence there
-// are no predefined "datapoint" message types.
+// This will run a single, dedicated subprocess that actually runs the
+// monitoring code.  Getting data/metrics/events out of the subprocess is the
+// responsibility of modules that embed this MonitorCore, hence there are no
+// predefined "datapoint" message types.
 type MonitorCore struct {
 	ctx     context.Context
 	cancel  func()
@@ -80,11 +80,10 @@ func (mc *MonitorCore) Logger() log.FieldLogger {
 	return mc.logger
 }
 
-// run the python subprocess and block until it returns.  Messages from stderr
-// (which is remapped to stdout in the Python process, so any "print"-like
-// output from Python) will be logged as error logs in the agent.
+// run the subprocess and block until it returns.  Messages from stderr will be
+// logged as error logs in the agent.
 func (mc *MonitorCore) run(runtimeConf RuntimeConfig, stdin io.Reader, stdout io.Writer) error {
-	mc.logger.Info("Starting Python runner child process")
+	mc.logger.Debugf("Subprocess command: %s %v (env: %v)", runtimeConf.Binary, runtimeConf.Args, runtimeConf.Env)
 
 	cmd := exec.CommandContext(mc.ctx, runtimeConf.Binary, runtimeConf.Args...)
 	cmd.SysProcAttr = procAttrs()
@@ -92,7 +91,7 @@ func (mc *MonitorCore) run(runtimeConf RuntimeConfig, stdin io.Reader, stdout io
 	cmd.Stdout = stdout
 	cmd.Env = runtimeConf.Env
 
-	// Stderr is just the normal output from the Python code that isn't
+	// Stderr is just the normal output from the subprocess that isn't
 	// specially encoded
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
@@ -106,6 +105,7 @@ func (mc *MonitorCore) run(runtimeConf RuntimeConfig, stdin io.Reader, stdout io
 	mc.logger = mc.logger.WithFields(log.Fields{
 		"runnerPID": cmd.Process.Pid,
 	})
+	mc.logger.Info("Started subprocess runner")
 
 	go func() {
 		scanner := utils.ChunkScanner(stderr)
@@ -121,13 +121,13 @@ func (mc *MonitorCore) run(runtimeConf RuntimeConfig, stdin io.Reader, stdout io
 	return nil
 }
 
-// run the Python subprocess, restarting it if it stops while this monitor is
-// still active.
+// run the subprocess, restarting it if it stops while this monitor is still
+// active.
 func (mc *MonitorCore) runWithRestart(runtimeConf RuntimeConfig, handler MessageHandler, configBytes []byte) {
 	for {
 		messages, stdin, stdout, err := makePipes()
 		if err != nil {
-			mc.logger.WithError(err).Error("Couldn't create pipes for Python subprocess")
+			mc.logger.WithError(err).Error("Couldn't create pipes for subprocess monitor")
 			return
 		}
 
@@ -141,7 +141,7 @@ func (mc *MonitorCore) runWithRestart(runtimeConf RuntimeConfig, handler Message
 
 			if mc.configResult != nil {
 				mc.Shutdown()
-				mc.logger.WithError(mc.configResult).Error("Could not configure Python plugin")
+				mc.logger.WithError(mc.configResult).Error("Could not configure subprocess monitor")
 				return
 			}
 
@@ -156,12 +156,12 @@ func (mc *MonitorCore) runWithRestart(runtimeConf RuntimeConfig, handler Message
 		messages.Close()
 
 		if err != nil {
-			mc.logger.WithError(err).Error("Python runner process shutdown with error")
+			mc.logger.WithError(err).Error("Subprocess monitor runner shutdown with error")
 		}
 		if mc.ShutdownCalled() {
 			return
 		}
-		mc.logger.Error("Restarting Python runner")
+		mc.logger.Error("Restarting subprocess runner")
 
 		time.Sleep(2 * time.Second)
 	}
@@ -195,15 +195,15 @@ type MessageHandler interface {
 	HandleLogMessage(io.Reader) error
 }
 
-// ConfigureInSubproc sends the given config to the python subproc and returns
-// whether configuration was successful.  This method should only be called
-// once for the lifetime of the monitor.  The returned MessageReceiver can be
-// used to get datapoints/events out of the subprocess, the exact format
-// of the data is left up to the users of this core.
+// ConfigureInSubproc sends the given config to the subproc and returns whether
+// configuration was successful.  This method should only be called once for
+// the lifetime of the monitor.  The returned MessageReceiver can be used to
+// get datapoints/events out of the subprocess, the exact format of the data is
+// left up to the users of this core.
 func (mc *MonitorCore) ConfigureInSubproc(config config.MonitorCustomConfig,
 	runtimeConfig *RuntimeConfig, handler MessageHandler) error {
 	if mc.handler != nil {
-		panic("ConfigureInPython should only be called once")
+		panic("ConfigureInSubproc should only be called once")
 	}
 
 	mc.handler = handler
@@ -252,7 +252,7 @@ func (mc *MonitorCore) waitForConfigure(messages MessageReceiver) (*configResult
 
 		content, err := ioutil.ReadAll(payloadReader)
 		if err != nil {
-			mc.logger.WithError(err).Error("Could not read message from Python")
+			mc.logger.WithError(err).Error("Could not read message from subprocess monitor")
 		}
 		payloadReader = bytes.NewBuffer(content)
 
@@ -265,10 +265,10 @@ func (mc *MonitorCore) waitForConfigure(messages MessageReceiver) (*configResult
 			return &result, nil
 		case MessageTypeLog:
 			if err := mc.handler.HandleLogMessage(payloadReader); err != nil {
-				mc.logger.WithError(err).Error("Could not read log message from Python")
+				mc.logger.WithError(err).Error("Could not read log message from subprocess monitor")
 			}
 		default:
-			return nil, fmt.Errorf("got unexpected message code %d from Python", msgType)
+			return nil, fmt.Errorf("got unexpected message code %d from subprocess monitor", msgType)
 		}
 	}
 }
