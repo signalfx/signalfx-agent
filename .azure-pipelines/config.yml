@@ -71,7 +71,7 @@ jobs:
   - template: 'templates/install-go.yml'
     parameters:
       version: $(GOVERSION)
-      packages: 'github.com/tebeka/go2xunit'
+      packages: 'gotest.tools/gotestsum'
   - powershell: |
       & ./scripts/windows/make.ps1 unit_test
     displayName: 'Run go test'

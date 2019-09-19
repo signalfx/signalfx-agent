@@ -170,11 +170,14 @@ function unit_test() {
     compile_deps
     go generate ./internal/monitors/...
     if ($lastexitcode -ne 0){ throw }
-    $ErrorActionPreference = "Continue"
-    go test -v ./... 2>&1 | tee -variable output
-    if ($lastexitcode -gt 1){ throw }
-    $ErrorActionPreference = "Stop"
-    Write-Output $output | go2xunit -fail -output unit_results.xml
+    if ((Get-Command "gotestsum.exe" -ErrorAction SilentlyContinue) -eq $null) {
+        $cwd = get-location
+        cd $env:TEMP
+        go get gotest.tools/gotestsum
+        if ($lastexitcode -gt 0){ throw }
+        cd $cwd
+    }
+    gotestsum --format short-verbose --junitfile unit_results.xml
     if ($lastexitcode -gt 0){ throw }
 }
 
