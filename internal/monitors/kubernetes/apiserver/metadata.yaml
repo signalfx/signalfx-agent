@@ -7,12 +7,13 @@ monitors:
 
     Example YAML Configuration
 
-      ```
-      monitors:
-      - type: kubernetes-apiserver
-        extraDimensions:
-          metric_source: kubernetes-apiserver
-      ```
+    ```yaml
+    monitors:
+    - type: kubernetes-apiserver
+      discoveryRule: Get(container_labels, "component") == "kube-apiserver"
+      extraDimensions:
+        metric_source: kubernetes-apiserver
+    ```
   metrics:
     APIServiceOpenAPIAggregationControllerQueue1_adds:
       default: false
@@ -511,19 +512,19 @@ monitors:
       type: cumulative
       group: apiserver_request
     apiserver_request_duration_seconds_count:
-      default: true
+      default: false
       description: Response latency distribution in seconds for each verb, dry run
         value, group, version, resource, subresource, scope and component. (count)
       type: cumulative
       group: apiserver_request
     apiserver_request_duration_seconds:
-      default: true
+      default: false
       description: Response latency distribution in seconds for each verb, dry run
         value, group, version, resource, subresource, scope and component. (sum)
       type: cumulative
       group: apiserver_request
     apiserver_request_duration_seconds_bucket:
-      default: true
+      default: false
       description: Response latency distribution in seconds for each verb, dry run
         value, group, version, resource, subresource, scope and component. (bucket)
       type: cumulative
@@ -565,7 +566,7 @@ monitors:
       type: gauge
       group: apiserver_request
     apiserver_request:
-      default: true
+      default: false
       description: Counter of apiserver requests broken out for each verb, dry run
         value, group, version, resource, scope, component, client, and HTTP response
         contentType and code.
@@ -972,7 +973,7 @@ monitors:
       type: cumulative
       group: etcd
     etcd_helper_cache_entry:
-      default: true
+      default: false
       description: Counter of etcd helper cache entries. This can be different from
         etcd_helper_cache_miss_count because two concurrent threads can miss the cache
         and generate the same entry twice.
@@ -984,7 +985,7 @@ monitors:
       type: cumulative
       group: etcd
     etcd_helper_cache_hit:
-      default: true
+      default: false
       description: Counter of etcd helper cache hits.
       type: cumulative
       group: etcd
@@ -994,27 +995,27 @@ monitors:
       type: cumulative
       group: etcd
     etcd_helper_cache_miss:
-      default: true
+      default: false
       description: Counter of etcd helper cache miss.
       type: cumulative
       group: etcd
     etcd_object_counts:
-      default: true
+      default: false
       description: Number of stored objects at the time of last check split by kind.
       type: gauge
       group: etcd
     etcd_request_cache_add_duration_seconds_count:
-      default: true
+      default: false
       description: Latency in seconds of adding an object to etcd cache (count)
       type: cumulative
       group: etcd
     etcd_request_cache_add_duration_seconds:
-      default: true
+      default: false
       description: Latency in seconds of adding an object to etcd cache (sum)
       type: cumulative
       group: etcd
     etcd_request_cache_add_duration_seconds_bucket:
-      default: true
+      default: false
       description: Latency in seconds of adding an object to etcd cache (bucket)
       type: cumulative
       group: etcd
@@ -1037,17 +1038,17 @@ monitors:
       type: gauge
       group: etcd
     etcd_request_cache_get_duration_seconds_count:
-      default: true
+      default: false
       description: Latency in seconds of getting an object from etcd cache (count)
       type: cumulative
       group: etcd
     etcd_request_cache_get_duration_seconds:
-      default: true
+      default: false
       description: Latency in seconds of getting an object from etcd cache (sum)
       type: cumulative
       group: etcd
     etcd_request_cache_get_duration_seconds_bucket:
-      default: true
+      default: false
       description: Latency in seconds of getting an object from etcd cache (bucket)
       type: cumulative
       group: etcd
@@ -1070,12 +1071,12 @@ monitors:
       type: gauge
       group: etcd
     get_token_count:
-      default: true
+      default: false
       description: Counter of total Token() requests to the alternate token source
       type: cumulative
       group: token
     get_token_fail_count:
-      default: true
+      default: false
       description: Counter of failed Token() requests to the alternate token source
       type: cumulative
       group: token
@@ -1297,7 +1298,7 @@ monitors:
       type: gauge
       group: http_response
     kubernetes_build_info:
-      default: true
+      default: false
       description: A metric with a constant '1' value labeled by major, minor, git
         version, git commit, git tree state, build date, Go version, and compiler
         from which Kubernetes was built, and platform on which it is running.
@@ -1387,63 +1388,63 @@ monitors:
       type: cumulative
       group: ssh_tunnel
     workqueue_adds:
-      default: true
+      default: false
       description: Total number of adds handled by workqueue
       type: cumulative
       group: workqueue
     workqueue_depth:
-      default: true
+      default: false
       description: Current depth of workqueue
       type: gauge
       group: workqueue
     workqueue_longest_running_processor_seconds:
-      default: true
+      default: false
       description: How many seconds has the longest running processor for workqueue
         been running.
       type: gauge
       group: workqueue
     workqueue_queue_duration_seconds_count:
-      default: true
+      default: false
       description: How long in seconds an item stays in workqueue before being requested.
         (count)
       type: cumulative
       group: workqueue
     workqueue_queue_duration_seconds:
-      default: true
+      default: false
       description: How long in seconds an item stays in workqueue before being requested.
         (sum)
       type: cumulative
       group: workqueue
     workqueue_queue_duration_seconds_bucket:
-      default: true
+      default: false
       description: How long in seconds an item stays in workqueue before being requested.
         (bucket)
       type: cumulative
       group: workqueue
     workqueue_retries:
-      default: true
+      default: false
       description: Total number of retries handled by workqueue
       type: cumulative
       group: workqueue
     workqueue_unfinished_work_seconds:
-      default: true
+      default: false
       description: How many seconds of work has done that is in progress and hasn't
         been observed by work_duration. Large values indicate stuck threads. One can
         deduce the number of stuck threads by observing the rate at which this increases.
       type: gauge
       group: workqueue
     workqueue_work_duration_seconds_count:
-      default: true
+      default: false
       description: How long in seconds processing an item from workqueue takes. (count)
       type: cumulative
       group: workqueue
     workqueue_work_duration_seconds:
-      default: true
+      default: false
       description: How long in seconds processing an item from workqueue takes. (sum)
       type: cumulative
       group: workqueue
     workqueue_work_duration_seconds_bucket:
-      default: true
+      default: false
       description: How long in seconds processing an item from workqueue takes. (bucket)
       type: cumulative
       group: workqueue

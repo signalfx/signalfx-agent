@@ -24916,7 +24916,7 @@
       "monitorType": "kubernetes-apiserver",
       "sendAll": false,
       "dimensions": null,
-      "doc": "This monitor queries the Kubernetes API server for kube-apiserver metrics in Prometheus format.\nThe monitor queries path `/metrics` by default when no path is configured. The monitor converts\nthe Prometheus metric types to SignalFx metric types as described [here](prometheus-exporter.md)\n\nExample YAML Configuration\n\n  ```\n  monitors:\n  - type: kubernetes-apiserver\n    extraDimensions:\n      metric_source: kubernetes-apiserver\n  ```\n",
+      "doc": "This monitor queries the Kubernetes API server for kube-apiserver metrics in Prometheus format.\nThe monitor queries path `/metrics` by default when no path is configured. The monitor converts\nthe Prometheus metric types to SignalFx metric types as described [here](prometheus-exporter.md)\n\nExample YAML Configuration\n\n```yaml\nmonitors:\n- type: kubernetes-apiserver\n  discoveryRule: Get(container_labels, \"component\") == \"kube-apiserver\"\n  extraDimensions:\n    metric_source: kubernetes-apiserver\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -25801,7 +25801,7 @@
           "type": "cumulative",
           "description": "Counter of apiserver requests broken out for each verb, dry run value, group, version, resource, scope, component, client, and HTTP response contentType and code.",
           "group": "apiserver_request",
-          "default": true
+          "default": false
         },
         "apiserver_request_count": {
           "type": "cumulative",
@@ -25813,19 +25813,19 @@
           "type": "cumulative",
           "description": "Response latency distribution in seconds for each verb, dry run value, group, version, resource, subresource, scope and component. (sum)",
           "group": "apiserver_request",
-          "default": true
+          "default": false
         },
         "apiserver_request_duration_seconds_bucket": {
           "type": "cumulative",
           "description": "Response latency distribution in seconds for each verb, dry run value, group, version, resource, subresource, scope and component. (bucket)",
           "group": "apiserver_request",
-          "default": true
+          "default": false
         },
         "apiserver_request_duration_seconds_count": {
           "type": "cumulative",
           "description": "Response latency distribution in seconds for each verb, dry run value, group, version, resource, subresource, scope and component. (count)",
           "group": "apiserver_request",
-          "default": true
+          "default": false
         },
         "apiserver_request_latencies": {
           "type": "cumulative",
@@ -26269,7 +26269,7 @@
           "type": "cumulative",
           "description": "Counter of etcd helper cache entries. This can be different from etcd_helper_cache_miss_count because two concurrent threads can miss the cache and generate the same entry twice.",
           "group": "etcd",
-          "default": true
+          "default": false
         },
         "etcd_helper_cache_entry_count": {
           "type": "cumulative",
@@ -26281,7 +26281,7 @@
           "type": "cumulative",
           "description": "Counter of etcd helper cache hits.",
           "group": "etcd",
-          "default": true
+          "default": false
         },
         "etcd_helper_cache_hit_count": {
           "type": "cumulative",
@@ -26293,7 +26293,7 @@
           "type": "cumulative",
           "description": "Counter of etcd helper cache miss.",
           "group": "etcd",
-          "default": true
+          "default": false
         },
         "etcd_helper_cache_miss_count": {
           "type": "cumulative",
@@ -26305,25 +26305,25 @@
           "type": "gauge",
           "description": "Number of stored objects at the time of last check split by kind.",
           "group": "etcd",
-          "default": true
+          "default": false
         },
         "etcd_request_cache_add_duration_seconds": {
           "type": "cumulative",
           "description": "Latency in seconds of adding an object to etcd cache (sum)",
           "group": "etcd",
-          "default": true
+          "default": false
         },
         "etcd_request_cache_add_duration_seconds_bucket": {
           "type": "cumulative",
           "description": "Latency in seconds of adding an object to etcd cache (bucket)",
           "group": "etcd",
-          "default": true
+          "default": false
         },
         "etcd_request_cache_add_duration_seconds_count": {
           "type": "cumulative",
           "description": "Latency in seconds of adding an object to etcd cache (count)",
           "group": "etcd",
-          "default": true
+          "default": false
         },
         "etcd_request_cache_add_latencies_summary": {
           "type": "cumulative",
@@ -26347,19 +26347,19 @@
           "type": "cumulative",
           "description": "Latency in seconds of getting an object from etcd cache (sum)",
           "group": "etcd",
-          "default": true
+          "default": false
         },
         "etcd_request_cache_get_duration_seconds_bucket": {
           "type": "cumulative",
           "description": "Latency in seconds of getting an object from etcd cache (bucket)",
           "group": "etcd",
-          "default": true
+          "default": false
         },
         "etcd_request_cache_get_duration_seconds_count": {
           "type": "cumulative",
           "description": "Latency in seconds of getting an object from etcd cache (count)",
           "group": "etcd",
-          "default": true
+          "default": false
         },
         "etcd_request_cache_get_latencies_summary": {
           "type": "cumulative",
@@ -26383,13 +26383,13 @@
           "type": "cumulative",
           "description": "Counter of total Token() requests to the alternate token source",
           "group": "token",
-          "default": true
+          "default": false
         },
         "get_token_fail_count": {
           "type": "cumulative",
           "description": "Counter of failed Token() requests to the alternate token source",
           "group": "token",
-          "default": true
+          "default": false
         },
         "go_gc_duration_seconds": {
           "type": "cumulative",
@@ -26653,7 +26653,7 @@
           "type": "gauge",
           "description": "A metric with a constant '1' value labeled by major, minor, git version, git commit, git tree state, build date, Go version, and compiler from which Kubernetes was built, and platform on which it is running.",
           "group": null,
-          "default": true
+          "default": false
         },
         "process_cpu_seconds": {
           "type": "cumulative",
@@ -26755,67 +26755,67 @@
           "type": "cumulative",
           "description": "Total number of adds handled by workqueue",
           "group": "workqueue",
-          "default": true
+          "default": false
         },
         "workqueue_depth": {
           "type": "gauge",
           "description": "Current depth of workqueue",
           "group": "workqueue",
-          "default": true
+          "default": false
         },
         "workqueue_longest_running_processor_seconds": {
           "type": "gauge",
           "description": "How many seconds has the longest running processor for workqueue been running.",
           "group": "workqueue",
-          "default": true
+          "default": false
         },
         "workqueue_queue_duration_seconds": {
           "type": "cumulative",
           "description": "How long in seconds an item stays in workqueue before being requested. (sum)",
           "group": "workqueue",
-          "default": true
+          "default": false
         },
         "workqueue_queue_duration_seconds_bucket": {
           "type": "cumulative",
           "description": "How long in seconds an item stays in workqueue before being requested. (bucket)",
           "group": "workqueue",
-          "default": true
+          "default": false
         },
         "workqueue_queue_duration_seconds_count": {
           "type": "cumulative",
           "description": "How long in seconds an item stays in workqueue before being requested. (count)",
           "group": "workqueue",
-          "default": true
+          "default": false
         },
         "workqueue_retries": {
           "type": "cumulative",
           "description": "Total number of retries handled by workqueue",
           "group": "workqueue",
-          "default": true
+          "default": false
         },
         "workqueue_unfinished_work_seconds": {
           "type": "gauge",
           "description": "How many seconds of work has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
           "group": "workqueue",
-          "default": true
+          "default": false
         },
         "workqueue_work_duration_seconds": {
           "type": "cumulative",
           "description": "How long in seconds processing an item from workqueue takes. (sum)",
           "group": "workqueue",
-          "default": true
+          "default": false
         },
         "workqueue_work_duration_seconds_bucket": {
           "type": "cumulative",
           "description": "How long in seconds processing an item from workqueue takes. (bucket)",
           "group": "workqueue",
-          "default": true
+          "default": false
         },
         "workqueue_work_duration_seconds_count": {
           "type": "cumulative",
           "description": "How long in seconds processing an item from workqueue takes. (count)",
           "group": "workqueue",
-          "default": true
+          "default": false
         }
       },
       "properties": null,
