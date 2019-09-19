@@ -60,7 +60,7 @@ func dimPropsForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache,
 	rsc *k8sutil.ReplicaSetCache, jc *k8sutil.JobCache) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(cachedPod.LabelSet)
 
-	props["creation_timestamp"] = cachedPod.CreationTimestamp.Format(time.RFC3339)
+	props["pod_creation_timestamp"] = cachedPod.CreationTimestamp.Format(time.RFC3339)
 
 	for _, or := range cachedPod.OwnerReferences {
 		props["kubernetes_workload"] = or.Kind
