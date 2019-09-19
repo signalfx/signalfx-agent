@@ -22,7 +22,7 @@ function compile_deps() {
     versions_go
     monitor-code-gen
     .\monitor-code-gen
-    if ($lastexitcode -ne 0){ throw $output }
+    if ($lastexitcode -ne 0){ throw }
 }
 
 function versions_go() {
@@ -108,7 +108,7 @@ function bundle (
             throw "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe not found!"
         }
         signtool sign /f "$PFX_PATH" /p $PFX_PASSWORD /tr http://timestamp.digicert.com /fd sha256 /td SHA256 /n "SignalFx, Inc." "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe"
-        if ($lastexitcode -ne 0){ throw $output }
+        if ($lastexitcode -ne 0){ throw }
     }
 
     if (($DOWNLOAD_PYTHON -Or !(Test-Path -Path "$buildDir\python")) -And !$ONLY_BUILD_AGENT) {
@@ -158,35 +158,36 @@ function bundle (
 function lint() {
     compile_deps
     golangci-lint run
-    if ($lastexitcode -ne 0){ throw $output }
+    if ($lastexitcode -ne 0){ throw }
 }
 
 function tidy() {
     go mod tidy
-    if ($lastexitcode -ne 0){ throw $output }
+    if ($lastexitcode -ne 0){ throw }
 }
 
 function unit_test() {
     compile_deps
     go generate ./internal/monitors/...
-    if ($lastexitcode -ne 0){ throw $output }
+    if ($lastexitcode -ne 0){ throw }
     $ErrorActionPreference = "Continue"
-    $output = & go test -v ./... 2>&1
-    if ($lastexitcode -gt 1){ throw $output }
-    Write-Output $output | go2xunit -output unit_results.xml
+    go test -v ./... 2>&1 | tee -variable output
+    if ($lastexitcode -gt 1){ throw }
     $ErrorActionPreference = "Stop"
+    Write-Output $output | go2xunit -fail -output unit_results.xml
+    if ($lastexitcode -gt 0){ throw }
 }
 
 function integration_test() {
     if ($env:AGENT_BIN) {
         pytest -n4 -m '(windows or windows_only) and not deployment and not installer' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
-        if ($lastexitcode -ne 0){ throw $output }
+        if ($lastexitcode -ne 0){ throw }
     } else {
         $env:AGENT_BIN = "$repoDir\build\SignalFxAgent\bin\signalfx-agent.exe"
         pytest -n4 -m '(windows or windows_only) and not deployment and not installer' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
         $rc = $lastexitcode
         Remove-Item env:AGENT_BIN
-        if ($rc -ne 0){ throw $output }
+        if ($rc -ne 0){ throw }
     }
 }
 
