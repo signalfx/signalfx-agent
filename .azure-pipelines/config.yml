@@ -75,13 +75,13 @@ jobs:
   - powershell: |
       & ./scripts/windows/make.ps1 unit_test
     displayName: 'Run go test'
-    ignoreLASTEXITCODE: true
   - task: PublishTestResults@2
     inputs:
       searchFolder: '$(Build.SourcesDirectory)'
       testResultsFormat: 'JUnit'
       testResultsFiles: 'unit_results.xml'
       failTaskOnFailedTests: true
+    condition: succeededOrFailed()
 
 - job: 'win_bundle_build'
   pool:

@@ -40,7 +40,6 @@ steps:
   env:
     MARKERS: ${{ parameters.markers }}
     OPTIONS: ${{ parameters.options }}
-  ignoreLASTEXITCODE: true
   displayName: 'Run pytest'
   condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
 - task: PublishBuildArtifacts@1
