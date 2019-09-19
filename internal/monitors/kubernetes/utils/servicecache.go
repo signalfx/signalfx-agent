@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"reflect"
 
 	v1 "k8s.io/api/core/v1"
@@ -82,26 +83,32 @@ func (sc *ServiceCache) AddService(svc *v1.Service) bool {
 }
 
 // Delete removes a service from the cache
-func (sc *ServiceCache) Delete(svc *v1.Service) {
-	sc.DeleteByKey(svc.UID)
+func (sc *ServiceCache) Delete(svc *v1.Service) ([]types.UID, error) {
+	return sc.DeleteByKey(svc.UID)
 }
 
 // DeleteByKey removes a service from the cache given a UID
 // Returns pods that were previously matched by this service
 // so their properties may be updated accordingly
-func (sc *ServiceCache) DeleteByKey(svcUID types.UID) []types.UID {
-	pods := make([]types.UID, 0, len(sc.cachedServices[svcUID].matchedPods))
-	for podUID := range sc.cachedServices[svcUID].matchedPods {
+func (sc *ServiceCache) DeleteByKey(svcUID types.UID) ([]types.UID, error) {
+	cachedService, exists := sc.cachedServices[svcUID]
+	if !exists {
+		// This could happen if we receive a k8s event out of order
+		// For example, if a service is queued to be deleted as the agent starts up
+		// and we attempt to delete it before we see it exists from the list/watch
+		return nil, errors.New("service does not exist in internal cache")
+	}
+	pods := make([]types.UID, 0, len(cachedService.matchedPods))
+	for podUID := range cachedService.matchedPods {
 		pods = append(pods, podUID)
 	}
-	namespace := sc.cachedServices[svcUID].Namespace
-	delete(sc.namespaceSvcUIDCache[namespace], svcUID)
-	if len(sc.namespaceSvcUIDCache[namespace]) == 0 {
-		delete(sc.namespaceSvcUIDCache, namespace)
+	delete(sc.namespaceSvcUIDCache[cachedService.Namespace], svcUID)
+	if len(sc.namespaceSvcUIDCache[cachedService.Namespace]) == 0 {
+		delete(sc.namespaceSvcUIDCache, cachedService.Namespace)
 	}
 	delete(sc.cachedServices, svcUID)
 
-	return pods
+	return pods, nil
 }
 
 // GetMatchingServices returns a list of service names that match the given

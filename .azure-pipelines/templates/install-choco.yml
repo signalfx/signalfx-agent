@@ -12,6 +12,7 @@ steps:
         echo "choco already installed"
     }
   displayName: 'Install choco'
+  condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
 - ${{ if ne(parameters.packages, '') }}:
   - powershell: |
       choco install ${{ parameters.options }} ${{ parameters.packages }}
@@ -20,3 +21,4 @@ steps:
           throw
       }
     displayName: "Install choco packages"
+    condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))

@@ -220,7 +220,7 @@ def test_service_tag_sync():
                             return False
                 return True
 
-            assert wait_for(missing_service_tags, interval_seconds=2, timeout_seconds=60)
+            assert wait_for(missing_service_tags, interval_seconds=2, timeout_seconds=90)
 
             agent.pprof_client.assert_goroutine_count_under(150)
             agent.pprof_client.assert_heap_alloc_under(200 * 1024 * 1024)
@@ -377,6 +377,151 @@ def test_large_k8s_cluster_deployment_prop():
             for _, replica_set in replica_sets.items():
                 v1beta1_client.delete_namespaced_replica_set(name=replica_set["rs_name"], namespace="default", body={})
                 for pod_name in replica_set["pod_names"]:
+                    v1_client.delete_namespaced_pod(name=pod_name, namespace="default", body={})
+
+            agent.pprof_client.assert_goroutine_count_under(200)
+            agent.pprof_client.assert_heap_alloc_under(heap_profile_baseline.total * 1.2)
+
+
+# pylint: disable=too-many-locals
+def test_large_k8s_cluster_cronjob_prop():
+    """
+    Creates 5000 jobs and 5000 pods. Each job has an owner
+    reference of a cronjob. Asserts that pods acquire the
+    cronjob property from the jobs owner reference.
+    """
+    job_count = 5000
+    pods_per_job = 1
+    with fake_k8s_api_server(print_logs=False) as [fake_k8s_client, k8s_envvars]:
+        v1_client = client.CoreV1Api(fake_k8s_client)
+        batchv1_client = client.BatchV1Api(fake_k8s_client)
+        jobs = {}
+        for i in range(0, job_count):
+            cj_name = f"cj-{i}"
+            cj_uid = f"cjuid{i}"
+            job_name = cj_name + "-job"
+            job_uid = cj_uid + "-job"
+            jobs[job_uid] = {
+                "cj_name": cj_name,
+                "cj_uid": cj_uid,
+                "job_name": job_name,
+                "job_uid": job_uid,
+                "pod_uids": [],
+                "pod_names": [],
+            }
+
+            batchv1_client.create_namespaced_job(
+                body={
+                    "apiVersion": "batch/v1",
+                    "kind": "Job",
+                    "metadata": {
+                        "name": job_name,
+                        "uid": job_uid,
+                        "namespace": "default",
+                        "ownerReferences": [{"kind": "CronJob", "name": cj_name, "uid": cj_uid}],
+                    },
+                    "spec": client.V1JobSpec(completions=1, parallelism=1, template=client.V1PodTemplateSpec()),
+                    "status": {},
+                },
+                namespace="default",
+            )
+
+            for j in range(0, pods_per_job):
+                pod_name = f"pod-{job_name}-{j}"
+                pod_uid = f"abcdef{i}-{j}"
+                jobs[job_uid]["pod_uids"].append(pod_uid)
+                jobs[job_uid]["pod_names"].append(pod_name)
+                v1_client.create_namespaced_pod(
+                    body={
+                        "apiVersion": "v1",
+                        "kind": "Pod",
+                        "metadata": {
+                            "name": pod_name,
+                            "uid": pod_uid,
+                            "namespace": "default",
+                            "labels": {"app": "my-app"},
+                            "ownerReferences": [{"kind": "Job", "name": job_name, "uid": job_uid}],
+                        },
+                        "spec": {},
+                    },
+                    namespace="default",
+                )
+        with Agent.run(
+            dedent(
+                f"""
+          writer:
+            maxRequests: 100
+            propertiesMaxRequests: 100
+            propertiesHistorySize: 10000
+          monitors:
+           - type: kubernetes-cluster
+             alwaysClusterReporter: true
+             intervalSeconds: 10
+             kubernetesAPI:
+                skipVerify: true
+                authType: none
+        """
+            ),
+            profiling=True,
+            debug=False,
+            extra_env=k8s_envvars,
+        ) as agent:
+            assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"kubernetes_pod_name": "pod-cj-0-job-0"}))
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, dimensions={"kubernetes_pod_name": "pod-cj-4999-job-0"})
+            )
+
+            ## get heap usage with 5k pods
+            heap_profile_baseline = agent.pprof_client.get_heap_profile()
+
+            def has_all_cronjob_props():
+                for _, job in jobs.items():
+                    for pod_uid in job["pod_uids"]:
+                        if not has_dim_prop(
+                            agent.fake_services,
+                            dim_name="kubernetes_pod_uid",
+                            dim_value=pod_uid,
+                            prop_name="cronJob",
+                            prop_value=job["cj_name"],
+                        ):
+                            return False
+                        if not has_dim_prop(
+                            agent.fake_services,
+                            dim_name="kubernetes_pod_uid",
+                            dim_value=pod_uid,
+                            prop_name="cronJob_uid",
+                            prop_value=job["cj_uid"],
+                        ):
+                            return False
+                    return True
+
+            def has_all_job_props():
+                for _, job in jobs.items():
+                    for pod_uid in job["pod_uids"]:
+                        if not has_dim_prop(
+                            agent.fake_services,
+                            dim_name="kubernetes_pod_uid",
+                            dim_value=pod_uid,
+                            prop_name="job",
+                            prop_value=job["job_name"],
+                        ):
+                            return False
+                        if not has_dim_prop(
+                            agent.fake_services,
+                            dim_name="kubernetes_pod_uid",
+                            dim_value=pod_uid,
+                            prop_name="job_uid",
+                            prop_value=job["job_uid"],
+                        ):
+                            return False
+                    return True
+
+            assert wait_for(has_all_job_props, interval_seconds=2, timeout_seconds=60)
+            assert wait_for(has_all_cronjob_props, interval_seconds=2, timeout_seconds=60)
+
+            for _, job in jobs.items():
+                batchv1_client.delete_namespaced_job(name=job["job_name"], namespace="default", body={})
+                for pod_name in job["pod_names"]:
                     v1_client.delete_namespaced_pod(name=pod_name, namespace="default", body={})
 
             agent.pprof_client.assert_goroutine_count_under(200)

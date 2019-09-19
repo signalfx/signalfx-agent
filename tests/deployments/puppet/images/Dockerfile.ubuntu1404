@@ -5,8 +5,9 @@ FROM ubuntu:14.04
 RUN apt update &&\
     apt install -y ca-certificates procps wget apt-transport-https
 
-RUN wget https://apt.puppetlabs.com/puppet-release-trusty.deb && \
-    dpkg -i puppet-release-trusty.deb && \
+ARG PUPPET_RELEASE=""
+RUN wget https://apt.puppetlabs.com/puppet${PUPPET_RELEASE}-release-trusty.deb && \
+    dpkg -i puppet${PUPPET_RELEASE}-release-trusty.deb && \
     apt update && \
     apt install -y puppet-agent
 
@@ -35,6 +36,6 @@ RUN /usr/sbin/update-rc.d -f ondemand remove; \
 	echo '# /lib/init/fstab: cleared out for bare-bones Docker' > /lib/init/fstab
 
 COPY tests/packaging/images/init-fake.conf /etc/init/fake-container-events.conf
-COPY deployments/puppet /etc/puppetlabs/code/modules/signalfx_agent
+COPY deployments/puppet /etc/puppetlabs/code/environments/production/modules/signalfx_agent
 
 CMD ["/sbin/init", "-v"]

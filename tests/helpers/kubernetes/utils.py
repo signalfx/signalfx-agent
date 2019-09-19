@@ -127,6 +127,9 @@ def create_clusterrolebinding(body, timeout=K8S_CREATE_TIMEOUT):
 def api_client_from_version(api_version):
     return {
         "v1": kube_client.CoreV1Api(),
+        "apps/v1": kube_client.AppsV1Api(),
+        "batch/v1": kube_client.BatchV1Api(),
+        "batch/v1beta1": kube_client.BatchV1beta1Api(),
         "extensions/v1beta1": kube_client.ExtensionsV1beta1Api(),
         "rbac.authorization.k8s.io/v1beta1": kube_client.RbacAuthorizationV1beta1Api(),
         "rbac.authorization.k8s.io/v1": kube_client.RbacAuthorizationV1Api(),

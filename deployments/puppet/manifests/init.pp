@@ -25,20 +25,20 @@ class signalfx_agent (
       fail("The \$agent_version parameter must be set to a valid SignalFx Agent version")
     }
 
-    $split_config_file_path = $config_file_path.split("\\\\")
-    $config_parent_directory_path = $split_config_file_path[0, - 2].join("\\")
+    $split_config_file_path = $config_file_path.split('\\\\')
+    $config_parent_directory_path = $split_config_file_path[0, - 2].join('\\')
 
     package { $service_name:
+      ensure          => 'installed',
       name            => 'signalfx-agent',
       provider        => 'windows',
-      ensure          => 'installed',
       source          => "${installation_directory}\\SignalFxAgent\\bin\\signalfx-agent.exe",
       install_options => [{ '-service' => '"install"' }, '-logEvents', { '-config' => $config_file_path }],
     }
   }
   else {
-    $split_config_file_path = $config_file_path.split("/")
-    $config_parent_directory_path = $split_config_file_path[0, - 2].join("/")
+    $split_config_file_path = $config_file_path.split('/')
+    $config_parent_directory_path = $split_config_file_path[0, - 2].join('/')
 
     if $package_version == '' {
       if $agent_version == '' {

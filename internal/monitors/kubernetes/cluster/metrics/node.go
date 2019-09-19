@@ -2,6 +2,7 @@ package metrics
 
 import (
 	"fmt"
+	"regexp"
 
 	"github.com/iancoleman/strcase"
 
@@ -57,6 +58,11 @@ func dimPropsForNode(node *v1.Node, useNodeName bool) *atypes.DimProperties {
 		Value: node.Name,
 	}
 
+	taintProps := getPropsFromTaints(node.Spec.Taints)
+	for k, v := range taintProps {
+		props[k] = v
+	}
+
 	if !useNodeName {
 		machineID := node.Status.NodeInfo.MachineID
 		dim = atypes.Dimension{
@@ -80,6 +86,31 @@ func dimPropsForNode(node *v1.Node, useNodeName bool) *atypes.DimProperties {
 		Properties: props,
 		Tags:       tags,
 	}
+}
+
+func getPropsFromTaints(taints []v1.Taint) map[string]string {
+	unsupportedPattern := regexp.MustCompile("[^a-zA-Z0-9_-]")
+
+	props := make(map[string]string)
+
+	for _, t := range taints {
+		keyValueCombo := "taint"
+		if len(t.Key) > 0 {
+			keyValueCombo += ("_" + t.Key)
+		}
+		if len(t.Value) > 0 {
+			keyValueCombo += ("_" + t.Value)
+		}
+		keyValueCombo = unsupportedPattern.ReplaceAllString(keyValueCombo, "_")
+
+		if _, exists := props[keyValueCombo]; exists {
+			props[keyValueCombo] += ("," + string(t.Effect))
+		} else {
+			props[keyValueCombo] = string(t.Effect)
+		}
+	}
+
+	return props
 }
 
 var nodeConditionValues = map[v1.ConditionStatus]int64{

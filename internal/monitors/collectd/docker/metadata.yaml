@@ -17,7 +17,6 @@ monitors:
     network:
       description: Network metrics
   metrics:
-    # Needs to be brought in line with https://github.com/signalfx/integrations/tree/master/collectd-docker/docs
     blkio.io_service_bytes_recursive.read:
       description: Volume, in bytes, of reads from block devices
       default: true

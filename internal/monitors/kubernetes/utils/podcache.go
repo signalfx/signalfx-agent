@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"errors"
 	"reflect"
 
 	v1 "k8s.io/api/core/v1"
@@ -20,18 +21,22 @@ type PodCache struct {
 
 // CachedPod is used for holding only the necessary
 type CachedPod struct {
-	UID             types.UID
-	LabelSet        labels.Set
-	OwnerReferences []metav1.OwnerReference
-	Namespace       string
+	UID               types.UID
+	LabelSet          labels.Set
+	OwnerReferences   []metav1.OwnerReference
+	Namespace         string
+	Tolerations       []v1.Toleration
+	CreationTimestamp metav1.Time
 }
 
 func newCachedPod(pod *v1.Pod) *CachedPod {
 	return &CachedPod{
-		UID:             pod.UID,
-		LabelSet:        labels.Set(pod.Labels),
-		OwnerReferences: pod.OwnerReferences,
-		Namespace:       pod.Namespace,
+		UID:               pod.UID,
+		LabelSet:          labels.Set(pod.Labels),
+		OwnerReferences:   pod.OwnerReferences,
+		Namespace:         pod.Namespace,
+		Tolerations:       pod.Spec.Tolerations,
+		CreationTimestamp: pod.GetCreationTimestamp(),
 	}
 }
 
@@ -66,13 +71,20 @@ func (pc *PodCache) AddPod(pod *v1.Pod) {
 }
 
 // DeleteByKey removes a pod from the cache given a UID
-func (pc *PodCache) DeleteByKey(key types.UID) {
-	namespace := pc.cachedPods[key].Namespace
-	delete(pc.namespacePodUIDCache[namespace], key)
-	if len(pc.namespacePodUIDCache[namespace]) == 0 {
-		delete(pc.namespacePodUIDCache, namespace)
+func (pc *PodCache) DeleteByKey(key types.UID) error {
+	cachedPod, exists := pc.cachedPods[key]
+	if !exists {
+		// This could happen if we receive a k8s event out of order
+		// For example, if a pod deletion event comes in before
+		// a pod creation event somehow.
+		return errors.New("pod does not exist in internal cache")
+	}
+	delete(pc.namespacePodUIDCache[cachedPod.Namespace], key)
+	if len(pc.namespacePodUIDCache[cachedPod.Namespace]) == 0 {
+		delete(pc.namespacePodUIDCache, cachedPod.Namespace)
 	}
 	delete(pc.cachedPods, key)
+	return nil
 }
 
 // GetLabels retrieves a pod's cached label set

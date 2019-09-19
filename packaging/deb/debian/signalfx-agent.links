@@ -1,1 +1,2 @@
 /usr/lib/signalfx-agent/bin/signalfx-agent /usr/bin/signalfx-agent
+/usr/lib/signalfx-agent/bin/signalfx-agent /usr/bin/agent-status

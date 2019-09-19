@@ -32,6 +32,7 @@ cp -a %{_sourcedir}/signalfx-agent/* $RPM_BUILD_ROOT%{bundle_dir}
 
 install -d -m 755 $RPM_BUILD_ROOT/%{_bindir}
 ln -sf %{bundle_dir}/bin/signalfx-agent $RPM_BUILD_ROOT/%{_bindir}/signalfx-agent
+ln -sf %{bundle_dir}/bin/signalfx-agent $RPM_BUILD_ROOT/%{_bindir}/agent-status
 
 install -d $RPM_BUILD_ROOT/%{_unitdir}
 install -p -m 644 %{_sourcedir}/systemd/signalfx-agent.service $RPM_BUILD_ROOT/%{_unitdir}/signalfx-agent.service
@@ -52,6 +53,7 @@ install -p -m 644 %{_sourcedir}/signalfx-agent.1 $RPM_BUILD_ROOT/%{_mandir}/man1
 %{bundle_dir}
 /%{_unitdir}/signalfx-agent.service
 /%{_bindir}/signalfx-agent
+/%{_bindir}/agent-status
 /%{_tmpfilesdir}/signalfx-agent.conf
 /%{_tmpfilesdir}/signalfx-agent.init
 /%{_mandir}/man1/signalfx-agent.1

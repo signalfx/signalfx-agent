@@ -10,6 +10,9 @@ import (
 	k8sutil "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
 	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
 	log "github.com/sirupsen/logrus"
+	appsv1 "k8s.io/api/apps/v1"
+	batchv1 "k8s.io/api/batch/v1"
+	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -35,6 +38,7 @@ type DatapointCache struct {
 	podCache                   *k8sutil.PodCache
 	serviceCache               *k8sutil.ServiceCache
 	replicaSetCache            *k8sutil.ReplicaSetCache
+	jobCache                   *k8sutil.JobCache
 	useNodeName                bool
 	nodeConditionTypesToReport []string
 }
@@ -48,6 +52,7 @@ func NewDatapointCache(useNodeName bool, nodeConditionTypesToReport []string) *D
 		podCache:                   k8sutil.NewPodCache(),
 		serviceCache:               k8sutil.NewServiceCache(),
 		replicaSetCache:            k8sutil.NewReplicaSetCache(),
+		jobCache:                   k8sutil.NewJobCache(),
 		useNodeName:                useNodeName,
 		nodeConditionTypesToReport: nodeConditionTypesToReport,
 	}
@@ -67,13 +72,22 @@ func keyForObject(obj runtime.Object) (types.UID, error) {
 // same type returned by Handle[Add|Delete].  MUST HOLD LOCK!
 func (dc *DatapointCache) DeleteByKey(key interface{}) {
 	cacheKey := key.(types.UID)
+	var err error
 	switch dc.uidKindCache[cacheKey] {
 	case "Pod":
-		dc.podCache.DeleteByKey(cacheKey)
+		err = dc.podCache.DeleteByKey(cacheKey)
 	case "Service":
-		dc.handleDeleteService(cacheKey)
+		err = dc.handleDeleteService(cacheKey)
 	case "ReplicaSet":
-		dc.replicaSetCache.DeleteByKey(cacheKey)
+		err = dc.replicaSetCache.DeleteByKey(cacheKey)
+	case "Job":
+		err = dc.jobCache.DeleteByKey(cacheKey)
+	}
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+			"UID":   cacheKey,
+		}).Error("an error occurred while deleting a key from an internal cache")
 	}
 	delete(dc.uidKindCache, cacheKey)
 	delete(dc.dpCache, cacheKey)
@@ -114,6 +128,7 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 		kind = "ReplicationController"
 	case *v1beta1.DaemonSet:
 		dps = datapointsForDaemonSet(o)
+		dimProps = dimPropsForDaemonSet(o)
 		kind = "DaemonSet"
 	case *v1beta1.Deployment:
 		dps = datapointsForDeployment(o)
@@ -132,9 +147,20 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 	case *v1.Service:
 		dc.handleAddService(o)
 		kind = "Service"
+	case *appsv1.StatefulSet:
+		dps = datapointsForStatefulSet(o)
+		dimProps = dimPropsForStatefulSet(o)
+		kind = "StatefulSet"
 	case *quota.ClusterResourceQuota:
 		dps = datapointsForClusterQuotas(o)
 		kind = "ClusterResourceQuota"
+	case *batchv1.Job:
+		dps, dimProps = dc.handleAddJob(o)
+		kind = "Job"
+	case *batchv1beta1.CronJob:
+		dps = datapointsForCronJob(o)
+		dimProps = dimPropsForCronJob(o)
+		kind = "CronJob"
 	default:
 		log.WithFields(log.Fields{
 			"obj": spew.Sdump(newObj),
@@ -180,7 +206,7 @@ func (dc *DatapointCache) handleAddPod(pod *v1.Pod) ([]*datapoint.Datapoint,
 	cachedPod := dc.podCache.GetCachedPod(pod.UID)
 	dps := datapointsForPod(pod)
 	if cachedPod != nil {
-		dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache)
+		dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
 		return dps, dimProps
 	}
 	return dps, nil
@@ -196,7 +222,7 @@ func (dc *DatapointCache) handleAddService(svc *v1.Service) {
 			for _, podUID := range dc.podCache.GetPodsInNamespace(svc.Namespace) {
 				cachedPod := dc.podCache.GetCachedPod(podUID)
 				if cachedPod != nil {
-					dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache)
+					dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
 					if dimProps != nil {
 						dc.addDimPropsToCache(podUID, dimProps)
 					}
@@ -208,16 +234,21 @@ func (dc *DatapointCache) handleAddService(svc *v1.Service) {
 
 // handleDeleteService will remove a service from the internal cache
 // and remove the service tags on it's matching pods.
-func (dc *DatapointCache) handleDeleteService(svcUID types.UID) {
-	for _, podUID := range dc.serviceCache.DeleteByKey(svcUID) {
+func (dc *DatapointCache) handleDeleteService(svcUID types.UID) error {
+	cachedPods, err := dc.serviceCache.DeleteByKey(svcUID)
+	if err != nil {
+		return err
+	}
+	for _, podUID := range cachedPods {
 		cachedPod := dc.podCache.GetCachedPod(podUID)
 		if cachedPod != nil {
-			dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache)
+			dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
 			if dimProps != nil {
 				dc.addDimPropsToCache(podUID, dimProps)
 			}
 		}
 	}
+	return nil
 }
 
 // handleAddReplicaSet adds a replicaset to the internal cache and
@@ -228,7 +259,7 @@ func (dc *DatapointCache) handleAddReplicaSet(rs *v1beta1.ReplicaSet) ([]*datapo
 		for _, podUID := range dc.podCache.GetPodsInNamespace(rs.Namespace) {
 			cachedPod := dc.podCache.GetCachedPod(podUID)
 			if cachedPod != nil {
-				dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache)
+				dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
 				if dimProps != nil {
 					dc.addDimPropsToCache(podUID, dimProps)
 				}
@@ -238,6 +269,29 @@ func (dc *DatapointCache) handleAddReplicaSet(rs *v1beta1.ReplicaSet) ([]*datapo
 	dps := datapointsForReplicaSet(rs)
 	dimProps := dimPropsForReplicaSet(rs)
 	return dps, dimProps
+}
+
+// handleAddJob adds a job to the internal cache and returns the datapoints and dimProps
+// for the given job. Jobs should always be created before pods, but incase we receive
+// the job out of sync, we can still check if the pod came in before the job.
+// Potential optimization would be to not check this and always assume they come in order.
+func (dc *DatapointCache) handleAddJob(job *batchv1.Job) ([]*datapoint.Datapoint, *atypes.DimProperties) {
+	if !dc.jobCache.IsCached(job) {
+		dc.jobCache.AddJob(job)
+		for _, podUID := range dc.podCache.GetPodsInNamespace(job.Namespace) {
+			cachedPod := dc.podCache.GetCachedPod(podUID)
+			if cachedPod != nil {
+				dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
+				if dimProps != nil {
+					dc.addDimPropsToCache(podUID, dimProps)
+				}
+			}
+		}
+	}
+	dps := datapointsForJob(job)
+	dimProps := dimPropsForJob(job)
+	return dps, dimProps
+
 }
 
 // AllDatapoints returns all of the cached datapoints.

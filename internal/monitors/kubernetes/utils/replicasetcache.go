@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"errors"
+
 	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/types"
 )
@@ -75,15 +77,22 @@ func (rsc *ReplicaSetCache) AddReplicaSet(rs *v1beta1.ReplicaSet) {
 }
 
 // Delete removes a replicaset from the cache
-func (rsc *ReplicaSetCache) Delete(rs *v1beta1.ReplicaSet) {
-	rsc.DeleteByKey(rs.UID)
+func (rsc *ReplicaSetCache) Delete(rs *v1beta1.ReplicaSet) error {
+	return rsc.DeleteByKey(rs.UID)
 }
 
 // DeleteByKey removes a replicaset from the cache given a UID
-func (rsc *ReplicaSetCache) DeleteByKey(rsUID types.UID) {
-	namespace := rsc.cachedReplicaSets[rsUID].Namespace
-	delete(rsc.namespaceRsUIDCache[namespace], rsUID)
+func (rsc *ReplicaSetCache) DeleteByKey(rsUID types.UID) error {
+	cachedRs, exists := rsc.cachedReplicaSets[rsUID]
+	if !exists {
+		// This could happen if we receive a k8s event out of order
+		// For example, if a replicaSet is queued to be deleted as the agent starts up
+		// and we attempt to delete it before we see it exists from the list/watch
+		return errors.New("replicaset does not exist in internal cache")
+	}
+	delete(rsc.namespaceRsUIDCache[cachedRs.Namespace], rsUID)
 	delete(rsc.cachedReplicaSets, rsUID)
+	return nil
 }
 
 // GetMatchingDeployment finds a matching replicaset given

@@ -4,6 +4,8 @@ go 1.12
 
 replace github.com/creasty/defaults => github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 
+replace git.apache.org/thrift.git => github.com/apache/thrift v0.0.0-20180902110319-2566ecd5d999
+
 require (
 	cloud.google.com/go v0.35.1 // indirect
 	collectd.org v0.3.0 // indirect
@@ -149,7 +151,7 @@ require (
 	github.com/signalfx/gateway v1.0.8
 	github.com/signalfx/gohelpers v0.0.0-20151202220853-ac9f0e053f15 // indirect
 	github.com/signalfx/gohistogram v0.0.0-20160107210732-1ccfd2ff5083 // indirect
-	github.com/signalfx/golib v2.3.3+incompatible
+	github.com/signalfx/golib v2.4.3+incompatible
 	github.com/sirupsen/logrus v1.4.0
 	github.com/smartystreets/goconvey v0.0.0-20190306220146-200a235640ff // indirect
 	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect
@@ -179,7 +181,6 @@ require (
 	gopkg.in/go-playground/validator.v9 v9.28.0
 	gopkg.in/gorethink/gorethink.v4 v4.1.0 // indirect
 	gopkg.in/ini.v1 v1.42.0 // indirect
-	gopkg.in/logfmt.v0 v0.1.0 // indirect
 	gopkg.in/ory-am/dockertest.v2 v2.2.3 // indirect
 	gopkg.in/square/go-jose.v2 v2.3.0 // indirect
 	gopkg.in/yaml.v2 v2.2.2

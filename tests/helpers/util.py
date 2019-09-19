@@ -1,3 +1,4 @@
+import asyncio
 import io
 import os
 import random
@@ -15,7 +16,6 @@ from typing import Dict, List
 import docker
 import netifaces as ni
 import yaml
-
 from tests.helpers.assertions import regex_search_matches_output
 from tests.paths import SELFDESCRIBE_JSON, TEST_SERVICES_DIR
 
@@ -56,6 +56,21 @@ def wait_for(test, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
             return True
         if time.time() - start > timeout_seconds:
             return False
+        time.sleep(interval_seconds)
+
+
+def wait_for_value(func, timeout_seconds=DEFAULT_TIMEOUT, interval_seconds=0.2):
+    """
+    Waits for func to return a non-None value and returns that value.  If the
+    func is still returning None after the timeout, returns None to the caller.
+    """
+    start = time.time()
+    while True:
+        val = func()
+        if val is not None:
+            return val
+        if time.time() - start > timeout_seconds:
+            return None
         time.sleep(interval_seconds)
 
 
@@ -202,14 +217,38 @@ def run_service(service_name, buildargs=None, print_logs=True, path=None, docker
 
 
 def get_monitor_metrics_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
-    metrics = set()
+    metrics = {}
     with open(json_path, "r", encoding="utf-8") as fd:
         doc = yaml.safe_load(fd.read())
         for mon in doc["Monitors"]:
             if monitor == mon["monitorType"] and "metrics" in mon.keys() and mon["metrics"]:
-                metrics = set(mon["metrics"].keys())
+                metrics = mon["metrics"]
                 break
     return metrics
+
+
+def get_all_monitor_metrics_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
+    return set(get_monitor_metrics_from_selfdescribe(monitor, json_path).keys())
+
+
+def get_default_monitor_metrics_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
+    default_metrics = set()
+    all_metrics = get_monitor_metrics_from_selfdescribe(monitor, json_path)
+    for metric in all_metrics:
+        if all_metrics[metric]["default"]:
+            default_metrics.add(metric)
+
+    return default_metrics
+
+
+def get_custom_monitor_metrics_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
+    custom_metrics = set()
+    all_metrics = get_monitor_metrics_from_selfdescribe(monitor, json_path)
+    for metric in all_metrics:
+        if not all_metrics[metric]["default"]:
+            custom_metrics.add(metric)
+
+    return custom_metrics
 
 
 def get_monitor_dims_from_selfdescribe(monitor, json_path=SELFDESCRIBE_JSON):
@@ -339,3 +378,27 @@ def path_exists_in_container(container, path):
 def get_container_file_content(container, path):
     assert path_exists_in_container(container, path), "File %s does not exist!" % path
     return container.exec_run("cat %s" % path)[1].decode("utf-8")
+
+
+@contextmanager
+def run_simple_sanic_app(app):
+    app_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    app_sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    app_sock.bind(("127.0.0.1", 0))
+
+    port = app_sock.getsockname()[1]
+
+    loop = asyncio.new_event_loop()
+
+    async def start_server():
+        server = app.create_server(sock=app_sock, access_log=False)
+        loop.create_task(server)
+
+    loop.create_task(start_server())
+    threading.Thread(target=loop.run_forever).start()
+
+    try:
+        yield port
+    finally:
+        app_sock.close()
+        loop.stop()

@@ -1,6 +1,6 @@
 {
   "name": "signalfx-signalfx_agent",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "author": "SignalFx, Inc.",
   "summary": "This module installs the SignalFx SmartAgent via distro packages and configures it.",
   "license": "Apache-2.0",

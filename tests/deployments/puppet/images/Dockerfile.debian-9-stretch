@@ -3,8 +3,9 @@ FROM debian:stretch-slim
 RUN apt-get update &&\
     apt-get install -yq ca-certificates procps systemd wget libcap2-bin apt-transport-https
 
-RUN wget https://apt.puppetlabs.com/puppet-release-stretch.deb && \
-    dpkg -i puppet-release-stretch.deb && \
+ARG PUPPET_RELEASE=""
+RUN wget https://apt.puppetlabs.com/puppet${PUPPET_RELEASE}-release-stretch.deb && \
+    dpkg -i puppet${PUPPET_RELEASE}-release-stretch.deb && \
     apt-get update && \
     apt-get install -y puppet-agent
 
@@ -25,7 +26,7 @@ RUN rm -f /usr/lib/tmpfiles.d/tmp.conf;
 RUN systemctl set-default multi-user.target
 ENV init /lib/systemd/systemd
 
-COPY deployments/puppet /etc/puppetlabs/code/modules/signalfx_agent
+COPY deployments/puppet /etc/puppetlabs/code/environments/production/modules/signalfx_agent
 
 VOLUME [ "/sys/fs/cgroup" ]
 

@@ -35,8 +35,8 @@ operators are:
 | && | And |
 | \|\| | Or | 
 
-For all available operators, see [the govaluate
-documentation](https://github.com/Knetic/govaluate/blob/master/MANUAL.md). 
+For all available operators, see <a target="_blank" 
+href="https://github.com/Knetic/govaluate/blob/master/MANUAL.md">the govaluate documentation</a>.
 
 The variables available in the expression are dependent on which observer you
 are using.  The following three variables are common to all observers:
@@ -118,7 +118,7 @@ For example (making use of YAML references to reduce repetition):
     password: s3cr3t
     host: es
     port: 9200
-
+  
   - <<: *es
     host: es2
     port: 9300

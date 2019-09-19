@@ -1,3 +1,5 @@
+This doc is deprecated. Please use [SignalFx Agent Quick Install](./quick-install.md)
+
 # Smart Agent Quick Start
 
 - [Deploy Directly on Host](#deploy-directly-on-host)

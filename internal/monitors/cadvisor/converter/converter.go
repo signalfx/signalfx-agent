@@ -177,6 +177,14 @@ func getContainerMetrics() []containerMetric {
 			},
 		},
 		{
+			name:      "container_memory_rss",
+			help:      "RSS memory used by the container",
+			valueType: datapoint.Gauge,
+			getValues: func(s *info.ContainerStats) metricValues {
+				return metricValues{{value: datapoint.NewIntValue(int64(s.Memory.RSS))}}
+			},
+		},
+		{
 			name:      "container_memory_failcnt",
 			help:      "Number of memory usage hits limits",
 			valueType: datapoint.Counter,

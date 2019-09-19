@@ -93,6 +93,10 @@ else
 		./cmd/agent
 endif
 
+.PHONY: set-caps
+set-caps:
+	sudo setcap CAP_SYS_PTRACE,CAP_DAC_READ_SEARCH=+eip ./signalfx-agent
+
 .PHONY: bundle
 bundle:
 ifeq ($(OS),Windows_NT)

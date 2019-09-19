@@ -61,6 +61,23 @@ monitors:
      metric_source: prometheus
 ```
 
+## Authentication
+For basic HTTP authentication use the `username` and `password` options.
+
+On Kubernetes if the monitored service requires authentication use the `useServiceAccount`
+option to use the service account of the agent when connecting. Make sure that the
+SignalFx Agent service account has sufficient permissions for the monitored service.
+
+## Troubleshooting
+* Log contains the error `net/http: HTTP/1.x transport connection broken: malformed HTTP response`
+
+    **Solution**: enable HTTPS with `useHTTPS`.
+
+* Log contains the error `forbidden: User \"system:anonymous\" cannot get path \"/metrics\"`
+
+    **Solution**: enable `useServiceAccount` and make sure the service account SignalFx agent
+    is running with has the necessary permissions.
+
 
 ## Configuration
 
@@ -85,6 +102,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `password` | no | `string` | Basic Auth password to use on each request, if any. |
 | `useHTTPS` | no | `bool` | If true, the agent will connect to the exporter using HTTPS instead of plain HTTP. (**default:** `false`) |
 | `skipVerify` | no | `bool` | If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified. (**default:** `false`) |
+| `useServiceAccount` | no | `bool` | Use pod service account to authenticate. (**default:** `false`) |
 | `metricPath` | no | `string` | Path to the metrics endpoint on the exporter server, usually `/metrics` (the default). (**default:** `/metrics`) |
 | `sendAllMetrics` | no | `bool` | Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors. (**default:** `false`) |
 

@@ -1,8 +1,8 @@
 package log
 
 import (
+	"github.com/go-logfmt/logfmt"
 	"github.com/signalfx/golib/errors"
-	"gopkg.in/logfmt.v0"
 	"io"
 	"io/ioutil"
 )

@@ -7,6 +7,7 @@ import (
 	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/trace"
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/internal/core/writer/tracetracker"
 	"github.com/signalfx/signalfx-agent/internal/utils"
@@ -151,6 +152,8 @@ func (sw *SignalFxWriter) preprocessSpan(span *trace.Span) {
 		delete(span.Tags, dpmeta.NotHostSpecificMeta)
 	}
 
+	// adding smart agent version as a tag
+	span.Tags["signalfx.smartagent.version"] = constants.Version
 	if sw.conf.LogTraceSpans {
 		log.Debugf("Sending trace span:\n%s", spew.Sdump(span))
 	}

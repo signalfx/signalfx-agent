@@ -272,7 +272,7 @@ jobs:
             echo "export AGENT_BIN='$AGENT_BIN'" >> $BASH_ENV
             echo "export MARKERS='$MARKERS'" >> $BASH_ENV
       - run_pytest:
-          pytest_options: "-n4 -m \"$MARKERS\""
+          pytest_options: "-n auto -m \"$MARKERS\""
           with_sudo: true
 
   perf_tests:
@@ -340,7 +340,7 @@ jobs:
             docker tag quay.io/signalfx/signalfx-agent-dev:latest localhost:5000/signalfx-agent:latest
             docker push localhost:5000/signalfx-agent:latest
       - run_pytest:
-          pytest_options: "-n4 -m \"$MARKERS\""
+          pytest_options: "-n auto -m \"$MARKERS\""
 
   installer_tests:
     executor: machine_image
@@ -463,7 +463,7 @@ jobs:
                     rake spec
                 docker run --rm \
                     signalfx-agent-puppet-dev \
-                    puppet-lint .
+                    puppet-lint --fail-on-warnings .
                 if [ $CIRCLE_NODE_INDEX -eq 0 ]; then
                     echo "export TEST_MARKERS='puppet and rpm'" >> $BASH_ENV
                 else

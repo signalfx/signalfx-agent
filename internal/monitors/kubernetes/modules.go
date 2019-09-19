@@ -5,5 +5,6 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/apiserver"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/cluster"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/events"
+	_ "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/scheduler"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/volumes"
 )

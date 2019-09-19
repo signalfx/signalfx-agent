@@ -125,7 +125,7 @@
       },
       {
         "yamlName": "datapointsToExclude",
-        "doc": "A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](https://github.com/signalfx/signalfx-agent/tree/master/docs/filtering.md#monitor-level-filtering) for examples and more information.",
+        "doc": "A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](./filtering.md#additional-monitor-level-filtering) for examples and more information.",
         "default": "",
         "required": false,
         "type": "slice",
@@ -951,6 +951,7 @@
             "container_last_seen",
             "container_memory_failcnt",
             "container_memory_failures_total",
+            "container_memory_rss",
             "container_memory_usage_bytes",
             "container_memory_working_set_bytes",
             "container_spec_cpu_period",
@@ -1125,6 +1126,12 @@
           "group": null,
           "default": true
         },
+        "container_memory_rss": {
+          "type": "gauge",
+          "description": "Current RSS memory usage in bytes",
+          "group": null,
+          "default": false
+        },
         "container_memory_usage_bytes": {
           "type": "gauge",
           "description": "Current memory usage in bytes",
@@ -1270,7 +1277,7 @@
       "monitorType": "collectd/activemq",
       "sendAll": false,
       "dimensions": null,
-      "doc": "SignalFx's integration with ActiveMQ wraps the [Collectd GenericJMX\nmonitor](https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-genericjmx.html)\nto monitor ActiveMQ.\n\nUse this monitor to gather the following types of information from ActiveMQ:\n\n* Broker (Totals per broker)\n* Queue (Queue status)\n* Topic (Topic status)\n\nTo monitor the age of messages inside ActiveMQ queues, see [ActiveMQ\nmessage age listener](https://github.com/signalfx/integrations/tree/master/amq-message-age)[](sfx_link:amq-message-age).\n\n\u003c!--- SETUP ---\u003e\n## Example config\n\n```yaml\nmonitors:\n - type: collectd/activemq\n   host: localhost\n   # This is the remote JMX port for ActiveMQ\n   port: 1099\n```\n",
+      "doc": "SignalFx's integration with ActiveMQ wraps the [Collectd GenericJMX\nmonitor](https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-genericjmx.html)\nto monitor ActiveMQ.\n\nUse this monitor to gather the following types of information from ActiveMQ:\n\n* Broker (Totals per broker)\n* Queue (Queue status)\n* Topic (Topic status)\n\nTo monitor the age of messages inside ActiveMQ queues, see [ActiveMQ\nmessage age listener](https://docs.signalfx.com/en/latest/integrations/integrations-reference/integrations.activemq.message.age.listener.html)[](sfx_link:amq-message-age).\n\n\u003c!--- SETUP ---\u003e\n## Example config\n\n```yaml\nmonitors:\n - type: collectd/activemq\n   host: localhost\n   # This is the remote JMX port for ActiveMQ\n   port: 1099\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -3883,7 +3890,7 @@
             "yamlName": "mountPoints",
             "doc": "The mount paths to include/exclude, is interpreted as a regex if surrounded by `/`.  Note that you need to include the full path as the agent will see it, irrespective of the hostFSPath option.",
             "default": [
-              "/^/var/lib/docker/containers/",
+              "/^/var/lib/docker/",
               "/^/var/lib/rkt/pods/",
               "/^/net//",
               "/^/smb//"
@@ -4276,7 +4283,7 @@
       "monitorType": "collectd/elasticsearch",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors ElasticSearch instances. We strongly recommend using the\n[elasticsearch](./elasticsearch.md) monitor instead, as it will\nscale much better.\n\nSee https://github.com/signalfx/collectd-elasticsearch and\nhttps://github.com/signalfx/integrations/tree/master/elasticsearch\n",
+      "doc": "Monitors ElasticSearch instances. We strongly recommend using the\n[elasticsearch](./elasticsearch.md) monitor instead, as it will\nscale much better.\n\nYou can also [view the source of the Python\nplugin](https://github.com/signalfx/collectd-elasticsearch).\n",
       "groups": {
         "": {
           "description": "",
@@ -5955,7 +5962,7 @@
       "monitorType": "collectd/genericjmx",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors Java services that expose metrics on JMX using collectd's\nGenericJMX plugin. The GenericJMX plugin reads Managed Beans (MBeans) from\nan MBeanServer using JMX. The monitor uses an embedded Java runtime in\ncollectd via the [Java\nplugin](https://github.com/signalfx/integrations/tree/master/collectd-java)\nof collectd.\n\nThe Java Management Extensions (JMX) is a generic framework to provide and\nquery various management information. The interface is used by the Java\nVirtual Machine (JVM) to provide information about the memory used, threads\nand so on. These basic performance values can therefore be collected for\nevery Java process without any support in the Java process itself.\n\nAdvanced Java processes can use the JMX interface to provide performance\ninformation themselves. The Apache Tomcat application server, for example,\nprovides information on the number of requests processed, the number of\nbytes sent, processing time, and thread counts.\n\nSee the following for more information\n- https://collectd.org/documentation/manpages/collectd-java.5.shtml\n- https://collectd.org/wiki/index.php/Plugin:GenericJMX\n\n\u003c!--- SETUP ---\u003e\n### Config Example\nExample (gets the thread count from a standard JMX MBean available on all\nJava JMX-enabled apps):\n\n```yaml\n\nmonitors:\n - type: collectd/genericjmx\n   host: my-java-app\n   port: 7099\n   mBeanDefinitions:\n     threading:\n       objectName: java.lang:type=Threading\n       values:\n       - type: gauge\n         table: false\n         instancePrefix: jvm.threads.count\n         attribute: ThreadCount\n```\n\n\u003c!--- SETUP ---\u003e\n## Troubleshooting\n\nExposing JMX in your Java application can be a tricky process.  Oracle has a\n[helpful guide for Java\n8](https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html)\nthat explains how to expose JMX metrics automatically by setting Java\nproperties on your application.  Here are a set of Java properties that are\nknown to work with Java 7+:\n\n```\njava \\\n  -Dcom.sun.management.jmxremote.port=5000 \\\n  -Dcom.sun.management.jmxremote.authenticate=false \\\n  -Dcom.sun.management.jmxremote.ssl=false \\\n  -Dcom.sun.management.jmxremote.rmi.port=5000 \\\n  ...\n```\n\nThis should work as long as the agent is allowed to access port 5000 on the\nJava app's host (i.e. there is no firewall blocking it).  Note that this\ndoes not enable authentication or encryption, but these can be added if\ndesired.\n\nAssuming you have the `host` config set to `172.17.0.3` and the port set to\n`5000` (this is a totally arbitrary port and your JMX app will probably be\nsomething different), here are some errors you might receive and their\nmeanings:\n\n### Connection Refused\n```\nCreating MBean server connection failed: java.io.IOException: Failed to retrieve RMIServer stub: javax.naming.ServiceUnavailableException [Root exception is java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection refused (Connection refused)]\n```\n\nThis error indicates that the JMX connect port is not open on the specified\nhost.  Confirm (via netstat/ss or some other tool) that this port\nis indeed open on the configured host, and is listening on an appropriate\naddress (i.e. if the agent is running on a remote server then JMX should not\nbe listening on localhost only).\n\n### RMI Connection Issues\n\n```\nCreating MBean server connection failed: java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection timed out (Connection timed out)\n```\n\nThis indicates that the JMX connect port was reached successfully, but the\nRMI port that it was directed to is being blocked, probably by a firewall.\nThe easiest thing to do here is to make sure the\n`com.sun.management.jmxremote.rmi.port` property in your Java app is set to\nthe same port as the JMX connect port.  There may be other variations of\nthis that say `Connection reset` or `Connection refused` but they all\ngeneraly indicate a similar cause.\n\n## Useful links\n\n - https://realjenius.com/2012/11/21/java7-jmx-tunneling-freedom/\n",
+      "doc": "Monitors Java services that expose metrics on JMX using collectd's\nGenericJMX plugin. The GenericJMX plugin reads Managed Beans (MBeans) from\nan MBeanServer using JMX. The monitor uses an embedded Java runtime in\ncollectd via the [Java\nplugin](https://collectd.org/wiki/index.php/Plugin:Java) of collectd.\n\nThe Java Management Extensions (JMX) is a generic framework to provide and\nquery various management information. The interface is used by the Java\nVirtual Machine (JVM) to provide information about the memory used, threads\nand so on. These basic performance values can therefore be collected for\nevery Java process without any support in the Java process itself.\n\nAdvanced Java processes can use the JMX interface to provide performance\ninformation themselves. The Apache Tomcat application server, for example,\nprovides information on the number of requests processed, the number of\nbytes sent, processing time, and thread counts.\n\nSee the following for more information\n- https://collectd.org/documentation/manpages/collectd-java.5.shtml\n- https://collectd.org/wiki/index.php/Plugin:GenericJMX\n\n\u003c!--- SETUP ---\u003e\n### Config Example\nExample (gets the thread count from a standard JMX MBean available on all\nJava JMX-enabled apps):\n\n```yaml\n\nmonitors:\n - type: collectd/genericjmx\n   host: my-java-app\n   port: 7099\n   mBeanDefinitions:\n     threading:\n       objectName: java.lang:type=Threading\n       values:\n       - type: gauge\n         table: false\n         instancePrefix: jvm.threads.count\n         attribute: ThreadCount\n```\n\n\u003c!--- SETUP ---\u003e\n## Troubleshooting\n\nExposing JMX in your Java application can be a tricky process.  Oracle has a\n[helpful guide for Java\n8](https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html)\nthat explains how to expose JMX metrics automatically by setting Java\nproperties on your application.  Here are a set of Java properties that are\nknown to work with Java 7+:\n\n```\njava \\\n  -Dcom.sun.management.jmxremote.port=5000 \\\n  -Dcom.sun.management.jmxremote.authenticate=false \\\n  -Dcom.sun.management.jmxremote.ssl=false \\\n  -Dcom.sun.management.jmxremote.rmi.port=5000 \\\n  ...\n```\n\nThis should work as long as the agent is allowed to access port 5000 on the\nJava app's host (i.e. there is no firewall blocking it).  Note that this\ndoes not enable authentication or encryption, but these can be added if\ndesired.\n\nAssuming you have the `host` config set to `172.17.0.3` and the port set to\n`5000` (this is a totally arbitrary port and your JMX app will probably be\nsomething different), here are some errors you might receive and their\nmeanings:\n\n### Connection Refused\n```\nCreating MBean server connection failed: java.io.IOException: Failed to retrieve RMIServer stub: javax.naming.ServiceUnavailableException [Root exception is java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection refused (Connection refused)]\n```\n\nThis error indicates that the JMX connect port is not open on the specified\nhost.  Confirm (via netstat/ss or some other tool) that this port\nis indeed open on the configured host, and is listening on an appropriate\naddress (i.e. if the agent is running on a remote server then JMX should not\nbe listening on localhost only).\n\n### RMI Connection Issues\n\n```\nCreating MBean server connection failed: java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection timed out (Connection timed out)\n```\n\nThis indicates that the JMX connect port was reached successfully, but the\nRMI port that it was directed to is being blocked, probably by a firewall.\nThe easiest thing to do here is to make sure the\n`com.sun.management.jmxremote.rmi.port` property in your Java app is set to\nthe same port as the JMX connect port.  There may be other variations of\nthis that say `Connection reset` or `Connection refused` but they all\ngeneraly indicate a similar cause.\n\n## Useful links\n\n - https://realjenius.com/2012/11/21/java7-jmx-tunneling-freedom/\n",
       "groups": {
         "jvm": {
           "description": "",
@@ -8156,7 +8163,7 @@
       "monitorType": "collectd/haproxy",
       "sendAll": false,
       "dimensions": null,
-      "doc": "This monitors an [HAProxy](http://www.haproxy.org/) instance.  Requires HAProxy 1.5+.\n\n\u003c!--- SETUP ---\u003e\n### Socket Config\nThe location of the HAProxy socket file is defined in the HAProxy config file, as in the following example:\n\n```\nglobal\n    daemon\n    stats socket /var/run/haproxy.sock\n    stats timeout 2m\n```\n\nNote: it is possible to use a tcp socket for stats in HAProxy. Users will\nfirst need to define in their collectd-haproxy plugin config file the tcp\naddress for the socket, for example `localhost:9000`, and then in the\nhaproxy.cfg file change the stats socket to listen on the same address\n```\nglobal\n    daemon\n    stats socket localhost:9000\n    stats timeout 2m\n```\n\nFor a more restricted tcp socket, a backend server can be defined to listen\nto stats on localhost. A frontend proxy can use the backend server on a\ndifferent port, with ACLs to restrict access. See below for example.\n\n```\nglobal\n    daemon\n    stats socket localhost:9000\n    stats timeout 2m\n\nbackend stats-backend\n    mode tcp\n    server stats-localhost localhost:9000\n\nfrontend stats-frontend\n    bind *:9001\n    default_backend stats-backend\n    acl ...\n    acl ...\n```\n\n\u003c!--- SETUP ---\u003e\n### SELinux Setup\n\nIf you have SELinux enabled, create a SELinux policy package downloading\nthe [type enforcement\nfile](https://github.com/signalfx/collectd-haproxy/blob/master/selinux/collectd-haproxy.te)\nto some place on your server.  Run the commands below to create and install\nthe policy package.\n\n    $ checkmodule -M -m -o collectd-haproxy.mod collectd-haproxy.te\n    checkmodule:  loading policy configuration from collectd-haproxy.te\n    checkmodule:  policy configuration loaded\n    checkmodule:  writing binary representation (version 17) to collectd-haproxy.mod\n    $ semodule_package -o collectd-haproxy.pp -m collectd-haproxy.mod\n    $ sudo semodule -i collectd-haproxy.pp\n    $ sudo reboot\n",
+      "doc": "This monitors an [HAProxy](http://www.haproxy.org/) instance.  Requires HAProxy 1.5+.\n\n\u003c!--- SETUP ---\u003e\n### Socket Config\nThe location of the HAProxy socket file is defined in the HAProxy config file, as in the following example:\n\n```\nglobal\n    daemon\n    stats socket /var/run/haproxy.sock\n    stats timeout 2m\n```\n\nNote: it is possible to use a tcp socket for stats in HAProxy. Users will\nfirst need to define in their collectd-haproxy plugin config file the tcp\naddress for the socket, for example `localhost:9000`, and then in the\nhaproxy.cfg file change the stats socket to listen on the same address\n```\nglobal\n    daemon\n    stats socket localhost:9000\n    stats timeout 2m\n```\n\nFor a more restricted tcp socket, a backend server can be defined to listen\nto stats on localhost. A frontend proxy can use the backend server on a\ndifferent port, with ACLs to restrict access. See below for example.\nDepending on how restrictive your socket is, you may need to add the\nsignalfx-agent user to the haproxy group:\n`sudo usermod -a -G haproxy signalfx-agent`\n\n```\nglobal\n    daemon\n    stats socket localhost:9000\n    stats timeout 2m\n\nbackend stats-backend\n    mode tcp\n    server stats-localhost localhost:9000\n\nfrontend stats-frontend\n    bind *:9001\n    default_backend stats-backend\n    acl ...\n    acl ...\n```\n\n\u003c!--- SETUP ---\u003e\n### SELinux Setup\n\nIf you have SELinux enabled, create a SELinux policy package downloading\nthe [type enforcement\nfile](https://github.com/signalfx/collectd-haproxy/blob/master/selinux/collectd-haproxy.te)\nto some place on your server.  Run the commands below to create and install\nthe policy package.\n\n    $ checkmodule -M -m -o collectd-haproxy.mod collectd-haproxy.te\n    checkmodule:  loading policy configuration from collectd-haproxy.te\n    checkmodule:  policy configuration loaded\n    checkmodule:  writing binary representation (version 17) to collectd-haproxy.mod\n    $ semodule_package -o collectd-haproxy.pp -m collectd-haproxy.mod\n    $ sudo semodule -i collectd-haproxy.pp\n    $ sudo reboot\n",
       "groups": {
         "": {
           "description": "",
@@ -8854,7 +8861,7 @@
       "monitorType": "collectd/interface",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Collectd stats about network interfaces on the\nsystem by using the [collectd interface\nplugin](https://collectd.org/wiki/index.php/Plugin:Interface).\n\nSee the [integrations\ndoc](https://github.com/signalfx/integrations/tree/master/collectd-interface)\nfor more information.\n",
+      "doc": "Collectd stats about network interfaces on the\nsystem by using the [collectd interface\nplugin](https://collectd.org/wiki/index.php/Plugin:Interface).\n",
       "groups": {
         "": {
           "description": "",
@@ -9950,7 +9957,7 @@
       "monitorType": "collectd/kafka_producer",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors a Java based Kafka producer using GenericJMX.\n\nSee the [integration documentation](https://github.com/signalfx/integrations/tree/master/collectd-kafka)\nfor more information.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaproducer/mbeans.go)\nfor which it pulls metrics from the Kafka producer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_producer\n    host: localhost\n    port: 8099\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new producer API.\n",
+      "doc": "Monitors a Java based Kafka producer using GenericJMX.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaproducer/mbeans.go)\nfor which it pulls metrics from the Kafka producer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_producer\n    host: localhost\n    port: 8099\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new producer API.\n",
       "groups": {
         "": {
           "description": "",
@@ -10793,7 +10800,7 @@
       "monitorType": "collectd/marathon",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors a Mesos Marathon instance using the\n[collectd Marathon Python plugin](https://github.com/signalfx/collectd-marathon).\n\nSee the [integrations\ndoc](https://github.com/signalfx/integrations/tree/master/collectd-marathon)\nfor more information on configuration.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n  - type: collectd/marathon\n    host: 127.0.0.1\n    port: 8080\n    scheme: http\n```\n\nSample YAML configuration for DC/OS:\n\n```yaml\nmonitors:\n  - type: collectd/marathon\n    host: 127.0.0.1\n    port: 8080\n    scheme: https\n    dcosAuthURL: https://leader.mesos/acs/api/v1/auth/login\n```\n",
+      "doc": "Monitors a Mesos Marathon instance using the\n[collectd Marathon Python plugin](https://github.com/signalfx/collectd-marathon).\n\nSee the [integrations\ndoc](https://docs.signalfx.com/en/latest/integrations/integrations-reference/integrations.marathon.html)\nfor more information on configuration.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n  - type: collectd/marathon\n    host: 127.0.0.1\n    port: 8080\n    scheme: http\n```\n\nSample YAML configuration for DC/OS:\n\n```yaml\nmonitors:\n  - type: collectd/marathon\n    host: 127.0.0.1\n    port: 8080\n    scheme: https\n    dcosAuthURL: https://leader.mesos/acs/api/v1/auth/login\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -14548,7 +14555,7 @@
       "monitorType": "collectd/protocols",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Gathers metrics about the network protocol\nstacks running on the system by using the [collectd protocols\nplugin](https://collectd.org/wiki/index.php/Plugin:Protocols).\n\nSee the [integrations\ndoc](https://github.com/signalfx/integrations/tree/master/collectd-protocols)\nfor more information.\n",
+      "doc": "Gathers metrics about the network protocol\nstacks running on the system by using the [collectd protocols\nplugin](https://collectd.org/wiki/index.php/Plugin:Protocols).\n",
       "groups": {
         "": {
           "description": "",
@@ -15977,7 +15984,7 @@
       "monitorType": "collectd/signalfx-metadata",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Collectd Python plugin that aggregates\nvarious metrics from other collectd plugins.  It also sends host metadata to\nSignalFx through specially formatted events, and sends active process\n(\"top\") lists on a periodic basis.\n\nSee [Python plugin code](https://github.com/signalfx/collectd-signalfx/) and\n[Integrations docs](https://github.com/signalfx/integrations/tree/master/signalfx-metadata).\n",
+      "doc": "Collectd Python plugin that aggregates\nvarious metrics from other collectd plugins.  It also sends host metadata to\nSignalFx through specially formatted events, and sends active process\n(\"top\") lists on a periodic basis.\n\nYou can also [view the Python plugin\ncode](https://github.com/signalfx/collectd-signalfx/).\n",
       "groups": {
         "": {
           "description": "",
@@ -19830,7 +19837,7 @@
           "description": "Name of thread pool (only on thread pool mertics)"
         }
       },
-      "doc": "This monitor collects stats from Elasticsearch. It collects node, cluster\nand index level stats. This monitor is compatible with the current collectd\nplugin found [here] (https://github.com/signalfx/collectd-elasticsearch) in\nterms of metric naming.\n\nThis monitor collects cluster level and index level stats only from the current master\nin an Elasticsearch cluster by default. It is possible to override this with the\n`clusterHealthStatsMasterOnly` and `indexStatsMasterOnly` config options respectively.\n\nA simple configuration that collects only default (non-custom) metrics\nlooks like the following:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n```\n\n## Enhanced (custom) metrics\n\nThe monitor collects a subset of node stats of JVM, process, HTTP,\ntransport, indices and thread pool stats. It is possible to enable\nenhanced stats for each stat group separately.  Note that these metrics\nget categorized under the _custom_ group if you are on host-based\npricing. Here's an example:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n  enableEnhancedHTTPStats: true\n  enableEnhancedJVMStats: true\n  enableEnhancedProcessStats: true\n  enableEnhancedThreadPoolStats: true\n  enableEnhancedTransportStats: true\n  enableEnhancedNodeIndicesStats:\n   - indexing\n   - warmer\n   - get\n\n```\n\nThe `enableEnhancedNodeIndicesStats` option takes a list of index stats groups\nfor which enhanced stats will be collected. A comprehensive list of all\nsuch available groups can be found [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-stats.html#node-indices-stats).\n\nNote that the `enableEnhancedIndexStatsForIndexGroups` is similar to\n`enableEnhancedNodeIndicesStats`, but for index level stats.\n\n## Thread Pools\n\nBy default thread pool stats from the \"search\" and \"index\" thread pools are collected. To collect\nstats from other thread pools specify the `threadPools` config option:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n  threadPools:\n  - bulk\n  - warmer\n  - listener\n```\n\nHere is a list of valid thread pools by Elasticsearch version:\n\n| thread pool name | ES 1.x | ES 2.0 | ES 2.1+ |\n|------------------|--------|--------|--------|\n| merge            | \u0026#x2713;      |        |        |\n| optimize         |\u0026#x2713;     |        |        |\n| bulk             |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| flush            |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| generic          |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| get              |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| snapshot         |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| warmer           |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| refresh          |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| fetch\\_shard\\_started|      |\u0026#x2713;     |\u0026#x2713;     |\n| fetch\\_shard\\_store|        |\u0026#x2713;     |\u0026#x2713;     |\n| listener         |        |\u0026#x2713;     |\u0026#x2713;     |\n| management       |        |\u0026#x2713;     |\u0026#x2713;     |\n| percolate        |        |\u0026#x2713;     |\u0026#x2713;     |\n| suggest          |        |\u0026#x2713;     |\u0026#x2713;     |\n| force\\_merge      |        |        |\u0026#x2713;     |\n\n\n## Collecting index statistics\n\nBy default, the configuration parameter `indexes` is empty, which means\ncollect stats on all indexes. To collect statistics from a subset of\nindexes, set the configuration parameter `indexes` to a list of the index\nnames you want to collect stats for.\n\nThe call to collect index statistics can be CPU-intensive. For this reason\nSignalFx recommends using the `indexStatsIntervalSeconds` configuration\nparameter to decrease the reporting interval for nodes that report index\nstatistics.\n\n### Primaries vs total\nBy default the monitor collects a subset of index stats of total aggregation\ntype (see docs for details). It is possible to enable index stats of primaries\naggregation type too. Total for an index stat aggregates across all shards.\nWhereas, Primaries only reflect the stats from primary shards. An example\nconfiguration to enable index stats from Primary shards too:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n  enableIndexStatsPrimaries: true\n```\n\n## Built-in content\n\nFor more information on the built-in content we have for Elasticsearch,\n[see\nhere](https://github.com/signalfx/integrations/tree/master/elasticsearch).\n",
+      "doc": "This monitor collects stats from Elasticsearch. It collects node, cluster\nand index level stats. This monitor is compatible with the current collectd\nplugin found [here] (https://github.com/signalfx/collectd-elasticsearch) in\nterms of metric naming.\n\nThis monitor collects cluster level and index level stats only from the current master\nin an Elasticsearch cluster by default. It is possible to override this with the\n`clusterHealthStatsMasterOnly` and `indexStatsMasterOnly` config options respectively.\n\nA simple configuration that collects only default (non-custom) metrics\nlooks like the following:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n```\n\n## Enhanced (custom) metrics\n\nThe monitor collects a subset of node stats of JVM, process, HTTP,\ntransport, indices and thread pool stats. It is possible to enable\nenhanced stats for each stat group separately.  Note that these metrics\nget categorized under the _custom_ group if you are on host-based\npricing. Here's an example:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n  enableEnhancedHTTPStats: true\n  enableEnhancedJVMStats: true\n  enableEnhancedProcessStats: true\n  enableEnhancedThreadPoolStats: true\n  enableEnhancedTransportStats: true\n  enableEnhancedNodeIndicesStats:\n   - indexing\n   - warmer\n   - get\n\n```\n\nThe `enableEnhancedNodeIndicesStats` option takes a list of index stats groups\nfor which enhanced stats will be collected. A comprehensive list of all\nsuch available groups can be found [here](https://www.elastic.co/guide/en/elasticsearch/reference/current/cluster-nodes-stats.html#node-indices-stats).\n\nNote that the `enableEnhancedIndexStatsForIndexGroups` is similar to\n`enableEnhancedNodeIndicesStats`, but for index level stats.\n\n## Thread Pools\n\nBy default thread pool stats from the \"search\" and \"index\" thread pools are collected. To collect\nstats from other thread pools specify the `threadPools` config option:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n  threadPools:\n  - bulk\n  - warmer\n  - listener\n```\n\nHere is a list of valid thread pools by Elasticsearch version:\n\n| thread pool name | ES 1.x | ES 2.0 | ES 2.1+ |\n|------------------|--------|--------|--------|\n| merge            | \u0026#x2713;      |        |        |\n| optimize         |\u0026#x2713;     |        |        |\n| bulk             |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| flush            |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| generic          |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| get              |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| snapshot         |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| warmer           |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| refresh          |\u0026#x2713;     |\u0026#x2713;     |\u0026#x2713;     |\n| fetch\\_shard\\_started|      |\u0026#x2713;     |\u0026#x2713;     |\n| fetch\\_shard\\_store|        |\u0026#x2713;     |\u0026#x2713;     |\n| listener         |        |\u0026#x2713;     |\u0026#x2713;     |\n| management       |        |\u0026#x2713;     |\u0026#x2713;     |\n| percolate        |        |\u0026#x2713;     |\u0026#x2713;     |\n| suggest          |        |\u0026#x2713;     |\u0026#x2713;     |\n| force\\_merge      |        |        |\u0026#x2713;     |\n\n\n## Collecting index statistics\n\nBy default, the configuration parameter `indexes` is empty, which means\ncollect stats on all indexes. To collect statistics from a subset of\nindexes, set the configuration parameter `indexes` to a list of the index\nnames you want to collect stats for.\n\nThe call to collect index statistics can be CPU-intensive. For this reason\nSignalFx recommends using the `indexStatsIntervalSeconds` configuration\nparameter to decrease the reporting interval for nodes that report index\nstatistics.\n\n### Primaries vs total\nBy default the monitor collects a subset of index stats of total aggregation\ntype (see docs for details). It is possible to enable index stats of primaries\naggregation type too. Total for an index stat aggregates across all shards.\nWhereas, Primaries only reflect the stats from primary shards. An example\nconfiguration to enable index stats from Primary shards too:\n\n```yaml\nmonitors:\n- type: elasticsearch\n  host: localhost\n  port: 9200\n  enableIndexStatsPrimaries: true\n```\n",
       "groups": {
         "cluster": {
           "description": "",
@@ -21873,7 +21880,7 @@
       "monitorType": "gitlab",
       "sendAll": false,
       "dimensions": null,
-      "doc": "GitLab is an open-source web-based git repository manager developed by\nGitLab Inc. GitLab has built-in features for creating wiki pages,\nissue-tracking and CI/CD pipelines. GitLab is bundled with [Prometheus\nexporters](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html)\nthat can be configured to export performance metrics of itself and that of\nthe bundled software that GitLab depends on. These exporters publish\nPrometheus metrics at endpoints are scraped by this monitor.\n\n### REQUIREMENTS AND DEPENDENCIES\n\n| Software | Version |\n|----------|---------|\n| GitLab   | 9.3+    |\n\n### INSTALLATION\n\n### CONFIGURATION\n#### GitLab Configuration\n\nFollow the instructions\n[here](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html)\nto configure the GitLab's Prometheus exporters to expose metric endpoint\ntargets. For GitLab Runner monitoring configuration go\n[here](https://docs.gitlab.com/runner/monitoring/README.html).\n\nNote that configuring GitLab by editing `/etc/gitlab/gitlab.rb` should be\naccompanied by running the command `gitlab-ctl reconfigure` in order for\nthe changes to take effect.\n\nAlso, configuring Nginx by editing the file\n`/var/opt/gitlab/nginx/conf/nginx-status.conf`, for instance, should be\naccompanied by running command `gitlab-ctl restart`. Note that changes to\nthe configuration file `/var/opt/gitlab/nginx/conf/nginx-status.conf` in\nparticular are erased by subsequent runs of command `gitlab-ctl\nreconfigure` because `gitlab-ctl reconfigure` restores the original\nconfiguration file.\n\nBelow is a list of some of the Prometheus endpoint targets with links to\ntheir respective configuration pages. Note that target `gitlab_monitor`\nmetrics are just targets `gitlab_monitor_database`,\n`gitlab_monitor_process` and `gitlab_monitor_sidekiq` metrics combined.\n\n| Agent Monitor Type    |     Gitlab Doc                           | Standard Port | Standard Path |\n|-----------------------|------------------------------------------|---------------|---------------|\n| gitlab | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_monitor_exporter.html) | 9168 | /metrics |\n| [gitlab-gitaly](./gitlab-gitaly.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/gitaly/#doc-nav) | 9236 | /metrics |\n| [gitlab-sidekiq](./gitlab-sidekiq.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8082 | /metrics |\n| [gitlab-unicorn](./gitlab-unicorn.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_metrics.html#unicorn-metrics-available) | 8080 | /-/metrics |\n| [gitlab-workhorse](./gitlab-workhorse.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9229 | /metrics |\n| [prometheus/nginx-vts](./prometheus-nginx-vts.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8060 | /metrics |\n| [prometheus/node](./prometheus-node.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/node_exporter.html) | 9100 | /metrics |\n| [promteheus/postgres](./prometheus-postgres.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/postgres_exporter.html) | 9187 | /metrics |\n| [prometheus/prometheus](./prometheus-prometheus.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9090 | /metrics |\n| [prometheus/redis](./prometheus-redis.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/redis_exporter.html) | 9121 | /metrics |\n| [gitlab-runner](./gitlab-runner.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9252 | /metrics |\n\nGitLab Prometheus exporters, Nginx and GitLab Runner must be configured to\nlisten to IP address(es) that include the IP address of the host or docker\ncontainer of the SignalFx Smart Agent. For example, the configuration below\nin `/etc/gitlab/gitlab.rb` configures the GitLab Postgres Prometheus\nexporter to allow network connections on port `9187` from any IP address.\n\n```\npostgres_exporter['listen_address'] = '0.0.0.0:9187'\n```\n\nThe above configuration can also be written as:\n\n```\npostgres_exporter['listen_address'] = ':9187'\n```\n\nBelow is part of file `/var/opt/gitlab/nginx/conf/nginx-status.conf`\nshowing the `location /metrics` block for metric related configuration.\nThis file configures Nginx. The statement `allow 172.17.0.0/16;` allows\nnetwork connection in the `172.17.0.0/16` IP range. The assumption is that\nthe IP address associated with the SignalFx Smart Agent is in that IP\nrange.\n\n```\nserver {\n    ...\n    location /metrics {\n    ...\n    allow 172.17.0.0/16;\n    deny all;\n    }\n}\n```\n\nBelow is part of the global section of `/etc/gitlab-runner/config.toml`. This file configures GitLab Runner. The statement below configures GitLab Runner's Prometheus metrics HTTP server to allows network connection on port `9252` from any IP address.\n\n```\nlisten_address = \"0.0.0.0:9252\"\n...\n\n```\n\n#### Sample Config\n\nTo monitor everything we support in Gitlab, use the following configuration in the Smart Agent config:\n\n```\nmonitors:\n - type: gitlab-unicorn\n   host: localhost\n   port: 8080\n\n - type: gitlab\n   host: localhost\n   port: 9168\n\n - type: gitlab-runner\n   host: localhost\n   port: 9252\n\n - type: gitlab-workhorse\n   host: localhost\n   port: 9229\n\n - type: gitlab-sidekiq\n   host: localhost\n   port: 8082\n\n - type: gitlab-gitaly\n   host: localhost\n   port: 9236\n\n - type: prometheus/postgres\n   host: localhost\n   port: 9187\n\n - type: prometheus/nginx-vts\n   host: localhost\n   port: 8060\n\n```\n\nYou can, of course, use auto-discovery by specifying a `discoveryRule` instead of `host` and `port`.\n",
+      "doc": "GitLab is an open-source web-based git repository manager developed by\nGitLab Inc. GitLab has built-in features for creating wiki pages,\nissue-tracking and CI/CD pipelines. GitLab is bundled with [Prometheus\nexporters](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html)\nthat can be configured to export performance metrics of itself and that of\nthe bundled software that GitLab depends on. These exporters publish\nPrometheus metrics at endpoints are scraped by this monitor.\n\n### REQUIREMENTS AND DEPENDENCIES\n\n| Software | Version |\n|----------|---------|\n| GitLab   | 9.3+    |\n\n### INSTALLATION\n\n### CONFIGURATION\n#### GitLab Configuration\n\nFollow the instructions\n[here](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html)\nto configure the GitLab's Prometheus exporters to expose metric endpoint\ntargets. For GitLab Runner monitoring configuration go\n[here](https://docs.gitlab.com/runner/monitoring/README.html).\n\nNote that configuring GitLab by editing `/etc/gitlab/gitlab.rb` should be\naccompanied by running the command `gitlab-ctl reconfigure` in order for\nthe changes to take effect.\n\nAlso, configuring Nginx by editing the file\n`/var/opt/gitlab/nginx/conf/nginx-status.conf`, for instance, should be\naccompanied by running command `gitlab-ctl restart`. Note that changes to\nthe configuration file `/var/opt/gitlab/nginx/conf/nginx-status.conf` in\nparticular are erased by subsequent runs of command `gitlab-ctl\nreconfigure` because `gitlab-ctl reconfigure` restores the original\nconfiguration file.\n\nBelow is a list of some of the Prometheus endpoint targets with links to\ntheir respective configuration pages. Note that target `gitlab_monitor`\nmetrics are just targets `gitlab_monitor_database`,\n`gitlab_monitor_process` and `gitlab_monitor_sidekiq` metrics combined.\n\n| Agent Monitor Type    |     Gitlab Doc                           | Standard Port | Standard Path |\n|-----------------------|------------------------------------------|---------------|---------------|\n| gitlab | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_exporter.html) | 9168 | /metrics |\n| [gitlab-gitaly](./gitlab-gitaly.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/gitaly/#doc-nav) | 9236 | /metrics |\n| [gitlab-sidekiq](./gitlab-sidekiq.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8082 | /metrics |\n| [gitlab-unicorn](./gitlab-unicorn.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_metrics.html#unicorn-metrics-available) | 8080 | /-/metrics |\n| [gitlab-workhorse](./gitlab-workhorse.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9229 | /metrics |\n| [prometheus/nginx-vts](./prometheus-nginx-vts.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8060 | /metrics |\n| [prometheus/node](./prometheus-node.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/node_exporter.html) | 9100 | /metrics |\n| [promteheus/postgres](./prometheus-postgres.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/postgres_exporter.html) | 9187 | /metrics |\n| [prometheus/prometheus](./prometheus-prometheus.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9090 | /metrics |\n| [prometheus/redis](./prometheus-redis.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/redis_exporter.html) | 9121 | /metrics |\n| [gitlab-runner](./gitlab-runner.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9252 | /metrics |\n\nGitLab Prometheus exporters, Nginx and GitLab Runner must be configured to\nlisten to IP address(es) that include the IP address of the host or docker\ncontainer of the SignalFx Smart Agent. For example, the configuration below\nin `/etc/gitlab/gitlab.rb` configures the GitLab Postgres Prometheus\nexporter to allow network connections on port `9187` from any IP address.\n\n```\npostgres_exporter['listen_address'] = '0.0.0.0:9187'\n```\n\nThe above configuration can also be written as:\n\n```\npostgres_exporter['listen_address'] = ':9187'\n```\n\nBelow is part of file `/var/opt/gitlab/nginx/conf/nginx-status.conf`\nshowing the `location /metrics` block for metric related configuration.\nThis file configures Nginx. The statement `allow 172.17.0.0/16;` allows\nnetwork connection in the `172.17.0.0/16` IP range. The assumption is that\nthe IP address associated with the SignalFx Smart Agent is in that IP\nrange.\n\n```\nserver {\n    ...\n    location /metrics {\n    ...\n    allow 172.17.0.0/16;\n    deny all;\n    }\n}\n```\n\nBelow is part of the global section of `/etc/gitlab-runner/config.toml`. This file configures GitLab Runner. The statement below configures GitLab Runner's Prometheus metrics HTTP server to allows network connection on port `9252` from any IP address.\n\n```\nlisten_address = \"0.0.0.0:9252\"\n...\n\n```\n\n#### Sample Config\n\nTo monitor everything we support in Gitlab, use the following configuration in the Smart Agent config:\n\n```\nmonitors:\n - type: gitlab-unicorn\n   host: localhost\n   port: 8080\n\n - type: gitlab\n   host: localhost\n   port: 9168\n\n - type: gitlab-runner\n   host: localhost\n   port: 9252\n\n - type: gitlab-workhorse\n   host: localhost\n   port: 9229\n\n - type: gitlab-sidekiq\n   host: localhost\n   port: 8082\n\n - type: gitlab-gitaly\n   host: localhost\n   port: 9236\n\n - type: prometheus/postgres\n   host: localhost\n   port: 9187\n\n - type: prometheus/nginx-vts\n   host: localhost\n   port: 8060\n\n```\n\nYou can, of course, use auto-discovery by specifying a `discoveryRule` instead of `host` and `port`.\n",
       "groups": {
         "": {
           "description": "",
@@ -22251,7 +22258,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -22297,6 +22304,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -22432,7 +22447,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -22478,6 +22493,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -22599,7 +22622,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -22645,6 +22668,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -22822,7 +22853,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -22868,6 +22899,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -23122,7 +23161,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -23168,6 +23207,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -23394,7 +23441,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/gitlab",
         "fields": [
           {
@@ -23446,6 +23493,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
             "yamlName": "metricPath",
             "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
             "default": "/metrics",
@@ -23460,6 +23515,624 @@
             "required": false,
             "type": "bool",
             "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
+      "monitorType": "haproxy",
+      "sendAll": false,
+      "dimensions": {
+        "process_id": {
+          "description": "A number assigned to an HAProxy process instance (1 for first instance, 2 for second, ...)."
+        },
+        "proxy_name": {
+          "description": "HAProxy configured proxy name. Possible values for listeners, frontends, backends, and servers."
+        },
+        "server_id": {
+          "description": "Server id (unique inside a proxy)"
+        },
+        "service_name": {
+          "description": "HAProxy configured service name. Possible values are FRONTEND for frontend, BACKEND for backend, configured name for server/listener."
+        },
+        "type": {
+          "description": "Proxy type id (0=frontend, 1=backend, 2=server, 3=socket/listener)."
+        },
+        "unique_proxy_id": {
+          "description": "A unique proxy id"
+        }
+      },
+      "doc": "This monitor scrapes [HAProxy](http://www.haproxy.org/) statistics (i.e. metrics) from a configured\nHTTP endpoint or UNIX socket. It requires HAProxy 1.8+ and supports scraping metrics for HAProxy running in\nmulti-process mode. In multi-process mode, HAProxy must be configured to enable stats on different URLs/socket\npaths for the processes and for each URL/path a monitor instance needs to be defined and configured.\n\n\u003c!--- SETUP ---\u003e\n### HTTP Endpoint Config\nHAProxy stats must be enabled as described [here](https://www.haproxy.com/blog/exploring-the-haproxy-stats-page/).\nDefine the HAProxy monitor in the agent configuration file and provide the `csv export` URL where HAProxy\nstats are served in CSV format. This monitor supports basic HTTP authentication. Simply provide the\nusername and password. In multi-process mode, declare and configure monitors for each stats HTTP endpoint. Below\nbelow is an example showing stats enable on 2 URLs.\n```\n...\nmonitors:\n  - type: haproxy\n    url: \"http://localhost:8404/stats?stats;csv\"\n    username: \"your username here\"\n    password: \"your password here\"\n  - type: haproxy\n    url: \"http://localhost:6000/stats?stats;csv\"\n...\n```\nNote: Only stats pertaining to the configured proxies (i.e. listeners, frontends, backends, and servers)\nare available from the HTTP url. HAProxy process level stats given by command [show info](https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.3-show%20info)\nare not available. The `show info` stats can only be scraped from a UNIX socket.\n\n### UNIX Socket Config\nThe location of the HAProxy socket file is defined in the HAProxy config file. For example:\n```\nglobal\n    daemon\n    stats socket /var/run/haproxy.sock\n    stats timeout 2m\n```\nFor the above location of the socket file, configure the monitor URL as shown below:\n```\n...\nmonitors:\n  - type: haproxy\n    url: \"unix:///var/run/haproxy.sock\"\n...\n```\nNote: The agent process needs read/write permissions to the HAProxy socket file.\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "haproxy_active_servers",
+            "haproxy_backup_servers",
+            "haproxy_bytes_in",
+            "haproxy_bytes_out",
+            "haproxy_check_duration",
+            "haproxy_client_aborts",
+            "haproxy_compress_bits_per_second_in",
+            "haproxy_compress_bits_per_second_out",
+            "haproxy_compress_bypass",
+            "haproxy_compress_in",
+            "haproxy_compress_out",
+            "haproxy_compress_responses",
+            "haproxy_connection_rate",
+            "haproxy_connection_rate_all",
+            "haproxy_connection_rate_max",
+            "haproxy_connection_total",
+            "haproxy_connections",
+            "haproxy_current_connections",
+            "haproxy_current_ssl_connections",
+            "haproxy_denied_request",
+            "haproxy_denied_response",
+            "haproxy_denied_tcp_connections",
+            "haproxy_denied_tcp_sessions",
+            "haproxy_downtime",
+            "haproxy_error_connections",
+            "haproxy_error_request",
+            "haproxy_error_response",
+            "haproxy_failed_checks",
+            "haproxy_idle_percent",
+            "haproxy_intercepted_requests",
+            "haproxy_last_session",
+            "haproxy_max_connection_rate",
+            "haproxy_max_connections",
+            "haproxy_max_pipes",
+            "haproxy_max_session_rate",
+            "haproxy_max_ssl_connections",
+            "haproxy_pipes_free",
+            "haproxy_pipes_used",
+            "haproxy_queue_current",
+            "haproxy_queue_limit",
+            "haproxy_queue_max",
+            "haproxy_queue_time_average",
+            "haproxy_redispatched",
+            "haproxy_request_rate",
+            "haproxy_request_rate_max",
+            "haproxy_request_total",
+            "haproxy_requests",
+            "haproxy_response_1xx",
+            "haproxy_response_2xx",
+            "haproxy_response_3xx",
+            "haproxy_response_4xx",
+            "haproxy_response_5xx",
+            "haproxy_response_other",
+            "haproxy_response_time_average",
+            "haproxy_retries",
+            "haproxy_run_queue",
+            "haproxy_server_aborts",
+            "haproxy_server_selected_total",
+            "haproxy_session_current",
+            "haproxy_session_rate",
+            "haproxy_session_rate_all",
+            "haproxy_session_rate_limit",
+            "haproxy_session_rate_max",
+            "haproxy_session_time_average",
+            "haproxy_session_total",
+            "haproxy_ssl_backend_key_rate",
+            "haproxy_ssl_cache_lookups",
+            "haproxy_ssl_cache_misses",
+            "haproxy_ssl_connections",
+            "haproxy_ssl_frontend_key_rate",
+            "haproxy_ssl_rate",
+            "haproxy_tasks",
+            "haproxy_throttle",
+            "haproxy_uptime_seconds",
+            "haproxy_zlib_memory_usage"
+          ]
+        }
+      },
+      "metrics": {
+        "haproxy_active_servers": {
+          "type": "gauge",
+          "description": "Number of active servers (backend), server is active (server). Values reported for backends and servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_backup_servers": {
+          "type": "gauge",
+          "description": "Number of backup servers (backend), server is backup (server). Values reported for backends and servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_bytes_in": {
+          "type": "cumulative",
+          "description": "Total number of incoming bytes. Values reported for listeners, frontends, backends, and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_bytes_out": {
+          "type": "cumulative",
+          "description": "Total number of outgoing bytes. Values reported for listeners, frontends, backends, and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_check_duration": {
+          "type": "gauge",
+          "description": "Time in ms took to finish last health check. Values reported for servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_client_aborts": {
+          "type": "cumulative",
+          "description": "Number of data transfers aborted by the client. Values reported for backends and servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_compress_bits_per_second_in": {
+          "type": "cumulative",
+          "description": "Corresponds to the HAProxy process `CompressBpsIn` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_compress_bits_per_second_out": {
+          "type": "cumulative",
+          "description": "Corresponds to the HAProxy process `CompressBpsOut` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_compress_bypass": {
+          "type": "cumulative",
+          "description": "Number of bytes that bypassed the HTTP compressor (CPU/BW limit). Values reported for frontends and backends.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_compress_in": {
+          "type": "cumulative",
+          "description": "Number of HTTP response bytes fed to the compressor. Values reported for frontends and backends.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_compress_out": {
+          "type": "cumulative",
+          "description": "Number of HTTP response bytes emitted by the compressor. Values reported for frontends and backends.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_compress_responses": {
+          "type": "cumulative",
+          "description": "Number of HTTP responses that were compressed. Values reported for frontends and backends.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_connection_rate": {
+          "type": "gauge",
+          "description": "Number of connections over the last elapsed second. Values reported for frontends.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_connection_rate_all": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `ConnRate` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_connection_rate_max": {
+          "type": "gauge",
+          "description": "Highest known conn_rate. Values reported for frontends.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_connection_total": {
+          "type": "cumulative",
+          "description": "Cumulative number of connections. Values reported for frontends.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_connections": {
+          "type": "cumulative",
+          "description": "Corresponds to the HAProxy process `CumConns` value given by the `show info` command issued over UNIX socket. Cumulative number of connections.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_current_connections": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `CurrConns` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_current_ssl_connections": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `CurrSslConns` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_denied_request": {
+          "type": "cumulative",
+          "description": "Number of requests denied because of security concerns. For tcp this is because of a matched tcp-request content rule. For http this is because of a matched http-request or tarpit rule. Values reported for listeners, frontends, and backends.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_denied_response": {
+          "type": "cumulative",
+          "description": "Number of responses denied because of security concerns. For http this is because of a matched http-request rule, or \"option checkcache\". Values reported for listeners, frontends, backends, and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_denied_tcp_connections": {
+          "type": "gauge",
+          "description": "Requests denied by \"tcp-request connection\" rules. Values reported for listeners and frontends.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_denied_tcp_sessions": {
+          "type": "gauge",
+          "description": "Requests denied by \"tcp-request session\" rules. Values reported for listeners and frontends.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_downtime": {
+          "type": "cumulative",
+          "description": "Total downtime (in seconds). The value for the backend is the downtime for the whole backend, not the sum of the server downtime. Values reported for backends and servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_error_connections": {
+          "type": "cumulative",
+          "description": "Number of requests that encountered an error trying to connect to a backend server. The backend stat is the sum of the stat for all servers of that backend, plus any connection errors not associated with a particular server (such as the backend having no active servers). Values reported for backends and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_error_request": {
+          "type": "cumulative",
+          "description": "Number of request errors. Some of the possible causes are: early termination from the client, before the request has been sent, read error from the client, client timeout, client closed connection, various bad requests from the client, request was tarpitted. Values reported for listeners and frontends.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_error_response": {
+          "type": "cumulative",
+          "description": "Number of response errors. haproxy_server_aborts will be counted here also. Some other errors are: write error on the client socket (won't be counted for the server stat), failure applying filters to the response. Values reported for backends and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_failed_checks": {
+          "type": "cumulative",
+          "description": "Number of failed checks. (Only counts checks failed when the server is up.). Values reported for servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_idle_percent": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `Idle_pct` value given by the `show info` command issued over UNIX socket. Ratio of system polling time versus total time.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_intercepted_requests": {
+          "type": "gauge",
+          "description": "Cumulative number of intercepted requests (monitor, stats). Values reported for frontends and backends.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_last_session": {
+          "type": "gauge",
+          "description": "Number of seconds since last session assigned to server/backend. Values reported for backends and servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_max_connection_rate": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `MaxConnRate` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_max_connections": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `MaxConn` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_max_pipes": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `MaxPipes` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_max_session_rate": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `MaxSessRate` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_max_ssl_connections": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `MaxSslConns` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_pipes_free": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `PipesFree` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_pipes_used": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `PipesUsed` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_queue_current": {
+          "type": "gauge",
+          "description": "Number of current queued requests. For the backend this reports the number queued without a server assigned. Values reported for backends and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_queue_limit": {
+          "type": "gauge",
+          "description": "Configured maxqueue for the server, or nothing in the value is 0 (default, meaning no limit). Values reported for servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_queue_max": {
+          "type": "gauge",
+          "description": "The max value of qcur. Values reported for backends and servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_queue_time_average": {
+          "type": "gauge",
+          "description": "The average queue time in ms over the 1024 last requests. Values reported for backends and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_redispatched": {
+          "type": "cumulative",
+          "description": "Number of times a request was redispatched to another server. The server value counts the number of times that server was switched away from. Values reported for backends and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_request_rate": {
+          "type": "gauge",
+          "description": "HTTP requests per second over last elapsed second. Values reported for frontends.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_request_rate_max": {
+          "type": "gauge",
+          "description": "Max number of HTTP requests per second observed. Values reported for frontends.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_request_total": {
+          "type": "cumulative",
+          "description": "Total number of HTTP requests received. Values reported for frontends and backends.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_requests": {
+          "type": "cumulative",
+          "description": "Corresponds to the HAProxy process `CumReq` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_response_1xx": {
+          "type": "cumulative",
+          "description": "HTTP responses with 1xx code. Values reported for frontends, backends, and servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_response_2xx": {
+          "type": "cumulative",
+          "description": "HTTP responses with 2xx code. Values reported for frontends, backends, and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_response_3xx": {
+          "type": "cumulative",
+          "description": "HTTP responses with 3xx code. Values reported for frontends, backends, and servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_response_4xx": {
+          "type": "cumulative",
+          "description": "HTTP responses with 4xx code. Values reported for frontends, backends, and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_response_5xx": {
+          "type": "cumulative",
+          "description": "HTTP responses with 5xx code. Values reported for frontends, backends, and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_response_other": {
+          "type": "cumulative",
+          "description": "HTTP responses with other codes (protocol error). Values reported for frontends, backends, and servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_response_time_average": {
+          "type": "gauge",
+          "description": "The average response time in ms over the 1024 last requests (0 for TCP). Values reported for backends and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_retries": {
+          "type": "cumulative",
+          "description": "Number of times a connection to a server was retried. Values reported for backends and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_run_queue": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `Run_queue` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_server_aborts": {
+          "type": "cumulative",
+          "description": "Number of data transfers aborted by the server (inc. in eresp). Values reported for backends and servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_server_selected_total": {
+          "type": "cumulative",
+          "description": "Total number of times a server was selected, either for new sessions, or when re-dispatching. The server counter is the number of times that server was selected. Values reported for backends and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_session_current": {
+          "type": "gauge",
+          "description": "Number current sessions. Values reported for listeners, frontends, backends, and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_session_rate": {
+          "type": "gauge",
+          "description": "Number of sessions per second over last elapsed second. Values reported for frontends, backends, and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_session_rate_all": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `SessRate` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_session_rate_limit": {
+          "type": "gauge",
+          "description": "Configured limit on new sessions per second. Values reported for frontends.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_session_rate_max": {
+          "type": "gauge",
+          "description": "Max number of new sessions per second. Values reported for frontends, backends, and servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_session_time_average": {
+          "type": "gauge",
+          "description": "The average total session time in ms over the 1024 last requests. Values reported for backends and servers.",
+          "group": null,
+          "default": true
+        },
+        "haproxy_session_total": {
+          "type": "cumulative",
+          "description": "The cumulative number of sessions. Values reported for listeners, frontends, backends, and servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_ssl_backend_key_rate": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `SslBackendKeyRate` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_ssl_cache_lookups": {
+          "type": "cumulative",
+          "description": "Corresponds to the HAProxy process `SslCacheLookups` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_ssl_cache_misses": {
+          "type": "cumulative",
+          "description": "Corresponds to the HAProxy process `SslCacheMisses` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_ssl_connections": {
+          "type": "cumulative",
+          "description": "Corresponds to the HAProxy process `CumSslConns` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_ssl_frontend_key_rate": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `SslFrontendKeyRate` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_ssl_rate": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `SslRate` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_tasks": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `Tasks` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_throttle": {
+          "type": "gauge",
+          "description": "Current throttle percentage for the server, when slowstart is active, or no value if not in slowstart. Values reported for servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_uptime_seconds": {
+          "type": "cumulative",
+          "description": "Corresponds to the HAProxy process `Uptime_sec` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_zlib_memory_usage": {
+          "type": "gauge",
+          "description": "Corresponds to the HAProxy process `ZlibMemUsage` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        }
+      },
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config is the config for this monitor.",
+        "package": "internal/monitors/haproxy",
+        "fields": [
+          {
+            "yamlName": "url",
+            "doc": "URL on which to scrape HAProxy. Scheme `http://` for http-type and `unix://` socket-type urls.",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sslVerify",
+            "doc": "Flag that enables SSL certificate verification for the scrape URL.",
+            "default": true,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "timeout",
+            "doc": "Timeout for trying to get stats from HAProxy. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "5s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "proxies",
+            "doc": "A list of the pxname(s) and svname(s) to monitor (e.g. `[\"http-in\", \"server1\", \"backend\"]`). If empty then metrics for all proxies will be reported.",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
           }
         ]
       },
@@ -23854,6 +24527,7 @@
             "container_last_seen",
             "container_memory_failcnt",
             "container_memory_failures_total",
+            "container_memory_rss",
             "container_memory_usage_bytes",
             "container_memory_working_set_bytes",
             "container_spec_cpu_period",
@@ -24028,6 +24702,12 @@
           "group": null,
           "default": true
         },
+        "container_memory_rss": {
+          "type": "gauge",
+          "description": "Current RSS memory usage in bytes",
+          "group": null,
+          "default": false
+        },
         "container_memory_usage_bytes": {
           "type": "gauge",
           "description": "Current memory usage in bytes",
@@ -24170,7 +24850,7 @@
               "fields": [
                 {
                   "yamlName": "url",
-                  "doc": "URL of the Kubelet instance.  This will default to `https://\u003ccurrent node hostname\u003e:10250` if not provided.",
+                  "doc": "URL of the Kubelet instance.  This will default to `http://\u003ccurrent node hostname\u003e:10255` if not provided.",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -26142,70 +26822,79 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/kubernetes/apiserver",
         "fields": [
           {
-            "yamlName": "kubernetesAPI",
-            "doc": "Configuration of the Kubernetes API client.",
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
             "required": false,
-            "type": "struct",
-            "elementKind": "",
-            "elementStruct": {
-              "name": "APIConfig",
-              "doc": "APIConfig contains options relevant to connecting to the K8s API",
-              "package": "internal/core/common/kubernetes",
-              "fields": [
-                {
-                  "yamlName": "authType",
-                  "doc": "How to authenticate to the K8s API server.  This can be one of `none` (for no auth), `tls` (to use manually specified TLS client certs, not recommended), `serviceAccount` (to use the standard service account token provided to the agent pod), or `kubeConfig` to use credentials from `~/.kube/config`.",
-                  "default": "serviceAccount",
-                  "required": false,
-                  "type": "string",
-                  "elementKind": ""
-                },
-                {
-                  "yamlName": "skipVerify",
-                  "doc": "Whether to skip verifying the TLS cert from the API server.  Almost never needed.",
-                  "default": false,
-                  "required": false,
-                  "type": "bool",
-                  "elementKind": ""
-                },
-                {
-                  "yamlName": "clientCertPath",
-                  "doc": "The path to the TLS client cert on the pod's filesystem, if using `tls` auth.",
-                  "default": "",
-                  "required": false,
-                  "type": "string",
-                  "elementKind": ""
-                },
-                {
-                  "yamlName": "clientKeyPath",
-                  "doc": "The path to the TLS client key on the pod's filesystem, if using `tls` auth.",
-                  "default": "",
-                  "required": false,
-                  "type": "string",
-                  "elementKind": ""
-                },
-                {
-                  "yamlName": "caCertPath",
-                  "doc": "Path to a CA certificate to use when verifying the API server's TLS cert.  Generally this is provided by K8s alongside the service account token, which will be picked up automatically, so this should rarely be necessary to specify.",
-                  "default": "",
-                  "required": false,
-                  "type": "string",
-                  "elementKind": ""
-                }
-              ]
-            }
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "skipVerify",
+            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
           },
           {
             "yamlName": "metricPath",
-            "doc": "Path to the metrics endpoint on server, usually `/metrics` (the default).",
+            "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
             "default": "/metrics",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendAllMetrics",
+            "doc": "Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors.",
+            "default": false,
+            "required": false,
+            "type": "bool",
             "elementKind": ""
           }
         ]
@@ -26249,12 +26938,18 @@
           "metrics": [
             "kubernetes.container_ready",
             "kubernetes.container_restart_count",
+            "kubernetes.cronjob.active",
             "kubernetes.daemon_set.current_scheduled",
             "kubernetes.daemon_set.desired_scheduled",
             "kubernetes.daemon_set.misscheduled",
             "kubernetes.daemon_set.ready",
             "kubernetes.deployment.available",
             "kubernetes.deployment.desired",
+            "kubernetes.job.active",
+            "kubernetes.job.completions",
+            "kubernetes.job.failed",
+            "kubernetes.job.parallelism",
+            "kubernetes.job.succeeded",
             "kubernetes.namespace_phase",
             "kubernetes.node_ready",
             "kubernetes.pod_phase",
@@ -26263,7 +26958,11 @@
             "kubernetes.replication_controller.available",
             "kubernetes.replication_controller.desired",
             "kubernetes.resource_quota_hard",
-            "kubernetes.resource_quota_used"
+            "kubernetes.resource_quota_used",
+            "kubernetes.stateful_set.current",
+            "kubernetes.stateful_set.desired",
+            "kubernetes.stateful_set.ready",
+            "kubernetes.stateful_set.updated"
           ]
         }
       },
@@ -26279,6 +26978,12 @@
           "description": "How many times the container has restarted in the recent past.  This value is pulled directly from [the K8s API](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.11/#containerstatus-v1-core) and the value can go indefinitely high and be reset to 0 at any time depending on how your [kubelet is configured to prune dead containers](https://kubernetes.io/docs/concepts/cluster-administration/kubelet-garbage-collection/). It is best to not depend too much on the exact value but rather look at it as either `== 0`, in which case you can conclude there were no restarts in the recent past, or `\u003e 0`, in which case you can conclude there were restarts in the recent past, and not try and analyze the value beyond that.",
           "group": null,
           "default": true
+        },
+        "kubernetes.cronjob.active": {
+          "type": "gauge",
+          "description": "The number of actively running jobs for a cronjob.",
+          "group": null,
+          "default": false
         },
         "kubernetes.daemon_set.current_scheduled": {
           "type": "gauge",
@@ -26315,6 +27020,36 @@
           "description": "Number of desired pods in this deployment",
           "group": null,
           "default": true
+        },
+        "kubernetes.job.active": {
+          "type": "gauge",
+          "description": "The number of actively running pods for a job.",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.job.completions": {
+          "type": "gauge",
+          "description": "The desired number of successfully finished pods the job should be run with.",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.job.failed": {
+          "type": "counter",
+          "description": "The number of pods which reased phase Failed for a job.",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.job.parallelism": {
+          "type": "gauge",
+          "description": "The max desired number of pods the job should run at any given time.",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.job.succeeded": {
+          "type": "counter",
+          "description": "The number of pods which reached phase Succeeded for a job.",
+          "group": null,
+          "default": false
         },
         "kubernetes.namespace_phase": {
           "type": "gauge",
@@ -26354,7 +27089,7 @@
         },
         "kubernetes.replication_controller.desired": {
           "type": "gauge",
-          "description": "Number of desired pods",
+          "description": "Number of desired pods (the `spec.replicas` field)",
           "group": null,
           "default": true
         },
@@ -26369,6 +27104,30 @@
           "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
           "group": null,
           "default": true
+        },
+        "kubernetes.stateful_set.current": {
+          "type": "gauge",
+          "description": "The number of pods created by the StatefulSet controller from the\nStatefulSet version indicated by `current_revision` property on the\n`kubernetes_uid` dimension for this StatefulSet.\n",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.stateful_set.desired": {
+          "type": "gauge",
+          "description": "Number of desired pods in the stateful set (the `spec.replicas` field)",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.stateful_set.ready": {
+          "type": "gauge",
+          "description": "Number of pods created by the stateful set that have the `Ready` condition",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.stateful_set.updated": {
+          "type": "gauge",
+          "description": "The number of pods created by the StatefulSet controller from the\nStatefulSet version indicated by the `update_revision` property on the\n`kubernetes_uid` dimension for this StatefulSet.\n",
+          "group": null,
+          "default": false
         }
       },
       "properties": {
@@ -26379,6 +27138,10 @@
         "\u003cpod label\u003e": {
           "dimension": "kubernetes_pod_uid",
           "description": "Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension."
+        },
+        "creation_timestamp": {
+          "dimension": "kubernetes_pod_uid/kubernetes_uid",
+          "description": "CreationTimestamp is a timestamp representing the server time when this object was created and is in UTC. This property is synced onto `kubernetes_pod_uid` or `kubernetes_uid` depending on whether it's a node or Kubernetes workload."
         }
       },
       "metricsExhaustive": false,
@@ -26595,6 +27358,930 @@
       "singleInstance": false
     },
     {
+      "monitorType": "kubernetes-scheduler",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "Exports Prometheus metrics from the [kube-scheduler](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-scheduler).\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "apiserver_audit_event_total",
+            "apiserver_audit_requests_rejected_total",
+            "apiserver_client_certificate_expiration_seconds",
+            "apiserver_client_certificate_expiration_seconds_bucket",
+            "apiserver_client_certificate_expiration_seconds_count",
+            "apiserver_storage_data_key_generation_duration_seconds",
+            "apiserver_storage_data_key_generation_duration_seconds_bucket",
+            "apiserver_storage_data_key_generation_duration_seconds_count",
+            "apiserver_storage_data_key_generation_failures_total",
+            "apiserver_storage_data_key_generation_latencies_microseconds",
+            "apiserver_storage_data_key_generation_latencies_microseconds_bucket",
+            "apiserver_storage_data_key_generation_latencies_microseconds_count",
+            "apiserver_storage_envelope_transformation_cache_misses_total",
+            "go_gc_duration_seconds",
+            "go_gc_duration_seconds_count",
+            "go_gc_duration_seconds_quantile",
+            "go_goroutines",
+            "go_info",
+            "go_memstats_alloc_bytes",
+            "go_memstats_alloc_bytes_total",
+            "go_memstats_buck_hash_sys_bytes",
+            "go_memstats_frees_total",
+            "go_memstats_gc_cpu_fraction",
+            "go_memstats_gc_sys_bytes",
+            "go_memstats_heap_alloc_bytes",
+            "go_memstats_heap_idle_bytes",
+            "go_memstats_heap_inuse_bytes",
+            "go_memstats_heap_objects",
+            "go_memstats_heap_released_bytes",
+            "go_memstats_heap_sys_bytes",
+            "go_memstats_last_gc_time_seconds",
+            "go_memstats_lookups_total",
+            "go_memstats_mallocs_total",
+            "go_memstats_mcache_inuse_bytes",
+            "go_memstats_mcache_sys_bytes",
+            "go_memstats_mspan_inuse_bytes",
+            "go_memstats_mspan_sys_bytes",
+            "go_memstats_next_gc_bytes",
+            "go_memstats_other_sys_bytes",
+            "go_memstats_stack_inuse_bytes",
+            "go_memstats_stack_sys_bytes",
+            "go_memstats_sys_bytes",
+            "go_threads",
+            "http_request_duration_microseconds",
+            "http_request_duration_microseconds_count",
+            "http_request_duration_microseconds_quantile",
+            "http_request_size_bytes",
+            "http_request_size_bytes_count",
+            "http_request_size_bytes_quantile",
+            "http_requests_total",
+            "http_response_size_bytes",
+            "http_response_size_bytes_count",
+            "http_response_size_bytes_quantile",
+            "kubernetes_build_info",
+            "leader_election_master_status",
+            "process_cpu_seconds_total",
+            "process_max_fds",
+            "process_open_fds",
+            "process_resident_memory_bytes",
+            "process_start_time_seconds",
+            "process_virtual_memory_bytes",
+            "process_virtual_memory_max_bytes",
+            "rest_client_request_duration_seconds",
+            "rest_client_request_duration_seconds_bucket",
+            "rest_client_request_duration_seconds_count",
+            "rest_client_request_latency_seconds",
+            "rest_client_request_latency_seconds_bucket",
+            "rest_client_request_latency_seconds_count",
+            "rest_client_requests_total",
+            "scheduler_binding_duration_seconds",
+            "scheduler_binding_duration_seconds_bucket",
+            "scheduler_binding_duration_seconds_count",
+            "scheduler_binding_latency_microseconds",
+            "scheduler_binding_latency_microseconds_bucket",
+            "scheduler_binding_latency_microseconds_count",
+            "scheduler_e2e_scheduling_duration_seconds",
+            "scheduler_e2e_scheduling_duration_seconds_bucket",
+            "scheduler_e2e_scheduling_duration_seconds_count",
+            "scheduler_e2e_scheduling_latency_microseconds",
+            "scheduler_e2e_scheduling_latency_microseconds_bucket",
+            "scheduler_e2e_scheduling_latency_microseconds_count",
+            "scheduler_pending_pods",
+            "scheduler_pod_preemption_victims",
+            "scheduler_schedule_attempts_total",
+            "scheduler_scheduling_algorithm_duration_seconds",
+            "scheduler_scheduling_algorithm_duration_seconds_bucket",
+            "scheduler_scheduling_algorithm_duration_seconds_count",
+            "scheduler_scheduling_algorithm_latency_microseconds",
+            "scheduler_scheduling_algorithm_latency_microseconds_bucket",
+            "scheduler_scheduling_algorithm_latency_microseconds_count",
+            "scheduler_scheduling_algorithm_predicate_evaluation",
+            "scheduler_scheduling_algorithm_predicate_evaluation_bucket",
+            "scheduler_scheduling_algorithm_predicate_evaluation_count",
+            "scheduler_scheduling_algorithm_predicate_evaluation_seconds",
+            "scheduler_scheduling_algorithm_predicate_evaluation_seconds_bucket",
+            "scheduler_scheduling_algorithm_predicate_evaluation_seconds_count",
+            "scheduler_scheduling_algorithm_preemption_evaluation",
+            "scheduler_scheduling_algorithm_preemption_evaluation_bucket",
+            "scheduler_scheduling_algorithm_preemption_evaluation_count",
+            "scheduler_scheduling_algorithm_preemption_evaluation_seconds",
+            "scheduler_scheduling_algorithm_preemption_evaluation_seconds_bucket",
+            "scheduler_scheduling_algorithm_preemption_evaluation_seconds_count",
+            "scheduler_scheduling_algorithm_priority_evaluation",
+            "scheduler_scheduling_algorithm_priority_evaluation_bucket",
+            "scheduler_scheduling_algorithm_priority_evaluation_count",
+            "scheduler_scheduling_algorithm_priority_evaluation_seconds",
+            "scheduler_scheduling_algorithm_priority_evaluation_seconds_bucket",
+            "scheduler_scheduling_algorithm_priority_evaluation_seconds_count",
+            "scheduler_scheduling_duration_seconds",
+            "scheduler_scheduling_duration_seconds_count",
+            "scheduler_scheduling_duration_seconds_quantile",
+            "scheduler_scheduling_latency_seconds",
+            "scheduler_scheduling_latency_seconds_count",
+            "scheduler_scheduling_latency_seconds_quantile",
+            "scheduler_total_preemption_attempts",
+            "scheduler_volume_scheduling_duration_seconds",
+            "scheduler_volume_scheduling_duration_seconds_bucket",
+            "scheduler_volume_scheduling_duration_seconds_count"
+          ]
+        }
+      },
+      "metrics": {
+        "apiserver_audit_event_total": {
+          "type": "cumulative",
+          "description": "Counter of audit events generated and sent to the audit backend.",
+          "group": null,
+          "default": false
+        },
+        "apiserver_audit_requests_rejected_total": {
+          "type": "cumulative",
+          "description": "Counter of apiserver requests rejected due to an error in audit logging backend.",
+          "group": null,
+          "default": false
+        },
+        "apiserver_client_certificate_expiration_seconds": {
+          "type": "cumulative",
+          "description": "Distribution of the remaining lifetime on the certificate used to authenticate a request. (sum)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_client_certificate_expiration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Distribution of the remaining lifetime on the certificate used to authenticate a request. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_client_certificate_expiration_seconds_count": {
+          "type": "cumulative",
+          "description": "Distribution of the remaining lifetime on the certificate used to authenticate a request. (count)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_duration_seconds": {
+          "type": "cumulative",
+          "description": "Latencies in seconds of data encryption key(DEK) generation operations. (sum)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Latencies in seconds of data encryption key(DEK) generation operations. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Latencies in seconds of data encryption key(DEK) generation operations. (count)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_failures_total": {
+          "type": "cumulative",
+          "description": "Total number of failed data encryption key(DEK) generation operations.",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_latencies_microseconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Latencies in microseconds of data encryption key(DEK) generation operations. (sum)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_latencies_microseconds_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Latencies in microseconds of data encryption key(DEK) generation operations. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_latencies_microseconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Latencies in microseconds of data encryption key(DEK) generation operations. (count)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_envelope_transformation_cache_misses_total": {
+          "type": "cumulative",
+          "description": "Total number of cache misses while accessing key decryption key(KEK).",
+          "group": null,
+          "default": false
+        },
+        "go_gc_duration_seconds": {
+          "type": "cumulative",
+          "description": "A summary of the GC invocation durations. (sum)",
+          "group": null,
+          "default": false
+        },
+        "go_gc_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "A summary of the GC invocation durations. (count)",
+          "group": null,
+          "default": false
+        },
+        "go_gc_duration_seconds_quantile": {
+          "type": "gauge",
+          "description": "A summary of the GC invocation durations. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "go_goroutines": {
+          "type": "gauge",
+          "description": "Number of goroutines that currently exist.",
+          "group": null,
+          "default": false
+        },
+        "go_info": {
+          "type": "gauge",
+          "description": "Information about the Go environment.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_alloc_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_alloc_bytes_total": {
+          "type": "cumulative",
+          "description": "Total number of bytes allocated, even if freed.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_buck_hash_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used by the profiling bucket hash table.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_frees_total": {
+          "type": "cumulative",
+          "description": "Total number of frees.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_gc_cpu_fraction": {
+          "type": "gauge",
+          "description": "The fraction of this program's available CPU time used by the GC since the program started.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_gc_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for garbage collection system metadata.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_alloc_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_idle_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes waiting to be used.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes that are in use.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_objects": {
+          "type": "gauge",
+          "description": "Number of allocated objects.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_released_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes released to OS.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_last_gc_time_seconds": {
+          "type": "gauge",
+          "description": "Number of seconds since 1970 of last garbage collection.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_lookups_total": {
+          "type": "cumulative",
+          "description": "Total number of pointer lookups.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mallocs_total": {
+          "type": "cumulative",
+          "description": "Total number of mallocs.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mcache_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by mcache structures.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mcache_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for mcache structures obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mspan_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by mspan structures.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mspan_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for mspan structures obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_next_gc_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes when next garbage collection will take place.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_other_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for other system allocations.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_stack_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_stack_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes obtained from system for stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_threads": {
+          "type": "gauge",
+          "description": "Number of OS threads created.",
+          "group": null,
+          "default": false
+        },
+        "http_request_duration_microseconds": {
+          "type": "cumulative",
+          "description": "The HTTP request latencies in microseconds. (sum)",
+          "group": null,
+          "default": false
+        },
+        "http_request_duration_microseconds_count": {
+          "type": "cumulative",
+          "description": "The HTTP request latencies in microseconds. (count)",
+          "group": null,
+          "default": false
+        },
+        "http_request_duration_microseconds_quantile": {
+          "type": "gauge",
+          "description": "The HTTP request latencies in microseconds. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "http_request_size_bytes": {
+          "type": "cumulative",
+          "description": "The HTTP request sizes in bytes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "http_request_size_bytes_count": {
+          "type": "cumulative",
+          "description": "The HTTP request sizes in bytes. (count)",
+          "group": null,
+          "default": false
+        },
+        "http_request_size_bytes_quantile": {
+          "type": "gauge",
+          "description": "The HTTP request sizes in bytes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "http_requests_total": {
+          "type": "cumulative",
+          "description": "Total number of HTTP requests made.",
+          "group": null,
+          "default": false
+        },
+        "http_response_size_bytes": {
+          "type": "cumulative",
+          "description": "The HTTP response sizes in bytes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "http_response_size_bytes_count": {
+          "type": "cumulative",
+          "description": "The HTTP response sizes in bytes. (count)",
+          "group": null,
+          "default": false
+        },
+        "http_response_size_bytes_quantile": {
+          "type": "gauge",
+          "description": "The HTTP response sizes in bytes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "kubernetes_build_info": {
+          "type": "gauge",
+          "description": "A metric with a constant '1' value labeled by major, minor, git version, git commit, git tree state, build date, Go version, and compiler from which Kubernetes was built, and platform on which it is running.",
+          "group": null,
+          "default": false
+        },
+        "leader_election_master_status": {
+          "type": "gauge",
+          "description": "Gauge of if the reporting system is master of the relevant lease, 0 indicates backup, 1 indicates master. 'name' is the string used to identify the lease. Please make sure to group by name.",
+          "group": null,
+          "default": false
+        },
+        "process_cpu_seconds_total": {
+          "type": "cumulative",
+          "description": "Total user and system CPU time spent in seconds.",
+          "group": null,
+          "default": false
+        },
+        "process_max_fds": {
+          "type": "gauge",
+          "description": "Maximum number of open file descriptors.",
+          "group": null,
+          "default": false
+        },
+        "process_open_fds": {
+          "type": "gauge",
+          "description": "Number of open file descriptors.",
+          "group": null,
+          "default": false
+        },
+        "process_resident_memory_bytes": {
+          "type": "gauge",
+          "description": "Resident memory size in bytes.",
+          "group": null,
+          "default": false
+        },
+        "process_start_time_seconds": {
+          "type": "gauge",
+          "description": "Start time of the process since unix epoch in seconds.",
+          "group": null,
+          "default": false
+        },
+        "process_virtual_memory_bytes": {
+          "type": "gauge",
+          "description": "Virtual memory size in bytes.",
+          "group": null,
+          "default": false
+        },
+        "process_virtual_memory_max_bytes": {
+          "type": "gauge",
+          "description": "Maximum amount of virtual memory available in bytes.",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_duration_seconds": {
+          "type": "cumulative",
+          "description": "Request latency in seconds. Broken down by verb and URL. (sum)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Request latency in seconds. Broken down by verb and URL. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Request latency in seconds. Broken down by verb and URL. (count)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_latency_seconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Request latency in seconds. Broken down by verb and URL. (sum)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_latency_seconds_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Request latency in seconds. Broken down by verb and URL. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_latency_seconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Request latency in seconds. Broken down by verb and URL. (count)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_requests_total": {
+          "type": "cumulative",
+          "description": "Number of HTTP requests, partitioned by status code, method, and host.",
+          "group": null,
+          "default": false
+        },
+        "scheduler_binding_duration_seconds": {
+          "type": "cumulative",
+          "description": "Binding latency in seconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_binding_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Binding latency in seconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_binding_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Binding latency in seconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_binding_latency_microseconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Binding latency in microseconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_binding_latency_microseconds_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Binding latency in microseconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_binding_latency_microseconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Binding latency in microseconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_e2e_scheduling_duration_seconds": {
+          "type": "cumulative",
+          "description": "E2e scheduling latency in seconds (scheduling algorithm + binding) (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_e2e_scheduling_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "E2e scheduling latency in seconds (scheduling algorithm + binding) (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_e2e_scheduling_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "E2e scheduling latency in seconds (scheduling algorithm + binding) (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_e2e_scheduling_latency_microseconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) E2e scheduling latency in microseconds (scheduling algorithm + binding) (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_e2e_scheduling_latency_microseconds_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) E2e scheduling latency in microseconds (scheduling algorithm + binding) (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_e2e_scheduling_latency_microseconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) E2e scheduling latency in microseconds (scheduling algorithm + binding) (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_pending_pods": {
+          "type": "gauge",
+          "description": "Number of pending pods, by the queue type. 'active' means number of pods in activeQ; 'backoff' means number of pods in backoffQ; 'unschedulable' means number of pods in unschedulableQ.",
+          "group": null,
+          "default": false
+        },
+        "scheduler_pod_preemption_victims": {
+          "type": "gauge",
+          "description": "Number of selected preemption victims",
+          "group": null,
+          "default": false
+        },
+        "scheduler_schedule_attempts_total": {
+          "type": "cumulative",
+          "description": "Number of attempts to schedule pods, by the result. 'unschedulable' means a pod could not be scheduled, while 'error' means an internal scheduler problem.",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_duration_seconds": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm latency in seconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm latency in seconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm latency in seconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_latency_microseconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm latency in microseconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_latency_microseconds_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm latency in microseconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_latency_microseconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm latency in microseconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_predicate_evaluation": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm predicate evaluation duration in microseconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_predicate_evaluation_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm predicate evaluation duration in microseconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_predicate_evaluation_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm predicate evaluation duration in microseconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_predicate_evaluation_seconds": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm predicate evaluation duration in seconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_predicate_evaluation_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm predicate evaluation duration in seconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_predicate_evaluation_seconds_count": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm predicate evaluation duration in seconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_preemption_evaluation": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm preemption evaluation duration in microseconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_preemption_evaluation_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm preemption evaluation duration in microseconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_preemption_evaluation_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm preemption evaluation duration in microseconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_preemption_evaluation_seconds": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm preemption evaluation duration in seconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_preemption_evaluation_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm preemption evaluation duration in seconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_preemption_evaluation_seconds_count": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm preemption evaluation duration in seconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_priority_evaluation": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm priority evaluation duration in microseconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_priority_evaluation_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm priority evaluation duration in microseconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_priority_evaluation_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling algorithm priority evaluation duration in microseconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_priority_evaluation_seconds": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm priority evaluation duration in seconds (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_priority_evaluation_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm priority evaluation duration in seconds (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_algorithm_priority_evaluation_seconds_count": {
+          "type": "cumulative",
+          "description": "Scheduling algorithm priority evaluation duration in seconds (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_duration_seconds": {
+          "type": "cumulative",
+          "description": "Scheduling latency in seconds split by sub-parts of the scheduling operation (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Scheduling latency in seconds split by sub-parts of the scheduling operation (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_duration_seconds_quantile": {
+          "type": "gauge",
+          "description": "Scheduling latency in seconds split by sub-parts of the scheduling operation (quantized)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_latency_seconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling latency in seconds split by sub-parts of the scheduling operation (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_latency_seconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Scheduling latency in seconds split by sub-parts of the scheduling operation (count)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_scheduling_latency_seconds_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) Scheduling latency in seconds split by sub-parts of the scheduling operation (quantized)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_total_preemption_attempts": {
+          "type": "cumulative",
+          "description": "Total preemption attempts in the cluster till now",
+          "group": null,
+          "default": false
+        },
+        "scheduler_volume_scheduling_duration_seconds": {
+          "type": "cumulative",
+          "description": "Volume scheduling stage latency (sum)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_volume_scheduling_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Volume scheduling stage latency (bucket)",
+          "group": null,
+          "default": false
+        },
+        "scheduler_volume_scheduling_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Volume scheduling stage latency (count)",
+          "group": null,
+          "default": false
+        }
+      },
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "internal/monitors/kubernetes/scheduler",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "skipVerify",
+            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "metricPath",
+            "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
+            "default": "/metrics",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendAllMetrics",
+            "doc": "Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "kubernetes-volumes",
       "sendAll": true,
       "dimensions": {
@@ -26671,7 +28358,7 @@
               "fields": [
                 {
                   "yamlName": "url",
-                  "doc": "URL of the Kubelet instance.  This will default to `https://\u003ccurrent node hostname\u003e:10250` if not provided.",
+                  "doc": "URL of the Kubelet instance.  This will default to `http://\u003ccurrent node hostname\u003e:10255` if not provided.",
                   "default": "",
                   "required": false,
                   "type": "string",
@@ -26786,6 +28473,735 @@
         ]
       },
       "acceptsEndpoints": false,
+      "singleInstance": false
+    },
+    {
+      "monitorType": "logstash",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "Monitors the health and performance of Logstash deployments through \nLogstash's [Monitoring APIs](https://www.elastic.co/guide/en/logstash/current/monitoring.html#monitoring-common-options).\n",
+      "groups": {
+        "events": {
+          "description": "Events metrics",
+          "metrics": [
+            "node.stats.events.events.duration_in_millis",
+            "node.stats.events.events.filtered",
+            "node.stats.events.events.in",
+            "node.stats.events.events.out",
+            "node.stats.events.events.queue_push_duration_in_millis"
+          ]
+        },
+        "hot_threads": {
+          "description": "Hot Threads metrics",
+          "metrics": [
+            "node.hot_threads.hot_threads.busiest_threads",
+            "node.hot_threads.hot_threads.threads.percent_of_cpu_time"
+          ]
+        },
+        "jvm": {
+          "description": "JVM metrics",
+          "metrics": [
+            "node.stats.jvm.jvm.gc.collectors.old.collection_count",
+            "node.stats.jvm.jvm.gc.collectors.old.collection_time_in_millis",
+            "node.stats.jvm.jvm.gc.collectors.young.collection_count",
+            "node.stats.jvm.jvm.gc.collectors.young.collection_time_in_millis",
+            "node.stats.jvm.jvm.mem.heap_committed_in_bytes",
+            "node.stats.jvm.jvm.mem.heap_max_in_bytes",
+            "node.stats.jvm.jvm.mem.heap_used_in_bytes",
+            "node.stats.jvm.jvm.mem.heap_used_percent",
+            "node.stats.jvm.jvm.mem.non_heap_committed_in_bytes",
+            "node.stats.jvm.jvm.mem.non_heap_used_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.old.committed_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.old.max_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.old.peak_max_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.old.peak_used_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.old.used_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.survivor.committed_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.survivor.max_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.survivor.peak_max_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.survivor.peak_used_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.survivor.used_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.young.committed_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.young.max_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.young.peak_max_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.young.peak_used_in_bytes",
+            "node.stats.jvm.jvm.mem.pools.young.used_in_bytes",
+            "node.stats.jvm.jvm.threads.count",
+            "node.stats.jvm.jvm.threads.peak_count",
+            "node.stats.jvm.jvm.uptime_in_millis"
+          ]
+        },
+        "os": {
+          "description": "OS metrics",
+          "metrics": [
+            "node.os.os.available_processors",
+            "node.stats.os.os.cgroup.cpu.cfs_period_micros",
+            "node.stats.os.os.cgroup.cpu.cfs_quota_micros",
+            "node.stats.os.os.cgroup.cpu.stat.number_of_elapsed_periods",
+            "node.stats.os.os.cgroup.cpu.stat.number_of_times_throttled",
+            "node.stats.os.os.cgroup.cpu.stat.time_throttled_nanos",
+            "node.stats.os.os.cgroup.cpuacct.usage_nanos"
+          ]
+        },
+        "pipeline": {
+          "description": "",
+          "metrics": [
+            "node.pipelines.batch_delay",
+            "node.pipelines.batch_size",
+            "node.pipelines.workers",
+            "node.stats.pipelines.events.duration_in_millis",
+            "node.stats.pipelines.events.filtered",
+            "node.stats.pipelines.events.in",
+            "node.stats.pipelines.events.out",
+            "node.stats.pipelines.events.queue_push_duration_in_millis",
+            "node.stats.pipelines.plugins.codecs.decode.duration_in_millis",
+            "node.stats.pipelines.plugins.codecs.decode.out",
+            "node.stats.pipelines.plugins.codecs.decode.writes_in",
+            "node.stats.pipelines.plugins.codecs.encode.duration_in_millis",
+            "node.stats.pipelines.plugins.codecs.encode.writes_in",
+            "node.stats.pipelines.plugins.filters.events.duration_in_millis",
+            "node.stats.pipelines.plugins.filters.events.in",
+            "node.stats.pipelines.plugins.filters.events.out",
+            "node.stats.pipelines.plugins.inputs.events.out",
+            "node.stats.pipelines.plugins.inputs.events.queue_push_duration_in_millis",
+            "node.stats.pipelines.plugins.outputs.events.duration_in_millis",
+            "node.stats.pipelines.plugins.outputs.events.in",
+            "node.stats.pipelines.plugins.outputs.events.out",
+            "node.stats.pipelines.queue.events_count",
+            "node.stats.pipelines.queue.max_queue_size_in_bytes",
+            "node.stats.pipelines.queue.queue_size_in_bytes",
+            "node.stats.pipelines.reloads.failures",
+            "node.stats.pipelines.reloads.successes"
+          ]
+        },
+        "pipelines": {
+          "description": "Pipelines metrics",
+          "metrics": null
+        },
+        "plugins": {
+          "description": "Plugins metrics",
+          "metrics": [
+            "node.plugins.total"
+          ]
+        },
+        "process": {
+          "description": "Process metrics",
+          "metrics": [
+            "node.stats.process.process.cpu.load_average.15m",
+            "node.stats.process.process.cpu.load_average.1m",
+            "node.stats.process.process.cpu.load_average.5m",
+            "node.stats.process.process.cpu.percent",
+            "node.stats.process.process.cpu.total_in_millis",
+            "node.stats.process.process.max_file_descriptors",
+            "node.stats.process.process.mem.total_virtual_in_bytes",
+            "node.stats.process.process.open_file_descriptors",
+            "node.stats.process.process.peak_open_file_descriptors"
+          ]
+        },
+        "reloads": {
+          "description": "Reloads metrics",
+          "metrics": [
+            "node.stats.reloads.reloads.failures",
+            "node.stats.reloads.reloads.successes"
+          ]
+        }
+      },
+      "metrics": {
+        "node.hot_threads.hot_threads.busiest_threads": {
+          "type": "gauge",
+          "description": "",
+          "group": "hot_threads",
+          "default": false
+        },
+        "node.hot_threads.hot_threads.threads.percent_of_cpu_time": {
+          "type": "gauge",
+          "description": "",
+          "group": "hot_threads",
+          "default": false
+        },
+        "node.os.os.available_processors": {
+          "type": "gauge",
+          "description": "Number of available processors",
+          "group": "os",
+          "default": false
+        },
+        "node.pipelines.batch_delay": {
+          "type": "gauge",
+          "description": "",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.pipelines.batch_size": {
+          "type": "gauge",
+          "description": "",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.pipelines.workers": {
+          "type": "gauge",
+          "description": "Number of workers in pipelines",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.plugins.total": {
+          "type": "gauge",
+          "description": "Number of plugins",
+          "group": "plugins",
+          "default": true
+        },
+        "node.stats.events.events.duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration of events",
+          "group": "events",
+          "default": true
+        },
+        "node.stats.events.events.filtered": {
+          "type": "cumulative",
+          "description": "Number of filtered events",
+          "group": "events",
+          "default": true
+        },
+        "node.stats.events.events.in": {
+          "type": "cumulative",
+          "description": "Number of received events",
+          "group": "events",
+          "default": true
+        },
+        "node.stats.events.events.out": {
+          "type": "cumulative",
+          "description": "Number of events sent out",
+          "group": "events",
+          "default": true
+        },
+        "node.stats.events.events.queue_push_duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration that events waited in queue before being processed",
+          "group": "events",
+          "default": true
+        },
+        "node.stats.jvm.jvm.gc.collectors.old.collection_count": {
+          "type": "cumulative",
+          "description": "Total number of garbage collection events",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.gc.collectors.old.collection_time_in_millis": {
+          "type": "cumulative",
+          "description": "Amount of time spent garbage collecting in milliseconds",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.gc.collectors.young.collection_count": {
+          "type": "cumulative",
+          "description": "Total number of garbage collection events",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.gc.collectors.young.collection_time_in_millis": {
+          "type": "cumulative",
+          "description": "Amount of time spent garbage collecting in milliseconds",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.heap_committed_in_bytes": {
+          "type": "gauge",
+          "description": "Total heap committed by the process",
+          "group": "jvm",
+          "default": true
+        },
+        "node.stats.jvm.jvm.mem.heap_max_in_bytes": {
+          "type": "gauge",
+          "description": "Max memory being used",
+          "group": "jvm",
+          "default": true
+        },
+        "node.stats.jvm.jvm.mem.heap_used_in_bytes": {
+          "type": "gauge",
+          "description": "Total heap used",
+          "group": "jvm",
+          "default": true
+        },
+        "node.stats.jvm.jvm.mem.heap_used_percent": {
+          "type": "gauge",
+          "description": "Total heap used in percentage",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.non_heap_committed_in_bytes": {
+          "type": "gauge",
+          "description": "Total non-heap memory committed by the process",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.non_heap_used_in_bytes": {
+          "type": "gauge",
+          "description": "Total non-heap memory used",
+          "group": "jvm",
+          "default": true
+        },
+        "node.stats.jvm.jvm.mem.pools.old.committed_in_bytes": {
+          "type": "gauge",
+          "description": "Memory guaranteed to be available to JVM non-heap by Old gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.old.max_in_bytes": {
+          "type": "gauge",
+          "description": "Max memory being used by Old Gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.old.peak_max_in_bytes": {
+          "type": "gauge",
+          "description": "Memory used by Old gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.old.peak_used_in_bytes": {
+          "type": "gauge",
+          "description": "Peak memory used by Old gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.old.used_in_bytes": {
+          "type": "gauge",
+          "description": "Memory being used by Old Gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.survivor.committed_in_bytes": {
+          "type": "gauge",
+          "description": "Memory guaranteed to be available to JVM non-heap by Survivor space",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.survivor.max_in_bytes": {
+          "type": "gauge",
+          "description": "Max memory being used by Survivor space",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.survivor.peak_max_in_bytes": {
+          "type": "gauge",
+          "description": "Memory used by Survivor space",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.survivor.peak_used_in_bytes": {
+          "type": "gauge",
+          "description": "Peak memory used by Survivor space",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.survivor.used_in_bytes": {
+          "type": "gauge",
+          "description": "Memory being used by Survivor space",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.young.committed_in_bytes": {
+          "type": "gauge",
+          "description": "Memory guaranteed to be available to JVM non-heap by Young gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.young.max_in_bytes": {
+          "type": "gauge",
+          "description": "Max memory being used by Young Gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.young.peak_max_in_bytes": {
+          "type": "gauge",
+          "description": "Memory used by Young gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.young.peak_used_in_bytes": {
+          "type": "gauge",
+          "description": "Peak memory used by Young gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.mem.pools.young.used_in_bytes": {
+          "type": "gauge",
+          "description": "Memory being used by Young Gen",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.jvm.jvm.threads.count": {
+          "type": "gauge",
+          "description": "Number of JVM threads",
+          "group": "jvm",
+          "default": true
+        },
+        "node.stats.jvm.jvm.threads.peak_count": {
+          "type": "gauge",
+          "description": "Highest number of JVM threads",
+          "group": "jvm",
+          "default": true
+        },
+        "node.stats.jvm.jvm.uptime_in_millis": {
+          "type": "gauge",
+          "description": "Uptime length of JVM",
+          "group": "jvm",
+          "default": false
+        },
+        "node.stats.os.os.cgroup.cpu.cfs_period_micros": {
+          "type": "gauge",
+          "description": "",
+          "group": "os",
+          "default": false
+        },
+        "node.stats.os.os.cgroup.cpu.cfs_quota_micros": {
+          "type": "gauge",
+          "description": "",
+          "group": "os",
+          "default": false
+        },
+        "node.stats.os.os.cgroup.cpu.stat.number_of_elapsed_periods": {
+          "type": "cumulative",
+          "description": "",
+          "group": "os",
+          "default": false
+        },
+        "node.stats.os.os.cgroup.cpu.stat.number_of_times_throttled": {
+          "type": "cumulative",
+          "description": "",
+          "group": "os",
+          "default": false
+        },
+        "node.stats.os.os.cgroup.cpu.stat.time_throttled_nanos": {
+          "type": "cumulative",
+          "description": "",
+          "group": "os",
+          "default": false
+        },
+        "node.stats.os.os.cgroup.cpuacct.usage_nanos": {
+          "type": "gauge",
+          "description": "",
+          "group": "os",
+          "default": false
+        },
+        "node.stats.pipelines.events.duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration of events in pipelines",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.events.filtered": {
+          "type": "cumulative",
+          "description": "Number of filtered events in pipelines",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.events.in": {
+          "type": "cumulative",
+          "description": "Number of received events in pipelines",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.events.out": {
+          "type": "cumulative",
+          "description": "Number of events sent out from pipelines",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.events.queue_push_duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration that events waited in queue before being processed in pipelines",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.plugins.codecs.decode.duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration of decode events in codec plugins",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.plugins.codecs.decode.out": {
+          "type": "cumulative",
+          "description": "Number of decode events sent out from codecs",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.plugins.codecs.decode.writes_in": {
+          "type": "cumulative",
+          "description": "Number of received decode events in codecs",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.plugins.codecs.encode.duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration of encode events in codec plugins",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.plugins.codecs.encode.writes_in": {
+          "type": "cumulative",
+          "description": "Number of received encode events in codecs",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.plugins.filters.events.duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration of events in filter plugins",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.plugins.filters.events.in": {
+          "type": "cumulative",
+          "description": "Number of received events in filters",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.plugins.filters.events.out": {
+          "type": "cumulative",
+          "description": "Number of events sent out from filters",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.plugins.inputs.events.out": {
+          "type": "cumulative",
+          "description": "Number of events sent out from inputs",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.plugins.inputs.events.queue_push_duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration that events waited in queue before being processed in inputs",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.plugins.outputs.events.duration_in_millis": {
+          "type": "cumulative",
+          "description": "Duration of events in output plugins",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.plugins.outputs.events.in": {
+          "type": "cumulative",
+          "description": "Number of received events in output plugins",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.plugins.outputs.events.out": {
+          "type": "cumulative",
+          "description": "Number of events sent out from output plugins",
+          "group": "pipeline",
+          "default": true
+        },
+        "node.stats.pipelines.queue.events_count": {
+          "type": "gauge",
+          "description": "Number of events waiting in queue",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.queue.max_queue_size_in_bytes": {
+          "type": "gauge",
+          "description": "Max queue size in pipelines",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.queue.queue_size_in_bytes": {
+          "type": "gauge",
+          "description": "Queue size in pipelines",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.reloads.failures": {
+          "type": "cumulative",
+          "description": "Number of failed reloads",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.pipelines.reloads.successes": {
+          "type": "cumulative",
+          "description": "Number of successful reloads",
+          "group": "pipeline",
+          "default": false
+        },
+        "node.stats.process.process.cpu.load_average.15m": {
+          "type": "gauge",
+          "description": "CPU Load average in 15 minutes",
+          "group": "process",
+          "default": false
+        },
+        "node.stats.process.process.cpu.load_average.1m": {
+          "type": "gauge",
+          "description": "CPU Load average in 1 minute",
+          "group": "process",
+          "default": false
+        },
+        "node.stats.process.process.cpu.load_average.5m": {
+          "type": "gauge",
+          "description": "CPU Load average in 5 minutes",
+          "group": "process",
+          "default": false
+        },
+        "node.stats.process.process.cpu.percent": {
+          "type": "gauge",
+          "description": "CPU usage in percent",
+          "group": "process",
+          "default": true
+        },
+        "node.stats.process.process.cpu.total_in_millis": {
+          "type": "cumulative",
+          "description": "Total CPU time (in milliseconds) used by the process on which the process is running",
+          "group": "process",
+          "default": false
+        },
+        "node.stats.process.process.max_file_descriptors": {
+          "type": "gauge",
+          "description": "Number of opened file descriptors associated with the current process",
+          "group": "process",
+          "default": false
+        },
+        "node.stats.process.process.mem.total_virtual_in_bytes": {
+          "type": "gauge",
+          "description": "Size of the virtual memory of this process",
+          "group": "process",
+          "default": false
+        },
+        "node.stats.process.process.open_file_descriptors": {
+          "type": "gauge",
+          "description": "Number of currently open file descriptors",
+          "group": "process",
+          "default": false
+        },
+        "node.stats.process.process.peak_open_file_descriptors": {
+          "type": "gauge",
+          "description": "Peak number of currently open file descriptors",
+          "group": "process",
+          "default": false
+        },
+        "node.stats.reloads.reloads.failures": {
+          "type": "cumulative",
+          "description": "Number of failed reloads",
+          "group": "reloads",
+          "default": false
+        },
+        "node.stats.reloads.reloads.successes": {
+          "type": "cumulative",
+          "description": "Number of successful reloads",
+          "group": "reloads",
+          "default": false
+        }
+      },
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "internal/monitors/logstash/logstash",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "The hostname of Logstash monitoring API",
+            "default": "127.0.0.1",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "The port number of Logstash monitoring API",
+            "default": 9600,
+            "required": false,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the host using HTTPS instead of plain HTTP.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "timeoutSeconds",
+            "doc": "The maximum amount of time to wait for API requests",
+            "default": 5,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
+      "monitorType": "logstash-tcp",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "Fetches events from the [logstash tcp output\nplugin](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-tcp.html)\noperating in either `server` or `client` mode and converts them to SignalFx\ndatapoints.  It is meant to be used in conjunction with the Logstash\n[Metrics filter\nplugin](https://www.elastic.co/guide/en/logstash/current/plugins-filters-metrics.html)\nthat turns events into metrics.\n\nYou can only use auto-discovery when this monitor is in `client` mode.\n\n\u003c!--- SETUP ---\u003e\n### Example Logstash Config\n\nThis is a somewhat contrived example that shows the use of both `timer` and\n`meter` metrics from the Logstash Metrics filter plugin:\n\n```\ninput {\n  file {\n    path =\u003e \"/var/log/auth.log\"\n    start_position =\u003e \"beginning\"\n    tags =\u003e [\"auth_log\"]\n  }\n\n  # A contrived file that contains timing messages\n  file {\n    path =\u003e \"/var/log/durations.log\"\n    tags =\u003e [\"duration_log\"]\n    start_position =\u003e \"beginning\"\n  }\n}\n\nfilter {\n  if \"duration_log\" in [tags] {\n    dissect {\n      mapping =\u003e {\n        \"message\" =\u003e \"Processing took %{duration} seconds\"\n      }\n      convert_datatype =\u003e {\n        \"duration\" =\u003e \"float\"\n      }\n    }\n    if \"_dissectfailure\" not in [tags] { # Filter out bad events\n      metrics {\n        timer =\u003e { \"process_time\" =\u003e \"%{duration}\" }\n        flush_interval =\u003e 10\n        # This makes the timing stats pertain to only the previous 5 minutes\n        # instead of since Logstash last started.\n        clear_interval =\u003e 300\n        add_field =\u003e {\"type\" =\u003e \"processing\"}\n        add_tag =\u003e \"metric\"\n      }\n    }\n  }\n  # Count the number of logins via SSH from /var/log/auth.log\n  if \"auth_log\" in [tags] and [message] =~ /sshd.*session opened/ {\n    metrics {\n      # This determines how often metric events will be sent to the agent, and\n      # thus how often datapoints will be emitted.\n      flush_interval =\u003e 10\n      # The name of the meter will be used to construct the name of the metric\n      # in SignalFx.  For this example, a datapoint called `logins.count` would\n      # be generated.\n      add_tag =\u003e \"metric\"\n    }\n  }\n}\n\noutput {\n  # This can be helpful to debug\n  stdout { codec =\u003e rubydebug }\n\n  if \"metric\" in [tags] {\n    tcp {\n      port =\u003e 8900\n      # The agent will connect to Logstash\n      mode =\u003e \"server\"\n      # Needs to be '0.0.0.0' if running in a container.\n      host =\u003e \"127.0.0.1\"\n    }\n  }\n}\n```\n",
+      "groups": {},
+      "metrics": null,
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "internal/monitors/logstash/tcp",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "If `mode: server`, the local IP address to listen on.  If `mode: client`, the Logstash host/ip to connect to.",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "If `mode: server`, the local port to listen on.  If `mode: client`, the port of the Logstash TCP output plugin.  If port is `0`, a random listening port is assigned by the kernel.",
+            "default": 0,
+            "required": false,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "mode",
+            "doc": "Whether to act as a `server` or `client`.  The corresponding setting in the Logtash `tcp` output plugin should be set to the opposite of this.",
+            "default": "client",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "desiredTimerFields",
+            "doc": "",
+            "default": [
+              "mean",
+              "max",
+              "p99",
+              "count"
+            ],
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "reconnectDelay",
+            "doc": "How long to wait before reconnecting if the TCP connection cannot be made or after it gets broken.",
+            "default": "5s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "debugEvents",
+            "doc": "If true, events received from Logstash will be dumped to the agent's stdout in deserialized form",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
       "singleInstance": false
     },
     {
@@ -26995,12 +29411,18 @@
           "metrics": [
             "kubernetes.container_ready",
             "kubernetes.container_restart_count",
+            "kubernetes.cronjob.active",
             "kubernetes.daemon_set.current_scheduled",
             "kubernetes.daemon_set.desired_scheduled",
             "kubernetes.daemon_set.misscheduled",
             "kubernetes.daemon_set.ready",
             "kubernetes.deployment.available",
             "kubernetes.deployment.desired",
+            "kubernetes.job.active",
+            "kubernetes.job.completions",
+            "kubernetes.job.failed",
+            "kubernetes.job.parallelism",
+            "kubernetes.job.succeeded",
             "kubernetes.namespace_phase",
             "kubernetes.node_ready",
             "kubernetes.pod_phase",
@@ -27010,6 +29432,10 @@
             "kubernetes.replication_controller.desired",
             "kubernetes.resource_quota_hard",
             "kubernetes.resource_quota_used",
+            "kubernetes.stateful_set.current",
+            "kubernetes.stateful_set.desired",
+            "kubernetes.stateful_set.ready",
+            "kubernetes.stateful_set.updated",
             "openshift.appliedclusterquota.cpu.hard",
             "openshift.appliedclusterquota.cpu.used",
             "openshift.appliedclusterquota.memory.hard",
@@ -27054,6 +29480,12 @@
           "group": null,
           "default": true
         },
+        "kubernetes.cronjob.active": {
+          "type": "gauge",
+          "description": "The number of actively running jobs for a cronjob.",
+          "group": null,
+          "default": false
+        },
         "kubernetes.daemon_set.current_scheduled": {
           "type": "gauge",
           "description": "The number of nodes that are running at least 1 daemon pod and are supposed to run the daemon pod",
@@ -27089,6 +29521,36 @@
           "description": "Number of desired pods in this deployment",
           "group": null,
           "default": true
+        },
+        "kubernetes.job.active": {
+          "type": "gauge",
+          "description": "The number of actively running pods for a job.",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.job.completions": {
+          "type": "gauge",
+          "description": "The desired number of successfully finished pods the job should be run with.",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.job.failed": {
+          "type": "counter",
+          "description": "The number of pods which reased phase Failed for a job.",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.job.parallelism": {
+          "type": "gauge",
+          "description": "The max desired number of pods the job should run at any given time.",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.job.succeeded": {
+          "type": "counter",
+          "description": "The number of pods which reached phase Succeeded for a job.",
+          "group": null,
+          "default": false
         },
         "kubernetes.namespace_phase": {
           "type": "gauge",
@@ -27128,7 +29590,7 @@
         },
         "kubernetes.replication_controller.desired": {
           "type": "gauge",
-          "description": "Number of desired pods",
+          "description": "Number of desired pods (the `spec.replicas` field)",
           "group": null,
           "default": true
         },
@@ -27143,6 +29605,30 @@
           "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
           "group": null,
           "default": true
+        },
+        "kubernetes.stateful_set.current": {
+          "type": "gauge",
+          "description": "The number of pods created by the StatefulSet controller from the\nStatefulSet version indicated by `current_revision` property on the\n`kubernetes_uid` dimension for this StatefulSet.\n",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.stateful_set.desired": {
+          "type": "gauge",
+          "description": "Number of desired pods in the stateful set (the `spec.replicas` field)",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.stateful_set.ready": {
+          "type": "gauge",
+          "description": "Number of pods created by the stateful set that have the `Ready` condition",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.stateful_set.updated": {
+          "type": "gauge",
+          "description": "The number of pods created by the StatefulSet controller from the\nStatefulSet version indicated by the `update_revision` property on the\n`kubernetes_uid` dimension for this StatefulSet.\n",
+          "group": null,
+          "default": false
         },
         "openshift.appliedclusterquota.cpu.hard": {
           "type": "gauge",
@@ -27321,6 +29807,10 @@
         "\u003cpod label\u003e": {
           "dimension": "kubernetes_pod_uid",
           "description": "Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension."
+        },
+        "creation_timestamp": {
+          "dimension": "kubernetes_pod_uid/kubernetes_uid",
+          "description": "CreationTimestamp is a timestamp representing the server time when this object was created and is in UTC. This property is synced onto `kubernetes_pod_uid` or `kubernetes_uid` depending on whether it's a node or Kubernetes workload."
         }
       },
       "metricsExhaustive": false,
@@ -27449,7 +29939,7 @@
           "description": "For query metrics, the user name of the user that executed the queries."
         }
       },
-      "doc": "This monitor pulls metrics from all PostgreSQL databases from a specific\nPostgres server instance.  It pulls basic information that is applicable\nto any database.  It gathers these metrics via SQL queries.\n\n\u003c!--- OVERVIEW ---\u003e\n## Metrics about Queries\n\nIn order to get metrics about query execution time, you must enable the\n`pg_stat_statements` extension.  This extension must be specified in the\n`shared_preload_libraries` config option in the main PostgreSQL\nconfiguration at server start up.  Then the extension must be enabled for\neach database by running `CREATE EXTENSION IF NOT EXISTS\npg_stat_statements;` on each database.\n\nNote that in order to get consistent and accurate query execution time\nmetrics, you must set the [pg_stat_statements.max config\noption](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631)\nto larger than the number of distinct queries on the server.\n\nHere is a [sample configuration of Postgres to enable statement tracking](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631).\n\nTested with PostgreSQL 9.2+.\n\nIf you want to collect additional metrics about PostgreSQL, use the [sql monitor](./sql.md).\n\n\u003c!--- SETUP ---\u003e\n## Example Configuration\n\nThis example uses the [Vault remote config\nsource](https://github.com/signalfx/signalfx-agent/blob/master/docs/remote-config.md#nested-values-vault-only)\nto connect to PostgreSQL using the `params` map that allows you to pull\nout the username and password individually from Vault and interpolate\nthem into the `connectionString` config option.\n\n```yaml\nmonitors:\n - type: postgresql\n   connectionString: 'sslmode=disable user={{.username}} password={{.password}}'\n   params: \u0026psqlParams\n     username: {\"#from\": \"vault:secret/my-database[username]\"}\n     password: {\"#from\": \"vault:secret/my-database[password]\"}\n   discoveryRule: 'container_image =~ \"postgres\" \u0026\u0026 port == 5432'\n\n # This monitor will monitor additional queries from PostgreSQL using the\n # provided SQL queries.\n - type: sql\n   dbDriver: postgres\n   connectionString: 'sslmode=disable user={{.username}} password={{.password}}'\n   # This is a YAML reference to avoid duplicating the above config.\n   params: *psqlParams\n   queries:\n     - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'\n       metrics:\n         - metricName: \"customers\"\n           valueColumn: \"count\"\n           dimensionColumns: [\"country\", \"status\"]\n```\n",
+      "doc": "This monitor pulls metrics from all PostgreSQL databases from a specific\nPostgres server instance.  It pulls basic information that is applicable\nto any database.  It gathers these metrics via SQL queries.\n\n\u003c!--- OVERVIEW ---\u003e\n## Metrics about Queries\n\nIn order to get metrics about query execution time, you must enable the\n`pg_stat_statements` extension.  This extension must be specified in the\n`shared_preload_libraries` config option in the main PostgreSQL\nconfiguration at server start up.  Then the extension must be enabled for\neach database by running `CREATE EXTENSION IF NOT EXISTS\npg_stat_statements;` on each database.\n\nNote that in order to get consistent and accurate query execution time\nmetrics, you must set the [pg_stat_statements.max config\noption](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631)\nto larger than the number of distinct queries on the server.\n\nHere is a [sample configuration of Postgres to enable statement tracking](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631).\n\nTested with PostgreSQL `9.2+`.\n\nIf you want to collect additional metrics about PostgreSQL, use the [sql monitor](./sql.md).\n\n\u003c!--- SETUP ---\u003e\n## Example Configuration\n\nThis example uses the [Vault remote config\nsource](https://github.com/signalfx/signalfx-agent/blob/master/docs/remote-config.md#nested-values-vault-only)\nto connect to PostgreSQL using the `params` map that allows you to pull\nout the username and password individually from Vault and interpolate\nthem into the `connectionString` config option.\n\n```yaml\nmonitors:\n - type: postgresql\n   connectionString: 'sslmode=disable user={{.username}} password={{.password}}'\n   params: \u0026psqlParams\n     username: {\"#from\": \"vault:secret/my-database[username]\"}\n     password: {\"#from\": \"vault:secret/my-database[password]\"}\n   discoveryRule: 'container_image =~ \"postgres\" \u0026\u0026 port == 5432'\n\n # This monitor will monitor additional queries from PostgreSQL using the\n # provided SQL queries.\n - type: sql\n   dbDriver: postgres\n   connectionString: 'sslmode=disable user={{.username}} password={{.password}}'\n   # This is a YAML reference to avoid duplicating the above config.\n   params: *psqlParams\n   queries:\n     - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'\n       metrics:\n         - metricName: \"customers\"\n           valueColumn: \"count\"\n           dimensionColumns: [\"country\", \"status\"]\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -27467,6 +29957,13 @@
             "postgres_sequential_scans",
             "postgres_sessions",
             "postgres_table_size"
+          ]
+        },
+        "queries": {
+          "description": "",
+          "metrics": [
+            "postgres_longest_running_queries",
+            "postgres_most_frequent_queries"
           ]
         }
       },
@@ -27500,6 +29997,18 @@
           "description": "Number of rows live (not deleted) in the `table`.",
           "group": null,
           "default": true
+        },
+        "postgres_longest_running_queries": {
+          "type": "cumulative",
+          "description": "Top N queries based on the execution time broken down by `database`",
+          "group": "queries",
+          "default": false
+        },
+        "postgres_most_frequent_queries": {
+          "type": "cumulative",
+          "description": "Top N most frequently executed queries broken down by `database`",
+          "group": "queries",
+          "default": false
         },
         "postgres_query_count": {
           "type": "cumulative",
@@ -27574,6 +30083,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "masterDBName",
+            "doc": "The \"master\" database to which the agent first connects to query the list of databases available in the server.  This database should be accessible to the user specified with `connectionString` and `params` below, and that user should have permission to query `pg_database`.  If you want to filter which databases are monitored, use the `databases` option below.",
+            "default": "postgres",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "connectionString",
             "doc": "See https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters.",
             "default": "",
@@ -27606,6 +30123,14 @@
             "required": false,
             "type": "int",
             "elementKind": ""
+          },
+          {
+            "yamlName": "topQueryLimit",
+            "doc": "The number of top queries to consider when publishing query-related metrics",
+            "default": 10,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
           }
         ]
       },
@@ -27634,14 +30159,14 @@
       "monitorType": "prometheus-exporter",
       "sendAll": true,
       "dimensions": null,
-      "doc": "This monitor reads metrics from a [Prometheus\nexporter](https://prometheus.io/docs/instrumenting/exporters/) endpoint.\n\nAll metric types are supported.  See\nhttps://prometheus.io/docs/concepts/metric_types/ for a description of the\nPrometheus metric types.  The conversion happens as follows:\n\n - Gauges are converted directly to SignalFx gauges\n - Counters are converted directly to SignalFx cumulative counters\n - Untyped metrics are converted directly to SignalFx gauges\n - Summary metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each quantile value is converted to a gauge called\n     `\u003cbasename\u003e_quantile` and will include a dimension called `quantile` that\n     specifies the quantile.\n - Histogram metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each histogram bucket is converted to a cumulative counter called\n     `\u003cbasename\u003e_bucket` and will include a dimension called `upper_bound` that\n     specifies the maximum value in that bucket.  This metric specifies the\n     number of events with a value that is less than or equal to the upper\n     bound.\n\nAll Prometheus labels will be converted directly to SignalFx dimensions.\n\nThis supports service discovery so you can set a discovery rule such as:\n\n`port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 containerImage =~ \"exporter\"`\n\nassuming you are running exporters in container images that have the word\n\"exporter\" in them and fall within the standard exporter port range.  In\nK8s, you could also try matching on the container port name as defined in\nthe pod spec, which is the `name` variable in discovery rules for the\n`k8s-api` observer.\n\nFiltering can be very useful here since exporters tend to be fairly verbose.\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: prometheus-exporter\n   discoveryRule: port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 container_image =~ \"exporter\"\n   extraDimensions:\n     metric_source: prometheus\n```\n",
+      "doc": "This monitor reads metrics from a [Prometheus\nexporter](https://prometheus.io/docs/instrumenting/exporters/) endpoint.\n\nAll metric types are supported.  See\nhttps://prometheus.io/docs/concepts/metric_types/ for a description of the\nPrometheus metric types.  The conversion happens as follows:\n\n - Gauges are converted directly to SignalFx gauges\n - Counters are converted directly to SignalFx cumulative counters\n - Untyped metrics are converted directly to SignalFx gauges\n - Summary metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each quantile value is converted to a gauge called\n     `\u003cbasename\u003e_quantile` and will include a dimension called `quantile` that\n     specifies the quantile.\n - Histogram metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each histogram bucket is converted to a cumulative counter called\n     `\u003cbasename\u003e_bucket` and will include a dimension called `upper_bound` that\n     specifies the maximum value in that bucket.  This metric specifies the\n     number of events with a value that is less than or equal to the upper\n     bound.\n\nAll Prometheus labels will be converted directly to SignalFx dimensions.\n\nThis supports service discovery so you can set a discovery rule such as:\n\n`port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 containerImage =~ \"exporter\"`\n\nassuming you are running exporters in container images that have the word\n\"exporter\" in them and fall within the standard exporter port range.  In\nK8s, you could also try matching on the container port name as defined in\nthe pod spec, which is the `name` variable in discovery rules for the\n`k8s-api` observer.\n\nFiltering can be very useful here since exporters tend to be fairly verbose.\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: prometheus-exporter\n   discoveryRule: port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 container_image =~ \"exporter\"\n   extraDimensions:\n     metric_source: prometheus\n```\n\n## Authentication\nFor basic HTTP authentication use the `username` and `password` options.\n\nOn Kubernetes if the monitored service requires authentication use the `useServiceAccount`\noption to use the service account of the agent when connecting. Make sure that the\nSignalFx Agent service account has sufficient permissions for the monitored service.\n\n## Troubleshooting\n* Log contains the error `net/http: HTTP/1.x transport connection broken: malformed HTTP response`\n\n    **Solution**: enable HTTPS with `useHTTPS`.\n\n* Log contains the error `forbidden: User \\\"system:anonymous\\\" cannot get path \\\"/metrics\\\"`\n\n    **Solution**: enable `useServiceAccount` and make sure the service account SignalFx agent\n    is running with has the necessary permissions.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/prometheusexporter",
         "fields": [
           {
@@ -27687,6 +30212,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -28042,6 +30575,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
             "yamlName": "metricPath",
             "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
             "default": "/metrics",
@@ -28252,6 +30793,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -29448,6 +31997,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -31231,6 +33788,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
             "yamlName": "metricPath",
             "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
             "default": "/metrics",
@@ -32315,6 +34880,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
             "yamlName": "metricPath",
             "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
             "default": "/metrics",
@@ -32818,6 +35391,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
             "yamlName": "metricPath",
             "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
             "default": "/metrics",
@@ -32896,6 +35477,49 @@
       },
       "acceptsEndpoints": true,
       "singleInstance": false
+    },
+    {
+      "monitorType": "signalfx-forwarder",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "Runs an HTTP server that listens for SignalFx datapoints and trace spans\nand forwards them to SignalFx (or the configured ingest host in the\n`writer` section of the agent config).  This supports the latest formats\nfor datapoints (v2) and spans (v1) that our ingest server supports and at\nthe same path (`/v2/datapoint`, `/v1/trace`).  By default, the server listens on\nlocalhost port 9080 but can be configured to anything.\n",
+      "groups": {},
+      "metrics": null,
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "internal/monitors/forwarder",
+        "fields": [
+          {
+            "yamlName": "listenAddress",
+            "doc": "The host:port on which to listen for datapoints.  The listening server accepts datapoints on the same HTTP path that ingest/gateway accepts them (e.g. `/v2/datapoint`, `/v1/trace`).  Requests to other paths will return 404s.",
+            "default": "127.0.0.1:9080",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "serverTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "5s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendInternalMetrics",
+            "doc": "Whether to emit internal metrics about the HTTP listener",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": false,
+      "singleInstance": true
     },
     {
       "monitorType": "sql",
@@ -33022,6 +35646,14 @@
                         "required": false,
                         "type": "bool",
                         "elementKind": ""
+                      },
+                      {
+                        "yamlName": "dimensionPropertyColumns",
+                        "doc": "The mapping between dimensions and the columns to be used to attach respective properties",
+                        "default": null,
+                        "required": false,
+                        "type": "map",
+                        "elementKind": "slice"
                       }
                     ]
                   }
@@ -35545,7 +38177,7 @@
         "fields": [
           {
             "yamlName": "listenAddress",
-            "doc": "The host:port on which to listen for spans.  This server accepts spans in all of the formats that we support on our regular ingest server.  The listening server accepts spans on the same HTTP path that ingest accepts them (e.g. `/v1/trace`).  Requests to other paths will return 404s.",
+            "doc": "The host:port on which to listen for datapoints.  The listening server accepts datapoints on the same HTTP path that ingest/gateway accepts them (e.g. `/v2/datapoint`, `/v1/trace`).  Requests to other paths will return 404s.",
             "default": "127.0.0.1:9080",
             "required": false,
             "type": "string",
@@ -35561,7 +38193,7 @@
           },
           {
             "yamlName": "sendInternalMetrics",
-            "doc": "Whether to send internal metrics about the HTTP listener",
+            "doc": "Whether to emit internal metrics about the HTTP listener",
             "default": false,
             "required": false,
             "type": "bool",
@@ -35940,7 +38572,7 @@
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
-        "doc": "Config is the default config for this monitor and implements ConfigInterface.",
+        "doc": "Config for this monitor",
         "package": "internal/monitors/traefik",
         "fields": [
           {
@@ -35986,6 +38618,14 @@
           {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -37061,7 +39701,7 @@
         },
         {
           "yamlName": "additionalPortAnnotations",
-          "doc": "A list of annotation names that should be used to infer additional ports to be discovered on a particular pod.  The pod's annotation value should be a port number.  This is useful for annotations like `prometheus.io/port: 9230`.  If you don't already have preexisting annotations like this, we recommend using the [SignalFx-specific annotations](https://docs.signalfx.com/en/latest/integrations/agent/kubernetes-setup.html#config-via-k8s-annotations).",
+          "doc": "A list of annotation names that should be used to infer additional ports to be discovered on a particular pod.  The pod's annotation value should be a port number.  This is useful for annotations like `prometheus.io/port: 9230`.  If you don't already have preexisting annotations like this, we recommend using the [SignalFx-specific annotations](https://docs.signalfx.com/en/latest/kubernetes/k8s-monitors-observers.html#config-via-k8s-annotations).",
           "default": null,
           "required": false,
           "type": "slice",
@@ -37239,7 +39879,7 @@
             "fields": [
               {
                 "yamlName": "url",
-                "doc": "URL of the Kubelet instance.  This will default to `https://\u003ccurrent node hostname\u003e:10250` if not provided.",
+                "doc": "URL of the Kubelet instance.  This will default to `http://\u003ccurrent node hostname\u003e:10255` if not provided.",
                 "default": "",
                 "required": false,
                 "type": "string",
@@ -38051,7 +40691,7 @@
             },
             {
               "yamlName": "datapointsToExclude",
-              "doc": "A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](https://github.com/signalfx/signalfx-agent/tree/master/docs/filtering.md#monitor-level-filtering) for examples and more information.",
+              "doc": "A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](./filtering.md#additional-monitor-level-filtering) for examples and more information.",
               "default": "",
               "required": false,
               "type": "slice",

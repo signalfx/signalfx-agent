@@ -68,9 +68,9 @@ class Cluster:
         return cluster_version
 
     def wait_for_deployments(self, resources, timeout_seconds=utils.K8S_CREATE_TIMEOUT):
-        for doc in filter(lambda d: d["kind"] == "Deployment", resources):
-            name = doc["metadata"]["name"]
-            namespace = doc["metadata"]["namespace"]
+        for doc in filter(lambda d: d.kind == "Deployment", resources):
+            name = doc.metadata.name
+            namespace = doc.metadata.namespace
             print("Waiting for deployment %s to be ready ..." % name)
             try:
                 start_time = time.time()
@@ -102,20 +102,20 @@ class Cluster:
                 api_client = utils.api_client_from_version(doc["apiVersion"])
 
                 print(f"Creating {kind}/{name}")
-                utils.create_resource(doc, api_client, namespace=namespace, timeout=timeout)
-                resources.append(doc)
+                new_resource = utils.create_resource(doc, api_client, namespace=namespace, timeout=timeout)
+                resources.append(new_resource)
 
         self.wait_for_deployments(resources)
 
         try:
-            yield
+            yield resources
         finally:
-            for doc in resources:
+            for res in resources:
+                kind = res.kind
+                name = res.metadata.name
                 print('Deleting %s "%s" ...' % (kind, name))
-                kind = doc["kind"]
-                name = doc["metadata"]["name"]
-                namespace = doc["metadata"]["namespace"]
-                api_client = utils.api_client_from_version(doc["apiVersion"])
+                namespace = res.metadata.namespace
+                api_client = utils.api_client_from_version(res.api_version)
                 utils.delete_resource(name, kind, api_client, namespace=namespace)
 
     @contextmanager
@@ -140,6 +140,7 @@ class Cluster:
                         print("\nEvents received:")
                         for event in backend.events or []:
                             print_dp_or_event(event)
+                        print(f"\nDimensions set: {backend.dims}")
 
     @contextmanager
     def run_tunnels(self, fake_services):
