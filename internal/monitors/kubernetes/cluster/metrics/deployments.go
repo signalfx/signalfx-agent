@@ -31,7 +31,7 @@ func dimPropsForDeployment(dep *v1beta1.Deployment) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(dep.Labels)
 	props["deployment"] = dep.Name
 	props["kubernetes_workload"] = "Deployment"
-	props["creation_timestamp"] = dep.GetCreationTimestamp().Format(time.RFC3339)
+	props["deployment_creation_timestamp"] = dep.GetCreationTimestamp().Format(time.RFC3339)
 
 	for _, or := range dep.OwnerReferences {
 		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
