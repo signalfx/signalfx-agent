@@ -213,38 +213,6 @@ def test_cronjobs(k8s_cluster):
 
 
 @pytest.mark.kubernetes
-def test_creation_timestamp(k8s_cluster):
-    config = """
-    monitors:
-     - type: kubernetes-cluster
-    """
-    yamls = [SCRIPT_DIR / "resource_quota.yaml", TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
-    with k8s_cluster.create_resources(yamls):
-        with k8s_cluster.run_agent(agent_yaml=config) as agent:
-            assert wait_for(
-                p(any_dim_val_has_prop, agent.fake_services, dim_name="kubernetes_uid", prop_name="creation_timestamp")
-            )
-
-            assert wait_for(
-                p(
-                    any_dim_val_has_prop,
-                    agent.fake_services,
-                    dim_name="kubernetes_pod_uid",
-                    prop_name="creation_timestamp",
-                )
-            )
-
-            assert wait_for(
-                p(
-                    any_dim_val_has_prop,
-                    agent.fake_services,
-                    dim_name="kubernetes_node_uid",
-                    prop_name="creation_timestamp",
-                )
-            )
-
-
-@pytest.mark.kubernetes
 def test_node_metrics_and_props(k8s_cluster):
     config = """
             monitors:
@@ -275,3 +243,12 @@ def test_node_metrics_and_props(k8s_cluster):
                 )
 
             wait_for_assertion(p(has_props, node, expected_props))
+
+            assert wait_for(
+                p(
+                    any_dim_val_has_prop,
+                    agent.fake_services,
+                    dim_name="kubernetes_node_uid",
+                    prop_name="node_creation_timestamp",
+                )
+            )

@@ -41,7 +41,7 @@ func dimPropsForNode(node *v1.Node) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(node.Labels)
 
 	props["kubernetes_node"] = node.Name
-	props["creation_timestamp"] = node.GetCreationTimestamp().Format(time.RFC3339)
+	props["node_creation_timestamp"] = node.GetCreationTimestamp().Format(time.RFC3339)
 
 	taintProps := getPropsFromTaints(node.Spec.Taints)
 	for k, v := range taintProps {
