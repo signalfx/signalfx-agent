@@ -190,7 +190,7 @@ commands:
     parameters:
       version:
         type: string
-        default: v1.3.1
+        default: v1.4.0
     steps:
       - restore_cache:
           key: "v1-minikube-binary-<< parameters.version >>"
@@ -211,7 +211,7 @@ commands:
     parameters:
       version:
         type: string
-        default: v1.3.1
+        default: v1.4.0
       k8s_version:
         type: string
         default: v1.12.0
@@ -383,8 +383,8 @@ jobs:
         type: string
     environment:
       K8S_VERSION: "<< parameters.k8s_version >>"
-      K8S_MIN_VERSION: "v1.9.0"
-      K8S_MAX_VERSION: "v1.15.0"
+      K8S_MIN_VERSION: "v1.12.0"
+      K8S_MAX_VERSION: "v1.16.0"
       K8S_SFX_AGENT: "quay.io/signalfx/signalfx-agent-dev:latest"
       MARKERS: "kubernetes"
     steps:
@@ -638,6 +638,12 @@ workflows:
           requires:
             - build
       - k8s_integration_tests:
+          name: "k8s_v1.16.0_integration_tests"
+          k8s_version: "v1.16.0"
+          requires:
+            - build
+            - helm_check
+      - k8s_integration_tests:
           name: "k8s_v1.15.0_integration_tests"
           k8s_version: "v1.15.0"
           requires:
@@ -658,24 +664,6 @@ workflows:
       - k8s_integration_tests:
           name: "k8s_v1.12.0_integration_tests"
           k8s_version: "v1.12.0"
-          requires:
-            - build
-            - helm_check
-      - k8s_integration_tests:
-          name: "k8s_v1.11.0_integration_tests"
-          k8s_version: "v1.11.0"
-          requires:
-            - build
-            - helm_check
-      - k8s_integration_tests:
-          name: "k8s_v1.10.0_integration_tests"
-          k8s_version: "v1.10.0"
-          requires:
-            - build
-            - helm_check
-      - k8s_integration_tests:
-          name: "k8s_v1.9.0_integration_tests"
-          k8s_version: "v1.9.0"
           requires:
             - build
             - helm_check
