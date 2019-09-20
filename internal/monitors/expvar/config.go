@@ -11,6 +11,11 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 )
 
+const (
+	sep    = '.'
+	escape = '\\'
+)
+
 // Config for monitor configuration
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
@@ -115,10 +120,10 @@ func (c *Config) getAllMetricConfigs() []MetricConfig {
 		memstatsMetricPathsCumulative = append(memstatsMetricPathsCumulative, memstatsBySizeSizeMetricPath, memstatsBySizeMallocsMetricPath, memstatsBySizeFreesMetricPath)
 	}
 	for _, path := range memstatsMetricPathsGauge {
-		configs = append(configs, MetricConfig{Name: toSnakeCase(path), JSONPath: path, Type: "gauge", DimensionConfigs: []DimensionConfig{{}}})
+		configs = append(configs, MetricConfig{Name: toSnakeCase(path, sep, escape), JSONPath: path, Type: "gauge", DimensionConfigs: []DimensionConfig{{}}})
 	}
 	for _, path := range memstatsMetricPathsCumulative {
-		configs = append(configs, MetricConfig{Name: toSnakeCase(path), JSONPath: path, Type: "cumulative", DimensionConfigs: []DimensionConfig{{}}})
+		configs = append(configs, MetricConfig{Name: toSnakeCase(path, sep, escape), JSONPath: path, Type: "cumulative", DimensionConfigs: []DimensionConfig{{}}})
 	}
 
 	return configs
@@ -126,7 +131,7 @@ func (c *Config) getAllMetricConfigs() []MetricConfig {
 
 func (mc *MetricConfig) name() string {
 	if strings.TrimSpace(mc.Name) == "" {
-		return toSnakeCase(mc.JSONPath)
+		return toSnakeCase(mc.JSONPath, sep, escape)
 	}
 	return mc.Name
 }

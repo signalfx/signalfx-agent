@@ -66,3 +66,29 @@ def test_expvar_custom_metric():
             """,
             expected,
         )
+
+
+def test_expvar_escape_character():
+    """
+    Given the JSON object below, using the escape character '\' on the path separator character '.', '.' should be
+    treated literally as part of the metric name.
+    {
+    ...
+        "kafka.ex-jaeger-transaction.ok": 11
+    ...
+    }
+    """
+    expected = METADATA.default_metrics | {"kafka.ex-jaeger-transaction.ok"}
+    with run_expvar() as expvar_container_ip:
+        run_agent_verify(
+            f"""
+            monitors:
+            - type: expvar
+              host: {expvar_container_ip}
+              port: 8080
+              metrics:
+              - JSONPath: 'kafka\\.ex-jaeger-transaction\\.ok'
+                type: gauge
+            """,
+            expected,
+        )
