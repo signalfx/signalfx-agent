@@ -67,11 +67,11 @@ func NewFakeK8s() *FakeK8s {
 	r.HandleFunc(`/api/v1/namespaces/{namespace}/{resource}/{name}`, f.handleDeleteResource).Methods("DELETE")
 	r.HandleFunc(`/api/v1/namespaces/{namespace}/{resource}/{name}`, f.handleGetResourceByName).Methods("GET")
 
-	r.HandleFunc("/apis/extensions/v1beta1/{resource}", f.handleListResource).Methods("GET")
-	r.HandleFunc(`/apis/extensions/v1beta1/namespaces/{namespace}/{resource}/{name}`, f.handleGetResourceByName).Methods("GET")
-	r.HandleFunc("/apis/extensions/v1beta1/namespaces/{namespace}/{resource}", f.handleListResource).Methods("GET")
-	r.HandleFunc("/apis/extensions/v1beta1/namespaces/{namespace}/{resource}", f.handleCreateOrReplaceResource).Methods("POST")
-	r.HandleFunc("/apis/extensions/v1beta1/namespaces/{namespace}/{resource}/{name}", f.handleDeleteResource).Methods("DELETE")
+	r.HandleFunc("/apis/apps/v1/{resource}", f.handleListResource).Methods("GET")
+	r.HandleFunc(`/apis/apps/v1/namespaces/{namespace}/{resource}/{name}`, f.handleGetResourceByName).Methods("GET")
+	r.HandleFunc("/apis/apps/v1/namespaces/{namespace}/{resource}", f.handleListResource).Methods("GET")
+	r.HandleFunc("/apis/apps/v1/namespaces/{namespace}/{resource}", f.handleCreateOrReplaceResource).Methods("POST")
+	r.HandleFunc("/apis/apps/v1/namespaces/{namespace}/{resource}/{name}", f.handleDeleteResource).Methods("DELETE")
 
 	r.HandleFunc("/apis/batch/v1/{resource}", f.handleListResource).Methods("GET")
 	r.HandleFunc("/apis/batch/v1/namespaces/{namespace}/{resource}", f.handleListResource).Methods("GET")
@@ -379,11 +379,11 @@ func typeMeta(rt resourceKind) metav1.TypeMeta {
 	case "ReplicationController":
 		return metav1.TypeMeta{Kind: "ReplicationControllerList", APIVersion: "v1"}
 	case "Deployment":
-		return metav1.TypeMeta{Kind: "DeploymentList", APIVersion: "extensions/v1beta1"}
+		return metav1.TypeMeta{Kind: "DeploymentList", APIVersion: "apps/v1"}
 	case "DaemonSet":
-		return metav1.TypeMeta{Kind: "DaemonSetList", APIVersion: "extensions/v1beta1"}
+		return metav1.TypeMeta{Kind: "DaemonSetList", APIVersion: "apps/v1"}
 	case "ReplicaSet":
-		return metav1.TypeMeta{Kind: "ReplicaSetList", APIVersion: "extensions/v1beta1"}
+		return metav1.TypeMeta{Kind: "ReplicaSetList", APIVersion: "apps/v1"}
 	case "Namespace":
 		return metav1.TypeMeta{Kind: "NamespaceList", APIVersion: "v1"}
 	case "ResourceQuota":

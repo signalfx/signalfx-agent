@@ -8,8 +8,8 @@ import (
 
 	//"github.com/davecgh/go-spew/spew"
 
+	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
@@ -253,37 +253,37 @@ var _ = Describe("Kubernetes plugin", func() {
 					Phase: v1.PodRunning,
 				},
 			},
-			&v1beta1.Deployment{
+			&appsv1.Deployment{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Deployment",
-					APIVersion: "extensions/v1beta1",
+					APIVersion: "apps/v1",
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "deploy1",
 					UID:       "abcd",
 					Namespace: "default",
 				},
-				Spec: v1beta1.DeploymentSpec{
+				Spec: appsv1.DeploymentSpec{
 					Replicas: intp(int32(10)),
 				},
-				Status: v1beta1.DeploymentStatus{
+				Status: appsv1.DeploymentStatus{
 					AvailableReplicas: 5,
 				},
 			},
-			&v1beta1.Deployment{
+			&appsv1.Deployment{
 				TypeMeta: metav1.TypeMeta{
 					Kind:       "Deployment",
-					APIVersion: "extensions/v1beta1",
+					APIVersion: "apps/v1",
 				},
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      "deploy2",
 					UID:       "efgh",
 					Namespace: "default",
 				},
-				Spec: v1beta1.DeploymentSpec{
+				Spec: appsv1.DeploymentSpec{
 					Replicas: intp(int32(1)),
 				},
-				Status: v1beta1.DeploymentStatus{
+				Status: appsv1.DeploymentStatus{
 					AvailableReplicas: 1,
 				},
 			},
@@ -299,20 +299,20 @@ var _ = Describe("Kubernetes plugin", func() {
 		expectIntMetric(dps, "kubernetes_uid", "efgh", "kubernetes.deployment.desired", 1)
 		expectIntMetric(dps, "kubernetes_uid", "efgh", "kubernetes.deployment.available", 1)
 
-		fakeK8s.CreateOrReplaceResource(&v1beta1.Deployment{
+		fakeK8s.CreateOrReplaceResource(&appsv1.Deployment{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "Deployment",
-				APIVersion: "extensions/v1beta1",
+				APIVersion: "apps/v1",
 			},
 			ObjectMeta: metav1.ObjectMeta{
 				Name:      "deploy2",
 				UID:       "efgh",
 				Namespace: "default",
 			},
-			Spec: v1beta1.DeploymentSpec{
+			Spec: appsv1.DeploymentSpec{
 				Replicas: intp(int32(1)),
 			},
-			Status: v1beta1.DeploymentStatus{
+			Status: appsv1.DeploymentStatus{
 				AvailableReplicas: 0,
 			},
 		})

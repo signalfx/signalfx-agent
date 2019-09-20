@@ -24,7 +24,7 @@
         },
         "ownerReferences": [
           {
-            "apiVersion": "extensions/v1beta1",
+            "apiVersion": "apps/v1",
             "kind": "ReplicaSet",
             "name": "redis-3165242388",
             "uid": "2faac8db-f3a7-11e6-99cc-066fe1d5e5f9",
