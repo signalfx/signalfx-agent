@@ -20,4 +20,4 @@ for f in ${files_to_update[@]}; do
 done
 
 # This will update the derived k8s resources with the new version
-deployments/k8s/generate-from-helm
+AGENT_RELEASE_VERSION=$new_version deployments/k8s/generate-from-helm
