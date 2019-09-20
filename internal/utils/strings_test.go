@@ -16,15 +16,11 @@ var SplitStringTests = []SplitStringTest{
 	{input: "kafka\\.ex-jaeger-transaction.ok", sep: '.', escape: '\\', want: []string{"kafka.ex-jaeger-transaction", "ok"}},
 	{input: "kafka\\\\.ex-jaeger-transaction.ok", sep: '.', escape: '\\', want: []string{"kafka\\", "ex-jaeger-transaction", "ok"}},
 	{input: "kafka\\\\\\.ex-jaeger-transaction.ok", sep: '.', escape: '\\', want: []string{"kafka\\.ex-jaeger-transaction", "ok"}},
-	{input: "kafka.ex-jaeger-transaction.ok\\", sep: '.', escape: '\\', want: []string{"kafka", "ex-jaeger-transaction", "ok"}},
 }
 
 func TestSplitString(t *testing.T) {
 	for _, test := range SplitStringTests {
-		got, err := SplitString(test.input, test.sep, test.escape)
-		if err != nil {
-			t.Errorf("got: %+v, error: %+v", got, err)
-		}
+		got, _ := SplitString(test.input, test.sep, test.escape)
 		if len(got) != len(test.want) {
 			t.Errorf("got %d substrings, want %d substrings", len(got), len(test.want))
 		}
