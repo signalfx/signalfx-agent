@@ -7,10 +7,10 @@ import (
 	k8sutil "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
 	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
-	"k8s.io/api/extensions/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
 )
 
-func datapointsForDaemonSet(ds *v1beta1.DaemonSet) []*datapoint.Datapoint {
+func datapointsForDaemonSet(ds *appsv1.DaemonSet) []*datapoint.Datapoint {
 	dimensions := map[string]string{
 		"metric_source":        "kubernetes",
 		"kubernetes_namespace": ds.Namespace,
@@ -46,7 +46,7 @@ func datapointsForDaemonSet(ds *v1beta1.DaemonSet) []*datapoint.Datapoint {
 	}
 }
 
-func dimPropsForDaemonSet(ds *v1beta1.DaemonSet) *atypes.DimProperties {
+func dimPropsForDaemonSet(ds *appsv1.DaemonSet) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(ds.Labels)
 	props["kubernetes_workload"] = "DaemonSet"
 	props["daemonset_creation_timestamp"] = ds.GetCreationTimestamp().Format(time.RFC3339)

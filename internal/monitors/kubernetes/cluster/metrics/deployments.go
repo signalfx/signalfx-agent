@@ -8,10 +8,10 @@ import (
 	k8sutil "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
 	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
-	"k8s.io/api/extensions/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
 )
 
-func datapointsForDeployment(dep *v1beta1.Deployment) []*datapoint.Datapoint {
+func datapointsForDeployment(dep *appsv1.Deployment) []*datapoint.Datapoint {
 	dimensions := map[string]string{
 		"metric_source":        "kubernetes",
 		"kubernetes_namespace": dep.Namespace,
@@ -27,7 +27,7 @@ func datapointsForDeployment(dep *v1beta1.Deployment) []*datapoint.Datapoint {
 		*dep.Spec.Replicas, dep.Status.AvailableReplicas)
 }
 
-func dimPropsForDeployment(dep *v1beta1.Deployment) *atypes.DimProperties {
+func dimPropsForDeployment(dep *appsv1.Deployment) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(dep.Labels)
 	props["deployment"] = dep.Name
 	props["kubernetes_workload"] = "Deployment"

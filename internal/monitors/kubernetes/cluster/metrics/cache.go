@@ -14,7 +14,6 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -126,15 +125,15 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 	case *v1.ReplicationController:
 		dps = datapointsForReplicationController(o)
 		kind = "ReplicationController"
-	case *v1beta1.DaemonSet:
+	case *appsv1.DaemonSet:
 		dps = datapointsForDaemonSet(o)
 		dimProps = dimPropsForDaemonSet(o)
 		kind = "DaemonSet"
-	case *v1beta1.Deployment:
+	case *appsv1.Deployment:
 		dps = datapointsForDeployment(o)
 		dimProps = dimPropsForDeployment(o)
 		kind = "Deployment"
-	case *v1beta1.ReplicaSet:
+	case *appsv1.ReplicaSet:
 		dps, dimProps = dc.handleAddReplicaSet(o)
 		kind = "ReplicaSet"
 	case *v1.ResourceQuota:
@@ -253,7 +252,7 @@ func (dc *DatapointCache) handleDeleteService(svcUID types.UID) error {
 
 // handleAddReplicaSet adds a replicaset to the internal cache and
 // returns the datapoints and dimProps for the replicaset.
-func (dc *DatapointCache) handleAddReplicaSet(rs *v1beta1.ReplicaSet) ([]*datapoint.Datapoint, *atypes.DimProperties) {
+func (dc *DatapointCache) handleAddReplicaSet(rs *appsv1.ReplicaSet) ([]*datapoint.Datapoint, *atypes.DimProperties) {
 	if !dc.replicaSetCache.IsCached(rs) {
 		dc.replicaSetCache.AddReplicaSet(rs)
 		for _, podUID := range dc.podCache.GetPodsInNamespace(rs.Namespace) {

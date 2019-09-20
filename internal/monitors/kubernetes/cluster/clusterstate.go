@@ -16,7 +16,6 @@ import (
 	batchv1 "k8s.io/api/batch/v1"
 	batchv1beta1 "k8s.io/api/batch/v1beta1"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/api/extensions/v1beta1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
 	k8s "k8s.io/client-go/kubernetes"
@@ -68,7 +67,6 @@ func (cs *State) Start() {
 	ctx, cs.cancel = context.WithCancel(context.Background())
 
 	coreClient := cs.clientset.CoreV1().RESTClient()
-	extV1beta1Client := cs.clientset.ExtensionsV1beta1().RESTClient()
 	appsV1Client := cs.clientset.AppsV1().RESTClient()
 	batchV1Client := cs.clientset.BatchV1().RESTClient()
 	batchBetaV1Client := cs.clientset.BatchV1beta1().RESTClient()
@@ -78,11 +76,11 @@ func (cs *State) Start() {
 	}
 
 	cs.beginSyncForType(ctx, &v1.Pod{}, "pods", cs.namespace, coreClient)
-	cs.beginSyncForType(ctx, &v1beta1.DaemonSet{}, "daemonsets", cs.namespace, extV1beta1Client)
-	cs.beginSyncForType(ctx, &v1beta1.Deployment{}, "deployments", cs.namespace, extV1beta1Client)
+	cs.beginSyncForType(ctx, &appsv1.DaemonSet{}, "daemonsets", cs.namespace, appsV1Client)
+	cs.beginSyncForType(ctx, &appsv1.Deployment{}, "deployments", cs.namespace, appsV1Client)
 	cs.beginSyncForType(ctx, &appsv1.StatefulSet{}, "statefulsets", cs.namespace, appsV1Client)
 	cs.beginSyncForType(ctx, &v1.ReplicationController{}, "replicationcontrollers", cs.namespace, coreClient)
-	cs.beginSyncForType(ctx, &v1beta1.ReplicaSet{}, "replicasets", cs.namespace, extV1beta1Client)
+	cs.beginSyncForType(ctx, &appsv1.ReplicaSet{}, "replicasets", cs.namespace, appsV1Client)
 	cs.beginSyncForType(ctx, &v1.ResourceQuota{}, "resourcequotas", cs.namespace, coreClient)
 	cs.beginSyncForType(ctx, &v1.Service{}, "services", cs.namespace, coreClient)
 	cs.beginSyncForType(ctx, &batchv1.Job{}, "jobs", cs.namespace, batchV1Client)

@@ -19,7 +19,8 @@ for f in $templates; do
     -x ${AGENT_CHART_DIR%/}/templates/$f \
     $AGENT_CHART_DIR | \
       sed -e 's/[[:space:]]*$//' | \
-      sed -e 's@apiVersion: apps/v1beta2@apiVersion: extensions/v1beta1@' | \
+      sed -e 's@apiVersion: apps/v1beta2@apiVersion: apps/v1@' | \
+      sed -e 's@apiVersion: extensions/v1beta1@apiVersion: apps/v1@' | \
       grep -v 'chart: signalfx-agent' | \
       grep -v 'namespace: signalfx-agent' | \
       grep -v 'heritage: Tiller' | \
