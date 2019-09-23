@@ -2,7 +2,6 @@ package metrics
 
 import (
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
@@ -36,7 +35,7 @@ func datapointsForPod(pod *v1.Pod) ([]*datapoint.Datapoint, []*atypes.DimPropert
 
 	for _, cs := range pod.Status.ContainerStatuses {
 		contDims := utils.CloneStringMap(dimensions)
-		contDims["container_id"] = strings.Replace(cs.ContainerID, "docker://", "", 1)
+		contDims["container_id"] = stripContainerIDPrefix(cs.ContainerID)
 		contDims["container_spec_name"] = cs.Name
 		contDims["container_image"] = cs.Image
 

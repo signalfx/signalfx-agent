@@ -29,10 +29,17 @@ func dimPropsForContainer(cs v1.ContainerStatus) *atypes.DimProperties {
 		return &atypes.DimProperties{
 			Dimension: atypes.Dimension{
 				Name:  "container_id",
-				Value: strings.Replace(cs.ContainerID, "docker://", "", 1),
+				Value: stripContainerIDPrefix(cs.ContainerID),
 			},
 			Properties: containerProps,
 		}
 	}
 	return nil
+}
+
+func stripContainerIDPrefix(id string) string {
+	out := strings.Replace(id, "docker://", "", 1)
+	out = strings.Replace(out, "cri-o://", "", 1)
+
+	return out
 }
