@@ -4,7 +4,7 @@ ARG GO_VERSION=1.12.1
 FROM ubuntu:16.04 as agent-builder
 
 RUN apt update &&\
-    apt install -y curl wget pkg-config parallel
+    apt install -y curl wget pkg-config parallel git
 
 ARG GO_VERSION
 ARG TARGET_ARCH
@@ -17,18 +17,13 @@ RUN cd /tmp &&\
 ENV GOPATH=/go
 WORKDIR /usr/src/signalfx-agent
 
-COPY vendor/ ./vendor/
-# Precompile and cache vendor compilation outputs so that building the app is
-# faster.  A bunch of these fail because go get pulls in more than necessary, but
-# a lot do compile
-RUN cd vendor && find . -type d -not -empty | grep -v '\btest' | parallel go install -mod vendor {} 2>/dev/null || true
-
 COPY cmd/ ./cmd/
 COPY scripts/make-templates scripts/make-versions ./scripts/
 COPY scripts/collectd-template-to-go ./scripts/
 COPY Makefile .
 COPY go.mod go.sum ./
 COPY internal/ ./internal/
+RUN go mod download
 
 ARG collectd_version=""
 ARG agent_version="latest"
@@ -376,19 +371,12 @@ COPY whitelist.json /lib/whitelist.json
 WORKDIR /
 
 
-# Workaround to utilize the global GO_VERSION argument
-# since "COPY --from" doesn't support variables.
-FROM golang:${GO_VERSION}-stretch as golang-ignore
-
-
 ####### Dev Image ########
 # This is an image to facilitate development of the agent.  It installs all of
 # the build tools for building collectd and the go agent, along with some other
 # useful utilities.  The agent image is copied from the final-image stage to
 # the /bundle dir in here and the SIGNALFX_BUNDLE_DIR is set to point to that.
 FROM ubuntu:18.04 as dev-extras
-
-ARG TARGET_ARCH
 
 RUN apt update &&\
     apt install -y \
@@ -417,6 +405,8 @@ ENV SIGNALFX_BUNDLE_DIR=/bundle \
 
 RUN pip3 install ipython ipdb
 
+ARG TARGET_ARCH
+
 # Install helm
 ARG HELM_VERSION=v2.13.0
 WORKDIR /tmp
@@ -429,10 +419,11 @@ WORKDIR /usr/src/signalfx-agent
 CMD ["/bin/bash"]
 ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 
-COPY --from=golang-ignore /usr/local/go/ /usr/local/go
-
 RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
     sh /tmp/get-docker.sh
+
+COPY --from=agent-builder /usr/local/go /usr/local/go
+COPY --from=agent-builder /go $GOPATH
 
 RUN go get -u golang.org/x/lint/golint &&\
     if [ `uname -m` != "aarch64" ]; then go get github.com/derekparker/delve/cmd/dlv; fi &&\

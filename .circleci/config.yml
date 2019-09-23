@@ -12,6 +12,7 @@ executors:
         environment:
           CGO_ENABLED: 0
           AGENT_BIN: /code/signalfx-agent
+          GOPATH: /go
 
   python36:
     working_directory: /opt/signalfx-agent
@@ -165,6 +166,26 @@ commands:
           key: "v1-helm-binary-<< parameters.version >>"
           paths:
             - /home/circleci/bin/helm
+
+  go_mod_download:
+    steps:
+      - restore_cache:
+          key: v1-go-mod-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
+      - run:
+          name: go mod download
+          command: |
+            [[ -d /go/pkg/mod/cache ]] && exit 0
+            # retry up to 3 times in case of network issues
+            for i in $(seq 1 3); do
+                go mod download && exit 0
+                sleep 10
+            done
+            exit 1
+      - save_cache:
+          key: v1-go-mod-{{ checksum "go.mod" }}-{{ checksum "go.sum" }}
+          paths:
+            - /go/pkg/mod
+
 jobs:
   build:
     executor: docker1809
@@ -188,16 +209,17 @@ jobs:
     steps:
       - checkout
       - goexecutor_setup
+      - go_mod_download
       - run: |
           go mod tidy
-          go mod vendor
-          git diff --exit-code || (echo 'go modules are not properly vendored. Run `make vendor` and commit the changes.' && exit 1)
+          git diff --exit-code || (echo 'go modules are not properly vendored. Run `make tidy` and commit the changes.' && exit 1)
 
   gotests:
     executor: goexecutor
     steps:
       - checkout
       - goexecutor_setup
+      - go_mod_download
       # Limit to 4 cores because CircleCI reports 36 cores which will cause OOM when go test is run and tries
       # to build many binaries in parallel. `go build` can use a max of 1 GB per invokation.
       - run: |
@@ -211,6 +233,7 @@ jobs:
     steps:
       - checkout
       - goexecutor_setup
+      - go_mod_download
       - run: |
           apk add --no-cache jq
           curl -LOk https://github.com/hairyhenderson/gomplate/releases/download/v3.4.0/gomplate_linux-amd64

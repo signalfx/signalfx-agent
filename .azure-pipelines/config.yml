@@ -12,21 +12,24 @@ trigger:
 variables:
   AGENT_BIN: '$(Build.SourcesDirectory)\build\SignalFxAgent\bin\signalfx-agent.exe'
   GO111MODULE: 'on'
-  GOPATH: 'c:\gopath'
-  GOBIN: '$(GOPATH)\bin'
+  GOPATH: '$(Pipeline.Workspace)/go'
+  GOBIN: '$(GOPATH)/bin'
   SANIC_NO_UVLOOP: 'true'
   TEST_SERVICES_DIR: '$(Build.SourcesDirectory)\test-services'
+  GOVERSION: "1.12.1"
+  GOMOD_HASH: ""
+  GOSUM_HASH: ""
 
 jobs:
 - job: 'go_lint'
   pool:
     vmImage: 'ubuntu-16.04'
-  container: golang:1.12.1
+  container: golang:$(GOVERSION)
   steps:
+  - template: 'templates/restore-go-cache.yml'
   - script: |
       set -euo pipefail
 
-      export GOPATH=/go
       lintver="1.16.0"
       curl -sfL https://github.com/golangci/golangci-lint/releases/download/v${lintver}/golangci-lint-${lintver}-linux-amd64.tar.gz > /tmp/golangci-lint.tar.gz
       tar -xf /tmp/golangci-lint.tar.gz -C /tmp
@@ -46,6 +49,8 @@ jobs:
     vmImage: 'vs2015-win2012r2'
   steps:
   - template: 'templates/install-go.yml'
+    parameters:
+      version: $(GOVERSION)
   - powershell: |
       if ("$(Build.SourceBranch)" -match "^refs/tags/v\d+\.\d+\.\d+$") {
           $env:AGENT_VERSION = ("$(Build.SourceBranchName)").Replace("v", "")
@@ -65,6 +70,7 @@ jobs:
   steps:
   - template: 'templates/install-go.yml'
     parameters:
+      version: $(GOVERSION)
       packages: 'github.com/tebeka/go2xunit'
   - powershell: |
       & ./scripts/windows/make.ps1 unit_test
@@ -82,6 +88,8 @@ jobs:
     vmImage: 'vs2015-win2012r2'
   steps:
   - template: 'templates/install-go.yml'
+    parameters:
+      version: $(GOVERSION)
   - template: 'templates/install-choco.yml'
     parameters:
       packages: 'vcpython27'

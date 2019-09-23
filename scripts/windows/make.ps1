@@ -1,7 +1,7 @@
 <#
 .PARAMETER Target
     Build target to run (compile_deps, versions_go, signalfx-agent, monitor-code-gen,
-                         bundle, lint, vendor, unit_test, integration_test)
+                         bundle, lint, tidy, unit_test, integration_test)
 #>
 param(
     [Parameter(Mandatory=$true, Position=1)][string]$Target,
@@ -44,7 +44,7 @@ function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalf
 
     compile_deps
 
-    go build -mod vendor -o "$AGENT_BIN" github.com/signalfx/signalfx-agent/cmd/agent
+    go build -o "$AGENT_BIN" github.com/signalfx/signalfx-agent/cmd/agent
 
     if (!(Test-Path -Path "$AGENT_BIN")) {
         throw "$AGENT_BIN not found!"
@@ -54,7 +54,7 @@ function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalf
 function monitor-code-gen([string]$AGENT_VERSION="", [string]$CODEGEN_BIN=".\monitor-code-gen.exe", [string]$COLLECTD_VERSION="") {
     versions_go
 
-    go build -mod vendor -o "$CODEGEN_BIN" github.com/signalfx/signalfx-agent/cmd/monitorcodegen
+    go build -o "$CODEGEN_BIN" github.com/signalfx/signalfx-agent/cmd/monitorcodegen
 
     if (!(Test-Path -Path "$CODEGEN_BIN")) {
         throw "$CODEGEN_BIN not found!"
@@ -161,19 +161,17 @@ function lint() {
     if ($lastexitcode -ne 0){ throw $output }
 }
 
-function vendor() {
+function tidy() {
     go mod tidy
-    if ($lastexitcode -ne 0){ throw $output }
-    go mod vendor
     if ($lastexitcode -ne 0){ throw $output }
 }
 
 function unit_test() {
     compile_deps
-    go generate -mod vendor ./internal/monitors/...
+    go generate ./internal/monitors/...
     if ($lastexitcode -ne 0){ throw $output }
     $ErrorActionPreference = "Continue"
-    $output = & go test -mod vendor -v ./... 2>&1
+    $output = & go test -v ./... 2>&1
     if ($lastexitcode -gt 1){ throw $output }
     Write-Output $output | go2xunit -output unit_results.xml
     $ErrorActionPreference = "Stop"
