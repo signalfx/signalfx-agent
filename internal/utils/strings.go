@@ -133,14 +133,14 @@ func SplitString(s string, sep, escape rune) (tokens []string, err error) {
 		switch {
 		case inEscape:
 			inEscape = false
-			fallthrough
-		default:
 			runes = append(runes, r)
 		case r == escape:
 			inEscape = true
 		case r == sep:
 			tokens = append(tokens, string(runes))
 			runes = runes[:0]
+		default:
+			runes = append(runes, r)
 		}
 	}
 	tokens = append(tokens, string(runes))

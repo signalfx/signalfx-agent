@@ -3,11 +3,11 @@ package utils
 import "testing"
 
 type SplitStringTest struct {
-	input string
-	sep rune
+	input  string
+	sep    rune
 	escape rune
-	want []string
-	err error
+	want   []string
+	err    error
 }
 
 var SplitStringTests = []SplitStringTest{
@@ -20,7 +20,10 @@ var SplitStringTests = []SplitStringTest{
 
 func TestSplitString(t *testing.T) {
 	for _, test := range SplitStringTests {
-		got, _ := SplitString(test.input, test.sep, test.escape)
+		got, err := SplitString(test.input, test.sep, test.escape)
+		if err != nil {
+			t.Errorf("got error: %+v", err)
+		}
 		if len(got) != len(test.want) {
 			t.Errorf("got %d substrings, want %d substrings", len(got), len(test.want))
 		}
@@ -46,4 +49,3 @@ func TestSplitStringError(t *testing.T) {
 		}
 	}
 }
-
