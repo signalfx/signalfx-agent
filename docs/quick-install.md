@@ -57,21 +57,48 @@ The writer collects metrics emitted by the configured monitors and sends them
 to SignalFx on a regular basis.  There are a few things that can be
 [configured](./config-schema.md#writer) in the writer, but this is generally only necessary if you have a very large number of metrics flowing through a single agent.
 
+## Pre-installation requirements for the Smart Agent
 
-## Installation
+Before you attempt to download and install the Smart Agent on a **single** host, review the requirements below.
 
-The instructions below are for a command-line installation of a single agent on a single host. For other installation options, including bulk deployments, see the Advanced Installation in [Advanced Installation Options](./advanced-install-options.md).
+```sh
+For other installation options, including bulk deployments, see the Advanced Installation in [Advanced Installation Options](./advanced-install-options.md).  
+```
 
-__Get started with Smart Agent using the 3 steps below.__
+__General requirements__
 
-_Note: if you have previously configured another metric collection agent on your host such as collectd, uninstall or disable that agent before installing the SignalFx Smart Agent._
+* You must have admin privileges in your command line interface.  
+
+* You must uninstall or disable any previously installed collector agent from your host, such as collectd.
+
+
+__Linux requirements__
+
+* You must run kernel version 2.6 or higher for your Linux distribution.
+
+```sh
+The Smart Agent is bundled with additional required dependencies, including a Java JRE runtime and a Python runtime. As a result, there is no need to proactively install additional dependencies.
+```
+
+__Windows requirements__
+
+* You must run .Net Framework 3.5 on Windows 8 or higher.
+* You must run Visual C++ Compiler for Python 2.7.
+
+## Installation for Linux
+
+## Installation for Windows
+
+
+
+__Download and install the Smart Agent in 3 steps__
+
 
 ### Step 1. Install SignalFx Smart Agent on Single Host
 
-__Linux:__
-
-Before you attempt to install the agent, please note that dependencies are completely bundled along with the agent, including a Java JRE runtime and a Python runtime; no additional dependencies are required. Additionally, the agent works on any modern Linux distribution (kernel version 2.6+).
-
+<details>
+<summary>Linux</summary>
+<br>
 For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy the pre-populated installation code.
 
 If you are reading this document directly from the *Integrations* page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)  
@@ -88,17 +115,12 @@ If you are reading this document from the SignalFX documentation site, then Sign
 3. Click *Setup*.
 4. Locate the code box for *Linux* users.
 5. Copy and paste the code into your command line to run. (The code within the tile is already populated with your *realm* and your organization's *access token*.)  
+</details>
 
 
-
-__Windows:__
-
-Before you attempt to install the agent, verify that the following dependencies are already installed:
-
-[.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
-
-[Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
-
+<details>
+<summary>Windows</summary>
+<br>
 For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy the pre-populated installation code.
 
 If you are reading this document directly from the *Integrations* page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)  
@@ -117,6 +139,8 @@ If you are reading this document from the SignalFX documentation site, then Sign
 5. Copy and paste the code into your command line to run. (The code within the tile is already populated with your *realm* and your organization's *access token*.)  
 
 The agent will be installed as a Windows service and will log to the Windows Event Log.
+</details>
+
 
 
 ### Step 2. Confirm your Installation
