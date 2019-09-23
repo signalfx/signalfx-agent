@@ -2,7 +2,6 @@ package main
 
 import (
 	"expvar"
-	_ "expvar"
 	"fmt"
 	"net"
 	"net/http"
@@ -20,6 +19,10 @@ func init() {
 }
 
 func main() {
+
+	var kafkaExJaegerTransactionOk = expvar.NewInt("kafka.ex-jaeger-transaction.ok")
+	kafkaExJaegerTransactionOk.Add(11)
+
 	sock, err := net.Listen("tcp", "0.0.0.0:8080") //nolint: gosec
 	if err != nil {
 		panic("Couldn't listen on port 8080")

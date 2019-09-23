@@ -3,6 +3,7 @@ package utils
 import (
 	"bufio"
 	"bytes"
+	"errors"
 	"io"
 	"regexp"
 	"strings"
@@ -123,4 +124,28 @@ func TrimAllSpaces(s string) string {
 		}
 	}
 	return b.String()
+}
+
+func SplitString(s string, sep, escape rune) (tokens []string, err error) {
+	var runes []rune
+	inEscape := false
+	for _, r := range s {
+		switch {
+		case inEscape:
+			inEscape = false
+			runes = append(runes, r)
+		case r == escape:
+			inEscape = true
+		case r == sep:
+			tokens = append(tokens, string(runes))
+			runes = runes[:0]
+		default:
+			runes = append(runes, r)
+		}
+	}
+	tokens = append(tokens, string(runes))
+	if inEscape {
+		err = errors.New("invalid terminal escape")
+	}
+	return tokens, err
 }

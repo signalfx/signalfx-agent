@@ -6,14 +6,17 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/signalfx/signalfx-agent/internal/utils"
+
 	"github.com/signalfx/golib/datapoint"
 )
 
 var camelRegexp = regexp.MustCompile("(^[^A-Z]*|[A-Z]*)([A-Z][^A-Z]+|$)")
 
-func toSnakeCase(s string) string {
+func toSnakeCase(s string, sep rune, escape rune) string {
 	snake := ""
-	for _, split := range strings.Split(s, ".") {
+	splits, _ := utils.SplitString(s, sep, escape)
+	for _, split := range splits {
 		for _, submatches := range camelRegexp.FindAllStringSubmatch(split, -1) {
 			for _, submatch := range submatches[1:] {
 				submatch = strings.TrimSpace(submatch)

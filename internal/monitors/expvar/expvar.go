@@ -53,7 +53,7 @@ type Monitor struct {
 }
 
 // Configure monitor
-func (m *Monitor) Configure(conf *Config) error {
+func (m *Monitor) Configure(conf *Config) (err error) {
 	m.logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 	if m.Output.HasAnyExtraMetrics() {
@@ -63,7 +63,9 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.allMetricConfigs = conf.getAllMetricConfigs()
 
 	for _, mConf := range m.allMetricConfigs {
-		m.metricPathsParts[mConf.name()] = strings.Split(mConf.JSONPath, ".")
+		if m.metricPathsParts[mConf.name()], err = utils.SplitString(mConf.JSONPath, sep, escape); err != nil {
+			return err
+		}
 	}
 	m.url = &url.URL{
 		Scheme: func() string {
