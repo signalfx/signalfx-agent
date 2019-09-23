@@ -7,7 +7,6 @@ type SplitStringTest struct {
 	sep    rune
 	escape rune
 	want   []string
-	err    error
 }
 
 var SplitStringTests = []SplitStringTest{
