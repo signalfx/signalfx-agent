@@ -9,6 +9,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+	stats "k8s.io/kubernetes/pkg/kubelet/apis/stats/v1alpha1"
 )
 
 func init() {
@@ -42,6 +43,11 @@ func (c *Cadvisor) Configure(conf *CHTTPConfig) error {
 type cadvisorInfoProvider struct {
 	cc         *client.Client
 	lastUpdate time.Time
+}
+
+func (cip *cadvisorInfoProvider) GetEphemeralStatsFromPods() ([]stats.PodStats, error) {
+	// cadvisor does not collect Pod level metrics
+	return nil, nil
 }
 
 func (cip *cadvisorInfoProvider) SubcontainersInfo(containerName string) ([]info.ContainerInfo, error) {

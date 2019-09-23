@@ -18,6 +18,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	log "github.com/sirupsen/logrus"
+	stats "k8s.io/kubernetes/pkg/kubelet/apis/stats/v1alpha1"
 )
 
 func init() {
@@ -152,4 +153,19 @@ func (kip *kubeletInfoProvider) getAllContainersLatestStats() ([]info.ContainerI
 		result = append(result, containerInfo)
 	}
 	return result, nil
+}
+
+func (kip *kubeletInfoProvider) GetEphemeralStatsFromPods() ([]stats.PodStats, error) {
+	req, err := kip.client.NewRequest("POST", "/stats/summary/", nil)
+	if err != nil {
+		return nil, err
+	}
+
+	var summary stats.Summary
+	err = kip.client.DoRequestAndSetValue(req, &summary)
+	if err != nil {
+		return nil, fmt.Errorf("failed to get summary stats from Kubelet URL %q: %v", req.URL.String(), err)
+	}
+
+	return summary.Pods, nil
 }
