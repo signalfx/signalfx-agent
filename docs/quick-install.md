@@ -57,45 +57,19 @@ The writer collects metrics emitted by the configured monitors and sends them
 to SignalFx on a regular basis.  There are a few things that can be
 [configured](./config-schema.md#writer) in the writer, but this is generally only necessary if you have a very large number of metrics flowing through a single agent.
 
-## Pre-installation requirements for the Smart Agent
+## Review pre-installation requirements for the Smart Agent
 
 Before you attempt to download and install the Smart Agent on a **single** host, review the requirements below.
 
- (For other installation options, including bulk deployments, see [Advanced Installation Options](./advanced-install-options.md).)
+(For other installation options, including bulk deployments, see [Advanced Installation Options](./advanced-install-options.md).)
 
-| General requirements   |      Linux requirements      |  Windows requirements |
+| General requirements   |     Linux requirements      |  Windows requirements |
 |----------|:-------------:|------:|
-| You must have admin privileges in your command line interface. <p>You must uninstall or disable any previously installed collector agent from your host, such as collectd.|  You must run kernel version 2.6 or higher for your Linux distribution. <p>The Smart Agent is bundled with additional required dependencies, including a Java JRE runtime and a Python runtime. As a result, there is no need to proactively install additional dependencies.| You must run .Net Framework 3.5 on Windows 8 or higher. <p> You must run Visual C++ Compiler for Python 2.7.  |
+| <p>You must have access to your command line interface.</p> <p>You must uninstall or disable any previously installed collector agent from your host, such as collectd.</p>| <p>You must run kernel version 2.6 or higher for your Linux distribution.</p> <p>The Smart Agent is bundled with additional required dependencies, including a Java JRE runtime and a Python runtime. As a result, there is no need to proactively install additional dependencies.</p>| <p>You must run .Net Framework 3.5 on Windows 8 or higher.</p> <p>You must run Visual C++ Compiler for Python 2.7.</p>  |
 
 
 
-__General requirements__
-
-* You must have admin privileges in your command line interface.  
-
-* You must uninstall or disable any previously installed collector agent from your host, such as collectd.
-
-
-__Linux requirements__
-
-* You must run kernel version 2.6 or higher for your Linux distribution.
-
-```sh
-The Smart Agent is bundled with additional required dependencies, including a Java JRE runtime and a Python runtime. As a result, there is no need to proactively install additional dependencies.
-```
-
-__Windows requirements__
-
-* You must run .Net Framework 3.5 on Windows 8 or higher.
-* You must run Visual C++ Compiler for Python 2.7.
-
-## Installation for Linux
-
-## Installation for Windows
-
-
-
-__Download and install the Smart Agent in 3 steps__
+## Install the Smart Agent
 
 
 ### Step 1. Install SignalFx Smart Agent on Single Host
@@ -149,13 +123,13 @@ The agent will be installed as a Windows service and will log to the Windows Eve
 
 ### Step 2. Confirm your Installation
 
-To confirm the SignalFx Smart Agent installation is functional on either platform, enter:
+To confirm that your Smart Agent is functional, enter:
 
 ```sh
 sudo signalfx-agent status
 ```
 
-The response you will see is similar to the one below:
+The return should be similar to the following example:  
 
 ```sh
 SignalFx Agent version:           4.7.6
