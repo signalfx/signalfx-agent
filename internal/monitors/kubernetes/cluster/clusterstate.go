@@ -88,6 +88,7 @@ func (cs *State) Start() {
 	cs.beginSyncForType(ctx, &batchv1.Job{}, "jobs", cs.namespace, batchV1Client)
 	cs.beginSyncForType(ctx, &batchv1beta1.CronJob{}, "cronjobs", cs.namespace, batchBetaV1Client)
 	cs.beginSyncForType(ctx, &v1.PersistentVolume{}, "persistentvolumes", cs.namespace, coreClient)
+	cs.beginSyncForType(ctx, &v1.PersistentVolumeClaim{}, "persistentvolumeclaims", cs.namespace, coreClient)
 	// Node and Namespace are NOT namespaced resources, so we don't need to
 	// fetch them if we are scoped to a specific namespace
 	if cs.namespace == "" {

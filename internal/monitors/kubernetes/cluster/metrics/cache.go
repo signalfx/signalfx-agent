@@ -165,6 +165,10 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 		dps = datapointsForPersistentVolume(o)
 		dimProps = dimPropsForPersistentVolume(o)
 		kind = "PersistentVolume"
+	case *v1.PersistentVolumeClaim:
+		dps = datapointsForPersistentVolumeClaim(o)
+		dimProps = dimPropsForPersistentVolumeClaim(o)
+		kind = "PersistentVolumeClaim"
 	default:
 		log.WithFields(log.Fields{
 			"obj": spew.Sdump(newObj),
