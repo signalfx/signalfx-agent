@@ -65,7 +65,7 @@ Before you attempt to download and install the Smart Agent on a **single** host,
 
 | General requirements   |      Linux requirements      |  Windows requirements |
 |----------|:-------------:|------:|
-| You must have admin privileges in your command line interface. &nbsp.. You must uninstall or disable any previously installed collector agent from your host, such as collectd.|  You must run kernel version 2.6 or higher for your Linux distribution. &nbsp.. The Smart Agent is bundled with additional required dependencies, including a Java JRE runtime and a Python runtime. As a result, there is no need to proactively install additional dependencies.| You must run .Net Framework 3.5 on Windows 8 or higher.&nbsp.. You must run Visual C++ Compiler for Python 2.7.  |
+| You must have admin privileges in your command line interface. <p>You must uninstall or disable any previously installed collector agent from your host, such as collectd.|  You must run kernel version 2.6 or higher for your Linux distribution. <p>The Smart Agent is bundled with additional required dependencies, including a Java JRE runtime and a Python runtime. As a result, there is no need to proactively install additional dependencies.| You must run .Net Framework 3.5 on Windows 8 or higher. <p> You must run Visual C++ Compiler for Python 2.7.  |
 
 
 
