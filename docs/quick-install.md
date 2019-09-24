@@ -174,9 +174,10 @@ If you are unable to install the Smart Agent, consider the following issues:
 signalFxRealm: YOUR_SIGNALFX_REALM
 ```
 
-```sh
-To find your realm, in SignalFx, in the top, right corner, click your profile icon. Click **My Profile**, Next to **Organizations**, review the listed realm.
-```
+To find your realm:
+1. In SignalFx, in the top, right corner, click your profile icon.
+2. Click **My Profile**.
+3. Next to **Organizations**, review the listed realm.
 
 * You may need to set the endpoints. To explicitly set the ingest, API server, and trace endpoint URLs individually, review the following example:  
 
