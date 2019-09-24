@@ -136,7 +136,7 @@ def init_helm(k8s_cluster):
 
     print("Waiting for tiller-deployment to be ready ...")
     assert wait_for(
-        p(deployment_is_ready, "tiller-deploy", k8s_cluster.test_namespace), timeout_seconds=45, interval_seconds=2
+        p(deployment_is_ready, "tiller-deploy", k8s_cluster.test_namespace), timeout_seconds=90, interval_seconds=2
     ), "timed out waiting for tiller-deployment to be ready!"
 
 

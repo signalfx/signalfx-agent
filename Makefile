@@ -178,7 +178,7 @@ run-k8s-tests: run-minikube push-minikube-agent
 		tests
 
 K8S_VERSION ?= latest
-MINIKUBE_VERSION ?= $(shell scripts/determine-compatible-minikube.py $(K8S_VERSION))
+MINIKUBE_VERSION ?= v1.3.1
 
 .PHONY: run-minikube
 run-minikube:
