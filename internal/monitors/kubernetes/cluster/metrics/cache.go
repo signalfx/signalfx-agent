@@ -161,6 +161,10 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 		dps = datapointsForCronJob(o)
 		dimProps = dimPropsForCronJob(o)
 		kind = "CronJob"
+	case *v1.PersistentVolume:
+		dps = datapointsForPersistentVolume(o)
+		dimProps = dimPropsForPersistentVolume(o)
+		kind = "PersistentVolume"
 	default:
 		log.WithFields(log.Fields{
 			"obj": spew.Sdump(newObj),
