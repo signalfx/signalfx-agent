@@ -7,6 +7,7 @@ from functools import partial as p
 from pathlib import Path
 
 import pytest
+import yaml
 
 from tests.helpers.agent import ensure_fake_backend
 from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name
@@ -53,20 +54,15 @@ CONFIG = string.Template(
 class { signalfx_agent:
     package_stage => '$stage',
     agent_version => '$version',
-    config => {
-        signalFxAccessToken => 'testing123',
-        ingestUrl => '$ingest_url',
-        apiUrl => '$api_url',
-        observers => [
-            { type => "host" },
-        ],
-        monitors => [
-            $monitors
-        ],
-    }
+    config => lookup('signalfx_agent::config', Hash, 'deep'),
 }
 """
 )
+
+PUPPET_MODULE_SRC_DIR = REPO_ROOT_DIR / "deployments" / "puppet"
+PUPPET_MODULE_DEST_DIR = "/etc/puppetlabs/code/environments/production/modules/signalfx_agent"
+HIERA_SRC_PATH = PUPPET_MODULE_SRC_DIR / "data" / "default.yaml"
+HIERA_DEST_PATH = os.path.join(PUPPET_MODULE_DEST_DIR, "data", "default.yaml")
 
 LINUX_PUPPET_RELEASES = os.environ.get("PUPPET_RELEASES", "5,latest").split(",")
 WIN_PUPPET_VERSIONS = os.environ.get("PUPPET_VERSIONS", "5.0.0,latest").split(",")
@@ -78,19 +74,38 @@ UPGRADE_VERSION = "4.7.6"
 WIN_PUPPET_BIN_DIR = r"C:\Program Files\Puppet Labs\Puppet\bin"
 WIN_PUPPET_MODULE_SRC_DIR = os.path.join(WIN_REPO_ROOT_DIR, "deployments", "puppet")
 WIN_PUPPET_MODULE_DEST_DIR = r"C:\ProgramData\PuppetLabs\code\environments\production\modules\signalfx_agent"
+WIN_HIERA_SRC_PATH = os.path.join(WIN_PUPPET_MODULE_SRC_DIR, "data", "default.yaml")
+WIN_HIERA_DEST_PATH = os.path.join(WIN_PUPPET_MODULE_DEST_DIR, "data", "default.yaml")
 
 
-def get_config(backend, monitors, version, stage):
+def get_config(version, stage):
     if not version:
         version = ""
-    return CONFIG.substitute(
-        version=version, stage=stage, ingest_url=backend.ingest_url, api_url=backend.api_url, monitors=monitors
-    )
+    return CONFIG.substitute(version=version, stage=stage)
+
+
+def get_hiera(path, backend, monitors):
+    hiera_yaml = yaml.safe_load(open(path).read())
+    hiera_yaml["signalfx_agent::config"]["signalFxAccessToken"] = "testing123"
+    hiera_yaml["signalfx_agent::config"]["ingestUrl"] = backend.ingest_url
+    hiera_yaml["signalfx_agent::config"]["apiUrl"] = backend.api_url
+    hiera_yaml["signalfx_agent::config"]["intervalSeconds"] = 1
+    hiera_yaml["signalfx_agent::config"]["observers"] = [{"type": "host"}]
+    hiera_yaml["signalfx_agent::config"]["monitors"] = monitors
+    return yaml.dump(hiera_yaml)
 
 
 def run_puppet_agent(cont, backend, monitors, agent_version, stage):
     with tempfile.NamedTemporaryFile(mode="w+") as fd:
-        fd.write(get_config(backend, monitors, agent_version, stage))
+        hiera_yaml = get_hiera(HIERA_SRC_PATH, backend, monitors)
+        print(hiera_yaml)
+        fd.write(hiera_yaml)
+        fd.flush()
+        copy_file_into_container(fd.name, cont, HIERA_DEST_PATH)
+    with tempfile.NamedTemporaryFile(mode="w+") as fd:
+        config = get_config(agent_version, stage)
+        print(config)
+        fd.write(config)
         fd.flush()
         copy_file_into_container(fd.name, cont, "/root/agent.pp")
     code, output = cont.exec_run("puppet apply /root/agent.pp")
@@ -126,7 +141,7 @@ def test_puppet(base_image, init_system, puppet_release):
             assert code == 0, output.decode("utf-8")
             print_lines(output)
         try:
-            monitors = '{ type => "host-metadata" },'
+            monitors = [{"type": "host-metadata"}]
             run_puppet_agent(cont, backend, monitors, INITIAL_VERSION, STAGE)
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
@@ -147,7 +162,7 @@ def test_puppet(base_image, init_system, puppet_release):
             ), "Datapoints didn't come through"
 
             # change agent config
-            monitors = '{ type => "internal-metrics" },'
+            monitors = [{"type": "internal-metrics"}]
             run_puppet_agent(cont, backend, monitors, INITIAL_VERSION, STAGE)
             backend.reset_datapoints()
             assert wait_for(
@@ -159,9 +174,13 @@ def test_puppet(base_image, init_system, puppet_release):
 
 
 def run_win_puppet_agent(backend, monitors, agent_version, stage):
+    with open(WIN_HIERA_DEST_PATH, "w+") as fd:
+        hiera_yaml = get_hiera(WIN_HIERA_SRC_PATH, backend, monitors)
+        print(hiera_yaml)
+        fd.write(hiera_yaml)
     with tempfile.TemporaryDirectory() as tmpdir:
         manifest_path = os.path.join(tmpdir, "agent.pp")
-        config = get_config(backend, monitors, agent_version, stage)
+        config = get_config(agent_version, stage)
         print(config)
         with open(manifest_path, "w+") as fd:
             fd.write(config)
@@ -197,7 +216,7 @@ def test_puppet_on_windows(puppet_version):
     run_win_puppet_setup(puppet_version)
     with ensure_fake_backend() as backend:
         try:
-            monitors = '{ type => "host-metadata" },'
+            monitors = [{"type": "host-metadata"}]
             run_win_puppet_agent(backend, monitors, INITIAL_VERSION, STAGE)
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
@@ -218,7 +237,7 @@ def test_puppet_on_windows(puppet_version):
             ), "Datapoints didn't come through"
 
             # change agent config
-            monitors = '{ type => "internal-metrics" },'
+            monitors = [{"type": "internal-metrics"}]
             run_win_puppet_agent(backend, monitors, INITIAL_VERSION, STAGE)
             backend.reset_datapoints()
             assert wait_for(
