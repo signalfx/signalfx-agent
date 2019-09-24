@@ -147,20 +147,12 @@ Trace Spans Sent (last minute):   0
 
 2. Enter the following commands to verify the installation:
 
-```sh
-signalfx-agent status config - show resolved config in use by agent
-signalfx-agent status endpoints - show discovered endpoints
-signalfx-agent status monitors - show active monitors
-signalfx-agent status all - show everything
-```
-
-### Step 3. Log into SignalFx and see how data is displayed
-
-After a successful installation:
-
-* To learn more about the capabilities of the SignalFx Smart Agent, see [Advanced Installation Options](./advanced-install-options.md).
-
-* To learn more about the SignalFX, including how data is displayed, see the [15-Minute SignalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html).
+| Command | Description   |
+|---|---|
+| signalfx-agent status config   | This command shows resolved config in use by the Smart Agent. |
+| signalfx-agent status endpoints  | This command shows discovered endpoints.  |
+| signalfx-agent status monitors  | This command shows active monitors.  |
+| signalfx-agent status all  | This command shows the above statuses. |
 
 
 ### Troubleshoot the Smart Agent installation
@@ -190,3 +182,11 @@ traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
 This action will default to the endpoints for the realm configured in signalFxRealm if not set.
 
 For additional installation troubleshooting information, see [Frequently Asked Questions](./faq.md).
+
+### Review additional documentation 
+
+After a successful installation:
+
+* To learn more about the capabilities of the SignalFx Smart Agent, see [Advanced Installation Options](./advanced-install-options.md).
+
+* To learn more about the SignalFX, including how data is displayed, see the [15-Minute SignalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html).
