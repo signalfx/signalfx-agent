@@ -71,17 +71,17 @@ jobs:
   - template: 'templates/install-go.yml'
     parameters:
       version: $(GOVERSION)
-      packages: 'github.com/tebeka/go2xunit'
+      packages: 'gotest.tools/gotestsum'
   - powershell: |
       & ./scripts/windows/make.ps1 unit_test
     displayName: 'Run go test'
-    ignoreLASTEXITCODE: true
   - task: PublishTestResults@2
     inputs:
       searchFolder: '$(Build.SourcesDirectory)'
       testResultsFormat: 'JUnit'
       testResultsFiles: 'unit_results.xml'
       failTaskOnFailedTests: true
+    condition: succeededOrFailed()
 
 - job: 'win_bundle_build'
   pool:
@@ -120,14 +120,12 @@ jobs:
   dependsOn: 'win_bundle_build'
   steps:
   - template: 'templates/extract-bundle.yml'
-  # Install IIS for windows-iis integration test.
-  - template: 'templates/install-choco.yml'
-    parameters:
-      packages: '--source windowsfeatures IIS-WebServerRole'
   - template: 'templates/run-pytest.yml'
     parameters:
       markers: '(windows or windows_only) and not deployment and not installer'
       options: '-n4'
+      # Install IIS for windows-iis integration test.
+      chocoPackages: '--source windowsfeatures IIS-WebServerRole'
 
 - job: 'win_2016_integration_tests'
   pool:
@@ -135,14 +133,12 @@ jobs:
   dependsOn: 'win_bundle_build'
   steps:
   - template: 'templates/extract-bundle.yml'
-  # Install IIS for windows-iis integration test.
-  - template: 'templates/install-choco.yml'
-    parameters:
-      packages: '--source windowsfeatures IIS-WebServerRole'
   - template: 'templates/run-pytest.yml'
     parameters:
       markers: '(windows or windows_only) and not deployment and not installer'
       options: '-n4'
+      # Install IIS for windows-iis integration test.
+      chocoPackages: '--source windowsfeatures IIS-WebServerRole'
 
 - job: 'win_2012_chef_tests'
   pool:

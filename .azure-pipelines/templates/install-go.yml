@@ -17,7 +17,11 @@ steps:
     echo $env:PATH
 - template: 'restore-go-cache.yml'
 - ${{ if ne(parameters.packages, '') }}:
-  - powershell: |
-      $env:GO111MODULE = "on"
-      go get ${{ parameters.packages }}
+  - bash: |
+      cd $TEMP
+      for i in $(seq 1 3); do
+          go get ${{ parameters.packages }} && exit 0
+          sleep 10
+      done
+      exit 1
     displayName: 'Install go packages'

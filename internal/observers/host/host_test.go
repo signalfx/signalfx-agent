@@ -5,6 +5,7 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strconv"
 	"sync"
 	"testing"
@@ -128,6 +129,9 @@ func Test_HostObserver(t *testing.T) {
 		})
 
 		t.Run("UDP Ports", func(t *testing.T) {
+			if runtime.GOOS == "windows" {
+				t.Skip("skipping test on windows")
+			}
 			for _, conn := range udpConns {
 				host, port, _ := net.SplitHostPort(conn.LocalAddr().String())
 				expectedID := fmt.Sprintf("%s-%s-UDP-%d", host, port, selfPid)
