@@ -197,14 +197,6 @@ monitors:
       description: Cumulative count of bytes received
       default: true
       type: cumulative
-    pod_ephemeral_storage_capacity_bytes:
-      description: Represents the storage space available (bytes) for the filesystem
-      default: false
-      type: gauge
-    pod_ephemeral_storage_used_bytes:
-      description: Represents the bytes used on the filesystem
-      default: false
-      type: cumulative
     pod_network_receive_errors_total:
       description: Cumulative count of errors encountered while receiving
       default: true
@@ -240,4 +232,13 @@ monitors:
     This monitor pulls cadvisor metrics through a
     Kubernetes kubelet instance via the `/stats/container` endpoint.
   monitorType: kubelet-stats
+  metrics:
+    pod_ephemeral_storage_capacity_bytes:
+      description: Represents the storage space available (bytes) for the filesystem
+      default: false
+      type: gauge
+    pod_ephemeral_storage_used_bytes:
+      description: Represents the bytes used on the filesystem
+      default: false
+      type: cumulative
   properties:

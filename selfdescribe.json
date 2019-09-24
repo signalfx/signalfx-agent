@@ -964,8 +964,6 @@
             "machine_cpu_cores",
             "machine_cpu_frequency_khz",
             "machine_memory_bytes",
-            "pod_ephemeral_storage_capacity_bytes",
-            "pod_ephemeral_storage_used_bytes",
             "pod_network_receive_bytes_total",
             "pod_network_receive_errors_total",
             "pod_network_receive_packets_dropped_total",
@@ -1205,18 +1203,6 @@
           "description": "Amount of memory installed on the node.",
           "group": null,
           "default": true
-        },
-        "pod_ephemeral_storage_capacity_bytes": {
-          "type": "gauge",
-          "description": "Represents the storage space available (bytes) for the filesystem",
-          "group": null,
-          "default": false
-        },
-        "pod_ephemeral_storage_used_bytes": {
-          "type": "cumulative",
-          "description": "Represents the bytes used on the filesystem",
-          "group": null,
-          "default": false
         },
         "pod_network_receive_bytes_total": {
           "type": "cumulative",
