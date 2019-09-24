@@ -27,7 +27,7 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 		datapoint.New(
 			"kubernetes.pod_phase",
 			dimensions,
-			datapoint.NewIntValue(phaseToInt(pod.Status.Phase)),
+			datapoint.NewIntValue(podPhaseToInt(pod.Status.Phase)),
 			datapoint.Gauge,
 			time.Now()),
 	}
@@ -136,7 +136,7 @@ func getPropsFromTolerations(tolerations []v1.Toleration) map[string]string {
 	return props
 }
 
-func phaseToInt(phase v1.PodPhase) int64 {
+func podPhaseToInt(phase v1.PodPhase) int64 {
 	switch phase {
 	case v1.PodPending:
 		return 1
