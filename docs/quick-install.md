@@ -79,14 +79,14 @@ Before you attempt to download and install the Smart Agent on a **single** host,
 <br>
 For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy the pre-populated installation code.
 
-If you are reading this document directly from the *Integrations* page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)  
+<p>**If you are reading this document directly from the *Integrations* page,** then simply copy and paste the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)</p>  
 
 ```sh
 curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
 sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
 ```
 
-If you are reading this document from the SignalFX documentation site, then SignalFX recommends that you access the *Integrations* page to locate the installation code:  
+**If you are reading this document from the SignalFX documentation site,** then SignalFX recommends that you access the *Integrations* page to locate the installation code:  
 
 1. Log into SignalFx, and in the top navigation bar, click *Integrations*.
 2. Under *Essential Services*, click *SignalFX Smart Agent*.
@@ -101,7 +101,7 @@ If you are reading this document from the SignalFX documentation site, then Sign
 <br>
 For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy the pre-populated installation code.
 
-If you are reading this document directly from the *Integrations* page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)  
+<p>If you are reading this document directly from the *Integrations* page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)</p>  
 
 ```sh
 & {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"};;
@@ -121,9 +121,9 @@ The agent will be installed as a Windows service and will log to the Windows Eve
 
 
 
-### Step 2. Confirm your Installation
+### Step 2. Confirm your installation
 
-To confirm that your Smart Agent is functional, enter:
+1. Enter the following command to confirm that your Smart Agent is functional:
 
 ```sh
 sudo signalfx-agent status
@@ -145,7 +145,7 @@ Events Sent (last minute):        0
 Trace Spans Sent (last minute):   0
 ```
 
-To verify the installation, you can run the following commands:
+2. Enter the following commands to verify the installation:
 
 ```sh
 signalfx-agent status config - show resolved config in use by agent
@@ -154,24 +154,31 @@ signalfx-agent status monitors - show active monitors
 signalfx-agent status all - show everything
 ```
 
-#### Troubleshoot any discrepancies in the Installation
+### Step 3. Log into SignalFx and see how data is displayed
 
-##### Realm
+After a successful installation:
 
-By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to explicitly set the signalFxRealm option in your config like this:
+* To learn more about the capabilities of the SignalFx Smart Agent, see [Advanced Installation Options](./advanced-install-options.md).
+
+* To learn more about the SignalFX, including how data is displayed, see the [15-Minute SignalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html).
+
+
+#### Troubleshoot the Smart Agent installation
+
+If you are unable to install the Smart Agent, consider the following issues:
+
+* You may need to update your realm. By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to explicitly set the signalFxRealm option with your realm:
 
 
 ```sh
 signalFxRealm: YOUR_SIGNALFX_REALM
 ```
 
+```sh
+To find your realm, in SignalFx, in the top, right corner, click your profile icon. Click **My Profile**, Next to **Organizations**, review the listed realm.
+```
 
-To determine if you are in a different realm and need to explicitly set the endpoints, check your profile page in the SignalFx web application.
-
-_Configure your endpoints_
-
-If you want to explicitly set the ingest, API server, and trace endpoint URLs, you can set them individually like so:
-
+* You may need to set the endpoints. To explicitly set the ingest, API server, and trace endpoint URLs individually, review the following example:  
 
 ```sh
 ingestUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"
@@ -179,15 +186,6 @@ apiUrl: "https://api.YOUR_SIGNALFX_REALM.signalfx.com"
 traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
 ```
 
-This will default to the endpoints for the realm configured in signalFxRealm if not set.
+This action will default to the endpoints for the realm configured in signalFxRealm if not set.
 
-To troubleshoot your installation further, check the FAQ about troubleshooting [here](./faq.md).
-
-
-### Step 3. Login to SignalFx and discover your data displays.
-
-Installation is complete.
-
-To continue your exploration of SignalFx Smart Agent capabilities, see [Advanced Installation Options](./advanced-install-options.md).
-
-To learn more about how your data is presented in SignalFx, see the [15-Minute SignalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html).
+For additional installation troubleshooting information, see [Frequently Asked Questions](./faq.md).
