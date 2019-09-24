@@ -61,9 +61,13 @@ to SignalFx on a regular basis.  There are a few things that can be
 
 Before you attempt to download and install the Smart Agent on a **single** host, review the requirements below.
 
-```sh
-For other installation options, including bulk deployments, see the Advanced Installation in [Advanced Installation Options](./advanced-install-options.md).  
-```
+ (For other installation options, including bulk deployments, see [Advanced Installation Options](./advanced-install-options.md).)
+
+| General requirements   |      Linux requirements      |  Windows requirements |
+|----------|:-------------:|------:|
+| You must have admin privileges in your command line interface. You must uninstall or disable any previously installed collector agent from your host, such as collectd.|  left-aligned | $1600 |
+
+
 
 __General requirements__
 
