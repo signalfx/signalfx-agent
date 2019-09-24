@@ -38,6 +38,10 @@ func dimPropsForPersistentVolume(pv *v1.PersistentVolume) *atypes.DimProperties 
 		props["storage_class"] = pv.Spec.StorageClassName
 	}
 
+	for _, am := range pv.Spec.AccessModes {
+		tags[string(am)] = true
+	}
+
 	return &atypes.DimProperties{
 		Dimension: atypes.Dimension{
 			Name:  "kubernetes_uid",

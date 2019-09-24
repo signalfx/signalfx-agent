@@ -25,6 +25,8 @@ func datapointsForPersistentVolumeClaim(pvc *v1.PersistentVolumeClaim) []*datapo
 			datapoint.Gauge,
 			time.Now()),
 	}
+
+	//TODO: (Akash) Get resource limit and request stats
 	return dps
 }
 
@@ -32,6 +34,10 @@ func dimPropsForPersistentVolumeClaim(pvc *v1.PersistentVolumeClaim) *atypes.Dim
 	props, tags := k8sutil.PropsAndTagsFromLabels(pvc.Labels)
 
 	props["persistent_volume_claim_creation_timestamp"] = pvc.CreationTimestamp.Format(time.RFC3339)
+
+	for _, am := range pvc.Spec.AccessModes {
+		tags[string(am)] = true
+	}
 
 	return &atypes.DimProperties{
 		Dimension: atypes.Dimension{
