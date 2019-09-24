@@ -163,7 +163,7 @@ After a successful installation:
 * To learn more about the SignalFX, including how data is displayed, see the [15-Minute SignalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html).
 
 
-#### Troubleshoot the Smart Agent installation
+### Troubleshoot the Smart Agent installation
 
 If you are unable to install the Smart Agent, consider the following issues:
 
