@@ -1,6 +1,6 @@
 # Main class that installs and configures the agent
 class signalfx_agent (
-  $config,                # add a hiera lookup function here
+  $config                 = lookup('signalfx_agent::config', Hash, 'deep'),
   $package_stage          = 'final',
   $repo_base              = 'dl.signalfx.com',
   $config_file_path       = $::osfamily ? {
