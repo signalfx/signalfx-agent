@@ -224,3 +224,22 @@ def test_pods(k8s_cluster):
                     prop_name="pod_creation_timestamp",
                 )
             )
+
+
+@pytest.mark.kubernetes
+def test_persistent_volume_claims(k8s_cluster):
+    config = """
+    monitors:
+     - type: kubernetes-cluster
+    """
+    yamls = [SCRIPT_DIR / "persistent_volume_claim.yaml"]
+    with k8s_cluster.create_resources(yamls):
+        with k8s_cluster.run_agent(agent_yaml=config) as agent:
+            assert wait_for(
+                p(
+                    any_dim_val_has_prop,
+                    agent.fake_services,
+                    dim_name="kubernetes_uid",
+                    prop_name="persistent_volume_claim_creation_timestamp",
+                )
+            )
