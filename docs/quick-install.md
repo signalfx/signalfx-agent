@@ -72,14 +72,15 @@ Before you attempt to download and install the Smart Agent on a **single** host,
 ## Install the Smart Agent
 
 
-### Step 1. Install SignalFx Smart Agent on Single Host
+### Step 1. Install the SignalFx Smart Agent on Single Host
 
 <details>
 <summary>Linux</summary>
 <br>
-For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy the pre-populated installation code.
 
-<p>**If you are reading this document directly from the *Integrations* page,** then simply copy and paste the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)</p>  
+<p>For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy the pre-populated installation code.</p>
+
+**If you are reading this document directly from the Integrations page,** then simply copy and paste the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)
 
 ```sh
 curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
@@ -99,6 +100,7 @@ sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOK
 <details>
 <summary>Windows</summary>
 <br>
+
 For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy the pre-populated installation code.
 
 <p>If you are reading this document directly from the *Integrations* page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)</p>  
@@ -119,7 +121,7 @@ If you are reading this document from the SignalFX documentation site, then Sign
 The agent will be installed as a Windows service and will log to the Windows Event Log.
 </details>
 
-
+***
 
 ### Step 2. Confirm your installation
 
@@ -149,17 +151,18 @@ Trace Spans Sent (last minute):   0
 
 | Command | Description   |
 |---|---|
-| signalfx-agent status config   | This command shows resolved config in use by the Smart Agent. |
-| signalfx-agent status endpoints  | This command shows discovered endpoints.  |
-| signalfx-agent status monitors  | This command shows active monitors.  |
-| signalfx-agent status all  | This command shows the above statuses. |
+| <code>signalfx-agent status config</code>   | This command shows resolved config in use by the Smart Agent. |
+| <code>signalfx-agent status endpoints</code>  | This command shows discovered endpoints.  |
+| <code>signalfx-agent status monitors</code>  | This command shows active monitors.  |
+| <code>signalfx-agent status all</code>  | This command shows the above statuses. |
 
+***
 
 ### Troubleshoot the Smart Agent installation
 
 If you are unable to install the Smart Agent, consider the following issues:
 
-* You may need to update your realm. By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to explicitly set the signalFxRealm option with your realm:
+* You may need to update your realm. By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to set the signalFxRealm option with your realm :
 
 
 ```sh
@@ -183,7 +186,9 @@ This action will default to the endpoints for the realm configured in signalFxRe
 
 For additional installation troubleshooting information, see [Frequently Asked Questions](./faq.md).
 
-### Review additional documentation 
+***
+
+### Review additional documentation
 
 After a successful installation:
 
