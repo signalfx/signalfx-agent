@@ -94,7 +94,7 @@ Metrics that are categorized as
  - `machine_cpu_frequency_khz` (*gauge*)<br>    Node's CPU frequency.
  - ***`machine_memory_bytes`*** (*gauge*)<br>    Amount of memory installed on the node.
  - `pod_ephemeral_storage_capacity_bytes` (*gauge*)<br>    Represents the storage space available (bytes) for the filesystem
- - `pod_ephemeral_storage_used_bytes` (*cumulative*)<br>    Represents the bytes used on the filesystem
+ - `pod_ephemeral_storage_used_bytes` (*gauge*)<br>    Represents the bytes used on the filesystem
  - ***`pod_network_receive_bytes_total`*** (*cumulative*)<br>    Cumulative count of bytes received
  - ***`pod_network_receive_errors_total`*** (*cumulative*)<br>    Cumulative count of errors encountered while receiving
  - `pod_network_receive_packets_dropped_total` (*cumulative*)<br>    Cumulative count of packets dropped while receiving

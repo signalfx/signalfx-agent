@@ -240,5 +240,5 @@ monitors:
     pod_ephemeral_storage_used_bytes:
       description: Represents the bytes used on the filesystem
       default: false
-      type: cumulative
+      type: gauge
   properties:

@@ -24986,7 +24986,7 @@
           "default": false
         },
         "pod_ephemeral_storage_used_bytes": {
-          "type": "cumulative",
+          "type": "gauge",
           "description": "Represents the bytes used on the filesystem",
           "group": null,
           "default": false

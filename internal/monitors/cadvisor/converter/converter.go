@@ -14,12 +14,6 @@ import (
 	stats "k8s.io/kubernetes/pkg/kubelet/apis/stats/v1alpha1"
 )
 
-const (
-	kubernetesPodUID    = "kubernetesPodUID"
-	kubernetesPodName   = "kubernetesPodName"
-	kubernetesNamespace = "kubernetesNamespace"
-)
-
 // InfoProvider provides a swappable interface to actually get the cAdvisor
 // metrics
 type InfoProvider interface {
@@ -752,9 +746,9 @@ func (c *CadvisorCollector) collectContainersInfo() {
 		// TODO: Remove this once everybody is migrated to neoagent v2 and
 		// change built-in dashboards to use container_spec_name
 		dims["container_name"] = container.Spec.Labels["io.kubernetes.container.name"]
-		dims[kubernetesPodUID] = container.Spec.Labels["io.kubernetes.pod.uid"]
-		dims[kubernetesPodName] = container.Spec.Labels["io.kubernetes.pod.name"]
-		dims[kubernetesNamespace] = container.Spec.Labels["io.kubernetes.pod.namespace"]
+		dims["kubernetes_pod_uid"] = container.Spec.Labels["io.kubernetes.pod.uid"]
+		dims["kubernetes_pod_name"] = container.Spec.Labels["io.kubernetes.pod.name"]
+		dims["kubernetes_namespace"] = container.Spec.Labels["io.kubernetes.pod.namespace"]
 
 		// Container spec
 		for _, cm := range c.containerSpecMetrics {
@@ -869,9 +863,9 @@ func (c *CadvisorCollector) collectEphemeralStorageStatsFromPod() {
 	for _, podStat := range podStats {
 		dims := make(map[string]string)
 
-		dims[kubernetesPodUID] = podStat.PodRef.UID
-		dims[kubernetesPodName] = podStat.PodRef.Name
-		dims[kubernetesNamespace] = podStat.PodRef.Namespace
+		dims["kubernetes_pod_uid"] = podStat.PodRef.UID
+		dims["kubernetes_pod_name"] = podStat.PodRef.Name
+		dims["kubernetes_namespace"] = podStat.PodRef.Namespace
 
 		for _, pm := range c.podEphemeralStorageMetrics {
 			for _, metricValue := range pm.getValues(podStat.EphemeralStorage) {
