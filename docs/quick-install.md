@@ -9,6 +9,19 @@
 
 The SignalFx Smart Agent is a metric agent written in Go that is used to monitor infrastructure and application services from a variety of environments.
 
+The Smart Agent contains three main components:
+
+| Component | Description |
+|-----------|-------------|
+| Monitors  | This component collects metrics from the host and applications. For a list of supported monitors and their configurations,
+see [Monitor Config](./monitor-config.md). |
+| Observers | This component watches supported environments to discover running
+services and automatically configure the Smart Agent to send metrics for those
+services. For a list of supported observers and their configurations,
+see [Observer Config](./observer-config.md). |
+| Writer    | The writer collects metrics from configured monitors and then sends these metrics to SignalFx on a regular basis. If you are expecting your monitors to send large volumes of metrics through a single agent, then you must update the configurations. To learn more, see
+[Agent Configurations](./config-schema.md#writer). |
+
 
 
 ## Concepts
@@ -31,9 +44,6 @@ configuration. A separate monitor instance is created for each discovered
 instance of applications that match a discovery rule. See [Endpoint
 Discovery](./auto-discovery.md) for more information.
 
-Many of the monitors are built around [collectd](https://collectd.org), an open
-source third-party monitor, and use it to collect metrics. Some other monitors
-do not use collectd. However, either type is configured in the same way.
 
 For a list of supported monitors and their configurations,
 see [Monitor Config](./monitor-config.md).
@@ -48,17 +58,16 @@ machine during metric analysis.
 
 ### Observers
 
-Observers watch the various environments that we support to discover running
-services and automatically configure the agent to send metrics for those
+Observers watch supported environments to discover running
+services and automatically configure the Smart Agent to send metrics for those
 services.
 
 For a list of supported observers and their configurations,
 see [Observer Config](./observer-config.md).
 
 ### Writer
-The writer collects metrics emitted by the configured monitors and sends them
-to SignalFx on a regular basis.  There are a few things that can be
-[configured](./config-schema.md#writer) in the writer, but this is generally only necessary if you have a very large number of metrics flowing through a single agent.
+The writer collects metrics from configured monitors and then sends these metrics to SignalFx on a regular basis. If you are expecting your monitors to send large volumes of metrics through a single agent, then you must update the configurations. To learn more, see
+[Agent Configurations](./config-schema.md#writer).
 
 ## Review pre-installation requirements for the Smart Agent
 
@@ -175,6 +184,8 @@ To find your realm:
 2. Click **My Profile**.
 3. Next to **Organizations**, review the listed realm.
 
+***
+
 * You may need to set the endpoints. To explicitly set the ingest, API server, and trace endpoint URLs, review the following examples:  
 
 ```sh
@@ -182,6 +193,8 @@ ingestUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"
 apiUrl: "https://api.YOUR_SIGNALFX_REALM.signalfx.com"
 traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
 ```
+
+***
 
 For additional installation troubleshooting information, see [Frequently Asked Questions](./faq.md).
 
