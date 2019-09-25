@@ -192,8 +192,15 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 
 // addDimPropsToCache maps and syncs properties from different resources together and adds
 // them to the cache
-func (dc *DatapointCache) addDimPropsToCache(key types.UID, dimProps *atypes.DimProperties) {
-	dc.dimPropCache[key] = dimProps
+func (dc *DatapointCache) addDimPropsToCache(key types.UID, dimProp *atypes.DimProperties) {
+	dc.dimPropCache[key] = dimProp
+}
+
+// addDimPropsListToCache takes an array of dimProps structs that need to cached
+func (dc *DatapointCache) addDimPropsListToCache(dimProps []*atypes.DimProperties) {
+	for _, dimProp := range dimProps {
+		dc.addDimPropsToCache(types.UID(dimProp.Dimension.Value), dimProp)
+	}
 }
 
 // handleAddPod adds a pod to the internal pod cache and gets the
@@ -204,7 +211,10 @@ func (dc *DatapointCache) handleAddPod(pod *v1.Pod) ([]*datapoint.Datapoint,
 		dc.podCache.AddPod(pod)
 	}
 	cachedPod := dc.podCache.GetCachedPod(pod.UID)
-	dps := datapointsForPod(pod)
+	dps, containerDimProps := datapointsForPod(pod)
+
+	dc.addDimPropsListToCache(containerDimProps)
+
 	if cachedPod != nil {
 		dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
 		return dps, dimProps

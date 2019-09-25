@@ -170,6 +170,46 @@ common:
         to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as
         tags on that same dimension.
       dimension: kubernetes_pod_uid
+<<<<<<< Upstream, based on origin/master
+=======
+    cronjob_creation_timestamp:
+      description: Timestamp representing the server time when the cron job was created and
+        is in UTC. This property is synced onto `kubernetes_uid`.
+      dimension: kubernetes_uid
+    daemonset_creation_timestamp:
+      description: Timestamp representing the server time when the daemon set was created and
+        is in UTC. This property is synced onto `kubernetes_uid`.
+      dimension: kubernetes_uid
+    deployment_creation_timestamp:
+      description: Timestamp representing the server time when the deployment was created and
+        is in UTC. This property is synced onto `kubernetes_uid`.
+      dimension: kubernetes_uid
+    job_creation_timestamp:
+      description: Timestamp representing the server time when the job was created and
+        is in UTC. This property is synced onto `kubernetes_uid`.
+      dimension: kubernetes_uid
+    pod_creation_timestamp:
+      description: Timestamp representing the server time when the pod was created and
+        is in UTC. This property is synced onto `kubernetes_pod_uid`.
+      dimension: kubernetes_pod_uid
+    replicaset_creation_timestamp:
+      description: Timestamp representing the server time when the replica set was created and
+        is in UTC. This property is synced onto `kubernetes_uid`.
+      dimension: kubernetes_uid
+    statefulset_creation_timestamp:
+      description: Timestamp representing the server time when the stateful set was created and
+        is in UTC. This property is synced onto `kubernetes_uid`.
+      dimension: kubernetes_uid
+    container_status:
+      description: Status of the container such as `running`, `waiting` or `terminated` are
+        synced to the `container_id` dimension.
+      dimension: container_id
+    container_status_reason:
+      description: Reason why a container is in a particular state. This property is synced
+        to `container_id` only if the value of `cotnainer_status` is either `waiting` or
+        `terminated`.
+      dimension: container_id
+>>>>>>> 69d4c6a Collect container status and reason for termiation/waiting (#957)
 
 monitors:
 - <<: *common

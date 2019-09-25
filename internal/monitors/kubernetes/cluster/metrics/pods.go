@@ -2,7 +2,6 @@ package metrics
 
 import (
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
@@ -12,7 +11,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
-func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
+func datapointsForPod(pod *v1.Pod) ([]*datapoint.Datapoint, []*atypes.DimProperties) {
 	dimensions := map[string]string{
 		"metric_source": "kubernetes",
 		// Try and be consistent with other plugin dimensions, despite
@@ -32,9 +31,11 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 			time.Now()),
 	}
 
+	dimPropListForContainers := make([]*atypes.DimProperties, 0)
+
 	for _, cs := range pod.Status.ContainerStatuses {
 		contDims := utils.CloneStringMap(dimensions)
-		contDims["container_id"] = strings.Replace(cs.ContainerID, "docker://", "", 1)
+		contDims["container_id"] = stripContainerIDPrefix(cs.ContainerID)
 		contDims["container_spec_name"] = cs.Name
 		contDims["container_image"] = cs.Image
 
@@ -51,9 +52,16 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 			datapoint.NewIntValue(int64(utils.BoolToInt(cs.Ready))),
 			datapoint.Gauge,
 			time.Now()))
+
+		dimPropsForContainer := dimPropsForContainer(cs)
+
+		if dimPropsForContainer != nil {
+			dimPropListForContainers = append(dimPropListForContainers, dimPropsForContainer)
+		}
+
 	}
 
-	return dps
+	return dps, dimPropListForContainers
 }
 
 func dimPropsForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache,
