@@ -1,11 +1,14 @@
 <!--- OVERVIEW --->
 # Quick Install
 
+- [Concepts](#concepts)
+- [Installation](#installation)
 
-The SignalFx Smart Agent is a metric agent written in Go for monitoring infrastructure and application services in a variety of environments. It is a successor to our previous [collectd agent](https://github.com/signalfx/collectd), and still uses collectd internally on Linux; any existing Python or C-based collectd plugins will still work without modification. On Windows collectd is not included, but the agent can run python-based collectd plugins without collectd. C-based collectd plugins are not available on Windows.
 
- - [Concepts](#concepts)
- - [Installation](#installation)
+## Smart Agent Overview
+
+The SignalFx Smart Agent is a metric agent written in Go that is used to monitor infrastructure and application services from a variety of environments.
+
 
 
 ## Concepts
@@ -68,9 +71,7 @@ Before you attempt to download and install the Smart Agent on a **single** host,
 | <p>You must have access to your command line interface.</p> <p>You must uninstall or disable any previously installed collector agent from your host, such as collectd.</p>| <p>You must run kernel version 2.6 or higher for your Linux distribution.</p> <p>The Smart Agent is bundled with additional required dependencies, including a Java JRE runtime and a Python runtime. As a result, there is no need to proactively install additional dependencies.</p>| <p>You must run .Net Framework 3.5 on Windows 8 or higher.</p> <p>You must run Visual C++ Compiler for Python 2.7.</p>  |
 
 
-
 ## Install the Smart Agent
-
 
 ### Step 1. Install the SignalFx Smart Agent on Single Host
 
@@ -162,7 +163,7 @@ Trace Spans Sent (last minute):   0
 
 If you are unable to install the Smart Agent, consider the following issues:
 
-* You may need to update your realm. By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to set the signalFxRealm option with your realm :
+* You may need to update your realm. By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to set the signalFxRealm option with your actual realm :
 
 
 ```sh
@@ -174,15 +175,13 @@ To find your realm:
 2. Click **My Profile**.
 3. Next to **Organizations**, review the listed realm.
 
-* You may need to set the endpoints. To explicitly set the ingest, API server, and trace endpoint URLs individually, review the following example:  
+* You may need to set the endpoints. To explicitly set the ingest, API server, and trace endpoint URLs, review the following examples:  
 
 ```sh
 ingestUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"
 apiUrl: "https://api.YOUR_SIGNALFX_REALM.signalfx.com"
 traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
 ```
-
-This action will default to the endpoints for the realm configured in signalFxRealm if not set.
 
 For additional installation troubleshooting information, see [Frequently Asked Questions](./faq.md).
 
