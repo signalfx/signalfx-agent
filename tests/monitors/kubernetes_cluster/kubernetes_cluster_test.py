@@ -231,6 +231,8 @@ def test_persistent_volume_claims(k8s_cluster):
     config = """
     monitors:
      - type: kubernetes-cluster
+       extraMetrics:
+        - kubernetes.persistent_volume_claim_phase
     """
     yamls = [SCRIPT_DIR / "persistent_volume_claim.yaml"]
     with k8s_cluster.create_resources(yamls):

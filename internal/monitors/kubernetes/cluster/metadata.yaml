@@ -76,6 +76,16 @@ common:
         state (-1)
       default: true
       type: gauge
+    kubernetes.persistent_volume_phase:
+      description: Current phase of the pod (1 - Pending, 2 - Available, 3 - Bound,
+        4 - Released, 5 - Failed, 6 - Unknown
+      default: false
+      type: gauge
+    kubernetes.persistent_volume_claim_phase:
+      description: Current phase of the pod (1 - Pending, 2 - Bound, 3 - Lost,
+        4 - Unknown
+      default: false
+      type: gauge
     kubernetes.pod_phase:
       description: Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded,
         4 - Failed, 5 - Unknown)
@@ -190,6 +200,14 @@ common:
       description: Timestamp representing the server time when the pod was created and
         is in UTC. This property is synced onto `kubernetes_pod_uid`.
       dimension: kubernetes_pod_uid
+    persistent_volume_creation_timestamp:
+      description: Timestamp representing the server time when the persistent volume was created and
+        is in UTC. This property is synced onto `kubernetes_uid`.
+      dimension: kubernetes_uid
+    persistent_volume_claim_creation_timestamp:
+      description: Timestamp representing the servers time when the persistent volume claim was created and
+        is in UTC. This property is synced onto `kubernetes_uid`.
+      dimension: kubernetes_uid
     replicaset_creation_timestamp:
       description: Timestamp representing the server time when the replica set was created and
         is in UTC. This property is synced onto `kubernetes_uid`.

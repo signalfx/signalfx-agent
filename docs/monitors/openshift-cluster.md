@@ -94,6 +94,8 @@ Metrics that are categorized as
  - `kubernetes.job.succeeded` (*counter*)<br>    The number of pods which reached phase Succeeded for a job.
  - ***`kubernetes.namespace_phase`*** (*gauge*)<br>    The current phase of namespaces (`1` for _active_ and `0` for _terminating_)
  - ***`kubernetes.node_ready`*** (*gauge*)<br>    Whether this node is ready (1), not ready (0) or in an unknown state (-1)
+ - `kubernetes.persistent_volume_claim_phase` (*gauge*)<br>    Current phase of the pod (1 - Pending, 2 - Bound, 3 - Lost, 4 - Unknown
+ - `kubernetes.persistent_volume_phase` (*gauge*)<br>    Current phase of the pod (1 - Pending, 2 - Available, 3 - Bound, 4 - Released, 5 - Failed, 6 - Unknown
  - ***`kubernetes.pod_phase`*** (*gauge*)<br>    Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown)
  - ***`kubernetes.replica_set.available`*** (*gauge*)<br>    Total number of available pods (ready for at least minReadySeconds) targeted by this replica set
  - ***`kubernetes.replica_set.desired`*** (*gauge*)<br>    Number of desired pods in this replica set
@@ -197,6 +199,8 @@ are set on the dimension values of the dimension specified.
 | `daemonset_creation_timestamp` | `kubernetes_uid` | Timestamp representing the server time when the daemon set was created and is in UTC. This property is synced onto `kubernetes_uid`. |
 | `deployment_creation_timestamp` | `kubernetes_uid` | Timestamp representing the server time when the deployment was created and is in UTC. This property is synced onto `kubernetes_uid`. |
 | `job_creation_timestamp` | `kubernetes_uid` | Timestamp representing the server time when the job was created and is in UTC. This property is synced onto `kubernetes_uid`. |
+| `persistent_volume_claim_creation_timestamp` | `kubernetes_uid` | Timestamp representing the servers time when the persistent volume claim was created and is in UTC. This property is synced onto `kubernetes_uid`. |
+| `persistent_volume_creation_timestamp` | `kubernetes_uid` | Timestamp representing the server time when the persistent volume was created and is in UTC. This property is synced onto `kubernetes_uid`. |
 | `pod_creation_timestamp` | `kubernetes_pod_uid` | Timestamp representing the server time when the pod was created and is in UTC. This property is synced onto `kubernetes_pod_uid`. |
 | `replicaset_creation_timestamp` | `kubernetes_uid` | Timestamp representing the server time when the replica set was created and is in UTC. This property is synced onto `kubernetes_uid`. |
 | `statefulset_creation_timestamp` | `kubernetes_uid` | Timestamp representing the server time when the stateful set was created and is in UTC. This property is synced onto `kubernetes_uid`. |

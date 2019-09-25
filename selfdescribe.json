@@ -26952,6 +26952,8 @@
             "kubernetes.job.succeeded",
             "kubernetes.namespace_phase",
             "kubernetes.node_ready",
+            "kubernetes.persistent_volume_claim_phase",
+            "kubernetes.persistent_volume_phase",
             "kubernetes.pod_phase",
             "kubernetes.replica_set.available",
             "kubernetes.replica_set.desired",
@@ -27063,6 +27065,18 @@
           "group": null,
           "default": true
         },
+        "kubernetes.persistent_volume_claim_phase": {
+          "type": "gauge",
+          "description": "Current phase of the pod (1 - Pending, 2 - Bound, 3 - Lost, 4 - Unknown",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.persistent_volume_phase": {
+          "type": "gauge",
+          "description": "Current phase of the pod (1 - Pending, 2 - Available, 3 - Bound, 4 - Released, 5 - Failed, 6 - Unknown",
+          "group": null,
+          "default": false
+        },
         "kubernetes.pod_phase": {
           "type": "gauge",
           "description": "Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded, 4 - Failed, 5 - Unknown)",
@@ -27154,6 +27168,14 @@
         "job_creation_timestamp": {
           "dimension": "kubernetes_uid",
           "description": "Timestamp representing the server time when the job was created and is in UTC. This property is synced onto `kubernetes_uid`."
+        },
+        "persistent_volume_claim_creation_timestamp": {
+          "dimension": "kubernetes_uid",
+          "description": "Timestamp representing the servers time when the persistent volume claim was created and is in UTC. This property is synced onto `kubernetes_uid`."
+        },
+        "persistent_volume_creation_timestamp": {
+          "dimension": "kubernetes_uid",
+          "description": "Timestamp representing the server time when the persistent volume was created and is in UTC. This property is synced onto `kubernetes_uid`."
         },
         "pod_creation_timestamp": {
           "dimension": "kubernetes_pod_uid",
@@ -29449,6 +29471,8 @@
             "kubernetes.job.succeeded",
             "kubernetes.namespace_phase",
             "kubernetes.node_ready",
+            "kubernetes.persistent_volume_claim_phase",
+            "kubernetes.persistent_volume_phase",
             "kubernetes.pod_phase",
             "kubernetes.replica_set.available",
             "kubernetes.replica_set.desired",
@@ -29587,6 +29611,18 @@
           "description": "Whether this node is ready (1), not ready (0) or in an unknown state (-1)",
           "group": null,
           "default": true
+        },
+        "kubernetes.persistent_volume_claim_phase": {
+          "type": "gauge",
+          "description": "Current phase of the pod (1 - Pending, 2 - Bound, 3 - Lost, 4 - Unknown",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.persistent_volume_phase": {
+          "type": "gauge",
+          "description": "Current phase of the pod (1 - Pending, 2 - Available, 3 - Bound, 4 - Released, 5 - Failed, 6 - Unknown",
+          "group": null,
+          "default": false
         },
         "kubernetes.pod_phase": {
           "type": "gauge",
@@ -29847,6 +29883,14 @@
         "job_creation_timestamp": {
           "dimension": "kubernetes_uid",
           "description": "Timestamp representing the server time when the job was created and is in UTC. This property is synced onto `kubernetes_uid`."
+        },
+        "persistent_volume_claim_creation_timestamp": {
+          "dimension": "kubernetes_uid",
+          "description": "Timestamp representing the servers time when the persistent volume claim was created and is in UTC. This property is synced onto `kubernetes_uid`."
+        },
+        "persistent_volume_creation_timestamp": {
+          "dimension": "kubernetes_uid",
+          "description": "Timestamp representing the server time when the persistent volume was created and is in UTC. This property is synced onto `kubernetes_uid`."
         },
         "pod_creation_timestamp": {
           "dimension": "kubernetes_pod_uid",
