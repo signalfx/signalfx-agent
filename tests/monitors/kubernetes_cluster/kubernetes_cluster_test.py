@@ -275,3 +275,21 @@ def test_deployments(k8s_cluster):
                     },
                 )
             )
+
+
+@pytest.mark.kubernetes
+def test_container_compute_resouorce_metrics(k8s_cluster):
+    config = f"""
+    monitors:
+     - type: kubernetes-cluster
+       extraMetrics:
+        - {CONTAINER_COMPUTE_RESOURCE_METRICS[0]}
+        - {CONTAINER_COMPUTE_RESOURCE_METRICS[1]}
+        - {CONTAINER_COMPUTE_RESOURCE_METRICS[2]}
+        - {CONTAINER_COMPUTE_RESOURCE_METRICS[3]}
+    """
+    yamls = [SCRIPT_DIR / "resource_quota.yaml", TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
+    with k8s_cluster.create_resources(yamls):
+        with k8s_cluster.run_agent(agent_yaml=config) as agent:
+            for metric in CONTAINER_COMPUTE_RESOURCE_METRICS:
+                assert wait_for(p(has_datapoint, agent.fake_services, metric_name=metric))
