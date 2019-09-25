@@ -2,7 +2,6 @@ package metrics
 
 import (
 	"regexp"
-	"strings"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
@@ -32,25 +31,21 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 			time.Now()),
 	}
 
+	containersInPodByName := make(map[string]map[string]string)
+
 	for _, cs := range pod.Status.ContainerStatuses {
-		contDims := utils.CloneStringMap(dimensions)
-		contDims["container_id"] = strings.Replace(cs.ContainerID, "docker://", "", 1)
-		contDims["container_spec_name"] = cs.Name
-		contDims["container_image"] = cs.Image
+		contDims := getAllContainerDimensions(cs.ContainerID, cs.Name, cs.Image, dimensions)
 
-		dps = append(dps, datapoint.New(
-			"kubernetes.container_restart_count",
-			contDims,
-			datapoint.NewIntValue(int64(cs.RestartCount)),
-			datapoint.Gauge,
-			time.Now()))
+		containersInPodByName[cs.Name] = contDims
 
-		dps = append(dps, datapoint.New(
-			"kubernetes.container_ready",
-			contDims,
-			datapoint.NewIntValue(int64(utils.BoolToInt(cs.Ready))),
-			datapoint.Gauge,
-			time.Now()))
+		dps = append(dps, datapointsForContainerStatus(cs, contDims)...)
+
+	}
+
+	for _, c := range pod.Spec.Containers {
+		contDims := containersInPodByName[c.Name]
+
+		dps = append(dps, datapointsForContainerSpec(c, contDims)...)
 	}
 
 	return dps

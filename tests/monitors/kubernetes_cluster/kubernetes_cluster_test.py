@@ -223,6 +223,7 @@ def test_cronjobs(k8s_cluster):
             )
 
 
+<<<<<<< HEAD
 @pytest.mark.kubernetes
 def test_pods(k8s_cluster):
     config = """
@@ -275,6 +276,14 @@ def test_deployments(k8s_cluster):
                     },
                 )
             )
+
+
+CONTAINER_COMPUTE_RESOURCE_METRICS = [
+    "kubernetes.container_cpu.limit",
+    "kubernetes.container_cpu.request",
+    "kubernetes.container_memory.limit",
+    "kubernetes.container_memory.request",
+]
 
 
 @pytest.mark.kubernetes
