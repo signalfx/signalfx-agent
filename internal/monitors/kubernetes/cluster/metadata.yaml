@@ -22,6 +22,22 @@ common:
     resource:
       description: The k8s resource that the quota applies to
   metrics:
+    kubernetes.container_cpu.limit:
+      description: Maximum CPU limit set for the container
+      default: false
+      type: gauge
+    kubernetes.container_cpu.request:
+      description: CPU requested for the container
+      default: false
+      type: gauge
+    kubernetes.container_memory.limit:
+      description: Maximum memory limit set for the container
+      default: false
+      type: gauge
+    kubernetes.container_memory.request:
+      description: Memory requested for the container
+      default: false
+      type: gauge
     kubernetes.container_ready:
       description: Whether a container has passed its readiness probe (0 for no, 1
         for yes)

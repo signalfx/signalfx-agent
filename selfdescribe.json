@@ -27133,6 +27133,10 @@
         "": {
           "description": "",
           "metrics": [
+            "kubernetes.container_cpu.limit",
+            "kubernetes.container_cpu.request",
+            "kubernetes.container_memory.limit",
+            "kubernetes.container_memory.request",
             "kubernetes.container_ready",
             "kubernetes.container_restart_count",
             "kubernetes.cronjob.active",
@@ -27176,6 +27180,30 @@
         }
       },
       "metrics": {
+        "kubernetes.container_cpu.limit": {
+          "type": "gauge",
+          "description": "Maximum CPU limit set for the container",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.container_cpu.request": {
+          "type": "gauge",
+          "description": "CPU requested for the container",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.container_memory.limit": {
+          "type": "gauge",
+          "description": "Maximum memory limit set for the container",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.container_memory.request": {
+          "type": "gauge",
+          "description": "Memory requested for the container",
+          "group": null,
+          "default": false
+        },
         "kubernetes.container_ready": {
           "type": "gauge",
           "description": "Whether a container has passed its readiness probe (0 for no, 1 for yes)",
@@ -29684,6 +29712,10 @@
         "": {
           "description": "",
           "metrics": [
+            "kubernetes.container_cpu.limit",
+            "kubernetes.container_cpu.request",
+            "kubernetes.container_memory.limit",
+            "kubernetes.container_memory.request",
             "kubernetes.container_ready",
             "kubernetes.container_restart_count",
             "kubernetes.cronjob.active",
@@ -29755,6 +29787,30 @@
         }
       },
       "metrics": {
+        "kubernetes.container_cpu.limit": {
+          "type": "gauge",
+          "description": "Maximum CPU limit set for the container",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.container_cpu.request": {
+          "type": "gauge",
+          "description": "CPU requested for the container",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.container_memory.limit": {
+          "type": "gauge",
+          "description": "Maximum memory limit set for the container",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.container_memory.request": {
+          "type": "gauge",
+          "description": "Memory requested for the container",
+          "group": null,
+          "default": false
+        },
         "kubernetes.container_ready": {
           "type": "gauge",
           "description": "Whether a container has passed its readiness probe (0 for no, 1 for yes)",
