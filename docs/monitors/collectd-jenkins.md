@@ -90,9 +90,11 @@ Configuration](../monitor-config.md#common-configuration).**
 | `includeMetrics` | no | `list of strings` | Used to enable individual enhanced metrics when `enhancedMetrics` is false |
 | `username` | no | `string` | User with security access to jenkins |
 | `apiToken` | no | `string` | API Token of the user |
+| `useHTTPS` | no | `bool` | Whether to enable HTTPS. (**default:** `false`) |
 | `sslKeyFile` | no | `string` | Path to the keyfile |
 | `sslCertificate` | no | `string` | Path to the certificate |
 | `sslCACerts` | no | `string` | Path to the ca file |
+| `skipVerify` | no | `bool` | Skip SSL certificate validation (**default:** `false`) |
 
 
 ## Metrics

@@ -9144,6 +9144,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "useHTTPS",
+            "doc": "Whether to enable HTTPS.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
             "yamlName": "sslKeyFile",
             "doc": "Path to the keyfile",
             "default": "",
@@ -9165,6 +9173,14 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "skipVerify",
+            "doc": "Skip SSL certificate validation",
+            "default": false,
+            "required": false,
+            "type": "bool",
             "elementKind": ""
           }
         ]
