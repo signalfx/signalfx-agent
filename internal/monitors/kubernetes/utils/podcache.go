@@ -21,22 +21,20 @@ type PodCache struct {
 
 // CachedPod is used for holding only the necessary
 type CachedPod struct {
-	UID               types.UID
-	LabelSet          labels.Set
-	OwnerReferences   []metav1.OwnerReference
-	Namespace         string
-	Tolerations       []v1.Toleration
-	CreationTimestamp metav1.Time
+	UID             types.UID
+	LabelSet        labels.Set
+	OwnerReferences []metav1.OwnerReference
+	Namespace       string
+	Tolerations     []v1.Toleration
 }
 
 func newCachedPod(pod *v1.Pod) *CachedPod {
 	return &CachedPod{
-		UID:               pod.UID,
-		LabelSet:          labels.Set(pod.Labels),
-		OwnerReferences:   pod.OwnerReferences,
-		Namespace:         pod.Namespace,
-		Tolerations:       pod.Spec.Tolerations,
-		CreationTimestamp: pod.GetCreationTimestamp(),
+		UID:             pod.UID,
+		LabelSet:        labels.Set(pod.Labels),
+		OwnerReferences: pod.OwnerReferences,
+		Namespace:       pod.Namespace,
+		Tolerations:     pod.Spec.Tolerations,
 	}
 }
 
