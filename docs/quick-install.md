@@ -1,10 +1,6 @@
 <!--- OVERVIEW --->
 # Quick Install
 
-- [Concepts](#concepts)
-- [Installation](#installation)
-
-
 ## Smart Agent Overview
 
 The SignalFx Smart Agent is a metric-based agent written in Go that is used to monitor infrastructure and application services from a variety of environments.
