@@ -17,12 +17,13 @@ RUN cd /tmp &&\
 ENV GOPATH=/go
 WORKDIR /usr/src/signalfx-agent
 
+COPY go.mod go.sum ./
+RUN go mod download
+
 COPY cmd/ ./cmd/
 COPY scripts/make-templates scripts/make-versions ./scripts/
 COPY scripts/collectd-template-to-go ./scripts/
 COPY Makefile .
-COPY go.mod go.sum ./
-RUN go mod download
 COPY internal/ ./internal/
 
 ARG collectd_version=""
@@ -31,6 +32,7 @@ ARG GOOS="linux"
 
 RUN AGENT_VERSION=${agent_version} COLLECTD_VERSION=${collectd_version} make signalfx-agent &&\
     mv signalfx-agent /usr/bin/signalfx-agent
+
 
 ###### Collectd builder image ######
 FROM ubuntu:16.04 as collectd
@@ -221,6 +223,7 @@ RUN find $PYTHONHOME -name "*.pyc" -o -name "*.pyo" | xargs rm
 # We don't support compiling extension modules so don't need this directory
 RUN rm -rf $PYTHONHOME/lib/python2.7/config-*-linux-gnu
 
+
 ###### Python Plugin Image ######
 FROM collectd as python-plugins
 
@@ -249,6 +252,7 @@ RUN pip list
 RUN find $PYTHONHOME -name "*.pyc" -o -name "*.pyo" | xargs rm
 # We don't support compiling extension modules so don't need this directory
 RUN rm -rf $PYTHONHOME/lib/python2.7/config-*-linux-gnu
+
 
 ######### Java monitor dependencies and monitor jar compilation
 FROM ubuntu:16.04 as java
@@ -337,6 +341,7 @@ COPY --from=java /opt/root/jre/ /opt/root/jre/
 COPY scripts/patch-rpath /usr/bin/
 RUN patch-rpath /opt/root
 
+
 ###### Final Agent Image #######
 # This build stage is meant as the final target when running the agent in a
 # container environment (e.g. directly with Docker or on K8s).  The stages
@@ -407,6 +412,7 @@ RUN apt update &&\
       vim \
       wget
 
+ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 ENV SIGNALFX_BUNDLE_DIR=/bundle \
     TEST_SERVICES_DIR=/usr/src/signalfx-agent/test-services \
     AGENT_BIN=/usr/src/signalfx-agent/signalfx-agent \
@@ -417,9 +423,20 @@ ENV SIGNALFX_BUNDLE_DIR=/bundle \
     LC_ALL=C.UTF-8 \
     LANG=C.UTF-8
 
+RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
+    sh /tmp/get-docker.sh
+
+# Get integration test deps in here
 RUN pip3 install ipython ipdb
+COPY tests/requirements.txt /tmp/
+RUN pip3 install --upgrade pip==9.0.1 && pip3 install -r /tmp/requirements.txt
+RUN ln -s /usr/bin/python3 /usr/bin/python &&\
+    ln -s /usr/bin/pip3 /usr/bin/pip
 
 ARG TARGET_ARCH
+
+RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v3.4.0/gomplate_linux-${TARGET_ARCH} &&\
+    chmod +x /usr/bin/gomplate
 
 # Install helm
 ARG HELM_VERSION=v2.13.0
@@ -429,12 +446,18 @@ RUN wget -O helm.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-${HE
     mv linux-${TARGET_ARCH}/helm /usr/local/bin/helm && \
     chmod a+x /usr/local/bin/helm
 
-WORKDIR /usr/src/signalfx-agent
-CMD ["/bin/bash"]
-ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
+# Install kubectl
+ARG KUBECTL_VERSION=v1.14.1
+RUN cd /tmp &&\
+    curl -LO https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/${TARGET_ARCH}/kubectl &&\
+    chmod +x ./kubectl &&\
+    mv ./kubectl /usr/bin/kubectl
 
-RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
-    sh /tmp/get-docker.sh
+WORKDIR /usr/src/signalfx-agent
+
+COPY --from=final-image /bin/signalfx-agent ./signalfx-agent
+COPY --from=final-image / /bundle/
+RUN /bundle/bin/patch-interpreter /bundle
 
 COPY --from=agent-builder /usr/local/go /usr/local/go
 COPY --from=agent-builder /go $GOPATH
@@ -444,28 +467,10 @@ RUN go get -u golang.org/x/lint/golint &&\
     go get github.com/tebeka/go2xunit &&\
     curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.16.0
 
-# Get integration test deps in here
-COPY python/setup.py /tmp/
-RUN pip3 install -e /tmp/
-COPY tests/requirements.txt /tmp/
-RUN pip3 install --upgrade pip==9.0.1 && pip3 install -r /tmp/requirements.txt
-RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v3.4.0/gomplate_linux-${TARGET_ARCH} &&\
-    chmod +x /usr/bin/gomplate
-
-RUN cd /tmp &&\
-    curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.14.1/bin/linux/amd64/kubectl &&\
-    chmod +x ./kubectl &&\
-    mv ./kubectl /usr/bin/kubectl
-
-RUN ln -s /usr/bin/python3 /usr/bin/python &&\
-    ln -s /usr/bin/pip3 /usr/bin/pip
-
-COPY --from=final-image /bin/signalfx-agent ./signalfx-agent
-
-COPY --from=final-image / /bundle/
 COPY ./ ./
 
-RUN /bundle/bin/patch-interpreter /bundle
+CMD ["/bin/bash"]
+
 
 ####### Pandoc Converter ########
 FROM ubuntu:16.04 as pandoc-converter
@@ -508,6 +513,7 @@ RUN rm -rf ./signalfx-agent/etc/signalfx
 
 # Remove agent-status symlink; will be recreated in /usr/bin during packaging.
 RUN rm -f ./signalfx-agent/bin/agent-status
+
 
 ###### RPM Packager #######
 FROM fedora:27 as rpm-packager

@@ -1,5 +1,7 @@
 *.tar.gz
 .git/**
+.githooks/**
+.github/**
 .glide/**
 .build/**
 signalfx-agent*
@@ -10,13 +12,19 @@ internal/monitors/**/template.go
 internal/monitors/collectd/collectd.conf.go
 packaging/*/output
 tests/**/__pycache__
+**/.pytest_cache/**
+test_output/**
 **/virtualenv
 vendor_orig/**
 **/virtualenv
 **/boxcutter/**
 **/.vagrant/**
+Vagrantfile
 .circleci/**
 .azure-pipelines/**
 **/genmetadata.go
 monitor-code-gen
 java/**/target
+python/**/build
+python/**/dist
+python/**/*.egg-info
