@@ -318,9 +318,13 @@ def all_datapoints_have_dim_key(fake_services, dim_key):
     if not fake_services.datapoints:
         return False
     for dp in fake_services.datapoints:
-        if not any(dim.key == dim_key for dim in dp.dimensions):
+        if not has_dim_key(dp, dim_key):
             return False
     return True
+
+
+def has_dim_key(dp_or_event, key):
+    return any(dim.key == key for dim in dp_or_event.dimensions)
 
 
 def all_datapoints_have_metric_name_and_dims(fake_services, metric_name, dims):

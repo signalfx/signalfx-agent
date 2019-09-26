@@ -352,11 +352,24 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		return err
 	}
 
+	am := &ActiveMonitor{
+		id:         id,
+		configHash: configHash,
+		instance:   instance,
+		endpoint:   endpoint,
+		agentMeta:  mm.agentMeta,
+	}
+
+	renderedConf, err := renderConfig(config, endpoint)
+	if err != nil {
+		return err
+	}
+
 	output := &monitorOutput{
-		monitorType:               coreConfig.Type,
+		monitorType:               renderedConf.MonitorConfigCore().Type,
 		monitorID:                 id,
-		notHostSpecific:           coreConfig.DisableHostDimensions,
-		disableEndpointDimensions: coreConfig.DisableEndpointDimensions,
+		notHostSpecific:           renderedConf.MonitorConfigCore().DisableHostDimensions,
+		disableEndpointDimensions: renderedConf.MonitorConfigCore().DisableEndpointDimensions,
 		configHash:                configHash,
 		endpoint:                  endpoint,
 		dpChan:                    mm.DPs,
@@ -364,20 +377,13 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		dimPropChan:               mm.DimensionProps,
 		spanChan:                  mm.TraceSpans,
 		extraDims:                 map[string]string{},
-		dimensionTransformations:  coreConfig.DimensionTransformations,
+		dimensionTransformations:  renderedConf.MonitorConfigCore().DimensionTransformations,
 		monitorFiltering:          monFiltering,
 	}
 
-	am := &ActiveMonitor{
-		id:         id,
-		configHash: configHash,
-		instance:   instance,
-		endpoint:   endpoint,
-		agentMeta:  mm.agentMeta,
-		output:     output,
-	}
+	am.output = output
 
-	if err := am.configureMonitor(config); err != nil {
+	if err := am.configureMonitor(renderedConf); err != nil {
 		return err
 	}
 	mm.activeMonitors = append(mm.activeMonitors, am)

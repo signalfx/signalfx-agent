@@ -2,7 +2,7 @@ from functools import partial as p
 
 import pytest
 import yaml
-from tests.helpers.assertions import has_datapoint
+from tests.helpers.assertions import has_all_dims, has_datapoint, has_dim_key
 from tests.helpers.kubernetes.utils import add_pod_spec_annotations
 from tests.helpers.util import wait_for
 from tests.paths import TEST_SERVICES_DIR
@@ -33,6 +33,7 @@ def test_config_from_annotations(k8s_cluster):
             {
                 "agent.signalfx.com/monitorType.http": "collectd/nginx",
                 "agent.signalfx.com/config.80.extraDimensions": "{source: myapp}",
+                "agent.signalfx.com/config.80.disableEndpointDimensions": "true",
             },
         )
     )
@@ -44,6 +45,10 @@ def test_config_from_annotations(k8s_cluster):
         """
         with k8s_cluster.run_agent(config) as agent:
             assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"plugin": "nginx", "source": "myapp"}))
+            for dp in agent.fake_services.datapoints:
+                if not has_all_dims(dp, {"source": "myapp"}):
+                    continue
+                assert not has_dim_key(dp, "kubernetes_pod_uid")
 
 
 @pytest.mark.kubernetes
