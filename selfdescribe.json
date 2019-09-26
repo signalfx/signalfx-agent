@@ -27281,33 +27281,9 @@
           "dimension": "kubernetes_pod_uid",
           "description": "Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension."
         },
-        "cronjob_creation_timestamp": {
-          "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the cron job was created and is in UTC. This property is synced onto `kubernetes_uid`."
-        },
-        "daemonset_creation_timestamp": {
-          "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the daemon set was created and is in UTC. This property is synced onto `kubernetes_uid`."
-        },
-        "deployment_creation_timestamp": {
-          "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the deployment was created and is in UTC. This property is synced onto `kubernetes_uid`."
-        },
-        "job_creation_timestamp": {
-          "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the job was created and is in UTC. This property is synced onto `kubernetes_uid`."
-        },
-        "pod_creation_timestamp": {
-          "dimension": "kubernetes_pod_uid",
-          "description": "Timestamp representing the server time when the pod was created and is in UTC. This property is synced onto `kubernetes_pod_uid`."
-        },
-        "replicaset_creation_timestamp": {
-          "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the replica set was created and is in UTC. This property is synced onto `kubernetes_uid`."
-        },
-        "statefulset_creation_timestamp": {
-          "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the stateful set was created and is in UTC. This property is synced onto `kubernetes_uid`."
+        "creation_timestamp": {
+          "dimension": "kubernetes_pod_uid/kubernetes_uid",
+          "description": "CreationTimestamp is a timestamp representing the server time when this object was created and is in UTC. This property is synced onto `kubernetes_pod_uid` or `kubernetes_uid` depending on whether it's a node or Kubernetes workload."
         }
       },
       "metricsExhaustive": false,
@@ -29974,33 +29950,9 @@
           "dimension": "kubernetes_pod_uid",
           "description": "Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension."
         },
-        "cronjob_creation_timestamp": {
-          "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the cron job was created and is in UTC. This property is synced onto `kubernetes_uid`."
-        },
-        "daemonset_creation_timestamp": {
-          "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the daemon set was created and is in UTC. This property is synced onto `kubernetes_uid`."
-        },
-        "deployment_creation_timestamp": {
-          "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the deployment was created and is in UTC. This property is synced onto `kubernetes_uid`."
-        },
-        "job_creation_timestamp": {
-          "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the job was created and is in UTC. This property is synced onto `kubernetes_uid`."
-        },
-        "pod_creation_timestamp": {
-          "dimension": "kubernetes_pod_uid",
-          "description": "Timestamp representing the server time when the pod was created and is in UTC. This property is synced onto `kubernetes_pod_uid`."
-        },
-        "replicaset_creation_timestamp": {
-          "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the replica set was created and is in UTC. This property is synced onto `kubernetes_uid`."
-        },
-        "statefulset_creation_timestamp": {
-          "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the stateful set was created and is in UTC. This property is synced onto `kubernetes_uid`."
+        "creation_timestamp": {
+          "dimension": "kubernetes_pod_uid/kubernetes_uid",
+          "description": "CreationTimestamp is a timestamp representing the server time when this object was created and is in UTC. This property is synced onto `kubernetes_pod_uid` or `kubernetes_uid` depending on whether it's a node or Kubernetes workload."
         }
       },
       "metricsExhaustive": false,
