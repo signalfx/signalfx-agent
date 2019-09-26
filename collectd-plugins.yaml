@@ -34,7 +34,7 @@
   repo: signalfx/collectd-health_checker
 
 - name: jenkins
-  version: v1.0.8
+  version: v2.0.0
   repo: signalfx/collectd-jenkins
 
 - name: kong

@@ -1,6 +1,8 @@
 package jenkins
 
 import (
+	"strconv"
+
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -40,12 +42,16 @@ type Config struct {
 	Username string `yaml:"username"`
 	// API Token of the user
 	APIToken string `yaml:"apiToken" neverLog:"true"`
+	// Whether to enable HTTPS.
+	UseHTTPS bool `yaml:"useHTTPS"`
 	// Path to the keyfile
 	SSLKeyFile string `yaml:"sslKeyFile"`
 	// Path to the certificate
 	SSLCertificate string `yaml:"sslCertificate"`
 	// Path to the ca file
 	SSLCACerts string `yaml:"sslCACerts"`
+	// Skip SSL certificate validation
+	SkipVerify bool `yaml:"skipVerify"`
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface
@@ -69,16 +75,18 @@ func (m *Monitor) Configure(conf *Config) error {
 		ModulePaths:   []string{collectd.MakePythonPluginPath("jenkins")},
 		TypesDBPaths:  []string{collectd.DefaultTypesDBPath()},
 		PluginConfig: map[string]interface{}{
-			"Host":            conf.Host,
-			"Port":            conf.Port,
-			"Interval":        conf.IntervalSeconds,
-			"MetricsKey":      conf.MetricsKey,
-			"EnhancedMetrics": conf.EnhancedMetrics,
-			"Username":        conf.Username,
-			"APIToken":        conf.APIToken,
-			"ssl_keyfile":     conf.SSLKeyFile,
-			"ssl_certificate": conf.SSLCertificate,
-			"ssl_ca_certs":    conf.SSLCACerts,
+			"Host":                conf.Host,
+			"Port":                conf.Port,
+			"Interval":            conf.IntervalSeconds,
+			"MetricsKey":          conf.MetricsKey,
+			"EnhancedMetrics":     conf.EnhancedMetrics,
+			"Username":            conf.Username,
+			"APIToken":            conf.APIToken,
+			"ssl_keyfile":         conf.SSLKeyFile,
+			"ssl_certificate":     conf.SSLCertificate,
+			"ssl_ca_certs":        conf.SSLCACerts,
+			"ssl_enabled":         strconv.FormatBool(conf.UseHTTPS),
+			"ssl_cert_validation": strconv.FormatBool(!conf.SkipVerify),
 			"IncludeMetric": map[string]interface{}{
 				"#flatten": true,
 				"values":   conf.IncludeMetrics,
