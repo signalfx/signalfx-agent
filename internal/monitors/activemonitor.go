@@ -30,38 +30,40 @@ type ActiveMonitor struct {
 	doomed bool
 }
 
-// Does some reflection magic to pass the right type to the Configure method of
-// each monitor
-func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) error {
+func renderConfig(monConfig config.MonitorCustomConfig, endpoint services.Endpoint) (config.MonitorCustomConfig, error) {
 	monConfig = utils.CloneInterface(monConfig).(config.MonitorCustomConfig)
 	if err := defaults.Set(monConfig); err != nil {
-		return err
+		return nil, err
 	}
 
-	if am.endpoint != nil {
-		err := config.DecodeExtraConfig(am.endpoint, monConfig, false)
+	if endpoint != nil {
+		err := config.DecodeExtraConfig(endpoint, monConfig, false)
 		if err != nil {
-			return errors.Wrap(err, "Could not inject endpoint config into monitor config")
+			return nil, errors.Wrap(err, "Could not inject endpoint config into monitor config")
 		}
 
 		for configKey, rule := range monConfig.MonitorConfigCore().ConfigEndpointMappings {
 			cem := &services.ConfigEndpointMapping{
-				Endpoint:  am.endpoint,
+				Endpoint:  endpoint,
 				ConfigKey: configKey,
 				Rule:      rule,
 			}
 			if err := config.DecodeExtraConfig(cem, monConfig, false); err != nil {
-				return fmt.Errorf("could not process config mapping: %s => %s -- %s", configKey, rule, err.Error())
+				return nil, fmt.Errorf("could not process config mapping: %s => %s -- %s", configKey, rule, err.Error())
 			}
 		}
 	}
 
-	am.config = monConfig
-	am.config.MonitorConfigCore().MonitorID = am.id
 	// Wipe out the other config that has already been decoded since it is not
 	// redundant.
-	am.config.MonitorConfigCore().OtherConfig = nil
+	monConfig.MonitorConfigCore().OtherConfig = nil
+	return monConfig, nil
+}
 
+// Does some reflection magic to pass the right type to the Configure method of
+// each monitor
+func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) error {
+	monConfig.MonitorConfigCore().MonitorID = am.id
 	for k, v := range monConfig.MonitorConfigCore().ExtraDimensions {
 		am.output.AddExtraDimension(k, v)
 	}
@@ -78,6 +80,7 @@ func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) 
 		return err
 	}
 
+	am.config = monConfig
 	am.injectAgentMetaIfNeeded()
 	am.injectOutputIfNeeded()
 
