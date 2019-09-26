@@ -70,17 +70,16 @@ _Note: if you have previously configured another metric collection agent on your
 
 __Linux:__ Dependencies are completely bundled along with the agent, including a Java JRE runtime and a Python runtime, so there are no additional dependencies required. The agent works on any modern Linux distribution (kernel version 2.6+).
 
-If you are not installing from the tile on the Integrations page:
-
-- Get your API_TOKEN from: __Organization Settings => Access Token__ tab in the SignalFx application. 
-
-- Determine YOUR\_SIGNAL_FX_REALM from your [profile page](https://docs.signalfx.com/en/latest/getting-started/get-around-ui.html#user-profile-avatar-and-color-theme) in the SignalFx web application.
-
 To install the Smart Agent on a single Linux host, enter:
 
-```sh
-curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
+```sh curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
 sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
+
+<!-- In the above command, YOUR_SIGNALFX_REALM represents the realm that is shown on your profile page
+(see https://docs.signalfx.com/en/latest/getting-started/get-around-ui.html#user-profile-avatar-and-color-theme)
+
+The final parameter, YOUR_SIGNALFX_API_TOKEN, is your organization's access taken, which is shown in the
+Organization Settings => Access Token tab. -->
 ```
 
 __Windows:__ Ensure that the following dependencies are installed:
