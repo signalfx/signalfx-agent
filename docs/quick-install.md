@@ -33,7 +33,7 @@ Before you attempt to download and install the Smart Agent on a **single** host,
 <summary>Linux</summary>
 <br>
 
-<p>For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy the pre-populated installation code.</p>
+For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy the pre-populated installation code.
 
 **If you are reading this document directly from the Integrations page,** then simply copy and paste the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)
 
