@@ -113,7 +113,7 @@ Trace Spans Sent (last minute):   0
 | <code>signalfx-agent status config</code>   | This command shows resolved config in use by the Smart Agent. |
 | <code>signalfx-agent status endpoints</code>  | This command shows discovered endpoints.  |
 | <code>signalfx-agent status monitors</code>  | This command shows active monitors.  |
-| <code>signalfx-agent status all</code>  | This command shows the above statuses. |
+| <code>signalfx-agent status all</code>  | This command shows all of the above statuses. |
 
 ***
 
@@ -121,17 +121,19 @@ Trace Spans Sent (last minute):   0
 
 If you are unable to install the Smart Agent, consider the following issues:
 
-* You may need to update your realm. By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to set the signalFxRealm option with your actual realm :
+* You may need to update your realm. By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to set the signalFxRealm option with your correct realm :
 
 
 ```sh
 signalFxRealm: YOUR_SIGNALFX_REALM
 ```
 
+```sh
 To find your realm:
 1. In SignalFx, in the top, right corner, click your profile icon.
 2. Click **My Profile**.
 3. Next to **Organizations**, review the listed realm.
+```
 
 ***
 
@@ -151,8 +153,8 @@ For additional installation troubleshooting information, see [Frequently Asked Q
 
 ### Review additional documentation
 
-After a successful installation:
+After a successful installation, you can learn more about:
 
-* To learn more about the capabilities of the SignalFx Smart Agent, see [Advanced Installation Options](./advanced-install-options.md).
+* The capabilities of the SignalFx Smart Agent. See [Advanced Installation Options](./advanced-install-options.md).
 
-* To learn more about the SignalFX, including how data is displayed, see the [15-Minute SignalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html).
+* The SignalFX UI, including how data is displayed. See [15-Minute SignalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html).
