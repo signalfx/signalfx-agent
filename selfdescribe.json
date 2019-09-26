@@ -24057,7 +24057,7 @@
         },
         "haproxy_status": {
           "type": "gauge",
-          "description": ". Values reported for listeners, frontends, backends and servers.",
+          "description": "HAProxy status values derived from the status stat. Status stat values `UP`, `UP 1/3`, `UP 2/3`, `OPEN` and `no check` are assigned 1. Values `DOWN`, `DOWN 1/2`, `NOLB` and `MAINT` are assigned 0. Values reported for listeners, frontends, backends and servers.",
           "group": null,
           "default": false
         },
