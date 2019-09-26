@@ -1,9 +1,11 @@
 package config
 
 import (
+	"os"
 	"reflect"
 
 	"github.com/mitchellh/hashstructure"
+	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	log "github.com/sirupsen/logrus"
@@ -94,7 +96,6 @@ type MonitorConfig struct {
 	// ValidationError is where a message concerning validation issues can go
 	// so that diagnostics can output it.
 	Hostname        string          `yaml:"-" json:"-"`
-	BundleDir       string          `yaml:"-" json:"-"`
 	ValidationError string          `yaml:"-" json:"-" hash:"ignore"`
 	MonitorID       types.MonitorID `yaml:"-" hash:"ignore"`
 }
@@ -166,6 +167,11 @@ func (mc *MonitorConfig) Hash() uint64 {
 		return 0
 	}
 	return hash
+}
+
+// BundleDir returns the path to the agent's bundle directory.
+func (mc *MonitorConfig) BundleDir() string {
+	return os.Getenv(constants.BundleDirEnvVar)
 }
 
 // MonitorCustomConfig represents monitor-specific configuration that doesn't

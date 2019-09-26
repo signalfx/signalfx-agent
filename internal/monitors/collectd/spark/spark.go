@@ -11,7 +11,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
-	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
+	"github.com/signalfx/signalfx-agent/internal/monitors/subproc"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 )
@@ -28,7 +28,7 @@ func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
-				MonitorCore: pyrunner.New("sfxcollectd"),
+				MonitorCore: subproc.New(),
 			},
 		}
 	}, &Config{})
@@ -97,7 +97,7 @@ func (m *Monitor) Configure(conf *Config) error {
 			"Host":    conf.Host,
 			"Port":    conf.Port,
 			"Cluster": string(conf.ClusterType),
-			// Format as bools to work around pyrunner and collectd config type differences.
+			// Format as bools to work around subproc and collectd config type differences.
 			"Applications":    strings.Title(strconv.FormatBool(conf.CollectApplicationMetrics)),
 			"EnhancedMetrics": strings.Title(strconv.FormatBool(conf.EnhancedMetrics)),
 		},

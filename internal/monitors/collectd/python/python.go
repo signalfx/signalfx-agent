@@ -1,12 +1,12 @@
-// Package pyrunner contains a monitor that runs Collectd Python plugins
-// directly in a subprocess.  It uses the logic in internal/monitors/pyrunner
+// Package python contains a monitor that runs Collectd Python plugins
+// directly in a subprocess.  It uses the logic in internal/monitors/subproc
 // to do most of the work of managing a Python subprocess and doing the
 // configuration/shutdown calls.
-
 package python
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"html/template"
 	"io"
@@ -23,18 +23,19 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
-	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
+	"github.com/signalfx/signalfx-agent/internal/monitors/subproc"
+	"github.com/signalfx/signalfx-agent/internal/monitors/subproc/signalfx"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils/collectdutil"
 	log "github.com/sirupsen/logrus"
 )
 
-const messageTypeValueList pyrunner.MessageType = 100
+const messageTypeValueList subproc.MessageType = 100
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
 		return &PyMonitor{
-			MonitorCore: pyrunner.New("sfxcollectd"),
+			MonitorCore: subproc.New(),
 		}
 	}, &Config{})
 }
@@ -84,7 +85,7 @@ func (c *Config) PythonConfig() *Config {
 
 // PyMonitor that runs collectd python plugins directly
 type PyMonitor struct {
-	*pyrunner.MonitorCore
+	*subproc.MonitorCore
 
 	Output types.FilteringOutput
 }
@@ -130,41 +131,43 @@ func (m *PyMonitor) Configure(conf PyConfig) error {
 		}
 	}
 
-	runtimeConf := m.DefaultRuntimeConfig()
+	runtimeConf := subproc.DefaultPythonRuntimeConfig("sfxcollectd")
 	pyBin := conf.PythonConfig().PythonBinary
 	if pyBin != "" {
 		args := strings.Fields(pyBin)
-		runtimeConf.PythonBinary = args[0]
-		runtimeConf.PythonEnv = os.Environ()
-		runtimeConf.PythonArgs = append(runtimeConf.PythonArgs, args[1:]...)
+		runtimeConf.Binary = args[0]
+		runtimeConf.Env = os.Environ()
+		runtimeConf.Args = append(runtimeConf.Args, args[1:]...)
 	}
 
-	return m.MonitorCore.ConfigureInPython(pyconf, runtimeConf, func(dataReader pyrunner.MessageReceiver) {
-		for {
-			m.Logger().Debug("Waiting for messages")
-			msgType, payloadReader, err := dataReader.RecvMessage()
-
-			m.Logger().Debugf("Got message of type %d", msgType)
-
-			// This is usually due to the pipe being closed
-			if err != nil {
-				m.Logger().WithError(err).Error("Could not receive messages")
-				return
-			}
-
-			if m.ShutdownCalled() {
-				return
-			}
-
-			if err := m.handleMessage(msgType, payloadReader); err != nil {
-				m.Logger().WithError(err).Error("Could not handle message from Python")
-				continue
-			}
-		}
-	})
+	return m.MonitorCore.ConfigureInSubproc(pyconf, runtimeConf, m)
 }
 
-func (m *PyMonitor) handleMessage(msgType pyrunner.MessageType, payloadReader io.Reader) error {
+func (m *PyMonitor) ProcessMessages(ctx context.Context, dataReader subproc.MessageReceiver) {
+	for {
+		m.Logger().Debug("Waiting for messages")
+		msgType, payloadReader, err := dataReader.RecvMessage()
+
+		if ctx.Err() != nil {
+			return
+		}
+
+		m.Logger().Debugf("Got message of type %d", msgType)
+
+		// This is usually due to the pipe being closed
+		if err != nil {
+			m.Logger().WithError(err).Error("Could not receive messages")
+			return
+		}
+
+		if err := m.handleMessage(msgType, payloadReader); err != nil {
+			m.Logger().WithError(err).Error("Could not handle message from Python")
+			continue
+		}
+	}
+}
+
+func (m *PyMonitor) handleMessage(msgType subproc.MessageType, payloadReader io.Reader) error {
 	switch msgType {
 	case messageTypeValueList:
 		var valueList collectdformat.JSONWriteFormat
@@ -184,11 +187,17 @@ func (m *PyMonitor) handleMessage(msgType pyrunner.MessageType, payloadReader io
 			m.Output.SendEvent(events[i])
 		}
 
-	case pyrunner.MessageTypeLog:
+	case subproc.MessageTypeLog:
 		return m.HandleLogMessage(payloadReader)
 	default:
 		return fmt.Errorf("unknown message type received %d", msgType)
 	}
 
 	return nil
+}
+
+// HandleLogMessage just passes through the reader and logger to the main JSON
+// implementation
+func (m *PyMonitor) HandleLogMessage(logReader io.Reader) error {
+	return signalfx.HandleLogMessage(logReader, m.Logger())
 }

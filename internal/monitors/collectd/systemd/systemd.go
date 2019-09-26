@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
+	"github.com/signalfx/signalfx-agent/internal/monitors/subproc"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
@@ -23,7 +23,7 @@ func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
-				MonitorCore: pyrunner.New("sfxcollectd"),
+				MonitorCore: subproc.New(),
 			},
 		}
 	}, &Config{})

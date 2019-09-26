@@ -9,14 +9,14 @@ import (
 
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
-	"github.com/signalfx/signalfx-agent/internal/monitors/pyrunner"
+	"github.com/signalfx/signalfx-agent/internal/monitors/subproc"
 )
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
 			python.PyMonitor{
-				MonitorCore: pyrunner.New("sfxcollectd"),
+				MonitorCore: subproc.New(),
 			},
 		}
 	}, &Config{})
@@ -71,7 +71,7 @@ func (m *Monitor) Configure(conf *Config) error {
 			"Cluster":  conf.ClusterName,
 			// Format as a string because collectd passes through bools as strings whereas
 			// we pass them through as bools so the logic currently used in collectd-etcd
-			// does not work correctly with bools. Maybe pyrunner should be changed to
+			// does not work correctly with bools. Maybe subproc should be changed to
 			// behave the same as collectd?
 			"ssl_cert_validation": strconv.FormatBool(!conf.SkipSSLValidation),
 			"EnhancedMetrics":     conf.EnhancedMetrics,

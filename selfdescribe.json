@@ -24472,6 +24472,148 @@
       "singleInstance": false
     },
     {
+      "monitorType": "java-monitor",
+      "sendAll": true,
+      "dimensions": null,
+      "doc": "This monitor allows you to generate metrics from a Java application.\n",
+      "groups": {},
+      "metrics": null,
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config specifies configurations that are specific to the individual Java based monitor",
+        "package": "internal/monitors/subproc/signalfx/java",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "Host will be filled in by auto-discovery if this monitor has a discovery rule.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port will be filled in by auto-discovery if this monitor has a discovery rule.",
+            "default": 0,
+            "required": false,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "jarFilePath",
+            "doc": "Path to the .jar file that implements the monitoring logic.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "javaBinary",
+            "doc": "By default, the agent will use its bundled Java runtime (Java 8) If you wish to use a Java runtime that already exists on the system, specify the full path to the `java` binary here, e.g. `/usr/bin/java`.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "mainClass",
+            "doc": "The class within the specified `jarFilePath` that contains a main method to execute.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "classPath",
+            "doc": "Additional class paths to set on the invoked Java subprocess.",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "extraJavaArgs",
+            "doc": "Additional flags to the Java subprocess",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
+      "monitorType": "jmx",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "This montior allows you to run an arbitrary Groovy script to convert JMX\nMBeans fetched from a remote Java application to SignalFx datapoints.\nThis is a much more powerful and flexible alternative to the\n[collectd/genericjmx](../collectd-genericjmx.md] monitor.\n\nThe following utility helpers are available to use in the Groovy script\nwithin the `util` variable that will be set in the script's context:\n\n- `util.queryJMX(String objectName)`: This helper will\n  query the pre-configured JMX application for the given `objectName`,\n  which can include wildcards.  In any case, the return value will be a\n  `List` of zero or more `GroovyMBean` objects, which are a convenience\n  wrapper that Groovy provides to make accessing attribute on the MBean\n  simple. See http://groovy-lang.org/jmx.html for more information about\n  the `GroovyMBean` object.  You can use the Groovy `.first()` method on\n  the returned list to access the first MBean is you are only expecting\n  one.\n\n- `util.makeGauge(String name, double val, Map\u003cString, String\u003e\n  dimensions)`: A convenience function to create a SignalFx gauge\n  datapoint. This creates a `DataPoint` instance that can be fed to\n  `output.sendDatapoint[s]`.  This **does not send** the datapoint, only\n  creates it.\n\n- `util.makeCumulative(String name, double val, Map\u003cString, String\u003e dimensions)`:\n  A convenience function to create a SignalFx cumulative counter\n  datapoint.  This creates a `DataPoint` instance that can be fed to\n  `output.sendDatapoint[s]`.  This **does not send** the datapoint, only\n  creates it.\n\nThe `output` instance available in the script context is what is used to\nsend data to SignalFx.  It contains the following methods:\n\n- `output.sendDatapoint(DataPoint dp)` - Emit the given datapoint to\n  SignalFx.  We recommend using the `util.make[Gauge|Cumulative]` helpers\n  to create the `DataPoint` instance.\n\n- `output.sendDatapoints(List\u003cDataPoint\u003e dp)` - Emit the given datapoints\n  to SignalFx. We recommend using the `util.make[Gauge|Cumulative]`\n  helpers to create the `DataPoint` instance. It is slightly more\n  efficient to send multiple datapoints at once, but doesn't matter that\n  much unless sending very high volumes.\n\nHere is an example Groovy script that replicates some of the data\npresented by the Cassandra `nodetool status` utility:\n\n```groovy\n// Query the JMX endpoint for a single MBean.\nss = util.queryJMX(\"org.apache.cassandra.db:type=StorageService\").first()\n\n// Copied and modified from https://github.com/apache/cassandra\ndef parseFileSize(String value) {\n\tif (!value.matches(\"\\\\d+(\\\\.\\\\d+)? (GiB|KiB|MiB|TiB|bytes)\")) {\n\t\tthrow new IllegalArgumentException(\n\t\t\tString.format(\"value %s is not a valid human-readable file size\", value));\n\t}\n\tif (value.endsWith(\" TiB\")) {\n\t\treturn Math.round(Double.valueOf(value.replace(\" TiB\", \"\")) * 1e12);\n\t}\n\telse if (value.endsWith(\" GiB\")) {\n\t\treturn Math.round(Double.valueOf(value.replace(\" GiB\", \"\")) * 1e9);\n\t}\n\telse if (value.endsWith(\" KiB\")) {\n\t\treturn Math.round(Double.valueOf(value.replace(\" KiB\", \"\")) * 1e3);\n\t}\n\telse if (value.endsWith(\" MiB\")) {\n\t\treturn Math.round(Double.valueOf(value.replace(\" MiB\", \"\")) * 1e6);\n\t}\n\telse if (value.endsWith(\" bytes\")) {\n\t\treturn Math.round(Double.valueOf(value.replace(\" bytes\", \"\")));\n\t}\n\telse {\n\t\tthrow new IllegalStateException(String.format(\"FileUtils.parseFileSize() reached an illegal state parsing %s\", value));\n\t}\n}\n\nlocalEndpoint = ss.HostIdToEndpoint.get(ss.LocalHostId)\ndims = [host_id: ss.LocalHostId, cluster_name: ss.ClusterName]\n\noutput.sendDatapoints([\n\t// Equivalent of \"Up/Down\" in the `nodetool status` output.\n\t// 1 = Live; 0 = Dead; -1 = Unknown\n\tutil.makeGauge(\n\t\t\"cassandra.status\",\n\t\tss.LiveNodes.contains(localEndpoint) ? 1 : (ss.DeadNodes.contains(localEndpoint) ? 0 : -1),\n\t\tdims),\n\n\tutil.makeGauge(\n\t\t\"cassandra.state\",\n\t\tss.JoiningNodes.contains(localEndpoint) ? 3 : (ss.LeavingNodes.contains(localEndpoint) ? 2 : 1),\n\t\tdims),\n\n\tutil.makeGauge(\n\t\t\"cassandra.load\",\n\t\tparseFileSize(ss.LoadString),\n\t\tdims),\n\n\tutil.makeGauge(\n\t\t\"cassandra.ownership\",\n\t\tss.Ownership.get(InetAddress.getByName(localEndpoint)),\n\t\tdims)\n\t])\n\n```\n\nBe careful that your script is carefully tested before using it to monitor\na production JMX service.  The script can do anything exposed via JMX,\nincluding writing attributes and running methods via JMX. In general\nscripts should only read attributes, but nothing enforces that.\n",
+      "groups": {},
+      "metrics": null,
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for the JMX Monitor",
+        "package": "internal/monitors/jmx",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "Host will be filled in by auto-discovery if this monitor has a discovery rule.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port will be filled in by auto-discovery if this monitor has a discovery rule.",
+            "default": 0,
+            "required": false,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "serviceURL",
+            "doc": "The service URL for the JMX RMI endpoint.  If empty it will be filled in with values from `host` and `port` using a standard template: service:jmx:rmi:///jndi/rmi://\u003chost\u003e:\u003cport\u003e/jmxrmi.  If overridden, `host` and `port` will have no effect.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "groovyScript",
+            "doc": "A literal Groovy script that generates datapoints from JMX MBeans.  See the top-level `jmx` monitor doc for more information on how to write this script. You can put the Groovy script in a separate file and refer to it here with the [remote config reference](https://docs.signalfx.com/en/latest/integrations/agent/remote-config.html) `{\"#from\": \"/path/to/file.groovy\", raw: true}`, or you can put it straight in YAML by using the `|` heredoc syntax.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Username for JMX authentication, if applicable.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Password for JMX autentication, if applicable.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "kubelet-stats",
       "sendAll": false,
       "dimensions": {
@@ -35479,7 +35621,7 @@
       "config": {
         "name": "Config",
         "doc": "Config specifies configurations that are specific to the individual python based monitor",
-        "package": "internal/monitors/pyrunner/signalfx",
+        "package": "internal/monitors/subproc/signalfx/python",
         "fields": [
           {
             "yamlName": "host",

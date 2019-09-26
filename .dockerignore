@@ -19,3 +19,4 @@ vendor_orig/**
 .azure-pipelines/**
 **/genmetadata.go
 monitor-code-gen
+java/**/target
