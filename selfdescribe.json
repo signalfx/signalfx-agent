@@ -30097,8 +30097,9 @@
         "queries": {
           "description": "",
           "metrics": [
-            "postgres_longest_running_queries",
-            "postgres_most_frequent_queries"
+            "postgres_queries_average_time",
+            "postgres_queries_calls",
+            "postgres_queries_total_time"
           ]
         }
       },
@@ -30133,15 +30134,21 @@
           "group": null,
           "default": true
         },
-        "postgres_longest_running_queries": {
+        "postgres_queries_average_time": {
           "type": "cumulative",
-          "description": "Top N queries based on the execution time broken down by `database`",
+          "description": "Top N queries based on the average execution time broken down by `database`",
           "group": "queries",
           "default": false
         },
-        "postgres_most_frequent_queries": {
+        "postgres_queries_calls": {
           "type": "cumulative",
           "description": "Top N most frequently executed queries broken down by `database`",
+          "group": "queries",
+          "default": false
+        },
+        "postgres_queries_total_time": {
+          "type": "cumulative",
+          "description": "Top N queries based on the total execution time broken down by `database`",
           "group": "queries",
           "default": false
         },
