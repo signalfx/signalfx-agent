@@ -23,53 +23,6 @@ see [Observer Config](./observer-config.md).           |
 [Agent Configurations](./config-schema.md#writer).          |
 
 
-
-
-## Concepts
-
-The agent has three main components:
-
-* _Monitors_ that collect metrics from the host and applications
-
-* _Observers_ that discover applications and services running on the host
-
-* a _Writer_ that sends the metrics collected by monitors to SignalFx
-
-
-### Monitors
-
-Monitors collect metrics from the host system and services.  They are
-configured under the `monitors` list in the agent config.  For
-application specific monitors, you can define discovery rules in your monitor
-configuration. A separate monitor instance is created for each discovered
-instance of applications that match a discovery rule. See [Endpoint
-Discovery](./auto-discovery.md) for more information.
-
-
-For a list of supported monitors and their configurations,
-see [Monitor Config](./monitor-config.md).
-
-The agent is primarily intended to monitor services/applications running on the
-same host as the agent.  This is in keeping with the collectd model.  The main
-issue with monitoring services on other hosts is that the `host` dimension that
-collectd sets on all metrics will currently get set to the hostname of the
-machine that the agent is running on.  This allows everything to have a
-consistent `host` dimension so that metrics can be matched to a specific
-machine during metric analysis.
-
-### Observers
-
-Observers watch supported environments to discover running
-services and automatically configure the Smart Agent to send metrics for those
-services.
-
-For a list of supported observers and their configurations,
-see [Observer Config](./observer-config.md).
-
-### Writer
-The writer collects metrics from configured monitors and then sends these metrics to SignalFx on a regular basis. If you are expecting your monitors to send large volumes of metrics through a single agent, then you must update the configurations. To learn more, see
-[Agent Configurations](./config-schema.md#writer).
-
 ## Review pre-installation requirements for the Smart Agent
 
 Before you attempt to download and install the Smart Agent on a **single** host, review the requirements below.
