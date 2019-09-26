@@ -58,11 +58,6 @@ func dimPropsForNode(node *v1.Node, useNodeName bool) *atypes.DimProperties {
 		Value: node.Name,
 	}
 
-	taintProps := getPropsFromTaints(node.Spec.Taints)
-	for k, v := range taintProps {
-		props[k] = v
-	}
-
 	if !useNodeName {
 		machineID := node.Status.NodeInfo.MachineID
 		dim = atypes.Dimension{
