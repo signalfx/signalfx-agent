@@ -47,11 +47,14 @@ vetall: compileDeps
 	CGO_ENABLED=0 go vet ./...
 
 .PHONY: lint
-lint:
+lint: compileDeps
 ifeq ($(OS),Windows_NT)
 	powershell $(CURDIR)/scripts/windows/make.ps1 lint
 else
-	CGO_ENABLED=0 golint -set_exit_status ./cmd/... ./internal/...
+	@echo 'Linting LINUX code'
+	CGO_ENABLED=0 GOGC=40 golangci-lint run --deadline 5m
+	@echo 'Linting WINDOWS code'
+	GOOS=windows CGO_ENABLED=0 GOGC=40 golangci-lint run --deadline 5m
 endif
 
 .PHONY: gofmt
