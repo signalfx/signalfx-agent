@@ -23620,6 +23620,7 @@
             "haproxy_ssl_connections",
             "haproxy_ssl_frontend_key_rate",
             "haproxy_ssl_rate",
+            "haproxy_status",
             "haproxy_tasks",
             "haproxy_throttle",
             "haproxy_uptime_seconds",
@@ -24051,6 +24052,12 @@
         "haproxy_ssl_rate": {
           "type": "gauge",
           "description": "Corresponds to the HAProxy process `SslRate` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_status": {
+          "type": "gauge",
+          "description": ". Values reported for listeners, frontends, backends and servers.",
           "group": null,
           "default": false
         },

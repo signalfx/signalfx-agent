@@ -33,12 +33,10 @@ type proxies map[string]bool
 // Config for this monitor
 func (m *Monitor) Configure(conf *Config) (err error) {
 	m.ctx, m.cancel = context.WithCancel(context.Background())
-
 	url, err := url.Parse(conf.URL)
 	if err != nil {
 		return fmt.Errorf("cannot parse url %s status. %v", conf.URL, err)
 	}
-
 	pxs := proxies{}
 	for _, p := range conf.Proxies {
 		switch strings.ToLower(strings.TrimSpace(p)) {
@@ -50,11 +48,8 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 			pxs[p] = true
 		}
 	}
-
 	type funcs []func(*Config, proxies) []*datapoint.Datapoint
-
 	var fetchFuncs funcs
-
 	switch url.Scheme {
 	case "http", "https", "file":
 		fetchFuncs = funcs{statsHTTP}
@@ -63,9 +58,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	default:
 		return fmt.Errorf("unsupported scheme:%q", url.Scheme)
 	}
-
 	interval := time.Duration(conf.IntervalSeconds) * time.Second
-
 	utils.RunOnInterval(m.ctx, func() {
 		ctx, cancel := context.WithTimeout(m.ctx, interval)
 		defer cancel()
@@ -96,7 +89,6 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 			}
 		}
 	}, interval)
-
 	return nil
 }
 

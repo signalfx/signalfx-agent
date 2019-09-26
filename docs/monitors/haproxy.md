@@ -160,6 +160,7 @@ Metrics that are categorized as
  - `haproxy_ssl_connections` (*cumulative*)<br>    Corresponds to the HAProxy process `CumSslConns` value given by the `show info` command issued over UNIX socket.
  - `haproxy_ssl_frontend_key_rate` (*gauge*)<br>    Corresponds to the HAProxy process `SslFrontendKeyRate` value given by the `show info` command issued over UNIX socket.
  - `haproxy_ssl_rate` (*gauge*)<br>    Corresponds to the HAProxy process `SslRate` value given by the `show info` command issued over UNIX socket.
+ - `haproxy_status` (*gauge*)<br>    . Values reported for listeners, frontends, backends and servers.
  - `haproxy_tasks` (*gauge*)<br>    Corresponds to the HAProxy process `Tasks` value given by the `show info` command issued over UNIX socket.
  - `haproxy_throttle` (*gauge*)<br>    Current throttle percentage for the server, when slowstart is active, or no value if not in slowstart. Values reported for servers.
  - `haproxy_uptime_seconds` (*cumulative*)<br>    Corresponds to the HAProxy process `Uptime_sec` value given by the `show info` command issued over UNIX socket.

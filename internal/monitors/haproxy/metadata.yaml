@@ -59,6 +59,10 @@ monitors:
       unique_proxy_id:
         description: 'A unique proxy id'
     metrics:
+      haproxy_status:
+        default: false
+        description: '. Values reported for listeners, frontends, backends and servers.'
+        type: gauge
       haproxy_queue_current:
         default: true
         description: 'Number of current queued requests. For the backend this reports the number queued without

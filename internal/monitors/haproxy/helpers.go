@@ -22,6 +22,7 @@ import (
 
 // Map of HAProxy metrics name to their equivalent SignalFx names.
 var sfxMetricsMap = map[string]string{
+	"status":             haproxyStatus,
 	"conn_tot":           haproxyConnectionTotal,
 	"lbtot":              haproxyServerSelectedTotal,
 	"bin":                haproxyBytesIn,
@@ -127,8 +128,8 @@ func statsHelper(conf *Config, reader func(*Config, string) (io.ReadCloser, erro
 		if len(proxies) != 0 && !proxies[headerValuePairs["pxname"]] && !proxies[headerValuePairs["svname"]] {
 			continue
 		}
-		for metric, value := range headerValuePairs {
-			if dp := newDp(sfxMetricsMap[metric], value); dp != nil {
+		for stat, value := range headerValuePairs {
+			if dp := newDp(stat, value); dp != nil {
 				dp.Dimensions["proxy_name"] = headerValuePairs["pxname"]
 				dp.Dimensions["service_name"] = headerValuePairs["svname"]
 				dp.Dimensions["type"] = headerValuePairs["type"]
@@ -159,8 +160,8 @@ func infoSocket(conf *Config, _ proxies) []*datapoint.Datapoint {
 		logger.Error(err)
 		return nil
 	}
-	for metric, value := range infoPairs {
-		if dp := newDp(sfxMetricsMap[metric], value); dp != nil {
+	for stat, value := range infoPairs {
+		if dp := newDp(stat, value); dp != nil {
 			// WARNING: Both pid and Process_num are HAProxy process identifiers. pid in the context of
 			// proxy stats and Process_num in the context of HAProxy process info. It says in the docs
 			// https://cbonte.github.io/haproxy-dconv/1.8/management.html#9.1 that pid is zero-based. But, we
@@ -225,12 +226,13 @@ func infoMap(conf *Config) (map[string]string, error) {
 }
 
 // Creates datapoint from proxy stats and process info key value pairs.
-func newDp(metric string, value string) *datapoint.Datapoint {
+func newDp(stat string, value string) *datapoint.Datapoint {
+	metric := sfxMetricsMap[stat]
 	if metric == "" || value == "" {
 		return nil
 	}
 	dp := datapoint.New(metric, map[string]string{}, nil, metricSet[metric].Type, time.Time{})
-	switch metric {
+	switch stat {
 	case "status":
 		dp.Value = datapoint.NewFloatValue(float64(parseStatusField(value)))
 	default:
