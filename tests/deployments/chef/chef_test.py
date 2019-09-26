@@ -189,14 +189,16 @@ def run_win_chef_client(backend, agent_version, stage):
 def run_win_chef_setup(chef_version):
     assert has_choco(), "choco not installed!"
     uninstall_win_agent()
+    if WIN_CHEF_BIN_DIR not in os.environ.get("PATH"):
+        os.environ["PATH"] = WIN_CHEF_BIN_DIR + ";" + os.environ.get("PATH")
     if run_win_command("chef-client --version", []).returncode == 0:
         run_win_command("choco uninstall -y -f chef-client")
     if chef_version == "latest":
         run_win_command(f"choco upgrade -y -f chef-client")
     else:
         run_win_command(f"choco upgrade -y -f chef-client --version {chef_version}")
-    if WIN_CHEF_BIN_DIR not in os.environ.get("PATH"):
-        os.environ["PATH"] = WIN_CHEF_BIN_DIR + ";" + os.environ.get("PATH")
+    # pin rubyzip to v1.3.0 to prevent the windows cookbook from installing newer incompatible versions
+    run_win_command(r"C:\opscode\chef\embedded\bin\gem install rubyzip -f -q -N -v 1.3.0")
     os.makedirs(WIN_CHEF_COOKBOOKS_DIR, exist_ok=True)
     if os.path.isdir(WIN_AGENT_COOKBOOK_DEST_DIR):
         shutil.rmtree(WIN_AGENT_COOKBOOK_DEST_DIR)
