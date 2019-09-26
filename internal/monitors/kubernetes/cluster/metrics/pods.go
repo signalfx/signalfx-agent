@@ -65,11 +65,6 @@ func dimPropsForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache,
 		props[utils.LowercaseFirstChar(or.Kind)+"_uid"] = string(or.UID)
 	}
 
-	tolerationProps := getPropsFromTolerations(cachedPod.Tolerations)
-	for k, v := range tolerationProps {
-		props[k] = v
-	}
-
 	// if pod is selected by a service, sync service as a tag
 	serviceTags := sc.GetMatchingServices(cachedPod)
 	for _, tag := range serviceTags {
