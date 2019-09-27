@@ -61,8 +61,7 @@ For easier deployment, SignalFX recommends that you access the *SignalFX Smart A
 **If you are reading this document directly from the Integrations page,** then simply copy and paste the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)</p>  
 
 ```sh
-& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"};;
-ingest_url = "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"; api_url = "https://api.YOUR_SIGNALFX_REALM.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
+& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "<TOKEN>"; ingest_url = "https://ingest.<REALM>.signalfx.com"; api_url = "https://api.<REALM>.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
 ```
 
 **If you are reading this document from the SignalFX documentation site,** then SignalFX recommends that you access the *Integrations* page to locate the installation code:  
@@ -151,7 +150,7 @@ For Linux, you can use the following command to view logs via journalctl:
 journalctl `which signalfx-agent` | tail -100
 ```
 
-For Windows, simply review event logs. 
+For Windows, simply review event logs.
 
 For additional installation troubleshooting information, inluding how to review logs, see [Frequently Asked Questions](./faq.md).
 
