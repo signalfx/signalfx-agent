@@ -144,10 +144,10 @@ traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
 
 * Review error logs.
 
-For Linux, you can use the following command to view logs via journalctl:
+For Linux, you can use the following command to view logs via Journal:
 
 ```sh
-journalctl `which signalfx-agent` | tail -100
+journalctl -u signalfx-agent | tail -100
 ```
 
 For Windows, simply review event logs.
