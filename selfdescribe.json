@@ -23636,6 +23636,7 @@
             "haproxy_ssl_connections",
             "haproxy_ssl_frontend_key_rate",
             "haproxy_ssl_rate",
+            "haproxy_status",
             "haproxy_tasks",
             "haproxy_throttle",
             "haproxy_uptime_seconds",
@@ -24067,6 +24068,12 @@
         "haproxy_ssl_rate": {
           "type": "gauge",
           "description": "Corresponds to the HAProxy process `SslRate` value given by the `show info` command issued over UNIX socket.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_status": {
+          "type": "gauge",
+          "description": "HAProxy status values derived from the status stat. Status stat values `UP`, `UP 1/3`, `UP 2/3`, `OPEN` and `no check` are assigned 1. Values `DOWN`, `DOWN 1/2`, `NOLB` and `MAINT` are assigned 0. Values reported for listeners, frontends, backends and servers.",
           "group": null,
           "default": false
         },

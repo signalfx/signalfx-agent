@@ -22,7 +22,7 @@ EXPECTED_DEFAULTS_FROM_SOCKET = {
 }
 
 
-@pytest.mark.parametrize("version", ["1.9"])
+@pytest.mark.parametrize("version", ["1.8"])
 def test_haproxy_default_metrics_from_stats_page(version):
     with run_service("haproxy", buildargs={"HAPROXY_VERSION": version}) as service_container:
         host = container_ip(service_container)
@@ -38,7 +38,25 @@ def test_haproxy_default_metrics_from_stats_page(version):
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
-@pytest.mark.parametrize("version", ["1.9"])
+@pytest.mark.parametrize("version", ["1.8"])
+def test_haproxy_default_and_status_metrics_from_stats_page(version):
+    with run_service("haproxy", buildargs={"HAPROXY_VERSION": version}) as service_container:
+        host = container_ip(service_container)
+        status_metric = "haproxy_status"
+        with Agent.run(
+            f"""
+           monitors:
+           - type: haproxy
+             url: http://{host}:8080/stats?stats;csv
+             extraMetrics: [{status_metric}]
+           """
+        ) as agent:
+
+            verify(agent, (EXPECTED_DEFAULTS | {status_metric}) - EXPECTED_DEFAULTS_FROM_SOCKET, 10)
+            assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
+
+
+@pytest.mark.parametrize("version", ["1.8"])
 def test_haproxy_default_metrics_from_stats_page_proxies_to_monitor_frontend_200s(version):
     with run_service("haproxy", buildargs={"HAPROXY_VERSION": version}) as service_container:
         host = container_ip(service_container)
@@ -62,7 +80,7 @@ def test_haproxy_default_metrics_from_stats_page_proxies_to_monitor_frontend_200
             assert any_metric_found(agent.fake_services, ["haproxy_response_2xx"])
 
 
-@pytest.mark.parametrize("version", ["1.9"])
+@pytest.mark.parametrize("version", ["1.8"])
 def test_haproxy_default_metrics_from_stats_page_basic_auth(version):
     with run_service("haproxy", buildargs={"HAPROXY_VERSION": version}) as service_container:
         host = container_ip(service_container)
@@ -88,7 +106,7 @@ def test_haproxy_default_metrics_from_stats_page_basic_auth(version):
             assert any_metric_found(agent.fake_services, ["haproxy_response_2xx"])
 
 
-@pytest.mark.parametrize("version", ["1.9"])
+@pytest.mark.parametrize("version", ["1.8"])
 def test_haproxy_default_metrics_from_stats_page_basic_auth_wrong_password(version):
     with run_service("haproxy", buildargs={"HAPROXY_VERSION": version}) as service_container:
         host = container_ip(service_container)

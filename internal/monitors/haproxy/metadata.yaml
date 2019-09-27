@@ -59,6 +59,12 @@ monitors:
       unique_proxy_id:
         description: 'A unique proxy id'
     metrics:
+      haproxy_status:
+        default: false
+        description: 'HAProxy status values derived from the status stat. Status stat values `UP`, `UP 1/3`, `UP 2/3`,
+        `OPEN` and `no check` are assigned 1. Values `DOWN`, `DOWN 1/2`, `NOLB` and `MAINT` are assigned 0. Values
+        reported for listeners, frontends, backends and servers.'
+        type: gauge
       haproxy_queue_current:
         default: true
         description: 'Number of current queued requests. For the backend this reports the number queued without
