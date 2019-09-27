@@ -1,14 +1,15 @@
 from functools import partial as p
 from pathlib import Path
-from kubernetes import client as k8s_client
-import pytest
 
+import pytest
+from kubernetes import client as k8s_client
 from tests.helpers.assertions import has_all_dim_props, has_datapoint, has_no_datapoint
 from tests.helpers.util import (
     ensure_always,
     get_default_monitor_metrics_from_selfdescribe,
     get_stripped_container_id,
     wait_for,
+    wait_for_assertion,
 )
 from tests.paths import TEST_SERVICES_DIR
 
@@ -401,3 +402,36 @@ def test_containers(k8s_cluster):
                                         dimensions={"container_id": containers_cache[container.name]},
                                     )
                                 )
+
+
+@pytest.mark.kubernetes
+def test_node_metrics_and_props(k8s_cluster):
+    config = """
+            monitors:
+            - type: kubernetes-cluster
+        """
+    with k8s_cluster.run_agent(agent_yaml=config) as agent:
+        for node in k8s_cluster.client.CoreV1Api().list_node().items:
+            assert wait_for(
+                p(
+                    has_datapoint,
+                    agent.fake_services,
+                    metric_name="kubernetes.node_ready",
+                    dimensions={"kubernetes_node": node.metadata.name, "kubernetes_node_uid": node.metadata.uid},
+                ),
+                timeout_seconds=100,
+            ), "timed out waiting for node ready metric"
+
+            expected_props = {k: v for k, v in node.metadata.labels.items() if len(v) > 0}
+            expected_props["kubernetes_node"] = node.metadata.name
+
+            def has_props(node, props):
+                assert (
+                    {k.replace("/", "_").replace(".", "_"): v for k, v in props.items()}.items()
+                    <= agent.fake_services.dims["kubernetes_node_uid"]
+                    .get(node.metadata.uid, {})
+                    .get("customProperties", {})
+                    .items()
+                )
+
+            wait_for_assertion(p(has_props, node, expected_props))
