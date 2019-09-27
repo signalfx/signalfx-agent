@@ -23,10 +23,6 @@ import (
 // ContainerID is some type of unique id for containers
 type ContainerID string
 
-var logger = log.WithFields(log.Fields{
-	"monitorType": "kubernetes-cluster",
-})
-
 // DatapointCache holds an up to date copy of datapoints pertaining to the
 // cluster.  It is updated whenever the HandleAdd method is called with new
 // K8s resources.
@@ -39,12 +35,11 @@ type DatapointCache struct {
 	serviceCache               *k8sutil.ServiceCache
 	replicaSetCache            *k8sutil.ReplicaSetCache
 	jobCache                   *k8sutil.JobCache
-	useNodeName                bool
 	nodeConditionTypesToReport []string
 }
 
 // NewDatapointCache creates a new clean cache
-func NewDatapointCache(useNodeName bool, nodeConditionTypesToReport []string) *DatapointCache {
+func NewDatapointCache(nodeConditionTypesToReport []string) *DatapointCache {
 	return &DatapointCache{
 		dpCache:                    make(map[types.UID][]*datapoint.Datapoint),
 		dimPropCache:               make(map[types.UID]*atypes.DimProperties),
@@ -53,7 +48,6 @@ func NewDatapointCache(useNodeName bool, nodeConditionTypesToReport []string) *D
 		serviceCache:               k8sutil.NewServiceCache(),
 		replicaSetCache:            k8sutil.NewReplicaSetCache(),
 		jobCache:                   k8sutil.NewJobCache(),
-		useNodeName:                useNodeName,
 		nodeConditionTypesToReport: nodeConditionTypesToReport,
 	}
 }
@@ -141,8 +135,8 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 		dps = datapointsForResourceQuota(o)
 		kind = "ResourceQuota"
 	case *v1.Node:
-		dps = datapointsForNode(o, dc.useNodeName, dc.nodeConditionTypesToReport)
-		dimProps = dimPropsForNode(o, dc.useNodeName)
+		dps = datapointsForNode(o, dc.nodeConditionTypesToReport)
+		dimProps = dimPropsForNode(o)
 		kind = "Node"
 	case *v1.Service:
 		dc.handleAddService(o)
