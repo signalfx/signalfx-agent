@@ -22,25 +22,19 @@ import (
 // ContainerID is some type of unique id for containers
 type ContainerID string
 
-var logger = log.WithFields(log.Fields{
-	"monitorType": "kubernetes-cluster",
-})
-
 // DatapointCache holds an up to date copy of datapoints pertaining to the
 // cluster.  It is updated whenever the HandleAdd method is called with new
 // K8s resources.
 type DatapointCache struct {
 	sync.Mutex
 	dpCache                    map[types.UID][]*datapoint.Datapoint
-	useNodeName                bool
 	nodeConditionTypesToReport []string
 }
 
 // NewDatapointCache creates a new clean cache
-func NewDatapointCache(useNodeName bool, nodeConditionTypesToReport []string) *DatapointCache {
+func NewDatapointCache(nodeConditionTypesToReport []string) *DatapointCache {
 	return &DatapointCache{
 		dpCache:                    make(map[types.UID][]*datapoint.Datapoint),
-		useNodeName:                useNodeName,
 		nodeConditionTypesToReport: nodeConditionTypesToReport,
 	}
 }
@@ -99,7 +93,7 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 	case *v1.ResourceQuota:
 		dps = datapointsForResourceQuota(o)
 	case *v1.Node:
-		dps = datapointsForNode(o, dc.useNodeName, dc.nodeConditionTypesToReport)
+		dps = datapointsForNode(o, dc.nodeConditionTypesToReport)
 	case *v1.Service:
 	case *appsv1.StatefulSet:
 		dps = datapointsForStatefulSet(o)

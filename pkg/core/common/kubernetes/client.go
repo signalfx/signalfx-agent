@@ -73,51 +73,59 @@ func (c *APIConfig) Validate() error {
 
 // CreateRestConfig creates an Kubernetes API config from user configuration.
 func CreateRestConfig(apiConf *APIConfig) (*rest.Config, error) {
-	authType := apiConf.AuthType
-
 	var authConf *rest.Config
 	var err error
 
-	var k8sHost string
-	if authType != AuthTypeKubeConfig {
-		host, port := os.Getenv("KUBERNETES_SERVICE_HOST"), os.Getenv("KUBERNETES_SERVICE_PORT")
-		if len(host) == 0 || len(port) == 0 {
-			return nil, fmt.Errorf("unable to load k8s config, KUBERNETES_SERVICE_HOST and KUBERNETES_SERVICE_PORT must be defined")
-		}
-		k8sHost = "https://" + net.JoinHostPort(host, port)
-	}
-
-	switch authType {
-	// Mainly for testing purposes
-	case AuthTypeKubeConfig:
-		loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
-		configOverrides := &clientcmd.ConfigOverrides{}
-		authConf, err = clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
-			loadingRules, configOverrides).ClientConfig()
-
-		if err != nil {
-			return nil, err
-		}
-	// Mainly for testing purposes
-	case AuthTypeNone:
-		authConf = &rest.Config{
-			Host: k8sHost,
-		}
-		authConf.Insecure = true
-	case AuthTypeTLS:
-		authConf = &rest.Config{
-			Host: k8sHost,
-			TLSClientConfig: rest.TLSClientConfig{
-				CertFile: apiConf.ClientCertPath,
-				KeyFile:  apiConf.ClientKeyPath,
-				CAFile:   apiConf.CACertPath,
-			},
-		}
-	case AuthTypeServiceAccount:
-		// This should work for most clusters but other auth types can be added
+	if apiConf == nil {
 		authConf, err = rest.InClusterConfig()
 		if err != nil {
 			return nil, err
+		}
+	} else {
+
+		authType := apiConf.AuthType
+
+		var k8sHost string
+		if authType != AuthTypeKubeConfig {
+			host, port := os.Getenv("KUBERNETES_SERVICE_HOST"), os.Getenv("KUBERNETES_SERVICE_PORT")
+			if len(host) == 0 || len(port) == 0 {
+				return nil, fmt.Errorf("unable to load k8s config, KUBERNETES_SERVICE_HOST and KUBERNETES_SERVICE_PORT must be defined")
+			}
+			k8sHost = "https://" + net.JoinHostPort(host, port)
+		}
+
+		switch authType {
+		// Mainly for testing purposes
+		case AuthTypeKubeConfig:
+			loadingRules := clientcmd.NewDefaultClientConfigLoadingRules()
+			configOverrides := &clientcmd.ConfigOverrides{}
+			authConf, err = clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
+				loadingRules, configOverrides).ClientConfig()
+
+			if err != nil {
+				return nil, err
+			}
+		// Mainly for testing purposes
+		case AuthTypeNone:
+			authConf = &rest.Config{
+				Host: k8sHost,
+			}
+			authConf.Insecure = true
+		case AuthTypeTLS:
+			authConf = &rest.Config{
+				Host: k8sHost,
+				TLSClientConfig: rest.TLSClientConfig{
+					CertFile: apiConf.ClientCertPath,
+					KeyFile:  apiConf.ClientKeyPath,
+					CAFile:   apiConf.CACertPath,
+				},
+			}
+		case AuthTypeServiceAccount:
+			// This should work for most clusters but other auth types can be added
+			authConf, err = rest.InClusterConfig()
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
@@ -130,7 +138,9 @@ func CreateRestConfig(apiConf *APIConfig) (*rest.Config, error) {
 		return rt
 	}
 
-	authConf.Insecure = apiConf.SkipVerify
+	if apiConf != nil {
+		authConf.Insecure = apiConf.SkipVerify
+	}
 	return authConf, nil
 }
 

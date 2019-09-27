@@ -21,7 +21,6 @@ type DimensionHandler struct {
 
 	uidKindCache      map[types.UID]string
 	sendDimensionFunc func(*atypes.Dimension)
-	useNodeName       bool
 
 	podCache        *k8sutil.PodCache
 	serviceCache    *k8sutil.ServiceCache
@@ -30,7 +29,7 @@ type DimensionHandler struct {
 }
 
 // NewDimensionHandler creates a handler for dimension updates
-func NewDimensionHandler(useNodeName bool, sendDimensionFunc func(*atypes.Dimension)) *DimensionHandler {
+func NewDimensionHandler(sendDimensionFunc func(*atypes.Dimension)) *DimensionHandler {
 	return &DimensionHandler{
 		uidKindCache:      make(map[types.UID]string),
 		sendDimensionFunc: sendDimensionFunc,
@@ -38,7 +37,6 @@ func NewDimensionHandler(useNodeName bool, sendDimensionFunc func(*atypes.Dimens
 		serviceCache:      k8sutil.NewServiceCache(),
 		replicaSetCache:   k8sutil.NewReplicaSetCache(),
 		jobCache:          k8sutil.NewJobCache(),
-		useNodeName:       useNodeName,
 	}
 }
 
@@ -64,7 +62,7 @@ func (dh *DimensionHandler) HandleAdd(newObj runtime.Object) interface{} {
 		dh.sendDimensionFunc(dimensionForReplicaSet(o))
 		kind = "ReplicaSet"
 	case *v1.Node:
-		dh.sendDimensionFunc(dimensionForNode(o, dh.useNodeName))
+		dh.sendDimensionFunc(dimensionForNode(o))
 		kind = "Node"
 	case *v1.Service:
 		dh.handleAddService(o)
