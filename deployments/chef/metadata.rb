@@ -17,5 +17,7 @@ supports 'windows'
 
 depends 'windows', '>= 4.3.4'
 
+gem 'rubyzip', '< 2.0.0'
+
 issues_url 'https://github.com/signalfx/signalfx-agent/issues' if respond_to?(:issues_url)
 source_url 'https://github.com/signalfx/signalfx-agent' if respond_to?(:source_url)
