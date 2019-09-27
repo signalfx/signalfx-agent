@@ -26,7 +26,8 @@ type EndpointCore struct {
 	ID ID `yaml:"id"`
 	// A observer assigned name of the endpoint
 	Name string `yaml:"name"`
-	// The hostname/IP address of the endpoint
+	// The hostname/IP address of the endpoint.  If this is an IPv6 address, it
+	// will be surrounded by `[` and `]`.
 	Host string `yaml:"host"`
 	// TCP or UDP
 	PortType PortType `yaml:"port_type"`

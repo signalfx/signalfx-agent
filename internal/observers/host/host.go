@@ -31,6 +31,9 @@ const (
 
 // DIMENSION(pid): The PID of the process that owns the listening endpoint
 
+// ENDPOINT_VAR(command): The full command used to invoke this process,
+// including the executable itself at the beginning.
+
 // Observer that watches the current host
 type Observer struct {
 	serviceCallbacks *observers.ServiceCallbacks

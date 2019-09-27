@@ -39530,7 +39530,7 @@
           "name": "host",
           "type": "string",
           "elementKind": "",
-          "description": "The hostname/IP address of the endpoint"
+          "description": "The hostname/IP address of the endpoint.  If this is an IPv6 address, it will be surrounded by `[` and `]`."
         },
         {
           "name": "id",
@@ -39684,7 +39684,7 @@
           "name": "host",
           "type": "string",
           "elementKind": "",
-          "description": "The hostname/IP address of the endpoint"
+          "description": "The hostname/IP address of the endpoint.  If this is an IPv6 address, it will be surrounded by `[` and `]`."
         },
         {
           "name": "id",
@@ -39746,6 +39746,12 @@
       },
       "endpointVariables": [
         {
+          "name": "command",
+          "type": "string",
+          "elementKind": "",
+          "description": "The full command used to invoke this process, including the executable itself at the beginning."
+        },
+        {
           "name": "ip_address",
           "type": "string",
           "elementKind": "",
@@ -39767,7 +39773,7 @@
           "name": "host",
           "type": "string",
           "elementKind": "",
-          "description": "The hostname/IP address of the endpoint"
+          "description": "The hostname/IP address of the endpoint.  If this is an IPv6 address, it will be surrounded by `[` and `]`."
         },
         {
           "name": "id",
@@ -39976,7 +39982,7 @@
           "name": "host",
           "type": "string",
           "elementKind": "",
-          "description": "The hostname/IP address of the endpoint"
+          "description": "The hostname/IP address of the endpoint.  If this is an IPv6 address, it will be surrounded by `[` and `]`."
         },
         {
           "name": "id",
@@ -40205,7 +40211,7 @@
           "name": "host",
           "type": "string",
           "elementKind": "",
-          "description": "The hostname/IP address of the endpoint"
+          "description": "The hostname/IP address of the endpoint.  If this is an IPv6 address, it will be surrounded by `[` and `]`."
         },
         {
           "name": "id",
