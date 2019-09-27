@@ -4,7 +4,6 @@
 package cadvisor
 
 import (
-	"sync"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -17,33 +16,23 @@ import (
 // Monitor pulls metrics from a cAdvisor-compatible endpoint
 type Monitor struct {
 	monConfig *config.MonitorConfig
-	lock      sync.Mutex
 	stop      chan bool
-	stopped   chan bool
 }
 
 // Configure and start/restart cadvisor plugin
 func (m *Monitor) Configure(monConfig *config.MonitorConfig, sendDP func(*datapoint.Datapoint), statProvider converter.InfoProvider) error {
-	// Lock for reconfiguring the plugin
-	m.lock.Lock()
-	defer m.lock.Unlock()
-
 	m.monConfig = monConfig
-
-	m.stop = nil
-	m.stopped = nil
 
 	collector := converter.NewCadvisorCollector(statProvider, sendDP, monConfig.ExtraDimensions)
 
-	m.stop, m.stopped = monitorNode(monConfig.IntervalSeconds, collector)
+	m.stop = monitorNode(monConfig.IntervalSeconds, collector)
 
 	return nil
 }
 
-func monitorNode(intervalSeconds int, collector *converter.CadvisorCollector) (stop chan bool, stopped chan bool) {
+func monitorNode(intervalSeconds int, collector *converter.CadvisorCollector) (stop chan bool) {
 	ticker := time.NewTicker(time.Duration(intervalSeconds) * time.Second)
 	stop = make(chan bool, 1)
-	stopped = make(chan bool, 1)
 
 	go func() {
 		collector.Collect()
@@ -52,7 +41,6 @@ func monitorNode(intervalSeconds int, collector *converter.CadvisorCollector) (s
 			case <-stop:
 				log.Info("Stopping cAdvisor collection")
 				ticker.Stop()
-				stopped <- true
 				return
 			case <-ticker.C:
 				collector.Collect()
@@ -60,7 +48,7 @@ func monitorNode(intervalSeconds int, collector *converter.CadvisorCollector) (s
 		}
 	}()
 
-	return stop, stopped
+	return stop
 }
 
 // Shutdown cadvisor plugin
