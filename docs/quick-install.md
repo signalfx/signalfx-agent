@@ -117,7 +117,7 @@ Trace Spans Sent (last minute):   0
 
 If you are unable to install the Smart Agent, consider the following issues:
 
-* You may need to update your realm. By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to set the signalFxRealm option with your correct realm :
+* You may need to update your realm. By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to set the signalFxRealm option with your correct realm:
 
 
 ```sh
@@ -143,7 +143,17 @@ traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
 
 ***
 
-For additional installation troubleshooting information, see [Frequently Asked Questions](./faq.md).
+* Review error logs.
+
+For Linux, you can use the following command to view logs via journalctl:
+
+```sh
+journalctl `which signalfx-agent` | tail -100
+```
+
+For Windows, simply review event logs. 
+
+For additional installation troubleshooting information, inluding how to review logs, see [Frequently Asked Questions](./faq.md).
 
 ***
 
