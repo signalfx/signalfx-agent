@@ -3,7 +3,7 @@ maintainer 'SignalFx, Inc.'
 maintainer_email 'support@signalfx.com'
 license 'Apache-2.0'
 description 'Installs/Configures the SignalFx Agent'
-version '0.3.0'
+version '0.4.0'
 chef_version '>= 12.1' if respond_to?(:chef_version)
 
 supports 'amazon'
