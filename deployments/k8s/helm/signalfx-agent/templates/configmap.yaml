@@ -46,8 +46,6 @@ data:
       {{ $k }}: {{ $v }}
       {{- end }}
 
-    sendMachineID: false
-
     observers:
     - type: k8s-api
       {{- if .Values.apiServerSkipVerify }}
@@ -92,7 +90,6 @@ data:
     {{ if .Values.gatherClusterMetrics -}}
     # Collects k8s cluster-level metrics
     - type: {{.Values.kubernetesDistro}}-cluster
-      useNodeName: true
     {{- end }}
 
     {{ if .Values.gatherDockerMetrics -}}
