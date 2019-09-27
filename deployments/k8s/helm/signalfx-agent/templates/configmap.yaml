@@ -45,8 +45,6 @@ data:
     globalDimensions:
       kubernetes_cluster: {{ .Values.clusterName }}
 
-    sendMachineID: false
-
     observers:
     - type: k8s-api
       {{- if .Values.apiServerSkipVerify }}
@@ -81,7 +79,6 @@ data:
     {{ if .Values.gatherClusterMetrics -}}
     # Collects k8s cluster-level metrics
     - type: {{.Values.kubernetesDistro}}-cluster
-      useNodeName: true
     {{- end }}
 
     {{ if .Values.gatherDockerMetrics -}}

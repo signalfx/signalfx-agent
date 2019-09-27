@@ -22,6 +22,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/observers"
+	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
 const (
@@ -88,7 +89,7 @@ func (a *Agent) configure(conf *config.Config) {
 
 	log.Infof("Using log level %s", log.GetLevel().String())
 
-	hostDims := hostid.Dimensions(conf.SendMachineID, conf.Hostname, conf.UseFullyQualifiedHost)
+	hostDims := hostid.Dimensions(conf)
 	if !conf.DisableHostDimensions {
 		log.Infof("Using host id dimensions %v", hostDims)
 		conf.Writer.HostIDDims = hostDims
@@ -212,14 +213,13 @@ func StreamDatapoints(configPath string, metric string, dims string) (io.ReadClo
 }
 
 func startSyncClusterProperty(propertyChan chan *types.DimProperties, cluster string, hostDims map[string]string, setOnHost bool) {
-	for dimName, dimValue := range hostDims {
-		// Exclude kubernetes_node since it is also managed by the
-		// kubernetes-cluster monitor and it is very tricky getting them to
-		// merge cleanly without it clobbing the cluster property.
-		if dimName == "kubernetes_node" {
-			continue
-		}
+	hostDims = utils.CloneStringMap(hostDims)
+	// Exclude kubernetes_node_uid since it is also managed by the
+	// kubernetes-cluster monitor and it is very tricky getting them to
+	// merge cleanly without it clobbing the cluster property.
+	delete(hostDims, "kubernetes_node_uid")
 
+	for dimName, dimValue := range hostDims {
 		if len(hostDims) > 1 && dimName == "host" && !setOnHost {
 			// If we also have a platform-specific host-id dimension that isn't
 			// the generic 'host' dimension, then skip setting the property on

@@ -79,7 +79,7 @@ apiUrl:
 # K8s cluster in SignalFx.  This will be the value of the 'kubernetes_cluster'
 # dimension on every metric sent by the agent.  It will also be the value of
 # the `cluster` config option that is used to set a `cluster` property on the
-# `kubernetes_node` dimension.
+# `host` dimension.
 clusterName:
 
 # How frequently to send metrics by default in the agent.  This can be

@@ -13,23 +13,13 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
-// A map to check for duplicate machine IDs
-var machineIDToNodeNameMap = make(map[string]string)
-
 func datapointsForNode(
 	node *v1.Node,
-	useNodeName bool,
 	nodeConditionTypesToReport []string,
 ) []*datapoint.Datapoint {
 	dims := map[string]string{
-		"kubernetes_node": node.Name,
-	}
-
-	// If we aren't using the node name as the node id, then we need machine_id
-	// to sync properties to.  Eventually we should just get rid of machine_id
-	// if it doesn't become more reliable and dependable across k8s deployments.
-	if !useNodeName {
-		dims["machine_id"] = node.Status.NodeInfo.MachineID
+		"kubernetes_node":     node.Name,
+		"kubernetes_node_uid": string(node.UID),
 	}
 
 	datapoints := make([]*datapoint.Datapoint, 0)
@@ -46,39 +36,17 @@ func datapointsForNode(
 	return datapoints
 }
 
-func dimPropsForNode(node *v1.Node, useNodeName bool) *atypes.DimProperties {
+func dimPropsForNode(node *v1.Node) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(node.Labels)
 	_ = getPropsFromTaints(node.Spec.Taints)
 
-	if len(props) == 0 && len(tags) == 0 {
-		return nil
-	}
-
-	dim := atypes.Dimension{
-		Name:  "kubernetes_node",
-		Value: node.Name,
-	}
-
-	if !useNodeName {
-		machineID := node.Status.NodeInfo.MachineID
-		dim = atypes.Dimension{
-			Name:  "machine_id",
-			Value: machineID,
-		}
-
-		if otherNodeName, ok := machineIDToNodeNameMap[machineID]; ok && otherNodeName != node.Name {
-			logger.Errorf("Your K8s cluster appears to have duplicate node machine IDs, "+
-				"node %s and %s both have machine ID %s.  Please set the `useNodeName` option "+
-				"in this monitor config and set the top-level config option `sendMachineID` to "+
-				"false.", node.Name, otherNodeName, machineID)
-			return nil
-		}
-
-		machineIDToNodeNameMap[machineID] = node.Name
-	}
+	props["kubernetes_node"] = node.Name
 
 	return &atypes.DimProperties{
-		Dimension:  dim,
+		Dimension: atypes.Dimension{
+			Name:  "kubernetes_node_uid",
+			Value: string(node.UID),
+		},
 		Properties: props,
 		Tags:       tags,
 	}
