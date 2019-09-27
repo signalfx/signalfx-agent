@@ -38,6 +38,10 @@ class Cluster:
         assert wait_for(p(utils.has_serviceaccount, "default", self.test_namespace))
         assert wait_for(lambda: client.CoreV1Api().list_namespaced_secret(self.test_namespace).items)
 
+    @property
+    def client(self):
+        return client
+
     def delete_test_namespace(self):
         """
         Cleans up the test namespace used in the cluser by deleting it.
@@ -119,7 +123,7 @@ class Cluster:
                 utils.delete_resource(name, kind, api_client, namespace=namespace)
 
     @contextmanager
-    def run_agent(self, agent_yaml):
+    def run_agent(self, agent_yaml, wait_for_ready=True):
         with start_fake_backend() as backend:
             with self.run_tunnels(backend) as pod_ip:
                 agent = Agent(
@@ -129,7 +133,7 @@ class Cluster:
                     fake_services=backend,
                     fake_services_pod_ip=pod_ip,
                 )
-                with agent.deploy(agent_yaml):
+                with agent.deploy(agent_yaml, wait_for_ready=wait_for_ready):
                     try:
                         yield agent
                     finally:

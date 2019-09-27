@@ -70,13 +70,14 @@ def pytest_addoption(parser):
 def k8s_cluster(request):
     agent_image_name = request.config.getoption("--agent-image-name")
 
+    conf = request.config
     kube_context = None
-    if request.config.getoption("--no-use-minikube"):
+    if conf.getoption("--kubeconfig") or conf.getoption("--kube-context") or conf.getoption("--no-use-minikube"):
         assert agent_image_name, "You must specify the agent image name when not using minikube"
-        kube_config_path = request.config.getoption("--kubeconfig")
-        kube_context = request.config.getoption("--kube-context")
+        kube_config_path = conf.getoption("--kubeconfig")
+        kube_context = conf.getoption("--kube-context")
     else:
-        minikube_container_name = request.config.getoption("--minikube-container-name")
+        minikube_container_name = conf.getoption("--minikube-container-name")
         dclient = get_docker_client()
         assert get_docker_client().containers.get(
             minikube_container_name
