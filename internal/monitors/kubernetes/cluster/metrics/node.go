@@ -13,23 +13,13 @@ import (
 	v1 "k8s.io/api/core/v1"
 )
 
-// A map to check for duplicate machine IDs
-var machineIDToNodeNameMap = make(map[string]string)
-
 func datapointsForNode(
 	node *v1.Node,
-	useNodeName bool,
 	nodeConditionTypesToReport []string,
 ) []*datapoint.Datapoint {
 	dims := map[string]string{
-		"kubernetes_node": node.Name,
-	}
-
-	// If we aren't using the node name as the node id, then we need machine_id
-	// to sync properties to.  Eventually we should just get rid of machine_id
-	// if it doesn't become more reliable and dependable across k8s deployments.
-	if !useNodeName {
-		dims["machine_id"] = node.Status.NodeInfo.MachineID
+		"kubernetes_node":     node.Name,
+		"kubernetes_node_uid": string(node.UID),
 	}
 
 	datapoints := make([]*datapoint.Datapoint, 0)
@@ -46,40 +36,21 @@ func datapointsForNode(
 	return datapoints
 }
 
-func dimensionForNode(node *v1.Node, useNodeName bool) *atypes.Dimension {
+func dimensionForNode(node *v1.Node) *atypes.Dimension {
 	props, tags := k8sutil.PropsAndTagsFromLabels(node.Labels)
 	_ = getPropsFromTaints(node.Spec.Taints)
 
-	if len(props) == 0 && len(tags) == 0 {
-		return nil
+	props["kubernetes_node"] = node.Name
+	// Don't set this yet since it would propagate to a lot of MTSs
+	// unnecessarily.
+	// props["node_creation_timestamp"] = node.GetCreationTimestamp().Format(time.RFC3339)
+
+	return &atypes.Dimension{
+		Name:       "kubernetes_node_uid",
+		Value:      string(node.UID),
+		Properties: props,
+		Tags:       tags,
 	}
-
-	dim := &atypes.Dimension{
-		Name:  "kubernetes_node",
-		Value: node.Name,
-	}
-
-	if !useNodeName {
-		machineID := node.Status.NodeInfo.MachineID
-		dim = &atypes.Dimension{
-			Name:  "machine_id",
-			Value: machineID,
-		}
-
-		if otherNodeName, ok := machineIDToNodeNameMap[machineID]; ok && otherNodeName != node.Name {
-			logger.Errorf("Your K8s cluster appears to have duplicate node machine IDs, "+
-				"node %s and %s both have machine ID %s.  Please set the `useNodeName` option "+
-				"in this monitor config and set the top-level config option `sendMachineID` to "+
-				"false.", node.Name, otherNodeName, machineID)
-			return dim
-		}
-
-		machineIDToNodeNameMap[machineID] = node.Name
-	}
-
-	dim.Properties = props
-	dim.Tags = tags
-	return dim
 }
 
 func getPropsFromTaints(taints []v1.Taint) map[string]string {
