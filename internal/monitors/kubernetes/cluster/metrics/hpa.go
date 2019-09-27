@@ -9,6 +9,7 @@ import (
 	k8sutils "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/sirupsen/logrus"
 	"k8s.io/api/autoscaling/v2beta1"
 	v1 "k8s.io/api/core/v1"
 )
@@ -71,7 +72,7 @@ func newStatusDatapoints(hpa *v2beta1.HorizontalPodAutoscaler, dimensions map[st
 	for _, condition := range hpa.Status.Conditions {
 		metric, value, err := newStatusMetricValue(condition)
 		if err != nil {
-			logger.WithError(err).Errorf("Could not create hpa status datapoint")
+			logrus.WithError(err).Errorf("Could not create hpa status datapoint")
 			continue
 		}
 		dps = append(dps, datapoint.New(metric, dimensions, value, datapoint.Gauge, time.Now()))
