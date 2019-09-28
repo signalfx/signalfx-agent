@@ -107,7 +107,7 @@ func parseSourceConfig(config []byte) (SourceConfig, error) {
 
 	err := yaml.Unmarshal(config, &out)
 	if err != nil {
-		return out.Sources, err
+		return out.Sources, utils.YAMLErrorWithContext(config, err)
 	}
 
 	err = defaults.Set(&out.Sources)
