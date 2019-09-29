@@ -24,12 +24,13 @@ rollingUpdateMaxUnavailable: 1
 namespace:
 
 # Specify PSP (Pod Security Policy) (Optional: default to not using PSP mode if no values are provided by the user)
-pspMode:
+pspMode: |-
 
-if $pspMode == 'restricted'
-    pspMode: 'restricted'
-else if $pspMode == 'privileged'
-    pspMode: 'privileged'
+  {{- if eq .Values.pspMode "restricted" -}}
+      pspMode: true
+  {{- else if eq .Values.pspMode "privileged" -}}
+      pspMode: true
+  {{- end -}}
 
 # RBAC config for the agent
 rbac:
