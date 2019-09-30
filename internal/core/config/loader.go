@@ -3,10 +3,8 @@ package config
 import (
 	"context"
 	"fmt"
-	"math"
 	"os"
 	"regexp"
-	"strings"
 	"time"
 
 	yaml "gopkg.in/yaml.v2"
@@ -103,19 +101,7 @@ func loadYAML(fileContent []byte) (*Config, error) {
 
 	err := yaml.UnmarshalStrict(preprocessedContent, config)
 	if err != nil {
-		// Provide some context about where the parse error occurred
-		for _, e := range err.(*yaml.TypeError).Errors {
-			line := utils.ParseLineNumberFromYAMLError(e)
-			context := string(preprocessedContent)
-			if line != 0 {
-				lines := strings.Split(context, "\n")
-				context = strings.Join(lines[int(math.Max(float64(line-5), 0)):line], "\n")
-				context += "\n^^^^^^^\n"
-				context += strings.Join(lines[line:int(math.Min(float64(line+5), float64(len(lines))))], "\n")
-			}
-			log.Errorf("Could not unmarshal config file:\n\n%s\n\n%s\n", context, err.Error())
-		}
-		return nil, err
+		return nil, utils.YAMLErrorWithContext(preprocessedContent, err)
 	}
 
 	if err := defaults.Set(config); err != nil {

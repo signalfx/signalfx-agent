@@ -6,6 +6,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
+	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 
 	yaml "gopkg.in/yaml.v2"
@@ -24,7 +25,7 @@ func renderDynamicValues(config []byte, resolve resolveFunc) ([]byte, error) {
 	var content map[interface{}]interface{}
 	err := yaml.Unmarshal(config, &content)
 	if err != nil {
-		return nil, err
+		return nil, utils.YAMLErrorWithContext(config, err)
 	}
 
 	w := walker{
