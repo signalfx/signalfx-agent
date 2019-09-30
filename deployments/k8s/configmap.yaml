@@ -46,6 +46,14 @@ data:
     - type: kubelet-stats
       kubeletAPI:
         authType: serviceAccount
+      datapointsToExclude:
+      - dimensions:
+          container_image:
+           - '*pause-amd64*'
+           - 'k8s.gcr.io/pause*'
+        metricNames:
+          - '*'
+          - '!*network*'
 
     # Collects k8s cluster-level metrics
     - type: kubernetes-cluster
