@@ -5,11 +5,9 @@
 import os
 import re
 import sys
-from pathlib import Path
-
 import yaml
-
 from nltk.tokenize import sent_tokenize
+from pathlib import Path
 
 try:
     import nltk
@@ -40,51 +38,58 @@ configuration instructions below.
 
 """
 
-# Key is of the form <monitor/package/path:monitorType>, value is the
-# integration directory in the integrations repo where metrics should go (not
-# including the `docs/` path suffix).
+# Key is  the integration directory where metrics should go (not
+# # including the `docs/` path suffix) and value is of the
+# form <monitor/package/path:monitorType>
 MONITORS_TO_INTEGRATIONS_DIR = {
-    ("internal/monitors/collectd/activemq", "collectd/activemq"): "activemq",
-    ("internal/monitors/collectd/apache", "collectd/apache"): "apache",
-    ("internal/monitors/elasticsearch", "elasticsearch"): "elasticsearch",
-    ("internal/monitors/collectd/cpu", "collectd/cpu"): "collectd-cpu",
-    ("internal/monitors/collectd/cassandra", "collectd/cassandra"): "cassandra",
-    ("internal/monitors/collectd/consul", "collectd/consul"): "consul",
-    ("internal/monitors/collectd/couchbase", "collectd/couchbase"): "couchbase",
-    ("internal/monitors/collectd/etcd", "collectd/etcd"): "etcd",
-    ("internal/monitors/docker", "docker-container-stats"): "docker",
-    ("internal/monitors/gitlab", "gitlab"): "gitlab",
-    ("internal/monitors/collectd/hadoop", "collectd/hadoop"): "hadoop",
-    ("internal/monitors/collectd/haproxy", "collectd/haproxy"): "haproxy",
-    ("internal/monitors/collectd/genericjmx", "collectd/genericjmx"): "java",
-    ("internal/monitors/collectd/jenkins", "collectd/jenkins"): "jenkins",
-    ("internal/monitors/collectd/kafka", "collectd/kafka"): "kafka",
-    ("internal/monitors/collectd/kong", "collectd/kong"): "kong",
-    ("internal/monitors/collectd/memcached", "collectd/memcached"): "memcached",
-    ("internal/monitors/collectd/mongodb", "collectd/mongodb"): "mongodb",
-    ("internal/monitors/collectd/mysql", "collectd/mysql"): "mysql",
-    ("internal/monitors/collectd/nginx", "collectd/nginx"): "nginx",
-    ("internal/monitors/collectd/openstack", "collectd/openstack"): "openstack",
-    ("internal/monitors/postgresql", "postgresql"): "postgresql",
-    ("internal/monitors/collectd/rabbitmq", "collectd/rabbitmq"): "rabbitmq",
-    ("internal/monitors/collectd/redis", "collectd/redis"): "redis",
-    ("internal/monitors/collectd/solr", "collectd/solr"): "solr",
-    ("internal/monitors/statsd", "statsd"): "statsd",
-    ("internal/monitors/collectd/spark", "collectd/spark"): "spark",
-    ("internal/monitors/collectd/zookeeper", "collectd/zookeeper"): "zookeeper",
+    "activemq": [("internal/monitors/collectd/activemq", "collectd/activemq")],
+    "apache": [("internal/monitors/collectd/apache", "collectd/apache")],
+    "elasticsearch": [("internal/monitors/elasticsearch", "elasticsearch")],
+    "collectd-cpu": [("internal/monitors/collectd/cpu", "collectd/cpu")],
+    "cassandra": [("internal/monitors/collectd/cassandra", "collectd/cassandra")],
+    "consul": [("internal/monitors/collectd/consul", "collectd/consul")],
+    "couchbase": [("internal/monitors/collectd/couchbase", "collectd/couchbase")],
+    "etcd": [("internal/monitors/collectd/etcd", "collectd/etcd")],
+    "docker": [("internal/monitors/docker", "docker-container-stats")],
+    "gitlab": [("internal/monitors/gitlab", "gitlab")],
+    "hadoop": [("internal/monitors/collectd/hadoop", "collectd/hadoop")],
+    "haproxy": [("internal/monitors/collectd/haproxy", "collectd/haproxy")],
+    "java": [("internal/monitors/collectd/genericjmx", "collectd/genericjmx")],
+    "jenkins": [("internal/monitors/collectd/jenkins", "collectd/jenkins")],
+    "kafka": [("internal/monitors/collectd/kafka", "collectd/kafka")],
+    "kong": [("internal/monitors/collectd/kong", "collectd/kong")],
+    "memcached": [("internal/monitors/collectd/memcached", "collectd/memcached")],
+    "mongodb": [("internal/monitors/collectd/mongodb", "collectd/mongodb")],
+    "mysql": [("internal/monitors/collectd/mysql", "collectd/mysql")],
+    "nginx": [("internal/monitors/collectd/nginx", "collectd/nginx")],
+    "openstack": [("internal/monitors/collectd/openstack", "collectd/openstack")],
+    "postgresql": [("internal/monitors/postgresql", "postgresql")],
+    "rabbitmq": [("internal/monitors/collectd/rabbitmq", "collectd/rabbitmq")],
+    "redis": [("internal/monitors/collectd/redis", "collectd/redis")],
+    "solr": [("internal/monitors/collectd/solr", "collectd/solr")],
+    "statsd": [("internal/monitors/statsd", "statsd")],
+    "spark": [("internal/monitors/collectd/spark", "collectd/spark")],
+    "zookeeper": [("internal/monitors/collectd/zookeeper", "collectd/zookeeper")],
+    "logstash": [
+        ("internal/monitors/logstash/logstash", "logstash"),
+        ("internal/monitors/logstash/tcp", "logstash-tcp"),
+    ],
 }
 
 
-def sync_metrics(package_path, monitor_type, integrations_dir):
+def sync_metrics(package_path, monitor_type):
     for mon in yaml.safe_load((AGENT_ROOT / package_path / "metadata.yaml").read_bytes())["monitors"]:
         if mon.get("monitorType") == monitor_type:
             print(f"Syncing metrics for {monitor_type}")
-            metric_yaml = generate_metric_yaml(mon)
-            out_path = INTEGRATIONS_REPO / integrations_dir / "metrics.yaml"
-            out_path.write_text(metric_yaml, encoding="utf-8")
-            break
+            return generate_metric_yaml(mon)
     else:
         raise ValueError(f"monitor type {monitor_type} not found in {package_path}")
+
+
+def write_metrics(package_path, monitor_type, integrations_dir):
+    metric_yaml = sync_metrics(package_path, monitor_type)
+    out_path = INTEGRATIONS_REPO / integrations_dir / "metrics.yaml"
+    out_path.write_text(metric_yaml, encoding="utf-8")
 
 
 def generate_metric_yaml(mon):
@@ -108,22 +113,23 @@ def generate_metric_yaml(mon):
     return out
 
 
-def sync_docs(monitor_type, integrations_dir):
+def sync_docs(monitor_type):
     monitor_doc_path = AGENT_ROOT / f"docs/monitors/{monitor_type.replace('/', '-')}.md"
     assert monitor_doc_path.is_file(), monitor_doc_path
 
-    target_path = INTEGRATIONS_REPO / integrations_dir / "SMART_AGENT_MONITOR.md"
-    target_path.write_text(
-        fixup_overview_header(
-            fixup_relative_monitor_paths(
-                AUTO_GENERATION_TEMPLATE
-                + AGENT_MONITOR_BLURB.format(monitor_type=monitor_type)
-                + monitor_doc_path.read_text(encoding="utf-8")
-            ),
-            monitor_type=monitor_type,
+    return fixup_overview_header(
+        fixup_relative_monitor_paths(
+            AUTO_GENERATION_TEMPLATE
+            + AGENT_MONITOR_BLURB.format(monitor_type=monitor_type)
+            + monitor_doc_path.read_text(encoding="utf-8")
         ),
-        encoding="utf-8",
+        monitor_type=monitor_type,
     )
+
+
+def write_docs(monitor_type, integrations_dir):
+    target_path = INTEGRATIONS_REPO / integrations_dir / "SMART_AGENT_MONITOR.md"
+    target_path.write_text(sync_docs(monitor_type), encoding="utf-8")
 
 
 RELATIVE_LINK_PATTERN = re.compile(r"(\[.*?\])\((\.\.?/.+?)\)", flags=re.DOTALL)
@@ -307,7 +313,7 @@ def sync_agent_metrics():
     https://github.com/signalfx/signalfx-agent/blob/master/internal/monitors/internalmetrics/metadata.yaml
     """
 
-    sync_metrics("internal/monitors/internalmetrics", "internal-metrics", "signalfx-agent")
+    write_metrics("internal/monitors/internalmetrics", "internal-metrics", "signalfx-agent")
 
 
 def run():
@@ -319,11 +325,16 @@ def run():
         print("INTEGRATIONS_REPO envvar should be set")
         sys.exit(1)
 
-    for (package_path, monitor_type), integrations_dir in MONITORS_TO_INTEGRATIONS_DIR.items():
-        if mon_type_filters and monitor_type not in mon_type_filters:
-            continue
-        sync_metrics(package_path, monitor_type, integrations_dir)
-        sync_docs(monitor_type, integrations_dir)
+    for integrations_dir, monitors_info in MONITORS_TO_INTEGRATIONS_DIR.items():
+        if len(monitors_info) == 1:
+            package_path, monitor_type = monitors_info[0]
+            if mon_type_filters and monitor_type not in mon_type_filters:
+                continue
+            write_metrics(package_path, monitor_type, integrations_dir)
+            write_docs(monitor_type, integrations_dir)
+        else:  # case where multiple agent monitors need to show in a single integrations tile
+            for (package_path, monitor_type) in monitors_info:
+                pass
 
     sync_agent_quick_install()
     sync_agent_docs()
