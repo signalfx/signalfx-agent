@@ -13,6 +13,38 @@ Monitor Type: `kubelet-stats` ([Source](https://github.com/signalfx/signalfx-age
 This monitor pulls cadvisor metrics through a
 Kubernetes kubelet instance via the `/stats/container` endpoint.
 
+### Pause Containers
+Network stats for a Kubernetes pod are traditionally accounted for on the
+"pause" container, which is the container responsible for "owning" the
+network namespace that the other containers in the pod will use, among
+other things.  Therefore, the network stats are usually zero for all
+non-pause containers and accounted for in an aggregated way via the pause
+container.
+
+Since the only generally useful stats of the pause container are network
+stats, this montior will omit non-network metrics for any containers named
+`POD`. This is the standard name for the "pause" container in Kubernetes
+when using the Docker runtime, but the pause container has no name under
+other runtimes. Therefore, you need to explicitly filter out non-network
+metrics from pause containers when using non-Docker runtimes.  The following
+configuration will do that:
+
+```yaml
+monitors:
+- type: kubelet-stats
+  datapointsToExclude:
+  - dimensions:
+      container_image:
+       - '*pause-amd64*'
+       - 'k8s.gcr.io/pause*'
+    metricNames:
+      - '*'
+      - '!*network*'
+```
+
+If your K8s deployment using an image name for the pause container that
+does not fit the given patterns, you should tweak it as needed.
+
 
 ## Configuration
 

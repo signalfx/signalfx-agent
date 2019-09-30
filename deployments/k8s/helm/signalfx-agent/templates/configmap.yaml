@@ -77,6 +77,14 @@ data:
       kubeletAPI:
         {{ toYaml .Values.kubeletAPI | indent 8 | trim }}
       {{- end }}
+      datapointsToExclude:
+      - dimensions:
+          container_image:
+           - '*pause-amd64*'
+           - 'k8s.gcr.io/pause*'
+        metricNames:
+          - '*'
+          - '!*network*'
 
     {{ if .Values.gatherClusterMetrics -}}
     # Collects k8s cluster-level metrics
