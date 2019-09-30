@@ -3,7 +3,7 @@ package cpu
 import (
 	"context"
 	"fmt"
-	"runtime"
+	"strings"
 	"time"
 
 	"github.com/shirou/gopsutil/cpu"
@@ -38,7 +38,7 @@ type totalUsed struct {
 
 // Monitor for Utilization
 type Monitor struct {
-	Output          types.Output
+	Output          types.FilteringOutput
 	cancel          func()
 	conf            *Config
 	previousPerCore map[string]*totalUsed
@@ -76,7 +76,7 @@ func (m *Monitor) generatePerCoreDatapoints() []*datapoint.Datapoint {
 			out = append(out,
 				datapoint.New(
 					percoreMetricName,
-					map[string]string{"plugin": types.UtilizationMetricPluginName, "plugin_instance": core.CPU, "core": core.CPU},
+					map[string]string{"cpu": strings.ReplaceAll(core.CPU, "cpu", "")},
 					datapoint.NewFloatValue(utilization),
 					datapoint.Gauge,
 					time.Time{},
@@ -121,7 +121,7 @@ func (m *Monitor) generateDatapoints() []*datapoint.Datapoint {
 		// add datapoint to be returned
 		dps = append(dps, datapoint.New(
 			cpuUtilName,
-			map[string]string{"plugin": types.UtilizationMetricPluginName},
+			map[string]string{},
 			datapoint.NewFloatValue(utilization),
 			datapoint.Gauge,
 			time.Time{},
@@ -143,19 +143,19 @@ func getUtilization(prev *totalUsed, current *totalUsed) (utilization float64, e
 	usedDiff := current.Used - prev.Used
 	totalDiff := current.Total - prev.Total
 	switch {
-	case usedDiff < 0:
+	case usedDiff < 0.0:
 		err = errorUsedDiffLessThanZero
-	case totalDiff < 0:
+	case totalDiff < 0.0:
 		err = errorTotalDiffLessThanZero
-	case (usedDiff == 0 && totalDiff == 0) || totalDiff == 0:
+	case (usedDiff == 0.0 && totalDiff == 0.0) || totalDiff == 0.0:
 		utilization = 0
 	default:
 		// calculate utilization
-		utilization = usedDiff / totalDiff * 100
-		if utilization < 0 {
+		utilization = usedDiff / totalDiff * 100.0
+		if utilization < 0.0 {
 			err = fmt.Errorf("percent %v < 0 total: %v used: %v", utilization, usedDiff, totalDiff)
 		}
-		if utilization > 100 {
+		if utilization > 100.0 {
 			err = fmt.Errorf("percent %v > 100 total: %v used: %v ", utilization, usedDiff, totalDiff)
 		}
 	}
@@ -192,9 +192,6 @@ func (m *Monitor) initializePerCoreCPUTimes() {
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
-	if runtime.GOOS != "windows" {
-		m.logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
-	}
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
@@ -210,11 +207,14 @@ func (m *Monitor) Configure(conf *Config) error {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		dps := m.generateDatapoints()
-		// NOTE: If this monitor ever fails to complete in a reporting interval
-		// maybe run this on a separate go routine
-		perCoreDPs := m.generatePerCoreDatapoints()
+		if m.Output.HasEnabledMetricInGroup(groupPerCore) {
+			// NOTE: If this monitor ever fails to complete in a reporting interval
+			// maybe run this on a separate go routine
+			perCoreDPs := m.generatePerCoreDatapoints()
+			dps = append(dps, perCoreDPs...)
+		}
 
-		m.Output.SendDatapoints(append(dps, perCoreDPs...)...)
+		m.Output.SendDatapoints(dps...)
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil
@@ -231,6 +231,8 @@ func (m *Monitor) Shutdown() {
 func cpuTimeStatTototalUsed(t *cpu.TimesStat) *totalUsed {
 	// add up all times if a value doesn't apply then the struct field
 	// will be 0 and shouldn't affect anything
+	// Guest and GuestNice are already included in User and Nice so don't
+	// double count them.
 	total := t.User +
 		t.System +
 		t.Idle +
@@ -239,8 +241,6 @@ func cpuTimeStatTototalUsed(t *cpu.TimesStat) *totalUsed {
 		t.Irq +
 		t.Softirq +
 		t.Steal +
-		t.Guest +
-		t.GuestNice +
 		t.Stolen
 
 	return &totalUsed{
