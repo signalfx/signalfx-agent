@@ -32,7 +32,7 @@ AGENT_MONITOR_BLURB = """
 ### INSTALLATION
 
 This integration is part of the [SignalFx Smart Agent](https://github.com/signalfx/integrations/tree/master/signalfx-agent)[](sfx_link:signalfx-agent)
-as the `{monitor_type}` monitor. You should first deploy the Smart Agent to the
+as the {boiler_plate_text}. You should first deploy the Smart Agent to the
 same host as the service you want to monitor, and then continue with the
 configuration instructions below.
 
@@ -96,12 +96,13 @@ def generate_metric_yaml(mon):
     metrics = {}
     for name, metric in mon.get("metrics", {}).items():
         custom = mon.get("sendAll", False) or not metric.get("default", False)
-        desc_sentences = sent_tokenize(metric.get("description", ""))
+        decscription = metric.get("description", "") or ""
+        desc_sentences = sent_tokenize(decscription)
         metrics[name] = {
             "title": name,
             "brief": desc_sentences[0].rstrip(".").strip() if desc_sentences else "",
             "metric_type": metric["type"],
-            "description": metric.get("description", "").strip(),
+            "description": decscription.strip(),
             "custom": custom,
         }
 
@@ -117,19 +118,47 @@ def sync_docs(monitor_type):
     monitor_doc_path = AGENT_ROOT / f"docs/monitors/{monitor_type.replace('/', '-')}.md"
     assert monitor_doc_path.is_file(), monitor_doc_path
 
-    return fixup_overview_header(
-        fixup_relative_monitor_paths(
-            AUTO_GENERATION_TEMPLATE
-            + AGENT_MONITOR_BLURB.format(monitor_type=monitor_type)
-            + monitor_doc_path.read_text(encoding="utf-8")
-        ),
-        monitor_type=monitor_type,
+    return fixup_relative_monitor_paths(
+        AUTO_GENERATION_TEMPLATE
+        + add_installation_blurb_single_monitor(monitor_type=monitor_type)
+        + monitor_doc_path.read_text(encoding="utf-8")
     )
 
 
-def write_docs(monitor_type, integrations_dir):
-    target_path = INTEGRATIONS_REPO / integrations_dir / "SMART_AGENT_MONITOR.md"
-    target_path.write_text(sync_docs(monitor_type), encoding="utf-8")
+def write_docs(monitor_types, integrations_dir):
+    """
+    Prepares integrations docs for a directory in integrations repo. From
+    respective monitor docs
+    :param monitor_types: monitor types that inegrations_repo maps to
+    :param integrations_dir: directory name in integrations repo
+    """
+    if len(monitor_types) == 1:
+        target_path = INTEGRATIONS_REPO / integrations_dir / "SMART_AGENT_MONITOR.md"
+        target_path.write_text(
+            fixup_overview_header_single_monitor(sync_docs(monitor_types[0]), monitor_type=monitor_types[0]),
+            encoding="utf-8")
+    else:
+        combined_docs = {}
+        for monitor_type in monitor_types:
+            for section, content in breakdown_monitor_readme(monitor_type).items():
+                if section not in combined_docs:
+                    combined_docs[section] = [(monitor_type, content)]
+                else:
+                    combined_docs[section].append((monitor_type, content))
+
+        final_doc_text = ""
+
+        for section, monitor_docs in combined_docs.items():
+            final_doc_text = final_doc_text + section + "\n\n"
+
+            for monitor, doc in monitor_docs:
+                final_doc_text = final_doc_text + "### " + monitor
+                final_doc_text = final_doc_text + doc
+
+        target_path = INTEGRATIONS_REPO / integrations_dir / "SMART_AGENT_MONITOR.md"
+        target_path.write_text(fixup_overview_header_multiple_monitors(fixup_relative_monitor_paths(
+            AUTO_GENERATION_TEMPLATE + add_installation_blurb_multiple_monitors(monitor_types) + final_doc_text),
+            monitor_types), encoding="utf-8", )
 
 
 RELATIVE_LINK_PATTERN = re.compile(r"(\[.*?\])\((\.\.?/.+?)\)", flags=re.DOTALL)
@@ -159,15 +188,30 @@ def fixup_relative_agent_doc_paths(content):
 OVERVIEW_REPLACEMENT = """
 ## Description
 
-**This integration primarily consists of the Smart Agent monitor `{monitor_type}`.
-Below is an overview of that monitor.**
+**This integration primarily consists of the Smart Agent monitor {monitor_type}.
+{boiler_plate_text}.**
 
 ### Smart Agent Monitor
 """
 
 
-def fixup_overview_header(content, monitor_type):
-    return content.replace("## Overview", OVERVIEW_REPLACEMENT.format(monitor_type=monitor_type))
+def fixup_overview_header_single_monitor(content, monitor_type):
+    return content.replace("## Overview", OVERVIEW_REPLACEMENT.format(monitor_type="`" + monitor_type + "`",
+                                                                      boiler_plate_text="Below is an overview of that monitor"))
+
+
+def fixup_overview_header_multiple_monitors(content, monitor_types):
+    return content.replace("## Overview",
+                           OVERVIEW_REPLACEMENT.format(monitor_type=", ".join("`" + m + "`" for m in monitor_types),
+                                                       boiler_plate_text="Below is an overview of these monitors"))
+
+
+def add_installation_blurb_single_monitor(monitor_type):
+    return AGENT_MONITOR_BLURB.format(boiler_plate_text="`" + monitor_type + "` monitor")
+
+
+def add_installation_blurb_multiple_monitors(monitor_types):
+    return AGENT_MONITOR_BLURB.format(boiler_plate_text=", ".join(["`" + m + "`" for m in monitor_types]) + " monitors")
 
 
 # names of directories and files that need to be eventually surfaced in product-docs. make use of
@@ -316,6 +360,40 @@ def sync_agent_metrics():
     write_metrics("internal/monitors/internalmetrics", "internal-metrics", "signalfx-agent")
 
 
+SECTIONS_PATTERNS = [
+    "(.+?)(## Overview)(.+?)(## Configuration)(.+?)(## Metrics)(.+?)(## Dimensions)(.+?)(## Properties)(.+)",
+    "(.+?)(## Overview)(.+?)(## Configuration)(.+?)(## Metrics)(.+?)(## Dimensions)(.+)",
+    "(.+?)(## Overview)(.+?)(## Configuration)(.+?)(## Metrics)(.+)",
+    "(.+?)(## Overview)(.+?)(## Configuration)(.+)",
+]
+
+
+def breakdown_monitor_readme(monitor_type):
+    """
+    Takes a monitor type returns a dict that maps headers to content in each section within the README.
+    This will work as expected only for monitor READMEs that have the following template:
+    https://github.com/signalfx/signalfx-agent/blob/master/scripts/docs/templates/monitor-page.md.tmpl
+
+    """
+    out = {}
+    patterns_tried = 0
+
+    for sections_pattern in SECTIONS_PATTERNS:
+        patterns_tried = patterns_tried + 1
+        monitor_doc_path = AGENT_ROOT / f"docs/monitors/{monitor_type}.md"
+        assert monitor_doc_path.is_file(), monitor_doc_path
+
+        match = re.match(sections_pattern, sync_docs(monitor_type), flags=re.DOTALL)
+        if match:
+            for i in range(2, match.lastindex + 1, 2):
+                if match.group(i) not in out:
+                    out[match.group(i)] = match.group(i + 1)
+            return out
+        else:
+            if patterns_tried >= len(SECTIONS_PATTERNS):
+                raise RuntimeError(f"Unable to construct {monitor_type} docs")
+
+
 def run():
     mon_type_filters = None
     if len(sys.argv) > 1:
@@ -331,10 +409,9 @@ def run():
             if mon_type_filters and monitor_type not in mon_type_filters:
                 continue
             write_metrics(package_path, monitor_type, integrations_dir)
-            write_docs(monitor_type, integrations_dir)
-        else:  # case where multiple agent monitors need to show in a single integrations tile
-            for (package_path, monitor_type) in monitors_info:
-                pass
+            write_docs([monitor_type], integrations_dir)
+        else:  # case where multiple agent monitors need to show up in a single integrations tile
+            write_docs([m[1] for m in monitors_info], integrations_dir)
 
     sync_agent_quick_install()
     sync_agent_docs()
