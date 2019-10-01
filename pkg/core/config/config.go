@@ -263,6 +263,9 @@ func (c *Config) propagateValuesDown() error {
 		if c.Monitors[i].ValidateDiscoveryRule == nil {
 			c.Monitors[i].ValidateDiscoveryRule = c.ValidateDiscoveryRules
 		}
+		if c.Monitors[i].ProcPath == "" {
+			c.Monitors[i].ProcPath = c.ProcPath
+		}
 	}
 
 	c.Collectd.IntervalSeconds = utils.FirstNonZero(c.Collectd.IntervalSeconds, c.IntervalSeconds)

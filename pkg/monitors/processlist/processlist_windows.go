@@ -3,9 +3,8 @@
 package processlist
 
 import (
-	"bytes"
 	"fmt"
-	"math"
+	"time"
 
 	"github.com/StackExchange/wmi"
 	"github.com/shirou/gopsutil/mem"
@@ -22,6 +21,7 @@ type Win32Process struct {
 	Name           string
 	ExecutablePath *string
 	CommandLine    *string
+	CreationDate   time.Time
 	Priority       uint32
 	ProcessID      uint32
 	Status         *string
@@ -40,29 +40,16 @@ type PerfProcProcess struct {
 	PercentProcessorTime uint64
 }
 
-// toTime returns the given seconds as a formatted string "min:sec.dec"
-func toTime(secs float64) string {
-	minutes := int(secs) / 60
-	seconds := math.Mod(secs, 60.0)
-	dec := math.Mod(seconds, 1.0) * 100
-	return fmt.Sprintf("%02d:%02.f.%02.f", minutes, seconds, dec)
+type osCache struct {
 }
 
-// getCPUPercentages is set as a package variable so we can mock it during testing
-var getCPUPercentages = func() (cpuPercents map[uint32]uint64, err error) {
-	// Get all process cpu percentages
-	var processes []PerfProcProcess
-	err = wmi.Query("select IDProcess, PercentProcessorTime from Win32_PerfFormattedData_PerfProc_Process where Name != '_Total'", &processes)
-	cpuPercents = make(map[uint32]uint64, len(processes))
-	for _, p := range processes {
-		cpuPercents[p.IDProcess] = p.PercentProcessorTime
-	}
-	return cpuPercents, err
+func initOSCache() *osCache {
+	return &osCache{}
 }
 
 // getAllProcesses retrieves all processes.  It is set as a package variable so we can mock it during testing
 var getAllProcesses = func() (ps []Win32Process, err error) {
-	err = wmi.Query("select Name, ExecutablePath, CommandLine, Priority, ProcessID, Status, ExecutionState, KernelModeTime, PageFileUsage, UserModeTime, WorkingSetSize, VirtualSize from Win32_Process", &ps)
+	err = wmi.Query("select Name, ExecutablePath, CommandLine, CreationDate, Priority, ProcessID, Status, ExecutionState, KernelModeTime, PageFileUsage, UserModeTime, WorkingSetSize, VirtualSize from Win32_Process", &ps)
 	return ps, err
 }
 
@@ -103,16 +90,14 @@ var getUsername = func(id uint32) (username string, err error) {
 	return username, err
 }
 
-// ProcessList takes a snapshot of running processes and returns a byte buffer
-func ProcessList() (*bytes.Buffer, error) {
-	processes := &bytes.Buffer{}
-	processes.WriteString("{")
-	defer processes.WriteString("}") // always close the associative array
+// ProcessList takes a snapshot of running processes
+func ProcessList(conf *Config, cache *osCache) ([]*TopProcess, error) {
+	var procs []*TopProcess
 
 	// Get all processes
 	ps, err := getAllProcesses()
 	if err != nil {
-		return processes, err
+		return nil, err
 	}
 
 	// Get cpu percentages for all processes
@@ -121,24 +106,14 @@ func ProcessList() (*bytes.Buffer, error) {
 		logger.Debugf("No per process cpu percentages returned %v", err)
 	}
 
-	// index position to stop appending commas to the list of processes
-	stop := len(ps) - 1
-
 	// iterate over each process and build an entry for the process list
-	for index, p := range ps {
+	for _, p := range ps {
 		username, err := getUsername(p.ProcessID)
 		if err != nil {
 			logger.Debugf("Unable to collect username for process %v. %v", p, err)
 		}
 
-		// CPU Times
-		var cpuPercent float64
-		totalTime := float64(p.UserModeTime+p.KernelModeTime) / 10000000 // 100 ns units to seconds
-		if percent, inMap := cpuPercentages[p.ProcessID]; inMap {
-			cpuPercent = float64(percent)
-		} else {
-			logger.Debugf("Unable to find cpu percentage for pid %d.", p.ProcessID)
-		}
+		totalTime := time.Duration(float64(p.UserModeTime+p.KernelModeTime) * 100) // 100 ns units
 
 		// Memory Percent
 		var memPercent float64
@@ -155,25 +130,20 @@ func ProcessList() (*bytes.Buffer, error) {
 		}
 
 		//example process "3":["root",20,"0",0,0,0,"S",0.0,0.0,"01:28.31","[ksoftirqd/0]"]
-		fmt.Fprintf(processes, "\"%d\":[\"%s\",%d,\"%s\",%d,%d,%d,\"%s\",%.2f,%.2f,\"%s\",\"%s\"]",
-			p.ProcessID,           // pid
-			username,              // username
-			p.Priority,            // priority
-			"",                    // nice value is not available on windows
-			p.PageFileUsage/1024,  // virtual memory size in kb
-			p.WorkingSetSize/1024, // resident memory size in kb
-			0/1024,                // shared memory
-			*p.Status,             // status
-			cpuPercent,            // % cpu, float
-			memPercent,            // % mem, float
-			toTime(totalTime),     // cpu time
-			command,               // command/executable
-		)
-
-		// append a comma as long as it isn't the last entry in the associative array
-		if index != stop {
-			processes.WriteString(",")
-		}
+		procs = append(procs, &TopProcess{
+			ProcessID:           int(p.ProcessID),
+			CreatedTime:         p.CreationDate,
+			Username:            username,
+			Priority:            int(p.Priority),
+			Nice:                nil, // nice value is not available on windows
+			VirtualMemoryBytes:  uint64(p.VirtualSize),
+			WorkingSetSizeBytes: uint64(p.WorkingSetSize),
+			SharedMemBytes:      0,
+			Status:              *p.Status,
+			MemPercent:          memPercent,
+			TotalCPUTime:        totalTime,
+			Command:             command,
+		})
 	}
-	return processes, nil
+	return procs, nil
 }
