@@ -145,7 +145,7 @@ parse_args_and_release() {
     exit 1
   fi
 
-  if [[ "$stage" != "test" ]] && [[ $(git symbolic-ref HEAD) != "refs/heads/master" ]] && [[ "$force" != "yes" ]]; then
+  if [[ "$stage" == "final" ]] && [[ $(git symbolic-ref HEAD) != "refs/heads/master" ]] && [[ "$force" != "yes" ]]; then
     echo "You are releasing a beta/final release from a branch other than master, which is not allowed." >&2
     exit 1
   fi
