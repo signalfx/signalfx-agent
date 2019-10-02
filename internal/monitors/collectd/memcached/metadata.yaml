@@ -22,6 +22,10 @@ monitors:
       description: Current number of bytes used to store items
       default: true
       type: gauge
+    memcached_command.meta:
+      description: Number of meta requests
+      default: false
+      type: cumulative
     memcached_command.flush:
       description: Number of flush requests
       default: false

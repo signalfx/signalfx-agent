@@ -3574,7 +3574,7 @@
           "type": "cumulative",
           "description": "CPU time spent not in any other state. In order to get a percentage this value must be compared against the sum of all CPU states.\n",
           "group": null,
-          "default": false
+          "default": true
         },
         "cpu.interrupt": {
           "type": "cumulative",
@@ -11041,6 +11041,7 @@
             "df.cache.used",
             "memcached_command.flush",
             "memcached_command.get",
+            "memcached_command.meta",
             "memcached_command.set",
             "memcached_command.touch",
             "memcached_connections.current",
@@ -11093,6 +11094,12 @@
           "description": "Number of retrieval requests",
           "group": null,
           "default": true
+        },
+        "memcached_command.meta": {
+          "type": "cumulative",
+          "description": "Number of meta requests",
+          "group": null,
+          "default": false
         },
         "memcached_command.set": {
           "type": "cumulative",
