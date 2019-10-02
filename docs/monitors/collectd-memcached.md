@@ -60,6 +60,7 @@ Metrics that are categorized as
  - ***`df.cache.used`*** (*gauge*)<br>    Current number of bytes used to store items
  - `memcached_command.flush` (*cumulative*)<br>    Number of flush requests
  - ***`memcached_command.get`*** (*cumulative*)<br>    Number of retrieval requests
+ - `memcached_command.meta` (*cumulative*)<br>    Number of meta requests
  - ***`memcached_command.set`*** (*cumulative*)<br>    Number of storage requests
  - `memcached_command.touch` (*cumulative*)<br>    Number of touch requests
  - ***`memcached_connections.current`*** (*gauge*)<br>    Current number of open connections
