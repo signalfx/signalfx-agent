@@ -449,7 +449,12 @@ monitors:
       type: gauge
       group: memory
     memory.usage.total:
-      description: Bytes of memory used by the container
+      description: |
+        Bytes of memory used by the container. Note that this **includes the
+        buffer cache** attributed to the process by the kernel from files that
+        have been read by processes in the container.  If you don't want to
+        count that when monitoring containers, enable the metric
+        `memory.stats.total_cache` and subtract that metric from this one.
       default: true
       type: gauge
       group: memory
