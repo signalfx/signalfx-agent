@@ -7,9 +7,11 @@ import json
 import os
 import re
 import sys
+import yaml
 
 from collections import OrderedDict
 from jinja2 import Environment, FileSystemLoader
+from nltk.tokenize import sent_tokenize
 from pathlib import Path
 
 try:
@@ -118,13 +120,12 @@ def process_metrics_from_self_describe(monitor_type, metrics):
     return {monitor_type: [append_metric_name(m, n) for m, n in metrics.items()]}
 
 
-def monitor_docs_per_integrations_repo():
+def monitor_docs_per_integrations_repo(monitor_docs):
     """
      Returns a dict which is a processed version of
      selfdescribe for easy consumption by Jinja2 template
     """
     out = {}
-    monitor_docs = load_monitor_docs_from_self_describe_json()
 
     for monitor_doc in monitor_docs:
         integrations_dir = MONITORS_TO_INTEGRATIONS_DIR.get(
@@ -191,8 +192,7 @@ def get_template():
     return template
 
 
-def run():
-    integration_dirs = monitor_docs_per_integrations_repo()
+def sync_docs(integration_dirs):
     template = get_template()
 
     for integrations_dir, monitors_info in integration_dirs.items():
@@ -200,6 +200,52 @@ def run():
 
         target_path = INTEGRATIONS_REPO / integrations_dir / "SMART_AGENT_MONITOR.md"
         target_path.write_text(fixup_relative_monitor_paths(out), encoding="utf-8", )
+
+
+def generate_metric_yaml(monitor, metrics, send_all):
+    processed_metrics = {}
+    for metric in metrics:
+        assert metric["name"]
+
+        name = metric["name"]
+        custom = send_all or not metric.get("default", False)
+        desc_sentences = sent_tokenize(metric.get("description", ""))
+        processed_metrics[name] = {
+            "title": name,
+            "brief": desc_sentences[0].rstrip(".").strip() if desc_sentences else "",
+            "description": metric.get("description", "").strip(),
+            "custom": custom,
+            "monitor": monitor,
+            "metric_type": metric["type"],
+        }
+
+    out = "# This file was generated in the Smart Agent repo and copied here, DO NOT EDIT HERE.\n"
+    # Add a blank line in between each metric descriptor.
+    for name, met in sorted(processed_metrics.items(), key=lambda t: t[0]):
+        out += yaml.dump({name: met})
+        out += "\n"
+    return out
+
+
+def sync_metrics(integration_dirs):
+    for integrations_dir, monitors_info in integration_dirs.items():
+        for monitor, monitor_metrics in monitors_info.get("metrics", {}).items():
+            if not monitor_metrics:
+                continue
+
+            is_send_all_metrics = monitors_info.get("send_all_metrics", {}).get(monitor, False)
+            metric_yaml = generate_metric_yaml(monitor, monitor_metrics, is_send_all_metrics)
+
+            out_path = INTEGRATIONS_REPO / integrations_dir / "metrics.yaml"
+            out_path.write_text(metric_yaml, encoding="utf-8")
+
+
+def run():
+    monitor_docs = load_monitor_docs_from_self_describe_json()
+    integration_dirs = monitor_docs_per_integrations_repo(monitor_docs)
+
+    sync_docs(integration_dirs)
+    sync_metrics(integration_dirs)
 
 
 if __name__ == "__main__":
