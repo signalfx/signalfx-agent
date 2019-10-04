@@ -78,6 +78,10 @@ def surround_by_tick(a_list):
 
 
 def has_atleast_one_monitor_with_section(section):
+    """
+    Returns true if there's at least one monitor with
+    the section in the doc
+    """
     for doc in section.values():
         if doc:
             return True
@@ -85,6 +89,10 @@ def has_atleast_one_monitor_with_section(section):
 
 
 def send_all_metrics_from_all_monitors(send_metrics_field):
+    """
+    Returns true if all monitors of an integration sends all
+    metrics by default
+    """
     for v in send_metrics_field.values():
         if not v:
             return False
@@ -101,12 +109,20 @@ def append_metric_name(metric_name, metric_info):
 
 
 def process_metrics_from_self_describe(monitor_type, metrics):
+    """
+    Takes in a list of metrics from selfdescribe json and processes
+    it for easy consumption by the Jinja2 template
+    """
     if not metrics:
         return {monitor_type: None}
     return {monitor_type: [append_metric_name(m, n) for m, n in metrics.items()]}
 
 
 def monitor_docs_per_integrations_repo():
+    """
+     Returns a dict which is a processed version of
+     selfdescribe for easy consumption by Jinja2 template
+    """
     out = {}
     monitor_docs = load_monitor_docs_from_self_describe_json()
 
@@ -152,16 +168,20 @@ def fixup_relative_paths(absolute_path, content):
 
 def fixup_relative_monitor_paths(content):
     """
-    Replaces relative links within the scope of monitor docs with respective github links
+    Replaces relative links within the scope of monitor
+    docs with respective github links
     """
     return fixup_relative_paths(r"\1(https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/\2)", content)
 
 
 def get_jinja_env():
     j2_env = Environment(loader=FileSystemLoader(str(INTEGRATIONS_DOC_TEMPLATE_DIR)), trim_blocks=True)
+
+    # Add custom filters
     j2_env.filters["surround_by_tick"] = surround_by_tick
     j2_env.filters["has_atleast_one_monitor_with_section"] = has_atleast_one_monitor_with_section
     j2_env.filters["send_all_metrics_from_all_monitors"] = send_all_metrics_from_all_monitors
+
     return j2_env
 
 
