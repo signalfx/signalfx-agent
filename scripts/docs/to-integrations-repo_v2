@@ -1,0 +1,186 @@
+#!/usr/bin/env python3
+
+# Syncs all the relevant docs/metadata from the agent to the integrations repo.
+
+import copy
+import json
+import os
+import re
+import sys
+
+from collections import OrderedDict
+from jinja2 import Environment, FileSystemLoader
+from pathlib import Path
+
+try:
+    import nltk
+except ImportError:
+    print("You must install the nltk library with 'pip3 install nltk==3.4.3'", file=sys.stderr)
+    sys.exit(1)
+
+nltk.download("punkt")
+
+SCRIPT_DIR = Path(__file__).parent.resolve()
+AGENT_ROOT = SCRIPT_DIR / "../.."
+AGENT_DOCS = AGENT_ROOT / "docs"
+
+INTEGRATIONS_REPO = Path(os.environ.get("INTEGRATIONS_REPO") or (AGENT_ROOT / "../integrations")).resolve()
+INTEGRATIONS_REPO_SMART_AGENT_DIR = INTEGRATIONS_REPO / "signalfx-agent"
+INTEGRATIONS_DOC_TEMPLATE_DIR = AGENT_ROOT / "scripts/docs/templates/"
+
+# Key is of the form <monitor/package/path:monitorType>, value is the
+# integration directory in the integrations repo where metrics should go (not
+# including the `docs/` path suffix).
+MONITORS_TO_INTEGRATIONS_DIR = {
+    ("internal/monitors/collectd/activemq", "collectd/activemq"): "activemq",
+    ("internal/monitors/collectd/apache", "collectd/apache"): "apache",
+    ("internal/monitors/elasticsearch", "elasticsearch"): "elasticsearch",
+    ("internal/monitors/collectd/cpu", "collectd/cpu"): "collectd-cpu",
+    ("internal/monitors/collectd/cassandra", "collectd/cassandra"): "cassandra",
+    ("internal/monitors/collectd/consul", "collectd/consul"): "consul",
+    ("internal/monitors/collectd/couchbase", "collectd/couchbase"): "couchbase",
+    ("internal/monitors/collectd/etcd", "collectd/etcd"): "etcd",
+    ("internal/monitors/docker", "docker-container-stats"): "docker",
+    ("internal/monitors/gitlab", "gitlab"): "gitlab",
+    ("internal/monitors/collectd/hadoop", "collectd/hadoop"): "hadoop",
+    ("internal/monitors/collectd/haproxy", "collectd/haproxy"): "haproxy",
+    ("internal/monitors/collectd/genericjmx", "collectd/genericjmx"): "java",
+    ("internal/monitors/collectd/jenkins", "collectd/jenkins"): "jenkins",
+    ("internal/monitors/collectd/kafka", "collectd/kafka"): "kafka",
+    ("internal/monitors/collectd/kong", "collectd/kong"): "kong",
+    ("internal/monitors/collectd/memcached", "collectd/memcached"): "memcached",
+    ("internal/monitors/collectd/mongodb", "collectd/mongodb"): "mongodb",
+    ("internal/monitors/collectd/mysql", "collectd/mysql"): "mysql",
+    ("internal/monitors/collectd/nginx", "collectd/nginx"): "nginx",
+    ("internal/monitors/collectd/openstack", "collectd/openstack"): "openstack",
+    ("internal/monitors/postgresql", "postgresql"): "postgresql",
+    ("internal/monitors/collectd/rabbitmq", "collectd/rabbitmq"): "rabbitmq",
+    ("internal/monitors/collectd/redis", "collectd/redis"): "redis",
+    ("internal/monitors/collectd/solr", "collectd/solr"): "solr",
+    ("internal/monitors/statsd", "statsd"): "statsd",
+    ("internal/monitors/collectd/spark", "collectd/spark"): "spark",
+    ("internal/monitors/collectd/zookeeper", "collectd/zookeeper"): "zookeeper",
+    ("internal/monitors/logstash/logstash", "logstash"): "logstash",
+    ("internal/monitors/logstash/tcp", "logstash-tcp"): "logstash",
+}
+
+
+def load_monitor_docs_from_self_describe_json():
+    with open(AGENT_ROOT / "selfdescribe.json", "r") as self_describe_json:
+        self_describe = json.load(self_describe_json)
+
+    assert "Monitors" in self_describe
+    return self_describe["Monitors"]
+
+
+def surround_by_tick(a_list):
+    return ["`%s`" % an_element for an_element in a_list]
+
+
+def has_atleast_one_monitor_with_section(section):
+    for doc in section.values():
+        if doc:
+            return True
+    return False
+
+
+def send_all_metrics_from_all_monitors(send_metrics_field):
+    for v in send_metrics_field.values():
+        if not v:
+            return False
+    return True
+
+
+def append_metric_name(metric_name, metric_info):
+    out = copy.deepcopy(metric_info)
+
+    if not out["group"]:
+        out["group"] = ""
+    out.update({"name": metric_name})
+    return out
+
+
+def process_metrics_from_self_describe(monitor_type, metrics):
+    if not metrics:
+        return {monitor_type: None}
+    return {monitor_type: [append_metric_name(m, n) for m, n in metrics.items()]}
+
+
+def monitor_docs_per_integrations_repo():
+    out = {}
+    monitor_docs = load_monitor_docs_from_self_describe_json()
+
+    for monitor_doc in monitor_docs:
+        integrations_dir = MONITORS_TO_INTEGRATIONS_DIR.get(
+            (monitor_doc["config"]["package"], monitor_doc["monitorType"]), None)
+
+        if not integrations_dir:
+            continue
+
+        if integrations_dir not in out:
+            out[integrations_dir] = {}
+            out[integrations_dir]["monitor_types"] = []
+            out[integrations_dir]["send_all_metrics"] = OrderedDict()
+            out[integrations_dir]["description"] = OrderedDict()
+            out[integrations_dir]["configuration"] = OrderedDict()
+            out[integrations_dir]["metrics"] = OrderedDict()
+            out[integrations_dir]["dimensions"] = OrderedDict()
+            out[integrations_dir]["properties"] = OrderedDict()
+
+        monitor_type = monitor_doc["monitorType"]
+        out[integrations_dir]["monitor_types"].append(monitor_type)
+        out[integrations_dir]["send_all_metrics"].update({monitor_type: monitor_doc["sendAll"]})
+        out[integrations_dir]["description"].update({monitor_type: monitor_doc["doc"]})
+        out[integrations_dir]["configuration"].update({monitor_type: monitor_doc["config"]})
+        out[integrations_dir]["metrics"].update(
+            process_metrics_from_self_describe(monitor_type, monitor_doc["metrics"]))
+        out[integrations_dir]["dimensions"].update({monitor_type: monitor_doc["dimensions"]})
+        out[integrations_dir]["properties"].update({monitor_type: monitor_doc["properties"]})
+
+    return out
+
+
+RELATIVE_LINK_PATTERN = re.compile(r"(\[.*?\])\((\.\.?/.+?)\)", flags=re.DOTALL)
+
+
+def fixup_relative_paths(absolute_path, content):
+    """
+    Only works for links within the specified absolute path
+    """
+    return RELATIVE_LINK_PATTERN.sub(absolute_path, content)
+
+
+def fixup_relative_monitor_paths(content):
+    """
+    Replaces relative links within the scope of monitor docs with respective github links
+    """
+    return fixup_relative_paths(r"\1(https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/\2)", content)
+
+
+def get_jinja_env():
+    j2_env = Environment(loader=FileSystemLoader(str(INTEGRATIONS_DOC_TEMPLATE_DIR)), trim_blocks=True)
+    j2_env.filters["surround_by_tick"] = surround_by_tick
+    j2_env.filters["has_atleast_one_monitor_with_section"] = has_atleast_one_monitor_with_section
+    j2_env.filters["send_all_metrics_from_all_monitors"] = send_all_metrics_from_all_monitors
+    return j2_env
+
+
+def get_template():
+    j2_env = get_jinja_env()
+    template = j2_env.get_template("integrations_doc.txt")
+    return template
+
+
+def run():
+    integration_dirs = monitor_docs_per_integrations_repo()
+    template = get_template()
+
+    for integrations_dir, monitors_info in integration_dirs.items():
+        out = template.render(integration=monitors_info)
+
+        target_path = INTEGRATIONS_REPO / integrations_dir / "SMART_AGENT_MONITOR.md"
+        target_path.write_text(fixup_relative_monitor_paths(out), encoding="utf-8", )
+
+
+if __name__ == "__main__":
+    run()
