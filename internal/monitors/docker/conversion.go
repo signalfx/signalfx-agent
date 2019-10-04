@@ -146,9 +146,13 @@ func calculateCPUPercent(previous *dtypes.CPUStats, v *dtypes.CPUStats) float64 
 func convertMemoryStats(stats *dtypes.MemoryStats, enhancedMetrics bool) []*datapoint.Datapoint {
 	var out []*datapoint.Datapoint
 
+	// If not present, default value will be 0.
+	bufferCacheUsage := stats.Stats["total_cache"]
+
 	out = append(out, []*datapoint.Datapoint{
 		sfxclient.Gauge("memory.usage.limit", nil, int64(stats.Limit)),
-		sfxclient.Gauge("memory.usage.total", nil, int64(stats.Usage)),
+		// See discussion at https://github.com/signalfx/signalfx-agent/issues/1009
+		sfxclient.Gauge("memory.usage.total", nil, int64(stats.Usage-bufferCacheUsage)),
 	}...)
 
 	// Except two metrics above, everything else will be added only when enhnacedMetrics is enabled
