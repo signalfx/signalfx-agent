@@ -68,6 +68,7 @@ RPM_DISTROS = [
     ("amazonlinux2", INIT_SYSTEMD),
     ("centos6", INIT_UPSTART),
     ("centos7", INIT_SYSTEMD),
+    ("centos8", INIT_SYSTEMD),
     ("opensuse15", INIT_SYSTEMD),
 ]
 
@@ -117,6 +118,8 @@ def run_chef_client(cont, chef_version, agent_version, stage):
 )
 @pytest.mark.parametrize("chef_version", CHEF_VERSIONS)
 def test_chef(base_image, init_system, chef_version):
+    if base_image == "centos8" and chef_version != "latest" and int(chef_version.split(".")[0]) < 15:
+        pytest.skip(f"chef {chef_version} not supported on centos 8")
     buildargs = {"CHEF_INSTALLER_ARGS": ""}
     if chef_version != "latest":
         buildargs["CHEF_INSTALLER_ARGS"] = f"-v {chef_version}"
