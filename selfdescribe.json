@@ -28647,7 +28647,7 @@
       "monitorType": "logstash",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors the health and performance of Logstash deployments through \nLogstash's [Monitoring APIs](https://www.elastic.co/guide/en/logstash/current/monitoring.html#monitoring-common-options).\n",
+      "doc": "Monitors the health and performance of Logstash deployments through \nLogstash's [Monitoring APIs](https://www.elastic.co/guide/en/logstash/current/monitoring-logstash.html).\n",
       "groups": {
         "events": {
           "description": "Events metrics",

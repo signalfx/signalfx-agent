@@ -11,7 +11,7 @@ Monitor Type: `logstash` ([Source](https://github.com/signalfx/signalfx-agent/tr
 ## Overview
 
 Monitors the health and performance of Logstash deployments through 
-Logstash's [Monitoring APIs](https://www.elastic.co/guide/en/logstash/current/monitoring.html#monitoring-common-options).
+Logstash's [Monitoring APIs](https://www.elastic.co/guide/en/logstash/current/monitoring-logstash.html).
 
 
 ## Configuration
