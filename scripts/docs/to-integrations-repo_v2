@@ -4,15 +4,11 @@
 
 import copy
 import json
-import os
-import re
-import sys
 import yaml
 
 from collections import OrderedDict
 from jinja2 import Environment, FileSystemLoader
 from nltk.tokenize import sent_tokenize
-from pathlib import Path
 
 try:
     import nltk
@@ -22,13 +18,8 @@ except ImportError:
 
 nltk.download("punkt")
 
-SCRIPT_DIR = Path(__file__).parent.resolve()
-AGENT_ROOT = SCRIPT_DIR / "../.."
-AGENT_DOCS = AGENT_ROOT / "docs"
-
-INTEGRATIONS_REPO = Path(os.environ.get("INTEGRATIONS_REPO") or (AGENT_ROOT / "../integrations")).resolve()
-INTEGRATIONS_REPO_SMART_AGENT_DIR = INTEGRATIONS_REPO / "signalfx-agent"
-INTEGRATIONS_DOC_TEMPLATE_DIR = AGENT_ROOT / "scripts/docs/templates/"
+from integration_doc_helper import AGENT_ROOT, INTEGRATIONS_DOC_TEMPLATE_DIR, INTEGRATIONS_REPO
+from integration_doc_helper import fixup_relative_monitor_paths, sync_agent_info
 
 # Key is of the form <monitor/package/path:monitorType>, value is the
 # integration directory in the integrations repo where metrics should go (not
@@ -64,6 +55,7 @@ MONITORS_TO_INTEGRATIONS_DIR = {
     ("internal/monitors/collectd/zookeeper", "collectd/zookeeper"): "zookeeper",
     ("internal/monitors/logstash/logstash", "logstash"): "logstash",
     ("internal/monitors/logstash/tcp", "logstash-tcp"): "logstash",
+    ("internal/monitors/internalmetrics", "internal-metrics"): "signalfx-agent",
 }
 
 
@@ -157,24 +149,6 @@ def monitor_docs_per_integrations_repo(monitor_docs):
     return out
 
 
-RELATIVE_LINK_PATTERN = re.compile(r"(\[.*?\])\((\.\.?/.+?)\)", flags=re.DOTALL)
-
-
-def fixup_relative_paths(absolute_path, content):
-    """
-    Only works for links within the specified absolute path
-    """
-    return RELATIVE_LINK_PATTERN.sub(absolute_path, content)
-
-
-def fixup_relative_monitor_paths(content):
-    """
-    Replaces relative links within the scope of monitor
-    docs with respective github links
-    """
-    return fixup_relative_paths(r"\1(https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/\2)", content)
-
-
 def get_jinja_env():
     j2_env = Environment(loader=FileSystemLoader(str(INTEGRATIONS_DOC_TEMPLATE_DIR)), trim_blocks=True)
 
@@ -193,11 +167,16 @@ def get_template():
 
 
 def sync_docs(integration_dirs):
+    integrations_dirs_to_skip = set(["signalfx-agent"])
     template = get_template()
 
     for integrations_dir, monitors_info in integration_dirs.items():
+        if integrations_dir in integrations_dirs_to_skip:
+            continue
+
         out = template.render(integration=monitors_info)
 
+        print(f"Syncing docs to {integrations_dir} directory")
         target_path = INTEGRATIONS_REPO / integrations_dir / "SMART_AGENT_MONITOR.md"
         target_path.write_text(fixup_relative_monitor_paths(out), encoding="utf-8", )
 
@@ -219,7 +198,7 @@ def generate_metric_yaml(monitor, metrics, send_all):
             "metric_type": metric["type"],
         }
 
-    out = "# This file was generated in the Smart Agent repo and copied here, DO NOT EDIT HERE.\n"
+    out = "\n"
     # Add a blank line in between each metric descriptor.
     for name, met in sorted(processed_metrics.items(), key=lambda t: t[0]):
         out += yaml.dump({name: met})
@@ -229,15 +208,22 @@ def generate_metric_yaml(monitor, metrics, send_all):
 
 def sync_metrics(integration_dirs):
     for integrations_dir, monitors_info in integration_dirs.items():
+        metric_yaml = ""
         for monitor, monitor_metrics in monitors_info.get("metrics", {}).items():
             if not monitor_metrics:
                 continue
 
             is_send_all_metrics = monitors_info.get("send_all_metrics", {}).get(monitor, False)
-            metric_yaml = generate_metric_yaml(monitor, monitor_metrics, is_send_all_metrics)
+            metric_yaml += generate_metric_yaml(monitor, monitor_metrics, is_send_all_metrics)
 
-            out_path = INTEGRATIONS_REPO / integrations_dir / "metrics.yaml"
-            out_path.write_text(metric_yaml, encoding="utf-8")
+        if metric_yaml == "":
+            continue
+
+        print(f"Syncing metrics to {integrations_dir} directory")
+
+        metric_yaml = "# This file was generated in the Smart Agent repo and copied here, DO NOT EDIT HERE.\n" + metric_yaml
+        out_path = INTEGRATIONS_REPO / integrations_dir / "metrics.yaml"
+        out_path.write_text(metric_yaml, encoding="utf-8")
 
 
 def run():
@@ -246,6 +232,8 @@ def run():
 
     sync_docs(integration_dirs)
     sync_metrics(integration_dirs)
+
+    sync_agent_info()
 
 
 if __name__ == "__main__":
