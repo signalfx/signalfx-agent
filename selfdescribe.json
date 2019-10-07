@@ -27136,6 +27136,18 @@
             "kubernetes.stateful_set.ready",
             "kubernetes.stateful_set.updated"
           ]
+        },
+        "hpa": {
+          "description": "",
+          "metrics": [
+            "kubernetes.hpa.spec.max_replicas",
+            "kubernetes.hpa.spec.min_replicas",
+            "kubernetes.hpa.status.condition.able_to_scale",
+            "kubernetes.hpa.status.condition.scaling_active",
+            "kubernetes.hpa.status.condition.scaling_limited",
+            "kubernetes.hpa.status.current_replicas",
+            "kubernetes.hpa.status.desired_replicas"
+          ]
         }
       },
       "metrics": {
@@ -27192,6 +27204,48 @@
           "description": "Number of desired pods in this deployment",
           "group": null,
           "default": true
+        },
+        "kubernetes.hpa.spec.max_replicas": {
+          "type": "gauge",
+          "description": "The upper limit for the number of replicas to which the autoscaler can scale up. It cannot be less that minReplicas.",
+          "group": "hpa",
+          "default": false
+        },
+        "kubernetes.hpa.spec.min_replicas": {
+          "type": "gauge",
+          "description": "The lower limit for the number of replicas to which the autoscaler can scale down. It defaults to 1 pod.",
+          "group": "hpa",
+          "default": false
+        },
+        "kubernetes.hpa.status.condition.able_to_scale": {
+          "type": "gauge",
+          "description": "A status value that indicates the autoscaler status in reference to the AbleToScale condition. A value of 1 means that the autoscaler is in the AbleToScale condition, a 0 value means that it is not, and -1 means that the status of the AbleToScale condition is unknown. AbleToScale indicates a lack of transient issues which prevent scaling from occurring, such as being in a backoff window, or being unable to access/update the target scale.",
+          "group": "hpa",
+          "default": false
+        },
+        "kubernetes.hpa.status.condition.scaling_active": {
+          "type": "gauge",
+          "description": "A status value that indicates the autoscaler status in reference to the ScalingActive condition. A value of 1 means that the autoscaler is in the ScalingActive condition, a 0 value means that it is not, and -1 means that the status of the ScalingActive condition is unknown. ScalingActive indicates that the HPA controller is able to scale if necessary.",
+          "group": "hpa",
+          "default": false
+        },
+        "kubernetes.hpa.status.condition.scaling_limited": {
+          "type": "gauge",
+          "description": "A status value that indicates the autoscaler status in reference to the ScalingLimited condition. A value of 1 means that the autoscaler is in the ScalingLimited condition, a 0 value means that it is not, and -1 means that the status of the ScalingLimited condition is unknown. ScalingLimited indicates that the calculated scale based on metrics would be above or below the range for the HPA, and has thus been capped.",
+          "group": "hpa",
+          "default": false
+        },
+        "kubernetes.hpa.status.current_replicas": {
+          "type": "gauge",
+          "description": "The current number of pod replicas managed by this autoscaler.",
+          "group": "hpa",
+          "default": false
+        },
+        "kubernetes.hpa.status.desired_replicas": {
+          "type": "gauge",
+          "description": "The desired number of pod replicas managed by this autoscaler.",
+          "group": "hpa",
+          "default": false
         },
         "kubernetes.job.active": {
           "type": "gauge",
@@ -27267,13 +27321,13 @@
         },
         "kubernetes.resource_quota_hard": {
           "type": "gauge",
-          "description": "The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
+          "description": "The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified. CPU requests/limits will be sent as millicores.",
           "group": null,
           "default": true
         },
         "kubernetes.resource_quota_used": {
           "type": "gauge",
-          "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
+          "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified. CPU requests/limits will be sent as millicores.",
           "group": null,
           "default": true
         },
@@ -29633,6 +29687,18 @@
             "openshift.clusterquota.services.nodeports.used",
             "openshift.clusterquota.services.used"
           ]
+        },
+        "hpa": {
+          "description": "",
+          "metrics": [
+            "kubernetes.hpa.spec.max_replicas",
+            "kubernetes.hpa.spec.min_replicas",
+            "kubernetes.hpa.status.condition.able_to_scale",
+            "kubernetes.hpa.status.condition.scaling_active",
+            "kubernetes.hpa.status.condition.scaling_limited",
+            "kubernetes.hpa.status.current_replicas",
+            "kubernetes.hpa.status.desired_replicas"
+          ]
         }
       },
       "metrics": {
@@ -29689,6 +29755,48 @@
           "description": "Number of desired pods in this deployment",
           "group": null,
           "default": true
+        },
+        "kubernetes.hpa.spec.max_replicas": {
+          "type": "gauge",
+          "description": "The upper limit for the number of replicas to which the autoscaler can scale up. It cannot be less that minReplicas.",
+          "group": "hpa",
+          "default": false
+        },
+        "kubernetes.hpa.spec.min_replicas": {
+          "type": "gauge",
+          "description": "The lower limit for the number of replicas to which the autoscaler can scale down. It defaults to 1 pod.",
+          "group": "hpa",
+          "default": false
+        },
+        "kubernetes.hpa.status.condition.able_to_scale": {
+          "type": "gauge",
+          "description": "A status value that indicates the autoscaler status in reference to the AbleToScale condition. A value of 1 means that the autoscaler is in the AbleToScale condition, a 0 value means that it is not, and -1 means that the status of the AbleToScale condition is unknown. AbleToScale indicates a lack of transient issues which prevent scaling from occurring, such as being in a backoff window, or being unable to access/update the target scale.",
+          "group": "hpa",
+          "default": false
+        },
+        "kubernetes.hpa.status.condition.scaling_active": {
+          "type": "gauge",
+          "description": "A status value that indicates the autoscaler status in reference to the ScalingActive condition. A value of 1 means that the autoscaler is in the ScalingActive condition, a 0 value means that it is not, and -1 means that the status of the ScalingActive condition is unknown. ScalingActive indicates that the HPA controller is able to scale if necessary.",
+          "group": "hpa",
+          "default": false
+        },
+        "kubernetes.hpa.status.condition.scaling_limited": {
+          "type": "gauge",
+          "description": "A status value that indicates the autoscaler status in reference to the ScalingLimited condition. A value of 1 means that the autoscaler is in the ScalingLimited condition, a 0 value means that it is not, and -1 means that the status of the ScalingLimited condition is unknown. ScalingLimited indicates that the calculated scale based on metrics would be above or below the range for the HPA, and has thus been capped.",
+          "group": "hpa",
+          "default": false
+        },
+        "kubernetes.hpa.status.current_replicas": {
+          "type": "gauge",
+          "description": "The current number of pod replicas managed by this autoscaler.",
+          "group": "hpa",
+          "default": false
+        },
+        "kubernetes.hpa.status.desired_replicas": {
+          "type": "gauge",
+          "description": "The desired number of pod replicas managed by this autoscaler.",
+          "group": "hpa",
+          "default": false
         },
         "kubernetes.job.active": {
           "type": "gauge",
@@ -29764,13 +29872,13 @@
         },
         "kubernetes.resource_quota_hard": {
           "type": "gauge",
-          "description": "The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
+          "description": "The upper limit for a particular resource in a specific namespace.  Will only be sent if a quota is specified. CPU requests/limits will be sent as millicores.",
           "group": null,
           "default": true
         },
         "kubernetes.resource_quota_used": {
           "type": "gauge",
-          "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified.  CPU requests/limits will be sent as millicores.",
+          "description": "The usage for a particular resource in a specific namespace.  Will only be sent if a quota is specified. CPU requests/limits will be sent as millicores.",
           "group": null,
           "default": true
         },
