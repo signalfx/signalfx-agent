@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"k8s.io/api/autoscaling/v2beta1"
+
 	"k8s.io/client-go/rest"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/cluster/metrics"
@@ -76,6 +78,7 @@ func (cs *State) Start() {
 		cs.beginSyncForType(ctx, &quota.ClusterResourceQuota{}, "clusterresourcequotas", v1.NamespaceAll,
 			cs.quotaClient.RESTClient())
 	}
+	v2beta1Client := cs.clientset.AutoscalingV2beta1().RESTClient()
 
 	cs.beginSyncForType(ctx, &v1.Pod{}, "pods", cs.namespace, coreClient)
 	cs.beginSyncForType(ctx, &v1beta1.DaemonSet{}, "daemonsets", cs.namespace, extV1beta1Client)
@@ -93,6 +96,7 @@ func (cs *State) Start() {
 		cs.beginSyncForType(ctx, &v1.Node{}, "nodes", "", coreClient)
 		cs.beginSyncForType(ctx, &v1.Namespace{}, "namespaces", "", coreClient)
 	}
+	cs.beginSyncForType(ctx, &v2beta1.HorizontalPodAutoscaler{}, "horizontalpodautoscalers", cs.namespace, v2beta1Client)
 }
 
 func (cs *State) beginSyncForType(ctx context.Context, resType runtime.Object, resName string, namespace string, client cache.Getter) {

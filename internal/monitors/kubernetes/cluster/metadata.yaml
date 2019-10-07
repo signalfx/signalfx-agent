@@ -101,13 +101,13 @@ common:
       type: gauge
     kubernetes.resource_quota_hard:
       description: The upper limit for a particular resource in a specific namespace.  Will
-        only be sent if a quota is specified.  CPU requests/limits will be sent as
+        only be sent if a quota is specified. CPU requests/limits will be sent as
         millicores.
       default: true
       type: gauge
     kubernetes.resource_quota_used:
       description: The usage for a particular resource in a specific namespace.  Will
-        only be sent if a quota is specified.  CPU requests/limits will be sent as
+        only be sent if a quota is specified. CPU requests/limits will be sent as
         millicores.
       default: true
       type: gauge
@@ -158,6 +158,51 @@ common:
       description: The number of actively running jobs for a cronjob.
       default: false
       type: gauge
+    kubernetes.hpa.spec.max_replicas:
+      description: The upper limit for the number of replicas to which the autoscaler can scale up. It cannot be less that minReplicas.
+      default: false
+      type: gauge
+      group: hpa
+    kubernetes.hpa.spec.min_replicas:
+      description: The lower limit for the number of replicas to which the autoscaler can scale down. It defaults to 1 pod.
+      default: false
+      type: gauge
+      group: hpa
+    kubernetes.hpa.status.current_replicas:
+      description: The current number of pod replicas managed by this autoscaler.
+      default: false
+      type: gauge
+      group: hpa
+    kubernetes.hpa.status.desired_replicas:
+      description: The desired number of pod replicas managed by this autoscaler.
+      default: false
+      type: gauge
+      group: hpa
+    kubernetes.hpa.status.condition.scaling_active:
+      description: 'A status value that indicates the autoscaler status in reference to the ScalingActive condition.
+      A value of 1 means that the autoscaler is in the ScalingActive condition, a 0 value means that it is not, and -1
+      means that the status of the ScalingActive condition is unknown. ScalingActive indicates that the HPA controller
+      is able to scale if necessary.'
+      default: false
+      type: gauge
+      group: hpa
+    kubernetes.hpa.status.condition.able_to_scale:
+      description: 'A status value that indicates the autoscaler status in reference to the AbleToScale condition.
+        A value of 1 means that the autoscaler is in the AbleToScale condition, a 0 value means that it is not, and -1
+        means that the status of the AbleToScale condition is unknown. AbleToScale indicates a lack of transient issues
+        which prevent scaling from occurring, such as being in a backoff window, or being unable to access/update the
+        target scale.'
+      default: false
+      type: gauge
+      group: hpa
+    kubernetes.hpa.status.condition.scaling_limited:
+      description: 'A status value that indicates the autoscaler status in reference to the ScalingLimited condition.
+        A value of 1 means that the autoscaler is in the ScalingLimited condition, a 0 value means that it is not, and -1
+        means that the status of the ScalingLimited condition is unknown. ScalingLimited indicates that the calculated
+        scale based on metrics would be above or below the range for the HPA, and has thus been capped.'
+      default: false
+      type: gauge
+      group: hpa
   properties:
     <node label>:
       description: All non-blank labels on a given node will be synced as properties
