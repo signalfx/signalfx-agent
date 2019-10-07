@@ -20,7 +20,6 @@ that turns events into metrics.
 
 You can only use auto-discovery when this monitor is in `client` mode.
 
-<!--- SETUP --->
 ### Example Logstash Config
 
 This is a somewhat contrived example that shows the use of both `timer` and
@@ -73,6 +72,7 @@ filter {
       # The name of the meter will be used to construct the name of the metric
       # in SignalFx.  For this example, a datapoint called `logins.count` would
       # be generated.
+      meter => "logins"
       add_tag => "metric"
     }
   }
@@ -93,6 +93,9 @@ output {
   }
 }
 ```
+Once Logstash is configured with the above configuration. The logstash-tcp monitor
+will collect `logins.count` and `process_time.<timer_field>`. See config options
+for default
 
 
 ## Configuration
