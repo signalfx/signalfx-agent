@@ -40,25 +40,25 @@ func datapointsForContainerSpec(c v1.Container, contDims map[string]string) []*d
 
 	dps := []*datapoint.Datapoint{
 		datapoint.New(
-			"kubernetes.container_cpu.request",
+			"kubernetes.container_cpu_request",
 			contDims,
 			datapoint.NewIntValue(c.Resources.Limits.Cpu().Value()),
 			datapoint.Gauge,
 			time.Now()),
 		datapoint.New(
-			"kubernetes.container_memory.request",
+			"kubernetes.container_memory_request",
 			contDims,
 			datapoint.NewIntValue(c.Resources.Limits.Memory().Value()),
 			datapoint.Gauge,
 			time.Now()),
 		datapoint.New(
-			"kubernetes.container_cpu.limit",
+			"kubernetes.container_cpu_limit",
 			contDims,
 			datapoint.NewIntValue(c.Resources.Limits.Cpu().Value()),
 			datapoint.Gauge,
 			time.Now()),
 		datapoint.New(
-			"kubernetes.container_memory.limit",
+			"kubernetes.container_memory_limit",
 			contDims,
 			datapoint.NewIntValue(c.Resources.Limits.Memory().Value()),
 			datapoint.Gauge,

@@ -212,6 +212,7 @@ func (dc *DatapointCache) handleAddPod(pod *v1.Pod) ([]*datapoint.Datapoint,
 	}
 	cachedPod := dc.podCache.GetCachedPod(pod.UID)
 	dps := datapointsForPod(pod)
+
 	if cachedPod != nil {
 		dimProps := dimPropsForPod(cachedPod, dc.serviceCache, dc.replicaSetCache, dc.jobCache)
 		return dps, dimProps

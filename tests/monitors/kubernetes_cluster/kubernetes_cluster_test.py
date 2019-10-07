@@ -279,10 +279,10 @@ def test_deployments(k8s_cluster):
 
 
 CONTAINER_COMPUTE_RESOURCE_METRICS = [
-    "kubernetes.container_cpu.limit",
-    "kubernetes.container_cpu.request",
-    "kubernetes.container_memory.limit",
-    "kubernetes.container_memory.request",
+    "kubernetes.container_cpu_limit",
+    "kubernetes.container_cpu_request",
+    "kubernetes.container_memory_limit",
+    "kubernetes.container_memory_request",
 ]
 
 

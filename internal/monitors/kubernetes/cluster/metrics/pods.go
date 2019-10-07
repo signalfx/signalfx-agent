@@ -39,7 +39,6 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 		containersInPodByName[cs.Name] = contDims
 
 		dps = append(dps, datapointsForContainerStatus(cs, contDims)...)
-
 	}
 
 	for _, c := range pod.Spec.Containers {
