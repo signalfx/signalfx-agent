@@ -112,11 +112,83 @@ def process_metrics_from_self_describe(monitor_type, metrics):
     return {monitor_type: [append_metric_name(m, n) for m, n in metrics.items()]}
 
 
-def monitor_docs_per_integrations_repo(monitor_docs):
+def process_config_field(field):
+    if field.get("type").startswith("int") or field.get("type").startswith("uint"):
+        field["type"] = "integer"
+    elif field.get("type") == "slice":
+        field["type"] = "list"
+    elif field.get("type") == "struct":
+        field["type"] = "object"
+
+    if field.get("elementKind").startswith("int") or field.get("elementKind").startswith("uint"):
+        field["type"] = "integer"
+    elif field.get("elementKind") == "struct":
+        field["elementKind"] = "object"
+
+    # To stringify boolean defaults
+    if isinstance(field["default"], bool):
+        field["default"] = str(field["default"]).lower()
+
+    # To stringify int defaults
+    if isinstance(field["default"], int):
+        field["default"] = str(field["default"])
+
+    if isinstance(field["default"], list):
+        field["default"] = str(field["default"]).replace("'", "")
+
+    processed_field = copy.deepcopy(field)
+    return processed_field
+
+
+def process_config_fields_helper(config, yamlname="Config"):
     """
+    Processes config fields for a monitor. Specifically,
+    this method enumerates nested config fields to simplify
+    config table construction in the template
+    """
+
+    # key represents a table (nested field) in the config and
+    # the value consists of relevant config fields that constitute
+    # the table. Non-nested config fields are grouped  into
+    # "Config", following the convention in selfdescribe.json
+    processed_config = OrderedDict({
+        yamlname: [],
+    })
+
+    for field in config.get("fields", []):
+        # Add the current field to the table defined by yamlname
+        processed_config[yamlname].append(process_config_field(field))
+
+        # Recurse into nested config
+        if field.get("elementKind", None) and field.get("elementStruct", None) is not None:
+            processed_config.update(process_config_fields_helper(field.get("elementStruct"), field.get("yamlName")))
+
+    # Return empty dictionary if there are no config options
+    if len(processed_config.get(yamlname)) == 0:
+        processed_config.clear()
+
+    return processed_config
+
+
+def process_config_fields(config):
+    return process_config_fields_helper(config)
+
+
+def monitor_docs_per_integrations_repo(monitor_docs):
+    """s
      Returns a dict which is a processed version of
      selfdescribe for easy consumption by Jinja2 template
     """
+
+    # {% set required = "no" %}
+    # # {% if field.required %}
+    # # {% set required = "**yes**" %}
+    # # {% endif %}
+    # {% set default = "" %}
+    # {% if field.default %}
+    # {% set default = "(**default:**) `{}`.format(field.default) %}
+    # {% endif %}
+
     out = {}
 
     for monitor_doc in monitor_docs:
@@ -140,7 +212,7 @@ def monitor_docs_per_integrations_repo(monitor_docs):
         out[integrations_dir]["monitor_types"].append(monitor_type)
         out[integrations_dir]["send_all_metrics"].update({monitor_type: monitor_doc["sendAll"]})
         out[integrations_dir]["description"].update({monitor_type: monitor_doc["doc"]})
-        out[integrations_dir]["configuration"].update({monitor_type: monitor_doc["config"]})
+        out[integrations_dir]["configuration"].update({monitor_type: process_config_fields(monitor_doc["config"])})
         out[integrations_dir]["metrics"].update(
             process_metrics_from_self_describe(monitor_type, monitor_doc["metrics"]))
         out[integrations_dir]["dimensions"].update({monitor_type: monitor_doc["dimensions"]})

@@ -39,11 +39,29 @@ monitors:  # All monitor config goes under this key
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**
 
-TODO: Build Config options table
 
+{% if configuration.values() %}
+{% for table, fields in configuration.items() %}
+{% if table != "Config" %}
+
+
+The **nested** `{{ table }}` config object has the following fields:
+
+{% endif %}
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+{% for field in fields %}
+| `{{ field.yamlName }}` | {% if field.required %}**yes**{% else %}no{% endif %} | {% if field.elementKind %}`{{ field.type }} of {{ field.elementKind }}s{% if field.elementKind == "object" %} (see below){% endif %}`{% else %}`{{ field.type }}{% if field.type == "object" %} (see below){% endif %}`{% endif %} | {{ field.doc }}{% if field.default %} (**default:** `{{ field.default }}`){% endif %} |
+{% endfor %}
+{% endfor %}
+{% else %}
+This monitor has no configuration options.
+{% endif %}
 {% endfor %}
 
+{% set send_all_metrics = integration.send_all_metrics|send_all_metrics_from_all_monitors %}
 {% if integration.metrics|has_atleast_one_monitor_with_section %}
+
 ## Metrics
 
 {% if  integration.send_all_metrics|send_all_metrics_from_all_monitors %}
@@ -69,18 +87,17 @@ the non-default metrics below can be turned on by adding `{{ group }}` to the
 monitor config option `extraGroups`:
 {% endif %}
 {% for metric in metrics %}
-{{ " "|safe }}- {% if metric.default %}***`{{ metric.name }}`***{% else %}`{{ metric.name }}`{% endif %} (*{{ metric.type }}*)<br>{{ metric.description|indent(4, True) }}
+{% set description = "" %}
+{% if metric.description %}
+{% set description = metric.description|indent(4, True) %}
+{% endif %}
+{{ " "|safe }}- {% if metric.default %}***`{{ metric.name }}`***{% else %}`{{ metric.name }}`{% endif %} (*{{ metric.type }}*)<br>{{ description }}
 {% endfor %}
 {% endfor %}
 {% endif %}
 {% endfor %}
 
-{% set send_all_metrics = integration.send_all_metrics|send_all_metrics_from_all_monitors %}
-{% if send_all_metrics %}
-The agent does not do any built-in filtering of metrics coming out of this
-monitor.
-{%- else -%}
-
+{% if not send_all_metrics %}
 ### Non-default metrics (version 4.7.0+)
 
 **The following information applies to the agent version 4.7.0+ that has
@@ -109,6 +126,10 @@ filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
 copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
 
 {% endif %}
+{% endif %}
+{% if send_all_metrics %}
+The agent does not do any built-in filtering of metrics coming out of {% if not has_multiple_monitors %}this
+monitor{% else %}these monitors{% endif %}.
 {% endif %}
 
 {%- if integration.dimensions|has_atleast_one_monitor_with_section %}
