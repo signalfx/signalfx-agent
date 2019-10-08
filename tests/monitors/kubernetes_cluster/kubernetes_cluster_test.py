@@ -223,7 +223,6 @@ def test_cronjobs(k8s_cluster):
             )
 
 
-<<<<<<< HEAD
 @pytest.mark.kubernetes
 def test_pods(k8s_cluster):
     config = """
@@ -278,7 +277,7 @@ def test_deployments(k8s_cluster):
             )
 
 
-CONTAINER_COMPUTE_RESOURCE_METRICS = [
+CONTAINER_METRICS = [
     "kubernetes.container_cpu_limit",
     "kubernetes.container_cpu_request",
     "kubernetes.container_memory_limit",
@@ -287,18 +286,34 @@ CONTAINER_COMPUTE_RESOURCE_METRICS = [
 
 
 @pytest.mark.kubernetes
-def test_container_compute_resouorce_metrics(k8s_cluster):
+def test_containers(k8s_cluster):
     config = f"""
     monitors:
      - type: kubernetes-cluster
        extraMetrics:
-        - {CONTAINER_COMPUTE_RESOURCE_METRICS[0]}
-        - {CONTAINER_COMPUTE_RESOURCE_METRICS[1]}
-        - {CONTAINER_COMPUTE_RESOURCE_METRICS[2]}
-        - {CONTAINER_COMPUTE_RESOURCE_METRICS[3]}
+        - {CONTAINER_METRICS[0]}
+        - {CONTAINER_METRICS[1]}
+        - {CONTAINER_METRICS[2]}
+        - {CONTAINER_METRICS[3]}
     """
-    yamls = [SCRIPT_DIR / "resource_quota.yaml", TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
+    yamls = [TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
     with k8s_cluster.create_resources(yamls):
+        pods = k8s_client.CoreV1Api().list_namespaced_pod(
+            k8s_cluster.test_namespace, watch=False, label_selector="app=nginx"
+        )
         with k8s_cluster.run_agent(agent_yaml=config) as agent:
-            for metric in CONTAINER_COMPUTE_RESOURCE_METRICS:
-                assert wait_for(p(has_datapoint, agent.fake_services, metric_name=metric))
+            for pod in pods.items:
+                for container_status in pod.status.container_statuses:
+                    for metric in CONTAINER_METRICS:
+                        assert wait_for(
+                            p(
+                                has_datapoint,
+                                agent.fake_services,
+                                metric_name=metric,
+                                dimensions={
+                                    "container_id": container_status.container_id.replace("docker://", "").replace(
+                                        "cri-o://", ""
+                                    )
+                                },
+                            )
+                        )
