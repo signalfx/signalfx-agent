@@ -52,10 +52,6 @@ func datapointsForHpa(hpa *v2beta1.HorizontalPodAutoscaler) []*datapoint.Datapoi
 func dimPropsForHpa(hpa *v2beta1.HorizontalPodAutoscaler) *types.DimProperties {
 	props, tags := k8sutils.PropsAndTagsFromLabels(hpa.Labels)
 
-	//props["kubernetes_workload"] = "HorizontalPodAutoscaler"
-	//props["current_revision"] = hpa.Status.CurrentRevision
-	//props["update_revision"] = hpa.Status.UpdateRevision
-
 	for _, or := range hpa.OwnerReferences {
 		props["kubernetes_workload"] = or.Kind
 		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
