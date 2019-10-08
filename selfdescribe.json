@@ -10821,7 +10821,6 @@
         "": {
           "description": "",
           "metrics": [
-            "gauge.marathon-api-metric",
             "gauge.marathon.app.cpu.allocated",
             "gauge.marathon.app.cpu.allocated.per.instance",
             "gauge.marathon.app.delayed",
@@ -10844,12 +10843,6 @@
         }
       },
       "metrics": {
-        "gauge.marathon-api-metric": {
-          "type": "gauge",
-          "description": "Metrics reported by the Marathon Metrics API",
-          "group": null,
-          "default": false
-        },
         "gauge.marathon.app.cpu.allocated": {
           "type": "gauge",
           "description": "Number of CPUs allocated to an application",
