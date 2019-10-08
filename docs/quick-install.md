@@ -99,6 +99,7 @@ To install the Smart Agent on a single Windows host, enter:
 & {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "<TOKEN>"; ingest_url = "https://ingest.<REALM>.signalfx.com"; api_url = "https://api.<REALM>.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
 ```
 
+
 The agent will be installed as a Windows service and will log to the Windows Event Log.
 
 
