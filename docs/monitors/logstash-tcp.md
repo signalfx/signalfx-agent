@@ -95,7 +95,7 @@ output {
 ```
 Once Logstash is configured with the above configuration. The logstash-tcp monitor
 will collect `logins.count` and `process_time.<timer_field>`. See config options
-for default
+for default values.
 
 
 ## Configuration
