@@ -41,6 +41,7 @@ MONITORS_TO_INTEGRATIONS_DIR = {
     ("internal/monitors/collectd/jenkins", "collectd/jenkins"): "jenkins",
     ("internal/monitors/collectd/kafka", "collectd/kafka"): "kafka",
     ("internal/monitors/collectd/kong", "collectd/kong"): "kong",
+    ("internal/monitors/collectd/marathon", "collectd/marathon"): "marathon",
     ("internal/monitors/collectd/memcached", "collectd/memcached"): "memcached",
     ("internal/monitors/collectd/mongodb", "collectd/mongodb"): "mongodb",
     ("internal/monitors/collectd/mysql", "collectd/mysql"): "mysql",
