@@ -29,10 +29,6 @@ monitors:
         dcosAuthURL: https://leader.mesos/acs/api/v1/auth/login
     ```
   metrics:
-    gauge.marathon-api-metric:
-      description: Metrics reported by the Marathon Metrics API
-      default: false
-      type: gauge
     gauge.marathon.app.cpu.allocated:
       description: Number of CPUs allocated to an application
       default: true

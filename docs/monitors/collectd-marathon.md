@@ -73,7 +73,6 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - `gauge.marathon-api-metric` (*gauge*)<br>    Metrics reported by the Marathon Metrics API
  - ***`gauge.marathon.app.cpu.allocated`*** (*gauge*)<br>    Number of CPUs allocated to an application
  - ***`gauge.marathon.app.cpu.allocated.per.instance`*** (*gauge*)<br>    Configured number of CPUs allocated to each application instance
  - `gauge.marathon.app.delayed` (*gauge*)<br>    Indicates if the application is delayed or not
