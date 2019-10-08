@@ -4,6 +4,8 @@ import (
 	"errors"
 	"sync"
 
+	"k8s.io/api/autoscaling/v2beta1"
+
 	"github.com/davecgh/go-spew/spew"
 	quota "github.com/openshift/api/quota/v1"
 	"github.com/signalfx/golib/datapoint"
@@ -111,6 +113,7 @@ func (dc *DatapointCache) HandleDelete(oldObj runtime.Object) interface{} {
 
 // HandleAdd accepts a new (or updated) object and updates the datapoint/prop
 // cache as needed.  MUST HOLD LOCK!!
+// nolint: funlen
 func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 	var dps []*datapoint.Datapoint
 	var dimProps *atypes.DimProperties
@@ -161,6 +164,10 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 		dps = datapointsForCronJob(o)
 		dimProps = dimPropsForCronJob(o)
 		kind = "CronJob"
+	case *v2beta1.HorizontalPodAutoscaler:
+		dps = datapointsForHpa(o)
+		dimProps = dimPropsForHpa(o)
+		kind = "HorizontalPodAutoscaler"
 	default:
 		log.WithFields(log.Fields{
 			"obj": spew.Sdump(newObj),
