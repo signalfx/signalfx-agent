@@ -61,7 +61,7 @@ MONITORS_TO_INTEGRATIONS_DIR = {
 
 
 def load_monitor_docs_from_self_describe_json():
-    with open(AGENT_ROOT / "selfdescribe.json", "r") as self_describe_json:
+    with open(AGENT_ROOT / "selfdescribe.json", "r", encoding="utf-8") as self_describe_json:
         self_describe = json.load(self_describe_json)
 
     assert "Monitors" in self_describe

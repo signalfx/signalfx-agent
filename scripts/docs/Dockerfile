@@ -10,5 +10,6 @@ WORKDIR /opt/agent
 COPY docs/ ./docs/
 COPY scripts/docs/ ./scripts/docs/
 COPY internal/ ./internal/
+COPY selfdescribe.json selfdescribe.json
 
 RUN pip3 install -r ./scripts/docs/requirements.txt
