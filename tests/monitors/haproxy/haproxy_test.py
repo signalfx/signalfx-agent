@@ -5,7 +5,7 @@ import pytest
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import datapoints_have_some_or_all_dims, has_log_message, any_metric_found
 from tests.helpers.metadata import Metadata
-from tests.helpers.util import container_ip, run_service, ensure_always, container_hostname
+from tests.helpers.util import container_ip, run_service, ensure_always
 from tests.helpers.verify import verify
 
 pytestmark = [pytest.mark.haproxy, pytest.mark.monitor_with_endpoints]
