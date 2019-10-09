@@ -214,6 +214,10 @@ common:
         to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as
         tags on that same dimension.
       dimension: kubernetes_pod_uid
+    node_creation_timestamp:
+      description: CreationTimestamp is a timestamp representing the server time when the node was
+        created and is in UTC. This property is synced onto `kubernetes_node_uid`.
+      dimension: kubernetes_node_uid
 
 monitors:
 - <<: *common

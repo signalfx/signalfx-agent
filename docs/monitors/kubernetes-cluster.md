@@ -175,6 +175,7 @@ are set on the dimension values of the dimension specified.
 | ---  | ---       | ---         |
 | `<node label>` | `kubernetes_node_uid` | All non-blank labels on a given node will be synced as properties to the `kubernetes_node_uid` dimension value for that node. Any blank values will be synced as tags on that same dimension. |
 | `<pod label>` | `kubernetes_pod_uid` | Any labels with non-blank values on the pod will be synced as properties to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as tags on that same dimension. |
+| `node_creation_timestamp` | `kubernetes_node_uid` | CreationTimestamp is a timestamp representing the server time when the node was created and is in UTC. This property is synced onto `kubernetes_node_uid`. |
 
 
 
