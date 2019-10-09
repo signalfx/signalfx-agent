@@ -2,7 +2,7 @@ from functools import partial as p
 from pathlib import Path
 
 import pytest
-from tests.helpers.assertions import has_all_dim_props, has_datapoint
+from tests.helpers.assertions import has_all_dim_props, has_datapoint, has_dim_prop
 from tests.helpers.util import (
     ensure_always,
     get_default_monitor_metrics_from_selfdescribe,
@@ -243,3 +243,14 @@ def test_node_metrics_and_props(k8s_cluster):
                 )
 
             wait_for_assertion(p(has_props, node, expected_props))
+
+            assert wait_for(
+                p(
+                    has_dim_prop,
+                    agent.fake_services,
+                    dim_name="kubernetes_node_uid",
+                    dim_value=node.metadata.uid,
+                    prop_name="node_creation_timestamp",
+                ),
+                timeout_seconds=100,
+            )
