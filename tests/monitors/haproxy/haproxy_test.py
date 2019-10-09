@@ -5,7 +5,7 @@ import pytest
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import datapoints_have_some_or_all_dims, has_log_message, any_metric_found
 from tests.helpers.metadata import Metadata
-from tests.helpers.util import container_ip, run_service, ensure_always
+from tests.helpers.util import container_ip, run_service, ensure_always, container_hostname
 from tests.helpers.verify import verify
 
 pytestmark = [pytest.mark.haproxy, pytest.mark.monitor_with_endpoints]
@@ -33,7 +33,23 @@ def test_haproxy_default_metrics_from_stats_page(version):
              url: http://{host}:8080/stats?stats;csv
            """
         ) as agent:
+            verify(agent, EXPECTED_DEFAULTS - EXPECTED_DEFAULTS_FROM_SOCKET, 10)
+            assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
+
+@pytest.mark.parametrize("version", ["1.8"])
+def test_haproxy_default_metrics_from_stats_page_by_discovery_rule(version):
+    with run_service("haproxy", buildargs={"HAPROXY_VERSION": version}, name="haproxy", ports={8080: 8080}):
+        with Agent.run(
+            f"""
+           observers:
+           - type: docker
+           monitors:
+           - type: haproxy
+             discoveryRule: 'container_name == "haproxy"'
+             path: stats?stats;csv
+           """
+        ) as agent:
             verify(agent, EXPECTED_DEFAULTS - EXPECTED_DEFAULTS_FROM_SOCKET, 10)
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
@@ -51,7 +67,6 @@ def test_haproxy_default_and_status_metrics_from_stats_page(version):
              extraMetrics: [{status_metric}]
            """
         ) as agent:
-
             verify(agent, (EXPECTED_DEFAULTS | {status_metric}) - EXPECTED_DEFAULTS_FROM_SOCKET, 10)
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
