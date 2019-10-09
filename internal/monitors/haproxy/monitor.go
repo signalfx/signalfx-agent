@@ -33,9 +33,9 @@ type proxies map[string]bool
 // Config for this monitor
 func (m *Monitor) Configure(conf *Config) (err error) {
 	m.ctx, m.cancel = context.WithCancel(context.Background())
-	url, err := url.Parse(conf.URL)
+	url, err := url.Parse(conf.ScrapeURL())
 	if err != nil {
-		return fmt.Errorf("cannot parse url %s status. %v", conf.URL, err)
+		return fmt.Errorf("cannot parse url %s status. %v", conf.ScrapeURL(), err)
 	}
 	pxs := proxies{}
 	for _, p := range conf.Proxies {

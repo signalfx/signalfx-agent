@@ -266,7 +266,7 @@ func httpReader(conf *Config, method string) (io.ReadCloser, error) {
 		Timeout:   conf.Timeout,
 		Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: !conf.SSLVerify}},
 	}
-	req, err := http.NewRequest(method, conf.URL, nil)
+	req, err := http.NewRequest(method, conf.ScrapeURL(), nil)
 	if err != nil {
 		return nil, err
 	}
@@ -283,9 +283,9 @@ func httpReader(conf *Config, method string) (io.ReadCloser, error) {
 }
 
 func socketReader(conf *Config, cmd string) (io.ReadCloser, error) {
-	u, err := url.Parse(conf.URL)
+	u, err := url.Parse(conf.ScrapeURL())
 	if err != nil {
-		return nil, fmt.Errorf("cannot parse url %s status. %v", conf.URL, err)
+		return nil, fmt.Errorf("cannot parse url %s status. %v", conf.ScrapeURL(), err)
 	}
 	f, err := net.DialTimeout("unix", u.Path, conf.Timeout)
 	if err != nil {

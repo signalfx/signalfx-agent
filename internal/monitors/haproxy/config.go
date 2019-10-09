@@ -1,6 +1,7 @@
 package haproxy
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
@@ -9,7 +10,21 @@ import (
 // Config is the config for this monitor.
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
-	// URL on which to scrape HAProxy. Scheme `http://` for http-type and `unix://` socket-type urls.
+
+	// The host/ip address of the HAProxy instance.  This is used to construct
+	// the `url` option if not provided.
+	Host string `yaml:"host"`
+	// The port of the HAProxy instance's stats endpoint (if using HTTP).  This
+	// is used to construct the `url` option if not provided.
+	Port uint16 `yaml:"port"`
+	// Whether to connect on HTTPS or HTTP.  If you want to use a UNIX socket,
+	// then specify the `url` config option with the format `unix://...` and
+	// omit `host`, `port` and `useHTTPS`.
+	UseHTTPS bool `yaml:"useHTTPS"`
+
+	// URL on which to scrape HAProxy. Scheme `http://` for http-type and
+	// `unix://` socket-type urls.  If this is not provided, it will be derive
+	// from the `host`, `port`, and `useHTTPS` options.
 	URL string `yaml:"url" validate:"required"`
 	// Basic Auth username to use on each request, if any.
 	Username string `yaml:"username"`
@@ -22,4 +37,15 @@ type Config struct {
 	// A list of the pxname(s) and svname(s) to monitor (e.g. `["http-in", "server1", "backend"]`).
 	// If empty then metrics for all proxies will be reported.
 	Proxies []string `yaml:"proxies"`
+}
+
+func (c *Config) ScrapeURL() string {
+	if c.URL != "" {
+		return c.URL
+	}
+	scheme := "http"
+	if c.UseHTTPS {
+		scheme = "https"
+	}
+	return fmt.Sprintf("%s://%s:%d", scheme, c.Host, c.Port)
 }
