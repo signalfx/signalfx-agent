@@ -138,9 +138,11 @@ commands:
       - run:
           name: Install Kubectl
           command: |
-            [[ -f /home/circleci/bin/kubectl ]] && exit 0
-            wget -O /home/circleci/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/<< parameters.version >>/bin/linux/amd64/kubectl
-            chmod a+x /home/circleci/bin/kubectl
+            if [[ ! -f /home/circleci/bin/kubectl ]]; then
+                wget -O /home/circleci/bin/kubectl https://storage.googleapis.com/kubernetes-release/release/<< parameters.version >>/bin/linux/amd64/kubectl
+                chmod a+x /home/circleci/bin/kubectl
+            fi
+            sudo cp -f /home/circleci/bin/kubectl /usr/bin/kubectl
       - save_cache:
           key: "v4-kubectl-binary-<< parameters.version >>"
           paths:
@@ -157,11 +159,13 @@ commands:
       - run:
           name: Install Helm
           command: |
-            [[ -f /home/circleci/bin/helm ]] && exit 0
-            wget -O /tmp/helm.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-<< parameters.version >>-linux-amd64.tar.gz
-            tar -zxvf /tmp/helm.tar.gz -C /tmp
-            mv /tmp/linux-amd64/helm /home/circleci/bin/helm
-            chmod a+x /home/circleci/bin/helm
+            if [[ ! -f /home/circleci/bin/helm ]]; then
+                wget -O /tmp/helm.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-<< parameters.version >>-linux-amd64.tar.gz
+                tar -zxvf /tmp/helm.tar.gz -C /tmp
+                mv /tmp/linux-amd64/helm /home/circleci/bin/helm
+                chmod a+x /home/circleci/bin/helm
+            fi
+            sudo cp -f /home/circleci/bin/helm /usr/bin/helm
       - save_cache:
           key: "v3-helm-binary-<< parameters.version >>"
           paths:
@@ -199,9 +203,11 @@ commands:
           environment:
             MINIKUBE_VERSION: << parameters.version >>
           command: |
-            [[ -f /home/circleci/bin/minikube ]] && exit 0
-            wget -O /home/circleci/bin/minikube https://storage.googleapis.com/minikube/releases/${MINIKUBE_VERSION}/minikube-linux-amd64
-            chmod a+x /home/circleci/bin/minikube
+            if [[ ! -f /home/circleci/bin/minikube ]]; then
+                wget -O /home/circleci/bin/minikube https://storage.googleapis.com/minikube/releases/${MINIKUBE_VERSION}/minikube-linux-amd64
+                chmod a+x /home/circleci/bin/minikube
+            fi
+            sudo cp -f /home/circleci/bin/minikube /usr/bin/minikube
       - save_cache:
           key: "v1-minikube-binary-<< parameters.version >>"
           paths:
@@ -218,10 +224,12 @@ commands:
       - run:
           name: Install crictl
           command: |
-            [[ -f /home/circleci/bin/crictl ]] && exit 0
-            wget -O /tmp/crictl.tar.gz https://github.com/kubernetes-sigs/cri-tools/releases/download/<< parameters.version >>/crictl-<< parameters.version >>-linux-amd64.tar.gz
-            tar -zxvf /tmp/crictl.tar.gz -C /home/circleci/bin/
-            chmod a+x /home/circleci/bin/crictl
+            if [[ ! -f /home/circleci/bin/crictl ]]; then
+                wget -O /tmp/crictl.tar.gz https://github.com/kubernetes-sigs/cri-tools/releases/download/<< parameters.version >>/crictl-<< parameters.version >>-linux-amd64.tar.gz
+                tar -zxvf /tmp/crictl.tar.gz -C /home/circleci/bin/
+                chmod a+x /home/circleci/bin/crictl
+            fi
+            sudo cp -f /home/circleci/bin/crictl /usr/bin/crictl
       - save_cache:
           key: "v1-crictl-binary-<< parameters.version >>"
           paths:
@@ -282,7 +290,7 @@ commands:
                 mkdir -p $HOME/.minikube/config
                 cp test-services/minikube/config.json $HOME/.minikube/config/config.json
             fi
-            sudo "PATH=$PATH" -E /home/circleci/bin/minikube start --vm-driver=none --wait=true --kubernetes-version=<< parameters.k8s_version >> << parameters.options >>
+            sudo -E minikube start --vm-driver=none --wait=true --kubernetes-version=<< parameters.k8s_version >> << parameters.options >>
 
 jobs:
   build:
