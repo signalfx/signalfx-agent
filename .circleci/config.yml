@@ -440,7 +440,7 @@ jobs:
         default: false
     environment:
       K8S_VERSION: "<< parameters.k8s_version >>"
-      K8S_MIN_VERSION: "v1.9.0"
+      K8S_MIN_VERSION: "v1.12.0"
       K8S_MAX_VERSION: "v1.15.0"
       K8S_SFX_AGENT: "quay.io/signalfx/signalfx-agent-dev:latest"
       MARKERS: "kubernetes"
@@ -725,24 +725,6 @@ workflows:
       - k8s_integration_tests:
           name: "k8s_v1.12.0_integration_tests"
           k8s_version: "v1.12.0"
-          requires:
-            - build
-            - helm_check
-      - k8s_integration_tests:
-          name: "k8s_v1.11.0_integration_tests"
-          k8s_version: "v1.11.0"
-          requires:
-            - build
-            - helm_check
-      - k8s_integration_tests:
-          name: "k8s_v1.10.0_integration_tests"
-          k8s_version: "v1.10.0"
-          requires:
-            - build
-            - helm_check
-      - k8s_integration_tests:
-          name: "k8s_v1.9.0_integration_tests"
-          k8s_version: "v1.9.0"
           requires:
             - build
             - helm_check
