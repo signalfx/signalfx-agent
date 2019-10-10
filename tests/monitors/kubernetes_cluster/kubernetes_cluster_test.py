@@ -2,8 +2,13 @@ from functools import partial as p
 from pathlib import Path
 import pytest
 
-from tests.helpers.assertions import any_dim_val_has_prop, has_all_dim_props, has_datapoint
-from tests.helpers.util import ensure_always, get_default_monitor_metrics_from_selfdescribe, wait_for
+from tests.helpers.assertions import has_all_dim_props, has_datapoint
+from tests.helpers.util import (
+    ensure_always,
+    get_default_monitor_metrics_from_selfdescribe,
+    get_some_pod_from_deployment,
+    wait_for,
+)
 from tests.paths import TEST_SERVICES_DIR
 
 pytestmark = [pytest.mark.kubernetes_cluster, pytest.mark.monitor_without_endpoints]
@@ -131,7 +136,12 @@ def test_stateful_sets(k8s_cluster):
                     agent.fake_services,
                     dim_name="kubernetes_uid",
                     dim_value=resources[0].metadata.uid,
-                    props={"kubernetes_workload": "StatefulSet"},
+                    props={
+                        "statefulset_creation_timestamp": resources[0].metadata.creation_timestamp.strftime(
+                            "%Y-%m-%dT%H:%M:%SZ"
+                        ),
+                        "kubernetes_workload": "StatefulSet",
+                    },
                 )
             )
 
@@ -163,7 +173,12 @@ def test_jobs(k8s_cluster):
                     agent.fake_services,
                     dim_name="kubernetes_uid",
                     dim_value=resources[0].metadata.uid,
-                    props={"kubernetes_workload": "Job"},
+                    props={
+                        "job_creation_timestamp": resources[0].metadata.creation_timestamp.strftime(
+                            "%Y-%m-%dT%H:%M:%SZ"
+                        ),
+                        "kubernetes_workload": "Job",
+                    },
                 ),
                 timeout_seconds=300,
             )
@@ -201,7 +216,12 @@ def test_cronjobs(k8s_cluster):
                     agent.fake_services,
                     dim_name="kubernetes_uid",
                     dim_value=resources[0].metadata.uid,
-                    props={"kubernetes_workload": "CronJob"},
+                    props={
+                        "cronjob_creation_timestamp": resources[0].metadata.creation_timestamp.strftime(
+                            "%Y-%m-%dT%H:%M:%SZ"
+                        ),
+                        "kubernetes_workload": "CronJob",
+                    },
                 ),
                 timeout_seconds=300,
             )
@@ -213,14 +233,47 @@ def test_pods(k8s_cluster):
     monitors:
      - type: kubernetes-cluster
     """
-    yamls = [SCRIPT_DIR / "resource_quota.yaml", TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
-    with k8s_cluster.create_resources(yamls):
+    yamls = [TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
+    with k8s_cluster.create_resources(yamls) as resources:
+        some_pod = get_some_pod_from_deployment("nginx-deployment")
+        assert some_pod
+
         with k8s_cluster.run_agent(agent_yaml=config) as agent:
             assert wait_for(
                 p(
-                    any_dim_val_has_prop,
+                    has_all_dim_props,
                     agent.fake_services,
                     dim_name="kubernetes_pod_uid",
-                    prop_name="pod_creation_timestamp",
+                    dim_value=some_pod.metadata.uid,
+                    props={
+                        "pod_creation_timestamp": some_pod.metadata.creation_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                        "deployment": resources[1].metadata.name,
+                    },
+                )
+            )
+
+
+@pytest.mark.kubernetes
+def test_deployments(k8s_cluster):
+    config = """
+    monitors:
+     - type: kubernetes-cluster
+    """
+    yamls = [TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
+    with k8s_cluster.create_resources(yamls) as resources:
+        with k8s_cluster.run_agent(agent_yaml=config) as agent:
+            assert wait_for(
+                p(
+                    has_all_dim_props,
+                    agent.fake_services,
+                    dim_name="kubernetes_uid",
+                    dim_value=resources[1].metadata.uid,
+                    props={
+                        "deployment": resources[1].metadata.name,
+                        "kubernetes_workload": "Deployment",
+                        "deployment_creation_timestamp": resources[1].metadata.creation_timestamp.strftime(
+                            "%Y-%m-%dT%H:%M:%SZ"
+                        ),
+                    },
                 )
             )
