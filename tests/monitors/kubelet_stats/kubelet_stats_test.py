@@ -21,9 +21,10 @@ def test_kubelet_stats_defaults(k8s_cluster):
           authType: serviceAccount
      """
     with k8s_cluster.run_agent(agent_yaml=config) as agent:
-        assert wait_for(
-            p(has_datapoint, agent.fake_services, metric_name="pod_network_receive_bytes_total")
-        ), "Didn't get network datapoint"
+        if "docker" in k8s_cluster.container_runtimes:
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, metric_name="pod_network_receive_bytes_total")
+            ), "Didn't get network datapoint"
         assert wait_for(
             p(has_datapoint, agent.fake_services, metric_name="container_cpu_utilization")
         ), "Didn't get cpu datapoint"
