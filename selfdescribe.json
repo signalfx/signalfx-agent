@@ -27360,31 +27360,31 @@
         },
         "cronjob_creation_timestamp": {
           "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the cron job was created and is in UTC. This property is synced onto `kubernetes_uid`."
+          "description": "Timestamp (in RFC3339 format) representing the server time when the cron job was created and is in UTC. This property is synced onto `kubernetes_uid`."
         },
         "daemonset_creation_timestamp": {
           "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the daemon set was created and is in UTC. This property is synced onto `kubernetes_uid`."
+          "description": "Timestamp (in RFC3339 format) representing the server time when the daemon set was created and is in UTC. This property is synced onto `kubernetes_uid`."
         },
         "deployment_creation_timestamp": {
           "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the deployment was created and is in UTC. This property is synced onto `kubernetes_uid`."
+          "description": "Timestamp (in RFC3339 format) representing the server time when the deployment was created and is in UTC. This property is synced onto `kubernetes_uid`."
         },
         "job_creation_timestamp": {
           "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the job was created and is in UTC. This property is synced onto `kubernetes_uid`."
+          "description": "Timestamp (in RFC3339 format) representing the server time when the job was created and is in UTC. This property is synced onto `kubernetes_uid`."
         },
         "pod_creation_timestamp": {
           "dimension": "kubernetes_pod_uid",
-          "description": "Timestamp representing the server time when the pod was created and is in UTC. This property is synced onto `kubernetes_pod_uid`."
+          "description": "Timestamp (in RFC3339 format) representing the server time when the pod was created and is in UTC. This property is synced onto `kubernetes_pod_uid`."
         },
         "replicaset_creation_timestamp": {
           "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the replica set was created and is in UTC. This property is synced onto `kubernetes_uid`."
+          "description": "Timestamp (in RFC3339 format) representing the server time when the replica set was created and is in UTC. This property is synced onto `kubernetes_uid`."
         },
         "statefulset_creation_timestamp": {
           "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the stateful set was created and is in UTC. This property is synced onto `kubernetes_uid`."
+          "description": "Timestamp (in RFC3339 format) representing the server time when the stateful set was created and is in UTC. This property is synced onto `kubernetes_uid`."
         }
       },
       "metricsExhaustive": false,
@@ -30107,31 +30107,31 @@
         },
         "cronjob_creation_timestamp": {
           "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the cron job was created and is in UTC. This property is synced onto `kubernetes_uid`."
+          "description": "Timestamp (in RFC3339 format) representing the server time when the cron job was created and is in UTC. This property is synced onto `kubernetes_uid`."
         },
         "daemonset_creation_timestamp": {
           "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the daemon set was created and is in UTC. This property is synced onto `kubernetes_uid`."
+          "description": "Timestamp (in RFC3339 format) representing the server time when the daemon set was created and is in UTC. This property is synced onto `kubernetes_uid`."
         },
         "deployment_creation_timestamp": {
           "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the deployment was created and is in UTC. This property is synced onto `kubernetes_uid`."
+          "description": "Timestamp (in RFC3339 format) representing the server time when the deployment was created and is in UTC. This property is synced onto `kubernetes_uid`."
         },
         "job_creation_timestamp": {
           "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the job was created and is in UTC. This property is synced onto `kubernetes_uid`."
+          "description": "Timestamp (in RFC3339 format) representing the server time when the job was created and is in UTC. This property is synced onto `kubernetes_uid`."
         },
         "pod_creation_timestamp": {
           "dimension": "kubernetes_pod_uid",
-          "description": "Timestamp representing the server time when the pod was created and is in UTC. This property is synced onto `kubernetes_pod_uid`."
+          "description": "Timestamp (in RFC3339 format) representing the server time when the pod was created and is in UTC. This property is synced onto `kubernetes_pod_uid`."
         },
         "replicaset_creation_timestamp": {
           "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the replica set was created and is in UTC. This property is synced onto `kubernetes_uid`."
+          "description": "Timestamp (in RFC3339 format) representing the server time when the replica set was created and is in UTC. This property is synced onto `kubernetes_uid`."
         },
         "statefulset_creation_timestamp": {
           "dimension": "kubernetes_uid",
-          "description": "Timestamp representing the server time when the stateful set was created and is in UTC. This property is synced onto `kubernetes_uid`."
+          "description": "Timestamp (in RFC3339 format) representing the server time when the stateful set was created and is in UTC. This property is synced onto `kubernetes_uid`."
         }
       },
       "metricsExhaustive": false,
