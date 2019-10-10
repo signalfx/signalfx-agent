@@ -216,6 +216,7 @@ are set on the dimension values of the dimension specified.
 | `daemonset_creation_timestamp` | `kubernetes_uid` | Timestamp (in RFC3339 format) representing the server time when the daemon set was created and is in UTC. This property is synced onto `kubernetes_uid`. |
 | `deployment_creation_timestamp` | `kubernetes_uid` | Timestamp (in RFC3339 format) representing the server time when the deployment was created and is in UTC. This property is synced onto `kubernetes_uid`. |
 | `job_creation_timestamp` | `kubernetes_uid` | Timestamp (in RFC3339 format) representing the server time when the job was created and is in UTC. This property is synced onto `kubernetes_uid`. |
+| `node_creation_timestamp` | `kubernetes_node_uid` | CreationTimestamp is a timestamp representing the server time when the node was created and is in UTC. This property is synced onto `kubernetes_node_uid`. |
 | `pod_creation_timestamp` | `kubernetes_pod_uid` | Timestamp (in RFC3339 format) representing the server time when the pod was created and is in UTC. This property is synced onto `kubernetes_pod_uid`. |
 | `replicaset_creation_timestamp` | `kubernetes_uid` | Timestamp (in RFC3339 format) representing the server time when the replica set was created and is in UTC. This property is synced onto `kubernetes_uid`. |
 | `statefulset_creation_timestamp` | `kubernetes_uid` | Timestamp (in RFC3339 format) representing the server time when the stateful set was created and is in UTC. This property is synced onto `kubernetes_uid`. |

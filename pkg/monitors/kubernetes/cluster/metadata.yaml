@@ -291,7 +291,10 @@ common:
       description: Timestamp (in RFC3339 format) representing the server time when the stateful
         set was created and is in UTC. This property is synced onto `kubernetes_uid`.
       dimension: kubernetes_uid
-
+    node_creation_timestamp:
+      description: CreationTimestamp is a timestamp representing the server time when the node was
+        created and is in UTC. This property is synced onto `kubernetes_node_uid`.
+      dimension: kubernetes_node_uid
 
 monitors:
 - <<: *common
