@@ -12,6 +12,7 @@ import yaml
 from kubernetes import client as kube_client
 from tests.helpers import fake_backend
 from tests.helpers.assertions import has_datapoint
+from tests.helpers.formatting import print_dp_or_event
 from tests.helpers.kubernetes.agent import AGENT_STATUS_COMMAND
 from tests.helpers.kubernetes.utils import (
     daemonset_is_ready,
@@ -28,7 +29,6 @@ LOCAL_CHART_DIR = DEPLOYMENTS_DIR / "k8s/helm/signalfx-agent"
 SCRIPT_DIR = Path(__file__).parent.resolve()
 NGINX_YAML_PATH = TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"
 MONITORS_CONFIG = """
-    - type: host-metadata
     - type: collectd/nginx
       discoveryRule: container_image =~ "nginx" && private_port == 80
       url: "http://{{.Host}}:{{.Port}}/nginx_status"
@@ -200,9 +200,12 @@ def test_helm(k8s_cluster):
                 install_helm_chart(k8s_cluster, values_path)
                 try:
                     assert wait_for(
-                        p(has_datapoint, backend, dimensions={"plugin": "nginx", "application": "helm-test"})
+                        p(has_datapoint, backend, dimensions={"plugin": "nginx", "application": "helm-test"}),
+                        timeout_seconds=60,
                     )
-                    assert wait_for(p(has_datapoint, backend, dimensions={"plugin": "signalfx-metadata"}))
+                    assert wait_for(
+                        p(has_datapoint, backend, dimensions={"plugin": "signalfx-metadata"}), timeout_seconds=60
+                    )
                 finally:
                     for pod in get_pods_by_labels("app=signalfx-agent", namespace=k8s_cluster.test_namespace):
                         print("pod/%s:" % pod.metadata.name)
@@ -212,3 +215,10 @@ def test_helm(k8s_cluster):
                         print("Agent Status:\n%s" % status)
                         logs = get_pod_logs(pod.metadata.name, namespace=k8s_cluster.test_namespace)
                         print("Agent Logs:\n%s" % logs)
+                    print("\nDatapoints received:")
+                    for dp in backend.datapoints:
+                        print_dp_or_event(dp)
+                    print("\nEvents received:")
+                    for event in backend.events:
+                        print_dp_or_event(event)
+                    print(f"\nDimensions set: {backend.dims}")
