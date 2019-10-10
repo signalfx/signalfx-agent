@@ -3,6 +3,7 @@ package metrics
 import (
 	"fmt"
 	"regexp"
+	"time"
 
 	"github.com/iancoleman/strcase"
 
@@ -41,6 +42,7 @@ func dimPropsForNode(node *v1.Node) *atypes.DimProperties {
 	_ = getPropsFromTaints(node.Spec.Taints)
 
 	props["kubernetes_node"] = node.Name
+	props["node_creation_timestamp"] = node.GetCreationTimestamp().Format(time.RFC3339)
 
 	return &atypes.DimProperties{
 		Dimension: atypes.Dimension{
