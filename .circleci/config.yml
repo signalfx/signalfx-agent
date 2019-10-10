@@ -235,21 +235,74 @@ commands:
           paths:
             - /home/circleci/bin/crictl
 
+  install_cni:
+    parameters:
+      version:
+        type: string
+        default: "v0.6.0"
+    steps:
+      - restore_cache:
+          key: "v1-cni-binaries-<< parameters.version >>"
+      - run:
+          name: Install cni
+          command: |
+            if [[ ! -d /home/circleci/cni ]]; then
+                wget -O /tmp/cni.tgz https://github.com/containernetworking/cni/releases/download/<< parameters.version >>/cni-amd64-<< parameters.version >>.tgz
+                mkdir -p /home/circleci/cni
+                tar -zxvf /tmp/cni.tgz -C /home/circleci/cni/
+                chmod a+x /home/circleci/cni/*
+            fi
+            sudo mkdir -p /opt/cni/bin
+            sudo cp -f /home/circleci/cni/* /opt/cni/bin/
+      - save_cache:
+          key: "v1-cni-binaries-<< parameters.version >>"
+          paths:
+            - /home/circleci/cni
+
+  install_cni_plugins:
+    parameters:
+      version:
+        type: string
+        default: "v0.8.2"
+    steps:
+      - restore_cache:
+          key: "v1-cni-plugins-<< parameters.version >>"
+      - run:
+          name: Install cni plugins
+          command: |
+            if [[ ! -d /home/circleci/cni-plugins ]]; then
+                mkdir -p /home/circleci/cni-plugins
+                wget -O /tmp/cni-plugins.tgz https://github.com/containernetworking/plugins/releases/download/<< parameters.version >>/cni-plugins-linux-amd64-<< parameters.version >>.tgz
+                tar -zxvf /tmp/cni-plugins.tgz -C /home/circleci/cni-plugins
+                chmod a+x /home/circleci/cni-plugins/*
+            fi
+            sudo mkdir -p /opt/cni/bin
+            sudo cp -f /home/circleci/cni-plugins/* /opt/cni/bin/
+      - save_cache:
+          key: "v1-cni-plugins-<< parameters.version >>"
+          paths:
+            - /home/circleci/cni-plugins
+
   install_crio:
     parameters:
       version:
         type: string
         default: "1.15"
     steps:
+      - install_cni
+      - install_cni_plugins
       - run:
           name: Install cri-o
           command: |
             [ -f ~/.skip ] && (echo "Found ~/.skip, skipping cri-o installation" && exit 0)
             sudo modprobe overlay
             sudo modprobe br_netfilter
-            sudo bash -c 'echo "net.bridge.bridge-nf-call-iptables  = 1" > /etc/sysctl.d/99-kubernetes-cri.conf'
-            sudo bash -c 'echo "net.ipv4.ip_forward                 = 1" >> /etc/sysctl.d/99-kubernetes-cri.conf'
-            sudo bash -c 'echo "net.bridge.bridge-nf-call-ip6tables = 1" >> /etc/sysctl.d/99-kubernetes-cri.conf'
+            cat > /tmp/99-kubernetes-cri.conf \<<EOF
+            net.bridge.bridge-nf-call-iptables  = 1
+            net.ipv4.ip_forward                 = 1
+            net.bridge.bridge-nf-call-ip6tables = 1
+            EOF
+            sudo mv -f /tmp/99-kubernetes-cri.conf /etc/sysctl.d/99-kubernetes-cri.conf
             sudo sysctl --system
             sudo apt-get update
             sudo apt-get install -y software-properties-common
@@ -257,7 +310,16 @@ commands:
             sudo apt-get update
             sudo apt-get install -y cri-o-<< parameters.version >>
             sudo sed -i "s|conmon = .*|conmon = \"$(command -v conmon)\"|" /etc/crio/crio.conf
+            sudo mkdir -p /etc/containers
+            cat > /tmp/registries.conf \<<EOF
+            [registries.search]
+            registries = ['docker.io', 'quay.io']
+            [registries.insecure]
+            registries = ['localhost:5000']
+            EOF
+            sudo mv -f /tmp/registries.conf /etc/containers/registries.conf
             sudo systemctl start crio
+            sudo systemctl status --no-pager crio
 
   start_minikube:
     parameters:
@@ -466,7 +528,7 @@ jobs:
             - install_crio
             - start_minikube:
                 k8s_version: << parameters.k8s_version >>
-                options: "--container-runtime=crio --extra-config=kubelet.cgroup-driver=systemd"
+                options: "--container-runtime=crio --enable-default-cni --network-plugin=cni --extra-config=kubelet.network-plugin=cni --extra-config=kubelet.cgroup-driver=systemd"
       - unless:
           condition: << parameters.with_crio >>
           steps:
