@@ -33434,6 +33434,10 @@
           "dimension": "kubernetes_uid",
           "description": "Timestamp (in RFC3339 format) representing the server time when the job was created and is in UTC. This property is synced onto `kubernetes_uid`."
         },
+        "node_creation_timestamp": {
+          "dimension": "kubernetes_node_uid",
+          "description": "CreationTimestamp is a timestamp representing the server time when the node was created and is in UTC. This property is synced onto `kubernetes_node_uid`."
+        },
         "pod_creation_timestamp": {
           "dimension": "kubernetes_pod_uid",
           "description": "Timestamp (in RFC3339 format) representing the server time when the pod was created and is in UTC. This property is synced onto `kubernetes_pod_uid`."
@@ -36874,6 +36878,10 @@
         "job_creation_timestamp": {
           "dimension": "kubernetes_uid",
           "description": "Timestamp (in RFC3339 format) representing the server time when the job was created and is in UTC. This property is synced onto `kubernetes_uid`."
+        },
+        "node_creation_timestamp": {
+          "dimension": "kubernetes_node_uid",
+          "description": "CreationTimestamp is a timestamp representing the server time when the node was created and is in UTC. This property is synced onto `kubernetes_node_uid`."
         },
         "pod_creation_timestamp": {
           "dimension": "kubernetes_pod_uid",
