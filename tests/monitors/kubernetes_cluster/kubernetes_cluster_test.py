@@ -435,3 +435,15 @@ def test_node_metrics_and_props(k8s_cluster):
                 )
 
             wait_for_assertion(p(has_props, node, expected_props))
+
+            # The node creation timestamp is on hold for now.
+            # assert wait_for(
+            #    p(
+            #        has_dim_prop,
+            #        agent.fake_services,
+            #        dim_name="kubernetes_node_uid",
+            #        dim_value=node.metadata.uid,
+            #        prop_name="node_creation_timestamp",
+            #    ),
+            #    timeout_seconds=100,
+            # )
