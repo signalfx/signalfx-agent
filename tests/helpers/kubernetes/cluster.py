@@ -33,10 +33,17 @@ class Cluster:
 
         kconfig.load_kube_config(config_file=kube_config_path, context=kube_context)
 
+        api = client.CoreV1Api()
+
+        self.container_runtimes = [
+            node.status.node_info.container_runtime_version.split(":", 1)[0] for node in api.list_node().items
+        ]
+        assert self.container_runtimes, "failed to get container runtimes for cluster"
+
         utils.create_namespace(self.test_namespace)
         assert wait_for(p(utils.has_namespace, self.test_namespace))
         assert wait_for(p(utils.has_serviceaccount, "default", self.test_namespace))
-        assert wait_for(lambda: client.CoreV1Api().list_namespaced_secret(self.test_namespace).items)
+        assert wait_for(lambda: api.list_namespaced_secret(self.test_namespace).items)
 
     def delete_test_namespace(self):
         """
