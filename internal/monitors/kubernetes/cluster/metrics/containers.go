@@ -17,7 +17,6 @@ func stripContainerIDPrefix(id string) string {
 }
 
 func datapointsForContainerStatus(cs v1.ContainerStatus, contDims map[string]string) []*datapoint.Datapoint {
-
 	dps := []*datapoint.Datapoint{
 		datapoint.New(
 			"kubernetes.container_restart_count",
@@ -37,32 +36,46 @@ func datapointsForContainerStatus(cs v1.ContainerStatus, contDims map[string]str
 }
 
 func datapointsForContainerSpec(c v1.Container, contDims map[string]string) []*datapoint.Datapoint {
+	var dps []*datapoint.Datapoint
 
-	dps := []*datapoint.Datapoint{
-		datapoint.New(
-			"kubernetes.container_cpu_request",
-			contDims,
-			datapoint.NewIntValue(c.Resources.Limits.Cpu().Value()),
-			datapoint.Gauge,
-			time.Now()),
-		datapoint.New(
-			"kubernetes.container_memory_request",
-			contDims,
-			datapoint.NewIntValue(c.Resources.Limits.Memory().Value()),
-			datapoint.Gauge,
-			time.Now()),
-		datapoint.New(
-			"kubernetes.container_cpu_limit",
-			contDims,
-			datapoint.NewIntValue(c.Resources.Limits.Cpu().Value()),
-			datapoint.Gauge,
-			time.Now()),
-		datapoint.New(
-			"kubernetes.container_memory_limit",
-			contDims,
-			datapoint.NewIntValue(c.Resources.Limits.Memory().Value()),
-			datapoint.Gauge,
-			time.Now()),
+	if val, ok := c.Resources.Requests[v1.ResourceCPU]; ok {
+		dps = append(dps,
+			datapoint.New(
+				"kubernetes.container_cpu_request",
+				contDims,
+				datapoint.NewIntValue(val.Value()),
+				datapoint.Gauge,
+				time.Now()))
+	}
+
+	if val, ok := c.Resources.Limits[v1.ResourceCPU]; ok {
+		dps = append(dps,
+			datapoint.New(
+				"kubernetes.container_cpu_limit",
+				contDims,
+				datapoint.NewIntValue(val.Value()),
+				datapoint.Gauge,
+				time.Now()))
+	}
+
+	if val, ok := c.Resources.Requests[v1.ResourceMemory]; ok {
+		dps = append(dps,
+			datapoint.New(
+				"kubernetes.container_memory_request",
+				contDims,
+				datapoint.NewIntValue(val.Value()),
+				datapoint.Gauge,
+				time.Now()))
+	}
+
+	if val, ok := c.Resources.Limits[v1.ResourceMemory]; ok {
+		dps = append(dps,
+			datapoint.New(
+				"kubernetes.container_memory_limit",
+				contDims,
+				datapoint.NewIntValue(val.Value()),
+				datapoint.Gauge,
+				time.Now()))
 	}
 
 	return dps

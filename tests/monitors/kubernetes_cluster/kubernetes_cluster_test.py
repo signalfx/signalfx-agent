@@ -277,24 +277,11 @@ def test_deployments(k8s_cluster):
             )
 
 
-CONTAINER_METRICS = [
-    "kubernetes.container_cpu_limit",
-    "kubernetes.container_cpu_request",
-    "kubernetes.container_memory_limit",
-    "kubernetes.container_memory_request",
-]
-
-
 @pytest.mark.kubernetes
 def test_containers(k8s_cluster):
-    config = f"""
+    config = """
     monitors:
      - type: kubernetes-cluster
-       extraMetrics:
-        - {CONTAINER_METRICS[0]}
-        - {CONTAINER_METRICS[1]}
-        - {CONTAINER_METRICS[2]}
-        - {CONTAINER_METRICS[3]}
     """
     yamls = [TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
     with k8s_cluster.create_resources(yamls):
@@ -304,16 +291,14 @@ def test_containers(k8s_cluster):
         with k8s_cluster.run_agent(agent_yaml=config) as agent:
             for pod in pods.items:
                 for container_status in pod.status.container_statuses:
-                    for metric in CONTAINER_METRICS:
-                        assert wait_for(
-                            p(
-                                has_datapoint,
-                                agent.fake_services,
-                                metric_name=metric,
-                                dimensions={
-                                    "container_id": container_status.container_id.replace("docker://", "").replace(
-                                        "cri-o://", ""
-                                    )
-                                },
-                            )
+                    assert wait_for(
+                        p(
+                            has_datapoint,
+                            agent.fake_services,
+                            dimensions={
+                                "container_id": container_status.container_id.replace("docker://", "").replace(
+                                    "cri-o://", ""
+                                )
+                            },
                         )
+                    )
