@@ -8,7 +8,7 @@ executors:
   goexecutor:
     working_directory: /code
     docker:
-      - image: golang:1.12.1-alpine
+      - image: golang:1.13.1-alpine
         environment:
           CGO_ENABLED: 0
           AGENT_BIN: /code/signalfx-agent
@@ -65,8 +65,8 @@ commands:
 
             # Machine image only has Go 1.9 installed
             cd /tmp
-            wget https://dl.google.com/go/go1.12.1.linux-amd64.tar.gz
-            sudo tar -C /usr/local -xzf go1.12.1.linux-amd64.tar.gz
+            wget https://dl.google.com/go/go1.13.1.linux-amd64.tar.gz
+            sudo tar -C /usr/local -xzf go1.13.1.linux-amd64.tar.gz
       - save_cache:
           key: v1-pytest-{{ checksum "tests/requirements.txt" }}
           paths:
@@ -264,6 +264,7 @@ jobs:
       - goexecutor_setup
       - go_mod_download
       - run: |
+          make compileDeps
           go mod tidy
           git diff --exit-code || (echo 'go modules are not properly vendored. Run `make tidy` and commit the changes.' && exit 1)
 

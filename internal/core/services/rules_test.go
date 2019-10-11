@@ -60,7 +60,7 @@ func TestMapFunctions(t *testing.T) {
 	t.Run("Contains() map does not contain key", func(t *testing.T) {
 		val, err := ruleFunctions["Contains"](interfacemap, "nokey")
 		assert.NoError(t, err, "should not error if the supplied arguments are the correct type")
-		assert.False(t, val.(bool), "should only return false if an error occured")
+		assert.False(t, val.(bool), "should only return false if an error occurred")
 	})
 
 	t.Run("Contains() incorrect argument types", func(t *testing.T) {
@@ -69,7 +69,7 @@ func TestMapFunctions(t *testing.T) {
 		assert.False(t, val.(bool), "should return false when an error occurs")
 	})
 
-	t.Run("Contains() map contians desired value", func(t *testing.T) {
+	t.Run("Contains() map contains desired value", func(t *testing.T) {
 		val, err := ruleFunctions["Contains"](interfacemap, "good")
 		assert.NoError(t, err, "should not error out if the map contains the desired value")
 		assert.True(t, val.(bool), "should return the expected value")

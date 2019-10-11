@@ -41,6 +41,7 @@ func getMetadata(path string) string {
 	if err != nil {
 		return ""
 	}
+	defer resp.Body.Close()
 
 	if resp.Header.Get("Metadata-Flavor") != "Google" {
 		return ""

@@ -19,6 +19,7 @@ func AWSUniqueID() string {
 	if err != nil {
 		return ""
 	}
+	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {

@@ -18,4 +18,4 @@ EOF
 ")
 
 # Don't write content if it's the same so we don't trigger a recompilation.
-[[ $old_content == $new_content ]] || echo -n "$new_content" > $target_file
+[[ $old_content == $new_content ]] || echo -n "$new_content" | gofmt > $target_file
