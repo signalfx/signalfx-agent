@@ -12,7 +12,6 @@ from contextlib import contextmanager
 from functools import partial as p
 from io import BytesIO
 from typing import Dict, List
-from kubernetes import client as k8s_client, config as k8s_config
 
 import docker
 import netifaces as ni
@@ -403,18 +402,3 @@ def run_simple_sanic_app(app):
     finally:
         app_sock.close()
         loop.stop()
-
-
-def get_some_pod_from_deployment(deployment_name):
-    """
-    Method that returns pod object created from a deployment.
-    create_resources method does not return nested workloads.
-    Assumption is that pod name will start with deployment name.
-    """
-    k8s_config.load_kube_config()
-    pods = k8s_client.CoreV1Api().list_pod_for_all_namespaces(watch=False)
-
-    for pod in pods.items:
-        if pod.metadata.name.startswith(deployment_name):
-            return pod
-    return None

@@ -1,14 +1,10 @@
 from functools import partial as p
 from pathlib import Path
+from kubernetes import client as k8s_client
 import pytest
 
 from tests.helpers.assertions import has_all_dim_props, has_datapoint
-from tests.helpers.util import (
-    ensure_always,
-    get_default_monitor_metrics_from_selfdescribe,
-    get_some_pod_from_deployment,
-    wait_for,
-)
+from tests.helpers.util import ensure_always, get_default_monitor_metrics_from_selfdescribe, wait_for
 from tests.paths import TEST_SERVICES_DIR
 
 pytestmark = [pytest.mark.kubernetes_cluster, pytest.mark.monitor_without_endpoints]
@@ -235,22 +231,24 @@ def test_pods(k8s_cluster):
     """
     yamls = [TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
     with k8s_cluster.create_resources(yamls) as resources:
-        some_pod = get_some_pod_from_deployment("nginx-deployment")
-        assert some_pod
 
         with k8s_cluster.run_agent(agent_yaml=config) as agent:
-            assert wait_for(
-                p(
-                    has_all_dim_props,
-                    agent.fake_services,
-                    dim_name="kubernetes_pod_uid",
-                    dim_value=some_pod.metadata.uid,
-                    props={
-                        "pod_creation_timestamp": some_pod.metadata.creation_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                        "deployment": resources[1].metadata.name,
-                    },
-                )
+            pods = k8s_client.CoreV1Api().list_namespaced_pod(
+                k8s_cluster.test_namespace, watch=False, label_selector="app=nginx"
             )
+            for pod in pods.items:
+                assert wait_for(
+                    p(
+                        has_all_dim_props,
+                        agent.fake_services,
+                        dim_name="kubernetes_pod_uid",
+                        dim_value=pod.metadata.uid,
+                        props={
+                            "pod_creation_timestamp": pod.metadata.creation_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                            "deployment": resources[1].metadata.name,
+                        },
+                    )
+                )
 
 
 @pytest.mark.kubernetes
