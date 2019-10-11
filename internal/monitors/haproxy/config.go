@@ -28,7 +28,7 @@ type Config struct {
 
 	// URL on which to scrape HAProxy. Scheme `http://` for http-type and
 	// `unix://` socket-type urls.  If this is not provided, it will be derive
-	// from the `host`, `port`, and `useHTTPS` options.
+	// from the `host`, `port`, `path`, and `useHTTPS` options.
 	URL string `yaml:"url"`
 	// Basic Auth username to use on each request, if any.
 	Username string `yaml:"username"`
