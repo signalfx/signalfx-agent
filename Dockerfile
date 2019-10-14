@@ -1,4 +1,4 @@
-ARG GO_VERSION=1.12.1
+ARG GO_VERSION=1.13.1
 
 ###### Agent Build Image ########
 FROM ubuntu:16.04 as agent-builder

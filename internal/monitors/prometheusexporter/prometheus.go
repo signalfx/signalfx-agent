@@ -136,7 +136,7 @@ func (m *Monitor) Configure(conf *Config) error {
 			req.Header.Set("Authorization", "Bearer "+bearerToken)
 		}
 
-		resp, err := client.Do(req)
+		resp, err := client.Do(req) // nolint:bodyclose  // We do actually close it after it is returned
 		if err != nil {
 			return nil, expfmt.FmtUnknown, err
 		}

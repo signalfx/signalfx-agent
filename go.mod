@@ -1,6 +1,6 @@
 module github.com/signalfx/signalfx-agent
 
-go 1.12
+go 1.13
 
 replace github.com/creasty/defaults => github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 
@@ -165,7 +165,7 @@ require (
 	github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5 // indirect
 	github.com/uber-go/atomic v1.3.2 // indirect
 	github.com/uber/jaeger-client-go v2.15.0+incompatible // indirect
-	github.com/uber/jaeger-lib v2.0.0+incompatible // indirect
+	github.com/uber/jaeger-lib v1.5.0 // indirect
 	github.com/uber/tchannel-go v1.11.0 // indirect
 	github.com/ugorji/go/codec v0.0.0-20190320090025-2dc34c0b8780 // indirect
 	github.com/ulule/deepcopier v0.0.0-20171107155558-ca99b135e50f
@@ -173,8 +173,8 @@ require (
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	go.etcd.io/etcd v0.0.0-20190321122103-41f7142ff986
 	golang.org/x/crypto v0.0.0-20190313024323-a1f597ede03a // indirect
-	golang.org/x/net v0.0.0-20190318221613-d196dffd7c2b // indirect
-	golang.org/x/sync v0.0.0-20181221193216-37e7f081c4d4
+	golang.org/x/net v0.0.0-20190620200207-3b0461eec859 // indirect
+	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	golang.org/x/sys v0.0.0-20190318195719-6c81ef8f67ca
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/fatih/set.v0 v0.1.0

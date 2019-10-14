@@ -218,7 +218,7 @@ func streamDatapoints(host string, port uint16, metric string, dims string) (io.
 	qs := url.Values{}
 	qs.Set("metric", metric)
 	qs.Set("dims", dims)
-	resp, err := c.Get(fmt.Sprintf("http://%s:%d/tap-dps?%s", host, port, qs.Encode()))
+	resp, err := c.Get(fmt.Sprintf("http://%s:%d/tap-dps?%s", host, port, qs.Encode())) // nolint:bodyclose
 	if err != nil {
 		return nil, err
 	}

@@ -36,7 +36,7 @@ func Test_load(t *testing.T) {
 		wantErr bool
 	}{
 		{"load failed", args{[]byte("invalid")}, nil, true},
-		{"load succeded", args{podsJSON}, loadedPods, false},
+		{"load succeeded", args{podsJSON}, loadedPods, false},
 	}
 	for _, tt := range tests {
 		args := tt.args
