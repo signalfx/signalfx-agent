@@ -56,7 +56,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	case "unix":
 		fetchFuncs = funcs{statsSocket, infoSocket}
 	default:
-		return fmt.Errorf("unsupported scheme:%q", url.Scheme)
+		return fmt.Errorf("unsupported url scheme:%q", url.Scheme)
 	}
 	interval := time.Duration(conf.IntervalSeconds) * time.Second
 	utils.RunOnInterval(m.ctx, func() {

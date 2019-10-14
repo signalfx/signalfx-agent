@@ -24126,14 +24126,6 @@
             "elementKind": ""
           },
           {
-            "yamlName": "useHTTPS",
-            "doc": "Whether to connect on HTTPS or HTTP. If you want to use a UNIX socket, then specify the `url` config option with the format `unix://...` and omit `host`, `port` and `useHTTPS`.",
-            "default": false,
-            "required": false,
-            "type": "bool",
-            "elementKind": ""
-          },
-          {
             "yamlName": "path",
             "doc": "The path to HAProxy stats. The default is `stats?stats;csv`. This is used to construct the `url` option if not provided.",
             "default": "stats?stats;csv",
@@ -24142,8 +24134,16 @@
             "elementKind": ""
           },
           {
+            "yamlName": "useHTTPS",
+            "doc": "Whether to connect on HTTPS or HTTP. If you want to use a UNIX socket, then specify the `url` config option with the format `unix://...` and omit `host`, `port` and `useHTTPS`.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
             "yamlName": "url",
-            "doc": "URL on which to scrape HAProxy. Scheme `http://` for http-type and `unix://` socket-type urls.  If this is not provided, it will be derive from the `host`, `port`, and `useHTTPS` options.",
+            "doc": "URL on which to scrape HAProxy. Scheme `http://` for http-type and `unix://` socket-type urls. If this is not provided, it will be derive from the `host`, `port`, `path`, and `useHTTPS` options.",
             "default": "",
             "required": false,
             "type": "string",
