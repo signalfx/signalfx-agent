@@ -24981,13 +24981,13 @@
         },
         "pod_ephemeral_storage_capacity_bytes": {
           "type": "gauge",
-          "description": "Represents the storage space available (bytes) for the filesystem",
+          "description": "Represents the storage space available (bytes) for the filesystem. This value is a combination of total filesystem usage for the containers and emptyDir-backed volumes in the measured Pod. See more about emptyDir-backed volumes https://kubernetes.io/docs/concepts/storage/volumes/#emptydir",
           "group": null,
           "default": false
         },
         "pod_ephemeral_storage_used_bytes": {
           "type": "gauge",
-          "description": "Represents the bytes used on the filesystem",
+          "description": "Represents the bytes used on the filesystem. This value is a total filesystem usage for the containers and emptyDir-backed volumes in the measured Pod. See more about emptyDir-backed volumes https://kubernetes.io/docs/concepts/storage/volumes/#emptydir",
           "group": null,
           "default": false
         },

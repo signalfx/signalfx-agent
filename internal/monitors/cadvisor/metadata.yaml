@@ -234,11 +234,17 @@ monitors:
   monitorType: kubelet-stats
   metrics:
     pod_ephemeral_storage_capacity_bytes:
-      description: Represents the storage space available (bytes) for the filesystem
+      description: Represents the storage space available (bytes) for the filesystem.
+        This value is a combination of total filesystem usage for the containers and
+        emptyDir-backed volumes in the measured Pod. See more about emptyDir-backed
+        volumes https://kubernetes.io/docs/concepts/storage/volumes/#emptydir
       default: false
       type: gauge
     pod_ephemeral_storage_used_bytes:
-      description: Represents the bytes used on the filesystem
+      description: Represents the bytes used on the filesystem. This value is a total
+        filesystem usage for the containers and emptyDir-backed volumes in the measured Pod.
+        See more about emptyDir-backed volumes
+        https://kubernetes.io/docs/concepts/storage/volumes/#emptydir
       default: false
       type: gauge
   properties:
