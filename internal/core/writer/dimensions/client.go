@@ -6,11 +6,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
 	"reflect"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -20,7 +20,6 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/propfilters"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
-	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -123,12 +122,12 @@ func (dc *DimensionClient) AcceptDimension(dim *types.Dimension) error {
 	if delayedDim := dc.delayedSet[filteredDim.Key()]; delayedDim != nil {
 		dc.TotalFlappyUpdates++
 
-		delayedDim.Properties = filteredDim.Properties
-		delayedDim.Tags = filteredDim.Tags
 		// Don't further delay it if it gets updated so that we are always
 		// guaranteed to update a dimension at least some times, even if it
 		// continually gets updated more frequently than `sendDelay` seconds
 		// (which should be dealt with somewhere else).
+		delayedDim.Properties = filteredDim.Properties
+		delayedDim.Tags = filteredDim.Tags
 	} else {
 		if dc.isDuplicate(filteredDim) {
 			return nil
@@ -153,7 +152,6 @@ func (dc *DimensionClient) AcceptDimension(dim *types.Dimension) error {
 }
 
 func (dc *DimensionClient) processQueue() {
-
 	send := func(dim *types.Dimension) {
 		if err := dc.setPropertiesOnDimension(dim); err != nil {
 			log.WithError(err).WithField("dim", dim.Key()).Error("Could not send dimension update")
@@ -177,6 +175,7 @@ func (dc *DimensionClient) processQueue() {
 				// dims are always in the channel in order of TimeToSend
 				time.Sleep(delayedDim.TimeToSend.Sub(now))
 			}
+
 			atomic.AddInt64(&dc.DimensionsCurrentlyDelayed, int64(-1))
 
 			dc.Lock()
@@ -184,12 +183,6 @@ func (dc *DimensionClient) processQueue() {
 			dc.Unlock()
 
 			if !dc.isDuplicate(delayedDim.Dimension) {
-				if delayedDim.Dimension.MergeIntoExisting {
-					go dc.mergeExisting(delayedDim.Dimension)
-					// The merged dim prop goes back into the
-					// mergeDimensionQueue when ready
-					continue
-				}
 				send(delayedDim.Dimension)
 			}
 		case dim := <-dc.mergedDimensionQueue:
@@ -202,7 +195,17 @@ func (dc *DimensionClient) processQueue() {
 // value.  It will wipe out any description on the dimension.  There is no
 // retry logic here so any failures are terminal.
 func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error {
-	req, err := dc.makeRequest(dim.Name, dim.Value, dim.Properties, dim.Tags)
+	var (
+		req *http.Request
+		err error
+	)
+
+	if dim.MergeIntoExisting {
+		req, err = dc.makePatchRequest(dim.Name, dim.Value, dim.Properties, dim.Tags)
+	} else {
+		req, err = dc.makeReplaceRequest(dim.Name, dim.Value, dim.Properties, dim.Tags)
+	}
+
 	if err != nil {
 		return err
 	}
@@ -218,6 +221,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 
 	// This will block if we don't have enough requests
 	dc.requestSender.send(req)
+
 	return nil
 }
 
@@ -228,104 +232,67 @@ func (dc *DimensionClient) isDuplicate(dim *types.Dimension) bool {
 	return ok && reflect.DeepEqual(prev.(*types.Dimension), dim)
 }
 
-const initialDimFetchBackoff = 5 * time.Second
-const maxDimFetchBackoff = 160 * time.Second
-
-// Unfortunately no way to do incremental updates to dimension properties
-// through the API, so must fetch and merge it client-side.
-func (dc *DimensionClient) mergeExisting(dim *types.Dimension) {
-	backoff := initialDimFetchBackoff
-	// Keep trying to fetch existing dimensions with exponential backoff
-	for {
-		oldProps, oldTags, err := dc.fetchExistingDimension(dim.Name, dim.Value)
-		if err != nil {
-			logrus.WithError(err).WithFields(logrus.Fields{
-				"dimName":  dim.Name,
-				"dimValue": dim.Value,
-			}).Errorf("Could not get existing properties/tags for dimension")
-
-			time.Sleep(backoff)
-			if backoff < maxDimFetchBackoff {
-				backoff *= 2
-			}
-			continue
-		}
-
-		for k, v := range dim.Properties {
-			// Override the old values
-			oldProps[k] = v
-		}
-		dim.Properties = oldProps
-
-		if dim.Tags == nil && len(oldTags) > 0 {
-			dim.Tags = make(map[string]bool)
-		}
-		for _, t := range oldTags {
-			// Add any that don't exist.
-			if _, ok := dim.Tags[t]; !ok {
-				dim.Tags[t] = true
-			}
-		}
-		break
-	}
-
-	dc.mergedDimensionQueue <- dim
-}
-
-func (dc *DimensionClient) fetchExistingDimension(key, value string) (map[string]string, []string, error) {
-	url, err := dc.makeDimURL(key, value)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req, err := http.NewRequest("GET", url.String(), nil)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	req.Header.Add("X-SF-Token", dc.Token)
-
-	resp, err := dc.client.Do(req)
-	if err != nil {
-		return nil, nil, err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode == 404 {
-		// No existing dimension value, so return blank for both.
-		return map[string]string{}, []string{}, nil
-	}
-
-	if resp.StatusCode >= 500 {
-		body, _ := ioutil.ReadAll(resp.Body)
-		return nil, nil, fmt.Errorf("server error (%d) fetching existing dimension: %s", resp.StatusCode, body)
-	}
-
-	var s struct {
-		CustomProperties map[string]string `json:"customProperties"`
-		Tags             []string          `json:"tags"`
-	}
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	if err := json.Unmarshal(body, &s); err != nil {
-		return nil, nil, fmt.Errorf("could not decode json response body (%v): %s", err, body)
-	}
-
-	return s.CustomProperties, s.Tags, nil
-}
-
 func (dc *DimensionClient) makeDimURL(key, value string) (*url.URL, error) {
 	url, err := dc.APIURL.Parse(fmt.Sprintf("/v2/dimension/%s/%s", key, value))
 	if err != nil {
 		return nil, fmt.Errorf("could not construct dimension property PUT URL with %s / %s: %v", key, value, err)
 	}
+
 	return url, nil
 }
 
-func (dc *DimensionClient) makeRequest(key, value string, props map[string]string, tags map[string]bool) (*http.Request, error) {
+func (dc *DimensionClient) makePatchRequest(key, value string, props map[string]string, tags map[string]bool) (*http.Request, error) {
+	tagsToAdd := []string{}
+	tagsToRemove := []string{}
+
+	for tag, shouldAdd := range tags {
+		if shouldAdd {
+			tagsToAdd = append(tagsToAdd, tag)
+		} else {
+			tagsToRemove = append(tagsToRemove, tag)
+		}
+	}
+
+	propsWithNil := map[string]interface{}{}
+	// Set any empty string props to nil so they get removed from the
+	// dimension altogether.
+	for k, v := range props {
+		if v == "" {
+			propsWithNil[k] = nil
+		} else {
+			propsWithNil[k] = v
+		}
+	}
+
+	json, err := json.Marshal(map[string]interface{}{
+		"customProperties": propsWithNil,
+		"tags":             tagsToAdd,
+		"tagsToRemove":     tagsToRemove,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	url, err := dc.makeDimURL(key, value)
+	if err != nil {
+		return nil, err
+	}
+
+	req, err := http.NewRequest(
+		"PATCH",
+		strings.TrimRight(url.String(), "/")+"/_/sfxagent",
+		bytes.NewReader(json))
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header.Add("Content-Type", "application/json")
+	req.Header.Add("X-SF-TOKEN", dc.Token)
+
+	return req, nil
+}
+
+func (dc *DimensionClient) makeReplaceRequest(key, value string, props map[string]string, tags map[string]bool) (*http.Request, error) {
 	json, err := json.Marshal(map[string]interface{}{
 		"key":              key,
 		"value":            value,
