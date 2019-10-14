@@ -33,7 +33,22 @@ def test_haproxy_default_metrics_from_stats_page(version):
              url: http://{host}:8080/stats?stats;csv
            """
         ) as agent:
+            verify(agent, EXPECTED_DEFAULTS - EXPECTED_DEFAULTS_FROM_SOCKET, 10)
+            assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
+
+@pytest.mark.parametrize("version", ["1.8"])
+def test_haproxy_default_metrics_from_stats_page_by_discovery_rule(version):
+    with run_service("haproxy", buildargs={"HAPROXY_VERSION": version}, name="haproxy"):
+        with Agent.run(
+            f"""
+           observers:
+           - type: docker
+           monitors:
+           - type: haproxy
+             discoveryRule: 'container_name == "haproxy"'
+           """
+        ) as agent:
             verify(agent, EXPECTED_DEFAULTS - EXPECTED_DEFAULTS_FROM_SOCKET, 10)
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
@@ -51,7 +66,6 @@ def test_haproxy_default_and_status_metrics_from_stats_page(version):
              extraMetrics: [{status_metric}]
            """
         ) as agent:
-
             verify(agent, (EXPECTED_DEFAULTS | {status_metric}) - EXPECTED_DEFAULTS_FROM_SOCKET, 10)
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 

@@ -33,9 +33,9 @@ type proxies map[string]bool
 // Config for this monitor
 func (m *Monitor) Configure(conf *Config) (err error) {
 	m.ctx, m.cancel = context.WithCancel(context.Background())
-	url, err := url.Parse(conf.URL)
+	url, err := url.Parse(conf.ScrapeURL())
 	if err != nil {
-		return fmt.Errorf("cannot parse url %s status. %v", conf.URL, err)
+		return fmt.Errorf("cannot parse url %s status. %v", conf.ScrapeURL(), err)
 	}
 	pxs := proxies{}
 	for _, p := range conf.Proxies {
@@ -56,7 +56,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	case "unix":
 		fetchFuncs = funcs{statsSocket, infoSocket}
 	default:
-		return fmt.Errorf("unsupported scheme:%q", url.Scheme)
+		return fmt.Errorf("unsupported url scheme:%q", url.Scheme)
 	}
 	interval := time.Duration(conf.IntervalSeconds) * time.Second
 	utils.RunOnInterval(m.ctx, func() {
