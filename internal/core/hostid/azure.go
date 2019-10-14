@@ -55,7 +55,7 @@ func AzureUniqueID() string {
 	}
 
 	if compute.Doc.VMScaleSetName == "" {
-		return fmt.Sprintf("%s/%s/microsoft.compute/virtualmachines/%s", compute.Doc.SubscriptionID, compute.Doc.ResourceGroupName, compute.Doc.Name)
+		return strings.ToLower(fmt.Sprintf("%s/%s/microsoft.compute/virtualmachines/%s", compute.Doc.SubscriptionID, compute.Doc.ResourceGroupName, compute.Doc.Name))
 	}
 
 	instanceID := strings.TrimLeft(compute.Doc.Name, compute.Doc.VMScaleSetName+"_")
@@ -67,6 +67,6 @@ func AzureUniqueID() string {
 		return ""
 	}
 
-	return fmt.Sprintf("%s/%s/microsoft.compute/virtualmachinescalesets/%s/virtualmachines/%s", compute.Doc.SubscriptionID, compute.Doc.ResourceGroupName, compute.Doc.VMScaleSetName, instanceID)
+	return strings.ToLower(fmt.Sprintf("%s/%s/microsoft.compute/virtualmachinescalesets/%s/virtualmachines/%s", compute.Doc.SubscriptionID, compute.Doc.ResourceGroupName, compute.Doc.VMScaleSetName, instanceID))
 
 }

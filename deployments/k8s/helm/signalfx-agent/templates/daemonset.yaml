@@ -19,6 +19,9 @@ spec:
     rollingUpdate:
       maxUnavailable: {{ .Values.rollingUpdateMaxUnavailable | default 1 }}
     type: RollingUpdate
+  {{ with .Values.minReadySeconds -}}
+  minReadySeconds: {{ . }}
+  {{- end}}
   template:
     metadata:
       labels:
