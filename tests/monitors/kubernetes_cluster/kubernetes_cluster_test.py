@@ -3,7 +3,7 @@ from pathlib import Path
 from kubernetes import client as k8s_client
 import pytest
 
-from tests.helpers.assertions import has_all_dim_props, has_datapoint
+from tests.helpers.assertions import has_all_dim_props, has_datapoint, has_no_datapoint
 from tests.helpers.util import ensure_always, get_default_monitor_metrics_from_selfdescribe, wait_for
 from tests.paths import TEST_SERVICES_DIR
 
@@ -277,11 +277,22 @@ def test_deployments(k8s_cluster):
             )
 
 
+CONTAINER_RESOURCE_METRICS = {
+    "request": {"cpu": "kubernetes.container_cpu_request", "memory": "kubernetes.container_memory_request"},
+    "limit": {"cpu": "kubernetes.container_cpu_limit", "memory": "kubernetes.container_memory_limit"},
+}
+
+
 @pytest.mark.kubernetes
 def test_containers(k8s_cluster):
-    config = """
+    config = f"""
     monitors:
      - type: kubernetes-cluster
+       extraMetrics:
+        - {CONTAINER_RESOURCE_METRICS["request"]["cpu"]}
+        - {CONTAINER_RESOURCE_METRICS["request"]["memory"]}
+        - {CONTAINER_RESOURCE_METRICS["limit"]["cpu"]}
+        - {CONTAINER_RESOURCE_METRICS["limit"]["memory"]}
     """
     yamls = [TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
     with k8s_cluster.create_resources(yamls):
@@ -290,15 +301,50 @@ def test_containers(k8s_cluster):
         )
         with k8s_cluster.run_agent(agent_yaml=config) as agent:
             for pod in pods.items:
+                # Pod spec does not have knowledge about container ids
+                # This dict maintains a map between container name (which)
+                # is available in Pod spec and the respective container id
+                containers_cache = {}
                 for container_status in pod.status.container_statuses:
-                    assert wait_for(
-                        p(
-                            has_datapoint,
-                            agent.fake_services,
-                            dimensions={
-                                "container_id": container_status.container_id.replace("docker://", "").replace(
-                                    "cri-o://", ""
+                    container_id = container_status.container_id.replace("docker://", "").replace("cri-o://", "")
+                    containers_cache[container_status.name] = container_id
+                    assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"container_id": container_id}))
+
+                # Check for optional container resource metrics
+                for container in pod.spec.containers:
+                    valid_metrics = {
+                        "request": {"cpu": False, "memory": False},
+                        "limit": {"cpu": False, "memory": False},
+                    }
+                    if container.resources:
+                        if container.resources.requests:
+                            if container.resources.requests.get("cpu", None):
+                                valid_metrics["request"]["cpu"] = True
+                            if container.resources.requests.get("memory", None):
+                                valid_metrics["request"]["memory"] = True
+                        if container.resources.limits:
+                            if container.resources.limits.get("cpu", None):
+                                valid_metrics["limit"]["cpu"] = True
+                            if container.resources.limits.get("memory", None):
+                                valid_metrics["limit"]["memory"] = True
+
+                    for group, resource in CONTAINER_RESOURCE_METRICS.items():
+                        for resource_type, metric in resource.items():
+                            if valid_metrics[group][resource_type]:
+                                assert wait_for(
+                                    p(
+                                        has_datapoint,
+                                        agent.fake_services,
+                                        metric_name=metric,
+                                        dimensions={"container_id": containers_cache[container.name]},
+                                    )
                                 )
-                            },
-                        )
-                    )
+                            else:
+                                assert wait_for(
+                                    p(
+                                        has_no_datapoint,
+                                        agent.fake_services,
+                                        metric_name=metric,
+                                        dimensions={"container_id": containers_cache[container.name]},
+                                    )
+                                )
