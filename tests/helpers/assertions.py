@@ -356,7 +356,9 @@ def has_dim_prop(fake_services, dim_name, dim_value, prop_name, prop_value=None)
     dim = fake_services.dims[dim_name].get(dim_value, {})
     props = dim.get("customProperties", {})
     if props is not None:
-        return prop_name in props and props.get(prop_name) == prop_value
+        if prop_value is None:
+            return prop_name in props
+        return props.get(prop_name) == prop_value
     return False
 
 
