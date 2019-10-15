@@ -161,6 +161,6 @@ happen after the initial source resolution.
 
 If you need more sophisticated interpolation of config values from KV stores,
 we recommend using a third-party templating solution such as
-[confd](https://github.com/kelseyhightower/confd/), or writing your own
+<a target="_blank" href="https://github.com/kelseyhightower/confd/">confd</a>, or writing your own
 custom script.
 

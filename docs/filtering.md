@@ -132,7 +132,7 @@ first `/` since it is not part of the regexp pattern itself.
 
 Globs can be anything with `*` (zero or more characters) or `?` (zero or one
 character), along with a few other features.  The glob processor library used
-is [demonstrated here](https://github.com/gobwas/glob#example).
+is <a target="_blank" href="https://github.com/gobwas/glob#example">demonstrated here</a>.
 
 Examples:
 

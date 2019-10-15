@@ -114,8 +114,8 @@ the agent instead of the default `/bin/signalfx-agent`, as well by adding the
 ...
 ```
 
-The source for the script `/bin/umount-hostfs-non-persistent` can be [found
-here](https://github.com/signalfx/signalfx-agent/blob/master/scripts/umount-hostfs-non-persistent),
+The source for the script `/bin/umount-hostfs-non-persistent` can be <a target="_blank" href="https://github.com/signalfx/signalfx-agent/blob/master/scripts/umount-hostfs-non-persistent">found
+here</a>,
 but basically it just does a `umount` on all of the potentially problematic
 mounts that we know of.  You can add arguments to the script invocation for
 additional directories to unmount if necessary.
@@ -137,11 +137,9 @@ container's CPU utilization are absolute values of CPU consumed (e.g. the
 docker `cpu.percent` metric or the `container_cpu_utilization` metric from
 cAdvisor), without regard for cgroup limits set by K8s and Docker.
 
-See [Resource Quality of Service in
-Kubernetes](https://github.com/kubernetes/community/blob/06a069714aaeddf4a0d5817901eede231ddf1424/contributors/design-proposals/node/resource-qos.md)
-for an explanation of requests and limits and how they work in K8s.  See [CFS
-Bandwidth
-Control](https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt) for
+See <a target="_blank" href="https://github.com/kubernetes/community/blob/06a069714aaeddf4a0d5817901eede231ddf1424/contributors/design-proposals/node/resource-qos.md">Resource Quality of Service in
+Kubernetes</a>
+for an explanation of requests and limits and how they work in K8s.  See <a target="_blank" href="https://www.kernel.org/doc/Documentation/scheduler/sched-bwc.txt">CFS Bandwidth Control</a> for
 more low-level information on how K8s limits are imposed via the Linux kernel.
 
 The primary metrics for container CPU limits are:
