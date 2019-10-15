@@ -54,11 +54,11 @@ RUN apt-get update && \
 VOLUME /var/lib/docker
 EXPOSE 2375
 
-ARG HELM_VERSION=v2.13.0
+ARG HELM_VERSION=v2.15.0
 
 # Install helm
 WORKDIR /tmp
-RUN curl -sSl -o helm.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz && \
+RUN curl -sSl -o helm.tar.gz https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz && \
     tar -zxvf /tmp/helm.tar.gz && \
     mv linux-amd64/helm /usr/local/bin/helm && \
     chmod a+x /usr/local/bin/helm

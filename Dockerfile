@@ -444,9 +444,9 @@ RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/release
     chmod +x /usr/bin/gomplate
 
 # Install helm
-ARG HELM_VERSION=v2.13.0
+ARG HELM_VERSION=v2.15.0
 WORKDIR /tmp
-RUN wget -O helm.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-${TARGET_ARCH}.tar.gz && \
+RUN wget -O helm.tar.gz https://get.helm.sh/helm-${HELM_VERSION}-linux-${TARGET_ARCH}.tar.gz && \
     tar -zxvf /tmp/helm.tar.gz && \
     mv linux-${TARGET_ARCH}/helm /usr/local/bin/helm && \
     chmod a+x /usr/local/bin/helm
