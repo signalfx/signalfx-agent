@@ -99,7 +99,9 @@ def _make_fake_api(dims):
         for k, v in props_to_add.items():
             if v is None:
                 prop_keys_to_delete.append(k)
-                del props_to_add[k]
+
+        for k in prop_keys_to_delete:
+            del props_to_add[k]
 
         existing = dims[key].get(value)
         if not existing:

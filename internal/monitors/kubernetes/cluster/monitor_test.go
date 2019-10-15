@@ -15,6 +15,7 @@ import (
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/core/common/kubernetes"
+	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/neotest"
 	log "github.com/sirupsen/logrus"
 
@@ -131,9 +132,13 @@ var _ = Describe("Kubernetes plugin", func() {
 					Phase: v1.PodRunning,
 					ContainerStatuses: []v1.ContainerStatus{
 						{
+							ContainerID:  "c1",
 							Ready:        true,
 							Name:         "container1",
 							RestartCount: 5,
+							State: v1.ContainerState{
+								Running: &v1.ContainerStateRunning{},
+							},
 						},
 					},
 				},
@@ -151,12 +156,32 @@ var _ = Describe("Kubernetes plugin", func() {
 		Expect(dps[2].Metric).To(Equal("kubernetes.container_ready"))
 		Expect(intValue(dps[2].Value)).To(Equal(int64(1)))
 
-		dims := output.WaitForDimensions(1, 3)
-		Expect(len(dims)).Should(Equal(1))
-		Expect(dims[0].Name).Should(Equal("kubernetes_pod_uid"))
-		Expect(dims[0].Value).Should(Equal("abcd"))
-		Expect(dims[0].Properties["daemonSet"]).Should(Equal("MySet"))
-		Expect(dims[0].Properties["env"]).Should(Equal("test"))
+		dims := output.WaitForDimensions(2, 3)
+		Expect(len(dims)).Should(Equal(2))
+
+		Expect(dims).Should(ConsistOf(&types.Dimension{
+			Name:  "kubernetes_pod_uid",
+			Value: "abcd",
+			Properties: map[string]string{
+				"pod_creation_timestamp":   "0001-01-01T00:00:00Z",
+				"kubernetes_workload":      "DaemonSet",
+				"kubernetes_workload_name": "MySet",
+				"daemonSet":                "MySet",
+				"daemonSet_uid":            "",
+				"env":                      "test",
+			},
+			Tags:              map[string]bool{},
+			MergeIntoExisting: true,
+		}, &types.Dimension{
+			Name:  "container_id",
+			Value: "c1",
+			Properties: map[string]string{
+				"container_status":        "running",
+				"container_status_reason": "",
+			},
+			Tags:              nil,
+			MergeIntoExisting: true,
+		}))
 
 		firstDim := dps[0].Dimensions
 		Expect(firstDim["metric_source"]).To(Equal("kubernetes"))
@@ -178,8 +203,12 @@ var _ = Describe("Kubernetes plugin", func() {
 				Phase: v1.PodFailed,
 				ContainerStatuses: []v1.ContainerStatus{
 					{
+						ContainerID:  "c2",
 						Name:         "container2",
 						RestartCount: 0,
+						State: v1.ContainerState{
+							Running: &v1.ContainerStateRunning{},
+						},
 					},
 				},
 			},
@@ -189,11 +218,28 @@ var _ = Describe("Kubernetes plugin", func() {
 		dps = waitForDatapoints(6)
 		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 0)
 
-		dims = output.WaitForDimensions(1, 3)
-		Expect(len(dims)).Should(Equal(1))
-		Expect(dims[0].Name).Should(Equal("kubernetes_pod_uid"))
-		Expect(dims[0].Value).Should(Equal("1234"))
-		Expect(dims[0].Properties["env"]).Should(Equal("prod"))
+		dims = output.WaitForDimensions(2, 3)
+		Expect(len(dims)).Should(Equal(2))
+
+		Expect(dims).Should(ConsistOf(&types.Dimension{
+			Name:  "kubernetes_pod_uid",
+			Value: "1234",
+			Properties: map[string]string{
+				"pod_creation_timestamp": "0001-01-01T00:00:00Z",
+				"env":                    "prod",
+			},
+			Tags:              map[string]bool{},
+			MergeIntoExisting: true,
+		}, &types.Dimension{
+			Name:  "container_id",
+			Value: "c2",
+			Properties: map[string]string{
+				"container_status":        "running",
+				"container_status_reason": "",
+			},
+			Tags:              nil,
+			MergeIntoExisting: true,
+		}))
 
 		fakeK8s.CreateOrReplaceResource(&v1.Pod{
 			TypeMeta: metav1.TypeMeta{
@@ -212,6 +258,7 @@ var _ = Describe("Kubernetes plugin", func() {
 				Phase: v1.PodFailed,
 				ContainerStatuses: []v1.ContainerStatus{
 					{
+						ContainerID:  "c2",
 						Name:         "container2",
 						RestartCount: 2,
 					},
@@ -223,11 +270,24 @@ var _ = Describe("Kubernetes plugin", func() {
 		dps = waitForDatapoints(6)
 		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 2)
 
-		dims = output.WaitForDimensions(1, 3)
-		Expect(len(dims)).Should(Equal(1))
-		Expect(dims[0].Name).Should(Equal("kubernetes_pod_uid"))
-		Expect(dims[0].Value).Should(Equal("1234"))
-		Expect(dims[0].Properties["env"]).Should(Equal("qa"))
+		dims = output.WaitForDimensions(2, 3)
+
+		Expect(dims).Should(ConsistOf(&types.Dimension{
+			Name:  "kubernetes_pod_uid",
+			Value: "1234",
+			Properties: map[string]string{
+				"pod_creation_timestamp": "0001-01-01T00:00:00Z",
+				"env":                    "qa",
+			},
+			Tags:              map[string]bool{},
+			MergeIntoExisting: true,
+		}, &types.Dimension{
+			Name:              "container_id",
+			Value:             "c2",
+			Properties:        map[string]string{},
+			Tags:              nil,
+			MergeIntoExisting: true,
+		}))
 
 		fakeK8s.CreateOrReplaceResource(&v1.Pod{
 			TypeMeta: metav1.TypeMeta{
@@ -246,6 +306,7 @@ var _ = Describe("Kubernetes plugin", func() {
 				Phase: v1.PodFailed,
 				ContainerStatuses: []v1.ContainerStatus{
 					{
+						ContainerID:  "c2",
 						Name:         "container2",
 						RestartCount: 3,
 					},
@@ -271,6 +332,7 @@ var _ = Describe("Kubernetes plugin", func() {
 				Phase: v1.PodFailed,
 				ContainerStatuses: []v1.ContainerStatus{
 					{
+						ContainerID:  "container_id",
 						Name:         "container2",
 						RestartCount: 2,
 					},

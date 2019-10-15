@@ -255,6 +255,15 @@ common:
         to the `kubernetes_pod_uid` dimension. Any blank labels will be synced as
         tags on that same dimension.
       dimension: kubernetes_pod_uid
+    container_status:
+      description: Status of the container such as `running`, `waiting` or `terminated` are
+        synced to the `container_id` dimension.
+      dimension: container_id
+    container_status_reason:
+      description: Reason why a container is in a particular state. This property is synced
+        to `container_id` only if the value of `cotnainer_status` is either `waiting` or
+        `terminated`.
+      dimension: container_id
     cronjob_creation_timestamp:
       description: Timestamp (in RFC3339 format) representing the server time when the cron
         job was created and is in UTC. This property is synced onto `kubernetes_uid`.

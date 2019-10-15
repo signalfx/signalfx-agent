@@ -297,6 +297,17 @@ CONTAINER_RESOURCE_METRICS = {
 }
 
 
+def get_current_container_status(container_state):
+    if container_state.running:
+        return "running"
+    if container_state.terminated:
+        return "terminated"
+    if container_state.waiting:
+        return "waiting"
+
+    return None
+
+
 @pytest.mark.kubernetes
 def test_containers(k8s_cluster):
     config = f"""
@@ -320,9 +331,30 @@ def test_containers(k8s_cluster):
                 # is available in Pod spec and the respective container id
                 containers_cache = {}
                 for container_status in pod.status.container_statuses:
-                    container_id = container_status.container_id.replace("docker://", "").replace("cri-o://", "")
-                    containers_cache[container_status.name] = container_id
-                    assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"container_id": container_id}))
+                    containers_cache[container_status.name] = container_status.container_id.replace(
+                        "docker://", ""
+                    ).replace("cri-o://", "")
+                    current_status = get_current_container_status(container_status.state)
+
+                    if containers_cache[container_status.name] == "":
+                        continue
+
+                    assert wait_for(
+                        p(
+                            has_datapoint,
+                            agent.fake_services,
+                            dimensions={"container_id": containers_cache[container_status.name]},
+                        )
+                    )
+                    assert wait_for(
+                        p(
+                            has_all_dim_props,
+                            agent.fake_services,
+                            dim_name="container_id",
+                            dim_value=containers_cache[container_status.name],
+                            props={"container_status": current_status},
+                        )
+                    )
 
                 # Check for optional container resource metrics
                 for container in pod.spec.containers:

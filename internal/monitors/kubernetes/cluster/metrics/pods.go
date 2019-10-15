@@ -35,8 +35,11 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 	containersInPodByName := make(map[string]map[string]string)
 
 	for _, cs := range pod.Status.ContainerStatuses {
-		contDims := getAllContainerDimensions(cs.ContainerID, cs.Name, cs.Image, dimensions)
+		if cs.ContainerID == "" {
+			continue
+		}
 
+		contDims := getAllContainerDimensions(cs.ContainerID, cs.Name, cs.Image, dimensions)
 		containersInPodByName[cs.Name] = contDims
 
 		dps = append(dps, datapointsForContainerStatus(cs, contDims)...)

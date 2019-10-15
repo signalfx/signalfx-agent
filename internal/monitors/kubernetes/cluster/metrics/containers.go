@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
+	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/signalfx/signalfx-agent/internal/utils/k8sutil"
 	v1 "k8s.io/api/core/v1"
@@ -92,6 +93,40 @@ func datapointsForContainerSpec(c v1.Container, contDims map[string]string) []*d
 	}
 
 	return dps
+}
+
+func dimensionsForPodContainers(pod *v1.Pod) []*atypes.Dimension {
+	var out []*atypes.Dimension
+	for _, cs := range pod.Status.ContainerStatuses {
+		out = append(out, dimensionForContainer(cs))
+	}
+	return out
+}
+
+func dimensionForContainer(cs v1.ContainerStatus) *atypes.Dimension {
+	containerProps := make(map[string]string)
+
+	if cs.State.Running != nil {
+		containerProps["container_status"] = "running"
+		containerProps["container_status_reason"] = ""
+	}
+
+	if cs.State.Terminated != nil {
+		containerProps["container_status"] = "terminated"
+		containerProps["container_status_reason"] = cs.State.Terminated.Reason
+	}
+
+	if cs.State.Waiting != nil {
+		containerProps["container_status"] = "waiting"
+		containerProps["container_status_reason"] = cs.State.Waiting.Reason
+	}
+
+	return &atypes.Dimension{
+		Name:              "container_id",
+		Value:             k8sutil.StripContainerID(cs.ContainerID),
+		Properties:        containerProps,
+		MergeIntoExisting: true,
+	}
 }
 
 func getAllContainerDimensions(id string, name string, image string, dims map[string]string) map[string]string {

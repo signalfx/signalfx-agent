@@ -48,6 +48,9 @@ func (dh *DimensionHandler) HandleAdd(newObj runtime.Object) interface{} {
 	switch o := newObj.(type) {
 	case *v1.Pod:
 		dh.sendDimensionFunc(dimensionForPod(o))
+		for _, dim := range dimensionsForPodContainers(o) {
+			dh.sendDimensionFunc(dim)
+		}
 		dh.handleAddPod(o)
 		kind = "Pod"
 	case *appsv1.DaemonSet:

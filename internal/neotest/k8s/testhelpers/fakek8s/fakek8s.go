@@ -350,6 +350,8 @@ func pluralNameToKind(name string) resourceKind {
 		return "ReplicationController"
 	case "deployments":
 		return "Deployment"
+	case "statefulsets":
+		return "StatefulSet"
 	case "daemonsets":
 		return "DaemonSet"
 	case "replicasets":
@@ -380,6 +382,8 @@ func typeMeta(rt resourceKind) metav1.TypeMeta {
 		return metav1.TypeMeta{Kind: "ReplicationControllerList", APIVersion: "v1"}
 	case "Deployment":
 		return metav1.TypeMeta{Kind: "DeploymentList", APIVersion: "apps/v1"}
+	case "StatefulSet":
+		return metav1.TypeMeta{Kind: "StatefulSetList", APIVersion: "apps/v1"}
 	case "DaemonSet":
 		return metav1.TypeMeta{Kind: "DaemonSetList", APIVersion: "apps/v1"}
 	case "ReplicaSet":
