@@ -32,45 +32,28 @@ Before you attempt to download and install the Smart Agent on a **single** host,
 <details>
 <summary>Linux</summary>
 <br>
-
-For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy the pre-populated installation code.
-
-**If you are reading this document directly from the Integrations page,** then simply copy and paste the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)
-
-```sh
-curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
+  
+```sh curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
 sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
-```
 
-**If you are reading this document from the SignalFX documentation site,** then SignalFX recommends that you access the *Integrations* page to locate the installation code:  
+<!-- In the above command, YOUR_SIGNALFX_REALM represents your SignalFX instance's running environment (realm). To locate your realm, in the SignalFX UI, in the top, right corner, click your profile icon, click My Profile, and then search for your realm.
 
-1. Log into SignalFx, and in the top navigation bar, click *Integrations*.
-2. Under *Essential Services*, click *SignalFX Smart Agent*.
-3. Click *Setup*.
-4. Locate the code box for *Linux* users.
-5. Copy and paste the code into your command line to run. (The code within the tile is already populated with your *realm* and your organization's *access token*.)  
+Additionally, YOUR_SIGNALFX_API_TOKEN, represents your organization's default access token. To locate your organization's token, in the SignalFX UI, in the top, right corner, click your profile icon, hover over Organization Settings, click Access Tokens, search for Default, expand the field, and then click Show Access Token. -->
+```  
 </details>
-
 
 <details>
 <summary>Windows</summary>
 <br>
 
-For easier deployment, SignalFX recommends that you access the *SignalFX Smart Agent* tile from the *Integrations* page to copy the pre-populated installation code.
-
-**If you are reading this document directly from the Integrations page,** then simply copy and paste the following code into your command line. (The code within the tile is already populated with your *realm* and your organization's *access token*.)</p>  
 
 ```sh
-& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "<TOKEN>"; ingest_url = "https://ingest.<REALM>.signalfx.com"; api_url = "https://api.<REALM>.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
-```
+& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = YOUR_SIGNALFX_API_TOKEN; ingest_url = "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"; api_url = "https://api.YOUR_SIGNALFX_REALM.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
 
-**If you are reading this document from the SignalFX documentation site,** then SignalFX recommends that you access the *Integrations* page to locate the installation code:  
+<!-- In the above command, YOUR_SIGNALFX_REALM represents your SignalFX instance's running environment (realm). To locate your realm, in the SignalFX UI, in the top, right corner, click your profile icon, click My Profile, and then search for your realm.
 
-1. Log into SignalFx, and in the top navigation bar, click *Integrations*.
-2. Under *Essential Services*, click *SignalFX Smart Agent*.
-3. Click *Setup*.
-4. Locate the code box for *Linux* users.
-5. Copy and paste the code into your command line to run. (The code within the tile is already populated with your *realm* and your organization's *access token*.)  
+Additionally, YOUR_SIGNALFX_API_TOKEN, represents your organization's default access token. To locate your organization's token, in the SignalFX UI, in the top, right corner, click your profile icon, hover over Organization Settings, click Access Tokens, search for Default, expand the field, and then click Show Access Token. -->
+```  
 
 The agent will be installed as a Windows service and will log to the Windows Event Log.
 </details>
