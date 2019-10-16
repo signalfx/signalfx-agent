@@ -23881,7 +23881,7 @@
             "percent_inodes.used"
           ]
         },
-        "logical": {
+        "percentage": {
           "description": "",
           "metrics": [
             "percent_bytes.free",
@@ -23929,13 +23929,13 @@
         "percent_bytes.free": {
           "type": "gauge",
           "description": "Free disk space on the file system, expressed as a percentage.",
-          "group": "logical",
+          "group": "percentage",
           "default": false
         },
         "percent_bytes.used": {
           "type": "gauge",
           "description": "Used disk space on the file system, expressed as a percentage.",
-          "group": "logical",
+          "group": "percentage",
           "default": false
         },
         "percent_inodes.free": {
@@ -23960,7 +23960,7 @@
         "fields": [
           {
             "yamlName": "hostFSPath",
-            "doc": "Path to the root of the host filesystem.  Useful when running in a container and the host filesystem is mounted in some subdirectory under /.",
+            "doc": "Path to the root of the host filesystem.  Useful when running in a container and the host filesystem is mounted in some subdirectory under /.  The disk usage metrics emitted will be based at this path.",
             "default": "",
             "required": false,
             "type": "string",
@@ -23968,69 +23968,19 @@
           },
           {
             "yamlName": "fsTypes",
-            "doc": "The filesystem types to include/exclude.  This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).",
-            "default": [
-              "*",
-              "!aufs",
-              "!overlay",
-              "!tmpfs",
-              "!proc",
-              "!sysfs",
-              "!nsfs",
-              "!cgroup",
-              "!devpts",
-              "!selinuxfs",
-              "!devtmpfs",
-              "!debugfs",
-              "!mqueue",
-              "!hugetlbfs",
-              "!securityfs",
-              "!pstore",
-              "!binfmt_misc",
-              "!autofs"
-            ],
+            "doc": "The filesystem types to include/exclude.  This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). If this is not set, the default value is the set of all **non-logical/virtual filesystems** on the system.  On Linux this list is determined by reading the `/proc/filesystems` file and choosing the filesystems that do not have the `nodev` modifier.",
+            "default": null,
             "required": false,
             "type": "slice",
             "elementKind": "string"
           },
           {
             "yamlName": "mountPoints",
-            "doc": "The mount paths to include/exclude. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). NOTE: If you are using the hostFSPath option you should not include the `/hostfs/` mount in the filter.",
-            "default": [
-              "*",
-              "!/^/var/lib/docker/containers/",
-              "!/^/var/lib/rkt/pods/",
-              "!/^/net//",
-              "!/^/smb//",
-              "!/^/tmp/scratch/"
-            ],
+            "doc": "The mount paths to include/exclude. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). NOTE: If you are using the hostFSPath option you should not include the `/hostfs/` mount in the filter.  If both this and `fsTypes` is specified, the two filters combine in an AND relationship.",
+            "default": null,
             "required": false,
             "type": "slice",
             "elementKind": "string"
-          },
-          {
-            "yamlName": "includeLogical",
-            "doc": "(Linux Only) If true, then metrics will be reported about logical devices.",
-            "default": false,
-            "required": false,
-            "type": "bool",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "reportByDevice",
-            "doc": "If true, then metrics will report with their plugin_instance set to the device's name instead of the mountpoint.",
-            "default": false,
-            "required": false,
-            "type": "bool",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "reportInodes",
-            "doc": "(Linux Only) If true metrics will be reported about inodes.",
-            "default": false,
-            "required": false,
-            "type": "bool",
-            "elementKind": ""
           }
         ]
       },
@@ -35264,7 +35214,7 @@
           "description": "The type of the underlying volume -- this will be the key used in the k8s volume config spec (e.g. awsElasticBlockStore, etc.)"
         }
       },
-      "doc": "This monitor sends usage stats about volumes\nmounted to Kubernetes pods (e.g. free space/inodes).  This information is\ngotten from the Kubelet /stats/summary endpoint.  The normal `collectd/df`\nmonitor generally will not report Persistent Volume usage metrics because\nthose volumes are not seen by the agent since they can be mounted\ndynamically and older versions of K8s don't support mount propagation of\nthose mounts to the agent container.\n\nDimensions that identify the underlying volume source will be added for\n`awsElasticBlockStore` and `glusterfs` volumes.  Support for more can be\neasily added as needed.\n",
+      "doc": "This monitor sends usage stats about volumes\nmounted to Kubernetes pods (e.g. free space/inodes).  This information is\ngotten from the Kubelet /stats/summary endpoint.  The normal `filesystems`\nmonitor generally will not report Persistent Volume usage metrics because\nthose volumes are not seen by the agent since they can be mounted\ndynamically and older versions of K8s don't support mount propagation of\nthose mounts to the agent container.\n\nDimensions that identify the underlying volume source will be added for\n`awsElasticBlockStore` and `glusterfs` volumes.  Support for more can be\neasily added as needed.\n",
       "groups": {
         "": {
           "description": "",

@@ -41,12 +41,9 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `hostFSPath` | no | `string` | Path to the root of the host filesystem.  Useful when running in a container and the host filesystem is mounted in some subdirectory under /. |
-| `fsTypes` | no | `list of strings` | The filesystem types to include/exclude.  This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). (**default:** `[* !aufs !overlay !tmpfs !proc !sysfs !nsfs !cgroup !devpts !selinuxfs !devtmpfs !debugfs !mqueue !hugetlbfs !securityfs !pstore !binfmt_misc !autofs]`) |
-| `mountPoints` | no | `list of strings` | The mount paths to include/exclude. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). NOTE: If you are using the hostFSPath option you should not include the `/hostfs/` mount in the filter. (**default:** `[* !/^/var/lib/docker/containers/ !/^/var/lib/rkt/pods/ !/^/net// !/^/smb// !/^/tmp/scratch/]`) |
-| `includeLogical` | no | `bool` | (Linux Only) If true, then metrics will be reported about logical devices. (**default:** `false`) |
-| `reportByDevice` | no | `bool` | If true, then metrics will report with their plugin_instance set to the device's name instead of the mountpoint. (**default:** `false`) |
-| `reportInodes` | no | `bool` | (Linux Only) If true metrics will be reported about inodes. (**default:** `false`) |
+| `hostFSPath` | no | `string` | Path to the root of the host filesystem.  Useful when running in a container and the host filesystem is mounted in some subdirectory under /.  The disk usage metrics emitted will be based at this path. |
+| `fsTypes` | no | `list of strings` | The filesystem types to include/exclude.  This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). If this is not set, the default value is the set of all **non-logical/virtual filesystems** on the system.  On Linux this list is determined by reading the `/proc/filesystems` file and choosing the filesystems that do not have the `nodev` modifier. |
+| `mountPoints` | no | `list of strings` | The mount paths to include/exclude. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). NOTE: If you are using the hostFSPath option you should not include the `/hostfs/` mount in the filter.  If both this and `fsTypes` is specified, the two filters combine in an AND relationship. |
 
 
 ## Metrics
@@ -71,9 +68,9 @@ monitor config option `extraGroups`:
  - `percent_inodes.free` (*gauge*)<br>    (Linux Only) Free inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`.
  - `percent_inodes.used` (*gauge*)<br>    (Linux Only) Used inodes on the file system, expressed as a percentage.  This is only reported if the configuration option `inodes` is set to `true`.
 
-#### Group logical
-All of the following metrics are part of the `logical` metric group. All of
-the non-default metrics below can be turned on by adding `logical` to the
+#### Group percentage
+All of the following metrics are part of the `percentage` metric group. All of
+the non-default metrics below can be turned on by adding `percentage` to the
 monitor config option `extraGroups`:
  - `percent_bytes.free` (*gauge*)<br>    Free disk space on the file system, expressed as a percentage.
  - `percent_bytes.used` (*gauge*)<br>    Used disk space on the file system, expressed as a percentage.
