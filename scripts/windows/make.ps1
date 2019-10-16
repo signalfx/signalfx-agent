@@ -40,7 +40,7 @@ function versions_go() {
 }
 
 function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalfx-agent.exe", [string]$COLLECTD_VERSION="") {
-    Remove-Item -Recurse -Force "$repoDir\*" -Include "genmetadata.go" -ErrorAction Ignore
+    Remove-Item -Recurse -Force "$repoDir\internal\monitors\*" -Include "genmetadata.go" -ErrorAction Ignore
 
     compile_deps
 
