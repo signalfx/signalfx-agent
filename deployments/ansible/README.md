@@ -35,7 +35,7 @@ This role sources the following variables:
       monitors:
         - type: collectd/cpu
         - type: collectd/cpufreq
-        - type: collectd/df
+        - type: filesystems
         - type: disk-io
         - type: collectd/interface
         - type: load
