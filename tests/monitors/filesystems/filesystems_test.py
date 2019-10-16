@@ -1,8 +1,12 @@
 import sys
+from functools import partial as p
 from textwrap import dedent
 
 import pytest
+from tests.helpers.agent import Agent
+from tests.helpers.assertions import has_datapoint, has_no_datapoint
 from tests.helpers.metadata import Metadata
+from tests.helpers.util import ensure_always, wait_for
 from tests.helpers.verify import run_agent_verify, run_agent_verify_default_metrics
 
 pytestmark = [pytest.mark.windows, pytest.mark.filesystems, pytest.mark.monitor_without_endpoints]
@@ -20,89 +24,97 @@ def test_filesystems_default_metrics():
     run_agent_verify_default_metrics(agent_config, METADATA)
 
 
-def test_filesystems_mountpoint_filter():
-    expected_metrics = frozenset(["disk.summary_utilization"])
-    agent_config = dedent(
+@pytest.mark.skipif(sys.platform.startswith("win"), reason="does not run on windows")
+def test_filesystems_default_excludes_logical_filesystems():
+    with Agent.run(
         """
-        procPath: /proc
+        monitors:
+        - type: filesystems
+        """
+    ) as agent:
+        assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"mountpoint": "/"}))
+        assert ensure_always(
+            p(has_no_datapoint, agent.fake_services, dimensions={"mountpoint": "/dev"}), timeout_seconds=5
+        )
+        agent.update_config(
+            """
+        monitors:
+        - type: filesystems
+          mountPoints: ["/", "/dev"]
+        """
+        )
+        assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"mountpoint": "/dev"}))
+
+
+def test_filesystems_mountpoint_filter():
+    root_mount = "C:" if sys.platform.startswith("win") else "/"
+    with Agent.run(
+        f"""
         monitors:
         - type: filesystems
           mountPoints:
-          - "!*"
+          - "{root_mount}"
         """
-    )
-    run_agent_verify(agent_config, expected_metrics)
+    ) as agent:
+        assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"mountpoint": root_mount}))
+        for dp in agent.fake_services.datapoints:
+            for dim in dp.dimensions:
+                if dim.key == "mountpoint":
+                    assert dim.value == root_mount
 
 
+@pytest.mark.skipif(sys.platform.startswith("win"), reason="does not run on windows")
 def test_filesystems_fstype_filter():
-    expected_metrics = frozenset(["disk.summary_utilization"])
-    agent_config = dedent(
+    with Agent.run(
         """
-        procPath: /proc
         monitors:
         - type: filesystems
           fsTypes:
-          - "!*"
+          - proc
         """
-    )
-    run_agent_verify(agent_config, expected_metrics)
+    ) as agent:
+        assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"fs_type": "proc"}))
+        assert ensure_always(
+            p(has_no_datapoint, agent.fake_services, dimensions={"mountpoint": "/"}), timeout_seconds=5
+        )
 
 
-def test_filesystems_logical_flag():
-    expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["logical"]
+def test_filesystems_percentage_group():
+    expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["percentage"]
     agent_config = dedent(
         """
-        procPath: /proc
         monitors:
         - type: filesystems
-          includeLogical: true
+          extraGroups: [percentage]
         """
     )
     run_agent_verify(agent_config, expected_metrics)
 
 
+@pytest.mark.skipif(sys.platform.startswith("win"), reason="does not run on windows")
 def test_filesystems_inodes_flag():
-    expected_metrics = METADATA.default_metrics
-    if sys.platform == "linux":
-        expected_metrics = expected_metrics | METADATA.metrics_by_group["inodes"]
+    expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["inodes"]
+
     agent_config = dedent(
         """
-        procPath: /proc
         monitors:
         - type: filesystems
-          reportInodes: true
+          extraGroups: [inodes]
         """
     )
     run_agent_verify(agent_config, expected_metrics)
-
-
-# def test_filesystems_extra_metrics():
-#     percent_inodes_used, df_inodes_used = "percent_inodes.used", "df_inodes.used"
-#     expected_metrics = METADATA.default_metrics | {percent_inodes_used, df_inodes_used}
-#     agent_config = dedent(
-#         f"""
-#         procPath: /proc
-#         monitors:
-#         - type: filesystems
-#           extraMetrics:
-#           - {percent_inodes_used}
-#           - {df_inodes_used}
-#         """
-#     )
-#     run_agent_verify(agent_config, expected_metrics)
 
 
 def test_filesystems_all_metrics():
-    expected_metrics = METADATA.default_metrics | METADATA.metrics_by_group["logical"]
-    if sys.platform == "linux":
-        expected_metrics = METADATA.all_metrics
+    expected_metrics = METADATA.all_metrics
+    if sys.platform.startswith("win"):
+        expected_metrics = expected_metrics - METADATA.metrics_by_group["inodes"]
+
     agent_config = dedent(
         """
-        procPath: /proc
         monitors:
         - type: filesystems
-          includeLogical: true
-          reportInodes: true
+          extraMetrics: ["*"]
         """
     )
     run_agent_verify(agent_config, expected_metrics)
