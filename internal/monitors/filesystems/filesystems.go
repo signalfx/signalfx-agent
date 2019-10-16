@@ -29,25 +29,23 @@ type Config struct {
 
 	// Path to the root of the host filesystem.  Useful when running in a
 	// container and the host filesystem is mounted in some subdirectory under
-	// /.
+	// /.  The disk usage metrics emitted will be based at this path.
 	HostFSPath string `yaml:"hostFSPath"`
 
 	// The filesystem types to include/exclude.  This is an [overridable
 	// set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).
-	FSTypes []string `yaml:"fsTypes" default:"[\"*\", \"!aufs\", \"!overlay\", \"!tmpfs\", \"!proc\", \"!sysfs\", \"!nsfs\", \"!cgroup\", \"!devpts\", \"!selinuxfs\", \"!devtmpfs\", \"!debugfs\", \"!mqueue\", \"!hugetlbfs\", \"!securityfs\", \"!pstore\", \"!binfmt_misc\", \"!autofs\"]"`
+	// If this is not set, the default value is the set of all
+	// **non-logical/virtual filesystems** on the system.  On Linux this list
+	// is determined by reading the `/proc/filesystems` file and choosing the
+	// filesystems that do not have the `nodev` modifier.
+	FSTypes []string `yaml:"fsTypes"`
 
 	// The mount paths to include/exclude. This is an [overridable
 	// set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).
 	// NOTE: If you are using the hostFSPath option you should not include the
-	// `/hostfs/` mount in the filter.
-	MountPoints []string `yaml:"mountPoints" default:"[\"*\", \"!/^/var/lib/docker/containers/\", \"!/^/var/lib/rkt/pods/\", \"!/^/net//\", \"!/^/smb//\", \"!/^/tmp/scratch/\"]"`
-	// (Linux Only) If true, then metrics will be reported about logical devices.
-	IncludeLogical bool `yaml:"includeLogical" default:"false"`
-	// If true, then metrics will report with their plugin_instance set to the
-	// device's name instead of the mountpoint.
-	ReportByDevice bool `yaml:"reportByDevice" default:"false"`
-	// (Linux Only) If true metrics will be reported about inodes.
-	ReportInodes bool `yaml:"reportInodes" default:"false"`
+	// `/hostfs/` mount in the filter.  If both this and `fsTypes` is
+	// specified, the two filters combine in an AND relationship.
+	MountPoints []string `yaml:"mountPoints"`
 }
 
 // Monitor for Utilization
@@ -61,22 +59,24 @@ type Monitor struct {
 	logger      logrus.FieldLogger
 }
 
-// returns common dimensions map according to reportInodes configuration
+// returns common dimensions map for every filesystem
 func (m *Monitor) getCommonDimensions(partition *gopsutil.PartitionStat) map[string]string {
 	dims := map[string]string{
-		"mountpoint":      strings.Replace(partition.Mountpoint, " ", "_", -1),
-		"device":          strings.Replace(partition.Device, " ", "_", -1),
-		"plugin_instance": "",
+		"mountpoint": strings.Replace(partition.Mountpoint, " ", "_", -1),
+		"device":     strings.Replace(partition.Device, " ", "_", -1),
+		"fs_type":    strings.Replace(partition.Fstype, " ", "_", -1),
+		// This will be overridden for some metrics
+		"plugin": monitorType,
 	}
 	// sanitize hostfs path in mountpoint
 	if m.hostFSPath != "" {
 		dims["mountpoint"] = strings.Replace(dims["mountpoint"], m.hostFSPath, "", 1)
 	}
-	if m.conf.ReportByDevice {
-		dims["plugin_instance"] = dims["device"]
-	} else {
-		dims["plugin_instance"] = dims["mountpoint"]
-	}
+
+	// Send the `plugin_instance` dimension purely for compatibility with our
+	// existing built-in content and nav views.  Otherwise it should be ignored
+	// by anything new.
+	dims["plugin_instance"] = dims["mountpoint"]
 
 	return dims
 }
@@ -110,13 +110,17 @@ func (m *Monitor) makePercentBytes(dimensions map[string]string, disk *gopsutil.
 
 // emitDatapoints emits a set of memory datapoints
 func (m *Monitor) emitDatapoints() {
-	partitions, err := gopsutil.Partitions(m.conf.IncludeLogical)
+	// If the user has specified some fsTypes in the config then get all
+	// partitions, otherwise omit the logical (virtual) filesystems by default.
+	all := false
+	if m.fsTypes != nil || m.mountPoints != nil {
+		all = true
+	}
+
+	partitions, err := gopsutil.Partitions(all)
 	if err != nil {
-		if err == context.DeadlineExceeded {
-			m.logger.WithField("debug", err).Debugf("failed to collect list of mountpoints")
-		} else {
-			m.logger.WithError(err).Errorf("failed to collect list of mountpoints")
-		}
+		m.logger.WithError(err).Errorf("failed to collect list of mountpoints")
+		return
 	}
 
 	dps := make([]*datapoint.Datapoint, 0)
@@ -127,7 +131,7 @@ func (m *Monitor) emitDatapoints() {
 		partition := partitions[i]
 
 		// skip it if the filesystem doesn't match
-		if !m.fsTypes.Matches(partition.Fstype) {
+		if m.fsTypes != nil && !m.fsTypes.Matches(partition.Fstype) {
 			m.logger.Debugf("skipping mountpoint `%s` with fs type `%s`", partition.Mountpoint, partition.Fstype)
 			continue
 		}
@@ -140,7 +144,7 @@ func (m *Monitor) emitDatapoints() {
 		}
 
 		// skip it if the mountpoint doesn't match
-		if !m.mountPoints.Matches(mount) {
+		if m.mountPoints != nil && !m.mountPoints.Matches(mount) {
 			m.logger.Debugf("skipping mountpoint '%s'", partition.Mountpoint)
 			continue
 		}
@@ -148,11 +152,7 @@ func (m *Monitor) emitDatapoints() {
 		// if we can't collect usage stats about the mountpoint then skip it
 		disk, err := gopsutil.Usage(partition.Mountpoint)
 		if err != nil {
-			if err == context.DeadlineExceeded {
-				m.logger.WithField("debug", err).Debugf("failed to collect usage for mountpoint '%s'", partition.Mountpoint)
-			} else {
-				m.logger.WithError(err).Errorf("failed to collect usage for mountpoint '%s'", partition.Mountpoint)
-			}
+			m.logger.WithError(err).WithField("mountpoint", partition.Mountpoint).Error("failed to collect usage for mountpoint")
 			continue
 		}
 
@@ -161,21 +161,21 @@ func (m *Monitor) emitDatapoints() {
 
 		// disk utilization
 		dps = append(dps, datapoint.New(diskUtilization,
-			utils.MergeStringMaps(map[string]string{"plugin": types.UtilizationMetricPluginName}, commonDims),
+			utils.MergeStringMaps(commonDims, map[string]string{"plugin": types.UtilizationMetricPluginName}),
 			datapoint.NewFloatValue(disk.UsedPercent),
 			datapoint.Gauge,
 			time.Time{}),
 		)
 
-		dimensions := utils.MergeStringMaps(map[string]string{"plugin": monitorType}, commonDims)
-		dps = append(dps, m.makeDFComplex(dimensions, disk)...)
+		dps = append(dps, m.makeDFComplex(commonDims, disk)...)
 
-		// report
-		dps = append(dps, m.makePercentBytes(dimensions, disk)...)
+		if m.Output.HasEnabledMetricInGroup(groupPercentage) {
+			dps = append(dps, m.makePercentBytes(commonDims, disk)...)
+		}
 
 		// inodes are not available on windows
-		if runtime.GOOS != "windows" && m.conf.ReportInodes {
-			dps = append(dps, m.makeInodeDatapoints(dimensions, disk)...)
+		if runtime.GOOS != "windows" && m.Output.HasEnabledMetricInGroup(groupInodes) {
+			dps = append(dps, m.makeInodeDatapoints(commonDims, disk)...)
 		}
 
 		// update totals
@@ -197,9 +197,6 @@ func (m *Monitor) emitDatapoints() {
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
-	if runtime.GOOS != "windows" {
-		m.logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
-	}
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
@@ -209,26 +206,13 @@ func (m *Monitor) Configure(conf *Config) error {
 	confCopy := *conf
 	m.conf = &confCopy
 
-	// setting metric group flags in the config copy
-	if m.Output.HasEnabledMetricInGroup(groupLogical) {
-		m.conf.IncludeLogical = true
-	}
-	if m.Output.HasEnabledMetricInGroup(groupInodes) {
-		m.conf.ReportInodes = true
-	}
-
 	// configure filters
 	var err error
-	if len(m.conf.FSTypes) == 0 {
-		m.fsTypes, err = filter.NewOverridableStringFilter([]string{"*"})
-		m.logger.Debugf("empty fsTypes list, defaulting to '*'")
-	} else {
+	if len(m.conf.FSTypes) > 0 {
 		m.fsTypes, err = filter.NewOverridableStringFilter(m.conf.FSTypes)
-	}
-
-	// return an error if we can't set the filter
-	if err != nil {
-		return err
+		if err != nil {
+			return err
+		}
 	}
 
 	// strip trailing / from HostFSPath so when we do string replacement later
@@ -236,10 +220,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.hostFSPath = strings.TrimRight(m.conf.HostFSPath, "/")
 
 	// configure filters
-	if len(m.conf.MountPoints) == 0 {
-		m.mountPoints, err = filter.NewOverridableStringFilter([]string{"*"})
-		m.logger.Debugf("empty mountPoints list, defaulting to '*'")
-	} else {
+	if len(m.conf.MountPoints) > 0 {
 		m.mountPoints, err = filter.NewOverridableStringFilter(m.conf.MountPoints)
 	}
 
@@ -254,18 +235,6 @@ func (m *Monitor) Configure(conf *Config) error {
 	}, time.Duration(m.conf.IntervalSeconds)*time.Second)
 
 	return nil
-}
-
-// GetExtraMetrics returns additional metrics that should be allowed through.
-func (c *Config) GetExtraMetrics() []string {
-	var extraMetrics []string
-	if c.IncludeLogical {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupLogical]...)
-	}
-	if c.ReportInodes {
-		extraMetrics = append(extraMetrics, groupMetricsMap[groupInodes]...)
-	}
-	return extraMetrics
 }
 
 // Shutdown stops the metric sync

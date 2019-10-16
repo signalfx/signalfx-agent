@@ -37,7 +37,7 @@ observers:
 monitors:
   - type: collectd/cpu
   - type: collectd/cpufreq
-  - type: collectd/df
+  - type: filesystems
     hostFSPath: /hostfs
   - type: collectd/disk
   - type: collectd/interface
