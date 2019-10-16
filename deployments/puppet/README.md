@@ -19,7 +19,7 @@ class accepts the following parameters:
       monitors: [
         {type: "collectd/cpu"},
         {type: "collectd/cpufreq"},
-        {type: "collectd/df"},
+        {type: "filesystems"},
         {type: "disk"},
         {type: "collectd/interface"},
         {type: "load"},
