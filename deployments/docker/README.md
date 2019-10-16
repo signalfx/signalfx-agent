@@ -29,8 +29,8 @@ socket, you should mount that in to be able to use the
 [docker-container-stats](../../docs/monitors/docker-container-stats.md) monitor.
 
 It is necessary to mount in the host root filesystem at `/hostfs` in order to
-get disk usage metrics for the host filesystems using the
-[collectd/df monitor](../../docs/monitors/collectd-df.md).  You will need to set the
+get disk usage metrics for the host filesystems using the [filesystems
+monitor](../../docs/monitors/filesystems.md).  You will need to set the
 `hostFSPath: /hostfs` config option on that monitor to make it use this
 non-default path.
 

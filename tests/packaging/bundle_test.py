@@ -6,11 +6,11 @@ from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint
 from tests.helpers.util import (
     container_ip,
+    copy_file_content_into_container,
+    copy_file_into_container,
     print_lines,
     run_service,
     wait_for,
-    copy_file_content_into_container,
-    copy_file_into_container,
 )
 
 from .common import run_init_system_image
@@ -49,7 +49,7 @@ def test_bundle(request, base_image):
                   - type: host-metadata
                   - type: collectd/cpu
                   - type: collectd/cpufreq
-                  - type: collectd/df
+                  - type: filesystems
                   - type: collectd/disk
                   - type: collectd/interface
                   - type: collectd/load

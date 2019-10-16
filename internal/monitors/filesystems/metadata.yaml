@@ -48,12 +48,12 @@ monitors:
       description: Free disk space on the file system, expressed as a percentage.
       default: false
       type: gauge
-      group: logical
+      group: percentage
     percent_bytes.used:
       description: Used disk space on the file system, expressed as a percentage.
       default: false
       type: gauge
-      group: logical
+      group: percentage
     percent_inodes.free:
       description: (Linux Only) Free inodes on the file system, expressed as a percentage.  This
         is only reported if the configuration option `inodes` is set to `true`.
