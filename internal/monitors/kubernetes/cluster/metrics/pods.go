@@ -58,6 +58,7 @@ func dimPropsForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache,
 
 	for _, or := range cachedPod.OwnerReferences {
 		props["kubernetes_workload"] = or.Kind
+		props["kubernetes_workload_name"] = or.Name
 		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
 		props[utils.LowercaseFirstChar(or.Kind)+"_uid"] = string(or.UID)
 	}

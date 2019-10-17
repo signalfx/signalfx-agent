@@ -246,6 +246,8 @@ def test_pods(k8s_cluster):
                         props={
                             "pod_creation_timestamp": pod.metadata.creation_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
                             "deployment": resources[1].metadata.name,
+                            "kubernetes_workload_name": pod.metadata.owner_references[0].name,
+                            "kubernetes_workload": pod.metadata.owner_references[0].kind,
                         },
                     )
                 )
