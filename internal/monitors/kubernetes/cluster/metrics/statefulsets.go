@@ -54,6 +54,7 @@ func datapointsForStatefulSet(ss *appsv1.StatefulSet) []*datapoint.Datapoint {
 func dimPropsForStatefulSet(ss *appsv1.StatefulSet) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(ss.Labels)
 	props["kubernetes_workload"] = "StatefulSet"
+	props["kubernetes_workload_name"] = ss.Name
 	props["current_revision"] = ss.Status.CurrentRevision
 	props["update_revision"] = ss.Status.UpdateRevision
 	props["statefulset_creation_timestamp"] = ss.GetCreationTimestamp().Format(time.RFC3339)

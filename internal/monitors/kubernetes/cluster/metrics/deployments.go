@@ -29,7 +29,7 @@ func datapointsForDeployment(dep *v1beta1.Deployment) []*datapoint.Datapoint {
 
 func dimPropsForDeployment(dep *v1beta1.Deployment) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(dep.Labels)
-	props["deployment"] = dep.Name
+	props["kubernetes_workload_name"] = dep.Name
 	props["kubernetes_workload"] = "Deployment"
 	props["deployment_creation_timestamp"] = dep.GetCreationTimestamp().Format(time.RFC3339)
 

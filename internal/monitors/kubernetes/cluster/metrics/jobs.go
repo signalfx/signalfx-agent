@@ -56,6 +56,7 @@ func dimPropsForJob(job *batchv1.Job) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(job.Labels)
 
 	props["kubernetes_workload"] = "Job"
+	props["kubernetes_workload_name"] = job.Name
 	props["job_creation_timestamp"] = job.GetCreationTimestamp().Format(time.RFC3339)
 
 	for _, or := range job.OwnerReferences {

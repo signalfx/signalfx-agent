@@ -33,6 +33,7 @@ func dimPropsForCronJob(cj *batchv1beta1.CronJob) *atypes.DimProperties {
 
 	props["cronjob_creation_timestamp"] = cj.GetCreationTimestamp().Format(time.RFC3339)
 	props["kubernetes_workload"] = "CronJob"
+	props["kubernetes_workload_name"] = cj.Name
 	props["schedule"] = cj.Spec.Schedule
 	props["concurrency_policy"] = string(cj.Spec.ConcurrencyPolicy)
 

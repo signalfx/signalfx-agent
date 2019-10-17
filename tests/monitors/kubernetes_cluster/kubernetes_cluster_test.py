@@ -137,6 +137,7 @@ def test_stateful_sets(k8s_cluster):
                             "%Y-%m-%dT%H:%M:%SZ"
                         ),
                         "kubernetes_workload": "StatefulSet",
+                        "kubernetes_workload_name": resources[0].metadata.name,
                     },
                 )
             )
@@ -174,6 +175,7 @@ def test_jobs(k8s_cluster):
                             "%Y-%m-%dT%H:%M:%SZ"
                         ),
                         "kubernetes_workload": "Job",
+                        "kubernetes_workload_name": resources[0].metadata.name,
                     },
                 ),
                 timeout_seconds=300,
@@ -217,6 +219,7 @@ def test_cronjobs(k8s_cluster):
                             "%Y-%m-%dT%H:%M:%SZ"
                         ),
                         "kubernetes_workload": "CronJob",
+                        "kubernetes_workload_name": resources[0].metadata.name,
                     },
                 ),
                 timeout_seconds=300,
@@ -271,6 +274,7 @@ def test_deployments(k8s_cluster):
                     props={
                         "deployment": resources[1].metadata.name,
                         "kubernetes_workload": "Deployment",
+                        "kubernetes_workload_name": resources[1].metadata.name,
                         "deployment_creation_timestamp": resources[1].metadata.creation_timestamp.strftime(
                             "%Y-%m-%dT%H:%M:%SZ"
                         ),

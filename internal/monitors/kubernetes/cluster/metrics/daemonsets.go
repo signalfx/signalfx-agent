@@ -49,6 +49,7 @@ func datapointsForDaemonSet(ds *v1beta1.DaemonSet) []*datapoint.Datapoint {
 func dimPropsForDaemonSet(ds *v1beta1.DaemonSet) *atypes.DimProperties {
 	props, tags := k8sutil.PropsAndTagsFromLabels(ds.Labels)
 	props["kubernetes_workload"] = "DaemonSet"
+	props["kubernetes_workload_name"] = ds.Name
 	props["daemonset_creation_timestamp"] = ds.GetCreationTimestamp().Format(time.RFC3339)
 
 	for _, or := range ds.OwnerReferences {
