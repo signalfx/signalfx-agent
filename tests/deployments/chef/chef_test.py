@@ -4,6 +4,7 @@ import json
 import os
 import re
 import shutil
+import string
 import subprocess
 import sys
 import tempfile
@@ -13,7 +14,7 @@ from pathlib import Path
 import pytest
 
 from tests.helpers.agent import ensure_fake_backend
-from tests.helpers.assertions import has_datapoint_with_dim
+from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name
 from tests.helpers.formatting import print_dp_or_event
 from tests.helpers.util import print_lines, wait_for
 from tests.packaging.common import (
@@ -34,7 +35,8 @@ from tests.paths import REPO_ROOT_DIR
 
 pytestmark = [pytest.mark.chef, pytest.mark.deployment]
 
-ATTRIBUTES_JSON = """
+ATTRIBUTES_JSON = string.Template(
+    """
 {"signalfx_agent": {
   "package_stage": "final",
   "agent_version": null,
@@ -46,11 +48,12 @@ ATTRIBUTES_JSON = """
       {"type": "host"}
     ],
     "monitors": [
-      {"type": "host-metadata"}
+      $monitors
     ]
   }
 }}
 """
+)
 CHEF_CMD = "chef-client -z -o 'recipe[signalfx_agent::default]' -j {0}"
 SCRIPT_DIR = Path(__file__).parent.resolve()
 DOCKERFILES_DIR = SCRIPT_DIR / "images"
@@ -87,8 +90,8 @@ WINDOWS_COOKBOOK_DIR = os.path.join(WIN_CHEF_COOKBOOKS_DIR, "windows")
 WINDOWS_COOKBOOK_URL = "https://supermarket.chef.io/cookbooks/windows/versions/6.0.0/download"
 
 
-def run_chef_client(cont, chef_version, agent_version, stage):
-    attributes = json.loads(ATTRIBUTES_JSON)
+def run_chef_client(cont, chef_version, agent_version, stage, monitors):
+    attributes = json.loads(ATTRIBUTES_JSON.substitute(monitors=monitors))
     attributes["signalfx_agent"]["agent_version"] = agent_version
     attributes["signalfx_agent"]["package_stage"] = stage
     print(attributes)
@@ -126,13 +129,22 @@ def test_chef(base_image, init_system, chef_version):
     opts = {"path": REPO_ROOT_DIR, "dockerfile": DOCKERFILES_DIR / f"Dockerfile.{base_image}", "buildargs": buildargs}
     with run_init_system_image(base_image, **opts) as [cont, backend]:
         try:
-            run_chef_client(cont, chef_version, INITIAL_VERSION, STAGE)
+            monitors = '{"type": "internal-metrics"}'
+            run_chef_client(cont, chef_version, INITIAL_VERSION, STAGE, monitors)
+            assert wait_for(
+                p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
+            ), "Didn't get internal metric datapoints"
+
+            # change agent config
+            monitors = '{"type": "host-metadata"}'
+            run_chef_client(cont, chef_version, INITIAL_VERSION, STAGE, monitors)
+            backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
             # upgrade agent
-            run_chef_client(cont, chef_version, UPGRADE_VERSION, STAGE)
+            run_chef_client(cont, chef_version, UPGRADE_VERSION, STAGE, monitors)
             backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
@@ -140,7 +152,7 @@ def test_chef(base_image, init_system, chef_version):
 
             # downgrade agent for distros that support package downgrades
             if base_image not in ("debian-7-wheezy", "debian-8-jessie", "ubuntu1404"):
-                run_chef_client(cont, chef_version, INITIAL_VERSION, STAGE)
+                run_chef_client(cont, chef_version, INITIAL_VERSION, STAGE, monitors)
                 backend.reset_datapoints()
                 assert wait_for(
                     p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
@@ -157,8 +169,8 @@ def get_win_chef_version():
     return match.group(1).strip()
 
 
-def run_win_chef_client(backend, agent_version, stage):
-    attributes = json.loads(ATTRIBUTES_JSON)
+def run_win_chef_client(backend, agent_version, stage, monitors):
+    attributes = json.loads(ATTRIBUTES_JSON.substitute(monitors=monitors))
     attributes["signalfx_agent"]["agent_version"] = agent_version
     attributes["signalfx_agent"]["package_stage"] = stage
     attributes["signalfx_agent"]["conf"]["ingestUrl"] = backend.ingest_url
@@ -218,20 +230,29 @@ def test_chef_on_windows(chef_version):
     run_win_chef_setup(chef_version)
     with ensure_fake_backend() as backend:
         try:
-            run_win_chef_client(backend, INITIAL_VERSION, STAGE)
+            monitors = '{"type": "internal-metrics"}'
+            run_win_chef_client(backend, INITIAL_VERSION, STAGE, monitors)
+            assert wait_for(
+                p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
+            ), "Didn't get internal metric datapoints"
+
+            # change agent config
+            monitors = '{"type": "host-metadata"}'
+            run_win_chef_client(backend, INITIAL_VERSION, STAGE, monitors)
+            backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
             # upgrade agent
-            run_win_chef_client(backend, UPGRADE_VERSION, STAGE)
+            run_win_chef_client(backend, UPGRADE_VERSION, STAGE, monitors)
             backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
             # downgrade agent
-            run_win_chef_client(backend, INITIAL_VERSION, STAGE)
+            run_win_chef_client(backend, INITIAL_VERSION, STAGE, monitors)
             backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
