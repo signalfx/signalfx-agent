@@ -26,6 +26,9 @@ minReadySeconds:
 # Namespace to deploy agent in (Optional: Will default to release namespace)
 namespace:
 
+# Specify PSP (Pod Security Policy) You can choose restricted/privileged (Optional: default to not using PSP mode if no values are provided by the user)
+pspMode: 
+
 # RBAC config for the agent
 rbac:
   create: true
