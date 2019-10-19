@@ -1,6 +1,6 @@
 # Version of the signalfx-agent to deploy.  This will be the default for the
 # docker image tag if not overridden with imageTag
-agentVersion: 4.7.8
+agentVersion: 4.7.9
 
 # The access token for SignalFx.  REQUIRED
 signalFxAccessToken: ""
@@ -23,8 +23,14 @@ rollingUpdateMaxUnavailable: 1
 # Namespace to deploy agent in (Optional: Will default to release namespace)
 namespace:
 
-# Specify PSP (Pod Security Policy) You can choose restricted/privileged (Optional: default to not using PSP mode if no values are provided by the user)
-pspMode: 
+# Specify PSP (Pod Security Policy) (Optional: default to not using PSP mode if no values are provided by the user)
+pspMode: |-
+
+  {{- if eq .Values.pspMode "restricted" -}}
+      pspMode: true
+  {{- else if eq .Values.pspMode "privileged" -}}
+      pspMode: true
+  {{- end -}}
 
 # RBAC config for the agent
 rbac:
