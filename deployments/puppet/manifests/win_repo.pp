@@ -34,3 +34,14 @@ class signalfx_agent::win_repo (
     matches => ['*.zip'],
   }
 }
+
+# Add chocolatey support when SignalFX finishes the chocolatey package.
+# Downloads the SignalFx Agent executable
+# class signalfx_agent::win_repo (
+#   $service_name,
+# ) {
+#   package { $service_name:
+#      ensure   => 'latest',
+#      provider => 'chocolatey',
+#   }
+# }
