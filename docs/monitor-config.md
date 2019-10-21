@@ -118,6 +118,7 @@ These are all of the monitors included in the agent, along with their possible c
 - [kubernetes-apiserver](./monitors/kubernetes-apiserver.md)
 - [kubernetes-cluster](./monitors/kubernetes-cluster.md)
 - [kubernetes-events](./monitors/kubernetes-events.md)
+- [kubernetes-proxy](./monitors/kubernetes-proxy.md)
 - [kubernetes-scheduler](./monitors/kubernetes-scheduler.md)
 - [kubernetes-volumes](./monitors/kubernetes-volumes.md)
 - [logstash](./monitors/logstash.md)
