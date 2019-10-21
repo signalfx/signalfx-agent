@@ -369,7 +369,7 @@ monitors:
       default: false
       type: gauge
     gauge.session_rate_all:
-      default: false
+      default: true
       type: gauge
     gauge.session_time_average:
       description: Average total session time in ms over the last 1024 requests. Corresponds
@@ -379,7 +379,7 @@ monitors:
     gauge.response_time_avg:
       description: Average total session time in ms over the last 1024 requests. Corresponds
         to HAProxy's "ttime" metric.
-      default: false
+      default: true
       type: gauge
     gauge.ssl_backend_key_rate:
       description: Corresponds to HAProxy's `SslBackendKeyRate` metric.
@@ -408,10 +408,10 @@ monitors:
       default: false
       type: gauge
     gauge.session_time_avg:
-      default: false
+      default: true
       type: gauge
     gauge.queue_time_avg:
-      default: false
+      default: true
       type: gauge
   monitorType: collectd/haproxy
   properties:

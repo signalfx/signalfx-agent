@@ -8593,7 +8593,7 @@
           "type": "gauge",
           "description": "",
           "group": null,
-          "default": false
+          "default": true
         },
         "gauge.request_rate": {
           "type": "gauge",
@@ -8611,7 +8611,7 @@
           "type": "gauge",
           "description": "Average total session time in ms over the last 1024 requests. Corresponds to HAProxy's \"ttime\" metric.",
           "group": null,
-          "default": false
+          "default": true
         },
         "gauge.run_queue": {
           "type": "gauge",
@@ -8635,7 +8635,7 @@
           "type": "gauge",
           "description": "",
           "group": null,
-          "default": false
+          "default": true
         },
         "gauge.session_rate_limit": {
           "type": "gauge",
@@ -8659,7 +8659,7 @@
           "type": "gauge",
           "description": "",
           "group": null,
-          "default": false
+          "default": true
         },
         "gauge.ssl_backend_key_rate": {
           "type": "gauge",
