@@ -2,9 +2,9 @@ package writer
 
 import (
 	"context"
+	"encoding/json"
 	"sync/atomic"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/golib/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
@@ -157,7 +157,8 @@ func (sw *SignalFxWriter) preprocessSpan(span *trace.Span) {
 	// adding smart agent version as a tag
 	span.Tags["signalfx.smartagent.version"] = constants.Version
 	if sw.conf.LogTraceSpans {
-		log.Debugf("Sending trace span:\n%s", spew.Sdump(span))
+		jsonEncoded, _ := json.Marshal(span)
+		log.Infof("Sending trace span:\n%s", string(jsonEncoded))
 	}
 }
 
