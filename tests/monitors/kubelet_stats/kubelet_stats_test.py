@@ -73,7 +73,7 @@ def test_kubelet_stats_extra_pod_metric_group(k8s_cluster):
         kubeletAPI:
           skipVerify: true
           authType: serviceAccount
-        includePodEphemeralStats: true
+        extraGroups: [podEphemeralStats]
      """
     with k8s_cluster.run_agent(agent_yaml=config) as agent:
         for metric in METADATA.metrics_by_group.get("podEphemeralStats", []):

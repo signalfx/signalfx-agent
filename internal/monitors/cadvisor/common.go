@@ -20,22 +20,27 @@ type Monitor struct {
 }
 
 // Configure and start/restart cadvisor plugin
-func (m *Monitor) Configure(monConfig *config.MonitorConfig, sendDP func(*datapoint.Datapoint), statProvider converter.InfoProvider) error {
+func (m *Monitor) Configure(
+	monConfig *config.MonitorConfig,
+	sendDP func(*datapoint.Datapoint),
+	statProvider converter.InfoProvider,
+	hasPodEphemeralStorageStatsGroupEnabled bool) error {
+
 	m.monConfig = monConfig
 
 	collector := converter.NewCadvisorCollector(statProvider, sendDP, monConfig.ExtraDimensions)
 
-	m.stop = monitorNode(monConfig.IntervalSeconds, collector)
+	m.stop = monitorNode(monConfig.IntervalSeconds, collector, hasPodEphemeralStorageStatsGroupEnabled)
 
 	return nil
 }
 
-func monitorNode(intervalSeconds int, collector *converter.CadvisorCollector) (stop chan bool) {
+func monitorNode(intervalSeconds int, collector *converter.CadvisorCollector, hasPodEphemeralStorageStatsGroupEnabled bool) (stop chan bool) {
 	ticker := time.NewTicker(time.Duration(intervalSeconds) * time.Second)
 	stop = make(chan bool, 1)
 
 	go func() {
-		collector.Collect()
+		collector.Collect(hasPodEphemeralStorageStatsGroupEnabled)
 		for {
 			select {
 			case <-stop:
@@ -43,7 +48,7 @@ func monitorNode(intervalSeconds int, collector *converter.CadvisorCollector) (s
 				ticker.Stop()
 				return
 			case <-ticker.C:
-				collector.Collect()
+				collector.Collect(hasPodEphemeralStorageStatsGroupEnabled)
 			}
 		}
 	}()

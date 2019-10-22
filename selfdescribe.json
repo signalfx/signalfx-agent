@@ -25122,14 +25122,6 @@
                 }
               ]
             }
-          },
-          {
-            "yamlName": "includePodEphemeralStats",
-            "doc": "Whether or not to collect ephemeral storage stats from pods",
-            "default": false,
-            "required": false,
-            "type": "bool",
-            "elementKind": ""
           }
         ]
       },

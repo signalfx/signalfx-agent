@@ -692,11 +692,13 @@ func NewCadvisorCollector(
 
 // Collect fetches the stats from all containers and delivers them as
 // Prometheus metrics. It implements prometheus.PrometheusCollector.
-func (c *CadvisorCollector) Collect() {
+func (c *CadvisorCollector) Collect(hasPodEphemeralStorageStatsGroupEnabled bool) {
 	c.collectMachineInfo()
 	c.collectVersionInfo()
 	c.collectContainersInfo()
-	c.collectEphemeralStorageStatsFromPod()
+	if hasPodEphemeralStorageStatsGroupEnabled {
+		c.collectEphemeralStorageStatsFromPod()
+	}
 }
 
 func (c *CadvisorCollector) sendDatapoint(dp *datapoint.Datapoint) {

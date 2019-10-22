@@ -32,7 +32,6 @@ Configuration](../monitor-config.md#common-configuration).**
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `kubeletAPI` | no | `object (see below)` | Kubelet client configuration |
-| `includePodEphemeralStats` | no | `bool` | Whether or not to collect ephemeral storage stats from pods (**default:** `false`) |
 
 
 The **nested** `kubeletAPI` config object has the following fields:
