@@ -294,14 +294,16 @@ jobs:
           docker_layer_caching: false
       - run: |
           apk add make bash
-          PULL_CACHE=yes AGENT_VERSION=latest make image
+          PULL_CACHE=yes AGENT_VERSION=latest make bundle
       - run: |
           mkdir -p /tmp/workspace
           docker save -o /tmp/workspace/image.tar quay.io/signalfx/signalfx-agent-dev:latest
+          mv signalfx-agent-latest.tar.gz /tmp/workspace/
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
             - image.tar
+            - signalfx-agent-latest.tar.gz
 
   modules:
     executor: goexecutor
@@ -427,10 +429,12 @@ jobs:
     executor: machine_image
     steps:
       - checkout
+      - attach_workspace:
+          at: /tmp/workspace
       - run: .circleci/scripts/setup-bundle-tests.sh
       - run_pytest:
           markers: bundle
-          pytest_options: -n auto --test-bundle-path=signalfx-agent-latest.tar.gz
+          pytest_options: -n auto --test-bundle-path=/tmp/workspace/signalfx-agent-latest.tar.gz
           tests_dir: ./tests/packaging
 
   deployment_tests:
@@ -541,7 +545,9 @@ workflows:
       - package_tests:
           name: deb_package_tests
           package_type: deb
-      - bundle_tests
+      - bundle_tests:
+          requires:
+            - build
       - deployment_tests:
           name: chef_tests
           deployment_type: chef
