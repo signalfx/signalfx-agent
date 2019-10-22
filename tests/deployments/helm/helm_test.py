@@ -17,8 +17,8 @@ from tests.helpers.kubernetes.utils import (
     daemonset_is_ready,
     deployment_is_ready,
     exec_pod_command,
-    get_pods_by_labels,
     get_pod_logs,
+    get_pods_by_labels,
 )
 from tests.helpers.util import wait_for
 from tests.packaging.common import DEPLOYMENTS_DIR
@@ -113,6 +113,7 @@ def release_values_yaml(k8s_cluster, proxy_pod_ip, fake_services):
         "clusterName": k8s_cluster.test_namespace,
         "namespace": k8s_cluster.test_namespace,
         "ingestUrl": f"http://{proxy_pod_ip}:{fake_services.ingest_port}",
+        "globalDimensions": {"application": "helm-test"},
         "apiUrl": f"http://{proxy_pod_ip}:{fake_services.api_port}",
         "monitors": yaml.safe_load(MONITORS_CONFIG),
     }
@@ -198,7 +199,9 @@ def test_helm(k8s_cluster):
             with release_values_yaml(k8s_cluster, proxy_pod_ip, backend) as values_path:
                 install_helm_chart(k8s_cluster, values_path)
                 try:
-                    assert wait_for(p(has_datapoint, backend, dimensions={"plugin": "nginx"}))
+                    assert wait_for(
+                        p(has_datapoint, backend, dimensions={"plugin": "nginx", "application": "helm-test"})
+                    )
                     assert wait_for(p(has_datapoint, backend, dimensions={"plugin": "signalfx-metadata"}))
                 finally:
                     for pod in get_pods_by_labels("app=signalfx-agent", namespace=k8s_cluster.test_namespace):

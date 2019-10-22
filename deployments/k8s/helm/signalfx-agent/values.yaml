@@ -5,6 +5,11 @@ agentVersion: 4.13.0
 # The access token for SignalFx.  REQUIRED
 signalFxAccessToken: ""
 
+# An additional set of global dimension to set on all datapoints coming out of
+# the agent.  The `kubernetes_cluster` dimension will always be set as a global
+# dimension based on the `clusterName` value.
+globalDimensions:
+
 # Docker image configuration
 image:
   # Image pull policy for the agent pod
