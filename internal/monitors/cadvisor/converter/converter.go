@@ -649,14 +649,21 @@ func getPodEphemeralStorageMetrics() []podStatusMetric {
 			name:      "pod_ephemeral_storage_capacity_bytes",
 			valueType: datapoint.Gauge,
 			getValues: func(es *stats.FsStats) metricValues {
-				return metricValues{{value: datapoint.NewIntValue(int64(*es.CapacityBytes))}}
+				if es.CapacityBytes != nil {
+					return metricValues{{value: datapoint.NewIntValue(int64(*es.CapacityBytes))}}
+				}
+				return metricValues{}
 			},
 		},
 		{
 			name:      "pod_ephemeral_storage_used_bytes",
 			valueType: datapoint.Counter,
 			getValues: func(es *stats.FsStats) metricValues {
-				return metricValues{{value: datapoint.NewIntValue(int64(*es.UsedBytes))}}
+				if es.UsedBytes != nil {
+					return metricValues{{value: datapoint.NewIntValue(int64(*es.UsedBytes))}}
+				}
+				return metricValues{}
+
 			},
 		},
 	}

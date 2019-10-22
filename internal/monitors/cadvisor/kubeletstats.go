@@ -30,6 +30,8 @@ type KubeletStatsConfig struct {
 	config.MonitorConfig
 	// Kubelet client configuration
 	KubeletAPI kubelet.APIConfig `yaml:"kubeletAPI" default:""`
+	// Whether or not to collect ephemeral storage stats from pods
+	IncludePodEphemeralStats bool `yaml:"includePodEphemeralStats" default:"false"`
 }
 
 // KubeletStatsMonitor will pull container metrics from the /stats/ endpoint of
@@ -40,7 +42,7 @@ type KubeletStatsConfig struct {
 // out if this is versioned and how to access versioned endpoints.
 type KubeletStatsMonitor struct {
 	Monitor
-	Output types.Output
+	Output types.FilteringOutput
 }
 
 // Configure the Kubelet Stats monitor
@@ -50,8 +52,21 @@ func (ks *KubeletStatsMonitor) Configure(conf *KubeletStatsConfig) error {
 		return err
 	}
 
+	if ks.Output.HasEnabledMetricInGroup(groupPodEphemeralStats) {
+		conf.IncludePodEphemeralStats = true
+	}
+
 	return ks.Monitor.Configure(&conf.MonitorConfig, ks.Output.SendDatapoint,
-		newKubeletInfoProvider(client))
+		newKubeletInfoProvider(client, conf.IncludePodEphemeralStats))
+}
+
+// GetExtraMetrics returns additional metrics that should be allowed through.
+func (c *KubeletStatsConfig) GetExtraMetrics() []string {
+	var extraMetrics []string
+	if c.IncludePodEphemeralStats {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupPodEphemeralStats]...)
+	}
+	return extraMetrics
 }
 
 type statsRequest struct {
@@ -78,12 +93,14 @@ type statsRequest struct {
 }
 
 type kubeletInfoProvider struct {
-	client *kubelet.Client
+	client                   *kubelet.Client
+	includePodEphemeralStats bool
 }
 
-func newKubeletInfoProvider(client *kubelet.Client) *kubeletInfoProvider {
+func newKubeletInfoProvider(client *kubelet.Client, includePodEphemeralStats bool) *kubeletInfoProvider {
 	return &kubeletInfoProvider{
-		client: client,
+		client:                   client,
+		includePodEphemeralStats: includePodEphemeralStats,
 	}
 }
 
@@ -156,6 +173,10 @@ func (kip *kubeletInfoProvider) getAllContainersLatestStats() ([]info.ContainerI
 }
 
 func (kip *kubeletInfoProvider) GetEphemeralStatsFromPods() ([]stats.PodStats, error) {
+	if !kip.includePodEphemeralStats {
+		return nil, nil
+	}
+
 	req, err := kip.client.NewRequest("POST", "/stats/summary/", nil)
 	if err != nil {
 		return nil, err

@@ -32,6 +32,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `kubeletAPI` | no | `object (see below)` | Kubelet client configuration |
+| `includePodEphemeralStats` | no | `bool` | Whether or not to collect ephemeral storage stats from pods (**default:** `false`) |
 
 
 The **nested** `kubeletAPI` config object has the following fields:
@@ -93,8 +94,6 @@ Metrics that are categorized as
  - ***`machine_cpu_cores`*** (*gauge*)<br>    Number of CPU cores on the node.
  - `machine_cpu_frequency_khz` (*gauge*)<br>    Node's CPU frequency.
  - ***`machine_memory_bytes`*** (*gauge*)<br>    Amount of memory installed on the node.
- - `pod_ephemeral_storage_capacity_bytes` (*gauge*)<br>    Represents the storage space available (bytes) for the filesystem. This value is a combination of total filesystem usage for the containers and emptyDir-backed volumes in the measured Pod. See more about emptyDir-backed volumes https://kubernetes.io/docs/concepts/storage/volumes/#emptydir
- - `pod_ephemeral_storage_used_bytes` (*gauge*)<br>    Represents the bytes used on the filesystem. This value is a total filesystem usage for the containers and emptyDir-backed volumes in the measured Pod. See more about emptyDir-backed volumes https://kubernetes.io/docs/concepts/storage/volumes/#emptydir
  - ***`pod_network_receive_bytes_total`*** (*cumulative*)<br>    Cumulative count of bytes received
  - ***`pod_network_receive_errors_total`*** (*cumulative*)<br>    Cumulative count of errors encountered while receiving
  - `pod_network_receive_packets_dropped_total` (*cumulative*)<br>    Cumulative count of packets dropped while receiving
@@ -103,6 +102,13 @@ Metrics that are categorized as
  - ***`pod_network_transmit_errors_total`*** (*cumulative*)<br>    Cumulative count of errors encountered while transmitting
  - `pod_network_transmit_packets_dropped_total` (*cumulative*)<br>    Cumulative count of packets dropped while transmitting
  - `pod_network_transmit_packets_total` (*cumulative*)<br>    Cumulative count of packets transmitted
+
+#### Group podEphemeralStats
+All of the following metrics are part of the `podEphemeralStats` metric group. All of
+the non-default metrics below can be turned on by adding `podEphemeralStats` to the
+monitor config option `extraGroups`:
+ - `pod_ephemeral_storage_capacity_bytes` (*gauge*)<br>    Represents the storage space available (bytes) for the filesystem. This value is a combination of total filesystem usage for the containers and emptyDir-backed volumes in the measured Pod. See more about emptyDir-backed volumes https://kubernetes.io/docs/concepts/storage/volumes/#emptydir
+ - `pod_ephemeral_storage_used_bytes` (*gauge*)<br>    Represents the bytes used on the filesystem. This value is a total filesystem usage for the containers and emptyDir-backed volumes in the measured Pod. See more about emptyDir-backed volumes https://kubernetes.io/docs/concepts/storage/volumes/#emptydir
 
 ### Non-default metrics (version 4.7.0+)
 
