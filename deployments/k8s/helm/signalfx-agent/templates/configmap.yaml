@@ -44,6 +44,9 @@ data:
 
     globalDimensions:
       kubernetes_cluster: {{ .Values.clusterName }}
+      {{- range $k, $v := .Values.globalDimensions }}
+      {{ $k }}: {{ $v }}
+      {{- end }}
 
     sendMachineID: false
 
