@@ -3,11 +3,9 @@
 set -eo pipefail
 
 if [ "$CIRCLE_BRANCH" != "master" ]; then
-    if ! scripts/changes-include-dir Dockerfile packaging tests/packaging scripts/patch-interpreter scripts/patch-rpath ${BASH_SOURCE[0]}; then
+    if ! scripts/changes-include-dir Dockerfile packaging tests/packaging scripts/patch-interpreter scripts/patch-rpath scripts/build ${BASH_SOURCE[0]}; then
         echo "packaging code has not changed, skipping tests!"
         touch ~/.skip
         exit 0
     fi
 fi
-export PULL_CACHE=yes
-AGENT_VERSION=latest make bundle
