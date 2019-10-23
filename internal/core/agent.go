@@ -19,6 +19,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/meta"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/core/writer"
+	"github.com/signalfx/signalfx-agent/internal/core/writer/tracetracker"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/observers"
@@ -37,15 +38,16 @@ const (
 
 // Agent is what hooks up observers, monitors, and the datapoint writer.
 type Agent struct {
-	observers     *observers.ObserverManager
-	monitors      *monitors.MonitorManager
-	writer        *writer.SignalFxWriter
-	meta          *meta.AgentMeta
-	lastConfig    *config.Config
-	dpChan        chan *datapoint.Datapoint
-	eventChan     chan *event.Event
-	dimensionChan chan *types.Dimension
-	spanChan      chan *trace.Span
+	observers           *observers.ObserverManager
+	monitors            *monitors.MonitorManager
+	writer              *writer.SignalFxWriter
+	meta                *meta.AgentMeta
+	lastConfig          *config.Config
+	dpChan              chan *datapoint.Datapoint
+	eventChan           chan *event.Event
+	dimensionChan       chan *types.Dimension
+	spanChan            chan *trace.Span
+	endpointHostTracker *services.EndpointHostTracker
 
 	diagnosticServer     *http.Server
 	profileServerRunning bool
@@ -55,11 +57,12 @@ type Agent struct {
 // NewAgent creates an unconfigured agent instance
 func NewAgent() *Agent {
 	agent := Agent{
-		dpChan:        make(chan *datapoint.Datapoint, datapointChanCapacity),
-		eventChan:     make(chan *event.Event, eventChanCapacity),
-		dimensionChan: make(chan *types.Dimension, dimensionChanCapacity),
-		spanChan:      make(chan *trace.Span, traceSpanChanCapacity),
-		startTime:     time.Now(),
+		dpChan:              make(chan *datapoint.Datapoint, datapointChanCapacity),
+		eventChan:           make(chan *event.Event, eventChanCapacity),
+		dimensionChan:       make(chan *types.Dimension, dimensionChanCapacity),
+		spanChan:            make(chan *trace.Span, traceSpanChanCapacity),
+		endpointHostTracker: services.NewEndpointHostTracker(),
+		startTime:           time.Now(),
 	}
 
 	agent.observers = &observers.ObserverManager{
@@ -98,12 +101,21 @@ func (a *Agent) configure(conf *config.Config) {
 		a.ensureProfileServerRunning(conf.ProfilingHost, conf.ProfilingPort)
 	}
 
-	if a.lastConfig == nil || a.lastConfig.Writer.Hash() != conf.Writer.Hash() {
+	if a.lastConfig == nil || a.lastConfig.Writer.Hash() != conf.Writer.Hash() || a.lastConfig.Cluster != conf.Cluster {
 		if a.writer != nil {
 			a.writer.Shutdown()
 		}
+
+		spanSourceTracker := tracetracker.NewSpanSourceTracker(a.endpointHostTracker, a.dimensionChan, conf.Cluster)
+
 		var err error
-		a.writer, err = writer.New(&conf.Writer, a.dpChan, a.eventChan, a.dimensionChan, a.spanChan)
+		a.writer, err = writer.New(
+			&conf.Writer,
+			a.dpChan,
+			a.eventChan,
+			a.dimensionChan,
+			a.spanChan,
+			spanSourceTracker)
 		if err != nil {
 			// This is a catastrophic error if we can't write datapoints.
 			log.WithError(err).Error("Could not configure SignalFx datapoint writer, unable to start up")
@@ -125,11 +137,13 @@ func (a *Agent) configure(conf *config.Config) {
 }
 
 func (a *Agent) endpointAdded(service services.Endpoint) {
+	a.endpointHostTracker.EndpointAdded(service)
 	a.monitors.EndpointAdded(service)
 }
 
 func (a *Agent) endpointRemoved(service services.Endpoint) {
 	a.monitors.EndpointRemoved(service)
+	a.endpointHostTracker.EndpointRemoved(service)
 }
 
 func (a *Agent) shutdown() {

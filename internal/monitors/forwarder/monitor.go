@@ -5,9 +5,6 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/event"
-	"github.com/signalfx/golib/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -62,28 +59,6 @@ func (m *Monitor) Configure(conf *Config) error {
 		}, time.Duration(conf.IntervalSeconds)*time.Second)
 	}
 
-	return nil
-}
-
-type outputSink struct {
-	Output types.Output
-}
-
-func (os *outputSink) AddDatapoints(ctx context.Context, dps []*datapoint.Datapoint) error {
-	for i := range dps {
-		os.Output.SendDatapoint(dps[i])
-	}
-	return nil
-}
-
-func (os *outputSink) AddEvents(ctx context.Context, events []*event.Event) error {
-	return nil
-}
-
-func (os *outputSink) AddSpans(ctx context.Context, spans []*trace.Span) error {
-	for i := range spans {
-		os.Output.SendSpan(spans[i])
-	}
 	return nil
 }
 

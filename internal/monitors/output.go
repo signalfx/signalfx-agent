@@ -50,10 +50,11 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 		dp.Meta[dpmeta.NotHostSpecificMeta] = true
 	}
 
+	dp.Meta[dpmeta.EndpointMeta] = mo.endpoint
+
 	var endpointDims map[string]string
 	if mo.endpoint != nil && !mo.disableEndpointDimensions {
 		endpointDims = mo.endpoint.Dimensions()
-		dp.Meta[dpmeta.EndpointIDMeta] = mo.endpoint.Core().ID
 	}
 
 	dp.Dimensions = utils.MergeStringMaps(dp.Dimensions, mo.extraDims, endpointDims)
@@ -89,6 +90,8 @@ func (mo *monitorOutput) SendEvent(event *event.Event) {
 }
 
 func (mo *monitorOutput) SendSpan(span *trace.Span) {
+	span.Meta[dpmeta.EndpointMeta] = mo.endpoint
+
 	mo.spanChan <- span
 }
 

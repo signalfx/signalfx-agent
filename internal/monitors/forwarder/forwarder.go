@@ -24,7 +24,7 @@ func startListening(ctx context.Context, listenAddr string, timeout time.Duratio
 	router := mux.NewRouter()
 
 	httpChain := web.NextConstructor(func(ctx context.Context, rw http.ResponseWriter, r *http.Request, next web.ContextHandler) {
-		next.ServeHTTPC(ctx, rw, r)
+		next.ServeHTTPC(tryToExtractRemoteAddressToContext(ctx, r), rw, r)
 	})
 
 	jaegerMetrics := setupHandler(ctx, router, signalfx.JaegerV1, sink, func(sink signalfx.Sink) signalfx.ErrorReader {

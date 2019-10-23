@@ -322,14 +322,13 @@ def get_pods_by_labels(labels, namespace="default"):
     return api.list_namespaced_pod(namespace, label_selector=labels).items
 
 
-def exec_pod_command(name, command, namespace="default"):
+def exec_pod_command(name, command, namespace="default", fail_hard=False):
     api = kube_client.CoreV1Api()
-    pod = api.read_namespaced_pod(name, namespace=namespace)
 
     try:
         return stream(
             api.connect_get_namespaced_pod_exec,
-            name=pod.metadata.name,
+            name=name,
             command=command,
             namespace=namespace,
             stderr=True,
@@ -340,6 +339,8 @@ def exec_pod_command(name, command, namespace="default"):
             _request_timeout=5,
         ).strip()
     except ApiException as e:
+        if fail_hard:
+            raise e
         return f"Failed to exec command {command} on pod {name}: {e}"
 
 
