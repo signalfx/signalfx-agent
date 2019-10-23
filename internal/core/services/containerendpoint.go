@@ -65,6 +65,9 @@ func (ce *ContainerEndpoint) DerivedFields() map[string]interface{} {
 // CONTAINER_DIMENSION(container_image): The image name (including tags) of the
 // running container
 
+// CONTAINER_DIMENSION(container_id): The container id of the container running
+// this endpoint.
+
 // Dimensions returns the dimensions associated with this endpoint
 func (ce *ContainerEndpoint) Dimensions() map[string]string {
 	return utils.MergeStringMaps(
@@ -72,5 +75,6 @@ func (ce *ContainerEndpoint) Dimensions() map[string]string {
 		utils.RemoveEmptyMapValues(map[string]string{
 			"container_name":  ce.Container.PrimaryName(),
 			"container_image": ce.Container.Image,
+			"container_id":    ce.Container.ID,
 		}))
 }
