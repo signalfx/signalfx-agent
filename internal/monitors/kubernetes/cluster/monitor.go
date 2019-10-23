@@ -76,6 +76,7 @@ type Monitor struct {
 	// Since most datapoints will stay the same or only slightly different
 	// across reporting intervals, reuse them
 	datapointCache *metrics.DatapointCache
+	dimHandler     *metrics.DimensionHandler
 	restConfig     *rest.Config
 	stop           chan struct{}
 	logger         logrus.FieldLogger
@@ -97,6 +98,7 @@ func (m *Monitor) Configure(config *Config) error {
 	}
 
 	m.datapointCache = metrics.NewDatapointCache(config.UseNodeName, m.config.NodeConditionTypesToReport)
+	m.dimHandler = metrics.NewDimensionHandler(config.UseNodeName, m.Output.SendDimensionUpdate)
 	m.stop = make(chan struct{})
 
 	return m.Start()
@@ -108,7 +110,7 @@ func (m *Monitor) Start() error {
 
 	shouldReport := m.config.AlwaysClusterReporter
 
-	clusterState, err := newState(m.distribution, m.restConfig, m.datapointCache, m.config.Namespace)
+	clusterState, err := newState(m.distribution, m.restConfig, m.datapointCache, m.dimHandler, m.config.Namespace)
 	if err != nil {
 		return err
 	}
@@ -148,7 +150,6 @@ func (m *Monitor) Start() error {
 			case <-ticker.C:
 				if shouldReport {
 					m.sendLatestDatapoints()
-					m.sendLatestDimensions()
 				}
 			}
 		}
@@ -166,14 +167,6 @@ func (m *Monitor) sendLatestDatapoints() {
 		dps[i].Timestamp = now
 		dps[i].Meta[dpmeta.NotHostSpecificMeta] = true
 		m.Output.SendDatapoint(dps[i])
-	}
-}
-
-func (m *Monitor) sendLatestDimensions() {
-	dims := m.datapointCache.AllDimensions()
-
-	for i := range dims {
-		m.Output.SendDimensionUpdate(dims[i])
 	}
 }
 

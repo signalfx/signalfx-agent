@@ -2,7 +2,6 @@ package utils
 
 import (
 	"errors"
-	"reflect"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -29,6 +28,25 @@ type CachedPod struct {
 	CreationTimestamp metav1.Time
 }
 
+func (cp *CachedPod) AsPod() *v1.Pod {
+	if cp == nil {
+		return nil
+	}
+
+	return &v1.Pod{
+		ObjectMeta: metav1.ObjectMeta{
+			UID:               cp.UID,
+			Namespace:         cp.Namespace,
+			OwnerReferences:   cp.OwnerReferences,
+			Labels:            map[string]string(cp.LabelSet),
+			CreationTimestamp: cp.CreationTimestamp,
+		},
+		Spec: v1.PodSpec{
+			Tolerations: cp.Tolerations,
+		},
+	}
+}
+
 func newCachedPod(pod *v1.Pod) *CachedPod {
 	return &CachedPod{
 		UID:               pod.UID,
@@ -48,19 +66,7 @@ func NewPodCache() *PodCache {
 	}
 }
 
-// IsCached checks if a pod was already in the cache, or if
-// the mapped values have changed. Returns true if no change
-func (pc *PodCache) IsCached(pod *v1.Pod) bool {
-	cachedPod, exists := pc.cachedPods[pod.UID]
-	labelSet := labels.Set(pod.Labels)
-	return exists && reflect.DeepEqual(cachedPod.LabelSet, labelSet) &&
-		(cachedPod.Namespace == pod.Namespace) &&
-		(reflect.DeepEqual(cachedPod.OwnerReferences, pod.OwnerReferences))
-}
-
 // AddPod adds or updates a pod in cache
-// This function should only be called after pc.IsCached
-// to prevent unnecessary updates to the internal cache.
 func (pc *PodCache) AddPod(pod *v1.Pod) {
 	// check if any pods exist in this pods namespace
 	if _, exists := pc.namespacePodUIDCache[pod.Namespace]; !exists {
@@ -98,21 +104,15 @@ func (pc *PodCache) GetOwnerReferences(key types.UID) []metav1.OwnerReference {
 }
 
 // GetPodsInNamespace returns a list of pod UIDs given a namespace
-func (pc *PodCache) GetPodsInNamespace(namespace string) []types.UID {
-	var pods []types.UID
-	if podsSet, exists := pc.namespacePodUIDCache[namespace]; exists {
-		for podUID := range podsSet {
-			pods = append(pods, podUID)
-		}
+func (pc *PodCache) GetForNamespace(namespace string) []*v1.Pod {
+	var pods []*v1.Pod
+	for podUID := range pc.namespacePodUIDCache[namespace] {
+		pods = append(pods, pc.Get(podUID))
 	}
 	return pods
 }
 
 // GetCachedPod returns a CachedPod object from the cache if it exists
-func (pc *PodCache) GetCachedPod(podUID types.UID) *CachedPod {
-	var cachedPod *CachedPod
-	if pod, exists := pc.cachedPods[podUID]; exists {
-		cachedPod = pod
-	}
-	return cachedPod
+func (pc *PodCache) Get(podUID types.UID) *v1.Pod {
+	return pc.cachedPods[podUID].AsPod()
 }

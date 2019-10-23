@@ -1,20 +1,13 @@
 package metrics
 
 import (
-	"strings"
 	"time"
 
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/internal/utils/k8sutil"
 	v1 "k8s.io/api/core/v1"
 )
-
-func stripContainerIDPrefix(id string) string {
-	out := strings.Replace(id, "docker://", "", 1)
-	out = strings.Replace(out, "cri-o://", "", 1)
-
-	return out
-}
 
 func datapointsForContainerStatus(cs v1.ContainerStatus, contDims map[string]string) []*datapoint.Datapoint {
 	dps := []*datapoint.Datapoint{
@@ -104,7 +97,7 @@ func datapointsForContainerSpec(c v1.Container, contDims map[string]string) []*d
 func getAllContainerDimensions(id string, name string, image string, dims map[string]string) map[string]string {
 	out := utils.CloneStringMap(dims)
 
-	out["container_id"] = stripContainerIDPrefix(id)
+	out["container_id"] = k8sutil.StripContainerID(id)
 	out["container_spec_name"] = name
 	out["container_image"] = image
 

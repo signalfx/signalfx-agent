@@ -64,10 +64,6 @@ func dimensionForJob(job *batchv1.Job) *atypes.Dimension {
 		props[utils.LowercaseFirstChar(or.Kind)+"_uid"] = string(or.UID)
 	}
 
-	if len(props) == 0 && len(tags) == 0 {
-		return nil
-	}
-
 	return &atypes.Dimension{
 		Name:       "kubernetes_uid",
 		Value:      string(job.UID),

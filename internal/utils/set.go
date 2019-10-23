@@ -37,6 +37,17 @@ func StringSetToSlice(set map[string]bool) []string {
 	return out
 }
 
+// MergeStringSets merges 2+ string map sets into a single output map.
+func MergeStringSets(sets ...map[string]bool) map[string]bool {
+	out := map[string]bool{}
+	for _, ss := range sets {
+		for k, v := range ss {
+			out[k] = v
+		}
+	}
+	return out
+}
+
 // StringSet creates a map set from vararg
 func StringSet(strings ...string) map[string]bool {
 	return StringSliceToMap(strings)
