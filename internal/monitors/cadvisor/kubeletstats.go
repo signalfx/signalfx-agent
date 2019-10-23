@@ -78,7 +78,7 @@ type statsRequest struct {
 }
 
 type kubeletInfoProvider struct {
-	client                   *kubelet.Client
+	client *kubelet.Client
 }
 
 func newKubeletInfoProvider(client *kubelet.Client) *kubeletInfoProvider {
