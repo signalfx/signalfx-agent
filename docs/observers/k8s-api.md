@@ -78,6 +78,7 @@ rules.
 
 | Name | Description |
 | ---  | ---         |
+| `container_id` | The container id of the container running this endpoint. |
 | `container_image` | The image name (including tags) of the running container |
 | `container_name` | The primary name of the running container -- Docker containers can have multiple names but this will be the first name, if any. |
 | `container_spec_name` | The short name of the container in the pod spec, **NOT** the running container's name in the Docker engine |

@@ -39739,6 +39739,9 @@
       ],
       "observerType": "docker",
       "dimensions": {
+        "container_id": {
+          "description": "The container id of the container running this endpoint."
+        },
         "container_image": {
           "description": "The image name (including tags) of the running container"
         },
@@ -39893,6 +39896,9 @@
       ],
       "observerType": "ecs",
       "dimensions": {
+        "container_id": {
+          "description": "The container id of the container running this endpoint."
+        },
         "container_image": {
           "description": "The image name (including tags) of the running container"
         },
@@ -40179,6 +40185,9 @@
       ],
       "observerType": "k8s-api",
       "dimensions": {
+        "container_id": {
+          "description": "The container id of the container running this endpoint."
+        },
         "container_image": {
           "description": "The image name (including tags) of the running container"
         },
@@ -40408,6 +40417,9 @@
       ],
       "observerType": "k8s-kubelet",
       "dimensions": {
+        "container_id": {
+          "description": "The container id of the container running this endpoint."
+        },
         "container_image": {
           "description": "The image name (including tags) of the running container"
         },
