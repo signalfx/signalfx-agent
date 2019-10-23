@@ -78,6 +78,26 @@ func datapointsForContainerSpec(c v1.Container, contDims map[string]string) []*d
 				time.Now()))
 	}
 
+	if val, ok := c.Resources.Requests[v1.ResourceEphemeralStorage]; ok {
+		dps = append(dps,
+			datapoint.New(
+				"kubernetes.container_ephemeral_storage_request",
+				contDims,
+				datapoint.NewIntValue(val.Value()),
+				datapoint.Gauge,
+				time.Now()))
+	}
+
+	if val, ok := c.Resources.Limits[v1.ResourceEphemeralStorage]; ok {
+		dps = append(dps,
+			datapoint.New(
+				"kubernetes.container_ephemeral_storage_limit",
+				contDims,
+				datapoint.NewIntValue(val.Value()),
+				datapoint.Gauge,
+				time.Now()))
+	}
+
 	return dps
 }
 

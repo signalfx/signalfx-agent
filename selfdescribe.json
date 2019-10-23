@@ -24746,6 +24746,13 @@
             "pod_network_transmit_packets_dropped_total",
             "pod_network_transmit_packets_total"
           ]
+        },
+        "podEphemeralStats": {
+          "description": "",
+          "metrics": [
+            "pod_ephemeral_storage_capacity_bytes",
+            "pod_ephemeral_storage_used_bytes"
+          ]
         }
       },
       "metrics": {
@@ -24976,6 +24983,18 @@
           "description": "Amount of memory installed on the node.",
           "group": null,
           "default": true
+        },
+        "pod_ephemeral_storage_capacity_bytes": {
+          "type": "gauge",
+          "description": "Represents the storage space available (bytes) for the filesystem. This value is a combination of total filesystem usage for the containers and emptyDir-backed volumes in the measured Pod. See more about emptyDir-backed volumes https://kubernetes.io/docs/concepts/storage/volumes/#emptydir",
+          "group": "podEphemeralStats",
+          "default": false
+        },
+        "pod_ephemeral_storage_used_bytes": {
+          "type": "gauge",
+          "description": "Represents the bytes used on the filesystem. This value is a total filesystem usage for the containers and emptyDir-backed volumes in the measured Pod. See more about emptyDir-backed volumes https://kubernetes.io/docs/concepts/storage/volumes/#emptydir",
+          "group": "podEphemeralStats",
+          "default": false
         },
         "pod_network_receive_bytes_total": {
           "type": "cumulative",
@@ -27135,6 +27154,8 @@
           "metrics": [
             "kubernetes.container_cpu_limit",
             "kubernetes.container_cpu_request",
+            "kubernetes.container_ephemeral_storage_limit",
+            "kubernetes.container_ephemeral_storage_request",
             "kubernetes.container_memory_limit",
             "kubernetes.container_memory_request",
             "kubernetes.container_ready",
@@ -27189,6 +27210,18 @@
         "kubernetes.container_cpu_request": {
           "type": "gauge",
           "description": "CPU requested for the container. This value is derived from https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#resourcerequirements-v1-core which comes from the pod spec and is reported only if a non null value is available.",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.container_ephemeral_storage_limit": {
+          "type": "gauge",
+          "description": "Maximum ephemeral storage set for the container. This value is derived from https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#resourcerequirements-v1-core which comes from the pod spec and is reported only if a non null value is available. See https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#local-ephemeral-storage for details.",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.container_ephemeral_storage_request": {
+          "type": "gauge",
+          "description": "Ephemeral storage requested for the container. This value is derived from https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#resourcerequirements-v1-core which comes from the pod spec and is reported only if a non null value is available. See https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#local-ephemeral-storage for details",
           "group": null,
           "default": false
         },
@@ -29714,6 +29747,8 @@
           "metrics": [
             "kubernetes.container_cpu_limit",
             "kubernetes.container_cpu_request",
+            "kubernetes.container_ephemeral_storage_limit",
+            "kubernetes.container_ephemeral_storage_request",
             "kubernetes.container_memory_limit",
             "kubernetes.container_memory_request",
             "kubernetes.container_ready",
@@ -29796,6 +29831,18 @@
         "kubernetes.container_cpu_request": {
           "type": "gauge",
           "description": "CPU requested for the container. This value is derived from https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#resourcerequirements-v1-core which comes from the pod spec and is reported only if a non null value is available.",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.container_ephemeral_storage_limit": {
+          "type": "gauge",
+          "description": "Maximum ephemeral storage set for the container. This value is derived from https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#resourcerequirements-v1-core which comes from the pod spec and is reported only if a non null value is available. See https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#local-ephemeral-storage for details.",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.container_ephemeral_storage_request": {
+          "type": "gauge",
+          "description": "Ephemeral storage requested for the container. This value is derived from https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#resourcerequirements-v1-core which comes from the pod spec and is reported only if a non null value is available. See https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/#local-ephemeral-storage for details",
           "group": null,
           "default": false
         },

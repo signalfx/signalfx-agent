@@ -11,6 +11,7 @@ import (
 	info "github.com/google/cadvisor/info/v1"
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	stats "k8s.io/kubernetes/pkg/kubelet/apis/stats/v1alpha1"
 )
 
 // InfoProvider provides a swappable interface to actually get the cAdvisor
@@ -20,6 +21,8 @@ type InfoProvider interface {
 	SubcontainersInfo(containerName string) ([]info.ContainerInfo, error)
 	// Get information about the machine.
 	GetMachineInfo() (*info.MachineInfo, error)
+	// Get Ephemeral storage usage stats from Pod
+	GetEphemeralStatsFromPods() ([]stats.PodStats, error)
 }
 
 // metricValue describes a single metric value for a given set of label values
@@ -49,16 +52,23 @@ type machineInfoMetric struct {
 	getValues func(s *info.MachineInfo) metricValues
 }
 
+type podStatusMetric struct {
+	name      string
+	valueType datapoint.MetricType
+	getValues func(s *stats.FsStats) metricValues
+}
+
 // CadvisorCollector metric collector and converter
 type CadvisorCollector struct {
-	infoProvider            InfoProvider
-	containerMetrics        []containerMetric
-	containerSpecMetrics    []containerSpecMetric
-	containerSpecMemMetrics []containerSpecMetric
-	containerSpecCPUMetrics []containerSpecMetric
-	machineInfoMetrics      []machineInfoMetric
-	sendDP                  func(*datapoint.Datapoint)
-	defaultDimensions       map[string]string
+	infoProvider               InfoProvider
+	containerMetrics           []containerMetric
+	containerSpecMetrics       []containerSpecMetric
+	containerSpecMemMetrics    []containerSpecMetric
+	containerSpecCPUMetrics    []containerSpecMetric
+	machineInfoMetrics         []machineInfoMetric
+	podEphemeralStorageMetrics []podStatusMetric
+	sendDP                     func(*datapoint.Datapoint)
+	defaultDimensions          map[string]string
 }
 
 // fsValues is a helper method for assembling per-filesystem stats.
@@ -633,6 +643,34 @@ func getContainerSpecMetrics() []containerSpecMetric {
 	return metrics
 }
 
+func getPodEphemeralStorageMetrics() []podStatusMetric {
+	var metrics = []podStatusMetric{
+		{
+			name:      "pod_ephemeral_storage_capacity_bytes",
+			valueType: datapoint.Gauge,
+			getValues: func(es *stats.FsStats) metricValues {
+				if es.CapacityBytes != nil {
+					return metricValues{{value: datapoint.NewIntValue(int64(*es.CapacityBytes))}}
+				}
+				return metricValues{}
+			},
+		},
+		{
+			name:      "pod_ephemeral_storage_used_bytes",
+			valueType: datapoint.Counter,
+			getValues: func(es *stats.FsStats) metricValues {
+				if es.UsedBytes != nil {
+					return metricValues{{value: datapoint.NewIntValue(int64(*es.UsedBytes))}}
+				}
+				return metricValues{}
+
+			},
+		},
+	}
+
+	return metrics
+}
+
 // NewCadvisorCollector creates new CadvisorCollector
 func NewCadvisorCollector(
 	infoProvider InfoProvider,
@@ -640,23 +678,27 @@ func NewCadvisorCollector(
 	defaultDimensions map[string]string) *CadvisorCollector {
 
 	return &CadvisorCollector{
-		infoProvider:            infoProvider,
-		containerMetrics:        getContainerMetrics(),
-		containerSpecCPUMetrics: getContainerSpecCPUMetrics(),
-		containerSpecMemMetrics: getContainerSpecMemMetrics(),
-		containerSpecMetrics:    getContainerSpecMetrics(),
-		machineInfoMetrics:      getMachineInfoMetrics(),
-		sendDP:                  sendDP,
-		defaultDimensions:       defaultDimensions,
+		infoProvider:               infoProvider,
+		containerMetrics:           getContainerMetrics(),
+		containerSpecCPUMetrics:    getContainerSpecCPUMetrics(),
+		containerSpecMemMetrics:    getContainerSpecMemMetrics(),
+		containerSpecMetrics:       getContainerSpecMetrics(),
+		machineInfoMetrics:         getMachineInfoMetrics(),
+		podEphemeralStorageMetrics: getPodEphemeralStorageMetrics(),
+		sendDP:                     sendDP,
+		defaultDimensions:          defaultDimensions,
 	}
 }
 
 // Collect fetches the stats from all containers and delivers them as
 // Prometheus metrics. It implements prometheus.PrometheusCollector.
-func (c *CadvisorCollector) Collect() {
+func (c *CadvisorCollector) Collect(hasPodEphemeralStorageStatsGroupEnabled bool) {
 	c.collectMachineInfo()
 	c.collectVersionInfo()
 	c.collectContainersInfo()
+	if hasPodEphemeralStorageStatsGroupEnabled {
+		c.collectEphemeralStorageStatsFromPod()
+	}
 }
 
 func (c *CadvisorCollector) sendDatapoint(dp *datapoint.Datapoint) {
@@ -812,4 +854,33 @@ func (c *CadvisorCollector) collectMachineInfo() {
 			c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, now))
 		}
 	}
+}
+
+func (c *CadvisorCollector) collectEphemeralStorageStatsFromPod() {
+	now := time.Now()
+	podStats, err := c.infoProvider.GetEphemeralStatsFromPods()
+
+	if err != nil {
+		log.Errorf("Couldn't get Pod stats: %s", err)
+		return
+	}
+
+	if podStats == nil {
+		return
+	}
+
+	for _, podStat := range podStats {
+		dims := make(map[string]string)
+
+		dims["kubernetes_pod_uid"] = podStat.PodRef.UID
+		dims["kubernetes_pod_name"] = podStat.PodRef.Name
+		dims["kubernetes_namespace"] = podStat.PodRef.Namespace
+
+		for _, pm := range c.podEphemeralStorageMetrics {
+			for _, metricValue := range pm.getValues(podStat.EphemeralStorage) {
+				c.sendDatapoint(datapoint.New(pm.name, dims, metricValue.value, pm.valueType, now))
+			}
+		}
+	}
+
 }

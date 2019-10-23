@@ -284,8 +284,16 @@ def test_deployments(k8s_cluster):
 
 
 CONTAINER_RESOURCE_METRICS = {
-    "request": {"cpu": "kubernetes.container_cpu_request", "memory": "kubernetes.container_memory_request"},
-    "limit": {"cpu": "kubernetes.container_cpu_limit", "memory": "kubernetes.container_memory_limit"},
+    "request": {
+        "cpu": "kubernetes.container_cpu_request",
+        "memory": "kubernetes.container_memory_request",
+        "ephemeral-storage": "kubernetes.container_ephemeral_storage_request",
+    },
+    "limit": {
+        "cpu": "kubernetes.container_cpu_limit",
+        "memory": "kubernetes.container_memory_limit",
+        "ephemeral-storage": "kubernetes.container_ephemeral_storage_limit",
+    },
 }
 
 
@@ -319,8 +327,8 @@ def test_containers(k8s_cluster):
                 # Check for optional container resource metrics
                 for container in pod.spec.containers:
                     valid_metrics = {
-                        "request": {"cpu": False, "memory": False},
-                        "limit": {"cpu": False, "memory": False},
+                        "request": {"cpu": False, "memory": False, "ephemeral-storage": False},
+                        "limit": {"cpu": False, "memory": False, "ephemeral-storage": False},
                     }
                     if container.resources:
                         if container.resources.requests:
@@ -328,11 +336,15 @@ def test_containers(k8s_cluster):
                                 valid_metrics["request"]["cpu"] = True
                             if container.resources.requests.get("memory", None):
                                 valid_metrics["request"]["memory"] = True
+                            if container.resources.requests.get("ephemeral-storage", None):
+                                valid_metrics["request"]["ephemeral-storage"] = True
                         if container.resources.limits:
                             if container.resources.limits.get("cpu", None):
                                 valid_metrics["limit"]["cpu"] = True
                             if container.resources.limits.get("memory", None):
                                 valid_metrics["limit"]["memory"] = True
+                            if container.resources.limits.get("ephemeral-storage", None):
+                                valid_metrics["limit"]["ephemeral-storage"] = True
 
                     for group, resource in CONTAINER_RESOURCE_METRICS.items():
                         for resource_type, metric in resource.items():
