@@ -10,13 +10,13 @@ import (
 const monitorType = "filesystems"
 
 const (
-	groupInodes  = "inodes"
-	groupLogical = "logical"
+	groupInodes     = "inodes"
+	groupPercentage = "percentage"
 )
 
 var groupSet = map[string]bool{
-	groupInodes:  true,
-	groupLogical: true,
+	groupInodes:     true,
+	groupPercentage: true,
 }
 
 const (
@@ -39,8 +39,8 @@ var metricSet = map[string]monitors.MetricInfo{
 	dfInodesUsed:           {Type: datapoint.Gauge, Group: groupInodes},
 	diskSummaryUtilization: {Type: datapoint.Gauge},
 	diskUtilization:        {Type: datapoint.Gauge},
-	percentBytesFree:       {Type: datapoint.Gauge, Group: groupLogical},
-	percentBytesUsed:       {Type: datapoint.Gauge, Group: groupLogical},
+	percentBytesFree:       {Type: datapoint.Gauge, Group: groupPercentage},
+	percentBytesUsed:       {Type: datapoint.Gauge, Group: groupPercentage},
 	percentInodesFree:      {Type: datapoint.Gauge, Group: groupInodes},
 	percentInodesUsed:      {Type: datapoint.Gauge, Group: groupInodes},
 }
@@ -59,7 +59,7 @@ var groupMetricsMap = map[string][]string{
 		percentInodesFree,
 		percentInodesUsed,
 	},
-	groupLogical: []string{
+	groupPercentage: []string{
 		percentBytesFree,
 		percentBytesUsed,
 	},
