@@ -9,7 +9,6 @@ import (
 	"net"
 	"net/http"
 	"net/url"
-	"reflect"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -39,9 +38,8 @@ type DimensionClient struct {
 	delayedSet map[types.DimensionKey]*types.Dimension
 	// Queue of dimensions to update.  The ordering should never change once
 	// put in the queue so no need for heap/priority queue.
-	delayedQueue         chan *queuedDimension
-	mergedDimensionQueue chan *types.Dimension
-	PropertyFilterSet    *propfilters.FilterSet
+	delayedQueue      chan *queuedDimension
+	PropertyFilterSet *propfilters.FilterSet
 	// For easier unit testing
 	now        func() time.Time
 	logUpdates bool
@@ -88,19 +86,18 @@ func NewDimensionClient(ctx context.Context, conf *config.WriterConfig) (*Dimens
 	sender := newReqSender(ctx, client, conf.PropertiesMaxRequests)
 
 	return &DimensionClient{
-		ctx:                  ctx,
-		Token:                conf.SignalFxAccessToken,
-		APIURL:               conf.ParsedAPIURL(),
-		sendDelay:            time.Duration(conf.PropertiesSendDelaySeconds) * time.Second,
-		history:              history,
-		delayedSet:           make(map[types.DimensionKey]*types.Dimension),
-		delayedQueue:         make(chan *queuedDimension, conf.PropertiesMaxBuffered),
-		mergedDimensionQueue: make(chan *types.Dimension),
-		requestSender:        sender,
-		client:               client,
-		PropertyFilterSet:    propFilters,
-		now:                  time.Now,
-		logUpdates:           conf.LogDimensionUpdates,
+		ctx:               ctx,
+		Token:             conf.SignalFxAccessToken,
+		APIURL:            conf.ParsedAPIURL(),
+		sendDelay:         time.Duration(conf.PropertiesSendDelaySeconds) * time.Second,
+		history:           history,
+		delayedSet:        make(map[types.DimensionKey]*types.Dimension),
+		delayedQueue:      make(chan *queuedDimension, conf.PropertiesMaxBuffered),
+		requestSender:     sender,
+		client:            client,
+		PropertyFilterSet: propFilters,
+		now:               time.Now,
+		logUpdates:        conf.LogDimensionUpdates,
 	}, nil
 }
 
@@ -126,13 +123,18 @@ func (dc *DimensionClient) AcceptDimension(dim *types.Dimension) error {
 		// guaranteed to update a dimension at least some times, even if it
 		// continually gets updated more frequently than `sendDelay` seconds
 		// (which should be dealt with somewhere else).
-		delayedDim.Properties = filteredDim.Properties
-		delayedDim.Tags = filteredDim.Tags
-	} else {
-		if dc.isDuplicate(filteredDim) {
-			return nil
+
+		// If the dim is a merge request, then update the existing one in
+		// place, otherwise replace it.
+		if delayedDim.MergeIntoExisting {
+			delayedDim.Properties = utils.MergeStringMaps(delayedDim.Properties, filteredDim.Properties)
+			delayedDim.Tags = utils.MergeStringSets(delayedDim.Tags, filteredDim.Tags)
+		} else {
+			delayedDim.Properties = filteredDim.Properties
+			delayedDim.Tags = filteredDim.Tags
 		}
 
+	} else {
 		atomic.AddInt64(&dc.DimensionsCurrentlyDelayed, int64(1))
 
 		dc.delayedSet[filteredDim.Key()] = filteredDim
@@ -182,11 +184,7 @@ func (dc *DimensionClient) processQueue() {
 			delete(dc.delayedSet, delayedDim.Dimension.Key())
 			dc.Unlock()
 
-			if !dc.isDuplicate(delayedDim.Dimension) {
-				send(delayedDim.Dimension)
-			}
-		case dim := <-dc.mergedDimensionQueue:
-			send(dim)
+			send(delayedDim.Dimension)
 		}
 	}
 }
@@ -210,26 +208,10 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 		return err
 	}
 
-	req = req.WithContext(context.WithValue(dc.ctx, reqDoneCallbackKeyVar, func() {
-		// Add it to the history only after successfully propagated so that we
-		// will end up retrying updates (monitors should send the property
-		// updates through to the writer on the same interval as datapoints).
-		// This could lead to some duplicates if there are multiple concurrent
-		// calls for the same dim props, but that's ok.
-		dc.history.Add(dim.Key(), dim)
-	}))
-
 	// This will block if we don't have enough requests
 	dc.requestSender.send(req)
 
 	return nil
-}
-
-// isDuplicate returns true if the exact same dimension properties have been
-// synced before in the recent past.
-func (dc *DimensionClient) isDuplicate(dim *types.Dimension) bool {
-	prev, ok := dc.history.Get(dim.Key())
-	return ok && reflect.DeepEqual(prev.(*types.Dimension), dim)
 }
 
 func (dc *DimensionClient) makeDimURL(key, value string) (*url.URL, error) {

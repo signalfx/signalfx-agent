@@ -119,6 +119,9 @@ class Agent:
                     print("\nEvents received:")
                     for event in self.fake_services.events:
                         print_dp_or_event(event)
+                    print("\nTrace spans received:")
+                    for span in self.fake_services.spans:
+                        print(span)
                     print(f"\nDimensions set: {self.fake_services.dims}")
 
     @classmethod

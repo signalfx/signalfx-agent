@@ -7,9 +7,14 @@ type Dimension struct {
 	Name string
 	// Value of the dimension
 	Value string
-	// Properties to be set on the dimension
+	// Properties to be set on the dimension.  If the value of any key is blank
+	// string and MergeIntoExisting is true, that property will be deleted from
+	// the dimension.
 	Properties map[string]string
-	// Tags to apply to the dimension value
+	// Tags to apply to the dimension value.  The maps keys are the tag names
+	// and the value should normally be set to `true`.  If the value of the map
+	// entry for a particular tag is set to false and `MergeIntoExisting` is
+	// true, that tag will be deleted on the backend.
 	Tags map[string]bool
 	// Whether to do a query of existing dimension properties/tags and merge
 	// the given values into those before updating, or whether to entirely
@@ -20,14 +25,16 @@ type Dimension struct {
 // DimensionKey is what uniquely identifies a dimension, its name and value
 // together.
 type DimensionKey struct {
-	Name  string
-	Value string
+	Name    string
+	Value   string
+	IsMerge bool
 }
 
 func (d *Dimension) Key() DimensionKey {
 	return DimensionKey{
-		Name:  d.Name,
-		Value: d.Value,
+		Name:    d.Name,
+		Value:   d.Value,
+		IsMerge: d.MergeIntoExisting,
 	}
 }
 

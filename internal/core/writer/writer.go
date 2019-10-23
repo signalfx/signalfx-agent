@@ -70,7 +70,8 @@ type SignalFxWriter struct {
 
 	// Keeps track of what service names have been seen in trace spans that are
 	// emitted by the agent
-	serviceTracker *tracetracker.ActiveServiceTracker
+	serviceTracker    *tracetracker.ActiveServiceTracker
+	spanSourceTracker *tracetracker.SpanSourceTracker
 
 	// Datapoints sent in the last minute
 	datapointsLastMinute int64
@@ -100,7 +101,8 @@ type SignalFxWriter struct {
 
 // New creates a new un-configured writer
 func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan chan *event.Event,
-	dimensionChan chan *types.Dimension, spanChan chan *trace.Span) (*SignalFxWriter, error) {
+	dimensionChan chan *types.Dimension, spanChan chan *trace.Span,
+	spanSourceTracker *tracetracker.SpanSourceTracker) (*SignalFxWriter, error) {
 	logger := utils.NewThrottledLogger(logrus.WithFields(log.Fields{"component": "writer"}), 20*time.Second)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -135,6 +137,7 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 				return &buf
 			},
 		},
+		spanSourceTracker: spanSourceTracker,
 	}
 	go sw.maintainLastMinuteActivity()
 

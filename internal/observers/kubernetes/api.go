@@ -17,6 +17,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/observers"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/internal/utils/k8sutil"
 	v1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/types"
@@ -247,7 +248,7 @@ func (o *Observer) endpointsInPod(pod *v1.Pod, client *k8s.Clientset, portAnnota
 				break
 			}
 			containerState = "running"
-			containerID = status.ContainerID
+			containerID = k8sutil.StripContainerID(status.ContainerID)
 			containerName = status.Name
 		}
 

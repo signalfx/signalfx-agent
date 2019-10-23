@@ -6,8 +6,8 @@ const (
 	MonitorIDMeta = "signalfx-monitor-id"
 	// The monitor type that generated the datapoint
 	MonitorTypeMeta = "signalfx-monitor-type"
-	// The endpoint id related to this datapoint, if any
-	EndpointIDMeta = "signalfx-endpoint-id"
+	// The endpoint itself
+	EndpointMeta = "signalfx-endpoint"
 	// A hash of the configuration struct instance for the monitor instance
 	// that generated the datapoint.
 	ConfigHashMeta = "sfx-config-hash"

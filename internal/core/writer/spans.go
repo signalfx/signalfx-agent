@@ -152,6 +152,8 @@ func (sw *SignalFxWriter) preprocessSpan(span *trace.Span) {
 		delete(span.Tags, dpmeta.NotHostSpecificMeta)
 	}
 
+	sw.spanSourceTracker.AddSourceTagsToSpan(span)
+
 	// adding smart agent version as a tag
 	span.Tags["signalfx.smartagent.version"] = constants.Version
 	if sw.conf.LogTraceSpans {
