@@ -34,13 +34,15 @@ type State struct {
 	cancel      func()
 
 	metricCache *metrics.DatapointCache
+	dimHandler  *metrics.DimensionHandler
 }
 
 func newState(flavor KubernetesDistribution, restConfig *rest.Config, metricCache *metrics.DatapointCache,
-	namespace string) (*State, error) {
+	dimHandler *metrics.DimensionHandler, namespace string) (*State, error) {
 	state := &State{
 		reflectors:  make(map[string]*cache.Reflector),
 		metricCache: metricCache,
+		dimHandler:  dimHandler,
 		namespace:   namespace,
 	}
 
@@ -107,7 +109,13 @@ func (cs *State) beginSyncForType(ctx context.Context, resType runtime.Object, r
 		cs.metricCache.Lock()
 		defer cs.metricCache.Unlock()
 
+		cs.dimHandler.Lock()
+		defer cs.dimHandler.Unlock()
+
 		if key := cs.metricCache.HandleAdd(obj.(runtime.Object)); key != nil {
+			keysSeen[key] = true
+		}
+		if key := cs.dimHandler.HandleAdd(obj.(runtime.Object)); key != nil {
 			keysSeen[key] = true
 		}
 
@@ -118,7 +126,13 @@ func (cs *State) beginSyncForType(ctx context.Context, resType runtime.Object, r
 		cs.metricCache.Lock()
 		defer cs.metricCache.Unlock()
 
+		cs.dimHandler.Lock()
+		defer cs.dimHandler.Unlock()
+
 		if key := cs.metricCache.HandleDelete(obj.(runtime.Object)); key != nil {
+			delete(keysSeen, key)
+		}
+		if key := cs.dimHandler.HandleDelete(obj.(runtime.Object)); key != nil {
 			delete(keysSeen, key)
 		}
 
@@ -128,12 +142,19 @@ func (cs *State) beginSyncForType(ctx context.Context, resType runtime.Object, r
 		cs.metricCache.Lock()
 		defer cs.metricCache.Unlock()
 
+		cs.dimHandler.Lock()
+		defer cs.dimHandler.Unlock()
+
 		for k := range keysSeen {
 			cs.metricCache.DeleteByKey(k)
+			cs.dimHandler.DeleteByKey(k)
 			delete(keysSeen, k)
 		}
 		for i := range list {
 			if key := cs.metricCache.HandleAdd(list[i].(runtime.Object)); key != nil {
+				keysSeen[key] = true
+			}
+			if key := cs.dimHandler.HandleAdd(list[i].(runtime.Object)); key != nil {
 				keysSeen[key] = true
 			}
 		}

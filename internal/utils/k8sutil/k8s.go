@@ -2,6 +2,7 @@ package k8sutil
 
 import (
 	"fmt"
+	"strings"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
@@ -77,4 +78,9 @@ func PortByNumber(pod *v1.Pod, port int32) *v1.ContainerPort {
 		}
 	}
 	return nil
+}
+
+// StripContainerID returns a pure container id without the runtime scheme://
+func StripContainerID(id string) string {
+	return strings.Replace(strings.Replace(id, "docker://", "", 1), "cri-o://", "", 1)
 }

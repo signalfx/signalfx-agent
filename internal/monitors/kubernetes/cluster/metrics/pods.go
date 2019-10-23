@@ -9,6 +9,7 @@ import (
 	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/types"
 )
 
 func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
@@ -50,54 +51,68 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 	return dps
 }
 
-func dimensionForPod(cachedPod *k8sutil.CachedPod, sc *k8sutil.ServiceCache,
-	rsc *k8sutil.ReplicaSetCache, jc *k8sutil.JobCache) *atypes.Dimension {
-	props, tags := k8sutil.PropsAndTagsFromLabels(cachedPod.LabelSet)
+func dimensionForPod(pod *v1.Pod) *atypes.Dimension {
+	props, tags := k8sutil.PropsAndTagsFromLabels(pod.Labels)
 
-	props["pod_creation_timestamp"] = cachedPod.CreationTimestamp.Format(time.RFC3339)
+	props["pod_creation_timestamp"] = pod.CreationTimestamp.Format(time.RFC3339)
 
-	for _, or := range cachedPod.OwnerReferences {
+	for _, or := range pod.OwnerReferences {
 		props["kubernetes_workload"] = or.Kind
 		props["kubernetes_workload_name"] = or.Name
 		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
 		props[utils.LowercaseFirstChar(or.Kind)+"_uid"] = string(or.UID)
 	}
 
-	_ = getPropsFromTolerations(cachedPod.Tolerations)
-
-	// if pod is selected by a service, sync service as a tag
-	serviceTags := sc.GetMatchingServices(cachedPod)
-	for _, tag := range serviceTags {
-		tags["kubernetes_service_"+tag] = true
-	}
-
-	// if pod was created by a job, check if it was created by a cronjob and sync property if so
-	if jobName, exists := props["job"]; exists {
-		cronjobName, cronjobUID := jc.GetMatchingCronJob(cachedPod.Namespace, jobName)
-		if cronjobName != nil {
-			props["cronJob"] = *cronjobName
-			props["cronJob_uid"] = string(cronjobUID)
-		}
-	}
-
-	// if pod was created by a replicaSet, sync its deployment name as a property
-	if replicaSetName, exists := props["replicaSet"]; exists {
-		deploymentName, deploymentUID := rsc.GetMatchingDeployment(cachedPod.Namespace, replicaSetName)
-		if deploymentName != nil {
-			props["deployment"] = *deploymentName
-			props["deployment_uid"] = string(deploymentUID)
-		}
-	}
+	_ = getPropsFromTolerations(pod.Spec.Tolerations)
 
 	if len(props) == 0 && len(tags) == 0 {
 		return nil
 	}
 
 	return &atypes.Dimension{
-		Name:       "kubernetes_pod_uid",
-		Value:      string(cachedPod.UID),
-		Properties: props,
-		Tags:       tags,
+		Name:              "kubernetes_pod_uid",
+		Value:             string(pod.UID),
+		Properties:        props,
+		Tags:              tags,
+		MergeIntoExisting: true,
+	}
+}
+
+func dimensionForPodServices(pod *v1.Pod, serviceNames []string, isAdd bool) *atypes.Dimension {
+	dim := &atypes.Dimension{
+		Name:              "kubernetes_pod_uid",
+		Value:             string(pod.UID),
+		Tags:              map[string]bool{},
+		MergeIntoExisting: true,
+	}
+
+	for _, srv := range serviceNames {
+		dim.Tags["kubernetes_service_"+srv] = isAdd
+	}
+	return dim
+}
+
+func dimensionForPodDeployment(pod *v1.Pod, deploymentName string, deploymentUID types.UID) *atypes.Dimension {
+	return &atypes.Dimension{
+		Name:  "kubernetes_pod_uid",
+		Value: string(pod.UID),
+		Properties: map[string]string{
+			"deployment":     deploymentName,
+			"deployment_uid": string(deploymentUID),
+		},
+		MergeIntoExisting: true,
+	}
+}
+
+func dimensionForPodCronJob(pod *v1.Pod, cronJobName string, cronJobUID types.UID) *atypes.Dimension {
+	return &atypes.Dimension{
+		Name:  "kubernetes_pod_uid",
+		Value: string(pod.UID),
+		Properties: map[string]string{
+			"cronJob":     cronJobName,
+			"cronJob_uid": string(cronJobUID),
+		},
+		MergeIntoExisting: true,
 	}
 }
 

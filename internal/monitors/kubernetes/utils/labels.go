@@ -1,6 +1,11 @@
 package utils
 
-import "strings"
+import (
+	"strings"
+
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/labels"
+)
 
 var propNameSanitizer = strings.NewReplacer(
 	".", "_",
@@ -23,4 +28,8 @@ func PropsAndTagsFromLabels(labels map[string]string) (map[string]string, map[st
 	}
 
 	return props, tags
+}
+
+func SelectorMatchesPod(selector map[string]string, pod *v1.Pod) bool {
+	return labels.Set(selector).AsSelectorPreValidated().Matches(labels.Set(pod.Labels))
 }

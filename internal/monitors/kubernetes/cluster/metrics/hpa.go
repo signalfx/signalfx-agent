@@ -58,10 +58,6 @@ func dimensionForHpa(hpa *v2beta1.HorizontalPodAutoscaler) *types.Dimension {
 		props[utils.LowercaseFirstChar(or.Kind)+"_uid"] = string(or.UID)
 	}
 
-	if len(props) == 0 && len(tags) == 0 {
-		return nil
-	}
-
 	return &types.Dimension{
 		Name:       "kubernetes_uid",
 		Value:      string(hpa.UID),

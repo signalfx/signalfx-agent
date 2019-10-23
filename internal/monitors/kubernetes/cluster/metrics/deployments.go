@@ -39,10 +39,6 @@ func dimensionForDeployment(dep *appsv1.Deployment) *atypes.Dimension {
 		props[utils.LowercaseFirstChar(or.Kind)+"_uid"] = string(or.UID)
 	}
 
-	if len(props) == 0 && len(tags) == 0 {
-		return nil
-	}
-
 	return &atypes.Dimension{
 		Name:       "kubernetes_uid",
 		Value:      string(dep.UID),

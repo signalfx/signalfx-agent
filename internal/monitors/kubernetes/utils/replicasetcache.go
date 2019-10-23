@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	appsv1 "k8s.io/api/apps/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 )
 
@@ -27,53 +28,48 @@ func NewReplicaSetCache() *ReplicaSetCache {
 // CachedReplicaSet is used for holding only the neccesarry fields we need
 // for syncing deployment name and UID to pods
 type CachedReplicaSet struct {
-	UID           types.UID
-	Name          string
-	Namespace     string
-	Deployment    *string
-	DeploymentUID types.UID
+	UID             types.UID
+	Name            string
+	Namespace       string
+	OwnerReferences []metav1.OwnerReference
+}
+
+func (crs *CachedReplicaSet) AsReplicaSet() *appsv1.ReplicaSet {
+	if crs == nil {
+		return nil
+	}
+
+	return &appsv1.ReplicaSet{
+		ObjectMeta: metav1.ObjectMeta{
+			UID:             crs.UID,
+			Name:            crs.Name,
+			Namespace:       crs.Namespace,
+			OwnerReferences: crs.OwnerReferences,
+		},
+	}
 }
 
 func newCachedReplicaSet(rs *appsv1.ReplicaSet) *CachedReplicaSet {
-	var deployment *string
-	var deploymentUID types.UID
-	for _, or := range rs.OwnerReferences {
-		if or.Kind == "Deployment" {
-			deployment = &or.Name
-			deploymentUID = or.UID
-			break
-		}
-	}
-
 	return &CachedReplicaSet{
-		UID:           rs.UID,
-		Name:          rs.Name,
-		Namespace:     rs.Namespace,
-		Deployment:    deployment,
-		DeploymentUID: deploymentUID,
+		UID:             rs.UID,
+		Name:            rs.Name,
+		Namespace:       rs.Namespace,
+		OwnerReferences: rs.OwnerReferences,
 	}
-}
-
-// IsCached checks if a replicaset is already in the cache or if any of the
-// the cached fields have changed.
-func (rsc *ReplicaSetCache) IsCached(rs *appsv1.ReplicaSet) bool {
-	cachedRs, exists := rsc.cachedReplicaSets[rs.UID]
-
-	return exists &&
-		(cachedRs.Name == rs.Name) &&
-		(cachedRs.Namespace == rs.Namespace)
 }
 
 // AddReplicaSet adds or updates a replicaset in the cache
-// This function should only be called after rs.IsCached
-// to prevent unnecessary updates to the internal cache.
-func (rsc *ReplicaSetCache) AddReplicaSet(rs *appsv1.ReplicaSet) {
+func (rsc *ReplicaSetCache) Add(rs *appsv1.ReplicaSet) {
 	// check if any replicaset exist in this replicaset namespace yet
 	if _, exists := rsc.namespaceRsUIDCache[rs.Namespace]; !exists {
 		rsc.namespaceRsUIDCache[rs.Namespace] = make(map[types.UID]bool)
 	}
 	rsc.cachedReplicaSets[rs.UID] = newCachedReplicaSet(rs)
 	rsc.namespaceRsUIDCache[rs.Namespace][rs.UID] = true
+}
+
+func (rsc *ReplicaSetCache) Get(uid types.UID) *appsv1.ReplicaSet {
+	return rsc.cachedReplicaSets[uid].AsReplicaSet()
 }
 
 // Delete removes a replicaset from the cache
@@ -95,18 +91,11 @@ func (rsc *ReplicaSetCache) DeleteByKey(rsUID types.UID) error {
 	return nil
 }
 
-// GetMatchingDeployment finds a matching replicaset given
-// a namespace and a replicaSet name
-func (rsc *ReplicaSetCache) GetMatchingDeployment(namespace string, replicaSetName string) (*string, types.UID) {
-	var dpName *string
-	var dpUID types.UID
+// GetByNamespace returns all cached replica sets within a given namespace.
+func (rsc *ReplicaSetCache) GetForNamespace(namespace string) []*appsv1.ReplicaSet {
+	var out []*appsv1.ReplicaSet
 	for rsUID := range rsc.namespaceRsUIDCache[namespace] {
-		cachedRs := rsc.cachedReplicaSets[rsUID]
-		if cachedRs.Name == replicaSetName {
-			dpName = cachedRs.Deployment
-			dpUID = cachedRs.DeploymentUID
-			break
-		}
+		out = append(out, rsc.cachedReplicaSets[rsUID].AsReplicaSet())
 	}
-	return dpName, dpUID
+	return out
 }

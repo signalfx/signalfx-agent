@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	batchv1 "k8s.io/api/batch/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
 )
 
@@ -27,64 +28,49 @@ func NewJobCache() *JobCache {
 // CachedJob is used for holding only the neccesarry fields we need
 // for label syncing
 type CachedJob struct {
-	UID        types.UID
-	Name       string
-	Namespace  string
-	CronJob    *string
-	CronJobUID types.UID
+	UID             types.UID
+	Name            string
+	Namespace       string
+	OwnerReferences []metav1.OwnerReference
+}
+
+func (cj *CachedJob) AsJob() *batchv1.Job {
+	if cj == nil {
+		return nil
+	}
+
+	return &batchv1.Job{
+		ObjectMeta: metav1.ObjectMeta{
+			UID:             cj.UID,
+			Name:            cj.Name,
+			Namespace:       cj.Namespace,
+			OwnerReferences: cj.OwnerReferences,
+		},
+	}
 }
 
 // newCachedJob checks if a job was created by a cronjob caches
 // it if so. We only care about these types of jobs for linking
 // pods to cronjobs directly.
 func newCachedJob(job *batchv1.Job) *CachedJob {
-	var cronJob *string
-	var cronJobUID types.UID
-	for _, or := range job.OwnerReferences {
-		if or.Kind == "CronJob" {
-			cronJob = &or.Name
-			cronJobUID = or.UID
-			break
-		}
+	return &CachedJob{
+		UID:             job.UID,
+		Name:            job.Name,
+		Namespace:       job.Namespace,
+		OwnerReferences: job.OwnerReferences,
 	}
-	if cronJob != nil {
-		return &CachedJob{
-			UID:        job.UID,
-			Name:       job.Name,
-			Namespace:  job.Namespace,
-			CronJob:    cronJob,
-			CronJobUID: cronJobUID,
-		}
-	}
-
-	return nil
-}
-
-// IsCached checks if a job is already in the cache or if any of the
-// the cached fields have changed.
-func (jc *JobCache) IsCached(job *batchv1.Job) bool {
-	cachedJob, exists := jc.cachedJobs[job.UID]
-	return exists &&
-		(cachedJob.Name == job.Name) &&
-		(cachedJob.Namespace == job.Namespace)
 }
 
 // AddJob adds or updates a job in cache
-// This function should only be called after jc.IsCached
-// to prevent unnecessary updates to the internal cache.
 // Returns true if the job is added, false if it was ignored
-func (jc *JobCache) AddJob(job *batchv1.Job) bool {
+func (jc *JobCache) Add(job *batchv1.Job) {
 	// check if any jobs exist in this job namespace yet
 	if _, exists := jc.namespaceJobUIDCache[job.Namespace]; !exists {
 		jc.namespaceJobUIDCache[job.Namespace] = make(map[types.UID]bool)
 	}
 	cachedJob := newCachedJob(job)
-	if cachedJob != nil {
-		jc.cachedJobs[job.UID] = cachedJob
-		jc.namespaceJobUIDCache[job.Namespace][job.UID] = true
-		return true
-	}
-	return false
+	jc.cachedJobs[job.UID] = cachedJob
+	jc.namespaceJobUIDCache[job.Namespace][job.UID] = true
 }
 
 // DeleteByKey removes a job from the cache given a UID
@@ -103,18 +89,6 @@ func (jc *JobCache) DeleteByKey(jobUID types.UID) error {
 	return nil
 }
 
-// GetMatchingCronJob finds a matching cronjob given a namespace and job name
-func (jc *JobCache) GetMatchingCronJob(namespace string, jobName string) (*string, types.UID) {
-	var cjName *string
-	var cjUID types.UID
-	for jobUID := range jc.namespaceJobUIDCache[namespace] {
-		cachedJob := jc.cachedJobs[jobUID]
-		if cachedJob.Name == jobName {
-			cjName = cachedJob.CronJob
-			cjUID = cachedJob.CronJobUID
-			break
-		}
-	}
-	return cjName, cjUID
-
+func (jc *JobCache) Get(uid types.UID) *batchv1.Job {
+	return jc.cachedJobs[uid].AsJob()
 }

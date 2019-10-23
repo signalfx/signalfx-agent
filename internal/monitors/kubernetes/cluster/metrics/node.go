@@ -71,7 +71,7 @@ func dimensionForNode(node *v1.Node, useNodeName bool) *atypes.Dimension {
 				"node %s and %s both have machine ID %s.  Please set the `useNodeName` option "+
 				"in this monitor config and set the top-level config option `sendMachineID` to "+
 				"false.", node.Name, otherNodeName, machineID)
-			return nil
+			return dim
 		}
 
 		machineIDToNodeNameMap[machineID] = node.Name
