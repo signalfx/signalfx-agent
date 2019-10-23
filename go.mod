@@ -10,13 +10,13 @@ require (
 	github.com/Azure/go-autorest/autorest/azure/auth v0.4.2 // indirect
 	github.com/Azure/go-autorest/autorest/to v0.3.0 // indirect
 	github.com/Azure/go-autorest/autorest/validation v0.2.0 // indirect
-	github.com/Knetic/govaluate v2.3.0+incompatible
 	github.com/Microsoft/go-winio v0.4.11
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/SAP/go-hdb v0.14.1 // indirect
 	github.com/ShowMax/go-fqdn v0.0.0-20160909083404-2501cdd51ef4
 	github.com/StackExchange/wmi v0.0.0-20180725035823-b12b22c5341f
 	github.com/aliyun/alibaba-cloud-sdk-go v0.0.0-20190315122603-6f9e54af456e // indirect
+	github.com/antonmedv/expr v1.3.0
 	github.com/araddon/gou v0.0.0-20190110011759-c797efecbb61 // indirect
 	github.com/aws/aws-sdk-go v1.18.4 // indirect
 	github.com/boombuler/barcode v1.0.0 // indirect
