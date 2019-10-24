@@ -51,6 +51,7 @@ install -p -m 644 %{_sourcedir}/signalfx-agent.1 $RPM_BUILD_ROOT/%{_mandir}/man1
 
 %config(noreplace) /etc/signalfx/agent.yaml
 %{bundle_dir}
+%caps(CAP_SYS_PTRACE,CAP_DAC_READ_SEARCH=+eip) %{bundle_dir}/bin/signalfx-agent
 /%{_unitdir}/signalfx-agent.service
 /%{_bindir}/signalfx-agent
 /%{_bindir}/agent-status
@@ -70,8 +71,6 @@ if [ $1 -ge 1 ] ; then
   fi
 fi
 %tmpfiles_create %{_tmpfilesdir}/signalfx-agent.conf
-setcap CAP_SYS_PTRACE,CAP_DAC_READ_SEARCH=+eip %{bundle_dir}/bin/signalfx-agent
-%{bundle_dir}/bin/patch-interpreter %{bundle_dir}
 
 %preun
 if command -v systemctl; then
