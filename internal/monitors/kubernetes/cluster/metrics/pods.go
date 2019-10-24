@@ -65,10 +65,6 @@ func dimensionForPod(pod *v1.Pod) *atypes.Dimension {
 
 	_ = getPropsFromTolerations(pod.Spec.Tolerations)
 
-	if len(props) == 0 && len(tags) == 0 {
-		return nil
-	}
-
 	return &atypes.Dimension{
 		Name:              "kubernetes_pod_uid",
 		Value:             string(pod.UID),

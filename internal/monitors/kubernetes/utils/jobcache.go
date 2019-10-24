@@ -49,9 +49,6 @@ func (cj *CachedJob) AsJob() *batchv1.Job {
 	}
 }
 
-// newCachedJob checks if a job was created by a cronjob caches
-// it if so. We only care about these types of jobs for linking
-// pods to cronjobs directly.
 func newCachedJob(job *batchv1.Job) *CachedJob {
 	return &CachedJob{
 		UID:             job.UID,
@@ -62,7 +59,6 @@ func newCachedJob(job *batchv1.Job) *CachedJob {
 }
 
 // AddJob adds or updates a job in cache
-// Returns true if the job is added, false if it was ignored
 func (jc *JobCache) Add(job *batchv1.Job) {
 	// check if any jobs exist in this job namespace yet
 	if _, exists := jc.namespaceJobUIDCache[job.Namespace]; !exists {

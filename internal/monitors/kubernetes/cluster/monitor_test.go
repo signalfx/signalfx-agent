@@ -117,6 +117,9 @@ var _ = Describe("Kubernetes plugin", func() {
 					Name:      "test1",
 					UID:       "abcd",
 					Namespace: "default",
+					Labels: map[string]string{
+						"env": "test",
+					},
 					OwnerReferences: []metav1.OwnerReference{
 						{
 							Kind: "DaemonSet",
@@ -153,6 +156,7 @@ var _ = Describe("Kubernetes plugin", func() {
 		Expect(dims[0].Name).Should(Equal("kubernetes_pod_uid"))
 		Expect(dims[0].Value).Should(Equal("abcd"))
 		Expect(dims[0].Properties["daemonSet"]).Should(Equal("MySet"))
+		Expect(dims[0].Properties["env"]).Should(Equal("test"))
 
 		firstDim := dps[0].Dimensions
 		Expect(firstDim["metric_source"]).To(Equal("kubernetes"))
@@ -166,6 +170,9 @@ var _ = Describe("Kubernetes plugin", func() {
 				Name:      "pod2",
 				UID:       "1234",
 				Namespace: "default",
+				Labels: map[string]string{
+					"env": "prod",
+				},
 			},
 			Status: v1.PodStatus{
 				Phase: v1.PodFailed,
@@ -182,6 +189,12 @@ var _ = Describe("Kubernetes plugin", func() {
 		dps = waitForDatapoints(6)
 		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 0)
 
+		dims = output.WaitForDimensions(1, 3)
+		Expect(len(dims)).Should(Equal(1))
+		Expect(dims[0].Name).Should(Equal("kubernetes_pod_uid"))
+		Expect(dims[0].Value).Should(Equal("1234"))
+		Expect(dims[0].Properties["env"]).Should(Equal("prod"))
+
 		fakeK8s.CreateOrReplaceResource(&v1.Pod{
 			TypeMeta: metav1.TypeMeta{
 				Kind:       "Pod",
@@ -191,6 +204,9 @@ var _ = Describe("Kubernetes plugin", func() {
 				Name:      "pod2",
 				UID:       "1234",
 				Namespace: "default",
+				Labels: map[string]string{
+					"env": "qa",
+				},
 			},
 			Status: v1.PodStatus{
 				Phase: v1.PodFailed,
@@ -206,6 +222,40 @@ var _ = Describe("Kubernetes plugin", func() {
 		_ = waitForDatapoints(6)
 		dps = waitForDatapoints(6)
 		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 2)
+
+		dims = output.WaitForDimensions(1, 3)
+		Expect(len(dims)).Should(Equal(1))
+		Expect(dims[0].Name).Should(Equal("kubernetes_pod_uid"))
+		Expect(dims[0].Value).Should(Equal("1234"))
+		Expect(dims[0].Properties["env"]).Should(Equal("qa"))
+
+		fakeK8s.CreateOrReplaceResource(&v1.Pod{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "Pod",
+				APIVersion: "v1",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "pod2",
+				UID:       "1234",
+				Namespace: "default",
+				Labels: map[string]string{
+					"env": "qa",
+				},
+			},
+			Status: v1.PodStatus{
+				Phase: v1.PodFailed,
+				ContainerStatuses: []v1.ContainerStatus{
+					{
+						Name:         "container2",
+						RestartCount: 3,
+					},
+				},
+			},
+		})
+
+		_ = waitForDatapoints(6)
+		dps = waitForDatapoints(6)
+		expectIntMetric(dps, "kubernetes_pod_uid", "1234", "kubernetes.container_restart_count", 3)
 
 		fakeK8s.DeleteResource(&v1.Pod{
 			TypeMeta: metav1.TypeMeta{
