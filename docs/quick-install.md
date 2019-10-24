@@ -135,7 +135,7 @@ journalctl -u signalfx-agent | tail -100
 
 For Windows, simply review event logs.
 
-For additional installation troubleshooting information, inluding how to review logs, see [Frequently Asked Questions](./faq.md).
+For additional installation troubleshooting information, including how to review logs, see [Frequently Asked Questions](./faq.md).
 
 ***
 
@@ -145,4 +145,4 @@ After a successful installation, you can learn more about:
 
 * The capabilities of the SignalFx Smart Agent. See [Advanced Installation Options](./advanced-install-options.md).
 
-* The SignalFX UI, including how data is displayed. See [15-Minute SignalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html).
+* The SignalFx UI, including how data is displayed. See [15-Minute SignalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html).
