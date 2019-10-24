@@ -19,9 +19,9 @@ import (
 type DimensionHandler struct {
 	sync.Mutex
 
-	uidKindCache  map[types.UID]string
-	emitDimension func(*atypes.Dimension)
-	useNodeName   bool
+	uidKindCache      map[types.UID]string
+	sendDimensionFunc func(*atypes.Dimension)
+	useNodeName       bool
 
 	podCache        *k8sutil.PodCache
 	serviceCache    *k8sutil.ServiceCache
@@ -29,16 +29,16 @@ type DimensionHandler struct {
 	jobCache        *k8sutil.JobCache
 }
 
-// NewDimensionCache creates a new clean cache
-func NewDimensionHandler(useNodeName bool, emitDimension func(*atypes.Dimension)) *DimensionHandler {
+// NewDimensionHandler creates a handler for dimension updates
+func NewDimensionHandler(useNodeName bool, sendDimensionFunc func(*atypes.Dimension)) *DimensionHandler {
 	return &DimensionHandler{
-		uidKindCache:    make(map[types.UID]string),
-		emitDimension:   emitDimension,
-		podCache:        k8sutil.NewPodCache(),
-		serviceCache:    k8sutil.NewServiceCache(),
-		replicaSetCache: k8sutil.NewReplicaSetCache(),
-		jobCache:        k8sutil.NewJobCache(),
-		useNodeName:     useNodeName,
+		uidKindCache:      make(map[types.UID]string),
+		sendDimensionFunc: sendDimensionFunc,
+		podCache:          k8sutil.NewPodCache(),
+		serviceCache:      k8sutil.NewServiceCache(),
+		replicaSetCache:   k8sutil.NewReplicaSetCache(),
+		jobCache:          k8sutil.NewJobCache(),
+		useNodeName:       useNodeName,
 	}
 }
 
@@ -47,37 +47,37 @@ func (dh *DimensionHandler) HandleAdd(newObj runtime.Object) interface{} {
 
 	switch o := newObj.(type) {
 	case *v1.Pod:
-		dh.emitDimension(dimensionForPod(o))
+		dh.sendDimensionFunc(dimensionForPod(o))
 		dh.handleAddPod(o)
 		kind = "Pod"
 	case *appsv1.DaemonSet:
-		dh.emitDimension(dimensionForDaemonSet(o))
+		dh.sendDimensionFunc(dimensionForDaemonSet(o))
 		kind = "DaemonSet"
 	case *appsv1.Deployment:
-		dh.emitDimension(dimensionForDeployment(o))
+		dh.sendDimensionFunc(dimensionForDeployment(o))
 		kind = "Deployment"
 	case *appsv1.ReplicaSet:
 		dh.handleAddReplicaSet(o)
-		dh.emitDimension(dimensionForReplicaSet(o))
+		dh.sendDimensionFunc(dimensionForReplicaSet(o))
 		kind = "ReplicaSet"
 	case *v1.Node:
-		dh.emitDimension(dimensionForNode(o, dh.useNodeName))
+		dh.sendDimensionFunc(dimensionForNode(o, dh.useNodeName))
 		kind = "Node"
 	case *v1.Service:
 		dh.handleAddService(o)
 		kind = "Service"
 	case *appsv1.StatefulSet:
-		dh.emitDimension(dimensionForStatefulSet(o))
+		dh.sendDimensionFunc(dimensionForStatefulSet(o))
 		kind = "StatefulSet"
 	case *batchv1.Job:
-		dh.emitDimension(dimensionForJob(o))
+		dh.sendDimensionFunc(dimensionForJob(o))
 		dh.handleAddJob(o)
 		kind = "Job"
 	case *batchv1beta1.CronJob:
-		dh.emitDimension(dimensionForCronJob(o))
+		dh.sendDimensionFunc(dimensionForCronJob(o))
 		kind = "CronJob"
 	case *v2beta1.HorizontalPodAutoscaler:
-		dh.emitDimension(dimensionForHpa(o))
+		dh.sendDimensionFunc(dimensionForHpa(o))
 		kind = "HorizontalPodAutoscaler"
 	default:
 		return nil
@@ -149,7 +149,7 @@ func (dh *DimensionHandler) handleAddPod(pod *v1.Pod) {
 	}
 	if len(podServiceNames) != 0 {
 		if dim := dimensionForPodServices(pod, podServiceNames, true); dim != nil {
-			dh.emitDimension(dim)
+			dh.sendDimensionFunc(dim)
 		}
 	}
 
@@ -157,7 +157,7 @@ func (dh *DimensionHandler) handleAddPod(pod *v1.Pod) {
 	if rsRef != nil {
 		if replicaSet := dh.replicaSetCache.Get(rsRef.UID); replicaSet != nil {
 			if deployRef := k8sutil.FindOwnerWithKind(replicaSet.OwnerReferences, "Deployment"); deployRef != nil {
-				dh.emitDimension(dimensionForPodDeployment(pod, deployRef.Name, deployRef.UID))
+				dh.sendDimensionFunc(dimensionForPodDeployment(pod, deployRef.Name, deployRef.UID))
 			}
 		}
 	}
@@ -166,7 +166,7 @@ func (dh *DimensionHandler) handleAddPod(pod *v1.Pod) {
 	if jobRef != nil {
 		if job := dh.jobCache.Get(jobRef.UID); job != nil {
 			if cronJobRef := k8sutil.FindOwnerWithKind(job.OwnerReferences, "CronJob"); cronJobRef != nil {
-				dh.emitDimension(dimensionForPodCronJob(pod, cronJobRef.Name, cronJobRef.UID))
+				dh.sendDimensionFunc(dimensionForPodCronJob(pod, cronJobRef.Name, cronJobRef.UID))
 			}
 		}
 	}
@@ -181,7 +181,7 @@ func (dh *DimensionHandler) handleAddService(service *v1.Service) {
 	for _, pod := range dh.podCache.GetForNamespace(service.Namespace) {
 		if k8sutil.SelectorMatchesPod(service.Spec.Selector, pod) {
 			dim := dimensionForPodServices(pod, []string{service.Name}, true)
-			dh.emitDimension(dim)
+			dh.sendDimensionFunc(dim)
 		}
 	}
 }
@@ -201,7 +201,7 @@ func (dh *DimensionHandler) handleDeleteService(uid types.UID) error {
 	for _, pod := range dh.podCache.GetForNamespace(service.Namespace) {
 		if k8sutil.SelectorMatchesPod(service.Spec.Selector, pod) {
 			dim := dimensionForPodServices(pod, []string{service.Name}, false)
-			dh.emitDimension(dim)
+			dh.sendDimensionFunc(dim)
 		}
 	}
 	return nil
@@ -220,7 +220,7 @@ func (dh *DimensionHandler) handleAddReplicaSet(rs *appsv1.ReplicaSet) {
 		if rsRef := k8sutil.FindOwnerWithUID(pod.OwnerReferences, rs.UID); rsRef == nil {
 			continue
 		}
-		dh.emitDimension(dimensionForPodDeployment(pod, deployRef.Name, deployRef.UID))
+		dh.sendDimensionFunc(dimensionForPodDeployment(pod, deployRef.Name, deployRef.UID))
 	}
 }
 
@@ -239,6 +239,6 @@ func (dh *DimensionHandler) handleAddJob(job *batchv1.Job) {
 		if cronJobRef := k8sutil.FindOwnerWithUID(pod.OwnerReferences, job.UID); cronJobRef == nil {
 			continue
 		}
-		dh.emitDimension(dimensionForPodCronJob(pod, cronJobRef.Name, cronJobRef.UID))
+		dh.sendDimensionFunc(dimensionForPodCronJob(pod, cronJobRef.Name, cronJobRef.UID))
 	}
 }

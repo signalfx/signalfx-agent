@@ -18,5 +18,7 @@ func (dc *DimensionClient) InternalMetrics() []*datapoint.Datapoint {
 		sfxclient.Gauge("sfxagent.dim_updates_currently_delayed", nil, atomic.LoadInt64(&dc.DimensionsCurrentlyDelayed)),
 		sfxclient.CumulativeP("sfxagent.dim_updates_dropped", nil, &dc.TotalDimensionsDropped),
 		sfxclient.CumulativeP("sfxagent.dim_updates_flappy_total", nil, &dc.TotalFlappyUpdates),
+		sfxclient.CumulativeP("sfxagent.dim_updates_client_errors", nil, &dc.TotalClientError4xxResponses),
+		sfxclient.CumulativeP("sfxagent.dim_updates_retries", nil, &dc.TotalRetriedUpdates),
 	}
 }

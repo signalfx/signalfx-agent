@@ -9,12 +9,12 @@ import (
 	"net"
 	"net/http"
 	"net/url"
+	"reflect"
 	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
 
-	lru "github.com/hashicorp/golang-lru"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/propfilters"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -30,9 +30,8 @@ type DimensionClient struct {
 	APIURL        *url.URL
 	client        *http.Client
 	requestSender *reqSender
+	deduplicator  *deduplicator
 	sendDelay     time.Duration
-	// Keeps track of what has been synced so we don't do unnecessary syncs
-	history *lru.Cache
 	// Set of dims that have been queued up for sending.  Use map to quickly
 	// look up in case we need to replace due to flappy prop generation.
 	delayedSet map[types.DimensionKey]*types.Dimension
@@ -48,7 +47,9 @@ type DimensionClient struct {
 	TotalDimensionsDropped     int64
 	// The number of dimension updates that happened to the same dimension
 	// within sendDelay.
-	TotalFlappyUpdates int64
+	TotalFlappyUpdates           int64
+	TotalClientError4xxResponses int64
+	TotalRetriedUpdates          int64
 }
 
 type queuedDimension struct {
@@ -58,11 +59,6 @@ type queuedDimension struct {
 
 // NewDimensionClient returns a new client
 func NewDimensionClient(ctx context.Context, conf *config.WriterConfig) (*DimensionClient, error) {
-	history, err := lru.New(int(conf.PropertiesHistorySize))
-	if err != nil {
-		panic("could not create properties history cache: " + err.Error())
-	}
-
 	propFilters, err := conf.PropertyFilters()
 	if err != nil {
 		return nil, err
@@ -90,9 +86,9 @@ func NewDimensionClient(ctx context.Context, conf *config.WriterConfig) (*Dimens
 		Token:             conf.SignalFxAccessToken,
 		APIURL:            conf.ParsedAPIURL(),
 		sendDelay:         time.Duration(conf.PropertiesSendDelaySeconds) * time.Second,
-		history:           history,
 		delayedSet:        make(map[types.DimensionKey]*types.Dimension),
 		delayedQueue:      make(chan *queuedDimension, conf.PropertiesMaxBuffered),
+		deduplicator:      newDeduplicator(int(conf.PropertiesHistorySize)),
 		requestSender:     sender,
 		client:            client,
 		PropertyFilterSet: propFilters,
@@ -117,23 +113,27 @@ func (dc *DimensionClient) AcceptDimension(dim *types.Dimension) error {
 	defer dc.Unlock()
 
 	if delayedDim := dc.delayedSet[filteredDim.Key()]; delayedDim != nil {
-		dc.TotalFlappyUpdates++
+		if !reflect.DeepEqual(delayedDim, filteredDim) {
+			dc.TotalFlappyUpdates++
 
-		// Don't further delay it if it gets updated so that we are always
-		// guaranteed to update a dimension at least some times, even if it
-		// continually gets updated more frequently than `sendDelay` seconds
-		// (which should be dealt with somewhere else).
+			// Don't further delay it if it gets updated so that we are always
+			// guaranteed to update a dimension at least some times, even if it
+			// continually gets updated more frequently than `sendDelay` seconds
+			// (which should be dealt with somewhere else).
 
-		// If the dim is a merge request, then update the existing one in
-		// place, otherwise replace it.
-		if delayedDim.MergeIntoExisting {
-			delayedDim.Properties = utils.MergeStringMaps(delayedDim.Properties, filteredDim.Properties)
-			delayedDim.Tags = utils.MergeStringSets(delayedDim.Tags, filteredDim.Tags)
-		} else {
-			delayedDim.Properties = filteredDim.Properties
-			delayedDim.Tags = filteredDim.Tags
+			if filteredDim.MergeIntoExisting != delayedDim.MergeIntoExisting {
+				log.Warnf("Dimension %s/%s is updated with both merging and non-merging, which will result in race conditions and inconsistent data.", filteredDim.Name, filteredDim.Value)
+			}
+			// If the dim is a merge request, then update the existing one in
+			// place, otherwise replace it.
+			if delayedDim.MergeIntoExisting {
+				delayedDim.Properties = utils.MergeStringMaps(delayedDim.Properties, filteredDim.Properties)
+				delayedDim.Tags = utils.MergeStringSets(delayedDim.Tags, filteredDim.Tags)
+			} else {
+				delayedDim.Properties = filteredDim.Properties
+				delayedDim.Tags = filteredDim.Tags
+			}
 		}
-
 	} else {
 		atomic.AddInt64(&dc.DimensionsCurrentlyDelayed, int64(1))
 
@@ -146,6 +146,7 @@ func (dc *DimensionClient) AcceptDimension(dim *types.Dimension) error {
 			break
 		default:
 			dc.TotalDimensionsDropped++
+			atomic.AddInt64(&dc.DimensionsCurrentlyDelayed, int64(-1))
 			return errors.New("dropped dimension update, propertiesMaxBuffered exceeded")
 		}
 	}
@@ -154,19 +155,6 @@ func (dc *DimensionClient) AcceptDimension(dim *types.Dimension) error {
 }
 
 func (dc *DimensionClient) processQueue() {
-	send := func(dim *types.Dimension) {
-		if err := dc.setPropertiesOnDimension(dim); err != nil {
-			log.WithError(err).WithField("dim", dim.Key()).Error("Could not send dimension update")
-		} else if dc.logUpdates {
-			log.WithFields(log.Fields{
-				"name":       dim.Name,
-				"value":      dim.Value,
-				"properties": dim.Properties,
-				"tags":       dim.Tags,
-			}).Info("Updated dimension")
-		}
-	}
-
 	for {
 		select {
 		case <-dc.ctx.Done():
@@ -184,14 +172,15 @@ func (dc *DimensionClient) processQueue() {
 			delete(dc.delayedSet, delayedDim.Dimension.Key())
 			dc.Unlock()
 
-			send(delayedDim.Dimension)
+			if err := dc.setPropertiesOnDimension(delayedDim.Dimension); err != nil {
+				log.WithError(err).WithField("dim", delayedDim.Key()).Error("Could not send dimension update")
+			}
 		}
 	}
 }
 
 // setPropertiesOnDimension will set custom properties on a specific dimension
-// value.  It will wipe out any description on the dimension.  There is no
-// retry logic here so any failures are terminal.
+// value.  It will wipe out any description on the dimension.
 func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error {
 	var (
 		req *http.Request
@@ -208,8 +197,46 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 		return err
 	}
 
-	// This will block if we don't have enough requests
-	dc.requestSender.send(req)
+	req = req.WithContext(
+		context.WithValue(req.Context(), requestFailedCallbackKey, requestFailedCallback(func(statusCode int) {
+			if statusCode >= 400 && statusCode < 500 {
+				atomic.AddInt64(&dc.TotalClientError4xxResponses, int64(1))
+				// Don't retry if it is a 4xx error since these imply an input/auth
+				// error, which is not going to be remedied by retrying.
+				return
+			}
+
+			atomic.AddInt64(&dc.TotalRetriedUpdates, int64(1))
+			// The retry is meant to provide some measure of robustness against
+			// temporary API failures.  If the API is down for significant
+			// periods of time, dimension updates will probably eventually back
+			// up beyond conf.PropertiesMaxBuffered and start dropping.
+			if err := dc.AcceptDimension(dim); err != nil {
+				log.WithFields(log.Fields{
+					"error": err,
+					"dim":   dim.Key().String(),
+				}).Errorf("Failed to retry dimension update")
+			}
+		})))
+
+	req = req.WithContext(
+		context.WithValue(req.Context(), requestSuccessCallbackKey, requestSuccessCallback(func() {
+			dc.deduplicator.Add(dim)
+			if dc.logUpdates {
+				log.WithFields(log.Fields{
+					"name":       dim.Name,
+					"value":      dim.Value,
+					"properties": dim.Properties,
+					"tags":       dim.Tags,
+					"isMerge":    dim.MergeIntoExisting,
+				}).Info("Updated dimension")
+			}
+		})))
+
+	if !dc.deduplicator.IsDuplicate(dim) {
+		// This will block if we don't have enough requests
+		dc.requestSender.send(req)
+	}
 
 	return nil
 }
@@ -247,6 +274,8 @@ func (dc *DimensionClient) makePatchRequest(key, value string, props map[string]
 	}
 
 	json, err := json.Marshal(map[string]interface{}{
+		"key":              key,
+		"value":            value,
 		"customProperties": propsWithNil,
 		"tags":             tagsToAdd,
 		"tagsToRemove":     tagsToRemove,

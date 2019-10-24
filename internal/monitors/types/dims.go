@@ -1,5 +1,7 @@
 package types
 
+import "fmt"
+
 // Dimension represents a SignalFx dimension object and its associated
 // properties and tags.
 type Dimension struct {
@@ -25,16 +27,18 @@ type Dimension struct {
 // DimensionKey is what uniquely identifies a dimension, its name and value
 // together.
 type DimensionKey struct {
-	Name    string
-	Value   string
-	IsMerge bool
+	Name  string
+	Value string
+}
+
+func (dk DimensionKey) String() string {
+	return fmt.Sprintf("[%s/%s]", dk.Name, dk.Value)
 }
 
 func (d *Dimension) Key() DimensionKey {
 	return DimensionKey{
-		Name:    d.Name,
-		Value:   d.Value,
-		IsMerge: d.MergeIntoExisting,
+		Name:  d.Name,
+		Value: d.Value,
 	}
 }
 

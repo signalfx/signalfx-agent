@@ -61,7 +61,6 @@ func newCachedService(svc *v1.Service) *CachedService {
 }
 
 // AddService adds or updates a service in cache
-// Returns true if the service is added, false if it was ignored
 func (sc *ServiceCache) AddService(svc *v1.Service) {
 	// check if any services exist in this services namespace yet
 	if _, exists := sc.namespaceSvcUIDCache[svc.Namespace]; !exists {
@@ -81,8 +80,6 @@ func (sc *ServiceCache) Delete(svc *v1.Service) error {
 }
 
 // DeleteByKey removes a service from the cache given a UID
-// Returns pods that were previously matched by this service
-// so their properties may be updated accordingly
 func (sc *ServiceCache) DeleteByKey(svcUID types.UID) error {
 	cachedService, exists := sc.cachedServices[svcUID]
 	if !exists {
