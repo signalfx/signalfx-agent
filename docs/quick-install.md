@@ -101,7 +101,7 @@ If you are unable to install the Smart Agent, consider the following issues:
 
 ***
  
-#### You may need to update your realm. 
+#### Update your realm
 
 By default, the Smart Agent will send data to the *us0* realm. To find your realm:
 
@@ -111,7 +111,7 @@ By default, the Smart Agent will send data to the *us0* realm. To find your real
 
 ***
 
-#### You may need to set the endpoints. 
+#### Set the endpoints
 
 To explicitly set the ingest, API server, and trace endpoint URLs, review the following examples:  
 
