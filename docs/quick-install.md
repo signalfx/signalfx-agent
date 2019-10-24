@@ -103,10 +103,9 @@ If you are unable to install the Smart Agent, consider the following issues:
 
 To find your realm:
 
-#. In SignalFx, in the top, right corner, click your profile icon.
-#. Click :guilabel:`My Profile`. 
-#. Next :guilabel:'Organizations', and review the listed realm.
-
+1. In SignalFx, in the top, right corner, click your profile icon.
+2. Click **My Profile**.
+3. Next to **Organizations**, review the listed realm.
 
 ***
 
@@ -120,15 +119,17 @@ traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
 
 ***
 
-* Review error logs.
+* Review your error logs
 
-For Linux, you can use the following command to view logs via Journal:
+For Linux, use the following command to view error logs via Journal:
 
 ```sh
 journalctl -u signalfx-agent | tail -100
 ```
 
-For Windows, simply review event logs.
+For Windows, simply review the event logs.
+
+***
 
 For additional installation troubleshooting information, including how to review logs, see [Frequently Asked Questions](./faq.md).
 
