@@ -98,20 +98,15 @@ Trace Spans Sent (last minute):   0
 ### Troubleshoot the Smart Agent installation
 
 If you are unable to install the Smart Agent, consider the following issues:
+ 
+* You may need to update your realm. By default, the Smart Agent will send data to the *us0* realm. 
 
-* You may need to update your realm. By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to set the signalFxRealm option with your correct realm:
-
-
-```sh
-signalFxRealm: YOUR_SIGNALFX_REALM
-```
-
-```sh
 To find your realm:
-1. In SignalFx, in the top, right corner, click your profile icon.
-2. Click **My Profile**.
-3. Next to **Organizations**, review the listed realm.
-```
+
+#. In SignalFx, in the top, right corner, click your profile icon.
+#. Click :guilabel:`My Profile`. 
+#. Next :guilabel:'Organizations', and review the listed realm.
+
 
 ***
 
