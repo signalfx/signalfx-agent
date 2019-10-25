@@ -49,7 +49,7 @@ install -p -m 644 %{_sourcedir}/signalfx-agent.1 $RPM_BUILD_ROOT/%{_mandir}/man1
 
 %files
 
-%config(noreplace) /etc/signalfx/agent.yaml
+%config(noreplace) %verify(not md5 size mtime) /etc/signalfx/agent.yaml
 %{bundle_dir}
 %caps(CAP_SYS_PTRACE,CAP_DAC_READ_SEARCH=+eip) %{bundle_dir}/bin/signalfx-agent
 /%{_unitdir}/signalfx-agent.service
