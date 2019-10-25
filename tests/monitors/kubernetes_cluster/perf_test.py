@@ -238,7 +238,7 @@ def test_large_k8s_cluster_deployment_prop():
     pods_per_dp = 100
     with fake_k8s_api_server(print_logs=False) as [fake_k8s_client, k8s_envvars]:
         v1_client = client.CoreV1Api(fake_k8s_client)
-        v1beta1_client = client.ExtensionsV1beta1Api(fake_k8s_client)
+        appsv1_client = client.AppsV1Api(fake_k8s_client)
         replica_sets = {}
         for i in range(0, dp_count):
             dp_name = f"dp-{i}"
@@ -254,9 +254,9 @@ def test_large_k8s_cluster_deployment_prop():
                 "pod_names": [],
             }
 
-            v1beta1_client.create_namespaced_replica_set(
+            appsv1_client.create_namespaced_replica_set(
                 body={
-                    "apiVersion": "extensions/v1beta1",
+                    "apiVersion": "apps/v1",
                     "kind": "ReplicaSet",
                     "metadata": {
                         "name": rs_name,
@@ -375,7 +375,7 @@ def test_large_k8s_cluster_deployment_prop():
             ), "Got wrong number of dimension updates"
 
             for _, replica_set in replica_sets.items():
-                v1beta1_client.delete_namespaced_replica_set(name=replica_set["rs_name"], namespace="default", body={})
+                appsv1_client.delete_namespaced_replica_set(name=replica_set["rs_name"], namespace="default", body={})
                 for pod_name in replica_set["pod_names"]:
                     v1_client.delete_namespaced_pod(name=pod_name, namespace="default", body={})
 

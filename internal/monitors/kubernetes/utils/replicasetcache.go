@@ -3,7 +3,7 @@ package utils
 import (
 	"errors"
 
-	"k8s.io/api/extensions/v1beta1"
+	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/types"
 )
 
@@ -34,7 +34,7 @@ type CachedReplicaSet struct {
 	DeploymentUID types.UID
 }
 
-func newCachedReplicaSet(rs *v1beta1.ReplicaSet) *CachedReplicaSet {
+func newCachedReplicaSet(rs *appsv1.ReplicaSet) *CachedReplicaSet {
 	var deployment *string
 	var deploymentUID types.UID
 	for _, or := range rs.OwnerReferences {
@@ -56,7 +56,7 @@ func newCachedReplicaSet(rs *v1beta1.ReplicaSet) *CachedReplicaSet {
 
 // IsCached checks if a replicaset is already in the cache or if any of the
 // the cached fields have changed.
-func (rsc *ReplicaSetCache) IsCached(rs *v1beta1.ReplicaSet) bool {
+func (rsc *ReplicaSetCache) IsCached(rs *appsv1.ReplicaSet) bool {
 	cachedRs, exists := rsc.cachedReplicaSets[rs.UID]
 
 	return exists &&
@@ -67,7 +67,7 @@ func (rsc *ReplicaSetCache) IsCached(rs *v1beta1.ReplicaSet) bool {
 // AddReplicaSet adds or updates a replicaset in the cache
 // This function should only be called after rs.IsCached
 // to prevent unnecessary updates to the internal cache.
-func (rsc *ReplicaSetCache) AddReplicaSet(rs *v1beta1.ReplicaSet) {
+func (rsc *ReplicaSetCache) AddReplicaSet(rs *appsv1.ReplicaSet) {
 	// check if any replicaset exist in this replicaset namespace yet
 	if _, exists := rsc.namespaceRsUIDCache[rs.Namespace]; !exists {
 		rsc.namespaceRsUIDCache[rs.Namespace] = make(map[types.UID]bool)
@@ -77,7 +77,7 @@ func (rsc *ReplicaSetCache) AddReplicaSet(rs *v1beta1.ReplicaSet) {
 }
 
 // Delete removes a replicaset from the cache
-func (rsc *ReplicaSetCache) Delete(rs *v1beta1.ReplicaSet) error {
+func (rsc *ReplicaSetCache) Delete(rs *appsv1.ReplicaSet) error {
 	return rsc.DeleteByKey(rs.UID)
 }
 
