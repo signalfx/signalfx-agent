@@ -21,7 +21,7 @@ if (( $deb_revision > 1 )); then
   tag=$tag-deb${deb_revision}
 fi
 
-message="$($git tag -l --format='%(contents)' $tag)"
+message="$($git tag -l --format='%(contents)' $tag 2>/dev/null || true)"
 if [[ -z $message ]]; then
   message="Release of $tag"
 fi
