@@ -293,17 +293,24 @@ jobs:
       - setup_remote_docker:
           docker_layer_caching: false
       - run: |
-          apk add make bash
-          PULL_CACHE=yes AGENT_VERSION=latest make bundle
+          apk add make bash git
+          export PULL_CACHE=yes
+          AGENT_VERSION=latest make bundle
+          make deb-test-package
+          make rpm-test-package
       - run: |
           mkdir -p /tmp/workspace
           docker save -o /tmp/workspace/image.tar quay.io/signalfx/signalfx-agent-dev:latest
           mv signalfx-agent-latest.tar.gz /tmp/workspace/
+          mv packaging/deb/output/signalfx-agent*.deb /tmp/workspace/
+          mv packaging/rpm/output/x86_64/signalfx-agent*.rpm /tmp/workspace/
       - persist_to_workspace:
           root: /tmp/workspace
           paths:
             - image.tar
             - signalfx-agent-latest.tar.gz
+            - signalfx-agent*.deb
+            - signalfx-agent*.rpm
 
   modules:
     executor: goexecutor
@@ -418,6 +425,8 @@ jobs:
         enum: ["rpm", "deb"]
     steps:
       - checkout
+      - attach_workspace:
+          at: /tmp/workspace
       - run:
           environment:
             PACKAGE_TYPE: << parameters.package_type >>
@@ -549,9 +558,13 @@ workflows:
       - package_tests:
           name: rpm_package_tests
           package_type: rpm
+          requires:
+            - build
       - package_tests:
           name: deb_package_tests
           package_type: deb
+          requires:
+            - build
       - bundle_tests:
           requires:
             - build
