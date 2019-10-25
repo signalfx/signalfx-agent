@@ -5,7 +5,7 @@ ENV container docker
 RUN zypper -n install -l curl dbus-1 gzip hostname systemd-sysvinit tar wget
 
 ARG CHEF_INSTALLER_ARGS
-RUN echo 'VERSION = 15' > /etc/SuSE-release && \
+RUN echo -e 'Enterprise\nVERSION = 15' > /etc/SuSE-release && \
     curl -L https://omnitruck.chef.io/install.sh | bash -s -- $CHEF_INSTALLER_ARGS
 
 WORKDIR /opt/cookbooks
