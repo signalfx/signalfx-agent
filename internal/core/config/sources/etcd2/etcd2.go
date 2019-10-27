@@ -40,9 +40,10 @@ var _ types.ConfigSourceConfig = &Config{}
 // New creates a new etcd2 config source
 func New(conf *Config) (types.ConfigSource, error) {
 	c, err := client.New(client.Config{
-		Endpoints: conf.Endpoints,
-		Username:  conf.Username,
-		Password:  conf.Password,
+		Endpoints:               conf.Endpoints,
+		Username:                conf.Username,
+		Password:                conf.Password,
+		HeaderTimeoutPerRequest: 10 * time.Second,
 	})
 	if err != nil {
 		return nil, err

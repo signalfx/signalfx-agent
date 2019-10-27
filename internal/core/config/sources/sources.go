@@ -256,6 +256,7 @@ func (dvp *DynamicValueProvider) ReadDynamicValues(ctx context.Context, configCo
 				continue
 			}
 
+			log.Infof("Rendered content: %s", renderedContent)
 			dvp.changes <- renderedContent
 			if !sourceConfig.Watch {
 				return

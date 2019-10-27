@@ -2,6 +2,7 @@ package sources
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config/types"
@@ -9,6 +10,7 @@ import (
 )
 
 type configSourceCacher struct {
+	sync.Mutex
 	source        types.ConfigSource
 	cache         map[string]map[string][]byte
 	ctx           context.Context
@@ -28,66 +30,54 @@ func newConfigSourceCacher(ctx context.Context, source types.ConfigSource, notif
 
 // optional controls whether it treats a path not found error as a real error
 // that causes watching to never be initiated.
-func (c *configSourceCacher) Get(path string, optional bool) (map[string][]byte, error) {
+func (c *configSourceCacher) Get(path string) (map[string][]byte, error) {
+	c.Lock()
+	defer c.Unlock()
+
 	if v, ok := c.cache[path]; ok {
 		return v, nil
 	}
-	v, version, err := c.source.Get(path)
+
+	sourceIter := NewConfigSourceIterator(c.source, path)
+
+	val, err := sourceIter.Next(c.ctx)
 	if err != nil {
-		if _, ok := err.(types.ErrNotFound); !ok || !optional {
-			return nil, err
-		}
+		return nil, err
 	}
 
-	c.cache[path] = v
+	c.cache[path] = val
 
 	if c.shouldWatch {
-		// From now on, subsequent Gets will read from the cache.  It is the
-		// responsibility of the watch method to keep the cache up to date.
-		go c.watch(path, version)
-	}
+		go func() {
+			for {
+				val, err := sourceIter.Next(c.ctx)
+				// We were cancelled on so exit this goroutine
+				if c.ctx.Err() != nil {
+					return
+				}
 
-	return v, nil
-}
+				if err != nil {
+					log.WithFields(log.Fields{
+						"path":   path,
+						"source": c.source.Name(),
+						"error":  err,
+					}).Error("Could not get next value from config source")
+					time.Sleep(10 * time.Second)
+					continue
+				}
 
-func (c *configSourceCacher) watch(path string, version uint64) {
-	for {
-		err := c.source.WaitForChange(c.ctx, path, version)
-		if c.ctx.Err() != nil {
-			return
-		}
-		if err != nil {
-			// If the file isn't found, just continue
-			if _, ok := err.(types.ErrNotFound); ok {
-				continue
+				c.Lock()
+				c.cache[path] = val
+				c.Unlock()
+
+				c.notifyChanged(path)
 			}
-			log.WithFields(log.Fields{
-				"path":   path,
-				"source": c.source.Name(),
-				"error":  err,
-			}).Error("Could not watch path for change")
-			time.Sleep(10 * time.Second)
-			continue
-		}
-
-		values, newVersion, err := c.source.Get(path)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"path":   path,
-				"source": c.source.Name(),
-				"error":  err,
-			}).Error("Could not get path after change")
-			version = 0
-			time.Sleep(10 * time.Second)
-			continue
-		}
-
-		version = newVersion
-		c.cache[path] = values
-		c.notifyChanged(path)
+		}()
 	}
+
+	return val, nil
 }
 
 func (c *configSourceCacher) notifyChanged(path string) {
-	c.notifications <- c.source.Name() + "://" + path
+	c.notifications <- c.source.Name() + ":" + path
 }

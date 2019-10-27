@@ -2,7 +2,7 @@ import string
 from functools import partial as p
 
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_datapoint_with_dim, tcp_socket_open
+from tests.helpers.assertions import has_datapoint, has_datapoint_with_dim, tcp_socket_open
 from tests.helpers.util import container_ip, run_container, wait_for
 
 CONFIG = string.Template(
@@ -61,3 +61,41 @@ def test_bad_globbing():
         final_conf = BAD_GLOB_CONFIG.substitute(zk_endpoint="%s:2181" % zkhost)
         with Agent.run(final_conf) as agent:
             assert wait_for(lambda: "zookeeper only supports globs" in agent.output)
+
+
+def test_optional_with_zk_outage():
+    with Agent.run(
+        f"""
+            globalDimensions:
+              env: {{"#from": "zookeeper:/env", optional: true}}
+            configSources:
+              zookeeper:
+                endpoints:
+                - 127.0.0.1:2181
+            monitors:
+             - type: collectd/uptime
+             - {{ "#from": "zookeeper:/monitors/*", flatten: true, optional: true }}
+       """
+    ) as agent:
+        assert wait_for(lambda: agent.fake_services.datapoints)
+
+        with run_container("zookeeper:3.4") as zk_cont:
+            zkhost = container_ip(zk_cont)
+            assert wait_for(p(tcp_socket_open, zkhost, 2181), 30)
+            create_znode(zk_cont, "/env", "prod")
+
+            agent.update_config(
+                f"""
+                globalDimensions:
+                  env: {{"#from": "zookeeper:/env", optional: true}}
+                configSources:
+                  zookeeper:
+                    endpoints:
+                    - {zkhost}:2181
+                monitors:
+                 - type: collectd/uptime
+                 - {{ "#from": "zookeeper:/monitors/*", flatten: true, optional: true }}
+             """
+            )
+
+            assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"env": "test"}))

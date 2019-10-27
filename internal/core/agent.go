@@ -176,18 +176,31 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 	shutdownComplete := make(chan struct{})
 
 	go func(ctx context.Context) {
+		successfulLoadCount := 0
 		for {
 			select {
 			case load := <-configLoads:
-				log.Info("New load loaded")
+				log.Info("New config loaded")
 
 				if load.Config == nil || load.Error != nil {
 					log.WithFields(log.Fields{
 						"path": configPath,
 						"err":  load.Error,
-					}).Error("Failed to load config, cannot continue!")
-					os.Exit(2)
+					}).Error("Failed to load config")
+
+					// If we can't load the config the first time, just bail
+					// out so that there is a clear indication to the thing
+					// that is managing the agent process that something is
+					// wrong.  If we fail to reload the config after one has
+					// been accepted, just ignore it so that some monitoring
+					// will still happen.
+					if successfulLoadCount == 0 {
+						os.Exit(2)
+					}
+					continue
 				}
+
+				successfulLoadCount++
 
 				agent.configure(load.Config)
 				log.Info("Done configuring agent")
