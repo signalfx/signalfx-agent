@@ -5,6 +5,7 @@
 package sources
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 	"time"
@@ -118,66 +119,66 @@ func parseSourceConfig(config []byte) (SourceConfig, error) {
 	return out.Sources, nil
 }
 
+type ConfigFileLoad struct {
+	content string
+	err     error
+}
+
 // ReadConfig reads in the main agent config file and optionally watches for
 // changes on it.  It will be returned immediately, along with a channel that
 // will be sent any updated config content if watching is enabled.
-func ReadConfig(configPath string, stop <-chan struct{}) ([]byte, <-chan []byte, error) {
+func StartReadingConfig(ctx context.Context, configPath string) (<-chan []byte, error) {
 	// Fetch the config file with a dummy file source since we don't know what
 	// poll rate to configure on it yet.
-	contentMap, version, err := file.New(1 * time.Second).Get(configPath)
+	contentMap, _, err := file.New(1 * time.Second).Get(configPath)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 	if len(contentMap) > 1 {
-		return nil, nil, fmt.Errorf("path %s resulted in multiple files", configPath)
+		return nil, fmt.Errorf("path %s resulted in multiple files", configPath)
 	}
 	if len(contentMap) == 0 {
-		return nil, nil, fmt.Errorf("config file %s could not be found", configPath)
+		return nil, fmt.Errorf("config file %s could not be found", configPath)
 	}
 
 	configContent := contentMap[configPath]
 	sourceConfig, err := parseSourceConfig(configContent)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// Now that we know the poll rate for files, we can make a new file source
 	// that will be used for the duration of the agent process.
 	fileSource := file.New(time.Duration(sourceConfig.File.PollRateSeconds) * time.Second)
+	fileSourceIter := NewConfigSourceIterator(fileSource, configPath)
 
-	if sourceConfig.Watch {
-		log.Info("Watching for config file changes")
-		changes := make(chan []byte)
-		go func() {
-			for {
-				err := fileSource.WaitForChange(configPath, version, stop)
+	changes := make(chan []byte)
 
-				if utils.IsSignalChanClosed(stop) {
-					return
-				}
+	go func() {
+		defer close(changes)
+		for {
+			contentMap, err := fileSourceIter.Next(ctx)
 
-				if err != nil {
-					log.WithError(err).Error("Could not wait for changes to config file")
-					time.Sleep(5 * time.Second)
-					continue
-				}
+			if ctx.Err() != nil {
+				return
+			}
 
-				log.Info("Config file changed")
-
-				contentMap, version, err = fileSource.Get(configPath)
-				if err != nil {
-					log.WithError(err).Error("Could not get config file after it was changed")
-					time.Sleep(5 * time.Second)
-					continue
-				}
-
+			if err != nil {
+				log.WithError(err).Error("Could not read config file")
+				time.Sleep(5 * time.Second)
+			} else {
 				changes <- contentMap[configPath]
 			}
-		}()
-		return configContent, changes, nil
-	}
 
-	return configContent, nil, nil
+			if !sourceConfig.Watch {
+				return
+			}
+
+			log.Info("Watching for config file changes")
+		}
+	}()
+
+	return changes, nil
 }
 
 // DynamicValueProvider handles setting up and providing dynamic values from
@@ -185,6 +186,19 @@ func ReadConfig(configPath string, stop <-chan struct{}) ([]byte, <-chan []byte,
 type DynamicValueProvider struct {
 	lastRemoteConfigSourceHash uint64
 	sources                    map[string]types.ConfigSource
+	changes                    chan []byte
+	ctx                        context.Context
+	cancel                     context.CancelFunc
+}
+
+func NewDynamicValueProvider() *DynamicValueProvider {
+	return &DynamicValueProvider{
+		changes: make(chan []byte),
+	}
+}
+
+func (dvp *DynamicValueProvider) Changes() <-chan []byte {
+	return dvp.changes
 }
 
 // ReadDynamicValues takes the config file content and processes it for any
@@ -192,10 +206,16 @@ type DynamicValueProvider struct {
 // contains the rendered values.  It will optionally watch the sources of any
 // dynamic values configured and send updated YAML docs on the returned
 // channel.
-func (dvp *DynamicValueProvider) ReadDynamicValues(configContent []byte, stop <-chan struct{}) ([]byte, <-chan []byte, error) {
+func (dvp *DynamicValueProvider) ReadDynamicValues(ctx context.Context, configContent []byte) error {
+	// Shut down any previous reads
+	if dvp.cancel != nil {
+		dvp.cancel()
+	}
+	dvp.ctx, dvp.cancel = context.WithCancel(ctx)
+
 	sourceConfig, err := parseSourceConfig(configContent)
 	if err != nil {
-		return nil, nil, err
+		return err
 	}
 
 	hash := sourceConfig.Hash()
@@ -210,7 +230,7 @@ func (dvp *DynamicValueProvider) ReadDynamicValues(configContent []byte, stop <-
 		}
 		dvp.sources, err = sourceConfig.SourceInstances()
 		if err != nil {
-			return nil, nil, err
+			return err
 		}
 		dvp.lastRemoteConfigSourceHash = hash
 	}
@@ -221,41 +241,35 @@ func (dvp *DynamicValueProvider) ReadDynamicValues(configContent []byte, stop <-
 
 	cachers := make(map[string]*configSourceCacher)
 	for name, source := range dvp.sources {
-		cacher := newConfigSourceCacher(source, pathChanges, stop, sourceConfig.Watch)
+		cacher := newConfigSourceCacher(dvp.ctx, source, pathChanges, sourceConfig.Watch)
 		cachers[name] = cacher
 	}
 
 	resolver := newResolver(cachers)
 
-	renderedContent, err := renderDynamicValues(configContent, resolver.Resolve)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	var changes chan []byte
-	if sourceConfig.Watch {
-		changes = make(chan []byte)
-
-		go func() {
-			for {
-				select {
-				case path := <-pathChanges:
-					log.Debugf("Dynamic value path %s changed", path)
-
-					renderedContent, err = renderDynamicValues(configContent, resolver.Resolve)
-					if err != nil {
-						log.WithError(err).Error("Could not render dynamic values in config after change")
-						time.Sleep(5 * time.Second)
-						continue
-					}
-
-					changes <- renderedContent
-				case <-stop:
-					return
-				}
+	go func() {
+		for {
+			renderedContent, err := renderDynamicValues(configContent, resolver.Resolve)
+			if err != nil {
+				log.WithError(err).Error("Could not render dynamic values in config after change")
+				time.Sleep(5 * time.Second)
+				continue
 			}
-		}()
-	}
 
-	return renderedContent, changes, nil
+			dvp.changes <- renderedContent
+			if !sourceConfig.Watch {
+				return
+			}
+
+			select {
+			case path := <-pathChanges:
+				log.Debugf("Dynamic value path %s changed", path)
+				continue
+			case <-dvp.ctx.Done():
+				return
+			}
+		}
+	}()
+
+	return nil
 }

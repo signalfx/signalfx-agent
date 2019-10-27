@@ -178,21 +178,22 @@ func Startup(configPath string) (context.CancelFunc, <-chan struct{}) {
 	go func(ctx context.Context) {
 		for {
 			select {
-			case config := <-configLoads:
-				log.Info("New config loaded")
+			case load := <-configLoads:
+				log.Info("New load loaded")
 
-				if config == nil {
+				if load.Config == nil || load.Error != nil {
 					log.WithFields(log.Fields{
 						"path": configPath,
+						"err":  load.Error,
 					}).Error("Failed to load config, cannot continue!")
 					os.Exit(2)
 				}
 
-				agent.configure(config)
+				agent.configure(load.Config)
 				log.Info("Done configuring agent")
 
-				if config.InternalStatusHost != "" {
-					agent.serveDiagnosticInfo(config.InternalStatusHost, config.InternalStatusPort)
+				if load.Config.InternalStatusHost != "" {
+					agent.serveDiagnosticInfo(load.Config.InternalStatusHost, load.Config.InternalStatusPort)
 				}
 
 			case <-ctx.Done():
@@ -213,8 +214,12 @@ func Status(configPath string, section string) ([]byte, error) {
 		return nil, err
 	}
 
-	conf := <-configLoads
-	return readStatusInfo(conf.InternalStatusHost, conf.InternalStatusPort, section)
+	load := <-configLoads
+	if load.Error != nil {
+		return nil, load.Error
+	}
+
+	return readStatusInfo(load.Config.InternalStatusHost, load.Config.InternalStatusPort, section)
 }
 
 // StreamDatapoints reads the text from the diagnostic socket and returns it if available.
@@ -224,8 +229,12 @@ func StreamDatapoints(configPath string, metric string, dims string) (io.ReadClo
 		return nil, err
 	}
 
-	conf := <-configLoads
-	return streamDatapoints(conf.InternalStatusHost, conf.InternalStatusPort, metric, dims)
+	load := <-configLoads
+	if load.Error != nil {
+		return nil, load.Error
+	}
+
+	return streamDatapoints(load.Config.InternalStatusHost, load.Config.InternalStatusPort, metric, dims)
 }
 
 func startSyncClusterProperty(dimChan chan *types.Dimension, cluster string, hostDims map[string]string, setOnHost bool) {

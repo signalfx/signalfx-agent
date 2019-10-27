@@ -4,6 +4,7 @@
 package vault
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"os"
@@ -236,7 +237,7 @@ func (v *vaultConfigSource) Get(path string) (map[string][]byte, uint64, error) 
 
 // Vault doesn't have a "watch" concept but we do have to renew tokens, so
 // watch for errors doing that.
-func (v *vaultConfigSource) WaitForChange(path string, version uint64, stop <-chan struct{}) error {
+func (v *vaultConfigSource) WaitForChange(ctx context.Context, path string, version uint64) error {
 	vaultPath, _, err := splitConfigPath(path)
 	if err != nil {
 		return err
@@ -252,12 +253,12 @@ func (v *vaultConfigSource) WaitForChange(path string, version uint64, stop <-ch
 			if customWatcher == nil {
 				// There is nothing to do except wait for the whole thing to
 				// stop
-				<-stop
+				<-ctx.Done()
 			} else {
 			WATCHER:
 				for {
 					select {
-					case <-stop:
+					case <-ctx.Done():
 						break WATCHER
 					case <-customWatcher.ShouldRefetchCh():
 						break WATCHER
@@ -277,7 +278,7 @@ func (v *vaultConfigSource) WaitForChange(path string, version uint64, stop <-ch
 			timer := time.NewTimer(time.Until(refetchTime))
 			defer timer.Stop()
 			select {
-			case <-stop:
+			case <-ctx.Done():
 				break
 			case <-timer.C:
 				break
@@ -288,7 +289,7 @@ func (v *vaultConfigSource) WaitForChange(path string, version uint64, stop <-ch
 		// This will receive if there are an errors renewing a secret lease
 		case watchErr = <-renewer.DoneCh():
 			break
-		case <-stop:
+		case <-ctx.Done():
 			renewer.Stop()
 		}
 	}

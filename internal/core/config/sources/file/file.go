@@ -1,6 +1,7 @@
 package file
 
 import (
+	"context"
 	"fmt"
 	"hash/crc64"
 	"io/ioutil"
@@ -91,13 +92,13 @@ func (fcs *fileConfigSource) getFile(path string) ([]byte, uint64, error) {
 // subtleties (e.g. symlinks, remote mounts, etc.) when using inotify (or the
 // wrapping golang library, fsnotify), so the simplest and most robust thing is
 // to just poll the file and see if it has changed.
-func (fcs *fileConfigSource) WaitForChange(path string, version uint64, stop <-chan struct{}) error {
+func (fcs *fileConfigSource) WaitForChange(ctx context.Context, path string, version uint64) error {
 	ticker := time.NewTicker(fcs.pollInterval)
 	defer ticker.Stop()
 
 	for {
 		select {
-		case <-stop:
+		case <-ctx.Done():
 			return nil
 		case <-ticker.C:
 			_, newVersion, err := fcs.Get(path)

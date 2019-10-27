@@ -5,93 +5,65 @@ import (
 	"fmt"
 	"os"
 	"regexp"
-	"time"
 
 	yaml "gopkg.in/yaml.v2"
 
 	"github.com/creasty/defaults"
-	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/signalfx/signalfx-agent/internal/utils/structtags"
 	log "github.com/sirupsen/logrus"
 )
 
+type ConfigLoad struct {
+	Config *Config
+	Error  error
+}
+
 // LoadConfig handles loading the main config file and recursively rendering
-// any dynamic values in the config.  If watchInterval is 0, the config will be
-// loaded once and sent to the returned channel, after which the channel will
-// be closed.  Otherwise, the returned channel will remain open and will be
-// sent any config updates.
-func LoadConfig(ctx context.Context, configPath string) (<-chan *Config, error) {
-	configYAML, configFileChanges, err := sources.ReadConfig(configPath, ctx.Done())
+// any dynamic values in the config.
+func LoadConfig(ctx context.Context, configPath string) (<-chan ConfigLoad, error) {
+	loads := make(chan ConfigLoad)
+
+	configFileChanges, err := sources.StartReadingConfig(ctx, configPath)
 	if err != nil {
-		return nil, errors.WithMessage(err, "Could not read config file "+configPath)
+		return nil, fmt.Errorf("could not read config file %s: %v", configPath, err)
 	}
 
-	dynamicProvider := sources.DynamicValueProvider{}
+	go func() {
+		dynamicProvider := sources.NewDynamicValueProvider()
 
-	dynamicValueCtx, cancelDynamic := context.WithCancel(ctx)
-	finalYAML, dynamicChanges, err := dynamicProvider.ReadDynamicValues(configYAML, dynamicValueCtx.Done())
-	if err != nil {
-		cancelDynamic()
-		return nil, err
-	}
+		for {
+			config, err := doSingleLoad(ctx, configFileChanges, dynamicProvider)
+			loads <- ConfigLoad{config, err}
+		}
+	}()
 
-	config, err := loadYAML(finalYAML)
-	if err != nil {
-		cancelDynamic()
-		return nil, err
-	}
-
-	// Give it enough room to hold the initial config load.
-	loads := make(chan *Config, 1)
-
-	loads <- config
-
-	if configFileChanges != nil {
-		go func() {
-			for {
-				// We can have changes either in the dynamic values or the
-				// config file itself.  If the config file changes, we have to
-				// recreate the dynamic value watcher since it is configured
-				// from the config file.
-				select {
-				case configYAML = <-configFileChanges:
-					cancelDynamic()
-
-					dynamicValueCtx, cancelDynamic = context.WithCancel(ctx)
-
-					finalYAML, dynamicChanges, err = dynamicProvider.ReadDynamicValues(configYAML, dynamicValueCtx.Done())
-					if err != nil {
-						log.WithError(err).Error("Could not read dynamic values in config after change")
-						time.Sleep(5 * time.Second)
-						continue
-					}
-
-					config, err := loadYAML(finalYAML)
-					if err != nil {
-						log.WithError(err).Error("Could not parse config after change")
-						continue
-					}
-
-					loads <- config
-				case finalYAML = <-dynamicChanges:
-					config, err := loadYAML(finalYAML)
-					if err != nil {
-						log.WithError(err).Error("Could not parse config after change")
-						continue
-					}
-					loads <- config
-				case <-ctx.Done():
-					cancelDynamic()
-					return
-				}
-			}
-		}()
-	} else {
-		cancelDynamic()
-	}
 	return loads, nil
+}
+
+func doSingleLoad(ctx context.Context, configFileChanges <-chan []byte, dynamicProvider *sources.DynamicValueProvider) (*Config, error) {
+	// We can have changes either in the dynamic values or the
+	// config file itself.  If the config file changes, we have to
+	// recreate the dynamic value watcher since it is configured
+	// from the config file.
+	for {
+		select {
+		case configYAML := <-configFileChanges:
+			err := dynamicProvider.ReadDynamicValues(ctx, configYAML)
+			if err != nil {
+				return nil, err
+			}
+		case finalYAML := <-dynamicProvider.Changes():
+			config, err := loadYAML(finalYAML)
+			if err != nil {
+				return nil, err
+			}
+			return config, nil
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		}
+	}
 }
 
 func loadYAML(fileContent []byte) (*Config, error) {

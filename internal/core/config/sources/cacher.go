@@ -1,25 +1,25 @@
 package sources
 
 import (
+	"context"
 	"time"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config/types"
-	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 )
 
 type configSourceCacher struct {
 	source        types.ConfigSource
 	cache         map[string]map[string][]byte
-	stop          <-chan struct{}
+	ctx           context.Context
 	shouldWatch   bool
 	notifications chan<- string
 }
 
-func newConfigSourceCacher(source types.ConfigSource, notifications chan<- string, stop <-chan struct{}, shouldWatch bool) *configSourceCacher {
+func newConfigSourceCacher(ctx context.Context, source types.ConfigSource, notifications chan<- string, shouldWatch bool) *configSourceCacher {
 	return &configSourceCacher{
 		source:        source,
-		stop:          stop,
+		ctx:           ctx,
 		shouldWatch:   shouldWatch,
 		notifications: notifications,
 		cache:         make(map[string]map[string][]byte),
@@ -52,8 +52,8 @@ func (c *configSourceCacher) Get(path string, optional bool) (map[string][]byte,
 
 func (c *configSourceCacher) watch(path string, version uint64) {
 	for {
-		err := c.source.WaitForChange(path, version, c.stop)
-		if utils.IsSignalChanClosed(c.stop) {
+		err := c.source.WaitForChange(c.ctx, path, version)
+		if c.ctx.Err() != nil {
 			return
 		}
 		if err != nil {
@@ -66,7 +66,7 @@ func (c *configSourceCacher) watch(path string, version uint64) {
 				"source": c.source.Name(),
 				"error":  err,
 			}).Error("Could not watch path for change")
-			time.Sleep(3 * time.Second)
+			time.Sleep(10 * time.Second)
 			continue
 		}
 
@@ -78,7 +78,7 @@ func (c *configSourceCacher) watch(path string, version uint64) {
 				"error":  err,
 			}).Error("Could not get path after change")
 			version = 0
-			time.Sleep(3 * time.Second)
+			time.Sleep(10 * time.Second)
 			continue
 		}
 

@@ -3,6 +3,7 @@
 package zookeeper
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"hash/crc64"
@@ -165,7 +166,7 @@ func (z *zkConfigSource) getNodes(path string, watch bool) (map[string][]byte, u
 	return contentMap, crc64.Checksum([]byte(sums), z.table), events, nil
 }
 
-func (z *zkConfigSource) WaitForChange(path string, version uint64, stop <-chan struct{}) error {
+func (z *zkConfigSource) WaitForChange(ctx context.Context, path string, version uint64) error {
 	_, newVersion, events, err := z.getNodes(path, true)
 	if err != nil {
 		return err
@@ -178,7 +179,7 @@ func (z *zkConfigSource) WaitForChange(path string, version uint64, stop <-chan 
 	cases := []reflect.SelectCase{
 		{
 			Dir:  reflect.SelectRecv,
-			Chan: reflect.ValueOf(stop),
+			Chan: reflect.ValueOf(ctx.Done()),
 		},
 	}
 	for _, ch := range events {

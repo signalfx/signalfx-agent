@@ -1,6 +1,7 @@
 package env
 
 import (
+	"context"
 	"os"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config/types"
@@ -43,7 +44,7 @@ func (ecs *envConfigSource) Get(path string) (map[string][]byte, uint64, error) 
 
 // WaitForChange does nothing with envvars.  Technically they can change within
 // the lifetime of the process but those changes are not picked up currently.
-func (ecs *envConfigSource) WaitForChange(path string, version uint64, stop <-chan struct{}) error {
-	<-stop
+func (ecs *envConfigSource) WaitForChange(ctx context.Context, path string, version uint64) error {
+	<-ctx.Done()
 	return nil
 }
