@@ -103,7 +103,7 @@ type Monitor struct {
 func (cm *Monitor) Configure(conf *Config) error {
 	templateTextConcatenated := ""
 	for _, text := range conf.allTemplates() {
-		templateTextConcatenated += "\n" + text
+		templateTextConcatenated += "\n" + text + "\n"
 	}
 
 	// Allow blank template text so that we have a standard config item that
