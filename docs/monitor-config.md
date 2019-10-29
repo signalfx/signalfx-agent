@@ -95,6 +95,7 @@ These are all of the monitors included in the agent, along with their possible c
 - [collectd/vmem](./monitors/collectd-vmem.md)
 - [collectd/zookeeper](./monitors/collectd-zookeeper.md)
 - [conviva](./monitors/conviva.md)
+- [coredns](./monitors/coredns.md)
 - [cpu](./monitors/cpu.md)
 - [disk-io](./monitors/disk-io.md)
 - [docker-container-stats](./monitors/docker-container-stats.md)
