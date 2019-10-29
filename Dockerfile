@@ -512,13 +512,15 @@ COPY --from=pandoc-converter /docs/signalfx-agent.1 ./signalfx-agent.1
 
 COPY packaging/etc/agent.yaml ./agent.yaml
 
-COPY --from=final-image / ./signalfx-agent/
+COPY --from=final-image / /usr/lib/signalfx-agent/
 # Remove the agent config so it doesn't confuse people in the final output.
-RUN rm -rf ./signalfx-agent/etc/signalfx
+RUN rm -rf /usr/lib/signalfx-agent/etc/signalfx
 
 # Remove agent-status symlink; will be recreated in /usr/bin during packaging.
-RUN rm -f ./signalfx-agent/bin/agent-status
+RUN rm -f /usr/lib/signalfx-agent/bin/agent-status
 
+RUN /usr/lib/signalfx-agent/bin/patch-interpreter /usr/lib/signalfx-agent
+RUN mv /usr/lib/signalfx-agent ./signalfx-agent
 
 ###### RPM Packager #######
 FROM fedora:27 as rpm-packager
@@ -534,9 +536,12 @@ COPY packaging/rpm/signalfx-agent.spec ./SPECS/signalfx-agent.spec
 COPY packaging/rpm/add-output-to-repo ./add-output-to-repo
 COPY --from=pandoc-converter /docs/signalfx-agent.1 ./SOURCES/signalfx-agent.1
 
-COPY --from=final-image / ./SOURCES/signalfx-agent/
+COPY --from=final-image / /usr/lib/signalfx-agent/
 # Remove the agent config so it doesn't confuse people in the final output.
-RUN rm -rf ./SOURCES/signalfx-agent/etc/signalfx
+RUN rm -rf /usr/lib/signalfx-agent/etc/signalfx
 
 # Remove agent-status symlink; will be recreated in /usr/bin during packaging.
-RUN rm -f ./SOURCES/signalfx-agent/bin/agent-status
+RUN rm -f /usr/lib/signalfx-agent/bin/agent-status
+
+RUN /usr/lib/signalfx-agent/bin/patch-interpreter /usr/lib/signalfx-agent/
+RUN mv /usr/lib/signalfx-agent/ ./SOURCES/signalfx-agent
