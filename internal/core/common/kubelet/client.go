@@ -2,18 +2,17 @@ package kubelet
 
 import (
 	"crypto/tls"
-	"crypto/x509"
 	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
-	"runtime"
 	"strings"
 	"time"
 
 	"github.com/pkg/errors"
+	"github.com/signalfx/signalfx-agent/internal/core/common/auth"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -61,14 +60,6 @@ type Client struct {
 
 // NewClient creates a new client with the given config
 func NewClient(kubeletAPI *APIConfig) (*Client, error) {
-	var certs *x509.CertPool
-	if runtime.GOOS != "windows" {
-		var err error
-		certs, err = x509.SystemCertPool()
-		if err != nil {
-			return nil, errors.WithMessage(err, "Could not load system x509 cert pool")
-		}
-	}
 	if kubeletAPI.URL == "" {
 		hostname, err := os.Hostname()
 		if err != nil {
@@ -85,32 +76,19 @@ func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 	var transport http.RoundTripper = &(*http.DefaultTransport.(*http.Transport))
 	switch kubeletAPI.AuthType {
 	case AuthTypeTLS:
-		if kubeletAPI.CACertPath != "" && certs != nil {
-			if err := augmentCertPoolFromCAFile(certs, kubeletAPI.CACertPath); err != nil {
-				return nil, err
-			}
+		tlsConfig, err := auth.TLSConfig(tlsConfig, kubeletAPI.CACertPath, kubeletAPI.ClientCertPath, kubeletAPI.ClientKeyPath)
+
+		if err != nil {
+			return nil, err
 		}
 
-		var clientCerts []tls.Certificate
-
-		clientCertPath := kubeletAPI.ClientCertPath
-		clientKeyPath := kubeletAPI.ClientKeyPath
-		if clientCertPath != "" && clientKeyPath != "" {
-			cert, err := tls.LoadX509KeyPair(clientCertPath, clientKeyPath)
-			if err != nil {
-				return nil, errors.WithMessage(err,
-					fmt.Sprintf("Kubelet client cert/key could not be loaded from %s/%s",
-						clientKeyPath, clientCertPath))
-			}
-			clientCerts = append(clientCerts, cert)
-			log.Infof("Configured TLS client cert in %s with key %s", clientCertPath, clientKeyPath)
-		}
-
-		tlsConfig.Certificates = clientCerts
-		tlsConfig.RootCAs = certs
-		tlsConfig.BuildNameToCertificate()
 		transport.(*http.Transport).TLSClientConfig = tlsConfig
 	case AuthTypeServiceAccount:
+		certs, err := auth.CertPool()
+
+		if err != nil {
+			return nil, err
+		}
 
 		token, err := ioutil.ReadFile("/var/run/secrets/kubernetes.io/serviceaccount/token")
 		if err != nil {
@@ -119,7 +97,7 @@ func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 		}
 
 		rootCAFile := "/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
-		if err := augmentCertPoolFromCAFile(certs, rootCAFile); err != nil {
+		if err := auth.AugmentCertPoolFromCAFile(certs, rootCAFile); err != nil {
 			return nil, errors.WithMessage(err, fmt.Sprintf("Could not load root CA config from %s", rootCAFile))
 		}
 
@@ -127,9 +105,9 @@ func NewClient(kubeletAPI *APIConfig) (*Client, error) {
 		t := transport.(*http.Transport)
 		t.TLSClientConfig = tlsConfig
 
-		transport = &transportWithToken{
+		transport = &auth.TransportWithToken{
 			Transport: t,
-			token:     string(token),
+			Token:     string(token),
 		}
 
 		log.Debug("Using service account authentication for Kubelet")
