@@ -36,6 +36,26 @@ monitors:
         assert wait_for(p(has_datapoint_with_dim, agent.fake_services, "plugin", "df")), "Didn't get df datapoints"
 
 
+def test_basic_without_newline():
+    with Agent.run(
+        """
+monitors:
+  - type: collectd/df
+  - type: collectd/custom
+    template: |
+      LoadPlugin "filecount"
+      <Plugin filecount>
+        <Directory "/bin">
+          Instance "bin"
+        </Directory>
+      </Plugin>"""
+    ) as agent:
+        assert wait_for(
+            p(has_datapoint_with_dim, agent.fake_services, "plugin", "filecount")
+        ), "Didn't get filecount datapoints"
+        assert wait_for(p(has_datapoint_with_dim, agent.fake_services, "plugin", "df")), "Didn't get df datapoints"
+
+
 def test_multiple_templates():
     with Agent.run(
         """
