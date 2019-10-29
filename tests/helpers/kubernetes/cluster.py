@@ -148,6 +148,9 @@ class Cluster:
                         for event in backend.events or []:
                             print_dp_or_event(event)
                         print(f"\nDimensions set: {backend.dims}")
+                        print("\nTrace spans received:")
+                        for span in backend.spans or []:
+                            print(span)
 
     @contextmanager
     def run_tunnels(self, fake_services):

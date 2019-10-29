@@ -44,6 +44,7 @@ class Agent:
         agent_conf.setdefault("writer", {"propertiesSendDelaySeconds": 1})
         agent_conf.setdefault("globalDimensions", {"kubernetes_cluster": self.namespace})
         agent_conf.setdefault("intervalSeconds", 5)
+        agent_conf.setdefault("logging", {"level": "debug"})
         agent_conf.setdefault("enableBuiltInFiltering", True)
         agent_conf.setdefault("ingestUrl", f"http://{self.fake_services_pod_ip}:{self.fake_services.ingest_port}")
         agent_conf.setdefault("apiUrl", f"http://{self.fake_services_pod_ip}:{self.fake_services.api_port}")
