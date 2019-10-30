@@ -326,8 +326,9 @@ jobs:
       # to build many binaries in parallel. `go build` can use a max of 1 GB per invokation.
       - run: |
           mkdir ~/testresults
-          (cd /tmp; GO111MODULE=on go get github.com/tebeka/go2xunit)
-          bash -eo pipefail -c "NUM_CORES=4 make -s test | tee /dev/stderr | go2xunit" > ~/testresults/unit.xml
+          (cd /tmp; GO111MODULE=on go get gotest.tools/gotestsum)
+          make compileDeps
+          CGO_ENABLED=0 gotestsum --format short-verbose --junitfile ~/testresults/unit.xml --raw-command -- go test --json -p 4 ./...
       - save_test_results
 
   docs_test:
