@@ -269,4 +269,9 @@ check-links:
 	docker build -t check-links scripts/docs/check-links
 	docker run --rm -v $(CURDIR):/usr/src/signalfx-agent:ro check-links
 
+.PHONY: dependency-check
+dependency-check: BUNDLE_PATH ?= signalfx-agent-$(shell ./scripts/current-version).tar.gz
+dependency-check:
+	./scripts/dependency-check/run.sh $(BUNDLE_PATH)
+
 FORCE:

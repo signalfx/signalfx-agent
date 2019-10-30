@@ -483,6 +483,24 @@ jobs:
           fi
           make check-links
 
+  dependency_check:
+    docker:
+      - image: owasp/dependency-check:5.2.2
+        user: root
+    steps:
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - restore_cache:
+          key: v1-dependency-check-nvd-{{ checksum ".circleci/scripts/run-dependency-check.sh" }}
+      - run: .circleci/scripts/run-dependency-check.sh
+      - save_cache:
+          key: v1-dependency-check-nvd-{{ checksum ".circleci/scripts/run-dependency-check.sh" }}
+          paths:
+            - /usr/share/dependency-check/data
+      - save_test_results:
+          dir: /root/project/reports
+
   update_stage_cache:
     docker:
       - image: docker:18.09
@@ -575,6 +593,9 @@ workflows:
           target: python
       - helm_check
       - check_links
+      - dependency_check:
+          requires:
+            - build
 
   stage_cache_job:
     jobs:
