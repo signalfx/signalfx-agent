@@ -1,4 +1,3 @@
-{{- if and .Values.clusterName .Values.signalFxAccessToken -}}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -104,4 +103,3 @@ spec:
       - name: machine-id
         hostPath:
           path: /etc/machine-id
-{{- end -}}
