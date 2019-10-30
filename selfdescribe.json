@@ -18417,6 +18417,489 @@
       "singleInstance": false
     },
     {
+      "monitorType": "coredns",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "This monitor scrapes prometheus metrics exposed by CoreDNS. The default port for these metrics\nare exposed on port 9153, at the /metrics path. For more information about CoreDNS prometheus\nmetrics, check out their [documentation](https://coredns.io/plugins/metrics/).\n\nThe following is an example configuration for a Kubernetes environment:\n\n```\nmonitors:\n- type: coredns\n  discoveryRule: kubernetes_pod_name =~ \"coredns\" \u0026\u0026 port == 9153\n  extraDimensions:\n    metric_source: \"k8s-coredns\"\n```",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "coredns_build_info",
+            "coredns_cache_misses_total",
+            "coredns_dns_request_count_total",
+            "coredns_dns_request_duration_seconds",
+            "coredns_dns_request_duration_seconds_bucket",
+            "coredns_dns_request_duration_seconds_count",
+            "coredns_dns_request_size_bytes",
+            "coredns_dns_request_size_bytes_bucket",
+            "coredns_dns_request_size_bytes_count",
+            "coredns_dns_request_type_count_total",
+            "coredns_dns_response_rcode_count_total",
+            "coredns_dns_response_size_bytes",
+            "coredns_dns_response_size_bytes_bucket",
+            "coredns_dns_response_size_bytes_count",
+            "coredns_health_request_duration_seconds",
+            "coredns_health_request_duration_seconds_bucket",
+            "coredns_health_request_duration_seconds_count",
+            "coredns_panic_count_total",
+            "coredns_proxy_request_count_total",
+            "coredns_proxy_request_duration_seconds",
+            "coredns_proxy_request_duration_seconds_bucket",
+            "coredns_proxy_request_duration_seconds_count",
+            "go_gc_duration_seconds",
+            "go_gc_duration_seconds_count",
+            "go_gc_duration_seconds_quantile",
+            "go_goroutines",
+            "go_memstats_alloc_bytes",
+            "go_memstats_alloc_bytes_total",
+            "go_memstats_buck_hash_sys_bytes",
+            "go_memstats_frees_total",
+            "go_memstats_gc_sys_bytes",
+            "go_memstats_heap_alloc_bytes",
+            "go_memstats_heap_idle_bytes",
+            "go_memstats_heap_inuse_bytes",
+            "go_memstats_heap_objects",
+            "go_memstats_heap_released_bytes_total",
+            "go_memstats_heap_sys_bytes",
+            "go_memstats_last_gc_time_seconds",
+            "go_memstats_lookups_total",
+            "go_memstats_mallocs_total",
+            "go_memstats_mcache_inuse_bytes",
+            "go_memstats_mcache_sys_bytes",
+            "go_memstats_mspan_inuse_bytes",
+            "go_memstats_mspan_sys_bytes",
+            "go_memstats_next_gc_bytes",
+            "go_memstats_other_sys_bytes",
+            "go_memstats_stack_inuse_bytes",
+            "go_memstats_stack_sys_bytes",
+            "go_memstats_sys_bytes",
+            "process_cpu_seconds_total",
+            "process_max_fds",
+            "process_open_fds",
+            "process_resident_memory_bytes",
+            "process_start_time_seconds",
+            "process_virtual_memory_bytes"
+          ]
+        }
+      },
+      "metrics": {
+        "coredns_build_info": {
+          "type": "gauge",
+          "description": "A metric with a constant '1' value labeled by version, revision, and goversion from which CoreDNS was built.",
+          "group": null,
+          "default": false
+        },
+        "coredns_cache_misses_total": {
+          "type": "cumulative",
+          "description": "The count of cache misses.",
+          "group": null,
+          "default": false
+        },
+        "coredns_dns_request_count_total": {
+          "type": "cumulative",
+          "description": "Counter of DNS requests made per zone, protocol and family.",
+          "group": null,
+          "default": false
+        },
+        "coredns_dns_request_duration_seconds": {
+          "type": "cumulative",
+          "description": "Histogram of the time (in seconds) each request took. (sum)",
+          "group": null,
+          "default": false
+        },
+        "coredns_dns_request_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Histogram of the time (in seconds) each request took. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "coredns_dns_request_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Histogram of the time (in seconds) each request took. (count)",
+          "group": null,
+          "default": false
+        },
+        "coredns_dns_request_size_bytes": {
+          "type": "cumulative",
+          "description": "Size of the EDNS0 UDP buffer in bytes (64K for TCP). (sum)",
+          "group": null,
+          "default": false
+        },
+        "coredns_dns_request_size_bytes_bucket": {
+          "type": "cumulative",
+          "description": "Size of the EDNS0 UDP buffer in bytes (64K for TCP). (bucket)",
+          "group": null,
+          "default": false
+        },
+        "coredns_dns_request_size_bytes_count": {
+          "type": "cumulative",
+          "description": "Size of the EDNS0 UDP buffer in bytes (64K for TCP). (count)",
+          "group": null,
+          "default": false
+        },
+        "coredns_dns_request_type_count_total": {
+          "type": "cumulative",
+          "description": "Counter of DNS requests per type, per zone.",
+          "group": null,
+          "default": false
+        },
+        "coredns_dns_response_rcode_count_total": {
+          "type": "cumulative",
+          "description": "Counter of response status codes.",
+          "group": null,
+          "default": false
+        },
+        "coredns_dns_response_size_bytes": {
+          "type": "cumulative",
+          "description": "Size of the returned response in bytes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "coredns_dns_response_size_bytes_bucket": {
+          "type": "cumulative",
+          "description": "Size of the returned response in bytes. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "coredns_dns_response_size_bytes_count": {
+          "type": "cumulative",
+          "description": "Size of the returned response in bytes. (count)",
+          "group": null,
+          "default": false
+        },
+        "coredns_health_request_duration_seconds": {
+          "type": "cumulative",
+          "description": "Histogram of the time (in seconds) each request took. (sum)",
+          "group": null,
+          "default": false
+        },
+        "coredns_health_request_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Histogram of the time (in seconds) each request took. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "coredns_health_request_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Histogram of the time (in seconds) each request took. (count)",
+          "group": null,
+          "default": false
+        },
+        "coredns_panic_count_total": {
+          "type": "cumulative",
+          "description": "A metrics that counts the number of panics.",
+          "group": null,
+          "default": false
+        },
+        "coredns_proxy_request_count_total": {
+          "type": "cumulative",
+          "description": "Counter of requests made per protocol, proxy protocol, family and upstream.",
+          "group": null,
+          "default": false
+        },
+        "coredns_proxy_request_duration_seconds": {
+          "type": "cumulative",
+          "description": "Histogram of the time (in seconds) each request took. (sum)",
+          "group": null,
+          "default": false
+        },
+        "coredns_proxy_request_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Histogram of the time (in seconds) each request took. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "coredns_proxy_request_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Histogram of the time (in seconds) each request took. (count)",
+          "group": null,
+          "default": false
+        },
+        "go_gc_duration_seconds": {
+          "type": "cumulative",
+          "description": "A summary of the GC invocation durations. (sum)",
+          "group": null,
+          "default": false
+        },
+        "go_gc_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "A summary of the GC invocation durations. (count)",
+          "group": null,
+          "default": false
+        },
+        "go_gc_duration_seconds_quantile": {
+          "type": "gauge",
+          "description": "A summary of the GC invocation durations. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "go_goroutines": {
+          "type": "gauge",
+          "description": "Number of goroutines that currently exist.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_alloc_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_alloc_bytes_total": {
+          "type": "cumulative",
+          "description": "Total number of bytes allocated, even if freed.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_buck_hash_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used by the profiling bucket hash table.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_frees_total": {
+          "type": "cumulative",
+          "description": "Total number of frees.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_gc_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for garbage collection system metadata.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_alloc_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_idle_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes waiting to be used.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes that are in use.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_objects": {
+          "type": "gauge",
+          "description": "Number of allocated objects.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_released_bytes_total": {
+          "type": "cumulative",
+          "description": "Total number of heap bytes released to OS.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_last_gc_time_seconds": {
+          "type": "gauge",
+          "description": "Number of seconds since 1970 of last garbage collection.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_lookups_total": {
+          "type": "cumulative",
+          "description": "Total number of pointer lookups.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mallocs_total": {
+          "type": "cumulative",
+          "description": "Total number of mallocs.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mcache_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by mcache structures.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mcache_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for mcache structures obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mspan_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by mspan structures.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mspan_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for mspan structures obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_next_gc_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes when next garbage collection will take place.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_other_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for other system allocations.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_stack_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_stack_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes obtained from system for stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes obtained by system. Sum of all system allocations.",
+          "group": null,
+          "default": false
+        },
+        "process_cpu_seconds_total": {
+          "type": "cumulative",
+          "description": "Total user and system CPU time spent in seconds.",
+          "group": null,
+          "default": false
+        },
+        "process_max_fds": {
+          "type": "gauge",
+          "description": "Maximum number of open file descriptors.",
+          "group": null,
+          "default": false
+        },
+        "process_open_fds": {
+          "type": "gauge",
+          "description": "Number of open file descriptors.",
+          "group": null,
+          "default": false
+        },
+        "process_resident_memory_bytes": {
+          "type": "gauge",
+          "description": "Resident memory size in bytes.",
+          "group": null,
+          "default": false
+        },
+        "process_start_time_seconds": {
+          "type": "gauge",
+          "description": "Start time of the process since unix epoch in seconds.",
+          "group": null,
+          "default": false
+        },
+        "process_virtual_memory_bytes": {
+          "type": "gauge",
+          "description": "Virtual memory size in bytes.",
+          "group": null,
+          "default": false
+        }
+      },
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "internal/monitors/coredns",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "skipVerify",
+            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "metricPath",
+            "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
+            "default": "/metrics",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendAllMetrics",
+            "doc": "Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "cpu",
       "sendAll": false,
       "dimensions": null,
