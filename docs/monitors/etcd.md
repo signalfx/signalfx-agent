@@ -11,7 +11,29 @@ Monitor Type: `etcd` ([Source](https://github.com/signalfx/signalfx-agent/tree/m
 ## Overview
 
 This monitor reports etcd server metrics under the `/metrics` path on its
-client port and optionally on locations given by `--listen-metrics-urls`
+client port and optionally on locations given by `--listen-metrics-urls`.
+Note that this monitor collects metrics solely from the prometheus endpoint,
+unlike the `collectd/etcd` monitor which collects  metrics from the `/stats`
+endpoint.
+
+An example configuration for this monitor:
+
+```yaml
+monitors:
+- type: etcd
+  discoveryRule: kubernetes_pod_name =~ "etcd" && target == "pod"
+  port: 2379
+  useHTTPS: true
+  skipVerify: true
+  sendAllMetrics: true
+  clientCertPath: /var/lib/minikube/certs/etcd/server.crt
+  clientKeyPath: /var/lib/minikube/certs/etcd/server.key
+  extraDimensions:
+    metric_source: etcd
+```
+
+Note that the above config assumes that the client certificate and key are accessible
+by the SignalFx Agent in the specified path.
 
 ## Configuration
 
@@ -36,9 +58,9 @@ Configuration](../monitor-config.md#common-configuration).**
 | `password` | no | `string` | Basic Auth password to use on each request, if any. |
 | `useHTTPS` | no | `bool` | If true, the agent will connect to the exporter using HTTPS instead of plain HTTP. (**default:** `false`) |
 | `skipVerify` | no | `bool` | If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified. (**default:** `false`) |
-| `caCertPath` | no | `string` | Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false. |
-| `clientCertPath` | no | `string` | Path to the client TLS cert to use if `authType` is set to `tls` |
-| `clientKeyPath` | no | `string` | Path to the client TLS key to use if `authType` is set to `tls` |
+| `caCertPath` | no | `string` | Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false. |
+| `clientCertPath` | no | `string` | Path to the client TLS cert to use for TLS required connections |
+| `clientKeyPath` | no | `string` | Path to the client TLS key to use for TLS required connections |
 | `useServiceAccount` | no | `bool` | Use pod service account to authenticate. (**default:** `false`) |
 | `metricPath` | no | `string` | Path to the metrics endpoint on the exporter server, usually `/metrics` (the default). (**default:** `/metrics`) |
 | `sendAllMetrics` | no | `bool` | Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors. (**default:** `false`) |

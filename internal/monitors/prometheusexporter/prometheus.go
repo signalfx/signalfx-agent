@@ -48,14 +48,13 @@ type Config struct {
 	// If useHTTPS is true and this option is also true, the exporter's TLS
 	// cert will not be verified.
 	SkipVerify bool `yaml:"skipVerify"`
-	// Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary
+	// Path to the CA cert that has signed the TLS cert, unnecessary
 	// if `skipVerify` is set to false.
 	CACertPath string `yaml:"caCertPath"`
-	// Path to the client TLS cert to use if `authType` is set to `tls`
+	// Path to the client TLS cert to use for TLS required connections
 	ClientCertPath string `yaml:"clientCertPath"`
-	// Path to the client TLS key to use if `authType` is set to `tls`
+	// Path to the client TLS key to use for TLS required connections
 	ClientKeyPath string `yaml:"clientKeyPath"`
-	// Whether to log the raw cadvisor response at the debug level for
 
 	// Use pod service account to authenticate.
 	UseServiceAccount bool `yaml:"useServiceAccount"`

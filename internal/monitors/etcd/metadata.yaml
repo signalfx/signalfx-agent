@@ -3,7 +3,29 @@ monitors:
   dimensions:
   doc: |-
     This monitor reports etcd server metrics under the `/metrics` path on its
-    client port and optionally on locations given by `--listen-metrics-urls`
+    client port and optionally on locations given by `--listen-metrics-urls`.
+    Note that this monitor collects metrics solely from the prometheus endpoint,
+    unlike the `collectd/etcd` monitor which collects  metrics from the `/stats`
+    endpoint.
+
+    An example configuration for this monitor:
+
+    ```yaml
+    monitors:
+    - type: etcd
+      discoveryRule: kubernetes_pod_name =~ "etcd" && target == "pod"
+      port: 2379
+      useHTTPS: true
+      skipVerify: true
+      sendAllMetrics: true
+      clientCertPath: /var/lib/minikube/certs/etcd/server.crt
+      clientKeyPath: /var/lib/minikube/certs/etcd/server.key
+      extraDimensions:
+        metric_source: etcd
+    ```
+
+    Note that the above config assumes that the client certificate and key are accessible
+    by the SignalFx Agent in the specified path.
   metrics:
     etcd_server_file_descriptors_used_total:
       default: false

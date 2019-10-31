@@ -18871,6 +18871,30 @@
             "elementKind": ""
           },
           {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -21809,7 +21833,7 @@
       "monitorType": "etcd",
       "sendAll": false,
       "dimensions": null,
-      "doc": "This monitor reports etcd server metrics under the `/metrics` path on its\nclient port and optionally on locations given by `--listen-metrics-urls`",
+      "doc": "This monitor reports etcd server metrics under the `/metrics` path on its\nclient port and optionally on locations given by `--listen-metrics-urls`.\nNote that this monitor collects metrics solely from the prometheus endpoint,\nunlike the `collectd/etcd` monitor which collects  metrics from the `/stats`\nendpoint.\n\nAn example configuration for this monitor:\n\n```yaml\nmonitors:\n- type: etcd\n  discoveryRule: kubernetes_pod_name =~ \"etcd\" \u0026\u0026 target == \"pod\"\n  port: 2379\n  useHTTPS: true\n  skipVerify: true\n  sendAllMetrics: true\n  clientCertPath: /var/lib/minikube/certs/etcd/server.crt\n  clientKeyPath: /var/lib/minikube/certs/etcd/server.key\n  extraDimensions:\n    metric_source: etcd\n```\n\nNote that the above config assumes that the client certificate and key are accessible\nby the SignalFx Agent in the specified path.",
       "groups": {
         "": {
           "description": "",
@@ -23325,7 +23349,7 @@
           },
           {
             "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
             "default": "",
             "required": false,
             "type": "string",
@@ -23333,7 +23357,7 @@
           },
           {
             "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -23341,7 +23365,7 @@
           },
           {
             "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -24381,7 +24405,7 @@
           },
           {
             "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
             "default": "",
             "required": false,
             "type": "string",
@@ -24389,7 +24413,7 @@
           },
           {
             "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -24397,7 +24421,7 @@
           },
           {
             "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -24594,7 +24618,7 @@
           },
           {
             "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
             "default": "",
             "required": false,
             "type": "string",
@@ -24602,7 +24626,7 @@
           },
           {
             "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -24610,7 +24634,7 @@
           },
           {
             "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -24793,7 +24817,7 @@
           },
           {
             "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
             "default": "",
             "required": false,
             "type": "string",
@@ -24801,7 +24825,7 @@
           },
           {
             "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -24809,7 +24833,7 @@
           },
           {
             "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -25048,7 +25072,7 @@
           },
           {
             "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
             "default": "",
             "required": false,
             "type": "string",
@@ -25056,7 +25080,7 @@
           },
           {
             "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -25064,7 +25088,7 @@
           },
           {
             "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -25380,7 +25404,7 @@
           },
           {
             "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
             "default": "",
             "required": false,
             "type": "string",
@@ -25388,7 +25412,7 @@
           },
           {
             "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -25396,7 +25420,7 @@
           },
           {
             "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -25684,7 +25708,7 @@
           },
           {
             "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
             "default": "",
             "required": false,
             "type": "string",
@@ -25692,7 +25716,7 @@
           },
           {
             "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -25700,7 +25724,7 @@
           },
           {
             "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -30338,6 +30362,30 @@
             "elementKind": ""
           },
           {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -32788,6 +32836,30 @@
             "elementKind": ""
           },
           {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -33571,132 +33643,6 @@
           "description": "Number of heap bytes waiting to be used.",
           "group": null,
           "default": false
-        }
-      },
-      "properties": null,
-      "metricsExhaustive": false,
-      "config": {
-        "name": "Config",
-        "doc": "Config for this monitor",
-        "package": "internal/monitors/kubernetes/apiserver",
-        "fields": [
-          {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "username",
-            "doc": "Basic Auth username to use on each request, if any.",
-            "default": "",
-            "required": false,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "password",
-            "doc": "Basic Auth password to use on each request, if any.",
-            "default": "",
-            "required": false,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
-            "default": false,
-            "required": false,
-            "type": "bool",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "skipVerify",
-            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
-            "default": false,
-            "required": false,
-            "type": "bool",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
-            "default": "",
-            "required": false,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
-            "default": "",
-            "required": false,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
-            "default": "",
-            "required": false,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "useServiceAccount",
-            "doc": "Use pod service account to authenticate.",
-            "default": false,
-            "required": false,
-            "type": "bool",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "metricPath",
-            "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
-            "default": "/metrics",
-            "required": false,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "sendAllMetrics",
-            "doc": "Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors.",
-            "default": false,
-            "required": false,
-            "type": "bool",
-            "elementKind": ""
-          }
-        ]
-      },
-      "acceptsEndpoints": true,
-      "singleInstance": false
-    },
-    {
-      "monitorType": "kubernetes-cluster",
-      "sendAll": false,
-      "dimensions": {
-        "kubernetes_name": {
-          "description": "The name of the resource that the metric describes"
-        },
-        "kubernetes_namespace": {
-          "description": "The namespace of the resource that the metric describes"
-        },
-        "kubernetes_node": {
-          "description": "The name of the node, as defined by the `name` field of the node resource."
-        },
-        "kubernetes_pod_uid": {
-          "description": "The UID of the pod that the metric describes"
->>>>>>> e86a57e2... Add  tls options to prometheus monitor
         },
         "go_memstats_heap_inuse_bytes": {
           "type": "gauge",
@@ -34082,6 +34028,30 @@
             "default": false,
             "required": false,
             "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           },
           {
@@ -35010,7 +34980,7 @@
           },
           {
             "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
             "default": "",
             "required": false,
             "type": "string",
@@ -35018,7 +34988,7 @@
           },
           {
             "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -35026,7 +34996,7 @@
           },
           {
             "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -37134,7 +37104,7 @@
           },
           {
             "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
             "default": "",
             "required": false,
             "type": "string",
@@ -37142,7 +37112,7 @@
           },
           {
             "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -37150,7 +37120,7 @@
           },
           {
             "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -37515,7 +37485,7 @@
           },
           {
             "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
             "default": "",
             "required": false,
             "type": "string",
@@ -37523,7 +37493,7 @@
           },
           {
             "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -37531,7 +37501,7 @@
           },
           {
             "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -37763,7 +37733,7 @@
           },
           {
             "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
             "default": "",
             "required": false,
             "type": "string",
@@ -37771,7 +37741,7 @@
           },
           {
             "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -37779,7 +37749,7 @@
           },
           {
             "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -38991,7 +38961,7 @@
           },
           {
             "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
             "default": "",
             "required": false,
             "type": "string",
@@ -38999,7 +38969,7 @@
           },
           {
             "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -39007,7 +38977,7 @@
           },
           {
             "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -40800,7 +40770,7 @@
           },
           {
             "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
             "default": "",
             "required": false,
             "type": "string",
@@ -40808,7 +40778,7 @@
           },
           {
             "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -40816,7 +40786,7 @@
           },
           {
             "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -41916,7 +41886,7 @@
           },
           {
             "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
             "default": "",
             "required": false,
             "type": "string",
@@ -41924,7 +41894,7 @@
           },
           {
             "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -41932,7 +41902,7 @@
           },
           {
             "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -42451,7 +42421,7 @@
           },
           {
             "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
             "default": "",
             "required": false,
             "type": "string",
@@ -42459,7 +42429,7 @@
           },
           {
             "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -42467,7 +42437,7 @@
           },
           {
             "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -45708,7 +45678,7 @@
           },
           {
             "yamlName": "caCertPath",
-            "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
             "default": "",
             "required": false,
             "type": "string",
@@ -45716,7 +45686,7 @@
           },
           {
             "yamlName": "clientCertPath",
-            "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
@@ -45724,7 +45694,7 @@
           },
           {
             "yamlName": "clientKeyPath",
-            "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+            "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
             "type": "string",
