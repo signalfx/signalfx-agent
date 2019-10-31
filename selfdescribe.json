@@ -25152,6 +25152,3506 @@
       "singleInstance": false
     },
     {
+      "monitorType": "kube-controller-manager",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "Exports Prometheus metrics from the [kube-controller-manager]\n(https://kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/).\nThe monitor queries path `/metrics` by default when no path is configured. The monitor converts\nthe Prometheus metric types to SignalFx metric types as described [here](prometheus-exporter.md)\n\nAn example configuration\n\n```yaml\nmonitors:\n- type: kube-controller-manager\n  discoveryRule: kubernetes_pod_name =~ \"kube-controller-manager\" \u0026\u0026 target == \"pod\"\n  port: 10252\n  extraDimensions:\n    metric_source: kube-controller-manager\n```\n\nNote that all metrics of this monitor are non-default and will be emitted only\nif specified explicitly.\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "ClusterRoleAggregator_adds_total",
+            "ClusterRoleAggregator_depth",
+            "ClusterRoleAggregator_longest_running_processor_microseconds",
+            "ClusterRoleAggregator_queue_latency",
+            "ClusterRoleAggregator_queue_latency_count",
+            "ClusterRoleAggregator_queue_latency_quantile",
+            "ClusterRoleAggregator_retries_total",
+            "ClusterRoleAggregator_unfinished_work_seconds",
+            "ClusterRoleAggregator_work_duration",
+            "ClusterRoleAggregator_work_duration_count",
+            "ClusterRoleAggregator_work_duration_quantile",
+            "apiserver_audit_event_total",
+            "apiserver_audit_requests_rejected_total",
+            "apiserver_client_certificate_expiration_seconds",
+            "apiserver_client_certificate_expiration_seconds_bucket",
+            "apiserver_client_certificate_expiration_seconds_count",
+            "apiserver_storage_data_key_generation_duration_seconds",
+            "apiserver_storage_data_key_generation_duration_seconds_bucket",
+            "apiserver_storage_data_key_generation_duration_seconds_count",
+            "apiserver_storage_data_key_generation_failures_total",
+            "apiserver_storage_data_key_generation_latencies_microseconds",
+            "apiserver_storage_data_key_generation_latencies_microseconds_bucket",
+            "apiserver_storage_data_key_generation_latencies_microseconds_count",
+            "apiserver_storage_envelope_transformation_cache_misses_total",
+            "attachdetach_controller_forced_detaches_total",
+            "authenticated_user_requests_total",
+            "bootstrap_signer_queue_adds_total",
+            "bootstrap_signer_queue_depth",
+            "bootstrap_signer_queue_longest_running_processor_microseconds",
+            "bootstrap_signer_queue_queue_latency",
+            "bootstrap_signer_queue_queue_latency_count",
+            "bootstrap_signer_queue_queue_latency_quantile",
+            "bootstrap_signer_queue_retries_total",
+            "bootstrap_signer_queue_unfinished_work_seconds",
+            "bootstrap_signer_queue_work_duration",
+            "bootstrap_signer_queue_work_duration_count",
+            "bootstrap_signer_queue_work_duration_quantile",
+            "bootstrap_signer_rate_limiter_use",
+            "certificate_adds_total",
+            "certificate_depth",
+            "certificate_longest_running_processor_microseconds",
+            "certificate_queue_latency",
+            "certificate_queue_latency_count",
+            "certificate_queue_latency_quantile",
+            "certificate_retries_total",
+            "certificate_unfinished_work_seconds",
+            "certificate_work_duration",
+            "certificate_work_duration_count",
+            "certificate_work_duration_quantile",
+            "claims_adds_total",
+            "claims_depth",
+            "claims_longest_running_processor_microseconds",
+            "claims_queue_latency",
+            "claims_queue_latency_count",
+            "claims_queue_latency_quantile",
+            "claims_unfinished_work_seconds",
+            "claims_work_duration",
+            "claims_work_duration_count",
+            "claims_work_duration_quantile",
+            "cronjob_controller_rate_limiter_use",
+            "daemon_controller_rate_limiter_use",
+            "daemonset_adds_total",
+            "daemonset_depth",
+            "daemonset_longest_running_processor_microseconds",
+            "daemonset_queue_latency",
+            "daemonset_queue_latency_count",
+            "daemonset_queue_latency_quantile",
+            "daemonset_retries_total",
+            "daemonset_unfinished_work_seconds",
+            "daemonset_work_duration",
+            "daemonset_work_duration_count",
+            "daemonset_work_duration_quantile",
+            "deployment_adds_total",
+            "deployment_controller_rate_limiter_use",
+            "deployment_depth",
+            "deployment_longest_running_processor_microseconds",
+            "deployment_queue_latency",
+            "deployment_queue_latency_count",
+            "deployment_queue_latency_quantile",
+            "deployment_retries_total",
+            "deployment_unfinished_work_seconds",
+            "deployment_work_duration",
+            "deployment_work_duration_count",
+            "deployment_work_duration_quantile",
+            "disruption_adds_total",
+            "disruption_depth",
+            "disruption_longest_running_processor_microseconds",
+            "disruption_queue_latency",
+            "disruption_queue_latency_count",
+            "disruption_queue_latency_quantile",
+            "disruption_recheck_adds_total",
+            "disruption_recheck_depth",
+            "disruption_recheck_longest_running_processor_microseconds",
+            "disruption_recheck_queue_latency",
+            "disruption_recheck_queue_latency_count",
+            "disruption_recheck_queue_latency_quantile",
+            "disruption_recheck_retries_total",
+            "disruption_recheck_unfinished_work_seconds",
+            "disruption_recheck_work_duration",
+            "disruption_recheck_work_duration_count",
+            "disruption_recheck_work_duration_quantile",
+            "disruption_retries_total",
+            "disruption_unfinished_work_seconds",
+            "disruption_work_duration",
+            "disruption_work_duration_count",
+            "disruption_work_duration_quantile",
+            "endpoint_adds_total",
+            "endpoint_controller_rate_limiter_use",
+            "endpoint_depth",
+            "endpoint_longest_running_processor_microseconds",
+            "endpoint_queue_latency",
+            "endpoint_queue_latency_count",
+            "endpoint_queue_latency_quantile",
+            "endpoint_retries_total",
+            "endpoint_unfinished_work_seconds",
+            "endpoint_work_duration",
+            "endpoint_work_duration_count",
+            "endpoint_work_duration_quantile",
+            "garbage_collector_attempt_to_delete_adds_total",
+            "garbage_collector_attempt_to_delete_depth",
+            "garbage_collector_attempt_to_delete_longest_running_processor_microseconds",
+            "garbage_collector_attempt_to_delete_queue_latency",
+            "garbage_collector_attempt_to_delete_queue_latency_count",
+            "garbage_collector_attempt_to_delete_queue_latency_quantile",
+            "garbage_collector_attempt_to_delete_retries_total",
+            "garbage_collector_attempt_to_delete_unfinished_work_seconds",
+            "garbage_collector_attempt_to_delete_work_duration",
+            "garbage_collector_attempt_to_delete_work_duration_count",
+            "garbage_collector_attempt_to_delete_work_duration_quantile",
+            "garbage_collector_attempt_to_orphan_adds_total",
+            "garbage_collector_attempt_to_orphan_depth",
+            "garbage_collector_attempt_to_orphan_longest_running_processor_microseconds",
+            "garbage_collector_attempt_to_orphan_queue_latency",
+            "garbage_collector_attempt_to_orphan_queue_latency_count",
+            "garbage_collector_attempt_to_orphan_queue_latency_quantile",
+            "garbage_collector_attempt_to_orphan_retries_total",
+            "garbage_collector_attempt_to_orphan_unfinished_work_seconds",
+            "garbage_collector_attempt_to_orphan_work_duration",
+            "garbage_collector_attempt_to_orphan_work_duration_count",
+            "garbage_collector_attempt_to_orphan_work_duration_quantile",
+            "garbage_collector_graph_changes_adds_total",
+            "garbage_collector_graph_changes_depth",
+            "garbage_collector_graph_changes_longest_running_processor_microseconds",
+            "garbage_collector_graph_changes_queue_latency",
+            "garbage_collector_graph_changes_queue_latency_count",
+            "garbage_collector_graph_changes_queue_latency_quantile",
+            "garbage_collector_graph_changes_retries_total",
+            "garbage_collector_graph_changes_unfinished_work_seconds",
+            "garbage_collector_graph_changes_work_duration",
+            "garbage_collector_graph_changes_work_duration_count",
+            "garbage_collector_graph_changes_work_duration_quantile",
+            "gc_controller_rate_limiter_use",
+            "get_token_count_total",
+            "get_token_fail_count_total",
+            "go_gc_duration_seconds",
+            "go_gc_duration_seconds_count",
+            "go_gc_duration_seconds_quantile",
+            "go_goroutines",
+            "go_info",
+            "go_memstats_alloc_bytes",
+            "go_memstats_alloc_bytes_total",
+            "go_memstats_buck_hash_sys_bytes",
+            "go_memstats_frees_total",
+            "go_memstats_gc_cpu_fraction",
+            "go_memstats_gc_sys_bytes",
+            "go_memstats_heap_alloc_bytes",
+            "go_memstats_heap_idle_bytes",
+            "go_memstats_heap_inuse_bytes",
+            "go_memstats_heap_objects",
+            "go_memstats_heap_released_bytes",
+            "go_memstats_heap_sys_bytes",
+            "go_memstats_last_gc_time_seconds",
+            "go_memstats_lookups_total",
+            "go_memstats_mallocs_total",
+            "go_memstats_mcache_inuse_bytes",
+            "go_memstats_mcache_sys_bytes",
+            "go_memstats_mspan_inuse_bytes",
+            "go_memstats_mspan_sys_bytes",
+            "go_memstats_next_gc_bytes",
+            "go_memstats_other_sys_bytes",
+            "go_memstats_stack_inuse_bytes",
+            "go_memstats_stack_sys_bytes",
+            "go_memstats_sys_bytes",
+            "go_threads",
+            "horizontalpodautoscaler_adds_total",
+            "horizontalpodautoscaler_depth",
+            "horizontalpodautoscaler_longest_running_processor_microseconds",
+            "horizontalpodautoscaler_queue_latency",
+            "horizontalpodautoscaler_queue_latency_count",
+            "horizontalpodautoscaler_queue_latency_quantile",
+            "horizontalpodautoscaler_retries_total",
+            "horizontalpodautoscaler_unfinished_work_seconds",
+            "horizontalpodautoscaler_work_duration",
+            "horizontalpodautoscaler_work_duration_count",
+            "horizontalpodautoscaler_work_duration_quantile",
+            "http_request_duration_microseconds",
+            "http_request_duration_microseconds_count",
+            "http_request_duration_microseconds_quantile",
+            "http_request_size_bytes",
+            "http_request_size_bytes_count",
+            "http_request_size_bytes_quantile",
+            "http_requests_total",
+            "http_response_size_bytes",
+            "http_response_size_bytes_count",
+            "http_response_size_bytes_quantile",
+            "job_adds_total",
+            "job_controller_rate_limiter_use",
+            "job_depth",
+            "job_longest_running_processor_microseconds",
+            "job_queue_latency",
+            "job_queue_latency_count",
+            "job_queue_latency_quantile",
+            "job_retries_total",
+            "job_unfinished_work_seconds",
+            "job_work_duration",
+            "job_work_duration_count",
+            "job_work_duration_quantile",
+            "kubernetes_build_info",
+            "leader_election_master_status",
+            "namespace_adds_total",
+            "namespace_controller_rate_limiter_use",
+            "namespace_depth",
+            "namespace_longest_running_processor_microseconds",
+            "namespace_queue_latency",
+            "namespace_queue_latency_count",
+            "namespace_queue_latency_quantile",
+            "namespace_retries_total",
+            "namespace_unfinished_work_seconds",
+            "namespace_work_duration",
+            "namespace_work_duration_count",
+            "namespace_work_duration_quantile",
+            "node_collector_evictions_number_total",
+            "node_collector_unhealthy_nodes_in_zone",
+            "node_collector_zone_health",
+            "node_collector_zone_size",
+            "node_lifecycle_controller_adds_total",
+            "node_lifecycle_controller_depth",
+            "node_lifecycle_controller_longest_running_processor_microseconds",
+            "node_lifecycle_controller_queue_latency",
+            "node_lifecycle_controller_queue_latency_count",
+            "node_lifecycle_controller_queue_latency_quantile",
+            "node_lifecycle_controller_rate_limiter_use",
+            "node_lifecycle_controller_unfinished_work_seconds",
+            "node_lifecycle_controller_work_duration",
+            "node_lifecycle_controller_work_duration_count",
+            "node_lifecycle_controller_work_duration_quantile",
+            "noexec_taint_node_adds_total",
+            "noexec_taint_node_depth",
+            "noexec_taint_node_longest_running_processor_microseconds",
+            "noexec_taint_node_queue_latency",
+            "noexec_taint_node_queue_latency_count",
+            "noexec_taint_node_queue_latency_quantile",
+            "noexec_taint_node_unfinished_work_seconds",
+            "noexec_taint_node_work_duration",
+            "noexec_taint_node_work_duration_count",
+            "noexec_taint_node_work_duration_quantile",
+            "noexec_taint_pod_adds_total",
+            "noexec_taint_pod_depth",
+            "noexec_taint_pod_longest_running_processor_microseconds",
+            "noexec_taint_pod_queue_latency",
+            "noexec_taint_pod_queue_latency_count",
+            "noexec_taint_pod_queue_latency_quantile",
+            "noexec_taint_pod_unfinished_work_seconds",
+            "noexec_taint_pod_work_duration",
+            "noexec_taint_pod_work_duration_count",
+            "noexec_taint_pod_work_duration_quantile",
+            "persistentvolume_protection_controller_rate_limiter_use",
+            "persistentvolumeclaim_protection_controller_rate_limiter_use",
+            "process_cpu_seconds_total",
+            "process_max_fds",
+            "process_open_fds",
+            "process_resident_memory_bytes",
+            "process_start_time_seconds",
+            "process_virtual_memory_bytes",
+            "process_virtual_memory_max_bytes",
+            "pvcprotection_adds_total",
+            "pvcprotection_depth",
+            "pvcprotection_longest_running_processor_microseconds",
+            "pvcprotection_queue_latency",
+            "pvcprotection_queue_latency_count",
+            "pvcprotection_queue_latency_quantile",
+            "pvcprotection_retries_total",
+            "pvcprotection_unfinished_work_seconds",
+            "pvcprotection_work_duration",
+            "pvcprotection_work_duration_count",
+            "pvcprotection_work_duration_quantile",
+            "pvcs_adds_total",
+            "pvcs_depth",
+            "pvcs_longest_running_processor_microseconds",
+            "pvcs_queue_latency",
+            "pvcs_queue_latency_count",
+            "pvcs_queue_latency_quantile",
+            "pvcs_retries_total",
+            "pvcs_unfinished_work_seconds",
+            "pvcs_work_duration",
+            "pvcs_work_duration_count",
+            "pvcs_work_duration_quantile",
+            "pvprotection_adds_total",
+            "pvprotection_depth",
+            "pvprotection_longest_running_processor_microseconds",
+            "pvprotection_queue_latency",
+            "pvprotection_queue_latency_count",
+            "pvprotection_queue_latency_quantile",
+            "pvprotection_retries_total",
+            "pvprotection_unfinished_work_seconds",
+            "pvprotection_work_duration",
+            "pvprotection_work_duration_count",
+            "pvprotection_work_duration_quantile",
+            "replicaset_adds_total",
+            "replicaset_controller_rate_limiter_use",
+            "replicaset_depth",
+            "replicaset_longest_running_processor_microseconds",
+            "replicaset_queue_latency",
+            "replicaset_queue_latency_count",
+            "replicaset_queue_latency_quantile",
+            "replicaset_retries_total",
+            "replicaset_unfinished_work_seconds",
+            "replicaset_work_duration",
+            "replicaset_work_duration_count",
+            "replicaset_work_duration_quantile",
+            "replication_controller_rate_limiter_use",
+            "replicationmanager_adds_total",
+            "replicationmanager_depth",
+            "replicationmanager_longest_running_processor_microseconds",
+            "replicationmanager_queue_latency",
+            "replicationmanager_queue_latency_count",
+            "replicationmanager_queue_latency_quantile",
+            "replicationmanager_retries_total",
+            "replicationmanager_unfinished_work_seconds",
+            "replicationmanager_work_duration",
+            "replicationmanager_work_duration_count",
+            "replicationmanager_work_duration_quantile",
+            "resource_quota_controller_rate_limiter_use",
+            "resource_quota_controller_resource_changes_adds_total",
+            "resource_quota_controller_resource_changes_depth",
+            "resource_quota_controller_resource_changes_longest_running_processor_microseconds",
+            "resource_quota_controller_resource_changes_queue_latency",
+            "resource_quota_controller_resource_changes_queue_latency_count",
+            "resource_quota_controller_resource_changes_queue_latency_quantile",
+            "resource_quota_controller_resource_changes_retries_total",
+            "resource_quota_controller_resource_changes_unfinished_work_seconds",
+            "resource_quota_controller_resource_changes_work_duration",
+            "resource_quota_controller_resource_changes_work_duration_count",
+            "resource_quota_controller_resource_changes_work_duration_quantile",
+            "resourcequota_primary_adds_total",
+            "resourcequota_primary_depth",
+            "resourcequota_primary_longest_running_processor_microseconds",
+            "resourcequota_primary_queue_latency",
+            "resourcequota_primary_queue_latency_count",
+            "resourcequota_primary_queue_latency_quantile",
+            "resourcequota_primary_retries_total",
+            "resourcequota_primary_unfinished_work_seconds",
+            "resourcequota_primary_work_duration",
+            "resourcequota_primary_work_duration_count",
+            "resourcequota_primary_work_duration_quantile",
+            "resourcequota_priority_adds_total",
+            "resourcequota_priority_depth",
+            "resourcequota_priority_longest_running_processor_microseconds",
+            "resourcequota_priority_queue_latency",
+            "resourcequota_priority_queue_latency_count",
+            "resourcequota_priority_queue_latency_quantile",
+            "resourcequota_priority_retries_total",
+            "resourcequota_priority_unfinished_work_seconds",
+            "resourcequota_priority_work_duration",
+            "resourcequota_priority_work_duration_count",
+            "resourcequota_priority_work_duration_quantile",
+            "rest_client_request_duration_seconds",
+            "rest_client_request_duration_seconds_bucket",
+            "rest_client_request_duration_seconds_count",
+            "rest_client_request_latency_seconds",
+            "rest_client_request_latency_seconds_bucket",
+            "rest_client_request_latency_seconds_count",
+            "rest_client_requests_total",
+            "service_adds_total",
+            "service_controller_rate_limiter_use",
+            "service_depth",
+            "service_longest_running_processor_microseconds",
+            "service_queue_latency",
+            "service_queue_latency_count",
+            "service_queue_latency_quantile",
+            "service_retries_total",
+            "service_unfinished_work_seconds",
+            "service_work_duration",
+            "service_work_duration_count",
+            "service_work_duration_quantile",
+            "serviceaccount_adds_total",
+            "serviceaccount_controller_rate_limiter_use",
+            "serviceaccount_depth",
+            "serviceaccount_longest_running_processor_microseconds",
+            "serviceaccount_queue_latency",
+            "serviceaccount_queue_latency_count",
+            "serviceaccount_queue_latency_quantile",
+            "serviceaccount_retries_total",
+            "serviceaccount_tokens_controller_rate_limiter_use",
+            "serviceaccount_tokens_secret_adds_total",
+            "serviceaccount_tokens_secret_depth",
+            "serviceaccount_tokens_secret_longest_running_processor_microseconds",
+            "serviceaccount_tokens_secret_queue_latency",
+            "serviceaccount_tokens_secret_queue_latency_count",
+            "serviceaccount_tokens_secret_queue_latency_quantile",
+            "serviceaccount_tokens_secret_retries_total",
+            "serviceaccount_tokens_secret_unfinished_work_seconds",
+            "serviceaccount_tokens_secret_work_duration",
+            "serviceaccount_tokens_secret_work_duration_count",
+            "serviceaccount_tokens_secret_work_duration_quantile",
+            "serviceaccount_tokens_service_adds_total",
+            "serviceaccount_tokens_service_depth",
+            "serviceaccount_tokens_service_longest_running_processor_microseconds",
+            "serviceaccount_tokens_service_queue_latency",
+            "serviceaccount_tokens_service_queue_latency_count",
+            "serviceaccount_tokens_service_queue_latency_quantile",
+            "serviceaccount_tokens_service_retries_total",
+            "serviceaccount_tokens_service_unfinished_work_seconds",
+            "serviceaccount_tokens_service_work_duration",
+            "serviceaccount_tokens_service_work_duration_count",
+            "serviceaccount_tokens_service_work_duration_quantile",
+            "serviceaccount_unfinished_work_seconds",
+            "serviceaccount_work_duration",
+            "serviceaccount_work_duration_count",
+            "serviceaccount_work_duration_quantile",
+            "statefulset_adds_total",
+            "statefulset_depth",
+            "statefulset_longest_running_processor_microseconds",
+            "statefulset_queue_latency",
+            "statefulset_queue_latency_count",
+            "statefulset_queue_latency_quantile",
+            "statefulset_retries_total",
+            "statefulset_unfinished_work_seconds",
+            "statefulset_work_duration",
+            "statefulset_work_duration_count",
+            "statefulset_work_duration_quantile",
+            "token_cleaner_adds_total",
+            "token_cleaner_depth",
+            "token_cleaner_longest_running_processor_microseconds",
+            "token_cleaner_queue_latency",
+            "token_cleaner_queue_latency_count",
+            "token_cleaner_queue_latency_quantile",
+            "token_cleaner_rate_limiter_use",
+            "token_cleaner_retries_total",
+            "token_cleaner_unfinished_work_seconds",
+            "token_cleaner_work_duration",
+            "token_cleaner_work_duration_count",
+            "token_cleaner_work_duration_quantile",
+            "ttlcontroller_adds_total",
+            "ttlcontroller_depth",
+            "ttlcontroller_longest_running_processor_microseconds",
+            "ttlcontroller_queue_latency",
+            "ttlcontroller_queue_latency_count",
+            "ttlcontroller_queue_latency_quantile",
+            "ttlcontroller_retries_total",
+            "ttlcontroller_unfinished_work_seconds",
+            "ttlcontroller_work_duration",
+            "ttlcontroller_work_duration_count",
+            "ttlcontroller_work_duration_quantile",
+            "volume_expand_adds_total",
+            "volume_expand_depth",
+            "volume_expand_longest_running_processor_microseconds",
+            "volume_expand_queue_latency",
+            "volume_expand_queue_latency_count",
+            "volume_expand_queue_latency_quantile",
+            "volume_expand_retries_total",
+            "volume_expand_unfinished_work_seconds",
+            "volume_expand_work_duration",
+            "volume_expand_work_duration_count",
+            "volume_expand_work_duration_quantile",
+            "volumes_adds_total",
+            "volumes_depth",
+            "volumes_longest_running_processor_microseconds",
+            "volumes_queue_latency",
+            "volumes_queue_latency_count",
+            "volumes_queue_latency_quantile",
+            "volumes_unfinished_work_seconds",
+            "volumes_work_duration",
+            "volumes_work_duration_count",
+            "volumes_work_duration_quantile",
+            "workqueue_adds_total",
+            "workqueue_depth",
+            "workqueue_longest_running_processor_seconds",
+            "workqueue_queue_duration_seconds",
+            "workqueue_queue_duration_seconds_bucket",
+            "workqueue_queue_duration_seconds_count",
+            "workqueue_retries_total",
+            "workqueue_unfinished_work_seconds",
+            "workqueue_work_duration_seconds",
+            "workqueue_work_duration_seconds_bucket",
+            "workqueue_work_duration_seconds_count"
+          ]
+        }
+      },
+      "metrics": {
+        "ClusterRoleAggregator_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: ClusterRoleAggregator",
+          "group": null,
+          "default": false
+        },
+        "ClusterRoleAggregator_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: ClusterRoleAggregator",
+          "group": null,
+          "default": false
+        },
+        "ClusterRoleAggregator_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for ClusterRoleAggregator been running.",
+          "group": null,
+          "default": false
+        },
+        "ClusterRoleAggregator_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueClusterRoleAggregator before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "ClusterRoleAggregator_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueClusterRoleAggregator before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "ClusterRoleAggregator_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueueClusterRoleAggregator before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "ClusterRoleAggregator_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: ClusterRoleAggregator",
+          "group": null,
+          "default": false
+        },
+        "ClusterRoleAggregator_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work ClusterRoleAggregator has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "ClusterRoleAggregator_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueClusterRoleAggregator takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "ClusterRoleAggregator_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueClusterRoleAggregator takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "ClusterRoleAggregator_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueueClusterRoleAggregator takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_audit_event_total": {
+          "type": "cumulative",
+          "description": "Counter of audit events generated and sent to the audit backend.",
+          "group": null,
+          "default": false
+        },
+        "apiserver_audit_requests_rejected_total": {
+          "type": "cumulative",
+          "description": "Counter of apiserver requests rejected due to an error in audit logging backend.",
+          "group": null,
+          "default": false
+        },
+        "apiserver_client_certificate_expiration_seconds": {
+          "type": "cumulative",
+          "description": "Distribution of the remaining lifetime on the certificate used to authenticate a request. (sum)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_client_certificate_expiration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Distribution of the remaining lifetime on the certificate used to authenticate a request. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_client_certificate_expiration_seconds_count": {
+          "type": "cumulative",
+          "description": "Distribution of the remaining lifetime on the certificate used to authenticate a request. (count)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_duration_seconds": {
+          "type": "cumulative",
+          "description": "Latencies in seconds of data encryption key(DEK) generation operations. (sum)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Latencies in seconds of data encryption key(DEK) generation operations. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Latencies in seconds of data encryption key(DEK) generation operations. (count)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_failures_total": {
+          "type": "cumulative",
+          "description": "Total number of failed data encryption key(DEK) generation operations.",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_latencies_microseconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Latencies in microseconds of data encryption key(DEK) generation operations. (sum)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_latencies_microseconds_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Latencies in microseconds of data encryption key(DEK) generation operations. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_data_key_generation_latencies_microseconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Latencies in microseconds of data encryption key(DEK) generation operations. (count)",
+          "group": null,
+          "default": false
+        },
+        "apiserver_storage_envelope_transformation_cache_misses_total": {
+          "type": "cumulative",
+          "description": "Total number of cache misses while accessing key decryption key(KEK).",
+          "group": null,
+          "default": false
+        },
+        "attachdetach_controller_forced_detaches_total": {
+          "type": "cumulative",
+          "description": "Number of times the A/D Controller performed a forced detach",
+          "group": null,
+          "default": false
+        },
+        "authenticated_user_requests_total": {
+          "type": "cumulative",
+          "description": "Counter of authenticated requests broken out by username.",
+          "group": null,
+          "default": false
+        },
+        "bootstrap_signer_queue_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: bootstrap_signer_queue",
+          "group": null,
+          "default": false
+        },
+        "bootstrap_signer_queue_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: bootstrap_signer_queue",
+          "group": null,
+          "default": false
+        },
+        "bootstrap_signer_queue_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for bootstrap_signer_queue been running.",
+          "group": null,
+          "default": false
+        },
+        "bootstrap_signer_queue_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuebootstrap_signer_queue before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "bootstrap_signer_queue_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuebootstrap_signer_queue before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "bootstrap_signer_queue_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuebootstrap_signer_queue before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "bootstrap_signer_queue_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: bootstrap_signer_queue",
+          "group": null,
+          "default": false
+        },
+        "bootstrap_signer_queue_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work bootstrap_signer_queue has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "bootstrap_signer_queue_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuebootstrap_signer_queue takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "bootstrap_signer_queue_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuebootstrap_signer_queue takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "bootstrap_signer_queue_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuebootstrap_signer_queue takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "bootstrap_signer_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for bootstrap_signer",
+          "group": null,
+          "default": false
+        },
+        "certificate_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: certificate",
+          "group": null,
+          "default": false
+        },
+        "certificate_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: certificate",
+          "group": null,
+          "default": false
+        },
+        "certificate_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for certificate been running.",
+          "group": null,
+          "default": false
+        },
+        "certificate_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuecertificate before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "certificate_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuecertificate before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "certificate_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuecertificate before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "certificate_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: certificate",
+          "group": null,
+          "default": false
+        },
+        "certificate_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work certificate has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "certificate_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuecertificate takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "certificate_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuecertificate takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "certificate_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuecertificate takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "claims_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: claims",
+          "group": null,
+          "default": false
+        },
+        "claims_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: claims",
+          "group": null,
+          "default": false
+        },
+        "claims_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for claims been running.",
+          "group": null,
+          "default": false
+        },
+        "claims_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueclaims before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "claims_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueclaims before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "claims_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueueclaims before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "claims_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work claims has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "claims_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueclaims takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "claims_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueclaims takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "claims_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueueclaims takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "cronjob_controller_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for cronjob_controller",
+          "group": null,
+          "default": false
+        },
+        "daemon_controller_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for daemon_controller",
+          "group": null,
+          "default": false
+        },
+        "daemonset_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: daemonset",
+          "group": null,
+          "default": false
+        },
+        "daemonset_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: daemonset",
+          "group": null,
+          "default": false
+        },
+        "daemonset_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for daemonset been running.",
+          "group": null,
+          "default": false
+        },
+        "daemonset_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuedaemonset before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "daemonset_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuedaemonset before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "daemonset_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuedaemonset before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "daemonset_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: daemonset",
+          "group": null,
+          "default": false
+        },
+        "daemonset_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work daemonset has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "daemonset_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuedaemonset takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "daemonset_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuedaemonset takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "daemonset_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuedaemonset takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "deployment_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: deployment",
+          "group": null,
+          "default": false
+        },
+        "deployment_controller_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for deployment_controller",
+          "group": null,
+          "default": false
+        },
+        "deployment_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: deployment",
+          "group": null,
+          "default": false
+        },
+        "deployment_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for deployment been running.",
+          "group": null,
+          "default": false
+        },
+        "deployment_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuedeployment before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "deployment_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuedeployment before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "deployment_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuedeployment before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "deployment_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: deployment",
+          "group": null,
+          "default": false
+        },
+        "deployment_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work deployment has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "deployment_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuedeployment takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "deployment_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuedeployment takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "deployment_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuedeployment takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "disruption_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: disruption",
+          "group": null,
+          "default": false
+        },
+        "disruption_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: disruption",
+          "group": null,
+          "default": false
+        },
+        "disruption_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for disruption been running.",
+          "group": null,
+          "default": false
+        },
+        "disruption_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuedisruption before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "disruption_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuedisruption before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "disruption_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuedisruption before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "disruption_recheck_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: disruption_recheck",
+          "group": null,
+          "default": false
+        },
+        "disruption_recheck_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: disruption_recheck",
+          "group": null,
+          "default": false
+        },
+        "disruption_recheck_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for disruption_recheck been running.",
+          "group": null,
+          "default": false
+        },
+        "disruption_recheck_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuedisruption_recheck before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "disruption_recheck_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuedisruption_recheck before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "disruption_recheck_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuedisruption_recheck before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "disruption_recheck_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: disruption_recheck",
+          "group": null,
+          "default": false
+        },
+        "disruption_recheck_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work disruption_recheck has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "disruption_recheck_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuedisruption_recheck takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "disruption_recheck_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuedisruption_recheck takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "disruption_recheck_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuedisruption_recheck takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "disruption_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: disruption",
+          "group": null,
+          "default": false
+        },
+        "disruption_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work disruption has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "disruption_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuedisruption takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "disruption_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuedisruption takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "disruption_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuedisruption takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "endpoint_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: endpoint",
+          "group": null,
+          "default": false
+        },
+        "endpoint_controller_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for endpoint_controller",
+          "group": null,
+          "default": false
+        },
+        "endpoint_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: endpoint",
+          "group": null,
+          "default": false
+        },
+        "endpoint_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for endpoint been running.",
+          "group": null,
+          "default": false
+        },
+        "endpoint_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueendpoint before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "endpoint_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueendpoint before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "endpoint_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueueendpoint before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "endpoint_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: endpoint",
+          "group": null,
+          "default": false
+        },
+        "endpoint_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work endpoint has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "endpoint_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueendpoint takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "endpoint_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueendpoint takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "endpoint_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueueendpoint takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_delete_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: garbage_collector_attempt_to_delete",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_delete_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: garbage_collector_attempt_to_delete",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_delete_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for garbage_collector_attempt_to_delete been running.",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_delete_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuegarbage_collector_attempt_to_delete before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_delete_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuegarbage_collector_attempt_to_delete before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_delete_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuegarbage_collector_attempt_to_delete before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_delete_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: garbage_collector_attempt_to_delete",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_delete_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work garbage_collector_attempt_to_delete has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_delete_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuegarbage_collector_attempt_to_delete takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_delete_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuegarbage_collector_attempt_to_delete takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_delete_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuegarbage_collector_attempt_to_delete takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_orphan_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: garbage_collector_attempt_to_orphan",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_orphan_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: garbage_collector_attempt_to_orphan",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_orphan_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for garbage_collector_attempt_to_orphan been running.",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_orphan_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuegarbage_collector_attempt_to_orphan before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_orphan_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuegarbage_collector_attempt_to_orphan before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_orphan_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuegarbage_collector_attempt_to_orphan before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_orphan_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: garbage_collector_attempt_to_orphan",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_orphan_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work garbage_collector_attempt_to_orphan has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_orphan_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuegarbage_collector_attempt_to_orphan takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_orphan_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuegarbage_collector_attempt_to_orphan takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_attempt_to_orphan_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuegarbage_collector_attempt_to_orphan takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_graph_changes_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: garbage_collector_graph_changes",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_graph_changes_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: garbage_collector_graph_changes",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_graph_changes_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for garbage_collector_graph_changes been running.",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_graph_changes_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuegarbage_collector_graph_changes before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_graph_changes_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuegarbage_collector_graph_changes before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_graph_changes_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuegarbage_collector_graph_changes before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_graph_changes_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: garbage_collector_graph_changes",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_graph_changes_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work garbage_collector_graph_changes has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_graph_changes_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuegarbage_collector_graph_changes takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_graph_changes_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuegarbage_collector_graph_changes takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "garbage_collector_graph_changes_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuegarbage_collector_graph_changes takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "gc_controller_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for gc_controller",
+          "group": null,
+          "default": false
+        },
+        "get_token_count_total": {
+          "type": "cumulative",
+          "description": "Counter of total Token() requests to the alternate token source",
+          "group": null,
+          "default": false
+        },
+        "get_token_fail_count_total": {
+          "type": "cumulative",
+          "description": "Counter of failed Token() requests to the alternate token source",
+          "group": null,
+          "default": false
+        },
+        "go_gc_duration_seconds": {
+          "type": "cumulative",
+          "description": "A summary of the GC invocation durations. (sum)",
+          "group": null,
+          "default": false
+        },
+        "go_gc_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "A summary of the GC invocation durations. (count)",
+          "group": null,
+          "default": false
+        },
+        "go_gc_duration_seconds_quantile": {
+          "type": "gauge",
+          "description": "A summary of the GC invocation durations. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "go_goroutines": {
+          "type": "gauge",
+          "description": "Number of goroutines that currently exist.",
+          "group": null,
+          "default": false
+        },
+        "go_info": {
+          "type": "gauge",
+          "description": "Information about the Go environment.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_alloc_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_alloc_bytes_total": {
+          "type": "cumulative",
+          "description": "Total number of bytes allocated, even if freed.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_buck_hash_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used by the profiling bucket hash table.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_frees_total": {
+          "type": "cumulative",
+          "description": "Total number of frees.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_gc_cpu_fraction": {
+          "type": "gauge",
+          "description": "The fraction of this program's available CPU time used by the GC since the program started.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_gc_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for garbage collection system metadata.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_alloc_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_idle_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes waiting to be used.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes that are in use.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_objects": {
+          "type": "gauge",
+          "description": "Number of allocated objects.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_released_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes released to OS.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_last_gc_time_seconds": {
+          "type": "gauge",
+          "description": "Number of seconds since 1970 of last garbage collection.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_lookups_total": {
+          "type": "cumulative",
+          "description": "Total number of pointer lookups.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mallocs_total": {
+          "type": "cumulative",
+          "description": "Total number of mallocs.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mcache_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by mcache structures.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mcache_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for mcache structures obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mspan_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by mspan structures.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mspan_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for mspan structures obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_next_gc_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes when next garbage collection will take place.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_other_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for other system allocations.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_stack_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_stack_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes obtained from system for stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_threads": {
+          "type": "gauge",
+          "description": "Number of OS threads created.",
+          "group": null,
+          "default": false
+        },
+        "horizontalpodautoscaler_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: horizontalpodautoscaler",
+          "group": null,
+          "default": false
+        },
+        "horizontalpodautoscaler_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: horizontalpodautoscaler",
+          "group": null,
+          "default": false
+        },
+        "horizontalpodautoscaler_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for horizontalpodautoscaler been running.",
+          "group": null,
+          "default": false
+        },
+        "horizontalpodautoscaler_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuehorizontalpodautoscaler before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "horizontalpodautoscaler_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuehorizontalpodautoscaler before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "horizontalpodautoscaler_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuehorizontalpodautoscaler before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "horizontalpodautoscaler_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: horizontalpodautoscaler",
+          "group": null,
+          "default": false
+        },
+        "horizontalpodautoscaler_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work horizontalpodautoscaler has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "horizontalpodautoscaler_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuehorizontalpodautoscaler takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "horizontalpodautoscaler_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuehorizontalpodautoscaler takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "horizontalpodautoscaler_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuehorizontalpodautoscaler takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "http_request_duration_microseconds": {
+          "type": "cumulative",
+          "description": "The HTTP request latencies in microseconds. (sum)",
+          "group": null,
+          "default": false
+        },
+        "http_request_duration_microseconds_count": {
+          "type": "cumulative",
+          "description": "The HTTP request latencies in microseconds. (count)",
+          "group": null,
+          "default": false
+        },
+        "http_request_duration_microseconds_quantile": {
+          "type": "gauge",
+          "description": "The HTTP request latencies in microseconds. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "http_request_size_bytes": {
+          "type": "cumulative",
+          "description": "The HTTP request sizes in bytes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "http_request_size_bytes_count": {
+          "type": "cumulative",
+          "description": "The HTTP request sizes in bytes. (count)",
+          "group": null,
+          "default": false
+        },
+        "http_request_size_bytes_quantile": {
+          "type": "gauge",
+          "description": "The HTTP request sizes in bytes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "http_requests_total": {
+          "type": "cumulative",
+          "description": "Total number of HTTP requests made.",
+          "group": null,
+          "default": false
+        },
+        "http_response_size_bytes": {
+          "type": "cumulative",
+          "description": "The HTTP response sizes in bytes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "http_response_size_bytes_count": {
+          "type": "cumulative",
+          "description": "The HTTP response sizes in bytes. (count)",
+          "group": null,
+          "default": false
+        },
+        "http_response_size_bytes_quantile": {
+          "type": "gauge",
+          "description": "The HTTP response sizes in bytes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "job_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: job",
+          "group": null,
+          "default": false
+        },
+        "job_controller_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for job_controller",
+          "group": null,
+          "default": false
+        },
+        "job_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: job",
+          "group": null,
+          "default": false
+        },
+        "job_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for job been running.",
+          "group": null,
+          "default": false
+        },
+        "job_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuejob before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "job_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuejob before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "job_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuejob before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "job_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: job",
+          "group": null,
+          "default": false
+        },
+        "job_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work job has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "job_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuejob takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "job_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuejob takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "job_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuejob takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "kubernetes_build_info": {
+          "type": "gauge",
+          "description": "A metric with a constant '1' value labeled by major, minor, git version, git commit, git tree state, build date, Go version, and compiler from which Kubernetes was built, and platform on which it is running.",
+          "group": null,
+          "default": false
+        },
+        "leader_election_master_status": {
+          "type": "gauge",
+          "description": "Gauge of if the reporting system is master of the relevant lease, 0 indicates backup, 1 indicates master. 'name' is the string used to identify the lease. Please make sure to group by name.",
+          "group": null,
+          "default": false
+        },
+        "namespace_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: namespace",
+          "group": null,
+          "default": false
+        },
+        "namespace_controller_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for namespace_controller",
+          "group": null,
+          "default": false
+        },
+        "namespace_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: namespace",
+          "group": null,
+          "default": false
+        },
+        "namespace_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for namespace been running.",
+          "group": null,
+          "default": false
+        },
+        "namespace_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuenamespace before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "namespace_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuenamespace before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "namespace_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuenamespace before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "namespace_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: namespace",
+          "group": null,
+          "default": false
+        },
+        "namespace_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work namespace has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "namespace_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuenamespace takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "namespace_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuenamespace takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "namespace_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuenamespace takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "node_collector_evictions_number_total": {
+          "type": "cumulative",
+          "description": "Number of Node evictions that happened since current instance of NodeController started.",
+          "group": null,
+          "default": false
+        },
+        "node_collector_unhealthy_nodes_in_zone": {
+          "type": "gauge",
+          "description": "Gauge measuring number of not Ready Nodes per zones.",
+          "group": null,
+          "default": false
+        },
+        "node_collector_zone_health": {
+          "type": "gauge",
+          "description": "Gauge measuring percentage of healthy nodes per zone.",
+          "group": null,
+          "default": false
+        },
+        "node_collector_zone_size": {
+          "type": "gauge",
+          "description": "Gauge measuring number of registered Nodes per zones.",
+          "group": null,
+          "default": false
+        },
+        "node_lifecycle_controller_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: node_lifecycle_controller",
+          "group": null,
+          "default": false
+        },
+        "node_lifecycle_controller_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: node_lifecycle_controller",
+          "group": null,
+          "default": false
+        },
+        "node_lifecycle_controller_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for node_lifecycle_controller been running.",
+          "group": null,
+          "default": false
+        },
+        "node_lifecycle_controller_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuenode_lifecycle_controller before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "node_lifecycle_controller_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuenode_lifecycle_controller before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "node_lifecycle_controller_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuenode_lifecycle_controller before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "node_lifecycle_controller_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for node_lifecycle_controller",
+          "group": null,
+          "default": false
+        },
+        "node_lifecycle_controller_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work node_lifecycle_controller has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "node_lifecycle_controller_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuenode_lifecycle_controller takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "node_lifecycle_controller_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuenode_lifecycle_controller takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "node_lifecycle_controller_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuenode_lifecycle_controller takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_node_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: noexec_taint_node",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_node_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: noexec_taint_node",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_node_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for noexec_taint_node been running.",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_node_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuenoexec_taint_node before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_node_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuenoexec_taint_node before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_node_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuenoexec_taint_node before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_node_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work noexec_taint_node has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_node_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuenoexec_taint_node takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_node_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuenoexec_taint_node takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_node_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuenoexec_taint_node takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_pod_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: noexec_taint_pod",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_pod_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: noexec_taint_pod",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_pod_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for noexec_taint_pod been running.",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_pod_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuenoexec_taint_pod before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_pod_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuenoexec_taint_pod before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_pod_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuenoexec_taint_pod before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_pod_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work noexec_taint_pod has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_pod_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuenoexec_taint_pod takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_pod_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuenoexec_taint_pod takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "noexec_taint_pod_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuenoexec_taint_pod takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "persistentvolume_protection_controller_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for persistentvolume_protection_controller",
+          "group": null,
+          "default": false
+        },
+        "persistentvolumeclaim_protection_controller_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for persistentvolumeclaim_protection_controller",
+          "group": null,
+          "default": false
+        },
+        "process_cpu_seconds_total": {
+          "type": "cumulative",
+          "description": "Total user and system CPU time spent in seconds.",
+          "group": null,
+          "default": false
+        },
+        "process_max_fds": {
+          "type": "gauge",
+          "description": "Maximum number of open file descriptors.",
+          "group": null,
+          "default": false
+        },
+        "process_open_fds": {
+          "type": "gauge",
+          "description": "Number of open file descriptors.",
+          "group": null,
+          "default": false
+        },
+        "process_resident_memory_bytes": {
+          "type": "gauge",
+          "description": "Resident memory size in bytes.",
+          "group": null,
+          "default": false
+        },
+        "process_start_time_seconds": {
+          "type": "gauge",
+          "description": "Start time of the process since unix epoch in seconds.",
+          "group": null,
+          "default": false
+        },
+        "process_virtual_memory_bytes": {
+          "type": "gauge",
+          "description": "Virtual memory size in bytes.",
+          "group": null,
+          "default": false
+        },
+        "process_virtual_memory_max_bytes": {
+          "type": "gauge",
+          "description": "Maximum amount of virtual memory available in bytes.",
+          "group": null,
+          "default": false
+        },
+        "pvcprotection_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: pvcprotection",
+          "group": null,
+          "default": false
+        },
+        "pvcprotection_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: pvcprotection",
+          "group": null,
+          "default": false
+        },
+        "pvcprotection_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for pvcprotection been running.",
+          "group": null,
+          "default": false
+        },
+        "pvcprotection_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuepvcprotection before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "pvcprotection_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuepvcprotection before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "pvcprotection_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuepvcprotection before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "pvcprotection_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: pvcprotection",
+          "group": null,
+          "default": false
+        },
+        "pvcprotection_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work pvcprotection has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "pvcprotection_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuepvcprotection takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "pvcprotection_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuepvcprotection takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "pvcprotection_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuepvcprotection takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "pvcs_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: pvcs",
+          "group": null,
+          "default": false
+        },
+        "pvcs_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: pvcs",
+          "group": null,
+          "default": false
+        },
+        "pvcs_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for pvcs been running.",
+          "group": null,
+          "default": false
+        },
+        "pvcs_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuepvcs before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "pvcs_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuepvcs before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "pvcs_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuepvcs before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "pvcs_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: pvcs",
+          "group": null,
+          "default": false
+        },
+        "pvcs_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work pvcs has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "pvcs_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuepvcs takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "pvcs_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuepvcs takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "pvcs_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuepvcs takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "pvprotection_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: pvprotection",
+          "group": null,
+          "default": false
+        },
+        "pvprotection_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: pvprotection",
+          "group": null,
+          "default": false
+        },
+        "pvprotection_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for pvprotection been running.",
+          "group": null,
+          "default": false
+        },
+        "pvprotection_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuepvprotection before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "pvprotection_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuepvprotection before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "pvprotection_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuepvprotection before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "pvprotection_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: pvprotection",
+          "group": null,
+          "default": false
+        },
+        "pvprotection_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work pvprotection has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "pvprotection_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuepvprotection takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "pvprotection_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuepvprotection takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "pvprotection_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuepvprotection takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "replicaset_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: replicaset",
+          "group": null,
+          "default": false
+        },
+        "replicaset_controller_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for replicaset_controller",
+          "group": null,
+          "default": false
+        },
+        "replicaset_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: replicaset",
+          "group": null,
+          "default": false
+        },
+        "replicaset_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for replicaset been running.",
+          "group": null,
+          "default": false
+        },
+        "replicaset_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuereplicaset before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "replicaset_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuereplicaset before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "replicaset_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuereplicaset before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "replicaset_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: replicaset",
+          "group": null,
+          "default": false
+        },
+        "replicaset_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work replicaset has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "replicaset_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuereplicaset takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "replicaset_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuereplicaset takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "replicaset_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuereplicaset takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "replication_controller_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for replication_controller",
+          "group": null,
+          "default": false
+        },
+        "replicationmanager_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: replicationmanager",
+          "group": null,
+          "default": false
+        },
+        "replicationmanager_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: replicationmanager",
+          "group": null,
+          "default": false
+        },
+        "replicationmanager_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for replicationmanager been running.",
+          "group": null,
+          "default": false
+        },
+        "replicationmanager_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuereplicationmanager before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "replicationmanager_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuereplicationmanager before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "replicationmanager_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuereplicationmanager before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "replicationmanager_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: replicationmanager",
+          "group": null,
+          "default": false
+        },
+        "replicationmanager_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work replicationmanager has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "replicationmanager_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuereplicationmanager takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "replicationmanager_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuereplicationmanager takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "replicationmanager_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuereplicationmanager takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "resource_quota_controller_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for resource_quota_controller",
+          "group": null,
+          "default": false
+        },
+        "resource_quota_controller_resource_changes_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: resource_quota_controller_resource_changes",
+          "group": null,
+          "default": false
+        },
+        "resource_quota_controller_resource_changes_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: resource_quota_controller_resource_changes",
+          "group": null,
+          "default": false
+        },
+        "resource_quota_controller_resource_changes_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for resource_quota_controller_resource_changes been running.",
+          "group": null,
+          "default": false
+        },
+        "resource_quota_controller_resource_changes_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueresource_quota_controller_resource_changes before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "resource_quota_controller_resource_changes_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueresource_quota_controller_resource_changes before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "resource_quota_controller_resource_changes_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueueresource_quota_controller_resource_changes before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "resource_quota_controller_resource_changes_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: resource_quota_controller_resource_changes",
+          "group": null,
+          "default": false
+        },
+        "resource_quota_controller_resource_changes_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work resource_quota_controller_resource_changes has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "resource_quota_controller_resource_changes_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueresource_quota_controller_resource_changes takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "resource_quota_controller_resource_changes_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueresource_quota_controller_resource_changes takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "resource_quota_controller_resource_changes_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueueresource_quota_controller_resource_changes takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_primary_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: resourcequota_primary",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_primary_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: resourcequota_primary",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_primary_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for resourcequota_primary been running.",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_primary_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueresourcequota_primary before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_primary_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueresourcequota_primary before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_primary_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueueresourcequota_primary before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_primary_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: resourcequota_primary",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_primary_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work resourcequota_primary has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_primary_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueresourcequota_primary takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_primary_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueresourcequota_primary takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_primary_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueueresourcequota_primary takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_priority_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: resourcequota_priority",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_priority_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: resourcequota_priority",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_priority_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for resourcequota_priority been running.",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_priority_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueresourcequota_priority before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_priority_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueresourcequota_priority before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_priority_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueueresourcequota_priority before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_priority_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: resourcequota_priority",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_priority_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work resourcequota_priority has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_priority_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueresourcequota_priority takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_priority_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueresourcequota_priority takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "resourcequota_priority_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueueresourcequota_priority takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_duration_seconds": {
+          "type": "cumulative",
+          "description": "Request latency in seconds. Broken down by verb and URL. (sum)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "Request latency in seconds. Broken down by verb and URL. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "Request latency in seconds. Broken down by verb and URL. (count)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_latency_seconds": {
+          "type": "cumulative",
+          "description": "(Deprecated) Request latency in seconds. Broken down by verb and URL. (sum)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_latency_seconds_bucket": {
+          "type": "cumulative",
+          "description": "(Deprecated) Request latency in seconds. Broken down by verb and URL. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_request_latency_seconds_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) Request latency in seconds. Broken down by verb and URL. (count)",
+          "group": null,
+          "default": false
+        },
+        "rest_client_requests_total": {
+          "type": "cumulative",
+          "description": "Number of HTTP requests, partitioned by status code, method, and host.",
+          "group": null,
+          "default": false
+        },
+        "service_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: service",
+          "group": null,
+          "default": false
+        },
+        "service_controller_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for service_controller",
+          "group": null,
+          "default": false
+        },
+        "service_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: service",
+          "group": null,
+          "default": false
+        },
+        "service_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for service been running.",
+          "group": null,
+          "default": false
+        },
+        "service_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueservice before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "service_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueservice before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "service_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueueservice before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "service_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: service",
+          "group": null,
+          "default": false
+        },
+        "service_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work service has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "service_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueservice takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "service_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueservice takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "service_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueueservice takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: serviceaccount",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_controller_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for serviceaccount_controller",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: serviceaccount",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for serviceaccount been running.",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueserviceaccount before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueserviceaccount before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueueserviceaccount before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: serviceaccount",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_controller_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for serviceaccount_tokens_controller",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_secret_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: serviceaccount_tokens_secret",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_secret_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: serviceaccount_tokens_secret",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_secret_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for serviceaccount_tokens_secret been running.",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_secret_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueserviceaccount_tokens_secret before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_secret_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueserviceaccount_tokens_secret before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_secret_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueueserviceaccount_tokens_secret before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_secret_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: serviceaccount_tokens_secret",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_secret_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work serviceaccount_tokens_secret has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_secret_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueserviceaccount_tokens_secret takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_secret_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueserviceaccount_tokens_secret takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_secret_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueueserviceaccount_tokens_secret takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_service_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: serviceaccount_tokens_service",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_service_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: serviceaccount_tokens_service",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_service_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for serviceaccount_tokens_service been running.",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_service_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueserviceaccount_tokens_service before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_service_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueueserviceaccount_tokens_service before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_service_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueueserviceaccount_tokens_service before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_service_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: serviceaccount_tokens_service",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_service_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work serviceaccount_tokens_service has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_service_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueserviceaccount_tokens_service takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_service_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueserviceaccount_tokens_service takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_tokens_service_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueueserviceaccount_tokens_service takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work serviceaccount has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueserviceaccount takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueueserviceaccount takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "serviceaccount_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueueserviceaccount takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "statefulset_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: statefulset",
+          "group": null,
+          "default": false
+        },
+        "statefulset_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: statefulset",
+          "group": null,
+          "default": false
+        },
+        "statefulset_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for statefulset been running.",
+          "group": null,
+          "default": false
+        },
+        "statefulset_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuestatefulset before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "statefulset_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuestatefulset before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "statefulset_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuestatefulset before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "statefulset_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: statefulset",
+          "group": null,
+          "default": false
+        },
+        "statefulset_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work statefulset has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "statefulset_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuestatefulset takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "statefulset_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuestatefulset takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "statefulset_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuestatefulset takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "token_cleaner_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: token_cleaner",
+          "group": null,
+          "default": false
+        },
+        "token_cleaner_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: token_cleaner",
+          "group": null,
+          "default": false
+        },
+        "token_cleaner_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for token_cleaner been running.",
+          "group": null,
+          "default": false
+        },
+        "token_cleaner_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuetoken_cleaner before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "token_cleaner_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuetoken_cleaner before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "token_cleaner_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuetoken_cleaner before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "token_cleaner_rate_limiter_use": {
+          "type": "gauge",
+          "description": "A metric measuring the saturation of the rate limiter for token_cleaner",
+          "group": null,
+          "default": false
+        },
+        "token_cleaner_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: token_cleaner",
+          "group": null,
+          "default": false
+        },
+        "token_cleaner_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work token_cleaner has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "token_cleaner_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuetoken_cleaner takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "token_cleaner_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuetoken_cleaner takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "token_cleaner_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuetoken_cleaner takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "ttlcontroller_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: ttlcontroller",
+          "group": null,
+          "default": false
+        },
+        "ttlcontroller_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: ttlcontroller",
+          "group": null,
+          "default": false
+        },
+        "ttlcontroller_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for ttlcontroller been running.",
+          "group": null,
+          "default": false
+        },
+        "ttlcontroller_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuettlcontroller before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "ttlcontroller_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuettlcontroller before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "ttlcontroller_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuettlcontroller before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "ttlcontroller_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: ttlcontroller",
+          "group": null,
+          "default": false
+        },
+        "ttlcontroller_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work ttlcontroller has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "ttlcontroller_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuettlcontroller takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "ttlcontroller_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuettlcontroller takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "ttlcontroller_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuettlcontroller takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "volume_expand_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: volume_expand",
+          "group": null,
+          "default": false
+        },
+        "volume_expand_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: volume_expand",
+          "group": null,
+          "default": false
+        },
+        "volume_expand_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for volume_expand been running.",
+          "group": null,
+          "default": false
+        },
+        "volume_expand_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuevolume_expand before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "volume_expand_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuevolume_expand before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "volume_expand_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuevolume_expand before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "volume_expand_retries_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of retries handled by workqueue: volume_expand",
+          "group": null,
+          "default": false
+        },
+        "volume_expand_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work volume_expand has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "volume_expand_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuevolume_expand takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "volume_expand_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuevolume_expand takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "volume_expand_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuevolume_expand takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "volumes_adds_total": {
+          "type": "cumulative",
+          "description": "(Deprecated) Total number of adds handled by workqueue: volumes",
+          "group": null,
+          "default": false
+        },
+        "volumes_depth": {
+          "type": "gauge",
+          "description": "(Deprecated) Current depth of workqueue: volumes",
+          "group": null,
+          "default": false
+        },
+        "volumes_longest_running_processor_microseconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many microseconds has the longest running processor for volumes been running.",
+          "group": null,
+          "default": false
+        },
+        "volumes_queue_latency": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuevolumes before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "volumes_queue_latency_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long an item stays in workqueuevolumes before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "volumes_queue_latency_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long an item stays in workqueuevolumes before being requested. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "volumes_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "(Deprecated) How many seconds of work volumes has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "volumes_work_duration": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuevolumes takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "volumes_work_duration_count": {
+          "type": "cumulative",
+          "description": "(Deprecated) How long processing an item from workqueuevolumes takes. (count)",
+          "group": null,
+          "default": false
+        },
+        "volumes_work_duration_quantile": {
+          "type": "gauge",
+          "description": "(Deprecated) How long processing an item from workqueuevolumes takes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "workqueue_adds_total": {
+          "type": "cumulative",
+          "description": "Total number of adds handled by workqueue",
+          "group": null,
+          "default": false
+        },
+        "workqueue_depth": {
+          "type": "gauge",
+          "description": "Current depth of workqueue",
+          "group": null,
+          "default": false
+        },
+        "workqueue_longest_running_processor_seconds": {
+          "type": "gauge",
+          "description": "How many seconds has the longest running processor for workqueue been running.",
+          "group": null,
+          "default": false
+        },
+        "workqueue_queue_duration_seconds": {
+          "type": "cumulative",
+          "description": "How long in seconds an item stays in workqueue before being requested. (sum)",
+          "group": null,
+          "default": false
+        },
+        "workqueue_queue_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "How long in seconds an item stays in workqueue before being requested. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "workqueue_queue_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "How long in seconds an item stays in workqueue before being requested. (count)",
+          "group": null,
+          "default": false
+        },
+        "workqueue_retries_total": {
+          "type": "cumulative",
+          "description": "Total number of retries handled by workqueue",
+          "group": null,
+          "default": false
+        },
+        "workqueue_unfinished_work_seconds": {
+          "type": "gauge",
+          "description": "How many seconds of work has done that is in progress and hasn't been observed by work_duration. Large values indicate stuck threads. One can deduce the number of stuck threads by observing the rate at which this increases.",
+          "group": null,
+          "default": false
+        },
+        "workqueue_work_duration_seconds": {
+          "type": "cumulative",
+          "description": "How long in seconds processing an item from workqueue takes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "workqueue_work_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "How long in seconds processing an item from workqueue takes. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "workqueue_work_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "How long in seconds processing an item from workqueue takes. (count)",
+          "group": null,
+          "default": false
+        }
+      },
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "internal/monitors/kubernetes/controllermanager",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "skipVerify",
+            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "metricPath",
+            "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
+            "default": "/metrics",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendAllMetrics",
+            "doc": "Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "kubelet-stats",
       "sendAll": false,
       "dimensions": {
