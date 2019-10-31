@@ -1,4 +1,3 @@
-{{- if and .Values.clusterName .Values.signalFxAccessToken -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -37,13 +36,13 @@ data:
 
     intervalSeconds: {{ .Values.metricIntervalSeconds }}
 
-    cluster: {{.Values.clusterName}}
+    cluster: {{ required ".Values.clusterName is required" .Values.clusterName }}
 
     logging:
       level: {{ .Values.logLevel | default "info" }}
 
     globalDimensions:
-      kubernetes_cluster: {{ .Values.clusterName }}
+      kubernetes_cluster: {{ .Values.kubernetesClusterName | default .Values.clusterName }}
       {{- range $k, $v := .Values.globalDimensions }}
       {{ $k }}: {{ $v }}
       {{- end }}
@@ -140,4 +139,3 @@ data:
 {{ toYaml . | indent 6 }}
       {{- end }}
 {{- end }}
-{{- end -}}

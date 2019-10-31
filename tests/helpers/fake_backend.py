@@ -94,6 +94,15 @@ def _make_fake_api(dims):
     @app.patch("/v2/dimension/<key>/<value>/_/sfxagent")
     async def patch_dim(request, key, value):
         content = request.json
+
+        # The API won't accept these on this endpoint so make sure they aren't
+        # present
+        assert content.get("key") is None
+        assert content.get("value") is None
+
+        content["key"] = key
+        content["value"] = value
+
         prop_keys_to_delete = []
         props_to_add = content.get("customProperties", {})
         for k, v in props_to_add.items():
