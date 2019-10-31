@@ -274,8 +274,6 @@ func (dc *DimensionClient) makePatchRequest(key, value string, props map[string]
 	}
 
 	json, err := json.Marshal(map[string]interface{}{
-		"key":              key,
-		"value":            value,
 		"customProperties": propsWithNil,
 		"tags":             tagsToAdd,
 		"tagsToRemove":     tagsToRemove,

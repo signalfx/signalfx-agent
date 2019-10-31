@@ -49,12 +49,13 @@ loop:
 	return dims
 }
 
-func makeHandler(dimCh chan<- dim, should500 *atomic.Value) http.HandlerFunc {
-	should500.Store(false)
+func makeHandler(dimCh chan<- dim, forcedResp *atomic.Value) http.HandlerFunc {
+	forcedResp.Store(200)
 
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		if should500.Load().(bool) {
-			rw.WriteHeader(500)
+		forcedRespInt := forcedResp.Load().(int)
+		if forcedRespInt != 200 {
+			rw.WriteHeader(forcedRespInt)
 			return
 		}
 
@@ -81,6 +82,8 @@ func makeHandler(dimCh chan<- dim, should500 *atomic.Value) http.HandlerFunc {
 			return
 		}
 		bodyDim.WasPatch = r.Method == "PATCH"
+		bodyDim.Key = match[1]
+		bodyDim.Value = match[2]
 
 		dimCh <- bodyDim
 
@@ -91,8 +94,8 @@ func makeHandler(dimCh chan<- dim, should500 *atomic.Value) http.HandlerFunc {
 func setup() (*DimensionClient, chan dim, *atomic.Value, context.CancelFunc) {
 	dimCh := make(chan dim)
 
-	var should500 atomic.Value
-	server := httptest.NewServer(makeHandler(dimCh, &should500))
+	var forcedResp atomic.Value
+	server := httptest.NewServer(makeHandler(dimCh, &forcedResp))
 
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
@@ -113,11 +116,11 @@ func setup() (*DimensionClient, chan dim, *atomic.Value, context.CancelFunc) {
 	}
 	client.Start()
 
-	return client, dimCh, &should500, cancel
+	return client, dimCh, &forcedResp, cancel
 }
 
 func TestDimensionClient(t *testing.T) {
-	client, dimCh, should500, cancel := setup()
+	client, dimCh, forcedResp, cancel := setup()
 	defer cancel()
 
 	require.NoError(t, client.AcceptDimension(&types.Dimension{
@@ -148,31 +151,32 @@ func TestDimensionClient(t *testing.T) {
 		},
 	})
 
-	// Send the same dimension with different values.
-	require.NoError(t, client.AcceptDimension(&types.Dimension{
-		Name:  "host",
-		Value: "test-box",
-		Properties: map[string]string{
-			"e": "f",
-		},
-		Tags: map[string]bool{
-			"active": false,
-		},
-		MergeIntoExisting: true,
-	}))
-
-	dims = waitForDims(dimCh, 1, 3)
-	require.Equal(t, dims, []dim{
-		{
-			Key:   "host",
+	t.Run("same dimension with different values", func(t *testing.T) {
+		require.NoError(t, client.AcceptDimension(&types.Dimension{
+			Name:  "host",
 			Value: "test-box",
 			Properties: map[string]string{
 				"e": "f",
 			},
-			Tags:         []string{},
-			TagsToRemove: []string{"active"},
-			WasPatch:     true,
-		},
+			Tags: map[string]bool{
+				"active": false,
+			},
+			MergeIntoExisting: true,
+		}))
+
+		dims = waitForDims(dimCh, 1, 3)
+		require.Equal(t, dims, []dim{
+			{
+				Key:   "host",
+				Value: "test-box",
+				Properties: map[string]string{
+					"e": "f",
+				},
+				Tags:         []string{},
+				TagsToRemove: []string{"active"},
+				WasPatch:     true,
+			},
+		})
 	})
 
 	require.NoError(t, client.AcceptDimension(&types.Dimension{
@@ -199,126 +203,152 @@ func TestDimensionClient(t *testing.T) {
 		},
 	})
 
-	should500.Store(true)
+	t.Run("send a distinct prop/tag set for existing dim with server error", func(t *testing.T) {
+		forcedResp.Store(500)
 
-	// Send a distinct prop/tag set for same dim with an error
-	require.NoError(t, client.AcceptDimension(&types.Dimension{
-		Name:  "AWSUniqueID",
-		Value: "abcd",
-		Properties: map[string]string{
-			"a": "b",
-			"c": "d",
-		},
-		Tags: map[string]bool{
-			"running": true,
-		},
-	}))
-	dims = waitForDims(dimCh, 1, 3)
-	require.Len(t, dims, 0)
-
-	should500.Store(false)
-	dims = waitForDims(dimCh, 1, 3)
-
-	// After the server recovers the dim should be resent.
-	require.Equal(t, dims, []dim{
-		{
-			Key:   "AWSUniqueID",
+		// Send a distinct prop/tag set for same dim with an error
+		require.NoError(t, client.AcceptDimension(&types.Dimension{
+			Name:  "AWSUniqueID",
 			Value: "abcd",
 			Properties: map[string]string{
 				"a": "b",
 				"c": "d",
 			},
-			Tags:     []string{"running"},
-			WasPatch: false,
-		},
+			Tags: map[string]bool{
+				"running": true,
+			},
+		}))
+		dims = waitForDims(dimCh, 1, 3)
+		require.Len(t, dims, 0)
+
+		forcedResp.Store(200)
+		dims = waitForDims(dimCh, 1, 3)
+
+		// After the server recovers the dim should be resent.
+		require.Equal(t, dims, []dim{
+			{
+				Key:   "AWSUniqueID",
+				Value: "abcd",
+				Properties: map[string]string{
+					"a": "b",
+					"c": "d",
+				},
+				Tags:     []string{"running"},
+				WasPatch: false,
+			},
+		})
 	})
 
-	// Send a duplicate
-	require.NoError(t, client.AcceptDimension(&types.Dimension{
-		Name:  "AWSUniqueID",
-		Value: "abcd",
-		Properties: map[string]string{
-			"a": "b",
-			"c": "d",
-		},
-		Tags: map[string]bool{
-			"running": true,
-		},
-	}))
+	t.Run("does not retry 4xx responses", func(t *testing.T) {
+		forcedResp.Store(400)
 
-	dims = waitForDims(dimCh, 1, 3)
-	require.Len(t, dims, 0)
+		// Send a distinct prop/tag set for same dim with an error
+		require.NoError(t, client.AcceptDimension(&types.Dimension{
+			Name:  "AWSUniqueID",
+			Value: "aslfkj",
+			Properties: map[string]string{
+				"z": "y",
+			},
+		}))
+		dims = waitForDims(dimCh, 1, 3)
+		require.Len(t, dims, 0)
+
+		forcedResp.Store(200)
+		dims = waitForDims(dimCh, 1, 3)
+		require.Len(t, dims, 0)
+	})
+
+	t.Run("send a duplicate", func(t *testing.T) {
+		require.NoError(t, client.AcceptDimension(&types.Dimension{
+			Name:  "AWSUniqueID",
+			Value: "abcd",
+			Properties: map[string]string{
+				"a": "b",
+				"c": "d",
+			},
+			Tags: map[string]bool{
+				"running": true,
+			},
+		}))
+
+		dims = waitForDims(dimCh, 1, 3)
+		require.Len(t, dims, 0)
+	})
 
 	// Send something unique again
-	require.NoError(t, client.AcceptDimension(&types.Dimension{
-		Name:  "AWSUniqueID",
-		Value: "abcd",
-		Properties: map[string]string{
-			"c": "d",
-		},
-		Tags: map[string]bool{
-			"running": true,
-		},
-	}))
-
-	dims = waitForDims(dimCh, 1, 3)
-
-	require.Equal(t, dims, []dim{
-		{
-			Key:   "AWSUniqueID",
+	t.Run("send something unique to same dim", func(t *testing.T) {
+		require.NoError(t, client.AcceptDimension(&types.Dimension{
+			Name:  "AWSUniqueID",
 			Value: "abcd",
 			Properties: map[string]string{
 				"c": "d",
 			},
-			Tags:     []string{"running"},
-			WasPatch: false,
-		},
+			Tags: map[string]bool{
+				"running": true,
+			},
+		}))
+
+		dims = waitForDims(dimCh, 1, 3)
+
+		require.Equal(t, dims, []dim{
+			{
+				Key:   "AWSUniqueID",
+				Value: "abcd",
+				Properties: map[string]string{
+					"c": "d",
+				},
+				Tags:     []string{"running"},
+				WasPatch: false,
+			},
+		})
 	})
 
-	// Send a distinct patch that covers the same prop keys
-	require.NoError(t, client.AcceptDimension(&types.Dimension{
-		Name:  "host",
-		Value: "test-box",
-		Properties: map[string]string{
-			"a": "z",
-		},
-		MergeIntoExisting: true,
-	}))
-
-	dims = waitForDims(dimCh, 1, 3)
-	require.Equal(t, dims, []dim{
-		{
-			Key:   "host",
+	t.Run("send a distinct patch that covers the same prop keys", func(t *testing.T) {
+		require.NoError(t, client.AcceptDimension(&types.Dimension{
+			Name:  "host",
 			Value: "test-box",
 			Properties: map[string]string{
 				"a": "z",
 			},
-			Tags:         []string{},
-			TagsToRemove: []string{},
-			WasPatch:     true,
-		},
+			MergeIntoExisting: true,
+		}))
+
+		dims = waitForDims(dimCh, 1, 3)
+		require.Equal(t, dims, []dim{
+			{
+				Key:   "host",
+				Value: "test-box",
+				Properties: map[string]string{
+					"a": "z",
+				},
+				Tags:         []string{},
+				TagsToRemove: []string{},
+				WasPatch:     true,
+			},
+		})
 	})
 
-	// Send a distinct patch that covers the same tags
-	require.NoError(t, client.AcceptDimension(&types.Dimension{
-		Name:  "host",
-		Value: "test-box",
-		Tags: map[string]bool{
-			"active": true,
-		},
-		MergeIntoExisting: true,
-	}))
+	t.Run("send a distinct patch that covers the same tags", func(t *testing.T) {
+		require.NoError(t, client.AcceptDimension(&types.Dimension{
+			Name:  "host",
+			Value: "test-box",
+			Tags: map[string]bool{
+				"active": true,
+			},
+			MergeIntoExisting: true,
+		}))
 
-	dims = waitForDims(dimCh, 1, 3)
-	require.Equal(t, dims, []dim{
-		{
-			Key:          "host",
-			Value:        "test-box",
-			Properties:   map[string]string{},
-			Tags:         []string{"active"},
-			TagsToRemove: []string{},
-			WasPatch:     true,
-		},
+		dims = waitForDims(dimCh, 1, 3)
+		require.Equal(t, dims, []dim{
+			{
+				Key:          "host",
+				Value:        "test-box",
+				Properties:   map[string]string{},
+				Tags:         []string{"active"},
+				TagsToRemove: []string{},
+				WasPatch:     true,
+			},
+		})
 	})
 }
 
