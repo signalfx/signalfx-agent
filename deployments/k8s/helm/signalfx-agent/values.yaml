@@ -2,7 +2,7 @@
 # docker image tag if not overridden with imageTag
 agentVersion: 4.13.0
 
-# The access token for SignalFx.  REQUIRED
+# The access token for SignalFx. (REQUIRED)
 signalFxAccessToken: ""
 
 # An additional set of global dimension to set on all datapoints coming out of
@@ -83,12 +83,17 @@ traceEndpointUrl:
 # The SignalFx API base URL. (default: "https://api.signalfx.com")
 apiUrl:
 
-# clusterName must be provided.  It is an arbitrary value that identifies this
-# K8s cluster in SignalFx.  This will be the value of the 'kubernetes_cluster'
-# dimension on every metric sent by the agent.  It will also be the value of
-# the `cluster` config option that is used to set a `cluster` property on the
-# `kubernetes_node` dimension.
+# An arbitrary value that identifies this K8s cluster in SignalFx.  This value
+# must match the configured cluster name in the SignalFx Smart Gateway if it is
+# being used. This will be the value of the 'kubernetes_cluster' dimension on
+# every metric sent by the agent (unless overriden by `kubernetesClusterName`).
+# It will also be the value of the `cluster` config option that is used to set a
+# `cluster` property on the `kubernetes_node` dimension. (REQUIRED)
 clusterName:
+
+# Kubernetes cluster name that is sent as the `kubernetes_cluster` dimension on all metrics.
+# Defaults to `clusterName` value if not set. Setting this value does not change `clusterName`.
+kubernetesClusterName:
 
 # How frequently to send metrics by default in the agent.  This can be
 # overridden by individual monitors.
