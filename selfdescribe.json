@@ -18871,6 +18871,30 @@
             "elementKind": ""
           },
           {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -21806,6 +21830,1577 @@
       "singleInstance": false
     },
     {
+      "monitorType": "etcd",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "This monitor reports etcd server metrics under the `/metrics` path on its\nclient port and optionally on locations given by `--listen-metrics-urls`.\nNote that this monitor collects metrics solely from the prometheus endpoint,\nunlike the `collectd/etcd` monitor which collects  metrics from the `/stats`\nendpoint.\n\nAn example configuration for this monitor:\n\n```yaml\nmonitors:\n- type: etcd\n  discoveryRule: kubernetes_pod_name =~ \"etcd\" \u0026\u0026 target == \"pod\"\n  port: 2379\n  useHTTPS: true\n  skipVerify: true\n  sendAllMetrics: true\n  clientCertPath: /var/lib/minikube/certs/etcd/server.crt\n  clientKeyPath: /var/lib/minikube/certs/etcd/server.key\n  extraDimensions:\n    metric_source: etcd\n```\n\nNote that the above config assumes that the client certificate and key are accessible\nby the SignalFx Agent in the specified path.",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "etcd_cluster_version",
+            "etcd_debugging_disk_backend_commit_rebalance_duration_seconds",
+            "etcd_debugging_disk_backend_commit_rebalance_duration_seconds_bucket",
+            "etcd_debugging_disk_backend_commit_rebalance_duration_seconds_count",
+            "etcd_debugging_disk_backend_commit_spill_duration_seconds",
+            "etcd_debugging_disk_backend_commit_spill_duration_seconds_bucket",
+            "etcd_debugging_disk_backend_commit_spill_duration_seconds_count",
+            "etcd_debugging_disk_backend_commit_write_duration_seconds",
+            "etcd_debugging_disk_backend_commit_write_duration_seconds_bucket",
+            "etcd_debugging_disk_backend_commit_write_duration_seconds_count",
+            "etcd_debugging_lease_granted_total",
+            "etcd_debugging_lease_renewed_total",
+            "etcd_debugging_lease_revoked_total",
+            "etcd_debugging_lease_ttl_total",
+            "etcd_debugging_lease_ttl_total_bucket",
+            "etcd_debugging_lease_ttl_total_count",
+            "etcd_debugging_mvcc_compact_revision",
+            "etcd_debugging_mvcc_current_revision",
+            "etcd_debugging_mvcc_db_compaction_keys_total",
+            "etcd_debugging_mvcc_db_compaction_pause_duration_milliseconds",
+            "etcd_debugging_mvcc_db_compaction_pause_duration_milliseconds_bucket",
+            "etcd_debugging_mvcc_db_compaction_pause_duration_milliseconds_count",
+            "etcd_debugging_mvcc_db_compaction_total_duration_milliseconds",
+            "etcd_debugging_mvcc_db_compaction_total_duration_milliseconds_bucket",
+            "etcd_debugging_mvcc_db_compaction_total_duration_milliseconds_count",
+            "etcd_debugging_mvcc_db_total_size_in_bytes",
+            "etcd_debugging_mvcc_delete_total",
+            "etcd_debugging_mvcc_events_total",
+            "etcd_debugging_mvcc_index_compaction_pause_duration_milliseconds",
+            "etcd_debugging_mvcc_index_compaction_pause_duration_milliseconds_bucket",
+            "etcd_debugging_mvcc_index_compaction_pause_duration_milliseconds_count",
+            "etcd_debugging_mvcc_keys_total",
+            "etcd_debugging_mvcc_pending_events_total",
+            "etcd_debugging_mvcc_put_total",
+            "etcd_debugging_mvcc_range_total",
+            "etcd_debugging_mvcc_slow_watcher_total",
+            "etcd_debugging_mvcc_txn_total",
+            "etcd_debugging_mvcc_watch_stream_total",
+            "etcd_debugging_mvcc_watcher_total",
+            "etcd_debugging_server_lease_expired_total",
+            "etcd_debugging_snap_save_marshalling_duration_seconds",
+            "etcd_debugging_snap_save_marshalling_duration_seconds_bucket",
+            "etcd_debugging_snap_save_marshalling_duration_seconds_count",
+            "etcd_debugging_snap_save_total_duration_seconds",
+            "etcd_debugging_snap_save_total_duration_seconds_bucket",
+            "etcd_debugging_snap_save_total_duration_seconds_count",
+            "etcd_debugging_store_expires_total",
+            "etcd_debugging_store_reads_total",
+            "etcd_debugging_store_watch_requests_total",
+            "etcd_debugging_store_watchers",
+            "etcd_debugging_store_writes_total",
+            "etcd_disk_backend_commit_duration_seconds",
+            "etcd_disk_backend_commit_duration_seconds_bucket",
+            "etcd_disk_backend_commit_duration_seconds_count",
+            "etcd_disk_backend_defrag_duration_seconds",
+            "etcd_disk_backend_defrag_duration_seconds_bucket",
+            "etcd_disk_backend_defrag_duration_seconds_count",
+            "etcd_disk_backend_snapshot_duration_seconds",
+            "etcd_disk_backend_snapshot_duration_seconds_bucket",
+            "etcd_disk_backend_snapshot_duration_seconds_count",
+            "etcd_disk_wal_fsync_duration_seconds",
+            "etcd_disk_wal_fsync_duration_seconds_bucket",
+            "etcd_disk_wal_fsync_duration_seconds_count",
+            "etcd_grpc_proxy_cache_hits_total",
+            "etcd_grpc_proxy_cache_keys_total",
+            "etcd_grpc_proxy_cache_misses_total",
+            "etcd_grpc_proxy_events_coalescing_total",
+            "etcd_grpc_proxy_watchers_coalescing_total",
+            "etcd_mvcc_db_open_read_transactions",
+            "etcd_mvcc_db_total_size_in_bytes",
+            "etcd_mvcc_db_total_size_in_use_in_bytes",
+            "etcd_mvcc_delete_total",
+            "etcd_mvcc_hash_duration_seconds",
+            "etcd_mvcc_hash_duration_seconds_bucket",
+            "etcd_mvcc_hash_duration_seconds_count",
+            "etcd_mvcc_hash_rev_duration_seconds",
+            "etcd_mvcc_hash_rev_duration_seconds_bucket",
+            "etcd_mvcc_hash_rev_duration_seconds_count",
+            "etcd_mvcc_put_total",
+            "etcd_mvcc_range_total",
+            "etcd_mvcc_txn_total",
+            "etcd_network_client_grpc_received_bytes_total",
+            "etcd_network_client_grpc_sent_bytes_total",
+            "etcd_server_file_descriptors_used_total",
+            "etcd_server_go_version",
+            "etcd_server_has_leader",
+            "etcd_server_health_failures_total",
+            "etcd_server_health_success_total",
+            "etcd_server_heartbeat_send_failures_total",
+            "etcd_server_id",
+            "etcd_server_is_leader",
+            "etcd_server_is_learner",
+            "etcd_server_leader_changes_seen_total",
+            "etcd_server_learner_promote_successes_total",
+            "etcd_server_pending_proposal_total",
+            "etcd_server_proposal_durations_seconds",
+            "etcd_server_proposal_durations_seconds_bucket",
+            "etcd_server_proposal_durations_seconds_count",
+            "etcd_server_proposal_failed_total",
+            "etcd_server_proposals_applied_total",
+            "etcd_server_proposals_committed_total",
+            "etcd_server_proposals_failed_total",
+            "etcd_server_proposals_pending",
+            "etcd_server_quota_backend_bytes",
+            "etcd_server_read_indexes_failed_total",
+            "etcd_server_slow_apply_total",
+            "etcd_server_slow_read_indexes_total",
+            "etcd_server_snapshot_apply_in_progress_total",
+            "etcd_server_version",
+            "etcd_snap_db_fsync_duration_seconds",
+            "etcd_snap_db_fsync_duration_seconds_bucket",
+            "etcd_snap_db_fsync_duration_seconds_count",
+            "etcd_snap_db_save_total_duration_seconds",
+            "etcd_snap_db_save_total_duration_seconds_bucket",
+            "etcd_snap_db_save_total_duration_seconds_count",
+            "etcd_snap_fsync_duration_seconds",
+            "etcd_snap_fsync_duration_seconds_bucket",
+            "etcd_snap_fsync_duration_seconds_count",
+            "etcd_snapshot_save_marshalling_durations_seconds",
+            "etcd_snapshot_save_marshalling_durations_seconds_bucket",
+            "etcd_snapshot_save_marshalling_durations_seconds_count",
+            "etcd_snapshot_save_total_durations_seconds",
+            "etcd_snapshot_save_total_durations_seconds_bucket",
+            "etcd_snapshot_save_total_durations_seconds_count",
+            "etcd_storage_db_compaction_pause_duration_milliseconds",
+            "etcd_storage_db_compaction_pause_duration_milliseconds_bucket",
+            "etcd_storage_db_compaction_pause_duration_milliseconds_count",
+            "etcd_storage_db_compaction_total_duration_milliseconds",
+            "etcd_storage_db_compaction_total_duration_milliseconds_bucket",
+            "etcd_storage_db_compaction_total_duration_milliseconds_count",
+            "etcd_storage_db_total_size_in_bytes",
+            "etcd_storage_delete_total",
+            "etcd_storage_events_total",
+            "etcd_storage_index_compaction_pause_duration_milliseconds",
+            "etcd_storage_index_compaction_pause_duration_milliseconds_bucket",
+            "etcd_storage_index_compaction_pause_duration_milliseconds_count",
+            "etcd_storage_keys_total",
+            "etcd_storage_pending_events_total",
+            "etcd_storage_put_total",
+            "etcd_storage_range_total",
+            "etcd_storage_slow_watcher_total",
+            "etcd_storage_txn_total",
+            "etcd_storage_watch_stream_total",
+            "etcd_storage_watcher_total",
+            "etcd_store_expires_total",
+            "etcd_store_reads_total",
+            "etcd_store_watch_requests_total",
+            "etcd_store_watchers",
+            "etcd_store_writes_total",
+            "etcd_wal_fsync_durations_seconds",
+            "etcd_wal_fsync_durations_seconds_bucket",
+            "etcd_wal_fsync_durations_seconds_count",
+            "etcd_wal_last_index_saved",
+            "go_gc_duration_seconds",
+            "go_gc_duration_seconds_count",
+            "go_gc_duration_seconds_quantile",
+            "go_goroutines",
+            "go_info",
+            "go_memstats_alloc_bytes",
+            "go_memstats_alloc_bytes_total",
+            "go_memstats_buck_hash_sys_bytes",
+            "go_memstats_frees_total",
+            "go_memstats_gc_cpu_fraction",
+            "go_memstats_gc_sys_bytes",
+            "go_memstats_heap_alloc_bytes",
+            "go_memstats_heap_idle_bytes",
+            "go_memstats_heap_inuse_bytes",
+            "go_memstats_heap_objects",
+            "go_memstats_heap_released_bytes",
+            "go_memstats_heap_released_bytes_total",
+            "go_memstats_heap_sys_bytes",
+            "go_memstats_last_gc_time_seconds",
+            "go_memstats_lookups_total",
+            "go_memstats_mallocs_total",
+            "go_memstats_mcache_inuse_bytes",
+            "go_memstats_mcache_sys_bytes",
+            "go_memstats_mspan_inuse_bytes",
+            "go_memstats_mspan_sys_bytes",
+            "go_memstats_next_gc_bytes",
+            "go_memstats_other_sys_bytes",
+            "go_memstats_stack_inuse_bytes",
+            "go_memstats_stack_sys_bytes",
+            "go_memstats_sys_bytes",
+            "go_threads",
+            "grpc_server_handled_total",
+            "grpc_server_msg_received_total",
+            "grpc_server_msg_sent_total",
+            "grpc_server_started_total",
+            "http_request_duration_microseconds",
+            "http_request_duration_microseconds_count",
+            "http_request_duration_microseconds_quantile",
+            "http_request_size_bytes",
+            "http_request_size_bytes_count",
+            "http_request_size_bytes_quantile",
+            "http_requests_total",
+            "http_response_size_bytes",
+            "http_response_size_bytes_count",
+            "http_response_size_bytes_quantile",
+            "process_cpu_seconds_total",
+            "process_max_fds",
+            "process_open_fds",
+            "process_resident_memory_bytes",
+            "process_start_time_seconds",
+            "process_virtual_memory_bytes",
+            "process_virtual_memory_max_bytes",
+            "promhttp_metric_handler_requests_in_flight",
+            "promhttp_metric_handler_requests_total"
+          ]
+        }
+      },
+      "metrics": {
+        "etcd_cluster_version": {
+          "type": "gauge",
+          "description": "Which version is running. 1 for 'cluster_version' label with current cluster version",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_disk_backend_commit_rebalance_duration_seconds": {
+          "type": "cumulative",
+          "description": "The latency distributions of commit.rebalance called by bboltdb backend. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_disk_backend_commit_rebalance_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The latency distributions of commit.rebalance called by bboltdb backend. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_disk_backend_commit_rebalance_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "The latency distributions of commit.rebalance called by bboltdb backend. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_disk_backend_commit_spill_duration_seconds": {
+          "type": "cumulative",
+          "description": "The latency distributions of commit.spill called by bboltdb backend. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_disk_backend_commit_spill_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The latency distributions of commit.spill called by bboltdb backend. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_disk_backend_commit_spill_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "The latency distributions of commit.spill called by bboltdb backend. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_disk_backend_commit_write_duration_seconds": {
+          "type": "cumulative",
+          "description": "The latency distributions of commit.write called by bboltdb backend. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_disk_backend_commit_write_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The latency distributions of commit.write called by bboltdb backend. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_disk_backend_commit_write_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "The latency distributions of commit.write called by bboltdb backend. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_lease_granted_total": {
+          "type": "cumulative",
+          "description": "The total number of granted leases.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_lease_renewed_total": {
+          "type": "cumulative",
+          "description": "The number of renewed leases seen by the leader.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_lease_revoked_total": {
+          "type": "cumulative",
+          "description": "The total number of revoked leases.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_lease_ttl_total": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of lease TTLs. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_lease_ttl_total_bucket": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of lease TTLs. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_lease_ttl_total_count": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of lease TTLs. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_compact_revision": {
+          "type": "gauge",
+          "description": "The revision of the last compaction in store.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_current_revision": {
+          "type": "gauge",
+          "description": "The current revision of store.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_db_compaction_keys_total": {
+          "type": "cumulative",
+          "description": "Total number of db keys compacted.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_db_compaction_pause_duration_milliseconds": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of db compaction pause duration. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_db_compaction_pause_duration_milliseconds_bucket": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of db compaction pause duration. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_db_compaction_pause_duration_milliseconds_count": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of db compaction pause duration. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_db_compaction_total_duration_milliseconds": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of db compaction total duration. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_db_compaction_total_duration_milliseconds_bucket": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of db compaction total duration. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_db_compaction_total_duration_milliseconds_count": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of db compaction total duration. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_db_total_size_in_bytes": {
+          "type": "gauge",
+          "description": "Total size of the underlying database physically allocated in bytes.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_delete_total": {
+          "type": "cumulative",
+          "description": "Total number of deletes seen by this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_events_total": {
+          "type": "cumulative",
+          "description": "Total number of events sent by this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_index_compaction_pause_duration_milliseconds": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of index compaction pause duration. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_index_compaction_pause_duration_milliseconds_bucket": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of index compaction pause duration. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_index_compaction_pause_duration_milliseconds_count": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of index compaction pause duration. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_keys_total": {
+          "type": "gauge",
+          "description": "Total number of keys.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_pending_events_total": {
+          "type": "gauge",
+          "description": "Total number of pending events to be sent.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_put_total": {
+          "type": "cumulative",
+          "description": "Total number of puts seen by this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_range_total": {
+          "type": "cumulative",
+          "description": "Total number of ranges seen by this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_slow_watcher_total": {
+          "type": "gauge",
+          "description": "Total number of unsynced slow watchers.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_txn_total": {
+          "type": "cumulative",
+          "description": "Total number of txns seen by this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_watch_stream_total": {
+          "type": "gauge",
+          "description": "Total number of watch streams.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_mvcc_watcher_total": {
+          "type": "gauge",
+          "description": "Total number of watchers.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_server_lease_expired_total": {
+          "type": "cumulative",
+          "description": "The total number of expired leases.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_snap_save_marshalling_duration_seconds": {
+          "type": "cumulative",
+          "description": "The marshalling cost distributions of save called by snapshot. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_snap_save_marshalling_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The marshalling cost distributions of save called by snapshot. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_snap_save_marshalling_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "The marshalling cost distributions of save called by snapshot. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_snap_save_total_duration_seconds": {
+          "type": "cumulative",
+          "description": "The total latency distributions of save called by snapshot. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_snap_save_total_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The total latency distributions of save called by snapshot. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_snap_save_total_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "The total latency distributions of save called by snapshot. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_store_expires_total": {
+          "type": "cumulative",
+          "description": "Total number of expired keys.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_store_reads_total": {
+          "type": "cumulative",
+          "description": "Total number of reads action by (get/getRecursive), local to this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_store_watch_requests_total": {
+          "type": "cumulative",
+          "description": "Total number of incoming watch requests (new or reestablished).",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_store_watchers": {
+          "type": "gauge",
+          "description": "Count of currently active watchers.",
+          "group": null,
+          "default": false
+        },
+        "etcd_debugging_store_writes_total": {
+          "type": "cumulative",
+          "description": "Total number of writes (e.g. set/compareAndDelete) seen by this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_disk_backend_commit_duration_seconds": {
+          "type": "cumulative",
+          "description": "The latency distributions of commit called by backend. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_disk_backend_commit_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The latency distributions of commit called by backend. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_disk_backend_commit_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "The latency distributions of commit called by backend. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_disk_backend_defrag_duration_seconds": {
+          "type": "cumulative",
+          "description": "The latency distribution of backend defragmentation. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_disk_backend_defrag_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The latency distribution of backend defragmentation. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_disk_backend_defrag_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "The latency distribution of backend defragmentation. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_disk_backend_snapshot_duration_seconds": {
+          "type": "cumulative",
+          "description": "The latency distribution of backend snapshots. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_disk_backend_snapshot_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The latency distribution of backend snapshots. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_disk_backend_snapshot_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "The latency distribution of backend snapshots. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_disk_wal_fsync_duration_seconds": {
+          "type": "cumulative",
+          "description": "The latency distributions of fsync called by WAL. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_disk_wal_fsync_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The latency distributions of fsync called by WAL. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_disk_wal_fsync_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "The latency distributions of fsync called by WAL. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_grpc_proxy_cache_hits_total": {
+          "type": "gauge",
+          "description": "Total number of cache hits",
+          "group": null,
+          "default": false
+        },
+        "etcd_grpc_proxy_cache_keys_total": {
+          "type": "gauge",
+          "description": "Total number of keys/ranges cached",
+          "group": null,
+          "default": false
+        },
+        "etcd_grpc_proxy_cache_misses_total": {
+          "type": "gauge",
+          "description": "Total number of cache misses",
+          "group": null,
+          "default": false
+        },
+        "etcd_grpc_proxy_events_coalescing_total": {
+          "type": "cumulative",
+          "description": "Total number of events coalescing",
+          "group": null,
+          "default": false
+        },
+        "etcd_grpc_proxy_watchers_coalescing_total": {
+          "type": "gauge",
+          "description": "Total number of current watchers coalescing",
+          "group": null,
+          "default": false
+        },
+        "etcd_mvcc_db_open_read_transactions": {
+          "type": "gauge",
+          "description": "The number of currently open read transactions",
+          "group": null,
+          "default": false
+        },
+        "etcd_mvcc_db_total_size_in_bytes": {
+          "type": "gauge",
+          "description": "Total size of the underlying database physically allocated in bytes.",
+          "group": null,
+          "default": false
+        },
+        "etcd_mvcc_db_total_size_in_use_in_bytes": {
+          "type": "gauge",
+          "description": "Total size of the underlying database logically in use in bytes.",
+          "group": null,
+          "default": false
+        },
+        "etcd_mvcc_delete_total": {
+          "type": "cumulative",
+          "description": "Total number of deletes seen by this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_mvcc_hash_duration_seconds": {
+          "type": "cumulative",
+          "description": "The latency distribution of storage hash operation. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_mvcc_hash_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The latency distribution of storage hash operation. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_mvcc_hash_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "The latency distribution of storage hash operation. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_mvcc_hash_rev_duration_seconds": {
+          "type": "cumulative",
+          "description": "The latency distribution of storage hash by revision operation. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_mvcc_hash_rev_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The latency distribution of storage hash by revision operation. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_mvcc_hash_rev_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "The latency distribution of storage hash by revision operation. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_mvcc_put_total": {
+          "type": "cumulative",
+          "description": "Total number of puts seen by this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_mvcc_range_total": {
+          "type": "cumulative",
+          "description": "Total number of ranges seen by this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_mvcc_txn_total": {
+          "type": "cumulative",
+          "description": "Total number of txns seen by this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_network_client_grpc_received_bytes_total": {
+          "type": "cumulative",
+          "description": "The total number of bytes received from grpc clients.",
+          "group": null,
+          "default": false
+        },
+        "etcd_network_client_grpc_sent_bytes_total": {
+          "type": "cumulative",
+          "description": "The total number of bytes sent to grpc clients.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_file_descriptors_used_total": {
+          "type": "gauge",
+          "description": "The total number of file descriptors used.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_go_version": {
+          "type": "gauge",
+          "description": "Which Go version server is running with. 1 for 'server_go_version' label with current version.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_has_leader": {
+          "type": "gauge",
+          "description": "Whether or not a leader exists. 1 is existence, 0 is not.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_health_failures_total": {
+          "type": "cumulative",
+          "description": "The total number of failed health checks",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_health_success_total": {
+          "type": "cumulative",
+          "description": "The total number of successful health checks",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_heartbeat_send_failures_total": {
+          "type": "cumulative",
+          "description": "The total number of leader heartbeat send failures (likely overloaded from slow disk).",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_id": {
+          "type": "gauge",
+          "description": "Server or member ID in hexadecimal format. 1 for 'server_id' label with current ID.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_is_leader": {
+          "type": "gauge",
+          "description": "Whether or not this member is a leader. 1 if is, 0 otherwise.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_is_learner": {
+          "type": "gauge",
+          "description": "Whether or not this member is a learner. 1 if is, 0 otherwise.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_leader_changes_seen_total": {
+          "type": "cumulative",
+          "description": "The number of leader changes seen.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_learner_promote_successes_total": {
+          "type": "cumulative",
+          "description": "The total number of successful learner promotions while this member is leader.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_pending_proposal_total": {
+          "type": "gauge",
+          "description": "The total number of pending proposals.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_proposal_durations_seconds": {
+          "type": "cumulative",
+          "description": "The latency distributions of committing proposal. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_proposal_durations_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The latency distributions of committing proposal. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_proposal_durations_seconds_count": {
+          "type": "cumulative",
+          "description": "The latency distributions of committing proposal. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_proposal_failed_total": {
+          "type": "cumulative",
+          "description": "The total number of failed proposals.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_proposals_applied_total": {
+          "type": "gauge",
+          "description": "The total number of consensus proposals applied.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_proposals_committed_total": {
+          "type": "gauge",
+          "description": "The total number of consensus proposals committed.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_proposals_failed_total": {
+          "type": "cumulative",
+          "description": "The total number of failed proposals seen.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_proposals_pending": {
+          "type": "gauge",
+          "description": "The current number of pending proposals to commit.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_quota_backend_bytes": {
+          "type": "gauge",
+          "description": "Current backend storage quota size in bytes.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_read_indexes_failed_total": {
+          "type": "cumulative",
+          "description": "The total number of failed read indexes seen.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_slow_apply_total": {
+          "type": "cumulative",
+          "description": "The total number of slow apply requests (likely overloaded from slow disk).",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_slow_read_indexes_total": {
+          "type": "cumulative",
+          "description": "The total number of pending read indexes not in sync with leader's or timed out read index requests.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_snapshot_apply_in_progress_total": {
+          "type": "gauge",
+          "description": "1 if the server is applying the incoming snapshot. 0 if none.",
+          "group": null,
+          "default": false
+        },
+        "etcd_server_version": {
+          "type": "gauge",
+          "description": "Which version is running. 1 for 'server_version' label with current version.",
+          "group": null,
+          "default": false
+        },
+        "etcd_snap_db_fsync_duration_seconds": {
+          "type": "cumulative",
+          "description": "The latency distributions of fsyncing .snap.db file (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_snap_db_fsync_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The latency distributions of fsyncing .snap.db file (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_snap_db_fsync_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "The latency distributions of fsyncing .snap.db file (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_snap_db_save_total_duration_seconds": {
+          "type": "cumulative",
+          "description": "The total latency distributions of v3 snapshot save (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_snap_db_save_total_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The total latency distributions of v3 snapshot save (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_snap_db_save_total_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "The total latency distributions of v3 snapshot save (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_snap_fsync_duration_seconds": {
+          "type": "cumulative",
+          "description": "The latency distributions of fsync called by snap. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_snap_fsync_duration_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The latency distributions of fsync called by snap. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_snap_fsync_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "The latency distributions of fsync called by snap. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_snapshot_save_marshalling_durations_seconds": {
+          "type": "cumulative",
+          "description": "The marshalling cost distributions of save called by snapshot. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_snapshot_save_marshalling_durations_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The marshalling cost distributions of save called by snapshot. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_snapshot_save_marshalling_durations_seconds_count": {
+          "type": "cumulative",
+          "description": "The marshalling cost distributions of save called by snapshot. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_snapshot_save_total_durations_seconds": {
+          "type": "cumulative",
+          "description": "The total latency distributions of save called by snapshot. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_snapshot_save_total_durations_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The total latency distributions of save called by snapshot. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_snapshot_save_total_durations_seconds_count": {
+          "type": "cumulative",
+          "description": "The total latency distributions of save called by snapshot. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_db_compaction_pause_duration_milliseconds": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of db compaction pause duration. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_db_compaction_pause_duration_milliseconds_bucket": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of db compaction pause duration. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_db_compaction_pause_duration_milliseconds_count": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of db compaction pause duration. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_db_compaction_total_duration_milliseconds": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of db compaction total duration. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_db_compaction_total_duration_milliseconds_bucket": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of db compaction total duration. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_db_compaction_total_duration_milliseconds_count": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of db compaction total duration. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_db_total_size_in_bytes": {
+          "type": "gauge",
+          "description": "Total size of the underlying database in bytes.",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_delete_total": {
+          "type": "cumulative",
+          "description": "Total number of deletes seen by this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_events_total": {
+          "type": "cumulative",
+          "description": "Total number of events sent by this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_index_compaction_pause_duration_milliseconds": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of index compaction pause duration. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_index_compaction_pause_duration_milliseconds_bucket": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of index compaction pause duration. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_index_compaction_pause_duration_milliseconds_count": {
+          "type": "cumulative",
+          "description": "Bucketed histogram of index compaction pause duration. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_keys_total": {
+          "type": "gauge",
+          "description": "Total number of keys.",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_pending_events_total": {
+          "type": "gauge",
+          "description": "Total number of pending events to be sent.",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_put_total": {
+          "type": "cumulative",
+          "description": "Total number of puts seen by this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_range_total": {
+          "type": "cumulative",
+          "description": "Total number of ranges seen by this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_slow_watcher_total": {
+          "type": "gauge",
+          "description": "Total number of unsynced slow watchers.",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_txn_total": {
+          "type": "cumulative",
+          "description": "Total number of txns seen by this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_watch_stream_total": {
+          "type": "gauge",
+          "description": "Total number of watch streams.",
+          "group": null,
+          "default": false
+        },
+        "etcd_storage_watcher_total": {
+          "type": "gauge",
+          "description": "Total number of watchers.",
+          "group": null,
+          "default": false
+        },
+        "etcd_store_expires_total": {
+          "type": "cumulative",
+          "description": "Total number of expired keys.",
+          "group": null,
+          "default": false
+        },
+        "etcd_store_reads_total": {
+          "type": "cumulative",
+          "description": "Total number of reads action by (get/getRecursive), local to this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_store_watch_requests_total": {
+          "type": "cumulative",
+          "description": "Total number of incoming watch requests (new or reestablished).",
+          "group": null,
+          "default": false
+        },
+        "etcd_store_watchers": {
+          "type": "gauge",
+          "description": "Count of currently active watchers.",
+          "group": null,
+          "default": false
+        },
+        "etcd_store_writes_total": {
+          "type": "cumulative",
+          "description": "Total number of writes (e.g. set/compareAndDelete) seen by this member.",
+          "group": null,
+          "default": false
+        },
+        "etcd_wal_fsync_durations_seconds": {
+          "type": "cumulative",
+          "description": "The latency distributions of fsync called by wal. (sum)",
+          "group": null,
+          "default": false
+        },
+        "etcd_wal_fsync_durations_seconds_bucket": {
+          "type": "cumulative",
+          "description": "The latency distributions of fsync called by wal. (bucket)",
+          "group": null,
+          "default": false
+        },
+        "etcd_wal_fsync_durations_seconds_count": {
+          "type": "cumulative",
+          "description": "The latency distributions of fsync called by wal. (count)",
+          "group": null,
+          "default": false
+        },
+        "etcd_wal_last_index_saved": {
+          "type": "gauge",
+          "description": "The index of the last entry saved by wal.",
+          "group": null,
+          "default": false
+        },
+        "go_gc_duration_seconds": {
+          "type": "cumulative",
+          "description": "A summary of the GC invocation durations. (sum)",
+          "group": null,
+          "default": false
+        },
+        "go_gc_duration_seconds_count": {
+          "type": "cumulative",
+          "description": "A summary of the GC invocation durations. (count)",
+          "group": null,
+          "default": false
+        },
+        "go_gc_duration_seconds_quantile": {
+          "type": "gauge",
+          "description": "A summary of the GC invocation durations. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "go_goroutines": {
+          "type": "gauge",
+          "description": "Number of goroutines that currently exist.",
+          "group": null,
+          "default": false
+        },
+        "go_info": {
+          "type": "gauge",
+          "description": "Information about the Go environment.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_alloc_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_alloc_bytes_total": {
+          "type": "cumulative",
+          "description": "Total number of bytes allocated, even if freed.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_buck_hash_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used by the profiling bucket hash table.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_frees_total": {
+          "type": "cumulative",
+          "description": "Total number of frees.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_gc_cpu_fraction": {
+          "type": "gauge",
+          "description": "The fraction of this program's available CPU time used by the GC since the program started.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_gc_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for garbage collection system metadata.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_alloc_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_idle_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes waiting to be used.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes that are in use.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_objects": {
+          "type": "gauge",
+          "description": "Number of allocated objects.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_released_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes released to OS.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_released_bytes_total": {
+          "type": "cumulative",
+          "description": "Total number of heap bytes released to OS.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_heap_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_last_gc_time_seconds": {
+          "type": "gauge",
+          "description": "Number of seconds since 1970 of last garbage collection.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_lookups_total": {
+          "type": "cumulative",
+          "description": "Total number of pointer lookups.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mallocs_total": {
+          "type": "cumulative",
+          "description": "Total number of mallocs.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mcache_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by mcache structures.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mcache_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for mcache structures obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mspan_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by mspan structures.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_mspan_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for mspan structures obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_next_gc_bytes": {
+          "type": "gauge",
+          "description": "Number of heap bytes when next garbage collection will take place.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_other_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes used for other system allocations.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_stack_inuse_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes in use by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_stack_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes obtained from system for stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "go_memstats_sys_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes obtained from system.",
+          "group": null,
+          "default": false
+        },
+        "go_threads": {
+          "type": "gauge",
+          "description": "Number of OS threads created.",
+          "group": null,
+          "default": false
+        },
+        "grpc_server_handled_total": {
+          "type": "cumulative",
+          "description": "Total number of RPCs completed on the server, regardless of success or failure.",
+          "group": null,
+          "default": false
+        },
+        "grpc_server_msg_received_total": {
+          "type": "cumulative",
+          "description": "Total number of RPC stream messages received on the server.",
+          "group": null,
+          "default": false
+        },
+        "grpc_server_msg_sent_total": {
+          "type": "cumulative",
+          "description": "Total number of gRPC stream messages sent by the server.",
+          "group": null,
+          "default": false
+        },
+        "grpc_server_started_total": {
+          "type": "cumulative",
+          "description": "Total number of RPCs started on the server.",
+          "group": null,
+          "default": false
+        },
+        "http_request_duration_microseconds": {
+          "type": "cumulative",
+          "description": "The HTTP request latencies in microseconds. (sum)",
+          "group": null,
+          "default": false
+        },
+        "http_request_duration_microseconds_count": {
+          "type": "cumulative",
+          "description": "The HTTP request latencies in microseconds. (count)",
+          "group": null,
+          "default": false
+        },
+        "http_request_duration_microseconds_quantile": {
+          "type": "gauge",
+          "description": "The HTTP request latencies in microseconds. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "http_request_size_bytes": {
+          "type": "cumulative",
+          "description": "The HTTP request sizes in bytes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "http_request_size_bytes_count": {
+          "type": "cumulative",
+          "description": "The HTTP request sizes in bytes. (count)",
+          "group": null,
+          "default": false
+        },
+        "http_request_size_bytes_quantile": {
+          "type": "gauge",
+          "description": "The HTTP request sizes in bytes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "http_requests_total": {
+          "type": "cumulative",
+          "description": "Total number of HTTP requests made.",
+          "group": null,
+          "default": false
+        },
+        "http_response_size_bytes": {
+          "type": "cumulative",
+          "description": "The HTTP response sizes in bytes. (sum)",
+          "group": null,
+          "default": false
+        },
+        "http_response_size_bytes_count": {
+          "type": "cumulative",
+          "description": "The HTTP response sizes in bytes. (count)",
+          "group": null,
+          "default": false
+        },
+        "http_response_size_bytes_quantile": {
+          "type": "gauge",
+          "description": "The HTTP response sizes in bytes. (quantized)",
+          "group": null,
+          "default": false
+        },
+        "process_cpu_seconds_total": {
+          "type": "cumulative",
+          "description": "Total user and system CPU time spent in seconds.",
+          "group": null,
+          "default": false
+        },
+        "process_max_fds": {
+          "type": "gauge",
+          "description": "Maximum number of open file descriptors.",
+          "group": null,
+          "default": false
+        },
+        "process_open_fds": {
+          "type": "gauge",
+          "description": "Number of open file descriptors.",
+          "group": null,
+          "default": false
+        },
+        "process_resident_memory_bytes": {
+          "type": "gauge",
+          "description": "Resident memory size in bytes.",
+          "group": null,
+          "default": false
+        },
+        "process_start_time_seconds": {
+          "type": "gauge",
+          "description": "Start time of the process since unix epoch in seconds.",
+          "group": null,
+          "default": false
+        },
+        "process_virtual_memory_bytes": {
+          "type": "gauge",
+          "description": "Virtual memory size in bytes.",
+          "group": null,
+          "default": false
+        },
+        "process_virtual_memory_max_bytes": {
+          "type": "gauge",
+          "description": "Maximum amount of virtual memory available in bytes.",
+          "group": null,
+          "default": false
+        },
+        "promhttp_metric_handler_requests_in_flight": {
+          "type": "gauge",
+          "description": "Current number of scrapes being served.",
+          "group": null,
+          "default": false
+        },
+        "promhttp_metric_handler_requests_total": {
+          "type": "cumulative",
+          "description": "Total number of scrapes by HTTP status code.",
+          "group": null,
+          "default": false
+        }
+      },
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "internal/monitors/etcd",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "skipVerify",
+            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "metricPath",
+            "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
+            "default": "/metrics",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendAllMetrics",
+            "doc": "Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "expvar",
       "sendAll": false,
       "dimensions": null,
@@ -22809,6 +24404,30 @@
             "elementKind": ""
           },
           {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -22998,6 +24617,30 @@
             "elementKind": ""
           },
           {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -23170,6 +24813,30 @@
             "default": false,
             "required": false,
             "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           },
           {
@@ -23401,6 +25068,30 @@
             "default": false,
             "required": false,
             "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           },
           {
@@ -23712,6 +25403,30 @@
             "elementKind": ""
           },
           {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -23989,6 +25704,30 @@
             "default": false,
             "required": false,
             "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           },
           {
@@ -28623,6 +30362,30 @@
             "elementKind": ""
           },
           {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -31073,6 +32836,30 @@
             "elementKind": ""
           },
           {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -32244,6 +34031,30 @@
             "elementKind": ""
           },
           {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -33165,6 +34976,30 @@
             "default": false,
             "required": false,
             "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           },
           {
@@ -35268,6 +37103,30 @@
             "elementKind": ""
           },
           {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -35625,6 +37484,30 @@
             "elementKind": ""
           },
           {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -35846,6 +37729,30 @@
             "default": false,
             "required": false,
             "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           },
           {
@@ -37050,6 +38957,30 @@
             "default": false,
             "required": false,
             "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           },
           {
@@ -38838,6 +40769,30 @@
             "elementKind": ""
           },
           {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -39930,6 +41885,30 @@
             "elementKind": ""
           },
           {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -40438,6 +42417,30 @@
             "default": false,
             "required": false,
             "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           },
           {
@@ -43671,6 +45674,30 @@
             "default": false,
             "required": false,
             "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           },
           {

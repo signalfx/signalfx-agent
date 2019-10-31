@@ -17,6 +17,7 @@ import (
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
 	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/signalfx-agent/internal/core/common/auth"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -47,6 +48,13 @@ type Config struct {
 	// If useHTTPS is true and this option is also true, the exporter's TLS
 	// cert will not be verified.
 	SkipVerify bool `yaml:"skipVerify"`
+	// Path to the CA cert that has signed the TLS cert, unnecessary
+	// if `skipVerify` is set to false.
+	CACertPath string `yaml:"caCertPath"`
+	// Path to the client TLS cert to use for TLS required connections
+	ClientCertPath string `yaml:"clientCertPath"`
+	// Path to the client TLS key to use for TLS required connections
+	ClientKeyPath string `yaml:"clientKeyPath"`
 
 	// Use pod service account to authenticate.
 	UseServiceAccount bool `yaml:"useServiceAccount"`
@@ -96,6 +104,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(logrus.Fields{"monitorType": m.monitorName})
 
 	var bearerToken string
+	tlsConfig := &tls.Config{InsecureSkipVerify: conf.SkipVerify}
 
 	if conf.UseServiceAccount {
 		restConfig, err := rest.InClusterConfig()
@@ -108,10 +117,16 @@ func (m *Monitor) Configure(conf *Config) error {
 		}
 	}
 
+	tlsConfig, err := auth.TLSConfig(tlsConfig, conf.CACertPath, conf.ClientCertPath, conf.ClientKeyPath)
+
+	if err != nil {
+		return err
+	}
+
 	client := &http.Client{
 		Timeout: 10 * time.Second,
 		Transport: &http.Transport{
-			TLSClientConfig: &tls.Config{InsecureSkipVerify: conf.SkipVerify},
+			TLSClientConfig: tlsConfig,
 		},
 	}
 	var scheme string
