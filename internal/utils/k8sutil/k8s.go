@@ -2,13 +2,15 @@ package k8sutil
 
 import (
 	"fmt"
-	"strings"
+	"regexp"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 
 	v1 "k8s.io/api/core/v1"
 	k8s "k8s.io/client-go/kubernetes"
 )
+
+var re = regexp.MustCompile(`^[\w_-]+://`)
 
 // EnvValueForContainer returns the value of an env var set on a container
 // within a pod.  It only supports simple env values and not value references.
@@ -82,5 +84,5 @@ func PortByNumber(pod *v1.Pod, port int32) *v1.ContainerPort {
 
 // StripContainerID returns a pure container id without the runtime scheme://
 func StripContainerID(id string) string {
-	return strings.Replace(strings.Replace(id, "docker://", "", 1), "cri-o://", "", 1)
+	return re.ReplaceAllString(id, "")
 }

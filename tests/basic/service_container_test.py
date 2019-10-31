@@ -11,7 +11,7 @@ from kubernetes import client as kube_client
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_all_dim_props, has_datapoint, has_trace_span, tcp_port_open_locally
 from tests.helpers.kubernetes.utils import exec_pod_command
-from tests.helpers.util import get_host_ip, run_service, wait_for
+from tests.helpers.util import get_host_ip, get_stripped_container_id, run_service, wait_for
 from tests.paths import TEST_SERVICES_DIR
 
 
@@ -136,9 +136,7 @@ def test_k8s_pod_spans_get_pod_and_container_tags(k8s_cluster):
                 namespace=curl_pod.metadata.namespace,
                 fail_hard=True,
             )
-            container_id = (
-                curl_pod.status.container_statuses[0].container_id.replace("docker://", "").replace("cri-o://", "")
-            )
+            container_id = get_stripped_container_id(curl_pod.status.container_statuses[0].container_id)
 
             assert wait_for(
                 p(

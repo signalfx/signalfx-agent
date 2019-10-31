@@ -380,6 +380,10 @@ def get_container_file_content(container, path):
     return container.exec_run("cat %s" % path)[1].decode("utf-8")
 
 
+def get_stripped_container_id(container_id):
+    return container_id.replace("docker://", "").replace("cri-o://", "")
+
+
 @contextmanager
 def run_simple_sanic_app(app):
     app_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
