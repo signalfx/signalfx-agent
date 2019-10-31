@@ -4,7 +4,12 @@ from kubernetes import client as k8s_client
 import pytest
 
 from tests.helpers.assertions import has_all_dim_props, has_datapoint, has_no_datapoint
-from tests.helpers.util import ensure_always, get_default_monitor_metrics_from_selfdescribe, wait_for
+from tests.helpers.util import (
+    ensure_always,
+    get_default_monitor_metrics_from_selfdescribe,
+    get_stripped_container_id,
+    wait_for,
+)
 from tests.paths import TEST_SERVICES_DIR
 
 pytestmark = [pytest.mark.kubernetes_cluster, pytest.mark.monitor_without_endpoints]
@@ -331,9 +336,7 @@ def test_containers(k8s_cluster):
                 # is available in Pod spec and the respective container id
                 containers_cache = {}
                 for container_status in pod.status.container_statuses:
-                    containers_cache[container_status.name] = container_status.container_id.replace(
-                        "docker://", ""
-                    ).replace("cri-o://", "")
+                    containers_cache[container_status.name] = get_stripped_container_id(container_status.container_id)
                     current_status = get_current_container_status(container_status.state)
 
                     if containers_cache[container_status.name] == "":
