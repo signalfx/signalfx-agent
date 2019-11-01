@@ -179,6 +179,34 @@ func TestDimensionClient(t *testing.T) {
 		})
 	})
 
+	t.Run("property with empty value", func(t *testing.T) {
+		require.NoError(t, client.AcceptDimension(&types.Dimension{
+			Name:  "host",
+			Value: "empty-box",
+			Properties: map[string]string{
+				"a": "",
+			},
+			Tags: map[string]bool{
+				"active": false,
+			},
+			MergeIntoExisting: true,
+		}))
+
+		dims = waitForDims(dimCh, 1, 3)
+		require.Equal(t, dims, []dim{
+			{
+				Key:   "host",
+				Value: "empty-box",
+				Properties: map[string]string{
+					"a": "",
+				},
+				Tags:         []string{},
+				TagsToRemove: []string{"active"},
+				WasPatch:     true,
+			},
+		})
+	})
+
 	require.NoError(t, client.AcceptDimension(&types.Dimension{
 		Name:  "AWSUniqueID",
 		Value: "abcd",

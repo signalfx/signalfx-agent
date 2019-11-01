@@ -268,19 +268,15 @@ func (dc *DimensionClient) makePatchRequest(key, value string, props map[string]
 		}
 	}
 
-	propsWithNil := map[string]interface{}{}
-	// Set any empty string props to nil so they get removed from the
-	// dimension altogether.
-	for k, v := range props {
-		if v == "" {
-			propsWithNil[k] = nil
-		} else {
-			propsWithNil[k] = v
-		}
+	if props == nil {
+		props = map[string]string{}
 	}
 
+	// The patch endpoint will also accept properties with a null value, in
+	// which case they will be deleted, but the agent's Dimension type doesn't
+	// support this yet.
 	json, err := json.Marshal(map[string]interface{}{
-		"customProperties": propsWithNil,
+		"customProperties": props,
 		"tags":             tagsToAdd,
 		"tagsToRemove":     tagsToRemove,
 	})
