@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"sync/atomic"
-
-	log "github.com/sirupsen/logrus"
 )
 
 type reqSender struct {
@@ -62,8 +60,6 @@ func (rs *reqSender) processRequests() {
 			atomic.AddInt64(&rs.TotalRequestsStarted, int64(1))
 			if err := rs.sendRequest(req); err != nil {
 				atomic.AddInt64(&rs.TotalRequestsFailed, int64(1))
-				log.WithError(err).WithField("url", req.URL.String()).Error("Unable to update dimension")
-
 				continue
 			}
 			atomic.AddInt64(&rs.TotalRequestsCompleted, int64(1))
@@ -85,7 +81,7 @@ func (rs *reqSender) sendRequest(req *http.Request) error {
 		err = fmt.Errorf("unexpected status code %d on response for request to %s: %s", statusCode, req.URL.String(), string(body))
 	}
 
-	onRequestFailed(req, statusCode)
+	onRequestFailed(req, statusCode, err)
 
 	return err
 }
@@ -95,7 +91,7 @@ type key int
 const requestFailedCallbackKey key = 1
 const requestSuccessCallbackKey key = 2
 
-type requestFailedCallback func(statusCode int)
+type requestFailedCallback func(statusCode int, err error)
 type requestSuccessCallback func()
 
 func onRequestSuccess(req *http.Request) {
@@ -106,13 +102,13 @@ func onRequestSuccess(req *http.Request) {
 	}
 	cb()
 }
-func onRequestFailed(req *http.Request, statusCode int) {
+func onRequestFailed(req *http.Request, statusCode int, err error) {
 	ctx := req.Context()
 	cb, ok := ctx.Value(requestFailedCallbackKey).(requestFailedCallback)
 	if !ok {
 		return
 	}
-	cb(statusCode)
+	cb(statusCode, err)
 }
 
 func sendRequest(client *http.Client, req *http.Request) ([]byte, int, error) {

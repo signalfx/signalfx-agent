@@ -258,6 +258,34 @@ func TestDimensionClient(t *testing.T) {
 		require.Len(t, dims, 0)
 	})
 
+	t.Run("does retry 404 responses", func(t *testing.T) {
+		forcedResp.Store(404)
+
+		// Send a distinct prop/tag set for same dim with an error
+		require.NoError(t, client.AcceptDimension(&types.Dimension{
+			Name:  "AWSUniqueID",
+			Value: "id404",
+			Properties: map[string]string{
+				"z": "x",
+			},
+		}))
+		dims = waitForDims(dimCh, 1, 3)
+		require.Len(t, dims, 0)
+
+		forcedResp.Store(200)
+		dims = waitForDims(dimCh, 1, 3)
+		require.Equal(t, dims, []dim{
+			{
+				Key:   "AWSUniqueID",
+				Value: "id404",
+				Properties: map[string]string{
+					"z": "x",
+				},
+				WasPatch: false,
+			},
+		})
+	})
+
 	t.Run("send a duplicate", func(t *testing.T) {
 		require.NoError(t, client.AcceptDimension(&types.Dimension{
 			Name:  "AWSUniqueID",
