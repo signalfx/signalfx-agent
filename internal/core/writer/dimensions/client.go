@@ -198,14 +198,20 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 	}
 
 	req = req.WithContext(
-		context.WithValue(req.Context(), requestFailedCallbackKey, requestFailedCallback(func(statusCode int) {
-			if statusCode >= 400 && statusCode < 500 {
+		context.WithValue(req.Context(), requestFailedCallbackKey, requestFailedCallback(func(statusCode int, err error) {
+			if statusCode >= 400 && statusCode < 500 && statusCode != 404 {
 				atomic.AddInt64(&dc.TotalClientError4xxResponses, int64(1))
-				// Don't retry if it is a 4xx error since these imply an input/auth
-				// error, which is not going to be remedied by retrying.
+				log.WithError(err).WithField("url", req.URL.String()).Error("Unable to update dimension, not retrying")
+
+				// Don't retry if it is a 4xx error (except 404) since these
+				// imply an input/auth error, which is not going to be remedied
+				// by retrying.
+				// 404 errors are special because they can occur due to races
+				// within the dimension patch endpoint.
 				return
 			}
 
+			log.WithError(err).WithField("url", req.URL.String()).Error("Unable to update dimension, retrying")
 			atomic.AddInt64(&dc.TotalRetriedUpdates, int64(1))
 			// The retry is meant to provide some measure of robustness against
 			// temporary API failures.  If the API is down for significant
