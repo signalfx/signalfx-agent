@@ -7,106 +7,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestOldFilters(t *testing.T) {
+func TestFilters(t *testing.T) {
 	t.Run("Make single filter properly", func(t *testing.T) {
-		f, _ := makeOldFilterSet([]MetricFilter{
-			{
-				MetricNames: []string{
-					"cpu.utilization",
-					"memory.utilization",
-				},
-			},
-		}, nil)
-		assert.True(t, f.Matches(&datapoint.Datapoint{Metric: "cpu.utilization"}))
-		assert.True(t, f.Matches(&datapoint.Datapoint{Metric: "memory.utilization"}))
-		assert.False(t, f.Matches(&datapoint.Datapoint{Metric: "disk.utilization"}))
-	})
-
-	t.Run("Merges two filters properly", func(t *testing.T) {
-		f, _ := makeOldFilterSet([]MetricFilter{
-			{
-				MetricNames: []string{
-					"cpu.utilization",
-					"memory.utilization",
-				},
-				Negated: true,
-			},
-			{
-				MetricNames: []string{
-					"disk.utilization",
-				},
-				Negated: true,
-			},
-		}, nil)
-		assert.False(t, f.Matches(&datapoint.Datapoint{Metric: "cpu.utilization"}))
-		assert.False(t, f.Matches(&datapoint.Datapoint{Metric: "memory.utilization"}))
-		assert.False(t, f.Matches(&datapoint.Datapoint{Metric: "disk.utilization"}))
-		assert.True(t, f.Matches(&datapoint.Datapoint{Metric: "other.utilization"}))
-	})
-
-	t.Run("Merges include filters properly", func(t *testing.T) {
-		f, _ := makeOldFilterSet([]MetricFilter{
-			{
-				MetricNames: []string{
-					"cpu.utilization",
-					"memory.utilization",
-				},
-				Negated: true,
-			},
-			{
-				MetricNames: []string{
-					"disk.utilization",
-				},
-				Negated: true,
-			},
-		}, []MetricFilter{
-			{
-				MetricNames: []string{
-					"my.metric",
-				},
-			},
-		})
-		assert.False(t, f.Matches(&datapoint.Datapoint{Metric: "cpu.utilization"}))
-		assert.False(t, f.Matches(&datapoint.Datapoint{Metric: "memory.utilization"}))
-		assert.False(t, f.Matches(&datapoint.Datapoint{Metric: "disk.utilization"}))
-		assert.False(t, f.Matches(&datapoint.Datapoint{Metric: "my.metric"}))
-		assert.True(t, f.Matches(&datapoint.Datapoint{Metric: "random.metric"}))
-	})
-
-	t.Run("Include filters with dims take priority", func(t *testing.T) {
-		f, _ := makeOldFilterSet([]MetricFilter{
-			{
-				MetricNames: []string{
-					"cpu.utilization",
-					"memory.utilization",
-				},
-			},
-			{
-				Dimensions: map[string]interface{}{
-					"app": "myapp",
-				},
-			},
-		}, []MetricFilter{
-			{
-				MetricNames: []string{
-					"cpu.utilization",
-				},
-				Dimensions: map[string]interface{}{
-					"app": "myapp",
-				},
-			},
-		})
-		assert.True(t, f.Matches(&datapoint.Datapoint{Metric: "cpu.utilization"}))
-		assert.False(t, f.Matches(&datapoint.Datapoint{Metric: "cpu.utilization", Dimensions: map[string]string{"app": "myapp"}}))
-		assert.True(t, f.Matches(&datapoint.Datapoint{Metric: "memory.utilization"}))
-		assert.False(t, f.Matches(&datapoint.Datapoint{Metric: "disk.utilization"}))
-		assert.False(t, f.Matches(&datapoint.Datapoint{Metric: "random.metric"}))
-	})
-}
-
-func TestNewFilters(t *testing.T) {
-	t.Run("Make single filter properly", func(t *testing.T) {
-		f, _ := makeNewFilterSet([]MetricFilter{
+		f, _ := makeFilterSet([]MetricFilter{
 			{
 				MetricNames: []string{
 					"cpu.utilization",
@@ -120,7 +23,7 @@ func TestNewFilters(t *testing.T) {
 	})
 
 	t.Run("Merges two filters properly (ORed together)", func(t *testing.T) {
-		f, _ := makeNewFilterSet([]MetricFilter{
+		f, _ := makeFilterSet([]MetricFilter{
 			{
 				MetricNames: []string{
 					"cpu.utilization",
@@ -140,7 +43,7 @@ func TestNewFilters(t *testing.T) {
 	})
 
 	t.Run("Filters can be overridden within a single filter", func(t *testing.T) {
-		f, _ := makeNewFilterSet([]MetricFilter{
+		f, _ := makeFilterSet([]MetricFilter{
 			{
 				MetricNames: []string{
 					"*.utilization",
@@ -162,7 +65,7 @@ func TestNewFilters(t *testing.T) {
 	})
 
 	t.Run("Filters respect both metric names and dimensions", func(t *testing.T) {
-		f, err := makeNewFilterSet([]MetricFilter{
+		f, err := makeFilterSet([]MetricFilter{
 			{
 				MetricNames: []string{
 					"*.utilization",

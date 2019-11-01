@@ -55,9 +55,6 @@ if not set.
 | `writer` | no | [object (see below)](#writer) | Configuration of the datapoint/event writer |
 | `logging` | no | [object (see below)](#logging) | Log configuration |
 | `collectd` | no | [object (see below)](#collectd) | Configuration of the managed collectd subprocess |
-| `enableBuiltInFiltering` | no | bool | If true, the agent will filter out [custom metrics](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) without having to rely on the `whitelist.json` filter that was previously configured under `metricsToExclude`.  Whether a metric is custom or not is documented in each monitor's documentation.  If `true`, every monitor's default configuration (i.e. the minimum amount of configuration to make it work) will only send non-custom metrics.  In order to send out custom metrics from a monitor, certain config flags on the monitor must be set _or_ you can specify the metric in the `extraMetrics` config option on each monitor if you know the specific metric name.  You would not have to modify the whitelist via `metricsToInclude` as before.  If you set this option to `true`, the `whitelist.json` entry under `metricToExclude` should be removed, if it is present -- otherwise custom metrics won't be emitted. (**default:** `false`) |
-| `metricsToInclude` | no | [list of objects (see below)](#metricstoinclude) | A list of metric filters that will whitelist/include metrics.  These filters take priority over the filters specified in `metricsToExclude`. |
-| `metricsToExclude` | no | [list of objects (see below)](#metricstoexclude) | A list of metric filters |
 | `propertiesToExclude` | no | [list of objects (see below)](#propertiestoexclude) | A list of properties filters |
 | `internalStatusHost` | no | string | The host on which the internal status server will listen.  The internal status HTTP server serves internal metrics and diagnostic information about the agent and can be scraped by the `internal-metrics` monitor. Can be set to `0.0.0.0` if you want to monitor the agent from another host.  If you set this to blank/null, the internal status server will not be started.  See `internalStatusPort`. (**default:** `"localhost"`) |
 | `internalStatusPort` | no | integer | The port on which the internal status server will listen.  See `internalStatusHost`. (**default:** `8095`) |
@@ -100,29 +97,12 @@ The following are generic options that apply to all monitors.  Each monitor type
 | `configEndpointMappings` | no | map of strings | A set of mappings from a configuration option on this monitor to attributes of a discovered endpoint.  The keys are the config option on this monitor and the value can be any valid expression used in discovery rules. |
 | `intervalSeconds` | no | integer | The interval (in seconds) at which to emit datapoints from the monitor(s) created by this configuration.  If not set (or set to 0), the global agent intervalSeconds config option will be used instead. (**default:** `0`) |
 | `solo` | no | bool | If one or more configurations have this set to true, only those configurations will be considered. This setting can be useful for testing. (**default:** `false`) |
-| `metricsToExclude` | no | [list of objects (see below)](#metricstoexclude) | DEPRECATED in favor of the `datapointsToExclude` option.  That option handles negation of filter items differently. |
 | `datapointsToExclude` | no | [list of objects (see below)](#datapointstoexclude) | A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](./filtering.md#additional-monitor-level-filtering) for examples and more information. |
 | `disableHostDimensions` | no | bool | Some monitors pull metrics from services not running on the same host and should not get the host-specific dimensions set on them (e.g. `host`, `AWSUniqueId`, etc).  Setting this to `true` causes those dimensions to be omitted.  You can disable this globally with the `disableHostDimensions` option on the top level of the config. (**default:** `false`) |
 | `disableEndpointDimensions` | no | bool | This can be set to true if you don't want to include the dimensions that are specific to the endpoint that was discovered by an observer.  This is useful when you have an endpoint whose identity is not particularly important since it acts largely as a proxy or adapter for other metrics. (**default:** `false`) |
 | `dimensionTransformations` | no | map of strings | A map from dimension names emitted by the monitor to the desired dimension name that will be emitted in the datapoint that goes to SignalFx.  This can be useful if you have custom metrics from your applications and want to make the dimensions from a monitor match those. Also can be useful when scraping free-form metrics, say with the `prometheus-exporter` monitor.  Right now, only static key/value transformations are supported.  Note that filtering by dimensions will be done on the *original* dimension name and not the new name. Note that it is possible to remove unwanted dimensions via this configuration, by making the desired dimension name an empty string. |
 | `extraMetrics` | no | list of strings | Extra metrics to enable besides the default included ones.  This is an [overridable filter](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filtering). |
 | `extraGroups` | no | list of strings | Extra metric groups to enable in addition to the metrics that are emitted by default.  A metric group is simply a collection of metrics, and they are defined in each monitor's documentation. |
-
-
-## metricsToExclude
-The **nested** `metricsToExclude` config object has the following fields:
-
-For more information on filtering see [Datapoint Filtering](./filtering.md).
-
-
-| Config option | Required | Type | Description |
-| --- | --- | --- | --- |
-| `dimensions` | no | map of any | A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.  The map values can be either a single string or a list of strings. |
-| `metricNames` | no | list of strings | A list of metric names to match against |
-| `metricName` | no | string | A single metric name to match against |
-| `monitorType` | no | string | (**Only applicable for the top level filters**) Limits this scope of the filter to datapoints from a specific monitor. If specified, any datapoints not from this monitor type will never match against this filter. |
-| `negated` | no | bool | (**Only applicable for the top level filters**) Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given. (**default:** `false`) |
-
 
 
 ## datapointsToExclude
@@ -200,37 +180,6 @@ The **nested** `collectd` config object has the following fields:
 | `writeServerIPAddr` | no | string | The local IP address of the server that the agent exposes to which collectd will send metrics.  This defaults to an arbitrary address in the localhost subnet, but can be overridden if needed. (**default:** `"127.9.8.7"`) |
 | `writeServerPort` | no | integer | The port of the agent's collectd metric sink server.  If set to zero (the default) it will allow the OS to assign it a free port. (**default:** `0`) |
 | `configDir` | no | string | This is where the agent will write the collectd config files that it manages.  If you have secrets in those files, consider setting this to a path on a tmpfs mount.  The files in this directory should be considered transient -- there is no value in editing them by hand.  If you want to add your own collectd config, see the collectd/custom monitor. (**default:** `"/var/run/signalfx-agent/collectd"`) |
-
-
-
-## metricsToInclude
-The **nested** `metricsToInclude` config object has the following fields:
-
-
-
-| Config option | Required | Type | Description |
-| --- | --- | --- | --- |
-| `dimensions` | no | map of any | A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.  The map values can be either a single string or a list of strings. |
-| `metricNames` | no | list of strings | A list of metric names to match against |
-| `metricName` | no | string | A single metric name to match against |
-| `monitorType` | no | string | (**Only applicable for the top level filters**) Limits this scope of the filter to datapoints from a specific monitor. If specified, any datapoints not from this monitor type will never match against this filter. |
-| `negated` | no | bool | (**Only applicable for the top level filters**) Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given. (**default:** `false`) |
-
-
-
-## metricsToExclude
-The **nested** `metricsToExclude` config object has the following fields:
-
-For more information on filtering see [Datapoint Filtering](./filtering.md).
-
-
-| Config option | Required | Type | Description |
-| --- | --- | --- | --- |
-| `dimensions` | no | map of any | A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.  The map values can be either a single string or a list of strings. |
-| `metricNames` | no | list of strings | A list of metric names to match against |
-| `metricName` | no | string | A single metric name to match against |
-| `monitorType` | no | string | (**Only applicable for the top level filters**) Limits this scope of the filter to datapoints from a specific monitor. If specified, any datapoints not from this monitor type will never match against this filter. |
-| `negated` | no | bool | (**Only applicable for the top level filters**) Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given. (**default:** `false`) |
 
 
 
@@ -421,9 +370,6 @@ where applicable:
     writeServerIPAddr: "127.9.8.7"
     writeServerPort: 0
     configDir: "/var/run/signalfx-agent/collectd"
-  enableBuiltInFiltering: false
-  metricsToInclude: []
-  metricsToExclude: []
   propertiesToExclude: []
   internalStatusHost: "localhost"
   internalStatusPort: 8095

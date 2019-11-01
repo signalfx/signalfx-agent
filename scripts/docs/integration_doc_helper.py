@@ -59,7 +59,6 @@ REQUIRED_AGENT_DOCS = {
         "remote-config",
         "windows",
         "faq",
-        "legacy-filtering",
     ],
 }
 

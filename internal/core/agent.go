@@ -132,7 +132,7 @@ func (a *Agent) configure(conf *config.Config) {
 	a.meta.InternalStatusPort = conf.InternalStatusPort
 
 	// The order of Configure calls is very important!
-	a.monitors.Configure(conf.Monitors, &conf.Collectd, conf.IntervalSeconds, conf.EnableBuiltInFiltering)
+	a.monitors.Configure(conf.Monitors, &conf.Collectd, conf.IntervalSeconds)
 	a.observers.Configure(conf.Observers)
 	a.lastConfig = conf
 }

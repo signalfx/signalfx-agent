@@ -91,26 +91,6 @@ type Config struct {
 	Logging LogConfig `yaml:"logging" default:"{}"`
 	// Configuration of the managed collectd subprocess
 	Collectd CollectdConfig `yaml:"collectd" default:"{}"`
-	// If true, the agent will filter out [custom
-	// metrics](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-	// without having to rely on the `whitelist.json` filter that was
-	// previously configured under `metricsToExclude`.  Whether a metric is
-	// custom or not is documented in each monitor's documentation.  If `true`,
-	// every monitor's default configuration (i.e. the minimum amount of
-	// configuration to make it work) will only send non-custom metrics.  In
-	// order to send out custom metrics from a monitor, certain config flags on
-	// the monitor must be set _or_ you can specify the metric in the
-	// `extraMetrics` config option on each monitor if you know the specific
-	// metric name.  You would not have to modify the whitelist via
-	// `metricsToInclude` as before.  If you set this option to `true`, the
-	// `whitelist.json` entry under `metricToExclude` should be removed, if it
-	// is present -- otherwise custom metrics won't be emitted.
-	EnableBuiltInFiltering bool `yaml:"enableBuiltInFiltering" default:"false"`
-	// A list of metric filters that will whitelist/include metrics.  These
-	// filters take priority over the filters specified in `metricsToExclude`.
-	MetricsToInclude []MetricFilter `yaml:"metricsToInclude" default:"[]"`
-	// A list of metric filters
-	MetricsToExclude []MetricFilter `yaml:"metricsToExclude" default:"[]"`
 	// A list of properties filters
 	PropertiesToExclude []PropertyFilterConfig `yaml:"propertiesToExclude" default:"[]"`
 
@@ -253,8 +233,6 @@ func (c *Config) propagateValuesDown() error {
 	c.Collectd.IntervalSeconds = utils.FirstNonZero(c.Collectd.IntervalSeconds, c.IntervalSeconds)
 	c.Collectd.BundleDir = c.BundleDir
 
-	c.Writer.MetricsToInclude = c.MetricsToInclude
-	c.Writer.MetricsToExclude = c.MetricsToExclude
 	c.Writer.IngestURL = c.IngestURL
 	c.Writer.APIURL = c.APIURL
 	c.Writer.TraceEndpointURL = c.TraceEndpointURL

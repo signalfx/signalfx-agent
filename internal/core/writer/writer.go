@@ -24,7 +24,6 @@ import (
 	"github.com/signalfx/golib/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/core/writer/dimensions"
 	"github.com/signalfx/signalfx-agent/internal/core/writer/tap"
 	"github.com/signalfx/signalfx-agent/internal/core/writer/tracetracker"
@@ -61,8 +60,7 @@ type SignalFxWriter struct {
 	dpTap  *tap.DatapointTap
 
 	// map that holds host-specific ids like AWSUniqueID
-	hostIDDims       map[string]string
-	datapointFilters *dpfilters.FilterSet
+	hostIDDims map[string]string
 
 	dpBufferPool   *sync.Pool
 	spanBufferPool *sync.Pool
@@ -88,7 +86,6 @@ type SignalFxWriter struct {
 	dpsWaiting              int64
 	dpsSent                 int64
 	dpsReceived             int64
-	dpsFiltered             int64
 	dpsFailedToSend         int64
 	traceSpanRequestsActive int64
 	traceSpansInFlight      int64
@@ -190,11 +187,6 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 	}
 	sw.client.TraceEndpoint = traceEndpointURL.String()
 
-	sw.datapointFilters, err = sw.conf.DatapointFilters()
-	if err != nil {
-		return nil, err
-	}
-
 	sw.dimensionClient.Start()
 	go sw.listenForDatapoints()
 	go sw.listenForEventsAndDimensionUpdates()
@@ -204,10 +196,6 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 	log.Infof("Sending trace spans to %s", sw.client.TraceEndpoint)
 
 	return sw, nil
-}
-
-func (sw *SignalFxWriter) shouldSendDatapoint(dp *datapoint.Datapoint) bool {
-	return sw.datapointFilters == nil || !sw.datapointFilters.Matches(dp)
 }
 
 func (sw *SignalFxWriter) preprocessDatapoint(dp *datapoint.Datapoint) {
@@ -393,14 +381,6 @@ func (sw *SignalFxWriter) listenForDatapoints() {
 	}
 
 	processDP := func(dp *datapoint.Datapoint) {
-		if !sw.shouldSendDatapoint(dp) {
-			sw.dpsFiltered++
-			if sw.conf.LogDroppedDatapoints {
-				log.Debugf("Dropping datapoint:\n%s", utils.DatapointToString(dp))
-			}
-			return
-		}
-
 		sw.dpsReceived++
 		sw.preprocessDatapoint(dp)
 		dpBuffer[nextDatapointIdx] = dp

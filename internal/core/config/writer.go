@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/mitchellh/hashstructure"
-	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/core/propfilters"
 	log "github.com/sirupsen/logrus"
 )
@@ -106,8 +105,6 @@ type WriterConfig struct {
 	TraceEndpointURL    string                 `yaml:"-"`
 	SignalFxAccessToken string                 `yaml:"-"`
 	GlobalDimensions    map[string]string      `yaml:"-"`
-	MetricsToInclude    []MetricFilter         `yaml:"-"`
-	MetricsToExclude    []MetricFilter         `yaml:"-"`
 	PropertiesToExclude []PropertyFilterConfig `yaml:"-"`
 }
 
@@ -147,11 +144,6 @@ func (wc *WriterConfig) ParsedTraceEndpointURL() *url.URL {
 		return traceEndpointURL
 	}
 	return nil
-}
-
-// DatapointFilters creates the filter set for datapoints
-func (wc *WriterConfig) DatapointFilters() (*dpfilters.FilterSet, error) {
-	return makeOldFilterSet(wc.MetricsToExclude, wc.MetricsToInclude)
 }
 
 // PropertyFilters creates the filter set for dimension properties
