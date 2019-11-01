@@ -41,21 +41,30 @@ func (a *Agent) serveDiagnosticInfo(host string, port uint16) {
 	mux.Handle("/tap-dps", http.HandlerFunc(a.datapointTapHandler))
 
 	a.diagnosticServer = &http.Server{
-		Addr:         fmt.Sprintf("%s:%d", host, port),
-		Handler:      mux,
-		ReadTimeout:  5 * time.Second,
+		Addr:        fmt.Sprintf("%s:%d", host, port),
+		Handler:     mux,
+		ReadTimeout: 5 * time.Second,
+		// Set this to 0 so that streaming works.
 		WriteTimeout: 0, //5 * time.Second,
 	}
 
 	go func() {
 		log.Infof("Serving internal metrics at %s:%d", host, port)
-		err := a.diagnosticServer.ListenAndServe()
-		if err != nil && err != http.ErrServerClosed {
-			log.WithFields(log.Fields{
-				"host":  host,
-				"port":  port,
-				"error": err,
-			}).Error("Problem with diagnostic server")
+		for {
+			err := a.diagnosticServer.ListenAndServe()
+			if err != nil {
+				if err == http.ErrServerClosed {
+					return
+				}
+				log.WithFields(log.Fields{
+					"host":  host,
+					"port":  port,
+					"error": err,
+				}).Error("Problem with diagnostic server")
+			}
+			// Retry after a cool down since sometimes the port can be still
+			// bound up from a previously running agent that was restarted.
+			time.Sleep(15 * time.Second)
 		}
 	}()
 }

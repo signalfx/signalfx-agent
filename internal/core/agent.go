@@ -151,6 +151,9 @@ func (a *Agent) shutdown() {
 	a.monitors.Shutdown()
 	//neopy.Instance().Shutdown()
 	a.writer.Shutdown()
+	if a.diagnosticServer != nil {
+		a.diagnosticServer.Close()
+	}
 }
 
 // Startup the agent.  Returns a function that can be called to shutdown the
