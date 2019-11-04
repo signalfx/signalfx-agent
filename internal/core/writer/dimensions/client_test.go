@@ -459,3 +459,36 @@ func TestFlappyUpdates(t *testing.T) {
 	require.Equal(t, int64(2), client.requestSender.TotalRequestsCompleted)
 	require.Equal(t, int64(0), client.requestSender.TotalRequestsFailed)
 }
+
+func TestInvalidUpdatesNotSent(t *testing.T) {
+	client, dimCh, _, cancel := setup()
+	defer cancel()
+
+	require.NoError(t, client.AcceptDimension(&types.Dimension{
+		Name:  "host",
+		Value: "",
+		Properties: map[string]string{
+			"a": "b",
+			"c": "d",
+		},
+		Tags: map[string]bool{
+			"active": true,
+		},
+		MergeIntoExisting: true,
+	}))
+
+	require.NoError(t, client.AcceptDimension(&types.Dimension{
+		Name:  "",
+		Value: "asdf",
+		Properties: map[string]string{
+			"a": "b",
+			"c": "d",
+		},
+		Tags: map[string]bool{
+			"active": true,
+		},
+	}))
+
+	dims := waitForDims(dimCh, 2, 3)
+	require.Len(t, dims, 0)
+}
