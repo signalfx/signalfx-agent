@@ -201,7 +201,10 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 		context.WithValue(req.Context(), requestFailedCallbackKey, requestFailedCallback(func(statusCode int, err error) {
 			if statusCode >= 400 && statusCode < 500 && statusCode != 404 {
 				atomic.AddInt64(&dc.TotalClientError4xxResponses, int64(1))
-				log.WithError(err).WithField("url", req.URL.String()).Error("Unable to update dimension, not retrying")
+				log.WithError(err).WithFields(log.Fields{
+					"url": req.URL.String(),
+					"dim": dim,
+				}).Error("Unable to update dimension, not retrying")
 
 				// Don't retry if it is a 4xx error (except 404) since these
 				// imply an input/auth error, which is not going to be remedied
@@ -211,7 +214,10 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 				return
 			}
 
-			log.WithError(err).WithField("url", req.URL.String()).Error("Unable to update dimension, retrying")
+			log.WithError(err).WithFields(log.Fields{
+				"url": req.URL.String(),
+				"dim": dim,
+			}).Error("Unable to update dimension, retrying")
 			atomic.AddInt64(&dc.TotalRetriedUpdates, int64(1))
 			// The retry is meant to provide some measure of robustness against
 			// temporary API failures.  If the API is down for significant
@@ -230,11 +236,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 			dc.deduplicator.Add(dim)
 			if dc.logUpdates {
 				log.WithFields(log.Fields{
-					"name":       dim.Name,
-					"value":      dim.Value,
-					"properties": dim.Properties,
-					"tags":       dim.Tags,
-					"isMerge":    dim.MergeIntoExisting,
+					"dim": dim,
 				}).Info("Updated dimension")
 			}
 		})))
