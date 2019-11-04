@@ -50,6 +50,8 @@ type DimensionClient struct {
 	TotalFlappyUpdates           int64
 	TotalClientError4xxResponses int64
 	TotalRetriedUpdates          int64
+	TotalInvalidDimensions       int64
+	TotalDuplicates              int64
 }
 
 type queuedDimension struct {
@@ -188,6 +190,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 	)
 
 	if dim.Name == "" || dim.Value == "" {
+		atomic.AddInt64(&dc.TotalInvalidDimensions, int64(1))
 		return fmt.Errorf("dimension %v is missing key or value, cannot send", dim)
 	}
 
@@ -248,6 +251,8 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 	if !dc.deduplicator.IsDuplicate(dim) {
 		// This will block if we don't have enough requests
 		dc.requestSender.send(req)
+	} else {
+		atomic.AddInt64(&dc.TotalDuplicates, int64(1))
 	}
 
 	return nil
