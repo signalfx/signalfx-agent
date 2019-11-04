@@ -140,6 +140,15 @@ var _ = Describe("Kubernetes plugin", func() {
 								Running: &v1.ContainerStateRunning{},
 							},
 						},
+						{
+							ContainerID:  "",
+							Ready:        true,
+							Name:         "container2",
+							RestartCount: 5,
+							State: v1.ContainerState{
+								Running: &v1.ContainerStateRunning{},
+							},
+						},
 					},
 				},
 			},
