@@ -4,6 +4,8 @@ import (
 	"net"
 
 	lru "github.com/hashicorp/golang-lru"
+	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/sfxclient"
 	"github.com/signalfx/golib/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
@@ -59,6 +61,10 @@ func (st *SpanSourceTracker) AddSourceTagsToSpan(span *trace.Span) {
 					st.emitDimensionPropIfNew(dim, val, *span.LocalEndpoint.ServiceName)
 				}
 
+				if span.Tags == nil {
+					span.Tags = map[string]string{}
+				}
+
 				tags := span.Tags
 				if _, ok := tags[dim]; ok {
 					// Don't overwrite existing span tags
@@ -104,4 +110,10 @@ func (st *SpanSourceTracker) emitDimensionPropIfNew(dimName, dimValue, serviceNa
 		}
 		st.dimHistory.Add(key, true)
 	}
+}
+
+func (st *SpanSourceTracker) InternalMetrics() []*datapoint.Datapoint {
+	return append([]*datapoint.Datapoint{
+		sfxclient.Cumulative("sfxagent.span_source_tracker_size", nil, int64(st.dimHistory.Len())),
+	}, st.hostTracker.InternalMetrics()...)
 }

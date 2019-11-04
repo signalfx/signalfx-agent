@@ -23,5 +23,6 @@ func (dc *DimensionClient) InternalMetrics() []*datapoint.Datapoint {
 		// All 4xx HTTP responses that are not retried except 404 (which is retried)
 		sfxclient.CumulativeP("sfxagent.dim_updates_client_errors", nil, &dc.TotalClientError4xxResponses),
 		sfxclient.CumulativeP("sfxagent.dim_updates_retries", nil, &dc.TotalRetriedUpdates),
+		sfxclient.Cumulative("sfxagent.dim_updates_deduplicator_size", nil, int64(dc.deduplicator.history.Len())),
 	}
 }
