@@ -98,6 +98,11 @@ func datapointsForContainerSpec(c v1.Container, contDims map[string]string) []*d
 func dimensionsForPodContainers(pod *v1.Pod) []*atypes.Dimension {
 	var out []*atypes.Dimension
 	for _, cs := range pod.Status.ContainerStatuses {
+		// Do not send container id dimensions updates if container id
+		// returned is empty
+		if cs.ContainerID == "" {
+			continue
+		}
 		out = append(out, dimensionForContainer(cs))
 	}
 	return out
