@@ -187,6 +187,10 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 		err error
 	)
 
+	if dim.Name == "" || dim.Value == "" {
+		return fmt.Errorf("dimension %v is missing key or value, cannot send", dim)
+	}
+
 	if dim.MergeIntoExisting {
 		req, err = dc.makePatchRequest(dim.Name, dim.Value, dim.Properties, dim.Tags)
 	} else {
