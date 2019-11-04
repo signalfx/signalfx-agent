@@ -4,6 +4,8 @@ import (
 	"sync"
 
 	"github.com/pkg/errors"
+	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/sfxclient"
 	"github.com/sirupsen/logrus"
 )
 
@@ -89,4 +91,10 @@ func (et *EndpointHostTracker) GetByHost(host string) []Endpoint {
 	defer et.RUnlock()
 
 	return et.hostToEndpoints[host].AsSlice()
+}
+
+func (et *EndpointHostTracker) InternalMetrics() []*datapoint.Datapoint {
+	return []*datapoint.Datapoint{
+		sfxclient.Cumulative("sfxagent.endpoint_host_tracker_size", nil, int64(len(et.hostToEndpoints))),
+	}
 }
