@@ -24,6 +24,10 @@ type Dimension struct {
 	MergeIntoExisting bool
 }
 
+func (d *Dimension) String() string {
+	return fmt.Sprintf("{name: %q; value: %q; props: %v; tags: %v; mergeIntoExisting: %v}", d.Name, d.Value, d.Properties, d.Tags, d.MergeIntoExisting)
+}
+
 // DimensionKey is what uniquely identifies a dimension, its name and value
 // together.
 type DimensionKey struct {
