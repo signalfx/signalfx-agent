@@ -1783,12 +1783,12 @@ monitors:
         URL. (sum)
       type: cumulative
     rest_client_request_latency_seconds_bucket:
-      default: false
+      default: true
       description: (Deprecated) Request latency in seconds. Broken down by verb and
         URL. (bucket)
       type: cumulative
     rest_client_requests_total:
-      default: false
+      default: true
       description: Number of HTTP requests, partitioned by status code, method, and
         host.
       type: cumulative
@@ -2291,11 +2291,11 @@ monitors:
         takes. (quantized)
       type: gauge
     workqueue_adds_total:
-      default: false
+      default: true
       description: Total number of adds handled by workqueue
       type: cumulative
     workqueue_depth:
-      default: false
+      default: true
       description: Current depth of workqueue
       type: gauge
     workqueue_longest_running_processor_seconds:
@@ -2314,7 +2314,7 @@ monitors:
         (sum)
       type: cumulative
     workqueue_queue_duration_seconds_bucket:
-      default: false
+      default: true
       description: How long in seconds an item stays in workqueue before being requested.
         (bucket)
       type: cumulative

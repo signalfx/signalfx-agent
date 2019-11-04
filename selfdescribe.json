@@ -18426,7 +18426,9 @@
           "description": "",
           "metrics": [
             "coredns_build_info",
+            "coredns_cache_hits_total",
             "coredns_cache_misses_total",
+            "coredns_cache_size",
             "coredns_dns_request_count_total",
             "coredns_dns_request_duration_seconds",
             "coredns_dns_request_duration_seconds_bucket",
@@ -18490,17 +18492,29 @@
           "group": null,
           "default": false
         },
+        "coredns_cache_hits_total": {
+          "type": "cumulative",
+          "description": "The count of cache misses.",
+          "group": null,
+          "default": false
+        },
         "coredns_cache_misses_total": {
           "type": "cumulative",
           "description": "The count of cache misses.",
           "group": null,
           "default": false
         },
+        "coredns_cache_size": {
+          "type": "cumulative",
+          "description": "Size of DNS cache.",
+          "group": null,
+          "default": true
+        },
         "coredns_dns_request_count_total": {
           "type": "cumulative",
           "description": "Counter of DNS requests made per zone, protocol and family.",
           "group": null,
-          "default": false
+          "default": true
         },
         "coredns_dns_request_duration_seconds": {
           "type": "cumulative",
@@ -18524,7 +18538,7 @@
           "type": "cumulative",
           "description": "Size of the EDNS0 UDP buffer in bytes (64K for TCP). (sum)",
           "group": null,
-          "default": false
+          "default": true
         },
         "coredns_dns_request_size_bytes_bucket": {
           "type": "cumulative",
@@ -18542,13 +18556,13 @@
           "type": "cumulative",
           "description": "Counter of DNS requests per type, per zone.",
           "group": null,
-          "default": false
+          "default": true
         },
         "coredns_dns_response_rcode_count_total": {
           "type": "cumulative",
           "description": "Counter of response status codes.",
           "group": null,
-          "default": false
+          "default": true
         },
         "coredns_dns_response_size_bytes": {
           "type": "cumulative",
@@ -22563,7 +22577,7 @@
           "type": "gauge",
           "description": "Whether or not a leader exists. 1 is existence, 0 is not.",
           "group": null,
-          "default": false
+          "default": true
         },
         "etcd_server_health_failures_total": {
           "type": "cumulative",
@@ -22605,7 +22619,7 @@
           "type": "cumulative",
           "description": "The number of leader changes seen.",
           "group": null,
-          "default": false
+          "default": true
         },
         "etcd_server_learner_promote_successes_total": {
           "type": "cumulative",
@@ -22659,7 +22673,7 @@
           "type": "cumulative",
           "description": "The total number of failed proposals seen.",
           "group": null,
-          "default": false
+          "default": true
         },
         "etcd_server_proposals_pending": {
           "type": "gauge",
@@ -23157,7 +23171,7 @@
           "type": "cumulative",
           "description": "Total number of RPCs completed on the server, regardless of success or failure.",
           "group": null,
-          "default": false
+          "default": true
         },
         "grpc_server_msg_received_total": {
           "type": "cumulative",
@@ -23175,7 +23189,7 @@
           "type": "cumulative",
           "description": "Total number of RPCs started on the server.",
           "group": null,
-          "default": false
+          "default": true
         },
         "http_request_duration_microseconds": {
           "type": "cumulative",
@@ -29613,7 +29627,7 @@
           "type": "cumulative",
           "description": "(Deprecated) Request latency in seconds. Broken down by verb and URL. (bucket)",
           "group": null,
-          "default": false
+          "default": true
         },
         "rest_client_request_latency_seconds_count": {
           "type": "cumulative",
@@ -29625,7 +29639,7 @@
           "type": "cumulative",
           "description": "Number of HTTP requests, partitioned by status code, method, and host.",
           "group": null,
-          "default": false
+          "default": true
         },
         "service_adds_total": {
           "type": "cumulative",
@@ -30243,13 +30257,13 @@
           "type": "cumulative",
           "description": "Total number of adds handled by workqueue",
           "group": null,
-          "default": false
+          "default": true
         },
         "workqueue_depth": {
           "type": "gauge",
           "description": "Current depth of workqueue",
           "group": null,
-          "default": false
+          "default": true
         },
         "workqueue_longest_running_processor_seconds": {
           "type": "gauge",
@@ -30267,7 +30281,7 @@
           "type": "cumulative",
           "description": "How long in seconds an item stays in workqueue before being requested. (bucket)",
           "group": null,
-          "default": false
+          "default": true
         },
         "workqueue_queue_duration_seconds_count": {
           "type": "cumulative",
@@ -31541,7 +31555,7 @@
           "type": "cumulative",
           "description": "(Deprecated) Total number of adds handled by workqueue: admission_quota_controller",
           "group": "admission_quota_controller",
-          "default": false
+          "default": true
         },
         "admission_quota_controller_depth": {
           "type": "gauge",
@@ -31769,7 +31783,7 @@
           "type": "cumulative",
           "description": "(Deprecated) Counter of apiserver requests broken out for each verb, group, version, resource, scope, component, client, and HTTP response contentType and code.",
           "group": "apiserver_request",
-          "default": false
+          "default": true
         },
         "apiserver_request_duration_seconds": {
           "type": "cumulative",
@@ -31781,7 +31795,7 @@
           "type": "cumulative",
           "description": "Response latency distribution in seconds for each verb, dry run value, group, version, resource, subresource, scope and component. (bucket)",
           "group": "apiserver_request",
-          "default": false
+          "default": true
         },
         "apiserver_request_duration_seconds_count": {
           "type": "cumulative",
@@ -32717,13 +32731,13 @@
           "type": "cumulative",
           "description": "Total number of adds handled by workqueue",
           "group": "workqueue",
-          "default": false
+          "default": true
         },
         "workqueue_depth": {
           "type": "gauge",
           "description": "Current depth of workqueue",
           "group": "workqueue",
-          "default": false
+          "default": true
         },
         "workqueue_longest_running_processor_seconds": {
           "type": "gauge",
@@ -33810,13 +33824,13 @@
           "type": "cumulative",
           "description": "In Cluster Network Programming Latency in seconds (bucket)",
           "group": null,
-          "default": false
+          "default": true
         },
         "kubeproxy_network_programming_duration_seconds_count": {
           "type": "cumulative",
           "description": "In Cluster Network Programming Latency in seconds (count)",
           "group": null,
-          "default": false
+          "default": true
         },
         "kubeproxy_network_programming_duration_seconds_sum": {
           "type": "cumulative",
@@ -33828,13 +33842,13 @@
           "type": "cumulative",
           "description": "SyncProxyRules latency in seconds (bucket)",
           "group": null,
-          "default": false
+          "default": true
         },
         "kubeproxy_sync_proxy_rules_duration_seconds_count": {
           "type": "cumulative",
           "description": "SyncProxyRules latency in seconds (count)",
           "group": null,
-          "default": false
+          "default": true
         },
         "kubeproxy_sync_proxy_rules_duration_seconds_sum": {
           "type": "cumulative",
@@ -33954,7 +33968,7 @@
           "type": "cumulative",
           "description": "(Deprecated) Request latency in seconds. Broken down by verb and URL. (bucket)",
           "group": null,
-          "default": false
+          "default": true
         },
         "rest_client_request_latency_seconds_count": {
           "type": "cumulative",
@@ -33972,7 +33986,7 @@
           "type": "cumulative",
           "description": "Number of HTTP requests, partitioned by status code, method, and host.",
           "group": null,
-          "default": false
+          "default": true
         }
       },
       "properties": null,
@@ -34626,13 +34640,13 @@
           "type": "cumulative",
           "description": "Number of HTTP requests, partitioned by status code, method, and host.",
           "group": null,
-          "default": false
+          "default": true
         },
         "scheduler_binding_duration_seconds": {
           "type": "cumulative",
           "description": "Binding latency in seconds (sum)",
           "group": null,
-          "default": false
+          "default": true
         },
         "scheduler_binding_duration_seconds_bucket": {
           "type": "cumulative",
@@ -34650,7 +34664,7 @@
           "type": "cumulative",
           "description": "(Deprecated) Binding latency in microseconds (sum)",
           "group": null,
-          "default": false
+          "default": true
         },
         "scheduler_binding_latency_microseconds_bucket": {
           "type": "cumulative",
@@ -34668,7 +34682,7 @@
           "type": "cumulative",
           "description": "E2e scheduling latency in seconds (scheduling algorithm + binding) (sum)",
           "group": null,
-          "default": false
+          "default": true
         },
         "scheduler_e2e_scheduling_duration_seconds_bucket": {
           "type": "cumulative",
@@ -34686,7 +34700,7 @@
           "type": "cumulative",
           "description": "(Deprecated) E2e scheduling latency in microseconds (scheduling algorithm + binding) (sum)",
           "group": null,
-          "default": false
+          "default": true
         },
         "scheduler_e2e_scheduling_latency_microseconds_bucket": {
           "type": "cumulative",
@@ -34722,7 +34736,7 @@
           "type": "cumulative",
           "description": "Scheduling algorithm latency in seconds (sum)",
           "group": null,
-          "default": false
+          "default": true
         },
         "scheduler_scheduling_algorithm_duration_seconds_bucket": {
           "type": "cumulative",
@@ -34740,7 +34754,7 @@
           "type": "cumulative",
           "description": "(Deprecated) Scheduling algorithm latency in microseconds (sum)",
           "group": null,
-          "default": false
+          "default": true
         },
         "scheduler_scheduling_algorithm_latency_microseconds_bucket": {
           "type": "cumulative",
