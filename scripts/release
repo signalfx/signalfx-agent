@@ -472,7 +472,7 @@ add_digest_to_release() {
   fi
 
   # get original release message and append the agent image digest
-  body=$(github_request "$username" "$token" "GET" "releases" | jq --argjson id $release_id '.[] | select(.id==$id) | .body' | tr -d '"')
+  body=$(github_request "$username" "$token" "GET" "releases" | jq --argjson id $release_id '.[] | select(.id==$id) | .body' | sed 's/^"\(.*\)"$/\1/')
   if [[ -z "$body" ]]; then
     echo "Failed to get release message for $tag!" >&2
     exit 1
