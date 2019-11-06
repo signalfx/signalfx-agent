@@ -1,6 +1,7 @@
 # Tests of the helm chart
 
 import os
+import string
 import subprocess
 import tempfile
 from contextlib import contextmanager
@@ -27,12 +28,14 @@ from tests.paths import TEST_SERVICES_DIR
 
 LOCAL_CHART_DIR = DEPLOYMENTS_DIR / "k8s/helm/signalfx-agent"
 SCRIPT_DIR = Path(__file__).parent.resolve()
-NGINX_YAML_PATH = TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"
-MONITORS_CONFIG = """
-    - type: collectd/nginx
-      discoveryRule: container_image =~ "nginx" && private_port == 80
-      url: "http://{{.Host}}:{{.Port}}/nginx_status"
+APP_YAML_PATH = TEST_SERVICES_DIR / "prometheus/prometheus-k8s.yaml"
+MONITORS_CONFIG = string.Template(
+    """
+    - type: prometheus/prometheus
+      discoveryRule: kubernetes_pod_name =~ "prometheus-deployment" && kubernetes_namespace == "$namespace"
+      sendAllMetrics: true
 """
+)
 
 CLUSTER_ROLEBINDING_YAML = """
 ---
@@ -115,7 +118,7 @@ def release_values_yaml(k8s_cluster, proxy_pod_ip, fake_services):
         "ingestUrl": f"http://{proxy_pod_ip}:{fake_services.ingest_port}",
         "globalDimensions": {"application": "helm-test"},
         "apiUrl": f"http://{proxy_pod_ip}:{fake_services.api_port}",
-        "monitors": yaml.safe_load(MONITORS_CONFIG),
+        "monitors": yaml.safe_load(MONITORS_CONFIG.substitute(namespace=k8s_cluster.test_namespace)),
     }
 
     values_path = None
@@ -190,7 +193,7 @@ def install_helm_chart(k8s_cluster, values_path):
 
 
 def test_helm(k8s_cluster):
-    with k8s_cluster.create_resources([NGINX_YAML_PATH]), tiller_rbac_resources(
+    with k8s_cluster.create_resources([APP_YAML_PATH]), tiller_rbac_resources(
         k8s_cluster
     ), fake_backend.start() as backend:
         init_helm(k8s_cluster)
@@ -200,7 +203,11 @@ def test_helm(k8s_cluster):
                 install_helm_chart(k8s_cluster, values_path)
                 try:
                     assert wait_for(
-                        p(has_datapoint, backend, dimensions={"plugin": "nginx", "application": "helm-test"}),
+                        p(
+                            has_datapoint,
+                            backend,
+                            dimensions={"container_name": "prometheus", "application": "helm-test"},
+                        ),
                         timeout_seconds=60,
                     )
                     assert wait_for(
