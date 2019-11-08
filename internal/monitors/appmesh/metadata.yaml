@@ -256,7 +256,7 @@ monitors:
       type: cumulative
     upstream_rq_retry_success:
       description: Total request retry successes
-      default: true
+      default: false
       type: cumulative
     upstream_rq_retry_overflow:
       description: Total requests not retried due to circuit breaking
@@ -268,11 +268,19 @@ monitors:
       type: cumulative
     upstream_rq_<_xx>:
       description: Aggregate HTTP response codes (e.g., 2xx, 3xx, etc.)
-      default: true
+      default: false
+      type: cumulative
+    upstream_rq_4xx:
+      description: Aggregate HTTP response codes
+      default: false
+      type: cumulative
+    upstream_rq_5xx:
+      description: Aggregate HTTP response codes
+      default: false
       type: cumulative
     upstream_rq_<_>:
       description: Specific HTTP response codes (e.g., 201, 302, etc.)
-      default: true
+      default: false
       type: cumulative
     upstream_rq_time:
       description: Request time milliseconds
