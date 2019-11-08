@@ -54,7 +54,7 @@ Additionally, YOUR_SIGNALFX_API_TOKEN, represents your organization's default ac
 <!-- In the above command, YOUR_SIGNALFX_REALM represents your SignalFX instance's running environment (realm). To locate your realm, in the SignalFX UI, in the top, right corner, click your profile icon, click My Profile, and then search for your realm.
 
 Additionally, YOUR_SIGNALFX_API_TOKEN, represents your organization's default access token. To locate your organization's token, in the SignalFX UI, in the top, right corner, click your profile icon, hover over Organization Settings, click Access Tokens, search for Default, expand the field, and then click Show Access Token. -->
-``` 
+
 
 The agent will be installed as a Windows service and will log to the Windows Event Log.
 </details>
