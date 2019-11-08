@@ -70,6 +70,8 @@ spec:
         - mountPath: /var/run/docker.sock
           name: docker
           readOnly: true
+        resources:
+          {{- toYaml .Values.resources | trim | nindent 10 }}
         env:
         - name: SFX_ACCESS_TOKEN
           valueFrom:
