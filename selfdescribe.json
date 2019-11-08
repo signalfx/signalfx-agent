@@ -26470,9 +26470,9 @@
             "sfxagent.go_mallocs",
             "sfxagent.go_next_gc",
             "sfxagent.go_num_gc",
+            "sfxagent.go_num_goroutine",
             "sfxagent.go_stack_inuse",
-            "sfxagent.go_total_alloc",
-            "sfxgent.go_num_goroutine"
+            "sfxagent.go_total_alloc"
           ]
         }
       },
@@ -26657,6 +26657,12 @@
           "group": null,
           "default": true
         },
+        "sfxagent.go_num_goroutine": {
+          "type": "gauge",
+          "description": "Number of goroutines in the agent",
+          "group": null,
+          "default": true
+        },
         "sfxagent.go_stack_inuse": {
           "type": "gauge",
           "description": "Size in bytes of spans that have at least one goroutine stack in them",
@@ -26666,12 +26672,6 @@
         "sfxagent.go_total_alloc": {
           "type": "cumulative",
           "description": "Total number of bytes allocated to the heap throughout the lifetime of the agent",
-          "group": null,
-          "default": true
-        },
-        "sfxgent.go_num_goroutine": {
-          "type": "gauge",
-          "description": "Number of goroutines in the agent",
           "group": null,
           "default": true
         }

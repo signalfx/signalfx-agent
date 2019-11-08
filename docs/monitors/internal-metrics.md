@@ -88,9 +88,9 @@ Metrics that are categorized as
  - ***`sfxagent.go_mallocs`*** (*cumulative*)<br>    Total number of heap objects allocated throughout the lifetime of the agent
  - ***`sfxagent.go_next_gc`*** (*gauge*)<br>    The target heap size -- GC tries to keep the heap smaller than this
  - ***`sfxagent.go_num_gc`*** (*gauge*)<br>    The number of GC cycles that have happened in the agent since it started
+ - ***`sfxagent.go_num_goroutine`*** (*gauge*)<br>    Number of goroutines in the agent
  - ***`sfxagent.go_stack_inuse`*** (*gauge*)<br>    Size in bytes of spans that have at least one goroutine stack in them
  - ***`sfxagent.go_total_alloc`*** (*cumulative*)<br>    Total number of bytes allocated to the heap throughout the lifetime of the agent
- - ***`sfxgent.go_num_goroutine`*** (*gauge*)<br>    Number of goroutines in the agent
 
 ### Non-default metrics (version 4.7.0+)
 
