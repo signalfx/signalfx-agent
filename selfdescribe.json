@@ -36440,169 +36440,169 @@
           "type": "gauge",
           "description": "Hard limit for number of cpu by namespace",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.appliedclusterquota.cpu.used": {
           "type": "gauge",
           "description": "Consumed number of cpu by namespace",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.appliedclusterquota.memory.hard": {
           "type": "gauge",
           "description": "Hard limit for amount of memory by namespace",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.appliedclusterquota.memory.used": {
           "type": "gauge",
           "description": "Consumed amount of memory by namespace",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.appliedclusterquota.persistentvolumeclaims.hard": {
           "type": "gauge",
           "description": "Hard limit for number of persistentvolumeclaims by namespace",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.appliedclusterquota.persistentvolumeclaims.used": {
           "type": "gauge",
           "description": "Consumed number of persistentvolumeclaims by namespace",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.appliedclusterquota.pods.hard": {
           "type": "gauge",
           "description": "Hard limit for number of pods by namespace",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.appliedclusterquota.pods.used": {
           "type": "gauge",
           "description": "Consumed number of pods by namespace",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.appliedclusterquota.services.hard": {
           "type": "gauge",
           "description": "Hard limit for number of services by namespace",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.appliedclusterquota.services.loadbalancers.hard": {
           "type": "gauge",
           "description": "Hard limit for number of services.loadbalancers by namespace",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.appliedclusterquota.services.loadbalancers.used": {
           "type": "gauge",
           "description": "Consumed number of services.loadbalancers by namespace",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.appliedclusterquota.services.nodeports.hard": {
           "type": "gauge",
           "description": "Hard limit for number of services.nodeports by namespace",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.appliedclusterquota.services.nodeports.used": {
           "type": "gauge",
           "description": "Consumed number of services.nodeports by namespace",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.appliedclusterquota.services.used": {
           "type": "gauge",
           "description": "Consumed number of services by namespace",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.clusterquota.cpu.hard": {
           "type": "gauge",
           "description": "Hard limit for number of cpu across all namespaces",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.clusterquota.cpu.used": {
           "type": "gauge",
           "description": "Consumed number of cpu across all namespaces",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.clusterquota.memory.hard": {
           "type": "gauge",
           "description": "Hard limit for amount of memory across all namespaces",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.clusterquota.memory.used": {
           "type": "gauge",
           "description": "Consumed amount of memory across all namespaces",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.clusterquota.persistentvolumeclaims.hard": {
           "type": "gauge",
           "description": "Hard limit for number of persistentvolumeclaims across all namespaces",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.clusterquota.persistentvolumeclaims.used": {
           "type": "gauge",
           "description": "Consumed number of persistentvolumeclaims across all namespaces",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.clusterquota.pods.hard": {
           "type": "gauge",
           "description": "Hard limit for number of pods across all namespaces",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.clusterquota.pods.used": {
           "type": "gauge",
           "description": "Consumed number of pods across all namespaces",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.clusterquota.services.hard": {
           "type": "gauge",
           "description": "Hard limit for number of services across all namespaces",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.clusterquota.services.loadbalancers.hard": {
           "type": "gauge",
           "description": "Hard limit for number of services.loadbalancers across all namespaces",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.clusterquota.services.loadbalancers.used": {
           "type": "gauge",
           "description": "Consumed number of services.loadbalancers across all namespaces",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.clusterquota.services.nodeports.hard": {
           "type": "gauge",
           "description": "Hard limit for number of services.nodeports across all namespaces",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.clusterquota.services.nodeports.used": {
           "type": "gauge",
           "description": "Consumed number of services.nodeports across all namespaces",
           "group": null,
-          "default": true
+          "default": false
         },
         "openshift.clusterquota.services.used": {
           "type": "gauge",
           "description": "Consumed number of services across all namespaces",
           "group": null,
-          "default": true
+          "default": false
         }
       },
       "properties": {
