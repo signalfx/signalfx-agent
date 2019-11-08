@@ -20859,7 +20859,7 @@
           "type": "cumulative",
           "description": "Total number of get requests",
           "group": "indices/get",
-          "default": true
+          "default": false
         },
         "elasticsearch.indices.id-cache.memory-size": {
           "type": "gauge",

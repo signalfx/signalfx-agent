@@ -665,7 +665,7 @@ monitors:
       group: indices/filter-cache
     elasticsearch.indices.get.total:
       description: Total number of get requests
-      default: true
+      default: false
       type: cumulative
       group: indices/get
     elasticsearch.indices.warmer.total:

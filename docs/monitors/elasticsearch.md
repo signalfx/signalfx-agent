@@ -241,7 +241,7 @@ monitor config option `extraGroups`:
  - `elasticsearch.indices.get.missing-time` (*cumulative*)<br>    Time spent on get requests where the document was missing
  - `elasticsearch.indices.get.missing-total` (*cumulative*)<br>    Number of get requests where the document was missing
  - `elasticsearch.indices.get.time` (*cumulative*)<br>    Time spent on get requests
- - ***`elasticsearch.indices.get.total`*** (*cumulative*)<br>    Total number of get requests
+ - `elasticsearch.indices.get.total` (*cumulative*)<br>    Total number of get requests
 
 #### Group indices/id-cache
 All of the following metrics are part of the `indices/id-cache` metric group. All of
