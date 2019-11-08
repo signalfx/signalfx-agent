@@ -7,7 +7,7 @@ import (
 	v1 "k8s.io/api/core/v1"
 
 	quota "github.com/openshift/api/quota/v1"
-	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/v3/datapoint"
 )
 
 // If additional metrics are added probably need to add additional resources here.

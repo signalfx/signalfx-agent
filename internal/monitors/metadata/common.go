@@ -3,7 +3,7 @@ package metadata
 import (
 	"time"
 
-	"github.com/signalfx/golib/event"
+	"github.com/signalfx/golib/v3/event"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 )
 

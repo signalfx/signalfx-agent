@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/v3/datapoint"
 )
 
 func makeReplicaDPs(resource string, dimensions map[string]string, desired, available int32) []*datapoint.Datapoint {

@@ -1,6 +1,6 @@
 package dpfilters
 
-import "github.com/signalfx/golib/datapoint"
+import "github.com/signalfx/golib/v3/datapoint"
 
 // NegatedDatapointFilter is a datapoint filter whose Matches method is made
 // opposite

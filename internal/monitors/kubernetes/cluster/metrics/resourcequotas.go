@@ -3,8 +3,8 @@ package metrics
 import (
 	"strings"
 
-	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/sfxclient"
+	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/golib/v3/sfxclient"
 	v1 "k8s.io/api/core/v1"
 )
 

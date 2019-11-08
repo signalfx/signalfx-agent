@@ -6,8 +6,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/signalfx/golib/pointer"
-	"github.com/signalfx/golib/trace"
+	"github.com/signalfx/golib/v3/pointer"
+	"github.com/signalfx/golib/v3/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
@@ -64,7 +64,7 @@ func TestSourceTracker(t *testing.T) {
 				LocalEndpoint: &trace.Endpoint{
 					ServiceName: pointer.String(fmt.Sprintf("service-%d", i%5)),
 				},
-				Meta: map[string]interface{}{
+				Meta: map[interface{}]interface{}{
 					constants.DataSourceIPKey: net.ParseIP(fmt.Sprintf("10.0.5.%d", i)),
 				},
 			}

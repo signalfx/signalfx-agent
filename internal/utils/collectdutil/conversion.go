@@ -4,9 +4,9 @@ import (
 	"strings"
 
 	"github.com/signalfx/gateway/protocol/collectd"
-	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/event"
-	"github.com/signalfx/golib/pointer"
+	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/golib/v3/event"
+	"github.com/signalfx/golib/v3/pointer"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 

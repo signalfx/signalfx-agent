@@ -1,4 +1,4 @@
-FROM golang:1.12.1-alpine
+FROM golang:1.13.4-alpine
 
 CMD ["./fakek8s", "-httptest.serve=0.0.0.0:8443"]
 EXPOSE 8443

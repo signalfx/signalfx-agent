@@ -10,8 +10,9 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/signalfx/gateway/protocol/signalfx"
-	"github.com/signalfx/golib/sfxclient"
-	"github.com/signalfx/golib/web"
+	"github.com/signalfx/golib/v3/datapoint/dpsink"
+	"github.com/signalfx/golib/v3/sfxclient"
+	"github.com/signalfx/golib/v3/web"
 )
 
 type pathSetupFunc = func(*mux.Router, http.Handler, string)
@@ -64,7 +65,7 @@ func startListening(ctx context.Context, listenAddr string, timeout time.Duratio
 }
 
 func setupHandler(ctx context.Context, router *mux.Router, chainType string, sink signalfx.Sink, getReader func(signalfx.Sink) signalfx.ErrorReader, httpChain web.NextConstructor, pathSetup pathSetupFunc, path string) sfxclient.Collector {
-	handler, internalMetrics := signalfx.SetupChain(ctx, sink, chainType, getReader, httpChain, golibLogger)
+	handler, internalMetrics := signalfx.SetupChain(ctx, sink, chainType, getReader, httpChain, golibLogger, &dpsink.Counter{})
 	pathSetup(router, handler, path)
 	return internalMetrics
 }

@@ -1,7 +1,7 @@
 package config
 
 import (
-	"github.com/signalfx/golib/pointer"
+	"github.com/signalfx/golib/v3/pointer"
 	"github.com/signalfx/signalfx-agent/internal/core/propfilters"
 )
 
