@@ -45,6 +45,11 @@ def test_docker_enhanced():
             - type: collectd/docker
               dockerURL: unix:///var/run/docker.sock
               collectNetworkStats: true
+              extraMetrics:
+              - blkio.io_service_bytes_recursive.async
+              - blkio.io_service_bytes_recursive.sync
+              - blkio.io_service_bytes_recursive.total
+              - memory.usage.max
             """,
             METADATA,
         )
