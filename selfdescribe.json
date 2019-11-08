@@ -4102,7 +4102,7 @@
           "type": "cumulative",
           "description": "Volume, in bytes, of asynchronous block I/O",
           "group": "blkio",
-          "default": true
+          "default": false
         },
         "blkio.io_service_bytes_recursive.read": {
           "type": "cumulative",
@@ -4114,13 +4114,13 @@
           "type": "cumulative",
           "description": "Volume, in bytes, of synchronous block I/O",
           "group": "blkio",
-          "default": true
+          "default": false
         },
         "blkio.io_service_bytes_recursive.total": {
           "type": "cumulative",
           "description": "Total volume, in bytes, of all block I/O",
           "group": "blkio",
-          "default": true
+          "default": false
         },
         "blkio.io_service_bytes_recursive.write": {
           "type": "cumulative",
@@ -4162,7 +4162,7 @@
           "type": "gauge",
           "description": "Maximum measured memory usage of the container, in bytes",
           "group": "memory",
-          "default": true
+          "default": false
         },
         "memory.usage.total": {
           "type": "gauge",

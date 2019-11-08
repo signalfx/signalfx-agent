@@ -29,17 +29,17 @@ monitors:
       group: blkio
     blkio.io_service_bytes_recursive.total:
       description: Total volume, in bytes, of all block I/O
-      default: true
+      default: false
       type: cumulative
       group: blkio
     blkio.io_service_bytes_recursive.sync:
       description: Volume, in bytes, of synchronous block I/O
-      default: true
+      default: false
       type: cumulative
       group: blkio
     blkio.io_service_bytes_recursive.async:
       description: Volume, in bytes, of asynchronous block I/O
-      default: true
+      default: false
       type: cumulative
       group: blkio
     cpu.usage.system:
@@ -69,7 +69,7 @@ monitors:
       group: memory
     memory.usage.max:
       description: Maximum measured memory usage of the container, in bytes
-      default: true
+      default: false
       type: gauge
       group: memory
     memory.usage.total:
