@@ -278,20 +278,20 @@ Metrics that are categorized as
  - ***`pg_stat_database_conflicts_confl_snapshot`*** (*cumulative*)<br>    Number of queries in this database that have been canceled due to old snapshots
  - ***`pg_stat_database_conflicts_confl_tablespace`*** (*cumulative*)<br>    Number of queries in this database that have been canceled due to dropped tablespaces
  - `pg_stat_database_deadlocks` (*cumulative*)<br>    Number of deadlocks detected in this database
- - ***`pg_stat_database_numbackends`*** (*gauge*)<br>    Number of backends currently connected to this database. This is the only column in this view that returns a value reflecting current state; all other columns return the accumulated values since the last reset.
+ - `pg_stat_database_numbackends` (*gauge*)<br>    Number of backends currently connected to this database. This is the only column in this view that returns a value reflecting current state; all other columns return the accumulated values since the last reset.
  - `pg_stat_database_stats_reset` (*cumulative*)<br>    Time at which these statistics were last reset
- - ***`pg_stat_database_temp_bytes`*** (*cumulative*)<br>    Total amount of data written to temporary files by queries in this database. All temporary files are counted, regardless of why the temporary file was created, and regardless of the log_temp_files setting.
- - ***`pg_stat_database_temp_files`*** (*cumulative*)<br>    Number of temporary files created by queries in this database. All temporary files are counted, regardless of why the temporary file was created (e.g., sorting or hashing), and regardless of the log_temp_files setting.
- - ***`pg_stat_database_tup_deleted`*** (*cumulative*)<br>    Number of rows deleted by queries in this database
- - ***`pg_stat_database_tup_fetched`*** (*cumulative*)<br>    Number of rows fetched by queries in this database
- - ***`pg_stat_database_tup_inserted`*** (*cumulative*)<br>    Number of rows inserted by queries in this database
- - ***`pg_stat_database_tup_returned`*** (*cumulative*)<br>    Number of rows returned by queries in this database
- - ***`pg_stat_database_tup_updated`*** (*cumulative*)<br>    Number of rows updated by queries in this database
- - ***`pg_stat_database_xact_commit`*** (*cumulative*)<br>    Number of transactions in this database that have been committed
- - ***`pg_stat_database_xact_rollback`*** (*cumulative*)<br>    Number of transactions in this database that have been rolled back
+ - `pg_stat_database_temp_bytes` (*cumulative*)<br>    Total amount of data written to temporary files by queries in this database. All temporary files are counted, regardless of why the temporary file was created, and regardless of the log_temp_files setting.
+ - `pg_stat_database_temp_files` (*cumulative*)<br>    Number of temporary files created by queries in this database. All temporary files are counted, regardless of why the temporary file was created (e.g., sorting or hashing), and regardless of the log_temp_files setting.
+ - `pg_stat_database_tup_deleted` (*cumulative*)<br>    Number of rows deleted by queries in this database
+ - `pg_stat_database_tup_fetched` (*cumulative*)<br>    Number of rows fetched by queries in this database
+ - `pg_stat_database_tup_inserted` (*cumulative*)<br>    Number of rows inserted by queries in this database
+ - `pg_stat_database_tup_returned` (*cumulative*)<br>    Number of rows returned by queries in this database
+ - `pg_stat_database_tup_updated` (*cumulative*)<br>    Number of rows updated by queries in this database
+ - `pg_stat_database_xact_commit` (*cumulative*)<br>    Number of transactions in this database that have been committed
+ - `pg_stat_database_xact_rollback` (*cumulative*)<br>    Number of transactions in this database that have been rolled back
  - `pg_static` (*gauge*)<br>    Version string as reported by postgres
  - `pg_stuck_idle_in_transaction_queries` (*gauge*)<br>    Current number of queries that are stuck being idle in transactions
- - ***`pg_total_relation_size_bytes`*** (*gauge*)<br>    Total disk space usage for the specified table and associated indexes
+ - `pg_total_relation_size_bytes` (*gauge*)<br>    Total disk space usage for the specified table and associated indexes
  - `pg_up` (*gauge*)<br>    Whether the last scrape of metrics from PostgreSQL was able to connect to the server (1 for yes, 0 for no).
  - `pg_vacuum_age_in_seconds` (*gauge*)<br>    The current maximum VACUUM query age in seconds
  - `pg_vacuum_analyze_age_in_seconds` (*gauge*)<br>    The current maximum VACUUM ANALYZE query age in seconds

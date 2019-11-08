@@ -40558,7 +40558,7 @@
           "type": "gauge",
           "description": "Number of backends currently connected to this database. This is the only column in this view that returns a value reflecting current state; all other columns return the accumulated values since the last reset.",
           "group": null,
-          "default": true
+          "default": false
         },
         "pg_stat_database_stats_reset": {
           "type": "cumulative",
@@ -40570,55 +40570,55 @@
           "type": "cumulative",
           "description": "Total amount of data written to temporary files by queries in this database. All temporary files are counted, regardless of why the temporary file was created, and regardless of the log_temp_files setting.",
           "group": null,
-          "default": true
+          "default": false
         },
         "pg_stat_database_temp_files": {
           "type": "cumulative",
           "description": "Number of temporary files created by queries in this database. All temporary files are counted, regardless of why the temporary file was created (e.g., sorting or hashing), and regardless of the log_temp_files setting.",
           "group": null,
-          "default": true
+          "default": false
         },
         "pg_stat_database_tup_deleted": {
           "type": "cumulative",
           "description": "Number of rows deleted by queries in this database",
           "group": null,
-          "default": true
+          "default": false
         },
         "pg_stat_database_tup_fetched": {
           "type": "cumulative",
           "description": "Number of rows fetched by queries in this database",
           "group": null,
-          "default": true
+          "default": false
         },
         "pg_stat_database_tup_inserted": {
           "type": "cumulative",
           "description": "Number of rows inserted by queries in this database",
           "group": null,
-          "default": true
+          "default": false
         },
         "pg_stat_database_tup_returned": {
           "type": "cumulative",
           "description": "Number of rows returned by queries in this database",
           "group": null,
-          "default": true
+          "default": false
         },
         "pg_stat_database_tup_updated": {
           "type": "cumulative",
           "description": "Number of rows updated by queries in this database",
           "group": null,
-          "default": true
+          "default": false
         },
         "pg_stat_database_xact_commit": {
           "type": "cumulative",
           "description": "Number of transactions in this database that have been committed",
           "group": null,
-          "default": true
+          "default": false
         },
         "pg_stat_database_xact_rollback": {
           "type": "cumulative",
           "description": "Number of transactions in this database that have been rolled back",
           "group": null,
-          "default": true
+          "default": false
         },
         "pg_static": {
           "type": "gauge",
@@ -40636,7 +40636,7 @@
           "type": "gauge",
           "description": "Total disk space usage for the specified table and associated indexes",
           "group": null,
-          "default": true
+          "default": false
         },
         "pg_up": {
           "type": "gauge",

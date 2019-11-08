@@ -987,7 +987,7 @@ monitors:
       description: Number of backends currently connected to this database. This is
         the only column in this view that returns a value reflecting current state;
         all other columns return the accumulated values since the last reset.
-      default: true
+      default: false
       type: gauge
     pg_stat_database_stats_reset:
       description: Time at which these statistics were last reset
@@ -997,72 +997,72 @@ monitors:
       description: Total amount of data written to temporary files by queries in this
         database. All temporary files are counted, regardless of why the temporary
         file was created, and regardless of the log_temp_files setting.
-      default: true
+      default: false
       type: cumulative
     pg_stat_database_temp_files:
       description: Number of temporary files created by queries in this database.
         All temporary files are counted, regardless of why the temporary file was
         created (e.g., sorting or hashing), and regardless of the log_temp_files setting.
-      default: true
+      default: false
       type: cumulative
     pg_stat_database_tup_deleted:
       description: Number of rows deleted by queries in this database
-      default: true
+      default: false
       type: cumulative
     pg_stat_database_tup_fetched:
       description: Number of rows fetched by queries in this database
-      default: true
+      default: false
       type: cumulative
     pg_stat_database_tup_inserted:
       description: Number of rows inserted by queries in this database
-      default: true
+      default: false
       type: cumulative
     pg_stat_database_tup_returned:
       description: Number of rows returned by queries in this database
-      default: true
+      default: false
       type: cumulative
     pg_stat_database_tup_updated:
       description: Number of rows updated by queries in this database
-      default: true
+      default: false
       type: cumulative
     pg_stat_database_xact_commit:
       description: Number of transactions in this database that have been committed
-      default: true
+      default: false
       type: cumulative
     pg_stat_database_xact_rollback:
       description: Number of transactions in this database that have been rolled back
-      default: true
+      default: false
       type: cumulative
     pg_static:
       description: Version string as reported by postgres
-      default:
+      default: false
       type: gauge
     pg_stuck_idle_in_transaction_queries:
       description: Current number of queries that are stuck being idle in transactions
-      default:
+      default: false
       type: gauge
     pg_total_relation_size_bytes:
       description: Total disk space usage for the specified table and associated indexes
-      default: true
+      default: false
       type: gauge
     pg_up:
       description: Whether the last scrape of metrics from PostgreSQL was able to
         connect to the server (1 for yes, 0 for no).
-      default:
+      default: false
       type: gauge
     pg_vacuum_age_in_seconds:
       description: The current maximum VACUUM query age in seconds
-      default:
+      default: false
       type: gauge
     pg_vacuum_analyze_age_in_seconds:
       description: The current maximum VACUUM ANALYZE query age in seconds
-      default:
+      default: false
       type: gauge
     pg_vacuum_analyze_queries:
       description: The current number of VACUUM ANALYZE queries
-      default:
+      default: false
       type: gauge
     pg_vacuum_queries:
       description: The current number of VACUUM queries
-      default:
+      default: false
       type: gauge
