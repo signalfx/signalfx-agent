@@ -60,12 +60,12 @@ monitors:
       group: jvm
     node.stats.jvm.jvm.mem.heap_max_in_bytes:
       description: Max memory being used
-      default: true
+      default: false
       type: gauge
       group: jvm
     node.stats.jvm.jvm.mem.heap_used_in_bytes:
       description: Total heap used
-      default: true
+      default: false
       type: gauge
       group: jvm
     node.stats.jvm.jvm.mem.heap_used_percent:
@@ -165,7 +165,7 @@ monitors:
       group: jvm
     node.stats.jvm.jvm.threads.peak_count:
       description: Highest number of JVM threads
-      default: true
+      default: false
       type: gauge
       group: jvm
     node.stats.jvm.jvm.uptime_in_millis:
@@ -230,7 +230,7 @@ monitors:
       group: pipeline
     node.stats.pipelines.events.filtered:
       description: Number of filtered events in pipelines
-      default: true
+      default: false
       type: cumulative
       group: pipeline
     node.stats.pipelines.events.in:
@@ -305,7 +305,7 @@ monitors:
       group: pipeline
     node.stats.pipelines.plugins.outputs.events.in:
       description: Number of received events in output plugins
-      default: true
+      default: false
       type: cumulative
       group: pipeline
     node.stats.pipelines.plugins.outputs.events.out:
@@ -345,17 +345,17 @@ monitors:
       group: events
     node.stats.events.events.filtered:
       description: Number of filtered events
-      default: true
+      default: false
       type: cumulative
       group: events
     node.stats.events.events.in:
       description: Number of received events
-      default: true
+      default: false
       type: cumulative
       group: events
     node.stats.events.events.out:
       description: Number of events sent out
-      default: true
+      default: false
       type: cumulative
       group: events
     node.stats.events.events.queue_push_duration_in_millis:
@@ -365,7 +365,7 @@ monitors:
       group: events
     node.plugins.total:
       description: Number of plugins
-      default: true
+      default: false
       type: gauge
       group: plugins
     node.stats.process.process.cpu.load_average.1m:
@@ -385,7 +385,7 @@ monitors:
       group: process
     node.stats.process.process.cpu.percent:
       description: CPU usage in percent
-      default: true
+      default: false
       type: gauge
       group: process
     node.stats.process.process.cpu.total_in_millis:

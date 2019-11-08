@@ -35343,7 +35343,7 @@
           "type": "gauge",
           "description": "Number of plugins",
           "group": "plugins",
-          "default": true
+          "default": false
         },
         "node.stats.events.events.duration_in_millis": {
           "type": "cumulative",
@@ -35355,19 +35355,19 @@
           "type": "cumulative",
           "description": "Number of filtered events",
           "group": "events",
-          "default": true
+          "default": false
         },
         "node.stats.events.events.in": {
           "type": "cumulative",
           "description": "Number of received events",
           "group": "events",
-          "default": true
+          "default": false
         },
         "node.stats.events.events.out": {
           "type": "cumulative",
           "description": "Number of events sent out",
           "group": "events",
-          "default": true
+          "default": false
         },
         "node.stats.events.events.queue_push_duration_in_millis": {
           "type": "cumulative",
@@ -35409,13 +35409,13 @@
           "type": "gauge",
           "description": "Max memory being used",
           "group": "jvm",
-          "default": true
+          "default": false
         },
         "node.stats.jvm.jvm.mem.heap_used_in_bytes": {
           "type": "gauge",
           "description": "Total heap used",
           "group": "jvm",
-          "default": true
+          "default": false
         },
         "node.stats.jvm.jvm.mem.heap_used_percent": {
           "type": "gauge",
@@ -35535,7 +35535,7 @@
           "type": "gauge",
           "description": "Highest number of JVM threads",
           "group": "jvm",
-          "default": true
+          "default": false
         },
         "node.stats.jvm.jvm.uptime_in_millis": {
           "type": "gauge",
@@ -35589,7 +35589,7 @@
           "type": "cumulative",
           "description": "Number of filtered events in pipelines",
           "group": "pipeline",
-          "default": true
+          "default": false
         },
         "node.stats.pipelines.events.in": {
           "type": "cumulative",
@@ -35679,7 +35679,7 @@
           "type": "cumulative",
           "description": "Number of received events in output plugins",
           "group": "pipeline",
-          "default": true
+          "default": false
         },
         "node.stats.pipelines.plugins.outputs.events.out": {
           "type": "cumulative",
@@ -35739,7 +35739,7 @@
           "type": "gauge",
           "description": "CPU usage in percent",
           "group": "process",
-          "default": true
+          "default": false
         },
         "node.stats.process.process.cpu.total_in_millis": {
           "type": "cumulative",

@@ -50,9 +50,9 @@ All of the following metrics are part of the `events` metric group. All of
 the non-default metrics below can be turned on by adding `events` to the
 monitor config option `extraGroups`:
  - ***`node.stats.events.events.duration_in_millis`*** (*cumulative*)<br>    Duration of events
- - ***`node.stats.events.events.filtered`*** (*cumulative*)<br>    Number of filtered events
- - ***`node.stats.events.events.in`*** (*cumulative*)<br>    Number of received events
- - ***`node.stats.events.events.out`*** (*cumulative*)<br>    Number of events sent out
+ - `node.stats.events.events.filtered` (*cumulative*)<br>    Number of filtered events
+ - `node.stats.events.events.in` (*cumulative*)<br>    Number of received events
+ - `node.stats.events.events.out` (*cumulative*)<br>    Number of events sent out
  - ***`node.stats.events.events.queue_push_duration_in_millis`*** (*cumulative*)<br>    Duration that events waited in queue before being processed
 
 #### Group hot_threads
@@ -71,8 +71,8 @@ monitor config option `extraGroups`:
  - `node.stats.jvm.jvm.gc.collectors.young.collection_count` (*cumulative*)<br>    Total number of garbage collection events
  - `node.stats.jvm.jvm.gc.collectors.young.collection_time_in_millis` (*cumulative*)<br>    Amount of time spent garbage collecting in milliseconds
  - ***`node.stats.jvm.jvm.mem.heap_committed_in_bytes`*** (*gauge*)<br>    Total heap committed by the process
- - ***`node.stats.jvm.jvm.mem.heap_max_in_bytes`*** (*gauge*)<br>    Max memory being used
- - ***`node.stats.jvm.jvm.mem.heap_used_in_bytes`*** (*gauge*)<br>    Total heap used
+ - `node.stats.jvm.jvm.mem.heap_max_in_bytes` (*gauge*)<br>    Max memory being used
+ - `node.stats.jvm.jvm.mem.heap_used_in_bytes` (*gauge*)<br>    Total heap used
  - `node.stats.jvm.jvm.mem.heap_used_percent` (*gauge*)<br>    Total heap used in percentage
  - `node.stats.jvm.jvm.mem.non_heap_committed_in_bytes` (*gauge*)<br>    Total non-heap memory committed by the process
  - ***`node.stats.jvm.jvm.mem.non_heap_used_in_bytes`*** (*gauge*)<br>    Total non-heap memory used
@@ -92,7 +92,7 @@ monitor config option `extraGroups`:
  - `node.stats.jvm.jvm.mem.pools.young.peak_used_in_bytes` (*gauge*)<br>    Peak memory used by Young gen
  - `node.stats.jvm.jvm.mem.pools.young.used_in_bytes` (*gauge*)<br>    Memory being used by Young Gen
  - ***`node.stats.jvm.jvm.threads.count`*** (*gauge*)<br>    Number of JVM threads
- - ***`node.stats.jvm.jvm.threads.peak_count`*** (*gauge*)<br>    Highest number of JVM threads
+ - `node.stats.jvm.jvm.threads.peak_count` (*gauge*)<br>    Highest number of JVM threads
  - `node.stats.jvm.jvm.uptime_in_millis` (*gauge*)<br>    Uptime length of JVM
 
 #### Group os
@@ -115,7 +115,7 @@ monitor config option `extraGroups`:
  - `node.pipelines.batch_size` (*gauge*)<br>
  - `node.pipelines.workers` (*gauge*)<br>    Number of workers in pipelines
  - ***`node.stats.pipelines.events.duration_in_millis`*** (*cumulative*)<br>    Duration of events in pipelines
- - ***`node.stats.pipelines.events.filtered`*** (*cumulative*)<br>    Number of filtered events in pipelines
+ - `node.stats.pipelines.events.filtered` (*cumulative*)<br>    Number of filtered events in pipelines
  - ***`node.stats.pipelines.events.in`*** (*cumulative*)<br>    Number of received events in pipelines
  - ***`node.stats.pipelines.events.out`*** (*cumulative*)<br>    Number of events sent out from pipelines
  - `node.stats.pipelines.events.queue_push_duration_in_millis` (*cumulative*)<br>    Duration that events waited in queue before being processed in pipelines
@@ -130,7 +130,7 @@ monitor config option `extraGroups`:
  - ***`node.stats.pipelines.plugins.inputs.events.out`*** (*cumulative*)<br>    Number of events sent out from inputs
  - `node.stats.pipelines.plugins.inputs.events.queue_push_duration_in_millis` (*cumulative*)<br>    Duration that events waited in queue before being processed in inputs
  - ***`node.stats.pipelines.plugins.outputs.events.duration_in_millis`*** (*cumulative*)<br>    Duration of events in output plugins
- - ***`node.stats.pipelines.plugins.outputs.events.in`*** (*cumulative*)<br>    Number of received events in output plugins
+ - `node.stats.pipelines.plugins.outputs.events.in` (*cumulative*)<br>    Number of received events in output plugins
  - ***`node.stats.pipelines.plugins.outputs.events.out`*** (*cumulative*)<br>    Number of events sent out from output plugins
  - `node.stats.pipelines.queue.events_count` (*gauge*)<br>    Number of events waiting in queue
  - `node.stats.pipelines.queue.max_queue_size_in_bytes` (*gauge*)<br>    Max queue size in pipelines
@@ -147,7 +147,7 @@ monitor config option `extraGroups`:
 All of the following metrics are part of the `plugins` metric group. All of
 the non-default metrics below can be turned on by adding `plugins` to the
 monitor config option `extraGroups`:
- - ***`node.plugins.total`*** (*gauge*)<br>    Number of plugins
+ - `node.plugins.total` (*gauge*)<br>    Number of plugins
 
 #### Group process
 All of the following metrics are part of the `process` metric group. All of
@@ -156,7 +156,7 @@ monitor config option `extraGroups`:
  - `node.stats.process.process.cpu.load_average.15m` (*gauge*)<br>    CPU Load average in 15 minutes
  - `node.stats.process.process.cpu.load_average.1m` (*gauge*)<br>    CPU Load average in 1 minute
  - `node.stats.process.process.cpu.load_average.5m` (*gauge*)<br>    CPU Load average in 5 minutes
- - ***`node.stats.process.process.cpu.percent`*** (*gauge*)<br>    CPU usage in percent
+ - `node.stats.process.process.cpu.percent` (*gauge*)<br>    CPU usage in percent
  - `node.stats.process.process.cpu.total_in_millis` (*cumulative*)<br>    Total CPU time (in milliseconds) used by the process on which the process is running
  - `node.stats.process.process.max_file_descriptors` (*gauge*)<br>    Number of opened file descriptors associated with the current process
  - `node.stats.process.process.mem.total_virtual_in_bytes` (*gauge*)<br>    Size of the virtual memory of this process
