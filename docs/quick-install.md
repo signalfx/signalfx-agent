@@ -35,11 +35,10 @@ Before you attempt to download and install the Smart Agent on a **single** host,
   
 ```sh curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
 sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
+```
 
-<!-- In the above command, YOUR_SIGNALFX_REALM represents your SignalFX instance's running environment (realm). To locate your realm, in the SignalFX UI, in the top, right corner, click your profile icon, click My Profile, and then search for your realm.
+<!-- In the above command, YOUR_SIGNALFX_REALM represents your SignalFX instance's running environment (realm). To locate your realm, in the SignalFX UI, in the top, right corner, click your profile icon, click My Profile, and then search for your realm. Additionally, YOUR_SIGNALFX_API_TOKEN, represents your organization's default access token. To locate your organization's token, in the SignalFX UI, in the top, right corner, click your profile icon, hover over Organization Settings, click Access Tokens, search for Default, expand the field, and then click Show Access Token. -->
 
-Additionally, YOUR_SIGNALFX_API_TOKEN, represents your organization's default access token. To locate your organization's token, in the SignalFX UI, in the top, right corner, click your profile icon, hover over Organization Settings, click Access Tokens, search for Default, expand the field, and then click Show Access Token. -->
-```  
 </details>
 
 <details>
@@ -51,9 +50,7 @@ Additionally, YOUR_SIGNALFX_API_TOKEN, represents your organization's default ac
 & {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"; ingest_url = "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"; api_url = "https://api.YOUR_SIGNALFX_REALM.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
 ```
 
-<!-- In the above command, YOUR_SIGNALFX_REALM represents your SignalFX instance's running environment (realm). To locate your realm, in the SignalFX UI, in the top, right corner, click your profile icon, click My Profile, and then search for your realm.
-
-Additionally, YOUR_SIGNALFX_API_TOKEN, represents your organization's default access token. To locate your organization's token, in the SignalFX UI, in the top, right corner, click your profile icon, hover over Organization Settings, click Access Tokens, search for Default, expand the field, and then click Show Access Token. -->
+<!-- In the above command, YOUR_SIGNALFX_REALM represents your SignalFX instance's running environment (realm). To locate your realm, in the SignalFX UI, in the top, right corner, click your profile icon, click My Profile, and then search for your realm. Additionally, YOUR_SIGNALFX_API_TOKEN, represents your organization's default access token. To locate your organization's token, in the SignalFX UI, in the top, right corner, click your profile icon, hover over Organization Settings, click Access Tokens, search for Default, expand the field, and then click Show Access Token. -->
 
 
 The agent will be installed as a Windows service and will log to the Windows Event Log.
