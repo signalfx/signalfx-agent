@@ -117,34 +117,34 @@ Metrics that are categorized as
     StatefulSet version indicated by the `update_revision` property on the
     `kubernetes_uid` dimension for this StatefulSet.
 
- - ***`openshift.appliedclusterquota.cpu.hard`*** (*gauge*)<br>    Hard limit for number of cpu by namespace
- - ***`openshift.appliedclusterquota.cpu.used`*** (*gauge*)<br>    Consumed number of cpu by namespace
- - ***`openshift.appliedclusterquota.memory.hard`*** (*gauge*)<br>    Hard limit for amount of memory by namespace
- - ***`openshift.appliedclusterquota.memory.used`*** (*gauge*)<br>    Consumed amount of memory by namespace
- - ***`openshift.appliedclusterquota.persistentvolumeclaims.hard`*** (*gauge*)<br>    Hard limit for number of persistentvolumeclaims by namespace
- - ***`openshift.appliedclusterquota.persistentvolumeclaims.used`*** (*gauge*)<br>    Consumed number of persistentvolumeclaims by namespace
- - ***`openshift.appliedclusterquota.pods.hard`*** (*gauge*)<br>    Hard limit for number of pods by namespace
- - ***`openshift.appliedclusterquota.pods.used`*** (*gauge*)<br>    Consumed number of pods by namespace
- - ***`openshift.appliedclusterquota.services.hard`*** (*gauge*)<br>    Hard limit for number of services by namespace
- - ***`openshift.appliedclusterquota.services.loadbalancers.hard`*** (*gauge*)<br>    Hard limit for number of services.loadbalancers by namespace
- - ***`openshift.appliedclusterquota.services.loadbalancers.used`*** (*gauge*)<br>    Consumed number of services.loadbalancers by namespace
- - ***`openshift.appliedclusterquota.services.nodeports.hard`*** (*gauge*)<br>    Hard limit for number of services.nodeports by namespace
- - ***`openshift.appliedclusterquota.services.nodeports.used`*** (*gauge*)<br>    Consumed number of services.nodeports by namespace
- - ***`openshift.appliedclusterquota.services.used`*** (*gauge*)<br>    Consumed number of services by namespace
- - ***`openshift.clusterquota.cpu.hard`*** (*gauge*)<br>    Hard limit for number of cpu across all namespaces
- - ***`openshift.clusterquota.cpu.used`*** (*gauge*)<br>    Consumed number of cpu across all namespaces
- - ***`openshift.clusterquota.memory.hard`*** (*gauge*)<br>    Hard limit for amount of memory across all namespaces
- - ***`openshift.clusterquota.memory.used`*** (*gauge*)<br>    Consumed amount of memory across all namespaces
- - ***`openshift.clusterquota.persistentvolumeclaims.hard`*** (*gauge*)<br>    Hard limit for number of persistentvolumeclaims across all namespaces
- - ***`openshift.clusterquota.persistentvolumeclaims.used`*** (*gauge*)<br>    Consumed number of persistentvolumeclaims across all namespaces
- - ***`openshift.clusterquota.pods.hard`*** (*gauge*)<br>    Hard limit for number of pods across all namespaces
- - ***`openshift.clusterquota.pods.used`*** (*gauge*)<br>    Consumed number of pods across all namespaces
- - ***`openshift.clusterquota.services.hard`*** (*gauge*)<br>    Hard limit for number of services across all namespaces
- - ***`openshift.clusterquota.services.loadbalancers.hard`*** (*gauge*)<br>    Hard limit for number of services.loadbalancers across all namespaces
- - ***`openshift.clusterquota.services.loadbalancers.used`*** (*gauge*)<br>    Consumed number of services.loadbalancers across all namespaces
- - ***`openshift.clusterquota.services.nodeports.hard`*** (*gauge*)<br>    Hard limit for number of services.nodeports across all namespaces
- - ***`openshift.clusterquota.services.nodeports.used`*** (*gauge*)<br>    Consumed number of services.nodeports across all namespaces
- - ***`openshift.clusterquota.services.used`*** (*gauge*)<br>    Consumed number of services across all namespaces
+ - `openshift.appliedclusterquota.cpu.hard` (*gauge*)<br>    Hard limit for number of cpu by namespace
+ - `openshift.appliedclusterquota.cpu.used` (*gauge*)<br>    Consumed number of cpu by namespace
+ - `openshift.appliedclusterquota.memory.hard` (*gauge*)<br>    Hard limit for amount of memory by namespace
+ - `openshift.appliedclusterquota.memory.used` (*gauge*)<br>    Consumed amount of memory by namespace
+ - `openshift.appliedclusterquota.persistentvolumeclaims.hard` (*gauge*)<br>    Hard limit for number of persistentvolumeclaims by namespace
+ - `openshift.appliedclusterquota.persistentvolumeclaims.used` (*gauge*)<br>    Consumed number of persistentvolumeclaims by namespace
+ - `openshift.appliedclusterquota.pods.hard` (*gauge*)<br>    Hard limit for number of pods by namespace
+ - `openshift.appliedclusterquota.pods.used` (*gauge*)<br>    Consumed number of pods by namespace
+ - `openshift.appliedclusterquota.services.hard` (*gauge*)<br>    Hard limit for number of services by namespace
+ - `openshift.appliedclusterquota.services.loadbalancers.hard` (*gauge*)<br>    Hard limit for number of services.loadbalancers by namespace
+ - `openshift.appliedclusterquota.services.loadbalancers.used` (*gauge*)<br>    Consumed number of services.loadbalancers by namespace
+ - `openshift.appliedclusterquota.services.nodeports.hard` (*gauge*)<br>    Hard limit for number of services.nodeports by namespace
+ - `openshift.appliedclusterquota.services.nodeports.used` (*gauge*)<br>    Consumed number of services.nodeports by namespace
+ - `openshift.appliedclusterquota.services.used` (*gauge*)<br>    Consumed number of services by namespace
+ - `openshift.clusterquota.cpu.hard` (*gauge*)<br>    Hard limit for number of cpu across all namespaces
+ - `openshift.clusterquota.cpu.used` (*gauge*)<br>    Consumed number of cpu across all namespaces
+ - `openshift.clusterquota.memory.hard` (*gauge*)<br>    Hard limit for amount of memory across all namespaces
+ - `openshift.clusterquota.memory.used` (*gauge*)<br>    Consumed amount of memory across all namespaces
+ - `openshift.clusterquota.persistentvolumeclaims.hard` (*gauge*)<br>    Hard limit for number of persistentvolumeclaims across all namespaces
+ - `openshift.clusterquota.persistentvolumeclaims.used` (*gauge*)<br>    Consumed number of persistentvolumeclaims across all namespaces
+ - `openshift.clusterquota.pods.hard` (*gauge*)<br>    Hard limit for number of pods across all namespaces
+ - `openshift.clusterquota.pods.used` (*gauge*)<br>    Consumed number of pods across all namespaces
+ - `openshift.clusterquota.services.hard` (*gauge*)<br>    Hard limit for number of services across all namespaces
+ - `openshift.clusterquota.services.loadbalancers.hard` (*gauge*)<br>    Hard limit for number of services.loadbalancers across all namespaces
+ - `openshift.clusterquota.services.loadbalancers.used` (*gauge*)<br>    Consumed number of services.loadbalancers across all namespaces
+ - `openshift.clusterquota.services.nodeports.hard` (*gauge*)<br>    Hard limit for number of services.nodeports across all namespaces
+ - `openshift.clusterquota.services.nodeports.used` (*gauge*)<br>    Consumed number of services.nodeports across all namespaces
+ - `openshift.clusterquota.services.used` (*gauge*)<br>    Consumed number of services across all namespaces
 
 #### Group hpa
 All of the following metrics are part of the `hpa` metric group. All of

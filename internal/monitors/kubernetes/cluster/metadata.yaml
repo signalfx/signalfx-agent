@@ -357,113 +357,113 @@ monitors:
   metrics:
     openshift.appliedclusterquota.cpu.hard:
       description: Hard limit for number of cpu by namespace
-      default: true
+      default: false
       type: gauge
     openshift.appliedclusterquota.cpu.used:
       description: Consumed number of cpu by namespace
-      default: true
+      default: false
       type: gauge
     openshift.appliedclusterquota.memory.hard:
       description: Hard limit for amount of memory by namespace
-      default: true
+      default: false
       type: gauge
     openshift.appliedclusterquota.memory.used:
       description: Consumed amount of memory by namespace
-      default: true
+      default: false
       type: gauge
     openshift.appliedclusterquota.persistentvolumeclaims.hard:
       description: Hard limit for number of persistentvolumeclaims by namespace
-      default: true
+      default: false
       type: gauge
     openshift.appliedclusterquota.persistentvolumeclaims.used:
       description: Consumed number of persistentvolumeclaims by namespace
-      default: true
+      default: false
       type: gauge
     openshift.appliedclusterquota.pods.hard:
       description: Hard limit for number of pods by namespace
-      default: true
+      default: false
       type: gauge
     openshift.appliedclusterquota.pods.used:
       description: Consumed number of pods by namespace
-      default: true
+      default: false
       type: gauge
     openshift.appliedclusterquota.services.hard:
       description: Hard limit for number of services by namespace
-      default: true
+      default: false
       type: gauge
     openshift.appliedclusterquota.services.loadbalancers.hard:
       description: Hard limit for number of services.loadbalancers by namespace
-      default: true
+      default: false
       type: gauge
     openshift.appliedclusterquota.services.loadbalancers.used:
       description: Consumed number of services.loadbalancers by namespace
-      default: true
+      default: false
       type: gauge
     openshift.appliedclusterquota.services.nodeports.hard:
       description: Hard limit for number of services.nodeports by namespace
-      default: true
+      default: false
       type: gauge
     openshift.appliedclusterquota.services.nodeports.used:
       description: Consumed number of services.nodeports by namespace
-      default: true
+      default: false
       type: gauge
     openshift.appliedclusterquota.services.used:
       description: Consumed number of services by namespace
-      default: true
+      default: false
       type: gauge
     openshift.clusterquota.cpu.hard:
       description: Hard limit for number of cpu across all namespaces
-      default: true
+      default: false
       type: gauge
     openshift.clusterquota.cpu.used:
       description: Consumed number of cpu across all namespaces
-      default: true
+      default: false
       type: gauge
     openshift.clusterquota.memory.hard:
       description: Hard limit for amount of memory across all namespaces
-      default: true
+      default: false
       type: gauge
     openshift.clusterquota.memory.used:
       description: Consumed amount of memory across all namespaces
-      default: true
+      default: false
       type: gauge
     openshift.clusterquota.persistentvolumeclaims.hard:
       description: Hard limit for number of persistentvolumeclaims across all namespaces
-      default: true
+      default: false
       type: gauge
     openshift.clusterquota.persistentvolumeclaims.used:
       description: Consumed number of persistentvolumeclaims across all namespaces
-      default: true
+      default: false
       type: gauge
     openshift.clusterquota.pods.hard:
       description: Hard limit for number of pods across all namespaces
-      default: true
+      default: false
       type: gauge
     openshift.clusterquota.pods.used:
       description: Consumed number of pods across all namespaces
-      default: true
+      default: false
       type: gauge
     openshift.clusterquota.services.hard:
       description: Hard limit for number of services across all namespaces
-      default: true
+      default: false
       type: gauge
     openshift.clusterquota.services.loadbalancers.hard:
       description: Hard limit for number of services.loadbalancers across all namespaces
-      default: true
+      default: false
       type: gauge
     openshift.clusterquota.services.loadbalancers.used:
       description: Consumed number of services.loadbalancers across all namespaces
-      default: true
+      default: false
       type: gauge
     openshift.clusterquota.services.nodeports.hard:
       description: Hard limit for number of services.nodeports across all namespaces
-      default: true
+      default: false
       type: gauge
     openshift.clusterquota.services.nodeports.used:
       description: Consumed number of services.nodeports across all namespaces
-      default: true
+      default: false
       type: gauge
     openshift.clusterquota.services.used:
       description: Consumed number of services across all namespaces
-      default: true
+      default: false
       type: gauge
