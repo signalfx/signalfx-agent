@@ -98,7 +98,7 @@ monitors:
       type: cumulative
     traefik_backend_request_duration_seconds_sum:
       description: The sum of the request durations in seconds, measured on a backend, partitioned by status code, protocol, and method.
-      default: true
+      default: false
       type: cumulative
     traefik_backend_requests_total:
       description: How many HTTP requests were processed on a backend, partitioned by status code, protocol, and method.
@@ -122,7 +122,7 @@ monitors:
       type: cumulative
     traefik_entrypoint_request_duration_seconds_sum:
       description: The sum of the request durations in seconds measured on an entrypoint, partitioned by status code, protocol, and method.
-      default: true
+      default: false
       type: cumulative
     traefik_entrypoint_requests_total:
       description: How many HTTP requests processed on an entrypoint, partitioned by status code, protocol, and method.

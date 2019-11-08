@@ -142,7 +142,7 @@ Metrics that are categorized as
  - ***`traefik_backend_open_connections`*** (*gauge*)<br>    How many open connections exist on a backend, partitioned by method and protocol.
  - `traefik_backend_request_duration_seconds_bucket` (*cumulative*)<br>    The sum of request durations that are within a configured time interval. The request durations are measured at a backend in seconds. This value is partitioned by status code, protocol, and method.
  - `traefik_backend_request_duration_seconds_count` (*cumulative*)<br>    The number of request durations that were measured on a backend. The values are partitioned by status code, protocol, and method.
- - ***`traefik_backend_request_duration_seconds_sum`*** (*cumulative*)<br>    The sum of the request durations in seconds, measured on a backend, partitioned by status code, protocol, and method.
+ - `traefik_backend_request_duration_seconds_sum` (*cumulative*)<br>    The sum of the request durations in seconds, measured on a backend, partitioned by status code, protocol, and method.
  - ***`traefik_backend_requests_total`*** (*cumulative*)<br>    How many HTTP requests were processed on a backend, partitioned by status code, protocol, and method.
  - ***`traefik_backend_server_up`*** (*gauge*)<br>    Backend server is up, described by gauge value of 0 (down) or 1 (up).
  - `traefik_config_last_reload_failure` (*gauge*)<br>    Last config reload failure
@@ -152,7 +152,7 @@ Metrics that are categorized as
  - ***`traefik_entrypoint_open_connections`*** (*gauge*)<br>    How many open connections exist on an entrypoint, partitioned by method and protocol.
  - `traefik_entrypoint_request_duration_seconds_bucket` (*cumulative*)<br>    The sum of request durations that are within a configured time interval. The request durations are measured at an entrypoint in seconds. This value is partitioned by status code, protocol, and method.
  - ***`traefik_entrypoint_request_duration_seconds_count`*** (*cumulative*)<br>    The number of request durations that were measured on an entrypoint. The values are partitioned by status code, protocol, and method.
- - ***`traefik_entrypoint_request_duration_seconds_sum`*** (*cumulative*)<br>    The sum of the request durations in seconds measured on an entrypoint, partitioned by status code, protocol, and method.
+ - `traefik_entrypoint_request_duration_seconds_sum` (*cumulative*)<br>    The sum of the request durations in seconds measured on an entrypoint, partitioned by status code, protocol, and method.
  - ***`traefik_entrypoint_requests_total`*** (*cumulative*)<br>    How many HTTP requests processed on an entrypoint, partitioned by status code, protocol, and method.
 
 ### Non-default metrics (version 4.7.0+)

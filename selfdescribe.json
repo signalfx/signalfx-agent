@@ -45508,7 +45508,7 @@
           "type": "cumulative",
           "description": "The sum of the request durations in seconds, measured on a backend, partitioned by status code, protocol, and method.",
           "group": null,
-          "default": true
+          "default": false
         },
         "traefik_backend_requests_total": {
           "type": "cumulative",
@@ -45568,7 +45568,7 @@
           "type": "cumulative",
           "description": "The sum of the request durations in seconds measured on an entrypoint, partitioned by status code, protocol, and method.",
           "group": null,
-          "default": true
+          "default": false
         },
         "traefik_entrypoint_requests_total": {
           "type": "cumulative",
