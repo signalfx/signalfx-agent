@@ -55,6 +55,8 @@ spec:
         - mountPath: /var/run/docker.sock
           name: docker
           readOnly: true
+        resources:
+          {}
         env:
         - name: SFX_ACCESS_TOKEN
           valueFrom:
