@@ -88,7 +88,7 @@ monitors:
       type: gauge
     gauge.substate.running:
       description: Indicates that the systemd unit/service is running
-      default: true
+      default: false
       type: gauge
     gauge.substate.exited:
       description: Indicates that the systemd unit/service exited

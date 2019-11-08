@@ -17553,7 +17553,7 @@
           "type": "gauge",
           "description": "Indicates that the systemd unit/service is running",
           "group": null,
-          "default": true
+          "default": false
         }
       },
       "properties": null,
