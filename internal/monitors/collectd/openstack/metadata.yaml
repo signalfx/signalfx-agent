@@ -70,7 +70,7 @@ monitors:
       type: gauge
     gauge.openstack.cinder.limit.maxTotalSnapshots:
       description: Total available snapshots at cinder component for project
-      default: true
+      default: false
       type: gauge
     gauge.openstack.cinder.limit.totalGigabytesUsed:
       description: Total block storage used at cinder component for project
@@ -82,27 +82,27 @@ monitors:
       type: gauge
     gauge.openstack.cinder.limit.totalSnapshotsUsed:
       description: Total snapshots used at cinder component for project
-      default: true
+      default: false
       type: gauge
     gauge.openstack.cinder.limit.maxTotalBackupGigabytes:
       description: Maximum backup space available at cinder component for project in Gigabytes
-      default: true
+      default: false
       type: gauge
     gauge.openstack.cinder.limit.totalBackupGigabytesUsed:
       description: Total backup space used at cinder component for project in Gigabytes
-      default: true
+      default: false
       type: gauge
     gauge.openstack.cinder.limit.totalBackupsUsed:
       description: Total backups used at cinder component for project
-      default: true
+      default: false
       type: gauge
     gauge.openstack.cinder.limit.maxTotalBackups:
       description: Total available backups used at cinder component for project
-      default: true
+      default: false
       type: gauge
     gauge.openstack.cinder.snapshot.size:
       description: Total snapshot size at cinder component for project
-      default: true
+      default: false
       type: gauge
     gauge.openstack.cinder.snapshot.count:
       description: Total number of snapshots at cinder component for project
@@ -110,7 +110,7 @@ monitors:
       type: gauge
     gauge.openstack.cinder.volume.size:
       description: Total volume size at cinder component for project
-      default: true
+      default: false
       type: gauge
     gauge.openstack.cinder.volume.count:
       description: Total number of volumes at cinder component for project
@@ -182,7 +182,7 @@ monitors:
       type: gauge
     gauge.openstack.nova.hypervisor.current_workload:
       description: Total current active hypervisor tasks in project
-      default: true
+      default: false
       type: gauge
     gauge.openstack.nova.limit.maxSecurityGroups:
       description: Maximum available security groups for project
@@ -206,11 +206,11 @@ monitors:
       type: gauge
     gauge.openstack.nova.limit.maxTotalKeypairs:
       description: Maximum available keypairs for project
-      default: true
+      default: false
       type: gauge
     gauge.openstack.nova.limit.maxImageMeta:
       description: Maximum number of metadata items associated with an image for project
-      default: true
+      default: false
       type: gauge
     gauge.openstack.nova.limit.totalCoresUsed:
       description: Total cores used in the project
@@ -222,7 +222,7 @@ monitors:
       type: gauge
     gauge.openstack.nova.limit.totalFloatingIpsUsed:
       description: Total floating IPs used in the project
-      default: true
+      default: false
       type: gauge
     gauge.openstack.nova.limit.totalRAMUsed:
       description: Total RAM used in the project
@@ -230,7 +230,7 @@ monitors:
       type: gauge
     gauge.openstack.nova.limit.totalSecurityGroupsUsed:
       description: Total RAM used in the project
-      default: true
+      default: false
       type: gauge
     gauge.openstack.nova.server.memory:
       description: Memory provisioned at an instance

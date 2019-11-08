@@ -13574,19 +13574,19 @@
           "type": "gauge",
           "description": "Maximum backup space available at cinder component for project in Gigabytes",
           "group": null,
-          "default": true
+          "default": false
         },
         "gauge.openstack.cinder.limit.maxTotalBackups": {
           "type": "gauge",
           "description": "Total available backups used at cinder component for project",
           "group": null,
-          "default": true
+          "default": false
         },
         "gauge.openstack.cinder.limit.maxTotalSnapshots": {
           "type": "gauge",
           "description": "Total available snapshots at cinder component for project",
           "group": null,
-          "default": true
+          "default": false
         },
         "gauge.openstack.cinder.limit.maxTotalVolumeGigabytes": {
           "type": "gauge",
@@ -13604,13 +13604,13 @@
           "type": "gauge",
           "description": "Total backup space used at cinder component for project in Gigabytes",
           "group": null,
-          "default": true
+          "default": false
         },
         "gauge.openstack.cinder.limit.totalBackupsUsed": {
           "type": "gauge",
           "description": "Total backups used at cinder component for project",
           "group": null,
-          "default": true
+          "default": false
         },
         "gauge.openstack.cinder.limit.totalGigabytesUsed": {
           "type": "gauge",
@@ -13622,7 +13622,7 @@
           "type": "gauge",
           "description": "Total snapshots used at cinder component for project",
           "group": null,
-          "default": true
+          "default": false
         },
         "gauge.openstack.cinder.limit.totalVolumesUsed": {
           "type": "gauge",
@@ -13640,7 +13640,7 @@
           "type": "gauge",
           "description": "Total snapshot size at cinder component for project",
           "group": null,
-          "default": true
+          "default": false
         },
         "gauge.openstack.cinder.volume.count": {
           "type": "gauge",
@@ -13652,7 +13652,7 @@
           "type": "gauge",
           "description": "Total volume size at cinder component for project",
           "group": null,
-          "default": true
+          "default": false
         },
         "gauge.openstack.neutron.floatingip.count": {
           "type": "gauge",
@@ -13688,7 +13688,7 @@
           "type": "gauge",
           "description": "Total current active hypervisor tasks in project",
           "group": null,
-          "default": true
+          "default": false
         },
         "gauge.openstack.nova.hypervisor.disk_available_least": {
           "type": "gauge",
@@ -13760,7 +13760,7 @@
           "type": "gauge",
           "description": "Maximum number of metadata items associated with an image for project",
           "group": null,
-          "default": true
+          "default": false
         },
         "gauge.openstack.nova.limit.maxSecurityGroups": {
           "type": "gauge",
@@ -13790,7 +13790,7 @@
           "type": "gauge",
           "description": "Maximum available keypairs for project",
           "group": null,
-          "default": true
+          "default": false
         },
         "gauge.openstack.nova.limit.maxTotalRAMSize": {
           "type": "gauge",
@@ -13808,7 +13808,7 @@
           "type": "gauge",
           "description": "Total floating IPs used in the project",
           "group": null,
-          "default": true
+          "default": false
         },
         "gauge.openstack.nova.limit.totalInstancesUsed": {
           "type": "gauge",
@@ -13826,7 +13826,7 @@
           "type": "gauge",
           "description": "Total RAM used in the project",
           "group": null,
-          "default": true
+          "default": false
         },
         "gauge.openstack.nova.server.memory": {
           "type": "gauge",
