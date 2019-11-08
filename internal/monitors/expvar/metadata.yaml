@@ -222,7 +222,7 @@ monitors:
     memstats.last_gc:
       description: The time the last garbage collection finished, as nanoseconds since
         1970 (the UNIX epoch)
-      default: true
+      default: false
       type: gauge
     memstats.gccpu_fraction:
       description: The fraction of this program's available CPU time used by the GC
@@ -232,7 +232,7 @@ monitors:
     memstats.enable_gc:
       description: Boolean that indicates that GC is enabled. It is always true, even
         if GOGC=off
-      default: true
+      default: false
       type: gauge
     memstats.debug_gc:
       description: memstats.debug_gc is currently unused
@@ -245,15 +245,15 @@ monitors:
     memstats.most_recent_gc_pause_end:
       description: Most recent GC pause end time, as nanoseconds since 1970 (the UNIX
         epoch)
-      default: true
+      default: false
       type: gauge
     memstats.total_alloc:
       description: Cumulative bytes allocated for heap objects
-      default: true
+      default: false
       type: counter
     memstats.lookups:
       description: Number of pointer lookups performed by the runtime
-      default: true
+      default: false
       type: counter
     memstats.mallocs:
       description: Cumulative count of heap objects allocated
@@ -266,7 +266,7 @@ monitors:
     memstats.pause_total_ns:
       description: Cumulative nanoseconds in GC stop-the-world pauses since the program
         started
-      default: true
+      default: false
       type: counter
     memstats.num_gc:
       description: Number of completed GC cycles

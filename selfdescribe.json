@@ -23501,7 +23501,7 @@
           "type": "gauge",
           "description": "Boolean that indicates that GC is enabled. It is always true, even if GOGC=off",
           "group": null,
-          "default": true
+          "default": false
         },
         "memstats.frees": {
           "type": "counter",
@@ -23561,13 +23561,13 @@
           "type": "gauge",
           "description": "The time the last garbage collection finished, as nanoseconds since 1970 (the UNIX epoch)",
           "group": null,
-          "default": true
+          "default": false
         },
         "memstats.lookups": {
           "type": "counter",
           "description": "Number of pointer lookups performed by the runtime",
           "group": null,
-          "default": true
+          "default": false
         },
         "memstats.m_cache_inuse": {
           "type": "gauge",
@@ -23603,7 +23603,7 @@
           "type": "gauge",
           "description": "Most recent GC pause end time, as nanoseconds since 1970 (the UNIX epoch)",
           "group": null,
-          "default": true
+          "default": false
         },
         "memstats.most_recent_gc_pause_ns": {
           "type": "gauge",
@@ -23639,7 +23639,7 @@
           "type": "counter",
           "description": "Cumulative nanoseconds in GC stop-the-world pauses since the program started",
           "group": null,
-          "default": true
+          "default": false
         },
         "memstats.stack_inuse": {
           "type": "gauge",
@@ -23663,7 +23663,7 @@
           "type": "counter",
           "description": "Cumulative bytes allocated for heap objects",
           "group": null,
-          "default": true
+          "default": false
         }
       },
       "properties": null,
