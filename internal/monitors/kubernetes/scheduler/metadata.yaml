@@ -294,7 +294,7 @@ monitors:
         URL. (bucket)
       type: cumulative
     rest_client_requests_total:
-      default: false
+      default: true
       description: Number of HTTP requests, partitioned by status code, method, and
         host.
       type: cumulative
@@ -303,7 +303,7 @@ monitors:
       description: Binding latency in seconds (count)
       type: cumulative
     scheduler_binding_duration_seconds:
-      default: false
+      default: true
       description: Binding latency in seconds (sum)
       type: cumulative
     scheduler_binding_duration_seconds_bucket:
@@ -315,7 +315,7 @@ monitors:
       description: (Deprecated) Binding latency in microseconds (count)
       type: cumulative
     scheduler_binding_latency_microseconds:
-      default: false
+      default: true
       description: (Deprecated) Binding latency in microseconds (sum)
       type: cumulative
     scheduler_binding_latency_microseconds_bucket:
@@ -328,7 +328,7 @@ monitors:
         (count)
       type: cumulative
     scheduler_e2e_scheduling_duration_seconds:
-      default: false
+      default: true
       description: E2e scheduling latency in seconds (scheduling algorithm + binding)
         (sum)
       type: cumulative
@@ -343,7 +343,7 @@ monitors:
         algorithm + binding) (count)
       type: cumulative
     scheduler_e2e_scheduling_latency_microseconds:
-      default: false
+      default: true
       description: (Deprecated) E2e scheduling latency in microseconds (scheduling
         algorithm + binding) (sum)
       type: cumulative
@@ -373,7 +373,7 @@ monitors:
       description: Scheduling algorithm latency in seconds (count)
       type: cumulative
     scheduler_scheduling_algorithm_duration_seconds:
-      default: false
+      default: true
       description: Scheduling algorithm latency in seconds (sum)
       type: cumulative
     scheduler_scheduling_algorithm_duration_seconds_bucket:
@@ -385,7 +385,7 @@ monitors:
       description: (Deprecated) Scheduling algorithm latency in microseconds (count)
       type: cumulative
     scheduler_scheduling_algorithm_latency_microseconds:
-      default: false
+      default: true
       description: (Deprecated) Scheduling algorithm latency in microseconds (sum)
       type: cumulative
     scheduler_scheduling_algorithm_latency_microseconds_bucket:

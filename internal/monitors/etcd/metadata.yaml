@@ -546,11 +546,11 @@ monitors:
       description: The total number of bytes sent to grpc clients.
       type: cumulative
     etcd_server_has_leader:
-      default: false
+      default: true
       description: Whether or not a leader exists. 1 is existence, 0 is not.
       type: gauge
     etcd_server_leader_changes_seen_total:
-      default: false
+      default: true
       description: The number of leader changes seen.
       type: cumulative
     etcd_server_proposals_applied_total:
@@ -562,7 +562,7 @@ monitors:
       description: The total number of consensus proposals committed.
       type: gauge
     etcd_server_proposals_failed_total:
-      default: false
+      default: true
       description: The total number of failed proposals seen.
       type: cumulative
     etcd_server_proposals_pending:
@@ -859,7 +859,7 @@ monitors:
       description: Number of OS threads created.
       type: gauge
     grpc_server_handled_total:
-      default: false
+      default: true
       description: Total number of RPCs completed on the server, regardless of success
         or failure.
       type: cumulative
@@ -872,7 +872,7 @@ monitors:
       description: Total number of gRPC stream messages sent by the server.
       type: cumulative
     grpc_server_started_total:
-      default: false
+      default: true
       description: Total number of RPCs started on the server.
       type: cumulative
     process_virtual_memory_max_bytes:

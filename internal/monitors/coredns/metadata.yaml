@@ -22,12 +22,20 @@ monitors:
       description: A metric with a constant '1' value labeled by version, revision,
         and goversion from which CoreDNS was built.
       type: gauge
+    coredns_cache_hits_total:
+      default: false
+      description: The count of cache misses.
+      type: cumulative
     coredns_cache_misses_total:
       default: false
       description: The count of cache misses.
       type: cumulative
+    coredns_cache_size:
+      default: true
+      description: Size of DNS cache.
+      type: cumulative
     coredns_dns_request_count_total:
-      default: false
+      default: true
       description: Counter of DNS requests made per zone, protocol and family.
       type: cumulative
     coredns_dns_request_duration_seconds_count:
@@ -47,7 +55,7 @@ monitors:
       description: Size of the EDNS0 UDP buffer in bytes (64K for TCP). (count)
       type: cumulative
     coredns_dns_request_size_bytes:
-      default: false
+      default: true
       description: Size of the EDNS0 UDP buffer in bytes (64K for TCP). (sum)
       type: cumulative
     coredns_dns_request_size_bytes_bucket:
@@ -55,11 +63,11 @@ monitors:
       description: Size of the EDNS0 UDP buffer in bytes (64K for TCP). (bucket)
       type: cumulative
     coredns_dns_request_type_count_total:
-      default: false
+      default: true
       description: Counter of DNS requests per type, per zone.
       type: cumulative
     coredns_dns_response_rcode_count_total:
-      default: false
+      default: true
       description: Counter of response status codes.
       type: cumulative
     coredns_dns_response_size_bytes_count:

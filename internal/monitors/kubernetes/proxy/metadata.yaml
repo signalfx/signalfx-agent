@@ -189,7 +189,7 @@ monitors:
       description: The HTTP response sizes in bytes. (count)
       type: cumulative
     kubeproxy_network_programming_duration_seconds_bucket:
-      default: false
+      default: true
       description: In Cluster Network Programming Latency in seconds (bucket)
       type: cumulative
     kubeproxy_network_programming_duration_seconds_sum:
@@ -197,11 +197,11 @@ monitors:
       description: In Cluster Network Programming Latency in seconds (sum)
       type: cumulative
     kubeproxy_network_programming_duration_seconds_count:
-      default: false
+      default: true
       description: In Cluster Network Programming Latency in seconds (count)
       type: cumulative
     kubeproxy_sync_proxy_rules_duration_seconds_bucket:
-      default: false
+      default: true
       description: SyncProxyRules latency in seconds (bucket)
       type: cumulative
     kubeproxy_sync_proxy_rules_duration_seconds_sum:
@@ -209,7 +209,7 @@ monitors:
       description: SyncProxyRules latency in seconds (sum)
       type: cumulative
     kubeproxy_sync_proxy_rules_duration_seconds_count:
-      default: false
+      default: true
       description: SyncProxyRules latency in seconds (count)
       type: cumulative
     kubeproxy_sync_proxy_rules_endpoint_changes_pending:
@@ -293,7 +293,7 @@ monitors:
         URL. (count)
       type: cumulative
     rest_client_request_latency_seconds_bucket:
-      default: false
+      default: true
       description: (Deprecated) Request latency in seconds. Broken down by verb and
         URL. (bucket)
       type: cumulative
@@ -303,7 +303,7 @@ monitors:
         URL. (sum)
       type: cumulative
     rest_client_requests_total:
-      default: false
+      default: true
       description: Number of HTTP requests, partitioned by status code, method, and
         host.
       type: cumulative

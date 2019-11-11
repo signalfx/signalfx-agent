@@ -276,7 +276,7 @@ monitors:
       type: gauge
       group: discovery_controller
     admission_quota_controller_adds:
-      default: false
+      default: true
       description: '(Deprecated) Total number of adds handled by workqueue: admission_quota_controller'
       type: cumulative
       group: admission_quota_controller
@@ -505,7 +505,7 @@ monitors:
       description: Number of currently registered watchers for a given resources
       type: gauge
     apiserver_request_count:
-      default: false
+      default: true
       description: (Deprecated) Counter of apiserver requests broken out for each
         verb, group, version, resource, scope, component, client, and HTTP response
         contentType and code.
@@ -524,7 +524,7 @@ monitors:
       type: cumulative
       group: apiserver_request
     apiserver_request_duration_seconds_bucket:
-      default: false
+      default: true
       description: Response latency distribution in seconds for each verb, dry run
         value, group, version, resource, subresource, scope and component. (bucket)
       type: cumulative
@@ -1388,12 +1388,12 @@ monitors:
       type: cumulative
       group: ssh_tunnel
     workqueue_adds:
-      default: false
+      default: true
       description: Total number of adds handled by workqueue
       type: cumulative
       group: workqueue
     workqueue_depth:
-      default: false
+      default: true
       description: Current depth of workqueue
       type: gauge
       group: workqueue
