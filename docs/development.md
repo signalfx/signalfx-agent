@@ -159,6 +159,42 @@ well as services to monitor on K8s.  There is a Helm values file for
 development [in this repo](../deployments/k8s/helm/dev-values.yaml) that will use
 the quay.io private repo.
 
+## Developing on Mac OSX
+The agent should compile fine on Mac, but collectd will not run.  Also the
+Python subprocess based monitors will run but you have to customize the Python
+binary path.
+
+Run the following to make the `local-etc` directory in your local checkout be
+linked to the main `etc` dir so that you don't have to pass any special flags
+to the agent when running it:
+
+```sh
+$ cd /path/to/signalfx-agent
+$ mkdir local-etc
+$ sudo ln -s /path/to/signalfx-agent/local-etc /etc/signalfx
+```
+
+The agent will look for `local-etc/agent.yaml` for its config.
+
+Here is a sample config for use on Mac that will disable collectd and leave on
+a simple set of monitors:
+
+```
+---
+# observers are what discover running services in the environment
+observers:
+  - type: docker
+  - type: host
+
+monitors:
+ - type: host-metadata
+ - type: memory
+ - type: internal-metrics
+
+collectd:
+  disableCollectd: true
+```
+
 ## Running tests
 
 The agent comes with a suite of unit and integration tests that exercise
