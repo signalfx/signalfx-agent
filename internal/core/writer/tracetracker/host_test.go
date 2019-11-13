@@ -83,8 +83,8 @@ func TestSourceTracker(t *testing.T) {
 					Name:  "container_id",
 					Value: fmt.Sprintf("container-%d", i),
 					Properties: map[string]string{
-						"service-name": fmt.Sprintf("service-%d", i%5),
-						"cluster-name": testClusterName,
+						"service": fmt.Sprintf("service-%d", i%5),
+						"cluster": testClusterName,
 					},
 					Tags:              nil,
 					MergeIntoExisting: true,
@@ -93,8 +93,8 @@ func TestSourceTracker(t *testing.T) {
 					Name:  "kubernetes_pod_uid",
 					Value: fmt.Sprintf("pod-%d", i),
 					Properties: map[string]string{
-						"service-name": fmt.Sprintf("service-%d", i%5),
-						"cluster-name": testClusterName,
+						"service": fmt.Sprintf("service-%d", i%5),
+						"cluster": testClusterName,
 					},
 					Tags:              nil,
 					MergeIntoExisting: true,
