@@ -89,7 +89,7 @@ def test_docker_container_spans_get_container_id_tag():
                     agent.fake_services,
                     dim_name="container_id",
                     dim_value=container.id,
-                    props={"service-name": "myapp", "cluster-name": "my-cluster"},
+                    props={"service": "myapp", "cluster": "my-cluster"},
                 )
             )
 
@@ -152,7 +152,7 @@ def test_k8s_pod_spans_get_pod_and_container_tags(k8s_cluster):
                     agent.fake_services,
                     dim_name="kubernetes_pod_uid",
                     dim_value=curl_pod.metadata.uid,
-                    props={"service-name": "myapp", "cluster-name": "my-cluster"},
+                    props={"service": "myapp", "cluster": "my-cluster"},
                 )
             )
 
@@ -162,6 +162,6 @@ def test_k8s_pod_spans_get_pod_and_container_tags(k8s_cluster):
                     agent.fake_services,
                     dim_name="container_id",
                     dim_value=container_id,
-                    props={"service-name": "myapp", "cluster-name": "my-cluster"},
+                    props={"service": "myapp", "cluster": "my-cluster"},
                 )
             )

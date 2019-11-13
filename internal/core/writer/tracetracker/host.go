@@ -103,8 +103,8 @@ func (st *SpanSourceTracker) emitDimensionPropIfNew(dimName, dimValue, serviceNa
 			Name:  dimName,
 			Value: dimValue,
 			Properties: map[string]string{
-				"service-name": serviceName,
-				"cluster-name": st.clusterName,
+				"service": serviceName,
+				"cluster": st.clusterName,
 			},
 			MergeIntoExisting: true,
 		}
