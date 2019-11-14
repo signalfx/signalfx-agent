@@ -178,6 +178,7 @@ func HandleLogMessage(logReader io.Reader, logger logrus.FieldLogger) error {
 	case "WARNING":
 		logger.WithFields(fields).Warn(msg.Message)
 	case "ERROR":
+		logger.WithFields(fields).Error(msg.Message)
 	case "SEVERE":
 		logger.WithFields(fields).Error(msg.Message)
 	case "CRITICAL":
