@@ -5,7 +5,7 @@
 // a keyword in golang.
 package netinterface
 
-//go:generate collectd-template-to-go interface.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go interface.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"

@@ -36,7 +36,7 @@ jobs:
       chmod +x /tmp/golangci-lint-${lintver}-linux-amd64/golangci-lint
       lintbin="/tmp/golangci-lint-${lintver}-linux-amd64/golangci-lint"
 
-      make compileDeps
+      go generate ./...
 
       echo 'Linting LINUX code'
       CGO_ENABLED=0 GOGC=40 $lintbin run --deadline 5m

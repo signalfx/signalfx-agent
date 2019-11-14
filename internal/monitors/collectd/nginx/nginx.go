@@ -2,7 +2,7 @@
 
 package nginx
 
-//go:generate collectd-template-to-go nginx.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go nginx.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"

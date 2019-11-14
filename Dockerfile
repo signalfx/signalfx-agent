@@ -21,8 +21,7 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 COPY cmd/ ./cmd/
-COPY scripts/make-templates scripts/make-versions ./scripts/
-COPY scripts/collectd-template-to-go ./scripts/
+COPY scripts/collectd-template-to-go scripts/make-versions ./scripts/
 COPY Makefile .
 COPY internal/ ./internal/
 

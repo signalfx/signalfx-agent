@@ -24,7 +24,7 @@
 /internal/monitors/**/genmetadata.go
 /internal/monitors/**/template.go
 /internal/monitors/collectd/collectd.conf.go
-/monitor-code-gen
+internal/monitors/zcodegen/monitorcodegen
 /packaging/*/output
 /signalfx-agent
 /vendor.orig/

@@ -2,7 +2,7 @@
 
 package mysql
 
-//go:generate collectd-template-to-go mysql.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go mysql.tmpl
 
 import (
 	"errors"

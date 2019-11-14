@@ -2,7 +2,7 @@
 
 package collectd
 
-//go:generate collectd-template-to-go collectd.conf.tmpl collectd.conf.go
+//go:generate ../../../scripts/collectd-template-to-go collectd.conf.tmpl collectd.conf.go
 
 import (
 	"bytes"

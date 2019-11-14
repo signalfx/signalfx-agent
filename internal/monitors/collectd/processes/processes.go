@@ -2,7 +2,7 @@
 
 package processes
 
-//go:generate collectd-template-to-go processes.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go processes.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"

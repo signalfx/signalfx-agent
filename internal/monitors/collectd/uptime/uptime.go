@@ -2,7 +2,7 @@
 
 package uptime
 
-//go:generate collectd-template-to-go uptime.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go uptime.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"

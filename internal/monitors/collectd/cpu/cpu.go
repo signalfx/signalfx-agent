@@ -2,7 +2,7 @@
 
 package cpu
 
-//go:generate collectd-template-to-go cpu.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go cpu.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"

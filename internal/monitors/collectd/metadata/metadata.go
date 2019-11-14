@@ -2,7 +2,7 @@
 
 package metadata
 
-//go:generate collectd-template-to-go metadata.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go metadata.tmpl
 
 import (
 	"errors"

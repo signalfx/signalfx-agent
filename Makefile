@@ -1,70 +1,47 @@
 COLLECTD_VERSION := 5.8.0-sfx0
 COLLECTD_COMMIT := 4da1c1cbbe83f881945088a41063fe86d1682ecb
 BUILD_TIME ?= $$(date +%FT%T%z)
-ifeq ($(OS),Windows_NT)
-MONITOR_CODE_GEN := monitor-code-gen.exe
-else
-MONITOR_CODE_GEN := ./monitor-code-gen
-endif
 NUM_CORES ?= $(shell getconf _NPROCESSORS_ONLN)
 
 .PHONY: clean
 clean:
-	find internal -name "genmetadata.go" -delete
+	rm -f internal/core/constants/versions.go
+	find internal/monitors -name "genmetadata.go" -delete
+	find internal/monitors -name "template.go" -delete
+	rm -f internal/monitors/collectd/collectd.conf.go
+	rm -f internal/monitors/zcodegen/monitorcodegen
+	rm -f signalfx-agent
 
 .PHONY: check
 check: lint vet test
 
-.PHONY: compileDeps
-compileDeps: templates code-gen internal/core/common/constants/versions.go
-
-.PHONY: code-gen
-code-gen: $(MONITOR_CODE_GEN)
-	$(MONITOR_CODE_GEN)
-
-$(MONITOR_CODE_GEN): $(wildcard cmd/monitorcodegen/*.go) cmd/monitorcodegen/genmetadata.tmpl
-ifeq ($(OS),Windows_NT)
-	powershell $(CURDIR)/scripts/windows/make.ps1 monitor-code-gen
-else
-	go build -o $@ ./cmd/monitorcodegen
-endif
-
 .PHONY: test
-test: compileDeps
-ifeq ($(OS),Windows_NT)
-	powershell $(CURDIR)/scripts/windows/make.ps1 test
-else
-	bash -euo pipefail -c "CGO_ENABLED=0 go test -p $(NUM_CORES) ./... | grep -v '\[no test files\]'"
-endif
+test:
+	go generate ./...
+	CGO_ENABLED=0 go test -p $(NUM_CORES) ./...
 
 .PHONY: vet
-vet: compileDeps
+vet:
+	go generate ./...
 	# Only consider it a failure if issues are in non-test files
 	! CGO_ENABLED=0 go vet ./... 2>&1 | tee /dev/tty | grep '.go' | grep -v '_test.go'
 
 .PHONY: vetall
-vetall: compileDeps
+vetall:
+	go generate ./...
 	CGO_ENABLED=0 go vet ./...
 
 .PHONY: lint
-lint: compileDeps
-ifeq ($(OS),Windows_NT)
-	powershell $(CURDIR)/scripts/windows/make.ps1 lint
-else
+lint:
+	go generate ./...
 	@echo 'Linting LINUX code'
 	CGO_ENABLED=0 GOGC=40 golangci-lint run --deadline 5m
 	@echo 'Linting WINDOWS code'
 	GOOS=windows CGO_ENABLED=0 GOGC=40 golangci-lint run --deadline 5m
-endif
 
 .PHONY: gofmt
 gofmt:
 	CGO_ENABLED=0 go fmt ./...
-
-templates:
-ifneq ($(OS),Windows_NT)
-	scripts/make-templates
-endif
 
 .PHONY: image
 image:
@@ -72,28 +49,15 @@ image:
 
 .PHONY: tidy
 tidy:
-ifeq ($(OS), Windows_NT)
-	powershell $(CURDIR)/scripts/windows/make.ps1 tidy
-else
 	go mod tidy
-endif
 
-internal/core/common/constants/versions.go: FORCE
-ifeq ($(OS),Windows_NT)
-	powershell $(CURDIR)/scripts/windows/make.ps1 versions_go
-else
-	AGENT_VERSION=$(AGENT_VERSION) COLLECTD_VERSION=$(COLLECTD_VERSION) BUILD_TIME=$(BUILD_TIME) scripts/make-versions
-endif
-
-signalfx-agent: compileDeps
+.PHONY: signalfx-agent
+signalfx-agent:
+	go generate ./...
 	echo "building SignalFx agent for operating system: $(GOOS)"
-ifeq ($(OS),Windows_NT)
-	powershell $(CURDIR)/scripts/windows/make.ps1 signalfx-agent $(AGENT_VERSION)
-else
 	CGO_ENABLED=0 go build \
 		-o signalfx-agent \
 		./cmd/agent
-endif
 
 .PHONY: set-caps
 set-caps:
@@ -117,17 +81,14 @@ rpm-%-package:
 
 .PHONY: dev-image
 dev-image:
-ifeq ($(OS),Windows_NT)
-	powershell -Command "& { . $(CURDIR)\scripts\windows\common.ps1; do_docker_build signalfx-agent-dev latest dev-extras }"
-else
 	bash -ec "COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) && source scripts/common.sh && do_docker_build signalfx-agent-dev latest dev-extras"
-endif
 
 .PHONY: debug
 debug:
 	dlv debug ./cmd/agent
 
 ifdef dbus
+# Useful if testing the collectd/systemd monitor
 dbus_run_flags = --privileged -v /var/run/dbus/system_bus_socket:/var/run/dbus/system_bus_socket:ro
 endif
 
@@ -152,10 +113,6 @@ run-dev-image:
 		-v $(CURDIR)/collectd:/usr/src/collectd:delegated \
 		-v $(CURDIR)/tmp/pprof:/tmp/pprof \
 		signalfx-agent-dev /bin/bash
-
-.PHONY: run-dev-image-commands
-run-dev-image-commands:
-	docker exec -t $(docker_env) signalfx-agent-dev /bin/bash -c '$(RUN_DEV_COMMANDS)'
 
 .PHONY: run-integration-tests
 run-integration-tests: MARKERS ?= integration

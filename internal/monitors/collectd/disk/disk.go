@@ -2,7 +2,7 @@
 
 package disk
 
-//go:generate collectd-template-to-go disk.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go disk.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"

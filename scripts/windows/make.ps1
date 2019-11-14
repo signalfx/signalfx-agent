@@ -1,6 +1,6 @@
 <#
 .PARAMETER Target
-    Build target to run (compile_deps, versions_go, signalfx-agent, monitor-code-gen,
+    Build target to run (versions_go, signalfx-agent,
                          bundle, lint, tidy, unit_test, integration_test)
 #>
 param(
@@ -17,13 +17,6 @@ $repoDir = "$scriptDir\..\.."
 
 . "$scriptDir\common.ps1"
 . "$scriptDir\bundle.ps1"
-
-function compile_deps() {
-    versions_go
-    monitor-code-gen
-    .\monitor-code-gen
-    if ($lastexitcode -ne 0){ throw }
-}
 
 function versions_go() {
     if ($AGENT_VERSION -Eq ""){
@@ -42,22 +35,12 @@ function versions_go() {
 function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalfx-agent.exe", [string]$COLLECTD_VERSION="") {
     Remove-Item -Recurse -Force "$repoDir\internal\monitors\*" -Include "genmetadata.go" -ErrorAction Ignore
 
-    compile_deps
+    go generate ./...
 
     go build -o "$AGENT_BIN" github.com/signalfx/signalfx-agent/cmd/agent
 
     if (!(Test-Path -Path "$AGENT_BIN")) {
         throw "$AGENT_BIN not found!"
-    }
-}
-
-function monitor-code-gen([string]$AGENT_VERSION="", [string]$CODEGEN_BIN=".\monitor-code-gen.exe", [string]$COLLECTD_VERSION="") {
-    versions_go
-
-    go build -o "$CODEGEN_BIN" github.com/signalfx/signalfx-agent/cmd/monitorcodegen
-
-    if (!(Test-Path -Path "$CODEGEN_BIN")) {
-        throw "$CODEGEN_BIN not found!"
     }
 }
 
@@ -156,7 +139,7 @@ function bundle (
 }
 
 function lint() {
-    compile_deps
+    go generate ./...
     golangci-lint run
     if ($lastexitcode -ne 0){ throw }
 }
@@ -167,7 +150,7 @@ function tidy() {
 }
 
 function unit_test() {
-    compile_deps
+    go generate ./...
     go generate ./internal/monitors/...
     if ($lastexitcode -ne 0){ throw }
     if ((Get-Command "gotestsum.exe" -ErrorAction SilentlyContinue) -eq $null) {
