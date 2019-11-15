@@ -10,13 +10,13 @@ The Smart Agent contains three main components:
 | Component | Description |
 |-----------|-------------|
 | Monitors  |  This component collects metrics from the host and applications. For a list of supported monitors and their configurations, see [Monitor Config](./monitor-config.md).            |
-| Observers |   This component collects metrics from services that are running in an environment. For a list of supported observers and their configurations, see [Observer Config](./observer-config.md).           |
+| Observers |   This component collects metrics from services that are running in your environment. For a list of supported observers and their configurations, see [Observer Config](./observer-config.md).           |
 | Writer    |   This component collects metrics from configured monitors and then sends these metrics to SignalFx on a regular basis. If you are expecting your monitors to send large volumes of metrics through a single agent, then you must update the configurations. To learn more, see [Agent Configurations](./config-schema.md#writer).          |
 
 
 ## Review pre-installation requirements for the Smart Agent
 
-Before you attempt to download and install the Smart Agent on a **single** host, review the requirements below.
+Before you download and install the Smart Agent on a **single** host, review the requirements below.
 
 (For other installation options, including bulk deployments, see [Advanced Installation Options](./advanced-install-options.md).)
 
@@ -57,14 +57,13 @@ If you are reading this content from the SignalFx documentation site, then Signa
 <br>
 
 #### Optional 1: From the SignalFx UI    
-
 If you are reading this content from the SignalFx SmartAgent tile in Integrations page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your realm and your organization's access token.)
 
 ```sh
 & {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"; ingest_url = "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"; api_url = "https://api.YOUR_SIGNALFX_REALM.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
 ```
-#### Optional 2: From the documentation site 
 
+#### Optional 2: From the documentation site 
 If you are reading this content from the SignalFx documentation site, then SignalFx recommends that you access the Integrations page in the SignalFx UI to copy the pre-populated installation code.  
 
 1. Log in to SignalFx and click the :guilabel:`Integrations` tab to open the Integrations page. Look for the SignalFx SmartAgent tile. You can search for it by name, or find it in the *Essential Services* section.
@@ -73,11 +72,8 @@ If you are reading this content from the SignalFx documentation site, then Signa
 4. Locate the text box for Windows users.
 5. Copy, paste, and run the code in your command line. (The code within the tile is already populated with your realm and your organization's access token.)  
 
-
 The agent will be installed as a Windows service and will log to the Windows Event Log.
-
 </details>
-
 ***
 
 ### Step 2. Confirm your installation
@@ -123,7 +119,7 @@ If you are unable to install the Smart Agent, consider the following issues:
  
 #### Update your realm
 
-By default, the Smart Agent will send data to the *us0* realm. To find your realm:
+By default, the Smart Agent will send data to the *us0* realm. As a result, you may need to update the realm used in the installation process. To locate your realm: 
 
 1. In SignalFx, in the top, right corner, click your profile icon.
 2. Click **My Profile**.
