@@ -32,18 +32,22 @@ Before you attempt to download and install the Smart Agent on a **single** host,
 <details>
 <summary>Linux</summary>
 <br>
+    
+#### Optional 1: From the SignalFx UI    
 
-*If you are reading this content directly from the Integrations page,* then simply copy and paste the following code into your command line. (The code within the tile is already populated with your realm and your organization's access token.)
+If you are reading this content directly from the Integrations page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your realm and your organization's access token.)
     
 ```sh curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
 sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
 ```
-*If you are reading this document from the SignalFx documentation site,* then SignalFx recommends that you access the Integrations page to locate the pre-populated installation code:  
+#### Optional 2: From the SignalFx UI 
+
+If you are reading this document from the SignalFx documentation site, then SignalFx recommends that you access the Integrations page to locate the pre-populated installation code:  
 
 1. Log in to SignalFx and click the :guilabel:`Integrations` tab to open the Integrations page. Look for the SignalFx SmartAgent tile. You can search for it by name, or find it in the *Essential Services* section.
-2. Under :guilabel:'Essential Services', click SignalFX Smart Agent.
-3. Click Setup.
-4. Locate the code box for Linux users.
+2. Under :guilabel:`Essential Services`, click :guilabel:`SignalFx SmartAgent`.
+3. Click :guilabel:`Setup`.
+4. Locate the text box for Linux users.
 5. Copy and paste the code into your command line to run. (The code within the tile is already populated with your realm and your organization's access token.)  
 
 </details>
