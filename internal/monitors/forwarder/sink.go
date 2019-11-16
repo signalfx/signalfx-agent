@@ -21,9 +21,7 @@ type outputSink struct {
 }
 
 func (os *outputSink) AddDatapoints(ctx context.Context, dps []*datapoint.Datapoint) error {
-	for i := range dps {
-		os.Output.SendDatapoint(dps[i])
-	}
+	os.Output.SendDatapoints(dps...)
 	return nil
 }
 
@@ -40,8 +38,8 @@ func (os *outputSink) AddSpans(ctx context.Context, spans []*trace.Span) error {
 			}
 			spans[i].Meta[constants.DataSourceIPKey] = source
 		}
-		os.Output.SendSpan(spans[i])
 	}
+	os.Output.SendSpans(spans...)
 	return nil
 }
 

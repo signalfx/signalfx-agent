@@ -195,8 +195,9 @@ func (m *Monitor) fetchStatsForAll(enhancedMetricsConfig dmonitor.EnhancedMetric
 					dps[i].Dimensions[dimName] = v
 				}
 			}
-			m.Output.SendDatapoint(dps[i])
 		}
+
+		m.Output.SendDatapoints(dps...)
 
 		containerProps := &types.Dimension{
 			Name:       "container_name",

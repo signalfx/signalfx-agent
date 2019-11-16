@@ -77,15 +77,16 @@ func (h *JSONHandler) handleMessage(msgType subproc.MessageType, payloadReader i
 					h.Logger.Error("Unknown metric type")
 					continue
 				}
+				out := make([]*datapoint.Datapoint, 0, len(datapoints))
 				for _, jsonDatapoint := range datapoints {
 					v, err := signalfx.ValueToValue(jsonDatapoint.Value)
 					if err != nil {
 						h.Logger.WithError(err).Error("Unable to get value for datapoint")
 						continue
 					}
-					dp := datapoint.New(jsonDatapoint.Metric, jsonDatapoint.Dimensions, v, fromMT(com_signalfx_metrics_protobuf.MetricType(mt)), fromTs(jsonDatapoint.Timestamp))
-					h.Output.SendDatapoint(dp)
+					out = append(out, datapoint.New(jsonDatapoint.Metric, jsonDatapoint.Dimensions, v, fromMT(com_signalfx_metrics_protobuf.MetricType(mt)), fromTs(jsonDatapoint.Timestamp)))
 				}
+				h.Output.SendDatapoints(out...)
 			}
 		}
 
@@ -100,11 +101,17 @@ func (h *JSONHandler) handleMessage(msgType subproc.MessageType, payloadReader i
 		if err := proto.Unmarshal(jeff.Bytes(), &msg); err != nil {
 			return err
 		}
-		for _, protoDb := range msg.GetDatapoints() {
-			if dp, err := signalfx.NewProtobufDataPointWithType(protoDb, com_signalfx_metrics_protobuf.MetricType_GAUGE); err == nil {
-				h.Output.SendDatapoint(dp)
+		pbufPoints := msg.GetDatapoints()
+		out := make([]*datapoint.Datapoint, 0, len(pbufPoints))
+		for i := range pbufPoints {
+			dp, err := signalfx.NewProtobufDataPointWithType(pbufPoints[i], com_signalfx_metrics_protobuf.MetricType_GAUGE)
+			if err != nil {
+				h.Logger.WithError(err).Error("Unable to convert protobuf datapoint")
+				continue
 			}
+			out = append(out, dp)
 		}
+		h.Output.SendDatapoints(out...)
 
 	case subproc.MessageTypeLog:
 		return h.HandleLogMessage(payloadReader)

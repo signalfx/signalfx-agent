@@ -271,7 +271,7 @@ func (b *BaseEmitter) AddMetric(m telegraf.Metric) {
 				metricType,
 				m.Time(),
 			)
-			b.Output.SendDatapoint(dp)
+			b.Output.SendDatapoints(dp)
 		} else {
 			// Skip if it's not included
 			if !b.Included(metricName) {

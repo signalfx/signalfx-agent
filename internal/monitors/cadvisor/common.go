@@ -22,13 +22,13 @@ type Monitor struct {
 // Configure and start/restart cadvisor plugin
 func (m *Monitor) Configure(
 	monConfig *config.MonitorConfig,
-	sendDP func(*datapoint.Datapoint),
+	sendDPs func(...*datapoint.Datapoint),
 	statProvider converter.InfoProvider,
 	hasPodEphemeralStorageStatsGroupEnabled bool) error {
 
 	m.monConfig = monConfig
 
-	collector := converter.NewCadvisorCollector(statProvider, sendDP, monConfig.ExtraDimensions)
+	collector := converter.NewCadvisorCollector(statProvider, sendDPs, monConfig.ExtraDimensions)
 
 	m.stop = monitorNode(monConfig.IntervalSeconds, collector, hasPodEphemeralStorageStatsGroupEnabled)
 

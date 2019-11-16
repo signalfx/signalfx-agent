@@ -13,18 +13,18 @@ import (
 // TestOutput can be used in place of the normal monitor outut to provide a
 // simpler way of testing monitor output.
 type TestOutput struct {
-	dpChan    chan *datapoint.Datapoint
+	dpChan    chan []*datapoint.Datapoint
 	eventChan chan *event.Event
-	spanChan  chan *trace.Span
+	spanChan  chan []*trace.Span
 	dimChan   chan *types.Dimension
 }
 
 // NewTestOutput creates a new initialized TestOutput instance
 func NewTestOutput() *TestOutput {
 	return &TestOutput{
-		dpChan:    make(chan *datapoint.Datapoint, 1000),
+		dpChan:    make(chan []*datapoint.Datapoint, 1000),
 		eventChan: make(chan *event.Event, 1000),
-		spanChan:  make(chan *trace.Span, 1000),
+		spanChan:  make(chan []*trace.Span, 1000),
 		dimChan:   make(chan *types.Dimension, 1000),
 	}
 }
@@ -34,9 +34,8 @@ func (to *TestOutput) Copy() types.Output {
 	return to
 }
 
-// SendDatapoint accepts a datapoint and sticks it in a buffered queue
-func (to *TestOutput) SendDatapoint(dp *datapoint.Datapoint) {
-	to.dpChan <- dp
+func (to *TestOutput) SendDatapoints(dps ...*datapoint.Datapoint) {
+	to.dpChan <- dps
 }
 
 // SendEvent accepts an event and sticks it in a buffered queue
@@ -44,9 +43,9 @@ func (to *TestOutput) SendEvent(event *event.Event) {
 	to.eventChan <- event
 }
 
-// SendSpan accepts a trace span and sticks it in a buffered queue
-func (to *TestOutput) SendSpan(span *trace.Span) {
-	to.spanChan <- span
+// SendSpans accepts a trace span and sticks it in a buffered queue
+func (to *TestOutput) SendSpans(spans ...*trace.Span) {
+	to.spanChan <- spans
 }
 
 // SendDimensionUpdate accepts a dim prop update and sticks it in a buffered queue
@@ -66,8 +65,8 @@ func (to *TestOutput) FlushDatapoints() []*datapoint.Datapoint {
 	var out []*datapoint.Datapoint
 	for {
 		select {
-		case dp := <-to.dpChan:
-			out = append(out, dp)
+		case dps := <-to.dpChan:
+			out = append(out, dps...)
 		default:
 			return out
 		}
@@ -98,8 +97,8 @@ func (to *TestOutput) WaitForDPs(count, waitSeconds int) []*datapoint.Datapoint 
 loop:
 	for {
 		select {
-		case dp := <-to.dpChan:
-			dps = append(dps, dp)
+		case latestDPs := <-to.dpChan:
+			dps = append(dps, latestDPs...)
 			if len(dps) >= count {
 				break loop
 			}

@@ -169,9 +169,7 @@ func (m *Monitor) handleConnection(conn net.Conn) error {
 			continue
 		}
 
-		for i := range dps {
-			m.Output.SendDatapoint(dps[i])
-		}
+		m.Output.SendDatapoints(dps...)
 	}
 
 	return err

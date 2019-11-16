@@ -132,7 +132,8 @@ require (
 	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.0-20190222193949-1fb69526e884
 	github.com/signalfx/gateway v1.2.19-0.20191121155013-529c92e5fd9a
 	github.com/signalfx/golib/v3 v3.0.0
-	github.com/sirupsen/logrus v1.4.2
+	github.com/signalfx/signalfx-go v1.6.9-0.20191121015807-da8b1dfaab43
+	github.com/sirupsen/logrus v1.4.0
 	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/streadway/amqp v0.0.0-20190312223743-14f78b41ce6d // indirect

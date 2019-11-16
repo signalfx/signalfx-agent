@@ -112,9 +112,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		now := time.Now()
 		for _, dp := range dps {
 			dp.Timestamp = now
-			m.Output.SendDatapoint(dp)
 		}
-
+		m.Output.SendDatapoints(dps...)
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil

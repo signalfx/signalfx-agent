@@ -83,10 +83,11 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		}
 		wg.Wait()
 		for _, ch := range chs {
-			for _, dp := range <-ch {
-				dp.Dimensions["plugin"] = "haproxy"
-				m.Output.SendDatapoint(dp)
+			dps := <-ch
+			for i := range dps {
+				dps[i].Dimensions["plugin"] = "haproxy"
 			}
+			m.Output.SendDatapoints(dps...)
 		}
 	}, interval)
 	return nil

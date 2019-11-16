@@ -13,8 +13,6 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"sync"
-	"sync/atomic"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
@@ -30,6 +28,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/writer/tracetracker"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
+	sfxwriter "github.com/signalfx/signalfx-go/writer"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
@@ -46,12 +45,11 @@ const (
 type SignalFxWriter struct {
 	client          *sfxclient.HTTPSink
 	dimensionClient *dimensions.DimensionClient
+	datapointWriter *sfxwriter.DatapointWriter
+	spanWriter      *sfxwriter.SpanWriter
 
-	// Monitors should send datapoints to this
-	dpChan chan *datapoint.Datapoint
 	// Monitors should send events to this
 	eventChan     chan *event.Event
-	spanChan      chan *trace.Span
 	dimensionChan chan *types.Dimension
 
 	ctx    context.Context
@@ -64,9 +62,7 @@ type SignalFxWriter struct {
 	hostIDDims       map[string]string
 	datapointFilters *dpfilters.FilterSet
 
-	dpBufferPool   *sync.Pool
-	spanBufferPool *sync.Pool
-	eventBuffer    []*event.Event
+	eventBuffer []*event.Event
 
 	// Keeps track of what service names have been seen in trace spans that are
 	// emitted by the agent
@@ -82,26 +78,17 @@ type SignalFxWriter struct {
 	// Spans sent in the last minute
 	spansLastMinute int64
 
-	dpRequestsActive        int64
-	dpRequestsWaiting       int64
-	dpsInFlight             int64
-	dpsWaiting              int64
-	dpsSent                 int64
-	dpsReceived             int64
-	dpsFiltered             int64
-	dpsFailedToSend         int64
-	traceSpanRequestsActive int64
-	traceSpansInFlight      int64
-	traceSpansSent          int64
-	traceSpansDropped       int64
-	traceSpansFailedToSend  int64
-	eventsSent              int64
-	startTime               time.Time
+	dpChan            chan []*datapoint.Datapoint
+	spanChan          chan []*trace.Span
+	dpsFailedToSend   int64
+	traceSpansDropped int64
+	eventsSent        int64
+	startTime         time.Time
 }
 
 // New creates a new un-configured writer
-func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan chan *event.Event,
-	dimensionChan chan *types.Dimension, spanChan chan *trace.Span,
+func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventChan chan *event.Event,
+	dimensionChan chan *types.Dimension, spanChan chan []*trace.Span,
 	spanSourceTracker *tracetracker.SpanSourceTracker) (*SignalFxWriter, error) {
 	logger := utils.NewThrottledLogger(logrus.WithFields(log.Fields{"component": "writer"}), 20*time.Second)
 
@@ -114,30 +101,19 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 	}
 
 	sw := &SignalFxWriter{
-		ctx:             ctx,
-		cancel:          cancel,
-		conf:            conf,
-		logger:          logger,
-		client:          sfxclient.NewHTTPSink(),
-		dimensionClient: dimensionClient,
-		hostIDDims:      conf.HostIDDims,
-		dpChan:          dpChan,
-		eventChan:       eventChan,
-		spanChan:        spanChan,
-		dimensionChan:   dimensionChan,
-		startTime:       time.Now(),
-		dpBufferPool: &sync.Pool{
-			New: func() interface{} {
-				return make([]*datapoint.Datapoint, 0, conf.DatapointMaxBatchSize)
-			},
-		},
-		spanBufferPool: &sync.Pool{
-			New: func() interface{} {
-				buf := make([]*trace.Span, 0, conf.TraceSpanMaxBatchSize)
-				return &buf
-			},
-		},
+		ctx:               ctx,
+		cancel:            cancel,
+		conf:              conf,
+		logger:            logger,
+		client:            sfxclient.NewHTTPSink(),
+		dimensionClient:   dimensionClient,
+		hostIDDims:        conf.HostIDDims,
+		eventChan:         eventChan,
+		dimensionChan:     dimensionChan,
+		startTime:         time.Now(),
 		spanSourceTracker: spanSourceTracker,
+		dpChan:            dpChan,
+		spanChan:          spanChan,
 	}
 	go sw.maintainLastMinuteActivity()
 
@@ -196,9 +172,36 @@ func New(conf *config.WriterConfig, dpChan chan *datapoint.Datapoint, eventChan 
 	}
 
 	sw.dimensionClient.Start()
-	go sw.listenForDatapoints()
+
 	go sw.listenForEventsAndDimensionUpdates()
-	go sw.listenForTraceSpans()
+
+	sw.datapointWriter = &sfxwriter.DatapointWriter{
+		PreprocessFunc: sw.preprocessDatapoint,
+		SendFunc:       sw.sendDatapoints,
+		OverwriteFunc: func() {
+			sw.logger.ThrottledWarning(fmt.Sprintf("A datapoint was overwritten in the write buffer, please consider increasing the writer.maxDatapointsBuffered config option to something greater than %d", conf.MaxDatapointsBuffered))
+		},
+		MaxBatchSize: conf.DatapointMaxBatchSize,
+		MaxRequests:  conf.MaxRequests,
+		MaxBuffered:  conf.MaxDatapointsBuffered,
+		InputChan:    sw.dpChan,
+	}
+
+	sw.datapointWriter.Start(ctx)
+
+	// The only reason this is on the struct and not a local var is so we can
+	// easily get diagnostic metrics from it
+	sw.serviceTracker = sw.startGeneratingHostCorrelationMetrics()
+
+	sw.spanWriter = &sfxwriter.SpanWriter{
+		PreprocessFunc: sw.preprocessSpan,
+		SendFunc:       sw.sendSpans,
+		MaxBatchSize:   conf.TraceSpanMaxBatchSize,
+		MaxRequests:    conf.MaxRequests,
+		MaxBuffered:    int(conf.MaxTraceSpansInFlight),
+		InputChan:      sw.spanChan,
+	}
+	sw.spanWriter.Start(ctx)
 
 	log.Infof("Sending datapoints to %s", sw.client.DatapointEndpoint)
 	log.Infof("Sending trace spans to %s", sw.client.TraceEndpoint)
@@ -210,7 +213,11 @@ func (sw *SignalFxWriter) shouldSendDatapoint(dp *datapoint.Datapoint) bool {
 	return sw.datapointFilters == nil || !sw.datapointFilters.Matches(dp)
 }
 
-func (sw *SignalFxWriter) preprocessDatapoint(dp *datapoint.Datapoint) {
+func (sw *SignalFxWriter) preprocessDatapoint(dp *datapoint.Datapoint) bool {
+	if !sw.shouldSendDatapoint(dp) {
+		return false
+	}
+
 	dp.Dimensions = sw.addGlobalDims(dp.Dimensions)
 
 	// Some metrics aren't really specific to the host they are running
@@ -224,11 +231,13 @@ func (sw *SignalFxWriter) preprocessDatapoint(dp *datapoint.Datapoint) {
 	if sw.conf.LogDatapoints {
 		log.Debugf("Sending datapoint:\n%s", utils.DatapointToString(dp))
 	}
+
+	return true
 }
 
-func (sw *SignalFxWriter) sendDatapoints(dps []*datapoint.Datapoint) error {
+func (sw *SignalFxWriter) sendDatapoints(ctx context.Context, dps []*datapoint.Datapoint) error {
 	// This sends synchonously
-	err := sw.client.AddDatapoints(sw.ctx, dps)
+	err := sw.client.AddDatapoints(ctx, dps)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -305,152 +314,6 @@ func (sw *SignalFxWriter) addhostIDFields(fields map[string]string) map[string]s
 		fields[k] = v
 	}
 	return fields
-}
-
-// listenForDatapoints waits for datapoints to come in on the provided
-// channels and forwards them to SignalFx.
-func (sw *SignalFxWriter) listenForDatapoints() {
-	bufferSize := sw.conf.MaxDatapointsBuffered
-	maxRequests := int64(sw.conf.DatapointMaxRequests) //nolint: staticcheck
-	// Ring buffer of datapoints, initialized to its maximum length to avoid
-	// reallocations.
-	dpBuffer := make([]*datapoint.Datapoint, bufferSize)
-	// The index that marks the end of the last chunk of datapoints that was
-	// sent.  It is one greater than the actual index, to match the golang
-	// slice high range.
-	lastHighStarted := 0
-	// The next index within the buffer that a datapoint should be added to.
-	nextDatapointIdx := 0
-	// Corresponds to nextDatapointIdx but is easier to work with without modulo
-	batched := 0
-	requestDoneCh := make(chan struct{}, maxRequests)
-
-	// How many times around the ring buffer we have gone when putting
-	// datapoints onto the buffer
-	bufferedCircuits := int64(0)
-	// How many times around the ring buffer we have gone when starting
-	// requests
-	startedCircuits := int64(0)
-
-	targetHighStarted := func() int {
-		if nextDatapointIdx < lastHighStarted {
-			// Wrap around happened, just take what we have left until wrap
-			// around so that we can take a single slice of it since slice
-			// ranges can't wrap around.
-			return bufferSize
-		}
-
-		return nextDatapointIdx
-	}
-
-	tryToSendBufferChunk := func(newHigh int) bool {
-		if newHigh == lastHighStarted { // Nothing added
-			return false
-		}
-
-		if sw.dpRequestsActive >= maxRequests {
-			sw.dpRequestsWaiting++
-			sw.dpsWaiting += int64(newHigh - lastHighStarted)
-			log.Debugf("Max datapoint requests hit, %d requests will be combined", sw.dpRequestsWaiting)
-			return false
-		}
-
-		sw.dpRequestsActive++
-		go func(low, high int) {
-			dpCount := int64(high - low)
-			atomic.AddInt64(&sw.dpsInFlight, dpCount)
-
-			log.Debugf("Sending dpBuffer[%d:%d]", low, high)
-			err := sw.sendDatapoints(dpBuffer[low:high])
-			if err != nil {
-				atomic.AddInt64(&sw.dpsFailedToSend, dpCount)
-			} else {
-				atomic.AddInt64(&sw.dpsSent, dpCount)
-			}
-
-			atomic.AddInt64(&sw.dpsInFlight, -dpCount)
-
-			requestDoneCh <- struct{}{}
-		}(lastHighStarted, newHigh)
-
-		lastHighStarted = newHigh
-		if lastHighStarted == bufferSize { // Wrap back to 0
-			lastHighStarted = 0
-			startedCircuits++
-		}
-
-		batched = 0
-		sw.dpRequestsWaiting = 0
-		sw.dpsWaiting = 0
-		return true
-	}
-
-	handleRequestDone := func() {
-		sw.dpRequestsActive--
-		if sw.dpRequestsWaiting > 0 {
-			tryToSendBufferChunk(targetHighStarted())
-		}
-	}
-
-	processDP := func(dp *datapoint.Datapoint) {
-		if !sw.shouldSendDatapoint(dp) {
-			sw.dpsFiltered++
-			if sw.conf.LogDroppedDatapoints {
-				log.Debugf("Dropping datapoint:\n%s", utils.DatapointToString(dp))
-			}
-			return
-		}
-
-		sw.dpsReceived++
-		sw.preprocessDatapoint(dp)
-		dpBuffer[nextDatapointIdx] = dp
-
-		nextDatapointIdx++
-		if nextDatapointIdx == bufferSize { // Wrap around the buffer
-			nextDatapointIdx = 0
-			bufferedCircuits++
-		}
-
-		if lastHighStarted < nextDatapointIdx && bufferedCircuits > startedCircuits {
-			sw.logger.ThrottledWarning(fmt.Sprintf("Datapoint ring buffer overflowed, some datapoints were dropped. Set writer.maxDatapointsBuffered to something higher (currently %d)", bufferSize))
-		}
-		batched++
-
-		if batched >= sw.conf.DatapointMaxBatchSize {
-			tryToSendBufferChunk(targetHighStarted())
-		}
-	}
-
-	for {
-		select {
-		case <-sw.ctx.Done():
-			return
-
-		case dp := <-sw.dpChan:
-			processDP(dp)
-
-		case <-requestDoneCh:
-			handleRequestDone()
-
-		default:
-			newHigh := targetHighStarted()
-			// Could be less if wrapped around
-			if newHigh != lastHighStarted {
-				tryToSendBufferChunk(newHigh)
-			}
-
-			select {
-			case <-sw.ctx.Done():
-				return
-
-			case <-requestDoneCh:
-				handleRequestDone()
-
-			case dp := <-sw.dpChan:
-				processDP(dp)
-			}
-		}
-	}
 }
 
 func (sw *SignalFxWriter) listenForEventsAndDimensionUpdates() {

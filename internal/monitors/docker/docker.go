@@ -206,8 +206,8 @@ func (m *Monitor) fetchStats(container dockerContainer, labelMap map[string]stri
 				dps[i].Dimensions[dimName] = v
 			}
 		}
-		m.Output.SendDatapoint(dps[i])
 	}
+	m.Output.SendDatapoints(dps...)
 }
 
 func parseContainerEnvSlice(env []string) map[string]string {

@@ -19,9 +19,9 @@ type monitorOutput struct {
 	disableEndpointDimensions bool
 	configHash                uint64
 	endpoint                  services.Endpoint
-	dpChan                    chan<- *datapoint.Datapoint
+	dpChan                    chan<- []*datapoint.Datapoint
 	eventChan                 chan<- *event.Event
-	spanChan                  chan<- *trace.Span
+	spanChan                  chan<- []*trace.Span
 	dimensionChan             chan<- *types.Dimension
 	extraDims                 map[string]string
 	dimensionTransformations  map[string]string
@@ -38,7 +38,22 @@ func (mo *monitorOutput) Copy() types.Output {
 	return &o
 }
 
-func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
+func (mo *monitorOutput) SendDatapoints(dps ...*datapoint.Datapoint) {
+	// This is the filtering in place trick from https://github.com/golang/go/wiki/SliceTricks#filter-in-place
+	n := 0
+	for i := range dps {
+		if mo.preprocessDP(dps[i]) {
+			dps[n] = dps[i]
+			n++
+		}
+	}
+
+	if n > 0 {
+		mo.dpChan <- dps[:n]
+	}
+}
+
+func (mo *monitorOutput) preprocessDP(dp *datapoint.Datapoint) bool {
 	if dp.Meta == nil {
 		dp.Meta = map[interface{}]interface{}{}
 	}
@@ -58,10 +73,11 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 	}
 
 	dp.Dimensions = utils.MergeStringMaps(dp.Dimensions, mo.extraDims, endpointDims)
+
 	// Defer filtering until here so we have the full dimension set to match
 	// on.
 	if mo.monitorFiltering.filterSet.Matches(dp) {
-		return
+		return false
 	}
 
 	for origName, newName := range mo.dimensionTransformations {
@@ -74,7 +90,7 @@ func (mo *monitorOutput) SendDatapoint(dp *datapoint.Datapoint) {
 		}
 	}
 
-	mo.dpChan <- dp
+	return true
 }
 
 func (mo *monitorOutput) SendEvent(event *event.Event) {
@@ -89,10 +105,12 @@ func (mo *monitorOutput) SendEvent(event *event.Event) {
 	mo.eventChan <- event
 }
 
-func (mo *monitorOutput) SendSpan(span *trace.Span) {
-	span.Meta[dpmeta.EndpointMeta] = mo.endpoint
+func (mo *monitorOutput) SendSpans(spans ...*trace.Span) {
+	for i := range spans {
+		spans[i].Meta[dpmeta.EndpointMeta] = mo.endpoint
+	}
 
-	mo.spanChan <- span
+	mo.spanChan <- spans
 }
 
 func (mo *monitorOutput) SendDimensionUpdate(dimensions *types.Dimension) {

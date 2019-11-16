@@ -43,10 +43,10 @@ type Agent struct {
 	writer              *writer.SignalFxWriter
 	meta                *meta.AgentMeta
 	lastConfig          *config.Config
-	dpChan              chan *datapoint.Datapoint
+	dpChan              chan []*datapoint.Datapoint
 	eventChan           chan *event.Event
 	dimensionChan       chan *types.Dimension
-	spanChan            chan *trace.Span
+	spanChan            chan []*trace.Span
 	endpointHostTracker *services.EndpointHostTracker
 
 	diagnosticServer     *http.Server
@@ -57,10 +57,10 @@ type Agent struct {
 // NewAgent creates an unconfigured agent instance
 func NewAgent() *Agent {
 	agent := Agent{
-		dpChan:              make(chan *datapoint.Datapoint, datapointChanCapacity),
+		dpChan:              make(chan []*datapoint.Datapoint, datapointChanCapacity),
 		eventChan:           make(chan *event.Event, eventChanCapacity),
 		dimensionChan:       make(chan *types.Dimension, dimensionChanCapacity),
-		spanChan:            make(chan *trace.Span, traceSpanChanCapacity),
+		spanChan:            make(chan []*trace.Span, traceSpanChanCapacity),
 		endpointHostTracker: services.NewEndpointHostTracker(),
 		startTime:           time.Now(),
 	}

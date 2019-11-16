@@ -115,16 +115,10 @@ func (m *Monitor) Configure(conf *Config) error {
 		metrics := m.listener.FetchMetrics()
 		dps := convertMetricsToDatapoints(aggregateMetrics(metrics))
 
-		m.sendDatapoints(dps)
+		m.Output.SendDatapoints(dps...)
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil
-}
-
-func (m *Monitor) sendDatapoints(dps []*datapoint.Datapoint) {
-	for i := range dps {
-		m.Output.SendDatapoint(dps[i])
-	}
 }
 
 // Shutdown stops listening to incoming StatsD metrics

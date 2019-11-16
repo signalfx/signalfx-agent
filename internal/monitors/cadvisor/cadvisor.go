@@ -37,7 +37,7 @@ func (c *Cadvisor) Configure(conf *CHTTPConfig) error {
 		return errors.Wrap(err, "Could not create cAdvisor client")
 	}
 
-	return c.Monitor.Configure(&conf.MonitorConfig, c.Output.SendDatapoint, newCadvisorInfoProvider(cadvisorClient), false)
+	return c.Monitor.Configure(&conf.MonitorConfig, c.Output.SendDatapoints, newCadvisorInfoProvider(cadvisorClient), false)
 }
 
 type cadvisorInfoProvider struct {
