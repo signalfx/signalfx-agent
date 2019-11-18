@@ -14,8 +14,8 @@ import (
 	_ "net/http/pprof"
 
 	"github.com/davecgh/go-spew/spew"
-	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/sfxclient"
+	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/core/writer/tap"
 	"github.com/signalfx/signalfx-agent/internal/utils"

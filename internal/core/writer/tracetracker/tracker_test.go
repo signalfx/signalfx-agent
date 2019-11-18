@@ -5,9 +5,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/pointer"
-	"github.com/signalfx/golib/trace"
+	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/golib/v3/pointer"
+	"github.com/signalfx/golib/v3/trace"
 	"github.com/signalfx/signalfx-agent/internal/neotest"
 	"github.com/stretchr/testify/assert"
 )

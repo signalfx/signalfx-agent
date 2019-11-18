@@ -4,8 +4,8 @@ import (
 	"fmt"
 
 	"github.com/influxdata/telegraf"
-	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/event"
+	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/golib/v3/event"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	log "github.com/sirupsen/logrus"
 )

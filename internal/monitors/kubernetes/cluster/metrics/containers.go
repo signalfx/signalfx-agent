@@ -3,7 +3,7 @@ package metrics
 import (
 	"time"
 
-	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/v3/datapoint"
 	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/signalfx/signalfx-agent/internal/utils/k8sutil"

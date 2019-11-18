@@ -7,8 +7,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/signalfx/golib/event"
-	"github.com/signalfx/golib/pointer"
+	"github.com/signalfx/golib/v3/event"
+	"github.com/signalfx/golib/v3/pointer"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/neotest"
 )

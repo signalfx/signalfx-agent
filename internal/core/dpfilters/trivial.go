@@ -1,6 +1,6 @@
 package dpfilters
 
-import "github.com/signalfx/golib/datapoint"
+import "github.com/signalfx/golib/v3/datapoint"
 
 // AlwaysMatchFilter is a trivial filter that always matches datapoints
 type AlwaysMatchFilter struct{}

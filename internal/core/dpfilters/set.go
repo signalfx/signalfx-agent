@@ -1,7 +1,7 @@
 package dpfilters
 
 import (
-	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/v3/datapoint"
 )
 
 // FilterSet is a collection of datapont filters, any one of which must match

@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/sfxclient"
+	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/golib/v3/sfxclient"
 )
 
 // DiagnosticText outputs human-readable text about the active observers.

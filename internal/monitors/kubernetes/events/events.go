@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/signalfx/golib/event"
+	"github.com/signalfx/golib/v3/event"
 	"github.com/signalfx/signalfx-agent/internal/core/common/kubernetes"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"

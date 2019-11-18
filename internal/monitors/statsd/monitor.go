@@ -5,8 +5,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/sfxclient"
+	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"

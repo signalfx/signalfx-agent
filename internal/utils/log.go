@@ -5,7 +5,7 @@ import (
 	"time"
 
 	lru "github.com/hashicorp/golang-lru"
-	"github.com/signalfx/golib/log"
+	"github.com/signalfx/golib/v3/log"
 	"github.com/sirupsen/logrus"
 )
 

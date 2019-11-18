@@ -7,9 +7,9 @@ import (
 	"sync/atomic"
 	"time"
 
-	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/sfxclient"
-	"github.com/signalfx/golib/trace"
+	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/golib/v3/sfxclient"
+	"github.com/signalfx/golib/v3/trace"
 	log "github.com/sirupsen/logrus"
 )
 

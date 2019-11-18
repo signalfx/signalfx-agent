@@ -7,8 +7,8 @@ import (
 
 	"github.com/influxdata/telegraf"
 	"github.com/influxdata/telegraf/metric"
-	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/event"
+	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/golib/v3/event"
 	"github.com/signalfx/signalfx-agent/internal/neotest"
 	log "github.com/sirupsen/logrus"
 )

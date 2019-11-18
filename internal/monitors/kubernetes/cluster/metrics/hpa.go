@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/cluster/meta"
 	k8sutils "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"

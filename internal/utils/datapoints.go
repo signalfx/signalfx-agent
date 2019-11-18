@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/olekukonko/tablewriter"
-	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/v3/datapoint"
 )
 
 func sortedDimensionString(dims map[string]string) string {

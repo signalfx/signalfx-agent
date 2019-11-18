@@ -12,8 +12,8 @@ import (
 
 	"github.com/signalfx/gateway/protocol/collectd"
 	collectdformat "github.com/signalfx/gateway/protocol/collectd/format"
-	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/event"
+	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/golib/v3/event"
 	"github.com/signalfx/signalfx-agent/internal/utils/collectdutil"
 )
 

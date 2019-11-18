@@ -1,8 +1,8 @@
 package client
 
 import (
-	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/sfxclient"
+	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/golib/v3/sfxclient"
 )
 
 func prepareGaugeHelper(metricName string, dims map[string]string, metricValue *int64) *datapoint.Datapoint {

@@ -5,7 +5,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/sirupsen/logrus"

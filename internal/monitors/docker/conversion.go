@@ -6,8 +6,8 @@ import (
 	"time"
 
 	dtypes "github.com/docker/docker/api/types"
-	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/sfxclient"
+	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/golib/v3/sfxclient"
 )
 
 var memoryStatCounters = map[string]bool{

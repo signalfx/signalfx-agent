@@ -13,7 +13,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/signalfx/golib/datapoint"
+	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/core/common/kubernetes"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/neotest"

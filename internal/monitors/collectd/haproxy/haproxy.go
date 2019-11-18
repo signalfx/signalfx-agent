@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/signalfx/golib/pointer"
+	"github.com/signalfx/golib/v3/pointer"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"

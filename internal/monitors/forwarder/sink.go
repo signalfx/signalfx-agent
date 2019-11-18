@@ -5,9 +5,9 @@ import (
 	"net"
 	"net/http"
 
-	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/golib/event"
-	"github.com/signalfx/golib/trace"
+	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/golib/v3/event"
+	"github.com/signalfx/golib/v3/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 )
@@ -36,7 +36,7 @@ func (os *outputSink) AddSpans(ctx context.Context, spans []*trace.Span) error {
 	for i := range spans {
 		if hasSource {
 			if spans[i].Meta == nil {
-				spans[i].Meta = map[string]interface{}{}
+				spans[i].Meta = map[interface{}]interface{}{}
 			}
 			spans[i].Meta[constants.DataSourceIPKey] = source
 		}
