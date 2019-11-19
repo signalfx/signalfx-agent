@@ -170,25 +170,6 @@ commands:
           sudo mv -f /tmp/kubectl /usr/bin/kubectl
           sudo chmod a+x /usr/bin/kubectl
 
-  install_helm:
-    parameters:
-      version:
-        type: string
-        default: v3.0.0
-    steps:
-      - download_and_cache:
-          key: v4-helm-binary-<< parameters.version >>
-          path: /tmp/helm.tar.gz
-          url: https://get.helm.sh/helm-<< parameters.version >>-linux-amd64.tar.gz
-      - run: |
-          tar -zxvf /tmp/helm.tar.gz -C /tmp
-          sudo mv -f /tmp/linux-amd64/helm /usr/bin/helm
-          chmod a+x /usr/bin/helm
-          if [[ -f /tmp/linux-amd64/tiller ]]; then
-              sudo mv -f /tmp/linux-amd64/tiller /usr/bin/tiller
-              chmod a+x /usr/bin/tiller
-          fi
-
   install_minikube:
     parameters:
       version:
@@ -274,7 +255,6 @@ commands:
         default: ""
     steps:
       - install_crictl
-      - install_helm
       - install_kubectl:
           version: << parameters.k8s_version >>
       - install_minikube:
