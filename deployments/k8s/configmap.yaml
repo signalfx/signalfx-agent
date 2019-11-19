@@ -150,4 +150,3 @@ data:
       # ignore its containers
       - dimensions:
           container_spec_name: metadata-agent
-

@@ -8,21 +8,28 @@ AGENT_CHART_DIR="$SCRIPT_DIR/helm/signalfx-agent"
 
 AGENT_RELEASE_VERSION=${AGENT_RELEASE_VERSION-$($SCRIPT_DIR/../../scripts/latest-final-release)}
 
-templates="configmap.yaml daemonset.yaml clusterrole.yaml clusterrolebinding.yaml serviceaccount.yaml"
-for f in $templates; do
-  helm template \
+tmpdir=$(mktemp -d)
+
+trap "rm -rf $tmpdir" EXIT
+
+helm template \
+    signalfx-agent \
     --namespace signalfx-agent \
     --set signalFxAccessToken=MY_TOKEN \
     --set clusterName=MY-CLUSTER \
     --set fullnameOverride=signalfx-agent \
     --set agentVersion=$AGENT_RELEASE_VERSION \
-    -x ${AGENT_CHART_DIR%/}/templates/$f \
-    $AGENT_CHART_DIR | \
+    --output-dir $tmpdir \
+    $AGENT_CHART_DIR
+
+templates="configmap.yaml daemonset.yaml clusterrole.yaml clusterrolebinding.yaml serviceaccount.yaml"
+for f in $templates; do
+  cat $tmpdir/signalfx-agent/templates/$f | \
       sed -e 's/[[:space:]]*$//' | \
       grep -v 'chart: signalfx-agent' | \
       grep -v 'namespace: signalfx-agent' | \
-      grep -v 'heritage: Tiller' | \
-      grep -iv 'release: RELEASE-NAME' \
+      grep -v 'heritage: Helm' | \
+      grep -iv 'release: signalfx-agent' \
     > $SCRIPT_DIR/$f
   echo "Wrote resource $f"
 done
