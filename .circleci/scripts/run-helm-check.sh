@@ -2,8 +2,6 @@
 
 set -eo pipefail
 
-apk add --no-cache git bash
-
 if [ "$CIRCLE_BRANCH" != "master" ]; then
   git checkout -b $CIRCLE_BRANCH
   if ! scripts/changes-include-dir deployments/k8s ${BASH_SOURCE[0]}; then
