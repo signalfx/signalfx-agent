@@ -25,8 +25,7 @@ executors:
 
   helm:
     docker:
-      - image: alpine/helm:2.15.0
-
+      - image: alpine/helm:3.0.0
 
 commands:
   goexecutor_setup:
@@ -175,7 +174,7 @@ commands:
     parameters:
       version:
         type: string
-        default: v2.15.0
+        default: v3.0.0
     steps:
       - download_and_cache:
           key: v4-helm-binary-<< parameters.version >>
@@ -185,8 +184,10 @@ commands:
           tar -zxvf /tmp/helm.tar.gz -C /tmp
           sudo mv -f /tmp/linux-amd64/helm /usr/bin/helm
           chmod a+x /usr/bin/helm
-          sudo mv -f /tmp/linux-amd64/tiller /usr/bin/tiller
-          chmod a+x /usr/bin/tiller
+          if [[ -f /tmp/linux-amd64/tiller ]]; then
+              sudo mv -f /tmp/linux-amd64/tiller /usr/bin/tiller
+              chmod a+x /usr/bin/tiller
+          fi
 
   install_minikube:
     parameters:
