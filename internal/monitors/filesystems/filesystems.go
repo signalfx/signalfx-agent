@@ -81,25 +81,31 @@ func (m *Monitor) getCommonDimensions(partition *gopsutil.PartitionStat) map[str
 	return dims
 }
 
-func (m *Monitor) reportInodeDatapoints(dimensions map[string]string, disk *gopsutil.UsageStat) {
-	m.Output.SendDatapoint(datapoint.New(dfInodesFree, dimensions, datapoint.NewIntValue(int64(disk.InodesFree)), datapoint.Gauge, time.Time{}))
-	m.Output.SendDatapoint(datapoint.New(dfInodesUsed, dimensions, datapoint.NewIntValue(int64(disk.InodesUsed)), datapoint.Gauge, time.Time{}))
-	// TODO: implement df_inodes.reserved
-	m.Output.SendDatapoint(datapoint.New(percentInodesFree, dimensions, datapoint.NewIntValue(int64(100-disk.InodesUsedPercent)), datapoint.Gauge, time.Time{}))
-	m.Output.SendDatapoint(datapoint.New(percentInodesUsed, dimensions, datapoint.NewIntValue(int64(disk.InodesUsedPercent)), datapoint.Gauge, time.Time{}))
-	// TODO: implement percent_inodes.reserved
+func (m *Monitor) makeInodeDatapoints(dimensions map[string]string, disk *gopsutil.UsageStat) []*datapoint.Datapoint {
+	return []*datapoint.Datapoint{
+		datapoint.New(dfInodesFree, dimensions, datapoint.NewIntValue(int64(disk.InodesFree)), datapoint.Gauge, time.Time{}),
+		datapoint.New(dfInodesUsed, dimensions, datapoint.NewIntValue(int64(disk.InodesUsed)), datapoint.Gauge, time.Time{}),
+		// TODO: implement df_inodes.reserved
+		datapoint.New(percentInodesFree, dimensions, datapoint.NewIntValue(int64(100-disk.InodesUsedPercent)), datapoint.Gauge, time.Time{}),
+		datapoint.New(percentInodesUsed, dimensions, datapoint.NewIntValue(int64(disk.InodesUsedPercent)), datapoint.Gauge, time.Time{}),
+		// TODO: implement percent_inodes.reserved
+	}
 }
 
-func (m *Monitor) reportDFComplex(dimensions map[string]string, disk *gopsutil.UsageStat) {
-	m.Output.SendDatapoint(datapoint.New(dfComplexFree, dimensions, datapoint.NewIntValue(int64(disk.Free)), datapoint.Gauge, time.Time{}))
-	m.Output.SendDatapoint(datapoint.New(dfComplexUsed, dimensions, datapoint.NewIntValue(int64(disk.Used)), datapoint.Gauge, time.Time{}))
-	// TODO: implement df_complex.reserved
+func (m *Monitor) makeDFComplex(dimensions map[string]string, disk *gopsutil.UsageStat) []*datapoint.Datapoint {
+	return []*datapoint.Datapoint{
+		datapoint.New(dfComplexFree, dimensions, datapoint.NewIntValue(int64(disk.Free)), datapoint.Gauge, time.Time{}),
+		datapoint.New(dfComplexUsed, dimensions, datapoint.NewIntValue(int64(disk.Used)), datapoint.Gauge, time.Time{}),
+		// TODO: implement df_complex.reserved
+	}
 }
 
-func (m *Monitor) reportPercentBytes(dimensions map[string]string, disk *gopsutil.UsageStat) {
-	m.Output.SendDatapoint(datapoint.New(percentBytesFree, dimensions, datapoint.NewFloatValue(100-disk.UsedPercent), datapoint.Gauge, time.Time{}))
-	m.Output.SendDatapoint(datapoint.New(percentBytesUsed, dimensions, datapoint.NewFloatValue(disk.UsedPercent), datapoint.Gauge, time.Time{}))
-	// TODO: implement percent_bytes.reserved
+func (m *Monitor) makePercentBytes(dimensions map[string]string, disk *gopsutil.UsageStat) []*datapoint.Datapoint {
+	return []*datapoint.Datapoint{
+		datapoint.New(percentBytesFree, dimensions, datapoint.NewFloatValue(100-disk.UsedPercent), datapoint.Gauge, time.Time{}),
+		datapoint.New(percentBytesUsed, dimensions, datapoint.NewFloatValue(disk.UsedPercent), datapoint.Gauge, time.Time{}),
+		// TODO: implement percent_bytes.reserved
+	}
 }
 
 // emitDatapoints emits a set of memory datapoints
@@ -112,6 +118,9 @@ func (m *Monitor) emitDatapoints() {
 			m.logger.WithError(err).Errorf("failed to collect list of mountpoints")
 		}
 	}
+
+	dps := make([]*datapoint.Datapoint, 0)
+
 	var used uint64
 	var total uint64
 	for i := range partitions {
@@ -151,7 +160,7 @@ func (m *Monitor) emitDatapoints() {
 		commonDims := m.getCommonDimensions(&partition)
 
 		// disk utilization
-		m.Output.SendDatapoint(datapoint.New(diskUtilization,
+		dps = append(dps, datapoint.New(diskUtilization,
 			utils.MergeStringMaps(map[string]string{"plugin": types.UtilizationMetricPluginName}, commonDims),
 			datapoint.NewFloatValue(disk.UsedPercent),
 			datapoint.Gauge,
@@ -159,14 +168,14 @@ func (m *Monitor) emitDatapoints() {
 		)
 
 		dimensions := utils.MergeStringMaps(map[string]string{"plugin": monitorType}, commonDims)
-		m.reportDFComplex(dimensions, disk)
+		dps = append(dps, m.makeDFComplex(dimensions, disk)...)
 
 		// report
-		m.reportPercentBytes(dimensions, disk)
+		dps = append(dps, m.makePercentBytes(dimensions, disk)...)
 
 		// inodes are not available on windows
 		if runtime.GOOS != "windows" && m.conf.ReportInodes {
-			m.reportInodeDatapoints(dimensions, disk)
+			dps = append(dps, m.makeInodeDatapoints(dimensions, disk)...)
 		}
 
 		// update totals
@@ -179,7 +188,9 @@ func (m *Monitor) emitDatapoints() {
 		m.logger.WithError(err).Errorf("failed to calculate utilization data")
 		return
 	}
-	m.Output.SendDatapoint(datapoint.New(diskSummaryUtilization, map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewFloatValue(diskSummary), datapoint.Gauge, time.Time{}))
+	dps = append(dps, datapoint.New(diskSummaryUtilization, map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewFloatValue(diskSummary), datapoint.Gauge, time.Time{}))
+
+	m.Output.SendDatapoints(dps...)
 }
 
 // Configure is the main function of the monitor, it will report host metadata

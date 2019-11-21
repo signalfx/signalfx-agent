@@ -66,9 +66,7 @@ func (m *Monitor) Configure(conf *Config) error {
 			return
 		}
 
-		for i := range dps {
-			m.Output.SendDatapoint(dps[i])
-		}
+		m.Output.SendDatapoints(dps...)
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil

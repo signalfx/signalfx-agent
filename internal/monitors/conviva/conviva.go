@@ -146,7 +146,7 @@ func (m *Monitor) fetchMetrics(contextTimeout time.Duration, semaphore chan stru
 				}
 			}
 		}
-		m.sendDatapoints(dps)
+		m.Output.SendDatapoints(dps...)
 	}(contextTimeout, m, metricConf)
 }
 
@@ -205,14 +205,8 @@ func (m *Monitor) fetchMetricLensMetrics(contextTimeout time.Duration, semaphore
 					}
 				}
 			}
-			m.sendDatapoints(dps)
+			m.Output.SendDatapoints(dps...)
 		}(contextTimeout, m, metricConf, dim)
-	}
-}
-
-func (m *Monitor) sendDatapoints(dps []*datapoint.Datapoint) {
-	for i := range dps {
-		m.Output.SendDatapoint(dps[i])
 	}
 }
 

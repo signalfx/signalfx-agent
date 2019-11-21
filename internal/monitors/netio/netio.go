@@ -84,6 +84,9 @@ func (m *Monitor) EmitDatapoints() {
 			m.logger.WithError(err).Errorf("failed to load net io counters. if this message repeats frequently there may be a problem")
 		}
 	}
+
+	dps := make([]*datapoint.Datapoint, 0)
+
 	for i := range info {
 		intf := info[i]
 		// skip it if the interface doesn't match
@@ -98,27 +101,20 @@ func (m *Monitor) EmitDatapoints() {
 
 		dimensions := map[string]string{"plugin": monitorType, "plugin_instance": pluginInstance, "interface": pluginInstance}
 
-		// if_errors.rx
-		m.Output.SendDatapoint(datapoint.New("if_errors.rx", dimensions, datapoint.NewIntValue(int64(intf.Errin)), datapoint.Counter, time.Time{}))
-
-		// if_errors.tx
-		m.Output.SendDatapoint(datapoint.New("if_errors.tx", dimensions, datapoint.NewIntValue(int64(intf.Errout)), datapoint.Counter, time.Time{}))
-
-		// if_octets.rx
-		m.Output.SendDatapoint(datapoint.New("if_octets.rx", dimensions, datapoint.NewIntValue(int64(intf.BytesRecv)), datapoint.Counter, time.Time{}))
-
-		// if_octets.tx
-		m.Output.SendDatapoint(datapoint.New("if_octets.tx", dimensions, datapoint.NewIntValue(int64(intf.BytesSent)), datapoint.Counter, time.Time{}))
-
-		// if_packets.rx
-		m.Output.SendDatapoint(datapoint.New("if_packets.rx", dimensions, datapoint.NewIntValue(int64(intf.PacketsRecv)), datapoint.Counter, time.Time{}))
-
-		// if_packets.tx
-		m.Output.SendDatapoint(datapoint.New("if_packets.tx", dimensions, datapoint.NewIntValue(int64(intf.PacketsSent)), datapoint.Counter, time.Time{}))
+		dps = append(dps,
+			datapoint.New("if_errors.rx", dimensions, datapoint.NewIntValue(int64(intf.Errin)), datapoint.Counter, time.Time{}),
+			datapoint.New("if_errors.tx", dimensions, datapoint.NewIntValue(int64(intf.Errout)), datapoint.Counter, time.Time{}),
+			datapoint.New("if_octets.rx", dimensions, datapoint.NewIntValue(int64(intf.BytesRecv)), datapoint.Counter, time.Time{}),
+			datapoint.New("if_octets.tx", dimensions, datapoint.NewIntValue(int64(intf.BytesSent)), datapoint.Counter, time.Time{}),
+			datapoint.New("if_packets.rx", dimensions, datapoint.NewIntValue(int64(intf.PacketsRecv)), datapoint.Counter, time.Time{}),
+			datapoint.New("if_packets.tx", dimensions, datapoint.NewIntValue(int64(intf.PacketsSent)), datapoint.Counter, time.Time{}),
+		)
 	}
 
 	// network.total
-	m.Output.SendDatapoint(datapoint.New("network.total", map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewIntValue(int64(m.networkTotal)), datapoint.Counter, time.Time{}))
+	dps = append(dps, datapoint.New("network.total", map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewIntValue(int64(m.networkTotal)), datapoint.Counter, time.Time{}))
+
+	m.Output.SendDatapoints(dps...)
 }
 
 // Configure is the main function of the monitor, it will report host metadata

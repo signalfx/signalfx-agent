@@ -94,11 +94,20 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		mostRecentGCPauseIndex := getMostRecentGCPauseIndex(dpsMap)
 		now := time.Now()
 		for metricPath, dps := range dpsMap {
-			for _, dp := range dps {
-				if err := m.sendDatapoint(dp, metricPath, mostRecentGCPauseIndex, &now); err != nil {
+			// This is the filtering in place trick from https://github.com/golang/go/wiki/SliceTricks#filter-in-place
+			n := 0
+			for i := range dps {
+				shouldSend, err := m.preprocessDatapoint(dps[i], metricPath, mostRecentGCPauseIndex, &now)
+				if err != nil {
 					m.logger.Error(err)
+					continue
+				}
+				if shouldSend {
+					dps[n] = dps[i]
+					n++
 				}
 			}
+			m.Output.SendDatapoints(dps[:n]...)
 		}
 	}, m.runInterval)
 
@@ -193,7 +202,7 @@ func (m *Monitor) setDatapoints(v interface{}, mc *MetricConfig, dp *datapoint.D
 	}
 }
 
-func (m *Monitor) sendDatapoint(dp *datapoint.Datapoint, metricPath string, mostRecentGCPauseIndex int64, now *time.Time) error {
+func (m *Monitor) preprocessDatapoint(dp *datapoint.Datapoint, metricPath string, mostRecentGCPauseIndex int64, now *time.Time) (bool, error) {
 	if metricPath == memstatsPauseNsMetricPath || metricPath == memstatsPauseEndMetricPath {
 		index, err := strconv.ParseInt(dp.Dimensions[metricPath], 10, 0)
 		if err == nil && index == mostRecentGCPauseIndex {
@@ -207,7 +216,7 @@ func (m *Monitor) sendDatapoint(dp *datapoint.Datapoint, metricPath string, most
 			if err != nil {
 				err = fmt.Errorf("failed to set metric GC pause. %+v", err)
 			}
-			return err
+			return false, err
 		}
 	}
 	// Renaming auto created dimension 'memstats.BySize' that stores array index to 'class'
@@ -216,8 +225,7 @@ func (m *Monitor) sendDatapoint(dp *datapoint.Datapoint, metricPath string, most
 		delete(dp.Dimensions, memstatsBySizeDimensionPath)
 	}
 	dp.Timestamp = *now
-	m.Output.SendDatapoint(dp)
-	return nil
+	return true, nil
 }
 
 // Shutdown stops the metric sync

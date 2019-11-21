@@ -77,8 +77,9 @@ func (m *Monitor) Configure(conf *Config) error {
 		// This would be a more complicated in a real monitor, but this
 		// shows the basic idea of using the Output interface to send
 		// datapoints.
-		m.Output.SendDatapoint(datapoint.New("my-monitor.requests",
-			map[string]string{"env": "test"}, 100, datapoint.Gauge, time.Now())
+		m.Output.SendDatapoints([]*datapoint.Datapoint{
+			datapoint.New("my-monitor.requests", map[string]string{"env": "test"}, 100, datapoint.Gauge, time.Now())
+		})
 
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
@@ -180,11 +181,12 @@ be automatically populated by the agent:
     is used to send data from the monitor back to the agent, and then on to
     SignalFx.  This value has three methods:
 
-    - `SendDatapoint(*"github.com/signalfx/golib/datapoint".Datapoint)`:
-        Sends a datapoint, appending any extra dimensions specified in the
-        configuration or by the service endpoint associated with the monitor.
+    - `SendDatapoints([]*"github.com/signalfx/golib/v3/datapoint".Datapoint)`:
+		Sends a set of datapoints, appending any extra dimensions specified in
+		the configuration or by the service endpoint associated with the
+		monitor.
 
-    - `SendEvent(*"github.com/signalfx/golib/event".Event)`: Sends an event.
+    - `SendEvent(*"github.com/signalfx/golib/v3/event".Event)`: Sends an event.
 
 	- `SendDimensionUpdate(*"github.com/signalfx/signalfx-agent/internal/monitors/types".Dimension)`:
 		Sends property updates for a specific dimension key/value pair.

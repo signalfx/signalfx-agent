@@ -26,7 +26,7 @@ func (sw *SignalFxWriter) maintainLastMinuteActivity() {
 		case <-sw.ctx.Done():
 			return
 		case <-t.C:
-			sw.datapointsLastMinute = atomic.LoadInt64(&sw.dpsSent) - dpSamples[idx]
+			sw.datapointsLastMinute = atomic.LoadInt64(&sw.datapointWriter.TotalSent) - dpSamples[idx]
 			dpSamples[idx] += sw.datapointsLastMinute
 
 			sw.datapointsFailedLastMinute = atomic.LoadInt64(&sw.dpsFailedToSend) - dpFailedSamples[idx]
@@ -35,7 +35,7 @@ func (sw *SignalFxWriter) maintainLastMinuteActivity() {
 			sw.eventsLastMinute = atomic.LoadInt64(&sw.eventsSent) - eventSamples[idx]
 			eventSamples[idx] += sw.eventsLastMinute
 
-			sw.spansLastMinute = atomic.LoadInt64(&sw.traceSpansSent) - spanSamples[idx]
+			sw.spansLastMinute = atomic.LoadInt64(&sw.spanWriter.TotalSent) - spanSamples[idx]
 			spanSamples[idx] += sw.spansLastMinute
 
 			idx = (idx + 1) % 6
@@ -50,35 +50,30 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 		"Global Dimensions:                %s\n"+
 			"Datapoints sent (last minute):    %d\n"+
 			"Datapoints failed (last minute):  %d\n"+
+			"Datapoints overwritten (total):   %d\n"+
 			"Events Sent (last minute):        %d\n"+
-			"Trace Spans Sent (last minute):   %d",
+			"Trace Spans Sent (last minute):   %d\n"+
+			"Trace Spans overwritten (total):  %d",
 		utils.FormatStringMapCompact(utils.MergeStringMaps(sw.conf.GlobalDimensions, sw.hostIDDims)),
 		sw.datapointsLastMinute,
 		sw.datapointsFailedLastMinute,
+		atomic.LoadInt64(&sw.datapointWriter.TotalOverwritten),
 		sw.eventsLastMinute,
-		sw.spansLastMinute)
+		sw.spansLastMinute,
+		atomic.LoadInt64(&sw.spanWriter.TotalOverwritten))
 }
 
 // InternalMetrics returns a set of metrics showing how the writer is currently
 // doing.
 func (sw *SignalFxWriter) InternalMetrics() []*datapoint.Datapoint {
-	return append(append(append([]*datapoint.Datapoint{
-		sfxclient.CumulativeP("sfxagent.datapoints_sent", nil, &sw.dpsSent),
-		sfxclient.CumulativeP("sfxagent.datapoints_produced", nil, &sw.dpsReceived),
-		sfxclient.CumulativeP("sfxagent.datapoints_filtered", nil, &sw.dpsFiltered),
-		sfxclient.CumulativeP("sfxagent.datapoints_failed", nil, &sw.dpsFailedToSend),
+	return append(append(append(append(append([]*datapoint.Datapoint{
 		sfxclient.CumulativeP("sfxagent.events_sent", nil, &sw.eventsSent),
 		sfxclient.Gauge("sfxagent.datapoint_channel_len", nil, int64(len(sw.dpChan))),
-		sfxclient.Gauge("sfxagent.datapoints_in_flight", nil, atomic.LoadInt64(&sw.dpsInFlight)),
-		sfxclient.Gauge("sfxagent.datapoints_waiting", nil, atomic.LoadInt64(&sw.dpsWaiting)),
-		sfxclient.Gauge("sfxagent.datapoint_requests_active", nil, atomic.LoadInt64(&sw.dpRequestsActive)),
 		sfxclient.Gauge("sfxagent.events_buffered", nil, int64(len(sw.eventBuffer))),
-		sfxclient.CumulativeP("sfxagent.trace_spans_sent", nil, &sw.traceSpansSent),
-		sfxclient.CumulativeP("sfxagent.trace_spans_failed", nil, &sw.traceSpansFailedToSend),
 		sfxclient.CumulativeP("sfxagent.trace_spans_dropped", nil, &sw.traceSpansDropped),
-		sfxclient.Gauge("sfxagent.trace_spans_buffered", nil, int64(len(sw.spanChan))),
-		sfxclient.Gauge("sfxagent.trace_spans_in_flight", nil, sw.traceSpansInFlight),
-		sfxclient.Gauge("sfxagent.trace_span_requests_active", nil, sw.traceSpanRequestsActive),
-	}, sw.serviceTracker.InternalMetrics()...), sw.dimensionClient.InternalMetrics()...),
+	}, sw.datapointWriter.InternalMetrics("sfxagent.")...),
+		sw.spanWriter.InternalMetrics("sfxagent.")...),
+		sw.serviceTracker.InternalMetrics()...),
+		sw.dimensionClient.InternalMetrics()...),
 		sw.spanSourceTracker.InternalMetrics()...)
 }

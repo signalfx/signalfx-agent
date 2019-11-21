@@ -93,20 +93,23 @@ func (q *querier) doQuery(ctx context.Context, database *sql.DB, output types.Ou
 		return fmt.Errorf("error executing statement %s: %v", q.query.Query, err)
 	}
 	for rows.Next() {
-		// We can just reuse the rowSlice for every row since it will reset
-		// itself.
 		dps, dims, err := q.convertCurrentRowToDatapointAndDimensions(rows)
 		if err != nil {
 			return err
 		}
+
+		// Make a new slice since this montior reuses the backing array of dps
+		outDPs := make([]*datapoint.Datapoint, 0, len(dps))
 		for i := range dps {
 			if dps[i].Value == nil {
 				q.logger.Warnf("Metric %s's value column '%s' did not correspond to a value",
 					q.query.Metrics[i].MetricName, q.query.Metrics[i].ValueColumn)
 				continue
 			}
-			output.SendDatapoint(dps[i])
+			outDPs = append(outDPs, dps[i])
 		}
+		output.SendDatapoints(outDPs...)
+
 		for i := range dims {
 			for _, dim := range dims[i] {
 				output.SendDimensionUpdate(dim)

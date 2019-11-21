@@ -31,9 +31,11 @@ var gauges = map[string]string{
 	"nr_shmem":      "vmpage_number.shmem_pmdmapped",
 }
 
-func (m *Monitor) parseFile(contents []byte) {
+func (m *Monitor) parseFileForDatapoints(contents []byte) []*datapoint.Datapoint {
 	data := bytes.Fields(contents)
 	max := len(data)
+	dps := make([]*datapoint.Datapoint, 0, max)
+
 	for i, key := range data {
 		// vmstat file structure is (key, value)
 		// so every even index is a key and every odd index is the value
@@ -52,10 +54,12 @@ func (m *Monitor) parseFile(contents []byte) {
 					m.logger.Errorf("failed to parse value for metric %s", metricName)
 					continue
 				}
-				m.Output.SendDatapoint(datapoint.New(metricName, map[string]string{"plugin": monitorType}, datapoint.NewIntValue(val), metricType, time.Time{}))
+				dps = append(dps, datapoint.New(metricName, map[string]string{"plugin": monitorType}, datapoint.NewIntValue(val), metricType, time.Time{}))
 			}
 		}
 	}
+
+	return dps
 }
 
 // Configure and run the monitor on linux
@@ -76,7 +80,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 			m.logger.WithError(err).Errorf("unable to load vmstat file from path '%s'", vmstatPath)
 			return
 		}
-		m.parseFile(contents)
+		m.Output.SendDatapoints(m.parseFileForDatapoints(contents)...)
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil

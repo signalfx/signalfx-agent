@@ -14,9 +14,7 @@ import (
 type WriterConfig struct {
 	// The maximum number of datapoints to include in a batch before sending the
 	// batch to the ingest server.  Smaller batch sizes than this will be sent
-	// if datapoints originate in smaller chunks.  Larger batch sizes may also
-	// be used if the `maxRequests` requests limit is hit -- the next request
-	// will consist of all of the datapoints queued in the meantime.
+	// if datapoints originate in smaller chunks.
 	DatapointMaxBatchSize int `yaml:"datapointMaxBatchSize" default:"1000"`
 	// The maximum number of datapoints that are allowed to be buffered in the
 	// agent (i.e. received from a monitor but have not yet received
@@ -24,7 +22,7 @@ type WriterConfig struct {
 	// downstream).  Any datapoints that come in beyond this number will
 	// overwrite existing datapoints if they have not been sent yet, starting
 	// with the oldest.
-	MaxDatapointsBuffered int `yaml:"maxDatapointsBuffered" default:"5000"`
+	MaxDatapointsBuffered int `yaml:"maxDatapointsBuffered" default:"25000"`
 	// The analogue of `datapointMaxBatchSize` for trace spans.
 	TraceSpanMaxBatchSize int `yaml:"traceSpanMaxBatchSize" default:"1000"`
 	// Deprecated: use `maxRequests` instead.
@@ -83,21 +81,21 @@ type WriterConfig struct {
 	// `sendTraceHostCorrelationMetrics` is false.
 	TraceHostCorrelationMetricsInterval time.Duration `yaml:"traceHostCorrelationMetricsInterval" default:"1m"`
 	// How many trace spans are allowed to be in the process of sending.  While
-	// this number is exceeded, existing pending spans will be randomly dropped
-	// if possible to accommodate new spans generated to avoid memory
-	// exhaustion.  If you see log messages about "Aborting pending trace
-	// requests..." or "Dropping new trace spans..." it means that the
-	// downstream target for traces is not able to accept them fast enough.
-	// Usually if the downstream is offline you will get connection refused
-	// errors and most likely spans will not build up in the agent (there is no
-	// retry mechanism). In the case of slow downstreams, you might be able to
-	// increase `maxRequests` to increase the concurrent stream of spans
-	// downstream (if the target can make efficient use of additional
-	// connections) or, less likely, increase `traceSpanMaxBatchSize` if your
-	// batches are maxing out (turn on debug logging to see the batch sizes
-	// being sent) and being split up too much. If neither of those options
-	// helps, your downstream is likely too slow to handle the volume of trace
-	// spans and should be upgraded to more powerful hardware/networking.
+	// this number is exceeded, the oldest spans will be discarded to
+	// accommodate new spans generated to avoid memory exhaustion.  If you see
+	// log messages about "Aborting pending trace requests..." or "Dropping new
+	// trace spans..." it means that the downstream target for traces is not
+	// able to accept them fast enough. Usually if the downstream is offline
+	// you will get connection refused errors and most likely spans will not
+	// build up in the agent (there is no retry mechanism). In the case of slow
+	// downstreams, you might be able to increase `maxRequests` to increase the
+	// concurrent stream of spans downstream (if the target can make efficient
+	// use of additional connections) or, less likely, increase
+	// `traceSpanMaxBatchSize` if your batches are maxing out (turn on debug
+	// logging to see the batch sizes being sent) and being split up too much.
+	// If neither of those options helps, your downstream is likely too slow to
+	// handle the volume of trace spans and should be upgraded to more powerful
+	// hardware/networking.
 	MaxTraceSpansInFlight uint `yaml:"maxTraceSpansInFlight" default:"100000"`
 	// The following are propagated from elsewhere
 	HostIDDims          map[string]string      `yaml:"-"`

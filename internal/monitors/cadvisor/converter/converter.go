@@ -67,7 +67,7 @@ type CadvisorCollector struct {
 	containerSpecCPUMetrics    []containerSpecMetric
 	machineInfoMetrics         []machineInfoMetric
 	podEphemeralStorageMetrics []podStatusMetric
-	sendDP                     func(*datapoint.Datapoint)
+	sendDPs                    func(...*datapoint.Datapoint)
 	defaultDimensions          map[string]string
 }
 
@@ -674,7 +674,7 @@ func getPodEphemeralStorageMetrics() []podStatusMetric {
 // NewCadvisorCollector creates new CadvisorCollector
 func NewCadvisorCollector(
 	infoProvider InfoProvider,
-	sendDP func(*datapoint.Datapoint),
+	sendDPs func(...*datapoint.Datapoint),
 	defaultDimensions map[string]string) *CadvisorCollector {
 
 	return &CadvisorCollector{
@@ -685,7 +685,7 @@ func NewCadvisorCollector(
 		containerSpecMetrics:       getContainerSpecMetrics(),
 		machineInfoMetrics:         getMachineInfoMetrics(),
 		podEphemeralStorageMetrics: getPodEphemeralStorageMetrics(),
-		sendDP:                     sendDP,
+		sendDPs:                    sendDPs,
 		defaultDimensions:          defaultDimensions,
 	}
 }
@@ -701,29 +701,40 @@ func (c *CadvisorCollector) Collect(hasPodEphemeralStorageStatsGroupEnabled bool
 	}
 }
 
-func (c *CadvisorCollector) sendDatapoint(dp *datapoint.Datapoint) {
-	dims := dp.Dimensions
+func (c *CadvisorCollector) preprocessAndSendDatapoints(dps ...*datapoint.Datapoint) {
+	// This is the filtering in place trick from https://github.com/golang/go/wiki/SliceTricks#filter-in-place
+	n := 0
+	for i := range dps {
+		dp := dps[i]
+		dims := dp.Dimensions
 
-	// filter POD level metrics
-	if dims["container_name"] == "POD" {
-		isNetworkMetric := strings.HasPrefix(dp.Metric, "pod_network_")
-		if !isNetworkMetric {
-			return
+		if dims["container_name"] == "POD" {
+			isNetworkMetric := strings.HasPrefix(dp.Metric, "pod_network_")
+			if !isNetworkMetric {
+				// Skip any non-networking metrics on the POD container since
+				// they are very low value.
+				continue
+			}
+			// Get rid of container_name from pod network metrics since they
+			// pertain to the entire pod.
+			delete(dims, "container_name")
 		}
-		delete(dims, "container_name")
+
+		dims["metric_source"] = "kubernetes"
+
+		for k, v := range c.defaultDimensions {
+			dims[k] = v
+		}
+
+		// remove high cardinality dimensions
+		delete(dims, "id")
+		delete(dims, "name")
+
+		dps[n] = dp
+		n++
 	}
 
-	dims["metric_source"] = "kubernetes"
-
-	for k, v := range c.defaultDimensions {
-		dims[k] = v
-	}
-
-	// remove high cardinality dimensions
-	delete(dims, "id")
-	delete(dims, "name")
-
-	c.sendDP(dp)
+	c.sendDPs(dps[:n]...)
 }
 
 func copyDims(dims map[string]string) map[string]string {
@@ -741,6 +752,7 @@ func (c *CadvisorCollector) collectContainersInfo() {
 		log.WithError(err).Error("Couldn't get cAdvisor container stats")
 		return
 	}
+	dpsOut := make([]*datapoint.Datapoint, 0)
 	for i := range containers {
 		container := containers[i]
 		dims := make(map[string]string)
@@ -769,7 +781,7 @@ func (c *CadvisorCollector) collectContainersInfo() {
 					newDims[label] = metricValue.labels[i]
 				}
 
-				c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, now))
+				dpsOut = append(dpsOut, datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, now))
 			}
 		}
 
@@ -783,7 +795,7 @@ func (c *CadvisorCollector) collectContainersInfo() {
 						newDims[label] = metricValue.labels[i]
 					}
 
-					c.sendDatapoint(datapoint.New(c.containerSpecCPUMetrics[i].name, newDims, metricValue.value, c.containerSpecCPUMetrics[i].valueType, now))
+					dpsOut = append(dpsOut, datapoint.New(c.containerSpecCPUMetrics[i].name, newDims, metricValue.value, c.containerSpecCPUMetrics[i].valueType, now))
 				}
 			}
 		}
@@ -799,7 +811,7 @@ func (c *CadvisorCollector) collectContainersInfo() {
 						newDims[label] = metricValue.labels[i]
 					}
 
-					c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, now))
+					dpsOut = append(dpsOut, datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, now))
 				}
 			}
 		}
@@ -819,11 +831,13 @@ func (c *CadvisorCollector) collectContainersInfo() {
 						newDims[label] = metricValue.labels[i]
 					}
 
-					c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, now))
+					dpsOut = append(dpsOut, datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, now))
 				}
 			}
 		}
 	}
+
+	c.preprocessAndSendDatapoints(dpsOut...)
 }
 
 func (c *CadvisorCollector) collectVersionInfo() {}
@@ -842,6 +856,7 @@ func (c *CadvisorCollector) collectMachineInfo() {
 
 	dims := make(map[string]string)
 
+	dps := make([]*datapoint.Datapoint, 0)
 	for _, cm := range c.machineInfoMetrics {
 		for _, metricValue := range cm.getValues(machineInfo) {
 			newDims := copyDims(dims)
@@ -851,9 +866,11 @@ func (c *CadvisorCollector) collectMachineInfo() {
 				newDims[label] = metricValue.labels[i]
 			}
 
-			c.sendDatapoint(datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, now))
+			dps = append(dps, datapoint.New(cm.name, newDims, metricValue.value, cm.valueType, now))
 		}
 	}
+
+	c.preprocessAndSendDatapoints(dps...)
 }
 
 func (c *CadvisorCollector) collectEphemeralStorageStatsFromPod() {
@@ -869,6 +886,7 @@ func (c *CadvisorCollector) collectEphemeralStorageStatsFromPod() {
 		return
 	}
 
+	dps := make([]*datapoint.Datapoint, 0)
 	for _, podStat := range podStats {
 		dims := make(map[string]string)
 
@@ -878,9 +896,10 @@ func (c *CadvisorCollector) collectEphemeralStorageStatsFromPod() {
 
 		for _, pm := range c.podEphemeralStorageMetrics {
 			for _, metricValue := range pm.getValues(podStat.EphemeralStorage) {
-				c.sendDatapoint(datapoint.New(pm.name, dims, metricValue.value, pm.valueType, now))
+				dps = append(dps, datapoint.New(pm.name, dims, metricValue.value, pm.valueType, now))
 			}
 		}
 	}
 
+	c.preprocessAndSendDatapoints(dps...)
 }

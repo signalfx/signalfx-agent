@@ -180,9 +180,7 @@ func (m *PyMonitor) handleMessage(msgType subproc.MessageType, payloadReader io.
 
 		collectdutil.ConvertWriteFormat((*mpCollectd.JSONWriteFormat)(&valueList), &dps, &events)
 
-		for i := range dps {
-			m.Output.SendDatapoint(dps[i])
-		}
+		m.Output.SendDatapoints(dps...)
 		for i := range events {
 			m.Output.SendEvent(events[i])
 		}

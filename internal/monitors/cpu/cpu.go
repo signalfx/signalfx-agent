@@ -46,7 +46,7 @@ type Monitor struct {
 	logger          logrus.FieldLogger
 }
 
-func (m *Monitor) emitPerCoreDatapoints() {
+func (m *Monitor) generatePerCoreDatapoints() []*datapoint.Datapoint {
 	totals, err := times(true)
 	if err != nil {
 		if err == context.DeadlineExceeded {
@@ -55,6 +55,8 @@ func (m *Monitor) emitPerCoreDatapoints() {
 			m.logger.WithField("warning", err).Warningf("unable to get per core cpu times will try again in the next reporting cycle")
 		}
 	}
+
+	out := make([]*datapoint.Datapoint, 0, len(totals))
 	// for each core
 	for i := range totals {
 		core := totals[i]
@@ -71,7 +73,7 @@ func (m *Monitor) emitPerCoreDatapoints() {
 			}
 
 			// add datapoint to be returned
-			m.Output.SendDatapoint(
+			out = append(out,
 				datapoint.New(
 					percoreMetricName,
 					map[string]string{"plugin": types.UtilizationMetricPluginName, "plugin_instance": core.CPU, "core": core.CPU},
@@ -84,9 +86,11 @@ func (m *Monitor) emitPerCoreDatapoints() {
 		// store current as previous value for next time
 		m.previousPerCore[core.CPU] = current
 	}
+
+	return out
 }
 
-func (m *Monitor) emitDatapoints() {
+func (m *Monitor) generateDatapoints() []*datapoint.Datapoint {
 	total, err := times(false)
 	if err != nil || len(total) == 0 {
 		if err == context.DeadlineExceeded {
@@ -94,11 +98,12 @@ func (m *Monitor) emitDatapoints() {
 		} else {
 			m.logger.WithError(err).Errorf("unable to get cpu times will try again in the next reporting cycle")
 		}
-		return
+		return nil
 	}
 	// get current times as totalUsed
 	current := cpuTimeStatTototalUsed(&total[0])
 
+	dps := make([]*datapoint.Datapoint, 0)
 	// calculate utilization
 	if m.previousTotal != nil {
 		utilization, err := getUtilization(m.previousTotal, current)
@@ -110,22 +115,23 @@ func (m *Monitor) emitDatapoints() {
 			} else {
 				m.logger.WithError(err).Errorf("failed to calculate utilization for cpu")
 			}
-			return
+			return nil
 		}
 
 		// add datapoint to be returned
-		m.Output.SendDatapoint(
-			datapoint.New(
-				cpuUtilName,
-				map[string]string{"plugin": types.UtilizationMetricPluginName},
-				datapoint.NewFloatValue(utilization),
-				datapoint.Gauge,
-				time.Time{},
-			))
+		dps = append(dps, datapoint.New(
+			cpuUtilName,
+			map[string]string{"plugin": types.UtilizationMetricPluginName},
+			datapoint.NewFloatValue(utilization),
+			datapoint.Gauge,
+			time.Time{},
+		))
 	}
 
 	// store current as previous value for next time
 	m.previousTotal = current
+
+	return dps
 }
 
 func getUtilization(prev *totalUsed, current *totalUsed) (utilization float64, err error) {
@@ -203,10 +209,12 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
-		m.emitDatapoints()
+		dps := m.generateDatapoints()
 		// NOTE: If this monitor ever fails to complete in a reporting interval
 		// maybe run this on a separate go routine
-		m.emitPerCoreDatapoints()
+		perCoreDPs := m.generatePerCoreDatapoints()
+
+		m.Output.SendDatapoints(append(dps, perCoreDPs...)...)
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil

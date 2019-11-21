@@ -53,9 +53,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	if *conf.SendInternalMetrics {
 		utils.RunOnInterval(ctx, func() {
-			for _, dp := range listenerMetrics.Datapoints() {
-				m.Output.SendDatapoint(dp)
-			}
+			m.Output.SendDatapoints(listenerMetrics.Datapoints()...)
 		}, time.Duration(conf.IntervalSeconds)*time.Second)
 	}
 

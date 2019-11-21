@@ -50,7 +50,7 @@ func (ks *KubeletStatsMonitor) Configure(conf *KubeletStatsConfig) error {
 		return err
 	}
 
-	return ks.Monitor.Configure(&conf.MonitorConfig, ks.Output.SendDatapoint,
+	return ks.Monitor.Configure(&conf.MonitorConfig, ks.Output.SendDatapoints,
 		newKubeletInfoProvider(client), ks.Output.HasEnabledMetricInGroup(groupPodEphemeralStats))
 }
 

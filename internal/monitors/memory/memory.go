@@ -33,26 +33,34 @@ type Monitor struct {
 	logger logrus.FieldLogger
 }
 
-func (m *Monitor) processDatapointsWindows(memInfo *mem.VirtualMemoryStat, dimensions map[string]string) {
-	m.Output.SendDatapoint(datapoint.New("memory.available", dimensions, datapoint.NewIntValue(int64(memInfo.Available)), datapoint.Gauge, time.Time{}))
+func (m *Monitor) makeDatapointsWindows(memInfo *mem.VirtualMemoryStat, dimensions map[string]string) []*datapoint.Datapoint {
+	return []*datapoint.Datapoint{
+		datapoint.New("memory.available", dimensions, datapoint.NewIntValue(int64(memInfo.Available)), datapoint.Gauge, time.Time{}),
+	}
 }
 
-func (m *Monitor) processDatapointsNotWindows(memInfo *mem.VirtualMemoryStat, dimensions map[string]string) {
-	m.Output.SendDatapoint(datapoint.New("memory.free", dimensions, datapoint.NewIntValue(int64(memInfo.Free)), datapoint.Gauge, time.Time{}))
+func (m *Monitor) makeDatapointsNotWindows(memInfo *mem.VirtualMemoryStat, dimensions map[string]string) []*datapoint.Datapoint {
+	return []*datapoint.Datapoint{
+		datapoint.New("memory.free", dimensions, datapoint.NewIntValue(int64(memInfo.Free)), datapoint.Gauge, time.Time{}),
+	}
 }
 
-func (m *Monitor) processDatapointsDarwin(memInfo *mem.VirtualMemoryStat, dimensions map[string]string) {
-	m.Output.SendDatapoint(datapoint.New("memory.active", dimensions, datapoint.NewIntValue(int64(memInfo.Active)), datapoint.Gauge, time.Time{}))
-	m.Output.SendDatapoint(datapoint.New("memory.inactive", dimensions, datapoint.NewIntValue(int64(memInfo.Inactive)), datapoint.Gauge, time.Time{}))
-	m.Output.SendDatapoint(datapoint.New("memory.wired", dimensions, datapoint.NewIntValue(int64(memInfo.Wired)), datapoint.Gauge, time.Time{}))
+func (m *Monitor) makeDatapointsDarwin(memInfo *mem.VirtualMemoryStat, dimensions map[string]string) []*datapoint.Datapoint {
+	return []*datapoint.Datapoint{
+		datapoint.New("memory.active", dimensions, datapoint.NewIntValue(int64(memInfo.Active)), datapoint.Gauge, time.Time{}),
+		datapoint.New("memory.inactive", dimensions, datapoint.NewIntValue(int64(memInfo.Inactive)), datapoint.Gauge, time.Time{}),
+		datapoint.New("memory.wired", dimensions, datapoint.NewIntValue(int64(memInfo.Wired)), datapoint.Gauge, time.Time{}),
+	}
 }
 
-func (m *Monitor) processDatapointsLinux(memInfo *mem.VirtualMemoryStat, dimensions map[string]string) {
-	m.Output.SendDatapoint(datapoint.New("memory.buffered", dimensions, datapoint.NewIntValue(int64(memInfo.Buffers)), datapoint.Gauge, time.Time{}))
-	// for some reason gopsutil decided to add slab_reclaimable to cached which collectd does not
-	m.Output.SendDatapoint(datapoint.New("memory.cached", dimensions, datapoint.NewIntValue(int64(memInfo.Cached-memInfo.SReclaimable)), datapoint.Gauge, time.Time{}))
-	m.Output.SendDatapoint(datapoint.New("memory.slab_recl", dimensions, datapoint.NewIntValue(int64(memInfo.SReclaimable)), datapoint.Gauge, time.Time{}))
-	m.Output.SendDatapoint(datapoint.New("memory.slab_unrecl", dimensions, datapoint.NewIntValue(int64(memInfo.Slab-memInfo.SReclaimable)), datapoint.Gauge, time.Time{}))
+func (m *Monitor) makeDatapointsLinux(memInfo *mem.VirtualMemoryStat, dimensions map[string]string) []*datapoint.Datapoint {
+	return []*datapoint.Datapoint{
+		datapoint.New("memory.buffered", dimensions, datapoint.NewIntValue(int64(memInfo.Buffers)), datapoint.Gauge, time.Time{}),
+		// for some reason gopsutil decided to add slab_reclaimable to cached which collectd does not
+		datapoint.New("memory.cached", dimensions, datapoint.NewIntValue(int64(memInfo.Cached-memInfo.SReclaimable)), datapoint.Gauge, time.Time{}),
+		datapoint.New("memory.slab_recl", dimensions, datapoint.NewIntValue(int64(memInfo.SReclaimable)), datapoint.Gauge, time.Time{}),
+		datapoint.New("memory.slab_unrecl", dimensions, datapoint.NewIntValue(int64(memInfo.Slab-memInfo.SReclaimable)), datapoint.Gauge, time.Time{}),
+	}
 }
 
 // EmitDatapoints emits a set of memory datapoints
@@ -71,28 +79,31 @@ func (m *Monitor) emitDatapoints() {
 	dimensions := map[string]string{"plugin": monitorType}
 
 	// all platforms
-	m.Output.SendDatapoint(datapoint.New("memory.utilization", map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewFloatValue(memInfo.UsedPercent), datapoint.Gauge, time.Time{}))
-	m.Output.SendDatapoint(datapoint.New("memory.used", dimensions, datapoint.NewIntValue(int64(memInfo.Used)), datapoint.Gauge, time.Time{}))
+	dps := []*datapoint.Datapoint{datapoint.New("memory.utilization", map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewFloatValue(memInfo.UsedPercent), datapoint.Gauge, time.Time{}),
+		datapoint.New("memory.used", dimensions, datapoint.NewIntValue(int64(memInfo.Used)), datapoint.Gauge, time.Time{}),
+	}
 
 	// windows only
 	if runtime.GOOS == windowsOS {
-		m.processDatapointsWindows(memInfo, dimensions)
+		dps = append(dps, m.makeDatapointsWindows(memInfo, dimensions)...)
 	}
 
 	// linux + darwin only
 	if runtime.GOOS != windowsOS {
-		m.processDatapointsNotWindows(memInfo, dimensions)
+		dps = append(dps, m.makeDatapointsNotWindows(memInfo, dimensions)...)
 	}
 
 	// darwin only
 	if runtime.GOOS == "darwin" {
-		m.processDatapointsDarwin(memInfo, dimensions)
+		dps = append(dps, m.makeDatapointsDarwin(memInfo, dimensions)...)
 	}
 
 	// linux only
 	if runtime.GOOS == "linux" {
-		m.processDatapointsLinux(memInfo, dimensions)
+		dps = append(dps, m.makeDatapointsLinux(memInfo, dimensions)...)
 	}
+
+	m.Output.SendDatapoints(dps...)
 }
 
 // Configure is the main function of the monitor, it will report host metadata

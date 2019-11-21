@@ -166,8 +166,8 @@ func (m *Monitor) sendLatestDatapoints() {
 	for i := range dps {
 		dps[i].Timestamp = now
 		dps[i].Meta[dpmeta.NotHostSpecificMeta] = true
-		m.Output.SendDatapoint(dps[i])
 	}
+	m.Output.SendDatapoints(dps...)
 }
 
 // Shutdown halts everything that is syncing

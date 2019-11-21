@@ -61,6 +61,11 @@ linters:
     - funlen
     - gocognit
 
+linters-settings:
+  settings:
+    printf:
+      funcs:
+      - (github.com/signalfx/signalfx-agent/internal/utils.ThrottledLogger).ThrottledWarning
 
 run:
   modules-download-mode: readonly

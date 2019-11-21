@@ -12,9 +12,9 @@ import (
 // that monitors don't have to worry about it themselves.
 type Output interface {
 	Copy() Output
-	SendDatapoint(*datapoint.Datapoint)
+	SendDatapoints(...*datapoint.Datapoint)
 	SendEvent(*event.Event)
-	SendSpan(*trace.Span)
+	SendSpans(...*trace.Span)
 	SendDimensionUpdate(*Dimension)
 	AddExtraDimension(key, value string)
 	RemoveExtraDimension(key string)

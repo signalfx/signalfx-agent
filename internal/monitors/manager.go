@@ -32,10 +32,10 @@ type MonitorManager struct {
 	// Map of service endpoints that have been discovered
 	discoveredEndpoints map[services.ID]services.Endpoint
 
-	DPs              chan<- *datapoint.Datapoint
+	DPs              chan<- []*datapoint.Datapoint
 	Events           chan<- *event.Event
 	DimensionUpdates chan<- *types.Dimension
-	TraceSpans       chan<- *trace.Span
+	TraceSpans       chan<- []*trace.Span
 
 	// TODO: AgentMeta is rather hacky so figure out a better way to share agent
 	// metadata with monitors

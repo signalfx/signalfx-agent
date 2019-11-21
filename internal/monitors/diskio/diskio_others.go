@@ -24,30 +24,17 @@ type Monitor struct {
 	filter *filter.OverridableStringFilter
 }
 
-func (m *Monitor) processLinuxDatapoints(disk gopsutil.IOCountersStat, dimensions map[string]string) {
-	// disk_ops.read
-	m.Output.SendDatapoint(datapoint.New("disk_ops.read", dimensions, datapoint.NewIntValue(int64(disk.ReadCount)), datapoint.Counter, time.Time{}))
-
-	// disk_ops.write
-	m.Output.SendDatapoint(datapoint.New("disk_ops.write", dimensions, datapoint.NewIntValue(int64(disk.WriteCount)), datapoint.Counter, time.Time{}))
-
-	// disk_octets.read
-	m.Output.SendDatapoint(datapoint.New("disk_octets.read", dimensions, datapoint.NewIntValue(int64(disk.ReadBytes)), datapoint.Counter, time.Time{}))
-
-	// disk_octets.write
-	m.Output.SendDatapoint(datapoint.New("disk_octets.write", dimensions, datapoint.NewIntValue(int64(disk.WriteBytes)), datapoint.Counter, time.Time{}))
-
-	// disk_merged.read
-	m.Output.SendDatapoint(datapoint.New("disk_merged.read", dimensions, datapoint.NewIntValue(int64(disk.MergedReadCount)), datapoint.Counter, time.Time{}))
-
-	// disk_merged.write
-	m.Output.SendDatapoint(datapoint.New("disk_merged.write", dimensions, datapoint.NewIntValue(int64(disk.MergedWriteCount)), datapoint.Counter, time.Time{}))
-
-	// disk_time.read
-	m.Output.SendDatapoint(datapoint.New("disk_time.read", dimensions, datapoint.NewIntValue(int64(disk.ReadTime)), datapoint.Counter, time.Time{}))
-
-	// disk_time.write
-	m.Output.SendDatapoint(datapoint.New("disk_time.write", dimensions, datapoint.NewIntValue(int64(disk.WriteTime)), datapoint.Counter, time.Time{}))
+func (m *Monitor) makeLinuxDatapoints(disk gopsutil.IOCountersStat, dimensions map[string]string) []*datapoint.Datapoint {
+	return []*datapoint.Datapoint{
+		datapoint.New("disk_ops.read", dimensions, datapoint.NewIntValue(int64(disk.ReadCount)), datapoint.Counter, time.Time{}),
+		datapoint.New("disk_ops.write", dimensions, datapoint.NewIntValue(int64(disk.WriteCount)), datapoint.Counter, time.Time{}),
+		datapoint.New("disk_octets.read", dimensions, datapoint.NewIntValue(int64(disk.ReadBytes)), datapoint.Counter, time.Time{}),
+		datapoint.New("disk_octets.write", dimensions, datapoint.NewIntValue(int64(disk.WriteBytes)), datapoint.Counter, time.Time{}),
+		datapoint.New("disk_merged.read", dimensions, datapoint.NewIntValue(int64(disk.MergedReadCount)), datapoint.Counter, time.Time{}),
+		datapoint.New("disk_merged.write", dimensions, datapoint.NewIntValue(int64(disk.MergedWriteCount)), datapoint.Counter, time.Time{}),
+		datapoint.New("disk_time.read", dimensions, datapoint.NewIntValue(int64(disk.ReadTime)), datapoint.Counter, time.Time{}),
+		datapoint.New("disk_time.write", dimensions, datapoint.NewIntValue(int64(disk.WriteTime)), datapoint.Counter, time.Time{}),
+	}
 }
 
 // EmitDatapoints emits a set of memory datapoints
@@ -69,7 +56,8 @@ func (m *Monitor) emitDatapoints() {
 		}
 
 		pluginInstance := strings.Replace(key, " ", "_", -1)
-		m.processLinuxDatapoints(disk, map[string]string{"plugin": monitorType, "plugin_instance": pluginInstance, "disk": pluginInstance})
+
+		m.Output.SendDatapoints(m.makeLinuxDatapoints(disk, map[string]string{"plugin": monitorType, "plugin_instance": pluginInstance, "disk": pluginInstance})...)
 	}
 }
 

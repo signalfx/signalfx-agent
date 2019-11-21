@@ -143,7 +143,7 @@ func (m *Monitor) ReportUptimeMetric() {
 		}
 	}
 
-	m.Output.SendDatapoint(
+	m.Output.SendDatapoints(
 		datapoint.New(
 			uptimeMetricName,
 			dims,

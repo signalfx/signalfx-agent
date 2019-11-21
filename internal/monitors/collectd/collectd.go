@@ -377,6 +377,8 @@ func (cm *Manager) receiveDPs(dps []*datapoint.Datapoint) {
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
 
+	dpsByMonitorID := map[types.MonitorID][]*datapoint.Datapoint{}
+
 	for i := range dps {
 		var monitorID types.MonitorID
 		if id, ok := dps[i].Meta["monitorID"].(string); ok {
@@ -386,26 +388,28 @@ func (cm *Manager) receiveDPs(dps []*datapoint.Datapoint) {
 			delete(dps[i].Dimensions, "monitorID")
 		}
 
-		var output types.Output
 		if string(monitorID) == "" {
 			cm.logger.WithFields(log.Fields{
 				"monitorID": monitorID,
 				"datapoint": dps[i],
 			}).Error("Datapoint does not specify its monitor id, cannot process")
 			continue
-		} else {
-			output = cm.activeMonitors[monitorID]
 		}
 
+		dpsByMonitorID[monitorID] = append(dpsByMonitorID[monitorID], dps[i])
+	}
+
+	for monitorID, monDPs := range dpsByMonitorID {
+		output := cm.activeMonitors[monitorID]
 		if output == nil {
 			cm.logger.WithFields(log.Fields{
-				"monitorID": monitorID,
-				"datapoint": dps[i],
-			}).Error("Datapoint has an unknown monitorID")
+				"monitorID":  monitorID,
+				"datapoints": monDPs,
+			}).Error("Datapoints have an unknown monitorID")
 			continue
 		}
 
-		output.SendDatapoint(dps[i])
+		output.SendDatapoints(monDPs...)
 	}
 }
 

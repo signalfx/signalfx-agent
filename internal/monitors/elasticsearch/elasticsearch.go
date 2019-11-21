@@ -329,12 +329,16 @@ func prepareNodeMetricsDimensions(nodeInfo map[string]client.NodeInfo) (map[stri
 }
 
 func (m *Monitor) sendDatapoints(dps []*datapoint.Datapoint) {
+	// This is the filtering in place trick from https://github.com/golang/go/wiki/SliceTricks#filter-in-place
+	n := 0
 	for i := range dps {
 		if dps[i] == nil {
 			continue
 		}
-		m.Output.SendDatapoint(dps[i])
+		dps[n] = dps[i]
+		n++
 	}
+	m.Output.SendDatapoints(dps[:n]...)
 }
 
 // GetExtraMetrics returns additional metrics to allow through.
