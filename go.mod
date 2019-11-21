@@ -98,7 +98,7 @@ require (
 	github.com/kr/pretty v0.1.0
 	github.com/leodido/go-urn v1.1.0 // indirect
 	github.com/lib/pq v1.0.0
-	github.com/mailru/easyjson v0.0.0-20190626092158-b2ccc519800e
+	github.com/mailru/easyjson v0.7.0
 	github.com/mattbaird/elastigo v0.0.0-20170123220020-2fe47fd29e4b // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
@@ -130,7 +130,7 @@ require (
 	github.com/samuel/go-zookeeper v0.0.0-20180130194729-c4fab1ac1bec
 	github.com/shirou/gopsutil v2.18.12+incompatible
 	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.0-20190222193949-1fb69526e884
-	github.com/signalfx/gateway v1.2.19-0.20191108213837-231b6a025e9f
+	github.com/signalfx/gateway v1.2.19-0.20191121155013-529c92e5fd9a
 	github.com/signalfx/golib/v3 v3.0.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect
