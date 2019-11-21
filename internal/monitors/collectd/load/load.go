@@ -2,7 +2,7 @@
 
 package load
 
-//go:generate collectd-template-to-go load.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go load.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"

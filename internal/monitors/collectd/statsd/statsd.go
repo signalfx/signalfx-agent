@@ -2,7 +2,7 @@
 
 package statsd
 
-//go:generate collectd-template-to-go statsd.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go statsd.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"

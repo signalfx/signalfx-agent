@@ -2,7 +2,7 @@
 
 package vmem
 
-//go:generate collectd-template-to-go vmem.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go vmem.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"

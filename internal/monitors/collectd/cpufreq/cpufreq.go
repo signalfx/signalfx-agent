@@ -2,7 +2,7 @@
 
 package cpufreq
 
-//go:generate collectd-template-to-go cpufreq.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go cpufreq.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"

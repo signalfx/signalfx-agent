@@ -2,7 +2,7 @@
 
 package df
 
-//go:generate collectd-template-to-go df.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go df.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"

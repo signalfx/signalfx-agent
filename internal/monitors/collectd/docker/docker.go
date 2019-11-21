@@ -2,7 +2,7 @@
 
 package docker
 
-//go:generate collectd-template-to-go docker.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go docker.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"

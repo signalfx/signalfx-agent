@@ -2,7 +2,7 @@
 
 package apache
 
-//go:generate collectd-template-to-go apache.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go apache.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"

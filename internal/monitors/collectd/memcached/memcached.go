@@ -2,7 +2,7 @@
 
 package memcached
 
-//go:generate collectd-template-to-go memcached.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go memcached.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"

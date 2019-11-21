@@ -14,7 +14,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
-//go:generate collectd-template-to-go genericjmx.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go genericjmx.tmpl
 
 // Config has configuration that is specific to GenericJMX. This config should
 // be used by a monitors that use the generic JMX collectd plugin.

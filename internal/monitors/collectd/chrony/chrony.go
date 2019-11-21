@@ -2,7 +2,7 @@
 
 package chrony
 
-//go:generate collectd-template-to-go chrony.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go chrony.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"

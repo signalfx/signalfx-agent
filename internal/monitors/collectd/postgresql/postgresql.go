@@ -2,7 +2,7 @@
 
 package postgresql
 
-//go:generate collectd-template-to-go postgresql.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go postgresql.tmpl
 
 import (
 	"errors"

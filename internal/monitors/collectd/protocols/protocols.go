@@ -2,7 +2,7 @@
 
 package protocols
 
-//go:generate collectd-template-to-go protocols.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go protocols.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"

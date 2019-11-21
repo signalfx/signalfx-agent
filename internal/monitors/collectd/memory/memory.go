@@ -2,7 +2,7 @@
 
 package memory
 
-//go:generate collectd-template-to-go memory.tmpl
+//go:generate ../../../../scripts/collectd-template-to-go memory.tmpl
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/config"
