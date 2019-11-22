@@ -104,11 +104,11 @@ apiUrl:
 # every metric sent by the agent (unless overriden by `kubernetesClusterName`).
 # It will also be the value of the `cluster` config option that is used to set a
 # `cluster` property on the `kubernetes_node` dimension. (REQUIRED)
-clusterName: 
+clusterName:
 
 # Kubernetes cluster name that is sent as the `kubernetes_cluster` dimension on all metrics.
 # Defaults to `clusterName` value if not set. Setting this value does not change `clusterName`.
-kubernetesClusterName: 
+kubernetesClusterName:
 
 # How frequently to send metrics by default in the agent.  This can be
 # overridden by individual monitors.
