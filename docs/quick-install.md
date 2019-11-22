@@ -9,8 +9,8 @@ The Smart Agent contains three main components:
 
 | Component | Description |
 |-----------|-------------|
-| Monitors  |  This component collects metrics from the host and applications. For a list of supported monitors and their configurations, see [Monitor Config](./monitor-config.md).            |
-| Observers |   This component collects metrics from services that are running in your environment. For a list of supported observers and their configurations, see [Observer Config](./observer-config.md).           |
+| Monitors  |  This component collects metrics from the host and applications. For a list of supported monitors and their configurations, see [Monitor Configuration](./monitor-config.md).            |
+| Observers |   This component collects metrics from services that are running in your environment. For a list of supported observers and their configurations, see [Observer Configuration](./observer-config.md).           |
 | Writer    |   This component collects metrics from configured monitors and then sends these metrics to SignalFx on a regular basis. If you are expecting your monitors to send large volumes of metrics through a single agent, then you must update the configurations. To learn more, see [Agent Configurations](./config-schema.md#writer).          |
 
 
