@@ -76,7 +76,7 @@ spec:
         - name: SFX_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:
-              name: {{ template "signalfx-agent.fullname" . }}
+              name: {{ template "signalfx-agent.secretName" . }}
               key: access-token
         - name: MY_POD_NAME
           valueFrom:

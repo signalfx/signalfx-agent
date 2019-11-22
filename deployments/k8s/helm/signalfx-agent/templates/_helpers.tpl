@@ -48,3 +48,10 @@ Get namespace to deploy agent and its dependencies.
 {{- define "signalfx-agent.namespace" -}}
     {{- default .Release.Namespace .Values.namespace -}}
 {{- end -}}
+
+{{/*
+Get namespace to deploy agent and its dependencies.
+*/}}
+{{- define "signalfx-agent.secretName" -}}
+    {{ default (include "signalfx-agent.fullname" .) .Values.signalFxAccessTokenExistingSecret }}
+{{- end -}}
