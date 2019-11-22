@@ -172,9 +172,11 @@ def run_container(image_name, wait_for_ip=True, print_logs=True, **kwargs):
     files = kwargs.pop("files", [])
     client = get_docker_client()
 
+    start_time = time.time()
     if not image_name.startswith("sha256"):
         container = client.images.pull(image_name)
     container = retry(lambda: client.containers.create(image_name, **kwargs), docker.errors.DockerException)
+    print("run_container: %d" % (time.time() - start_time))
 
     for src, dst in files:
         copy_file_into_container(src, container, dst)
@@ -208,10 +210,12 @@ def run_service(service_name, buildargs=None, print_logs=True, path=None, docker
         path = os.path.join(TEST_SERVICES_DIR, service_name)
 
     client = get_docker_client()
+    start_time = time.time()
     image, _ = retry(
         lambda: client.images.build(path=str(path), dockerfile=dockerfile, rm=True, forcerm=True, buildargs=buildargs),
         docker.errors.BuildError,
     )
+    print("run_service: %d" % (time.time() - start_time))
     with run_container(image.id, print_logs=print_logs, **kwargs) as cont:
         yield cont
 
