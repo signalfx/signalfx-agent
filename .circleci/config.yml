@@ -338,6 +338,9 @@ jobs:
     steps:
       - checkout
       - import_image
+      - attach_workspace:
+          at: /tmp/docker-cache
+      - run: .circleci/scripts/docker-load-cache.sh
       - run: .circleci/scripts/setup-integration-tests.sh
       - run_pytest:
           pytest_options: -n auto
@@ -500,15 +503,31 @@ jobs:
           docker login -u="signalfx+circleci" -p="$CIRCLECI_QUAY_TOKEN" quay.io
           PULL_CACHE=yes make stage-cache
 
+  docker_cache:
+    docker:
+      - image: docker:18.09
+    steps:
+      - checkout
+      - setup_remote_docker:
+          docker_layer_caching: false
+      - run: apk add bash
+      - run: .circleci/scripts/docker-save-cache.sh
+      - persist_to_workspace:
+          root: /tmp/docker-cache
+          paths:
+            - "*.tar"
+
 workflows:
   build_test:
     jobs:
       - build
       - modules
       - gotests
+      - docker_cache
       - integration_tests:
           requires:
             - build
+            - docker_cache
       - perf_tests:
           requires:
             - build
