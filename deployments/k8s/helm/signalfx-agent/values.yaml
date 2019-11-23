@@ -2,7 +2,7 @@
 # docker image tag if not overridden with imageTag
 agentVersion: 4.14.1
 
-# The access token for SignalFx. (REQUIRED if signalFxAccessTokenExistingSecret not set)
+# The access token for SignalFx. (REQUIRED if signalFxAccessTokenSecretName not set)
 signalFxAccessToken: ""
 
 # Use an existing secret for the SFX token (if set does not create a secret)
