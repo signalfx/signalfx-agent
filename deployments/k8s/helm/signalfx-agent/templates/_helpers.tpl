@@ -50,8 +50,8 @@ Get namespace to deploy agent and its dependencies.
 {{- end -}}
 
 {{/*
-Get namespace to deploy agent and its dependencies.
+Create the name of the secret holding the token
 */}}
 {{- define "signalfx-agent.secretName" -}}
-    {{ default (include "signalfx-agent.fullname" .) .Values.signalFxAccessTokenExistingSecret }}
+    {{ default (include "signalfx-agent.fullname" .) .Values.signalFxAccessTokenSecretName }}
 {{- end -}}

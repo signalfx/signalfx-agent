@@ -8,7 +8,7 @@ signalFxAccessToken: ""
 # Use an existing secret for the SFX token (if set does not create a secret)
 # See templates/secrets.yaml for the format of the secret to use
 # If set, signalFxAccessToken is not required
-signalFxAccessTokenExistingSecret: ""
+signalFxAccessTokenSecretName: ""
 
 # An additional set of global dimension to set on all datapoints coming out of
 # the agent.  The `kubernetes_cluster` dimension will always be set as a global
