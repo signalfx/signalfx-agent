@@ -703,8 +703,8 @@ github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657 h1:2B5haF9erda
 github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657/go.mod h1:mUgf0Go14xjLxNZFSGSK9m+GT7jCHyECuCjPh1zadUc=
 github.com/signalfx/embetcd v0.0.9 h1:JMAvW8ZNHstcg8DONl8H/0twi8l58jxSYsvEamzDgo8=
 github.com/signalfx/embetcd v0.0.9/go.mod h1:nnHA0iw9pDCZs/q4/rzYPLdkbsL7Aes9wZ/P5zQ2P18=
-github.com/signalfx/gateway v1.2.19-0.20191121155013-529c92e5fd9a h1:2AQKPs08wtttwtm2vjgLdkBJwNv1KFTL6+1CBngbBY4=
-github.com/signalfx/gateway v1.2.19-0.20191121155013-529c92e5fd9a/go.mod h1:vUKlxPLEbQmoP5hrEDkad8ddy29FVCQPcnjIOdSuZNc=
+github.com/signalfx/gateway v1.2.19-0.20191125135538-2c417b7ae0bd h1:GhQRVMuNNCtDcGtMckijqCYz1ZUit6XTlEQaLvMLOVo=
+github.com/signalfx/gateway v1.2.19-0.20191125135538-2c417b7ae0bd/go.mod h1:vUKlxPLEbQmoP5hrEDkad8ddy29FVCQPcnjIOdSuZNc=
 github.com/signalfx/go-distribute v0.0.0-20190521190920-c279b19461cc h1:XilxyozrvCSDE6IIIcJnckH5E3MvhYtSfnO4GmTG/So=
 github.com/signalfx/go-distribute v0.0.0-20190521190920-c279b19461cc/go.mod h1:67MZSwT+PH+4fkYoxje7ehHUe+zDk2rZk7d1YQ5GJ6U=
 github.com/signalfx/go-metrics v0.0.0-20190618190458-3af8cccb72a9 h1:fEagigPG8YuBKgZCh0XIIeu/LAEoszbgkOA6+Jy6cwg=
