@@ -15,7 +15,7 @@ import (
 	"github.com/signalfx/golib/v3/web"
 )
 
-type pathSetupFunc = func(*mux.Router, http.Handler, string)
+type pathSetupFunc = func(*mux.Router, http.Handler)
 
 func startListening(ctx context.Context, listenAddr string, timeout time.Duration, sink signalfx.Sink) (sfxclient.Collector, error) {
 	listener, err := net.Listen("tcp", listenAddr)
@@ -30,19 +30,19 @@ func startListening(ctx context.Context, listenAddr string, timeout time.Duratio
 
 	jaegerMetrics := setupHandler(ctx, router, signalfx.JaegerV1, sink, func(sink signalfx.Sink) signalfx.ErrorReader {
 		return signalfx.NewJaegerThriftTraceDecoderV1(golibLogger, sink)
-	}, httpChain, signalfx.SetupThriftByPaths, signalfx.DefaultTracePathV1)
+	}, httpChain, setupPathFunc(signalfx.SetupThriftByPaths, signalfx.DefaultTracePathV1))
 
 	protobufDatapoints := setupHandler(ctx, router, "protobufv2", sink, func(sink signalfx.Sink) signalfx.ErrorReader {
 		return &signalfx.ProtobufDecoderV2{Sink: sink, Logger: golibLogger}
-	}, httpChain, signalfx.SetupProtobufV2ByPaths, "/v2/datapoint")
+	}, httpChain, setupPathFunc(signalfx.SetupProtobufV2ByPaths, "/v2/datapoint"))
 
 	jsonDatapoints := setupHandler(ctx, router, "jsonv2", sink, func(sink signalfx.Sink) signalfx.ErrorReader {
 		return &signalfx.JSONDecoderV2{Sink: sink, Logger: golibLogger}
-	}, httpChain, signalfx.SetupJSONByPaths, "/v2/datapoint")
+	}, httpChain, setupPathFunc(signalfx.SetupJSONByPaths, "/v2/datapoint"))
 
 	zipkinMetrics := setupHandler(ctx, router, signalfx.ZipkinV1, sink, func(sink signalfx.Sink) signalfx.ErrorReader {
 		return &signalfx.JSONTraceDecoderV1{Logger: golibLogger, Sink: sink}
-	}, httpChain, signalfx.SetupJSONByPaths, signalfx.DefaultTracePathV1)
+	}, httpChain, setupPathFuncN(signalfx.SetupJSONByPathsN, signalfx.DefaultTracePathV1, signalfx.ZipkinTracePathV1, signalfx.ZipkinTracePathV2))
 
 	router.NotFoundHandler = http.HandlerFunc(notFoundHandler)
 
@@ -64,9 +64,21 @@ func startListening(ctx context.Context, listenAddr string, timeout time.Duratio
 	return sfxclient.NewMultiCollector(jsonDatapoints, protobufDatapoints, jaegerMetrics, zipkinMetrics), nil
 }
 
-func setupHandler(ctx context.Context, router *mux.Router, chainType string, sink signalfx.Sink, getReader func(signalfx.Sink) signalfx.ErrorReader, httpChain web.NextConstructor, pathSetup pathSetupFunc, path string) sfxclient.Collector {
+func setupPathFunc(setupFunc func(*mux.Router, http.Handler, string), path string) pathSetupFunc {
+	return func(r *mux.Router, h http.Handler) {
+		setupFunc(r, h, path)
+	}
+}
+
+func setupPathFuncN(setupFunc func(*mux.Router, http.Handler, ...string), paths ...string) pathSetupFunc {
+	return func(r *mux.Router, h http.Handler) {
+		setupFunc(r, h, paths...)
+	}
+}
+
+func setupHandler(ctx context.Context, router *mux.Router, chainType string, sink signalfx.Sink, getReader func(signalfx.Sink) signalfx.ErrorReader, httpChain web.NextConstructor, pathSetup pathSetupFunc) sfxclient.Collector {
 	handler, internalMetrics := signalfx.SetupChain(ctx, sink, chainType, getReader, httpChain, golibLogger, &dpsink.Counter{})
-	pathSetup(router, handler, path)
+	pathSetup(router, handler)
 	return internalMetrics
 }
 
