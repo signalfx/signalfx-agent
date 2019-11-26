@@ -10,6 +10,7 @@ param(
 
 Set-PSDebug -Trace 1
 $env:CGO_ENABLED = 0
+$env:COLLECTD_VERSION = "5.8.0-sfx0"
 $ErrorActionPreference = "Stop"
 
 $scriptDir = split-path -parent $MyInvocation.MyCommand.Definition
@@ -19,16 +20,16 @@ $repoDir = "$scriptDir\..\.."
 . "$scriptDir\bundle.ps1"
 
 function versions_go() {
-    if ($AGENT_VERSION -Eq ""){
-        $AGENT_VERSION = getGitTag
+    if ($env:AGENT_VERSION -Eq ""){
+        $env:AGENT_VERSION = getGitTag
     }
     $date = Get-Date -UFormat "%Y-%m-%dT%T%Z"
 
     $versionfile = "$repoDir\internal\core\common\constants\versions.go"
 
     cp "$versionfile.tmpl" "$versionfile"
-    replace_text -filepath "$versionfile" -find '${COLLECTD_VERSION}' -replacement "$COLLECTD_VERSION"
-    replace_text -filepath "$versionfile" -find '${AGENT_VERSION}' -replacement "$AGENT_VERSION"
+    replace_text -filepath "$versionfile" -find '${COLLECTD_VERSION}' -replacement "$env:COLLECTD_VERSION"
+    replace_text -filepath "$versionfile" -find '${AGENT_VERSION}' -replacement "$env:AGENT_VERSION"
     replace_text -filepath "$versionfile" -find '${BUILD_TIME}' -replacement "$date"
 }
 
@@ -59,7 +60,9 @@ function bundle (
         [string]$PFX_PASSWORD="",
         [string]$AGENT_NAME="SignalFxAgent") {
     if ($AGENT_VERSION -Eq ""){
-        $AGENT_VERSION = getGitTag
+        $env:AGENT_VERSION = getGitTag
+    } else {
+        $env:AGENT_VERSION = "$AGENT_VERSION"
     }
 
     if ($PFX_PASSWORD -ne "" -And $PFX_PATH -eq "") {
@@ -83,7 +86,7 @@ function bundle (
 
     if ($BUILD_AGENT) {
         Remove-Item -Recurse -Force "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe" -ErrorAction Ignore
-        signalfx-agent -AGENT_VERSION "$AGENT_VERSION" -AGENT_BIN "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe"
+        signalfx-agent -AGENT_VERSION "$env:AGENT_VERSION" -AGENT_BIN "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe"
     }
 
     if ($PFX_PATH -ne "" -And $PFX_PASSWORD -ne "") {
