@@ -1,6 +1,7 @@
 package consul
 
 import (
+	"context"
 	"strings"
 	"time"
 
@@ -8,7 +9,6 @@ import (
 
 	"github.com/hashicorp/consul/api"
 	"github.com/signalfx/signalfx-agent/internal/core/config/types"
-	"github.com/signalfx/signalfx-agent/internal/utils"
 )
 
 type consulConfigSource struct {
@@ -81,8 +81,9 @@ func (c *consulConfigSource) Get(path string) (map[string][]byte, uint64, error)
 		return nil, 0, err
 	}
 
-	pairs, meta, err := c.kv.List(prefix, nil)
-
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	pairs, meta, err := c.kv.List(prefix, (&api.QueryOptions{}).WithContext(ctx))
+	cancel()
 	if err != nil {
 		return nil, 0, err
 	}
@@ -98,7 +99,7 @@ func (c *consulConfigSource) Get(path string) (map[string][]byte, uint64, error)
 	return contentMap, meta.LastIndex, nil
 }
 
-func (c *consulConfigSource) WaitForChange(path string, version uint64, stop <-chan struct{}) error {
+func (c *consulConfigSource) WaitForChange(ctx context.Context, path string, version uint64) error {
 	prefix, g, _, err := types.PrefixAndGlob(strings.TrimPrefix(path, "/"))
 	if err != nil {
 		return err
@@ -118,7 +119,7 @@ func (c *consulConfigSource) WaitForChange(path string, version uint64, stop <-c
 				WaitIndex: version,
 				WaitTime:  10 * time.Minute,
 			})
-			if utils.IsSignalChanClosed(stop) {
+			if ctx.Err() != nil {
 				return
 			}
 			if err != nil {
@@ -140,7 +141,7 @@ func (c *consulConfigSource) WaitForChange(path string, version uint64, stop <-c
 	}()
 
 	select {
-	case <-stop:
+	case <-ctx.Done():
 		return nil
 	case err := <-event:
 		log.Infof("Consul returned event %s for path %s", err, prefix)

@@ -3,10 +3,10 @@ package etcd2
 import (
 	//"github.com/coreos/etcd/client"
 	"context"
+	"time"
 
 	"github.com/gobwas/glob"
 	"github.com/signalfx/signalfx-agent/internal/core/config/types"
-	log "github.com/sirupsen/logrus"
 	"go.etcd.io/etcd/client"
 )
 
@@ -40,9 +40,10 @@ var _ types.ConfigSourceConfig = &Config{}
 // New creates a new etcd2 config source
 func New(conf *Config) (types.ConfigSource, error) {
 	c, err := client.New(client.Config{
-		Endpoints: conf.Endpoints,
-		Username:  conf.Username,
-		Password:  conf.Password,
+		Endpoints:               conf.Endpoints,
+		Username:                conf.Username,
+		Password:                conf.Password,
+		HeaderTimeoutPerRequest: 10 * time.Second,
 	})
 	if err != nil {
 		return nil, err
@@ -66,7 +67,6 @@ func matchNodeKeys(node *client.Node, g glob.Glob, contentMap map[string][]byte)
 	}
 
 	for _, n := range node.Nodes {
-		log.Infof("Testing key %s", n.Key)
 		if g.Match(n.Key) {
 			contentMap[n.Key] = []byte(n.Value)
 		}
@@ -97,7 +97,7 @@ func (e *etcd2ConfigSource) Get(path string) (map[string][]byte, uint64, error) 
 	return contentMap, resp.Index, nil
 }
 
-func (e *etcd2ConfigSource) WaitForChange(path string, version uint64, stop <-chan struct{}) error {
+func (e *etcd2ConfigSource) WaitForChange(ctx context.Context, path string, version uint64) error {
 	prefix, g, isGlob, err := types.PrefixAndGlob(path)
 	if err != nil {
 		return err
@@ -109,22 +109,7 @@ func (e *etcd2ConfigSource) WaitForChange(path string, version uint64, stop <-ch
 	})
 
 	for {
-		ctx, cancel := context.WithCancel(context.Background())
-		watchDone := make(chan struct{})
-
-		go func() {
-			select {
-			case <-watchDone:
-				return
-			case <-stop:
-				cancel()
-			}
-		}()
-
 		resp, err := watcher.Next(ctx)
-		close(watchDone)
-		cancel()
-
 		if err != nil {
 			return err
 		}

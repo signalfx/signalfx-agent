@@ -3,6 +3,7 @@ import subprocess
 import tempfile
 from contextlib import contextmanager
 
+import psutil
 import yaml
 from tests.paths import AGENT_BIN
 
@@ -97,6 +98,14 @@ class Agent:
     @property
     def output(self):
         return self.get_output()
+
+    @property
+    def is_running(self):
+        if not self.pid:
+            return False
+
+        proc = psutil.Process(self.pid)
+        return proc.is_running() and proc.status() != psutil.STATUS_ZOMBIE
 
     @contextmanager
     def run_as_subproc(self):

@@ -2,7 +2,7 @@ import string
 from functools import partial as p
 
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import container_cmd_exit_0, has_datapoint_with_dim, has_event_with_dim
+from tests.helpers.assertions import container_cmd_exit_0, has_datapoint, has_datapoint_with_dim, has_event_with_dim
 from tests.helpers.util import container_ip, run_container, wait_for
 
 
@@ -77,3 +77,35 @@ def test_interior_globbing():
             assert wait_for(
                 p(has_datapoint_with_dim, agent.fake_services, "plugin", "uptime")
             ), "didn't get uptime datapoints"
+
+
+def test_initial_outage():
+    with run_container(ETCD2_IMAGE, command=ETCD_COMMAND) as etcd:
+        assert wait_for(p(container_cmd_exit_0, etcd, "/etcdctl ls"), 5), "etcd didn't start"
+        create_path(etcd, "/env", "prod")
+        create_path(etcd, "/monitors/cpu", "- type: collectd/cpu")
+        create_path(etcd, "/monitors/signalfx-metadata", "- type: collectd/signalfx-metadata")
+
+        etcd.pause()
+
+        with Agent.run(
+            f"""
+          globalDimensions:
+            app: test
+            env: {{"#from": "etcd2:/env", optional: true}}
+          configSources:
+            etcd2:
+              endpoints:
+              - http://{container_ip(etcd)}:2379
+          monitors:
+           - {{ "#from": "etcd2:/monitors/*", flatten: true, optional: true }}
+           - type: collectd/uptime
+          """
+        ) as agent:
+            assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"app": "test"}))
+            assert not has_datapoint(agent.fake_services, dimensions={"plugin": "signalfx-metadata"})
+
+            # etcd2's client will not timeout in a reasonable amount of time when
+            # doign a Watch call if the connection hangs, therefore we can't
+            # reliably test the case where etcd comes back up since the watch
+            # just hangs forever on the initial attempt.

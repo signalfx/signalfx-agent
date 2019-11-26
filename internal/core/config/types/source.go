@@ -1,6 +1,10 @@
 package types
 
-import "github.com/signalfx/signalfx-agent/internal/core/config/validation"
+import (
+	"context"
+
+	"github.com/signalfx/signalfx-agent/internal/core/config/validation"
+)
 
 // ConfigSourceConfig is a config type for a ConfigSource.  It can make new
 // ConfigSource instances.
@@ -23,7 +27,7 @@ type ConfigSource interface {
 	// WaitForChange should accept a path and version and only return if either
 	// the provided stop channel is closed, or if the path's content changes.
 	// It should make every effort to not produce false positives.
-	WaitForChange(path string, version uint64, stop <-chan struct{}) error
+	WaitForChange(ctx context.Context, path string, version uint64) error
 }
 
 // ErrNotFound should be returned by config sources if a path does not exist,

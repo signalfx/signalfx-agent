@@ -35,10 +35,12 @@ func (r *resolver) Resolve(raw RawDynamicValueSpec) ([]interface{}, string, *dyn
 		return nil, "", nil, fmt.Errorf("source '%s' is not configured", sourceName)
 	}
 
-	contentMap, err := source.Get(spec.From.Path(), spec.Optional)
+	contentMap, err := source.Get(spec.From.Path())
 	if err != nil {
-		return nil, "", nil, errors.WithMessage(err,
-			"could not resolve path "+spec.From.String())
+		if !spec.Optional {
+			return nil, "", nil, errors.WithMessage(err,
+				"could not resolve path "+spec.From.String())
+		}
 	}
 
 	var value []interface{}
