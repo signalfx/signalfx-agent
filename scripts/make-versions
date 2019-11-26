@@ -11,6 +11,10 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 target_file=${1-"$SCRIPT_DIR/../internal/core/common/constants/versions.go"}
 
+AGENT_VERSION=${AGENT_VERSION-latest}
+COLLECTD_VERSION=${COLLECTD_VERSION-unknown}
+BUILD_TIME=${BUILD_TIME-'2017-01-25T13:17:17-0500'}
+
 old_content=$(cat $target_file 2>/dev/null || echo -n "")
 new_content=$(eval "cat <<EOF
 $(<${target_file}.tmpl)
