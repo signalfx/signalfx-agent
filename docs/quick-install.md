@@ -33,7 +33,7 @@ Before you download and install the Smart Agent on a **single** host, review the
 <summary>Linux</summary>
 <br>
     
-#### Optional 1: From the SignalFx UI    
+#### Option 1: From the SignalFx UI    
 
 If you are reading this content from the SignalFx SmartAgent tile in the Integrations page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your realm and your organization's access token.)
     
@@ -41,7 +41,7 @@ If you are reading this content from the SignalFx SmartAgent tile in the Integra
 sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
 ```
 ***
-#### Optional 2: From the documentation site 
+#### Option 2: From the documentation site 
 
 If you are reading this content from the SignalFx documentation site, then SignalFx recommends that you access the Integrations page in the SignalFx UI to copy the pre-populated installation code.  
 
