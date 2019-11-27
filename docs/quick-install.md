@@ -78,7 +78,7 @@ If you are reading this content from the SignalFx documentation site, then Signa
 
 The agent will be installed as a Windows service and will log to the Windows Event Log.
 </details>
-
+***
 ### Step 2. Confirm your installation
 
 1. From the command line, enter the following command to confirm that your Smart Agent is functional:
