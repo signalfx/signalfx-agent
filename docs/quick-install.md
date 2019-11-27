@@ -52,6 +52,7 @@ If you are reading this content from the SignalFx documentation site, then Signa
 5. Copy, paste, and run the code in your command line. (The code within the tile is already populated with your realm and your organization's access token.)  
 
 </details>
+
 ***
 
 <details>
