@@ -33,9 +33,7 @@ type Config struct {
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
-		return &Monitor{
-			lastCPUCounts: map[procKey]time.Duration{},
-		}
+		return &Monitor{}
 	}, &Config{})
 }
 
@@ -84,6 +82,8 @@ func (m *Monitor) Configure(conf *Config) error {
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 	interval := time.Duration(conf.IntervalSeconds) * time.Second
+
+	m.lastCPUCounts = make(map[procKey]time.Duration)
 
 	osCache := initOSCache()
 

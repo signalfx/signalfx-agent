@@ -100,12 +100,6 @@ func ProcessList(conf *Config, cache *osCache) ([]*TopProcess, error) {
 		return nil, err
 	}
 
-	// Get cpu percentages for all processes
-	cpuPercentages, err := getCPUPercentages()
-	if err != nil {
-		logger.Debugf("No per process cpu percentages returned %v", err)
-	}
-
 	// iterate over each process and build an entry for the process list
 	for _, p := range ps {
 		username, err := getUsername(p.ProcessID)
@@ -136,8 +130,8 @@ func ProcessList(conf *Config, cache *osCache) ([]*TopProcess, error) {
 			Username:            username,
 			Priority:            int(p.Priority),
 			Nice:                nil, // nice value is not available on windows
-			VirtualMemoryBytes:  uint64(p.VirtualSize),
-			WorkingSetSizeBytes: uint64(p.WorkingSetSize),
+			VirtualMemoryBytes:  p.VirtualSize,
+			WorkingSetSizeBytes: p.WorkingSetSize,
 			SharedMemBytes:      0,
 			Status:              *p.Status,
 			MemPercent:          memPercent,

@@ -51,9 +51,11 @@ signalfx-agent:
       - type: collectd/interface
       - type: collectd/load
       - type: collectd/memory
-      - type: collectd/signalfx-metadata
-      - type: host-metadata
       - type: collectd/vmem
+      - type: collectd/signalfx-metadata
+        omitProcessInfo: true
+      - type: host-metadata
+      - type: processlist
 ```
 
 ## Development

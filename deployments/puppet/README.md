@@ -24,8 +24,9 @@ class accepts the following parameters:
         {type: "collectd/load"},
         {type: "collectd/memory"},
         {type: "collectd/protocols"},
-        {type: "collectd/signalfx-metadata"},
+        {type: "collectd/signalfx-metadata", "omitProcessInfo": true},
         {type: "host-metadata"},
+        {type: "processlist"},
         {type: "collectd/uptime"},
         {type: "collectd/vmem"}
       ]
