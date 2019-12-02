@@ -4,7 +4,8 @@ FROM ubuntu:14.04
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt update &&\
+RUN rm -f /etc/apt/sources.list.d/ubuntu-esm-infra-trusty.list && \
+    apt update &&\
     apt install -y ca-certificates procps apt-transport-https curl
 
 WORKDIR /opt/cookbooks
