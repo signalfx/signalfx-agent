@@ -52,6 +52,7 @@ spec:
         - mountPath: /hostfs
           name: hostfs
           readOnly: true
+          mountPropagation: HostToContainer
         - mountPath: /var/run/docker.sock
           name: docker
           readOnly: true
