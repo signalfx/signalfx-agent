@@ -99,9 +99,6 @@ monitors:
     this that say `Connection reset` or `Connection refused` but they all
     generaly indicate a similar cause.
 
-    ## Useful links
-
-     - https://realjenius.com/2012/11/21/java7-jmx-tunneling-freedom/
   metrics:
     gauge.jvm.threads.count:
       description: Number of JVM threads
