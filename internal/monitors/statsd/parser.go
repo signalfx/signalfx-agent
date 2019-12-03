@@ -31,41 +31,49 @@ func initConverter(input *ConverterInput) *converter {
 // parsePattern takes a pattern string and convert it into parsed fieldPattern object
 func parseFields(p string) *fieldPattern {
 	var substrs []string
-	var startWithField bool
 
-	l := len(p)
-	wa := 0
-	var wb, wc int
-
-	for wa < l {
-		wb = wa + strings.Index(p[wa:], "{")
-		wc = wa + strings.Index(p[wa:], "}")
-
-		if wa == 0 && wb == 0 {
-			startWithField = true
-		}
-
-		if wa != wb {
-			// edge case : pattern not ending with { and }
-			if wb == -1 {
-				logger.Errorf("Invalid pattern. Mismatched brackets : %s", p)
-				return nil // Invalid pattern, skip.
+	inBraces := false
+	currentField := ""
+	for i, c := range p {
+		switch c {
+		case '{':
+			if inBraces {
+				logger.Errorf("Invalid pattern, cannot nest opening braces '{' in pattern '%s'", p)
+				return nil
 			}
-			substrs = append(substrs, p[wa:wb])
+			inBraces = true
+			if len(currentField) > 0 {
+				substrs = append(substrs, currentField)
+			} else if i != 0 {
+				logger.Errorf("Cannot have back to back match groups in pattern '%s'", p)
+				return nil
+			}
+			currentField = ""
+		case '}':
+			if !inBraces {
+				logger.Errorf("Invalid pattern, no opening '{' found for pattern '%s'", p)
+				return nil
+			}
+			inBraces = false
+			substrs = append(substrs, currentField)
+			currentField = ""
+		default:
+			currentField += string(c)
 		}
+	}
 
-		if wb != -1 && wc > wb {
-			substrs = append(substrs, p[wb+1:wc])
-			wa = wc + 1
-		} else {
-			logger.Errorf("Invalid pattern. Mismatched brackets : %s", p)
-			return nil // Invalid pattern, skip.
-		}
+	if inBraces {
+		logger.Errorf("Invalid pattern, no ending } found for pattern '%s'", p)
+		return nil
+	}
+
+	if len(currentField) > 0 {
+		substrs = append(substrs, currentField)
 	}
 
 	return &fieldPattern{
 		substrs:        substrs,
-		startWithField: startWithField,
+		startWithField: strings.HasPrefix(p, "{"),
 	}
 }
 
