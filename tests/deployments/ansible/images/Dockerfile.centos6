@@ -1,0 +1,17 @@
+FROM centos:6
+
+RUN yum install -y upstart procps udev initscripts centos-release-scl && \
+    yum install -y python27
+
+RUN curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py && \
+    scl enable python27 'python /tmp/get-pip.py'
+
+ARG ANSIBLE_VERSION='==2.4.0'
+RUN scl enable python27 "pip install ansible${ANSIBLE_VERSION}"
+
+COPY tests/packaging/images/init-fake.conf /etc/init/fake-container-events.conf
+COPY deployments/ansible/* /opt/playbook/
+COPY tests/deployments/ansible/images/inventory.ini /opt/playbook/
+COPY tests/deployments/ansible/images/playbook.yml /opt/playbook/
+
+CMD ["/sbin/init", "-v"]

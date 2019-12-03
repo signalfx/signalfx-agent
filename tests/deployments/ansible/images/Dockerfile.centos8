@@ -1,0 +1,29 @@
+FROM centos:8
+
+ENV container docker
+
+RUN dnf install -y systemd procps initscripts python3
+RUN alternatives --set python /usr/bin/python3
+
+RUN curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py && \
+    python /tmp/get-pip.py
+
+ARG ANSIBLE_VERSION='==2.8.1'
+RUN pip install ansible${ANSIBLE_VERSION}
+
+RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i = \
+    "systemd-tmpfiles-setup.service" ] || rm -f $i; done); \
+    rm -f /lib/systemd/system/multi-user.target.wants/*;\
+    rm -f /lib/systemd/system/local-fs.target.wants/*; \
+    rm -f /lib/systemd/system/sockets.target.wants/*udev*; \
+    rm -f /lib/systemd/system/sockets.target.wants/*initctl*; \
+    rm -f /lib/systemd/system/basic.target.wants/*;\
+    rm -f /lib/systemd/system/anaconda.target.wants/*;
+
+VOLUME [ "/sys/fs/cgroup" ]
+
+COPY deployments/ansible/* /opt/playbook/
+COPY tests/deployments/ansible/images/inventory.ini /opt/playbook/
+COPY tests/deployments/ansible/images/playbook.yml /opt/playbook/
+
+CMD ["/usr/sbin/init"]
