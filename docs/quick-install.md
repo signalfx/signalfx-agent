@@ -35,7 +35,7 @@ Before you download and install the Smart Agent on a **single** host, review the
 
 ## Install the Smart Agent
 
-### Step 1. Install the SignalFx Smart Agent on Single Host
+### Step 1. Install the SignalFx Smart Agent on your host
 
 <details>
 <summary>Linux</summary>
