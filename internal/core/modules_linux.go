@@ -16,7 +16,6 @@ import (
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/custom"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/df"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/disk"
-	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/docker"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/genericjmx"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/hadoopjmx"
 	_ "github.com/signalfx/signalfx-agent/internal/monitors/collectd/kafka"

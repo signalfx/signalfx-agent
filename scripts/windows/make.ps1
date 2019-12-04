@@ -101,7 +101,6 @@ function bundle (
         Remove-Item -Recurse -Force "$buildDir\python" -ErrorAction Ignore
         download_python -outputDir $buildDir
         install_python -buildDir $buildDir
-        install_pip -buildDir $buildDir
     }
 
     if (($DOWNLOAD_COLLECTD_PLUGINS -Or !(Test-Path -Path "$buildDir\collectd-python")) -And !$ONLY_BUILD_AGENT) {
