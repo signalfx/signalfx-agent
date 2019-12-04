@@ -27,6 +27,8 @@ type Config struct {
 	Password string `yaml:"password" neverLog:"true"`
 	// Whether to use https or not
 	UseHTTPS bool `yaml:"useHTTPS"`
+	// Whether to skip TLS certificate validation.
+	SkipVerify bool `yaml:"skipVerify"`
 	// Cluster name to which the node belongs. This is an optional config that
 	// will override the cluster name fetched from a node and will be used to
 	// populate the plugin_instance dimension
@@ -168,7 +170,7 @@ func (m *Monitor) Configure(c *Config) error {
 		conf.EnableEnhancedTransportStats = true
 	}
 
-	esClient := client.NewESClient(conf.Host, conf.Port, conf.UseHTTPS, conf.Username, conf.Password)
+	esClient := client.NewESClient(conf.Host, conf.Port, conf.UseHTTPS, conf.SkipVerify, conf.Username, conf.Password)
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 	var isInitialized bool
 
