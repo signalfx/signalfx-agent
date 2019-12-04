@@ -31,61 +31,75 @@ Before you download and install the Smart Agent on a **single** host, review the
 - You must run .Net Framework 3.5 on Windows 8 or higher.
 - You must run Visual C++ Compiler for Python 2.7.
 
-
+***
 
 ## Install the Smart Agent
 
 ### Step 1. Install the SignalFx Smart Agent on your host
 
+#### Linux
 <details>
-<summary>Linux</summary>
-<br>
+<summary>Show Linux instructions</summary>
+<p>
     
-#### Option 1: From the SignalFx UI    
+##### Option 1: From the SignalFx UI    
 
-If you are reading this content from the SignalFx SmartAgent tile in the Integrations page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your realm and your organization's access token.)
+If you are reading this content from the SignalFx Smart Agent tile in the Integrations page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your realm and your organization's access token.)
     
-```sh curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
-sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
-```
+```sh curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh```
+```sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN```
+
 ***
-#### Option 2: From the documentation site 
+
+##### Option 2: From the documentation site 
 
 If you are reading this content from the SignalFx documentation site, then SignalFx recommends that you access the Integrations page in the SignalFx UI to copy the pre-populated installation code.  
 
-1. Log in to SignalFx and click the :guilabel:`Integrations` tab to open the Integrations page. Look for the SignalFx SmartAgent tile. You can search for it by name, or find it in the *Essential Services* section.
-2. Under :guilabel:`Essential Services`, click :guilabel:`SignalFx SmartAgent`.
+1. Log in to SignalFx and click the :guilabel:`Integrations` tab to open the Integrations page. Look for the SignalFx Smart Agent tile. You can search for it by name, or find it in the *Essential Services* section.
+2. Under :guilabel:`Essential Services`, click :guilabel:`SignalFx Smart Agent`.
 3. Click :guilabel:`Setup`.
 4. Locate the text box for Linux users.
 5. Copy, paste, and run the code in your command line. (The code within the tile is already populated with your realm and your organization's access token.)  
 
+</p>
 </details>
 
 ***
 
-<details>
-<summary>Windows</summary>
-<br>
+#### Windows
 
-#### Option 1: From the SignalFx UI    
-If you are reading this content from the SignalFx SmartAgent tile in the Integrations page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your realm and your organization's access token.)
+<details>
+<summary>Show Windows instructions</summary>
+<p>
+
+##### Option 1: From the SignalFx UI    
+If you are reading this content from the SignalFx Smart Agent tile in the Integrations page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your realm and your organization's access token.)
 
 ```sh
 & {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"; ingest_url = "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"; api_url = "https://api.YOUR_SIGNALFX_REALM.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
 ```
+
 ***
 
-#### Option 2: From the documentation site 
+##### Option 2: From the documentation site 
 If you are reading this content from the SignalFx documentation site, then SignalFx recommends that you access the Integrations page in the SignalFx UI to copy the pre-populated installation code.  
 
-1. Log in to SignalFx and click the :guilabel:`Integrations` tab to open the Integrations page. Look for the SignalFx SmartAgent tile. You can search for it by name, or find it in the *Essential Services* section.
-2. Under :guilabel:`Essential Services`, click :guilabel:`SignalFx SmartAgent`.
+1. Log in to SignalFx and click the :guilabel:`Integrations` tab to open the Integrations page. Look for the SignalFx Smart Agent tile. You can search for it by name, or find it in the *Essential Services* section.
+2. Under :guilabel:`Essential Services`, click :guilabel:`SignalFx Smart Agent`.
 3. Click :guilabel:`Setup`.
 4. Locate the text box for Windows users.
 5. Copy, paste, and run the code in your command line. (The code within the tile is already populated with your realm and your organization's access token.)  
 
 The agent will be installed as a Windows service and will log to the Windows Event Log.
+</p>
 </details>
+
+***
+
+
+
+
+
 
 ***
 
