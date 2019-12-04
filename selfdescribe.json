@@ -23798,7 +23798,7 @@
                 },
                 {
                   "yamlName": "pathSeparator",
-                  "doc": "Metric value path separator character in JSON. The default character is /",
+                  "doc": "Path separator character of metric value in JSON object",
                   "default": "/",
                   "required": false,
                   "type": "string",

@@ -56,24 +56,14 @@ type MetricConfig struct {
 	Type string `yaml:"type" validate:"required,oneof=gauge cumulative"`
 	// Metric dimensions
 	DimensionConfigs []DimensionConfig `yaml:"dimensions"`
-	// Metric value path separator character in JSON. The default character is /
+	// Path separator character of metric value in JSON object
 	PathSeparator string `yaml:"pathSeparator" default:"/"`
-	// The PathSeparator string character as rune
-	pathSeparator rune
 }
 
 func (mc *MetricConfig) setName() {
 	if mc.Name == "" || strings.TrimSpace(mc.Name) == "" {
-		pathSeparator := mc.pathSeparator
-		if pathSeparator == 0 {
-			pathSeparator = []rune(mc.PathSeparator)[0]
-		}
-		mc.Name = toSnakeCase(mc.JSONPath, pathSeparator, escape)
+		mc.Name = toSnakeCase(mc.JSONPath, []rune(mc.PathSeparator)[0], escape)
 	}
-}
-
-func (mc *MetricConfig) setPathSeparator() {
-	mc.pathSeparator = []rune(mc.PathSeparator)[0]
 }
 
 func (mc *MetricConfig) metricType() datapoint.MetricType {

@@ -61,9 +61,8 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	}
 	m.allMetricConfigs = conf.getAllMetricConfigs()
 	for _, mConf := range m.allMetricConfigs {
-		mConf.setPathSeparator()
 		mConf.setName()
-		if m.metricPathsParts[mConf.Name], err = utils.SplitString(mConf.JSONPath, mConf.pathSeparator, escape); err != nil {
+		if m.metricPathsParts[mConf.Name], err = utils.SplitString(mConf.JSONPath, []rune(mConf.PathSeparator)[0], escape); err != nil {
 			return err
 		}
 	}
