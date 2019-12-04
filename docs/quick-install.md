@@ -20,9 +20,18 @@ Before you download and install the Smart Agent on a **single** host, review the
 
 (For other installation options, including bulk deployments, see [Advanced Installation Options](./advanced-install-options.md).)
 
-| General requirements   |     Linux requirements      |  Windows requirements |
-|----------|:-------------:|------:|
-| <p>You must have access to your command line interface.</p> <p>You must uninstall or disable any previously installed collector agent from your host, such as collectd.</p>| <p>You must run kernel version 2.6 or higher for your Linux distribution.</p> <p>The Smart Agent is bundled with additional required dependencies, including a Java JRE runtime and a Python runtime. As a result, there is no need to proactively install additional dependencies.</p>| <p>You must run .Net Framework 3.5 on Windows 8 or higher.</p> <p>You must run Visual C++ Compiler for Python 2.7.</p>  |
+General requirements
+- You must have access to your command line interface.
+- You must uninstall or disable any previously installed collector agent from your host, such as collectd.
+
+Linux requirements
+- You must run kernel version 2.6 or higher for your Linux distribution.
+- The Smart Agent is bundled with additional required dependencies, including a Java JRE runtime and a Python runtime. As a result, there is no need to proactively install additional dependencies.
+
+Windows requirements
+- You must run .Net Framework 3.5 on Windows 8 or higher.
+- You must run Visual C++ Compiler for Python 2.7.
+
 
 
 ## Install the Smart Agent
