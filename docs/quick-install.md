@@ -96,45 +96,38 @@ The agent will be installed as a Windows service and will log to the Windows Eve
 
 ***
 
-
-
-
-
-
-***
-
 ### Step 2. Confirm your installation
 
 1. From the command line, enter the following command to confirm that your Smart Agent is functional:
 
-```sh
-sudo signalfx-agent status
-```
+    ```sh
+    sudo signalfx-agent status
+    ```
 
-The return should be similar to the following example:  
+    The return should be similar to the following example:  
 
-```sh
-SignalFx Agent version:           4.7.6
-Agent uptime:                     8m44s
-Observers active:                 host
-Active Monitors:                  16
-Configured Monitors:              33
-Discovered Endpoint Count:        6
-Bad Monitor Config:               None
-Global Dimensions:                {host: my-host-1}
-Datapoints sent (last minute):    1614
-Events Sent (last minute):        0
-Trace Spans Sent (last minute):   0
-```
+    ```sh
+    SignalFx Agent version:           4.7.6
+    Agent uptime:                     8m44s
+    Observers active:                 host
+    Active Monitors:                  16
+    Configured Monitors:              33
+    Discovered Endpoint Count:        6
+    Bad Monitor Config:               None
+    Global Dimensions:                {host: my-host-1}
+    Datapoints sent (last minute):    1614
+    Events Sent (last minute):        0
+    Trace Spans Sent (last minute):   0
+    ```
 
 2. Enter the following commands to verify the installation:
 
-| Command | Description   |
-|---|---|
-| <code>signalfx-agent status config</code>   | This command shows resolved config in use by the Smart Agent. |
-| <code>signalfx-agent status endpoints</code>  | This command shows discovered endpoints.  |
-| <code>signalfx-agent status monitors</code>  | This command shows active monitors.  |
-| <code>signalfx-agent status all</code>  | This command shows all of the above statuses. |
+    | Command | Description   |
+    |---|---|
+    | <code>signalfx-agent status config</code>   | This command shows resolved config in use by the Smart Agent. |
+    | <code>signalfx-agent status endpoints</code>  | This command shows discovered endpoints.  |
+    | <code>signalfx-agent status monitors</code>  | This command shows active monitors.  |
+    | <code>signalfx-agent status all</code>  | This command shows all of the above statuses. |
 
 ***
 
