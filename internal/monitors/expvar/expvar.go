@@ -48,7 +48,7 @@ type Monitor struct {
 	runInterval         time.Duration
 	metricPathsParts    map[string][]string
 	dimensionPathsParts map[DimensionConfig][]string
-	allMetricConfigs    []MetricConfig
+	allMetricConfigs    []*MetricConfig
 	logger              log.FieldLogger
 }
 
@@ -63,7 +63,9 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	m.allMetricConfigs = conf.getAllMetricConfigs()
 
 	for _, mConf := range m.allMetricConfigs {
-		if m.metricPathsParts[mConf.name()], err = utils.SplitString(mConf.JSONPath, sep, escape); err != nil {
+		mConf.setPathSeparator()
+		mConf.setName()
+		if m.metricPathsParts[mConf.Name], err = utils.SplitString(mConf.JSONPath, mConf.pathSeparator, escape); err != nil {
 			return err
 		}
 	}
@@ -143,7 +145,7 @@ func (m *Monitor) fetchMetrics() (map[string][]*datapoint.Datapoint, error) {
 			dp.Dimensions["application_name"] = applicationName
 		}
 		dpsMap[mConf.JSONPath] = make([]*datapoint.Datapoint, 0)
-		m.setDatapoints(metricsJSON[m.metricPathsParts[mConf.name()][0]], &mConf, &dp, dpsMap, 0)
+		m.setDatapoints(metricsJSON[m.metricPathsParts[mConf.Name][0]], mConf, &dp, dpsMap, 0)
 	}
 
 	return dpsMap, nil
@@ -154,7 +156,7 @@ func (m *Monitor) fetchMetrics() (map[string][]*datapoint.Datapoint, error) {
 // adds dimensions along the way and sets metric value in the end
 // clones datapoints and add array index dimension for array values in v
 func (m *Monitor) setDatapoints(v interface{}, mc *MetricConfig, dp *datapoint.Datapoint, dpsMap map[string][]*datapoint.Datapoint, metricPathIndex int) {
-	if metricPathIndex >= len(m.metricPathsParts[mc.name()]) {
+	if metricPathIndex >= len(m.metricPathsParts[mc.Name]) {
 		m.logger.Errorf("failed to find metric value in path: %s", mc.JSONPath)
 		return
 	}
@@ -162,10 +164,10 @@ func (m *Monitor) setDatapoints(v interface{}, mc *MetricConfig, dp *datapoint.D
 	case map[string]interface{}:
 		for _, dConf := range mc.DimensionConfigs {
 			if len(m.dimensionPathsParts[dConf]) != 0 && len(m.dimensionPathsParts[dConf]) == metricPathIndex {
-				dp.Dimensions[dConf.Name] = m.metricPathsParts[mc.name()][metricPathIndex]
+				dp.Dimensions[dConf.Name] = m.metricPathsParts[mc.Name][metricPathIndex]
 			}
 		}
-		m.setDatapoints(set[m.metricPathsParts[mc.name()][metricPathIndex+1]], mc, dp, dpsMap, metricPathIndex+1)
+		m.setDatapoints(set[m.metricPathsParts[mc.Name][metricPathIndex+1]], mc, dp, dpsMap, metricPathIndex+1)
 	case []interface{}:
 		clone := dp
 		for index, value := range set {
@@ -180,12 +182,12 @@ func (m *Monitor) setDatapoints(v interface{}, mc *MetricConfig, dp *datapoint.D
 				}
 			}
 			if createIndexDimension {
-				clone.Dimensions[strings.Join(m.metricPathsParts[mc.name()][:metricPathIndex+1], ".")] = fmt.Sprint(index)
+				clone.Dimensions[strings.Join(m.metricPathsParts[mc.Name][:metricPathIndex+1], ".")] = fmt.Sprint(index)
 			}
 			m.setDatapoints(value, mc, clone, dpsMap, metricPathIndex)
 		}
 	default:
-		dp.Metric, dp.MetricType = mc.name(), mc.metricType()
+		dp.Metric, dp.MetricType = mc.Name, mc.metricType()
 		for _, dConf := range mc.DimensionConfigs {
 			if strings.TrimSpace(dConf.Name) != "" && strings.TrimSpace(dConf.Value) != "" {
 				dp.Dimensions[dConf.Name] = dConf.Value
@@ -195,7 +197,7 @@ func (m *Monitor) setDatapoints(v interface{}, mc *MetricConfig, dp *datapoint.D
 		if dp.Value, err = datapoint.CastMetricValueWithBool(v); err == nil {
 			dpsMap[mc.JSONPath] = append(dpsMap[mc.JSONPath], dp)
 		} else {
-			m.logger.Debugf("failed to set value for metric %s with JSON path %s because of type conversion error due to %+v", mc.name(), mc.JSONPath, err)
+			m.logger.Debugf("Failed to set value for metric %s with JSON path %s because of type conversion error due to %+v", mc.Name, mc.JSONPath, err)
 			m.logger.WithError(err).Error("Unable to set metric value")
 			return
 		}

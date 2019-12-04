@@ -190,6 +190,7 @@ The **nested** `metrics` config object has the following fields:
 | `JSONPath` | **yes** | `string` | JSON path of the metric value |
 | `type` | **yes** | `string` | SignalFx metric type. Possible values are "gauge" or "cumulative" |
 | `dimensions` | no | `list of objects (see below)` | Metric dimensions |
+| `pathSeparator` | no | `string` | Metric value path separator character in JSON. The default character is / (**default:** `/`) |
 
 
 The **nested** `dimensions` config object has the following fields:

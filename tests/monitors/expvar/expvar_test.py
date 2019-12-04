@@ -62,6 +62,7 @@ def test_expvar_custom_metric():
               port: 8080
               metrics:
               - JSONPath: queues.count
+                pathSeparator: '.'
                 type: gauge
             """,
             expected,
@@ -88,6 +89,7 @@ def test_expvar_escape_character():
               port: 8080
               metrics:
               - JSONPath: 'kafka\\.ex-jaeger-transaction\\.ok'
+                pathSeparator: '.'
                 type: gauge
             """,
             expected,
