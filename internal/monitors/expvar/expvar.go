@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -55,13 +56,10 @@ type Monitor struct {
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) (err error) {
 	m.logger = log.WithFields(log.Fields{"monitorType": monitorType})
-
 	if m.Output.HasAnyExtraMetrics() {
 		conf.EnhancedMetrics = true
 	}
-
 	m.allMetricConfigs = conf.getAllMetricConfigs()
-
 	for _, mConf := range m.allMetricConfigs {
 		mConf.setPathSeparator()
 		mConf.setName()
@@ -112,7 +110,6 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 			m.Output.SendDatapoints(dps[:n]...)
 		}
 	}, m.runInterval)
-
 	return nil
 }
 
@@ -145,10 +142,29 @@ func (m *Monitor) fetchMetrics() (map[string][]*datapoint.Datapoint, error) {
 			dp.Dimensions["application_name"] = applicationName
 		}
 		dpsMap[mConf.JSONPath] = make([]*datapoint.Datapoint, 0)
-		m.setDatapoints(metricsJSON[m.metricPathsParts[mConf.Name][0]], mConf, &dp, dpsMap, 0)
+		for _, key := range m.findKeysMatch(m.metricPathsParts[mConf.Name][0], metricsJSON) {
+			m.setDatapoints(metricsJSON[key], mConf, &dp, dpsMap, 0)
+		}
 	}
-
 	return dpsMap, nil
+}
+
+func (m *Monitor) findKeysMatch(pattern string, aMap map[string]interface{}) []string {
+	if aMap[pattern] != nil {
+		return []string{pattern}
+	}
+	var keys []string
+	for key := range aMap {
+		matched, err := regexp.MatchString(pattern, key)
+		if err != nil {
+			m.logger.Error(err)
+			continue
+		}
+		if matched {
+			keys = append(keys, key)
+		}
+	}
+	return keys
 }
 
 // setDatapoints the dp argument should be a pointer to a zero value datapoint and
@@ -160,17 +176,19 @@ func (m *Monitor) setDatapoints(v interface{}, mc *MetricConfig, dp *datapoint.D
 		m.logger.Errorf("failed to find metric value in path: %s", mc.JSONPath)
 		return
 	}
-	switch set := v.(type) {
+	switch obj := v.(type) {
 	case map[string]interface{}:
 		for _, dConf := range mc.DimensionConfigs {
 			if len(m.dimensionPathsParts[dConf]) != 0 && len(m.dimensionPathsParts[dConf]) == metricPathIndex {
 				dp.Dimensions[dConf.Name] = m.metricPathsParts[mc.Name][metricPathIndex]
 			}
 		}
-		m.setDatapoints(set[m.metricPathsParts[mc.Name][metricPathIndex+1]], mc, dp, dpsMap, metricPathIndex+1)
+		for _, key := range m.findKeysMatch(m.metricPathsParts[mc.Name][metricPathIndex+1], obj) {
+			m.setDatapoints(obj[key], mc, dp, dpsMap, metricPathIndex+1)
+		}
 	case []interface{}:
 		clone := dp
-		for index, value := range set {
+		for index, value := range obj {
 			if index > 0 {
 				clone = &datapoint.Datapoint{Dimensions: utils.CloneStringMap(clone.Dimensions)}
 			}
