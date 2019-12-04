@@ -292,8 +292,11 @@
             "upstream_cx_total",
             "upstream_cx_tx_bytes_buffered",
             "upstream_cx_tx_bytes_total",
-            "upstream_rq_\u003c_\u003e",
-            "upstream_rq_\u003c_xx\u003e",
+            "upstream_rq_2xx",
+            "upstream_rq_3xx",
+            "upstream_rq_4xx",
+            "upstream_rq_5xx",
+            "upstream_rq_\u003c___\u003e",
             "upstream_rq_active",
             "upstream_rq_cancelled",
             "upstream_rq_completed",
@@ -597,17 +600,35 @@
           "group": null,
           "default": false
         },
-        "upstream_rq_\u003c_\u003e": {
+        "upstream_rq_2xx": {
           "type": "cumulative",
-          "description": "Specific HTTP response codes (e.g., 201, 302, etc.)",
+          "description": "Total number of HTTP response codes in the 200-299 range",
+          "group": null,
+          "default": false
+        },
+        "upstream_rq_3xx": {
+          "type": "cumulative",
+          "description": "Total number of HTTP response codes in the 300-399 range",
+          "group": null,
+          "default": false
+        },
+        "upstream_rq_4xx": {
+          "type": "cumulative",
+          "description": "Total number of HTTP response codes in the 400-499 range",
           "group": null,
           "default": true
         },
-        "upstream_rq_\u003c_xx\u003e": {
+        "upstream_rq_5xx": {
           "type": "cumulative",
-          "description": "Aggregate HTTP response codes (e.g., 2xx, 3xx, etc.)",
+          "description": "Total number of HTTP response codes in the 500-599 range",
           "group": null,
           "default": true
+        },
+        "upstream_rq_\u003c___\u003e": {
+          "type": "cumulative",
+          "description": "Specific HTTP response codes (e.g., 201, 302, etc.)",
+          "group": null,
+          "default": false
         },
         "upstream_rq_active": {
           "type": "gauge",
@@ -679,7 +700,7 @@
           "type": "cumulative",
           "description": "Total request retry successes",
           "group": null,
-          "default": true
+          "default": false
         },
         "upstream_rq_rx_reset": {
           "type": "cumulative",

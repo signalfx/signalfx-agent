@@ -5,8 +5,8 @@ from functools import partial as p
 
 import pytest
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_datapoint, udp_port_open_locally
-from tests.helpers.util import get_statsd_port, send_udp_message, wait_for
+from tests.helpers.assertions import has_datapoint, has_no_datapoint, udp_port_open_locally
+from tests.helpers.util import ensure_always, get_statsd_port, send_udp_message, wait_for
 
 pytestmark = [pytest.mark.collectd, pytest.mark.statsd, pytest.mark.monitor_without_endpoints]
 
@@ -31,6 +31,14 @@ monitors:
             "cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.upstream_cx_rx_bytes_total:8|c",
         )
 
+        send_udp_message(
+            "localhost", port, "cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.upstream_rq_4xx:8|c"
+        )
+
+        send_udp_message(
+            "localhost", port, "cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.upstream_rq_3xx:8|c"
+        )
+
         assert wait_for(
             p(
                 has_datapoint,
@@ -43,4 +51,20 @@ monitors:
                     "action": "upstream_cx_rx_bytes_total",
                 },
             )
-        ), "Didn't get metric"
+        )
+
+        assert wait_for(
+            p(
+                has_datapoint,
+                agent.fake_services,
+                metric_name="upstream_rq_4xx",
+                dimensions={
+                    "traffic": "egress",
+                    "mesh": "ecommerce-demo-mesh",
+                    "service": "gateway",
+                    "action": "upstream_rq_4xx",
+                },
+            )
+        )
+
+        assert ensure_always(p(has_no_datapoint, agent.fake_services, metric_name="upstream_rq_3xx"), timeout_seconds=5)
