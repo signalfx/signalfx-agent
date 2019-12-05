@@ -18930,6 +18930,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -23415,6 +23423,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -24471,6 +24487,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -24684,6 +24708,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -24880,6 +24912,14 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
             "elementKind": ""
           },
           {
@@ -25135,6 +25175,14 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
             "elementKind": ""
           },
           {
@@ -25470,6 +25518,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -25771,6 +25827,14 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
             "elementKind": ""
           },
           {
@@ -30429,6 +30493,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -32903,6 +32975,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -34098,6 +34178,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -35043,6 +35131,14 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
             "elementKind": ""
           },
           {
@@ -37170,6 +37266,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -37551,6 +37655,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -37796,6 +37908,14 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
             "elementKind": ""
           },
           {
@@ -39024,6 +39144,14 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
             "elementKind": ""
           },
           {
@@ -40836,6 +40964,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -41952,6 +42088,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "useServiceAccount",
             "doc": "Use pod service account to authenticate.",
             "default": false,
@@ -42484,6 +42628,14 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
             "elementKind": ""
           },
           {
@@ -45741,6 +45893,14 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "httpTimeout",
+            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
             "elementKind": ""
           },
           {

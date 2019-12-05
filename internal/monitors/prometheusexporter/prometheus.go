@@ -56,6 +56,9 @@ type Config struct {
 	// Path to the client TLS key to use for TLS required connections
 	ClientKeyPath string `yaml:"clientKeyPath"`
 
+	// Number of seconds before timing out while requesting data from target host.
+	HTTPTimeout time.Duration `yaml:"httpTimeout" default:"10s"`
+
 	// Use pod service account to authenticate.
 	UseServiceAccount bool `yaml:"useServiceAccount"`
 
@@ -124,7 +127,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	client := &http.Client{
-		Timeout: 10 * time.Second,
+		Timeout: conf.HTTPTimeout,
 		Transport: &http.Transport{
 			TLSClientConfig: tlsConfig,
 		},
