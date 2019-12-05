@@ -1,4 +1,4 @@
-WIN_VER ?= server_2008
+WIN_VER ?= server_2016
 
 ifneq ($(OS), Windows_NT)
 VAGRANT_NOT_CREATED := $(shell cd $(WIN_VER); vagrant status | grep "not created")
