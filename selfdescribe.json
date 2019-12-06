@@ -46750,6 +46750,12 @@
           "description": "The IP address of the endpoint if the `host` is in the from of an IPv4 address"
         },
         {
+          "name": "is_ipv6",
+          "type": "string",
+          "elementKind": "",
+          "description": "Will be `true` if the endpoint is IPv6."
+        },
+        {
           "name": "network_port",
           "type": "string",
           "elementKind": "",
