@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/signalfx/signalfx-agent/internal/utils"
+
 	"github.com/signalfx/signalfx-agent/internal/core/config/validation"
 
 	"github.com/signalfx/golib/v3/datapoint"
@@ -60,12 +62,6 @@ type MetricConfig struct {
 	PathSeparator string `yaml:"pathSeparator" default:"/"`
 }
 
-func (mc *MetricConfig) setName() {
-	if mc.Name == "" || strings.TrimSpace(mc.Name) == "" {
-		mc.Name = toSnakeCase(mc.JSONPath, []rune(mc.PathSeparator)[0], escape)
-	}
-}
-
 func (mc *MetricConfig) metricType() datapoint.MetricType {
 	switch mc.Type {
 	case "cumulative":
@@ -78,7 +74,7 @@ func (mc *MetricConfig) metricType() datapoint.MetricType {
 // DimensionConfig for metric dimension configuration
 type DimensionConfig struct {
 	// Dimension name
-	Name string `yaml:"name" validate:"required,excludes=0x20"`
+	Name string `yaml:"name"`
 	// JSON path of the dimension value
 	JSONPath string `yaml:"JSONPath"`
 	// Dimension value
@@ -111,29 +107,28 @@ func (c *Config) Validate() error {
 
 func (c *Config) getAllMetricConfigs() []*MetricConfig {
 	configs := append([]*MetricConfig{}, c.MetricConfigs...)
-
 	memstatsMetricPathsGauge := []string{
-		"memstats.HeapAlloc", "memstats.HeapIdle", "memstats.HeapInuse", "memstats.HeapReleased",
-		"memstats.HeapObjects", "memstats.StackInuse", "memstats.StackSys", "memstats.MSpanInuse", "memstats.MSpanSys",
-		"memstats.MCacheInuse", "memstats.MCacheSys", "memstats.BuckHashSys", "memstats.GCSys", "memstats.OtherSys",
-		"memstats.Sys", "memstats.NextGC", "memstats.LastGC", "memstats.GCCPUFraction", "memstats.EnableGC",
+		"memstats/HeapAlloc", "memstats/HeapIdle", "memstats/HeapInuse", "memstats/HeapReleased",
+		"memstats/HeapObjects", "memstats/StackInuse", "memstats/StackSys", "memstats/MSpanInuse", "memstats/MSpanSys",
+		"memstats/MCacheInuse", "memstats/MCacheSys", "memstats/BuckHashSys", "memstats/GCSys", "memstats/OtherSys",
+		"memstats/Sys", "memstats/NextGC", "memstats/LastGC", "memstats/GCCPUFraction", "memstats/EnableGC",
 		memstatsPauseNsMetricPath, memstatsPauseEndMetricPath,
 	}
 	memstatsMetricPathsCumulative := []string{
-		"memstats.TotalAlloc", "memstats.Lookups", "memstats.Mallocs", "memstats.Frees", "memstats.PauseTotalNs",
-		memstatsNumGCMetricPath, "memstats.NumForcedGC",
+		"memstats/TotalAlloc", "memstats/Lookups", "memstats/Mallocs", "memstats/Frees", "memstats/PauseTotalNs",
+		memstatsNumGCMetricPath, "memstats/NumForcedGC",
 	}
-
 	if c.EnhancedMetrics {
-		memstatsMetricPathsGauge = append(memstatsMetricPathsGauge, "memstats.HeapSys", "memstats.DebugGC", "memstats.Alloc")
+		memstatsMetricPathsGauge = append(memstatsMetricPathsGauge, "memstats/HeapSys", "memstats/DebugGC", "memstats/Alloc")
 		memstatsMetricPathsCumulative = append(memstatsMetricPathsCumulative, memstatsBySizeSizeMetricPath, memstatsBySizeMallocsMetricPath, memstatsBySizeFreesMetricPath)
 	}
 	for _, path := range memstatsMetricPathsGauge {
-		configs = append(configs, &MetricConfig{Name: toSnakeCase(path, '.', escape), JSONPath: path, PathSeparator: ".", Type: "gauge", DimensionConfigs: []DimensionConfig{{}}})
+		jsonKeys, _ := utils.SplitString(path, '/', escape)
+		configs = append(configs, &MetricConfig{Name: joinWords(snakeCaseSlice(jsonKeys), "."), JSONPath: path, PathSeparator: "/", Type: "gauge", DimensionConfigs: []DimensionConfig{{}}})
 	}
 	for _, path := range memstatsMetricPathsCumulative {
-		configs = append(configs, &MetricConfig{Name: toSnakeCase(path, '.', escape), JSONPath: path, PathSeparator: ".", Type: "cumulative", DimensionConfigs: []DimensionConfig{{}}})
+		jsonKeys, _ := utils.SplitString(path, '/', escape)
+		configs = append(configs, &MetricConfig{Name: joinWords(snakeCaseSlice(jsonKeys), "."), JSONPath: path, PathSeparator: "/", Type: "cumulative", DimensionConfigs: []DimensionConfig{{}}})
 	}
-
 	return configs
 }

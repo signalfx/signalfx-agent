@@ -94,3 +94,100 @@ def test_expvar_escape_character():
             """,
             expected,
         )
+
+
+def test_expvar_one_or_more_digit_regex_json_path():
+    """
+    Given the JSON object below
+    {
+        "memory": {
+                "Allocations": [
+                    {"Size": 96, "Mallocs": 64, "Frees": 32},
+                    {"Size": 32, "Mallocs": 16, "Frees": 16},
+                    {"Size": 64, "Mallocs": 16, "Frees": 48}
+                ]
+                "HeapAllocation": 96
+        }
+    }
+    """
+    expected = METADATA.default_metrics | {"memory.allocations.mallocs"}
+    with run_expvar() as expvar_container_ip:
+        run_agent_verify(
+            f"""
+            monitors:
+            - type: expvar
+              host: {expvar_container_ip}
+              port: 8080
+              metrics:
+              - JSONPath: 'memory/Allocations/\\\\d+/Mallocs'
+                pathSeparator: '/'
+                type: gauge
+            """,
+            expected,
+        )
+
+
+def test_expvar_one_or_more_character_regex_json_path():
+    """
+    Given the JSON object below
+    {
+        "memory": {
+                "Allocations": [
+                    {"Size": 96, "Mallocs": 64, "Frees": 32},
+                    {"Size": 32, "Mallocs": 16, "Frees": 16},
+                    {"Size": 64, "Mallocs": 16, "Frees": 48}
+                ]
+                "HeapAllocation": 96
+        }
+    }
+    """
+    expected = METADATA.default_metrics | {"memory.allocations.frees"}
+    with run_expvar() as expvar_container_ip:
+        run_agent_verify(
+            f"""
+            monitors:
+            - type: expvar
+              host: {expvar_container_ip}
+              port: 8080
+              metrics:
+              - JSONPath: 'memory/Allocations/.+/Frees'
+                pathSeparator: '/'
+                type: gauge
+            """,
+            expected,
+        )
+
+
+def test_expvar_one_or_more_character_regex_json_path_2():
+    """
+    Given the JSON object below
+    {
+        "memory": {
+                "Allocations": [
+                    {"Size": 96, "Mallocs": 64, "Frees": 32},
+                    {"Size": 32, "Mallocs": 16, "Frees": 16},
+                    {"Size": 64, "Mallocs": 16, "Frees": 48}
+                ]
+                "HeapAllocation": 96
+        }
+    }
+    """
+    expected = METADATA.default_metrics | {
+        "memory.allocations.size",
+        "memory.allocations.mallocs",
+        "memory.allocations.frees",
+    }
+    with run_expvar() as expvar_container_ip:
+        run_agent_verify(
+            f"""
+            monitors:
+            - type: expvar
+              host: {expvar_container_ip}
+              port: 8080
+              metrics:
+              - JSONPath: 'memory/Allocations/.+/.+'
+                pathSeparator: '/'
+                type: gauge
+            """,
+            expected,
+        )
