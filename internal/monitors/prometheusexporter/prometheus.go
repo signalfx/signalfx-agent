@@ -56,6 +56,10 @@ type Config struct {
 	// Path to the client TLS key to use for TLS required connections
 	ClientKeyPath string `yaml:"clientKeyPath"`
 
+	// HTTP timeout duration for both read and writes. This should be a
+	// duration string that is accepted by https://golang.org/pkg/time/#ParseDuration
+	HTTPTimeout time.Duration `yaml:"httpTimeout" default:"10s"`
+
 	// Use pod service account to authenticate.
 	UseServiceAccount bool `yaml:"useServiceAccount"`
 
@@ -124,7 +128,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	client := &http.Client{
-		Timeout: 10 * time.Second,
+		Timeout: conf.HTTPTimeout,
 		Transport: &http.Transport{
 			TLSClientConfig: tlsConfig,
 		},
