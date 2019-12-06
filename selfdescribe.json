@@ -18931,7 +18931,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -23424,7 +23424,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -24488,7 +24488,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -24709,7 +24709,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -24916,7 +24916,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -25179,7 +25179,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -25519,7 +25519,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -25831,7 +25831,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -30494,7 +30494,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -32976,7 +32976,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -34179,7 +34179,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -35135,7 +35135,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -37267,7 +37267,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -37656,7 +37656,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -37912,7 +37912,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -39148,7 +39148,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -40965,7 +40965,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -42089,7 +42089,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -42632,7 +42632,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",
@@ -45897,7 +45897,7 @@
           },
           {
             "yamlName": "httpTimeout",
-            "doc": "Number of seconds before timing out while requesting data from target host.",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
             "required": false,
             "type": "int64",

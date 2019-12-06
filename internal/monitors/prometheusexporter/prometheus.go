@@ -56,7 +56,8 @@ type Config struct {
 	// Path to the client TLS key to use for TLS required connections
 	ClientKeyPath string `yaml:"clientKeyPath"`
 
-	// Number of seconds before timing out while requesting data from target host.
+	// HTTP timeout duration for both read and writes. This should be a
+	// duration string that is accepted by https://golang.org/pkg/time/#ParseDuration
 	HTTPTimeout time.Duration `yaml:"httpTimeout" default:"10s"`
 
 	// Use pod service account to authenticate.
