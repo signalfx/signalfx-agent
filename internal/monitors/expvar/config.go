@@ -88,6 +88,10 @@ func (c *Config) Validate() error {
 			if err := validation.ValidateStruct(mConf); err != nil {
 				return err
 			}
+			// TODO: Fix PathSeparator default not set automatically when metrics configured and pathSeparator is not specified.
+			if strings.TrimSpace(mConf.PathSeparator) == "" {
+				mConf.PathSeparator = "."
+			}
 			if mConf.PathSeparator = strings.TrimSpace(mConf.PathSeparator); len(mConf.PathSeparator) != 1 {
 				return fmt.Errorf("only single characters allowed for metric value path separator. The configured value is %s", mConf.PathSeparator)
 			}

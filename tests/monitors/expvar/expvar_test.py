@@ -52,6 +52,15 @@ def test_expvar_enhanced():
 
 
 def test_expvar_custom_metric():
+    """
+    Given the JSON object below:
+    {
+        "queues": {
+            "count": 5,
+            "lengths": [ 4, 2, 1, 0, 5]
+        }
+    }
+    """
     expected = METADATA.default_metrics | {"queues.count"}
     with run_expvar() as expvar_container_ip:
         run_agent_verify(
@@ -62,7 +71,33 @@ def test_expvar_custom_metric():
               port: 8080
               metrics:
               - JSONPath: queues.count
-                pathSeparator: '.'
+                type: gauge
+            """,
+            expected,
+        )
+
+
+def test_expvar_path_separator():
+    """
+    Given the JSON object below:
+    {
+        "queues": {
+            "count": 5,
+            "lengths": [ 4, 2, 1, 0, 5]
+        }
+    }
+    """
+    expected = METADATA.default_metrics | {"queues.count"}
+    with run_expvar() as expvar_container_ip:
+        run_agent_verify(
+            f"""
+            monitors:
+            - type: expvar
+              host: {expvar_container_ip}
+              port: 8080
+              metrics:
+              - JSONPath: queues/count
+                pathSeparator: /
                 type: gauge
             """,
             expected,
@@ -89,7 +124,6 @@ def test_expvar_escape_character():
               port: 8080
               metrics:
               - JSONPath: 'kafka\\.ex-jaeger-transaction\\.ok'
-                pathSeparator: '.'
                 type: gauge
             """,
             expected,
@@ -119,8 +153,7 @@ def test_expvar_one_or_more_digit_regex_json_path():
               host: {expvar_container_ip}
               port: 8080
               metrics:
-              - JSONPath: 'memory/Allocations/\\\\d+/Mallocs'
-                pathSeparator: '/'
+              - JSONPath: 'memory.Allocations.\\\\d+.Mallocs'
                 type: gauge
             """,
             expected,
@@ -150,15 +183,14 @@ def test_expvar_one_or_more_character_regex_json_path():
               host: {expvar_container_ip}
               port: 8080
               metrics:
-              - JSONPath: 'memory/Allocations/\\.+/Frees'
-                pathSeparator: '/'
+              - JSONPath: 'memory.Allocations.\\.+.Frees'
                 type: gauge
             """,
             expected,
         )
 
 
-def test_expvar_one_or_more_character_regex_json_path_2():
+def test_expvar_2_one_or_more_character_regex_json_path():
     """
     Given the JSON object below
     {
@@ -185,8 +217,7 @@ def test_expvar_one_or_more_character_regex_json_path_2():
               host: {expvar_container_ip}
               port: 8080
               metrics:
-              - JSONPath: 'memory/Allocations/\\.+/\\.+'
-                pathSeparator: '/'
+              - JSONPath: 'memory.Allocations.\\.+.\\.+'
                 type: gauge
             """,
             expected,
