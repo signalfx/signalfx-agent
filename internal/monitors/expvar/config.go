@@ -33,7 +33,7 @@ type Config struct {
 	// If true, sends metrics memstats.alloc, memstats.by_size.size, memstats.by_size.mallocs and memstats.by_size.frees
 	EnhancedMetrics bool `yaml:"enhancedMetrics"`
 	// Metrics configurations
-	MetricConfigs []*MetricConfig `yaml:"metrics"`
+	MetricConfigs []*MetricConfig `yaml:"metrics" default:"[]"`
 }
 
 // GetExtraMetrics handles the legacy enhancedMetrics option.
