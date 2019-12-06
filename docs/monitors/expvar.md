@@ -65,7 +65,7 @@ monitors:
     metric_source: expvar-aws
 ```
 The expvar monitor can be configured to extract metric values from complex JSON objects such as the one shown
-below. Suppose the `memstats` variable shown below is exposed at endpoint `http://172.17.0.5:5000/debug/vars`.
+below. Suppose the `memstats` variable shown below is exposed at endpoint `http://172.17.0.5:5000/debug/vars`
 and you want to extract the cumulative `Mallocs` values.
 ```
 {
@@ -104,15 +104,13 @@ monitors:
   path: /debug/vars
   port: 5000
   metrics:
-    - JSONPath: memstats/BySize/0/Mallocs
+    - JSONPath: memstats.BySize.0.Mallocs
       type: cumulative
   extraDimensions:
     metric_source: expvar
 ```
-To fetch all `Mallocs` values or a combination thereof, configure JSONPath with regular expression. The
-configuration below configures the monitor to fetch all 2 `Mallocs` values (35387 and 35387). Two data points
-for metric `memstats.by_size.mallocs` containing the values will be fetched. The datapoints will have dimension
-`memstats_by_size_index` containing their respective array index.
+`.` is the default path separator character and thus no need to specify. Below is the same configuration using
+ `/` as the path separator character.
 ```
 monitors:
 - type: expvar
@@ -120,7 +118,25 @@ monitors:
   path: /debug/vars
   port: 5000
   metrics:
-    - JSONPath: memstats/BySize/.*/Mallocs
+    - JSONPath: memstats/BySize/0/Mallocs
+      pathSeparator: /
+      type: cumulative
+  extraDimensions:
+    metric_source: expvar
+```
+To fetch all `Mallocs` values or a combination thereof, configure JSONPath with regular expression. The
+configuration below configures the monitor to fetch all 2 `Mallocs` values (35387 and 35387). Two data points
+for metric `memstats.by_size.mallocs` containing the values will be fetched. The datapoints will have dimension
+`memstats_by_size_index` containing their respective array index. Note that the escape character `\` is used to
+escape character `.` of regex `.*` in order take `.` literally as opposed to a path separator character.
+```
+monitors:
+- type: expvar
+  host: 172.12.0.5
+  path: /debug/vars
+  port: 5000
+  metrics:
+    - JSONPath: memstats.BySize.\\.*.Mallocs
       type: cumulative
   extraDimensions:
     metric_source: expvar
@@ -133,7 +149,7 @@ monitors:
   path: /debug/vars
   port: 5000
   metrics:
-    - JSONPath: memstats/BySize/.*/.*
+    - JSONPath: memstats.BySize.\\.*.\\.*
       type: cumulative
   extraDimensions:
     metric_source: expvar
@@ -146,7 +162,7 @@ monitors:
   path: /debug/vars
   port: 5000
   metrics:
-    - JSONPath: memstats/BySize/\\d+/.*
+    - JSONPath: memstats.BySize.\\d+.\\.*
       type: cumulative
   extraDimensions:
     metric_source: expvar
@@ -160,7 +176,7 @@ monitors:
   path: /debug/vars
   port: 5000
   metrics:
-    - JSONPath: memstats/BySize/.*/Mallocs
+    - JSONPath: memstats.BySize.\\.*.Mallocs
       type: cumulative
       - dimensions:
         name: physical_memory
@@ -181,7 +197,7 @@ monitors:
   path: /debug/vars
   port: 5000
   metrics:
-    - JSONPath: memstats/BySize/0/Mallocs
+    - JSONPath: memstats.BySize.0.Mallocs
       type: cumulative
       - dimensions:
         name: memory_stats
@@ -191,10 +207,9 @@ monitors:
   extraDimensions:
     metric_source: expvar
 ```
-The path separator character for JSONPath is configurable. `/` is the default path separator character. The path
-separator character can be escaped and treated literally by using the escape character `\`. DO NOT configure the
-monitor for memstats metrics because they are standard metrics provided by default. We use memstats here to provide
-a realistic example.
+ DO NOT
+configure the monitor for memstats metrics because they are standard metrics provided by default. We use memstats
+here to provide a realistic example.
 
 
 ## Configuration
@@ -231,14 +246,14 @@ The **nested** `metrics` config object has the following fields:
 | `JSONPath` | **yes** | `string` | JSON path of the metric value |
 | `type` | **yes** | `string` | SignalFx metric type. Possible values are "gauge" or "cumulative" |
 | `dimensions` | no | `list of objects (see below)` | Metric dimensions |
-| `pathSeparator` | no | `string` | Path separator character of metric value in JSON object (**default:** `/`) |
+| `pathSeparator` | no | `string` | Path separator character of metric value in JSON object (**default:** `.`) |
 
 
 The **nested** `dimensions` config object has the following fields:
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `name` | no | `string` | Dimension name |
+| `name` | **yes** | `string` | Dimension name |
 | `JSONPath` | no | `string` | JSON path of the dimension value |
 | `value` | no | `string` | Dimension value |
 

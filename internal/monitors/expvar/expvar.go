@@ -20,13 +20,13 @@ import (
 )
 
 const (
-	memstatsPauseNsMetricPath       = "memstats/PauseNs/.*"
-	memstatsPauseEndMetricPath      = "memstats/PauseEnd/.*"
-	memstatsNumGCMetricPath         = "memstats/NumGC"
-	memstatsBySizeSizeMetricPath    = "memstats/BySize/.*/Size"
-	memstatsBySizeMallocsMetricPath = "memstats/BySize/.*/Mallocs"
-	memstatsBySizeFreesMetricPath   = "memstats/BySize/.*/Frees"
-	memstatsBySizeDimensionPath     = "memstats/BySize"
+	memstatsPauseNsMetricPath       = "memstats.PauseNs.\\.*"
+	memstatsPauseEndMetricPath      = "memstats.PauseEnd.\\.*"
+	memstatsNumGCMetricPath         = "memstats.NumGC"
+	memstatsBySizeSizeMetricPath    = "memstats.BySize.\\.*.Size"
+	memstatsBySizeMallocsMetricPath = "memstats.BySize.\\.*.Mallocs"
+	memstatsBySizeFreesMetricPath   = "memstats.BySize.\\.*.Frees"
+	memstatsBySizeDimensionPath     = "memstats.BySize"
 )
 
 func init() {
@@ -258,7 +258,7 @@ func (m *Monitor) preprocessDatapoint(dp *datapoint.Datapoint, metricPath string
 			if metricPath == memstatsPauseEndMetricPath {
 				dp.Metric = memstatsMostRecentGcPauseEnd
 			}
-			// For index dimension key is equal to metric path for default metrics memstats/PauseNs and memstats/PauseEnd
+			// For index dimension key is equal to metric path for default metrics memstats.PauseNs and memstats.PauseEnd
 			delete(dp.Dimensions, metricPath)
 		} else {
 			if err != nil {
@@ -267,7 +267,7 @@ func (m *Monitor) preprocessDatapoint(dp *datapoint.Datapoint, metricPath string
 			return false, err
 		}
 	}
-	// Renaming auto created dimension 'memstats/BySize' that stores array index to 'class'
+	// Renaming auto created dimension 'memstats.BySize' that stores array index to 'class'
 	if metricPath == memstatsBySizeSizeMetricPath || metricPath == memstatsBySizeMallocsMetricPath || metricPath == memstatsBySizeFreesMetricPath {
 		dp.Dimensions["class"] = dp.Dimensions[memstatsBySizeDimensionPath]
 		delete(dp.Dimensions, memstatsBySizeDimensionPath)

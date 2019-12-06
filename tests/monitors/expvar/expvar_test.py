@@ -150,7 +150,7 @@ def test_expvar_one_or_more_character_regex_json_path():
               host: {expvar_container_ip}
               port: 8080
               metrics:
-              - JSONPath: 'memory/Allocations/.+/Frees'
+              - JSONPath: 'memory/Allocations/\\.+/Frees'
                 pathSeparator: '/'
                 type: gauge
             """,
@@ -185,7 +185,7 @@ def test_expvar_one_or_more_character_regex_json_path_2():
               host: {expvar_container_ip}
               port: 8080
               metrics:
-              - JSONPath: 'memory/Allocations/.+/.+'
+              - JSONPath: 'memory/Allocations/\\.+/\\.+'
                 pathSeparator: '/'
                 type: gauge
             """,
