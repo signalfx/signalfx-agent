@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/signalfx/signalfx-agent/internal/utils"
+
 	"github.com/signalfx/signalfx-agent/internal/core/config/validation"
 
 	"github.com/signalfx/golib/v3/datapoint"
@@ -12,7 +14,6 @@ import (
 )
 
 const (
-	sep    = '.'
 	escape = '\\'
 )
 
@@ -32,7 +33,7 @@ type Config struct {
 	// If true, sends metrics memstats.alloc, memstats.by_size.size, memstats.by_size.mallocs and memstats.by_size.frees
 	EnhancedMetrics bool `yaml:"enhancedMetrics"`
 	// Metrics configurations
-	MetricConfigs []MetricConfig `yaml:"metrics"`
+	MetricConfigs []*MetricConfig `yaml:"metrics" default:"[]"`
 }
 
 // GetExtraMetrics handles the legacy enhancedMetrics option.
@@ -57,6 +58,8 @@ type MetricConfig struct {
 	Type string `yaml:"type" validate:"required,oneof=gauge cumulative"`
 	// Metric dimensions
 	DimensionConfigs []DimensionConfig `yaml:"dimensions"`
+	// Path separator character of metric value in JSON object
+	PathSeparator string `yaml:"pathSeparator" default:"."`
 }
 
 func (mc *MetricConfig) metricType() datapoint.MetricType {
@@ -85,7 +88,13 @@ func (c *Config) Validate() error {
 			if err := validation.ValidateStruct(mConf); err != nil {
 				return err
 			}
-
+			// TODO: Fix PathSeparator default not set automatically when metrics configured and pathSeparator is not specified.
+			if strings.TrimSpace(mConf.PathSeparator) == "" {
+				mConf.PathSeparator = "."
+			}
+			if mConf.PathSeparator = strings.TrimSpace(mConf.PathSeparator); len(mConf.PathSeparator) != 1 {
+				return fmt.Errorf("only single characters allowed for metric value path separator. The configured value is %s", mConf.PathSeparator)
+			}
 			// Validating dimension configuration
 			for _, dConf := range mConf.DimensionConfigs {
 				switch {
@@ -100,9 +109,8 @@ func (c *Config) Validate() error {
 	return nil
 }
 
-func (c *Config) getAllMetricConfigs() []MetricConfig {
-	configs := append([]MetricConfig{}, c.MetricConfigs...)
-
+func (c *Config) getAllMetricConfigs() []*MetricConfig {
+	configs := append([]*MetricConfig{}, c.MetricConfigs...)
 	memstatsMetricPathsGauge := []string{
 		"memstats.HeapAlloc", "memstats.HeapIdle", "memstats.HeapInuse", "memstats.HeapReleased",
 		"memstats.HeapObjects", "memstats.StackInuse", "memstats.StackSys", "memstats.MSpanInuse", "memstats.MSpanSys",
@@ -114,24 +122,17 @@ func (c *Config) getAllMetricConfigs() []MetricConfig {
 		"memstats.TotalAlloc", "memstats.Lookups", "memstats.Mallocs", "memstats.Frees", "memstats.PauseTotalNs",
 		memstatsNumGCMetricPath, "memstats.NumForcedGC",
 	}
-
 	if c.EnhancedMetrics {
 		memstatsMetricPathsGauge = append(memstatsMetricPathsGauge, "memstats.HeapSys", "memstats.DebugGC", "memstats.Alloc")
 		memstatsMetricPathsCumulative = append(memstatsMetricPathsCumulative, memstatsBySizeSizeMetricPath, memstatsBySizeMallocsMetricPath, memstatsBySizeFreesMetricPath)
 	}
 	for _, path := range memstatsMetricPathsGauge {
-		configs = append(configs, MetricConfig{Name: toSnakeCase(path, sep, escape), JSONPath: path, Type: "gauge", DimensionConfigs: []DimensionConfig{{}}})
+		jsonKeys, _ := utils.SplitString(path, '.', escape)
+		configs = append(configs, &MetricConfig{Name: joinWords(snakeCaseSlice(jsonKeys), "."), JSONPath: path, PathSeparator: ".", Type: "gauge", DimensionConfigs: []DimensionConfig{{}}})
 	}
 	for _, path := range memstatsMetricPathsCumulative {
-		configs = append(configs, MetricConfig{Name: toSnakeCase(path, sep, escape), JSONPath: path, Type: "cumulative", DimensionConfigs: []DimensionConfig{{}}})
+		jsonKeys, _ := utils.SplitString(path, '.', escape)
+		configs = append(configs, &MetricConfig{Name: joinWords(snakeCaseSlice(jsonKeys), "."), JSONPath: path, PathSeparator: ".", Type: "cumulative", DimensionConfigs: []DimensionConfig{{}}})
 	}
-
 	return configs
-}
-
-func (mc *MetricConfig) name() string {
-	if strings.TrimSpace(mc.Name) == "" {
-		return toSnakeCase(mc.JSONPath, sep, escape)
-	}
-	return mc.Name
 }

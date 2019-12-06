@@ -16,10 +16,20 @@ func init() {
 			},
 		}
 	}))
+
+	expvar.Publish("memory", expvar.Func(func() interface{} {
+		return map[string]interface{}{
+			"Allocations": []map[string]int64{
+				{"Size": 96, "Mallocs": 64, "Frees": 32},
+				{"Size": 32, "Mallocs": 16, "Frees": 16},
+				{"Size": 64, "Mallocs": 16, "Frees": 48},
+			},
+			"HeapAllocation": 96,
+		}
+	}))
 }
 
 func main() {
-
 	var kafkaExJaegerTransactionOk = expvar.NewInt("kafka.ex-jaeger-transaction.ok")
 	kafkaExJaegerTransactionOk.Add(11)
 

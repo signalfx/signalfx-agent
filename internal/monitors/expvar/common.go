@@ -6,28 +6,37 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/signalfx/signalfx-agent/internal/utils"
-
 	"github.com/signalfx/golib/v3/datapoint"
 )
 
-var camelRegexp = regexp.MustCompile("(^[^A-Z]*|[A-Z]*)([A-Z][^A-Z]+|$)")
+var capRegexp = regexp.MustCompile("(^[^A-Z]*|[A-Z]*)([A-Z][^A-Z]+|$)")
 
-func toSnakeCase(s string, sep rune, escape rune) string {
-	snake := ""
-	splits, _ := utils.SplitString(s, sep, escape)
-	for _, split := range splits {
-		for _, submatches := range camelRegexp.FindAllStringSubmatch(split, -1) {
-			for _, submatch := range submatches[1:] {
-				submatch = strings.TrimSpace(submatch)
-				if submatch != "" {
-					snake += submatch + "_"
+func snakeCaseSlice(slice []string) []string {
+	var words []string
+	for _, s := range slice {
+		var capWords []string
+		for _, matchedCapWords := range capRegexp.FindAllStringSubmatch(s, -1) {
+			for _, matchedCapWord := range matchedCapWords[1:] {
+				if matchedCapWord = strings.TrimSpace(matchedCapWord); matchedCapWord != "" {
+					capWords = append(capWords, matchedCapWord)
 				}
 			}
 		}
-		snake = strings.TrimSuffix(strings.TrimSuffix(snake, "."), "_") + "."
+		words = append(words, strings.ToLower(strings.Join(capWords, "_")))
 	}
-	return strings.ToLower(strings.TrimSuffix(snake, "."))
+	return words
+}
+
+var wordRegexp = regexp.MustCompile("[a-zA-Z]+")
+
+func joinWords(slice []string, sep string) string {
+	var words []string
+	for _, s := range slice {
+		if wordRegexp.MatchString(s) {
+			words = append(words, s)
+		}
+	}
+	return strings.Join(words, sep)
 }
 
 // getMostRecentGCPauseIndex logic is derived from https://golang.org/pkg/runtime/ in the PauseNs section of the 'type MemStats' section
