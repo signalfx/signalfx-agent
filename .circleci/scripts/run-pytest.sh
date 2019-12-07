@@ -28,10 +28,18 @@ PYTEST_PATH="pytest"
 if [ $WITH_SUDO -eq 1 ]; then
     PYTEST_PATH="sudo -E $PYENV_ROOT/shims/pytest"
 fi
+FIRSTRUN_OPTIONS="--verbose --junitxml=~/testresults/results.xml --html=~/testresults/results.html --self-contained-html"
+RERUN_OPTIONS="--last-failed --verbose --junitxml=~/testresults/rerun-results.xml --html=~/testresults/rerun-results.html --self-contained-html"
+WORKERS=${WORKERS-}
+if [ -n "$WORKERS" ]; then
+    WORKERS="-n $WORKERS"
+fi
 
 set -x
 if [ -n "$MARKERS" ]; then
-    $PYTEST_PATH -m "$MARKERS" $PYTEST_OPTIONS $TESTS
+    $PYTEST_PATH -m "$MARKERS" $WORKERS $PYTEST_OPTIONS $FIRSTRUN_OPTIONS $TESTS || \
+        $PYTEST_PATH -m "$MARKERS" $PYTEST_OPTIONS $RERUN_OPTIONS $TESTS
 else
-    $PYTEST_PATH $PYTEST_OPTIONS $TESTS
+    $PYTEST_PATH $WORKERS $PYTEST_OPTIONS $FIRSTRUN_OPTIONS $TESTS || \
+        $PYTEST_PATH $PYTEST_OPTIONS $RERUN_OPTIONS $TESTS
 fi
