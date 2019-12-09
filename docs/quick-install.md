@@ -98,7 +98,7 @@ The agent will be installed as a Windows service and will log to the Windows Eve
 
 ### Step 2. Confirm your installation
 
-1. From the command line, enter the following command to confirm that your Smart Agent is functional:
+1. To confirm your installation, enter the following command on the Linux or Windows command line: 
 
     ```sh
     sudo signalfx-agent status
@@ -120,7 +120,7 @@ The agent will be installed as a Windows service and will log to the Windows Eve
     Trace Spans Sent (last minute):   0
     ```
 
-2. Enter the following commands to verify the installation:
+2. To confirm your installation, enter the following command on the Linux or Windows command line: 
 
     | Command | Description   |
     |---|---|
@@ -167,7 +167,7 @@ For Linux, use the following command to view error logs via Journal:
 journalctl -u signalfx-agent | tail -100
 ```
 
-For Windows, simply review the event logs.
+For Windows, review the event logs.
 
 ***
 
@@ -177,8 +177,8 @@ For additional installation troubleshooting information, including how to review
 
 ### Review additional documentation
 
-After a successful installation, you can learn more about:
+After a successful installation, learn more about the SignalFx agent and the SignalFx UI. 
 
-* The capabilities of the SignalFx Smart Agent. See [Advanced Installation Options](./advanced-install-options.md).
+* Review the capabilities of the SignalFx Smart Agent. See [Advanced Installation Options](./advanced-install-options.md).
 
-* The SignalFx UI, including how data is displayed. See [15-Minute SignalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html).
+* Learn how data is displayed in the SignalFx UI. See [View infrastructure status](https://docs.signalfx.com/en/latest/getting-started/quick-start.html#step-3-view-infrastructure-status).
