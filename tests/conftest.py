@@ -12,7 +12,7 @@ NON_INTEGRATION_MARKERS = {"packaging", "installer", "kubernetes", "windows_only
 
 def pytest_collection_modifyitems(items):
     for item in items:
-        if isinstance(item, item.Function):
+        if isinstance(item, pytest.Function):
             if "k8s_cluster" in item.fixturenames:
                 item.add_marker("kubernetes")
             markers = {marker.name for marker in item.iter_markers()}

@@ -44,15 +44,15 @@ commands:
             docker load -i /tmp/workspace/image.tar
 
   install_pytest:
-    description: Install pytest and dependencies with pyenv 3.6.3.
+    description: Install pytest and dependencies with pyenv 3.8.0.
     steps:
       - restore_cache:
           key: v1-pytest-{{ checksum "tests/requirements.txt" }}
       - run:
           name: Install pytest and dependencies
           command: |
-            pyenv install --skip-existing 3.6.3
-            pyenv global 3.6.3
+            pyenv install --skip-existing 3.8.0
+            pyenv global 3.8.0
             if which pip; then
                 pip install --upgrade 'pip==10.0.1'
             else

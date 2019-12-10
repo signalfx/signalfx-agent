@@ -64,9 +64,9 @@ class Agent:
         self.config["configSources"]["file"]["pollRateSeconds"] = 1
 
     def write_config(self):
-        with open(self.config_path, "w") as fd:
+        with open(self.config_path, "wb+") as fd:
             print("CONFIG: %s\n%s" % (self.config_path, self.config))
-            fd.write(self.get_final_config_yaml())
+            fd.write(self.get_final_config_yaml().encode("utf-8"))
 
     def get_final_config_yaml(self):
         self.fill_in_config()
@@ -90,6 +90,7 @@ class Agent:
             [str(AGENT_BIN), "status", "-config", self.config_path],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
+            close_fds=False,
             encoding="utf-8",
         )
         return status_proc.stdout
