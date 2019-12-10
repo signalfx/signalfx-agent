@@ -25,7 +25,7 @@ steps:
   displayName: 'Install conda'
   condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
 - powershell: |
-    conda install --yes python=3.6.7 pip=10.0.1
+    conda install --yes python=3.8.0 pip=10.0.1
     python --version
     pip --version
     pip install -q -r tests\requirements.txt
