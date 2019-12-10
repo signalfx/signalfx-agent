@@ -31,13 +31,7 @@ DEB_DISTROS = [
     ("ubuntu1804", INIT_SYSTEMD),
 ]
 
-RPM_DISTROS = [
-    ("amazonlinux1", INIT_UPSTART),
-    ("amazonlinux2", INIT_SYSTEMD),
-    ("centos6", INIT_UPSTART),
-    ("centos7", INIT_SYSTEMD),
-    ("centos8", INIT_SYSTEMD),
-]
+RPM_DISTROS = [("amazonlinux2", INIT_SYSTEMD), ("centos7", INIT_SYSTEMD), ("centos8", INIT_SYSTEMD)]
 
 CONFIG = """
 sfx_package_stage: null
@@ -74,17 +68,14 @@ def get_config(backend, monitors, agent_version, stage):
     return yaml.dump(config_yaml)
 
 
-def run_ansible(base_image, cont, backend, monitors, agent_version, stage):
+def run_ansible(cont, backend, monitors, agent_version, stage):
     with tempfile.NamedTemporaryFile(mode="w+") as fd:
         config_yaml = get_config(backend, monitors, agent_version, stage)
         print(config_yaml)
         fd.write(config_yaml)
         fd.flush()
         copy_file_into_container(fd.name, cont, CONFIG_DEST_PATH)
-    cmd = ANSIBLE_CMD
-    if base_image == "centos6":
-        cmd = f"scl enable python27 '{ANSIBLE_CMD}'"
-    code, output = cont.exec_run(cmd)
+    code, output = cont.exec_run(ANSIBLE_CMD)
     assert code == 0, output.decode("utf-8")
     print_lines(output)
     installed_version = get_agent_version(cont).replace("~", "-")
@@ -117,21 +108,21 @@ def test_ansible(base_image, init_system, ansible_version):
     with run_init_system_image(base_image, **opts) as [cont, backend]:
         try:
             monitors = [{"type": "host-metadata"}]
-            run_ansible(base_image, cont, backend, monitors, INITIAL_VERSION, STAGE)
+            run_ansible(cont, backend, monitors, INITIAL_VERSION, STAGE)
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
             if UPGRADE_VERSION:
                 # upgrade agent
-                run_ansible(base_image, cont, backend, monitors, UPGRADE_VERSION, STAGE)
+                run_ansible(cont, backend, monitors, UPGRADE_VERSION, STAGE)
                 backend.reset_datapoints()
                 assert wait_for(
                     p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
                 ), "Datapoints didn't come through"
 
                 # downgrade agent
-                run_ansible(base_image, cont, backend, monitors, INITIAL_VERSION, STAGE)
+                run_ansible(cont, backend, monitors, INITIAL_VERSION, STAGE)
                 backend.reset_datapoints()
                 assert wait_for(
                     p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
@@ -139,7 +130,7 @@ def test_ansible(base_image, init_system, ansible_version):
 
             # change agent config
             monitors = [{"type": "internal-metrics"}]
-            run_ansible(base_image, cont, backend, monitors, INITIAL_VERSION, STAGE)
+            run_ansible(cont, backend, monitors, INITIAL_VERSION, STAGE)
             backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
