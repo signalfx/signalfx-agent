@@ -44,15 +44,20 @@ commands:
             docker load -i /tmp/workspace/image.tar
 
   install_pytest:
-    description: Install pytest and dependencies with pyenv 3.8.0.
+    description: Install pytest and dependencies with pyenv.
+    parameters:
+      python_version:
+        type: string
+        default: "3.8.0"
     steps:
       - restore_cache:
-          key: v1-pytest-{{ checksum "tests/requirements.txt" }}
+          key: v1-pytest-<< parameters.python_version >>-{{ checksum "tests/requirements.txt" }}
       - run:
           name: Install pytest and dependencies
           command: |
-            pyenv install --skip-existing 3.8.0
-            pyenv global 3.8.0
+            cd $PYENV_ROOT && git pull && cd -
+            pyenv install --skip-existing << parameters.python_version >>
+            pyenv global << parameters.python_version >>
             if which pip; then
                 pip install --upgrade 'pip==10.0.1'
             else
@@ -67,7 +72,7 @@ commands:
             wget https://dl.google.com/go/go1.13.1.linux-amd64.tar.gz
             sudo tar -C /usr/local -xzf go1.13.1.linux-amd64.tar.gz
       - save_cache:
-          key: v1-pytest-{{ checksum "tests/requirements.txt" }}
+          key: v1-pytest-<< parameters.python_version >>-{{ checksum "tests/requirements.txt" }}
           paths:
             - /opt/circleci/.pyenv
 
