@@ -125,6 +125,11 @@ func Test_HostObserver(t *testing.T) {
 				require.EqualValues(t, e.Port, portNum)
 				require.Equal(t, filepath.Base(exe), e.Name)
 				require.Equal(t, e.PortType, services.TCP)
+				if host[0] == ':' {
+					require.Equal(t, e.DerivedFields()["is_ipv6"], true)
+				} else {
+					require.Equal(t, e.DerivedFields()["is_ipv6"], false)
+				}
 			}
 		})
 
@@ -141,6 +146,11 @@ func Test_HostObserver(t *testing.T) {
 				require.EqualValues(t, e.Port, portNum)
 				require.Equal(t, filepath.Base(exe), e.Name)
 				require.Equal(t, services.UDP, e.PortType)
+				if host[0] == ':' {
+					require.Equal(t, e.DerivedFields()["is_ipv6"], true)
+				} else {
+					require.Equal(t, e.DerivedFields()["is_ipv6"], false)
+				}
 			}
 		})
 

@@ -34,6 +34,8 @@ const (
 // ENDPOINT_VAR(command): The full command used to invoke this process,
 // including the executable itself at the beginning.
 
+// ENDPOINT_VAR(is_ipv6): Will be `true` if the endpoint is IPv6.
+
 // Observer that watches the current host
 type Observer struct {
 	serviceCallbacks *observers.ServiceCallbacks
@@ -156,7 +158,11 @@ func (o *Observer) discover() []services.Endpoint {
 			se.Host = ip
 			if c.Family == syscall.AF_INET6 {
 				se.Host = "[" + se.Host + "]"
+				se.AddExtraField("is_ipv6", true)
+			} else {
+				se.AddExtraField("is_ipv6", false)
 			}
+
 			se.Port = uint16(c.Laddr.Port)
 			se.PortType = portTypeToProtocol(c.Type)
 			se.Target = services.TargetTypeHostPort
