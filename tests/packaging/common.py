@@ -125,6 +125,7 @@ def socat_https_proxy(container, target_host, target_port, source_host, bind_add
         [socat_bin, "-v", "UNIX-LISTEN:%s,fork" % socket_path, "TCP4:%s:%d" % (target_host, target_port)],
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
+        close_fds=False,
     )
 
     get_local_out = pull_from_reader_in_background(proc.stdout)
@@ -208,7 +209,7 @@ def run_win_command(cmd, returncodes=None, shell=True, **kwargs):
     if returncodes is None:
         returncodes = [0]
     print('running "%s" ...' % cmd)
-    proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=shell, **kwargs)
+    proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=shell, close_fds=False, **kwargs)
     output = proc.stdout.decode("utf-8")
     if returncodes:
         assert proc.returncode in returncodes, output

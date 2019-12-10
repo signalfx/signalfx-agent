@@ -104,7 +104,7 @@ class Agent:
         self.write_config()
 
         with run_subprocess(
-            [AGENT_BIN, "-config", self.config_path] + (["-debug"] if self.debug else []), env=self.env
+            [AGENT_BIN, "-config", self.config_path] + (["-debug"] if self.debug else []), env=self.env, close_fds=False
         ) as [get_output, pid]:
             self.pid = pid
             self.get_output = get_output

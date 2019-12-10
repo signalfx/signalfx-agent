@@ -53,7 +53,11 @@ def start_tunneling_fake_service(local_host, local_port, namespace, kube_config_
     )
 
     proc = subprocess.Popen(
-        ["/bin/bash", f"{SCRIPT_DIR}/tunnel/client.sh"], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        ["/bin/bash", f"{SCRIPT_DIR}/tunnel/client.sh"],
+        env=env,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        close_fds=False,
     )
 
     get_output = pull_from_reader_in_background(proc.stdout)

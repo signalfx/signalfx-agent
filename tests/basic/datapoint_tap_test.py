@@ -24,7 +24,8 @@ def test_basic_service_discovery():
                     "nginx_connections*",
                     "-dims",
                     "{plugin: nginx}",
-                ]
+                ],
+                close_fds=False,
             ) as [get_output, _]:
 
                 def shows_datapoints():

@@ -45,7 +45,8 @@ class PProfClient:
             + f"{self._base_url}/debug/pprof/{profile_type}"
         )
 
-        profile_text = subprocess.check_output(command, shell=True)
+        # pylint: disable=unexpected-keyword-arg
+        profile_text = subprocess.check_output(command, shell=True, close_fds=False)
         return self._parse_profile(profile_text)
 
     @staticmethod
