@@ -387,13 +387,13 @@ jobs:
 
   installer_tests:
     executor: machine_image
+    parallelism: 2
     steps:
       - checkout
       - run: .circleci/scripts/setup-installer-tests.sh
       - run_pytest:
-          markers: installer
           pytest_options: -n auto
-          tests_dir: ./tests/packaging/
+          tests_dir: ./tests/packaging
 
   package_tests:
     executor: machine_image

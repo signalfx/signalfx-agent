@@ -29,12 +29,15 @@ from .common import (
 
 pytestmark = pytest.mark.installer
 
-SUPPORTED_DISTROS = [
+DEB_DISTROS = [
     ("debian-8-jessie", INIT_SYSTEMD),
     ("debian-9-stretch", INIT_SYSTEMD),
     ("ubuntu1404", INIT_UPSTART),
     ("ubuntu1604", INIT_SYSTEMD),
     ("ubuntu1804", INIT_SYSTEMD),
+]
+
+RPM_DISTROS = [
     ("amazonlinux1", INIT_UPSTART),
     ("amazonlinux2", INIT_SYSTEMD),
     ("centos6", INIT_UPSTART),
@@ -44,10 +47,15 @@ SUPPORTED_DISTROS = [
 ]
 
 AGENT_VERSIONS = os.environ.get("AGENT_VERSIONS", "4.7.7,latest").split(",")
+STAGE = os.environ.get("STAGE", "final")
 
 
 @contextmanager
 def _run_tests(base_image, init_system, installer_args, **extra_run_kwargs):
+    if STAGE == "beta":
+        installer_args = f"{installer_args} --beta"
+    elif STAGE == "test":
+        installer_args = f"{installer_args} --test"
     with run_init_system_image(base_image, **extra_run_kwargs) as [cont, backend]:
         copy_file_into_container(INSTALLER_PATH, cont, "/opt/install.sh")
 
@@ -67,9 +75,15 @@ def _run_tests(base_image, init_system, installer_args, **extra_run_kwargs):
             print_lines(get_agent_logs(cont, init_system))
 
 
-@pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
+@pytest.mark.parametrize(
+    "base_image,init_system",
+    [pytest.param(distro, init, marks=pytest.mark.deb) for distro, init in DEB_DISTROS]
+    + [pytest.param(distro, init, marks=pytest.mark.rpm) for distro, init in RPM_DISTROS],
+)
 @pytest.mark.parametrize("agent_version", AGENT_VERSIONS)
 def test_installer_on_all_distros(base_image, init_system, agent_version):
+    if (base_image, init_system) in DEB_DISTROS:
+        agent_version = agent_version.replace("~", "-")
     args = "MYTOKEN" if agent_version == "latest" else f"--package-version {agent_version}-1 MYTOKEN"
     with _run_tests(base_image, init_system, args) as [backend, cont]:
         if agent_version != "latest":
