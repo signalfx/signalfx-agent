@@ -1,5 +1,6 @@
 import asyncio
 import io
+import logging
 import os
 import random
 import re
@@ -11,7 +12,7 @@ import time
 from contextlib import contextmanager
 from functools import partial as p
 from io import BytesIO
-from typing import Any, Dict, List
+from typing import Any, Dict, List, TypeVar, cast
 
 import docker
 import netifaces as ni
@@ -410,3 +411,27 @@ def run_simple_sanic_app(app):
     finally:
         app_sock.close()
         loop.stop()
+
+
+T = TypeVar("T")
+
+
+def retry_on_ebadf(func: T) -> T:
+    max_tries = 10
+
+    def wrap(*args, **kwargs):
+        tries = 0
+        while True:
+            try:
+                return func(*args, **kwargs)
+            except OSError as e:
+                if e.errno == 9:
+                    tries += 1
+                    if tries >= max_tries:
+                        raise
+
+                    logging.error("Retrying OSError EBADF")
+                    continue
+                raise
+
+    return cast(T, wrap)

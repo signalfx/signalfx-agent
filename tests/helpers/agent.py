@@ -10,7 +10,7 @@ from . import fake_backend
 from .formatting import print_dp_or_event
 from .internalmetrics import InternalMetricsClient
 from .profiling import PProfClient
-from .util import get_unique_localhost, print_lines, run_subprocess
+from .util import get_unique_localhost, print_lines, retry_on_ebadf, run_subprocess
 
 
 # pylint: disable=too-many-arguments,too-many-instance-attributes
@@ -63,6 +63,7 @@ class Agent:
         self.config["configSources"]["file"] = self.config["configSources"].get("file", {})
         self.config["configSources"]["file"]["pollRateSeconds"] = 1
 
+    @retry_on_ebadf
     def write_config(self):
         with open(self.config_path, "wb+") as fd:
             print("CONFIG: %s\n%s" % (self.config_path, self.config))

@@ -31,9 +31,7 @@ fi
 
 set -x
 if [ -n "$MARKERS" ]; then
-    for i in $(seq 1 20); do
-        $PYTEST_PATH -m "$MARKERS" $PYTEST_OPTIONS $TESTS
-    done
+  $PYTEST_PATH -m "$MARKERS" $PYTEST_OPTIONS $TESTS
 else
     $PYTEST_PATH $PYTEST_OPTIONS $TESTS
 fi

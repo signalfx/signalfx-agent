@@ -421,7 +421,8 @@ good-names=e,
            do_PUT,
            _,
            logger,
-           runner
+           runner,
+           T
 
 # Include a hint for the correct naming format with invalid-name
 include-naming-hint=no
