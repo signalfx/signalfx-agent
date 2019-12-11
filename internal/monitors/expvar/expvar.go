@@ -32,8 +32,8 @@ const (
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
 		return &Monitor{
-			metricsKeys:      map[string][]string{},
-			dimsKeys:         map[string][]string{},
+			keysFromPaths:    map[string][]string{},
+			keysFromDimPaths: map[string][]string{},
 			allMetricConfigs: nil,
 		}
 	}, &Config{})
@@ -47,8 +47,8 @@ type Monitor struct {
 	client           *http.Client
 	url              *url.URL
 	runInterval      time.Duration
-	metricsKeys      map[string][]string
-	dimsKeys         map[string][]string
+	keysFromPaths    map[string][]string
+	keysFromDimPaths map[string][]string
 	allMetricConfigs []*MetricConfig
 	logger           log.FieldLogger
 }
@@ -61,7 +61,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	}
 	m.allMetricConfigs = conf.getAllMetricConfigs()
 	for _, mConf := range m.allMetricConfigs {
-		if m.metricsKeys[mConf.Name], err = utils.SplitString(mConf.JSONPath, []rune(mConf.PathSeparator)[0], escape); err != nil {
+		if m.keysFromPaths[mConf.Name], err = utils.SplitString(mConf.JSONPath, []rune(mConf.PathSeparator)[0], escape); err != nil {
 			return err
 		}
 	}
@@ -134,25 +134,25 @@ func (m *Monitor) fetchMetrics() (map[string][]*datapoint.Datapoint, error) {
 	}
 	dps := make(map[string][]*datapoint.Datapoint)
 	for _, mConf := range m.allMetricConfigs {
-		dp := datapoint.Datapoint{Dimensions: map[string]string{}}
-		if applicationName != "" {
-			dp.Dimensions["application_name"] = applicationName
-		}
 		dps[mConf.JSONPath] = make([]*datapoint.Datapoint, 0)
-		for _, jsonKey := range m.findKeys(m.metricsKeys[mConf.Name][0], jsonObj) {
-			m.setDps(dps, &dp, jsonKey, 0, jsonObj[jsonKey], mConf)
+		for _, jsonKey := range m.findMatchingMapKeys(m.keysFromPaths[mConf.Name][0], jsonObj) {
+			dp := datapoint.Datapoint{Dimensions: map[string]string{}}
+			if applicationName != "" {
+				dp.Dimensions["application_name"] = applicationName
+			}
+			m.addDps(dps, &dp, []string{jsonKey}, 0, jsonObj[jsonKey], mConf)
 		}
 	}
 	return dps, nil
 }
 
-func (m *Monitor) findKeys(pattern string, aMap map[string]interface{}) []string {
-	if aMap[pattern] != nil {
-		return []string{pattern}
+func (m *Monitor) findMatchingMapKeys(regex string, aMap map[string]interface{}) []string {
+	if aMap[regex] != nil {
+		return []string{regex}
 	}
 	var keys []string
 	for key := range aMap {
-		matched, err := regexp.MatchString(pattern, key)
+		matched, err := regexp.MatchString(regex, key)
 		if err != nil {
 			m.logger.Error(err)
 			continue
@@ -164,90 +164,113 @@ func (m *Monitor) findKeys(pattern string, aMap map[string]interface{}) []string
 	return keys
 }
 
-// setDps sets metric values and dimensions by traversing jsonValue recursively using keys derived by regex matching
-// configured JSON paths. When setDps encounters and array type JSON value it clones the datapoint argument and adds
+// addDps sets metric values and dimensions by traversing jsonValue recursively using keys derived by regex matching
+// configured JSON paths. When addDps encounters and array type JSON value it clones the datapoint argument and adds
 // dimension to hold the array index.
-func (m *Monitor) setDps(dps map[string][]*datapoint.Datapoint, dp *datapoint.Datapoint, jsonKey string, jsonKeyPatternIndex int, jsonValue interface{}, metricConfig *MetricConfig) {
-	dp.Metric = joinWords(snakeCaseSlice([]string{dp.Metric, jsonKey}), ".")
-	jsonKeyPatterns, nextJSONKeyPatternIndex := m.metricsKeys[metricConfig.Name], jsonKeyPatternIndex+1
-	if jsonKeyPatternIndex >= len(jsonKeyPatterns) {
-		m.logger.Errorf("failed to find metric value in path: %s", metricConfig.JSONPath)
-		return
-	}
-	switch jsonValue := jsonValue.(type) {
+func (m *Monitor) addDps(dps map[string][]*datapoint.Datapoint, dp *datapoint.Datapoint, keys []string, keyFromPathIndex int, value interface{}, conf *MetricConfig) {
+	keysFromPath, pathKeysLen, nextKeyFromPathIndex := m.keysFromPaths[conf.Name], len(m.keysFromPaths[conf.Name]), keyFromPathIndex+1
+	atPathEnd := nextKeyFromPathIndex == pathKeysLen
+	switch value := value.(type) {
 	case map[string]interface{}:
-		nextJSONKeyPattern := jsonKeyPatterns[nextJSONKeyPatternIndex]
-		dpCopy, metric, dims := dp, dp.Metric, dp.Dimensions
-		for i, nextJSONKey := range m.findKeys(nextJSONKeyPattern, jsonValue) {
+		if atPathEnd {
+			m.logger.Debugf("Expecting numeric value in path %s but found %+v. Configured path regex %s", joinWords(snakeCaseSlice(keys), conf.PathSeparator), value, conf.JSONPath)
+			return
+		}
+		if len(value) == 0 {
+			m.logger.Debugf("Empty object at %s before end of path. Configured path regex %s", joinWords(snakeCaseSlice(keys), conf.PathSeparator), conf.JSONPath)
+			return
+		}
+		dpCopy, dims := dp, dp.Dimensions
+		nextKeyFromPath := keysFromPath[nextKeyFromPathIndex]
+		for i, nextKey := range m.findMatchingMapKeys(nextKeyFromPath, value) {
 			if i > 0 {
-				dpCopy = &datapoint.Datapoint{Metric: metric, Dimensions: utils.CloneStringMap(dims)}
+				dpCopy = &datapoint.Datapoint{Dimensions: utils.CloneStringMap(dims)}
 			}
-			for _, dConf := range metricConfig.DimensionConfigs {
-				if jsonKeyPatternsDim := m.dimsKeys[dConf.Name]; len(jsonKeyPatternsDim) != 0 && len(jsonKeyPatternsDim) == nextJSONKeyPatternIndex {
-					dpCopy.Dimensions[dConf.Name] = nextJSONKey
+			for _, dConf := range conf.DimensionConfigs {
+				if keysFromDimPath := m.keysFromDimPaths[dConf.Name]; len(keysFromDimPath) != 0 && len(keysFromDimPath) == nextKeyFromPathIndex {
+					dpCopy.Dimensions[dConf.Name] = nextKey
 				}
 			}
-			m.setDps(dps, dpCopy, nextJSONKey, nextJSONKeyPatternIndex, jsonValue[nextJSONKey], metricConfig)
+			keys := append(keys, nextKey)
+			m.addDps(dps, dpCopy, append(keys[:0:0], keys...), nextKeyFromPathIndex, value[nextKey], conf)
 		}
 	case []interface{}:
-		jsonArray, arrayIndexPattern := jsonValue, jsonKeyPatterns[nextJSONKeyPatternIndex]
-		arrayIndexPatternRegexp, err := regexp.Compile(arrayIndexPattern)
+		if atPathEnd {
+			m.logger.Debugf("Expecting numeric value in path %s but found %+v. Configured path regex %s", joinWords(snakeCaseSlice(keys), conf.PathSeparator), value, conf.JSONPath)
+			return
+		}
+		if len(value) == 0 {
+			m.logger.Debugf("Empty object at %s before end of path. Configured path regex %s", joinWords(snakeCaseSlice(keys), conf.PathSeparator), conf.JSONPath)
+			return
+		}
+		array, arrayIndexFromPath := value, keysFromPath[nextKeyFromPathIndex]
+		arrayIndexFromPathCompiled, err := regexp.Compile(arrayIndexFromPath)
 		if err != nil {
 			m.logger.Error(err)
 			return
 		}
-		dpCopy, metric, dims := dp, dp.Metric, dp.Dimensions
-		for jsonArrayIndex, jsonArrayValue := range jsonArray {
-			jsonArrayIndexStr := strconv.Itoa(jsonArrayIndex)
-			if arrayIndexPatternRegexp.MatchString(jsonArrayIndexStr) {
-				if jsonArrayIndex > 0 {
-					dpCopy = &datapoint.Datapoint{Metric: metric, Dimensions: utils.CloneStringMap(dims)}
+		dpCopy, dims := dp, dp.Dimensions
+		for arrayIndex, arrayValue := range array {
+			arrayIndexStr := strconv.Itoa(arrayIndex)
+			if arrayIndexFromPathCompiled.MatchString(arrayIndexStr) {
+				if arrayIndex > 0 {
+					dpCopy = &datapoint.Datapoint{Dimensions: utils.CloneStringMap(dims)}
 				}
-				m.setIndexDim(dpCopy.Dimensions, jsonArrayIndexStr, jsonKey, jsonKeyPatternIndex, metricConfig)
-				m.setDps(dps, dpCopy, "", nextJSONKeyPatternIndex, jsonArrayValue, metricConfig)
+				m.addArrayIndexDim(dpCopy.Dimensions, arrayIndexStr, keys, keyFromPathIndex, conf)
+				m.addDps(dps, dpCopy, append(keys[:0:0], keys...), nextKeyFromPathIndex, arrayValue, conf)
 			}
 		}
 	default:
-		if strings.TrimSpace(metricConfig.Name) != "" {
-			dp.Metric = metricConfig.Name
-		}
-		dp.MetricType = metricConfig.metricType()
-		for _, dConf := range metricConfig.DimensionConfigs {
-			if strings.TrimSpace(dConf.Name) != "" && strings.TrimSpace(dConf.Value) != "" {
-				dp.Dimensions[dConf.Name] = dConf.Value
-			}
-		}
-		var err error
-		if dp.Value, err = datapoint.CastMetricValueWithBool(jsonValue); err == nil {
-			dps[metricConfig.JSONPath] = append(dps[metricConfig.JSONPath], dp)
-		} else {
-			m.logger.Debugf("Failed to set value for metric %s with JSON path %s because of type conversion error due to %+v", metricConfig.Name, metricConfig.JSONPath, err)
-			m.logger.WithError(err).Error("Unable to set metric value")
-			return
-		}
+		m.addDp(dps, dp, value, keys, atPathEnd, conf)
 	}
 }
 
-func (m *Monitor) setIndexDim(dims map[string]string, jsonArrayIndex string, jsonKey string, jsonKeyIndex int, metricConfig *MetricConfig) {
-	jsonKeyPatterns, nextJSONKeyIndex := m.metricsKeys[metricConfig.Name], jsonKeyIndex+1
+func (m *Monitor) addDp(dps map[string][]*datapoint.Datapoint, dp *datapoint.Datapoint, value interface{}, keys []string, atPathEnd bool, conf *MetricConfig) {
+	if !atPathEnd {
+		m.logger.Debugf("Expecting object or array at %s before end of path. Found value %+v instead. Configured path regex %s", joinWords(snakeCaseSlice(keys), conf.PathSeparator), value, conf.JSONPath)
+		return
+	}
+	if strings.TrimSpace(conf.Name) != "" {
+		dp.Metric = conf.Name
+	}
+	if dp.Metric == "" {
+		dp.Metric = joinWords(snakeCaseSlice(keys), ".")
+	}
+	dp.MetricType = conf.metricType()
+	for _, dConf := range conf.DimensionConfigs {
+		if strings.TrimSpace(dConf.Name) != "" && strings.TrimSpace(dConf.Value) != "" {
+			dp.Dimensions[dConf.Name] = dConf.Value
+		}
+	}
+	var err error
+	if dp.Value, err = datapoint.CastMetricValueWithBool(value); err == nil {
+		dps[conf.JSONPath] = append(dps[conf.JSONPath], dp)
+	} else {
+		m.logger.Debugf("Failed to set value for metric %s with JSON path %s because of type conversion error due to %+v", conf.Name, conf.JSONPath, err)
+		m.logger.WithError(err).Error("Unable to set metric value")
+	}
+}
+
+func (m *Monitor) addArrayIndexDim(dims map[string]string, arrayIndex string, keys []string, keyFromPathIndex int, metricConfig *MetricConfig) {
+	nextKeyIndex := keyFromPathIndex + 1
 	for _, conf := range metricConfig.DimensionConfigs {
-		if jsonKeyPatternsDim := m.dimsKeys[conf.Name]; len(jsonKeyPatternsDim) == nextJSONKeyIndex {
-			matched, err := regexp.MatchString(jsonKeyPatternsDim[jsonKeyIndex], jsonKey)
+		if keysFromDimPath := m.keysFromDimPaths[conf.Name]; len(keysFromDimPath) == nextKeyIndex {
+			matched, err := regexp.MatchString(keysFromDimPath[keyFromPathIndex], keys[keyFromPathIndex])
 			if err != nil {
 				m.logger.Error(err)
 				continue
 			}
 			if matched {
-				dims[conf.Name] = jsonArrayIndex
+				dims[conf.Name] = arrayIndex
 			}
 			return
 		}
 	}
 	if metricConfig.JSONPath == memstatsPauseNsMetricPath || metricConfig.JSONPath == memstatsPauseEndMetricPath {
-		dims[metricConfig.JSONPath] = jsonArrayIndex
+		dims[metricConfig.JSONPath] = arrayIndex
 		return
 	}
-	dims[joinWords(append(snakeCaseSlice(jsonKeyPatterns[:nextJSONKeyIndex]), "index"), "_")] = jsonArrayIndex
+	dims[joinWords(append(snakeCaseSlice(keys[:nextKeyIndex]), "index"), "_")] = arrayIndex
 }
 
 func (m *Monitor) preprocessDatapoint(dp *datapoint.Datapoint, metricPath string, mostRecentGCPauseIndex int64, now *time.Time) (bool, error) {
