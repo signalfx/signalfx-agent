@@ -3,7 +3,7 @@ Logic for communicating with FIFO pipes between Python and the agent.  The
 protocol is very simple: messages are sent in frames that are prefixed with a 4
 byte integer indicating their length.
 """
-from __future__ import absolute_import
+
 
 import io
 import logging

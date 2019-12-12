@@ -2,9 +2,9 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $scriptDir = split-path -parent $MyInvocation.MyCommand.Definition
 . $scriptDir\common.ps1
 
-$PYTHON_INSTALLER_NAME="python-installer.msi"
+$PYTHON_INSTALLER_NAME="python-installer.exe"
 $BUILD_DIR="$scriptDir\..\..\bundle\signalfx-agent"
-$PYTHON_MSI_URL="https://www.python.org/ftp/python/2.7.16/python-2.7.16.amd64.msi"
+$PYTHON_EXE_URL="https://www.python.org/ftp/python/3.8.0/python-3.8.0-amd64.exe"
 
 # download collectd from github.com/signalfx/collectd
 function download_collectd([string]$collectdCommit, [string]$outputDir="$BUILD_DIR\collectd") {
@@ -29,7 +29,7 @@ function get_collectd_plugins ([string]$buildDir=$BUILD_DIR) {
 }
 
 # download python executable from github.com/manthey/pyexe
-function download_python([string]$url=$PYTHON_MSI_URL, [string]$outputDir=$BUILD_DIR, [string]$installerName=$PYTHON_INSTALLER_NAME) {
+function download_python([string]$url=$PYTHON_EXE_URL, [string]$outputDir=$BUILD_DIR, [string]$installerName=$PYTHON_INSTALLER_NAME) {
     download_file -url $url -outputDir $outputDir -fileName $installerName
 }
 
@@ -49,30 +49,19 @@ function install_python([string]$buildDir=$BUILD_DIR, [string]$installerName=$PY
    $installerPath = Resolve-Path -Path "$buildDir\$installerName"
    mkdir "$buildDir\python" -ErrorAction Ignore
    $targetPath = Resolve-Path -Path "$buildDir\python"
-   $arguments = @(
-        "/a"
-        "$installerPath"
-        "/qn"
-        "/norestart"
-        "ALLUSERS=`"1`""
-        "ADDLOCAL=`"ALL`""
-        "TARGETDIR=`"$targetPath`""
-   )
-   Start-Process "msiexec.exe" -ArgumentList $arguments -Wait
-}
+   Start-Process -FilePath $installerPath -ArgumentList @(
+     '/passive',
+     'InstallAllUsers=1',
+     'Include_test=0',
+     'Include_tcltk=0',
+     'Include_doc=0',
+     'Include_dev=1',
+     'Include_pip=1',
+     'Include_launcher=0',
+     "TargetDir=`"$targetPath`""
+   ) -Wait
 
-function install_pip([string]$buildDir=$BUILD_DIR) {
-    $python = Resolve-Path -Path "$buildDir\python\python.exe"
-    $arguments = "-m", "ensurepip", "--upgrade"
-    $env:PYTHONHOME="$buildDir\python"
-    & $python $arguments
-    if ($lastexitcode -ne 0){ throw }
-    & $python -m pip -V
-    & $python -m pip install -qq --upgrade pip==18.0
-    if ($lastexitcode -ne 0){ throw }
-    & $python -m pip -V
-    # unset the python home enviornment variable
-    Remove-Item Env:\PYTHONHOME
+   & $buildDir\python\python.exe -m ensurepip
 }
 
 # install sfxpython package from the local directory

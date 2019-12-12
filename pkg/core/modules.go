@@ -13,7 +13,6 @@ import (
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/elasticsearch"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/etcd"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/hadoop"
-	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/haproxy"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/healthchecker"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/jenkins"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/kong"
