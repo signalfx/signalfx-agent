@@ -37,7 +37,7 @@ RUN AGENT_VERSION=${agent_version} COLLECTD_VERSION=${collectd_version} make sig
 FROM ubuntu:16.04 as collectd
 
 ARG TARGET_ARCH
-ARG PYTHON_VERSION=2.7.16
+ARG PYTHON_VERSION=3.8.0
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -107,9 +107,6 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       pkg-config \
       po-debconf \
       protobuf-c-compiler \
-      python-dev \
-      python-pip \
-      python-virtualenv \
       quilt \
       zlib1g-dev \
       libdbus-glib-1-dev \
@@ -119,20 +116,13 @@ RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb && \
     dpkg -i mysql-apt-config_0.8.12-1_all.deb && \
     apt-get update && apt-get install -y libmysqlclient-dev libcurl4-gnutls-dev
 
-ENV PYTHONHOME=/opt/python
 RUN wget -O /tmp/Python-${PYTHON_VERSION}.tgz https://www.python.org/ftp/python/${PYTHON_VERSION}/Python-${PYTHON_VERSION}.tgz &&\
     cd /tmp &&\
     tar xzf Python-${PYTHON_VERSION}.tgz && \
     cd Python-${PYTHON_VERSION} && \
-    ./configure --prefix=$PYTHONHOME --enable-shared --enable-ipv6 --enable-unicode=ucs4 --with-system-ffi --with-system-expat && \
-    make && make install
-
-RUN echo "$PYTHONHOME/lib" > /etc/ld.so.conf.d/python.conf && \
-    ldconfig $PYTHONHOME/lib
-ENV PATH=$PYTHONHOME/bin:$PATH
-
-RUN wget -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py && \
-    python /tmp/get-pip.py 'pip==18.0'
+    ./configure --enable-shared --enable-ipv6 --with-system-ffi --with-system-expat && \
+    make && make install libinstall && \
+    ldconfig
 
 # Compile patchelf statically from source
 RUN cd /tmp &&\
@@ -159,7 +149,7 @@ RUN echo "#!/bin/bash" > /usr/src/collectd/version-gen.sh &&\
 WORKDIR /usr/src/collectd
 
 ARG extra_cflags="-O2"
-ENV CFLAGS "-Wall -fPIC $extra_cflags"
+ENV CFLAGS "-Wno-deprecated-declarations -fPIC $extra_cflags"
 ENV CXXFLAGS $CFLAGS
 
 # In the bundle, the java plugin so will live in /lib/collectd and the JVM
@@ -205,7 +195,10 @@ RUN autoreconf -vif &&\
         --without-libstatgrab \
         --disable-silent-rules \
         --disable-static \
-        PYTHON_CONFIG="$PYTHONHOME/bin/python-config"
+        LIBPYTHON_LDFLAGS="$(python3.8-config --ldflags) -lpython3.8" \
+        LIBPYTHON_CPPFLAGS="$(python3.8-config --includes)" \
+        LIBPYTHON_LIBS="$(python3.8-config --libs) -lpython3.8"
+
 
 # Compile all of collectd first, including plugins
 RUN make -j`nproc` &&\
@@ -217,16 +210,11 @@ RUN /opt/collect-libs /opt/deps /usr/sbin/collectd /usr/lib/collectd/
 # right.
 RUN patchelf --add-needed libm-2.23.so /opt/deps/libvarnishapi.so.1.0.4
 
-# Delete all compiled python to save space
-RUN find $PYTHONHOME -name "*.pyc" -o -name "*.pyo" | xargs rm
-# We don't support compiling extension modules so don't need this directory
-RUN rm -rf $PYTHONHOME/lib/python2.7/config-*-linux-gnu
-
 
 ###### Python Plugin Image ######
 FROM collectd as python-plugins
 
-RUN pip install yq &&\
+RUN python3 -m pip install yq &&\
     wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 &&\
     chmod +x /usr/bin/jq
 
@@ -235,23 +223,22 @@ COPY scripts/get-collectd-plugins.py /opt/scripts/
 COPY scripts/get-collectd-plugins-requirements.txt /opt/
 COPY collectd-plugins.yaml /opt/
 
-RUN pip install -r /opt/get-collectd-plugins-requirements.txt
+RUN python3 -m pip install -r /opt/get-collectd-plugins-requirements.txt
 
-RUN pip install dbus-python
+RUN python3 -m pip install dbus-python
 
 RUN mkdir -p /opt/collectd-python &&\
-    python /opt/scripts/get-collectd-plugins.py /opt/collectd-python
+    python3 /opt/scripts/get-collectd-plugins.py /opt/collectd-python
 
 COPY python/ /opt/sfxpython/
-RUN cd /opt/sfxpython && pip install .
+RUN cd /opt/sfxpython && python3 -m pip install .
 
-RUN pip list
+RUN python3 -m pip list
 
 # Delete all compiled python to save space
-RUN find $PYTHONHOME -name "*.pyc" -o -name "*.pyo" | xargs rm
+RUN find /usr/local/lib/python3.8 -name "*.pyc" -o -name "*.pyo" | xargs rm
 # We don't support compiling extension modules so don't need this directory
-RUN rm -rf $PYTHONHOME/lib/python2.7/config-*-linux-gnu
-
+RUN rm -rf /usr/local/lib/python3.8/config-*-linux-gnu
 
 ######### Java monitor dependencies and monitor jar compilation
 FROM ubuntu:16.04 as java
@@ -326,9 +313,9 @@ RUN mkdir -p /opt/root/bin &&\
 COPY --from=collectd /usr/local/bin/patchelf /usr/bin/
 
 # Gather Python dependencies
-COPY --from=python-plugins /opt/python/lib/python2.7 /opt/root/lib/python2.7
-COPY --from=python-plugins /opt/python/lib/libpython2.7.so.1.0 /opt/root/lib
-COPY --from=python-plugins /opt/python/bin/python /opt/root/bin/python
+COPY --from=python-plugins /usr/local/lib/python3.8 /opt/root/lib/python3.8
+COPY --from=python-plugins /usr/local/lib/libpython3.8.so.1.0 /opt/root/lib
+COPY --from=python-plugins /usr/local/bin/python3.8 /opt/root/bin/python
 
 # Gather compiled collectd plugin libraries
 COPY --from=collectd /usr/sbin/collectd /opt/root/bin/collectd
