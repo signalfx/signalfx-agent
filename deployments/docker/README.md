@@ -75,10 +75,10 @@ providing a Docker volume mount to `/etc/signalfx/monitors/` with a file that
 follows the [monitor config schema](../../docs/monitor-config.md):
 
 ```yaml
-- collectd/elasticsearch
+- elasticsearch
   host: localhost
   port: 9200
 ```
 
 Other options could be specified according to the [ElasticSearch Monitor
-configuration](../../docs/monitors/collectd-elasticsearch.md)
+configuration](../../docs/monitors/elasticsearch.md)

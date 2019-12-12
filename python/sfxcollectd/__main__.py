@@ -1,7 +1,7 @@
 """
 Runs a collectd runner that can run a single collectd plugin instance.
 """
-from __future__ import absolute_import
+
 
 import logging
 import logging.config
