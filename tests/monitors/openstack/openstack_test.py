@@ -1,5 +1,4 @@
 import pytest
-
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip
 from tests.helpers.verify import run_agent_verify
