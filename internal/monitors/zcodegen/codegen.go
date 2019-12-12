@@ -5,5 +5,5 @@
 // module is generated.
 package codegen
 
-//go:generate go build -o monitorcodegen ../../../cmd/monitorcodegen
+//go:generate sh -c "GOOS=`go env GOHOSTOS` go build -o monitorcodegen ../../../cmd/monitorcodegen"
 //go:generate ./monitorcodegen
