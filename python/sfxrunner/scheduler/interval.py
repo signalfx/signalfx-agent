@@ -1,7 +1,7 @@
 """
 Logic for scheduling reads across a shared threadpool
 """
-from __future__ import absolute_import
+
 
 import heapq
 import logging
@@ -35,7 +35,7 @@ class IntervalScheduler(object):  # pylint: disable=too-many-instance-attributes
         # first time that needs to run before the next scheduled item in the
         # heap.
         self.new_earlier_event = Event()
-        self.next_scheduled = sys.maxint  # pylint: disable=no-member
+        self.next_scheduled = sys.maxsize  # pylint: disable=no-member
 
     def _add_thread(self):
         if len(self.threads) >= self.max_thread_count:
