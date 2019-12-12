@@ -1,0 +1,44 @@
+FROM ubuntu:14.04
+
+# See https://github.com/tianon/dockerfiles
+
+RUN rm -f /etc/apt/sources.list.d/ubuntu-esm-infra-trusty.list && \
+    apt update &&\
+    apt install -y ca-certificates procps wget apt-transport-https curl python
+
+RUN curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py && \
+    python /tmp/get-pip.py
+
+RUN pip install -U urllib3[secure]
+
+ARG ANSIBLE_VERSION='==2.4.0'
+RUN pip install ansible${ANSIBLE_VERSION}
+
+RUN rm /usr/sbin/policy-rc.d; \
+	rm /sbin/initctl; dpkg-divert --rename --remove /sbin/initctl
+
+RUN /usr/sbin/update-rc.d -f ondemand remove; \
+	for f in \
+		/etc/init/u*.conf \
+		/etc/init/mounted-dev.conf \
+		/etc/init/mounted-proc.conf \
+		/etc/init/mounted-run.conf \
+		/etc/init/mounted-tmp.conf \
+		/etc/init/mounted-var.conf \
+		/etc/init/hostname.conf \
+		/etc/init/networking.conf \
+		/etc/init/tty*.conf \
+		/etc/init/plymouth*.conf \
+		/etc/init/hwclock*.conf \
+		/etc/init/module*.conf\
+	; do \
+		dpkg-divert --local --rename --add "$f"; \
+	done; \
+	echo '# /lib/init/fstab: cleared out for bare-bones Docker' > /lib/init/fstab
+
+COPY tests/packaging/images/init-fake.conf /etc/init/fake-container-events.conf
+COPY deployments/ansible/* /opt/playbook/
+COPY tests/deployments/ansible/images/inventory.ini /opt/playbook/
+COPY tests/deployments/ansible/images/playbook.yml /opt/playbook/
+
+CMD ["/sbin/init", "-v"]

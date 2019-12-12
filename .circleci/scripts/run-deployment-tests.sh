@@ -68,6 +68,11 @@ ansible)
     docker run --rm \
         signalfx-agent-ansible-dev \
         ansible-lint .
+    if [ $CIRCLE_NODE_INDEX -eq 0 ]; then
+        echo "export MARKERS='ansible and rpm'" >> $BASH_ENV
+    else
+        echo "export MARKERS='ansible and deb'" >> $BASH_ENV
+    fi
     ;;
 *)
     echo "Deployment ${DEPLOYMENT_TYPE} not supported!"
