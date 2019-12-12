@@ -2,7 +2,7 @@
 Runs a Python shim that can run a single SignalFx Python
 monitor
 """
-from __future__ import absolute_import
+
 
 import logging
 import logging.config

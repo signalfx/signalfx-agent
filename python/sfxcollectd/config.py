@@ -22,6 +22,7 @@ class Config(object):  # pylint: disable=too-few-public-methods
         self.values = values
         self.children = children
 
+    # pylint:disable=too-many-branches
     @classmethod
     def from_monitor_config(cls, monitor_plugin_config):
         """
@@ -32,7 +33,7 @@ class Config(object):  # pylint: disable=too-few-public-methods
 
         conf = cls(root=None)
         conf.children = []
-        for key, val in monitor_plugin_config.items():
+        for key, val in list(monitor_plugin_config.items()):
             values = None
             children = None
             if val is None:
@@ -43,11 +44,16 @@ class Config(object):  # pylint: disable=too-few-public-methods
                     logging.debug("dropping configuration %s because its value is an empty list or tuple", key)
                     continue
                 values = val
-            elif isinstance(val, (str, unicode)):  # pylint: disable=undefined-variable
-                if val == "":
+            elif isinstance(val, str):  # pylint: disable=undefined-variable
+                if not val:
                     logging.debug("dropping configuration %s because its value is an empty string", key)
                     continue
                 values = (val,)
+            elif isinstance(val, bytes):
+                if not val:
+                    logging.debug("dropping configuration %s because its value is an empty string", key)
+                    continue
+                values = (val.decode("utf-8"),)
             elif isinstance(val, (int, bool)):
                 values = (val,)
             elif isinstance(val, dict):
@@ -65,7 +71,10 @@ class Config(object):  # pylint: disable=too-few-public-methods
                 children = dict_conf.children
                 values = dict_conf.values
             else:
-                logging.error("Cannot convert monitor config to collectd config: %s: %s", key, val)
+                logging.error(
+                    "Cannot convert monitor config to collectd config: %s: %s (type: %s)", key, val, type(val)
+                )
+                continue
 
             conf.children.append(cls(root=conf, key=key, values=values, children=children))
 
