@@ -90,9 +90,6 @@ jobs:
   - template: 'templates/install-go.yml'
     parameters:
       version: $(GOVERSION)
-  - template: 'templates/install-choco.yml'
-    parameters:
-      packages: 'vcpython27'
   - powershell: |
       if ("$(Build.SourceBranch)" -match "^refs/tags/v\d+\.\d+\.\d+$") {
           $env:AGENT_VERSION = ("$(Build.SourceBranchName)").Replace("v", "")

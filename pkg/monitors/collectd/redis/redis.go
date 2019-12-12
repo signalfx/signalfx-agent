@@ -47,6 +47,8 @@ type Config struct {
 	// Specify a pattern of keys to lists for which to send their length as a
 	// metric. See below for more details.
 	SendListLengths []ListLength `yaml:"sendListLengths"`
+	// If `true`, verbose logging from the plugin will be enabled.
+	Verbose bool `yaml:"verbose"`
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface
@@ -95,12 +97,11 @@ func (rm *Monitor) Configure(conf *Config) error {
 			"Port":     conf.Port,
 			"Instance": instanceID,
 			"Auth":     conf.Auth,
-			"Name":     conf.Name,
 			"SendListLength": map[string]interface{}{
 				"#flatten": true,
 				"values":   conf.sendListLengthsTuples(),
 			},
-			"Verbose":                              false,
+			"Verbose":                              conf.Verbose,
 			"Redis_uptime_in_seconds":              "gauge",
 			"Redis_used_cpu_sys":                   "counter",
 			"Redis_used_cpu_user":                  "counter",

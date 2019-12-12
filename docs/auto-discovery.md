@@ -113,7 +113,7 @@ For example (making use of YAML references to reduce repetition):
 
 ```yaml
   - &es
-    type: collectd/elasticsearch
+    type: elasticsearch
     username: admin
     password: s3cr3t
     host: es
