@@ -222,3 +222,35 @@ def test_expvar_2_one_or_more_character_regex_json_path():
             """,
             expected,
         )
+
+
+def test_expvar_empty_object_for_metric_value():
+    """
+    Given the JSON object below
+    {
+        "willplayad.in_flight": 0,
+        "willplayad.response.noserv": {},
+        "willplayad.response.serv": 0,
+        "willplayad.start": 0
+    }
+    """
+    expected = METADATA.default_metrics | {
+        "willplayad.in_flight",
+        # "willplayad.response.noserv",
+        "willplayad.response.serv",
+        "willplayad.start",
+    }
+    with run_expvar() as expvar_container_ip:
+        run_agent_verify(
+            f"""
+            monitors:
+            - type: expvar
+              host: {expvar_container_ip}
+              port: 8080
+              metrics:
+              - JSONPath: 'willplay*'
+                pathSeparator: /
+                type: gauge
+            """,
+            expected,
+        )

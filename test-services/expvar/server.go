@@ -8,15 +8,6 @@ import (
 )
 
 func init() {
-	expvar.Publish("queues", expvar.Func(func() interface{} {
-		return map[string]interface{}{
-			"count": 5,
-			"lengths": []int64{
-				4, 2, 1, 0, 5,
-			},
-		}
-	}))
-
 	expvar.Publish("memory", expvar.Func(func() interface{} {
 		return map[string]interface{}{
 			"Allocations": []map[string]int64{
@@ -30,8 +21,19 @@ func init() {
 }
 
 func main() {
-	var kafkaExJaegerTransactionOk = expvar.NewInt("kafka.ex-jaeger-transaction.ok")
-	kafkaExJaegerTransactionOk.Add(11)
+	expvar.Publish("queues", expvar.Func(func() interface{} {
+		return map[string]interface{}{
+			"count": 5,
+			"lengths": []int64{
+				4, 2, 1, 0, 5,
+			},
+		}
+	}))
+	expvar.NewInt("kafka.ex-jaeger-transaction.ok").Add(11)
+	expvar.NewInt("willplayad.in_flight").Set(0)
+	expvar.Publish("willplayad.response.noserv", expvar.Func(func() interface{} { return struct{}{} }))
+	expvar.NewInt("willplayad.response.serv").Set(0)
+	expvar.NewInt("willplayad.start").Set(0)
 
 	sock, err := net.Listen("tcp", "0.0.0.0:8080") //nolint: gosec
 	if err != nil {
