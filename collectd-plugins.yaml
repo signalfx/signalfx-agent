@@ -1,18 +1,14 @@
 ---
 - name: consul
-  version: v1.0.1
+  version: v1.1.0
   repo: signalfx/collectd-consul
 
 - name: couchbase
-  version: v1.0.2
+  version: v1.1.0
   repo: signalfx/collectd-couchbase
 
-- name: docker
-  version: v3.0.0
-  repo: signalfx/docker-collectd-plugin
-
 - name: elasticsearch
-  version: v1.3.8
+  version: v1.4.0
   repo: signalfx/collectd-elasticsearch
   can_remove:
     - tests
@@ -22,19 +18,15 @@
   repo: signalfx/collectd-etcd
 
 - name: hadoop
-  version: v1.0.2
+  version: v1.1.0
   repo: signalfx/collectd-hadoop
 
-- name: haproxy
-  version: v1.0.4
-  repo: signalfx/collectd-haproxy
-
 - name: health_checker
-  version: v0.0.3
+  version: v0.1.0
   repo: signalfx/collectd-health_checker
 
 - name: jenkins
-  version: v2.0.0
+  version: v2.1.0
   repo: signalfx/collectd-jenkins
 
 - name: kong
@@ -50,58 +42,47 @@
   repo: signalfx/collectd-marathon
 
 - name: mongodb
-  version: v1.2.3
+  version: v1.3.0
   repo: signalfx/collectd-mongodb
   pip_packages:
     - pymongo[tls]==3.3.1
 
 - name: openstack
-  version: v1.0.0
+  version: v2.0.0
   repo: signalfx/collectd-openstack
 
 - name: rabbitmq
-  version: v1.0.2
+  version: v1.1.0
   repo: signalfx/collectd-rabbitmq
   can_remove:
     - integration-test
 
 - name: redis
-  version: v1.1.2
+  version: v1.2.0
   repo: signalfx/redis-collectd-plugin
-  can_remove:
-    - screenshots
-    - redis.conf
 
 - name: signalfx
   # Hardcode the metadata plugin commit until we can get it merged into master
   # and tagged properly
-  version: 754ca15d68de5bbec64a6c4f08da9bd92b0c512e
+  version: 4d0e13f103b2e1b75ed4c7085784ef0279d6ab62
   repo: signalfx/signalfx-collectd-plugin
 
 - name: solr
-  version: v1.0.0
+  version: v1.1.0
   repo: signalfx/collectd-solr
 
 - name: spark
-  version: v1.0.2
+  version: v1.1.0
   repo: signalfx/collectd-spark
 
 - name: zookeeper
-  version: v0.0.5
+  version: v0.1.0
   repo: signalfx/collectd-zookeeper
 
 - name: vmstat
-  version: master
+  version: v1.0.0
   repo: signalfx/vmstat-collectd
 
 - name: systemd
-  version: 4e24e6f9db8ad5c06da3bf3543ce8f9d5bb8be43
+  version: v1.1.0
   repo: signalfx/collectd-systemd
-
-#- name: timestats
-  #version: latest
-  #repo: signalfx/collectd-timestats
-
-#- name: cassandra
-  #version: latest
-  #repo: signalfx/collectd-cassandra
