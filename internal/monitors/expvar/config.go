@@ -2,6 +2,7 @@ package expvar
 
 import (
 	"fmt"
+	"net/url"
 	"strings"
 
 	"github.com/signalfx/signalfx-agent/internal/utils"
@@ -44,6 +45,19 @@ func (c *Config) GetExtraMetrics() []string {
 		return []string{"*"}
 	}
 	return nil
+}
+
+func (c *Config) getURL() url.URL {
+	return url.URL{
+		Scheme: func() string {
+			if c.UseHTTPS {
+				return "https"
+			}
+			return "http"
+		}(),
+		Host: fmt.Sprintf("%s:%d", c.Host, c.Port),
+		Path: c.Path,
+	}
 }
 
 var _ config.ExtraMetrics = &Config{}

@@ -3,10 +3,7 @@ package expvar
 import (
 	"errors"
 	"regexp"
-	"strconv"
 	"strings"
-
-	"github.com/signalfx/golib/v3/datapoint"
 )
 
 var capRegexp = regexp.MustCompile("(^[^A-Z]*|[A-Z]*)([A-Z][^A-Z]+|$)")
@@ -37,18 +34,6 @@ func joinWords(slice []string, sep string) string {
 		}
 	}
 	return strings.Join(words, sep)
-}
-
-// getMostRecentGCPauseIndex logic is derived from https://golang.org/pkg/runtime/ in the PauseNs section of the 'type MemStats' section
-func getMostRecentGCPauseIndex(dpsMap map[string][]*datapoint.Datapoint) int64 {
-	dps := dpsMap[memstatsNumGCMetricPath]
-	mostRecentGCPauseIndex := int64(-1)
-	if len(dps) > 0 && dps[0].Value != nil {
-		if numGC, err := strconv.ParseInt(dps[0].Value.String(), 10, 0); err == nil {
-			mostRecentGCPauseIndex = (numGC + 255) % 256
-		}
-	}
-	return mostRecentGCPauseIndex
 }
 
 var slashLastRegexp = regexp.MustCompile(`[^\/]*$`)
