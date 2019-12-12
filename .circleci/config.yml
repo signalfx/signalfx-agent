@@ -368,6 +368,7 @@ jobs:
       - run:
           environment:
             K8S_VERSION: << parameters.k8s_version >>
+            WITH_CRIO: << parameters.with_crio >>
           command: .circleci/scripts/setup-k8s-tests.sh
       - when:
           condition: << parameters.with_crio >>
@@ -544,7 +545,7 @@ workflows:
             - helm_check
       - k8s_integration_tests:
           name: k8s_crio_integration_tests
-          k8s_version: v1.15.0
+          k8s_version: v1.16.0
           with_crio: true
           requires:
             - build

@@ -5,8 +5,9 @@ set -eo pipefail
 [ -n "$K8S_VERSION" ] || (echo "K8S_VERSION not defined!" && exit 1)
 
 K8S_MIN_VERSION="${K8S_MIN_VERSION:-v1.12.0}"
-K8S_MAX_VERSION="${K8S_MAX_VERSION:-v1.15.0}"
+K8S_MAX_VERSION="${K8S_MAX_VERSION:-v1.16.0}"
 K8S_SFX_AGENT="${K8S_SFX_AGENT:-quay.io/signalfx/signalfx-agent-dev:latest}"
+WITH_CRIO=${WITH_CRIO:-0}
 
 CHANGES_INCLUDE="deployments/k8s \
     tests/deployments/helm \
@@ -17,8 +18,8 @@ CHANGES_INCLUDE="deployments/k8s \
     $(find . -iname '*k8s*' -o -iname '*kube*' | sed 's|^\./||' | grep -v '^docs/')"
 
 if [ "$CIRCLE_BRANCH" != "master" ] && ! scripts/changes-include-dir $CHANGES_INCLUDE; then
-    # Only run k8s tests for K8S_MIN_VERSION and K8S_MAX_VERSION if there are no relevant changes.
-    if [[ "$K8S_VERSION" != "$K8S_MIN_VERSION" && "$K8S_VERSION" != "$K8S_MAX_VERSION" ]]; then
+    # Only run k8s tests for crio, K8S_MIN_VERSION, and K8S_MAX_VERSION if there are no relevant changes.
+    if [[ $WITH_CRIO -ne 1 && "$K8S_VERSION" != "$K8S_MIN_VERSION" && "$K8S_VERSION" != "$K8S_MAX_VERSION" ]]; then
         echo "Skipping kubernetes $K8S_VERSION integration tests."
         touch ~/.skip
         exit 0
