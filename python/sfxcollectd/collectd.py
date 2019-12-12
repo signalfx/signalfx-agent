@@ -23,7 +23,7 @@ loading modules multiple times with totally isolated configurations of the same
 plugin.  If a monitor associated with a particular config shutdown, then the
 subinterpreter could just be destroyed.
 """
-from __future__ import absolute_import
+
 
 import logging
 from collections import namedtuple

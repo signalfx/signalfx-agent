@@ -95,29 +95,29 @@ Examples:
     - metricNames:
       - cpu*
       - memory*
-      monitorType: collectd/docker
+      monitorType: docker-container-stats
       negated: true
 
     # This indicates that you want to monitor the custom metrics
     # gauge.cluster.status and gauge.thread_pool.active for the
     # elasticsearch monitor.
     - metricNames:
-      - gauge.cluster.status
-      - gauge.thread_pool.active
-      monitorType: collectd/elasticsearch
+      - elasticsearch.cluster.status
+      - elasticsearch.thread_pool.active
+      monitorType: elasticsearch
       negated: true
 
     # This will be automatically merged with the above filter to produce one
     # whitelist filter on three metric names for elasticsearch
     - metricNames:
-      - gauge.thread_pool.inactive
-      monitorType: collectd/elasticsearch
+      - elasticsearch.thread_pool.inactive
+      monitorType: elasticsearch
       negated: true
 
     # This will override the above filter, exclusion is always favored
     - metricNames:
-      - gauge.thread_pool.inactive
-      monitorType: collectd/elasticsearch
+      - elasticsearch.thread_pool.inactive
+      monitorType: elasticsearch
 ```
 
 ### Inclusion filtering
