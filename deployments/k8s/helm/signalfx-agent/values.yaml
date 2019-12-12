@@ -199,7 +199,7 @@ monitors:
   - type: collectd/consul
     discoveryRule: container_image =~ "consul" && private_port == 8500
 
-  - type: collectd/elasticsearch
+  - type: elasticsearch
     discoveryRule: container_image =~ "elasticsearch" && port == 9200
 
   - type: collectd/etcd
@@ -207,7 +207,7 @@ monitors:
     # REQUIRED
     clusterName: my-cluster
 
-  - type: collectd/haproxy
+  - type: haproxy
     discoveryRule: container_image =~ "haproxy" && port == 9000
 
   - type: collectd/kafka
