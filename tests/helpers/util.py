@@ -11,7 +11,7 @@ import time
 from contextlib import contextmanager
 from functools import partial as p
 from io import BytesIO
-from typing import Dict, List
+from typing import Any, Dict, List
 
 import docker
 import netifaces as ni
@@ -141,20 +141,22 @@ def container_hostname(container):
     return container.attrs["Config"]["Hostname"]
 
 
+LOCALHOST_COUNTER = 0
+
 # Ensure a unique internal status server host address.  This supports up to
 # 255 concurrent agents on the same pytest worker process, and up to 255
 # pytest workers, which should be plenty
 def get_unique_localhost():
     worker = int(re.sub(r"\D", "", os.environ.get("PYTEST_XDIST_WORKER", "0")))
-    get_unique_localhost.counter += 1
-    return "127.%d.%d.0" % (worker, get_unique_localhost.counter % 255)
 
+    global LOCALHOST_COUNTER  # pylint:disable=global-statement
+    LOCALHOST_COUNTER += 1
 
-get_unique_localhost.counter = 0
+    return "127.%d.%d.0" % (worker, LOCALHOST_COUNTER % 255)
 
 
 @contextmanager
-def run_subprocess(command: List[str], env: Dict[any, any] = None):
+def run_subprocess(command: List[str], env: Dict[Any, Any] = None):
     # subprocess on Windows has a bug where it doesn't like Path.
     proc = subprocess.Popen([str(c) for c in command], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
