@@ -2,7 +2,7 @@
 
 # etcd
 
-Monitor Type: `etcd` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/etcd))
+Monitor Type: `etcd` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/etcd))
 
 **Accepts Endpoints**: **Yes**
 

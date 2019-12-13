@@ -2,7 +2,7 @@
 
 # collectd/zookeeper
 
-Monitor Type: `collectd/zookeeper` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/zookeeper))
+Monitor Type: `collectd/zookeeper` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/zookeeper))
 
 **Accepts Endpoints**: **Yes**
 

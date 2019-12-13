@@ -2,7 +2,7 @@
 
 # appmesh
 
-Monitor Type: `appmesh` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/appmesh))
+Monitor Type: `appmesh` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/appmesh))
 
 **Accepts Endpoints**: No
 

@@ -18,7 +18,7 @@ old_content=$(cat $target_file 2>/dev/null || echo -n "")
 collectd_package="collectd."
 collectd_package_import='
 
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"'
+	"github.com/signalfx/signalfx-agent/pkg/monitors/collectd"'
 if [[ $package == "collectd" ]]; then
   collectd_package_import=
   collectd_package=

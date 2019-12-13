@@ -14,7 +14,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/signalfx/signalfx-agent/internal/selfdescribe"
+	"github.com/signalfx/signalfx-agent/pkg/selfdescribe"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -33,7 +33,7 @@ func buildOutputPath(pkg *selfdescribe.PackageMetadata) string {
 }
 
 func generate(templateFile string) error {
-	pkgs, err := selfdescribe.CollectMetadata("internal/monitors")
+	pkgs, err := selfdescribe.CollectMetadata("pkg/monitors")
 
 	if err != nil {
 		return err

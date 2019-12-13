@@ -2,7 +2,7 @@
 
 # telegraf/statsd
 
-Monitor Type: `telegraf/statsd` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/telegrafstatsd))
+Monitor Type: `telegraf/statsd` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/telegraf/monitors/telegrafstatsd))
 
 **Accepts Endpoints**: No
 

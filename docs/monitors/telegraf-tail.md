@@ -2,7 +2,7 @@
 
 # telegraf/tail
 
-Monitor Type: `telegraf/tail` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/telegraf/monitors/tail))
+Monitor Type: `telegraf/tail` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/telegraf/monitors/tail))
 
 **Accepts Endpoints**: No
 

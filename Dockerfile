@@ -23,7 +23,7 @@ RUN go mod download
 COPY cmd/ ./cmd/
 COPY scripts/collectd-template-to-go scripts/make-versions ./scripts/
 COPY Makefile .
-COPY internal/ ./internal/
+COPY pkg/ ./pkg/
 
 ARG collectd_version=""
 ARG agent_version="latest"
@@ -371,7 +371,7 @@ COPY --from=extra-packages /opt/root/bin/ /bin/
 COPY --from=collectd /usr/share/collectd/postgresql_default.conf /postgresql_default.conf
 COPY --from=collectd /usr/share/collectd/types.db /types.db
 COPY --from=collectd /usr/share/collectd/java/ /collectd-java/
-COPY internal/monitors/collectd/signalfx_types.db /collectd-java/signalfx_types_db
+COPY pkg/monitors/collectd/signalfx_types.db /collectd-java/signalfx_types_db
 
 # Pull in Python collectd plugin scripts
 COPY --from=python-plugins /opt/collectd-python/ /collectd-python/

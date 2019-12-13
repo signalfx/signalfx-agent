@@ -2,7 +2,7 @@
 
 # collectd/hadoop
 
-Monitor Type: `collectd/hadoop` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoop))
+Monitor Type: `collectd/hadoop` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/hadoop))
 
 **Accepts Endpoints**: **Yes**
 

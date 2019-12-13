@@ -2,7 +2,7 @@
 
 # collectd/memcached
 
-Monitor Type: `collectd/memcached` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/memcached))
+Monitor Type: `collectd/memcached` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/memcached))
 
 **Accepts Endpoints**: **Yes**
 

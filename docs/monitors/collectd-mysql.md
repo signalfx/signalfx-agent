@@ -2,7 +2,7 @@
 
 # collectd/mysql
 
-Monitor Type: `collectd/mysql` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/mysql))
+Monitor Type: `collectd/mysql` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/mysql))
 
 **Accepts Endpoints**: **Yes**
 

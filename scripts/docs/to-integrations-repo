@@ -4,10 +4,18 @@
 
 import copy
 import json
-import yaml
-
 from collections import OrderedDict
+
+import yaml
 from jinja2 import Environment, FileSystemLoader
+
+from integration_doc_helper import (
+    AGENT_ROOT,
+    INTEGRATIONS_DOC_TEMPLATE_DIR,
+    INTEGRATIONS_REPO,
+    fixup_relative_monitor_paths,
+    sync_agent_info,
+)
 from nltk.tokenize import sent_tokenize
 
 try:
@@ -18,45 +26,43 @@ except ImportError:
 
 nltk.download("punkt")
 
-from integration_doc_helper import AGENT_ROOT, INTEGRATIONS_DOC_TEMPLATE_DIR, INTEGRATIONS_REPO
-from integration_doc_helper import fixup_relative_monitor_paths, sync_agent_info
 
 # Key is of the form <monitor/package/path:monitorType>, value is the
 # integration directory in the integrations repo where metrics should go (not
 # including the `docs/` path suffix).
 MONITORS_TO_INTEGRATIONS_DIR = {
-    ("internal/monitors/collectd/activemq", "collectd/activemq"): "activemq",
-    ("internal/monitors/collectd/apache", "collectd/apache"): "apache",
-    ("internal/monitors/elasticsearch", "elasticsearch"): "elasticsearch",
-    ("internal/monitors/collectd/cpu", "collectd/cpu"): "collectd-cpu",
-    ("internal/monitors/collectd/cassandra", "collectd/cassandra"): "cassandra",
-    ("internal/monitors/collectd/consul", "collectd/consul"): "consul",
-    ("internal/monitors/collectd/couchbase", "collectd/couchbase"): "couchbase",
-    ("internal/monitors/collectd/etcd", "collectd/etcd"): "etcd",
-    ("internal/monitors/docker", "docker-container-stats"): "docker",
-    ("internal/monitors/gitlab", "gitlab"): "gitlab",
-    ("internal/monitors/collectd/hadoop", "collectd/hadoop"): "hadoop",
-    ("internal/monitors/collectd/haproxy", "collectd/haproxy"): "haproxy",
-    ("internal/monitors/collectd/genericjmx", "collectd/genericjmx"): "java",
-    ("internal/monitors/collectd/jenkins", "collectd/jenkins"): "jenkins",
-    ("internal/monitors/collectd/kafka", "collectd/kafka"): "kafka",
-    ("internal/monitors/collectd/kong", "collectd/kong"): "kong",
-    ("internal/monitors/collectd/marathon", "collectd/marathon"): "marathon",
-    ("internal/monitors/collectd/memcached", "collectd/memcached"): "memcached",
-    ("internal/monitors/collectd/mongodb", "collectd/mongodb"): "mongodb",
-    ("internal/monitors/collectd/mysql", "collectd/mysql"): "mysql",
-    ("internal/monitors/collectd/nginx", "collectd/nginx"): "nginx",
-    ("internal/monitors/collectd/openstack", "collectd/openstack"): "openstack",
-    ("internal/monitors/postgresql", "postgresql"): "postgresql",
-    ("internal/monitors/collectd/rabbitmq", "collectd/rabbitmq"): "rabbitmq",
-    ("internal/monitors/collectd/redis", "collectd/redis"): "redis",
-    ("internal/monitors/collectd/solr", "collectd/solr"): "solr",
-    ("internal/monitors/statsd", "statsd"): "statsd",
-    ("internal/monitors/collectd/spark", "collectd/spark"): "spark",
-    ("internal/monitors/collectd/zookeeper", "collectd/zookeeper"): "zookeeper",
-    ("internal/monitors/logstash/logstash", "logstash"): "logstash",
-    ("internal/monitors/logstash/tcp", "logstash-tcp"): "logstash",
-    ("internal/monitors/internalmetrics", "internal-metrics"): "signalfx-agent",
+    ("pkg/monitors/collectd/activemq", "collectd/activemq"): "activemq",
+    ("pkg/monitors/collectd/apache", "collectd/apache"): "apache",
+    ("pkg/monitors/elasticsearch", "elasticsearch"): "elasticsearch",
+    ("pkg/monitors/collectd/cpu", "collectd/cpu"): "collectd-cpu",
+    ("pkg/monitors/collectd/cassandra", "collectd/cassandra"): "cassandra",
+    ("pkg/monitors/collectd/consul", "collectd/consul"): "consul",
+    ("pkg/monitors/collectd/couchbase", "collectd/couchbase"): "couchbase",
+    ("pkg/monitors/collectd/etcd", "collectd/etcd"): "etcd",
+    ("pkg/monitors/docker", "docker-container-stats"): "docker",
+    ("pkg/monitors/gitlab", "gitlab"): "gitlab",
+    ("pkg/monitors/collectd/hadoop", "collectd/hadoop"): "hadoop",
+    ("pkg/monitors/collectd/haproxy", "collectd/haproxy"): "haproxy",
+    ("pkg/monitors/collectd/genericjmx", "collectd/genericjmx"): "java",
+    ("pkg/monitors/collectd/jenkins", "collectd/jenkins"): "jenkins",
+    ("pkg/monitors/collectd/kafka", "collectd/kafka"): "kafka",
+    ("pkg/monitors/collectd/kong", "collectd/kong"): "kong",
+    ("pkg/monitors/collectd/marathon", "collectd/marathon"): "marathon",
+    ("pkg/monitors/collectd/memcached", "collectd/memcached"): "memcached",
+    ("pkg/monitors/collectd/mongodb", "collectd/mongodb"): "mongodb",
+    ("pkg/monitors/collectd/mysql", "collectd/mysql"): "mysql",
+    ("pkg/monitors/collectd/nginx", "collectd/nginx"): "nginx",
+    ("pkg/monitors/collectd/openstack", "collectd/openstack"): "openstack",
+    ("pkg/monitors/postgresql", "postgresql"): "postgresql",
+    ("pkg/monitors/collectd/rabbitmq", "collectd/rabbitmq"): "rabbitmq",
+    ("pkg/monitors/collectd/redis", "collectd/redis"): "redis",
+    ("pkg/monitors/collectd/solr", "collectd/solr"): "solr",
+    ("pkg/monitors/statsd", "statsd"): "statsd",
+    ("pkg/monitors/collectd/spark", "collectd/spark"): "spark",
+    ("pkg/monitors/collectd/zookeeper", "collectd/zookeeper"): "zookeeper",
+    ("pkg/monitors/logstash/logstash", "logstash"): "logstash",
+    ("pkg/monitors/logstash/tcp", "logstash-tcp"): "logstash",
+    ("pkg/monitors/internalmetrics", "internal-metrics"): "signalfx-agent",
 }
 
 
@@ -152,9 +158,7 @@ def process_config_fields_helper(config, yamlname="Config"):
     # the value consists of relevant config fields that constitute
     # the table. Non-nested config fields are grouped  into
     # "Config", following the convention in selfdescribe.json
-    processed_config = OrderedDict({
-        yamlname: [],
-    })
+    processed_config = OrderedDict({yamlname: []})
 
     for field in config.get("fields", []):
         # Add the current field to the table defined by yamlname
@@ -194,7 +198,8 @@ def monitor_docs_per_integrations_repo(monitor_docs):
 
     for monitor_doc in monitor_docs:
         integrations_dir = MONITORS_TO_INTEGRATIONS_DIR.get(
-            (monitor_doc["config"]["package"], monitor_doc["monitorType"]), None)
+            (monitor_doc["config"]["package"], monitor_doc["monitorType"]), None
+        )
 
         if not integrations_dir:
             continue
@@ -215,7 +220,8 @@ def monitor_docs_per_integrations_repo(monitor_docs):
         out[integrations_dir]["description"].update({monitor_type: monitor_doc["doc"]})
         out[integrations_dir]["configuration"].update({monitor_type: process_config_fields(monitor_doc["config"])})
         out[integrations_dir]["metrics"].update(
-            process_metrics_from_self_describe(monitor_type, monitor_doc["metrics"]))
+            process_metrics_from_self_describe(monitor_type, monitor_doc["metrics"])
+        )
         out[integrations_dir]["dimensions"].update({monitor_type: monitor_doc["dimensions"]})
         out[integrations_dir]["properties"].update({monitor_type: monitor_doc["properties"]})
 
@@ -251,7 +257,7 @@ def sync_docs(integration_dirs):
 
         print(f"Syncing docs to {integrations_dir} directory")
         target_path = INTEGRATIONS_REPO / integrations_dir / "SMART_AGENT_MONITOR.md"
-        target_path.write_text(fixup_relative_monitor_paths(out), encoding="utf-8", )
+        target_path.write_text(fixup_relative_monitor_paths(out), encoding="utf-8")
 
 
 def generate_metric_yaml(monitor, metrics, send_all):
@@ -294,7 +300,9 @@ def sync_metrics(integration_dirs):
 
         print(f"Syncing metrics to {integrations_dir} directory")
 
-        metric_yaml = "# This file was generated in the Smart Agent repo and copied here, DO NOT EDIT HERE.\n" + metric_yaml
+        metric_yaml = (
+            "# This file was generated in the Smart Agent repo and copied here, DO NOT EDIT HERE.\n" + metric_yaml
+        )
         out_path = INTEGRATIONS_REPO / integrations_dir / "metrics.yaml"
         out_path.write_text(metric_yaml, encoding="utf-8")
 

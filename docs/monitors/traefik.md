@@ -2,7 +2,7 @@
 
 # traefik
 
-Monitor Type: `traefik` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/traefik))
+Monitor Type: `traefik` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/traefik))
 
 **Accepts Endpoints**: **Yes**
 

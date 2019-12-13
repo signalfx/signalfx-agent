@@ -318,3 +318,23 @@ The vagrant box should have enough dependencies installed that you can build the
     $ cd C:\Users\vagrant\signalfx-agent
 
     $ scripts/windows/make.ps1 bundle
+
+## External Compilation of the Agent
+
+To compile the agent externally, create a separate Go module in your own
+repository.  The most basic wrapper around the agent is the following file (put
+in your main package):
+
+```go
+package main
+
+import "github.com/signalfx/signalfx-agent/cmd/agent/agentmain"
+
+func main() {
+	agentmain.Run()
+}
+```
+
+You should use Go modules and pin the agent version to a specific commit hash
+in the agent since the agent does not use proper major versioning with Go
+modules.

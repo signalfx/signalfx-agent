@@ -2,7 +2,7 @@
 
 # collectd/redis
 
-Monitor Type: `collectd/redis` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/redis))
+Monitor Type: `collectd/redis` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/redis))
 
 **Accepts Endpoints**: **Yes**
 
