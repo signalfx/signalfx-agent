@@ -15,7 +15,7 @@ import (
 	info "github.com/google/cadvisor/info/v1"
 	"github.com/signalfx/signalfx-agent/internal/core/common/kubelet"
 	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/monitors"
+	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	log "github.com/sirupsen/logrus"
 	stats "k8s.io/kubernetes/pkg/kubelet/apis/stats/v1alpha1"

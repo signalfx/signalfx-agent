@@ -1,7 +1,7 @@
 package gitlab
 
 import (
-	"github.com/signalfx/signalfx-agent/internal/monitors"
+	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	pe "github.com/signalfx/signalfx-agent/internal/monitors/prometheusexporter"
 )
 

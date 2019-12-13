@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/monitors"
+	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	log "github.com/sirupsen/logrus"
 )
 

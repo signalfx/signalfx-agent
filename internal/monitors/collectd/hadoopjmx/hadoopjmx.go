@@ -5,7 +5,7 @@ package hadoopjmx
 import (
 	"fmt"
 
-	"github.com/signalfx/signalfx-agent/internal/monitors"
+	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/genericjmx"
 	yaml "gopkg.in/yaml.v2"
 )

@@ -3,7 +3,7 @@
 package genericjmx
 
 import (
-	"github.com/signalfx/signalfx-agent/internal/monitors"
+	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	yaml "gopkg.in/yaml.v2"
 )
 
