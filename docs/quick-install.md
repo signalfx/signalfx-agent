@@ -20,6 +20,8 @@ Before you download and install the Smart Agent on a **single** host, review the
 
 (For other installation options, including bulk deployments, see [Advanced Installation Options](./advanced-install-options.md).)
 
+Please note that the Smart Agent does not support Mac OS.  
+
 **General requirements**
 - You must have access to your command line interface.
 - You must uninstall or disable any previously installed collector agent from your host, such as collectd.
