@@ -26,7 +26,8 @@ class PProfClient:
         self.port = port
         self.goroutine_idx = 0
         self.heap_idx = 0
-        self.test_name = re.search(r"::(.*?) \(.*\)$", os.environ.get("PYTEST_CURRENT_TEST", "unknown")).group(1)
+        name_match = re.search(r"::(.*?) \(.*\)$", os.environ.get("PYTEST_CURRENT_TEST", ""))
+        self.test_name = name_match.group(1) if name_match else "unknown"
 
         pathlib.Path("/tmp/pprof").mkdir(parents=True, exist_ok=True)
 
