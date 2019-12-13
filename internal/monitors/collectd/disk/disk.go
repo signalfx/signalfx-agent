@@ -5,9 +5,9 @@ package disk
 //go:generate ../../../../scripts/collectd-template-to-go disk.tmpl
 
 import (
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 )
 
 func init() {

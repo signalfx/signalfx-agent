@@ -14,11 +14,11 @@ import (
 	docker "github.com/docker/docker/client"
 	"github.com/pkg/errors"
 	dockercommon "github.com/signalfx/signalfx-agent/internal/core/common/docker"
+	"github.com/signalfx/signalfx-agent/internal/utils/filter"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/signalfx/signalfx-agent/internal/utils/filter"
 	"github.com/sirupsen/logrus"
 )
 

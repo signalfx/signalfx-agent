@@ -9,8 +9,8 @@ import (
 
 	"github.com/signalfx/golib/v3/event"
 	"github.com/signalfx/golib/v3/pointer"
-	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/internal/neotest"
+	"github.com/signalfx/signalfx-agent/pkg/core/config"
 )
 
 func TestMonitor_Configure(t *testing.T) {

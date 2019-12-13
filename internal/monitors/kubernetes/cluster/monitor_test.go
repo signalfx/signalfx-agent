@@ -15,8 +15,8 @@ import (
 
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/core/common/kubernetes"
-	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/neotest"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	log "github.com/sirupsen/logrus"
 
 	. "github.com/onsi/ginkgo"

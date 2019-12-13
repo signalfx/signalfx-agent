@@ -10,8 +10,8 @@ import (
 	"io"
 	"reflect"
 
-	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources"
+	"github.com/signalfx/signalfx-agent/pkg/core/config"
 )
 
 // JSON returns a json encoded string of all of the documentation for the

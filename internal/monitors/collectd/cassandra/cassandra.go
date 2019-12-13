@@ -3,8 +3,8 @@
 package cassandra
 
 import (
-	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/genericjmx"
+	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	yaml "gopkg.in/yaml.v2"
 )
 

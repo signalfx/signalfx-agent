@@ -1,8 +1,8 @@
 package traefik
 
 import (
-	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	pe "github.com/signalfx/signalfx-agent/internal/monitors/prometheusexporter"
+	"github.com/signalfx/signalfx-agent/pkg/monitors"
 )
 
 func init() {

@@ -15,9 +15,9 @@ import (
 	"github.com/docker/docker/client"
 	dockercommon "github.com/signalfx/signalfx-agent/internal/core/common/docker"
 
-	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
 	"github.com/signalfx/signalfx-agent/internal/observers"
+	"github.com/signalfx/signalfx-agent/pkg/core/config"
 )
 
 const (

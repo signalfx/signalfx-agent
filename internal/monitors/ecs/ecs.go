@@ -17,12 +17,12 @@ import (
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/signalfx-agent/internal/core/common/ecs"
+	dmonitor "github.com/signalfx/signalfx-agent/internal/monitors/docker"
+	"github.com/signalfx/signalfx-agent/internal/utils/filter"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
-	dmonitor "github.com/signalfx/signalfx-agent/internal/monitors/docker"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/signalfx/signalfx-agent/internal/utils/filter"
 	log "github.com/sirupsen/logrus"
 )
 

@@ -12,8 +12,8 @@ import (
 	"github.com/creasty/defaults"
 	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/internal/utils/structtags"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 	log "github.com/sirupsen/logrus"
 )
 

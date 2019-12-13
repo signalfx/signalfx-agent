@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"reflect"
 
-	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/internal/core/config/validation"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
+	"github.com/signalfx/signalfx-agent/pkg/core/config"
 )
 
 // Used to validate configuration that is common to all monitors up front

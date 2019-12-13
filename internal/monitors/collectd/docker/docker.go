@@ -5,9 +5,9 @@ package docker
 //go:generate ../../../../scripts/collectd-template-to-go docker.tmpl
 
 import (
+	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 	log "github.com/sirupsen/logrus"
 )
 

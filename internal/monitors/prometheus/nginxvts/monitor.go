@@ -1,8 +1,8 @@
 package nginxvts
 
 import (
-	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/prometheusexporter"
+	"github.com/signalfx/signalfx-agent/pkg/monitors"
 )
 
 func init() {
