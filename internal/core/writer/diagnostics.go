@@ -7,7 +7,7 @@ import (
 
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 // Call this in a goroutine to maintain a moving window average DPM, EPM, and

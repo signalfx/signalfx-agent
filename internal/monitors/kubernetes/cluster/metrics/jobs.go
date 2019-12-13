@@ -6,7 +6,7 @@ import (
 	"github.com/signalfx/golib/v3/datapoint"
 	k8sutil "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
 	atypes "github.com/signalfx/signalfx-agent/pkg/monitors/types"
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 	batchv1 "k8s.io/api/batch/v1"
 )
 

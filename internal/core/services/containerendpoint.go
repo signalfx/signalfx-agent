@@ -1,7 +1,7 @@
 package services
 
 import (
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 // ContainerEndpoint contains information for single network endpoint of a

@@ -3,7 +3,7 @@ package expvar
 import (
 	"testing"
 
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 type SnakeCaseSliceTest struct {

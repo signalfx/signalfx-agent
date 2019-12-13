@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 
 	"github.com/signalfx/golib/v3/datapoint"
 	logger "github.com/sirupsen/logrus"

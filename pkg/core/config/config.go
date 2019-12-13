@@ -17,7 +17,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources"
 	"github.com/signalfx/signalfx-agent/internal/core/config/validation"
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/internal/utils/hostfs"
 	log "github.com/sirupsen/logrus"
 )

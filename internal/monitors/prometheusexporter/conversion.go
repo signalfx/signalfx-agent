@@ -6,7 +6,7 @@ import (
 	dto "github.com/prometheus/client_model/go"
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 type extractor func(m *dto.Metric) float64

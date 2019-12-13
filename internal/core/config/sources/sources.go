@@ -20,7 +20,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/config/sources/zookeeper"
 	"github.com/signalfx/signalfx-agent/internal/core/config/types"
 	"github.com/signalfx/signalfx-agent/internal/core/config/validation"
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 	log "github.com/sirupsen/logrus"
 
 	yaml "gopkg.in/yaml.v2"

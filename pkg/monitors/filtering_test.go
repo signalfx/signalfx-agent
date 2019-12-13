@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/signalfx/golib/v3/datapoint"
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 func testMetadata(metricsExhaustive bool) *Metadata {

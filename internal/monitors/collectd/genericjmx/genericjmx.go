@@ -11,7 +11,7 @@ package genericjmx
 import (
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 //go:generate ../../../../scripts/collectd-template-to-go genericjmx.tmpl

@@ -9,7 +9,7 @@ import (
 	"github.com/creasty/defaults"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 	log "github.com/sirupsen/logrus"
 )
 

@@ -2,7 +2,7 @@ package kubernetes
 
 import (
 	"github.com/signalfx/signalfx-agent/internal/core/services"
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 // PodEndpoint is an endpoint that represents an entire pod and not a specific

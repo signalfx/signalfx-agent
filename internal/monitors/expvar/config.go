@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 
 	"github.com/signalfx/signalfx-agent/internal/core/config/validation"
 

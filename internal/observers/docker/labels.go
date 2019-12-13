@@ -5,7 +5,7 @@ import (
 	"strings"
 
 	"github.com/docker/go-connections/nat"
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 var labelConfigRegexp = regexp.MustCompile(
