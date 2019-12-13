@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/event"
-	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 )
 
 // Monitor is a base monitor struct for emitting metadata properties

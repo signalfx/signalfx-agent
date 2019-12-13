@@ -12,7 +12,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/utils"
 
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	logger "github.com/sirupsen/logrus"
 )
 

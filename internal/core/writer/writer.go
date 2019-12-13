@@ -26,7 +26,7 @@ import (
 	"github.com/signalfx/signalfx-agent/internal/core/writer/dimensions"
 	"github.com/signalfx/signalfx-agent/internal/core/writer/tap"
 	"github.com/signalfx/signalfx-agent/internal/core/writer/tracetracker"
-	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	sfxwriter "github.com/signalfx/signalfx-go/writer"
 	"github.com/sirupsen/logrus"

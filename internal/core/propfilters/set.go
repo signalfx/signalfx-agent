@@ -1,7 +1,7 @@
 package propfilters
 
 import (
-	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 )
 
 // FilterSet is a collection of dimension filters, any one of which must match

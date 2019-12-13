@@ -4,7 +4,7 @@
 package propfilters
 
 import (
-	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils/filter"
 )
 

@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
-	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
+	atypes "github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	"github.com/signalfx/signalfx-agent/internal/utils/k8sutil"
 	v1 "k8s.io/api/core/v1"

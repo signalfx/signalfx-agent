@@ -9,7 +9,7 @@ import (
 	"github.com/signalfx/golib/v3/trace"
 	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
 	"github.com/signalfx/signalfx-agent/internal/core/services"
-	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/sirupsen/logrus"
 )
 

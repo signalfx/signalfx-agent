@@ -17,7 +17,7 @@ import (
 	signalfxformat "github.com/signalfx/gateway/protocol/signalfx/format"
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/internal/monitors/subproc"
-	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/sirupsen/logrus"
 )
 

@@ -27,7 +27,7 @@ import (
 	"github.com/signalfx/golib/datapoint"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/internal/utils"
 	log "github.com/sirupsen/logrus"
 )
@@ -177,7 +177,7 @@ for registration).
 There is a special field that can be specified by the monitor struct that will
 be automatically populated by the agent:
 
-- `Output "github.com/signalfx/signalfx-agent/internal/monitors/types".Output`: This is what
+- `Output "github.com/signalfx/signalfx-agent/pkg/monitors/types".Output`: This is what
     is used to send data from the monitor back to the agent, and then on to
     SignalFx.  This value has three methods:
 
@@ -188,7 +188,7 @@ be automatically populated by the agent:
 
     - `SendEvent(*"github.com/signalfx/golib/v3/event".Event)`: Sends an event.
 
-	- `SendDimensionUpdate(*"github.com/signalfx/signalfx-agent/internal/monitors/types".Dimension)`:
+	- `SendDimensionUpdate(*"github.com/signalfx/signalfx-agent/pkg/monitors/types".Dimension)`:
 		Sends property updates for a specific dimension key/value pair.
 
 The name and type of the struct field must be exactly as specified or else it

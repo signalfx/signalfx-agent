@@ -5,7 +5,7 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	k8sutil "github.com/signalfx/signalfx-agent/internal/monitors/kubernetes/utils"
-	atypes "github.com/signalfx/signalfx-agent/internal/monitors/types"
+	atypes "github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	log "github.com/sirupsen/logrus"
 	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/api/autoscaling/v2beta1"

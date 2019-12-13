@@ -4,7 +4,7 @@ import (
 	"reflect"
 
 	lru "github.com/hashicorp/golang-lru"
-	"github.com/signalfx/signalfx-agent/internal/monitors/types"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	log "github.com/sirupsen/logrus"
 )
 
