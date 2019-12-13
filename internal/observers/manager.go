@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	log "github.com/sirupsen/logrus"
 )
 

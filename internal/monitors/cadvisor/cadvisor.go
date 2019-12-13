@@ -6,7 +6,7 @@ import (
 	"github.com/google/cadvisor/client"
 	info "github.com/google/cadvisor/info/v1"
 	"github.com/pkg/errors"
-	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/internal/monitors/types"
 	stats "k8s.io/kubernetes/pkg/kubelet/apis/stats/v1alpha1"

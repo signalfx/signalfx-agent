@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
-	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/stretchr/testify/assert"
 )
 

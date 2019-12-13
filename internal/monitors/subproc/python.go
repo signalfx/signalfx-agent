@@ -3,7 +3,7 @@ package subproc
 import (
 	"os"
 
-	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"github.com/signalfx/signalfx-agent/pkg/core/config"
 )
 
 // DefaultPythonRuntimeConfig returns the runtime config that uses the bundled Python

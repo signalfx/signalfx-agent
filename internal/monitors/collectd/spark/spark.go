@@ -8,7 +8,7 @@ import (
 
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd"
 
-	"github.com/signalfx/signalfx-agent/internal/core/config"
+	"github.com/signalfx/signalfx-agent/pkg/core/config"
 
 	"github.com/signalfx/signalfx-agent/internal/monitors/collectd/python"
 	"github.com/signalfx/signalfx-agent/internal/monitors/subproc"
