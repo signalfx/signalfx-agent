@@ -135,33 +135,7 @@ The agent will be installed as a Windows service and will log to the Windows Eve
 
 ### Troubleshoot the Smart Agent installation
 
-If you are unable to install the Smart Agent, consider the following issues:
-
-***
- 
-#### Update your realm
-
-By default, the Smart Agent will send data to the *us0* realm. As a result, you may need to update the realm used in the installation process. To locate your realm: 
-
-1. In SignalFx, in the top, right corner, click your profile icon.
-2. Click **My Profile**.
-3. Next to **Organizations**, review the listed realm.
-
-***
-
-#### Set the endpoints
-
-To explicitly set the ingest, API server, and trace endpoint URLs, review the following examples:  
-
-```sh
-ingestUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"
-apiUrl: "https://api.YOUR_SIGNALFX_REALM.signalfx.com"
-traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
-```
-
-***
-
-#### Review your error logs
+If you are unable to install the Smart Agent, consider reviewing your error logs: 
 
 For Linux, use the following command to view error logs via Journal:
 
