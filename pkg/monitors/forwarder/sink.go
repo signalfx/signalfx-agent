@@ -31,8 +31,8 @@ func (os *outputSink) AddEvents(ctx context.Context, events []*event.Event) erro
 
 func (os *outputSink) AddSpans(ctx context.Context, spans []*trace.Span) error {
 	source, hasSource := ctx.Value(sourceKey).(net.IP)
-	for i := range spans {
-		if hasSource {
+	if hasSource {
+		for i := range spans {
 			if spans[i].Meta == nil {
 				spans[i].Meta = map[interface{}]interface{}{}
 			}

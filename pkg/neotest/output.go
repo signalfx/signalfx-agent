@@ -45,6 +45,11 @@ func (to *TestOutput) SendEvent(event *event.Event) {
 
 // SendSpans accepts a trace span and sticks it in a buffered queue
 func (to *TestOutput) SendSpans(spans ...*trace.Span) {
+	for i := range spans {
+		if spans[i].Meta == nil {
+			spans[i].Meta = map[interface{}]interface{}{}
+		}
+	}
 	to.spanChan <- spans
 }
 

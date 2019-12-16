@@ -107,6 +107,9 @@ func (mo *monitorOutput) SendEvent(event *event.Event) {
 
 func (mo *monitorOutput) SendSpans(spans ...*trace.Span) {
 	for i := range spans {
+		if spans[i].Meta == nil {
+			spans[i].Meta = map[interface{}]interface{}{}
+		}
 		spans[i].Meta[dpmeta.EndpointMeta] = mo.endpoint
 	}
 
