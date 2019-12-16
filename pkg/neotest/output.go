@@ -87,6 +87,19 @@ func (to *TestOutput) FlushEvents() []*event.Event {
 	}
 }
 
+// FlushSpans returns all of the spans injected into the channel so far
+func (to *TestOutput) FlushSpans() []*trace.Span {
+	var out []*trace.Span
+	for {
+		select {
+		case span := <-to.spanChan:
+			out = append(out, span...)
+		default:
+			return out
+		}
+	}
+}
+
 // WaitForDPs will keep pulling datapoints off of the internal queue until it
 // either gets the expected count or waitSeconds seconds have elapsed.  It then
 // returns those datapoints.  It will never return more than 'count' datapoints.
