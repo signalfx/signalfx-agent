@@ -18,6 +18,7 @@ import (
 type pathSetupFunc = func(*mux.Router, http.Handler)
 
 func startListening(ctx context.Context, listenAddr string, timeout time.Duration, sink signalfx.Sink) (sfxclient.Collector, error) {
+	// listenAddr= "localhost:14250"
 	listener, err := net.Listen("tcp", listenAddr)
 	if err != nil {
 		return nil, errors.WithMessage(err, "cannot open listening address "+listenAddr)
