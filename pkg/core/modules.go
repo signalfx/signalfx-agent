@@ -73,6 +73,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/traceforwarder"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/traefik"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/vmem"
+	_ "github.com/signalfx/signalfx-agent/pkg/monitors/vsphere"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/windowsiis"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/windowslegacy"
 	_ "github.com/signalfx/signalfx-agent/pkg/observers/docker"

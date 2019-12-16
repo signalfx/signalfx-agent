@@ -154,6 +154,7 @@ These are all of the monitors included in the agent, along with their possible c
 - [trace-forwarder](./monitors/trace-forwarder.md)
 - [traefik](./monitors/traefik.md)
 - [vmem](./monitors/vmem.md)
+- [vsphere](./monitors/vsphere.md)
 - [windows-iis](./monitors/windows-iis.md)
 - [windows-legacy](./monitors/windows-legacy.md)
 
