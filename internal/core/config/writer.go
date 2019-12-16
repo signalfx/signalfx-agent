@@ -25,6 +25,8 @@ type WriterConfig struct {
 	MaxDatapointsBuffered int `yaml:"maxDatapointsBuffered" default:"25000"`
 	// The analogue of `datapointMaxBatchSize` for trace spans.
 	TraceSpanMaxBatchSize int `yaml:"traceSpanMaxBatchSize" default:"1000"`
+	// Format to export traces in. Choices are "sfx" and "sapm"
+	TraceExportFormat string `yaml:"traceExportFormat" default:"sfx"`
 	// Deprecated: use `maxRequests` instead.
 	DatapointMaxRequests int `yaml:"datapointMaxRequests"`
 	// The maximum number of concurrent requests to make to a single ingest server

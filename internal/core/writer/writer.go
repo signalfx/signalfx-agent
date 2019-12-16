@@ -115,6 +115,9 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 		dpChan:            dpChan,
 		spanChan:          spanChan,
 	}
+	if conf.TraceExportFormat == string(sfxclient.ProtoSAPM) {
+		sw.client = sfxclient.WithSAPMExporter(sw.client)
+	}
 	go sw.maintainLastMinuteActivity()
 
 	sw.client.AuthToken = conf.SignalFxAccessToken
