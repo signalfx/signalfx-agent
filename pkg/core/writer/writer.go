@@ -13,6 +13,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
@@ -105,7 +106,6 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 		cancel:            cancel,
 		conf:              conf,
 		logger:            logger,
-		client:            sfxclient.NewHTTPSink(),
 		dimensionClient:   dimensionClient,
 		hostIDDims:        conf.HostIDDims,
 		eventChan:         eventChan,
@@ -115,6 +115,18 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 		dpChan:            dpChan,
 		spanChan:          spanChan,
 	}
+
+	sinkOptions := []sfxclient.HTTPSinkOption{}
+	switch strings.ToLower(conf.TraceExportFormat) {
+	case config.TraceExportFormatZipkin:
+		sinkOptions = append(sinkOptions, sfxclient.WithZipkinTraceExporter())
+	case config.TraceExportFormatSAPM:
+		sinkOptions = append(sinkOptions, sfxclient.WithSAPMTraceExporter())
+	default:
+		return nil, fmt.Errorf("trace export format '%s' is not supported", conf.TraceExportFormat)
+	}
+	sw.client = sfxclient.NewHTTPSink(sinkOptions...)
+
 	go sw.maintainLastMinuteActivity()
 
 	sw.client.AuthToken = conf.SignalFxAccessToken
@@ -155,7 +167,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 	traceEndpointURL := conf.ParsedTraceEndpointURL()
 	if traceEndpointURL == nil {
 		var err error
-		traceEndpointURL, err = conf.ParsedIngestURL().Parse("v1/trace")
+		traceEndpointURL, err = conf.ParsedIngestURL().Parse(conf.DefaultTraceEndpointPath())
 		if err != nil {
 			log.WithFields(log.Fields{
 				"error":     err,

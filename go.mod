@@ -41,14 +41,14 @@ require (
 	github.com/garyburd/redigo v1.6.0 // indirect
 	github.com/go-errors/errors v1.0.1 // indirect
 	github.com/go-ldap/ldap v3.0.2+incompatible // indirect
+	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-playground/locales v0.11.2
 	github.com/go-playground/universal-translator v0.16.0
 	github.com/go-sql-driver/mysql v1.4.1
 	github.com/go-stomp/stomp v2.0.2+incompatible // indirect
 	github.com/gobwas/glob v0.2.4-0.20181002190808-e7a84e9525fe
 	github.com/gocql/gocql v0.0.0-20190301043612-f6df8288f9b4 // indirect
-	github.com/gogo/googleapis v1.3.1 // indirect
-	github.com/gogo/protobuf v1.3.0
+	github.com/gogo/protobuf v1.3.1
 	github.com/google/cadvisor v0.26.1
 	github.com/googleapis/gnostic v0.1.0 // indirect
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75 // indirect
@@ -120,12 +120,12 @@ require (
 	github.com/pquerna/otp v1.1.0 // indirect
 	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90
 	github.com/prometheus/common v0.2.1-0.20190321124555-1ab4d74fc899
-	github.com/samuel/go-zookeeper v0.0.0-20180130194729-c4fab1ac1bec
+	github.com/samuel/go-zookeeper v0.0.0-20190810000440-0ceca61e4d75
 	github.com/shirou/gopsutil v2.18.12+incompatible
 	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.0-20190222193949-1fb69526e884
 	github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 	github.com/signalfx/gateway v1.2.19-0.20191125135538-2c417b7ae0bd
-	github.com/signalfx/golib/v3 v3.0.0
+	github.com/signalfx/golib/v3 v3.1.0
 	github.com/signalfx/signalfx-go v1.6.9-0.20191121015807-da8b1dfaab43
 	github.com/sirupsen/logrus v1.4.0
 	github.com/smartystreets/goconvey v1.6.4
@@ -142,7 +142,7 @@ require (
 	go.etcd.io/etcd v0.0.0-20190321122103-41f7142ff986
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	golang.org/x/sys v0.0.0-20191105231009-c1f44814a5cd
-	google.golang.org/grpc v1.19.0
+	google.golang.org/grpc v1.20.1
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/fatih/set.v0 v0.1.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect

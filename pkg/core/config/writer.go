@@ -2,6 +2,7 @@ package config
 
 import (
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/mitchellh/hashstructure"
@@ -25,6 +26,8 @@ type WriterConfig struct {
 	MaxDatapointsBuffered int `yaml:"maxDatapointsBuffered" default:"25000"`
 	// The analogue of `datapointMaxBatchSize` for trace spans.
 	TraceSpanMaxBatchSize int `yaml:"traceSpanMaxBatchSize" default:"1000"`
+	// Format to export traces in. Choices are "zipkin" and "sapm"
+	TraceExportFormat string `yaml:"traceExportFormat" default:"zipkin"`
 	// Deprecated: use `maxRequests` instead.
 	DatapointMaxRequests int `yaml:"datapointMaxRequests"`
 	// The maximum number of concurrent requests to make to a single ingest server
@@ -165,4 +168,12 @@ func (wc *WriterConfig) Hash() uint64 {
 		return 0
 	}
 	return hash
+}
+
+// DefaultTraceEndpointPath returns the default path based on the export format.
+func (wc *WriterConfig) DefaultTraceEndpointPath() string {
+	if strings.ToLower(wc.TraceExportFormat) == TraceExportFormatSAPM {
+		return "/v2/trace"
+	}
+	return "/v1/trace"
 }
