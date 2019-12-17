@@ -1,6 +1,7 @@
 package leadership
 
 import (
+	"context"
 	"errors"
 	"os"
 	"sync"
@@ -84,6 +85,7 @@ func startLeaderElection(v1Client corev1.CoreV1Interface) error {
 		ns,
 		"signalfx-agent-leader",
 		v1Client,
+		nil,
 		resourcelock.ResourceLockConfig{
 			Identity: nodeName,
 			// client-go can't make anything simple
@@ -100,7 +102,7 @@ func startLeaderElection(v1Client corev1.CoreV1Interface) error {
 		RenewDeadline: 45 * time.Second,
 		RetryPeriod:   30 * time.Second,
 		Callbacks: leaderelection.LeaderCallbacks{
-			OnStartedLeading: func(_ <-chan struct{}) {},
+			OnStartedLeading: func(_ context.Context) {},
 			OnStoppedLeading: func() {},
 			OnNewLeader: func(identity string) {
 				lock.Lock()
@@ -127,7 +129,7 @@ func startLeaderElection(v1Client corev1.CoreV1Interface) error {
 
 	go func() {
 		for {
-			le.Run()
+			le.Run(context.Background())
 		}
 	}()
 
