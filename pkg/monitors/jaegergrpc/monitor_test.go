@@ -5,6 +5,7 @@ import (
 	"net"
 	"path"
 	"reflect"
+	"runtime"
 	"testing"
 	"time"
 
@@ -432,6 +433,9 @@ func TestMonitor_Configure(t *testing.T) {
 	for i := range tests {
 		tt := tests[i]
 		t.Run(tt.name, func(t *testing.T) {
+			if runtime.GOOS == "windows" {
+				return
+			}
 			var err error
 
 			// test monitor with test output
