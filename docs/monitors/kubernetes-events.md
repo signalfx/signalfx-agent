@@ -2,7 +2,7 @@
 
 # kubernetes-events
 
-Monitor Type: `kubernetes-events` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/kubernetes/events))
+Monitor Type: `kubernetes-events` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/kubernetes/events))
 
 **Accepts Endpoints**: No
 

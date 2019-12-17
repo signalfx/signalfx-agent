@@ -2,7 +2,7 @@
 
 # kubernetes-apiserver
 
-Monitor Type: `kubernetes-apiserver` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/kubernetes/apiserver))
+Monitor Type: `kubernetes-apiserver` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/kubernetes/apiserver))
 
 **Accepts Endpoints**: **Yes**
 

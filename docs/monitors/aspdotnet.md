@@ -2,7 +2,7 @@
 
 # aspdotnet
 
-Monitor Type: `aspdotnet` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/aspdotnet))
+Monitor Type: `aspdotnet` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/aspdotnet))
 
 **Accepts Endpoints**: No
 

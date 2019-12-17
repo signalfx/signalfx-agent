@@ -2,7 +2,7 @@
   "GenericMonitorConfig": {
     "name": "MonitorConfig",
     "doc": "MonitorConfig is used to configure monitor instances.  One instance of MonitorConfig may be used to configure multiple monitor instances.  If a monitor's discovery rule does not match any discovered services, the monitor will not run.",
-    "package": "internal/core/config",
+    "package": "pkg/core/config",
     "fields": [
       {
         "yamlName": "type",
@@ -78,7 +78,7 @@
         "elementStruct": {
           "name": "MetricFilter",
           "doc": "MetricFilter describes a set of subtractive filters applied to datapoints right before they are sent.",
-          "package": "internal/core/config",
+          "package": "pkg/core/config",
           "fields": [
             {
               "yamlName": "dimensions",
@@ -133,7 +133,7 @@
         "elementStruct": {
           "name": "MetricFilter",
           "doc": "MetricFilter describes a set of subtractive filters applied to datapoints right before they are sent.",
-          "package": "internal/core/config",
+          "package": "pkg/core/config",
           "fields": [
             {
               "yamlName": "dimensions",
@@ -223,7 +223,7 @@
   "GenericObserverConfig": {
     "name": "ObserverConfig",
     "doc": "ObserverConfig holds the configuration for an observer",
-    "package": "internal/core/config",
+    "package": "pkg/core/config",
     "fields": [
       {
         "yamlName": "type",
@@ -738,7 +738,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/appmesh",
+        "package": "pkg/monitors/appmesh",
         "fields": [
           {
             "yamlName": "listenAddress",
@@ -893,7 +893,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/aspdotnet",
+        "package": "pkg/monitors/aspdotnet",
         "fields": [
           {
             "yamlName": "counterRefreshInterval",
@@ -1279,7 +1279,7 @@
       "config": {
         "name": "CHTTPConfig",
         "doc": "CHTTPConfig is the monitor-specific config for cAdvisor",
-        "package": "internal/monitors/cadvisor",
+        "package": "pkg/monitors/cadvisor",
         "fields": [
           {
             "yamlName": "cadvisorURL",
@@ -1598,7 +1598,7 @@
       "config": {
         "name": "Config",
         "doc": "Config has configuration that is specific to GenericJMX. This config should be used by a monitors that use the generic JMX collectd plugin.",
-        "package": "internal/monitors/collectd/activemq",
+        "package": "pkg/monitors/collectd/activemq",
         "fields": [
           {
             "yamlName": "host",
@@ -1698,7 +1698,7 @@
             "elementStruct": {
               "name": "MBean",
               "doc": "MBean represents the \u003cMBean\u003e config object in the collectd config for generic jmx.",
-              "package": "internal/monitors/collectd/genericjmx",
+              "package": "pkg/monitors/collectd/genericjmx",
               "fields": [
                 {
                   "yamlName": "objectName",
@@ -1734,7 +1734,7 @@
                   "elementStruct": {
                     "name": "MBeanValue",
                     "doc": "MBeanValue specifies a particular value to pull from the MBean.",
-                    "package": "internal/monitors/collectd/genericjmx",
+                    "package": "pkg/monitors/collectd/genericjmx",
                     "fields": [
                       {
                         "yamlName": "type",
@@ -1931,7 +1931,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/apache",
+        "package": "pkg/monitors/collectd/apache",
         "fields": [
           {
             "yamlName": "host",
@@ -2227,7 +2227,7 @@
       "config": {
         "name": "Config",
         "doc": "Config has configuration that is specific to GenericJMX. This config should be used by a monitors that use the generic JMX collectd plugin.",
-        "package": "internal/monitors/collectd/cassandra",
+        "package": "pkg/monitors/collectd/cassandra",
         "fields": [
           {
             "yamlName": "host",
@@ -2327,7 +2327,7 @@
             "elementStruct": {
               "name": "MBean",
               "doc": "MBean represents the \u003cMBean\u003e config object in the collectd config for generic jmx.",
-              "package": "internal/monitors/collectd/genericjmx",
+              "package": "pkg/monitors/collectd/genericjmx",
               "fields": [
                 {
                   "yamlName": "objectName",
@@ -2363,7 +2363,7 @@
                   "elementStruct": {
                     "name": "MBeanValue",
                     "doc": "MBeanValue specifies a particular value to pull from the MBean.",
-                    "package": "internal/monitors/collectd/genericjmx",
+                    "package": "pkg/monitors/collectd/genericjmx",
                     "fields": [
                       {
                         "yamlName": "type",
@@ -2444,7 +2444,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/chrony",
+        "package": "pkg/monitors/collectd/chrony",
         "fields": [
           {
             "yamlName": "host",
@@ -2910,7 +2910,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/consul",
+        "package": "pkg/monitors/collectd/consul",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -3491,7 +3491,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/couchbase",
+        "package": "pkg/monitors/collectd/couchbase",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -3645,7 +3645,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/cpu",
+        "package": "pkg/monitors/collectd/cpu",
         "fields": []
       },
       "acceptsEndpoints": false,
@@ -3677,7 +3677,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/cpufreq",
+        "package": "pkg/monitors/collectd/cpufreq",
         "fields": []
       },
       "acceptsEndpoints": false,
@@ -3695,7 +3695,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the configuration for the collectd custom monitor",
-        "package": "internal/monitors/collectd/custom",
+        "package": "pkg/monitors/collectd/custom",
         "fields": [
           {
             "yamlName": "host",
@@ -3863,7 +3863,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/df",
+        "package": "pkg/monitors/collectd/df",
         "fields": [
           {
             "yamlName": "hostFSPath",
@@ -4045,7 +4045,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/disk",
+        "package": "pkg/monitors/collectd/disk",
         "fields": [
           {
             "yamlName": "disks",
@@ -4245,7 +4245,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/docker",
+        "package": "pkg/monitors/collectd/docker",
         "fields": [
           {
             "yamlName": "dimensions",
@@ -5530,7 +5530,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/elasticsearch",
+        "package": "pkg/monitors/collectd/elasticsearch",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -5900,7 +5900,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/etcd",
+        "package": "pkg/monitors/collectd/etcd",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -6054,7 +6054,7 @@
       "config": {
         "name": "Config",
         "doc": "Config has configuration that is specific to GenericJMX. This config should be used by a monitors that use the generic JMX collectd plugin.",
-        "package": "internal/monitors/collectd/genericjmx",
+        "package": "pkg/monitors/collectd/genericjmx",
         "fields": [
           {
             "yamlName": "host",
@@ -6154,7 +6154,7 @@
             "elementStruct": {
               "name": "MBean",
               "doc": "MBean represents the \u003cMBean\u003e config object in the collectd config for generic jmx.",
-              "package": "internal/monitors/collectd/genericjmx",
+              "package": "pkg/monitors/collectd/genericjmx",
               "fields": [
                 {
                   "yamlName": "objectName",
@@ -6190,7 +6190,7 @@
                   "elementStruct": {
                     "name": "MBeanValue",
                     "doc": "MBeanValue specifies a particular value to pull from the MBean.",
-                    "package": "internal/monitors/collectd/genericjmx",
+                    "package": "pkg/monitors/collectd/genericjmx",
                     "fields": [
                       {
                         "yamlName": "type",
@@ -7462,7 +7462,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/hadoop",
+        "package": "pkg/monitors/collectd/hadoop",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -7505,7 +7505,7 @@
       "monitorType": "collectd/hadoopjmx",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Collects metrics about a Hadoop 2.0+ cluster using using collectd's GenericJMX\nplugin. You may also configure the\n[collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoop.md)\nmonitor to collect additional metrics about the hadoop cluster from the\nREST API\n\nTo enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively\n\n**hadoop-env.sh:**\n```sh\nexport HADOOP_NAMENODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5677 $HADOOP_NAMENODE_OPTS\"\nexport HADOOP_DATANODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5679 $HADOOP_DATANODE_OPTS\"\n```\n\n**yarn-env.sh:**\n```sh\nexport YARN_NODEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=8002 $YARN_NODEMANAGER_OPTS\"\nexport YARN_RESOURCEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5680 $YARN_RESOURCEMANAGER_OPTS\"\n```\n\nThis monitor has a set of built in MBeans configured for:\n  - [Name Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nameNodeMBeans.go)\n  - [Resource Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/resourceManagerMBeans.go)\n  - [Node Manager](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/nodeManagerMBeans.go)\n  - [Data Nodes](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/hadoopjmx/dataNodeMBeans.go)\n\nSample YAML configuration:\n\nName Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5677\n  nodeType: nameNode\n```\n\nResource Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5680\n  nodeType: resourceManager\n```\n\nNode Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 8002\n  nodeType: nodeManager\n```\n\nData Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5679\n  nodeType: dataNode\n```\n",
+      "doc": "Collects metrics about a Hadoop 2.0+ cluster using using collectd's GenericJMX\nplugin. You may also configure the\n[collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoop.md)\nmonitor to collect additional metrics about the hadoop cluster from the\nREST API\n\nTo enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively\n\n**hadoop-env.sh:**\n```sh\nexport HADOOP_NAMENODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5677 $HADOOP_NAMENODE_OPTS\"\nexport HADOOP_DATANODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5679 $HADOOP_DATANODE_OPTS\"\n```\n\n**yarn-env.sh:**\n```sh\nexport YARN_NODEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=8002 $YARN_NODEMANAGER_OPTS\"\nexport YARN_RESOURCEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5680 $YARN_RESOURCEMANAGER_OPTS\"\n```\n\nThis monitor has a set of built in MBeans configured for:\n  - [Name Nodes](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/hadoopjmx/nameNodeMBeans.go)\n  - [Resource Manager](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/hadoopjmx/resourceManagerMBeans.go)\n  - [Node Manager](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/hadoopjmx/nodeManagerMBeans.go)\n  - [Data Nodes](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/hadoopjmx/dataNodeMBeans.go)\n\nSample YAML configuration:\n\nName Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5677\n  nodeType: nameNode\n```\n\nResource Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5680\n  nodeType: resourceManager\n```\n\nNode Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 8002\n  nodeType: nodeManager\n```\n\nData Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5679\n  nodeType: dataNode\n```\n",
       "groups": {
         "data-node": {
           "description": "Metrics for DataNodes containing HDFS files",
@@ -7967,7 +7967,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/hadoopjmx",
+        "package": "pkg/monitors/collectd/hadoopjmx",
         "fields": [
           {
             "yamlName": "host",
@@ -8067,7 +8067,7 @@
             "elementStruct": {
               "name": "MBean",
               "doc": "MBean represents the \u003cMBean\u003e config object in the collectd config for generic jmx.",
-              "package": "internal/monitors/collectd/genericjmx",
+              "package": "pkg/monitors/collectd/genericjmx",
               "fields": [
                 {
                   "yamlName": "objectName",
@@ -8103,7 +8103,7 @@
                   "elementStruct": {
                     "name": "MBeanValue",
                     "doc": "MBeanValue specifies a particular value to pull from the MBean.",
-                    "package": "internal/monitors/collectd/genericjmx",
+                    "package": "pkg/monitors/collectd/genericjmx",
                     "fields": [
                       {
                         "yamlName": "type",
@@ -8724,7 +8724,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/haproxy",
+        "package": "pkg/monitors/collectd/haproxy",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -8791,7 +8791,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/healthchecker",
+        "package": "pkg/monitors/collectd/healthchecker",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -8953,7 +8953,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/netinterface",
+        "package": "pkg/monitors/collectd/netinterface",
         "fields": [
           {
             "yamlName": "excludedInterfaces",
@@ -9098,7 +9098,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/jenkins",
+        "package": "pkg/monitors/collectd/jenkins",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -9213,7 +9213,7 @@
       "monitorType": "collectd/kafka",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors a Kafka instance using collectd's\nGenericJMX plugin. See the [collectd/genericjmx\nmonitor](./collectd-genericjmx.md)[](sfx_link:java) for more information on\nhow to configure custom MBeans, as well as information on troubleshooting\nJMX setup.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafka/mbeans.go)\nfor which it pulls metrics from Kafka's JMX endpoint.\n\nNote that this monitor supports Kafka v0.8.2.x and above. For Kafka v1.x.x and above,\napart from the list of default metrics, kafka.server:type=ZooKeeperClientMetrics,name=ZooKeeperRequestLatencyMs\nis a good metric to monitor since it gives an understanding of how long brokers wait for\nrequests to Zookeeper to be completed. Since Zookeeper is an integral part of a Kafka cluster,\nmonitoring it using the [Zookeeper\nmonitor](https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-zookeeper.html)[](sfx_link:zookeeper)\nis recommended. It is also a good idea to monitor disk utilization and network metrics of\nthe underlying host.\n",
+      "doc": "Monitors a Kafka instance using collectd's\nGenericJMX plugin. See the [collectd/genericjmx\nmonitor](./collectd-genericjmx.md)[](sfx_link:java) for more information on\nhow to configure custom MBeans, as well as information on troubleshooting\nJMX setup.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/kafka/mbeans.go)\nfor which it pulls metrics from Kafka's JMX endpoint.\n\nNote that this monitor supports Kafka v0.8.2.x and above. For Kafka v1.x.x and above,\napart from the list of default metrics, kafka.server:type=ZooKeeperClientMetrics,name=ZooKeeperRequestLatencyMs\nis a good metric to monitor since it gives an understanding of how long brokers wait for\nrequests to Zookeeper to be completed. Since Zookeeper is an integral part of a Kafka cluster,\nmonitoring it using the [Zookeeper\nmonitor](https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-zookeeper.html)[](sfx_link:zookeeper)\nis recommended. It is also a good idea to monitor disk utilization and network metrics of\nthe underlying host.\n",
       "groups": {
         "": {
           "description": "",
@@ -9457,7 +9457,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/kafka",
+        "package": "pkg/monitors/collectd/kafka",
         "fields": [
           {
             "yamlName": "host",
@@ -9557,7 +9557,7 @@
             "elementStruct": {
               "name": "MBean",
               "doc": "MBean represents the \u003cMBean\u003e config object in the collectd config for generic jmx.",
-              "package": "internal/monitors/collectd/genericjmx",
+              "package": "pkg/monitors/collectd/genericjmx",
               "fields": [
                 {
                   "yamlName": "objectName",
@@ -9593,7 +9593,7 @@
                   "elementStruct": {
                     "name": "MBeanValue",
                     "doc": "MBeanValue specifies a particular value to pull from the MBean.",
-                    "package": "internal/monitors/collectd/genericjmx",
+                    "package": "pkg/monitors/collectd/genericjmx",
                     "fields": [
                       {
                         "yamlName": "type",
@@ -9674,7 +9674,7 @@
       "monitorType": "collectd/kafka_consumer",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors a Java based Kafka consumer using [collectd's GenericJMX plugin](./collectd-genericjmx.md)[](sfx_link:java).\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)\nfor which it pulls metrics from the Kafka consumer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_consumer\n    host: localhost\n    port: 9099\n    mBeansToOmit:\n      - fetch-size-avg-per-topic\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new consumer API.\nAlso, per-topic metrics that are collected by default are not available through the new consumer API in\nv0.9.0.0 which can cause the logs to flood with warnings related to the MBean not being found.\nUse the `mBeansToOmit` config option in such cases. The above example configuration will not attempt to\ncollect the MBean referenced by `fetch-size-avg-per-topic`. Here is a\n[list](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaconsumer/mbeans.go)\nof metrics collected by default.\n",
+      "doc": "Monitors a Java based Kafka consumer using [collectd's GenericJMX plugin](./collectd-genericjmx.md)[](sfx_link:java).\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/kafkaconsumer/mbeans.go)\nfor which it pulls metrics from the Kafka consumer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_consumer\n    host: localhost\n    port: 9099\n    mBeansToOmit:\n      - fetch-size-avg-per-topic\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new consumer API.\nAlso, per-topic metrics that are collected by default are not available through the new consumer API in\nv0.9.0.0 which can cause the logs to flood with warnings related to the MBean not being found.\nUse the `mBeansToOmit` config option in such cases. The above example configuration will not attempt to\ncollect the MBean referenced by `fetch-size-avg-per-topic`. Here is a\n[list](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/kafkaconsumer/mbeans.go)\nof metrics collected by default.\n",
       "groups": {
         "": {
           "description": "",
@@ -9785,7 +9785,7 @@
       "config": {
         "name": "Config",
         "doc": "Config has configuration that is specific to GenericJMX. This config should be used by a monitors that use the generic JMX collectd plugin.",
-        "package": "internal/monitors/collectd/kafkaconsumer",
+        "package": "pkg/monitors/collectd/kafkaconsumer",
         "fields": [
           {
             "yamlName": "host",
@@ -9885,7 +9885,7 @@
             "elementStruct": {
               "name": "MBean",
               "doc": "MBean represents the \u003cMBean\u003e config object in the collectd config for generic jmx.",
-              "package": "internal/monitors/collectd/genericjmx",
+              "package": "pkg/monitors/collectd/genericjmx",
               "fields": [
                 {
                   "yamlName": "objectName",
@@ -9921,7 +9921,7 @@
                   "elementStruct": {
                     "name": "MBeanValue",
                     "doc": "MBeanValue specifies a particular value to pull from the MBean.",
-                    "package": "internal/monitors/collectd/genericjmx",
+                    "package": "pkg/monitors/collectd/genericjmx",
                     "fields": [
                       {
                         "yamlName": "type",
@@ -9994,7 +9994,7 @@
       "monitorType": "collectd/kafka_producer",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors a Java based Kafka producer using GenericJMX.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/kafkaproducer/mbeans.go)\nfor which it pulls metrics from the Kafka producer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_producer\n    host: localhost\n    port: 8099\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new producer API.\n",
+      "doc": "Monitors a Java based Kafka producer using GenericJMX.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/kafkaproducer/mbeans.go)\nfor which it pulls metrics from the Kafka producer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_producer\n    host: localhost\n    port: 8099\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new producer API.\n",
       "groups": {
         "": {
           "description": "",
@@ -10140,7 +10140,7 @@
       "config": {
         "name": "Config",
         "doc": "Config has configuration that is specific to GenericJMX. This config should be used by a monitors that use the generic JMX collectd plugin.",
-        "package": "internal/monitors/collectd/kafkaproducer",
+        "package": "pkg/monitors/collectd/kafkaproducer",
         "fields": [
           {
             "yamlName": "host",
@@ -10240,7 +10240,7 @@
             "elementStruct": {
               "name": "MBean",
               "doc": "MBean represents the \u003cMBean\u003e config object in the collectd config for generic jmx.",
-              "package": "internal/monitors/collectd/genericjmx",
+              "package": "pkg/monitors/collectd/genericjmx",
               "fields": [
                 {
                   "yamlName": "objectName",
@@ -10276,7 +10276,7 @@
                   "elementStruct": {
                     "name": "MBeanValue",
                     "doc": "MBeanValue specifies a particular value to pull from the MBean.",
-                    "package": "internal/monitors/collectd/genericjmx",
+                    "package": "pkg/monitors/collectd/genericjmx",
                     "fields": [
                       {
                         "yamlName": "type",
@@ -10462,7 +10462,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/kong",
+        "package": "pkg/monitors/collectd/kong",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -10514,7 +10514,7 @@
             "elementStruct": {
               "name": "Header",
               "doc": "Header defines name/value pair for AuthHeader option",
-              "package": "internal/monitors/collectd/kong",
+              "package": "pkg/monitors/collectd/kong",
               "fields": [
                 {
                   "yamlName": "header",
@@ -10585,7 +10585,7 @@
             "elementStruct": {
               "name": "Metric",
               "doc": "Metric is for use with `Metric \"metric_name\" bool` collectd plugin format",
-              "package": "internal/monitors/collectd/kong",
+              "package": "pkg/monitors/collectd/kong",
               "fields": [
                 {
                   "yamlName": "metric",
@@ -10827,7 +10827,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/load",
+        "package": "pkg/monitors/collectd/load",
         "fields": []
       },
       "acceptsEndpoints": false,
@@ -10978,7 +10978,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/marathon",
+        "package": "pkg/monitors/collectd/marathon",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -11235,7 +11235,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/memcached",
+        "package": "pkg/monitors/collectd/memcached",
         "fields": [
           {
             "yamlName": "host",
@@ -11335,7 +11335,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/memory",
+        "package": "pkg/monitors/collectd/memory",
         "fields": []
       },
       "acceptsEndpoints": false,
@@ -11899,7 +11899,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/mongodb",
+        "package": "pkg/monitors/collectd/mongodb",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -13240,7 +13240,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/mysql",
+        "package": "pkg/monitors/collectd/mysql",
         "fields": [
           {
             "yamlName": "host",
@@ -13276,7 +13276,7 @@
             "elementStruct": {
               "name": "Database",
               "doc": "Database configures a particular MySQL database",
-              "package": "internal/monitors/collectd/mysql",
+              "package": "pkg/monitors/collectd/mysql",
               "fields": [
                 {
                   "yamlName": "name",
@@ -13409,7 +13409,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/nginx",
+        "package": "pkg/monitors/collectd/nginx",
         "fields": [
           {
             "yamlName": "host",
@@ -13883,7 +13883,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/openstack",
+        "package": "pkg/monitors/collectd/openstack",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -14126,7 +14126,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/postgresql",
+        "package": "pkg/monitors/collectd/postgresql",
         "fields": [
           {
             "yamlName": "host",
@@ -14154,7 +14154,7 @@
             "elementStruct": {
               "name": "Database",
               "doc": "Database configures a particular PostgreSQL database",
-              "package": "internal/monitors/collectd/postgresql",
+              "package": "pkg/monitors/collectd/postgresql",
               "fields": [
                 {
                   "yamlName": "name",
@@ -14233,7 +14233,7 @@
             "elementStruct": {
               "name": "Query",
               "doc": "Query adds a new query for retrieving metrics",
-              "package": "internal/monitors/collectd/postgresql",
+              "package": "pkg/monitors/collectd/postgresql",
               "fields": [
                 {
                   "yamlName": "name",
@@ -14261,7 +14261,7 @@
                   "elementStruct": {
                     "name": "Result",
                     "doc": "Result maps values from a query to a metric",
-                    "package": "internal/monitors/collectd/postgresql",
+                    "package": "pkg/monitors/collectd/postgresql",
                     "fields": [
                       {
                         "yamlName": "type",
@@ -14549,7 +14549,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/processes",
+        "package": "pkg/monitors/collectd/processes",
         "fields": [
           {
             "yamlName": "processes",
@@ -14656,7 +14656,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/protocols",
+        "package": "pkg/monitors/collectd/protocols",
         "fields": []
       },
       "acceptsEndpoints": false,
@@ -14674,7 +14674,7 @@
       "config": {
         "name": "Config",
         "doc": "Config specifies configurations that are specific to the individual python based monitor",
-        "package": "internal/monitors/collectd/python",
+        "package": "pkg/monitors/collectd/python",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -15539,7 +15539,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/rabbitmq",
+        "package": "pkg/monitors/collectd/rabbitmq",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -15939,7 +15939,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/redis",
+        "package": "pkg/monitors/collectd/redis",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -15991,7 +15991,7 @@
             "elementStruct": {
               "name": "ListLength",
               "doc": "ListLength defines a database index and key pattern for sending list lengths",
-              "package": "internal/monitors/collectd/redis",
+              "package": "pkg/monitors/collectd/redis",
               "fields": [
                 {
                   "yamlName": "databaseIndex",
@@ -16085,7 +16085,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/metadata",
+        "package": "pkg/monitors/collectd/metadata",
         "fields": [
           {
             "yamlName": "writeServerURL",
@@ -16535,7 +16535,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/solr",
+        "package": "pkg/monitors/collectd/solr",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -17254,7 +17254,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/spark",
+        "package": "pkg/monitors/collectd/spark",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -17329,7 +17329,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/statsd",
+        "package": "pkg/monitors/collectd/statsd",
         "fields": [
           {
             "yamlName": "listenAddress",
@@ -17568,7 +17568,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/systemd",
+        "package": "pkg/monitors/collectd/systemd",
         "fields": [
           {
             "yamlName": "services",
@@ -17633,7 +17633,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/uptime",
+        "package": "pkg/monitors/collectd/uptime",
         "fields": []
       },
       "acceptsEndpoints": false,
@@ -17721,7 +17721,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/vmem",
+        "package": "pkg/monitors/collectd/vmem",
         "fields": []
       },
       "acceptsEndpoints": false,
@@ -17858,7 +17858,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
-        "package": "internal/monitors/collectd/zookeeper",
+        "package": "pkg/monitors/collectd/zookeeper",
         "fields": [
           {
             "yamlName": "pythonBinary",
@@ -18343,7 +18343,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/conviva",
+        "package": "pkg/monitors/conviva",
         "fields": [
           {
             "yamlName": "pulseUsername",
@@ -18379,7 +18379,7 @@
             "elementStruct": {
               "name": "metricConfig",
               "doc": "metricConfig for configuring individual metric",
-              "package": "internal/monitors/conviva",
+              "package": "pkg/monitors/conviva",
               "fields": [
                 {
                   "yamlName": "account",
@@ -18855,7 +18855,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/coredns",
+        "package": "pkg/monitors/coredns",
         "fields": [
           {
             "yamlName": "host",
@@ -18999,7 +18999,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/cpu",
+        "package": "pkg/monitors/cpu",
         "fields": []
       },
       "acceptsEndpoints": false,
@@ -19122,7 +19122,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/diskio",
+        "package": "pkg/monitors/diskio",
         "fields": [
           {
             "yamlName": "disks",
@@ -19835,7 +19835,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/docker",
+        "package": "pkg/monitors/docker",
         "fields": [
           {
             "yamlName": "enableExtraBlockIOMetrics",
@@ -20010,7 +20010,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/dotnet",
+        "package": "pkg/monitors/dotnet",
         "fields": [
           {
             "yamlName": "counterRefreshInterval",
@@ -20298,7 +20298,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/ecs",
+        "package": "pkg/monitors/ecs",
         "fields": [
           {
             "yamlName": "enableExtraBlockIOMetrics",
@@ -21670,7 +21670,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/elasticsearch",
+        "package": "pkg/monitors/elasticsearch",
         "fields": [
           {
             "yamlName": "host",
@@ -23348,7 +23348,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/etcd",
+        "package": "pkg/monitors/etcd",
         "fields": [
           {
             "yamlName": "host",
@@ -23716,7 +23716,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for monitor configuration",
-        "package": "internal/monitors/expvar",
+        "package": "pkg/monitors/expvar",
         "fields": [
           {
             "yamlName": "host",
@@ -23776,7 +23776,7 @@
             "elementStruct": {
               "name": "MetricConfig",
               "doc": "MetricConfig for metric configuration",
-              "package": "internal/monitors/expvar",
+              "package": "pkg/monitors/expvar",
               "fields": [
                 {
                   "yamlName": "name",
@@ -23812,7 +23812,7 @@
                   "elementStruct": {
                     "name": "DimensionConfig",
                     "doc": "DimensionConfig for metric dimension configuration",
-                    "package": "internal/monitors/expvar",
+                    "package": "pkg/monitors/expvar",
                     "fields": [
                       {
                         "yamlName": "name",
@@ -23956,7 +23956,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/filesystems",
+        "package": "pkg/monitors/filesystems",
         "fields": [
           {
             "yamlName": "hostFSPath",
@@ -24420,7 +24420,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/gitlab",
+        "package": "pkg/monitors/gitlab",
         "fields": [
           {
             "yamlName": "host",
@@ -24641,7 +24641,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/gitlab",
+        "package": "pkg/monitors/gitlab",
         "fields": [
           {
             "yamlName": "host",
@@ -24848,7 +24848,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/gitlab",
+        "package": "pkg/monitors/gitlab",
         "fields": [
           {
             "yamlName": "host",
@@ -25111,7 +25111,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/gitlab",
+        "package": "pkg/monitors/gitlab",
         "fields": [
           {
             "yamlName": "host",
@@ -25451,7 +25451,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/gitlab",
+        "package": "pkg/monitors/gitlab",
         "fields": [
           {
             "yamlName": "host",
@@ -25763,7 +25763,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/gitlab",
+        "package": "pkg/monitors/gitlab",
         "fields": [
           {
             "yamlName": "host",
@@ -26444,7 +26444,7 @@
       "config": {
         "name": "Config",
         "doc": "Config is the config for this monitor.",
-        "package": "internal/monitors/haproxy",
+        "package": "pkg/monitors/haproxy",
         "fields": [
           {
             "yamlName": "host",
@@ -26576,7 +26576,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/metadata/hostmetadata",
+        "package": "pkg/monitors/metadata/hostmetadata",
         "fields": []
       },
       "acceptsEndpoints": false,
@@ -26832,7 +26832,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for internal metric monitoring",
-        "package": "internal/monitors/internalmetrics",
+        "package": "pkg/monitors/internalmetrics",
         "fields": [
           {
             "yamlName": "host",
@@ -26875,7 +26875,7 @@
       "config": {
         "name": "Config",
         "doc": "Config specifies configurations that are specific to the individual Java based monitor",
-        "package": "internal/monitors/subproc/signalfx/java",
+        "package": "pkg/monitors/subproc/signalfx/java",
         "fields": [
           {
             "yamlName": "host",
@@ -26950,7 +26950,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for the JMX Monitor",
-        "package": "internal/monitors/jmx",
+        "package": "pkg/monitors/jmx",
         "fields": [
           {
             "yamlName": "host",
@@ -30426,7 +30426,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/kubernetes/controllermanager",
+        "package": "pkg/monitors/kubernetes/controllermanager",
         "fields": [
           {
             "yamlName": "host",
@@ -30919,7 +30919,7 @@
       "config": {
         "name": "KubeletStatsConfig",
         "doc": "KubeletStatsConfig respresents config for the Kubelet stats monitor",
-        "package": "internal/monitors/cadvisor",
+        "package": "pkg/monitors/cadvisor",
         "fields": [
           {
             "yamlName": "kubeletAPI",
@@ -30931,7 +30931,7 @@
             "elementStruct": {
               "name": "APIConfig",
               "doc": "APIConfig contains config specific to the KubeletAPI",
-              "package": "internal/core/common/kubelet",
+              "package": "pkg/core/common/kubelet",
               "fields": [
                 {
                   "yamlName": "url",
@@ -32908,7 +32908,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/kubernetes/apiserver",
+        "package": "pkg/monitors/kubernetes/apiserver",
         "fields": [
           {
             "yamlName": "host",
@@ -33393,7 +33393,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for the K8s monitor",
-        "package": "internal/monitors/kubernetes/cluster",
+        "package": "pkg/monitors/kubernetes/cluster",
         "fields": [
           {
             "yamlName": "alwaysClusterReporter",
@@ -33429,7 +33429,7 @@
             "elementStruct": {
               "name": "APIConfig",
               "doc": "APIConfig contains options relevant to connecting to the K8s API",
-              "package": "internal/core/common/kubernetes",
+              "package": "pkg/core/common/kubernetes",
               "fields": [
                 {
                   "yamlName": "authType",
@@ -33501,7 +33501,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for the K8s event monitor",
-        "package": "internal/monitors/kubernetes/events",
+        "package": "pkg/monitors/kubernetes/events",
         "fields": [
           {
             "yamlName": "kubernetesAPI",
@@ -33513,7 +33513,7 @@
             "elementStruct": {
               "name": "APIConfig",
               "doc": "APIConfig contains options relevant to connecting to the K8s API",
-              "package": "internal/core/common/kubernetes",
+              "package": "pkg/core/common/kubernetes",
               "fields": [
                 {
                   "yamlName": "authType",
@@ -33568,7 +33568,7 @@
             "elementStruct": {
               "name": "EventInclusionSpec",
               "doc": "EventInclusionSpec specifies a type of event to send",
-              "package": "internal/monitors/kubernetes/events",
+              "package": "pkg/monitors/kubernetes/events",
               "fields": [
                 {
                   "yamlName": "reason",
@@ -34111,7 +34111,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/kubernetes/proxy",
+        "package": "pkg/monitors/kubernetes/proxy",
         "fields": [
           {
             "yamlName": "host",
@@ -35067,7 +35067,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/kubernetes/scheduler",
+        "package": "pkg/monitors/kubernetes/scheduler",
         "fields": [
           {
             "yamlName": "host",
@@ -35239,7 +35239,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/kubernetes/volumes",
+        "package": "pkg/monitors/kubernetes/volumes",
         "fields": [
           {
             "yamlName": "kubeletAPI",
@@ -35251,7 +35251,7 @@
             "elementStruct": {
               "name": "APIConfig",
               "doc": "APIConfig contains config specific to the KubeletAPI",
-              "package": "internal/core/common/kubelet",
+              "package": "pkg/core/common/kubelet",
               "fields": [
                 {
                   "yamlName": "url",
@@ -35322,7 +35322,7 @@
             "elementStruct": {
               "name": "APIConfig",
               "doc": "APIConfig contains options relevant to connecting to the K8s API",
-              "package": "internal/core/common/kubernetes",
+              "package": "pkg/core/common/kubernetes",
               "fields": [
                 {
                   "yamlName": "authType",
@@ -35990,7 +35990,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/logstash/logstash",
+        "package": "pkg/monitors/logstash/logstash",
         "fields": [
           {
             "yamlName": "host",
@@ -36041,7 +36041,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/logstash/tcp",
+        "package": "pkg/monitors/logstash/tcp",
         "fields": [
           {
             "yamlName": "host",
@@ -36176,7 +36176,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/memory",
+        "package": "pkg/monitors/memory",
         "fields": []
       },
       "acceptsEndpoints": false,
@@ -36250,7 +36250,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/netio",
+        "package": "pkg/monitors/netio",
         "fields": [
           {
             "yamlName": "interfaces",
@@ -36842,7 +36842,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for the K8s monitor",
-        "package": "internal/monitors/kubernetes/cluster",
+        "package": "pkg/monitors/kubernetes/cluster",
         "fields": [
           {
             "yamlName": "alwaysClusterReporter",
@@ -36878,7 +36878,7 @@
             "elementStruct": {
               "name": "APIConfig",
               "doc": "APIConfig contains options relevant to connecting to the K8s API",
-              "package": "internal/core/common/kubernetes",
+              "package": "pkg/core/common/kubernetes",
               "fields": [
                 {
                   "yamlName": "authType",
@@ -37096,7 +37096,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for the postgresql monitor",
-        "package": "internal/monitors/postgresql",
+        "package": "pkg/monitors/postgresql",
         "fields": [
           {
             "yamlName": "host",
@@ -37181,7 +37181,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/processlist",
+        "package": "pkg/monitors/processlist",
         "fields": []
       },
       "acceptsEndpoints": false,
@@ -37199,7 +37199,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/prometheusexporter",
+        "package": "pkg/monitors/prometheusexporter",
         "fields": [
           {
             "yamlName": "host",
@@ -37588,7 +37588,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/prometheus/go",
+        "package": "pkg/monitors/prometheus/go",
         "fields": [
           {
             "yamlName": "host",
@@ -37844,7 +37844,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/prometheus/nginxvts",
+        "package": "pkg/monitors/prometheus/nginxvts",
         "fields": [
           {
             "yamlName": "host",
@@ -39080,7 +39080,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/prometheus/node",
+        "package": "pkg/monitors/prometheus/node",
         "fields": [
           {
             "yamlName": "host",
@@ -40897,7 +40897,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/prometheus/postgres",
+        "package": "pkg/monitors/prometheus/postgres",
         "fields": [
           {
             "yamlName": "host",
@@ -42021,7 +42021,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/prometheus/prometheus",
+        "package": "pkg/monitors/prometheus/prometheus",
         "fields": [
           {
             "yamlName": "host",
@@ -42564,7 +42564,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/prometheus/redis",
+        "package": "pkg/monitors/prometheus/redis",
         "fields": [
           {
             "yamlName": "host",
@@ -42687,7 +42687,7 @@
       "config": {
         "name": "Config",
         "doc": "Config specifies configurations that are specific to the individual python based monitor",
-        "package": "internal/monitors/subproc/signalfx/python",
+        "package": "pkg/monitors/subproc/signalfx/python",
         "fields": [
           {
             "yamlName": "host",
@@ -42746,7 +42746,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/forwarder",
+        "package": "pkg/monitors/forwarder",
         "fields": [
           {
             "yamlName": "listenAddress",
@@ -42789,7 +42789,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/sql",
+        "package": "pkg/monitors/sql",
         "fields": [
           {
             "yamlName": "host",
@@ -42841,7 +42841,7 @@
             "elementStruct": {
               "name": "Query",
               "doc": "Query is used to configure a query statement and the resulting datapoints",
-              "package": "internal/monitors/sql",
+              "package": "pkg/monitors/sql",
               "fields": [
                 {
                   "yamlName": "query",
@@ -42869,7 +42869,7 @@
                   "elementStruct": {
                     "name": "Metric",
                     "doc": "Metric describes how to derive a metric from the individual rows of a query result.",
-                    "package": "internal/monitors/sql",
+                    "package": "pkg/monitors/sql",
                     "fields": [
                       {
                         "yamlName": "metricName",
@@ -42942,7 +42942,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/statsd",
+        "package": "pkg/monitors/statsd",
         "fields": [
           {
             "yamlName": "listenAddress",
@@ -42978,7 +42978,7 @@
             "elementStruct": {
               "name": "ConverterInput",
               "doc": "ConverterInput is to receive configs to setup metric converters",
-              "package": "internal/monitors/statsd",
+              "package": "pkg/monitors/statsd",
               "fields": [
                 {
                   "yamlName": "pattern",
@@ -43016,7 +43016,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/telegraf/monitors/telegraflogparser",
+        "package": "pkg/monitors/telegraf/monitors/telegraflogparser",
         "fields": [
           {
             "yamlName": "files",
@@ -43401,7 +43401,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/telegraf/monitors/procstat",
+        "package": "pkg/monitors/telegraf/monitors/procstat",
         "fields": [
           {
             "yamlName": "exe",
@@ -43492,7 +43492,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/telegraf/monitors/telegrafsnmp",
+        "package": "pkg/monitors/telegraf/monitors/telegrafsnmp",
         "fields": [
           {
             "yamlName": "host",
@@ -43640,7 +43640,7 @@
             "elementStruct": {
               "name": "Field",
               "doc": "Field represents an SNMP field",
-              "package": "internal/monitors/telegraf/monitors/telegrafsnmp",
+              "package": "pkg/monitors/telegraf/monitors/telegrafsnmp",
               "fields": [
                 {
                   "yamlName": "name",
@@ -43703,7 +43703,7 @@
             "elementStruct": {
               "name": "Table",
               "doc": "Table represents an SNMP table",
-              "package": "internal/monitors/telegraf/monitors/telegrafsnmp",
+              "package": "pkg/monitors/telegraf/monitors/telegrafsnmp",
               "fields": [
                 {
                   "yamlName": "name",
@@ -43739,7 +43739,7 @@
                   "elementStruct": {
                     "name": "Field",
                     "doc": "Field represents an SNMP field",
-                    "package": "internal/monitors/telegraf/monitors/telegrafsnmp",
+                    "package": "pkg/monitors/telegraf/monitors/telegrafsnmp",
                     "fields": [
                       {
                         "yamlName": "name",
@@ -44667,7 +44667,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/telegraf/monitors/mssqlserver",
+        "package": "pkg/monitors/telegraf/monitors/mssqlserver",
         "fields": [
           {
             "yamlName": "host",
@@ -44758,7 +44758,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/telegraf/monitors/telegrafstatsd",
+        "package": "pkg/monitors/telegraf/monitors/telegrafstatsd",
         "fields": [
           {
             "yamlName": "protocol",
@@ -44889,7 +44889,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/telegraf/monitors/tail",
+        "package": "pkg/monitors/telegraf/monitors/tail",
         "fields": [
           {
             "yamlName": "files",
@@ -44933,7 +44933,7 @@
             "elementStruct": {
               "name": "Config",
               "doc": "Config implements Telegraf parsers.Config, but with SignalFx Smart Agent struct tags and a methods for returning a Telegraf parsers.Config struct and a Telegraf parsers.Parser. Please refer to Telegraf's documentation for more information about the different parsers and their specific configurations",
-              "package": "internal/monitors/telegraf/common/parser",
+              "package": "pkg/monitors/telegraf/common/parser",
               "fields": [
                 {
                   "yamlName": "dataFormat",
@@ -45259,7 +45259,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/telegraf/monitors/winperfcounters",
+        "package": "pkg/monitors/telegraf/monitors/winperfcounters",
         "fields": [
           {
             "yamlName": "objects",
@@ -45271,7 +45271,7 @@
             "elementStruct": {
               "name": "PerfCounterObj",
               "doc": "PerfCounterObj represents a windows performance counter object to monitor",
-              "package": "internal/monitors/telegraf/monitors/winperfcounters",
+              "package": "pkg/monitors/telegraf/monitors/winperfcounters",
               "fields": [
                 {
                   "yamlName": "objectName",
@@ -45402,7 +45402,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/telegraf/monitors/winservices",
+        "package": "pkg/monitors/telegraf/monitors/winservices",
         "fields": [
           {
             "yamlName": "serviceNames",
@@ -45429,7 +45429,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/traceforwarder",
+        "package": "pkg/monitors/traceforwarder",
         "fields": [
           {
             "yamlName": "listenAddress",
@@ -45829,7 +45829,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/traefik",
+        "package": "pkg/monitors/traefik",
         "fields": [
           {
             "yamlName": "host",
@@ -46043,7 +46043,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/vmem",
+        "package": "pkg/monitors/vmem",
         "fields": [
           {
             "yamlName": "counterRefreshInterval",
@@ -46232,7 +46232,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/windowsiis",
+        "package": "pkg/monitors/windowsiis",
         "fields": [
           {
             "yamlName": "counterRefreshInterval",
@@ -46491,7 +46491,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/windowslegacy",
+        "package": "pkg/monitors/windowslegacy",
         "fields": [
           {
             "yamlName": "counterRefreshInterval",
@@ -46519,7 +46519,7 @@
     {
       "name": "Config",
       "doc": " Queries the Docker Engine API for running containers.  If\nyou are using Kubernetes, you should use the [k8s-api\nobserver](./k8s-api.md) instead of this.\n\nRequires Docker API version 1.22+.\n\nNote that you will need permissions to access the Docker engine API.  For a\nDocker domain socket URL, this means that the agent needs to have read\npermissions on the socket.  We don't currently support authentication for\nHTTP URLs.\n\n## Configuration from Labels\nYou can configure monitors by putting special labels on your Docker\ncontainers.  You can either specify all of the configuration in container\nlabels, or you can use the more traditional agent configuration with\ndiscovery rules and specify configuration overrides with labels.\n\nThe config labels are of the form `agent.signalfx.com.config.\u003cport\nnumber\u003e.\u003cconfig_key\u003e: \u003cconfig value\u003e`.  The `\u003cconfig value\u003e` must be a\nstring in a container label, but it will be deserialized as a YAML value to\nthe most appropriate type when consumed by the agent.  For example, if you\nhave a Redis container and want to monitor it at a higher frequency than\nother Redis containers, you could have an agent config that looks like the\nfollowing:\n\n```\nobservers:\n - type: docker\nmonitors:\n - type: collectd/redis\n   discoveryRule: container_image =~ \"redis\" \u0026\u0026 port == 6379\n   auth: mypassword\n   intervalSeconds: 10\n```\n\nAnd then launch the Redis container with the label:\n\n`agent.signalfx.com.config.6379.intervalSeconds`: `1`\n\nThis would cause the config value for `intervalSeconds` to be overwritten to\nthe more frequent 1 second interval.\n\nYou can also specify the monitor configuration entirely with Docker labels\nand completely omit monitor config from the agent config.  With the agent\nconfig:\n\n```\nobservers:\n - type: docker\n```\n\nYou can then launch a Redis container with the following labels:\n\n - `agent.signalfx.com.monitorType.6379`: `collectd/redis`\n - `agent.signalfx.com.config.6379.auth`: `mypassword`\n\nWhich would configure a Redis monitor with the given authentication\nconfiguration.  No Redis configuration is required in the agent config file.\n\nThe distinction is that the `monitorType` label was added to the Docker\ncontainer.  If a `monitorType` label is present, **no discovery rules will\nbe considered for this endpoint**, and thus, no agent configuration can be\nused anyway.\n\n### Multiple Monitors per Port\nIf you want to configure multiple monitors per port, you can specify the\nport name in the form `\u003cport number\u003e-\u003cport name\u003e` instead of just the port\nnumber.  For example, if you had two different Prometheus exporters running\non the same port, but on different paths in a given container, you could\nprovide labels like the following:\n\n```\n - `agent.signalfx.com.monitorType.8080-app`: `prometheus-exporter`\n - `agent.signalfx.com.config.8080-app.metricPath`: `/appMetrics`\n - `agent.signalfx.com.monitorType.8080-goruntime`: `prometheus-exporter`\n - `agent.signalfx.com.config.8080-goruntime.metricPath`: `/goMetrics`\n```\n\nThe name that is given to the port will populate the `name` field of the\ndiscovered endpoint and can be used in discovery rules as such.  For\nexample, with the following agent config:\n\n```\nobservers:\n - type: docker\nmonitors:\n - type: prometheus-exporter\n   discoveryRule: name == \"app\" \u0026\u0026 port == 8080\n   intervalSeconds: 1\n```\n\nAnd given docker labels as follows (remember that discovery rules are\nirrelevant to endpoints that specify `monitorType` labels):\n\n - `agent.signalfx.com.config.8080-app.metricPath`: `/appMetrics`\n - `agent.signalfx.com.config.8080-goruntime.metricPath`: `/goMetrics`\n\nWould result in the `app` endpoint getting an interval of 1 second and the\n`goruntime` endpoint getting the default interval of the agent.\n",
-      "package": "internal/observers/docker",
+      "package": "pkg/observers/docker",
       "fields": [
         {
           "yamlName": "dockerURL",
@@ -46712,7 +46712,7 @@
     {
       "name": "Config",
       "doc": " Queries the [ECS Task Metadata Endpoint version 2](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v2.html) for running containers.\n\nThe Smart Agent needs to run in the same task with the containers to be\nmonitored to get access to the data through ECS task metadata endpoint.\n\n## Configuration from Labels\nYou must put at least one special label to identify an exposed port on your Docker\ncontainers in the ECS task definition since ECS metadata does not contain any port\ninformation. You can either specify all of the configuration in container labels,\nor you can use the more traditional agent configuration with discovery rules and\nspecify configuration overrides with labels.\n\nThe config labels are of the form `agent.signalfx.com.config.\u003cport\nnumber\u003e.\u003cconfig_key\u003e: \u003cconfig value\u003e`.  The `\u003cconfig value\u003e` must be a\nstring in a container label, but it will be deserialized as a YAML value to\nthe most appropriate type when consumed by the agent.  For example, if you\nhave a Redis container and want to monitor it at a higher frequency than\nother Redis containers, you could have an agent config that looks like the\nfollowing:\n\n```\nobservers:\n - type: ecs\nmonitors:\n - type: collectd/redis\n   discoveryRule: container_image =~ \"redis\" \u0026\u0026 port == 6379\n   auth: mypassword\n   intervalSeconds: 10\n```\n\nAnd then launch the Redis container with the label:\n\n`agent.signalfx.com.config.6379.intervalSeconds`: `1`\n\nThis would cause the config value for `intervalSeconds` to be overwritten to\nthe more frequent 1 second interval.\n\nYou can also specify the monitor configuration entirely with Docker labels\nand completely omit monitor config from the agent config.  With the agent\nconfig:\n\n```\nobservers:\n - type: ecs\n```\n\nYou can then launch a Redis container with the following labels:\n\n - `agent.signalfx.com.monitorType.6379`: `collectd/redis`\n - `agent.signalfx.com.config.6379.auth`: `mypassword`\n\nWhich would configure a Redis monitor with the given authentication\nconfiguration.  No Redis configuration is required in the agent config file.\n\nThe distinction is that the `monitorType` label was added to the Docker\ncontainer.  If a `monitorType` label is present, **no discovery rules will\nbe considered for this endpoint**, and thus, no agent configuration can be\nused anyway.\n\n### Multiple Monitors per Port\nIf you want to configure multiple monitors per port, you can specify the\nport name in the form `\u003cport number\u003e-\u003cport name\u003e` instead of just the port\nnumber.  For example, if you had two different Prometheus exporters running\non the same port, but on different paths in a given container, you could\nprovide labels like the following:\n\n```\n - `agent.signalfx.com.monitorType.8080-app`: `prometheus-exporter`\n - `agent.signalfx.com.config.8080-app.metricPath`: `/appMetrics`\n - `agent.signalfx.com.monitorType.8080-goruntime`: `prometheus-exporter`\n - `agent.signalfx.com.config.8080-goruntime.metricPath`: `/goMetrics`\n```\n\nThe name that is given to the port will populate the `name` field of the\ndiscovered endpoint and can be used in discovery rules as such.  For\nexample, with the following agent config:\n\n```\nobservers:\n - type: ecs\nmonitors:\n - type: prometheus-exporter\n   discoveryRule: name == \"app\" \u0026\u0026 port == 8080\n   intervalSeconds: 1\n```\n\nAnd given docker labels as follows (remember that discovery rules are\nirrelevant to endpoints that specify `monitorType` labels):\n\n - `agent.signalfx.com.config.8080-app.metricPath`: `/appMetrics`\n - `agent.signalfx.com.config.8080-goruntime.metricPath`: `/goMetrics`\n\nWould result in the `app` endpoint getting an interval of 1 second and the\n`goruntime` endpoint getting the default interval of the agent.\n",
-      "package": "internal/observers/ecs",
+      "package": "pkg/observers/ecs",
       "fields": [
         {
           "yamlName": "metadataEndpoint",
@@ -46881,7 +46881,7 @@
     {
       "name": "Config",
       "doc": " Looks at the current host for listening network endpoints.\nIt uses the `/proc` filesystem and requires the `SYS_PTRACE` and\n`DAC_READ_SEARCH` capabilities so that it can determine what processes own\nthe listening sockets.\n\nIt will look for all listening sockets on TCP and UDP over IPv4 and IPv6.\n",
-      "package": "internal/observers/host",
+      "package": "pkg/observers/host",
       "fields": [
         {
           "yamlName": "pollIntervalSeconds",
@@ -46976,7 +46976,7 @@
     {
       "name": "Config",
       "doc": " Discovers services running in a Kubernetes cluster by\nquerying the Kubernetes API server.  This observer is designed to only\ndiscover pod endpoints exposed on the same node that the agent is running,\nso that the monitoring of services does not generate cross-node traffic.  To\nknow which node the agent is running on, you should set an environment\nvariable called `MY_NODE_NAME` using the downward API `spec.nodeName` value\nin the pod spec.  Our provided K8s DaemonSet resource does this already and\nprovides an example.\n\nNote that this observer discovers exposed ports on pod containers, not K8s\nEndpoint resources, so don't let the terminology of agent \"endpoints\"\nconfuse you.\n",
-      "package": "internal/observers/kubernetes",
+      "package": "pkg/observers/kubernetes",
       "fields": [
         {
           "yamlName": "namespace",
@@ -46996,7 +46996,7 @@
           "elementStruct": {
             "name": "APIConfig",
             "doc": "APIConfig contains options relevant to connecting to the K8s API",
-            "package": "internal/core/common/kubernetes",
+            "package": "pkg/core/common/kubernetes",
             "fields": [
               {
                 "yamlName": "authType",
@@ -47230,7 +47230,7 @@
     {
       "name": "Config",
       "doc": " **DEPRECATED** Discovers service endpoints running on\nthe same node as the agent by querying the local kubelet instance.  It is\ngenerally recommended to use the [k8s-api](./k8s-api.md) observer because\nauthentication to the local kubelet can be more difficult to setup, and also\nthe kubelet API is technically not documented for public consumption, so\nthis observer may break more easily in future K8s versions.\n",
-      "package": "internal/observers/kubelet",
+      "package": "pkg/observers/kubelet",
       "fields": [
         {
           "yamlName": "pollIntervalSeconds",
@@ -47250,7 +47250,7 @@
           "elementStruct": {
             "name": "APIConfig",
             "doc": "APIConfig contains config specific to the KubeletAPI",
-            "package": "internal/core/common/kubelet",
+            "package": "pkg/core/common/kubelet",
             "fields": [
               {
                 "yamlName": "url",
@@ -47475,7 +47475,7 @@
   "SourceConfig": {
     "name": "SourceConfig",
     "doc": "SourceConfig represents configuration for various config sources that we support.",
-    "package": "internal/core/config/sources",
+    "package": "pkg/core/config/sources",
     "fields": [
       {
         "yamlName": "watch",
@@ -47495,7 +47495,7 @@
         "elementStruct": {
           "name": "Config",
           "doc": "Config for the file-based config source",
-          "package": "internal/core/config/sources/file",
+          "package": "pkg/core/config/sources/file",
           "fields": [
             {
               "yamlName": "pollRateSeconds",
@@ -47518,7 +47518,7 @@
         "elementStruct": {
           "name": "Config",
           "doc": "Config is used to configure the Zookeeper client",
-          "package": "internal/core/config/sources/zookeeper",
+          "package": "pkg/core/config/sources/zookeeper",
           "fields": [
             {
               "yamlName": "endpoints",
@@ -47549,7 +47549,7 @@
         "elementStruct": {
           "name": "Config",
           "doc": "Config for an Etcd2 source",
-          "package": "internal/core/config/sources/etcd2",
+          "package": "pkg/core/config/sources/etcd2",
           "fields": [
             {
               "yamlName": "endpoints",
@@ -47588,7 +47588,7 @@
         "elementStruct": {
           "name": "Config",
           "doc": "Config for the consul client",
-          "package": "internal/core/config/sources/consul",
+          "package": "pkg/core/config/sources/consul",
           "fields": [
             {
               "yamlName": "endpoint",
@@ -47643,7 +47643,7 @@
         "elementStruct": {
           "name": "Config",
           "doc": "Config for the vault remote config",
-          "package": "internal/core/config/sources/vault",
+          "package": "pkg/core/config/sources/vault",
           "fields": [
             {
               "yamlName": "vaultAddr",
@@ -47687,7 +47687,7 @@
               "elementStruct": {
                 "name": "IAMConfig",
                 "doc": "IAMConfig is the config for the AWS Auth method in Vault",
-                "package": "internal/core/config/sources/vault/auth",
+                "package": "pkg/core/config/sources/vault/auth",
                 "fields": [
                   {
                     "yamlName": "awsAccessKeyId",
@@ -47750,7 +47750,7 @@
               "elementStruct": {
                 "name": "GCPConfig",
                 "doc": "GCPConfig is the config for the GCP Auth method in Vault",
-                "package": "internal/core/config/sources/vault/auth",
+                "package": "pkg/core/config/sources/vault/auth",
                 "fields": [
                   {
                     "yamlName": "role",
@@ -47811,7 +47811,7 @@
   "TopConfig": {
     "name": "Config",
     "doc": "Config is the top level config struct for configurations that are common to all platoforms",
-    "package": "internal/core/config",
+    "package": "pkg/core/config",
     "fields": [
       {
         "yamlName": "signalFxAccessToken",
@@ -47935,7 +47935,7 @@
         "elementStruct": {
           "name": "ObserverConfig",
           "doc": "ObserverConfig holds the configuration for an observer",
-          "package": "internal/core/config",
+          "package": "pkg/core/config",
           "fields": [
             {
               "yamlName": "type",
@@ -47958,7 +47958,7 @@
         "elementStruct": {
           "name": "MonitorConfig",
           "doc": "MonitorConfig is used to configure monitor instances.  One instance of MonitorConfig may be used to configure multiple monitor instances.  If a monitor's discovery rule does not match any discovered services, the monitor will not run.",
-          "package": "internal/core/config",
+          "package": "pkg/core/config",
           "fields": [
             {
               "yamlName": "type",
@@ -48034,7 +48034,7 @@
               "elementStruct": {
                 "name": "MetricFilter",
                 "doc": "MetricFilter describes a set of subtractive filters applied to datapoints right before they are sent.",
-                "package": "internal/core/config",
+                "package": "pkg/core/config",
                 "fields": [
                   {
                     "yamlName": "dimensions",
@@ -48089,7 +48089,7 @@
               "elementStruct": {
                 "name": "MetricFilter",
                 "doc": "MetricFilter describes a set of subtractive filters applied to datapoints right before they are sent.",
-                "package": "internal/core/config",
+                "package": "pkg/core/config",
                 "fields": [
                   {
                     "yamlName": "dimensions",
@@ -48187,7 +48187,7 @@
         "elementStruct": {
           "name": "WriterConfig",
           "doc": "WriterConfig holds configuration for the datapoint writer.",
-          "package": "internal/core/config",
+          "package": "pkg/core/config",
           "fields": [
             {
               "yamlName": "datapointMaxBatchSize",
@@ -48354,7 +48354,7 @@
         "elementStruct": {
           "name": "LogConfig",
           "doc": "LogConfig contains configuration related to logging",
-          "package": "internal/core/config",
+          "package": "pkg/core/config",
           "fields": [
             {
               "yamlName": "level",
@@ -48385,7 +48385,7 @@
         "elementStruct": {
           "name": "CollectdConfig",
           "doc": "CollectdConfig high-level configurations",
-          "package": "internal/core/config",
+          "package": "pkg/core/config",
           "fields": [
             {
               "yamlName": "disableCollectd",
@@ -48496,7 +48496,7 @@
         "elementStruct": {
           "name": "MetricFilter",
           "doc": "MetricFilter describes a set of subtractive filters applied to datapoints right before they are sent.",
-          "package": "internal/core/config",
+          "package": "pkg/core/config",
           "fields": [
             {
               "yamlName": "dimensions",
@@ -48551,7 +48551,7 @@
         "elementStruct": {
           "name": "MetricFilter",
           "doc": "MetricFilter describes a set of subtractive filters applied to datapoints right before they are sent.",
-          "package": "internal/core/config",
+          "package": "pkg/core/config",
           "fields": [
             {
               "yamlName": "dimensions",
@@ -48606,7 +48606,7 @@
         "elementStruct": {
           "name": "PropertyFilterConfig",
           "doc": "PropertyFilterConfig describes a set of subtractive filters applied to properties used to create a PropertyFilter",
-          "package": "internal/core/config",
+          "package": "pkg/core/config",
           "fields": [
             {
               "yamlName": "propertyName",
@@ -48709,7 +48709,7 @@
         "elementStruct": {
           "name": "SourceConfig",
           "doc": "SourceConfig represents configuration for various config sources that we support.",
-          "package": "internal/core/config/sources",
+          "package": "pkg/core/config/sources",
           "fields": [
             {
               "yamlName": "watch",
@@ -48729,7 +48729,7 @@
               "elementStruct": {
                 "name": "Config",
                 "doc": "Config for the file-based config source",
-                "package": "internal/core/config/sources/file",
+                "package": "pkg/core/config/sources/file",
                 "fields": [
                   {
                     "yamlName": "pollRateSeconds",
@@ -48752,7 +48752,7 @@
               "elementStruct": {
                 "name": "Config",
                 "doc": "Config is used to configure the Zookeeper client",
-                "package": "internal/core/config/sources/zookeeper",
+                "package": "pkg/core/config/sources/zookeeper",
                 "fields": [
                   {
                     "yamlName": "endpoints",
@@ -48783,7 +48783,7 @@
               "elementStruct": {
                 "name": "Config",
                 "doc": "Config for an Etcd2 source",
-                "package": "internal/core/config/sources/etcd2",
+                "package": "pkg/core/config/sources/etcd2",
                 "fields": [
                   {
                     "yamlName": "endpoints",
@@ -48822,7 +48822,7 @@
               "elementStruct": {
                 "name": "Config",
                 "doc": "Config for the consul client",
-                "package": "internal/core/config/sources/consul",
+                "package": "pkg/core/config/sources/consul",
                 "fields": [
                   {
                     "yamlName": "endpoint",
@@ -48877,7 +48877,7 @@
               "elementStruct": {
                 "name": "Config",
                 "doc": "Config for the vault remote config",
-                "package": "internal/core/config/sources/vault",
+                "package": "pkg/core/config/sources/vault",
                 "fields": [
                   {
                     "yamlName": "vaultAddr",
@@ -48921,7 +48921,7 @@
                     "elementStruct": {
                       "name": "IAMConfig",
                       "doc": "IAMConfig is the config for the AWS Auth method in Vault",
-                      "package": "internal/core/config/sources/vault/auth",
+                      "package": "pkg/core/config/sources/vault/auth",
                       "fields": [
                         {
                           "yamlName": "awsAccessKeyId",
@@ -48984,7 +48984,7 @@
                     "elementStruct": {
                       "name": "GCPConfig",
                       "doc": "GCPConfig is the config for the GCP Auth method in Vault",
-                      "package": "internal/core/config/sources/vault/auth",
+                      "package": "pkg/core/config/sources/vault/auth",
                       "fields": [
                         {
                           "yamlName": "role",

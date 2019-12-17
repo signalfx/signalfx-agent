@@ -2,7 +2,7 @@
 
 # postgresql
 
-Monitor Type: `postgresql` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/postgresql))
+Monitor Type: `postgresql` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/postgresql))
 
 **Accepts Endpoints**: **Yes**
 

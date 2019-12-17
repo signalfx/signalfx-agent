@@ -30,7 +30,7 @@ issues:
       linters:
         - gosec
 
-    - path: internal/monitors/kubernetes/cluster/metrics
+    - path: pkg/monitors/kubernetes/cluster/metrics
       linters:
         - goconst
 
@@ -65,7 +65,7 @@ linters-settings:
   settings:
     printf:
       funcs:
-      - (github.com/signalfx/signalfx-agent/internal/utils.ThrottledLogger).ThrottledWarning
+      - (github.com/signalfx/signalfx-agent/pkg/utils.ThrottledLogger).ThrottledWarning
 
 run:
   modules-download-mode: readonly

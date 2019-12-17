@@ -6,7 +6,7 @@ import (
 {{if .metrics}}
 	"github.com/signalfx/golib/v3/datapoint"
 {{- end}}
-	"github.com/signalfx/signalfx-agent/internal/monitors"
+	"github.com/signalfx/signalfx-agent/pkg/monitors"
 )
 
 {{if (len .monitors) eq 1 }}

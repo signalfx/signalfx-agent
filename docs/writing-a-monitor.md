@@ -10,8 +10,8 @@ with the plugin framework that make the benefits relatively minimal for a great
 deal of added complexity and artifact size.  Therefore right now, new monitors
 must be compiled into the agent binary.
 
-First, create a new package within the `github.com/signalfx/signalfx-agent/internal/monitors`
-package (or inside the `internal/monitors/collectd` package if creating a
+First, create a new package within the `github.com/signalfx/signalfx-agent/pkg/monitors`
+package (or inside the `pkg/monitors/collectd` package if creating a
 collectd wrapper monitor, see below for more on collectd monitors).  Inside
 that package create a single module named whatever you like that will hold the
 monitor code. If your monitor gets complicated, you can of course split it up
@@ -25,10 +25,10 @@ package mymonitor
 import (
 	"time"
 	"github.com/signalfx/golib/datapoint"
-	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/types"
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/pkg/core/config"
+	"github.com/signalfx/signalfx-agent/pkg/monitors"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -103,7 +103,7 @@ names don't matter and can be anything you like.
 
 The config struct is where any configuration of your monitor will go.  It must
 embed the
-`github.com/signalfx/signalfx-agent/internal/core/config.MonitorConfig` struct,
+`github.com/signalfx/signalfx-agent/pkg/core/config.MonitorConfig` struct,
 which includes generic configuration common to all monitors.  Configuration of
 the agent (and also monitors) is driven by YAML, and it is best practice to
 explicitly state the YAML key for your config values instead of letting the
@@ -177,7 +177,7 @@ for registration).
 There is a special field that can be specified by the monitor struct that will
 be automatically populated by the agent:
 
-- `Output "github.com/signalfx/signalfx-agent/internal/monitors/types".Output`: This is what
+- `Output "github.com/signalfx/signalfx-agent/pkg/monitors/types".Output`: This is what
     is used to send data from the monitor back to the agent, and then on to
     SignalFx.  This value has three methods:
 
@@ -188,7 +188,7 @@ be automatically populated by the agent:
 
     - `SendEvent(*"github.com/signalfx/golib/v3/event".Event)`: Sends an event.
 
-	- `SendDimensionUpdate(*"github.com/signalfx/signalfx-agent/internal/monitors/types".Dimension)`:
+	- `SendDimensionUpdate(*"github.com/signalfx/signalfx-agent/pkg/monitors/types".Dimension)`:
 		Sends property updates for a specific dimension key/value pair.
 
 The name and type of the struct field must be exactly as specified or else it
@@ -219,7 +219,7 @@ method, if provided.
 
 To force the agent to compile and statically link in your new monitor code in
 the binary, you must include the package in the
-`github.com/signalfx/signalfx-agent/internal/core/modules.go` module.
+`github.com/signalfx/signalfx-agent/pkg/core/modules.go` module.
 
 ## Shutdown
 
@@ -272,7 +272,7 @@ is the config template and the config struct.
 
 Almost all of the work involved in configuring and restarting collectd is
 encapsulated in a type called `MonitorCore` that resides in the
-`github.com/signalfx/signalfx-agent/internal/monitors/collectd` package.  The monitor must
+`github.com/signalfx/signalfx-agent/pkg/monitors/collectd` package.  The monitor must
 only embed this type in the main monitor struct and make sure it gets instantiated
 with a collectd config template in the monitor factory function.
 

@@ -2,7 +2,7 @@
 
 # collectd/chrony
 
-Monitor Type: `collectd/chrony` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/collectd/chrony))
+Monitor Type: `collectd/chrony` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/chrony))
 
 **Accepts Endpoints**: No
 

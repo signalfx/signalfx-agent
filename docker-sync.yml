@@ -25,7 +25,7 @@ syncs:
     sync_excludes:
     - Path .git
     - Path signalfx-agent
-    - Path internal/monitors/zcodegen/monitor-code-gen
+    - Path pkg/monitors/zcodegen/monitorcodegen
     - Path scripts/windows/vagrant/boxcutter
     - Name __pycache__
     - Name *.exe

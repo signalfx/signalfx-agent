@@ -8,8 +8,8 @@ signalfx-agent*
 tmp/**
 local-etc/**
 build/**
-internal/monitors/**/template.go
-internal/monitors/collectd/collectd.conf.go
+pkg/monitors/**/template.go
+pkg/monitors/collectd/collectd.conf.go
 packaging/*/output
 tests/**/__pycache__
 **/.pytest_cache/**

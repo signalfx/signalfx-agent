@@ -7,6 +7,6 @@ RUN apk add git
 WORKDIR /usr/src/signalfx-agent
 COPY ./go.mod go.sum ./
 COPY ./cmd/fakek8s/ ./cmd/fakek8s/
-COPY ./internal/neotest/k8s/testhelpers/fakek8s/ ./internal/neotest/k8s/testhelpers/fakek8s/
+COPY ./pkg/neotest/k8s/testhelpers/fakek8s/ ./pkg/neotest/k8s/testhelpers/fakek8s/
 
 RUN go build -o fakek8s ./cmd/fakek8s

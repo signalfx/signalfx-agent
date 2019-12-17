@@ -20,21 +20,15 @@ $repoDir = "$scriptDir\..\.."
 . "$scriptDir\bundle.ps1"
 
 function versions_go() {
-    if ($env:AGENT_VERSION -Eq ""){
-        $env:AGENT_VERSION = getGitTag
-    }
-    $date = Get-Date -UFormat "%Y-%m-%dT%T%Z"
-
-    $versionfile = "$repoDir\internal\core\common\constants\versions.go"
+    $versionfile = "$repoDir\pkg\core\common\constants\versions.go"
 
     cp "$versionfile.tmpl" "$versionfile"
     replace_text -filepath "$versionfile" -find '${COLLECTD_VERSION}' -replacement "$env:COLLECTD_VERSION"
     replace_text -filepath "$versionfile" -find '${AGENT_VERSION}' -replacement "$env:AGENT_VERSION"
-    replace_text -filepath "$versionfile" -find '${BUILD_TIME}' -replacement "$date"
 }
 
 function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalfx-agent.exe", [string]$COLLECTD_VERSION="") {
-    Remove-Item -Recurse -Force "$repoDir\internal\monitors\*" -Include "genmetadata.go" -ErrorAction Ignore
+    Remove-Item -Recurse -Force "$repoDir\pkg\monitors\*" -Include "genmetadata.go" -ErrorAction Ignore
 
     go generate ./...
 
@@ -154,7 +148,6 @@ function tidy() {
 
 function unit_test() {
     go generate ./...
-    go generate ./internal/monitors/...
     if ($lastexitcode -ne 0){ throw }
     if ((Get-Command "gotestsum.exe" -ErrorAction SilentlyContinue) -eq $null) {
         $cwd = get-location

@@ -2,7 +2,7 @@
 
 # statsd
 
-Monitor Type: `statsd` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/internal/monitors/statsd))
+Monitor Type: `statsd` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/statsd))
 
 **Accepts Endpoints**: No
 

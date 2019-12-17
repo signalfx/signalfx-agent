@@ -5,11 +5,11 @@ NUM_CORES ?= $(shell getconf _NPROCESSORS_ONLN)
 
 .PHONY: clean
 clean:
-	rm -f internal/core/constants/versions.go
-	find internal/monitors -name "genmetadata.go" -delete
-	find internal/monitors -name "template.go" -delete
-	rm -f internal/monitors/collectd/collectd.conf.go
-	rm -f internal/monitors/zcodegen/monitorcodegen
+	rm -f pkg/core/constants/versions.go
+	find pkg/monitors -name "genmetadata.go" -delete
+	find pkg/monitors -name "template.go" -delete
+	rm -f pkg/monitors/collectd/collectd.conf.go
+	rm -f pkg/monitors/zcodegen/monitorcodegen
 	rm -f signalfx-agent
 
 .PHONY: check
