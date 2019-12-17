@@ -16,7 +16,6 @@ import (
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
-	"k8s.io/apimachinery/pkg/runtime/serializer"
 	runtimejson "k8s.io/apimachinery/pkg/runtime/serializer/json"
 	"k8s.io/apimachinery/pkg/runtime/serializer/streaming"
 	"k8s.io/apimachinery/pkg/watch"
@@ -294,8 +293,7 @@ func (f *FakeK8s) startWatcher(resKind resourceKind, rw http.ResponseWriter) {
 		case r := <-eventCh:
 			buf := &bytes.Buffer{}
 			jsonSerializer := runtimejson.NewSerializer(runtimejson.DefaultMetaFactory, scheme.Scheme, scheme.Scheme, false)
-			directCodecFactory := serializer.DirectCodecFactory{CodecFactory: scheme.Codecs}
-			innerEncoder := directCodecFactory.EncoderForVersion(jsonSerializer, v1.SchemeGroupVersion)
+			innerEncoder := scheme.Codecs.WithoutConversion().EncoderForVersion(jsonSerializer, v1.SchemeGroupVersion)
 
 			encoder := restwatch.NewEncoder(streaming.NewEncoder(buf, innerEncoder), innerEncoder)
 			if err := encoder.Encode(&r); err != nil {
