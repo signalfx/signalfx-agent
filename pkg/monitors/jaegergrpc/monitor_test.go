@@ -12,8 +12,8 @@ import (
 	"github.com/jaegertracing/jaeger/proto-gen/api_v2"
 	"github.com/signalfx/golib/v3/pointer"
 	"github.com/signalfx/golib/v3/trace"
-	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
-	"github.com/signalfx/signalfx-agent/internal/neotest"
+	"github.com/signalfx/signalfx-agent/pkg/core/common/constants"
+	"github.com/signalfx/signalfx-agent/pkg/neotest"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 )
@@ -444,6 +444,16 @@ func TestMonitor_Configure(t *testing.T) {
 			}
 			defer m.Shutdown() // test clean up
 
+			// get the address from the listener
+			var address string
+			for address == "" {
+				m.listenerLock.Lock()
+				if m.ln != nil {
+					address = m.ln.Addr().String()
+				}
+				m.listenerLock.Unlock()
+			}
+
 			// build the grpc client
 			var conn *grpc.ClientConn
 			if tt.args.conf.TLS != nil {
@@ -453,9 +463,9 @@ func TestMonitor_Configure(t *testing.T) {
 					t.Errorf("credentials.NewClientTLSFromFile() error = %v, wantErr = %v", err, tt.wantErr)
 					return
 				}
-				conn, err = grpc.Dial(m.ln.Addr().String(), grpc.WithTransportCredentials(creds))
+				conn, err = grpc.Dial(address, grpc.WithTransportCredentials(creds))
 			} else {
-				conn, err = grpc.Dial(m.ln.Addr().String(), grpc.WithInsecure())
+				conn, err = grpc.Dial(address, grpc.WithInsecure())
 			}
 
 			// handle to the grpc client connection error

@@ -3,16 +3,16 @@ package jaegergrpc
 import (
 	"context"
 	"net"
+	"sync"
 	"time"
 
 	"github.com/jaegertracing/jaeger/proto-gen/api_v2"
-	"github.com/pkg/errors"
-	"github.com/signalfx/signalfx-agent/internal/core/common/constants"
-	"github.com/signalfx/signalfx-agent/internal/core/config"
-	"github.com/signalfx/signalfx-agent/internal/monitors"
-	"github.com/signalfx/signalfx-agent/internal/monitors/jaegergrpc/jaegerprotobuf"
-	"github.com/signalfx/signalfx-agent/internal/monitors/types"
-	"github.com/signalfx/signalfx-agent/internal/utils"
+	"github.com/signalfx/signalfx-agent/pkg/core/common/constants"
+	"github.com/signalfx/signalfx-agent/pkg/core/config"
+	"github.com/signalfx/signalfx-agent/pkg/monitors"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/jaegergrpc/jaegerprotobuf"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
@@ -56,9 +56,11 @@ type Config struct {
 
 // Monitor that accepts and forwards SignalFx data
 type Monitor struct {
-	Output types.Output
-	grpc   *grpc.Server
-	ln     net.Listener
+	Output       types.Output
+	grpc         *grpc.Server
+	listenerLock sync.Mutex
+	cancel       context.CancelFunc
+	ln           net.Listener
 }
 
 var _ api_v2.CollectorServiceServer = (*Monitor)(nil)
@@ -91,31 +93,59 @@ func extractRemoteAddressToContext(ctx context.Context) (net.IP, bool) {
 // batches it receives to this method.  This method will convert the jaeger batches to SignalFx spans and pass them
 // on to the output writer.
 func (m *Monitor) PostSpans(ctx context.Context, r *api_v2.PostSpansRequest) (*api_v2.PostSpansResponse, error) {
-	if r != nil {
-		// convert the batch to SignalFx metrics
-		spans := jaegerprotobuf.JaegerProtoBatchToSFX(&r.Batch)
-
-		// tag the source on the span meta data
-		source, hasSource := extractRemoteAddressToContext(ctx)
-		if hasSource {
-			for i := range spans {
-				// monitor Output expects Meta to be non-nil
-				if spans[i].Meta == nil {
-					spans[i].Meta = map[interface{}]interface{}{}
-				}
-				spans[i].Meta[constants.DataSourceIPKey] = source
-			}
-		}
-
-		// send the spans on through the agent
-		m.Output.SendSpans(spans...)
+	if r == nil {
+		return &api_v2.PostSpansResponse{}, nil
 	}
+
+	// convert the batch to SignalFx metrics
+	spans := jaegerprotobuf.JaegerProtoBatchToSFX(&r.Batch)
+
+	// tag the source on the span meta data
+	source, hasSource := extractRemoteAddressToContext(ctx)
+	if hasSource {
+		for i := range spans {
+			// monitor Output expects Meta to be non-nil
+			if spans[i].Meta == nil {
+				spans[i].Meta = map[interface{}]interface{}{}
+			}
+			spans[i].Meta[constants.DataSourceIPKey] = source
+		}
+	}
+
+	// send the spans on through the agent
+	m.Output.SendSpans(spans...)
 
 	return &api_v2.PostSpansResponse{}, nil
 }
 
+func setupListener(ctx context.Context, conf *Config) (net.Listener, error) {
+	for ctx.Err() == nil {
+		// create a listener with the configured ListenAddress
+		ln, err := net.Listen("tcp", conf.ListenAddress)
+
+		// return if listener was successfully created
+		if err == nil {
+			return ln, nil
+		}
+
+		logger.Errorf("could not start grpc listener %v", err)
+
+		// wait until the next interval to retry
+		select {
+		case <-time.After(time.Duration(conf.IntervalSeconds) * time.Second):
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		}
+
+	}
+	return nil, ctx.Err()
+}
+
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
+	ctx, cancel := context.WithCancel(context.Background())
+	m.cancel = cancel
+
 	// parse tls configurations
 	var grpcOptions []grpc.ServerOption
 	if conf.TLS != nil {
@@ -129,18 +159,23 @@ func (m *Monitor) Configure(conf *Config) error {
 	// create the grpc server
 	m.grpc = grpc.NewServer(grpcOptions...)
 
-	var err error
-	// create a listener with the configured ListenAddress
-	m.ln, err = net.Listen("tcp", conf.ListenAddress)
-	if err != nil {
-		return errors.WithMessage(err, "could not start grpc listener")
-	}
-
-	// register the monitor with the grpc server
-	api_v2.RegisterCollectorServiceServer(m.grpc, m)
-
 	// start the grpc server
 	go func() {
+		// register the monitor with the grpc server
+		api_v2.RegisterCollectorServiceServer(m.grpc, m)
+
+		// setup the listener
+		ln, err := setupListener(ctx, conf)
+		if err != nil {
+			return
+		}
+
+		// save the completed listener to the monitor so tests can scrape its address
+		m.listenerLock.Lock()
+		m.ln = ln
+		m.listenerLock.Unlock()
+
+		// start the server
 		if err := m.grpc.Serve(m.ln); err != nil {
 			logger.Errorf("failed to start server in %s monitor", monitorType)
 		}
@@ -151,6 +186,11 @@ func (m *Monitor) Configure(conf *Config) error {
 
 // Shutdown stops the forwarder and correlation MTSs
 func (m *Monitor) Shutdown() {
+	// cancel the monitor context
+	if m.cancel != nil {
+		m.cancel()
+	}
+
 	// stop the grpc server
 	if m.grpc != nil {
 		// set up a timeout function to stop the grpc server if it does not

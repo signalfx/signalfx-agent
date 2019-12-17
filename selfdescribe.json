@@ -26875,7 +26875,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "internal/monitors/jaegergrpc",
+        "package": "pkg/monitors/jaegergrpc",
         "fields": [
           {
             "yamlName": "listenAddress",
@@ -26895,7 +26895,7 @@
             "elementStruct": {
               "name": "TLSCreds",
               "doc": "TLSCreds is a configuration struct for specifying a cert file and key file for tls",
-              "package": "internal/monitors/jaegergrpc",
+              "package": "pkg/monitors/jaegergrpc",
               "fields": [
                 {
                   "yamlName": "certFile",
