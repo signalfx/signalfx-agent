@@ -1,0 +1,8 @@
+monitors:
+  - dimensions:
+    doc:
+    monitorType: heroku-metadata
+    metrics:
+    properties:
+
+

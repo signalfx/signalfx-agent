@@ -26532,6 +26532,24 @@
       "singleInstance": false
     },
     {
+      "monitorType": "heroku-metadata",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "",
+      "groups": {},
+      "metrics": null,
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/heroku",
+        "fields": []
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "host-metadata",
       "sendAll": false,
       "dimensions": {

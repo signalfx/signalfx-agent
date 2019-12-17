@@ -112,6 +112,7 @@ These are all of the monitors included in the agent, along with their possible c
 - [gitlab-unicorn](./monitors/gitlab-unicorn.md)
 - [gitlab-workhorse](./monitors/gitlab-workhorse.md)
 - [haproxy](./monitors/haproxy.md)
+- [heroku-metadata](./monitors/heroku-metadata.md)
 - [host-metadata](./monitors/host-metadata.md)
 - [internal-metrics](./monitors/internal-metrics.md)
 - [jaeger-grpc](./monitors/jaeger-grpc.md)
