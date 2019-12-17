@@ -26864,6 +26864,64 @@
       "singleInstance": false
     },
     {
+      "monitorType": "jaeger-grpc",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "Runs a GRPC server that listens for Jaeger trace batches\nand forwards them to SignalFx (or the configured ingest host in the\n`writer` section of the agent config).  By default, the server listens on\nlocalhost port 14250 but can be configured to anything.\n",
+      "groups": {},
+      "metrics": null,
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/jaegergrpc",
+        "fields": [
+          {
+            "yamlName": "listenAddress",
+            "doc": "The host:port on which to listen for traces.",
+            "default": "0.0.0.0:14250",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "tls",
+            "doc": "TLS are optional tls credential settings to configure the GRPC server with",
+            "default": null,
+            "required": false,
+            "type": "struct",
+            "elementKind": "",
+            "elementStruct": {
+              "name": "TLSCreds",
+              "doc": "TLSCreds is a configuration struct for specifying a cert file and key file for tls",
+              "package": "pkg/monitors/jaegergrpc",
+              "fields": [
+                {
+                  "yamlName": "certFile",
+                  "doc": "The cert file to use for tls",
+                  "default": "",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                },
+                {
+                  "yamlName": "keyFile",
+                  "doc": "The key file to use for tls",
+                  "default": "",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                }
+              ]
+            }
+          }
+        ]
+      },
+      "acceptsEndpoints": false,
+      "singleInstance": true
+    },
+    {
       "monitorType": "java-monitor",
       "sendAll": true,
       "dimensions": null,

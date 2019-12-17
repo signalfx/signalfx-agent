@@ -47,7 +47,8 @@ require (
 	github.com/go-stomp/stomp v2.0.2+incompatible // indirect
 	github.com/gobwas/glob v0.2.4-0.20181002190808-e7a84e9525fe
 	github.com/gocql/gocql v0.0.0-20190301043612-f6df8288f9b4 // indirect
-	github.com/gogo/protobuf v1.2.2-0.20190723190241-65acae22fc9d
+	github.com/gogo/googleapis v1.3.1 // indirect
+	github.com/gogo/protobuf v1.3.0
 	github.com/google/cadvisor v0.26.1
 	github.com/googleapis/gnostic v0.1.0 // indirect
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75 // indirect
@@ -84,7 +85,7 @@ require (
 	github.com/influxdata/telegraf v0.10.2-0.20190319005412-5e88824c153e
 	github.com/influxdata/toml v0.0.0-20180607005434-2a2e3012f7cf // indirect
 	github.com/influxdata/wlog v0.0.0-20160411224016-7c63b0a71ef8 // indirect
-	github.com/jaegertracing/jaeger v1.7.0 // indirect
+	github.com/jaegertracing/jaeger v1.15.1
 	github.com/jeffchao/backoff v0.0.0-20140404060208-9d7fd7aa17f2 // indirect
 	github.com/jefferai/jsonx v1.0.0 // indirect
 	github.com/kardianos/service v1.0.0
@@ -110,6 +111,7 @@ require (
 	github.com/onsi/gomega v1.7.0
 	github.com/openshift/api v3.9.0+incompatible
 	github.com/openshift/client-go v0.0.0-20191216194936-57f413491e9e
+	github.com/opentracing/opentracing-go v1.1.0
 	github.com/ory-am/common v0.4.0 // indirect
 	github.com/ory/dockertest v3.3.4+incompatible // indirect
 	github.com/pborman/uuid v1.2.0 // indirect
@@ -126,6 +128,7 @@ require (
 	github.com/signalfx/golib/v3 v3.0.0
 	github.com/signalfx/signalfx-go v1.6.9-0.20191121015807-da8b1dfaab43
 	github.com/sirupsen/logrus v1.4.0
+	github.com/smartystreets/goconvey v1.6.4
 	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect
 	github.com/streadway/amqp v0.0.0-20190312223743-14f78b41ce6d // indirect
 	github.com/stretchr/testify v1.4.0
@@ -139,6 +142,7 @@ require (
 	go.etcd.io/etcd v0.0.0-20190321122103-41f7142ff986
 	golang.org/x/sync v0.0.0-20190423024810-112230192c58
 	golang.org/x/sys v0.0.0-20191105231009-c1f44814a5cd
+	google.golang.org/grpc v1.19.0
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/fatih/set.v0 v0.1.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect

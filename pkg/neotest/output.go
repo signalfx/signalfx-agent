@@ -45,6 +45,11 @@ func (to *TestOutput) SendEvent(event *event.Event) {
 
 // SendSpans accepts a trace span and sticks it in a buffered queue
 func (to *TestOutput) SendSpans(spans ...*trace.Span) {
+	for i := range spans {
+		if spans[i].Meta == nil {
+			spans[i].Meta = map[interface{}]interface{}{}
+		}
+	}
 	to.spanChan <- spans
 }
 
@@ -81,6 +86,19 @@ func (to *TestOutput) FlushEvents() []*event.Event {
 		select {
 		case event := <-to.eventChan:
 			out = append(out, event)
+		default:
+			return out
+		}
+	}
+}
+
+// FlushSpans returns all of the spans injected into the channel so far
+func (to *TestOutput) FlushSpans() []*trace.Span {
+	var out []*trace.Span
+	for {
+		select {
+		case span := <-to.spanChan:
+			out = append(out, span...)
 		default:
 			return out
 		}

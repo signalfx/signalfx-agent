@@ -41,6 +41,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/gitlab"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/haproxy"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/internalmetrics"
+	_ "github.com/signalfx/signalfx-agent/pkg/monitors/jaegergrpc"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/jmx"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/kubernetes"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/logstash/logstash"
