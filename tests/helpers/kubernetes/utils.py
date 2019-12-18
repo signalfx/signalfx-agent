@@ -234,7 +234,7 @@ def delete_configmap(name, namespace="default", timeout=K8S_DELETE_TIMEOUT):
 
 
 def has_deployment(name, namespace="default"):
-    api = kube_client.ExtensionsV1beta1Api()
+    api = kube_client.AppsV1Api()
     try:
         api.read_namespaced_deployment(name, namespace=namespace)
         return True
@@ -245,7 +245,7 @@ def has_deployment(name, namespace="default"):
 
 
 def deployment_is_ready(name, namespace="default"):
-    api = kube_client.ExtensionsV1beta1Api()
+    api = kube_client.AppsV1Api()
     if not has_deployment(name, namespace=namespace):
         return False
     status = api.read_namespaced_deployment_status(name, namespace=namespace).status
@@ -257,7 +257,7 @@ def deployment_is_ready(name, namespace="default"):
 def delete_deployment(name, namespace="default", timeout=K8S_DELETE_TIMEOUT):
     if not has_deployment(name, namespace=namespace):
         return
-    api = kube_client.ExtensionsV1beta1Api()
+    api = kube_client.AppsV1Api()
     api.delete_namespaced_deployment(
         name=name,
         body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy="Background"),
@@ -269,7 +269,7 @@ def delete_deployment(name, namespace="default", timeout=K8S_DELETE_TIMEOUT):
 
 
 def has_daemonset(name, namespace="default"):
-    api = kube_client.ExtensionsV1beta1Api()
+    api = kube_client.AppsV1Api()
     try:
         api.read_namespaced_daemon_set(name, namespace=namespace)
         return True
@@ -280,7 +280,7 @@ def has_daemonset(name, namespace="default"):
 
 
 def daemonset_is_ready(name, namespace="default"):
-    api = kube_client.ExtensionsV1beta1Api()
+    api = kube_client.AppsV1Api()
     if not has_daemonset(name, namespace=namespace):
         return False
     status = api.read_namespaced_daemon_set_status(name, namespace=namespace).status
@@ -302,7 +302,7 @@ def create_daemonset(body, namespace=None, timeout=K8S_CREATE_TIMEOUT):
 def delete_daemonset(name, namespace="default", timeout=K8S_DELETE_TIMEOUT):
     if not has_daemonset(name, namespace=namespace):
         return
-    api = kube_client.ExtensionsV1beta1Api()
+    api = kube_client.AppsV1Api()
     api.delete_namespaced_daemon_set(
         name=name,
         body=kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy="Background"),
@@ -322,14 +322,13 @@ def get_pods_by_labels(labels, namespace="default"):
     return api.list_namespaced_pod(namespace, label_selector=labels).items
 
 
-def exec_pod_command(name, command, namespace="default"):
+def exec_pod_command(name, command, namespace="default", fail_hard=False):
     api = kube_client.CoreV1Api()
-    pod = api.read_namespaced_pod(name, namespace=namespace)
 
     try:
         return stream(
             api.connect_get_namespaced_pod_exec,
-            name=pod.metadata.name,
+            name=name,
             command=command,
             namespace=namespace,
             stderr=True,
@@ -340,6 +339,8 @@ def exec_pod_command(name, command, namespace="default"):
             _request_timeout=5,
         ).strip()
     except ApiException as e:
+        if fail_hard:
+            raise e
         return f"Failed to exec command {command} on pod {name}: {e}"
 
 

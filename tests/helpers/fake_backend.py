@@ -66,7 +66,7 @@ def _make_fake_ingest(datapoint_queue, events, spans):
     @app.post("/v1/trace")
     async def handle_trace(request):
         spans.extend(request.json)
-        return response.json([])
+        return response.json("OK")
 
     return app
 
@@ -90,6 +90,48 @@ def _make_fake_api(dims):
         content = request.json
         dims[key][value] = content
         return response.json({})
+
+    @app.patch("/v2/dimension/<key>/<value>/_/sfxagent")
+    async def patch_dim(request, key, value):
+        content = request.json
+
+        # The API won't accept these on this endpoint so make sure they aren't
+        # present
+        assert content.get("key") is None
+        assert content.get("value") is None
+
+        content["key"] = key
+        content["value"] = value
+
+        prop_keys_to_delete = []
+        props_to_add = content.get("customProperties", {})
+        for k, v in props_to_add.items():
+            if v is None:
+                prop_keys_to_delete.append(k)
+
+        for k in prop_keys_to_delete:
+            del props_to_add[k]
+
+        existing = dims[key].get(value)
+        if not existing:
+            dims[key][value] = {"customProperties": props_to_add, "tags": content.get("tags", [])}
+            return response.json({})
+
+        existing_props = existing.get("customProperties", {})
+        existing_props.update(props_to_add)
+        existing["customProperties"] = existing_props
+
+        for k in prop_keys_to_delete:
+            del existing_props[k]
+
+        existing_tags = existing.get("tags", [])
+        existing_tags.extend(content.get("tags", []))
+        existing["tags"] = existing_tags
+
+        for tag in content.get("tagsToRemove", []):
+            existing_tags.remove(tag)
+
+        return response.json(existing)
 
     return app
 

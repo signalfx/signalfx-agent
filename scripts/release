@@ -53,7 +53,7 @@ parse_args_and_release() {
       --new-version)
         new_version="$2"
 
-        if [[ ! "$new_version" =~ [0-9]\.[0-9]\.[0-9](-beta[0-9])?(-post)? ]]; then
+        if [[ ! "$new_version" =~ [0-9]+\.[0-9]+\.[0-9]+(-beta[0-9]+)?(-post)? ]]; then
           echo "Version $new_version is in an unexpected format" >&2
           exit 1
         fi
@@ -472,7 +472,7 @@ add_digest_to_release() {
   fi
 
   # get original release message and append the agent image digest
-  body=$(github_request "$username" "$token" "GET" "releases" | jq --argjson id $release_id '.[] | select(.id==$id) | .body' | tr -d '"')
+  body=$(github_request "$username" "$token" "GET" "releases" | jq --argjson id $release_id '.[] | select(.id==$id) | .body' | sed 's/^"\(.*\)"$/\1/')
   if [[ -z "$body" ]]; then
     echo "Failed to get release message for $tag!" >&2
     exit 1

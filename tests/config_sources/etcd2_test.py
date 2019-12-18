@@ -35,7 +35,7 @@ monitors:
 
 def test_basic_etcd2_config():
     with run_container(ETCD2_IMAGE, command=ETCD_COMMAND) as etcd:
-        assert wait_for(p(container_cmd_exit_0, etcd, "/etcdctl ls"), 5), "etcd didn't start"
+        assert wait_for(p(container_cmd_exit_0, etcd, "/etcdctl ls"), 30), "etcd didn't start"
         create_path(etcd, "/env", "prod")
         create_path(etcd, "/monitors/cpu", "- type: collectd/cpu")
         create_path(etcd, "/monitors/signalfx-metadata", "- type: collectd/signalfx-metadata")
@@ -62,7 +62,7 @@ monitors:
 
 def test_interior_globbing():
     with run_container(ETCD2_IMAGE, command=ETCD_COMMAND) as etcd:
-        assert wait_for(p(container_cmd_exit_0, etcd, "/etcdctl ls"), 5), "etcd didn't start"
+        assert wait_for(p(container_cmd_exit_0, etcd, "/etcdctl ls"), 30), "etcd didn't start"
         create_path(etcd, "/env", "prod")
         create_path(etcd, "/services/cpu/monitor", "- type: collectd/cpu")
         create_path(etcd, "/services/signalfx/monitor", "- type: collectd/signalfx-metadata")

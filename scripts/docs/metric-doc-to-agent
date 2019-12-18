@@ -3,6 +3,7 @@
 import os
 import sys
 from pathlib import Path
+
 from ruamel import yaml
 
 # Converts a set of metric docs in the integrations repo to the metadata.yaml
@@ -10,7 +11,7 @@ from ruamel import yaml
 # documentation.
 
 # E.g. to sync collectd-kafka run:
-# INTEGRATIONS_REPO=~/work/integrations ./metric-doc-to-agent collectd-kafka internal/monitors/collectd/kafka
+# INTEGRATIONS_REPO=~/work/integrations ./metric-doc-to-agent collectd-kafka pkg/monitors/collectd/kafka
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 

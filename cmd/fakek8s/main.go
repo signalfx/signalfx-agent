@@ -5,7 +5,7 @@ package main
 import (
 	"flag"
 
-	"github.com/signalfx/signalfx-agent/internal/neotest/k8s/testhelpers/fakek8s"
+	"github.com/signalfx/signalfx-agent/pkg/neotest/k8s/testhelpers/fakek8s"
 )
 
 func main() {

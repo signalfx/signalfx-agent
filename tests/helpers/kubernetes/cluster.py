@@ -1,5 +1,6 @@
 import os
 import random
+import shlex
 import string
 import subprocess
 import time
@@ -33,10 +34,17 @@ class Cluster:
 
         kconfig.load_kube_config(config_file=kube_config_path, context=kube_context)
 
+        api = client.CoreV1Api()
+
+        self.container_runtimes = [
+            node.status.node_info.container_runtime_version.split(":", 1)[0] for node in api.list_node().items
+        ]
+        assert self.container_runtimes, "failed to get container runtimes for cluster"
+
         utils.create_namespace(self.test_namespace)
         assert wait_for(p(utils.has_namespace, self.test_namespace))
         assert wait_for(p(utils.has_serviceaccount, "default", self.test_namespace))
-        assert wait_for(lambda: client.CoreV1Api().list_namespaced_secret(self.test_namespace).items)
+        assert wait_for(lambda: api.list_namespaced_secret(self.test_namespace).items)
 
     def delete_test_namespace(self):
         """
@@ -52,12 +60,15 @@ class Cluster:
         """
         if namespace is None:
             namespace = self.test_namespace
-        args = f"kubectl --kubeconfig {self.kube_config_path} -n {namespace}"
+        args = ["kubectl", "-n", namespace]
+        if self.kube_config_path:
+            args += ["--kubeconfig", self.kube_config_path]
         if self.kube_context:
-            args += f" --context {self.kube_context}"
-        args += f" {command}"
+            args += ["--context", self.kube_context]
 
-        proc = subprocess.run(args, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")
+        args += shlex.split(command)
+
+        proc = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8")
         assert proc.returncode == 0, f"{args}:\n{proc.stdout}"
         return proc.stdout
 
@@ -141,6 +152,9 @@ class Cluster:
                         for event in backend.events or []:
                             print_dp_or_event(event)
                         print(f"\nDimensions set: {backend.dims}")
+                        print("\nTrace spans received:")
+                        for span in backend.spans or []:
+                            print(span)
 
     @contextmanager
     def run_tunnels(self, fake_services):

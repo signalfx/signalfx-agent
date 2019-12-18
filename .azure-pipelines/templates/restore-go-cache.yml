@@ -1,0 +1,21 @@
+steps:
+- bash: |
+    set -euo pipefail
+    GOMOD_HASH=$(sha256sum go.mod | awk '{print $1}')
+    echo "##vso[task.setvariable variable=GOMOD_HASH]$GOMOD_HASH"
+    GOSUM_HASH=$(sha256sum go.sum | awk '{print $1}')
+    echo "##vso[task.setvariable variable=GOSUM_HASH]$GOSUM_HASH"
+- task: CacheBeta@0
+  inputs:
+    key: $(GOMOD_HASH) | $(GOSUM_HASH) | "$(GOPATH)"
+    path: $(GOPATH)/pkg/mod
+    cacheHitVar: GO_CACHE_RESTORED
+  displayName: 'Save/restore go mod cache'
+- bash: |
+    for i in $(seq 1 3); do
+        go mod download && exit 0
+        sleep 10
+    done
+    exit 1
+  displayName: "go mod download"
+  condition: ne(variables.GO_CACHE_RESTORED, 'true')

@@ -2,12 +2,15 @@ parameters:
   markers: 'windows or windows_only'
   options: ''
   changesInclude: ''
+  chocoPackages: ''
 
 steps:
 - template: 'changes-include.yml'
   parameters:
     paths: ${{ parameters.changesInclude }}
 - template: 'install-choco.yml'
+  parameters:
+    packages: ${{ parameters.chocoPackages }}
 - powershell: |
     if ((Get-Command "conda.exe" -ErrorAction SilentlyContinue) -eq $null) {
         choco install -y --no-progress --limitoutput miniconda3
@@ -37,7 +40,6 @@ steps:
   env:
     MARKERS: ${{ parameters.markers }}
     OPTIONS: ${{ parameters.options }}
-  ignoreLASTEXITCODE: true
   displayName: 'Run pytest'
   condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
 - task: PublishBuildArtifacts@1

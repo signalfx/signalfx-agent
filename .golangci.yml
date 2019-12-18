@@ -20,7 +20,17 @@ issues:
       linters:
         - gosec
 
-    - path: internal/monitors/kubernetes/cluster/metrics
+    # command arguments aren't so bad
+    - text: G204
+      linters:
+        - gosec
+
+    # pprof endpoint is only exposed when profiling: true
+    - text: G108
+      linters:
+        - gosec
+
+    - path: pkg/monitors/kubernetes/cluster/metrics
       linters:
         - goconst
 
@@ -40,7 +50,23 @@ linters:
     - prealloc
     # There are many legitimate uses of globals
     - gochecknoglobals
+    - godox
+    # Too many of these errors to fix in a reasonable amount of time.
+    - wsl
+    # TODO: reenable this one after a fix up of the existing code base
+    - whitespace
+    # funlen and gocognit are useful in revealing bloated functions, but this
+    # should be determined at code review as there are many legitimate
+    # violations.
+    - funlen
+    - gocognit
 
+linters-settings:
+  settings:
+    printf:
+      funcs:
+      - (github.com/signalfx/signalfx-agent/pkg/utils.ThrottledLogger).ThrottledWarning
 
 run:
-  modules-download-mode: vendor
+  modules-download-mode: readonly
+  timeout: 5m

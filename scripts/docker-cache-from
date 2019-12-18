@@ -16,6 +16,7 @@ DEV_IMAGE=${DEV_IMAGE:-"quay.io/signalfx/signalfx-agent-image-cache"}
 stages=$($SCRIPT_DIR/dockerfile-stages ${1-})
 
 for s in $stages; do
-  docker pull $DEV_IMAGE:stage-$s >&2
+  # If the pull fails, it just means the cache won't be used.
+  docker pull $DEV_IMAGE:stage-$s >&2 || true
   echo -n "--cache-from $DEV_IMAGE:stage-$s "
 done

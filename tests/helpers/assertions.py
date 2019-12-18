@@ -45,6 +45,19 @@ def has_datapoint_with_dim(fake_services, key, value):
     return has_datapoint_with_all_dims(fake_services, {key: value})
 
 
+# Tests if all datapoints received have some or all the given dims.
+def datapoints_have_some_or_all_dims(fake_services, dims):
+    for dp in fake_services.datapoints:
+        has_dim = False
+        for dp_dim in dp.dimensions:
+            if dims.get(dp_dim.key) == dp_dim.value:
+                has_dim = True
+                break
+        if not has_dim:
+            return False
+    return True
+
+
 def has_no_datapoint(fake_services, metric_name=None, dimensions=None, value=None, metric_type=None):
     """
     Returns True is there are no datapoints matching the given parameters
@@ -305,9 +318,13 @@ def all_datapoints_have_dim_key(fake_services, dim_key):
     if not fake_services.datapoints:
         return False
     for dp in fake_services.datapoints:
-        if not any(dim.key == dim_key for dim in dp.dimensions):
+        if not has_dim_key(dp, dim_key):
             return False
     return True
+
+
+def has_dim_key(dp_or_event, key):
+    return any(dim.key == key for dim in dp_or_event.dimensions)
 
 
 def all_datapoints_have_metric_name_and_dims(fake_services, metric_name, dims):
@@ -339,7 +356,9 @@ def has_dim_prop(fake_services, dim_name, dim_value, prop_name, prop_value=None)
     dim = fake_services.dims[dim_name].get(dim_value, {})
     props = dim.get("customProperties", {})
     if props is not None:
-        return prop_name in props and props.get(prop_name) == prop_value
+        if prop_value is None:
+            return prop_name in props
+        return props.get(prop_name) == prop_value
     return False
 
 
@@ -353,20 +372,3 @@ def has_all_dim_props(fake_services, dim_name, dim_value, props):
         if not has_dim_prop(fake_services, dim_name=dim_name, dim_value=dim_value, prop_name=k, prop_value=v):
             return False
     return True
-
-
-def any_dim_val_has_prop(fake_services, dim_name, prop_name):
-    """
-    Tests if the given dimension has a property regardless of the values of
-    dimensions or properties
-    """
-    dim = fake_services.dims[dim_name]
-
-    if dim is None:
-        return False
-
-    for dim_value in dim.values():
-        props = dim_value.get("customProperties", {})
-        if props is not None:
-            return prop_name in props
-    return False

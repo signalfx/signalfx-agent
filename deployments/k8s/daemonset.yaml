@@ -1,12 +1,12 @@
 ---
 # Source: signalfx-agent/templates/daemonset.yaml
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: signalfx-agent
   labels:
     app: signalfx-agent
-    version: 4.9.0
+    version: 4.16.1
 spec:
   selector:
     matchLabels:
@@ -15,11 +15,12 @@ spec:
     rollingUpdate:
       maxUnavailable: 1
     type: RollingUpdate
+
   template:
     metadata:
       labels:
         app: signalfx-agent
-        version: 4.9.0
+        version: 4.16.1
 
     spec:
       # Use host network so we can access kubelet directly
@@ -38,7 +39,7 @@ spec:
 
       containers:
       - name: signalfx-agent
-        image: "quay.io/signalfx/signalfx-agent:4.9.0"
+        image: "quay.io/signalfx/signalfx-agent:4.16.1"
         imagePullPolicy: IfNotPresent
         command:
         - /bin/signalfx-agent
@@ -51,9 +52,12 @@ spec:
         - mountPath: /hostfs
           name: hostfs
           readOnly: true
+          mountPropagation: HostToContainer
         - mountPath: /var/run/docker.sock
           name: docker
           readOnly: true
+        resources:
+          {}
         env:
         - name: SFX_ACCESS_TOKEN
           valueFrom:

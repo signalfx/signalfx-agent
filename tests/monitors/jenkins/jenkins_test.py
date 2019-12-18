@@ -15,15 +15,15 @@ METRICS_KEY = "33DD8B2F1FD645B814993275703F_EE1FD4D4E204446D5F3200E0F6-C55AC14E"
 JENKINS_VERSIONS = [
     # technically we support 1.580.3, but the scripts needed to programmatically
     # setup jenkins do not work prior to 1.651.3
-    "1.651.3-alpine",
+    ("jenkins", "1.651.3-alpine"),
     # TODO: jenkins doesn't have a latest tag so we'll need to update this
     # periodically
-    "2.60.3-alpine",
+    ("jenkins/jenkins", "2.196-alpine"),
 ]
 
 METADATA = Metadata.from_package("collectd/jenkins")
 ENHANCED_METRICS = {
-    "1.651.3-alpine": METADATA.all_metrics
+    ("jenkins", "1.651.3-alpine"): METADATA.all_metrics
     - {
         "gauge.jenkins.job.duration",
         "gauge.jenkins.node.executor.count.value",
@@ -35,14 +35,17 @@ ENHANCED_METRICS = {
         "gauge.jenkins.node.vm.memory.non-heap.used",
         "gauge.jenkins.node.vm.memory.total.used",
     },
-    "2.60.3-alpine": METADATA.all_metrics - {"gauge.jenkins.job.duration", "gauge.jenkins.node.slave.online.status"},
+    ("jenkins/jenkins", "2.196-alpine"): METADATA.all_metrics
+    - {"gauge.jenkins.job.duration", "gauge.jenkins.node.slave.online.status"},
 }
 
 
 @pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("version", JENKINS_VERSIONS)
 def test_jenkins(version):
-    with run_service("jenkins", buildargs={"JENKINS_VERSION": version, "JENKINS_PORT": "8080"}) as jenkins_container:
+    with run_service(
+        "jenkins", buildargs={"JENKINS_REPO": version[0], "JENKINS_VERSION": version[1], "JENKINS_PORT": "8080"}
+    ) as jenkins_container:
         host = container_ip(jenkins_container)
         config = dedent(
             f"""
@@ -67,7 +70,9 @@ def test_jenkins(version):
 @pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("version", JENKINS_VERSIONS)
 def test_jenkins_default(version):
-    with run_service("jenkins", buildargs={"JENKINS_VERSION": version, "JENKINS_PORT": "8080"}) as jenkins_container:
+    with run_service(
+        "jenkins", buildargs={"JENKINS_REPO": version[0], "JENKINS_VERSION": version[1], "JENKINS_PORT": "8080"}
+    ) as jenkins_container:
         host = container_ip(jenkins_container)
         config = dedent(
             f"""
@@ -89,7 +94,9 @@ def test_jenkins_default(version):
 @pytest.mark.flaky(reruns=2)
 @pytest.mark.parametrize("version", JENKINS_VERSIONS)
 def test_jenkins_enhanced(version):
-    with run_service("jenkins", buildargs={"JENKINS_VERSION": version, "JENKINS_PORT": "8080"}) as jenkins_container:
+    with run_service(
+        "jenkins", buildargs={"JENKINS_REPO": version[0], "JENKINS_VERSION": version[1], "JENKINS_PORT": "8080"}
+    ) as jenkins_container:
         host = container_ip(jenkins_container)
         config = dedent(
             f"""

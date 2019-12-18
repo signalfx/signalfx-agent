@@ -139,14 +139,8 @@ run for that commit.
 We are using [Go modules](https://github.com/golang/go/wiki/Modules) to manage
 dependencies.
 
-We commit all of our go dependencies to the git repository.  This results in a
-significantly larger repository but makes the agent build more self-contained
-and consistent.
-
-If you add another Go package dependency, you can just run `go get
-<package>@<optional_version>`.  Then run `go mod tidy && go mod vendor` and
-commit the new vendored source to the repository in the same commit that
-depends on the new dependencies.
+If you add another Go package dependency, run `go mod tidy` and commit the
+updated `go.mod` and `go.sum` to the repository.
 
 
 ## Development in Kubernetes (K8s)
@@ -164,6 +158,42 @@ as long as they are public, so you can make one.
 well as services to monitor on K8s.  There is a Helm values file for
 development [in this repo](../deployments/k8s/helm/dev-values.yaml) that will use
 the quay.io private repo.
+
+## Developing on Mac OSX
+The agent should compile fine on Mac, but collectd will not run.  Also the
+Python subprocess based monitors will run but you have to customize the Python
+binary path.
+
+Run the following to make the `local-etc` directory in your local checkout be
+linked to the main `etc` dir so that you don't have to pass any special flags
+to the agent when running it:
+
+```sh
+$ cd /path/to/signalfx-agent
+$ mkdir local-etc
+$ sudo ln -s /path/to/signalfx-agent/local-etc /etc/signalfx
+```
+
+The agent will look for `local-etc/agent.yaml` for its config.
+
+Here is a sample config for use on Mac that will disable collectd and leave on
+a simple set of monitors:
+
+```
+---
+# observers are what discover running services in the environment
+observers:
+  - type: docker
+  - type: host
+
+monitors:
+ - type: host-metadata
+ - type: memory
+ - type: internal-metrics
+
+collectd:
+  disableCollectd: true
+```
 
 ## Running tests
 
@@ -288,3 +318,23 @@ The vagrant box should have enough dependencies installed that you can build the
     $ cd C:\Users\vagrant\signalfx-agent
 
     $ scripts/windows/make.ps1 bundle
+
+## External Compilation of the Agent
+
+To compile the agent externally, create a separate Go module in your own
+repository.  The most basic wrapper around the agent is the following file (put
+in your main package):
+
+```go
+package main
+
+import "github.com/signalfx/signalfx-agent/cmd/agent/agentmain"
+
+func main() {
+	agentmain.Run()
+}
+```
+
+You should use Go modules and pin the agent version to a specific commit hash
+in the agent since the agent does not use proper major versioning with Go
+modules.

@@ -222,6 +222,16 @@ def _test_package_install(base_image, package_path, init_system):
         print_lines(output)
         assert code == 0, "Package could not be installed!"
 
+        if package_ext == ".rpm":
+            if "opensuse" in base_image:
+                code, output = cont.exec_run("rpm --verify --nodeps signalfx-agent")
+            else:
+                code, output = cont.exec_run("rpm --verify signalfx-agent")
+            assert code == 0, "rpm verify failed!\n%s" % output.decode("utf-8")
+        elif package_ext == ".deb":
+            code, output = cont.exec_run("dpkg --verify signalfx-agent")
+            assert code == 0, "dpkg verify failed!\n%s" % output.decode("utf-8")
+
         if init_system == INIT_SYSTEMD:
             assert not path_exists_in_container(cont, "/etc/init.d/signalfx-agent")
         else:
@@ -281,6 +291,16 @@ def _test_package_upgrade(base_image, package_path, init_system):
         print_lines(output)
         assert code == 0, "Package could not be upgraded!"
 
+        if package_ext == ".rpm":
+            if "opensuse" in base_image:
+                code, output = cont.exec_run("rpm --verify --nodeps signalfx-agent")
+            else:
+                code, output = cont.exec_run("rpm --verify signalfx-agent")
+            assert code == 0, "rpm verify failed!\n%s" % output.decode("utf-8")
+        elif package_ext == ".deb":
+            code, output = cont.exec_run("dpkg --verify signalfx-agent")
+            assert code == 0, "dpkg verify failed!\n%s" % output.decode("utf-8")
+
         if init_system == INIT_SYSTEMD:
             assert not path_exists_in_container(cont, "/etc/init.d/signalfx-agent")
         else:
@@ -318,6 +338,7 @@ def _test_package_upgrade(base_image, package_path, init_system):
         ("amazonlinux2", INIT_SYSTEMD),
         ("centos6", INIT_UPSTART),
         ("centos7", INIT_SYSTEMD),
+        ("centos8", INIT_SYSTEMD),
         ("opensuse15", INIT_SYSTEMD),
     ],
 )
@@ -349,6 +370,7 @@ def test_deb_package(base_image, init_system):
         ("amazonlinux2", INIT_SYSTEMD),
         ("centos6", INIT_UPSTART),
         ("centos7", INIT_SYSTEMD),
+        ("centos8", INIT_SYSTEMD),
     ],
 )
 def test_rpm_package_upgrade(base_image, init_system):

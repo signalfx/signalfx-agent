@@ -70,12 +70,13 @@ If you are reading this content from the SignalFx documentation site, then Signa
 
 #### Windows
 
-<details>
+
 <summary>Show Windows instructions</summary>
 <p>
 
 ##### Option 1: From the SignalFx UI    
 If you are reading this content from the SignalFx Smart Agent tile in the Integrations page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your realm and your organization's access token.)
+
 
 ```sh
 & {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"; ingest_url = "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"; api_url = "https://api.YOUR_SIGNALFX_REALM.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
@@ -92,13 +93,16 @@ If you are reading this content from the SignalFx documentation site, then Signa
 4. Locate the text box for Windows users.
 5. Copy, paste, and run the code in your command line. (The code within the tile is already populated with your realm and your organization's access token.)  
 
+
 The agent will be installed as a Windows service and will log to the Windows Event Log.
 </p>
 </details>
 
 ***
 
-### Step 2. Confirm your installation
+
+### Step 2. Confirm your Installation
+
 
 1. To confirm your installation, enter the following command on the Linux or Windows command line: 
 

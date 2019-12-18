@@ -55,7 +55,7 @@ this image into a registry running within minikube by running the following:
 
 ```sh
 $ make run-minikube
-$ make push-minikube-agent  # Requires sudo to update /etc/hosts with the minikube registry hostname
+$ make push-minikube-agent
 ```
 
 You can specify another image with the `--agent-image-name` flag to pytest.
@@ -68,6 +68,21 @@ supported by minikube).
 
 You can also use any existing Kubernetes cluster, as long as you can access it
 with kubectl from the same host you are running the tests on.
+
+For example, to run the tests with a local minikube environment instead of the
+default minikube docker-in-docker container, execute:
+```sh
+$ cd <root_of_cloned_repo>
+$ minikube start --memory=4096
+$ kubectl config view --raw --flatten > kubeconfig
+$ eval $(minikube docker-env)  # only necessary if not using the '--vm-driver=none' minikube option
+$ docker run -d -e REGISTRY_HTTP_ADDR=0.0.0.0:5000 -p 5000:5000 registry
+$ PULL_CACHE=yes make push-minikube-agent
+$ eval $(minikube docker-env -u)  # only necessary if not using the '--vm-driver=none' minikube option
+$ PULL_CACHE=yes make dev-image
+$ make run-dev-image
+$$ pytest -vx -m kubernetes --no-use-minikube --agent-image-name=localhost:5000/signalfx-agent:latest --kubeconfig=$(pwd)/kubeconfig tests
+```
 
 Run `pytest --help` from the root of the repo in the dev-image and see the
 "custom options" section of the output for more details and other available

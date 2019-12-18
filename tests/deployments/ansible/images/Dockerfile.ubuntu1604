@@ -1,0 +1,29 @@
+FROM ubuntu:16.04
+
+RUN apt-get update &&\
+    apt-get install -yq ca-certificates procps systemd wget apt-transport-https curl python
+
+RUN curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py && \
+    python /tmp/get-pip.py
+
+ARG ANSIBLE_VERSION='==2.4.0'
+RUN pip install ansible${ANSIBLE_VERSION}
+
+ENV container docker
+RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
+    /etc/systemd/system/*.wants/* \
+    /lib/systemd/system/local-fs.target.wants/* \
+    /lib/systemd/system/sockets.target.wants/*udev* \
+    /lib/systemd/system/sockets.target.wants/*initctl* \
+    /lib/systemd/system/systemd-update-utmp*
+
+RUN systemctl set-default multi-user.target
+ENV init /lib/systemd/systemd
+
+COPY deployments/ansible/* /opt/playbook/
+COPY tests/deployments/ansible/images/inventory.ini /opt/playbook/
+COPY tests/deployments/ansible/images/playbook.yml /opt/playbook/
+
+VOLUME [ "/sys/fs/cgroup" ]
+
+ENTRYPOINT ["/lib/systemd/systemd"]

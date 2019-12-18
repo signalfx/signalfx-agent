@@ -2,7 +2,6 @@ package main
 
 import (
 	"bytes"
-	"flag"
 	"fmt"
 	"go/format"
 	"html/template"
@@ -11,10 +10,11 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"sort"
 	"strings"
 	"unicode"
 
-	"github.com/signalfx/signalfx-agent/internal/selfdescribe"
+	"github.com/signalfx/signalfx-agent/pkg/selfdescribe"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -32,36 +32,8 @@ func buildOutputPath(pkg *selfdescribe.PackageMetadata) string {
 	return path.Join(outputDir, genMetadata)
 }
 
-// shouldRegenerate determines whether the metadata file needs regenerated based on its existence and timestamps.
-func shouldRegenerate(pkg *selfdescribe.PackageMetadata, outputFile string) (bool, error) {
-	var generatorStat os.FileInfo
-	var statMetadataYaml os.FileInfo
-
-	if path, err := os.Executable(); err != nil {
-		return false, err
-	} else if generatorStat, err = os.Stat(path); err != nil {
-		return false, err
-	} else if statMetadataYaml, err = os.Stat(pkg.Path); err != nil {
-		return false, fmt.Errorf("unable to stat %s", pkg.Path)
-	}
-
-	statMetadataGenerated, err := os.Stat(outputFile)
-
-	if err != nil {
-		// generatedMetadata.go does not exist.
-		if os.IsNotExist(err) {
-			return true, nil
-		}
-		return false, fmt.Errorf("unable to stat %s", outputFile)
-	}
-
-	// There's an existing generatedMetadata.go so check timestamps.
-	return statMetadataYaml.ModTime().After(statMetadataGenerated.ModTime()) ||
-		generatorStat.ModTime().After(statMetadataGenerated.ModTime()), nil
-}
-
-func generate(templateFile string, force bool) error {
-	pkgs, err := selfdescribe.CollectMetadata("internal/monitors")
+func generate(templateFile string) error {
+	pkgs, err := selfdescribe.CollectMetadata("pkg/monitors")
 
 	if err != nil {
 		return err
@@ -105,14 +77,6 @@ func generate(templateFile string, force bool) error {
 
 	for i := range pkgs {
 		pkg := &pkgs[i]
-		if !force {
-			if regenerate, err := shouldRegenerate(pkg, buildOutputPath(pkg)); err != nil {
-				return err
-			} else if !regenerate {
-				continue
-			}
-		}
-
 		writer := &bytes.Buffer{}
 		groupMetricsMap := map[string][]string{}
 		metrics := map[string]selfdescribe.MetricMetadata{}
@@ -133,7 +97,13 @@ func generate(templateFile string, force bool) error {
 					if metricInfo.Alias != "" {
 						metrics = append(metrics, metricInfo.Alias)
 					}
-					groupMetricsMap[*metricInfo.Group] = append(groupMetricsMap[*metricInfo.Group], metrics...)
+					group := *metricInfo.Group
+
+					groupMetricsMap[group] = append(groupMetricsMap[group], metrics...)
+
+					sort.Slice(groupMetricsMap[group], func(i, j int) bool {
+						return groupMetricsMap[group][i] < groupMetricsMap[group][j]
+					})
 				}
 			}
 		}
@@ -182,16 +152,19 @@ func generate(templateFile string, force bool) error {
 }
 
 func main() {
-	flags := flag.NewFlagSet(os.Args[0], flag.ExitOnError)
-	force := flags.Bool("force", false, "set to force generate files")
-	_ = flags.Parse(os.Args[1:])
-
 	_, filename, _, ok := runtime.Caller(0)
 	if !ok {
 		panic("unable to determine filename")
 	}
 
-	if err := generate(path.Join(path.Dir(filename), generatedMetadataTemplate), *force); err != nil {
+	thisDir := path.Dir(filename)
+
+	// Make the current directory the root of the project
+	if err := os.Chdir(path.Join(thisDir, "../..")); err != nil {
+		panic("cannot change dir to project root")
+	}
+
+	if err := generate(path.Join(thisDir, generatedMetadataTemplate)); err != nil {
 		log.Fatal(err)
 	}
 }

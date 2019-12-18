@@ -1,10 +1,10 @@
-ARG GO_VERSION=1.12.1
+ARG GO_VERSION=1.13.1
 
 ###### Agent Build Image ########
 FROM ubuntu:16.04 as agent-builder
 
 RUN apt update &&\
-    apt install -y curl wget pkg-config parallel
+    apt install -y curl wget pkg-config parallel git
 
 ARG GO_VERSION
 ARG TARGET_ARCH
@@ -17,18 +17,13 @@ RUN cd /tmp &&\
 ENV GOPATH=/go
 WORKDIR /usr/src/signalfx-agent
 
-COPY vendor/ ./vendor/
-# Precompile and cache vendor compilation outputs so that building the app is
-# faster.  A bunch of these fail because go get pulls in more than necessary, but
-# a lot do compile
-RUN cd vendor && find . -type d -not -empty | grep -v '\btest' | parallel go install -mod vendor {} 2>/dev/null || true
+COPY go.mod go.sum ./
+RUN go mod download
 
 COPY cmd/ ./cmd/
-COPY scripts/make-templates scripts/make-versions ./scripts/
-COPY scripts/collectd-template-to-go ./scripts/
+COPY scripts/collectd-template-to-go scripts/make-versions ./scripts/
 COPY Makefile .
-COPY go.mod go.sum ./
-COPY internal/ ./internal/
+COPY pkg/ ./pkg/
 
 ARG collectd_version=""
 ARG agent_version="latest"
@@ -36,6 +31,7 @@ ARG GOOS="linux"
 
 RUN AGENT_VERSION=${agent_version} COLLECTD_VERSION=${collectd_version} make signalfx-agent &&\
     mv signalfx-agent /usr/bin/signalfx-agent
+
 
 ###### Collectd builder image ######
 FROM ubuntu:16.04 as collectd
@@ -167,8 +163,8 @@ ENV CFLAGS "-Wall -fPIC $extra_cflags"
 ENV CXXFLAGS $CFLAGS
 
 # In the bundle, the java plugin so will live in /lib/collectd and the JVM
-# exists at /jvm
-ENV JAVA_LDFLAGS "-Wl,-rpath -Wl,\$\$\ORIGIN/../../jvm/jre/lib/${TARGET_ARCH}/server"
+# exists at /jre
+ENV JAVA_LDFLAGS "-Wl,-rpath -Wl,\$\$\ORIGIN/../../jre/lib/${TARGET_ARCH}/server"
 
 RUN autoreconf -vif &&\
     ./configure \
@@ -226,6 +222,7 @@ RUN find $PYTHONHOME -name "*.pyc" -o -name "*.pyo" | xargs rm
 # We don't support compiling extension modules so don't need this directory
 RUN rm -rf $PYTHONHOME/lib/python2.7/config-*-linux-gnu
 
+
 ###### Python Plugin Image ######
 FROM collectd as python-plugins
 
@@ -255,10 +252,29 @@ RUN find $PYTHONHOME -name "*.pyc" -o -name "*.pyo" | xargs rm
 # We don't support compiling extension modules so don't need this directory
 RUN rm -rf $PYTHONHOME/lib/python2.7/config-*-linux-gnu
 
-####### Extra packages that don't make sense to pull down in any other stage ########
-FROM ubuntu:16.04 as extra-packages
+
+######### Java monitor dependencies and monitor jar compilation
+FROM ubuntu:16.04 as java
+
+RUN apt update &&\
+    apt install -y openjdk-8-jdk maven
 
 ARG TARGET_ARCH
+
+RUN mkdir -p /opt/root &&\
+    cp -rL /usr/lib/jvm/java-8-openjdk-${TARGET_ARCH}/jre /opt/root/jre &&\
+	rm -rf /opt/root/jre/man
+
+COPY java/ /usr/src/agent-java/
+RUN cd /usr/src/agent-java/runner &&\
+    mvn clean install
+
+RUN cd /usr/src/agent-java/jmx &&\
+    mvn clean package
+
+
+####### Extra packages that don't make sense to pull down in any other stage ########
+FROM ubuntu:16.04 as extra-packages
 
 RUN apt update &&\
     apt install -y \
@@ -269,12 +285,6 @@ RUN apt update &&\
 	  netcat.openbsd \
 	  realpath \
 	  vim
-
-RUN apt install -y openjdk-8-jre-headless &&\
-    mkdir -p /opt/root &&\
-    cp -rL /usr/lib/jvm/java-8-openjdk-${TARGET_ARCH} /opt/root/jvm &&\
-	rm -rf /opt/root/jvm/docs &&\
-	rm -rf /opt/root/jvm/man
 
 COPY scripts/collect-libs /opt/collect-libs
 
@@ -325,8 +335,11 @@ COPY --from=collectd /usr/sbin/collectd /opt/root/bin/collectd
 COPY --from=collectd /opt/deps/ /opt/root/lib/
 COPY --from=collectd /usr/lib/collectd/*.so /opt/root/lib/collectd/
 
+COPY --from=java /opt/root/jre/ /opt/root/jre/
+
 COPY scripts/patch-rpath /usr/bin/
 RUN patch-rpath /opt/root
+
 
 ###### Final Agent Image #######
 # This build stage is meant as the final target when running the agent in a
@@ -337,6 +350,8 @@ FROM scratch as final-image
 CMD ["/bin/signalfx-agent"]
 
 COPY --from=collectd /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt
+ENV SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt
+
 COPY --from=collectd /etc/nsswitch.conf /etc/nsswitch.conf
 COPY --from=collectd /usr/local/bin/patchelf /bin/
 
@@ -346,7 +361,8 @@ COPY --from=collectd /usr/local/bin/patchelf /bin/
 COPY --from=extra-packages /lib/*-linux-gnu/ld-2.23.so /bin/ld-linux.so
 
 # Java dependencies
-COPY --from=extra-packages /opt/root/jvm/ /jvm
+COPY --from=extra-packages /opt/root/jre/ /jre
+COPY --from=java /usr/src/agent-java/jmx/target/agent-jmx-monitor-1.0-SNAPSHOT.jar /lib/jmx-monitor.jar
 
 COPY --from=extra-packages /opt/root/lib/ /lib/
 COPY --from=extra-packages /opt/root/bin/ /bin/
@@ -355,7 +371,7 @@ COPY --from=extra-packages /opt/root/bin/ /bin/
 COPY --from=collectd /usr/share/collectd/postgresql_default.conf /postgresql_default.conf
 COPY --from=collectd /usr/share/collectd/types.db /types.db
 COPY --from=collectd /usr/share/collectd/java/ /collectd-java/
-COPY internal/monitors/collectd/signalfx_types.db /collectd-java/signalfx_types_db
+COPY pkg/monitors/collectd/signalfx_types.db /collectd-java/signalfx_types_db
 
 # Pull in Python collectd plugin scripts
 COPY --from=python-plugins /opt/collectd-python/ /collectd-python/
@@ -373,12 +389,10 @@ COPY --from=agent-builder /usr/bin/signalfx-agent /bin/signalfx-agent
 
 COPY whitelist.json /lib/whitelist.json
 
+## Add signalfx-agent user to the container
+RUN echo "signalfx-agent:x:999:999::/:/bin/bash" > /etc/passwd
+
 WORKDIR /
-
-
-# Workaround to utilize the global GO_VERSION argument
-# since "COPY --from" doesn't support variables.
-FROM golang:${GO_VERSION}-stretch as golang-ignore
 
 
 ####### Dev Image ########
@@ -387,8 +401,6 @@ FROM golang:${GO_VERSION}-stretch as golang-ignore
 # useful utilities.  The agent image is copied from the final-image stage to
 # the /bundle dir in here and the SIGNALFX_BUNDLE_DIR is set to point to that.
 FROM ubuntu:18.04 as dev-extras
-
-ARG TARGET_ARCH
 
 RUN apt update &&\
     apt install -y \
@@ -404,7 +416,7 @@ RUN apt update &&\
       vim \
       wget
 
-
+ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 ENV SIGNALFX_BUNDLE_DIR=/bundle \
     TEST_SERVICES_DIR=/usr/src/signalfx-agent/test-services \
     AGENT_BIN=/usr/src/signalfx-agent/signalfx-agent \
@@ -415,52 +427,54 @@ ENV SIGNALFX_BUNDLE_DIR=/bundle \
     LC_ALL=C.UTF-8 \
     LANG=C.UTF-8
 
+RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
+    sh /tmp/get-docker.sh
+
+# Get integration test deps in here
 RUN pip3 install ipython ipdb
+COPY tests/requirements.txt /tmp/
+RUN pip3 install --upgrade pip==9.0.1 && pip3 install -r /tmp/requirements.txt
+RUN ln -s /usr/bin/python3 /usr/bin/python &&\
+    ln -s /usr/bin/pip3 /usr/bin/pip
+
+ARG TARGET_ARCH
+
+RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v3.4.0/gomplate_linux-${TARGET_ARCH} &&\
+    chmod +x /usr/bin/gomplate
 
 # Install helm
-ARG HELM_VERSION=v2.13.0
+ARG HELM_VERSION=v3.0.0
 WORKDIR /tmp
-RUN wget -O helm.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-${TARGET_ARCH}.tar.gz && \
+RUN wget -O helm.tar.gz https://get.helm.sh/helm-${HELM_VERSION}-linux-${TARGET_ARCH}.tar.gz && \
     tar -zxvf /tmp/helm.tar.gz && \
     mv linux-${TARGET_ARCH}/helm /usr/local/bin/helm && \
     chmod a+x /usr/local/bin/helm
 
+# Install kubectl
+ARG KUBECTL_VERSION=v1.14.1
+RUN cd /tmp &&\
+    curl -LO https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/${TARGET_ARCH}/kubectl &&\
+    chmod +x ./kubectl &&\
+    mv ./kubectl /usr/bin/kubectl
+
 WORKDIR /usr/src/signalfx-agent
-CMD ["/bin/bash"]
-ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 
-COPY --from=golang-ignore /usr/local/go/ /usr/local/go
+COPY --from=final-image /bin/signalfx-agent ./signalfx-agent
+COPY --from=final-image / /bundle/
+RUN /bundle/bin/patch-interpreter /bundle
 
-RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
-    sh /tmp/get-docker.sh
+COPY --from=agent-builder /usr/local/go /usr/local/go
+COPY --from=agent-builder /go $GOPATH
 
 RUN go get -u golang.org/x/lint/golint &&\
     if [ `uname -m` != "aarch64" ]; then go get github.com/derekparker/delve/cmd/dlv; fi &&\
     go get github.com/tebeka/go2xunit &&\
-    curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.16.0
+    curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.20.0
 
-# Get integration test deps in here
-COPY python/setup.py /tmp/
-RUN pip3 install -e /tmp/
-COPY tests/requirements.txt /tmp/
-RUN pip3 install --upgrade pip==9.0.1 && pip3 install -r /tmp/requirements.txt
-RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v3.4.0/gomplate_linux-${TARGET_ARCH} &&\
-    chmod +x /usr/bin/gomplate
-
-RUN cd /tmp &&\
-    curl -LO https://storage.googleapis.com/kubernetes-release/release/v1.14.1/bin/linux/amd64/kubectl &&\
-    chmod +x ./kubectl &&\
-    mv ./kubectl /usr/bin/kubectl
-
-RUN ln -s /usr/bin/python3 /usr/bin/python &&\
-    ln -s /usr/bin/pip3 /usr/bin/pip
-
-COPY --from=final-image /bin/signalfx-agent ./signalfx-agent
-
-COPY --from=final-image / /bundle/
 COPY ./ ./
 
-RUN /bundle/bin/patch-interpreter /bundle
+CMD ["/bin/bash"]
+
 
 ####### Pandoc Converter ########
 FROM ubuntu:16.04 as pandoc-converter
@@ -497,12 +511,15 @@ COPY --from=pandoc-converter /docs/signalfx-agent.1 ./signalfx-agent.1
 
 COPY packaging/etc/agent.yaml ./agent.yaml
 
-COPY --from=final-image / ./signalfx-agent/
+COPY --from=final-image / /usr/lib/signalfx-agent/
 # Remove the agent config so it doesn't confuse people in the final output.
-RUN rm -rf ./signalfx-agent/etc/signalfx
+RUN rm -rf /usr/lib/signalfx-agent/etc/signalfx
 
 # Remove agent-status symlink; will be recreated in /usr/bin during packaging.
-RUN rm -f ./signalfx-agent/bin/agent-status
+RUN rm -f /usr/lib/signalfx-agent/bin/agent-status
+
+RUN /usr/lib/signalfx-agent/bin/patch-interpreter /usr/lib/signalfx-agent
+RUN mv /usr/lib/signalfx-agent ./signalfx-agent
 
 ###### RPM Packager #######
 FROM fedora:27 as rpm-packager
@@ -518,9 +535,12 @@ COPY packaging/rpm/signalfx-agent.spec ./SPECS/signalfx-agent.spec
 COPY packaging/rpm/add-output-to-repo ./add-output-to-repo
 COPY --from=pandoc-converter /docs/signalfx-agent.1 ./SOURCES/signalfx-agent.1
 
-COPY --from=final-image / ./SOURCES/signalfx-agent/
+COPY --from=final-image / /usr/lib/signalfx-agent/
 # Remove the agent config so it doesn't confuse people in the final output.
-RUN rm -rf ./SOURCES/signalfx-agent/etc/signalfx
+RUN rm -rf /usr/lib/signalfx-agent/etc/signalfx
 
 # Remove agent-status symlink; will be recreated in /usr/bin during packaging.
-RUN rm -f ./SOURCES/signalfx-agent/bin/agent-status
+RUN rm -f /usr/lib/signalfx-agent/bin/agent-status
+
+RUN /usr/lib/signalfx-agent/bin/patch-interpreter /usr/lib/signalfx-agent/
+RUN mv /usr/lib/signalfx-agent/ ./SOURCES/signalfx-agent

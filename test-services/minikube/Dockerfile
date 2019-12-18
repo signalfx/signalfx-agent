@@ -54,19 +54,11 @@ RUN apt-get update && \
 VOLUME /var/lib/docker
 EXPOSE 2375
 
-ARG CRI_VERSION=v1.11.1
-
-# Install crictl for kubeadm
-RUN curl -sSL -O https://github.com/kubernetes-incubator/cri-tools/releases/download/${CRI_VERSION}/crictl-${CRI_VERSION}-linux-amd64.tar.gz && \
-    tar zxvf crictl-${CRI_VERSION}-linux-amd64.tar.gz -C /usr/local/bin && \
-    chmod a+x /usr/local/bin/crictl && \
-    rm -f crictl-${CRI_VERSION}-linux-amd64.tar.gz
-
-ARG HELM_VERSION=v2.13.0
+ARG HELM_VERSION=v3.0.0
 
 # Install helm
 WORKDIR /tmp
-RUN curl -sSl -o helm.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-${HELM_VERSION}-linux-amd64.tar.gz && \
+RUN curl -sSl -o helm.tar.gz https://get.helm.sh/helm-${HELM_VERSION}-linux-amd64.tar.gz && \
     tar -zxvf /tmp/helm.tar.gz && \
     mv linux-amd64/helm /usr/local/bin/helm && \
     chmod a+x /usr/local/bin/helm

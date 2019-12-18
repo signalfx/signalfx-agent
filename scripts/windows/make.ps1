@@ -1,7 +1,7 @@
 <#
 .PARAMETER Target
-    Build target to run (compile_deps, versions_go, signalfx-agent, monitor-code-gen,
-                         bundle, lint, vendor, unit_test, integration_test)
+    Build target to run (versions_go, signalfx-agent,
+                         bundle, lint, tidy, unit_test, integration_test)
 #>
 param(
     [Parameter(Mandatory=$true, Position=1)][string]$Target,
@@ -10,6 +10,7 @@ param(
 
 Set-PSDebug -Trace 1
 $env:CGO_ENABLED = 0
+$env:COLLECTD_VERSION = "5.8.0-sfx0"
 $ErrorActionPreference = "Stop"
 
 $scriptDir = split-path -parent $MyInvocation.MyCommand.Definition
@@ -18,46 +19,23 @@ $repoDir = "$scriptDir\..\.."
 . "$scriptDir\common.ps1"
 . "$scriptDir\bundle.ps1"
 
-function compile_deps() {
-    versions_go
-    monitor-code-gen
-    .\monitor-code-gen
-    if ($lastexitcode -ne 0){ throw $output }
-}
-
 function versions_go() {
-    if ($AGENT_VERSION -Eq ""){
-        $AGENT_VERSION = getGitTag
-    }
-    $date = Get-Date -UFormat "%Y-%m-%dT%T%Z"
-
-    $versionfile = "$repoDir\internal\core\common\constants\versions.go"
+    $versionfile = "$repoDir\pkg\core\common\constants\versions.go"
 
     cp "$versionfile.tmpl" "$versionfile"
-    replace_text -filepath "$versionfile" -find '${COLLECTD_VERSION}' -replacement "$COLLECTD_VERSION"
-    replace_text -filepath "$versionfile" -find '${AGENT_VERSION}' -replacement "$AGENT_VERSION"
-    replace_text -filepath "$versionfile" -find '${BUILD_TIME}' -replacement "$date"
+    replace_text -filepath "$versionfile" -find '${COLLECTD_VERSION}' -replacement "$env:COLLECTD_VERSION"
+    replace_text -filepath "$versionfile" -find '${AGENT_VERSION}' -replacement "$env:AGENT_VERSION"
 }
 
 function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalfx-agent.exe", [string]$COLLECTD_VERSION="") {
-    Remove-Item -Recurse -Force "$repoDir\*" -Include "genmetadata.go" -ErrorAction Ignore
+    Remove-Item -Recurse -Force "$repoDir\pkg\monitors\*" -Include "genmetadata.go" -ErrorAction Ignore
 
-    compile_deps
+    go generate ./...
 
-    go build -mod vendor -o "$AGENT_BIN" github.com/signalfx/signalfx-agent/cmd/agent
+    go build -o "$AGENT_BIN" github.com/signalfx/signalfx-agent/cmd/agent
 
     if (!(Test-Path -Path "$AGENT_BIN")) {
         throw "$AGENT_BIN not found!"
-    }
-}
-
-function monitor-code-gen([string]$AGENT_VERSION="", [string]$CODEGEN_BIN=".\monitor-code-gen.exe", [string]$COLLECTD_VERSION="") {
-    versions_go
-
-    go build -mod vendor -o "$CODEGEN_BIN" github.com/signalfx/signalfx-agent/cmd/monitorcodegen
-
-    if (!(Test-Path -Path "$CODEGEN_BIN")) {
-        throw "$CODEGEN_BIN not found!"
     }
 }
 
@@ -76,7 +54,9 @@ function bundle (
         [string]$PFX_PASSWORD="",
         [string]$AGENT_NAME="SignalFxAgent") {
     if ($AGENT_VERSION -Eq ""){
-        $AGENT_VERSION = getGitTag
+        $env:AGENT_VERSION = getGitTag
+    } else {
+        $env:AGENT_VERSION = "$AGENT_VERSION"
     }
 
     if ($PFX_PASSWORD -ne "" -And $PFX_PATH -eq "") {
@@ -100,7 +80,7 @@ function bundle (
 
     if ($BUILD_AGENT) {
         Remove-Item -Recurse -Force "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe" -ErrorAction Ignore
-        signalfx-agent -AGENT_VERSION "$AGENT_VERSION" -AGENT_BIN "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe"
+        signalfx-agent -AGENT_VERSION "$env:AGENT_VERSION" -AGENT_BIN "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe"
     }
 
     if ($PFX_PATH -ne "" -And $PFX_PASSWORD -ne "") {
@@ -108,7 +88,7 @@ function bundle (
             throw "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe not found!"
         }
         signtool sign /f "$PFX_PATH" /p $PFX_PASSWORD /tr http://timestamp.digicert.com /fd sha256 /td SHA256 /n "SignalFx, Inc." "$buildDir\$AGENT_NAME\bin\signalfx-agent.exe"
-        if ($lastexitcode -ne 0){ throw $output }
+        if ($lastexitcode -ne 0){ throw }
     }
 
     if (($DOWNLOAD_PYTHON -Or !(Test-Path -Path "$buildDir\python")) -And !$ONLY_BUILD_AGENT) {
@@ -156,39 +136,40 @@ function bundle (
 }
 
 function lint() {
-    compile_deps
+    go generate ./...
     golangci-lint run
-    if ($lastexitcode -ne 0){ throw $output }
+    if ($lastexitcode -ne 0){ throw }
 }
 
-function vendor() {
+function tidy() {
     go mod tidy
-    if ($lastexitcode -ne 0){ throw $output }
-    go mod vendor
-    if ($lastexitcode -ne 0){ throw $output }
+    if ($lastexitcode -ne 0){ throw }
 }
 
 function unit_test() {
-    compile_deps
-    go generate -mod vendor ./internal/monitors/...
-    if ($lastexitcode -ne 0){ throw $output }
-    $ErrorActionPreference = "Continue"
-    $output = & go test -mod vendor -v ./... 2>&1
-    if ($lastexitcode -gt 1){ throw $output }
-    Write-Output $output | go2xunit -output unit_results.xml
-    $ErrorActionPreference = "Stop"
+    go generate ./...
+    if ($lastexitcode -ne 0){ throw }
+    if ((Get-Command "gotestsum.exe" -ErrorAction SilentlyContinue) -eq $null) {
+        $cwd = get-location
+        cd $env:TEMP
+        go get gotest.tools/gotestsum
+        if ($lastexitcode -gt 0){ throw }
+        cd $cwd
+    }
+    gotestsum --format short-verbose --junitfile unit_results.xml
+    if ($lastexitcode -gt 0){ throw }
 }
 
 function integration_test() {
     if ($env:AGENT_BIN) {
         pytest -n4 -m '(windows or windows_only) and not deployment and not installer' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
-        if ($lastexitcode -ne 0){ throw $output }
+        if ($lastexitcode -ne 0){ throw }
     } else {
         $env:AGENT_BIN = "$repoDir\build\SignalFxAgent\bin\signalfx-agent.exe"
         pytest -n4 -m '(windows or windows_only) and not deployment and not installer' --verbose --junitxml=integration_results.xml --html=integration_results.html --self-contained-html tests
         $rc = $lastexitcode
         Remove-Item env:AGENT_BIN
-        if ($rc -ne 0){ throw $output }
+        if ($rc -ne 0){ throw }
     }
 }
 

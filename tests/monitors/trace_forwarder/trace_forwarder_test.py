@@ -28,6 +28,8 @@ TEST_TRACE = [
     }
 ]
 
+FORWARDER_PATHS = ["/v1/trace", "/api/v1/spans", "/api/v2/spans"]
+
 
 def test_trace_forwarder_monitor():
     """
@@ -45,12 +47,16 @@ def test_trace_forwarder_monitor():
         )
     ) as agent:
         assert wait_for(p(tcp_port_open_locally, port)), "trace forwarder port never opened!"
-        resp = requests.post(
-            f"http://localhost:{port}/v1/trace",
-            headers={"Content-Type": "application/json"},
-            data=json.dumps(TEST_TRACE),
-        )
+        for i, path in enumerate(FORWARDER_PATHS):
+            test_trace = TEST_TRACE.copy()
+            test_trace[0]["traceId"] = test_trace[0]["traceId"] + str(i)
+            resp = requests.post(
+                f"http://localhost:{port}{path}",
+                headers={"Content-Type": "application/json"},
+                data=json.dumps(test_trace),
+            )
+            assert resp.status_code == 200
 
-        assert resp.status_code == 200
-
-        assert wait_for(p(has_trace_span, agent.fake_services, tags={"env": "prod"})), "Didn't get span tag"
+            assert wait_for(
+                p(has_trace_span, agent.fake_services, trace_id=test_trace[0]["traceId"], tags={"env": "prod"})
+            ), "Didn't get span tag"

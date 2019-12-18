@@ -87,5 +87,8 @@ func formatVariable(s string) (string, error) {
 		output += word
 	}
 
+	// Remove white spaces
+	output = strings.Join(strings.Fields(output), "")
+
 	return output, nil
 }

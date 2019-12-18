@@ -88,21 +88,15 @@ def run_kong(kong_version):
         assert wait_for(p(tcp_socket_open, db_ip, 5432))
 
         with run_service(
-            "kong",
-            name="kong-boot",
-            buildargs={"KONG_VERSION": kong_version},
-            environment=kong_env,
-            command="sleep inf",
+            "kong", buildargs={"KONG_VERSION": kong_version}, environment=kong_env, command="sleep inf"
         ) as migrations:
             if kong_version in ["0.15-centos", "1.0.0-centos"]:
                 assert container_cmd_exit_0(migrations, "kong migrations bootstrap")
             else:
                 assert container_cmd_exit_0(migrations, "kong migrations up")
 
-        with run_service(
-            "kong", name="kong", buildargs={"KONG_VERSION": kong_version}, environment=kong_env
-        ) as kong, run_container(
-            "openresty/openresty:centos", files=[(SCRIPT_DIR / "echo.conf", "/etc/nginx/conf.d/echo.conf")]
+        with run_service("kong", buildargs={"KONG_VERSION": kong_version}, environment=kong_env) as kong, run_container(
+            "openresty/openresty:1.15.8.1-4-centos", files=[(SCRIPT_DIR / "echo.conf", "/etc/nginx/conf.d/echo.conf")]
         ) as echo:
             kong_ip = container_ip(kong)
             kong_admin = f"http://{kong_ip}:8001"

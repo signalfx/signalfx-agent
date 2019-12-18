@@ -1,5 +1,4 @@
-{{- if and .Values.clusterName .Values.signalFxAccessToken -}}
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: DaemonSet
 metadata:
   name: {{ template "signalfx-agent.fullname" . }}
@@ -19,6 +18,9 @@ spec:
     rollingUpdate:
       maxUnavailable: {{ .Values.rollingUpdateMaxUnavailable | default 1 }}
     type: RollingUpdate
+  {{ with .Values.minReadySeconds -}}
+  minReadySeconds: {{ . }}
+  {{- end}}
   template:
     metadata:
       labels:
@@ -65,14 +67,17 @@ spec:
         - mountPath: /hostfs
           name: hostfs
           readOnly: true
+          mountPropagation: HostToContainer
         - mountPath: /var/run/docker.sock
           name: docker
           readOnly: true
+        resources:
+          {{- toYaml .Values.resources | trim | nindent 10 }}
         env:
         - name: SFX_ACCESS_TOKEN
           valueFrom:
             secretKeyRef:
-              name: {{ template "signalfx-agent.fullname" . }}
+              name: {{ template "signalfx-agent.secretName" . }}
               key: access-token
         - name: MY_POD_NAME
           valueFrom:
@@ -101,4 +106,3 @@ spec:
       - name: machine-id
         hostPath:
           path: /etc/machine-id
-{{- end -}}

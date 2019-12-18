@@ -8,7 +8,7 @@ from ruamel import yaml
 
 
 def main():
-    for metadata in glob.glob("internal/monitors/**/metadata.yaml", recursive=True):
+    for metadata in glob.glob("pkg/monitors/**/metadata.yaml", recursive=True):
         path = Path(metadata)
         meta = yaml.round_trip_load(path.read_text())
         for monitor in meta["monitors"]:
