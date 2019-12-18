@@ -35,6 +35,7 @@ type TLSCreds struct {
 	KeyFile string `yaml:"keyFile"`
 }
 
+// Credentials returns a grpc credentials transport
 func (tls *TLSCreds) Credentials() (credentials.TransportCredentials, error) {
 	var creds credentials.TransportCredentials
 	var err error
