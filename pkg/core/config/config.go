@@ -22,6 +22,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+const (
+	TraceExportFormatSAPM   = "sapm"
+	TraceExportFormatZipkin = "zipkin"
+)
+
 // Config is the top level config struct for configurations that are common to all platoforms
 type Config struct {
 	// The access token for the org that should receive the metrics emitted by
@@ -173,7 +178,7 @@ func (c *Config) initialize() (*Config, error) {
 			c.APIURL = fmt.Sprintf("https://api.%s.signalfx.com", c.SignalFxRealm)
 		}
 		if c.TraceEndpointURL == "" {
-			c.TraceEndpointURL = fmt.Sprintf("%s/v1/trace", c.IngestURL)
+			c.TraceEndpointURL = fmt.Sprintf("%s%s", c.IngestURL, c.Writer.DefaultTraceEndpointPath())
 		}
 	}
 

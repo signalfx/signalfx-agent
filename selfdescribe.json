@@ -48272,6 +48272,14 @@
               "elementKind": ""
             },
             {
+              "yamlName": "traceExportFormat",
+              "doc": "Format to export traces in. Choices are \"zipkin\" and \"sapm\"",
+              "default": "zipkin",
+              "required": false,
+              "type": "string",
+              "elementKind": ""
+            },
+            {
               "yamlName": "datapointMaxRequests",
               "doc": "Deprecated: use `maxRequests` instead.",
               "default": 0,
