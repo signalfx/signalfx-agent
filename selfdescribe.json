@@ -47881,7 +47881,15 @@
       },
       {
         "yamlName": "ingestUrl",
-        "doc": "The URL of SignalFx ingest server.  Should be overridden if using the SignalFx Gateway.  If not set, this will be determined by the `signalFxRealm` option below.  If you want to send trace spans to a different location, set the `traceEndpointUrl` option.",
+        "doc": "The URL of SignalFx ingest server.  Should be overridden if using the SignalFx Gateway.  If not set, this will be determined by the `signalFxRealm` option below.  If you want to send trace spans to a different location, set the `traceEndpointUrl` option.  If you want to send events to a different location, set the `eventEndpointUrl` option.",
+        "default": "",
+        "required": false,
+        "type": "string",
+        "elementKind": ""
+      },
+      {
+        "yamlName": "eventEndpointUrl",
+        "doc": "The full URL (including path) to the event ingest server.  If this is not set, all events will be sent to the same place as `ingestUrl` above.",
         "default": "",
         "required": false,
         "type": "string",

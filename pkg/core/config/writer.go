@@ -104,6 +104,7 @@ type WriterConfig struct {
 	HostIDDims          map[string]string      `yaml:"-"`
 	IngestURL           string                 `yaml:"-"`
 	APIURL              string                 `yaml:"-"`
+	EventEndpointURL    string                 `yaml:"-"`
 	TraceEndpointURL    string                 `yaml:"-"`
 	SignalFxAccessToken string                 `yaml:"-"`
 	GlobalDimensions    map[string]string      `yaml:"-"`
@@ -136,6 +137,18 @@ func (wc *WriterConfig) ParsedAPIURL() *url.URL {
 		panic("apiUrl was supposed to be validated already")
 	}
 	return apiURL
+}
+
+// ParsedEventEndpointURL parses and returns the event endpoint server URL
+func (wc *WriterConfig) ParsedEventEndpointURL() *url.URL {
+	if wc.EventEndpointURL != "" {
+		eventEndpointURL, err := url.Parse(wc.EventEndpointURL)
+		if err != nil {
+			panic("eventEndpointUrl was supposed to be validated already")
+		}
+		return eventEndpointURL
+	}
+	return nil
 }
 
 // ParsedTraceEndpointURL parses and returns the trace endpoint server URL

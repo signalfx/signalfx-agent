@@ -38,7 +38,8 @@ if not set.
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `signalFxAccessToken` | no | string | The access token for the org that should receive the metrics emitted by the agent. |
-| `ingestUrl` | no | string | The URL of SignalFx ingest server.  Should be overridden if using the SignalFx Gateway.  If not set, this will be determined by the `signalFxRealm` option below.  If you want to send trace spans to a different location, set the `traceEndpointUrl` option. |
+| `ingestUrl` | no | string | The URL of SignalFx ingest server.  Should be overridden if using the SignalFx Gateway.  If not set, this will be determined by the `signalFxRealm` option below.  If you want to send trace spans to a different location, set the `traceEndpointUrl` option.  If you want to send events to a different location, set the `eventEndpointUrl` option. |
+| `eventEndpointUrl` | no | string | The full URL (including path) to the event ingest server.  If this is not set, all events will be sent to the same place as `ingestUrl` above. |
 | `traceEndpointUrl` | no | string | The full URL (including path) to the trace ingest server.  If this is not set, all trace spans will be sent to the same place as `ingestUrl` above. |
 | `apiUrl` | no | string | The SignalFx API base URL.  If not set, this will determined by the `signalFxRealm` option below. |
 | `signalFxRealm` | no | string | The SignalFx Realm that the organization you want to send to is a part of.  This defaults to the original realm (`us0`) but if you are setting up the agent for the first time, you quite likely need to change this. (**default:** `"us0"`) |
@@ -375,6 +376,7 @@ where applicable:
 ```yaml
   signalFxAccessToken: 
   ingestUrl: 
+  eventEndpointUrl: 
   traceEndpointUrl: 
   apiUrl: 
   signalFxRealm: "us0"

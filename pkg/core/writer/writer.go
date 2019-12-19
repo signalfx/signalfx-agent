@@ -154,13 +154,17 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 	}
 	sw.client.DatapointEndpoint = dpEndpointURL.String()
 
-	eventEndpointURL, err := conf.ParsedIngestURL().Parse("v2/event")
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error":     err,
-			"ingestURL": conf.ParsedIngestURL().String(),
-		}).Error("Could not construct event ingest URL")
-		return nil, err
+	eventEndpointURL := conf.ParsedEventEndpointURL()
+	if eventEndpointURL == nil {
+		var err error
+		eventEndpointURL, err = conf.ParsedIngestURL().Parse("v2/event")
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error":     err,
+				"ingestURL": conf.ParsedIngestURL().String(),
+			}).Error("Could not construct event ingest URL")
+			return nil, err
+		}
 	}
 	sw.client.EventEndpoint = eventEndpointURL.String()
 
@@ -216,6 +220,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 	sw.spanWriter.Start(ctx)
 
 	log.Infof("Sending datapoints to %s", sw.client.DatapointEndpoint)
+	log.Infof("Sending events to %s", sw.client.EventEndpoint)
 	log.Infof("Sending trace spans to %s", sw.client.TraceEndpoint)
 
 	return sw, nil

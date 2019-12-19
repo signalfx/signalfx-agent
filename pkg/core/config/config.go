@@ -35,8 +35,13 @@ type Config struct {
 	// The URL of SignalFx ingest server.  Should be overridden if using the
 	// SignalFx Gateway.  If not set, this will be determined by the
 	// `signalFxRealm` option below.  If you want to send trace spans to a
-	// different location, set the `traceEndpointUrl` option.
+	// different location, set the `traceEndpointUrl` option.  If you want to
+	// send events to a different location, set the `eventEndpointUrl` option.
 	IngestURL string `yaml:"ingestUrl"`
+	// The full URL (including path) to the event ingest server.  If this is
+	// not set, all events will be sent to the same place as `ingestUrl`
+	// above.
+	EventEndpointURL string `yaml:"eventEndpointUrl"`
 	// The full URL (including path) to the trace ingest server.  If this is
 	// not set, all trace spans will be sent to the same place as `ingestUrl`
 	// above.
@@ -177,9 +182,6 @@ func (c *Config) initialize() (*Config, error) {
 		if c.APIURL == "" {
 			c.APIURL = fmt.Sprintf("https://api.%s.signalfx.com", c.SignalFxRealm)
 		}
-		if c.TraceEndpointURL == "" {
-			c.TraceEndpointURL = fmt.Sprintf("%s%s", c.IngestURL, c.Writer.DefaultTraceEndpointPath())
-		}
 	}
 
 	c.Writer.initialize()
@@ -238,6 +240,10 @@ func (c *Config) validate() error {
 		return errors.WithMessage(err, fmt.Sprintf("%s is not a valid API URL", c.APIURL))
 	}
 
+	if _, err := url.Parse(c.EventEndpointURL); err != nil {
+		return errors.WithMessage(err, fmt.Sprintf("%s is not a valid event endpoint URL", c.EventEndpointURL))
+	}
+
 	if c.TraceEndpointURL != "" {
 		if _, err := url.Parse(c.TraceEndpointURL); err != nil {
 			return errors.WithMessage(err, fmt.Sprintf("%s is not a valid trace endpoint URL", c.TraceEndpointURL))
@@ -266,6 +272,7 @@ func (c *Config) propagateValuesDown() error {
 	c.Writer.MetricsToExclude = c.MetricsToExclude
 	c.Writer.IngestURL = c.IngestURL
 	c.Writer.APIURL = c.APIURL
+	c.Writer.EventEndpointURL = c.EventEndpointURL
 	c.Writer.TraceEndpointURL = c.TraceEndpointURL
 	c.Writer.SignalFxAccessToken = c.SignalFxAccessToken
 	c.Writer.GlobalDimensions = c.GlobalDimensions
