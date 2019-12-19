@@ -33,7 +33,7 @@ Example YAML Configuration
     - reason: Created
       involvedObjectKind: Pod
     - reason: SuccessfulCreate
-      invovledObjectKind: ReplicaSet
+      involvedObjectKind: ReplicaSet
 ```
 
 Event names will match the `reason` name.
