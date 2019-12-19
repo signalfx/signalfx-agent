@@ -8,10 +8,9 @@ from functools import partial as p
 from textwrap import dedent
 
 import requests
-
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_trace_span, tcp_port_open_locally
-from tests.helpers.util import ensure_never, wait_for
+from tests.helpers.util import ensure_never, retry_on_ebadf, wait_for
 from tests.paths import REPO_ROOT_DIR
 
 
@@ -118,11 +117,13 @@ def test_tracing_load():
             spans = _test_trace()
             spans[0]["localEndpoint"]["serviceName"] += f"-{i}"
             spans[1]["localEndpoint"]["serviceName"] += f"-{i}"
-            resp = requests.post(
-                f"http://localhost:{port}/v1/trace",
-                headers={"Content-Type": "application/json"},
-                data=json.dumps(spans),
-            )
+            resp = retry_on_ebadf(
+                lambda: requests.post(
+                    f"http://localhost:{port}/v1/trace",
+                    headers={"Content-Type": "application/json"},
+                    data=json.dumps(spans),  # pylint:disable=cell-var-from-loop
+                )
+            )()
 
             assert resp.status_code == 200
 

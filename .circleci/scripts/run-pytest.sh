@@ -17,7 +17,7 @@ mkdir -p ~/testresults
 
 if [[ $CIRCLE_NODE_TOTAL -gt 1 && -n "$MARKERS" && $SPLIT -eq 1 ]]; then
     # Collect tests based on MARKERS and split them for parallelism
-    TESTS=$(pytest --collect-only -m "$MARKERS" $TESTS_DIR | grep '<Module.*>' | cut -d "'" -f2 | \
+    TESTS=$(python .circleci/scripts/collect_tests.py "$MARKERS" $TESTS_DIR | \
         circleci tests split --split-by=timings --total=$CIRCLE_NODE_TOTAL --index=$CIRCLE_NODE_INDEX)
     [ -n "$TESTS" ] || (echo "No test files found after splitting based on '$MARKERS' marker(s)!" && exit 1)
 else
@@ -31,7 +31,7 @@ fi
 
 set -x
 if [ -n "$MARKERS" ]; then
-    $PYTEST_PATH -m "$MARKERS" $PYTEST_OPTIONS $TESTS
+  $PYTEST_PATH -m "$MARKERS" $PYTEST_OPTIONS $TESTS
 else
     $PYTEST_PATH $PYTEST_OPTIONS $TESTS
 fi

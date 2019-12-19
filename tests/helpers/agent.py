@@ -10,7 +10,7 @@ from . import fake_backend
 from .formatting import print_dp_or_event
 from .internalmetrics import InternalMetricsClient
 from .profiling import PProfClient
-from .util import get_unique_localhost, print_lines, run_subprocess
+from .util import get_unique_localhost, print_lines, retry_on_ebadf, run_subprocess
 
 
 # pylint: disable=too-many-arguments,too-many-instance-attributes
@@ -63,10 +63,11 @@ class Agent:
         self.config["configSources"]["file"] = self.config["configSources"].get("file", {})
         self.config["configSources"]["file"]["pollRateSeconds"] = 1
 
+    @retry_on_ebadf
     def write_config(self):
-        with open(self.config_path, "w") as fd:
+        with open(self.config_path, "wb+") as fd:
             print("CONFIG: %s\n%s" % (self.config_path, self.config))
-            fd.write(self.get_final_config_yaml())
+            fd.write(self.get_final_config_yaml().encode("utf-8"))
 
     def get_final_config_yaml(self):
         self.fill_in_config()
@@ -90,6 +91,7 @@ class Agent:
             [str(AGENT_BIN), "status", "-config", self.config_path],
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
+            close_fds=False,
             encoding="utf-8",
         )
         return status_proc.stdout
@@ -103,7 +105,7 @@ class Agent:
         self.write_config()
 
         with run_subprocess(
-            [AGENT_BIN, "-config", self.config_path] + (["-debug"] if self.debug else []), env=self.env
+            [AGENT_BIN, "-config", self.config_path] + (["-debug"] if self.debug else []), env=self.env, close_fds=False
         ) as [get_output, pid]:
             self.pid = pid
             self.get_output = get_output
