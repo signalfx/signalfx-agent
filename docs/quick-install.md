@@ -70,7 +70,7 @@ If you are reading this content from the SignalFx documentation site, then Signa
 
 #### Windows
 
-
+<details>
 <summary>Show Windows instructions</summary>
 <p>
 
