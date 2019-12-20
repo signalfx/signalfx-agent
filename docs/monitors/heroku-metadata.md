@@ -10,6 +10,13 @@ Monitor Type: `heroku-metadata` ([Source](https://github.com/signalfx/signalfx-a
 
 ## Overview
 
+This monitor collects metadata from a Heroku dyno and syncs them as properties
+to `dyno_id` dimension, which is synced by datapoints emitted by the
+[Heroku SignalFx Collector (https://github.com/signalfx/heroku-signalfx-collector).
+
+Metadata on Heroku dyno's need to be enabled explicitly. For information about this,
+see [here] (https://devcenter.heroku.com/articles/dyno-metadata).
+
 
 ## Configuration
 
@@ -27,5 +34,19 @@ Configuration](../monitor-config.md#common-configuration).**
 
 
 This monitor has no configuration options.
+## Properties
+
+The following
+[properties](https://docs.signalfx.com/en/latest/metrics-metadata/metrics-metadata.html#properties)
+are set on the dimension values of the dimension specified.
+
+| Name | Dimension | Description |
+| ---  | ---       | ---         |
+| `heroku_app_id` | `dyno_id` | The unique identifier for the application |
+| `heroku_app_name` | `dyno_id` | The application name |
+| `heroku_release_creation_timestamp` | `dyno_id` | The time and date the release was createde |
+| `heroku_release_version` | `dyno_id` | The identifier for the current release |
+| `heroku_slug_commit` | `dyno_id` | The commit hash for the current release |
+
 
 

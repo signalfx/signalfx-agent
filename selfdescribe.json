@@ -26535,10 +26535,31 @@
       "monitorType": "heroku-metadata",
       "sendAll": false,
       "dimensions": null,
-      "doc": "",
+      "doc": "This monitor collects metadata from a Heroku dyno and syncs them as properties\nto `dyno_id` dimension, which is synced by datapoints emitted by the\n[Heroku SignalFx Collector (https://github.com/signalfx/heroku-signalfx-collector).\n\nMetadata on Heroku dyno's need to be enabled explicitly. For information about this,\nsee [here] (https://devcenter.heroku.com/articles/dyno-metadata).\n",
       "groups": {},
       "metrics": null,
-      "properties": null,
+      "properties": {
+        "heroku_app_id": {
+          "dimension": "dyno_id",
+          "description": "The unique identifier for the application"
+        },
+        "heroku_app_name": {
+          "dimension": "dyno_id",
+          "description": "The application name"
+        },
+        "heroku_release_creation_timestamp": {
+          "dimension": "dyno_id",
+          "description": "The time and date the release was createde"
+        },
+        "heroku_release_version": {
+          "dimension": "dyno_id",
+          "description": "The identifier for the current release"
+        },
+        "heroku_slug_commit": {
+          "dimension": "dyno_id",
+          "description": "The commit hash for the current release"
+        }
+      },
       "metricsExhaustive": false,
       "config": {
         "name": "Config",
