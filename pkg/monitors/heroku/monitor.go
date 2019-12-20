@@ -34,7 +34,7 @@ func (m *Monitor) Configure(c *Config) error {
 	m.logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": "heroku-metadata"}), 20*time.Second)
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 
-	utils.RunOnInterval(m.ctx, func() {
+	go func() {
 		properties := map[string]string{}
 		dynoID := os.Getenv("HEROKU_DYNO_ID")
 
@@ -48,17 +48,10 @@ func (m *Monitor) Configure(c *Config) error {
 			Name:              "dyno_id",
 			Value:             dynoID,
 			Properties:        properties,
-			MergeIntoExisting: true,
+			MergeIntoExisting: false,
 		})
 
-	}, time.Duration(c.IntervalSeconds)*time.Second)
+	}()
 
 	return nil
-}
-
-// Shutdown stops the metric sync
-func (m *Monitor) Shutdown() {
-	if m.cancel != nil {
-		m.cancel()
-	}
 }
