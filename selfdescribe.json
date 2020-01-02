@@ -18874,6 +18874,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -18927,14 +18935,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -21689,8 +21689,16 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
-            "doc": "Username used to access Elasticsearch stats API",
+            "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
             "required": false,
             "type": "string",
@@ -21698,7 +21706,7 @@
           },
           {
             "yamlName": "password",
-            "doc": "Password used to access Elasticsearch stats API",
+            "doc": "Basic Auth password to use on each request, if any.",
             "default": "",
             "required": false,
             "type": "string",
@@ -21706,7 +21714,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "Whether to use https or not",
+            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -21714,10 +21722,34 @@
           },
           {
             "yamlName": "skipVerify",
-            "doc": "Whether to skip TLS certificate validation.",
+            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
             "default": false,
             "required": false,
             "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           },
           {
@@ -23367,6 +23399,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -23420,14 +23460,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -24439,6 +24471,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -24492,14 +24532,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -24660,6 +24692,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -24713,14 +24753,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -24867,6 +24899,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -24920,14 +24960,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -25130,6 +25162,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -25183,14 +25223,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -25470,6 +25502,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -25523,14 +25563,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -25782,6 +25814,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -25835,14 +25875,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -30503,6 +30535,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -30556,14 +30596,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -32985,6 +33017,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -33038,14 +33078,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -34188,6 +34220,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -34241,14 +34281,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -35144,6 +35176,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -35197,14 +35237,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -37276,6 +37308,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -37329,14 +37369,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -37665,6 +37697,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -37718,14 +37758,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -37921,6 +37953,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -37974,14 +38014,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -39157,6 +39189,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -39210,14 +39250,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -40974,6 +41006,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -41027,14 +41067,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -42098,6 +42130,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -42151,14 +42191,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -42641,6 +42673,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -42694,14 +42734,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {
@@ -45906,6 +45938,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
             "yamlName": "username",
             "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
@@ -45959,14 +45999,6 @@
             "default": "",
             "required": false,
             "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "httpTimeout",
-            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
-            "default": "10s",
-            "required": false,
-            "type": "int64",
             "elementKind": ""
           },
           {

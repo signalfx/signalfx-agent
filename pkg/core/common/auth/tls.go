@@ -4,11 +4,9 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"io/ioutil"
-	"net/http"
-	"runtime"
-
 	"github.com/pkg/errors"
+	"io/ioutil"
+	"runtime"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -23,19 +21,6 @@ func AugmentCertPoolFromCAFile(basePool *x509.CertPool, caCertPath string) error
 	}
 
 	return nil
-}
-
-// An http transport that injects an OAuth bearer token onto each request
-type TransportWithToken struct {
-	*http.Transport
-	Token string
-}
-
-// Override the only method that the client actually calls on the transport to
-// do the request.
-func (t *TransportWithToken) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Set("Authorization", fmt.Sprintf("bearer %s", t.Token))
-	return t.Transport.RoundTrip(req)
 }
 
 // Returns a tls.Config that can be used to setup a  tls client

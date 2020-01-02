@@ -2,9 +2,10 @@ package prometheusexporter
 
 import (
 	"context"
-	"crypto/tls"
 	"errors"
 	"fmt"
+	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
+	"github.com/signalfx/signalfx-agent/pkg/core/common/stdhttp"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -17,7 +18,6 @@ import (
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
 	"github.com/signalfx/golib/v3/datapoint"
-	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
@@ -37,28 +37,7 @@ type Config struct {
 	// Port of the exporter
 	Port uint16 `yaml:"port" validate:"required"`
 
-	// Basic Auth username to use on each request, if any.
-	Username string `yaml:"username"`
-	// Basic Auth password to use on each request, if any.
-	Password string `yaml:"password" neverLog:"true"`
-
-	// If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.
-	UseHTTPS bool `yaml:"useHTTPS"`
-
-	// If useHTTPS is true and this option is also true, the exporter's TLS
-	// cert will not be verified.
-	SkipVerify bool `yaml:"skipVerify"`
-	// Path to the CA cert that has signed the TLS cert, unnecessary
-	// if `skipVerify` is set to false.
-	CACertPath string `yaml:"caCertPath"`
-	// Path to the client TLS cert to use for TLS required connections
-	ClientCertPath string `yaml:"clientCertPath"`
-	// Path to the client TLS key to use for TLS required connections
-	ClientKeyPath string `yaml:"clientKeyPath"`
-
-	// HTTP timeout duration for both read and writes. This should be a
-	// duration string that is accepted by https://golang.org/pkg/time/#ParseDuration
-	HTTPTimeout time.Duration `yaml:"httpTimeout" default:"10s"`
+	stdhttp.HttpConfig
 
 	// Use pod service account to authenticate.
 	UseServiceAccount bool `yaml:"useServiceAccount"`
@@ -108,7 +87,6 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(logrus.Fields{"monitorType": m.monitorName})
 
 	var bearerToken string
-	tlsConfig := &tls.Config{InsecureSkipVerify: conf.SkipVerify}
 
 	if conf.UseServiceAccount {
 		restConfig, err := rest.InClusterConfig()
@@ -121,38 +99,21 @@ func (m *Monitor) Configure(conf *Config) error {
 		}
 	}
 
-	tlsConfig, err := auth.TLSConfig(tlsConfig, conf.CACertPath, conf.ClientCertPath, conf.ClientKeyPath)
-
+	client, err := conf.HttpConfig.Build()
 	if err != nil {
 		return err
 	}
 
-	client := &http.Client{
-		Timeout: conf.HTTPTimeout,
-		Transport: &http.Transport{
-			TLSClientConfig: tlsConfig,
-		},
+	if bearerToken != "" {
+		client.Transport = &auth.TransportWithToken{client.Transport, bearerToken}
 	}
-	var scheme string
-	if conf.UseHTTPS {
-		scheme = "https"
-	} else {
-		scheme = "http"
-	}
-	url := fmt.Sprintf("%s://%s:%d%s", scheme, conf.Host, conf.Port, conf.MetricPath)
+
+	url := fmt.Sprintf("%s://%s:%d%s", conf.Scheme(), conf.Host, conf.Port, conf.MetricPath)
 
 	fetch := func() (io.ReadCloser, expfmt.Format, error) {
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			return nil, expfmt.FmtUnknown, err
-		}
-
-		if conf.Username != "" {
-			req.SetBasicAuth(conf.Username, conf.Password)
-		}
-
-		if bearerToken != "" {
-			req.Header.Set("Authorization", "Bearer "+bearerToken)
 		}
 
 		resp, err := client.Do(req) // nolint:bodyclose  // We do actually close it after it is returned
