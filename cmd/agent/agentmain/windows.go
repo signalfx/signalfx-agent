@@ -82,7 +82,7 @@ func runAgentPlatformSpecific(flags *flags, interruptCh chan os.Signal, exitCh c
 
 	config := &service.Config{
 		Name:        flags.serviceName,
-		DisplayName: "SignalFx Smart Agent",
+		DisplayName: flags.serviceDisplayName,
 		Description: "Collects and publishes metric data to SignalFx",
 		Arguments:   []string{"-config", flags.configPath},
 	}
