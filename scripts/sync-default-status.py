@@ -15,7 +15,7 @@ with open(metaFile) as f:
 
 for mon in meta["monitors"]:
     for metric, info in mon["metrics"].items():
-        info["included"] = metric in whitelist
+        info["default"] = metric in whitelist
 
 with open(metaFile, "wt") as f:
     yaml.round_trip_dump(meta, f)

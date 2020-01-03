@@ -136,8 +136,8 @@ func checkSendAllLogic(monType string, metrics map[string]MetricMetadata, sendAl
 		hasDefault = hasDefault || metricInfo.Default
 	}
 	if hasDefault && sendAll {
-		log.Warnf("sendAll was specified on monitor type '%s' but some metrics were also marked as 'included'", monType)
+		log.Warnf("sendAll was specified on monitor type '%s' but some metrics were also marked as 'default'", monType)
 	} else if !hasDefault && !sendAll {
-		log.Warnf("sendAll was not specified on monitor type '%s' and no metrics are marked as 'included'", monType)
+		log.Warnf("sendAll was not specified on monitor type '%s' and no metrics are marked as 'default'", monType)
 	}
 }
