@@ -43,12 +43,9 @@ Please note that the Smart Agent does not support Mac OS.
 
 ### Step 1. Install the SignalFx Smart Agent on your host
 
-#### Linux
-<details>
-<summary>Show Linux instructions</summary>
-<p>
+#### Install on Linux
     
-##### Option 1: From the SignalFx UI    
+##### Option 1: Install from the SignalFx UI    
 
 If you are reading this content from the SignalFx Smart Agent tile in the Integrations page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your realm and your organization's access token.)
     
@@ -57,7 +54,7 @@ If you are reading this content from the SignalFx Smart Agent tile in the Integr
 
 ***
 
-##### Option 2: From the documentation site 
+##### Option 2: Install from the documentation site 
 
 If you are reading this content from the SignalFx documentation site, then SignalFx recommends that you access the Integrations page in the SignalFx UI to copy the pre-populated installation code.  
 
@@ -67,18 +64,11 @@ If you are reading this content from the SignalFx documentation site, then Signa
 4. Locate the text box for Linux users.
 5. Copy, paste, and run the code in your command line. (The code within the tile is already populated with your realm and your organization's access token.)  
 
-</p>
-</details>
-
 ***
 
-#### Windows
+#### Install on Windows
 
-
-<summary>Show Windows instructions</summary>
-<p>
-
-##### Option 1: From the SignalFx UI    
+##### Option 1: Install from the SignalFx UI    
 If you are reading this content from the SignalFx Smart Agent tile in the Integrations page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your realm and your organization's access token.)
 
 
@@ -88,7 +78,7 @@ If you are reading this content from the SignalFx Smart Agent tile in the Integr
 
 ***
 
-##### Option 2: From the documentation site 
+##### Option 2: Install from the documentation site 
 If you are reading this content from the SignalFx documentation site, then SignalFx recommends that you access the Integrations page in the SignalFx UI to copy the pre-populated installation code.  
 
 1. Log in to SignalFx and click the **Integrations** tab to open the Integrations page. Look for the SignalFx Smart Agent tile. You can search for it by name, or find it in the **Essential Services** section.
@@ -99,13 +89,11 @@ If you are reading this content from the SignalFx documentation site, then Signa
 
 
 The agent will be installed as a Windows service and will log to the Windows Event Log.
-</p>
-</details>
 
 ***
 
 
-### Step 2. Confirm your Installation
+### Step 2. Confirm your installation
 
 
 1. To confirm your installation, enter the following command on the Linux or Windows command line: 
