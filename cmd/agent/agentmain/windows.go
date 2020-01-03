@@ -81,8 +81,8 @@ func runAgentPlatformSpecific(flags *flags, interruptCh chan os.Signal, exitCh c
 	initializeWMI()
 
 	config := &service.Config{
-		Name:        "signalfx-agent",
-		DisplayName: "SignalFx Smart Agent",
+		Name:        flags.serviceName,
+		DisplayName: flags.serviceDisplayName,
 		Description: "Collects and publishes metric data to SignalFx",
 		Arguments:   []string{"-config", flags.configPath},
 	}
