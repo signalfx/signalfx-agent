@@ -1,4 +1,4 @@
-package stdhttp
+package httpclient
 
 import (
 	"crypto/tls"
@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-// HttpConfig can be embedded inside a monitor config.
-type HttpConfig struct {
+// HTTPConfig can be embedded inside a monitor config.
+type HTTPConfig struct {
 	// HTTP timeout duration for both read and writes. This should be a
 	// duration string that is accepted by https://golang.org/pkg/time/#ParseDuration
 	HTTPTimeout time.Duration `yaml:"httpTimeout" default:"10s"`
@@ -34,40 +34,45 @@ type HttpConfig struct {
 	ClientKeyPath string `yaml:"clientKeyPath"`
 }
 
-func (h *HttpConfig) Scheme() string {
+// Scheme returns https if enabled, otherwise http
+func (h *HTTPConfig) Scheme() string {
 	if h.UseHTTPS {
 		return "https"
 	}
 	return "http"
 }
 
-func (h *HttpConfig) Build() (*http.Client, error) {
-	transport := &http.Transport{
-		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: h.SkipVerify,
-		},
+// Build returns a configured http.Client
+func (h *HTTPConfig) Build() (*http.Client, error) {
+	roundTripper, err := func() (http.RoundTripper, error) {
+		transport := http.DefaultTransport.(*http.Transport).Clone()
+
+		if h.UseHTTPS {
+			transport.TLSClientConfig = &tls.Config{
+				InsecureSkipVerify: h.SkipVerify,
+			}
+			if _, err := auth.TLSConfig(transport.TLSClientConfig, h.CACertPath, h.ClientCertPath, h.ClientKeyPath); err != nil {
+				return nil, err
+			}
+		}
+
+		return transport, nil
+	}()
+
+	if err != nil {
+		return nil, err
 	}
-	var roundTripper http.RoundTripper = transport
-	client := &http.Client{}
 
 	if h.Username != "" {
 		roundTripper = &auth.TransportWithBasicAuth{
 			RoundTripper: roundTripper,
-			Username:  h.Username,
-			Password:  h.Password,
+			Username:     h.Username,
+			Password:     h.Password,
 		}
 	}
 
-	// todo: does this roundTriper alias work after tls config?
-
-	if _, err := auth.TLSConfig(transport.TLSClientConfig, h.CACertPath, h.ClientCertPath, h.ClientKeyPath); err != nil {
-		return nil, err
-	}
-
-	client.Timeout = h.HTTPTimeout
-	client.Transport = roundTripper
-
-	return client, nil
+	return &http.Client{
+		Timeout:   h.HTTPTimeout,
+		Transport: roundTripper,
+	}, nil
 }
-
-

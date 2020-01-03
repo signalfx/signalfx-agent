@@ -4,7 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/signalfx/signalfx-agent/pkg/core/common/stdhttp"
+	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
 	"sync"
 	"time"
 
@@ -19,11 +19,11 @@ import (
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	config.MonitorConfig  `yaml:",inline" acceptsEndpoints:"true"`
+	httpclient.HTTPConfig `yaml:",inline"`
+
 	Host                 string `yaml:"host" validate:"required"`
 	Port                 string `yaml:"port" validate:"required"`
-
-	stdhttp.HttpConfig
 
 	// Cluster name to which the node belongs. This is an optional config that
 	// will override the cluster name fetched from a node and will be used to
@@ -166,12 +166,12 @@ func (m *Monitor) Configure(c *Config) error {
 		conf.EnableEnhancedTransportStats = true
 	}
 
-	httpClient, err := conf.HttpConfig.Build()
+	httpClient, err := conf.HTTPConfig.Build()
 	if err != nil {
 		return err
 	}
 
-	esClient := client.NewESClient(conf.Host, conf.Port, conf.HttpConfig.Scheme(), httpClient)
+	esClient := client.NewESClient(conf.Host, conf.Port, conf.HTTPConfig.Scheme(), httpClient)
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 	var isInitialized bool
 

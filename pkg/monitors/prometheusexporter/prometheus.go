@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
-	"github.com/signalfx/signalfx-agent/pkg/core/common/stdhttp"
+	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -30,14 +30,13 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	config.MonitorConfig  `yaml:",inline" acceptsEndpoints:"true"`
+	httpclient.HTTPConfig `yaml:",inline"`
 
 	// Host of the exporter
 	Host string `yaml:"host" validate:"required"`
 	// Port of the exporter
 	Port uint16 `yaml:"port" validate:"required"`
-
-	stdhttp.HttpConfig
 
 	// Use pod service account to authenticate.
 	UseServiceAccount bool `yaml:"useServiceAccount"`
@@ -99,13 +98,16 @@ func (m *Monitor) Configure(conf *Config) error {
 		}
 	}
 
-	client, err := conf.HttpConfig.Build()
+	client, err := conf.HTTPConfig.Build()
 	if err != nil {
 		return err
 	}
 
 	if bearerToken != "" {
-		client.Transport = &auth.TransportWithToken{client.Transport, bearerToken}
+		client.Transport = &auth.TransportWithToken{
+			RoundTripper: client.Transport,
+			Token:        bearerToken,
+		}
 	}
 
 	url := fmt.Sprintf("%s://%s:%d%s", conf.Scheme(), conf.Host, conf.Port, conf.MetricPath)
