@@ -18858,22 +18858,6 @@
         "package": "pkg/monitors/coredns",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -18935,6 +18919,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -21673,22 +21673,6 @@
         "package": "pkg/monitors/elasticsearch",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -21749,6 +21733,22 @@
             "doc": "Path to the client TLS key to use for TLS required connections",
             "default": "",
             "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "",
+            "default": null,
+            "required": true,
             "type": "string",
             "elementKind": ""
           },
@@ -23383,22 +23383,6 @@
         "package": "pkg/monitors/etcd",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -23460,6 +23444,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -24455,22 +24455,6 @@
         "package": "pkg/monitors/gitlab",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -24532,6 +24516,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -24676,22 +24676,6 @@
         "package": "pkg/monitors/gitlab",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -24753,6 +24737,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -24883,22 +24883,6 @@
         "package": "pkg/monitors/gitlab",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -24960,6 +24944,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -25146,22 +25146,6 @@
         "package": "pkg/monitors/gitlab",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -25223,6 +25207,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -25486,22 +25486,6 @@
         "package": "pkg/monitors/gitlab",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -25563,6 +25547,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -25798,22 +25798,6 @@
         "package": "pkg/monitors/gitlab",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -25875,6 +25859,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -30519,22 +30519,6 @@
         "package": "pkg/monitors/kubernetes/controllermanager",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -30596,6 +30580,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -33001,22 +33001,6 @@
         "package": "pkg/monitors/kubernetes/apiserver",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -33078,6 +33062,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -34204,22 +34204,6 @@
         "package": "pkg/monitors/kubernetes/proxy",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -34281,6 +34265,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -35160,22 +35160,6 @@
         "package": "pkg/monitors/kubernetes/scheduler",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -35237,6 +35221,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -37292,22 +37292,6 @@
         "package": "pkg/monitors/prometheusexporter",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -37369,6 +37353,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -37681,22 +37681,6 @@
         "package": "pkg/monitors/prometheus/go",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -37758,6 +37742,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -37937,22 +37937,6 @@
         "package": "pkg/monitors/prometheus/nginxvts",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -38014,6 +37998,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -39173,22 +39173,6 @@
         "package": "pkg/monitors/prometheus/node",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -39250,6 +39234,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -40990,22 +40990,6 @@
         "package": "pkg/monitors/prometheus/postgres",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -41067,6 +41051,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -42114,22 +42114,6 @@
         "package": "pkg/monitors/prometheus/prometheus",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -42191,6 +42175,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -42657,22 +42657,6 @@
         "package": "pkg/monitors/prometheus/redis",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -42734,6 +42718,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {
@@ -45922,22 +45922,6 @@
         "package": "pkg/monitors/traefik",
         "fields": [
           {
-            "yamlName": "host",
-            "doc": "Host of the exporter",
-            "default": null,
-            "required": true,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "port",
-            "doc": "Port of the exporter",
-            "default": null,
-            "required": true,
-            "type": "uint16",
-            "elementKind": ""
-          },
-          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -45999,6 +45983,22 @@
             "default": "",
             "required": false,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
             "elementKind": ""
           },
           {

@@ -144,8 +144,6 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `host` | **yes** | `string` |  |
-| `port` | **yes** | `string` |  |
 | `httpTimeout` | no | `int64` | HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration (**default:** `10s`) |
 | `username` | no | `string` | Basic Auth username to use on each request, if any. |
 | `password` | no | `string` | Basic Auth password to use on each request, if any. |
@@ -154,6 +152,8 @@ Configuration](../monitor-config.md#common-configuration).**
 | `caCertPath` | no | `string` | Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false. |
 | `clientCertPath` | no | `string` | Path to the client TLS cert to use for TLS required connections |
 | `clientKeyPath` | no | `string` | Path to the client TLS key to use for TLS required connections |
+| `host` | **yes** | `string` |  |
+| `port` | **yes** | `string` |  |
 | `cluster` | no | `string` | Cluster name to which the node belongs. This is an optional config that will override the cluster name fetched from a node and will be used to populate the plugin_instance dimension |
 | `enableIndexStats` | no | `bool` | Enable Index stats. If set to true, by default the a subset of index stats will be collected (see docs for list of default index metrics collected). (**default:** `true`) |
 | `indexes` | no | `list of strings` | Indexes to collect stats from (by default stats from all indexes are collected) |

@@ -4,9 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
 	"sync"
 	"time"
+
+	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
 
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
@@ -22,8 +23,8 @@ type Config struct {
 	config.MonitorConfig  `yaml:",inline" acceptsEndpoints:"true"`
 	httpclient.HTTPConfig `yaml:",inline"`
 
-	Host                 string `yaml:"host" validate:"required"`
-	Port                 string `yaml:"port" validate:"required"`
+	Host string `yaml:"host" validate:"required"`
+	Port string `yaml:"port" validate:"required"`
 
 	// Cluster name to which the node belongs. This is an optional config that
 	// will override the cluster name fetched from a node and will be used to

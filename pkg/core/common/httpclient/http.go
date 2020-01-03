@@ -2,9 +2,10 @@ package httpclient
 
 import (
 	"crypto/tls"
-	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
 	"net/http"
 	"time"
+
+	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
 )
 
 // HTTPConfig can be embedded inside a monitor config.

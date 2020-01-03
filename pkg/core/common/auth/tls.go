@@ -4,10 +4,11 @@ import (
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
-	"github.com/pkg/errors"
-	log "github.com/sirupsen/logrus"
 	"io/ioutil"
 	"runtime"
+
+	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
 )
 
 func AugmentCertPoolFromCAFile(basePool *x509.CertPool, caCertPath string) error {

@@ -15,9 +15,9 @@ const (
 )
 
 type esClient struct {
-	scheme string
-	host   string
-	port   string
+	scheme     string
+	host       string
+	port       string
 	httpClient *http.Client
 }
 

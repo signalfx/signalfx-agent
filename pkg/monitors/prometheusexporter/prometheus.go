@@ -4,12 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
-	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
+	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
 
 	"k8s.io/client-go/rest"
 
