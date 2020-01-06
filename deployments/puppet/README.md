@@ -37,6 +37,11 @@ class accepts the following parameters:
 	`signalfx_agent::config`, which will make it automatically filled in as a
 	parameter.
 
+    **Note:** In module version 0.4.0, the endpoint URLs have been removed from
+    [default.yaml](./data/default.yaml). If upgrading the module from an older version,
+    either the `signalFxRealm` or the endpoint URL options will need to be explicitly
+    specified if using a realm other than `us0`.
+
  - `$package_stage`: The package repo stage to use: `final`, `beta`, or `test`
    (**default:** 'final')
 
