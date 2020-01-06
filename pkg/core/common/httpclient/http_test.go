@@ -21,6 +21,16 @@ func runServer(t *testing.T, h *HTTPConfig, cb func(host string)) {
 	req := require.New(t)
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(writer http.ResponseWriter, request *http.Request) {
+		// Optionally delay response return.
+		if delay := request.URL.Query().Get("delay"); delay != "" {
+			d, err := time.ParseDuration(delay)
+			if err != nil {
+				panic(err)
+			}
+			time.Sleep(d)
+		}
+
+		// So timeout test is more reliable.
 		if h.Username != "" {
 			if username, password, ok := request.BasicAuth(); !ok || username != h.Username || password != h.Password {
 				writer.WriteHeader(http.StatusUnauthorized)
@@ -126,7 +136,9 @@ func TestHttpTimeout(t *testing.T) {
 	runServer(t, h, func(host string) {
 		client, err := h.Build()
 		req.NoError(err)
-		resp, err := client.Get(host)
+		// Need artificial delay to test timeout.
+		u := url.URL{Scheme: h.Scheme(), Host: host, RawQuery: "delay=0.5s"}
+		resp, err := client.Get(u.String())
 		// To make linter happy.
 		if err == nil {
 			_ = resp.Body.Close()
