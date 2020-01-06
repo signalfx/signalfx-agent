@@ -1,7 +1,6 @@
 package client
 
 import (
-	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"net/http"
@@ -16,11 +15,9 @@ const (
 )
 
 type esClient struct {
+	scheme     string
 	host       string
 	port       string
-	scheme     string
-	username   string
-	password   string
 	httpClient *http.Client
 }
 
@@ -34,27 +31,12 @@ type ESHttpClient interface {
 }
 
 // NewESClient creates a new esClient
-func NewESClient(host string, port string, useHTTPS bool, skipVerify bool, username string, password string) ESHttpClient {
-	scheme := "http"
-	httpClient := &http.Client{}
-
-	if useHTTPS {
-		scheme = "https"
-
-		if skipVerify {
-			transport := http.DefaultTransport.(*http.Transport).Clone()
-			transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: true}
-			httpClient.Transport = transport
-		}
-	}
-
+func NewESClient(host string, port string, scheme string, client *http.Client) ESHttpClient {
 	return &esClient{
+		scheme:     scheme,
 		host:       host,
 		port:       port,
-		scheme:     scheme,
-		username:   username,
-		password:   password,
-		httpClient: httpClient,
+		httpClient: client,
 	}
 }
 
@@ -140,7 +122,6 @@ func (c *esClient) fetchJSON(url string, obj interface{}) error {
 		return fmt.Errorf("could not get url %s: %v", url, err)
 	}
 
-	req.SetBasicAuth(c.username, c.password)
 	res, err := c.httpClient.Do(req)
 
 	if err != nil {

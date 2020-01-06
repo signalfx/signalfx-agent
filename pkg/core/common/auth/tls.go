@@ -5,7 +5,6 @@ import (
 	"crypto/x509"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"runtime"
 
 	"github.com/pkg/errors"
@@ -23,19 +22,6 @@ func AugmentCertPoolFromCAFile(basePool *x509.CertPool, caCertPath string) error
 	}
 
 	return nil
-}
-
-// An http transport that injects an OAuth bearer token onto each request
-type TransportWithToken struct {
-	*http.Transport
-	Token string
-}
-
-// Override the only method that the client actually calls on the transport to
-// do the request.
-func (t *TransportWithToken) RoundTrip(req *http.Request) (*http.Response, error) {
-	req.Header.Set("Authorization", fmt.Sprintf("bearer %s", t.Token))
-	return t.Transport.RoundTrip(req)
 }
 
 // Returns a tls.Config that can be used to setup a  tls client
@@ -72,15 +58,15 @@ func TLSConfig(tlsConfig *tls.Config, caCertPath string, clientCertPath string, 
 	return tlsConfig, nil
 }
 
+// CertPool returns the system cert pool for non-Windows platforms
 func CertPool() (*x509.CertPool, error) {
-	var certs *x509.CertPool
-	if runtime.GOOS != "windows" {
-		var err error
-		certs, err = x509.SystemCertPool()
-		if err != nil {
-			return nil, errors.WithMessage(err, "Could not load system x509 cert pool")
-		}
+	if runtime.GOOS == "windows" {
+		return x509.NewCertPool(), nil
 	}
 
+	certs, err := x509.SystemCertPool()
+	if err != nil {
+		return nil, errors.WithMessage(err, "Could not load system x509 cert pool")
+	}
 	return certs, nil
 }
