@@ -58,15 +58,15 @@ func TLSConfig(tlsConfig *tls.Config, caCertPath string, clientCertPath string, 
 	return tlsConfig, nil
 }
 
+// CertPool returns the system cert pool for non-Windows platforms
 func CertPool() (*x509.CertPool, error) {
-	var certs *x509.CertPool
-	if runtime.GOOS != "windows" {
-		var err error
-		certs, err = x509.SystemCertPool()
-		if err != nil {
-			return nil, errors.WithMessage(err, "Could not load system x509 cert pool")
-		}
+	if runtime.GOOS == "windows" {
+		return x509.NewCertPool(), nil
 	}
 
+	certs, err := x509.SystemCertPool()
+	if err != nil {
+		return nil, errors.WithMessage(err, "Could not load system x509 cert pool")
+	}
 	return certs, nil
 }
