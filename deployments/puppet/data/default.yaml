@@ -1,8 +1,5 @@
 ---
 signalfx_agent::config:
-  signalFxAccessToken: "MY_TOKEN"
-  ingestUrl: https://ingest.signalfx.com
-  apiUrl: https://api.signalfx.com
   hostname: "%{facts.fqdn}"
   intervalSeconds: 10
   logging:
