@@ -157,20 +157,28 @@ func (dh *DimensionHandler) handleAddPod(pod *v1.Pod) {
 		}
 	}
 
+	// Check if pod owner of type ReplicaSet is cached. Check owners reference on ReplicaSet to see if it was
+	// created by a Deployment. Sync properties accordingly
 	rsRef := k8sutil.FindOwnerWithKind(pod.OwnerReferences, "ReplicaSet")
 	if rsRef != nil {
 		if replicaSet := dh.replicaSetCache.Get(rsRef.UID); replicaSet != nil {
 			if deployRef := k8sutil.FindOwnerWithKind(replicaSet.OwnerReferences, "Deployment"); deployRef != nil {
 				dh.sendDimensionFunc(dimensionForPodDeployment(pod, deployRef.Name, deployRef.UID))
+			} else {
+				dh.sendDimensionFunc(dimensionForPodWorkload(pod, replicaSet.Name, "ReplicaSet"))
 			}
 		}
 	}
 
+	// Check if pod owner of type Job is cached. Check owners reference on Job to see if it was
+	// created by a CronJob. Sync properties accordingly
 	jobRef := k8sutil.FindOwnerWithKind(pod.OwnerReferences, "Job")
 	if jobRef != nil {
 		if job := dh.jobCache.Get(jobRef.UID); job != nil {
 			if cronJobRef := k8sutil.FindOwnerWithKind(job.OwnerReferences, "CronJob"); cronJobRef != nil {
 				dh.sendDimensionFunc(dimensionForPodCronJob(pod, cronJobRef.Name, cronJobRef.UID))
+			} else {
+				dh.sendDimensionFunc(dimensionForPodWorkload(pod, job.Name, "Job"))
 			}
 		}
 	}
@@ -181,7 +189,6 @@ func (dh *DimensionHandler) handleAddPod(pod *v1.Pod) {
 // and service UID properties to the pod.
 func (dh *DimensionHandler) handleAddService(service *v1.Service) {
 	dh.serviceCache.AddService(service)
-
 	for _, pod := range dh.podCache.GetForNamespace(service.Namespace) {
 		if k8sutil.SelectorMatchesPod(service.Spec.Selector, pod) {
 			dim := dimensionForPodServices(pod, []string{service.Name}, true)
@@ -211,20 +218,23 @@ func (dh *DimensionHandler) handleDeleteService(uid types.UID) error {
 	return nil
 }
 
-// handleAddReplicaSet adds a replicaset to the internal cache and
-// returns the datapoints and dim for the replicaset.
+// handleAddReplicaSet adds a replicaset to the internal cache
+// and emits dimensions related to replicaSets for pods. ReplicaSets should always be
+// created before Pods, but in case we receive the event out of order we can still
+// check pods in the namespace to sync their relevant properties.
+// A potential optimization would be to not check this, and assume we received events in order.
 func (dh *DimensionHandler) handleAddReplicaSet(rs *appsv1.ReplicaSet) {
 	dh.replicaSetCache.Add(rs)
-
 	deployRef := k8sutil.FindOwnerWithKind(rs.OwnerReferences, "Deployment")
-	if deployRef == nil {
-		return
-	}
 	for _, pod := range dh.podCache.GetForNamespace(rs.Namespace) {
 		if rsRef := k8sutil.FindOwnerWithUID(pod.OwnerReferences, rs.UID); rsRef == nil {
 			continue
 		}
-		dh.sendDimensionFunc(dimensionForPodDeployment(pod, deployRef.Name, deployRef.UID))
+		if deployRef == nil {
+			dh.sendDimensionFunc(dimensionForPodWorkload(pod, rs.Name, "ReplicaSet"))
+		} else {
+			dh.sendDimensionFunc(dimensionForPodDeployment(pod, deployRef.Name, deployRef.UID))
+		}
 	}
 }
 
@@ -234,15 +244,15 @@ func (dh *DimensionHandler) handleAddReplicaSet(rs *appsv1.ReplicaSet) {
 // Potential optimization would be to not check this and always assume they come in order.
 func (dh *DimensionHandler) handleAddJob(job *batchv1.Job) {
 	dh.jobCache.Add(job)
-
 	cronJobRef := k8sutil.FindOwnerWithKind(job.OwnerReferences, "CronJob")
-	if cronJobRef == nil {
-		return
-	}
 	for _, pod := range dh.podCache.GetForNamespace(job.Namespace) {
-		if cronJobRef := k8sutil.FindOwnerWithUID(pod.OwnerReferences, job.UID); cronJobRef == nil {
+		if jobRef := k8sutil.FindOwnerWithUID(pod.OwnerReferences, job.UID); jobRef == nil {
 			continue
 		}
-		dh.sendDimensionFunc(dimensionForPodCronJob(pod, cronJobRef.Name, cronJobRef.UID))
+		if cronJobRef == nil {
+			dh.sendDimensionFunc(dimensionForPodWorkload(pod, job.Name, "Job"))
+		} else {
+			dh.sendDimensionFunc(dimensionForPodCronJob(pod, cronJobRef.Name, cronJobRef.UID))
+		}
 	}
 }
