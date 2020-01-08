@@ -60,10 +60,16 @@ func dimensionForPod(pod *v1.Pod) *atypes.Dimension {
 	props["pod_creation_timestamp"] = pod.CreationTimestamp.Format(time.RFC3339)
 
 	for _, or := range pod.OwnerReferences {
-		props["kubernetes_workload"] = or.Kind
-		props["kubernetes_workload_name"] = or.Name
 		props[utils.LowercaseFirstChar(or.Kind)] = or.Name
 		props[utils.LowercaseFirstChar(or.Kind)+"_uid"] = string(or.UID)
+
+		// defer syncing replicaset and job workload properties
+		// to handleAddPod, handleAddReplicaSet, handleAddJob
+		if or.Kind == "ReplicaSet" || or.Kind == "Job" {
+			continue
+		}
+		props["kubernetes_workload"] = or.Kind
+		props["kubernetes_workload_name"] = or.Name
 	}
 
 	_ = getPropsFromTolerations(pod.Spec.Tolerations)
@@ -73,6 +79,18 @@ func dimensionForPod(pod *v1.Pod) *atypes.Dimension {
 		Value:             string(pod.UID),
 		Properties:        props,
 		Tags:              tags,
+		MergeIntoExisting: true,
+	}
+}
+
+func dimensionForPodWorkload(pod *v1.Pod, workloadName string, workloadType string) *atypes.Dimension {
+	return &atypes.Dimension{
+		Name:  "kubernetes_pod_uid",
+		Value: string(pod.UID),
+		Properties: map[string]string{
+			"kubernetes_workload":      workloadType,
+			"kubernetes_workload_name": workloadName,
+		},
 		MergeIntoExisting: true,
 	}
 }
@@ -96,8 +114,10 @@ func dimensionForPodDeployment(pod *v1.Pod, deploymentName string, deploymentUID
 		Name:  "kubernetes_pod_uid",
 		Value: string(pod.UID),
 		Properties: map[string]string{
-			"deployment":     deploymentName,
-			"deployment_uid": string(deploymentUID),
+			"kubernetes_workload":      "Deployment",
+			"kubernetes_workload_name": deploymentName,
+			"deployment":               deploymentName,
+			"deployment_uid":           string(deploymentUID),
 		},
 		MergeIntoExisting: true,
 	}
@@ -108,8 +128,10 @@ func dimensionForPodCronJob(pod *v1.Pod, cronJobName string, cronJobUID types.UI
 		Name:  "kubernetes_pod_uid",
 		Value: string(pod.UID),
 		Properties: map[string]string{
-			"cronJob":     cronJobName,
-			"cronJob_uid": string(cronJobUID),
+			"kubernetes_workload":      "CronJob",
+			"kubernetes_workload_name": cronJobName,
+			"cronJob":                  cronJobName,
+			"cronJob_uid":              string(cronJobUID),
 		},
 		MergeIntoExisting: true,
 	}
