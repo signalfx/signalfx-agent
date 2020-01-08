@@ -10,5 +10,7 @@ sfx_agent_config:
     - type: collectd/load
     - type: collectd/memory
     - type: collectd/signalfx-metadata
+      omitProcessInfo: true
     - type: host-metadata
+    - type: processlist
     - type: collectd/vmem

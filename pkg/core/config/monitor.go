@@ -93,9 +93,10 @@ type MonitorConfig struct {
 	ExtraGroups []string `yaml:"extraGroups" json:"extraGroups"`
 	// OtherConfig is everything else that is custom to a particular monitor
 	OtherConfig map[string]interface{} `yaml:",inline" neverLog:"omit"`
+	Hostname    string                 `yaml:"-" json:"-"`
+	ProcPath    string                 `yaml:"-" json:"-"`
 	// ValidationError is where a message concerning validation issues can go
 	// so that diagnostics can output it.
-	Hostname        string          `yaml:"-" json:"-"`
 	ValidationError string          `yaml:"-" json:"-" hash:"ignore"`
 	MonitorID       types.MonitorID `yaml:"-" hash:"ignore"`
 }

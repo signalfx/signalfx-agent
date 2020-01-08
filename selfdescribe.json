@@ -16021,7 +16021,7 @@
       "monitorType": "collectd/signalfx-metadata",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Collectd Python plugin that aggregates\nvarious metrics from other collectd plugins.  It also sends host metadata to\nSignalFx through specially formatted events, and sends active process\n(\"top\") lists on a periodic basis.\n\nYou can also [view the Python plugin\ncode](https://github.com/signalfx/collectd-signalfx/).\n",
+      "doc": "Collectd Python plugin that aggregates various metrics from other collectd\nplugins.\n\nIt has deprecated functionality to send host metadata and process \"top\"\ninfo, but this has been replaced by the `host-metadata` and `processlist`\nmonitors, respectively.\n\nYou can also [view the Python plugin\ncode](https://github.com/signalfx/collectd-signalfx/).\n",
       "groups": {
         "": {
           "description": "",
@@ -16129,7 +16129,7 @@
           },
           {
             "yamlName": "omitProcessInfo",
-            "doc": "If true, process \"top\" information will not be sent.  This can be useful if you have an extremely high number of processes and performance of the plugin is poor.",
+            "doc": "If true, process \"top\" information will not be sent.  This can be useful if you have an extremely high number of processes and performance of the plugin is poor.  This defaults to `false`, but should be set to `true` if using the `processlist` monitor since that duplicates this functionality.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -37263,7 +37263,7 @@
       "monitorType": "processlist",
       "sendAll": false,
       "dimensions": null,
-      "doc": "(Windows Only) This monitor reports processlist\ninformation for Windows Hosts.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: processlist\n```\n",
+      "doc": "This monitor reports the currently running processes for a host, analogous\nto how the `top` or `ps` command on Unix/Linux systems works.  The output\nformat is a special base64-encoded event that gets processed by our backend\nand displayed under the Infrastructure view for a specific host.\nHistorical process information is not retained on the backend, only the\nmost recent version.\n",
       "groups": {},
       "metrics": null,
       "properties": null,

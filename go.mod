@@ -120,6 +120,7 @@ require (
 	github.com/pquerna/otp v1.1.0 // indirect
 	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90
 	github.com/prometheus/common v0.2.1-0.20190321124555-1ab4d74fc899
+	github.com/prometheus/procfs v0.0.9-0.20191209220459-fa4d6ce8c078
 	github.com/samuel/go-zookeeper v0.0.0-20190810000440-0ceca61e4d75
 	github.com/shirou/gopsutil v2.18.12+incompatible
 	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.0-20190222193949-1fb69526e884
@@ -140,7 +141,7 @@ require (
 	github.com/vjeantet/grok v1.0.0 // indirect
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	go.etcd.io/etcd v0.0.0-20190321122103-41f7142ff986
-	golang.org/x/sync v0.0.0-20190423024810-112230192c58
+	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	golang.org/x/sys v0.0.0-20191105231009-c1f44814a5cd
 	google.golang.org/grpc v1.20.1
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect

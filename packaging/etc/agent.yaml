@@ -18,6 +18,7 @@ observers:
 monitors:
   - {"#from": "/etc/signalfx/monitors/*.yaml", flatten: true, optional: true}
   - type: host-metadata
+  - type: processlist
   - type: collectd/cpu
   - type: collectd/cpufreq
   - type: collectd/df
@@ -26,6 +27,7 @@ monitors:
   - type: collectd/load
   - type: collectd/memory
   - type: collectd/signalfx-metadata
+    omitProcessInfo: true
   - type: collectd/vmem
 
 enableBuiltInFiltering: true
