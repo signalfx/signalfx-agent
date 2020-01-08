@@ -210,7 +210,7 @@ parse_args_and_release() {
     update_deployment_files "$new_version" "$force"
   fi
 
-  if [[ "$build_all" == "yes" ]] || [[ "$build_pypi" == "yes" ]]; then
+  if [[ "$stage" == "final" ]] && ([[ "$build_all" == "yes" ]] || [[ "$build_pypi" == "yes" ]]); then
     echo "Pushing python extensions to PyPi"
     if python_code_has_changed "$new_version"; then
       release_python_to_pypi
@@ -420,7 +420,7 @@ python_code_has_changed() {
     last_release=$(latest_pypi_release)
     current_release=$(python $SCRIPT_DIR/../python/setup.py --version)
 
-    if [[ -n "$last_release" ]] && [[ "$last_release" == "$current_version" ]]; then
+    if [[ -n "$last_release" ]] && [[ "$last_release" == "$current_release" ]]; then
       echo "ERROR: Python release has changed since last agent release but you didn't increment the Python release version from $current_release" >&2
       exit 7
     fi
