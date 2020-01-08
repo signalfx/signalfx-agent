@@ -1,6 +1,5 @@
 from functools import partial as p
 from pathlib import Path
-
 import pytest
 from kubernetes import client as k8s_client
 from tests.helpers.assertions import has_all_dim_props, has_datapoint, has_dim_prop, has_no_datapoint
@@ -280,36 +279,6 @@ def test_cronjobs(k8s_cluster):
 
 
 @pytest.mark.kubernetes
-def test_pods(k8s_cluster):
-    config = """
-    monitors:
-     - type: kubernetes-cluster
-    """
-    yamls = [TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
-    with k8s_cluster.create_resources(yamls) as resources:
-
-        with k8s_cluster.run_agent(agent_yaml=config) as agent:
-            pods = k8s_client.CoreV1Api().list_namespaced_pod(
-                k8s_cluster.test_namespace, watch=False, label_selector="app=nginx"
-            )
-            for pod in pods.items:
-                assert wait_for(
-                    p(
-                        has_all_dim_props,
-                        agent.fake_services,
-                        dim_name="kubernetes_pod_uid",
-                        dim_value=pod.metadata.uid,
-                        props={
-                            "pod_creation_timestamp": pod.metadata.creation_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
-                            "deployment": resources[1].metadata.name,
-                            "kubernetes_workload_name": pod.metadata.owner_references[0].name,
-                            "kubernetes_workload": pod.metadata.owner_references[0].kind,
-                        },
-                    )
-                )
-
-
-@pytest.mark.kubernetes
 def test_deployments(k8s_cluster):
     config = """
     monitors:
@@ -334,6 +303,63 @@ def test_deployments(k8s_cluster):
                     },
                 )
             )
+
+
+@pytest.mark.kubernetes
+def test_deployment_workload_property(k8s_cluster):
+    config = """
+    monitors:
+     - type: kubernetes-cluster
+    """
+    yamls = [TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
+    with k8s_cluster.create_resources(yamls) as resources:
+        with k8s_cluster.run_agent(agent_yaml=config) as agent:
+            pods = k8s_client.CoreV1Api().list_namespaced_pod(
+                k8s_cluster.test_namespace, watch=False, label_selector="app=nginx"
+            )
+            for pod in pods.items:
+                assert wait_for(
+                    p(
+                        has_all_dim_props,
+                        agent.fake_services,
+                        dim_name="kubernetes_pod_uid",
+                        dim_value=pod.metadata.uid,
+                        props={
+                            "pod_creation_timestamp": pod.metadata.creation_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                            "deployment": resources[1].metadata.name,
+                            "kubernetes_workload_name": resources[1].metadata.name,
+                            "kubernetes_workload": "Deployment",
+                        },
+                    )
+                )
+
+
+@pytest.mark.kubernetes
+def test_replicaset_workload_property(k8s_cluster):
+    config = """
+    monitors:
+     - type: kubernetes-cluster
+    """
+    yamls = [SCRIPT_DIR / "replicaSet.yaml"]
+    with k8s_cluster.create_resources(yamls) as resources:
+        with k8s_cluster.run_agent(agent_yaml=config) as agent:
+            pods = k8s_client.CoreV1Api().list_namespaced_pod(
+                k8s_cluster.test_namespace, watch=False, label_selector="app=nginx"
+            )
+            for pod in pods.items:
+                assert wait_for(
+                    p(
+                        has_all_dim_props,
+                        agent.fake_services,
+                        dim_name="kubernetes_pod_uid",
+                        dim_value=pod.metadata.uid,
+                        props={
+                            "pod_creation_timestamp": pod.metadata.creation_timestamp.strftime("%Y-%m-%dT%H:%M:%SZ"),
+                            "kubernetes_workload_name": resources[0].metadata.name,
+                            "kubernetes_workload": "ReplicaSet",
+                        },
+                    )
+                )
 
 
 CONTAINER_RESOURCE_METRICS = {
