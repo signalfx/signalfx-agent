@@ -54,7 +54,7 @@ node['signalfx_agent']['conf'] = {
     {type: "collectd/disk"},
     {type: "collectd/interface"},
     {type: "collectd/load"},
-    {type: "collectd/memory"},
+    {type: "memory"},
     {"type": "collectd/signalfx-metadata", "omitProcessInfo": true},
     {type: "collectd/vmem"}
     {type: "host-metadata"},
