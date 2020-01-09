@@ -9,7 +9,13 @@ import (
 
 const monitorType = "cpu"
 
-var groupSet = map[string]bool{}
+const (
+	groupPerCore = "per_core"
+)
+
+var groupSet = map[string]bool{
+	groupPerCore: true,
+}
 
 const (
 	cpuUtilization        = "cpu.utilization"
@@ -18,14 +24,18 @@ const (
 
 var metricSet = map[string]monitors.MetricInfo{
 	cpuUtilization:        {Type: datapoint.Gauge},
-	cpuUtilizationPerCore: {Type: datapoint.Gauge},
+	cpuUtilizationPerCore: {Type: datapoint.Gauge, Group: groupPerCore},
 }
 
 var defaultMetrics = map[string]bool{
 	cpuUtilization: true,
 }
 
-var groupMetricsMap = map[string][]string{}
+var groupMetricsMap = map[string][]string{
+	groupPerCore: []string{
+		cpuUtilizationPerCore,
+	},
+}
 
 var monitorMetadata = monitors.Metadata{
 	MonitorType:       "cpu",
