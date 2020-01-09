@@ -23,5 +23,9 @@ monitors:
         plugin dimension set to "signalfx-metadata"
       default: false
       type: gauge
+      group: per_core
   monitorType: cpu
   properties:
+  groups:
+    per_core:
+      description: Per-core CPU metrics
