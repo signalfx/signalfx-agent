@@ -44,8 +44,8 @@ monitors:
       default: true
       type: gauge
     memory.utilization:
-      description: Percent of memory in use on this host. This metric reports with
-        plugin dimension set to "signalfx-metadata".
+      description: Percent of memory in use on this host.  This does NOT
+        include buffer or cache memory on Linux.
       default: true
       type: gauge
   monitorType: memory
