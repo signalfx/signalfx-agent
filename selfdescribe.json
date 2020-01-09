@@ -18155,7 +18155,12 @@
         "": {
           "description": "",
           "metrics": [
-            "cpu.utilization",
+            "cpu.utilization"
+          ]
+        },
+        "per_core": {
+          "description": "Per-core CPU metrics",
+          "metrics": [
             "cpu.utilization_per_core"
           ]
         }
@@ -18170,7 +18175,7 @@
         "cpu.utilization_per_core": {
           "type": "gauge",
           "description": "Percent of CPU used on each core. This metric is emitted with the plugin dimension set to \"signalfx-metadata\"",
-          "group": null,
+          "group": "per_core",
           "default": false
         }
       },
