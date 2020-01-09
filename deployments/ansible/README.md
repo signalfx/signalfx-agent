@@ -39,7 +39,7 @@ This role sources the following variables:
         - type: collectd/disk
         - type: collectd/interface
         - type: collectd/load
-        - type: collectd/memory
+        - type: memory
         - type: collectd/vmem
         - type: collectd/signalfx-metadata
           omitProcessInfo: true
