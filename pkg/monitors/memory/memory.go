@@ -76,31 +76,29 @@ func (m *Monitor) emitDatapoints() {
 		return
 	}
 
-	dimensions := map[string]string{"plugin": monitorType}
-
 	// all platforms
-	dps := []*datapoint.Datapoint{datapoint.New("memory.utilization", map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewFloatValue(memInfo.UsedPercent), datapoint.Gauge, time.Time{}),
-		datapoint.New("memory.used", dimensions, datapoint.NewIntValue(int64(memInfo.Used)), datapoint.Gauge, time.Time{}),
+	dps := []*datapoint.Datapoint{datapoint.New("memory.utilization", nil, datapoint.NewFloatValue(memInfo.UsedPercent), datapoint.Gauge, time.Time{}),
+		datapoint.New("memory.used", nil, datapoint.NewIntValue(int64(memInfo.Used)), datapoint.Gauge, time.Time{}),
 	}
 
 	// windows only
 	if runtime.GOOS == windowsOS {
-		dps = append(dps, m.makeDatapointsWindows(memInfo, dimensions)...)
+		dps = append(dps, m.makeDatapointsWindows(memInfo, nil)...)
 	}
 
 	// linux + darwin only
 	if runtime.GOOS != windowsOS {
-		dps = append(dps, m.makeDatapointsNotWindows(memInfo, dimensions)...)
+		dps = append(dps, m.makeDatapointsNotWindows(memInfo, nil)...)
 	}
 
 	// darwin only
 	if runtime.GOOS == "darwin" {
-		dps = append(dps, m.makeDatapointsDarwin(memInfo, dimensions)...)
+		dps = append(dps, m.makeDatapointsDarwin(memInfo, nil)...)
 	}
 
 	// linux only
 	if runtime.GOOS == "linux" {
-		dps = append(dps, m.makeDatapointsLinux(memInfo, dimensions)...)
+		dps = append(dps, m.makeDatapointsLinux(memInfo, nil)...)
 	}
 
 	m.Output.SendDatapoints(dps...)
@@ -110,9 +108,6 @@ func (m *Monitor) emitDatapoints() {
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
-	if runtime.GOOS != windowsOS {
-		m.logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
-	}
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
