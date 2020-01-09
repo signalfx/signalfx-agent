@@ -54,7 +54,7 @@ Metrics that are categorized as
  - ***`memory.slab_recl`*** (*gauge*)<br>    (Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can be reclaimed.
  - ***`memory.slab_unrecl`*** (*gauge*)<br>    (Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed.
  - ***`memory.used`*** (*gauge*)<br>    Bytes of memory in use by the system.
- - ***`memory.utilization`*** (*gauge*)<br>    Percent of memory in use on this host. This metric reports with plugin dimension set to "signalfx-metadata".
+ - ***`memory.utilization`*** (*gauge*)<br>    Percent of memory in use on this host.  This does NOT include buffer or cache memory on Linux.
 
 ### Non-default metrics (version 4.7.0+)
 
