@@ -48,6 +48,11 @@ Metrics that are categorized as
 
 
  - ***`cpu.utilization`*** (*gauge*)<br>    Percent of CPU used on this host. This metric is emitted with a plugin dimension set to "signalfx-metadata".
+
+#### Group per_core
+All of the following metrics are part of the `per_core` metric group. All of
+the non-default metrics below can be turned on by adding `per_core` to the
+monitor config option `extraGroups`:
  - `cpu.utilization_per_core` (*gauge*)<br>    Percent of CPU used on each core. This metric is emitted with the plugin dimension set to "signalfx-metadata"
 
 ### Non-default metrics (version 4.7.0+)
