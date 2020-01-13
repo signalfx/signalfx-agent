@@ -20,15 +20,21 @@ type IGateway interface {
 	queryPerfProviderSummary(mor types.ManagedObjectReference) (*types.QueryPerfProviderSummaryResponse, error)
 	queryPerf(invObjs []*model.InventoryObject, maxSample int32) (*types.QueryPerfResponse, error)
 	retrieveCurrentTime() (*time.Time, error)
+	vcenterName() string
 }
 
 type Gateway struct {
 	ctx    context.Context
 	client *govmomi.Client
+	vcName string
 }
 
 func NewGateway(ctx context.Context, client *govmomi.Client) *Gateway {
-	return &Gateway{ctx, client}
+	return &Gateway{
+		ctx:    ctx,
+		client: client,
+		vcName: client.Client.URL().Host,
+	}
 }
 
 func (g *Gateway) retrievePerformanceManager() (*mo.PerformanceManager, error) {
@@ -101,4 +107,8 @@ func (g *Gateway) queryPerf(invObjs []*model.InventoryObject, maxSample int32) (
 
 func (g *Gateway) retrieveCurrentTime() (*time.Time, error) {
 	return methods.GetCurrentTime(g.ctx, g.client)
+}
+
+func (g *Gateway) vcenterName() string {
+	return g.vcName
 }

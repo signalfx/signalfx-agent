@@ -46,6 +46,7 @@ const (
 	vsphereCPUDemandMhz                              = "vsphere.cpu_demand_mhz"
 	vsphereCPUEntitlementMhz                         = "vsphere.cpu_entitlement_mhz"
 	vsphereCPUIdleMs                                 = "vsphere.cpu_idle_ms"
+	vsphereCPULatencyPercent                         = "vsphere.cpu_latency_percent"
 	vsphereCPUMaxlimitedMs                           = "vsphere.cpu_maxlimited_ms"
 	vsphereCPUOverlapMs                              = "vsphere.cpu_overlap_ms"
 	vsphereCPUReadinessPercent                       = "vsphere.cpu_readiness_percent"
@@ -60,184 +61,183 @@ const (
 	vsphereCPUUsedPercent                            = "vsphere.cpu_used_percent"
 	vsphereCPUUtilizationPercent                     = "vsphere.cpu_utilization_percent"
 	vsphereCPUWaitMs                                 = "vsphere.cpu_wait_ms"
-	vsphereDatastoreDatastoreReadLoadMetric          = "vsphere.datastore.datastore_read_load_metric"
-	vsphereDatastoreDatastoreVmobservedLatencyMs     = "vsphere.datastore.datastore_vmobserved_latency_ms"
-	vsphereDatastoreDatastoreWriteLoadMetric         = "vsphere.datastore.datastore_write_load_metric"
-	vsphereDatastoreMaxTotalLatencyMs                = "vsphere.datastore.max_total_latency_ms"
-	vsphereDatastoreReadKbs                          = "vsphere.datastore.read_kbs"
-	vsphereDatastoreSizeNormalizedDatastoreLatencyMs = "vsphere.datastore.size_normalized_datastore_latency_ms"
-	vsphereDatastoreTotalReadLatencyMs               = "vsphere.datastore.total_read_latency_ms"
-	vsphereDatastoreTotalWriteLatencyMs              = "vsphere.datastore.total_write_latency_ms"
-	vsphereDatastoreWriteKbs                         = "vsphere.datastore.write_kbs"
-	vsphereDatastoreDatastoreIops                    = "vsphere.datastore_datastoreIops"
-	vsphereDiskBusResets                             = "vsphere.disk.bus_resets"
-	vsphereDiskCommands                              = "vsphere.disk.commands"
-	vsphereDiskCommandsAborted                       = "vsphere.disk.commands_aborted"
-	vsphereDiskCommandsAveraged                      = "vsphere.disk.commands_averaged"
-	vsphereDiskDeviceLatencyMs                       = "vsphere.disk.device_latency_ms"
-	vsphereDiskDeviceReadLatencyMs                   = "vsphere.disk.device_read_latency_ms"
-	vsphereDiskDeviceWriteLatencyMs                  = "vsphere.disk.device_write_latency_ms"
-	vsphereDiskKernelLatencyMs                       = "vsphere.disk.kernel_latency_ms"
-	vsphereDiskKernelReadLatencyMs                   = "vsphere.disk.kernel_read_latency_ms"
-	vsphereDiskKernelWriteLatencyMs                  = "vsphere.disk.kernel_write_latency_ms"
-	vsphereDiskMaxQueueDepth                         = "vsphere.disk.max_queue_depth"
-	vsphereDiskMaxTotalLatencyMs                     = "vsphere.disk.max_total_latency_ms"
-	vsphereDiskNumberRead                            = "vsphere.disk.number_read"
-	vsphereDiskNumberReadAveraged                    = "vsphere.disk.number_read_averaged"
-	vsphereDiskNumberWrite                           = "vsphere.disk.number_write"
-	vsphereDiskNumberWriteAveraged                   = "vsphere.disk.number_write_averaged"
-	vsphereDiskQueueLatencyMs                        = "vsphere.disk.queue_latency_ms"
-	vsphereDiskQueueReadLatencyMs                    = "vsphere.disk.queue_read_latency_ms"
-	vsphereDiskQueueWriteLatencyMs                   = "vsphere.disk.queue_write_latency_ms"
-	vsphereDiskReadKbs                               = "vsphere.disk.read_kbs"
-	vsphereDiskTotalLatencyMs                        = "vsphere.disk.total_latency_ms"
-	vsphereDiskTotalReadLatencyMs                    = "vsphere.disk.total_read_latency_ms"
-	vsphereDiskTotalWriteLatencyMs                   = "vsphere.disk.total_write_latency_ms"
-	vsphereDiskUsageKbs                              = "vsphere.disk.usage_kbs"
-	vsphereDiskWriteKbs                              = "vsphere.disk.write_kbs"
-	vsphereHbrHbrNetRxKbs                            = "vsphere.hbr.hbr_net_rx_kbs"
-	vsphereHbrHbrNetTxKbs                            = "vsphere.hbr.hbr_net_tx_kbs"
-	vsphereHbrHbrNumVms                              = "vsphere.hbr.hbr_num_vms"
-	vsphereMemActiveKb                               = "vsphere.mem.active_kb"
-	vsphereMemActivewriteKb                          = "vsphere.mem.activewrite_kb"
-	vsphereMemCompressedKb                           = "vsphere.mem.compressed_kb"
-	vsphereMemCompressionRateKbs                     = "vsphere.mem.compression_rate_kbs"
-	vsphereMemConsumedKb                             = "vsphere.mem.consumed_kb"
-	vsphereMemDecompressionRateKbs                   = "vsphere.mem.decompression_rate_kbs"
-	vsphereMemEntitlementKb                          = "vsphere.mem.entitlement_kb"
-	vsphereMemGrantedKb                              = "vsphere.mem.granted_kb"
-	vsphereMemHeapKb                                 = "vsphere.mem.heap_kb"
-	vsphereMemHeapfreeKb                             = "vsphere.mem.heapfree_kb"
-	vsphereMemLatencyPercent                         = "vsphere.mem.latency_percent"
-	vsphereMemLlSwapInKb                             = "vsphere.mem.ll_swap_in_kb"
-	vsphereMemLlSwapInRateKbs                        = "vsphere.mem.ll_swap_in_rate_kbs"
-	vsphereMemLlSwapOutKb                            = "vsphere.mem.ll_swap_out_kb"
-	vsphereMemLlSwapOutRateKbs                       = "vsphere.mem.ll_swap_out_rate_kbs"
-	vsphereMemLlSwapUsedKb                           = "vsphere.mem.ll_swap_used_kb"
-	vsphereMemLowfreethresholdKb                     = "vsphere.mem.lowfreethreshold_kb"
-	vsphereMemOverheadKb                             = "vsphere.mem.overhead_kb"
-	vsphereMemOverheadMaxKb                          = "vsphere.mem.overhead_max_kb"
-	vsphereMemOverheadTouchedKb                      = "vsphere.mem.overhead_touched_kb"
-	vsphereMemReservedCapacityMb                     = "vsphere.mem.reserved_capacity_mb"
-	vsphereMemSharedKb                               = "vsphere.mem.shared_kb"
-	vsphereMemSharedcommonKb                         = "vsphere.mem.sharedcommon_kb"
-	vsphereMemState                                  = "vsphere.mem.state"
-	vsphereMemSwapinKb                               = "vsphere.mem.swapin_kb"
-	vsphereMemSwapinRateKbs                          = "vsphere.mem.swapin_rate_kbs"
-	vsphereMemSwapoutKb                              = "vsphere.mem.swapout_kb"
-	vsphereMemSwapoutRateKbs                         = "vsphere.mem.swapout_rate_kbs"
-	vsphereMemSwappedKb                              = "vsphere.mem.swapped_kb"
-	vsphereMemSwaptargetKb                           = "vsphere.mem.swaptarget_kb"
-	vsphereMemSwapusedKb                             = "vsphere.mem.swapused_kb"
-	vsphereMemSysUsageKb                             = "vsphere.mem.sys_usage_kb"
-	vsphereMemTotalCapacityMb                        = "vsphere.mem.total_capacity_mb"
-	vsphereMemUnreservedKb                           = "vsphere.mem.unreserved_kb"
-	vsphereMemUsagePercent                           = "vsphere.mem.usage_percent"
-	vsphereMemVmfsPbcCapMissRatioPercent             = "vsphere.mem.vmfs_pbc_cap_miss_ratio_percent"
-	vsphereMemVmfsPbcOverheadKb                      = "vsphere.mem.vmfs_pbc_overhead_kb"
-	vsphereMemVmfsPbcSizeMaxMb                       = "vsphere.mem.vmfs_pbc_size_max_mb"
-	vsphereMemVmfsPbcSizeMb                          = "vsphere.mem.vmfs_pbc_size_mb"
-	vsphereMemVmfsPbcWorkingSetMaxTb                 = "vsphere.mem.vmfs_pbc_working_set_max_tb"
-	vsphereMemVmfsPbcWorkingSetTb                    = "vsphere.mem.vmfs_pbc_working_set_tb"
-	vsphereMemVmmemctlKb                             = "vsphere.mem.vmmemctl_kb"
-	vsphereMemVmmemctltargetKb                       = "vsphere.mem.vmmemctltarget_kb"
-	vsphereMemZeroKb                                 = "vsphere.mem.zero_kb"
-	vsphereMemZipSavedKb                             = "vsphere.mem.zip_saved_kb"
-	vsphereMemZippedKb                               = "vsphere.mem.zipped_kb"
-	vsphereNetBroadcastRx                            = "vsphere.net.broadcast_rx"
-	vsphereNetBroadcastTx                            = "vsphere.net.broadcast_tx"
-	vsphereNetBytesRxKbs                             = "vsphere.net.bytes_rx_kbs"
-	vsphereNetBytesTxKbs                             = "vsphere.net.bytes_tx_kbs"
-	vsphereNetDroppedRx                              = "vsphere.net.dropped_rx"
-	vsphereNetDroppedTx                              = "vsphere.net.dropped_tx"
-	vsphereNetErrorsRx                               = "vsphere.net.errors_rx"
-	vsphereNetErrorsTx                               = "vsphere.net.errors_tx"
-	vsphereNetMulticastRx                            = "vsphere.net.multicast_rx"
-	vsphereNetMulticastTx                            = "vsphere.net.multicast_tx"
-	vsphereNetPacketsRx                              = "vsphere.net.packets_rx"
-	vsphereNetPacketsTx                              = "vsphere.net.packets_tx"
-	vsphereNetReceivedKbs                            = "vsphere.net.received_kbs"
-	vsphereNetTransmittedKbs                         = "vsphere.net.transmitted_kbs"
-	vsphereNetUnknownProtos                          = "vsphere.net.unknown_protos"
-	vsphereNetUsageKbs                               = "vsphere.net.usage_kbs"
-	vspherePowerEnergyJoules                         = "vsphere.power.energy_joules"
-	vspherePowerPowerCapWatts                        = "vsphere.power.power_cap_watts"
-	vspherePowerPowerWatts                           = "vsphere.power.power_watts"
-	vsphereRescpuActav1                              = "vsphere.rescpu.actav1"
-	vsphereRescpuActav15Percent                      = "vsphere.rescpu.actav15_percent"
-	vsphereRescpuActav5Percent                       = "vsphere.rescpu.actav5_percent"
-	vsphereRescpuActpk15Percent                      = "vsphere.rescpu.actpk15_percent"
-	vsphereRescpuActpk1Percent                       = "vsphere.rescpu.actpk1_percent"
-	vsphereRescpuActpk5Percent                       = "vsphere.rescpu.actpk5_percent"
-	vsphereRescpuMaxLimited15Percent                 = "vsphere.rescpu.max_limited15_percent"
-	vsphereRescpuMaxLimited1Percent                  = "vsphere.rescpu.max_limited1_percent"
-	vsphereRescpuMaxLimited5Percent                  = "vsphere.rescpu.max_limited5_percent"
-	vsphereRescpuRunav15Percent                      = "vsphere.rescpu.runav15_percent"
-	vsphereRescpuRunav1Percent                       = "vsphere.rescpu.runav1_percent"
-	vsphereRescpuRunav5Percent                       = "vsphere.rescpu.runav5_percent"
-	vsphereRescpuRunpk15Percent                      = "vsphere.rescpu.runpk15_percent"
-	vsphereRescpuRunpk1Percent                       = "vsphere.rescpu.runpk1_percent"
-	vsphereRescpuRunpk5Percent                       = "vsphere.rescpu.runpk5_percent"
-	vsphereRescpuSampleCount                         = "vsphere.rescpu.sample_count"
-	vsphereRescpuSamplePeriodMs                      = "vsphere.rescpu.sample_period_ms"
-	vsphereStorageAdapterCommandsAveraged            = "vsphere.storage_adapter.commands_averaged"
-	vsphereStorageAdapterMaxTotalLatencyMs           = "vsphere.storage_adapter.max_total_latency_ms"
-	vsphereStorageAdapterNumberReadAveraged          = "vsphere.storage_adapter.number_read_averaged"
-	vsphereStorageAdapterNumberWriteAveraged         = "vsphere.storage_adapter.number_write_averaged"
-	vsphereStorageAdapterReadKbs                     = "vsphere.storage_adapter.read_kbs"
-	vsphereStorageAdapterTotalReadLatencyMs          = "vsphere.storage_adapter.total_read_latency_ms"
-	vsphereStorageAdapterTotalWriteLatencyMs         = "vsphere.storage_adapter.total_write_latency_ms"
-	vsphereStorageAdapterWriteKbs                    = "vsphere.storage_adapter.write_kbs"
-	vsphereStoragePathCommandsAveraged               = "vsphere.storage_path.commands_averaged"
-	vsphereStoragePathMaxTotalLatencyMs              = "vsphere.storage_path.max_total_latency_ms"
-	vsphereStoragePathNumberReadAveraged             = "vsphere.storage_path.number_read_averaged"
-	vsphereStoragePathNumberWriteAveraged            = "vsphere.storage_path.number_write_averaged"
-	vsphereStoragePathReadKbs                        = "vsphere.storage_path.read_kbs"
-	vsphereStoragePathTotalReadLatencyMs             = "vsphere.storage_path.total_read_latency_ms"
-	vsphereStoragePathTotalWriteLatencyMs            = "vsphere.storage_path.total_write_latency_ms"
-	vsphereStoragePathWriteKbs                       = "vsphere.storage_path.write_kbs"
-	vsphereSysHeartbeat                              = "vsphere.sys.heartbeat"
-	vsphereSysOsUptimeSeconds                        = "vsphere.sys.os_uptime_seconds"
-	vsphereSysResourceCPUAct1Percent                 = "vsphere.sys.resource_cpu_act1_percent"
-	vsphereSysResourceCPUAct5                        = "vsphere.sys.resource_cpu_act5"
-	vsphereSysResourceCPUAllocMinMhz                 = "vsphere.sys.resource_cpu_alloc_min_mhz"
-	vsphereSysResourceCPUAllocShares                 = "vsphere.sys.resource_cpu_alloc_shares"
-	vsphereSysResourceCPUMaxLimited1Percent          = "vsphere.sys.resource_cpu_max_limited1_percent"
-	vsphereSysResourceCPUMaxLimited5Percent          = "vsphere.sys.resource_cpu_max_limited5_percent"
-	vsphereSysResourceCPURun1Percent                 = "vsphere.sys.resource_cpu_run1_percent"
-	vsphereSysResourceCPURun5Percent                 = "vsphere.sys.resource_cpu_run5_percent"
-	vsphereSysResourceCPUUsageMhz                    = "vsphere.sys.resource_cpu_usage_mhz"
-	vsphereSysResourceFdUsage                        = "vsphere.sys.resource_fd_usage"
-	vsphereSysResourceMemAllocMaxKb                  = "vsphere.sys.resource_mem_alloc_max_kb"
-	vsphereSysResourceMemAllocMinKb                  = "vsphere.sys.resource_mem_alloc_min_kb"
-	vsphereSysResourceMemAllocShares                 = "vsphere.sys.resource_mem_alloc_shares"
-	vsphereSysResourceMemConsumedKb                  = "vsphere.sys.resource_mem_consumed_kb"
-	vsphereSysResourceMemCowKb                       = "vsphere.sys.resource_mem_cow_kb"
-	vsphereSysResourceMemMappedKb                    = "vsphere.sys.resource_mem_mapped_kb"
-	vsphereSysResourceMemOverheadKb                  = "vsphere.sys.resource_mem_overhead_kb"
-	vsphereSysResourceMemSharedKb                    = "vsphere.sys.resource_mem_shared_kb"
-	vsphereSysResourceMemSwappedKb                   = "vsphere.sys.resource_mem_swapped_kb"
-	vsphereSysResourceMemTouchedKb                   = "vsphere.sys.resource_mem_touched_kb"
-	vsphereSysResourceMemZeroKb                      = "vsphere.sys.resource_mem_zero_kb"
-	vsphereSysUptimeSeconds                          = "vsphere.sys.uptime_seconds"
-	vsphereVirtualDiskLargeSeeks                     = "vsphere.virtual_disk.large_seeks"
-	vsphereVirtualDiskMediumSeeks                    = "vsphere.virtual_disk.medium_seeks"
-	vsphereVirtualDiskNumberReadAveraged             = "vsphere.virtual_disk.number_read_averaged"
-	vsphereVirtualDiskNumberWriteAveraged            = "vsphere.virtual_disk.number_write_averaged"
-	vsphereVirtualDiskReadIosize                     = "vsphere.virtual_disk.read_iosize"
-	vsphereVirtualDiskReadKbs                        = "vsphere.virtual_disk.read_kbs"
-	vsphereVirtualDiskReadLatencyUs                  = "vsphere.virtual_disk.read_latency_us"
-	vsphereVirtualDiskReadLoadMetric                 = "vsphere.virtual_disk.read_load_metric"
-	vsphereVirtualDiskReadOio                        = "vsphere.virtual_disk.read_oio"
-	vsphereVirtualDiskSmallSeeks                     = "vsphere.virtual_disk.small_seeks"
-	vsphereVirtualDiskTotalReadLatencyMs             = "vsphere.virtual_disk.total_read_latency_ms"
-	vsphereVirtualDiskTotalWriteLatencyMs            = "vsphere.virtual_disk.total_write_latency_ms"
-	vsphereVirtualDiskWriteIosize                    = "vsphere.virtual_disk.write_iosize"
-	vsphereVirtualDiskWriteKbs                       = "vsphere.virtual_disk.write_kbs"
-	vsphereVirtualDiskWriteLatencyUs                 = "vsphere.virtual_disk.write_latency_us"
-	vsphereVirtualDiskWriteLoadMetric                = "vsphere.virtual_disk.write_load_metric"
-	vsphereVirtualDiskWriteOio                       = "vsphere.virtual_disk.write_oio"
-	vsphereCPULatencyPercent                         = "vsphere_cpu_latency_percent"
+	vsphereDatastoreDatastoreIops                    = "vsphere.datastore_datastore_iops"
+	vsphereDatastoreMaxTotalLatencyMs                = "vsphere.datastore_max_total_latency_ms"
+	vsphereDatastoreReadKbs                          = "vsphere.datastore_read_kbs"
+	vsphereDatastoreReadLoadMetric                   = "vsphere.datastore_read_load_metric"
+	vsphereDatastoreSizeNormalizedDatastoreLatencyMs = "vsphere.datastore_size_normalized_datastore_latency_ms"
+	vsphereDatastoreTotalReadLatencyMs               = "vsphere.datastore_total_read_latency_ms"
+	vsphereDatastoreTotalWriteLatencyMs              = "vsphere.datastore_total_write_latency_ms"
+	vsphereDatastoreVmobservedLatencyMs              = "vsphere.datastore_vmobserved_latency_ms"
+	vsphereDatastoreWriteKbs                         = "vsphere.datastore_write_kbs"
+	vsphereDatastoreWriteLoadMetric                  = "vsphere.datastore_write_load_metric"
+	vsphereDiskBusResets                             = "vsphere.disk_bus_resets"
+	vsphereDiskCommands                              = "vsphere.disk_commands"
+	vsphereDiskCommandsAborted                       = "vsphere.disk_commands_aborted"
+	vsphereDiskCommandsAveraged                      = "vsphere.disk_commands_averaged"
+	vsphereDiskDeviceLatencyMs                       = "vsphere.disk_device_latency_ms"
+	vsphereDiskDeviceReadLatencyMs                   = "vsphere.disk_device_read_latency_ms"
+	vsphereDiskDeviceWriteLatencyMs                  = "vsphere.disk_device_write_latency_ms"
+	vsphereDiskKernelLatencyMs                       = "vsphere.disk_kernel_latency_ms"
+	vsphereDiskKernelReadLatencyMs                   = "vsphere.disk_kernel_read_latency_ms"
+	vsphereDiskKernelWriteLatencyMs                  = "vsphere.disk_kernel_write_latency_ms"
+	vsphereDiskMaxQueueDepth                         = "vsphere.disk_max_queue_depth"
+	vsphereDiskMaxTotalLatencyMs                     = "vsphere.disk_max_total_latency_ms"
+	vsphereDiskNumberRead                            = "vsphere.disk_number_read"
+	vsphereDiskNumberReadAveraged                    = "vsphere.disk_number_read_averaged"
+	vsphereDiskNumberWrite                           = "vsphere.disk_number_write"
+	vsphereDiskNumberWriteAveraged                   = "vsphere.disk_number_write_averaged"
+	vsphereDiskQueueLatencyMs                        = "vsphere.disk_queue_latency_ms"
+	vsphereDiskQueueReadLatencyMs                    = "vsphere.disk_queue_read_latency_ms"
+	vsphereDiskQueueWriteLatencyMs                   = "vsphere.disk_queue_write_latency_ms"
+	vsphereDiskReadKbs                               = "vsphere.disk_read_kbs"
+	vsphereDiskTotalLatencyMs                        = "vsphere.disk_total_latency_ms"
+	vsphereDiskTotalReadLatencyMs                    = "vsphere.disk_total_read_latency_ms"
+	vsphereDiskTotalWriteLatencyMs                   = "vsphere.disk_total_write_latency_ms"
+	vsphereDiskUsageKbs                              = "vsphere.disk_usage_kbs"
+	vsphereDiskWriteKbs                              = "vsphere.disk_write_kbs"
+	vsphereHbrNetRxKbs                               = "vsphere.hbr_net_rx_kbs"
+	vsphereHbrNetTxKbs                               = "vsphere.hbr_net_tx_kbs"
+	vsphereHbrNumVms                                 = "vsphere.hbr_num_vms"
+	vsphereMemActiveKb                               = "vsphere.mem_active_kb"
+	vsphereMemActivewriteKb                          = "vsphere.mem_activewrite_kb"
+	vsphereMemCompressedKb                           = "vsphere.mem_compressed_kb"
+	vsphereMemCompressionRateKbs                     = "vsphere.mem_compression_rate_kbs"
+	vsphereMemConsumedKb                             = "vsphere.mem_consumed_kb"
+	vsphereMemDecompressionRateKbs                   = "vsphere.mem_decompression_rate_kbs"
+	vsphereMemEntitlementKb                          = "vsphere.mem_entitlement_kb"
+	vsphereMemGrantedKb                              = "vsphere.mem_granted_kb"
+	vsphereMemHeapKb                                 = "vsphere.mem_heap_kb"
+	vsphereMemHeapfreeKb                             = "vsphere.mem_heapfree_kb"
+	vsphereMemLatencyPercent                         = "vsphere.mem_latency_percent"
+	vsphereMemLlSwapInKb                             = "vsphere.mem_ll_swap_in_kb"
+	vsphereMemLlSwapInRateKbs                        = "vsphere.mem_ll_swap_in_rate_kbs"
+	vsphereMemLlSwapOutKb                            = "vsphere.mem_ll_swap_out_kb"
+	vsphereMemLlSwapOutRateKbs                       = "vsphere.mem_ll_swap_out_rate_kbs"
+	vsphereMemLlSwapUsedKb                           = "vsphere.mem_ll_swap_used_kb"
+	vsphereMemLowfreethresholdKb                     = "vsphere.mem_lowfreethreshold_kb"
+	vsphereMemOverheadKb                             = "vsphere.mem_overhead_kb"
+	vsphereMemOverheadMaxKb                          = "vsphere.mem_overhead_max_kb"
+	vsphereMemOverheadTouchedKb                      = "vsphere.mem_overhead_touched_kb"
+	vsphereMemReservedCapacityMb                     = "vsphere.mem_reserved_capacity_mb"
+	vsphereMemSharedKb                               = "vsphere.mem_shared_kb"
+	vsphereMemSharedcommonKb                         = "vsphere.mem_sharedcommon_kb"
+	vsphereMemState                                  = "vsphere.mem_state"
+	vsphereMemSwapinKb                               = "vsphere.mem_swapin_kb"
+	vsphereMemSwapinRateKbs                          = "vsphere.mem_swapin_rate_kbs"
+	vsphereMemSwapoutKb                              = "vsphere.mem_swapout_kb"
+	vsphereMemSwapoutRateKbs                         = "vsphere.mem_swapout_rate_kbs"
+	vsphereMemSwappedKb                              = "vsphere.mem_swapped_kb"
+	vsphereMemSwaptargetKb                           = "vsphere.mem_swaptarget_kb"
+	vsphereMemSwapusedKb                             = "vsphere.mem_swapused_kb"
+	vsphereMemSysUsageKb                             = "vsphere.mem_sys_usage_kb"
+	vsphereMemTotalCapacityMb                        = "vsphere.mem_total_capacity_mb"
+	vsphereMemUnreservedKb                           = "vsphere.mem_unreserved_kb"
+	vsphereMemUsagePercent                           = "vsphere.mem_usage_percent"
+	vsphereMemVmfsPbcCapMissRatioPercent             = "vsphere.mem_vmfs_pbc_cap_miss_ratio_percent"
+	vsphereMemVmfsPbcOverheadKb                      = "vsphere.mem_vmfs_pbc_overhead_kb"
+	vsphereMemVmfsPbcSizeMaxMb                       = "vsphere.mem_vmfs_pbc_size_max_mb"
+	vsphereMemVmfsPbcSizeMb                          = "vsphere.mem_vmfs_pbc_size_mb"
+	vsphereMemVmfsPbcWorkingSetMaxTb                 = "vsphere.mem_vmfs_pbc_working_set_max_tb"
+	vsphereMemVmfsPbcWorkingSetTb                    = "vsphere.mem_vmfs_pbc_working_set_tb"
+	vsphereMemVmmemctlKb                             = "vsphere.mem_vmmemctl_kb"
+	vsphereMemVmmemctltargetKb                       = "vsphere.mem_vmmemctltarget_kb"
+	vsphereMemZeroKb                                 = "vsphere.mem_zero_kb"
+	vsphereMemZipSavedKb                             = "vsphere.mem_zip_saved_kb"
+	vsphereMemZippedKb                               = "vsphere.mem_zipped_kb"
+	vsphereNetBroadcastRx                            = "vsphere.net_broadcast_rx"
+	vsphereNetBroadcastTx                            = "vsphere.net_broadcast_tx"
+	vsphereNetBytesRxKbs                             = "vsphere.net_bytes_rx_kbs"
+	vsphereNetBytesTxKbs                             = "vsphere.net_bytes_tx_kbs"
+	vsphereNetDroppedRx                              = "vsphere.net_dropped_rx"
+	vsphereNetDroppedTx                              = "vsphere.net_dropped_tx"
+	vsphereNetErrorsRx                               = "vsphere.net_errors_rx"
+	vsphereNetErrorsTx                               = "vsphere.net_errors_tx"
+	vsphereNetMulticastRx                            = "vsphere.net_multicast_rx"
+	vsphereNetMulticastTx                            = "vsphere.net_multicast_tx"
+	vsphereNetPacketsRx                              = "vsphere.net_packets_rx"
+	vsphereNetPacketsTx                              = "vsphere.net_packets_tx"
+	vsphereNetReceivedKbs                            = "vsphere.net_received_kbs"
+	vsphereNetTransmittedKbs                         = "vsphere.net_transmitted_kbs"
+	vsphereNetUnknownProtos                          = "vsphere.net_unknown_protos"
+	vsphereNetUsageKbs                               = "vsphere.net_usage_kbs"
+	vspherePowerCapWatts                             = "vsphere.power_cap_watts"
+	vspherePowerEnergyJoules                         = "vsphere.power_energy_joules"
+	vspherePowerWatts                                = "vsphere.power_watts"
+	vsphereRescpuActav1                              = "vsphere.rescpu_actav1"
+	vsphereRescpuActav15Percent                      = "vsphere.rescpu_actav15_percent"
+	vsphereRescpuActav5Percent                       = "vsphere.rescpu_actav5_percent"
+	vsphereRescpuActpk15Percent                      = "vsphere.rescpu_actpk15_percent"
+	vsphereRescpuActpk1Percent                       = "vsphere.rescpu_actpk1_percent"
+	vsphereRescpuActpk5Percent                       = "vsphere.rescpu_actpk5_percent"
+	vsphereRescpuMaxLimited15Percent                 = "vsphere.rescpu_max_limited15_percent"
+	vsphereRescpuMaxLimited1Percent                  = "vsphere.rescpu_max_limited1_percent"
+	vsphereRescpuMaxLimited5Percent                  = "vsphere.rescpu_max_limited5_percent"
+	vsphereRescpuRunav15Percent                      = "vsphere.rescpu_runav15_percent"
+	vsphereRescpuRunav1Percent                       = "vsphere.rescpu_runav1_percent"
+	vsphereRescpuRunav5Percent                       = "vsphere.rescpu_runav5_percent"
+	vsphereRescpuRunpk15Percent                      = "vsphere.rescpu_runpk15_percent"
+	vsphereRescpuRunpk1Percent                       = "vsphere.rescpu_runpk1_percent"
+	vsphereRescpuRunpk5Percent                       = "vsphere.rescpu_runpk5_percent"
+	vsphereRescpuSampleCount                         = "vsphere.rescpu_sample_count"
+	vsphereRescpuSamplePeriodMs                      = "vsphere.rescpu_sample_period_ms"
+	vsphereStorageAdapterCommandsAveraged            = "vsphere.storage_adapter_commands_averaged"
+	vsphereStorageAdapterMaxTotalLatencyMs           = "vsphere.storage_adapter_max_total_latency_ms"
+	vsphereStorageAdapterNumberReadAveraged          = "vsphere.storage_adapter_number_read_averaged"
+	vsphereStorageAdapterNumberWriteAveraged         = "vsphere.storage_adapter_number_write_averaged"
+	vsphereStorageAdapterReadKbs                     = "vsphere.storage_adapter_read_kbs"
+	vsphereStorageAdapterTotalReadLatencyMs          = "vsphere.storage_adapter_total_read_latency_ms"
+	vsphereStorageAdapterTotalWriteLatencyMs         = "vsphere.storage_adapter_total_write_latency_ms"
+	vsphereStorageAdapterWriteKbs                    = "vsphere.storage_adapter_write_kbs"
+	vsphereStoragePathCommandsAveraged               = "vsphere.storage_path_commands_averaged"
+	vsphereStoragePathMaxTotalLatencyMs              = "vsphere.storage_path_max_total_latency_ms"
+	vsphereStoragePathNumberReadAveraged             = "vsphere.storage_path_number_read_averaged"
+	vsphereStoragePathNumberWriteAveraged            = "vsphere.storage_path_number_write_averaged"
+	vsphereStoragePathReadKbs                        = "vsphere.storage_path_read_kbs"
+	vsphereStoragePathTotalReadLatencyMs             = "vsphere.storage_path_total_read_latency_ms"
+	vsphereStoragePathTotalWriteLatencyMs            = "vsphere.storage_path_total_write_latency_ms"
+	vsphereStoragePathWriteKbs                       = "vsphere.storage_path_write_kbs"
+	vsphereSysHeartbeat                              = "vsphere.sys_heartbeat"
+	vsphereSysOsUptimeSeconds                        = "vsphere.sys_os_uptime_seconds"
+	vsphereSysResourceCPUAct1Percent                 = "vsphere.sys_resource_cpu_act1_percent"
+	vsphereSysResourceCPUAct5                        = "vsphere.sys_resource_cpu_act5"
+	vsphereSysResourceCPUAllocMinMhz                 = "vsphere.sys_resource_cpu_alloc_min_mhz"
+	vsphereSysResourceCPUAllocShares                 = "vsphere.sys_resource_cpu_alloc_shares"
+	vsphereSysResourceCPUMaxLimited1Percent          = "vsphere.sys_resource_cpu_max_limited1_percent"
+	vsphereSysResourceCPUMaxLimited5Percent          = "vsphere.sys_resource_cpu_max_limited5_percent"
+	vsphereSysResourceCPURun1Percent                 = "vsphere.sys_resource_cpu_run1_percent"
+	vsphereSysResourceCPURun5Percent                 = "vsphere.sys_resource_cpu_run5_percent"
+	vsphereSysResourceCPUUsageMhz                    = "vsphere.sys_resource_cpu_usage_mhz"
+	vsphereSysResourceFdUsage                        = "vsphere.sys_resource_fd_usage"
+	vsphereSysResourceMemAllocMaxKb                  = "vsphere.sys_resource_mem_alloc_max_kb"
+	vsphereSysResourceMemAllocMinKb                  = "vsphere.sys_resource_mem_alloc_min_kb"
+	vsphereSysResourceMemAllocShares                 = "vsphere.sys_resource_mem_alloc_shares"
+	vsphereSysResourceMemConsumedKb                  = "vsphere.sys_resource_mem_consumed_kb"
+	vsphereSysResourceMemCowKb                       = "vsphere.sys_resource_mem_cow_kb"
+	vsphereSysResourceMemMappedKb                    = "vsphere.sys_resource_mem_mapped_kb"
+	vsphereSysResourceMemOverheadKb                  = "vsphere.sys_resource_mem_overhead_kb"
+	vsphereSysResourceMemSharedKb                    = "vsphere.sys_resource_mem_shared_kb"
+	vsphereSysResourceMemSwappedKb                   = "vsphere.sys_resource_mem_swapped_kb"
+	vsphereSysResourceMemTouchedKb                   = "vsphere.sys_resource_mem_touched_kb"
+	vsphereSysResourceMemZeroKb                      = "vsphere.sys_resource_mem_zero_kb"
+	vsphereSysUptimeSeconds                          = "vsphere.sys_uptime_seconds"
+	vsphereVirtualDiskLargeSeeks                     = "vsphere.virtual_disk_large_seeks"
+	vsphereVirtualDiskMediumSeeks                    = "vsphere.virtual_disk_medium_seeks"
+	vsphereVirtualDiskNumberReadAveraged             = "vsphere.virtual_disk_number_read_averaged"
+	vsphereVirtualDiskNumberWriteAveraged            = "vsphere.virtual_disk_number_write_averaged"
+	vsphereVirtualDiskReadIosize                     = "vsphere.virtual_disk_read_iosize"
+	vsphereVirtualDiskReadKbs                        = "vsphere.virtual_disk_read_kbs"
+	vsphereVirtualDiskReadLatencyUs                  = "vsphere.virtual_disk_read_latency_us"
+	vsphereVirtualDiskReadLoadMetric                 = "vsphere.virtual_disk_read_load_metric"
+	vsphereVirtualDiskReadOio                        = "vsphere.virtual_disk_read_oio"
+	vsphereVirtualDiskSmallSeeks                     = "vsphere.virtual_disk_small_seeks"
+	vsphereVirtualDiskTotalReadLatencyMs             = "vsphere.virtual_disk_total_read_latency_ms"
+	vsphereVirtualDiskTotalWriteLatencyMs            = "vsphere.virtual_disk_total_write_latency_ms"
+	vsphereVirtualDiskWriteIosize                    = "vsphere.virtual_disk_write_iosize"
+	vsphereVirtualDiskWriteKbs                       = "vsphere.virtual_disk_write_kbs"
+	vsphereVirtualDiskWriteLatencyUs                 = "vsphere.virtual_disk_write_latency_us"
+	vsphereVirtualDiskWriteLoadMetric                = "vsphere.virtual_disk_write_load_metric"
+	vsphereVirtualDiskWriteOio                       = "vsphere.virtual_disk_write_oio"
 )
 
 var metricSet = map[string]monitors.MetricInfo{
@@ -247,6 +247,7 @@ var metricSet = map[string]monitors.MetricInfo{
 	vsphereCPUDemandMhz:                              {Type: datapoint.Count, Group: groupCPU},
 	vsphereCPUEntitlementMhz:                         {Type: datapoint.Gauge, Group: groupCPU},
 	vsphereCPUIdleMs:                                 {Type: datapoint.Count, Group: groupCPU},
+	vsphereCPULatencyPercent:                         {Type: datapoint.Gauge, Group: groupCPU},
 	vsphereCPUMaxlimitedMs:                           {Type: datapoint.Count, Group: groupCPU},
 	vsphereCPUOverlapMs:                              {Type: datapoint.Count, Group: groupCPU},
 	vsphereCPUReadinessPercent:                       {Type: datapoint.Gauge, Group: groupCPU},
@@ -261,16 +262,16 @@ var metricSet = map[string]monitors.MetricInfo{
 	vsphereCPUUsedPercent:                            {Type: datapoint.Count, Group: groupCPU},
 	vsphereCPUUtilizationPercent:                     {Type: datapoint.Gauge, Group: groupCPU},
 	vsphereCPUWaitMs:                                 {Type: datapoint.Count, Group: groupCPU},
-	vsphereDatastoreDatastoreReadLoadMetric:          {Type: datapoint.Gauge, Group: groupDatastore},
-	vsphereDatastoreDatastoreVmobservedLatencyMs:     {Type: datapoint.Gauge, Group: groupDatastore},
-	vsphereDatastoreDatastoreWriteLoadMetric:         {Type: datapoint.Gauge, Group: groupDatastore},
+	vsphereDatastoreDatastoreIops:                    {Type: datapoint.Gauge, Group: groupDatastore},
 	vsphereDatastoreMaxTotalLatencyMs:                {Type: datapoint.Gauge, Group: groupDatastore},
 	vsphereDatastoreReadKbs:                          {Type: datapoint.Gauge, Group: groupDatastore},
+	vsphereDatastoreReadLoadMetric:                   {Type: datapoint.Gauge, Group: groupDatastore},
 	vsphereDatastoreSizeNormalizedDatastoreLatencyMs: {Type: datapoint.Gauge, Group: groupDatastore},
 	vsphereDatastoreTotalReadLatencyMs:               {Type: datapoint.Gauge, Group: groupDatastore},
 	vsphereDatastoreTotalWriteLatencyMs:              {Type: datapoint.Gauge, Group: groupDatastore},
+	vsphereDatastoreVmobservedLatencyMs:              {Type: datapoint.Gauge, Group: groupDatastore},
 	vsphereDatastoreWriteKbs:                         {Type: datapoint.Gauge, Group: groupDatastore},
-	vsphereDatastoreDatastoreIops:                    {Type: datapoint.Gauge, Group: groupDatastore},
+	vsphereDatastoreWriteLoadMetric:                  {Type: datapoint.Gauge, Group: groupDatastore},
 	vsphereDiskBusResets:                             {Type: datapoint.Count, Group: groupDisk},
 	vsphereDiskCommands:                              {Type: datapoint.Count, Group: groupDisk},
 	vsphereDiskCommandsAborted:                       {Type: datapoint.Count, Group: groupDisk},
@@ -296,9 +297,9 @@ var metricSet = map[string]monitors.MetricInfo{
 	vsphereDiskTotalWriteLatencyMs:                   {Type: datapoint.Gauge, Group: groupDisk},
 	vsphereDiskUsageKbs:                              {Type: datapoint.Gauge, Group: groupDisk},
 	vsphereDiskWriteKbs:                              {Type: datapoint.Gauge, Group: groupDisk},
-	vsphereHbrHbrNetRxKbs:                            {Type: datapoint.Gauge, Group: groupHbr},
-	vsphereHbrHbrNetTxKbs:                            {Type: datapoint.Gauge, Group: groupHbr},
-	vsphereHbrHbrNumVms:                              {Type: datapoint.Gauge, Group: groupHbr},
+	vsphereHbrNetRxKbs:                               {Type: datapoint.Gauge, Group: groupHbr},
+	vsphereHbrNetTxKbs:                               {Type: datapoint.Gauge, Group: groupHbr},
+	vsphereHbrNumVms:                                 {Type: datapoint.Gauge, Group: groupHbr},
 	vsphereMemActiveKb:                               {Type: datapoint.Gauge, Group: groupMem},
 	vsphereMemActivewriteKb:                          {Type: datapoint.Gauge, Group: groupMem},
 	vsphereMemCompressedKb:                           {Type: datapoint.Gauge, Group: groupMem},
@@ -361,9 +362,9 @@ var metricSet = map[string]monitors.MetricInfo{
 	vsphereNetTransmittedKbs:                         {Type: datapoint.Gauge, Group: groupNet},
 	vsphereNetUnknownProtos:                          {Type: datapoint.Count, Group: groupNet},
 	vsphereNetUsageKbs:                               {Type: datapoint.Gauge, Group: groupNet},
+	vspherePowerCapWatts:                             {Type: datapoint.Gauge, Group: groupPower},
 	vspherePowerEnergyJoules:                         {Type: datapoint.Count, Group: groupPower},
-	vspherePowerPowerCapWatts:                        {Type: datapoint.Gauge, Group: groupPower},
-	vspherePowerPowerWatts:                           {Type: datapoint.Gauge, Group: groupPower},
+	vspherePowerWatts:                                {Type: datapoint.Gauge, Group: groupPower},
 	vsphereRescpuActav1:                              {Type: datapoint.Gauge, Group: groupRescpu},
 	vsphereRescpuActav15Percent:                      {Type: datapoint.Gauge, Group: groupRescpu},
 	vsphereRescpuActav5Percent:                       {Type: datapoint.Gauge, Group: groupRescpu},
@@ -438,10 +439,21 @@ var metricSet = map[string]monitors.MetricInfo{
 	vsphereVirtualDiskWriteLatencyUs:                 {Type: datapoint.Gauge, Group: groupVirtualDisk},
 	vsphereVirtualDiskWriteLoadMetric:                {Type: datapoint.Gauge, Group: groupVirtualDisk},
 	vsphereVirtualDiskWriteOio:                       {Type: datapoint.Gauge, Group: groupVirtualDisk},
-	vsphereCPULatencyPercent:                         {Type: datapoint.Gauge, Group: groupCPU},
 }
 
-var defaultMetrics = map[string]bool{}
+var defaultMetrics = map[string]bool{
+	vsphereCPUUsagePercent:       true,
+	vsphereDiskMaxQueueDepth:     true,
+	vsphereDiskMaxTotalLatencyMs: true,
+	vsphereDiskUsageKbs:          true,
+	vsphereMemSwapinRateKbs:      true,
+	vsphereMemSwapoutRateKbs:     true,
+	vsphereMemUsagePercent:       true,
+	vsphereNetReceivedKbs:        true,
+	vsphereNetTransmittedKbs:     true,
+	vsphereVirtualDiskReadKbs:    true,
+	vsphereVirtualDiskWriteKbs:   true,
+}
 
 var groupMetricsMap = map[string][]string{
 	groupCPU: []string{
@@ -451,6 +463,7 @@ var groupMetricsMap = map[string][]string{
 		vsphereCPUDemandMhz,
 		vsphereCPUEntitlementMhz,
 		vsphereCPUIdleMs,
+		vsphereCPULatencyPercent,
 		vsphereCPUMaxlimitedMs,
 		vsphereCPUOverlapMs,
 		vsphereCPUReadinessPercent,
@@ -465,19 +478,18 @@ var groupMetricsMap = map[string][]string{
 		vsphereCPUUsedPercent,
 		vsphereCPUUtilizationPercent,
 		vsphereCPUWaitMs,
-		vsphereCPULatencyPercent,
 	},
 	groupDatastore: []string{
-		vsphereDatastoreDatastoreReadLoadMetric,
-		vsphereDatastoreDatastoreVmobservedLatencyMs,
-		vsphereDatastoreDatastoreWriteLoadMetric,
+		vsphereDatastoreDatastoreIops,
 		vsphereDatastoreMaxTotalLatencyMs,
 		vsphereDatastoreReadKbs,
+		vsphereDatastoreReadLoadMetric,
 		vsphereDatastoreSizeNormalizedDatastoreLatencyMs,
 		vsphereDatastoreTotalReadLatencyMs,
 		vsphereDatastoreTotalWriteLatencyMs,
+		vsphereDatastoreVmobservedLatencyMs,
 		vsphereDatastoreWriteKbs,
-		vsphereDatastoreDatastoreIops,
+		vsphereDatastoreWriteLoadMetric,
 	},
 	groupDisk: []string{
 		vsphereDiskBusResets,
@@ -507,9 +519,9 @@ var groupMetricsMap = map[string][]string{
 		vsphereDiskWriteKbs,
 	},
 	groupHbr: []string{
-		vsphereHbrHbrNetRxKbs,
-		vsphereHbrHbrNetTxKbs,
-		vsphereHbrHbrNumVms,
+		vsphereHbrNetRxKbs,
+		vsphereHbrNetTxKbs,
+		vsphereHbrNumVms,
 	},
 	groupMem: []string{
 		vsphereMemActiveKb,
@@ -578,9 +590,9 @@ var groupMetricsMap = map[string][]string{
 		vsphereNetUsageKbs,
 	},
 	groupPower: []string{
+		vspherePowerCapWatts,
 		vspherePowerEnergyJoules,
-		vspherePowerPowerCapWatts,
-		vspherePowerPowerWatts,
+		vspherePowerWatts,
 	},
 	groupRescpu: []string{
 		vsphereRescpuActav1,

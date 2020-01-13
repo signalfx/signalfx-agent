@@ -71,7 +71,7 @@ func (g *fakeGateway) retrieveRefProperties(mor types.ManagedObjectReference, ds
 		t.Name = "foo dc"
 	case *mo.HostSystem:
 		t.Self = mor
-		t.Name = "foo host"
+		t.Name = "4.4.4.4"
 		t.Config = &types.HostConfigInfo{
 			Product: types.AboutInfo{
 				OsType: "foo os type",
@@ -83,6 +83,11 @@ func (g *fakeGateway) retrieveRefProperties(mor types.ManagedObjectReference, ds
 		t.Name = "foo vm"
 		t.Config = &types.VirtualMachineConfigInfo{
 			GuestId: "foo guest id",
+		}
+		t.Guest = &types.GuestInfo{
+			IpAddress:     "1.2.3.4",
+			GuestFamily:   "fooFam",
+			GuestFullName: "fooFullName",
 		}
 	default:
 		return fmt.Errorf("type not found %v", t)
@@ -139,4 +144,8 @@ func (g *fakeGateway) createRefs(key string, prefix string, size int) []types.Ma
 
 func (g *fakeGateway) retrieveCurrentTime() (*time.Time, error) {
 	panic("implement me")
+}
+
+func (g *fakeGateway) vcenterName() string {
+	return "my-vc"
 }
