@@ -63,6 +63,9 @@ class Agent:
         self.config["configSources"]["file"] = self.config["configSources"].get("file", {})
         self.config["configSources"]["file"]["pollRateSeconds"] = 1
 
+        self.config["writer"] = self.config.get("writer", {})
+        self.config["writer"].setdefault("propertiesSendDelaySeconds", 1)
+
     @retry_on_ebadf
     def write_config(self):
         with open(self.config_path, "wb+") as fd:

@@ -7,6 +7,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
+
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
@@ -18,17 +20,12 @@ import (
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
-	Host                 string `yaml:"host" validate:"required"`
-	Port                 string `yaml:"port" validate:"required"`
-	// Username used to access Elasticsearch stats API
-	Username string `yaml:"username"`
-	// Password used to access Elasticsearch stats API
-	Password string `yaml:"password" neverLog:"true"`
-	// Whether to use https or not
-	UseHTTPS bool `yaml:"useHTTPS"`
-	// Whether to skip TLS certificate validation.
-	SkipVerify bool `yaml:"skipVerify"`
+	config.MonitorConfig  `yaml:",inline" acceptsEndpoints:"true"`
+	httpclient.HTTPConfig `yaml:",inline"`
+
+	Host string `yaml:"host" validate:"required"`
+	Port string `yaml:"port" validate:"required"`
+
 	// Cluster name to which the node belongs. This is an optional config that
 	// will override the cluster name fetched from a node and will be used to
 	// populate the plugin_instance dimension
@@ -170,7 +167,12 @@ func (m *Monitor) Configure(c *Config) error {
 		conf.EnableEnhancedTransportStats = true
 	}
 
-	esClient := client.NewESClient(conf.Host, conf.Port, conf.UseHTTPS, conf.SkipVerify, conf.Username, conf.Password)
+	httpClient, err := conf.HTTPConfig.Build()
+	if err != nil {
+		return err
+	}
+
+	esClient := client.NewESClient(conf.Host, conf.Port, conf.HTTPConfig.Scheme(), httpClient)
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 	var isInitialized bool
 

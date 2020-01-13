@@ -147,6 +147,10 @@ type flags struct {
 	// service is a string flag used for starting, stopping, installing or
 	// uninstalling the agent as a windows service (windows only)
 	service string
+	// serviceName is a string flag to control the name of the windows service (windows only) Default: signalfx-agent.
+	serviceName string
+	// serviceDisplayName is a string flag to control the display name of the windows service (windows only)
+	serviceDisplayName string
 	// logEvents is a bool flag for logging events to the Windows Application Event log.
 	// This flag is only intended to be used when the agent is launched as a Windows Service.
 	logEvents bool
@@ -168,6 +172,8 @@ func getFlags() *flags {
 	// service is a windows only feature and should only be added to the flag set on windows
 	if runtime.GOOS == windowsOS {
 		set.StringVar(&flags.service, "service", "", "'start', 'stop', 'install' or 'uninstall' agent as a windows service.  You may specify an alternate config file path with the -config flag when installing the service.")
+		set.StringVar(&flags.serviceName, "serviceName", "signalfx-agent", "Name of the service to install.")
+		set.StringVar(&flags.serviceDisplayName, "serviceDisplayName", "SignalFx Smart Agent", "Display name of the service to install.")
 		set.BoolVar(&flags.logEvents, "logEvents", false, "copy log events from the agent to the Windows Application Event Log.  This is only used when the agent is deployed as a Windows service.  The agent will write to stdout under all other deployment scenarios.")
 	}
 

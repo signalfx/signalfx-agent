@@ -14,4 +14,6 @@ signalfx-agent:
       - type: collectd/load
       - type: collectd/memory
       - type: collectd/signalfx-metadata
+        omitProcessInfo: true
       - type: collectd/vmem
+      - type: processlist

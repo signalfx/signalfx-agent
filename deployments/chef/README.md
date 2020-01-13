@@ -55,9 +55,10 @@ node['signalfx_agent']['conf'] = {
     {type: "collectd/interface"},
     {type: "collectd/load"},
     {type: "collectd/memory"},
-    {type: "collectd/signalfx-metadata"},
+    {"type": "collectd/signalfx-metadata", "omitProcessInfo": true},
     {type: "collectd/vmem"}
     {type: "host-metadata"},
+    {type: "processlist"},
   ],
   "enableBuiltInFiltering": true
 }

@@ -14,6 +14,7 @@ class accepts the following parameters:
     ```ruby
     $config = {
       signalFxAccessToken: "MY_TOKEN",
+      signalFxRealm: "us1",
       enableBuiltInFiltering: true,
       monitors: [
         {type: "collectd/cpu"},
@@ -24,8 +25,9 @@ class accepts the following parameters:
         {type: "collectd/load"},
         {type: "collectd/memory"},
         {type: "collectd/protocols"},
-        {type: "collectd/signalfx-metadata"},
+        {type: "collectd/signalfx-metadata", "omitProcessInfo": true},
         {type: "host-metadata"},
+        {type: "processlist"},
         {type: "collectd/uptime"},
         {type: "collectd/vmem"}
       ]
@@ -35,6 +37,11 @@ class accepts the following parameters:
 	It is probably going to be simpler to keep this config in hiera at the path
 	`signalfx_agent::config`, which will make it automatically filled in as a
 	parameter.
+
+    **Note:** In module version 0.4.0, the endpoint URLs have been removed from
+    [default.yaml](./data/default.yaml). If upgrading the module from an older version,
+    either the `signalFxRealm` or the endpoint URL options will need to be explicitly
+    specified if using a realm other than `us0`.
 
  - `$package_stage`: The package repo stage to use: `final`, `beta`, or `test`
    (**default:** 'final')

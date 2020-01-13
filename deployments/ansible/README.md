@@ -40,9 +40,11 @@ This role sources the following variables:
         - type: collectd/interface
         - type: collectd/load
         - type: collectd/memory
-        - type: collectd/signalfx-metadata
-        - type: host-metadata
         - type: collectd/vmem
+        - type: collectd/signalfx-metadata
+          omitProcessInfo: true
+        - type: host-metadata
+        - type: processlist
     ```
 
 	It is suggested to keep this mapping in a variable file in the respective

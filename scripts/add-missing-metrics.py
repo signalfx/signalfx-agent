@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 #
 # Super hacky script to add missing metrics from a json dump. After running this consider
-# running sync-included-status.py to update the included field.
+# running sync-default-status.py to update the default field.
 #
 import sys
 from ruamel import yaml
@@ -29,7 +29,7 @@ metrics = monitor["metrics"]
 for metric, info in json_dump["metrics"].items():
     typ = map_metric_type(info["type"])
 
-    metrics.setdefault(metric, {"description": None, "type": typ, "included": False})
+    metrics.setdefault(metric, {"description": None, "type": typ, "default": False})
     assert metrics[metric]["type"] == typ, f"{metric} type doesn't match observed metric type {typ}"
 
 with open(metaFile, "wt") as f:
