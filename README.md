@@ -374,6 +374,15 @@ Environment="HTTPS_PROXY=https://proxy.example.com:8081/"
 Then execute `systemctl daemon-reload` and `systemctl restart signalfx-agent.service`
 to restart the agent service with proxy support.
 
+### Sys-V based init.d systems: Debian * RHEL
+
+Create `/etc/default/signalfx-agent` with the following contents:
+
+```bash
+HTTP_PROXY="http://proxy.example.com:8080/"
+HTTPS_PROXY="https://proxy.example.com:8081/"
+```
+
 ## Diagnostics
 The agent serves diagnostic information on an HTTP server at the address
 configured by the `internalStatusHost` and `internalStatusPort` option.  As a
