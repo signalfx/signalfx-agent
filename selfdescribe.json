@@ -10791,7 +10791,7 @@
       "monitorType": "collectd/load",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors process load on the host using the collectd\n[Load plugin](https://collectd.org/wiki/index.php/Plugin:Load).\n",
+      "doc": "Monitors process load on the host using the collectd\n[Load plugin](https://collectd.org/wiki/index.php/Plugin:Load).\n\n**This monitor has been deprecated in favor of the `load` monitor. That\nmonitor emits the same metrics and is fully compatible.  This\n`collectd/load` monitor will be removed in a future release of the agent.\"\n",
       "groups": {
         "": {
           "description": "",
@@ -35500,6 +35500,52 @@
       },
       "acceptsEndpoints": false,
       "singleInstance": false
+    },
+    {
+      "monitorType": "load",
+      "sendAll": false,
+      "dimensions": null,
+      "doc": "Monitors process load on the host. Process load is the average number of\nrunning or waiting processes over a certain time period (1, 5, and 15\nminutes).\n\nThis monitor is only available on Linux.\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "load.longterm",
+            "load.midterm",
+            "load.shortterm"
+          ]
+        }
+      },
+      "metrics": {
+        "load.longterm": {
+          "type": "gauge",
+          "description": "Average CPU load per core over the last 15 minutes",
+          "group": null,
+          "default": true
+        },
+        "load.midterm": {
+          "type": "gauge",
+          "description": "Average CPU load per core over the last five minutes",
+          "group": null,
+          "default": true
+        },
+        "load.shortterm": {
+          "type": "gauge",
+          "description": "Average CPU load per core over the last one minute",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/load",
+        "fields": []
+      },
+      "acceptsEndpoints": false,
+      "singleInstance": true
     },
     {
       "monitorType": "logstash",

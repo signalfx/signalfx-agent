@@ -49,7 +49,7 @@ signalfx-agent:
       - type: collectd/df
       - type: collectd/disk
       - type: collectd/interface
-      - type: collectd/load
+      - type: load
       - type: collectd/memory
       - type: collectd/vmem
       - type: collectd/signalfx-metadata

@@ -22,7 +22,7 @@ class accepts the following parameters:
         {type: "collectd/df"},
         {type: "collectd/disk"},
         {type: "collectd/interface"},
-        {type: "collectd/load"},
+        {type: "load"},
         {type: "collectd/memory"},
         {type: "collectd/protocols"},
         {type: "collectd/signalfx-metadata", "omitProcessInfo": true},
