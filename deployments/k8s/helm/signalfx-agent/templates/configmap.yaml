@@ -58,7 +58,7 @@ data:
     - type: filesystems
       hostFSPath: {{ .Values.hostFSPath }}
     - type: collectd/disk
-    - type: collectd/interface
+    - type: net-io
     - type: collectd/load
     - type: memory
     - type: collectd/protocols

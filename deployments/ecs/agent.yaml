@@ -40,7 +40,7 @@ monitors:
   - type: filesystems
     hostFSPath: /hostfs
   - type: collectd/disk
-  - type: collectd/interface
+  - type: net-io
   - type: collectd/load
   - type: memory
   - type: collectd/signalfx-metadata

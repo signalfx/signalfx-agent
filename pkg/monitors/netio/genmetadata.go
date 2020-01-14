@@ -12,6 +12,8 @@ const monitorType = "net-io"
 var groupSet = map[string]bool{}
 
 const (
+	ifDroppedRx  = "if_dropped.rx"
+	ifDroppedTx  = "if_dropped.tx"
 	ifErrorsRx   = "if_errors.rx"
 	ifErrorsTx   = "if_errors.tx"
 	ifOctetsRx   = "if_octets.rx"
@@ -22,6 +24,8 @@ const (
 )
 
 var metricSet = map[string]monitors.MetricInfo{
+	ifDroppedRx:  {Type: datapoint.Counter},
+	ifDroppedTx:  {Type: datapoint.Counter},
 	ifErrorsRx:   {Type: datapoint.Counter},
 	ifErrorsTx:   {Type: datapoint.Counter},
 	ifOctetsRx:   {Type: datapoint.Counter},

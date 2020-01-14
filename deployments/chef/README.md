@@ -52,7 +52,7 @@ node['signalfx_agent']['conf'] = {
     {type: "collectd/cpufreq"},
     {type: "filesystems"},
     {type: "collectd/disk"},
-    {type: "collectd/interface"},
+    {type: "net-io"},
     {type: "collectd/load"},
     {type: "memory"},
     {"type": "collectd/signalfx-metadata", "omitProcessInfo": true},
