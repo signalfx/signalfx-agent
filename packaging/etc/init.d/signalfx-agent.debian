@@ -25,6 +25,9 @@ name="signalfx-agent"
 pidfile="/var/run/$name.pid"
 logfile="/var/log/$name.log"
 
+# Read configuration variable file if it is present
+[ -r /etc/default/$name ] && . /etc/default/$name
+
 get_pid() {
     cat "$pidfile"
 }
