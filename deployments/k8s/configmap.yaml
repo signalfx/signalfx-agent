@@ -35,7 +35,7 @@ data:
     - type: collectd/cpufreq
     - type: collectd/df
       hostFSPath: /hostfs
-    - type: collectd/disk
+    - type: disk
     - type: collectd/interface
     - type: collectd/load
     - type: collectd/memory

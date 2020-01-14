@@ -1,5 +1,7 @@
 monitors:
 - dimensions:
+    disk:
+      description: The name of the disk that the metric describes
   doc: |
     This monitor reports I/O metrics about disks.
 

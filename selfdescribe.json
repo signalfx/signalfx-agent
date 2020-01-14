@@ -3953,7 +3953,7 @@
       "monitorType": "collectd/disk",
       "sendAll": false,
       "dimensions": null,
-      "doc": "This monitor collects information about the usage of\nphysical disks and logical disks (partitions).\n\nSee https://collectd.org/wiki/index.php/Plugin:Disk.\n",
+      "doc": "This monitor collects information about the usage of\nphysical disks and logical disks (partitions).\n\nSee https://collectd.org/wiki/index.php/Plugin:Disk.\n\n**This monitor has been deprecated in favor of the `disk-io` monitor.\nPlease migrate to that monitor as this collectd-based monitor will be\nremoved in a future release of the agent.**  Note that the `disk-io`\nmonitor has a different dimension (`disk` instead of `plugin_instance`) to\nspecify the disk.\n",
       "groups": {
         "": {
           "description": "",
@@ -19008,7 +19008,11 @@
     {
       "monitorType": "disk-io",
       "sendAll": true,
-      "dimensions": null,
+      "dimensions": {
+        "disk": {
+          "description": "The name of the disk that the metric describes"
+        }
+      },
       "doc": "This monitor reports I/O metrics about disks.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: disk-io\n```\n",
       "groups": {
         "": {

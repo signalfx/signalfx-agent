@@ -7,14 +7,14 @@ import (
 	"strings"
 	"time"
 
-	gopsutil "github.com/shirou/gopsutil/disk"
+	"github.com/shirou/gopsutil/disk"
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
 )
 
-var iOCounters = gopsutil.IOCounters
+var iOCounters = disk.IOCounters
 
 // Monitor for Utilization
 type Monitor struct {
@@ -24,7 +24,7 @@ type Monitor struct {
 	filter *filter.OverridableStringFilter
 }
 
-func (m *Monitor) makeLinuxDatapoints(disk gopsutil.IOCountersStat, dimensions map[string]string) []*datapoint.Datapoint {
+func (m *Monitor) makeLinuxDatapoints(disk disk.IOCountersStat, dimensions map[string]string) []*datapoint.Datapoint {
 	return []*datapoint.Datapoint{
 		datapoint.New("disk_ops.read", dimensions, datapoint.NewIntValue(int64(disk.ReadCount)), datapoint.Counter, time.Time{}),
 		datapoint.New("disk_ops.write", dimensions, datapoint.NewIntValue(int64(disk.WriteCount)), datapoint.Counter, time.Time{}),
@@ -41,11 +41,8 @@ func (m *Monitor) makeLinuxDatapoints(disk gopsutil.IOCountersStat, dimensions m
 func (m *Monitor) emitDatapoints() {
 	iocounts, err := iOCounters()
 	if err != nil {
-		if err == context.DeadlineExceeded {
-			logger.WithField("debug", err).Debugf("failed to load io counters. if this message repeats frequently there may be a problem")
-		} else {
-			logger.WithError(err).Errorf("failed to load io counters. if this message repeats frequently there may be a problem")
-		}
+		logger.WithError(err).Errorf("Failed to load disk io counters")
+		return
 	}
 	// var total uint64
 	for key, disk := range iocounts {
@@ -55,17 +52,15 @@ func (m *Monitor) emitDatapoints() {
 			continue
 		}
 
-		pluginInstance := strings.Replace(key, " ", "_", -1)
+		diskName := strings.Replace(key, " ", "_", -1)
 
-		m.Output.SendDatapoints(m.makeLinuxDatapoints(disk, map[string]string{"plugin": monitorType, "plugin_instance": pluginInstance, "disk": pluginInstance})...)
+		m.Output.SendDatapoints(m.makeLinuxDatapoints(disk, map[string]string{"disk": diskName})...)
 	}
 }
 
 // Configure is the main function of the monitor, it will report host metadata
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
-	logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
-
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
