@@ -51,13 +51,15 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
+ - `if_dropped.rx` (*cumulative*)<br>    Count of received packets dropped by the interface
+ - `if_dropped.tx` (*cumulative*)<br>    Count of transmitted packets dropped by the interface
  - ***`if_errors.rx`*** (*cumulative*)<br>    Count of receive errors on the interface
  - ***`if_errors.tx`*** (*cumulative*)<br>    Count of transmit errors on the interface
  - ***`if_octets.rx`*** (*cumulative*)<br>    Count of bytes (octets) received on the interface
  - ***`if_octets.tx`*** (*cumulative*)<br>    Count of bytes (octets) transmitted by the interface
  - `if_packets.rx` (*cumulative*)<br>    Count of packets received on the interface
  - `if_packets.tx` (*cumulative*)<br>    Count of packets transmitted by the interface
- - ***`network.total`*** (*cumulative*)<br>    Total amount of inbound and outbound network traffic on this host, in bytes.  This metric reports with plugin dimension set to "signalfx-metadata".
+ - ***`network.total`*** (*cumulative*)<br>    Total amount of inbound and outbound network traffic on this host, in bytes.
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -85,6 +87,15 @@ that whitelist, then you need to add an item to the top-level
 `metricsToInclude` config option to override that whitelist (see [Inclusion
 filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
 copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
+
+## Dimensions
+
+The following dimensions may occur on metrics emitted by this monitor.  Some
+dimensions may be specific to certain metrics.
+
+| Name | Description |
+| ---  | ---         |
+| `interface` | The name of the network interface (e.g. `eth0`) |
 
 
 
