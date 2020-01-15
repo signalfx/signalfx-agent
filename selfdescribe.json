@@ -10584,7 +10584,7 @@
       "monitorType": "collectd/interface",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Collectd stats about network interfaces on the\nsystem by using the [collectd interface\nplugin](https://collectd.org/wiki/index.php/Plugin:Interface).\n",
+      "doc": "Collectd stats about network interfaces on the\nsystem by using the [collectd interface\nplugin](https://collectd.org/wiki/index.php/Plugin:Interface).\n\n**This monitor is deprecated in favor of the `net-io` monitor. Please\nswitch to that monitor as this monitor will be removed in a future release\nof the agent.**  Note that the `net-io` monitor uses the `interface`\ndimension to identify the network card instead of the `plugin_instance`\ndimension, but otherwise the metrics are the same.\n",
       "groups": {
         "": {
           "description": "",
@@ -38268,12 +38268,18 @@
     {
       "monitorType": "net-io",
       "sendAll": false,
-      "dimensions": null,
+      "dimensions": {
+        "interface": {
+          "description": "The name of the network interface (e.g. `eth0`)"
+        }
+      },
       "doc": "This monitor reports I/O metrics about network interfaces.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: net-io\n```\n",
       "groups": {
         "": {
           "description": "",
           "metrics": [
+            "if_dropped.rx",
+            "if_dropped.tx",
             "if_errors.rx",
             "if_errors.tx",
             "if_octets.rx",
@@ -38285,6 +38291,18 @@
         }
       },
       "metrics": {
+        "if_dropped.rx": {
+          "type": "cumulative",
+          "description": "Count of received packets dropped by the interface",
+          "group": null,
+          "default": false
+        },
+        "if_dropped.tx": {
+          "type": "cumulative",
+          "description": "Count of transmitted packets dropped by the interface",
+          "group": null,
+          "default": false
+        },
         "if_errors.rx": {
           "type": "cumulative",
           "description": "Count of receive errors on the interface",
@@ -38323,7 +38341,7 @@
         },
         "network.total": {
           "type": "cumulative",
-          "description": "Total amount of inbound and outbound network traffic on this host, in bytes.  This metric reports with plugin dimension set to \"signalfx-metadata\".",
+          "description": "Total amount of inbound and outbound network traffic on this host, in bytes.",
           "group": null,
           "default": true
         }
