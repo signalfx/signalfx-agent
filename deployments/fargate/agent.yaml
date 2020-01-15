@@ -26,7 +26,7 @@ monitors:
   - type: collectd/protocols
   - type: collectd/signalfx-metadata
     omitProcessInfo: true
-  - type: collectd/vmem
+  - type: vmem
 
   - type: ecs-metadata
     excludedImages:

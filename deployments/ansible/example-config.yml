@@ -13,4 +13,4 @@ sfx_agent_config:
       omitProcessInfo: true
     - type: host-metadata
     - type: processlist
-    - type: collectd/vmem
+    - type: vmem
