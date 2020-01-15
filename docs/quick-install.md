@@ -1,7 +1,6 @@
 <!--- OVERVIEW --->
 # Quick Install
 
-## Smart Agent Overview
 
 The SignalFx Smart Agent is a metric-based agent written in Go that is used to monitor infrastructure and application services from a variety of environments.
 
@@ -13,8 +12,9 @@ The Smart Agent contains three main components:
 | Observers |   This component collects metrics from services that are running in your environment. For a list of supported observers and their configurations, see [Observer Configuration](./observer-config.md).           |
 | Writer    |   This component collects metrics from configured monitors and then sends these metrics to SignalFx on a regular basis. If you are expecting your monitors to send large volumes of metrics through a single agent, then you must update the configurations. To learn more, see [Agent Configurations](./config-schema.md#writer).          |
 
+## Installation
 
-## Review pre-installation requirements for the Smart Agent
+### Review pre-installation requirements for the Smart Agent
 
 Before you download and install the Smart Agent on a **single** host, review the requirements below.
 
@@ -34,8 +34,6 @@ Please note that the Smart Agent does not support Mac OS.
 - You must run Visual C++ Compiler for Python 2.7.
 
 ***
-
-## Install the Smart Agent
 
 ### Step 1. Install the SignalFx Smart Agent on your host
 
