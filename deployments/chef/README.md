@@ -51,7 +51,7 @@ node['signalfx_agent']['conf'] = {
     {type: "collectd/cpu"},
     {type: "collectd/cpufreq"},
     {type: "collectd/df"},
-    {type: "collectd/disk"},
+    {type: "disk"},
     {type: "collectd/interface"},
     {type: "collectd/load"},
     {type: "collectd/memory"},
