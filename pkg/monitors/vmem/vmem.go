@@ -27,14 +27,9 @@ type Config struct {
 
 // Monitor for Utilization
 type Monitor struct {
+	monitors.Collector
 	Output types.Output
-	cancel func()
 	logger logrus.FieldLogger //nolint: structcheck,unused
 }
 
-// Shutdown stops the metric sync
-func (m *Monitor) Shutdown() {
-	if m.cancel != nil {
-		m.cancel()
-	}
-}
+var _ monitors.Collectable = &Monitor{}

@@ -4,12 +4,10 @@ package vmem
 
 import (
 	"context"
-	"time"
 
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/monitors/winperfcounters"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -22,10 +20,6 @@ var metricNameMapping = map[string]string{
 // Configure and run the monitor on windows
 func (m *Monitor) Configure(conf *Config) (err error) {
 	m.logger = logrus.WithField("monitorType", monitorType)
-
-	// create contexts for managing the the plugin loop
-	var ctx context.Context
-	ctx, m.cancel = context.WithCancel(context.Background())
 
 	perfcounterConf := &winperfcounters.Config{
 		CountersRefreshInterval: conf.CountersRefreshInterval,
@@ -75,12 +69,9 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// create the accumulator
 	ac := accumulator.NewAccumulator(emitter)
 
-	// gather metrics on the specified interval
-	utils.RunOnInterval(ctx, func() {
-		if err := plugin.Gather(ac); err != nil {
-			m.logger.WithError(err).Errorf("unable to gather metrics from plugin")
-		}
-	}, time.Duration(conf.IntervalSeconds)*time.Second)
+	m.Callback = func(ctx context.Context) error {
+		return plugin.Gather(ac)
+	}
 
 	return nil
 }

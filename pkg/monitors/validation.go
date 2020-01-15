@@ -15,7 +15,7 @@ func validateConfig(monConfig config.MonitorCustomConfig) error {
 	conf := monConfig.MonitorConfigCore()
 
 	if _, ok := MonitorFactories[conf.Type]; !ok {
-		return errors.New("monitor type not recognized")
+		return fmt.Errorf("monitor type %q not recognized", conf.Type)
 	}
 
 	if conf.IntervalSeconds <= 0 {

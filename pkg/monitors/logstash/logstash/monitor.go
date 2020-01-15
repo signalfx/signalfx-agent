@@ -51,16 +51,15 @@ func init() {
 
 // Monitor that accepts and forwards trace spans
 type Monitor struct {
+	monitors.Collector
 	Output        types.Output
 	conf          *Config
-	ctx           context.Context
-	cancel        context.CancelFunc
 	metricTypeMap map[string]datapoint.MetricType
+	collect       func()
 }
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
-	m.ctx, m.cancel = context.WithCancel(context.Background())
 	m.conf = conf
 	m.metricTypeMap = conf.getMetricTypeMap()
 
@@ -78,7 +77,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		logger.WithError(err).Error("Couldn't get node info.")
 	}
 
-	utils.RunOnInterval(m.ctx, func() {
+	m.Callback = func(ctx context.Context) error {
 		var dps []*datapoint.Datapoint
 		var fetched []*datapoint.Datapoint
 
@@ -114,7 +113,8 @@ func (m *Monitor) Configure(conf *Config) error {
 			dp.Timestamp = now
 		}
 		m.Output.SendDatapoints(dps...)
-	}, time.Duration(conf.IntervalSeconds)*time.Second)
+		return nil
+	}
 
 	return nil
 }
@@ -252,13 +252,6 @@ func (m *Monitor) extractDatapoints(metricPath string, metricsJSON map[string]in
 	}
 
 	return dps
-}
-
-// Shutdown the monitor
-func (m *Monitor) Shutdown() {
-	if m.cancel != nil {
-		m.cancel()
-	}
 }
 
 func getJSON(client *http.Client, endpoint string) (map[string]interface{}, error) {

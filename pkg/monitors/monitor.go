@@ -1,6 +1,7 @@
 package monitors
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 
@@ -49,6 +50,14 @@ type Metadata struct {
 	MetricsExhaustive bool
 	Groups            map[string]bool
 	GroupMetricsMap   map[string][]string
+}
+
+type Collector struct {
+	Callback func(ctx context.Context) error
+}
+
+func (c *Collector) Collect(ctx context.Context) error {
+	return c.Callback(ctx)
 }
 
 // HasMetric returns whether the metric exists at all (custom or included).
@@ -144,6 +153,13 @@ type Initializable interface {
 // resources before being destroyed.
 type Shutdownable interface {
 	Shutdown()
+}
+
+// Collectable monitors are monitors that do datapoint collection on a fixed interval
+// (usually intervalSeconds). The context will be cancelled when the monitor is shutting
+// down due to a restart or process shutdown.
+type Collectable interface {
+	Collect(context.Context) error
 }
 
 // Takes a generic MonitorConfig and pulls out monitor-specific config to

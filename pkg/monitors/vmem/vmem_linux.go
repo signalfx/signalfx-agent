@@ -5,13 +5,13 @@ package vmem
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"io/ioutil"
 	"path"
 	"strconv"
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/hostfs"
 	"github.com/sirupsen/logrus"
 )
@@ -66,22 +66,16 @@ func (m *Monitor) parseFileForDatapoints(contents []byte) []*datapoint.Datapoint
 func (m *Monitor) Configure(conf *Config) (err error) {
 	m.logger = logrus.WithField("monitorType", monitorType)
 	m.logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
+	return nil
+}
 
-	// create contexts for managing the the plugin loop
-	var ctx context.Context
-	ctx, m.cancel = context.WithCancel(context.Background())
-
+// Collect gathers metrics on the configured interval
+func (m *Monitor) Collect(ctx context.Context) error {
 	vmstatPath := path.Join(hostfs.HostProc(), "vmstat")
-
-	// gather metrics on the specified interval
-	utils.RunOnInterval(ctx, func() {
-		contents, err := ioutil.ReadFile(vmstatPath)
-		if err != nil {
-			m.logger.WithError(err).Errorf("unable to load vmstat file from path '%s'", vmstatPath)
-			return
-		}
-		m.Output.SendDatapoints(m.parseFileForDatapoints(contents)...)
-	}, time.Duration(conf.IntervalSeconds)*time.Second)
-
+	contents, err := ioutil.ReadFile(vmstatPath)
+	if err != nil {
+		return fmt.Errorf("unable to load vmstat file from path '%s': %w", vmstatPath, err)
+	}
+	m.Output.SendDatapoints(m.parseFileForDatapoints(contents)...)
 	return nil
 }

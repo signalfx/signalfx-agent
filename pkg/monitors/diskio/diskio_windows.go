@@ -5,23 +5,24 @@ package diskio
 import (
 	"context"
 	"strings"
-	"time"
+
+	"github.com/signalfx/signalfx-agent/pkg/monitors"
 
 	"github.com/influxdata/telegraf"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/monitors/winperfcounters"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
 )
 
 // Monitor for Utilization
 type Monitor struct {
-	Output types.Output
-	cancel func()
-	conf   *Config
-	filter *filter.OverridableStringFilter
+	monitors.Collector
+	Output      types.Output
+	conf        *Config
+	filter      *filter.OverridableStringFilter
+	accumulator *accumulator.Accumulator
 }
 
 // maps telegraf metricnames to sfx metricnames
@@ -58,11 +59,6 @@ func (m *Monitor) filterMeasurements(ms telegraf.Metric) error {
 // Configure is the main function of the monitor, it will report host metadata
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
-
-	// create contexts for managing the the plugin loop
-	var ctx context.Context
-	ctx, m.cancel = context.WithCancel(context.Background())
-
 	// save conf to monitor for convenience
 	m.conf = conf
 
@@ -132,15 +128,12 @@ func (m *Monitor) Configure(conf *Config) error {
 	emitter.OmitTag("objectname")
 
 	// create the accumulator
-	accumulator := accumulator.NewAccumulator(emitter)
+	m.accumulator = accumulator.NewAccumulator(emitter)
 
-	// gather metrics on the specified interval
-	utils.RunOnInterval(ctx, func() {
-		// gather the perfcounters
-		if err := plugin.Gather(accumulator); err != nil {
-			logger.WithError(err).Errorf("unable to gather metrics from plugin")
-		}
-	}, time.Duration(conf.IntervalSeconds)*time.Second)
+	// gather the perfcounters
+	m.Callback = func(ctx context.Context) error {
+		return plugin.Gather(m.accumulator)
+	}
 
 	return nil
 }

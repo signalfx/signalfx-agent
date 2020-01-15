@@ -1,8 +1,14 @@
 package monitors
 
 import (
+	"context"
 	"fmt"
 	"reflect"
+	"time"
+
+	"go.uber.org/atomic"
+
+	"github.com/sirupsen/logrus"
 
 	"github.com/pkg/errors"
 	"github.com/signalfx/defaults"
@@ -26,8 +32,14 @@ type ActiveMonitor struct {
 	output     types.FilteringOutput
 	config     config.MonitorCustomConfig
 	endpoint   services.Endpoint
+	// cancel function for the parent context if it is a Collectable instance
+	cancel context.CancelFunc
 	// Is the monitor marked for deletion?
 	doomed bool
+
+	collectFailures  atomic.Uint64
+	collectCalls     atomic.Uint64
+	intervalExceeded atomic.Uint64
 }
 
 func renderConfig(monConfig config.MonitorCustomConfig, endpoint services.Endpoint) (config.MonitorCustomConfig, error) {
@@ -84,7 +96,39 @@ func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) 
 	am.injectAgentMetaIfNeeded()
 	am.injectOutputIfNeeded()
 
-	return config.CallConfigure(am.instance, monConfig)
+	if err := config.CallConfigure(am.instance, monConfig); err != nil {
+		return err
+	}
+
+	if mon, ok := am.instance.(Collectable); ok {
+		var ctx context.Context
+		ctx, am.cancel = context.WithCancel(context.Background())
+		interval := time.Duration(am.config.MonitorConfigCore().IntervalSeconds) * time.Second
+
+		// TODO: Would be good to track lingering monitors where the monitor stops
+		// but the goroutine that called Collect is still running due to being blocked.
+		// Could possibly use a Deadline context as well to cancel after some unusually
+		// long time.
+		utils.RunOnInterval(ctx, func() {
+			// TODO: Maybe put this on am instance instead.
+			logger := logrus.WithFields(logrus.Fields{"monitorType": monConfig.MonitorConfigCore().Type})
+
+			start := time.Now()
+			if err := mon.Collect(ctx); err != nil {
+				am.collectFailures.Inc()
+				logger.Errorf("collecting data from monitor failed: %s", err)
+			}
+			am.collectCalls.Inc()
+			elapsed := time.Since(start)
+
+			if elapsed > interval {
+				am.intervalExceeded.Inc()
+				logger.Warnf("monitor %s took too long to run (%s) which will cause lagging datapoints", am.id, elapsed)
+			}
+		}, interval)
+	}
+
+	return nil
 }
 
 func (am *ActiveMonitor) endpointID() services.ID {
@@ -132,6 +176,10 @@ func (am *ActiveMonitor) injectAgentMetaIfNeeded() bool {
 
 // Shutdown calls Shutdown on the monitor instance if it is provided.
 func (am *ActiveMonitor) Shutdown() {
+	if am.cancel != nil {
+		am.cancel()
+	}
+
 	if sh, ok := am.instance.(Shutdownable); ok {
 		sh.Shutdown()
 	}

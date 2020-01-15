@@ -14,6 +14,8 @@ func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
+var _ monitors.Collectable = &Monitor{}
+
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
@@ -27,11 +29,4 @@ type Config struct {
 	// (Windows Only) Print out the configurations that match available
 	// performance counters.  This used for debugging.
 	PrintValid bool `yaml:"printValid"`
-}
-
-// Shutdown stops the metric sync
-func (m *Monitor) Shutdown() {
-	if m.cancel != nil {
-		m.cancel()
-	}
 }

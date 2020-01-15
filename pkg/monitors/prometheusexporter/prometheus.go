@@ -22,7 +22,6 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 func init() {
@@ -63,6 +62,7 @@ func (c *Config) GetExtraMetrics() []string {
 }
 
 var _ config.ExtraMetrics = &Config{}
+var _ monitors.Collectable = &Monitor{}
 
 // Monitor for prometheus exporter metrics
 type Monitor struct {
@@ -78,6 +78,7 @@ type Monitor struct {
 	monitorName string
 	logger      logrus.FieldLogger
 	cancel      func()
+	fetch       func() (io.ReadCloser, expfmt.Format, error)
 }
 
 type fetcher func() (io.ReadCloser, expfmt.Format, error)
@@ -113,7 +114,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	url := fmt.Sprintf("%s://%s:%d%s", conf.Scheme(), conf.Host, conf.Port, conf.MetricPath)
 
-	fetch := func() (io.ReadCloser, expfmt.Format, error) {
+	m.fetch = func() (io.ReadCloser, expfmt.Format, error) {
 		req, err := http.NewRequest("GET", url, nil)
 		if err != nil {
 			return nil, expfmt.FmtUnknown, err
@@ -132,22 +133,20 @@ func (m *Monitor) Configure(conf *Config) error {
 		return resp.Body, expfmt.ResponseFormat(resp.Header), nil
 	}
 
-	var ctx context.Context
-	ctx, m.cancel = context.WithCancel(context.Background())
-	utils.RunOnInterval(ctx, func() {
-		dps, err := fetchPrometheusMetrics(fetch)
-		if err != nil {
-			m.logger.WithError(err).Error("Could not get prometheus metrics")
-			return
-		}
+	return nil
+}
 
-		now := time.Now()
-		for i := range dps {
-			dps[i].Timestamp = now
-		}
-		m.Output.SendDatapoints(dps...)
-	}, time.Duration(conf.IntervalSeconds)*time.Second)
+func (m *Monitor) Collect(ctx context.Context) error {
+	dps, err := fetchPrometheusMetrics(m.fetch)
+	if err != nil {
+		return errors.New("Could not get prometheus metrics")
+	}
 
+	now := time.Now()
+	for i := range dps {
+		dps[i].Timestamp = now
+	}
+	m.Output.SendDatapoints(dps...)
 	return nil
 }
 

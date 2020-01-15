@@ -4,16 +4,18 @@ package windowsiis
 
 import (
 	"context"
-	"time"
+
+	"github.com/signalfx/signalfx-agent/pkg/monitors"
 
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/monitors/winperfcounters"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
 
 var logger = logrus.WithField("monitorType", monitorType)
+
+var _ monitors.Collectable = &Monitor{}
 
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) error {
@@ -113,16 +115,9 @@ func (m *Monitor) Configure(conf *Config) error {
 	// create the accumulator
 	ac := accumulator.NewAccumulator(emitter)
 
-	// create contexts for managing the the plugin loop
-	var ctx context.Context
-	ctx, m.cancel = context.WithCancel(context.Background())
-
-	// gather metrics on the specified interval
-	utils.RunOnInterval(ctx, func() {
-		if err := plugin.Gather(ac); err != nil {
-			logger.WithError(err).Errorf("an error occurred while gathering metrics from the plugin")
-		}
-	}, time.Duration(conf.IntervalSeconds)*time.Second)
+	m.Callback = func(ctx context.Context) error {
+		return plugin.Gather(ac)
+	}
 
 	return nil
 }

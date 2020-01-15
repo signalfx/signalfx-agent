@@ -61,6 +61,8 @@ type Monitor struct {
 	logger      logrus.FieldLogger
 }
 
+var _ monitors.Collectable = &Monitor{}
+
 // returns common dimensions map according to reportInodes configuration
 func (m *Monitor) getCommonDimensions(partition *gopsutil.PartitionStat) map[string]string {
 	dims := map[string]string{
@@ -201,10 +203,6 @@ func (m *Monitor) Configure(conf *Config) error {
 		m.logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
 	}
 
-	// create contexts for managing the the plugin loop
-	var ctx context.Context
-	ctx, m.cancel = context.WithCancel(context.Background())
-
 	// save shallow copy of conf to monitor for quick reference
 	confCopy := *conf
 	m.conf = &confCopy
@@ -248,11 +246,12 @@ func (m *Monitor) Configure(conf *Config) error {
 		return err
 	}
 
-	// gather metrics on the specified interval
-	utils.RunOnInterval(ctx, func() {
-		m.emitDatapoints()
-	}, time.Duration(m.conf.IntervalSeconds)*time.Second)
+	return nil
+}
 
+// Collect gathers metrics on the configured interval
+func (m *Monitor) Collect(ctx context.Context) error {
+	m.emitDatapoints()
 	return nil
 }
 
@@ -266,13 +265,6 @@ func (c *Config) GetExtraMetrics() []string {
 		extraMetrics = append(extraMetrics, groupMetricsMap[groupInodes]...)
 	}
 	return extraMetrics
-}
-
-// Shutdown stops the metric sync
-func (m *Monitor) Shutdown() {
-	if m.cancel != nil {
-		m.cancel()
-	}
 }
 
 func calculateUtil(used float64, total float64) (percent float64, err error) {

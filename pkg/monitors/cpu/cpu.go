@@ -11,7 +11,6 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
@@ -39,12 +38,13 @@ type totalUsed struct {
 // Monitor for Utilization
 type Monitor struct {
 	Output          types.Output
-	cancel          func()
 	conf            *Config
 	previousPerCore map[string]*totalUsed
 	previousTotal   *totalUsed
 	logger          logrus.FieldLogger
 }
+
+var _ monitors.Collectable = &Monitor{}
 
 func (m *Monitor) generatePerCoreDatapoints() []*datapoint.Datapoint {
 	totals, err := times(true)
@@ -196,10 +196,6 @@ func (m *Monitor) Configure(conf *Config) error {
 		m.logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
 	}
 
-	// create contexts for managing the the plugin loop
-	var ctx context.Context
-	ctx, m.cancel = context.WithCancel(context.Background())
-
 	// save config to monitor for convenience
 	m.conf = conf
 
@@ -207,24 +203,18 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.initializeCPUTimes()
 	m.initializePerCoreCPUTimes()
 
-	// gather metrics on the specified interval
-	utils.RunOnInterval(ctx, func() {
-		dps := m.generateDatapoints()
-		// NOTE: If this monitor ever fails to complete in a reporting interval
-		// maybe run this on a separate go routine
-		perCoreDPs := m.generatePerCoreDatapoints()
-
-		m.Output.SendDatapoints(append(dps, perCoreDPs...)...)
-	}, time.Duration(conf.IntervalSeconds)*time.Second)
-
 	return nil
 }
 
-// Shutdown stops the metric sync
-func (m *Monitor) Shutdown() {
-	if m.cancel != nil {
-		m.cancel()
-	}
+func (m *Monitor) Collect(ctx context.Context) error {
+	dps := m.generateDatapoints()
+	// NOTE: If this monitor ever fails to complete in a reporting interval
+	// maybe run this on a separate go routine
+	perCoreDPs := m.generatePerCoreDatapoints()
+
+	m.Output.SendDatapoints(append(dps, perCoreDPs...)...)
+
+	return nil
 }
 
 // cpuTimeStatTototalUsed converts a cpu.TimesStat to a totalUsed with Total and Used values

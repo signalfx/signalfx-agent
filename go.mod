@@ -142,8 +142,11 @@ require (
 	github.com/vmware/govmomi v0.21.0
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	go.etcd.io/etcd v0.0.0-20190321122103-41f7142ff986
+	go.uber.org/atomic v1.5.1
+	golang.org/x/lint v0.0.0-20191125180803-fdd1cda4f05f // indirect
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	golang.org/x/sys v0.0.0-20191105231009-c1f44814a5cd
+	golang.org/x/tools v0.0.0-20200117173607-7ad9cd8f3189 // indirect
 	google.golang.org/grpc v1.20.1
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/fatih/set.v0 v0.1.0

@@ -10,16 +10,14 @@ import (
 	"github.com/shirou/gopsutil/disk"
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
 )
 
-var iOCounters = disk.IOCounters
+var iOCounters = disk.IOCountersWithContext
 
 // Monitor for Utilization
 type Monitor struct {
 	Output types.Output
-	cancel func()
 	conf   *Config
 	filter *filter.OverridableStringFilter
 }
@@ -38,8 +36,8 @@ func (m *Monitor) makeLinuxDatapoints(disk disk.IOCountersStat, dimensions map[s
 }
 
 // EmitDatapoints emits a set of memory datapoints
-func (m *Monitor) emitDatapoints() {
-	iocounts, err := iOCounters()
+func (m *Monitor) emitDatapoints(ctx context.Context) {
+	iocounts, err := iOCounters(ctx)
 	if err != nil {
 		logger.WithError(err).Errorf("Failed to load disk io counters")
 		return
@@ -61,10 +59,6 @@ func (m *Monitor) emitDatapoints() {
 // Configure is the main function of the monitor, it will report host metadata
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
-	// create contexts for managing the the plugin loop
-	var ctx context.Context
-	ctx, m.cancel = context.WithCancel(context.Background())
-
 	// save conf to monitor for convenience
 	m.conf = conf
 
@@ -82,10 +76,11 @@ func (m *Monitor) Configure(conf *Config) error {
 		return err
 	}
 
-	// gather metrics on the specified interval
-	utils.RunOnInterval(ctx, func() {
-		m.emitDatapoints()
-	}, time.Duration(conf.IntervalSeconds)*time.Second)
+	return nil
+}
 
+func (m *Monitor) Collect(ctx context.Context) error {
+	time.Sleep(5 * time.Second)
+	m.emitDatapoints(ctx)
 	return nil
 }
