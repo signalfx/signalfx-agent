@@ -1,182 +1,153 @@
 <!--- OVERVIEW --->
 # Quick Install
 
+## Smart Agent Overview
 
- - [Overview](#overview)
- - [Requirements](#requirements)
- - [Installation](#installation)
+The SignalFx Smart Agent is a metric-based agent written in Go that is used to monitor infrastructure and application services from a variety of environments.
 
-## Overview
+The Smart Agent contains three main components:
 
-
-The SignalFx Smart Agent is a metric agent written in Go for monitoring infrastructure and application services in a variety of environments. It is a successor to our previous [collectd agent](https://github.com/signalfx/collectd), and still uses collectd internally on Linux; any existing Python or C-based collectd plugins will still work without modification. On Windows collectd is not included, but the agent can run python-based collectd plugins without collectd. C-based collectd plugins are not available on Windows.
-
- - [Concepts](#concepts)
- - [Installation](#installation)
-
-
-## Concepts
+| Component | Description |
+|-----------|-------------|
+| Monitors  |  This component collects metrics from the host and applications. For a list of supported monitors and their configurations, see [Monitor Configuration](./monitor-config.md).            |
+| Observers |   This component collects metrics from services that are running in your environment. For a list of supported observers and their configurations, see [Observer Configuration](./observer-config.md).           |
+| Writer    |   This component collects metrics from configured monitors and then sends these metrics to SignalFx on a regular basis. If you are expecting your monitors to send large volumes of metrics through a single agent, then you must update the configurations. To learn more, see [Agent Configurations](./config-schema.md#writer).          |
 
 
-## Requirements
+## Review pre-installation requirements for the Smart Agent
 
+Before you download and install the Smart Agent on a **single** host, review the requirements below.
 
-* _Monitors_ that collect metrics from the host and applications
+(For other installation options, including bulk deployments, see [Advanced Installation Options](./advanced-install-options.md).)
 
-* _Observers_ that discover applications and services running on the host
+Please note that the Smart Agent does not support Mac OS.  
 
-* a _Writer_ that sends the metrics collected by monitors to SignalFx
+**General requirements**
+- You must have access to your command line interface.
+- You must uninstall or disable any previously installed collector agent from your host, such as collectd.
 
+**Linux requirements**
+- You must run kernel version 2.6 or higher for your Linux distribution.
 
-### Monitors
-
-Monitors collect metrics from the host system and services.  They are
-configured under the `monitors` list in the agent config.  For
-application specific monitors, you can define discovery rules in your monitor
-configuration. A separate monitor instance is created for each discovered
-instance of applications that match a discovery rule. See [Endpoint
-Discovery](./auto-discovery.md) for more information.
-
-Many of the monitors are built around [collectd](https://collectd.org), an open
-source third-party monitor, and use it to collect metrics. Some other monitors
-do not use collectd. However, either type is configured in the same way.
-
-## Installation
-
-
-The agent is primarily intended to monitor services/applications running on the
-same host as the agent.  This is in keeping with the collectd model.  The main
-issue with monitoring services on other hosts is that the `host` dimension that
-collectd sets on all metrics will currently get set to the hostname of the
-machine that the agent is running on.  This allows everything to have a
-consistent `host` dimension so that metrics can be matched to a specific
-machine during metric analysis.
-
-
-#### Install on Linux
-    
-##### Option 1: Install from the SignalFx UI    
-
-
-Observers watch the various environments that we support to discover running
-services and automatically configure the agent to send metrics for those
-services.
-
-For a list of supported observers and their configurations,
-see [Observer Config](./observer-config.md).
-
-##### Option 2: Install from the documentation site 
-
-
-
-
-## Installation
-
+**Windows requirements**
+- You must run .Net Framework 3.5 on Windows 8 or higher.
+- You must run Visual C++ Compiler for Python 2.7.
 
 ***
 
-#### Install on Windows
+## Install the Smart Agent
 
-##### Option 1: Install from the SignalFx UI    
+### Step 1. Install the SignalFx Smart Agent on your host
+
+#### Linux
+    
+##### Option 1: From the SignalFx UI    
+
+If you are reading this content from the SignalFx Smart Agent tile in the Integrations page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your realm and your organization's access token.)
+    
+```sh curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh```
+```sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN```
+
+***
+
+##### Option 2: From the documentation site 
+
+If you are reading this content from the SignalFx documentation site, then SignalFx recommends that you access the Integrations page in the SignalFx UI to copy the pre-populated installation code.  
+
+1. Log in to SignalFx and click the **Integrations** tab to open the Integrations page. Look for the SignalFx Smart Agent tile. You can search for it by name, or find it in the **Essential Services** section.
+2. Under **Essential Services**, click **SignalFx Smart Agent**.
+3. Click **Setup**.
+4. Locate the text box for Linux users.
+5. Copy, paste, and run the code in your command line. (The code within the tile is already populated with your realm and your organization's access token.)  
+
+***
+
+#### Windows
+
+
+##### Option 1: From the SignalFx UI    
 If you are reading this content from the SignalFx Smart Agent tile in the Integrations page, then simply copy and paste the following code into your command line. (The code within the tile is already populated with your realm and your organization's access token.)
 
 
-- Get your API_TOKEN from: __Organization Settings => Access Token__ tab in the SignalFx application.
-
-- Determine YOUR\_SIGNAL_FX_REALM from your [profile page](https://docs.signalfx.com/en/latest/getting-started/get-around-ui.html#user-profile-avatar-and-color-theme) in the SignalFx web application.
-
-To install the Smart Agent on a single Linux host, enter:
-
 ```sh
-curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
-sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
+& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"; ingest_url = "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"; api_url = "https://api.YOUR_SIGNALFX_REALM.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
 ```
 
-__Windows:__ Ensure that the following dependencies are installed:
+***
 
-
-##### Option 2: Install from the documentation site 
+##### Option 2: From the documentation site 
 If you are reading this content from the SignalFx documentation site, then SignalFx recommends that you access the Integrations page in the SignalFx UI to copy the pre-populated installation code.  
 
-
-[Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
-
-* Get your API\_TOKEN from:  __Organization Settings => Access Token__ tab in the SignalFx application.
-
-
-The agent will be installed as a Windows service and will log to the Windows Event Log.
+1. Log in to SignalFx and click the **Integrations** tab to open the Integrations page. Look for the SignalFx Smart Agent tile. You can search for it by name, or find it in the **Essential Services** section.
+2. Under **Essential Services**, click **SignalFx Smart Agent**.
+3. Click **Setup**.
+4. Locate the text box for Windows users.
+5. Copy, paste, and run the code in your command line. (The code within the tile is already populated with your realm and your organization's access token.)  
 
 
 The agent will be installed as a Windows service and will log to the Windows Event Log.
 
-
-### Step 2. Confirm your installation
-
-To confirm the SignalFx Smart Agent installation is functional on either platform, enter:
-
-```sh
-sudo signalfx-agent status
-```
-
-The response you will see is similar to the one below:
-
-```sh
-SignalFx Agent version:           4.7.6
-Agent uptime:                     8m44s
-Observers active:                 host
-Active Monitors:                  16
-Configured Monitors:              33
-Discovered Endpoint Count:        6
-Bad Monitor Config:               None
-Global Dimensions:                {host: my-host-1}
-Datapoints sent (last minute):    1614
-Events Sent (last minute):        0
-Trace Spans Sent (last minute):   0
-```
-
-To verify the installation, you can run the following commands:
-
-```sh
-signalfx-agent status config - show resolved config in use by agent
-signalfx-agent status endpoints - show discovered endpoints
-signalfx-agent status monitors - show active monitors
-signalfx-agent status all - show everything
-```
-
-#### Troubleshoot any discrepancies in the Installation
-
-##### Realm
-
-By default, the Smart Agent will send data to the us0 realm. If you are not in this realm, you will need to explicitly set the signalFxRealm option in your config like this:
+***
 
 
-```sh
-signalFxRealm: YOUR_SIGNALFX_REALM
-```
+### Step 2. Confirm your Installation
 
 
-To determine if you are in a different realm and need to explicitly set the endpoints, check your profile page in the SignalFx web application.
+1. To confirm your installation, enter the following command on the Linux or Windows command line: 
 
-_Configure your endpoints_
+    ```sh
+    sudo signalfx-agent status
+    ```
 
-If you want to explicitly set the ingest, API server, and trace endpoint URLs, you can set them individually like so:
+    The return should be similar to the following example:  
 
+    ```sh
+    SignalFx Agent version:           4.7.6
+    Agent uptime:                     8m44s
+    Observers active:                 host
+    Active Monitors:                  16
+    Configured Monitors:              33
+    Discovered Endpoint Count:        6
+    Bad Monitor Config:               None
+    Global Dimensions:                {host: my-host-1}
+    Datapoints sent (last minute):    1614
+    Events Sent (last minute):        0
+    Trace Spans Sent (last minute):   0
+    ```
+
+2. To confirm your installation, enter the following command on the Linux or Windows command line: 
+
+    | Command | Description   |
+    |---|---|
+    | <code>signalfx-agent status config</code>   | This command shows resolved config in use by the Smart Agent. |
+    | <code>signalfx-agent status endpoints</code>  | This command shows discovered endpoints.  |
+    | <code>signalfx-agent status monitors</code>  | This command shows active monitors.  |
+    | <code>signalfx-agent status all</code>  | This command shows all of the above statuses. |
+
+***
+
+### Troubleshoot the Smart Agent installation
+
+If you are unable to install the Smart Agent, consider reviewing your error logs: 
+
+For Linux, use the following command to view error logs via Journal:
 
 ```sh
-ingestUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"
-apiUrl: "https://api.YOUR_SIGNALFX_REALM.signalfx.com"
-traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
+journalctl -u signalfx-agent | tail -100
 ```
 
-This will default to the endpoints for the realm configured in signalFxRealm if not set.
+For Windows, review the event logs.
 
-To troubleshoot your installation further, check the FAQ about troubleshooting [here](./faq.md).
+***
 
+For additional installation troubleshooting information, including how to review logs, see [Frequently Asked Questions](./faq.md).
 
-### Step 3. Login to SignalFx and discover your data displays.
+***
 
-Installation is complete.
+### Review additional documentation
 
-To continue your exploration of SignalFx Smart Agent capabilities, see [Advanced Installation Options](./advanced-install-options.md).
+After a successful installation, learn more about the SignalFx agent and the SignalFx UI. 
 
-To learn more about how your data is presented in SignalFx, see the [15-Minute SignalFx Quick Start](https://docs.signalfx.com/en/latest/getting-started/quick-start.html).
+* Review the capabilities of the SignalFx Smart Agent. See [Advanced Installation Options](./advanced-install-options.md).
+
+* Learn how data is displayed in the SignalFx UI. See [View infrastructure status](https://docs.signalfx.com/en/latest/getting-started/quick-start.html#step-3-view-infrastructure-status).
