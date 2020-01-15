@@ -48,7 +48,7 @@ signalfx-agent:
       - type: collectd/cpufreq
       - type: filesystems
       - type: disk-io
-      - type: collectd/interface
+      - type: net-io
       - type: load
       - type: memory
       - type: collectd/vmem

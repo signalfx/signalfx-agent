@@ -1,5 +1,7 @@
 monitors:
 - dimensions:
+    interface:
+      description: The name of the network interface (e.g. `eth0`)
   doc: |
     This monitor reports I/O metrics about network interfaces.
 
@@ -37,9 +39,16 @@ monitors:
       description: Count of packets transmitted by the interface
       default: false
       type: cumulative
+    if_dropped.rx:
+      description: Count of received packets dropped by the interface
+      default: false
+      type: cumulative
+    if_dropped.tx:
+      description: Count of transmitted packets dropped by the interface
+      default: false
+      type: cumulative
     network.total:
-      description: Total amount of inbound and outbound network traffic on this host,
-        in bytes.  This metric reports with plugin dimension set to "signalfx-metadata".
+      description: Total amount of inbound and outbound network traffic on this host, in bytes.
       default: true
       type: cumulative
   monitorType: net-io
