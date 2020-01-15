@@ -4,6 +4,12 @@ monitors:
     Collectd stats about network interfaces on the
     system by using the [collectd interface
     plugin](https://collectd.org/wiki/index.php/Plugin:Interface).
+
+    **This monitor is deprecated in favor of the `net-io` monitor. Please
+    switch to that monitor as this monitor will be removed in a future release
+    of the agent.**  Note that the `net-io` monitor uses the `interface`
+    dimension to identify the network card instead of the `plugin_instance`
+    dimension, but otherwise the metrics are the same.
   metrics:
     if_errors.rx:
       description: Count of receive errors on the interface
