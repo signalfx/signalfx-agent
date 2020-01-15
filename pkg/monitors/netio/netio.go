@@ -2,7 +2,6 @@ package netio
 
 import (
 	"context"
-	"runtime"
 	"strings"
 	"time"
 
@@ -49,8 +48,8 @@ type Monitor struct {
 	logger                 logrus.FieldLogger
 }
 
-func (m *Monitor) updateTotals(pluginInstance string, intf *net.IOCountersStat) {
-	prev, ok := m.previousInterfaceStats[pluginInstance]
+func (m *Monitor) updateTotals(iface string, intf *net.IOCountersStat) {
+	prev, ok := m.previousInterfaceStats[iface]
 
 	// update total received
 	// if there's a previous value and the counter didn't reset
@@ -71,18 +70,15 @@ func (m *Monitor) updateTotals(pluginInstance string, intf *net.IOCountersStat) 
 	}
 
 	// store values for reference next interval
-	m.previousInterfaceStats[pluginInstance] = &netio{sent: intf.BytesSent, recv: intf.BytesRecv}
+	m.previousInterfaceStats[iface] = &netio{sent: intf.BytesSent, recv: intf.BytesRecv}
 }
 
 // EmitDatapoints emits a set of memory datapoints
 func (m *Monitor) EmitDatapoints() {
 	info, err := iOCounters(true)
 	if err != nil {
-		if err == context.DeadlineExceeded {
-			m.logger.WithField("debug", err).Debugf("failed to load net io counters. if this message repeats frequently there may be a problem")
-		} else {
-			m.logger.WithError(err).Errorf("failed to load net io counters. if this message repeats frequently there may be a problem")
-		}
+		m.logger.WithError(err).Error("Failed to load net io counters")
+		return
 	}
 
 	dps := make([]*datapoint.Datapoint, 0)
@@ -95,11 +91,11 @@ func (m *Monitor) EmitDatapoints() {
 			continue
 		}
 
-		pluginInstance := strings.Replace(intf.Name, " ", "_", -1)
+		ifaceName := strings.Replace(intf.Name, " ", "_", -1)
 
-		m.updateTotals(pluginInstance, &intf)
+		m.updateTotals(ifaceName, &intf)
 
-		dimensions := map[string]string{"plugin": monitorType, "plugin_instance": pluginInstance, "interface": pluginInstance}
+		dimensions := map[string]string{"interface": ifaceName}
 
 		dps = append(dps,
 			datapoint.New("if_errors.rx", dimensions, datapoint.NewIntValue(int64(intf.Errin)), datapoint.Counter, time.Time{}),
@@ -108,11 +104,13 @@ func (m *Monitor) EmitDatapoints() {
 			datapoint.New("if_octets.tx", dimensions, datapoint.NewIntValue(int64(intf.BytesSent)), datapoint.Counter, time.Time{}),
 			datapoint.New("if_packets.rx", dimensions, datapoint.NewIntValue(int64(intf.PacketsRecv)), datapoint.Counter, time.Time{}),
 			datapoint.New("if_packets.tx", dimensions, datapoint.NewIntValue(int64(intf.PacketsSent)), datapoint.Counter, time.Time{}),
+			datapoint.New("if_dropped.rx", dimensions, datapoint.NewIntValue(int64(intf.Dropin)), datapoint.Counter, time.Time{}),
+			datapoint.New("if_dropped.tx", dimensions, datapoint.NewIntValue(int64(intf.Dropout)), datapoint.Counter, time.Time{}),
 		)
 	}
 
 	// network.total
-	dps = append(dps, datapoint.New("network.total", map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewIntValue(int64(m.networkTotal)), datapoint.Counter, time.Time{}))
+	dps = append(dps, datapoint.New("network.total", map[string]string{}, datapoint.NewIntValue(int64(m.networkTotal)), datapoint.Counter, time.Time{}))
 
 	m.Output.SendDatapoints(dps...)
 }
@@ -121,9 +119,7 @@ func (m *Monitor) EmitDatapoints() {
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
-	if runtime.GOOS != "windows" {
-		m.logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
-	}
+
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
