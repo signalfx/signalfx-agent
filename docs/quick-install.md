@@ -39,10 +39,6 @@ Please note that the Smart Agent does not support Mac OS.
 
 #### Linux
 
-<details>
-<summary>Show Linux instructions</summary>
-<p>
-
 Note: This content appears on a SignalFx documentation page and on the Setup tab of the Smart Agent tile in the SignalFx UI. The following code to install the current version works only if you are viewing these instructions on the Setup tab.  
 
 From the Setup tab, copy and paste the following code into your command line: 
@@ -52,16 +48,10 @@ curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
 sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
 ```
 
-</p>
-</details>
 
 ***
 
 #### Windows
-
-<details>
-<summary>Show Windows instructions</summary>
-<p>
 
 Note: This content appears on a SignalFx documentation page and on the Setup tab of the Smart Agent tile in the SignalFx UI. The following code to install the current version works only if you are viewing these instructions on the Setup tab.  
 
@@ -73,9 +63,6 @@ From the Setup tab, copy and paste the following code into your command line:
 ```
 
 The agent will be installed as a Windows service and will log to the Windows Event Log.
-
-</p>
-</details>
 
 ***
 
