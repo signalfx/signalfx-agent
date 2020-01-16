@@ -33,29 +33,25 @@ Please note that the Smart Agent does not support Mac OS.
 - You must run .Net Framework 3.5 on Windows 8 or higher.
 - You must run Visual C++ Compiler for Python 2.7.
 
-***
 
 ### Step 1. Install the SignalFx Smart Agent on your host
 
 #### Linux
 
-Note: This content appears on a SignalFx documentation page and on the Setup tab of the Smart Agent tile in the SignalFx UI. The following code to install the current version works only if you are viewing these instructions on the Setup tab.  
+Note: This content appears on a SignalFx documentation page and on the **Setup** tab of the Smart Agent tile in the SignalFx UI. The following code to install the current version works only if you are viewing these instructions on the **Setup** tab.  
 
-From the Setup tab, copy and paste the following code into your command line: 
+From the **Setup** tab, copy and paste the following code into your command line: 
 
 ```sh 
 curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
 sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
 ```
 
-
-***
-
 #### Windows
 
-Note: This content appears on a SignalFx documentation page and on the Setup tab of the Smart Agent tile in the SignalFx UI. The following code to install the current version works only if you are viewing these instructions on the Setup tab.  
+Note: This content appears on a SignalFx documentation page and on the **Setup** tab of the Smart Agent tile in the SignalFx UI. The following code to install the current version works only if you are viewing these instructions on the **Setup** tab.  
 
-From the Setup tab, copy and paste the following code into your command line: 
+From the **Setup** tab, copy and paste the following code into your command line: 
 
 
 ```sh
@@ -63,8 +59,6 @@ From the Setup tab, copy and paste the following code into your command line:
 ```
 
 The agent will be installed as a Windows service and will log to the Windows Event Log.
-
-***
 
 
 ### Step 2. Confirm your Installation
@@ -101,7 +95,6 @@ The agent will be installed as a Windows service and will log to the Windows Eve
     | <code>signalfx-agent status monitors</code>  | This command shows active monitors.  |
     | <code>signalfx-agent status all</code>  | This command shows all of the above statuses. |
 
-***
 
 ### Troubleshoot the Smart Agent installation
 
@@ -115,11 +108,7 @@ journalctl -u signalfx-agent | tail -100
 
 For Windows, review the event logs.
 
-***
-
 For additional installation troubleshooting information, including how to review logs, see [Frequently Asked Questions](./faq.md).
-
-***
 
 ### Review additional documentation
 
