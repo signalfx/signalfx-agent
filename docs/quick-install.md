@@ -43,8 +43,10 @@ Note: This content appears on a SignalFx documentation page and on the Setup tab
 
 From the Setup tab, copy and paste the following code into your command line: 
 
-```sh curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh```
-```sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN```
+```sh 
+curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
+sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOKEN
+```
 
 ***
 
