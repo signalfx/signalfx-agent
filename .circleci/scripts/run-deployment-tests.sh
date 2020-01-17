@@ -54,9 +54,12 @@ puppet)
     fi
     ;;
 salt)
-    docker run --rm \
-        signalfx-agent-salt-dev \
-        salt '*' state.apply | tee ~/testresults/salt.out
+    make test 2>&1 | tee ~/testresults/salt.out
+    if [ $CIRCLE_NODE_INDEX -eq 0 ]; then
+        echo "export MARKERS='salt and rpm'" >> $BASH_ENV
+    else
+        echo "export MARKERS='salt and deb'" >> $BASH_ENV
+    fi
     ;;
 ansible)
     docker run --rm \

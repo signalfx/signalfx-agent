@@ -4,37 +4,25 @@
 
 FROM ubuntu:16.04
 
-# Update System
+ENV DEBIAN_FRONTEND=noninteractive
+
 RUN apt-get update && apt-get upgrade -y -o DPkg::Options::=--force-confold
+RUN apt-get install -y software-properties-common ca-certificates wget curl apt-transport-https python-pip vim
 
+RUN curl https://repo.saltstack.com/apt/ubuntu/16.04/amd64/latest/SALTSTACK-GPG-KEY.pub | apt-key add -
+RUN echo 'deb http://repo.saltstack.com/apt/ubuntu/16.04/amd64/latest xenial main' > /etc/apt/sources.list.d/saltstack.list && \
+    apt-get update && \
+    apt-get install -y salt-minion
 
-# Dependencies
+RUN pip install salt-lint==0.2.0
 
-RUN apt-get install -y software-properties-common
+RUN sed -i "s|#file_client:.*|file_client: local|" /etc/salt/minion
 
-RUN apt-get install -y vim
-
-RUN apt-get install -y apt-transport-https ca-certificates
-
-
-# Install Salt-Master and Salt-Minion
-
-RUN apt-get install -y salt-master salt-minion
-
-RUN sed -i "s|#master: salt|master: localhost|g" /etc/salt/minion
-
-RUN sed -i "s|#auto_accept: False|auto_accept: True|g" /etc/salt/master
-
-RUN sed -i "s|#open_mode: False|open_mode: True|g" /etc/salt/master
-
-COPY ./signalfx-agent/ /srv/salt/signalfx-agent/
-
+COPY ./signalfx-agent /srv/salt/signalfx-agent
 COPY ./pillar.example /srv/pillar/signalfx-agent.sls
-
-
-# Add Entrypoint File
-
-ADD entrypoint.sh /usr/local/bin/entrypoint.sh
+COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-ENTRYPOINT [ "/usr/local/bin/entrypoint.sh"]
+WORKDIR /srv/salt/signalfx-agent
+
+ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]

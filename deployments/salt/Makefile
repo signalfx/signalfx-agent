@@ -11,3 +11,12 @@ run-dev-image:
 		-it \
 		signalfx-agent-salt-dev \
 		bash
+
+.PHONY: test
+test:
+	docker run --rm signalfx-agent-salt-dev \
+		bash -ec 'salt-lint -v /srv/salt/signalfx-agent/*.sls'
+	docker run --rm signalfx-agent-salt-dev \
+		salt-call --local state.show_sls signalfx-agent
+	docker run --rm signalfx-agent-salt-dev \
+		salt-call --local pillar.items
