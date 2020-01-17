@@ -47,7 +47,7 @@ monitors:
     omitProcessInfo: true
   - type: host-metadata
   - type: processlist
-  - type: collectd/vmem
+  - type: vmem
 
   - type: docker-container-stats
     labelsToDimensions:
