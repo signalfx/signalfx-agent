@@ -10,8 +10,8 @@ Monitor Type: `vmem` ([Source](https://github.com/signalfx/signalfx-agent/tree/m
 
 ## Overview
 
-Collects information about the virtual memory
-subsystem of the kernel.
+Collects information specific to the virtual memory subsystem of the
+kernel.  For general memory statistics, see the [memory monitor](./memory.md).
 
 On Linux hosts, this monitor relies on the `/proc` filesystem.
 If the underlying host's `/proc` file system is mounted somewhere other than
