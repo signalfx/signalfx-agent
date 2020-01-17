@@ -19353,7 +19353,7 @@
       "monitorType": "collectd/vmem",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Collects information about the virtual memory\nsubsystem of the kernel using the [collectd vmem\nplugin](https://collectd.org/wiki/index.php/Plugin:vmem).  There is no\nconfiguration available for this plugin.\n",
+      "doc": "Collects information about the virtual memory\nsubsystem of the kernel using the [collectd vmem\nplugin](https://collectd.org/wiki/index.php/Plugin:vmem).  There is no\nconfiguration available for this plugin.\n\n**This monitor is deprecated in favor of the `vmem` monitor.  The metrics\nshould be fully compatible with this monitor.** This monitor will be\nremoved in a future agent release.\n",
       "groups": {
         "": {
           "description": "",
@@ -48105,7 +48105,7 @@
       "monitorType": "vmem",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Collects information about the virtual memory\nsubsystem of the kernel.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: vmem\n```\n",
+      "doc": "Collects information specific to the virtual memory subsystem of the\nkernel.  For general memory statistics, see the [memory monitor](./memory.md).\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: vmem\n```\n",
       "groups": {
         "": {
           "description": "",
