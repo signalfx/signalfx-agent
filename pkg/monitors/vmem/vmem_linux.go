@@ -17,18 +17,18 @@ import (
 )
 
 var cumulativeCounters = map[string]string{
-	"pgpgin":     "vmpage_io.memory.in",
-	"pgpgout":    "vmpage_io.memory.out",
-	"pswpin":     "vmpage_io.swap.in",
-	"pswpout":    "vmpage_io.swap.out",
-	"pgmajfault": "vmpage_faults.majflt",
-	"pgfault":    "vmpage_faults.minflt",
+	"pgpgin":     vmpageIoMemoryIn,
+	"pgpgout":    vmpageIoMemoryOut,
+	"pswpin":     vmpageIoSwapIn,
+	"pswpout":    vmpageIoSwapOut,
+	"pgmajfault": vmpageFaultsMajflt,
+	"pgfault":    vmpageFaultsMinflt,
 }
 
 var gauges = map[string]string{
-	"nr_free_pages": "vmpage_number.free_pages",
-	"nr_mapped":     "vmpage_number.mapped",
-	"nr_shmem":      "vmpage_number.shmem_pmdmapped",
+	"nr_free_pages": vmpageNumberFreePages,
+	"nr_mapped":     vmpageNumberMapped,
+	"nr_shmem":      vmpageNumberShmemPmdmapped,
 }
 
 func (m *Monitor) parseFileForDatapoints(contents []byte) []*datapoint.Datapoint {
@@ -54,7 +54,7 @@ func (m *Monitor) parseFileForDatapoints(contents []byte) []*datapoint.Datapoint
 					m.logger.Errorf("failed to parse value for metric %s", metricName)
 					continue
 				}
-				dps = append(dps, datapoint.New(metricName, map[string]string{"plugin": monitorType}, datapoint.NewIntValue(val), metricType, time.Time{}))
+				dps = append(dps, datapoint.New(metricName, nil, datapoint.NewIntValue(val), metricType, time.Time{}))
 			}
 		}
 	}
@@ -65,7 +65,6 @@ func (m *Monitor) parseFileForDatapoints(contents []byte) []*datapoint.Datapoint
 // Configure and run the monitor on linux
 func (m *Monitor) Configure(conf *Config) (err error) {
 	m.logger = logrus.WithField("monitorType", monitorType)
-	m.logger.Warningf("'%s' monitor is in beta on this platform.  For production environments please use 'collectd/%s'.", monitorType, monitorType)
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
