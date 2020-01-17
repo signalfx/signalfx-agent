@@ -16,6 +16,7 @@ from typing import Any, Dict, List, TypeVar, cast
 
 import docker
 import netifaces as ni
+import requests
 import yaml
 from tests.helpers.assertions import regex_search_matches_output
 from tests.paths import SELFDESCRIBE_JSON, TEST_SERVICES_DIR
@@ -424,6 +425,11 @@ def retry_on_ebadf(func: T) -> T:
         while True:
             try:
                 return func(*args, **kwargs)
+            except requests.exceptions.ConnectionError as e:
+                if "bad file descriptor" in str(e).lower():
+                    logging.error("Retrying ConnectionError EBADF")
+                    continue
+                raise
             except OSError as e:
                 if e.errno == 9:
                     tries += 1

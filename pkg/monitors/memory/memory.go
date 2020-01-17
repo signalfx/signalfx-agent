@@ -2,7 +2,6 @@ package memory
 
 import (
 	"context"
-	"runtime"
 	"time"
 
 	"github.com/shirou/gopsutil/mem"
@@ -14,8 +13,6 @@ import (
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
-
-const windowsOS = "windows"
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
@@ -33,73 +30,22 @@ type Monitor struct {
 	logger logrus.FieldLogger
 }
 
-func (m *Monitor) makeDatapointsWindows(memInfo *mem.VirtualMemoryStat, dimensions map[string]string) []*datapoint.Datapoint {
-	return []*datapoint.Datapoint{
-		datapoint.New("memory.available", dimensions, datapoint.NewIntValue(int64(memInfo.Available)), datapoint.Gauge, time.Time{}),
-	}
-}
-
-func (m *Monitor) makeDatapointsNotWindows(memInfo *mem.VirtualMemoryStat, dimensions map[string]string) []*datapoint.Datapoint {
-	return []*datapoint.Datapoint{
-		datapoint.New("memory.free", dimensions, datapoint.NewIntValue(int64(memInfo.Free)), datapoint.Gauge, time.Time{}),
-	}
-}
-
-func (m *Monitor) makeDatapointsDarwin(memInfo *mem.VirtualMemoryStat, dimensions map[string]string) []*datapoint.Datapoint {
-	return []*datapoint.Datapoint{
-		datapoint.New("memory.active", dimensions, datapoint.NewIntValue(int64(memInfo.Active)), datapoint.Gauge, time.Time{}),
-		datapoint.New("memory.inactive", dimensions, datapoint.NewIntValue(int64(memInfo.Inactive)), datapoint.Gauge, time.Time{}),
-		datapoint.New("memory.wired", dimensions, datapoint.NewIntValue(int64(memInfo.Wired)), datapoint.Gauge, time.Time{}),
-	}
-}
-
-func (m *Monitor) makeDatapointsLinux(memInfo *mem.VirtualMemoryStat, dimensions map[string]string) []*datapoint.Datapoint {
-	return []*datapoint.Datapoint{
-		datapoint.New("memory.buffered", dimensions, datapoint.NewIntValue(int64(memInfo.Buffers)), datapoint.Gauge, time.Time{}),
-		// for some reason gopsutil decided to add slab_reclaimable to cached which collectd does not
-		datapoint.New("memory.cached", dimensions, datapoint.NewIntValue(int64(memInfo.Cached-memInfo.SReclaimable)), datapoint.Gauge, time.Time{}),
-		datapoint.New("memory.slab_recl", dimensions, datapoint.NewIntValue(int64(memInfo.SReclaimable)), datapoint.Gauge, time.Time{}),
-		datapoint.New("memory.slab_unrecl", dimensions, datapoint.NewIntValue(int64(memInfo.Slab-memInfo.SReclaimable)), datapoint.Gauge, time.Time{}),
-	}
-}
-
 // EmitDatapoints emits a set of memory datapoints
 func (m *Monitor) emitDatapoints() {
 	// mem.VirtualMemory is a gopsutil function
 	memInfo, err := mem.VirtualMemory()
 	if err != nil {
-		if err == context.DeadlineExceeded {
-			m.logger.WithField("debug", err).Debugf("unable to collect memory time info")
-		} else {
-			m.logger.WithError(err).Errorf("unable to collect memory time info")
-		}
+		m.logger.WithError(err).Errorf("Unable to collect memory stats")
 		return
 	}
 
 	// all platforms
-	dps := []*datapoint.Datapoint{datapoint.New("memory.utilization", nil, datapoint.NewFloatValue(memInfo.UsedPercent), datapoint.Gauge, time.Time{}),
+	dps := []*datapoint.Datapoint{
+		datapoint.New("memory.utilization", nil, datapoint.NewFloatValue(memInfo.UsedPercent), datapoint.Gauge, time.Time{}),
 		datapoint.New("memory.used", nil, datapoint.NewIntValue(int64(memInfo.Used)), datapoint.Gauge, time.Time{}),
 	}
 
-	// windows only
-	if runtime.GOOS == windowsOS {
-		dps = append(dps, m.makeDatapointsWindows(memInfo, nil)...)
-	}
-
-	// linux + darwin only
-	if runtime.GOOS != windowsOS {
-		dps = append(dps, m.makeDatapointsNotWindows(memInfo, nil)...)
-	}
-
-	// darwin only
-	if runtime.GOOS == "darwin" {
-		dps = append(dps, m.makeDatapointsDarwin(memInfo, nil)...)
-	}
-
-	// linux only
-	if runtime.GOOS == "linux" {
-		dps = append(dps, m.makeDatapointsLinux(memInfo, nil)...)
-	}
+	dps = append(dps, m.makeMemoryDatapoints(memInfo, nil)...)
 
 	m.Output.SendDatapoints(dps...)
 }
