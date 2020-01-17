@@ -21,4 +21,5 @@ func TestRetrievePoints(t *testing.T) {
 	require.Equal(t, "vsphere.cpu_core_utilization_percent", pt.Metric)
 	require.Equal(t, datapoint.Count, pt.MetricType)
 	require.EqualValues(t, 1.11, pt.Value)
+	require.Equal(t, "my-vc", pt.Dimensions["vcenter"])
 }

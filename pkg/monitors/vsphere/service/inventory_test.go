@@ -18,9 +18,9 @@ func TestRetrieveInventory(t *testing.T) {
 		case model.HostType:
 			require.Equal(t, "host-0", dims["ref_id"])
 			require.Equal(t, model.HostType, dims["object_type"])
-			require.Equal(t, "foo host", dims["host_name"])
-			require.Equal(t, "foo os type", dims["os_type"])
+			require.Equal(t, "4.4.4.4", dims["esx_ip"])
 		case model.VMType:
+			require.Equal(t, "4.4.4.4", dims["esx_ip"])
 			require.Equal(t, "vm-0", dims["ref_id"])
 			require.Equal(t, model.VMType, dims["object_type"])
 			require.Equal(t, "foo vm", dims["vm_name"])

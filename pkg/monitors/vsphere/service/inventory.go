@@ -89,10 +89,10 @@ func (svc *InventorySvc) retrieveCluster(ref types.ManagedObjectReference, inv *
 			return nil, err
 		}
 
-		hostInvObj := model.NewInventoryObject(host.Self, map[string]string{
-			"host_name": host.Name,
-			"os_type":   host.Config.Product.OsType,
-		})
+		hostDims := map[string]string{
+			"esx_ip": host.Name,
+		}
+		hostInvObj := model.NewInventoryObject(host.Self, hostDims)
 		inv.AddObject(hostInvObj)
 
 		for _, vmRef := range host.Vm {
@@ -102,10 +102,15 @@ func (svc *InventorySvc) retrieveCluster(ref types.ManagedObjectReference, inv *
 				return nil, err
 			}
 
-			vmInvObj := model.NewInventoryObject(vm.Self, map[string]string{
-				"vm_name":  vm.Name,
-				"guest_id": vm.Config.GuestId,
-			})
+			vmDims := map[string]string{
+				"vm_name":        vm.Name,           // e.g. "MyDebian10Host"
+				"guest_id":       vm.Config.GuestId, // e.g. "debian10_64Guest"
+				"vm_ip":          vm.Guest.IpAddress,
+				"guest_family":   vm.Guest.GuestFamily,   // e.g. "linuxGuest"
+				"guest_fullname": vm.Guest.GuestFullName, // e.g. "Other 4.x or later Linux (64-bit)"
+			}
+			updateMap(vmDims, hostDims)
+			vmInvObj := model.NewInventoryObject(vm.Self, vmDims)
 			inv.AddObject(vmInvObj)
 		}
 	}

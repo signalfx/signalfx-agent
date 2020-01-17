@@ -62,6 +62,8 @@ func (svc *PointsSvc) RetrievePoints(vsInfo *model.VsphereInfo, numSamplesReqd i
 				dims["object"] = intSeries.Id.Instance
 			}
 
+			dims["vcenter"] = svc.gateway.vcenterName()
+
 			if len(intSeries.Value) > 0 && intSeries.Value[0] > 0 {
 				svc.log.Debugf(
 					"metric = %s, type = (%s->%s), dims = %v, values = %v",
@@ -91,14 +93,6 @@ func (svc *PointsSvc) RetrievePoints(vsInfo *model.VsphereInfo, numSamplesReqd i
 		}
 	}
 	return dps, latestSampleTime
-}
-
-func copyMap(in map[string]string) map[string]string {
-	out := make(map[string]string)
-	for k, v := range in {
-		out[k] = v
-	}
-	return out
 }
 
 func statsTypeToMetricType(statsType types.PerfStatsType) datapoint.MetricType {
