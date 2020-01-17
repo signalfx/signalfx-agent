@@ -76,7 +76,7 @@ func ProcessList(conf *Config, cache *osCache) ([]*TopProcess, error) {
 					cache.uidCache[uid] = user
 					username = user.Username
 				} else {
-					logger.WithError(err).Errorf("Could not lookup user id %s", uid)
+					logger.WithError(err).Debugf("Could not lookup user id %s for process id %d", uid, p.PID)
 				}
 			}
 		}

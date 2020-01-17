@@ -16,6 +16,7 @@ $ docker run \
     -v /:/hostfs:ro \
     -v /var/run/docker.sock:/var/run/docker.sock:ro \
     -v /etc/signalfx/:/etc/signalfx/:ro \
+    -v /etc/passwd:/etc/passwd:ro \
     quay.io/signalfx/signalfx-agent:<version>
 ```
 

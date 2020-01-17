@@ -36,6 +36,11 @@
                     "readOnly": true,
                     "containerPath": "/var/run/docker.sock",
                     "sourceVolume": "docker-socket"
+                },
+                {
+                    "readOnly": true,
+                    "containerPath": "/etc/passwd",
+                    "sourceVolume": "etc-passwd"
                 }
             ],
             "workingDirectory": null,
@@ -79,6 +84,13 @@
             "name": "docker-socket",
             "host": {
                 "sourcePath": "/var/run/docker.sock"
+            },
+            "dockerVolumeConfiguration": null
+        },
+        {
+            "name": "etc-passwd",
+            "host": {
+                "sourcePath": "/etc/passwd"
             },
             "dockerVolumeConfiguration": null
         }
