@@ -15,6 +15,10 @@ subsystem of the kernel using the [collectd vmem
 plugin](https://collectd.org/wiki/index.php/Plugin:vmem).  There is no
 configuration available for this plugin.
 
+**This monitor is deprecated in favor of the `vmem` monitor.  The metrics
+should be fully compatible with this monitor.** This monitor will be
+removed in a future agent release.
+
 
 ## Configuration
 

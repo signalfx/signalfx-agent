@@ -40,7 +40,7 @@ This role sources the following variables:
         - type: net-io
         - type: load
         - type: memory
-        - type: collectd/vmem
+        - type: vmem
         - type: collectd/signalfx-metadata
           omitProcessInfo: true
         - type: host-metadata
