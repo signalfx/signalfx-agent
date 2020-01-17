@@ -44,7 +44,7 @@ data:
     - type: host-metadata
     - type: processlist
     - type: collectd/uptime
-    - type: collectd/vmem
+    - type: vmem
 
     - type: kubelet-stats
       kubeletAPI:
