@@ -29,7 +29,7 @@ class accepts the following parameters:
         {type: "host-metadata"},
         {type: "processlist"},
         {type: "collectd/uptime"},
-        {type: "collectd/vmem"}
+        {type: "vmem"}
       ]
     }
     ```
