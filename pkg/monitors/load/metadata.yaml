@@ -1,12 +1,12 @@
 monitors:
 - dimensions:
   doc: |
-    Monitors process load on the host using the collectd
-    [Load plugin](https://collectd.org/wiki/index.php/Plugin:Load).
+    Monitors process load on the host. Process load is the average number of
+    running or waiting processes over a certain time period (1, 5, and 15
+    minutes).
 
-    **This monitor has been deprecated in favor of the `load` monitor. That
-    monitor emits the same metrics and is fully compatible.  This
-    `collectd/load` monitor will be removed in a future release of the agent."
+    This monitor is only available on Linux.
+
   metrics:
     load.longterm:
       description: Average CPU load per core over the last 15 minutes
@@ -20,5 +20,6 @@ monitors:
       description: Average CPU load per core over the last one minute
       default: true
       type: gauge
-  monitorType: collectd/load
+  monitorType: load
   properties:
+
