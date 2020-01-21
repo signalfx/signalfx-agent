@@ -4,13 +4,6 @@ from textwrap import dedent
 from tests.helpers.agent import Agent
 from tests.helpers.util import container_ip, run_service
 
-BASIC_CONFIG = """
-monitors:
-  - type: collectd/signalfx-metadata
-  - type: collectd/cpu
-  - type: collectd/uptime
-"""
-
 
 def test_writer_no_skipped_datapoints():
     """
