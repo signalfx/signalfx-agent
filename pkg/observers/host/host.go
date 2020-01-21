@@ -5,6 +5,7 @@ package host
 
 import (
 	"fmt"
+	"runtime"
 	"strconv"
 	"syscall"
 
@@ -89,7 +90,15 @@ func portTypeToProtocol(t uint32) services.PortType {
 }
 
 func (o *Observer) discover() []services.Endpoint {
-	conns, err := net.Connections("all")
+	var conns []net.ConnectionStat
+	var err error
+	if runtime.GOOS == "windows" {
+		conns, err = net.Connections("all")
+	} else {
+		// process.Uids field isn't used so skip collection of it (not
+		// available on Windows).
+		conns, err = net.ConnectionsWithoutUids("all")
+	}
 	if err != nil {
 		o.logger.WithError(err).Error("Could not get local network listeners")
 		return nil

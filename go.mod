@@ -82,7 +82,7 @@ require (
 	github.com/influxdata/influxdb v1.7.4 // indirect
 	github.com/influxdata/platform v0.0.0-20190117200541-d500d3cf5589 // indirect
 	github.com/influxdata/tail v1.0.0 // indirect
-	github.com/influxdata/telegraf v0.10.2-0.20190319005412-5e88824c153e
+	github.com/influxdata/telegraf v0.10.2-0.20200121190823-6dad859d74c2
 	github.com/influxdata/toml v0.0.0-20180607005434-2a2e3012f7cf // indirect
 	github.com/influxdata/wlog v0.0.0-20160411224016-7c63b0a71ef8 // indirect
 	github.com/jaegertracing/jaeger v1.15.1
@@ -122,7 +122,7 @@ require (
 	github.com/prometheus/common v0.2.1-0.20190321124555-1ab4d74fc899
 	github.com/prometheus/procfs v0.0.9-0.20191209220459-fa4d6ce8c078
 	github.com/samuel/go-zookeeper v0.0.0-20190810000440-0ceca61e4d75
-	github.com/shirou/gopsutil v2.18.12+incompatible
+	github.com/shirou/gopsutil v2.19.12+incompatible
 	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.0-20190222193949-1fb69526e884
 	github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 	github.com/signalfx/gateway v1.2.19-0.20191125135538-2c417b7ae0bd
@@ -130,7 +130,7 @@ require (
 	github.com/signalfx/signalfx-go v1.6.9-0.20191121015807-da8b1dfaab43
 	github.com/sirupsen/logrus v1.4.0
 	github.com/smartystreets/goconvey v1.6.4
-	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect
+	github.com/soniah/gosnmp v1.22.0 // indirect
 	github.com/streadway/amqp v0.0.0-20190312223743-14f78b41ce6d // indirect
 	github.com/stretchr/testify v1.4.0
 	github.com/tidwall/gjson v1.2.1 // indirect
