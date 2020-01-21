@@ -21,8 +21,7 @@ observers:
 
 monitors:
   - {"#from": "/etc/signalfx/monitors/*.yaml", flatten: true, optional: true}
-  - type: collectd/cpu
-  - type: collectd/cpufreq
+  - type: cpu
   - type: filesystems
     hostFSPath: /hostfs
   - type: disk-io
