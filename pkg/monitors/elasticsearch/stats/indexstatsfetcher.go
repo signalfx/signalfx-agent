@@ -1,4 +1,4 @@
-package client
+package stats
 
 import (
 	"github.com/signalfx/golib/v3/datapoint"

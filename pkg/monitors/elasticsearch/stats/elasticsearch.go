@@ -1,4 +1,4 @@
-package elasticsearch
+package stats
 
 import (
 	"context"
@@ -7,12 +7,10 @@ import (
 	"sync"
 	"time"
 
-	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
-
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
-	"github.com/signalfx/signalfx-agent/pkg/monitors/elasticsearch/client"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	log "github.com/sirupsen/logrus"
@@ -72,7 +70,7 @@ type Config struct {
 	MetadataRefreshIntervalSeconds int `yaml:"metadataRefreshIntervalSeconds" default:"30"`
 }
 
-// Monitor for conviva metrics
+// Monitor for elasticsearch metrics
 type Monitor struct {
 	Output types.FilteringOutput
 	cancel context.CancelFunc
@@ -81,7 +79,7 @@ type Monitor struct {
 }
 
 func init() {
-	monitors.Register(&client.MonitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
 type sharedInfo struct {
@@ -92,7 +90,7 @@ type sharedInfo struct {
 	logger               *utils.ThrottledLogger
 }
 
-func (sinfo *sharedInfo) fetchNodeAndClusterMetadata(esClient client.ESHttpClient, configuredClusterName string) error {
+func (sinfo *sharedInfo) fetchNodeAndClusterMetadata(esClient ESStatsHTTPClient, configuredClusterName string) error {
 	// Collect info about master for the cluster
 	masterInfoOutput, err := esClient.GetMasterNodeInfo()
 	if err != nil {
@@ -142,28 +140,28 @@ func (sinfo *sharedInfo) getAllSharedInfo() (map[string]string, map[string]strin
 
 // Configure monitor
 func (m *Monitor) Configure(c *Config) error {
-	m.logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": client.MonitorType}), 20*time.Second)
+	m.logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType}), 20*time.Second)
 
 	// conf is a config shallow copy that will be mutated and used to configure monitor
 	conf := &Config{}
 	*conf = *c
 	// Setting metric group flags in conf for configured extra metrics
-	if m.Output.HasEnabledMetricInGroup(client.GroupCluster) {
+	if m.Output.HasEnabledMetricInGroup(groupCluster) {
 		conf.EnableEnhancedClusterHealthStats = true
 	}
-	if m.Output.HasEnabledMetricInGroup(client.GroupNodeHTTP) {
+	if m.Output.HasEnabledMetricInGroup(groupNodeHTTP) {
 		conf.EnableEnhancedHTTPStats = true
 	}
-	if m.Output.HasEnabledMetricInGroup(client.GroupNodeJvm) {
+	if m.Output.HasEnabledMetricInGroup(groupNodeJvm) {
 		conf.EnableEnhancedJVMStats = true
 	}
-	if m.Output.HasEnabledMetricInGroup(client.GroupNodeProcess) {
+	if m.Output.HasEnabledMetricInGroup(groupNodeProcess) {
 		conf.EnableEnhancedProcessStats = true
 	}
-	if m.Output.HasEnabledMetricInGroup(client.GroupNodeThreadPool) {
+	if m.Output.HasEnabledMetricInGroup(groupNodeThreadPool) {
 		conf.EnableEnhancedThreadPoolStats = true
 	}
-	if m.Output.HasEnabledMetricInGroup(client.GroupNodeTransport) {
+	if m.Output.HasEnabledMetricInGroup(groupNodeTransport) {
 		conf.EnableEnhancedTransportStats = true
 	}
 
@@ -172,7 +170,7 @@ func (m *Monitor) Configure(c *Config) error {
 		return err
 	}
 
-	esClient := client.NewESClient(conf.Host, conf.Port, conf.HTTPConfig.Scheme(), httpClient)
+	esClient := NewESClient(conf.Host, conf.Port, conf.HTTPConfig.Scheme(), httpClient)
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 	var isInitialized bool
 
@@ -231,23 +229,23 @@ func (m *Monitor) Configure(c *Config) error {
 	return nil
 }
 
-func (m *Monitor) fetchNodeStats(esClient client.ESHttpClient, conf *Config, defaultNodeDimensions map[string]string) {
+func (m *Monitor) fetchNodeStats(esClient ESStatsHTTPClient, conf *Config, defaultNodeDimensions map[string]string) {
 	nodeStatsOutput, err := esClient.GetNodeAndThreadPoolStats()
 	if err != nil {
 		m.logger.WithError(err).Errorf("Failed to GET node stats")
 		return
 	}
 
-	m.sendDatapoints(client.GetNodeStatsDatapoints(nodeStatsOutput, defaultNodeDimensions, utils.StringSliceToMap(conf.ThreadPools), utils.StringSliceToMap(conf.EnableEnhancedNodeStatsForIndexGroups), map[string]bool{
-		client.HTTPStatsGroup:       conf.EnableEnhancedHTTPStats,
-		client.JVMStatsGroup:        conf.EnableEnhancedJVMStats,
-		client.ProcessStatsGroup:    conf.EnableEnhancedProcessStats,
-		client.ThreadpoolStatsGroup: conf.EnableEnhancedThreadPoolStats,
-		client.TransportStatsGroup:  conf.EnableEnhancedTransportStats,
+	m.sendDatapoints(GetNodeStatsDatapoints(nodeStatsOutput, defaultNodeDimensions, utils.StringSliceToMap(conf.ThreadPools), utils.StringSliceToMap(conf.EnableEnhancedNodeStatsForIndexGroups), map[string]bool{
+		HTTPStatsGroup:       conf.EnableEnhancedHTTPStats,
+		JVMStatsGroup:        conf.EnableEnhancedJVMStats,
+		ProcessStatsGroup:    conf.EnableEnhancedProcessStats,
+		ThreadpoolStatsGroup: conf.EnableEnhancedThreadPoolStats,
+		TransportStatsGroup:  conf.EnableEnhancedTransportStats,
 	}))
 }
 
-func (m *Monitor) fetchClusterStats(esClient client.ESHttpClient, conf *Config, defaultDimensions map[string]string) {
+func (m *Monitor) fetchClusterStats(esClient ESStatsHTTPClient, conf *Config, defaultDimensions map[string]string) {
 	clusterStatsOutput, err := esClient.GetClusterStats()
 
 	if err != nil {
@@ -255,10 +253,10 @@ func (m *Monitor) fetchClusterStats(esClient client.ESHttpClient, conf *Config, 
 		return
 	}
 
-	m.sendDatapoints(client.GetClusterStatsDatapoints(clusterStatsOutput, defaultDimensions, conf.EnableEnhancedClusterHealthStats))
+	m.sendDatapoints(GetClusterStatsDatapoints(clusterStatsOutput, defaultDimensions, conf.EnableEnhancedClusterHealthStats))
 }
 
-func (m *Monitor) fetchIndexStats(esClient client.ESHttpClient, conf *Config, defaultDimensions map[string]string) {
+func (m *Monitor) fetchIndexStats(esClient ESStatsHTTPClient, conf *Config, defaultDimensions map[string]string) {
 	indexStatsOutput, err := esClient.GetIndexStats()
 
 	if err != nil {
@@ -267,11 +265,11 @@ func (m *Monitor) fetchIndexStats(esClient client.ESHttpClient, conf *Config, de
 	}
 
 	if conf.IndexSummaryOnly {
-		m.sendDatapoints(client.GetIndexStatsSummaryDatapoints(indexStatsOutput.AllIndexStats, defaultDimensions, utils.StringSliceToMap(conf.EnableEnhancedIndexStatsForIndexGroups), conf.EnableIndexStatsPrimaries))
+		m.sendDatapoints(GetIndexStatsSummaryDatapoints(indexStatsOutput.AllIndexStats, defaultDimensions, utils.StringSliceToMap(conf.EnableEnhancedIndexStatsForIndexGroups), conf.EnableIndexStatsPrimaries))
 		return
 	}
 
-	m.sendDatapoints(client.GetIndexStatsDatapoints(indexStatsOutput.Indices, utils.StringSliceToMap(conf.Indexes), defaultDimensions, utils.StringSliceToMap(conf.EnableEnhancedIndexStatsForIndexGroups), conf.EnableIndexStatsPrimaries))
+	m.sendDatapoints(GetIndexStatsDatapoints(indexStatsOutput.Indices, utils.StringSliceToMap(conf.Indexes), defaultDimensions, utils.StringSliceToMap(conf.EnableEnhancedIndexStatsForIndexGroups), conf.EnableIndexStatsPrimaries))
 }
 
 // Prepares dimensions that are common to all datapoints from the monitor
@@ -289,12 +287,12 @@ func prepareDefaultDimensions(userProvidedClusterName string, queriedClusterName
 	// "plugin_instance" dimension is added to maintain backwards compatibility with built-in content
 	dims["plugin_instance"] = clusterName
 	dims["cluster"] = clusterName
-	dims["plugin"] = client.MonitorType
+	dims["plugin"] = monitorType
 
 	return dims, nil
 }
 
-func isCurrentMaster(nodeID string, masterInfoOutput *client.MasterInfoOutput) (bool, error) {
+func isCurrentMaster(nodeID string, masterInfoOutput *MasterInfoOutput) (bool, error) {
 	masterNode := masterInfoOutput.MasterNode
 
 	if masterNode == nil {
@@ -304,7 +302,7 @@ func isCurrentMaster(nodeID string, masterInfoOutput *client.MasterInfoOutput) (
 	return nodeID == *masterNode, nil
 }
 
-func prepareNodeMetricsDimensions(nodeInfo map[string]client.NodeInfo) (map[string]string, error) {
+func prepareNodeMetricsDimensions(nodeInfo map[string]NodeInfo) (map[string]string, error) {
 	var nodeID string
 
 	if len(nodeInfo) != 1 {
@@ -349,80 +347,80 @@ func (m *Monitor) sendDatapoints(dps []*datapoint.Datapoint) {
 func (c *Config) GetExtraMetrics() []string {
 	var extraMetrics []string
 	if c.EnableEnhancedClusterHealthStats {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupCluster]...)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupCluster]...)
 	}
 	if c.EnableEnhancedHTTPStats {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupNodeHTTP]...)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupNodeHTTP]...)
 	}
 	if c.EnableEnhancedJVMStats {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupNodeJvm]...)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupNodeJvm]...)
 	}
 	if c.EnableEnhancedProcessStats {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupNodeProcess]...)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupNodeProcess]...)
 	}
 	if c.EnableEnhancedThreadPoolStats {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupNodeThreadPool]...)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupNodeThreadPool]...)
 	}
 	if c.EnableEnhancedTransportStats {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupNodeTransport]...)
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupNodeTransport]...)
 	}
 	enhancedStatsForIndexGroups := utils.StringSliceToMap(append(c.EnableEnhancedNodeStatsForIndexGroups, c.EnableEnhancedIndexStatsForIndexGroups...))
-	if enhancedStatsForIndexGroups[client.StoreStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesStore]...)
+	if enhancedStatsForIndexGroups[StoreStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesStore]...)
 	}
-	if enhancedStatsForIndexGroups[client.IndexingStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesIndexing]...)
+	if enhancedStatsForIndexGroups[IndexingStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesIndexing]...)
 	}
-	if enhancedStatsForIndexGroups[client.GetStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesGet]...)
+	if enhancedStatsForIndexGroups[GetStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesGet]...)
 	}
-	if enhancedStatsForIndexGroups[client.SearchStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesSearch]...)
+	if enhancedStatsForIndexGroups[SearchStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesSearch]...)
 	}
-	if enhancedStatsForIndexGroups[client.MergesStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesMerges]...)
+	if enhancedStatsForIndexGroups[MergesStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesMerges]...)
 	}
-	if enhancedStatsForIndexGroups[client.RefreshStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesRefresh]...)
+	if enhancedStatsForIndexGroups[RefreshStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesRefresh]...)
 	}
-	if enhancedStatsForIndexGroups[client.FlushStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesFlush]...)
+	if enhancedStatsForIndexGroups[FlushStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesFlush]...)
 	}
-	if enhancedStatsForIndexGroups[client.WarmerStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesWarmer]...)
+	if enhancedStatsForIndexGroups[WarmerStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesWarmer]...)
 	}
-	if enhancedStatsForIndexGroups[client.QueryCacheStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesQueryCache]...)
+	if enhancedStatsForIndexGroups[QueryCacheStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesQueryCache]...)
 	}
-	if enhancedStatsForIndexGroups[client.FilterCacheStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesFilterCache]...)
+	if enhancedStatsForIndexGroups[FilterCacheStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesFilterCache]...)
 	}
-	if enhancedStatsForIndexGroups[client.FieldDataStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesFielddata]...)
+	if enhancedStatsForIndexGroups[FieldDataStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesFielddata]...)
 	}
-	if enhancedStatsForIndexGroups[client.CompletionStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesCompletion]...)
+	if enhancedStatsForIndexGroups[CompletionStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesCompletion]...)
 	}
-	if enhancedStatsForIndexGroups[client.TranslogStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesTranslog]...)
+	if enhancedStatsForIndexGroups[TranslogStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesTranslog]...)
 	}
-	if enhancedStatsForIndexGroups[client.RequestCacheStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesRequestCache]...)
+	if enhancedStatsForIndexGroups[RequestCacheStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesRequestCache]...)
 	}
-	if enhancedStatsForIndexGroups[client.RecoveryStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesRecovery]...)
+	if enhancedStatsForIndexGroups[RecoveryStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesRecovery]...)
 	}
-	if enhancedStatsForIndexGroups[client.IDCacheStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesIDCache]...)
+	if enhancedStatsForIndexGroups[IDCacheStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesIDCache]...)
 	}
-	if enhancedStatsForIndexGroups[client.SuggestStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesSuggest]...)
+	if enhancedStatsForIndexGroups[SuggestStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesSuggest]...)
 	}
-	if enhancedStatsForIndexGroups[client.PercolateStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesPercolate]...)
+	if enhancedStatsForIndexGroups[PercolateStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesPercolate]...)
 	}
-	if enhancedStatsForIndexGroups[client.SegmentsStatsGroup] {
-		extraMetrics = append(extraMetrics, client.GroupMetricsMap[client.GroupIndicesSegments]...)
+	if enhancedStatsForIndexGroups[SegmentsStatsGroup] {
+		extraMetrics = append(extraMetrics, groupMetricsMap[groupIndicesSegments]...)
 	}
 	return extraMetrics
 }

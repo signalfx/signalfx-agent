@@ -1,4 +1,4 @@
-package client
+package stats
 
 // NodeStatsOutput contains all the node level stats of the
 // following types - indices, process, jvm, thread pool,

@@ -1,4 +1,4 @@
-package client
+package stats
 
 // ClusterStatsOutput holds cluster level stats from Elasticsearch
 type ClusterStatsOutput struct {

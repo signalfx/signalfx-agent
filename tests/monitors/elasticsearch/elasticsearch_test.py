@@ -15,7 +15,7 @@ pytestmark = [
     pytest.mark.flaky(reruns=2),
 ]
 
-METADATA = Metadata.from_package("elasticsearch")
+METADATA = Metadata.from_package("elasticsearch/stats")
 ENV = {"cluster.name": "testCluster"}
 AGENT_CONFIG_TEMPLATE = """
     monitors:

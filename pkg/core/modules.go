@@ -33,7 +33,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/docker"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/dotnet"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/ecs"
-	_ "github.com/signalfx/signalfx-agent/pkg/monitors/elasticsearch"
+	_ "github.com/signalfx/signalfx-agent/pkg/monitors/elasticsearch/stats"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/etcd"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/expvar"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/filesystems"

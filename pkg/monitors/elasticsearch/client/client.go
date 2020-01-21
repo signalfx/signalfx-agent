@@ -6,123 +6,21 @@ import (
 	"net/http"
 )
 
-const (
-	nodeStatsEndpoint          = "_nodes/_local/stats/transport,http,process,jvm,indices,thread_pool"
-	clusterHealthStatsEndpoint = "_cluster/health"
-	nodeInfoEndpoint           = "_nodes/_local"
-	masterNodeEndpoint         = "_cluster/state/master_node"
-	allIndexStatsEndpoint      = "_all/_stats"
-)
-
-type esClient struct {
-	scheme     string
-	host       string
-	port       string
-	httpClient *http.Client
-}
-
-// ESHttpClient holds methods hitting various ES stats endpoints
-type ESHttpClient interface {
-	GetNodeAndThreadPoolStats() (*NodeStatsOutput, error)
-	GetClusterStats() (*ClusterStatsOutput, error)
-	GetNodeInfo() (*NodeInfoOutput, error)
-	GetMasterNodeInfo() (*MasterInfoOutput, error)
-	GetIndexStats() (*IndexStatsOutput, error)
-}
-
-// NewESClient creates a new esClient
-func NewESClient(host string, port string, scheme string, client *http.Client) ESHttpClient {
-	return &esClient{
-		scheme:     scheme,
-		host:       host,
-		port:       port,
-		httpClient: client,
-	}
-}
-
-// Method to collect index stats
-func (c *esClient) GetIndexStats() (*IndexStatsOutput, error) {
-	url := fmt.Sprintf("%s://%s:%s/%s", c.scheme, c.host, c.port, allIndexStatsEndpoint)
-
-	var indexStatsOutput IndexStatsOutput
-
-	err := c.fetchJSON(url, &indexStatsOutput)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &indexStatsOutput, nil
-}
-
-// Method to identify the master node
-func (c *esClient) GetMasterNodeInfo() (*MasterInfoOutput, error) {
-	url := fmt.Sprintf("%s://%s:%s/%s", c.scheme, c.host, c.port, masterNodeEndpoint)
-
-	var masterInfoOutput MasterInfoOutput
-
-	err := c.fetchJSON(url, &masterInfoOutput)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &masterInfoOutput, nil
-}
-
-// Method to fetch node info
-func (c *esClient) GetNodeInfo() (*NodeInfoOutput, error) {
-	url := fmt.Sprintf("%s://%s:%s/%s", c.scheme, c.host, c.port, nodeInfoEndpoint)
-
-	var nodeInfoOutput NodeInfoOutput
-
-	err := c.fetchJSON(url, &nodeInfoOutput)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &nodeInfoOutput, nil
-}
-
-// Method to fetch cluster stats
-func (c *esClient) GetClusterStats() (*ClusterStatsOutput, error) {
-	url := fmt.Sprintf("%s://%s:%s/%s", c.scheme, c.host, c.port, clusterHealthStatsEndpoint)
-
-	var clusterStatsOutput ClusterStatsOutput
-
-	err := c.fetchJSON(url, &clusterStatsOutput)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &clusterStatsOutput, nil
-}
-
-// Method to fetch node stats
-func (c *esClient) GetNodeAndThreadPoolStats() (*NodeStatsOutput, error) {
-	url := fmt.Sprintf("%s://%s:%s/%s", c.scheme, c.host, c.port, nodeStatsEndpoint)
-
-	var nodeStatsOutput NodeStatsOutput
-
-	err := c.fetchJSON(url, &nodeStatsOutput)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return &nodeStatsOutput, nil
+type ESClient struct {
+	Scheme     string
+	Host       string
+	Port       string
+	HTTPClient *http.Client
 }
 
 // Fetches a JSON response and puts it into an object
-func (c *esClient) fetchJSON(url string, obj interface{}) error {
+func (c *ESClient) FetchJSON(url string, obj interface{}) error {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		return fmt.Errorf("could not get url %s: %v", url, err)
 	}
 
-	res, err := c.httpClient.Do(req)
+	res, err := c.HTTPClient.Do(req)
 
 	if err != nil {
 		return fmt.Errorf("could not get url %s: %v", url, err)

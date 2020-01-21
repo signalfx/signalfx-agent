@@ -21674,7 +21674,7 @@
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
-        "package": "pkg/monitors/elasticsearch",
+        "package": "pkg/monitors/elasticsearch/stats",
         "fields": [
           {
             "yamlName": "httpTimeout",
