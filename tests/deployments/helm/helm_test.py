@@ -240,9 +240,7 @@ def test_helm(k8s_cluster, helm_version):
                             ),
                             timeout_seconds=60,
                         )
-                        assert wait_for(
-                            p(has_datapoint, backend, dimensions={"plugin": "signalfx-metadata"}), timeout_seconds=60
-                        )
+                        assert wait_for(p(has_datapoint, backend, metric_name="memory.utilization"), timeout_seconds=60)
                     finally:
                         for pod in get_pods_by_labels("app=signalfx-agent", namespace=k8s_cluster.test_namespace):
                             print("pod/%s:" % pod.metadata.name)
