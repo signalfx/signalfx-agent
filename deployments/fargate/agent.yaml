@@ -18,7 +18,7 @@ observers:
       com.amazonaws.ecs.container-name: container_spec_name
 
 monitors:
-  - type: collectd/cpu
+  - type: cpu
   - type: disk-io
   - type: net-io
   - type: load

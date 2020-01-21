@@ -35,8 +35,7 @@ observers:
       com.amazonaws.ecs.task-definition-version: ecs_task_version
 
 monitors:
-  - type: collectd/cpu
-  - type: collectd/cpufreq
+  - type: cpu
   - type: filesystems
     hostFSPath: /hostfs
   - type: disk-io

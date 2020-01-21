@@ -67,7 +67,7 @@ part of the `monitors` list in the agent config like so:
 ```yaml
 monitors:
   - {"#from": "/etc/signalfx/monitors/*.yaml", flatten: true, optional: true}
-  - type: collectd/cpu
+  - type: cpu
   ...
 ```
 

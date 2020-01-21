@@ -6,8 +6,7 @@ from tests.helpers.util import ensure_always, wait_for
 
 BASIC_CONFIG = """
 monitors:
-  - type: collectd/signalfx-metadata
-  - type: collectd/cpu
+  - type: cpu
   - type: collectd/uptime
 metricsToExclude:
   - metricName: cpu.utilization
@@ -22,8 +21,7 @@ def test_basic_filtering():
 
 NEGATIVE_FILTERING_CONFIG = """
 monitors:
-  - type: collectd/signalfx-metadata
-  - type: collectd/memory
+  - type: memory
   - type: collectd/uptime
 metricsToExclude:
   - metricName: memory.used
@@ -45,15 +43,14 @@ def test_negated_filter_with_monitor_type():
     with Agent.run(
         """
 monitors:
-  - type: collectd/signalfx-metadata
-  - type: collectd/memory
-  - type: collectd/df
+  - type: memory
+  - type: filesystems
   - type: collectd/uptime
 metricsToExclude:
   - metricNames:
      - memory.used
      - memory.free
-    monitorType: collectd/memory
+    monitorType: memory
     negated: true
   - metricName: uptime
 """
@@ -69,19 +66,18 @@ def test_combined_filter_with_monitor_type():
     with Agent.run(
         """
 monitors:
-  - type: collectd/signalfx-metadata
-  - type: collectd/memory
-  - type: collectd/df
+  - type: memory
+  - type: filesystems
   - type: collectd/uptime
 metricsToExclude:
   - metricNames:
      - memory.used
-    monitorType: collectd/memory
+    monitorType: memory
     negated: true
   - metricName: uptime
   - metricNames:
     - memory.free
-    monitorType: collectd/memory
+    monitorType: memory
     negated: true
 """
     ) as agent:
@@ -98,7 +94,7 @@ def test_overlapping_filter_with_monitor_type():
     with Agent.run(
         """
 monitors:
-  - type: collectd/memory
+  - type: memory
   - type: collectd/uptime
 metricsToExclude:
   - metricName: uptime
@@ -120,7 +116,7 @@ def test_overlapping_filter_with_monitor_type2():
     with Agent.run(
         """
 monitors:
-  - type: collectd/memory
+  - type: memory
   - type: collectd/uptime
 metricsToExclude:
   - metricName: uptime
@@ -143,16 +139,16 @@ def test_include_filter_with_monitor_type():
         """
 enableBuiltInFiltering: false
 monitors:
-  - type: collectd/disk
+  - type: disk-io
   - type: collectd/uptime
 metricsToExclude:
   - metricNames:
     - disk_time.read
-    monitorType: collectd/disk
+    monitorType: disk-io
   - metricNames:
     - disk_ops.read
     - disk_ops.write
-    monitorType: collectd/disk
+    monitorType: disk-io
     negated: true
 metricsToInclude:
   - metricNames:
@@ -173,14 +169,13 @@ def test_filter_with_restart():
     with Agent.run(
         """
 monitors:
-  - type: collectd/signalfx-metadata
-  - type: collectd/df
-  - type: collectd/memory
+  - type: filesystems
+  - type: memory
   - type: collectd/uptime
 metricsToExclude:
   - metricNames:
      - memory.*
-    monitorType: collectd/memory
+    monitorType: memory
 """
     ) as agent:
         assert wait_for(p(has_datapoint, agent.fake_services, metric_name="df_complex.free"))
@@ -190,14 +185,13 @@ metricsToExclude:
         agent.update_config(
             """
 monitors:
-  - type: collectd/signalfx-metadata
-  - type: collectd/df
-  - type: collectd/memory
+  - type: filesystems
+  - type: memory
   - type: collectd/uptime
 metricsToExclude:
   - metricNames:
      - memory.used
-    monitorType: collectd/memory
+    monitorType: memory
 """
         )
         assert wait_for(p(has_datapoint, agent.fake_services, metric_name="memory.free"))
@@ -210,9 +204,8 @@ def test_monitor_filter():
     with Agent.run(
         """
 monitors:
-  - type: collectd/signalfx-metadata
-  - type: collectd/df
-  - type: collectd/memory
+  - type: filesystems
+  - type: memory
     metricsToExclude:
      - metricName: memory.used
   - type: collectd/uptime
@@ -225,9 +218,8 @@ monitors:
         agent.update_config(
             """
 monitors:
-  - type: collectd/signalfx-metadata
-  - type: collectd/df
-  - type: collectd/memory
+  - type: filesystems
+  - type: memory
   - type: collectd/uptime
 """
         )
@@ -239,9 +231,8 @@ def test_mixed_regex_and_non_regex_filters():
     with Agent.run(
         """
 monitors:
-  - type: collectd/signalfx-metadata
-  - type: collectd/memory
-  - type: collectd/df
+  - type: memory
+  - type: filesystems
   - type: collectd/uptime
 metricsToExclude:
   - metricNames:
