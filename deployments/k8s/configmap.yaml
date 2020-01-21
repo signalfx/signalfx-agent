@@ -30,8 +30,7 @@ data:
     - type: k8s-api
 
     monitors:
-    - type: collectd/cpu
-    - type: collectd/cpufreq
+    - type: cpu
     - type: filesystems
       hostFSPath: /hostfs
     - type: disk-io
