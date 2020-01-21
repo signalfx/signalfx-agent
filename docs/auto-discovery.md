@@ -4,7 +4,7 @@ The observers are responsible for discovering service endpoints.  For these
 service endpoints to result in a new monitor instance that is watching that
 endpoint, you must apply _discovery rules_ to your monitor configuration. Every
 monitor that supports monitoring specific services (i.e. not a static monitor
-like the `collectd/cpu` monitor) can be configured with a `discoveryRule`
+like the `cpu` monitor) can be configured with a `discoveryRule`
 config option that specifies a rule using a mini rule language.
 
 For example, to monitor a Redis instance that has been discovered by a
