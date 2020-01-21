@@ -65,18 +65,11 @@ func (m *Monitor) getCommonDimensions(partition *gopsutil.PartitionStat) map[str
 		"mountpoint": strings.Replace(partition.Mountpoint, " ", "_", -1),
 		"device":     strings.Replace(partition.Device, " ", "_", -1),
 		"fs_type":    strings.Replace(partition.Fstype, " ", "_", -1),
-		// This will be overridden for some metrics
-		"plugin": monitorType,
 	}
 	// sanitize hostfs path in mountpoint
 	if m.hostFSPath != "" {
 		dims["mountpoint"] = strings.Replace(dims["mountpoint"], m.hostFSPath, "", 1)
 	}
-
-	// Send the `plugin_instance` dimension purely for compatibility with our
-	// existing built-in content and nav views.  Otherwise it should be ignored
-	// by anything new.
-	dims["plugin_instance"] = dims["mountpoint"]
 
 	return dims
 }
@@ -161,7 +154,7 @@ func (m *Monitor) emitDatapoints() {
 
 		// disk utilization
 		dps = append(dps, datapoint.New(diskUtilization,
-			utils.MergeStringMaps(commonDims, map[string]string{"plugin": types.UtilizationMetricPluginName}),
+			commonDims,
 			datapoint.NewFloatValue(disk.UsedPercent),
 			datapoint.Gauge,
 			time.Time{}),
@@ -188,7 +181,7 @@ func (m *Monitor) emitDatapoints() {
 		m.logger.WithError(err).Errorf("failed to calculate utilization data")
 		return
 	}
-	dps = append(dps, datapoint.New(diskSummaryUtilization, map[string]string{"plugin": types.UtilizationMetricPluginName}, datapoint.NewFloatValue(diskSummary), datapoint.Gauge, time.Time{}))
+	dps = append(dps, datapoint.New(diskSummaryUtilization, nil, datapoint.NewFloatValue(diskSummary), datapoint.Gauge, time.Time{}))
 
 	m.Output.SendDatapoints(dps...)
 }
@@ -198,7 +191,6 @@ func (m *Monitor) emitDatapoints() {
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
 
-	// create contexts for managing the the plugin loop
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 
