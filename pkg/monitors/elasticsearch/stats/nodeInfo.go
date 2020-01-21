@@ -1,4 +1,4 @@
-package client
+package stats
 
 // NodeInfoOutput holds output from "_nodes/_local" endpoint
 type NodeInfoOutput struct {

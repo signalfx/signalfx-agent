@@ -1,4 +1,3 @@
-packageDir: client
 monitors:
 - dimensions:
     plugin_instance:
