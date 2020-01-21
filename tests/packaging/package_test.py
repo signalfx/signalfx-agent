@@ -4,15 +4,15 @@ import re
 from functools import partial as p
 
 import pytest
-
-from tests.helpers.assertions import has_datapoint_with_dim
+from tests.helpers.assertions import has_datapoint
 from tests.helpers.util import (
+    copy_file_into_container,
+    get_container_file_content,
+    path_exists_in_container,
     print_lines,
     wait_for,
-    copy_file_into_container,
-    path_exists_in_container,
-    get_container_file_content,
 )
+
 from .common import (
     AGENT_YAML_PATH,
     INIT_SYSTEMD,
@@ -145,7 +145,7 @@ def _test_service_start(container, init_system, backend):
     backend.reset_datapoints()
     assert code == 0, "Agent could not be started"
     assert wait_for(p(is_agent_running_as_non_root, container), timeout_seconds=INIT_START_TIMEOUT)
-    assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
+    assert wait_for(p(has_datapoint, backend, metric_name="disk.utilization")), "Datapoints didn't come through"
 
 
 def _test_service_restart(container, init_system, backend):
@@ -157,7 +157,7 @@ def _test_service_restart(container, init_system, backend):
     assert code == 0, "Agent could not be restarted"
     assert wait_for(p(is_agent_running_as_non_root, container), timeout_seconds=INIT_RESTART_TIMEOUT)
     assert agent_has_new_pid(container, old_pid), "Agent pid the same after service restart"
-    assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
+    assert wait_for(p(has_datapoint, backend, metric_name="disk.utilization")), "Datapoints didn't come through"
 
 
 def _test_service_stop(container, init_system, backend):
@@ -180,7 +180,7 @@ def _test_system_restart(container, init_system, backend):
     container.start()
     assert wait_for(p(is_agent_running_as_non_root, container), timeout_seconds=INIT_RESTART_TIMEOUT)
     _test_service_status(container, init_system, "active")
-    assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")), "Datapoints didn't come through"
+    assert wait_for(p(has_datapoint, backend, metric_name="disk.utilization")), "Datapoints didn't come through"
 
 
 def _test_service_status_redirect(container):
