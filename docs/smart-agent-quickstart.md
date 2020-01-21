@@ -88,7 +88,7 @@ Your monitor list would then look similar to this:
 
 ```
 monitors:
-  - type: collectd/cpu
+  - type: cpu
   .
   .
   .
@@ -113,8 +113,7 @@ Next, you would add a [docker metrics monitor](./monitors/docker-container-stats
 
 ```
 monitors:
-  - type: collectd/cpu
-  - type: collectd/cpufreq
+  - type: cpu
   .
   .
   .
