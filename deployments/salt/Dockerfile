@@ -18,6 +18,7 @@ RUN pip install salt-lint==0.2.0
 
 RUN sed -i "s|#file_client:.*|file_client: local|" /etc/salt/minion
 
+COPY ./Makefile /Makefile
 COPY ./signalfx-agent /srv/salt/signalfx-agent
 COPY ./pillar.example /srv/pillar/signalfx-agent.sls
 COPY ./entrypoint.sh /usr/local/bin/entrypoint.sh

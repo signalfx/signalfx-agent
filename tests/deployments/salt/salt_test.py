@@ -68,15 +68,18 @@ def run_salt(cont, backend, agent_version, monitors, stage):
         fd.write(config_yaml)
         fd.flush()
         copy_file_into_container(fd.name, cont, PILLAR_PATH)
+
     code, output = cont.exec_run(SALT_CMD)
-    assert code == 0, output.decode("utf-8")
     print_lines(output)
+    assert code == 0, f"'{SALT_CMD}' failed"
+
     agent_version = agent_version.rstrip("-1").rstrip("~1")
-    installed_version = get_agent_version(cont).rstrip("-1").rstrip("~1")
+    installed_version = get_agent_version(cont)
     assert installed_version == agent_version, "installed agent version is '%s', expected '%s'" % (
         installed_version,
         agent_version,
     )
+
     assert is_agent_running_as_non_root(cont), "Agent is not running as non-root user"
 
 
@@ -97,12 +100,14 @@ def test_salt(base_image, init_system):
 
             # upgrade agent
             run_salt(cont, backend, UPGRADE_VERSION, monitors, STAGE)
+            backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
             # downgrade agent
             run_salt(cont, backend, INITIAL_VERSION, monitors, STAGE)
+            backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
@@ -114,6 +119,7 @@ def test_salt(base_image, init_system):
             assert wait_for(
                 p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
             ), "Didn't get internal metric datapoints"
+
         finally:
             print("Agent log:")
             print_lines(get_agent_logs(cont, init_system))

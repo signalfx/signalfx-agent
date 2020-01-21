@@ -63,8 +63,9 @@ signalfx-agent:
 To test this formula in the dev image (which is Ubuntu-based, so this won't be
 able to test non-Debian packaging):
 
-Run Make file with following commands
-`make dev-image` to create the docker image for development.
-`make run-dev-image` to start the docker container with dev image and get into the container bash
+Run Makefile targets with following commands:
+- `make dev-image` to create the docker image for development.
+- `make run-dev-image` to start the docker container with the dev-image and get into the container with bash.
+- `make -f /Makefile test` within the dev-image container to lint and validate the formula and pillar example.
 
-`salt '*' state.apply` to run formula on the dev-image
+Run `salt-call --local state.apply` within the dev-image container to test the formula.

@@ -54,7 +54,8 @@ puppet)
     fi
     ;;
 salt)
-    make test 2>&1 | tee ~/testresults/salt.out
+    docker run --rm signalfx-agent-salt-dev \
+        make -f /Makefile test 2>&1 | tee ~/testresults/salt.out
     if [ $CIRCLE_NODE_INDEX -eq 0 ]; then
         echo "export MARKERS='salt and rpm'" >> $BASH_ENV
     else
