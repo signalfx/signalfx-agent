@@ -33,8 +33,7 @@ This role sources the following variables:
     sfx_agent_config:
       signalFxAccessToken: MY-TOKEN  # Required
       monitors:
-        - type: collectd/cpu
-        - type: collectd/cpufreq
+        - type: cpu
         - type: filesystems
         - type: disk-io
         - type: net-io

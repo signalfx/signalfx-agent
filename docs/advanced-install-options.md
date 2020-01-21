@@ -196,8 +196,7 @@ Next, add a [docker metrics monitor](./monitors/docker-container-stats.md) to th
 
 ```sh
 monitors:
-  - type: collectd/cpu
-  - type: collectd/cpufreq
+  - type: cpu
     .
     .
     .

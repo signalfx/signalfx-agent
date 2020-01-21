@@ -17,8 +17,7 @@ class accepts the following parameters:
       signalFxRealm: "us1",
       enableBuiltInFiltering: true,
       monitors: [
-        {type: "collectd/cpu"},
-        {type: "collectd/cpufreq"},
+        {type: "cpu"},
         {type: "filesystems"},
         {type: "disk-io"},
         {type: "net-io"},

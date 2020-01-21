@@ -48,8 +48,7 @@ host-level components:
 node['signalfx_agent']['conf'] = {
   signalFxAccessToken: "MY_TOKEN",
   monitors: [
-    {type: "collectd/cpu"},
-    {type: "collectd/cpufreq"},
+    {type: "cpu"},
     {type: "filesystems"},
     {type: "disk-io"},
     {type: "net-io"},
