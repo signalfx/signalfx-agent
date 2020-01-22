@@ -24,31 +24,31 @@ func datapointsForJob(job *batchv1.Job) []*datapoint.Datapoint {
 			dimensions,
 			datapoint.NewIntValue(int64(*job.Spec.Completions)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 		datapoint.New(
 			"kubernetes.job.parallelism",
 			dimensions,
 			datapoint.NewIntValue(int64(*job.Spec.Parallelism)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 		datapoint.New(
 			"kubernetes.job.active",
 			dimensions,
 			datapoint.NewIntValue(int64(job.Status.Active)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 		datapoint.New(
 			"kubernetes.job.failed",
 			dimensions,
 			datapoint.NewIntValue(int64(job.Status.Failed)),
 			datapoint.Counter,
-			time.Now()),
+			time.Time{}),
 		datapoint.New(
 			"kubernetes.job.succeeded",
 			dimensions,
 			datapoint.NewIntValue(int64(job.Status.Succeeded)),
 			datapoint.Counter,
-			time.Now()),
+			time.Time{}),
 	}
 }
 

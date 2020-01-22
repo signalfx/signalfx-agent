@@ -29,7 +29,7 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 			dimensions,
 			datapoint.NewIntValue(phaseToInt(pod.Status.Phase)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 	}
 
 	containersInPodByName := make(map[string]map[string]string)

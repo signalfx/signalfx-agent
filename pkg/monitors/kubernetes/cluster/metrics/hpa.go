@@ -27,25 +27,25 @@ func datapointsForHpa(hpa *v2beta1.HorizontalPodAutoscaler) []*datapoint.Datapoi
 			dimensions,
 			datapoint.NewIntValue(int64(hpa.Spec.MaxReplicas)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 		datapoint.New(
 			meta.KubernetesHpaSpecMinReplicas,
 			dimensions,
 			datapoint.NewIntValue(int64(*hpa.Spec.MinReplicas)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 		datapoint.New(
 			meta.KubernetesHpaStatusCurrentReplicas,
 			dimensions,
 			datapoint.NewIntValue(int64(hpa.Status.CurrentReplicas)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 		datapoint.New(
 			meta.KubernetesHpaStatusDesiredReplicas,
 			dimensions,
 			datapoint.NewIntValue(int64(hpa.Status.DesiredReplicas)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 	}, newStatusDatapoints(hpa, dimensions)...)
 }
 
@@ -74,7 +74,7 @@ func newStatusDatapoints(hpa *v2beta1.HorizontalPodAutoscaler, dimensions map[st
 			logger.WithError(err).Errorf("Could not create hpa status datapoint")
 			continue
 		}
-		dps = append(dps, datapoint.New(metric, dimensions, value, datapoint.Gauge, time.Now()))
+		dps = append(dps, datapoint.New(metric, dimensions, value, datapoint.Gauge, time.Time{}))
 	}
 	return dps
 }

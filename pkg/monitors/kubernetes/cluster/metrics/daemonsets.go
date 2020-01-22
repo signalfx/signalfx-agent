@@ -24,25 +24,25 @@ func datapointsForDaemonSet(ds *appsv1.DaemonSet) []*datapoint.Datapoint {
 			dimensions,
 			datapoint.NewIntValue(int64(ds.Status.CurrentNumberScheduled)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 		datapoint.New(
 			"kubernetes.daemon_set.desired_scheduled",
 			dimensions,
 			datapoint.NewIntValue(int64(ds.Status.DesiredNumberScheduled)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 		datapoint.New(
 			"kubernetes.daemon_set.misscheduled",
 			dimensions,
 			datapoint.NewIntValue(int64(ds.Status.NumberMisscheduled)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 		datapoint.New(
 			"kubernetes.daemon_set.ready",
 			dimensions,
 			datapoint.NewIntValue(int64(ds.Status.NumberReady)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 	}
 }
 

@@ -29,25 +29,25 @@ func datapointsForStatefulSet(ss *appsv1.StatefulSet) []*datapoint.Datapoint {
 			dimensions,
 			datapoint.NewIntValue(int64(*ss.Spec.Replicas)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 		datapoint.New(
 			"kubernetes.stateful_set.ready",
 			dimensions,
 			datapoint.NewIntValue(int64(ss.Status.ReadyReplicas)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 		datapoint.New(
 			"kubernetes.stateful_set.current",
 			dimensions,
 			datapoint.NewIntValue(int64(ss.Status.CurrentReplicas)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 		datapoint.New(
 			"kubernetes.stateful_set.updated",
 			dimensions,
 			datapoint.NewIntValue(int64(ss.Status.UpdatedReplicas)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 	}
 }
 
