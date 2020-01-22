@@ -71,6 +71,9 @@ spec:
         - mountPath: /var/run/docker.sock
           name: docker
           readOnly: true
+        - mountPath: /etc/passwd
+          name: etc-passwd
+          readOnly: true
         resources:
           {{- toYaml .Values.resources | trim | nindent 10 }}
         env:
@@ -106,3 +109,6 @@ spec:
       - name: machine-id
         hostPath:
           path: /etc/machine-id
+      - name: etc-passwd
+        hostPath:
+          path: /etc/passwd

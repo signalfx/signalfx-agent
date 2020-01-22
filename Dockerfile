@@ -389,9 +389,6 @@ COPY --from=agent-builder /usr/bin/signalfx-agent /bin/signalfx-agent
 
 COPY whitelist.json /lib/whitelist.json
 
-## Add signalfx-agent user to the container
-RUN echo "signalfx-agent:x:999:999::/:/bin/bash" > /etc/passwd
-
 WORKDIR /
 
 
