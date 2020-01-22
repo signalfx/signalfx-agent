@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
+
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/signalfx-agent/pkg/core/common/dpmeta"
@@ -28,11 +30,8 @@ const (
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig
-	// Conviva Pulse username required with each API request.
-	Username string `yaml:"pulseUsername" validate:"required"`
-	// Conviva Pulse password required with each API request.
-	Password       string `yaml:"pulsePassword" validate:"required" neverLog:"true"`
-	TimeoutSeconds int    `yaml:"timeoutSeconds" default:"10"`
+	httpclient.HTTPConfig `yaml:",inline"`
+
 	// Conviva metrics to fetch. The default is quality_metriclens metric with the "All Traffic" filter applied and all quality_metriclens dimensions.
 	MetricConfigs []*metricConfig `yaml:"metricConfigs"`
 }
@@ -55,12 +54,16 @@ func init() {
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
-	m.timeout = time.Duration(conf.TimeoutSeconds) * time.Second
-	m.client = newConvivaClient(&http.Client{
-		Transport: &http.Transport{
-			MaxIdleConnsPerHost: 100,
-		},
-	}, conf.Username, conf.Password)
+	m.timeout = conf.HTTPTimeout
+
+	httpClient, err := conf.BuildCustomizeTransport(func(t *http.Transport) {
+		t.MaxIdleConnsPerHost = 100
+	})
+	if err != nil {
+		return err
+	}
+
+	m.client = newConvivaClient(httpClient)
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 	semaphore := make(chan struct{}, maxGoroutinesPerInterval(conf.MetricConfigs))
 	interval := time.Duration(conf.IntervalSeconds) * time.Second

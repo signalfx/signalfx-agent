@@ -176,3 +176,21 @@ func TestHttpConfig_Scheme(t *testing.T) {
 		})
 	}
 }
+
+func TestHTTPConfig_BuildCustomizeTransport(t *testing.T) {
+	req := require.New(t)
+	h1 := &HTTPConfig{}
+	client, err := h1.BuildCustomizeTransport(func(t *http.Transport) {
+		t.MaxIdleConns = 999
+	})
+	req.NoError(err)
+	req.Equal(999, client.Transport.(*http.Transport).MaxIdleConns)
+
+	// test auth because it wraps the transport
+	h2 := &HTTPConfig{Username: "bob", Password: "password"}
+	client, err = h2.BuildCustomizeTransport(func(t *http.Transport) {
+		t.MaxIdleConns = 999
+	})
+	req.NoError(err)
+	req.Equal(999, client.Transport.(*auth.TransportWithBasicAuth).RoundTripper.(*http.Transport).MaxIdleConns)
+}

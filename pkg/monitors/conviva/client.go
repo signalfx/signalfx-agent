@@ -22,28 +22,22 @@ type httpClient interface {
 }
 
 type convivaHTTPClient struct {
-	client   *http.Client
-	username string
-	password string
+	client *http.Client
 }
 
 // newConvivaClient factory function for creating HTTPClientt
-func newConvivaClient(client *http.Client, username string, password string) httpClient {
+func newConvivaClient(client *http.Client) httpClient {
 	return &convivaHTTPClient{
-		client:   client,
-		username: username,
-		password: password,
+		client: client,
 	}
 }
 
 // Get method for Conviva API specific gets
 func (c *convivaHTTPClient) get(ctx context.Context, v interface{}, url string) (int, error) {
-	req, err := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequestWithContext(ctx, "GET", url, nil)
 	if err != nil {
 		return 0, err
 	}
-	req = req.WithContext(ctx)
-	req.SetBasicAuth(c.username, c.password)
 	res, err := c.client.Do(req)
 	if err != nil {
 		return 0, err

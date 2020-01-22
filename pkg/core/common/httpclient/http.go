@@ -46,7 +46,14 @@ func (h *HTTPConfig) Scheme() string {
 
 // Build returns a configured http.Client
 func (h *HTTPConfig) Build() (*http.Client, error) {
-	roundTripper, err := func() (http.RoundTripper, error) {
+	return h.BuildCustomizeTransport(nil)
+}
+
+// Build returns a configured http.Client but applies the provided cb
+// function after configuring it to apply any custom configuration
+// to the underlying HTTPTransport.
+func (h *HTTPConfig) BuildCustomizeTransport(cb func(t *http.Transport)) (*http.Client, error) {
+	transport, err := func() (*http.Transport, error) {
 		transport := http.DefaultTransport.(*http.Transport).Clone()
 
 		if h.UseHTTPS {
@@ -64,6 +71,13 @@ func (h *HTTPConfig) Build() (*http.Client, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// Customize on underlying transport instance before possibly wrapping in auth below.
+	if cb != nil {
+		cb(transport)
+	}
+
+	var roundTripper http.RoundTripper = transport
 
 	if h.Username != "" {
 		roundTripper = &auth.TransportWithBasicAuth{

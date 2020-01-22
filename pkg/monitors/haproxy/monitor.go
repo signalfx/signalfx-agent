@@ -13,7 +13,6 @@ import (
 
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
-	logger "github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -60,35 +59,22 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	}
 	interval := time.Duration(conf.IntervalSeconds) * time.Second
 	utils.RunOnInterval(m.ctx, func() {
-		ctx, cancel := context.WithTimeout(m.ctx, interval)
-		defer cancel()
 		var wg sync.WaitGroup
-		chs := make([]chan []*datapoint.Datapoint, 0)
+
 		for _, fn := range fetchFuncs {
 			fn := fn
-			ch := make(chan []*datapoint.Datapoint, 1)
 			wg.Add(1)
 			go func() {
-				defer close(ch)
-				defer wg.Done()
-				select {
-				case <-ctx.Done():
-					logger.Error(ctx.Err())
-					return
-				case ch <- fn(conf, pxs):
-					return
+				dps := fn(conf, pxs)
+				for i := range dps {
+					dps[i].Dimensions["plugin"] = "haproxy"
 				}
+				m.Output.SendDatapoints(dps...)
+				wg.Done()
 			}()
-			chs = append(chs, ch)
 		}
+
 		wg.Wait()
-		for _, ch := range chs {
-			dps := <-ch
-			for i := range dps {
-				dps[i].Dimensions["plugin"] = "haproxy"
-			}
-			m.Output.SendDatapoints(dps...)
-		}
 	}, interval)
 	return nil
 }
