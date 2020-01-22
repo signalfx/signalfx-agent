@@ -18,38 +18,53 @@ func datapointsForJob(job *batchv1.Job) []*datapoint.Datapoint {
 		"kubernetes_name":      job.Name,
 	}
 
-	return []*datapoint.Datapoint{
-		datapoint.New(
-			"kubernetes.job.completions",
-			dimensions,
-			datapoint.NewIntValue(int64(*job.Spec.Completions)),
-			datapoint.Gauge,
-			time.Time{}),
-		datapoint.New(
-			"kubernetes.job.parallelism",
-			dimensions,
-			datapoint.NewIntValue(int64(*job.Spec.Parallelism)),
-			datapoint.Gauge,
-			time.Time{}),
+	var dps []*datapoint.Datapoint
+
+	if job.Spec.Completions != nil {
+		dps = append(dps,
+			datapoint.New(
+				"kubernetes.job.completions",
+				dimensions,
+				datapoint.NewIntValue(int64(*job.Spec.Completions)),
+				datapoint.Gauge,
+				time.Time{}))
+	}
+
+	if job.Spec.Parallelism != nil {
+		dps = append(dps,
+			datapoint.New(
+				"kubernetes.job.parallelism",
+				dimensions,
+				datapoint.NewIntValue(int64(*job.Spec.Parallelism)),
+				datapoint.Gauge,
+				time.Time{}))
+	}
+
+	dps = append(dps,
 		datapoint.New(
 			"kubernetes.job.active",
 			dimensions,
 			datapoint.NewIntValue(int64(job.Status.Active)),
 			datapoint.Gauge,
-			time.Time{}),
+			time.Time{}))
+
+	dps = append(dps,
 		datapoint.New(
 			"kubernetes.job.failed",
 			dimensions,
 			datapoint.NewIntValue(int64(job.Status.Failed)),
 			datapoint.Counter,
-			time.Time{}),
+			time.Time{}))
+
+	dps = append(dps,
 		datapoint.New(
 			"kubernetes.job.succeeded",
 			dimensions,
 			datapoint.NewIntValue(int64(job.Status.Succeeded)),
 			datapoint.Counter,
-			time.Time{}),
-	}
+			time.Time{}))
+
+	return dps
 }
 
 func dimensionForJob(job *batchv1.Job) *atypes.Dimension {

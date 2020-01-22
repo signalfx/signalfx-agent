@@ -188,6 +188,53 @@ def test_jobs(k8s_cluster):
 
 
 @pytest.mark.kubernetes
+def test_jobs_no_completions(k8s_cluster):
+    yamls = [SCRIPT_DIR / "job-no-completions.yaml"]
+    with k8s_cluster.create_resources(yamls) as resources:
+        config = """
+            monitors:
+            - type: kubernetes-cluster
+              kubernetesAPI:
+                authType: serviceAccount
+              extraMetrics:
+                - kubernetes.job.completions
+                - kubernetes.job.succeeded
+        """
+        with k8s_cluster.run_agent(agent_yaml=config) as agent:
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, dimensions={"kubernetes_name": "pi-no-completions"}),
+                timeout_seconds=600,
+            ), f"timed out waiting for job metric"
+
+            ## wait for job to finish
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, metric_name="kubernetes.job.succeeded")
+            ), f"timed out waiting for job metric completions"
+
+            ## assert that kubernetes.job.completions did not report, since it is unset
+            assert not wait_for(
+                p(has_datapoint, agent.fake_services, metric_name="kubernetes.job.completions"), timeout_seconds=3
+            ), f"metric kubernetes.job.completions should be report a value"
+
+            assert wait_for(
+                p(
+                    has_all_dim_props,
+                    agent.fake_services,
+                    dim_name="kubernetes_uid",
+                    dim_value=resources[0].metadata.uid,
+                    props={
+                        "job_creation_timestamp": resources[0].metadata.creation_timestamp.strftime(
+                            "%Y-%m-%dT%H:%M:%SZ"
+                        ),
+                        "kubernetes_workload": "Job",
+                        "kubernetes_workload_name": resources[0].metadata.name,
+                    },
+                ),
+                timeout_seconds=300,
+            )
+
+
+@pytest.mark.kubernetes
 def test_cronjobs(k8s_cluster):
     yamls = [SCRIPT_DIR / "cronjob.yaml"]
     with k8s_cluster.create_resources(yamls) as resources:
