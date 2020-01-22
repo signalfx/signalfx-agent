@@ -64,16 +64,12 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.conf = conf
 	m.metricTypeMap = conf.getMetricTypeMap()
 
-	client := &http.Client{
-		Timeout: time.Duration(conf.TimeoutSeconds) * time.Second,
+	client, err := conf.Build()
+	if err != nil {
+		return err
 	}
 
-	scheme := "http"
-	if conf.UseHTTPS {
-		scheme = "https"
-	}
-
-	dims, err := m.fetchNodeInfo(client, fmt.Sprintf("%s://%s:%d%s", scheme, m.conf.Host, m.conf.Port, nodePath))
+	dims, err := m.fetchNodeInfo(client, fmt.Sprintf("%s://%s:%d%s", conf.Scheme(), m.conf.Host, m.conf.Port, nodePath))
 	if err != nil {
 		logger.WithError(err).Error("Couldn't get node info.")
 	}
@@ -83,7 +79,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		var fetched []*datapoint.Datapoint
 
 		for prefix, path := range prefixPathMap {
-			fetched, err = m.fetchMetrics(client, fmt.Sprintf("%s://%s:%d%s", scheme, m.conf.Host, m.conf.Port, path), prefix, dims)
+			fetched, err = m.fetchMetrics(client, fmt.Sprintf("%s://%s:%d%s", conf.Scheme(), m.conf.Host, m.conf.Port, path), prefix, dims)
 			if err != nil {
 				logger.WithError(err).Errorf("Couldn't fetch metrics for path %s", path)
 				continue
@@ -91,19 +87,19 @@ func (m *Monitor) Configure(conf *Config) error {
 			dps = append(dps, fetched...)
 		}
 
-		if fetched, err = m.fetchPipelineMetrics(client, fmt.Sprintf("%s://%s:%d%s", scheme, m.conf.Host, m.conf.Port, pipelinePath), "node.pipelines", dims); err == nil {
+		if fetched, err = m.fetchPipelineMetrics(client, fmt.Sprintf("%s://%s:%d%s", conf.Scheme(), m.conf.Host, m.conf.Port, pipelinePath), "node.pipelines", dims); err == nil {
 			dps = append(dps, fetched...)
 		} else {
 			logger.WithError(err).Error("Couldn't fetch metrics for pipelines")
 		}
 
-		if fetched, err = m.fetchPipelineMetrics(client, fmt.Sprintf("%s://%s:%d%s", scheme, m.conf.Host, m.conf.Port, pipelineStatPath), "node.stats.pipelines", dims); err == nil {
+		if fetched, err = m.fetchPipelineMetrics(client, fmt.Sprintf("%s://%s:%d%s", conf.Scheme(), m.conf.Host, m.conf.Port, pipelineStatPath), "node.stats.pipelines", dims); err == nil {
 			dps = append(dps, fetched...)
 		} else {
 			logger.WithError(err).Error("Couldn't fetch metrics for pipeline stats")
 		}
 
-		if fetched, err = m.fetchPluginMetrics(client, fmt.Sprintf("%s://%s:%d%s", scheme, m.conf.Host, m.conf.Port, pluginPath), "node.plugins", dims); err == nil {
+		if fetched, err = m.fetchPluginMetrics(client, fmt.Sprintf("%s://%s:%d%s", conf.Scheme(), m.conf.Host, m.conf.Port, pluginPath), "node.plugins", dims); err == nil {
 			dps = append(dps, fetched...)
 		} else {
 			logger.WithError(err).Error("Couldn't fetch metrics for plugins")

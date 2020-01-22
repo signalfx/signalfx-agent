@@ -35391,6 +35391,70 @@
         "package": "pkg/monitors/logstash/logstash",
         "fields": [
           {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "skipVerify",
+            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "host",
             "doc": "The hostname of Logstash monitoring API",
             "default": "127.0.0.1",
@@ -35404,22 +35468,6 @@
             "default": 9600,
             "required": false,
             "type": "uint16",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the host using HTTPS instead of plain HTTP.",
-            "default": false,
-            "required": false,
-            "type": "bool",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "timeoutSeconds",
-            "doc": "The maximum amount of time to wait for API requests",
-            "default": 5,
-            "required": false,
-            "type": "int",
             "elementKind": ""
           }
         ]
