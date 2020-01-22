@@ -47,16 +47,13 @@ def test_bundle(request, base_image):
 
                 monitors:
                   - type: host-metadata
-                  - type: collectd/cpu
-                  - type: collectd/cpufreq
+                  - type: cpu
                   - type: filesystems
-                  - type: collectd/disk
-                  - type: collectd/interface
-                  - type: collectd/load
-                  - type: collectd/memory
-                  # This is a Python plugin, so we test the bundled Python runtime
-                  - type: collectd/signalfx-metadata
-                  - type: collectd/vmem
+                  - type: disk-io
+                  - type: net-io
+                  - type: load
+                  - type: memory
+                  - type: vmem
                   # This is a GenericJMX Java plugin, so we test the bundled Java runtime
                   - type: collectd/activemq
                     host: {container_ip(activemq_container)}
@@ -76,7 +73,7 @@ def test_bundle(request, base_image):
 
             try:
                 assert wait_for(
-                    p(has_datapoint, backend, dimensions={"plugin": "signalfx-metadata"}), timeout_seconds=10
+                    p(has_datapoint, backend, metric_name="cpu.utilization"), timeout_seconds=10
                 ), "Python metadata datapoint didn't come through"
                 assert wait_for(
                     p(has_datapoint, backend, metric_name="gauge.amq.queue.QueueSize")
