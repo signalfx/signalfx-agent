@@ -51,8 +51,6 @@ signalfx-agent:
       - type: load
       - type: memory
       - type: vmem
-      - type: collectd/signalfx-metadata
-        omitProcessInfo: true
       - type: host-metadata
       - type: processlist
 ```
