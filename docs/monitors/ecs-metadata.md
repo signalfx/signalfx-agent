@@ -37,9 +37,16 @@ Configuration](../monitor-config.md#common-configuration).**
 | `enableExtraCPUMetrics` | no | `bool` | Whether it will send all extra CPU metrics as well. (**default:** `false`) |
 | `enableExtraMemoryMetrics` | no | `bool` | Whether it will send all extra memory metrics as well. (**default:** `false`) |
 | `enableExtraNetworkMetrics` | no | `bool` | Whether it will send all extra network metrics as well. (**default:** `false`) |
+| `httpTimeout` | no | `int64` | HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration (**default:** `10s`) |
+| `username` | no | `string` | Basic Auth username to use on each request, if any. |
+| `password` | no | `string` | Basic Auth password to use on each request, if any. |
+| `useHTTPS` | no | `bool` | If true, the agent will connect to the exporter using HTTPS instead of plain HTTP. (**default:** `false`) |
+| `skipVerify` | no | `bool` | If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified. (**default:** `false`) |
+| `caCertPath` | no | `string` | Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false. |
+| `clientCertPath` | no | `string` | Path to the client TLS cert to use for TLS required connections |
+| `clientKeyPath` | no | `string` | Path to the client TLS key to use for TLS required connections |
 | `metadataEndpoint` | no | `string` | The URL of the ECS task metadata. Default is http://169.254.170.2/v2/metadata, which is hardcoded by AWS for version 2. (**default:** `http://169.254.170.2/v2/metadata`) |
 | `statsEndpoint` | no | `string` | The URL of the ECS container stats. Default is http://169.254.170.2/v2/stats, which is hardcoded by AWS for version 2. (**default:** `http://169.254.170.2/v2/stats`) |
-| `timeoutSeconds` | no | `integer` | The maximum amount of time to wait for API requests (**default:** `5`) |
 | `labelsToDimensions` | no | `map of strings` | A mapping of container label names to dimension names. The corresponding label values will become the dimension value for the mapped name.  E.g. `io.kubernetes.container.name: container_spec_name` would result in a dimension called `container_spec_name` that has the value of the `io.kubernetes.container.name` container label. |
 | `excludedImages` | no | `list of strings` | A list of filters of images to exclude.  Supports literals, globs, and regex. |
 

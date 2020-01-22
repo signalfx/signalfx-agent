@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
+
 	dtypes "github.com/docker/docker/api/types"
 	dcontainer "github.com/docker/docker/api/types/container"
 	"github.com/pkg/errors"
@@ -36,13 +38,12 @@ func init() {
 type Config struct {
 	config.MonitorConfig           `acceptsEndpoints:"false"`
 	dmonitor.EnhancedMetricsConfig `yaml:",inline"`
+	httpclient.HTTPConfig          `yaml:",inline"`
 
 	// The URL of the ECS task metadata. Default is http://169.254.170.2/v2/metadata, which is hardcoded by AWS for version 2.
 	MetadataEndpoint string `yaml:"metadataEndpoint" default:"http://169.254.170.2/v2/metadata"`
 	// The URL of the ECS container stats. Default is http://169.254.170.2/v2/stats, which is hardcoded by AWS for version 2.
 	StatsEndpoint string `yaml:"statsEndpoint" default:"http://169.254.170.2/v2/stats"`
-	// The maximum amount of time to wait for API requests
-	TimeoutSeconds int `yaml:"timeoutSeconds" default:"5"`
 	// A mapping of container label names to dimension names. The corresponding
 	// label values will become the dimension value for the mapped name.  E.g.
 	// `io.kubernetes.container.name: container_spec_name` would result in a
@@ -80,9 +81,9 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	m.conf = conf
-	m.timeout = time.Duration(conf.TimeoutSeconds) * time.Second
-	m.client = &http.Client{
-		Timeout: m.timeout,
+	m.client, err = conf.Build()
+	if err != nil {
+		return err
 	}
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 
