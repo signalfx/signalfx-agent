@@ -11,10 +11,11 @@ import (
 const RealtimeMetricsInterval = 20
 
 const (
-	DatacenterType = "Datacenter"
-	ClusterType    = "ClusterComputeResource"
-	VMType         = "VirtualMachine"
-	HostType       = "HostSystem"
+	DatacenterType     = "Datacenter"
+	ClusterComputeType = "ClusterComputeResource"
+	ComputeType        = "ComputeResource"
+	VMType             = "VirtualMachine"
+	HostType           = "HostSystem"
 )
 
 // Config for the vSphere monitor
@@ -42,17 +43,17 @@ type Config struct {
 	TLSClientKeyPath string `yaml:"tlsClientKeyPath"`
 }
 
-type dimensions map[string]string
+type Dimensions map[string]string
 
 type InventoryObject struct {
 	Ref        types.ManagedObjectReference
 	MetricIds  []types.PerfMetricId
-	dimensions dimensions
+	dimensions Dimensions
 }
 
 type Inventory struct {
 	Objects      []*InventoryObject
-	DimensionMap map[string]dimensions
+	DimensionMap map[string]Dimensions
 }
 
 func NewInventoryObject(ref types.ManagedObjectReference, extraDimensions map[string]string) *InventoryObject {
@@ -71,7 +72,7 @@ func NewInventoryObject(ref types.ManagedObjectReference, extraDimensions map[st
 
 func NewInventory() *Inventory {
 	inv := &Inventory{}
-	inv.DimensionMap = make(map[string]dimensions)
+	inv.DimensionMap = make(map[string]Dimensions)
 	return inv
 }
 
