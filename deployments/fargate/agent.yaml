@@ -24,8 +24,6 @@ monitors:
   - type: load
   - type: memory
   - type: collectd/protocols
-  - type: collectd/signalfx-metadata
-    omitProcessInfo: true
   - type: vmem
 
   - type: ecs-metadata
