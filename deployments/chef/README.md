@@ -54,7 +54,6 @@ node['signalfx_agent']['conf'] = {
     {type: "net-io"},
     {type: "load"},
     {type: "memory"},
-    {"type": "collectd/signalfx-metadata", "omitProcessInfo": true},
     {type: "vmem"}
     {type: "host-metadata"},
     {type: "processlist"},
