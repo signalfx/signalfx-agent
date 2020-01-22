@@ -55,11 +55,11 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		conf.EnhancedMetrics = true
 	}
 	m.ctx, m.cancel = context.WithCancel(context.Background())
-	m.client = &http.Client{
-		Transport: &http.Transport{
-			MaxIdleConnsPerHost: 10,
-		},
-		Timeout: 300 * time.Millisecond,
+	m.client, err = conf.BuildCustomizeTransport(func(t *http.Transport) {
+		t.MaxIdleConnsPerHost = 10
+	})
+	if err != nil {
+		return err
 	}
 
 	url := conf.getURL()

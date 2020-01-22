@@ -5,13 +5,11 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/signalfx/signalfx-agent/pkg/utils"
-
-	"github.com/signalfx/signalfx-agent/pkg/core/config/validation"
-
 	"github.com/signalfx/golib/v3/datapoint"
-
+	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
+	"github.com/signalfx/signalfx-agent/pkg/core/config/validation"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 const (
@@ -20,7 +18,9 @@ const (
 
 // Config for monitor configuration
 type Config struct {
-	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
+	config.MonitorConfig  `yaml:",inline" acceptsEndpoints:"true"`
+	httpclient.HTTPConfig `yaml:",inline"`
+
 	// Host of the expvar endpoint
 	Host string `yaml:"host" validate:"required"`
 	// Port of the expvar endpoint
