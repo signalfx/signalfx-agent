@@ -26,5 +26,3 @@ monitors:
   - type: load
   - type: memory
   - type: vmem
-
-enableBuiltInFiltering: true

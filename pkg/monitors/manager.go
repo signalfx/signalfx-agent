@@ -39,9 +39,8 @@ type MonitorManager struct {
 
 	// TODO: AgentMeta is rather hacky so figure out a better way to share agent
 	// metadata with monitors
-	agentMeta              *meta.AgentMeta
-	intervalSeconds        int
-	enableBuiltInFiltering bool
+	agentMeta       *meta.AgentMeta
+	intervalSeconds int
 
 	idGenerator func() string
 }
@@ -61,12 +60,11 @@ func NewMonitorManager(agentMeta *meta.AgentMeta) *MonitorManager {
 // Configure receives a list of monitor configurations.  It will start up any
 // static monitors and watch discovered services to see if any match dynamic
 // monitors.
-func (mm *MonitorManager) Configure(confs []config.MonitorConfig, collectdConf *config.CollectdConfig, intervalSeconds int, enableBuiltInFiltering bool) {
+func (mm *MonitorManager) Configure(confs []config.MonitorConfig, collectdConf *config.CollectdConfig, intervalSeconds int) {
 	mm.lock.Lock()
 	defer mm.lock.Unlock()
 
 	mm.intervalSeconds = intervalSeconds
-	mm.enableBuiltInFiltering = enableBuiltInFiltering
 	for i := range confs {
 		confs[i].IntervalSeconds = utils.FirstNonZero(confs[i].IntervalSeconds, intervalSeconds)
 	}
@@ -334,15 +332,11 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 
 	// Make metadata nil if we aren't using built in filtering and then none of
 	// the new filtering logic will apply.
-	var metadata *Metadata
-	if mm.enableBuiltInFiltering {
-		var ok bool
-		metadata, ok = MonitorMetadatas[monitorType]
-		if !ok || metadata == nil {
-			// This indicates a programming error in not specifying metadata, not
-			// bad user input
-			panic(fmt.Sprintf("could not find monitor metadata of type %s", monitorType))
-		}
+	metadata, ok := MonitorMetadatas[monitorType]
+	if !ok || metadata == nil {
+		// This indicates a programming error in not specifying metadata, not
+		// bad user input
+		panic(fmt.Sprintf("could not find monitor metadata of type %s", monitorType))
 	}
 
 	configHash := config.MonitorConfigCore().Hash()

@@ -59,8 +59,6 @@ monitors:
 metricsToExclude:
   - {"#from": "env:METRICS_TO_EXCLUDE", default: [], flatten: true}
 
-enableBuiltInFiltering: true
-
 # This allows any config above to be completely overridden.  CONFIG_OVERRIDE
 # must be given as a YAML/JSON object.
 _: {"#from": "env:CONFIG_OVERRIDE", optional: true, flatten: true}

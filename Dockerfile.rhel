@@ -31,8 +31,5 @@ RUN setcap -r /usr/lib/signalfx-agent/bin/signalfx-agent &&\
     chmod 777 /var/run/signalfx-agent
 
 COPY deployments/docker/agent.yaml /tmp/agent.yaml
-RUN sed -e 's#/lib/whitelist.json#/usr/lib/signalfx-agent/whitelist.json#' /tmp/agent.yaml > /etc/signalfx/agent.yaml
-
-COPY whitelist.json /usr/lib/signalfx-agent/whitelist.json
 
 USER signalfx-agent
