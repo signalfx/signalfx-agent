@@ -73,16 +73,20 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
+| `httpTimeout` | no | `int64` | HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration (**default:** `10s`) |
+| `username` | no | `string` | Basic Auth username to use on each request, if any. |
+| `password` | no | `string` | Basic Auth password to use on each request, if any. |
+| `useHTTPS` | no | `bool` | If true, the agent will connect to the exporter using HTTPS instead of plain HTTP. (**default:** `false`) |
+| `skipVerify` | no | `bool` | If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified. (**default:** `false`) |
+| `caCertPath` | no | `string` | Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false. |
+| `clientCertPath` | no | `string` | Path to the client TLS cert to use for TLS required connections |
+| `clientKeyPath` | no | `string` | Path to the client TLS key to use for TLS required connections |
 | `host` | no | `string` | The host/ip address of the HAProxy instance. This is used to construct the `url` option if not provided. |
 | `port` | no | `integer` | The port of the HAProxy instance's stats endpoint (if using HTTP). This is used to construct the `url` option if not provided. (**default:** `0`) |
 | `path` | no | `string` | The path to HAProxy stats. The default is `stats?stats;csv`. This is used to construct the `url` option if not provided. (**default:** `stats?stats;csv`) |
-| `useHTTPS` | no | `bool` | Whether to connect on HTTPS or HTTP. If you want to use a UNIX socket, then specify the `url` config option with the format `unix://...` and omit `host`, `port` and `useHTTPS`. (**default:** `false`) |
-| `url` | no | `string` | URL on which to scrape HAProxy. Scheme `http://` for http-type and `unix://` socket-type urls. If this is not provided, it will be derive from the `host`, `port`, `path`, and `useHTTPS` options. |
-| `username` | no | `string` | Basic Auth username to use on each request, if any. |
-| `password` | no | `string` | Basic Auth password to use on each request, if any. |
-| `sslVerify` | no | `bool` | Flag that enables SSL certificate verification for the scrape URL. (**default:** `true`) |
-| `timeout` | no | `int64` | Timeout for trying to get stats from HAProxy. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration (**default:** `5s`) |
+| `url` | no | `string` | Whether to connect on HTTPS or HTTP. If you want to use a UNIX socket, then specify the `url` config option with the format `unix://...` and omit `host`, `port` and `useHTTPS`. |
 | `proxies` | no | `list of strings` | A list of the pxname(s) and svname(s) to monitor (e.g. `["http-in", "server1", "backend"]`). If empty then metrics for all proxies will be reported. |
+| `unixTimeout` | no | `int64` | Timeout when communicating over Unix sockets (**default:** `10s`) |
 
 
 ## Metrics

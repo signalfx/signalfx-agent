@@ -5,6 +5,7 @@ import (
 
 	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 )
 
 // Config is the config for this monitor.
@@ -22,6 +23,8 @@ type Config struct {
 	URL string `yaml:"url"`
 	// A list of the pxname(s) and svname(s) to monitor (e.g. `["http-in", "server1", "backend"]`). If empty then metrics for all proxies will be reported.
 	Proxies []string `yaml:"proxies"`
+	// Timeout when communicating over Unix sockets
+	UnixTimeout timeutil.Duration `yaml:"unixTimeout" default:"10s"`
 }
 
 func (c *Config) ScrapeURL() string {
