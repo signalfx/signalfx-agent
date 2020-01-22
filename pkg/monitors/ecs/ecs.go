@@ -62,7 +62,6 @@ type Monitor struct {
 	client         *http.Client
 	conf           *Config
 	ctx            context.Context
-	timeout        time.Duration
 	taskDimensions map[string]string
 	containers     map[string]ecs.Container
 	// shouldIgnore - key : container docker id, tells if stats for the container should be ignored.

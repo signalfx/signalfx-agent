@@ -23123,22 +23123,6 @@
             "elementKind": ""
           },
           {
-            "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the host using HTTPS instead of plain HTTP.",
-            "default": false,
-            "required": false,
-            "type": "bool",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "skipVerify",
-            "doc": "If useHTTPS is true and this option is also true, the host's TLS cert will not be verified.",
-            "default": false,
-            "required": false,
-            "type": "bool",
-            "elementKind": ""
-          },
-          {
             "yamlName": "path",
             "doc": "Path to the expvar endpoint, usually `/debug/vars` (the default).",
             "default": "/debug/vars",

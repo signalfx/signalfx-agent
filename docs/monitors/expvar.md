@@ -239,8 +239,6 @@ Configuration](../monitor-config.md#common-configuration).**
 | `clientKeyPath` | no | `string` | Path to the client TLS key to use for TLS required connections |
 | `host` | **yes** | `string` | Host of the expvar endpoint |
 | `port` | **yes** | `integer` | Port of the expvar endpoint |
-| `useHTTPS` | no | `bool` | If true, the agent will connect to the host using HTTPS instead of plain HTTP. (**default:** `false`) |
-| `skipVerify` | no | `bool` | If useHTTPS is true and this option is also true, the host's TLS cert will not be verified. (**default:** `false`) |
 | `path` | no | `string` | Path to the expvar endpoint, usually `/debug/vars` (the default). (**default:** `/debug/vars`) |
 | `enhancedMetrics` | no | `bool` | If true, sends metrics memstats.alloc, memstats.by_size.size, memstats.by_size.mallocs and memstats.by_size.frees (**default:** `false`) |
 | `metrics` | no | `list of objects (see below)` | Metrics configurations |
