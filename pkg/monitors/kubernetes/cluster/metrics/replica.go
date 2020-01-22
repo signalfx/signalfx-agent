@@ -14,12 +14,12 @@ func makeReplicaDPs(resource string, dimensions map[string]string, desired, avai
 			dimensions,
 			datapoint.NewIntValue(int64(desired)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 		datapoint.New(
 			fmt.Sprintf("kubernetes.%s.available", resource),
 			dimensions,
 			datapoint.NewIntValue(int64(available)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 	}
 }

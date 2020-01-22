@@ -24,7 +24,7 @@ func datapointsForCronJob(cj *batchv1beta1.CronJob) []*datapoint.Datapoint {
 			dimensions,
 			datapoint.NewIntValue(int64(len(cj.Status.Active))),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 	}
 }
 

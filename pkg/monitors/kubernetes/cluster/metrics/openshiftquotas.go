@@ -55,7 +55,7 @@ func buildDatapoints(metricPrefix string, dimensions map[string]string,
 					dimensions,
 					datapoint.NewIntValue(quantity.Value()),
 					datapoint.Gauge,
-					time.Now()))
+					time.Time{}))
 		}
 
 		if quantity, ok := used[resource]; ok {
@@ -65,7 +65,7 @@ func buildDatapoints(metricPrefix string, dimensions map[string]string,
 					dimensions,
 					datapoint.NewIntValue(quantity.Value()),
 					datapoint.Gauge,
-					time.Now()))
+					time.Time{}))
 		}
 	}
 	return dps

@@ -17,13 +17,13 @@ func datapointsForContainerStatus(cs v1.ContainerStatus, contDims map[string]str
 			contDims,
 			datapoint.NewIntValue(int64(cs.RestartCount)),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 		datapoint.New(
 			"kubernetes.container_ready",
 			contDims,
 			datapoint.NewIntValue(int64(utils.BoolToInt(cs.Ready))),
 			datapoint.Gauge,
-			time.Now()),
+			time.Time{}),
 	}
 
 	return dps
@@ -39,7 +39,7 @@ func datapointsForContainerSpec(c v1.Container, contDims map[string]string) []*d
 				contDims,
 				datapoint.NewIntValue(val.Value()),
 				datapoint.Gauge,
-				time.Now()))
+				time.Time{}))
 	}
 
 	if val, ok := c.Resources.Limits[v1.ResourceCPU]; ok {
@@ -49,7 +49,7 @@ func datapointsForContainerSpec(c v1.Container, contDims map[string]string) []*d
 				contDims,
 				datapoint.NewIntValue(val.Value()),
 				datapoint.Gauge,
-				time.Now()))
+				time.Time{}))
 	}
 
 	if val, ok := c.Resources.Requests[v1.ResourceMemory]; ok {
@@ -59,7 +59,7 @@ func datapointsForContainerSpec(c v1.Container, contDims map[string]string) []*d
 				contDims,
 				datapoint.NewIntValue(val.Value()),
 				datapoint.Gauge,
-				time.Now()))
+				time.Time{}))
 	}
 
 	if val, ok := c.Resources.Limits[v1.ResourceMemory]; ok {
@@ -69,7 +69,7 @@ func datapointsForContainerSpec(c v1.Container, contDims map[string]string) []*d
 				contDims,
 				datapoint.NewIntValue(val.Value()),
 				datapoint.Gauge,
-				time.Now()))
+				time.Time{}))
 	}
 
 	if val, ok := c.Resources.Requests[v1.ResourceEphemeralStorage]; ok {
@@ -79,7 +79,7 @@ func datapointsForContainerSpec(c v1.Container, contDims map[string]string) []*d
 				contDims,
 				datapoint.NewIntValue(val.Value()),
 				datapoint.Gauge,
-				time.Now()))
+				time.Time{}))
 	}
 
 	if val, ok := c.Resources.Limits[v1.ResourceEphemeralStorage]; ok {
@@ -89,7 +89,7 @@ func datapointsForContainerSpec(c v1.Container, contDims map[string]string) []*d
 				contDims,
 				datapoint.NewIntValue(val.Value()),
 				datapoint.Gauge,
-				time.Now()))
+				time.Time{}))
 	}
 
 	return dps
