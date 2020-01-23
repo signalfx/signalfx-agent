@@ -82,17 +82,12 @@ func (mf *monitorFiltering) HasAnyExtraMetrics() bool {
 func buildFilterSet(metadata *Metadata, conf config.MonitorCustomConfig) (*dpfilters.FilterSet, error) {
 	coreConfig := conf.MonitorConfigCore()
 
-	oldFilter, err := coreConfig.OldFilterSet()
+	filter, err := coreConfig.FilterSet()
 	if err != nil {
 		return nil, err
 	}
 
-	newFilter, err := coreConfig.NewFilterSet()
-	if err != nil {
-		return nil, err
-	}
-
-	excludeFilters := []dpfilters.DatapointFilter{oldFilter, newFilter}
+	excludeFilters := []dpfilters.DatapointFilter{filter}
 
 	if metadata != nil && !metadata.SendAll {
 		// Make a copy of extra metrics from config so we don't alter what the user configured.
