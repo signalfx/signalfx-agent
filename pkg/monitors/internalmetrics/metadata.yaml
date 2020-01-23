@@ -14,7 +14,7 @@ monitors:
     monitors:
       - type: internal-metrics
     ```
-  sendAll: false
+  sendAll: true
   metrics:
     sfxagent.active_monitors:
       description: The total number of monitor instances actively working
@@ -183,7 +183,7 @@ monitors:
         of the agent
       default: true
       type: cumulative
-    sfxgent.go_num_goroutine:
+    sfxagent.go_num_goroutine:
       description: Number of goroutines in the agent
       default: true
       type: gauge

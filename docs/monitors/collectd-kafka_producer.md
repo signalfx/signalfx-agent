@@ -88,6 +88,8 @@ Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
 (*default*) are ***in bold and italics*** in the list below.
 
+This monitor will also emit by default any metrics that are not listed below.
+
 
  - ***`gauge.kafka.producer.byte-rate`*** (*gauge*)<br>    Average number of bytes sent per second for a topic. This metric has client-id and topic dimensions.
  - ***`gauge.kafka.producer.compression-rate`*** (*gauge*)<br>    Average compression rate of record batches for a topic. This metric has client-id and topic dimensions.

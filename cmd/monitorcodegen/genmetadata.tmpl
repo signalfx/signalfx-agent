@@ -77,7 +77,7 @@ var {{if gt (len $.monitors) 1 -}}
 	MonitorType: "{{.MonitorType}}",
 	DefaultMetrics: {{"defaultMetrics" | formatVariable}},
 	Metrics: {{"metricSet" | formatVariable}},
-	MetricsExhaustive: {{.MetricsExhaustive}},
+	SendUnknown: {{.SendUnknown}},
 	Groups: {{"groupSet" | formatVariable}},
 	GroupMetricsMap: {{"groupMetricsMap" | formatVariable}},
 	SendAll: {{ .SendAll }},

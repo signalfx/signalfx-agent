@@ -12,140 +12,140 @@ monitors:
   metrics:
     go_gc_duration_seconds:
       description: A summary of the GC invocation durations
-      default:
+      default: false
       type: cumulative
     go_gc_duration_seconds_bucket:
       description: A summary of the GC invocation durations
-      default:
+      default: false
       type: cumulative
     go_gc_duration_seconds_count:
       description: A summary of the GC invocation durations
-      default:
+      default: false
       type: cumulative
     go_goroutines:
       description: Number of goroutines that currently exist
-      default:
+      default: false
       type: gauge
     go_info:
       description: Information about the Go environment
-      default:
+      default: false
       type: gauge
     go_memstats_alloc_bytes:
       description: Number of bytes allocated and still in use
-      default:
+      default: false
       type: gauge
     go_memstats_alloc_bytes_total:
       description: Total number of bytes allocated, even if freed
-      default:
+      default: false
       type: cumulative
     go_memstats_buck_hash_sys_bytes:
       description: Number of bytes used by the profiling bucket hash table
-      default:
+      default: false
       type: gauge
     go_memstats_frees_total:
       description: Total number of frees
-      default:
+      default: false
       type: cumulative
     go_memstats_gc_cpu_fraction:
       description: The fraction of this program's available CPU time used by the GC
         since the program started
-      default:
+      default: false
       type: gauge
     go_memstats_gc_sys_bytes:
       description: Number of bytes used for garbage collection system metadata
-      default:
+      default: false
       type: gauge
     go_memstats_heap_alloc_bytes:
       description: Number of heap bytes allocated and still in use
-      default:
+      default: false
       type: gauge
     go_memstats_heap_idle_bytes:
       description: Number of heap bytes waiting to be used
-      default:
+      default: false
       type: gauge
     go_memstats_heap_inuse_bytes:
       description: Number of heap bytes that are in use
-      default:
+      default: false
       type: gauge
     go_memstats_heap_objects:
       description: Number of allocated objects
-      default:
+      default: false
       type: gauge
     go_memstats_heap_released_bytes:
       description: Number of heap bytes released to OS
-      default:
+      default: false
       type: gauge
     go_memstats_heap_sys_bytes:
       description: Number of heap bytes obtained from system
-      default:
+      default: false
       type: gauge
     go_memstats_last_gc_time_seconds:
       description: Number of seconds since 1970 of last garbage collection
-      default:
+      default: false
       type: gauge
     go_memstats_lookups_total:
       description: Total number of pointer lookups
-      default:
+      default: false
       type: cumulative
     go_memstats_mallocs_total:
       description: Total number of mallocs
-      default:
+      default: false
       type: cumulative
     go_memstats_mcache_inuse_bytes:
       description: Number of bytes in use by mcache structures
-      default:
+      default: false
       type: gauge
     go_memstats_mcache_sys_bytes:
       description: Number of bytes used for mcache structures obtained from system
-      default:
+      default: false
       type: gauge
     go_memstats_mspan_inuse_bytes:
       description: Number of bytes in use by mspan structures
-      default:
+      default: false
       type: gauge
     go_memstats_mspan_sys_bytes:
       description: Number of bytes used for mspan structures obtained from system
-      default:
+      default: false
       type: gauge
     go_memstats_next_gc_bytes:
       description: Number of heap bytes when next garbage collection will take place
-      default:
+      default: false
       type: gauge
     go_memstats_other_sys_bytes:
       description: Number of bytes used for other system allocations
-      default:
+      default: false
       type: gauge
     go_memstats_stack_inuse_bytes:
       description: Number of bytes in use by the stack allocator
-      default:
+      default: false
       type: gauge
     go_memstats_stack_sys_bytes:
       description: Number of bytes obtained from system for stack allocator
-      default:
+      default: false
       type: gauge
     go_memstats_sys_bytes:
       description: Number of bytes obtained from system
-      default:
+      default: false
       type: gauge
     go_threads:
       description: Number of OS threads created
-      default:
+      default: false
       type: gauge
     process_cpu_seconds_total:
       description: Total user and system CPU time spent in seconds
-      default:
+      default: false
       type: cumulative
     process_max_fds:
       description: Maximum number of open file descriptors
-      default:
+      default: false
       type: gauge
     process_open_fds:
       description: Number of open file descriptors
-      default:
+      default: false
       type: gauge
     process_resident_memory_bytes:
       description: Resident memory size in bytes
-      default:
+      default: false
       type: gauge
     process_start_time_seconds:
       description: Start time of the process since unix epoch in seconds
@@ -153,9 +153,9 @@ monitors:
       type: gauge
     process_virtual_memory_bytes:
       description: Virtual memory size in bytes
-      default:
+      default: false
       type: gauge
     process_virtual_memory_max_bytes:
       description: Maximum amount of virtual memory available in bytes
-      default:
+      default: false
       type: gauge

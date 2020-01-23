@@ -113,4 +113,5 @@ monitors:
       default: true
       type: gauge
   monitorType: collectd/kafka_producer
+  sendUnknown: true
   properties:

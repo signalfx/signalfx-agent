@@ -67,6 +67,8 @@ Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
 (*default*) are ***in bold and italics*** in the list below.
 
+This monitor will also emit by default any metrics that are not listed below.
+
 
  - ***`counter.solr.http_2xx_responses`*** (*counter*)<br>    Total number of 2xx http responses
  - ***`counter.solr.http_4xx_responses`*** (*counter*)<br>    Total number of 4xx http responses
