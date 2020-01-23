@@ -24,6 +24,7 @@ COPY cmd/ ./cmd/
 COPY scripts/collectd-template-to-go scripts/make-versions ./scripts/
 COPY Makefile .
 COPY pkg/ ./pkg/
+RUN chmod 644 pkg/monitors/collectd/signalfx_types.db
 
 ARG collectd_version=""
 ARG agent_version="latest"
@@ -371,7 +372,7 @@ COPY --from=extra-packages /opt/root/bin/ /bin/
 COPY --from=collectd /usr/share/collectd/postgresql_default.conf /postgresql_default.conf
 COPY --from=collectd /usr/share/collectd/types.db /types.db
 COPY --from=collectd /usr/share/collectd/java/ /collectd-java/
-COPY pkg/monitors/collectd/signalfx_types.db /collectd-java/signalfx_types_db
+COPY --from=agent-builder /usr/src/signalfx-agent/pkg/monitors/collectd/signalfx_types.db /collectd-java/signalfx_types_db
 
 # Pull in Python collectd plugin scripts
 COPY --from=python-plugins /opt/collectd-python/ /collectd-python/
