@@ -11,3 +11,9 @@ run-dev-image:
 		-it \
 		signalfx-agent-salt-dev \
 		bash
+
+.PHONY: test
+test:
+	salt-lint -v /srv/salt/signalfx-agent/*.sls
+	salt-call --local state.show_sls signalfx-agent
+	salt-call --local pillar.items
