@@ -11,20 +11,52 @@ func TestRetrieveInventory(t *testing.T) {
 	gateway := newFakeGateway()
 	svc := NewInventorySvc(gateway, getTestingLog())
 	inv, _ := svc.RetrieveInventory()
-	for _, invObj := range inv.Objects {
-		refID := invObj.Ref.Value
-		dims := inv.DimensionMap[refID]
-		switch invObj.Ref.Type {
-		case model.HostType:
-			require.Equal(t, "host-0", dims["ref_id"])
-			require.Equal(t, model.HostType, dims["object_type"])
-			require.Equal(t, "4.4.4.4", dims["esx_ip"])
-		case model.VMType:
-			require.Equal(t, "4.4.4.4", dims["esx_ip"])
-			require.Equal(t, "vm-0", dims["ref_id"])
-			require.Equal(t, model.VMType, dims["object_type"])
-			require.Equal(t, "foo vm", dims["vm_name"])
-			require.Equal(t, "foo guest id", dims["guest_id"])
-		}
-	}
+	requireClusterHost(t, inv, 0)
+	requireClusterVM(t, inv, 1)
+	requireFreeHost(t, inv, 2)
+	requireFreeVM(t, inv, 3)
+}
+
+func requireClusterHost(t *testing.T, inv *model.Inventory, i int) {
+	dims := getDims(inv, i)
+	require.Equal(t, "foo cluster", dims["cluster"])
+	require.Equal(t, "foo dc", dims["datacenter"])
+	require.Equal(t, "4.4.4.4", dims["esx_ip"])
+	require.Equal(t, "host-0", dims["ref_id"])
+	require.Equal(t, model.HostType, dims["object_type"])
+}
+
+func requireClusterVM(t *testing.T, inv *model.Inventory, i int) {
+	dims := getDims(inv, i)
+	require.Equal(t, "foo cluster", dims["cluster"])
+	require.Equal(t, "foo dc", dims["datacenter"])
+	require.Equal(t, "4.4.4.4", dims["esx_ip"])
+	require.Equal(t, "vm-0", dims["ref_id"])
+	require.Equal(t, model.VMType, dims["object_type"])
+	require.Equal(t, "foo vm", dims["vm_name"])
+	require.Equal(t, "foo guest id", dims["guest_id"])
+}
+
+func requireFreeHost(t *testing.T, inv *model.Inventory, i int) {
+	dims := getDims(inv, i)
+	require.Empty(t, dims["cluster"])
+	require.Equal(t, "foo dc", dims["datacenter"])
+	require.Equal(t, "4.4.4.4", dims["esx_ip"])
+	require.Equal(t, "freehost-1", dims["ref_id"])
+	require.Equal(t, model.HostType, dims["object_type"])
+}
+
+func requireFreeVM(t *testing.T, inv *model.Inventory, i int) {
+	dims := getDims(inv, i)
+	require.Empty(t, dims["cluster"])
+	require.Equal(t, "foo dc", dims["datacenter"])
+	require.Equal(t, "4.4.4.4", dims["esx_ip"])
+	require.Equal(t, "vm-1", dims["ref_id"])
+	require.Equal(t, model.VMType, dims["object_type"])
+	require.Equal(t, "foo vm", dims["vm_name"])
+	require.Equal(t, "foo guest id", dims["guest_id"])
+}
+
+func getDims(inv *model.Inventory, i int) model.Dimensions {
+	return inv.DimensionMap[inv.Objects[i].Ref.Value]
 }

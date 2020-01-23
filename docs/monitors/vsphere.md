@@ -142,12 +142,12 @@ monitor config option `extraGroups`:
  - `vsphere.disk_queue_latency_ms` (*gauge*)<br>    Average amount of time spent in the VMkernel queue, per SCSI command, during the collection interval.
  - `vsphere.disk_queue_read_latency_ms` (*gauge*)<br>    Average amount of time spent in the VMkernel queue, per SCSI read command, during the collection interval.
  - `vsphere.disk_queue_write_latency_ms` (*gauge*)<br>    Average amount of time spent in the VMkernel queue, per SCSI write command, during the collection interval.
- - `vsphere.disk_read_kbs` (*gauge*)<br>    Average number of kilobytes read from the disk each second during the collection interval.
+ - ***`vsphere.disk_read_kbs`*** (*gauge*)<br>    Average number of kilobytes read from the disk each second during the collection interval.
  - `vsphere.disk_total_latency_ms` (*gauge*)<br>    Average amount of time taken during the collection interval to process a SCSI command issued by the guest OS to the virtual machine.
  - `vsphere.disk_total_read_latency_ms` (*gauge*)<br>    Average amount of time taken during the collection interval to process a SCSI read command issued from the guest OS to the virtual machine.
  - `vsphere.disk_total_write_latency_ms` (*gauge*)<br>    Average amount of time taken during the collection interval to process a SCSI write command issued by the guest OS to the virtual machine.
  - ***`vsphere.disk_usage_kbs`*** (*gauge*)<br>    Aggregated disk I/O rate.
- - `vsphere.disk_write_kbs` (*gauge*)<br>    Average number of kilobytes written to disk each second during the collection interval.
+ - ***`vsphere.disk_write_kbs`*** (*gauge*)<br>    Average number of kilobytes written to disk each second during the collection interval.
 
 #### Group hbr
 All of the following metrics are part of the `hbr` metric group. All of
@@ -227,7 +227,7 @@ monitor config option `extraGroups`:
  - ***`vsphere.net_received_kbs`*** (*gauge*)<br>    Average rate at which data was received during the interval.
  - ***`vsphere.net_transmitted_kbs`*** (*gauge*)<br>    Average rate at which data was transmitted during the interval. This represents the bandwidth of the network.
  - `vsphere.net_unknown_protos` (*counter*)<br>    Number of frames with unknown protocol received during the sampling interval
- - `vsphere.net_usage_kbs` (*gauge*)<br>    Network utilization (combined transmit- and receive-rates) during the interval.
+ - ***`vsphere.net_usage_kbs`*** (*gauge*)<br>    Network utilization (combined transmit- and receive-rates) during the interval.
 
 #### Group power
 All of the following metrics are part of the `power` metric group. All of
@@ -362,6 +362,26 @@ that whitelist, then you need to add an item to the top-level
 `metricsToInclude` config option to override that whitelist (see [Inclusion
 filtering](../legacy-filtering.md#inclusion-filtering).  Or you can just
 copy the whitelist.json, modify it, and reference that in `metricsToExclude`.
+
+## Dimensions
+
+The following dimensions may occur on metrics emitted by this monitor.  Some
+dimensions may be specific to certain metrics.
+
+| Name | Description |
+| ---  | ---         |
+| `cluster` | If the metric's host or virtual machine is attached to a cluster, the name of the cluster. |
+| `datacenter` | The name of the datacenter to which the metric pertains. |
+| `esx_ip` | The IP address of the ESX host to which the metric pertains. |
+| `guest_family` | For virtual machine metrics, the guest operating system family for the virtual machine to which this metric pertains. For example 'linuxGuest'. |
+| `guest_fullname` | For virtual machine metrics, the full name of the guest operating system for the virtual machine to which the metric pertains. For example 'Windows 2000 Professional'. |
+| `guest_id` | For virtual machine metrics, the guest identifier of the virtual machine to which the metric pertains. |
+| `object` | For some metrics, the source of the metric. For example, the identifier of a NIC for a network metric, or the processor number for a CPU metric. |
+| `object_type` | The type of the resource to which the metric pertains. Values can be 'VirtualMachine' for a VM, or 'HostSystem' for an ESX host. |
+| `ref_id` | The unique vCenter identifier for the resource to which the metric pertains. |
+| `vcenter` | The hostname of the vCenter server to which the monitor is connected. |
+| `vm_ip` | For virtual machine metrics, the IP address of the virtual machine to which this metric pertains. |
+| `vm_name` | For virtual machine metrics, the name of the virtual machine to which the metric pertains. |
 
 
 

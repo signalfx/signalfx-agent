@@ -16,11 +16,12 @@ var perfMetricSeriesValue = int64(111)
 
 type fakeGateway struct {
 	metricIDCounter int32
-	sizes           typeCounter
+	typeCounts      typeCounter
 }
 
 type typeCounter struct {
 	cluster int
+	compute int
 	host    int
 	vm      int
 }
@@ -30,12 +31,7 @@ func getTestingLog() *logrus.Entry {
 }
 
 func newFakeGateway() *fakeGateway {
-	gateway := &fakeGateway{sizes: typeCounter{
-		cluster: 1,
-		host:    1,
-		vm:      1,
-	}}
-	return gateway
+	return &fakeGateway{}
 }
 
 func (g *fakeGateway) retrievePerformanceManager() (*mo.PerformanceManager, error) {
@@ -61,11 +57,14 @@ func (g *fakeGateway) retrieveRefProperties(mor types.ManagedObjectReference, ds
 	switch t := dst.(type) {
 	case *mo.Folder:
 		t.Self = mor
-		t.ChildEntity = g.createRefs(model.ClusterType, "cluster", g.sizes.cluster)
+		cluster := g.createRef(model.ClusterComputeType, "cluster", &g.typeCounts.cluster)
+		freeStandingHost := g.createRef(model.ComputeType, "compute", &g.typeCounts.compute)
+		t.ChildEntity = []types.ManagedObjectReference{cluster, freeStandingHost}
 	case *mo.ClusterComputeResource:
 		t.Self = mor
 		t.Name = "foo cluster"
-		t.ComputeResource.Host = g.createRefs(model.HostType, "host", g.sizes.host)
+		hostRef := g.createRef(model.HostType, "host", &g.typeCounts.host)
+		t.ComputeResource.Host = []types.ManagedObjectReference{hostRef}
 	case *mo.Datacenter:
 		t.Self = mor
 		t.Name = "foo dc"
@@ -77,7 +76,8 @@ func (g *fakeGateway) retrieveRefProperties(mor types.ManagedObjectReference, ds
 				OsType: "foo os type",
 			},
 		}
-		t.Vm = g.createRefs(model.VMType, "vm", g.sizes.vm)
+		vmRef := g.createRef(model.VMType, "vm", &g.typeCounts.vm)
+		t.Vm = []types.ManagedObjectReference{vmRef}
 	case *mo.VirtualMachine:
 		t.Self = mor
 		t.Name = "foo vm"
@@ -89,6 +89,10 @@ func (g *fakeGateway) retrieveRefProperties(mor types.ManagedObjectReference, ds
 			GuestFamily:   "fooFam",
 			GuestFullName: "fooFullName",
 		}
+	case *mo.ComputeResource:
+		t.Self = mor
+		hostRef := g.createRef(model.HostType, "freehost", &g.typeCounts.host)
+		t.Host = []types.ManagedObjectReference{hostRef}
 	default:
 		return fmt.Errorf("type not found %v", t)
 	}
@@ -134,12 +138,10 @@ func (g *fakeGateway) queryPerf(invObjs []*model.InventoryObject, maxSample int3
 	return &types.QueryPerfResponse{Returnval: []types.BasePerfEntityMetricBase{m}}, nil
 }
 
-func (g *fakeGateway) createRefs(key string, prefix string, size int) []types.ManagedObjectReference {
-	refs := make([]types.ManagedObjectReference, 0, size)
-	for i := 0; i < size; i++ {
-		refs = append(refs, types.ManagedObjectReference{Type: key, Value: fmt.Sprintf("%s-%d", prefix, i)})
-	}
-	return refs
+func (g *fakeGateway) createRef(key string, prefix string, counter *int) types.ManagedObjectReference {
+	out := types.ManagedObjectReference{Type: key, Value: fmt.Sprintf("%s-%d", prefix, *counter)}
+	*counter++
+	return out
 }
 
 func (g *fakeGateway) retrieveCurrentTime() (*time.Time, error) {

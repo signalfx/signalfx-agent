@@ -46248,7 +46248,44 @@
     {
       "monitorType": "vsphere",
       "sendAll": false,
-      "dimensions": null,
+      "dimensions": {
+        "cluster": {
+          "description": "If the metric's host or virtual machine is attached to a cluster, the name of the cluster."
+        },
+        "datacenter": {
+          "description": "The name of the datacenter to which the metric pertains."
+        },
+        "esx_ip": {
+          "description": "The IP address of the ESX host to which the metric pertains."
+        },
+        "guest_family": {
+          "description": "For virtual machine metrics, the guest operating system family for the virtual machine to which this metric pertains. For example 'linuxGuest'."
+        },
+        "guest_fullname": {
+          "description": "For virtual machine metrics, the full name of the guest operating system for the virtual machine to which the metric pertains. For example 'Windows 2000 Professional'."
+        },
+        "guest_id": {
+          "description": "For virtual machine metrics, the guest identifier of the virtual machine to which the metric pertains."
+        },
+        "object": {
+          "description": "For some metrics, the source of the metric. For example, the identifier of a NIC for a network metric, or the processor number for a CPU metric."
+        },
+        "object_type": {
+          "description": "The type of the resource to which the metric pertains. Values can be 'VirtualMachine' for a VM, or 'HostSystem' for an ESX host."
+        },
+        "ref_id": {
+          "description": "The unique vCenter identifier for the resource to which the metric pertains."
+        },
+        "vcenter": {
+          "description": "The hostname of the vCenter server to which the monitor is connected."
+        },
+        "vm_ip": {
+          "description": "For virtual machine metrics, the IP address of the virtual machine to which this metric pertains."
+        },
+        "vm_name": {
+          "description": "For virtual machine metrics, the name of the virtual machine to which the metric pertains."
+        }
+      },
       "doc": "A VMware vSphere deployment includes physical hosts, ESXi hypervisors, virtual machines, and vCenter Server.\nThis monitor reports metrics for a vSphere deployment by logging into a vCenter Server and periodically\nretrieving data about the deployment and its real time performance data.\n\nWhen this monitor starts up, it logs into vCenter Server and traverses the inventory, gathering and caching all of\nthe hosts and virtual machines, and their available metrics.\n\nThen it periodically queries the vCenter for the performance data for those metrics. It does so at a rate of\nonce every 20 seconds, the interval at which vCenter makes real-time performance data avaialable.\n\nBecause the 20 second interval for real-time metrics is fixed by vSphere, this monitor runs every 20 seconds,\nregardless of the IntervalSeconds value in the agent config.\n\nIt also refreshes, at a configurable interval, the cache of hosts, virtual machines, and metrics. By default,\nit does this every 60 seconds, but this interval can be changed by updating the configuration field\n`InventoryRefreshInterval`.\n\nCompatibility:\nThis monitor uses VMware's govmomi SDK, which is built for and tested against vCenter 6.0, 6.5 and 6.7.\nIt may work with versions 5.5 and 5.1, but neither are officially supported.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: vsphere\n    host: \"172.16.248.140\"\n    username: \"administrator@vsphere.local\"\n    password: \"S3cr3t\"\n    insecureSkipVerify: true\n```\n",
       "groups": {
         "cpu": {
@@ -46815,7 +46852,7 @@
           "type": "gauge",
           "description": "Average number of kilobytes read from the disk each second during the collection interval.",
           "group": "disk",
-          "default": false
+          "default": true
         },
         "vsphere.disk_total_latency_ms": {
           "type": "gauge",
@@ -46845,7 +46882,7 @@
           "type": "gauge",
           "description": "Average number of kilobytes written to disk each second during the collection interval.",
           "group": "disk",
-          "default": false
+          "default": true
         },
         "vsphere.hbr_net_rx_kbs": {
           "type": "gauge",
@@ -47235,7 +47272,7 @@
           "type": "gauge",
           "description": "Network utilization (combined transmit- and receive-rates) during the interval.",
           "group": "net",
-          "default": false
+          "default": true
         },
         "vsphere.power_cap_watts": {
           "type": "gauge",
