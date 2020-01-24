@@ -52,6 +52,10 @@ parse_args_and_install() {
         package_version="$2"
         shift 1
         ;;
+      --)
+        access_token="$2"
+        shift 1
+        ;;
       -h|--help)
         usage
         exit 0
@@ -106,6 +110,7 @@ Options:
   --api-url <api url>         Base URL of the SignalFx API server
   --test                      Use the test package repo instead of the primary
   --beta                      Use the beta package repo instead of the primary
+  --                          Use -- if your access_token starts with -
 
 EOH
   exit 0
