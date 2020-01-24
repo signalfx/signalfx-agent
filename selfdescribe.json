@@ -19007,7 +19007,7 @@
     },
     {
       "monitorType": "disk-io",
-      "sendAll": true,
+      "sendAll": false,
       "dimensions": {
         "disk": {
           "description": "The name of the disk that the metric describes"
@@ -19027,6 +19027,7 @@
             "disk_ops.avg_read",
             "disk_ops.avg_write",
             "disk_ops.read",
+            "disk_ops.total",
             "disk_ops.write",
             "disk_time.avg_read",
             "disk_time.avg_write",
@@ -19076,17 +19077,23 @@
           "type": "gauge",
           "description": "(Windows Only) The average disk read queue length.",
           "group": null,
-          "default": false
+          "default": true
         },
         "disk_ops.avg_write": {
           "type": "gauge",
           "description": "(Windows Only) The average disk write queue length.",
           "group": null,
-          "default": false
+          "default": true
         },
         "disk_ops.read": {
           "type": "cumulative",
           "description": "(Linux Only) The number of disk read operations.",
+          "group": null,
+          "default": true
+        },
+        "disk_ops.total": {
+          "type": "gauge",
+          "description": "(Linux Only) The number of both read and write disk operations across all disks in the last reporting interval.",
           "group": null,
           "default": true
         },
