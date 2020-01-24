@@ -54,7 +54,7 @@ func init() {
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
-	m.timeout = conf.HTTPTimeout
+	m.timeout = conf.HTTPTimeout.AsDuration()
 
 	httpClient, err := conf.BuildCustomizeTransport(func(t *http.Transport) {
 		t.MaxIdleConnsPerHost = 100

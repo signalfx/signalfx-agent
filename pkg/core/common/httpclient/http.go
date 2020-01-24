@@ -4,9 +4,8 @@ import (
 	"crypto/tls"
 	"net/http"
 
-	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
-
 	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 )
 
 // HTTPConfig can be embedded inside a monitor config.
