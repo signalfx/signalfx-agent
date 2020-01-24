@@ -519,6 +519,12 @@ workflows:
           requires:
             - build
       - k8s_integration_tests:
+          name: k8s_v1.17.0_integration_tests
+          k8s_version: v1.17.0
+          requires:
+            - build
+            - helm_check
+      - k8s_integration_tests:
           name: k8s_v1.16.0_integration_tests
           k8s_version: v1.16.0
           requires:
@@ -543,14 +549,8 @@ workflows:
             - build
             - helm_check
       - k8s_integration_tests:
-          name: k8s_v1.12.0_integration_tests
-          k8s_version: v1.12.0
-          requires:
-            - build
-            - helm_check
-      - k8s_integration_tests:
           name: k8s_crio_integration_tests
-          k8s_version: v1.16.0
+          k8s_version: v1.17.0
           with_crio: true
           requires:
             - build
