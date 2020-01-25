@@ -1,9 +1,8 @@
 package model
 
 import (
-	"time"
-
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 	"github.com/vmware/govmomi/vim25/types"
 )
 
@@ -30,7 +29,7 @@ type Config struct {
 	// Whether we verify the server's certificate chain and host name
 	InsecureSkipVerify bool `yaml:"insecureSkipVerify"`
 	// How often to reload the inventory and inventory metrics
-	InventoryRefreshInterval time.Duration `yaml:"inventoryRefreshInterval" default:"60s"`
+	InventoryRefreshInterval timeutil.Duration `yaml:"inventoryRefreshInterval" default:"60s"`
 
 	// Path to the ca file
 	TLSCACertPath string `yaml:"tlsCACertPath"`

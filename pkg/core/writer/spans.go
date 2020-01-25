@@ -46,7 +46,7 @@ func (sw *SignalFxWriter) preprocessSpan(span *trace.Span) bool {
 }
 
 func (sw *SignalFxWriter) startGeneratingHostCorrelationMetrics() *tracetracker.ActiveServiceTracker {
-	tracker := tracetracker.New(sw.conf.StaleServiceTimeout, func(dp *datapoint.Datapoint) {
+	tracker := tracetracker.New(sw.conf.StaleServiceTimeout.Get(), func(dp *datapoint.Datapoint) {
 		// Immediately send correlation datapoints when we first see a service
 		sw.dpChan <- []*datapoint.Datapoint{dp}
 	})
@@ -57,7 +57,7 @@ func (sw *SignalFxWriter) startGeneratingHostCorrelationMetrics() *tracetracker.
 		for _, dp := range tracker.CorrelationDatapoints() {
 			sw.dpChan <- []*datapoint.Datapoint{dp}
 		}
-	}, sw.conf.TraceHostCorrelationMetricsInterval)
+	}, sw.conf.TraceHostCorrelationMetricsInterval.Get())
 
 	return tracker
 }

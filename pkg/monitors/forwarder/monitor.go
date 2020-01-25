@@ -4,6 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
+
 	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
@@ -29,7 +31,7 @@ type Config struct {
 	ListenAddress string `yaml:"listenAddress" default:"127.0.0.1:9080"`
 	// HTTP timeout duration for both read and writes. This should be a
 	// duration string that is accepted by https://golang.org/pkg/time/#ParseDuration
-	ServerTimeout time.Duration `yaml:"serverTimeout" default:"5s"`
+	ServerTimeout timeutil.Duration `yaml:"serverTimeout" default:"5s"`
 	// Whether to emit internal metrics about the HTTP listener
 	SendInternalMetrics *bool `yaml:"sendInternalMetrics" default:"false"`
 }
@@ -46,7 +48,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	ctx, m.cancel = context.WithCancel(context.Background())
 
 	sink := &outputSink{Output: m.Output}
-	listenerMetrics, err := startListening(ctx, conf.ListenAddress, conf.ServerTimeout, sink)
+	listenerMetrics, err := startListening(ctx, conf.ListenAddress, conf.ServerTimeout.Get(), sink)
 	if err != nil {
 		return errors.WithMessage(err, "could not start forwarder listener")
 	}

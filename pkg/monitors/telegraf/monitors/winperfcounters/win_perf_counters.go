@@ -2,7 +2,8 @@ package winperfcounters
 
 import (
 	"strings"
-	"time"
+
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 
 	"github.com/influxdata/telegraf"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
@@ -58,7 +59,7 @@ type Config struct {
 	// The frequency that counter paths should be expanded
 	// and how often to refresh counters from configuration.
 	// This is expressed as a duration.
-	CountersRefreshInterval time.Duration `yaml:"counterRefreshInterval" default:"5s"`
+	CountersRefreshInterval timeutil.Duration `yaml:"counterRefreshInterval" default:"5s"`
 	// If `true`, instance indexes will be included in instance names, and wildcards will
 	// be expanded and localized (if applicable).  If `false`, non partial wildcards will
 	// be expanded and instance names will not include instance indexes.

@@ -4,6 +4,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/stretchr/testify/require"
 )
@@ -12,8 +14,8 @@ var essentialWriterConfig = config.WriterConfig{
 	PropertiesHistorySize:               100,
 	PropertiesSendDelaySeconds:          1,
 	TraceExportFormat:                   "zipkin",
-	TraceHostCorrelationMetricsInterval: 1 * time.Second,
-	StaleServiceTimeout:                 1 * time.Second,
+	TraceHostCorrelationMetricsInterval: timeutil.Duration(1 * time.Second),
+	StaleServiceTimeout:                 timeutil.Duration(1 * time.Second),
 	EventSendIntervalSeconds:            1,
 }
 

@@ -2,9 +2,9 @@ package haproxy
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 )
 
 // Config is the config for this monitor.
@@ -27,7 +27,7 @@ type Config struct {
 	// Flag that enables SSL certificate verification for the scrape URL.
 	SSLVerify bool `yaml:"sslVerify" default:"true"`
 	// Timeout for trying to get stats from HAProxy. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration
-	Timeout time.Duration `yaml:"timeout" default:"5s"`
+	Timeout timeutil.Duration `yaml:"timeout" default:"5s"`
 	// A list of the pxname(s) and svname(s) to monitor (e.g. `["http-in", "server1", "backend"]`). If empty then metrics for all proxies will be reported.
 	Proxies []string `yaml:"proxies"`
 }

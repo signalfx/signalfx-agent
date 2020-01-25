@@ -12,6 +12,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
 	"github.com/stretchr/testify/require"
 )
@@ -130,7 +132,7 @@ func TestHttpBasicAuth(t *testing.T) {
 
 func TestHttpTimeout(t *testing.T) {
 	h := &HTTPConfig{
-		HTTPTimeout: 1 * time.Nanosecond,
+		HTTPTimeout: timeutil.Duration(1 * time.Nanosecond),
 	}
 	req := require.New(t)
 	runServer(t, h, func(host string) {
