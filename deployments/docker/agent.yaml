@@ -25,7 +25,7 @@ monitors:
   - type: collectd/cpufreq
   - type: collectd/df
     hostFSPath: /hostfs
-  - type: disk
+  - type: disk-io
   - type: collectd/interface
   - type: load
   - type: collectd/memory

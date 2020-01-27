@@ -59,7 +59,7 @@ data:
     - type: collectd/cpufreq
     - type: collectd/df
       hostFSPath: {{ .Values.hostFSPath }}
-    - type: disk
+    - type: disk-io
     - type: collectd/interface
     - type: load
     - type: collectd/memory
