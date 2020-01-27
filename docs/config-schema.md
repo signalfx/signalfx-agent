@@ -56,7 +56,7 @@ if not set.
 | `writer` | no | [object (see below)](#writer) | Configuration of the datapoint/event writer |
 | `logging` | no | [object (see below)](#logging) | Log configuration |
 | `collectd` | no | [object (see below)](#collectd) | Configuration of the managed collectd subprocess |
-| `enableBuiltInFiltering` | no | bool | If true, the agent will filter out [custom metrics](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics) without having to rely on the `whitelist.json` filter that was previously configured under `metricsToExclude`.  Whether a metric is custom or not is documented in each monitor's documentation.  If `true`, every monitor's default configuration (i.e. the minimum amount of configuration to make it work) will only send non-custom metrics.  In order to send out custom metrics from a monitor, certain config flags on the monitor must be set _or_ you can specify the metric in the `extraMetrics` config option on each monitor if you know the specific metric name.  You would not have to modify the whitelist via `metricsToInclude` as before.  If you set this option to `true`, the `whitelist.json` entry under `metricToExclude` should be removed, if it is present -- otherwise custom metrics won't be emitted. (**default:** `false`) |
+| `enableBuiltInFiltering` | no | bool | This must be unset or explicitly set to true. In prior versions of the agent, there was a filtering mechanism that relied heavily on an external whitelist.json file to determine which metrics were sent by default.  This is all inherent to the agent now and the old style of filtering is no longer available. (**default:** `true`) |
 | `metricsToInclude` | no | [list of objects (see below)](#metricstoinclude) | A list of metric filters that will whitelist/include metrics.  These filters take priority over the filters specified in `metricsToExclude`. |
 | `metricsToExclude` | no | [list of objects (see below)](#metricstoexclude) | A list of metric filters |
 | `propertiesToExclude` | no | [list of objects (see below)](#propertiestoexclude) | A list of properties filters |
@@ -427,7 +427,7 @@ where applicable:
     writeServerIPAddr: "127.9.8.7"
     writeServerPort: 0
     configDir: "/var/run/signalfx-agent/collectd"
-  enableBuiltInFiltering: false
+  enableBuiltInFiltering: true
   metricsToInclude: []
   metricsToExclude: []
   propertiesToExclude: []

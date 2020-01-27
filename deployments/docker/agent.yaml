@@ -32,5 +32,3 @@ monitors:
   - type: host-metadata
   - type: processlist
   - type: docker-container-stats
-
-enableBuiltInFiltering: true
