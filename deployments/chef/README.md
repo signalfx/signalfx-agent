@@ -57,8 +57,7 @@ node['signalfx_agent']['conf'] = {
     {type: "vmem"}
     {type: "host-metadata"},
     {type: "processlist"},
-  ],
-  "enableBuiltInFiltering": true
+  ]
 }
 ```
 

@@ -101,21 +101,12 @@ type Config struct {
 	Logging LogConfig `yaml:"logging" default:"{}"`
 	// Configuration of the managed collectd subprocess
 	Collectd CollectdConfig `yaml:"collectd" default:"{}"`
-	// If true, the agent will filter out [custom
-	// metrics](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-	// without having to rely on the `whitelist.json` filter that was
-	// previously configured under `metricsToExclude`.  Whether a metric is
-	// custom or not is documented in each monitor's documentation.  If `true`,
-	// every monitor's default configuration (i.e. the minimum amount of
-	// configuration to make it work) will only send non-custom metrics.  In
-	// order to send out custom metrics from a monitor, certain config flags on
-	// the monitor must be set _or_ you can specify the metric in the
-	// `extraMetrics` config option on each monitor if you know the specific
-	// metric name.  You would not have to modify the whitelist via
-	// `metricsToInclude` as before.  If you set this option to `true`, the
-	// `whitelist.json` entry under `metricToExclude` should be removed, if it
-	// is present -- otherwise custom metrics won't be emitted.
-	EnableBuiltInFiltering bool `yaml:"enableBuiltInFiltering" default:"false"`
+	// This must be unset or explicitly set to true. In prior versions of the
+	// agent, there was a filtering mechanism that relied heavily on an
+	// external whitelist.json file to determine which metrics were sent by
+	// default.  This is all inherent to the agent now and the old style of
+	// filtering is no longer available.
+	EnableBuiltInFiltering *bool `yaml:"enableBuiltInFiltering" default:"true"`
 	// A list of metric filters that will whitelist/include metrics.  These
 	// filters take priority over the filters specified in `metricsToExclude`.
 	MetricsToInclude []MetricFilter `yaml:"metricsToInclude" default:"[]"`
@@ -228,21 +219,25 @@ func (c *Config) validate() error {
 		return err
 	}
 
+	if !*c.EnableBuiltInFiltering {
+		return errors.New("enableBuiltInFiltering must be true or unset, false is no longer supported")
+	}
+
 	if _, err := url.Parse(c.IngestURL); err != nil {
-		return errors.WithMessage(err, fmt.Sprintf("%s is not a valid ingest URL", c.IngestURL))
+		return fmt.Errorf("%s is not a valid ingest URL: %v", c.IngestURL, err)
 	}
 
 	if _, err := url.Parse(c.APIURL); err != nil {
-		return errors.WithMessage(err, fmt.Sprintf("%s is not a valid API URL", c.APIURL))
+		return fmt.Errorf("%s is not a valid API URL: %v", c.APIURL, err)
 	}
 
 	if _, err := url.Parse(c.EventEndpointURL); err != nil {
-		return errors.WithMessage(err, fmt.Sprintf("%s is not a valid event endpoint URL", c.EventEndpointURL))
+		return fmt.Errorf("%s is not a valid event endpoint URL: %v", c.EventEndpointURL, err)
 	}
 
 	if c.TraceEndpointURL != "" {
 		if _, err := url.Parse(c.TraceEndpointURL); err != nil {
-			return errors.WithMessage(err, fmt.Sprintf("%s is not a valid trace endpoint URL", c.TraceEndpointURL))
+			return fmt.Errorf("%s is not a valid trace endpoint URL: %v", c.TraceEndpointURL, err)
 		}
 	}
 

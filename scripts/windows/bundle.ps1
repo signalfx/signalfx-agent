@@ -36,10 +36,6 @@ function copy_types_db([string]$collectdCommit, [string]$buildDir=$BUILD_DIR, [s
     cp "$buildDir\collectd\collectd-$collectdCommit\src\types.db" "$buildDir\$agentName\types.db"
 }
 
-function copy_whitelist([string]$buildDir=$BUILD_DIR, [string]$agentName="SignalFxAgent"){
-    cp "$scriptDir\..\..\whitelist.json" "$buildDIR\$agentName\lib\whitelist.json"
-}
-
 function copy_default_config([string]$buildDir=$BUILD_DIR, [string]$agentName="SignalFxAgent"){
     cp "$scriptDir\..\..\packaging\win\agent.yaml" "$buildDir\$agentName\etc\signalfx\agent.yaml"
 }
