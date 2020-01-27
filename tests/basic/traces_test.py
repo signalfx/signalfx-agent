@@ -11,7 +11,6 @@ import requests
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_trace_span, tcp_port_open_locally
 from tests.helpers.util import ensure_never, retry_on_ebadf, wait_for
-from tests.paths import REPO_ROOT_DIR
 
 
 # Make this a function so it returns a fresh copy on each call
@@ -56,8 +55,6 @@ def test_tracing_output():
         monitors:
           - type: trace-forwarder
             listenAddress: localhost:{port}
-        metricsToExclude:
-          - {{"#from": "{REPO_ROOT_DIR}/whitelist.json", flatten: true}}
     """
         )
     ) as agent:

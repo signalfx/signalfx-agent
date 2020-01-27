@@ -138,8 +138,6 @@ data:
       timeout: 40
       logLevel: info
 
-    enableBuiltInFiltering: true
-
     metricsToExclude:
       # The StackDriver metadata-agent pod on GKE restarts every few minutes so
       # ignore its containers

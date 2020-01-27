@@ -15,7 +15,6 @@ class accepts the following parameters:
     $config = {
       signalFxAccessToken: "MY_TOKEN",
       signalFxRealm: "us1",
-      enableBuiltInFiltering: true,
       monitors: [
         {type: "cpu"},
         {type: "filesystems"},
