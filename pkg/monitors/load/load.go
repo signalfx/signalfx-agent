@@ -24,6 +24,7 @@ func init() {
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
+	PerCPU               bool `yaml:"perCPU" default:"false"`
 }
 
 // Monitor for load
@@ -50,12 +51,15 @@ func (m *Monitor) Configure(conf *Config) error {
 			return
 		}
 
-		numCPUs := float64(runtime.NumCPU())
+		divisor := 1.0
+		if conf.PerCPU {
+			divisor = float64(runtime.NumCPU())
+		}
 
 		m.Output.SendDatapoints([]*datapoint.Datapoint{
-			datapoint.New(loadLongterm, nil, datapoint.NewFloatValue(avgLoad.Load15/numCPUs), datapoint.Gauge, time.Time{}),
-			datapoint.New(loadMidterm, nil, datapoint.NewFloatValue(avgLoad.Load5/numCPUs), datapoint.Gauge, time.Time{}),
-			datapoint.New(loadShortterm, nil, datapoint.NewFloatValue(avgLoad.Load1/numCPUs), datapoint.Gauge, time.Time{}),
+			datapoint.New(loadLongterm, nil, datapoint.NewFloatValue(avgLoad.Load15/divisor), datapoint.Gauge, time.Time{}),
+			datapoint.New(loadMidterm, nil, datapoint.NewFloatValue(avgLoad.Load5/divisor), datapoint.Gauge, time.Time{}),
+			datapoint.New(loadShortterm, nil, datapoint.NewFloatValue(avgLoad.Load1/divisor), datapoint.Gauge, time.Time{}),
 		}...)
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
