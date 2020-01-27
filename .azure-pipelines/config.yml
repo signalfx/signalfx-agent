@@ -46,7 +46,7 @@ jobs:
 
 - job: 'win_go_build'
   pool:
-    vmImage: 'vs2015-win2012r2'
+    vmImage: 'vs2017-win2016'
   steps:
   - template: 'templates/install-go.yml'
     parameters:
@@ -66,7 +66,7 @@ jobs:
 
 - job: 'win_go_test'
   pool:
-    vmImage: 'vs2015-win2012r2'
+    vmImage: 'vs2017-win2016'
   steps:
   - template: 'templates/install-go.yml'
     parameters:
@@ -85,7 +85,7 @@ jobs:
 
 - job: 'win_bundle_build'
   pool:
-    vmImage: 'vs2015-win2012r2'
+    vmImage: 'vs2017-win2016'
   steps:
   - template: 'templates/install-go.yml'
     parameters:
@@ -114,9 +114,9 @@ jobs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
       artifactName: 'bundle'
 
-- job: 'win_2012_integration_tests'
+- job: 'win_2019_integration_tests'
   pool:
-    vmImage: 'vs2015-win2012r2'
+    vmImage: 'windows-2019'
   dependsOn: 'win_bundle_build'
   steps:
   - template: 'templates/extract-bundle.yml'
@@ -140,9 +140,9 @@ jobs:
       # Install IIS for windows-iis integration test.
       chocoPackages: '--source windowsfeatures IIS-WebServerRole'
 
-- job: 'win_2012_chef_tests'
+- job: 'win_2019_chef_tests'
   pool:
-    vmImage: 'vs2015-win2012r2'
+    vmImage: 'windows-2019'
   steps:
   - template: 'templates/run-pytest.yml'
     parameters:
@@ -158,9 +158,9 @@ jobs:
       markers: 'chef and windows_only'
       changesInclude: 'deployments/chef tests/deployments/chef tests/packaging/common.py'
 
-- job: 'win_2012_puppet_tests'
+- job: 'win_2019_puppet_tests'
   pool:
-    vmImage: 'vs2015-win2012r2'
+    vmImage: 'windows-2019'
   steps:
   - template: 'templates/run-pytest.yml'
     parameters:
@@ -176,9 +176,9 @@ jobs:
       markers: 'puppet and windows_only'
       changesInclude: 'deployments/puppet tests/deployments/puppet tests/packaging/common.py'
 
-- job: 'win_2012_installer_tests'
+- job: 'win_2019_installer_tests'
   pool:
-    vmImage: 'vs2015-win2012r2'
+    vmImage: 'windows-2019'
   steps:
   - template: 'templates/run-pytest.yml'
     parameters:
