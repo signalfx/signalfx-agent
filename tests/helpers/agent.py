@@ -1,4 +1,5 @@
 import os
+import shutil
 import subprocess
 import tempfile
 from contextlib import contextmanager
@@ -144,7 +145,8 @@ class Agent:
         with ensure_fake_backend(
             host=host, backend_options=backend_options, fake_services=fake_services
         ) as _fake_services:
-            with tempfile.TemporaryDirectory() as run_dir:
+            run_dir = tempfile.mkdtemp()
+            try:
                 agent_env = {**os.environ.copy(), **(extra_env or {})}
                 agent = cls(
                     config=init_config,
@@ -157,6 +159,8 @@ class Agent:
                 )
                 with agent.run_as_subproc():
                     yield agent
+            finally:
+                shutil.rmtree(run_dir, ignore_errors=True)
 
 
 @contextmanager
