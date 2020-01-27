@@ -62,7 +62,3 @@ func (d *Duration) UnmarshalYAML(unmarshal func(interface{}) error) error {
 
 	return ErrInvalidDuration
 }
-
-func (d Duration) IntSeconds() int64 {
-	return int64(d.Get().Seconds())
-}
