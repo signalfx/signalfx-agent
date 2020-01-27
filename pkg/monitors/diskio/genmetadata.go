@@ -21,6 +21,7 @@ const (
 	diskOpsAvgRead     = "disk_ops.avg_read"
 	diskOpsAvgWrite    = "disk_ops.avg_write"
 	diskOpsRead        = "disk_ops.read"
+	diskOpsTotal       = "disk_ops.total"
 	diskOpsWrite       = "disk_ops.write"
 	diskTimeAvgRead    = "disk_time.avg_read"
 	diskTimeAvgWrite   = "disk_time.avg_write"
@@ -38,6 +39,7 @@ var metricSet = map[string]monitors.MetricInfo{
 	diskOpsAvgRead:     {Type: datapoint.Gauge},
 	diskOpsAvgWrite:    {Type: datapoint.Gauge},
 	diskOpsRead:        {Type: datapoint.Counter},
+	diskOpsTotal:       {Type: datapoint.Gauge},
 	diskOpsWrite:       {Type: datapoint.Counter},
 	diskTimeAvgRead:    {Type: datapoint.Gauge},
 	diskTimeAvgWrite:   {Type: datapoint.Gauge},
@@ -46,8 +48,11 @@ var metricSet = map[string]monitors.MetricInfo{
 }
 
 var defaultMetrics = map[string]bool{
-	diskOpsRead:  true,
-	diskOpsWrite: true,
+	diskOpsAvgRead:  true,
+	diskOpsAvgWrite: true,
+	diskOpsRead:     true,
+	diskOpsTotal:    true,
+	diskOpsWrite:    true,
 }
 
 var groupMetricsMap = map[string][]string{}
@@ -59,5 +64,5 @@ var monitorMetadata = monitors.Metadata{
 	MetricsExhaustive: false,
 	Groups:            groupSet,
 	GroupMetricsMap:   groupMetricsMap,
-	SendAll:           true,
+	SendAll:           false,
 }

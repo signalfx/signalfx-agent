@@ -9,6 +9,7 @@ import (
 
 	"github.com/shirou/gopsutil/disk"
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
@@ -18,10 +19,11 @@ var iOCounters = disk.IOCounters
 
 // Monitor for Utilization
 type Monitor struct {
-	Output types.Output
-	cancel func()
-	conf   *Config
-	filter *filter.OverridableStringFilter
+	Output      types.Output
+	cancel      func()
+	conf        *Config
+	filter      *filter.OverridableStringFilter
+	lastOpCount int64
 }
 
 func (m *Monitor) makeLinuxDatapoints(disk disk.IOCountersStat, dimensions map[string]string) []*datapoint.Datapoint {
@@ -44,7 +46,10 @@ func (m *Monitor) emitDatapoints() {
 		logger.WithError(err).Errorf("Failed to load disk io counters")
 		return
 	}
-	// var total uint64
+
+	var dps []*datapoint.Datapoint
+	var opCount int64
+
 	for key, disk := range iocounts {
 		// skip it if the disk doesn't match
 		if !m.filter.Matches(disk.Name) {
@@ -54,8 +59,15 @@ func (m *Monitor) emitDatapoints() {
 
 		diskName := strings.Replace(key, " ", "_", -1)
 
-		m.Output.SendDatapoints(m.makeLinuxDatapoints(disk, map[string]string{"disk": diskName})...)
+		dps = append(dps, m.makeLinuxDatapoints(disk, map[string]string{"disk": diskName})...)
+
+		opCount += int64(disk.ReadCount) + int64(disk.WriteCount)
 	}
+
+	dps = append(dps, sfxclient.Gauge("disk_ops.total", nil, opCount-m.lastOpCount))
+	m.lastOpCount = opCount
+
+	m.Output.SendDatapoints(dps...)
 }
 
 // Configure is the main function of the monitor, it will report host metadata

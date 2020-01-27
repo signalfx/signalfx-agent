@@ -14,7 +14,6 @@ monitors:
     monitors:
      - type: disk-io
     ```
-  sendAll: true
   metrics:
     disk_merged.read:
       description: (Linux Only) The number of disk reads merged into single physical
@@ -44,11 +43,11 @@ monitors:
       type: cumulative
     disk_ops.avg_read:
       description: (Windows Only) The average disk read queue length.
-      default: false
+      default: true
       type: gauge
     disk_ops.avg_write:
       description: (Windows Only) The average disk write queue length.
-      default: false
+      default: true
       type: gauge
     disk_ops.read:
       description: (Linux Only) The number of disk read operations.
@@ -58,6 +57,10 @@ monitors:
       description: (Linux Only) The number of disk write operations.
       default: true
       type: cumulative
+    disk_ops.total:
+      description: (Linux Only) The number of both read and write disk operations across all disks in the last reporting interval.
+      default: true
+      type: gauge
     disk_time.avg_read:
       description: (Windows Only) The average time spent reading from the disk.
       default: false
