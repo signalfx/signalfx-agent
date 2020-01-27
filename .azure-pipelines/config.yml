@@ -147,7 +147,7 @@ jobs:
   - template: 'templates/run-pytest.yml'
     parameters:
       markers: 'chef and windows_only'
-      changesInclude: 'deployments/chef tests/deployments/chef tests/packaging/common.py'
+      changesInclude: 'deployments/chef tests/deployments/chef tests/packaging/common.py .azure-pipelines'
 
 - job: 'win_2016_chef_tests'
   pool:
@@ -156,7 +156,7 @@ jobs:
   - template: 'templates/run-pytest.yml'
     parameters:
       markers: 'chef and windows_only'
-      changesInclude: 'deployments/chef tests/deployments/chef tests/packaging/common.py'
+      changesInclude: 'deployments/chef tests/deployments/chef tests/packaging/common.py .azure-pipelines'
 
 - job: 'win_2019_puppet_tests'
   pool:
@@ -165,7 +165,7 @@ jobs:
   - template: 'templates/run-pytest.yml'
     parameters:
       markers: 'puppet and windows_only'
-      changesInclude: 'deployments/puppet tests/deployments/puppet tests/packaging/common.py'
+      changesInclude: 'deployments/puppet tests/deployments/puppet tests/packaging/common.py .azure-pipelines'
 
 - job: 'win_2016_puppet_tests'
   pool:
@@ -174,7 +174,7 @@ jobs:
   - template: 'templates/run-pytest.yml'
     parameters:
       markers: 'puppet and windows_only'
-      changesInclude: 'deployments/puppet tests/deployments/puppet tests/packaging/common.py'
+      changesInclude: 'deployments/puppet tests/deployments/puppet tests/packaging/common.py .azure-pipelines'
 
 - job: 'win_2019_installer_tests'
   pool:
@@ -183,7 +183,7 @@ jobs:
   - template: 'templates/run-pytest.yml'
     parameters:
       markers: 'installer and windows_only'
-      changesInclude: 'deployments/installer tests/packaging'
+      changesInclude: 'deployments/installer tests/packaging .azure-pipelines'
 
 - job: 'win_2016_installer_tests'
   pool:
@@ -192,4 +192,4 @@ jobs:
   - template: 'templates/run-pytest.yml'
     parameters:
       markers: 'installer and windows_only'
-      changesInclude: 'deployments/installer tests/packaging'
+      changesInclude: 'deployments/installer tests/packaging .azure-pipelines'
