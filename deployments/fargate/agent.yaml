@@ -19,7 +19,7 @@ observers:
 
 monitors:
   - type: collectd/cpu
-  - type: disk
+  - type: disk-io
   - type: collectd/interface
   - type: load
   - type: collectd/memory

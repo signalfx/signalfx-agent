@@ -20,7 +20,7 @@ class accepts the following parameters:
         {type: "collectd/cpu"},
         {type: "collectd/cpufreq"},
         {type: "collectd/df"},
-        {type: "disk"},
+        {type: "disk-io"},
         {type: "collectd/interface"},
         {type: "load"},
         {type: "collectd/memory"},
