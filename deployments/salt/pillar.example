@@ -4,7 +4,6 @@ signalfx-agent:
   conf_file_path: '/etc/signalfx/agent.yaml'
   conf:
     signalFxAccessToken: 'My_Token'
-    enableBuiltInFiltering: true
     monitors:
       - type: cpu
       - type: filesystems

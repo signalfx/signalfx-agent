@@ -38,8 +38,6 @@ monitors:
     # config for each EC2 instance.
   - {"#from": "env:EXTRA_MONITOR_CONFIG", default: [], flatten: true}
 
-enableBuiltInFiltering: true
-
 metricsToExclude:
   - {"#from": "env:METRICS_TO_EXCLUDE", default: [], flatten: true}
 

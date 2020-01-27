@@ -39,8 +39,6 @@ class Agent:
         if self.config.get("intervalSeconds") is None:
             self.config["intervalSeconds"] = 3
 
-        self.config.setdefault("enableBuiltInFiltering", True)
-
         if self.config.get("signalFxAccessToken") is None:
             self.config["signalFxAccessToken"] = "testing123"
 
