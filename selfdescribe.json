@@ -35509,7 +35509,7 @@
       "monitorType": "load",
       "sendAll": false,
       "dimensions": null,
-      "doc": "Monitors process load on the host. Process load is the average number of\nrunning or waiting processes over a certain time period (1, 5, and 15\nminutes).\n\nThis monitor is only available on Linux.\n",
+      "doc": "Monitors process load on the host. Process load is the average number of\nrunning or waiting processes over a certain time period (1, 5, and 15\nminutes).\n\nSee http://www.brendangregg.com/blog/2017-08-08/linux-load-averages.html\nfor a good explanation of load on Linux.\n\nThis monitor is only available on Linux.\n",
       "groups": {
         "": {
           "description": "",
@@ -35523,19 +35523,19 @@
       "metrics": {
         "load.longterm": {
           "type": "gauge",
-          "description": "Average CPU load per core over the last 15 minutes",
+          "description": "Average CPU load of the system over the last 15 minutes.  If the `perCPU` config option is `true`, this will be the average load per CPU.",
           "group": null,
           "default": true
         },
         "load.midterm": {
           "type": "gauge",
-          "description": "Average CPU load per core over the last five minutes",
+          "description": "Average CPU load of the system over the last 5 minutes.  If the `perCPU` config option is `true`, this will be the average load per CPU.",
           "group": null,
           "default": true
         },
         "load.shortterm": {
           "type": "gauge",
-          "description": "Average CPU load per core over the last one minute",
+          "description": "Average CPU load of the system over the last minute.  If the `perCPU` config option is `true`, this will be the average load per CPU.",
           "group": null,
           "default": true
         }
@@ -35546,7 +35546,16 @@
         "name": "Config",
         "doc": "Config for this monitor",
         "package": "pkg/monitors/load",
-        "fields": []
+        "fields": [
+          {
+            "yamlName": "perCPU",
+            "doc": "",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
       },
       "acceptsEndpoints": false,
       "singleInstance": true
