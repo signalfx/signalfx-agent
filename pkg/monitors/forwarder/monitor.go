@@ -48,7 +48,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	ctx, m.cancel = context.WithCancel(context.Background())
 
 	sink := &outputSink{Output: m.Output}
-	listenerMetrics, err := startListening(ctx, conf.ListenAddress, conf.ServerTimeout.Get(), sink)
+	listenerMetrics, err := startListening(ctx, conf.ListenAddress, conf.ServerTimeout.AsDuration(), sink)
 	if err != nil {
 		return errors.WithMessage(err, "could not start forwarder listener")
 	}

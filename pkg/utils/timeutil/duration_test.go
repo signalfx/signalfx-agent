@@ -33,7 +33,7 @@ func TestSecondsOrDuration_UnmarshalYAML(t *testing.T) {
 			if err := yaml.Unmarshal([]byte(tt.args.yml), &out); (err != nil) != tt.wantErr {
 				t.Fatalf("UnmarshalYAML() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if out["time"].Get() != tt.d {
+			if out["time"].AsDuration() != tt.d {
 				t.Fatalf("got %v, wanted %v", out["time"], tt.d)
 			}
 		})
@@ -64,7 +64,7 @@ func TestSecondsOrDuration_Defaults(t *testing.T) {
 			if err := defaults.Set(&out); err != nil {
 				t.Fatal(err)
 			}
-			if out.Interval.Get() != tt.d {
+			if out.Interval.AsDuration() != tt.d {
 				t.Errorf("got %v, wanted %v", out.Interval, tt.d)
 			}
 		})
@@ -94,7 +94,7 @@ func TestDuration_UnmarshalJSON(t *testing.T) {
 			if err := json.Unmarshal([]byte(tt.args.json), &out); (err != nil) != tt.wantErr {
 				t.Fatalf("json.Unmarshal() error = %v, wantErr %v", err, tt.wantErr)
 			}
-			if out["time"].Get() != tt.d {
+			if out["time"].AsDuration() != tt.d {
 				t.Fatalf("got %v, wanted %v", out["time"], tt.d)
 			}
 		})

@@ -263,7 +263,7 @@ func parseStatusField(v string) int64 {
 
 func httpReader(conf *Config, method string) (io.ReadCloser, error) {
 	client := http.Client{
-		Timeout:   conf.Timeout.Get(),
+		Timeout:   conf.Timeout.AsDuration(),
 		Transport: &http.Transport{TLSClientConfig: &tls.Config{InsecureSkipVerify: !conf.SSLVerify}},
 	}
 	req, err := http.NewRequest(method, conf.ScrapeURL(), nil)
@@ -287,11 +287,11 @@ func socketReader(conf *Config, cmd string) (io.ReadCloser, error) {
 	if err != nil {
 		return nil, fmt.Errorf("cannot parse url %s status. %v", conf.ScrapeURL(), err)
 	}
-	f, err := net.DialTimeout("unix", u.Path, conf.Timeout.Get())
+	f, err := net.DialTimeout("unix", u.Path, conf.Timeout.AsDuration())
 	if err != nil {
 		return nil, err
 	}
-	if err := f.SetDeadline(time.Now().Add(conf.Timeout.Get())); err != nil {
+	if err := f.SetDeadline(time.Now().Add(conf.Timeout.AsDuration())); err != nil {
 		f.Close()
 		return nil, err
 	}

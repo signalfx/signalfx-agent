@@ -74,7 +74,7 @@ func (h *HTTPConfig) Build() (*http.Client, error) {
 	}
 
 	return &http.Client{
-		Timeout:   h.HTTPTimeout.Get(),
+		Timeout:   h.HTTPTimeout.AsDuration(),
 		Transport: roundTripper,
 	}, nil
 }

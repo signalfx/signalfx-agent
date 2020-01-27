@@ -96,7 +96,7 @@ OUTER:
 				"host": host,
 				"port": port,
 			}).Error("Could not listen for Logstash events")
-			time.Sleep(m.conf.ReconnectDelay.Get())
+			time.Sleep(m.conf.ReconnectDelay.AsDuration())
 			continue
 		}
 
@@ -107,7 +107,7 @@ OUTER:
 			if err != nil {
 				logger.WithError(err).Error("Could not accept Logstash connections")
 				listener.Close()
-				time.Sleep(m.conf.ReconnectDelay.Get())
+				time.Sleep(m.conf.ReconnectDelay.AsDuration())
 				continue OUTER
 			}
 
@@ -132,7 +132,7 @@ func (m *Monitor) keepReadingFromServer(host string, port uint16) {
 		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
 		if err != nil {
 			logger.WithError(err).Error("Logstash TCP output connection failed")
-			time.Sleep(m.conf.ReconnectDelay.Get())
+			time.Sleep(m.conf.ReconnectDelay.AsDuration())
 			continue
 		}
 
@@ -142,7 +142,7 @@ func (m *Monitor) keepReadingFromServer(host string, port uint16) {
 				return
 			}
 			logger.WithError(err).Error("Logstash receive failed")
-			time.Sleep(m.conf.ReconnectDelay.Get())
+			time.Sleep(m.conf.ReconnectDelay.AsDuration())
 			continue
 		}
 	}

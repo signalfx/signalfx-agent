@@ -16,8 +16,8 @@ type Duration time.Duration
 // ErrInvalidDuration is returned when the duration can't be interpreted
 var ErrInvalidDuration = errors.New("the duration must be a string with time unit specified or an integer as seconds")
 
-// Get returns the underlying time.Duration type
-func (d Duration) Get() time.Duration {
+// AsDuration returns the the type cast to time.Duration
+func (d Duration) AsDuration() time.Duration {
 	return time.Duration(d)
 }
 
