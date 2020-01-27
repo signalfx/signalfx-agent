@@ -131,37 +131,6 @@ metricsToExclude:
         assert ensure_always(p(has_no_datapoint, agent.fake_services, metric_name="uptime"), 5)
 
 
-def test_include_filter_with_monitor_type():
-    """
-    Test that include filters will override exclude filters
-    """
-    with Agent.run(
-        """
-enableBuiltInFiltering: false
-monitors:
-  - type: disk-io
-  - type: collectd/uptime
-metricsToExclude:
-  - metricNames:
-    - disk_time.read
-    monitorType: disk-io
-  - metricNames:
-    - disk_ops.read
-    - disk_ops.write
-    monitorType: disk-io
-    negated: true
-metricsToInclude:
-  - metricNames:
-    - disk_time.read
-"""
-    ) as agent:
-        assert wait_for(p(has_datapoint, agent.fake_services, metric_name="disk_ops.read"))
-        assert wait_for(p(has_datapoint, agent.fake_services, metric_name="disk_ops.write"), 5)
-        assert wait_for(p(has_datapoint, agent.fake_services, metric_name="disk_time.read"), 5)
-        assert ensure_always(p(has_no_datapoint, agent.fake_services, metric_name="disk_time.write"), 5)
-        assert wait_for(p(has_datapoint, agent.fake_services, metric_name="uptime"), 5)
-
-
 def test_filter_with_restart():
     """
     Ensure the filters get updated properly when the agent reloads a new config

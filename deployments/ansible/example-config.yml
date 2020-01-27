@@ -1,6 +1,5 @@
 sfx_agent_config:
   signalFxAccessToken: MyToken
-  enableBuiltInFiltering: true
   monitors:
     - type: cpu
     - type: filesystems

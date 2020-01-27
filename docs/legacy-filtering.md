@@ -1,5 +1,7 @@
 # Legacy Filtering
-This page describes the old style of filtering and is deprecated. See [Filtering](filtering.md) for how to configure filtering in SignalFx Smart Agent 4.7.0+.
+This page describes the old style of filtering and is deprecated and removed in
+agent version 5.0+. See [Filtering](filtering.md) for how to configure
+filtering in SignalFx Smart Agent 4.7.0+.
 
 ## Old-style whitelist filtering
 In the Smart Agent prior to version 4.7.0, custom metrics were filtered out of
@@ -28,7 +30,7 @@ enabled).
 
 ## Global datapoint filtering
 
-**PARTIALLY DEPRECATED** -- The following information is about filtering
+**DEPRECATED** -- The following information is about filtering
 datapoints at a global level (i.e. outside of monitor configuration).  It will
 continue to work, but we recommend putting filter definitions [at the monitor
 level](#additional-monitor-level-filtering) instead.
