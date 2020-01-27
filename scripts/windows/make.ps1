@@ -110,8 +110,6 @@ function bundle (
         unzip_file -zipFile "$buildDir\collectd.zip" -outputDir "$buildDir\collectd"
     }
 
-    # copy default whitelist into agent directory
-    copy_whitelist -buildDir "$buildDir" -AGENT_NAME "$AGENT_NAME"
     # copy default config into agent directory
     copy_default_config -buildDir "$buildDir" -AGENT_NAME "$AGENT_NAME"
     # copy python into agent directory
