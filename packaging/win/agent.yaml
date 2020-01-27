@@ -24,5 +24,3 @@ monitors:
   - type: memory
   - type: net-io
   - type: vmem
-
-enableBuiltInFiltering: true
