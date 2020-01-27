@@ -5,6 +5,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/logging"
+
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/tail"
 	telegrafParsers "github.com/influxdata/telegraf/plugins/parsers"
@@ -55,6 +57,7 @@ var factory = telegrafInputs.Inputs["tail"]
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) (err error) {
 	m.plugin = factory().(*telegrafPlugin.Tail)
+	m.plugin.Log = logging.NewLogger(logger)
 
 	// use the default config
 	if conf.TelegrafParser == nil {

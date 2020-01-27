@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/logging"
+
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/win_services"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/accumulator"
@@ -20,6 +22,7 @@ var logger = logrus.WithField("monitorType", monitorType)
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) (err error) {
 	plugin := telegrafInputs.Inputs["win_services"]().(*telegrafPlugin.WinServices)
+	plugin.Log = logging.NewLogger(logger)
 
 	// create the emitter
 	em := baseemitter.NewEmitter(m.Output, logger)

@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/logging"
+
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/win_perf_counters"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/accumulator"
@@ -23,6 +25,7 @@ var logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
 // (i.e. system utilization, windows iis)
 func GetPlugin(conf *Config) (*telegrafPlugin.Win_PerfCounters, error) {
 	plugin := telegrafInputs.Inputs["win_perf_counters"]().(*telegrafPlugin.Win_PerfCounters)
+	plugin.Log = logging.NewLogger(logger)
 
 	// copy top level struct fields
 	if err := deepcopier.Copy(conf).To(plugin); err != nil {
