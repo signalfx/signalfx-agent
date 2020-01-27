@@ -17,7 +17,7 @@ type runner struct {
 }
 
 func newRunner(ctx context.Context, log *logrus.Entry, conf *model.Config, monitor *Monitor) runner {
-	vsphereReloadInterval := int(conf.InventoryRefreshInterval.Seconds())
+	vsphereReloadInterval := int(conf.InventoryRefreshInterval.AsDuration().Seconds())
 	vsm := newVsphereMonitor(log)
 	return runner{
 		ctx:                   ctx,

@@ -9,6 +9,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
+
 	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
@@ -45,7 +47,7 @@ type Config struct {
 	DesiredTimerFields []string `yaml:"desiredTimerFields" default:"[\"mean\",\"max\",\"p99\",\"count\"]"`
 	// How long to wait before reconnecting if the TCP connection cannot be
 	// made or after it gets broken.
-	ReconnectDelay time.Duration `yaml:"reconnectDelay" default:"5s"`
+	ReconnectDelay timeutil.Duration `yaml:"reconnectDelay" default:"5s"`
 	// If true, events received from Logstash will be dumped to the agent's
 	// stdout in deserialized form
 	DebugEvents bool `yaml:"debugEvents"`
@@ -94,7 +96,7 @@ OUTER:
 				"host": host,
 				"port": port,
 			}).Error("Could not listen for Logstash events")
-			time.Sleep(m.conf.ReconnectDelay)
+			time.Sleep(m.conf.ReconnectDelay.AsDuration())
 			continue
 		}
 
@@ -105,7 +107,7 @@ OUTER:
 			if err != nil {
 				logger.WithError(err).Error("Could not accept Logstash connections")
 				listener.Close()
-				time.Sleep(m.conf.ReconnectDelay)
+				time.Sleep(m.conf.ReconnectDelay.AsDuration())
 				continue OUTER
 			}
 
@@ -130,7 +132,7 @@ func (m *Monitor) keepReadingFromServer(host string, port uint16) {
 		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", host, port))
 		if err != nil {
 			logger.WithError(err).Error("Logstash TCP output connection failed")
-			time.Sleep(m.conf.ReconnectDelay)
+			time.Sleep(m.conf.ReconnectDelay.AsDuration())
 			continue
 		}
 
@@ -140,7 +142,7 @@ func (m *Monitor) keepReadingFromServer(host string, port uint16) {
 				return
 			}
 			logger.WithError(err).Error("Logstash receive failed")
-			time.Sleep(m.conf.ReconnectDelay)
+			time.Sleep(m.conf.ReconnectDelay.AsDuration())
 			continue
 		}
 	}

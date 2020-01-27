@@ -3,9 +3,11 @@ issues:
   max-per-linter: 0
   exclude-rules:
     # We use certain values repeatedly in different test cases. Using consts would only
+    # reduce clarity. Code is also sometimes repeated and factoring it would also
     # reduce clarity.
     - linters:
        - goconst
+       - dupl
       path: _test\.go
 
     # Test code can do weird things with context in BeforeEach

@@ -3,7 +3,8 @@ package httpclient
 import (
 	"crypto/tls"
 	"net/http"
-	"time"
+
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 
 	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
 )
@@ -12,7 +13,7 @@ import (
 type HTTPConfig struct {
 	// HTTP timeout duration for both read and writes. This should be a
 	// duration string that is accepted by https://golang.org/pkg/time/#ParseDuration
-	HTTPTimeout time.Duration `yaml:"httpTimeout" default:"10s"`
+	HTTPTimeout timeutil.Duration `yaml:"httpTimeout" default:"10s"`
 
 	// Basic Auth username to use on each request, if any.
 	Username string `yaml:"username"`
@@ -73,7 +74,7 @@ func (h *HTTPConfig) Build() (*http.Client, error) {
 	}
 
 	return &http.Client{
-		Timeout:   h.HTTPTimeout,
+		Timeout:   h.HTTPTimeout.AsDuration(),
 		Transport: roundTripper,
 	}, nil
 }

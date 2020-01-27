@@ -3,7 +3,8 @@ package config
 import (
 	"net/url"
 	"strings"
-	"time"
+
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 
 	"github.com/mitchellh/hashstructure"
 	"github.com/signalfx/signalfx-agent/pkg/core/dpfilters"
@@ -76,13 +77,13 @@ type WriterConfig struct {
 	// should be a duration string that is accepted by
 	// https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if
 	// `sendTraceHostCorrelationMetrics` is false.
-	StaleServiceTimeout time.Duration `yaml:"staleServiceTimeout" default:"5m"`
+	StaleServiceTimeout timeutil.Duration `yaml:"staleServiceTimeout" default:"5m"`
 	// How frequently to send host correlation metrics that are generated from
 	// the service name seen in trace spans sent through or by the agent.  This
 	// should be a duration string that is accepted by
 	// https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if
 	// `sendTraceHostCorrelationMetrics` is false.
-	TraceHostCorrelationMetricsInterval time.Duration `yaml:"traceHostCorrelationMetricsInterval" default:"1m"`
+	TraceHostCorrelationMetricsInterval timeutil.Duration `yaml:"traceHostCorrelationMetricsInterval" default:"1m"`
 	// How many trace spans are allowed to be in the process of sending.  While
 	// this number is exceeded, the oldest spans will be discarded to
 	// accommodate new spans generated to avoid memory exhaustion.  If you see
