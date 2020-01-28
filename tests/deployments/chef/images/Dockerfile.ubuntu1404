@@ -6,7 +6,7 @@ ENV DEBIAN_FRONTEND noninteractive
 
 RUN rm -f /etc/apt/sources.list.d/ubuntu-esm-infra-trusty.list && \
     apt update &&\
-    apt install -y ca-certificates procps apt-transport-https curl
+    apt install -y ca-certificates procps apt-transport-https curl gnupg
 
 WORKDIR /opt/cookbooks
 RUN curl -Lo windows.tar.gz https://supermarket.chef.io/cookbooks/windows/versions/4.3.4/download && \

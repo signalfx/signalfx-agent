@@ -29,12 +29,15 @@ from .common import (
 
 pytestmark = pytest.mark.installer
 
-SUPPORTED_DISTROS = [
+DEB_DISTROS = [
     ("debian-8-jessie", INIT_SYSTEMD),
     ("debian-9-stretch", INIT_SYSTEMD),
     ("ubuntu1404", INIT_UPSTART),
     ("ubuntu1604", INIT_SYSTEMD),
     ("ubuntu1804", INIT_SYSTEMD),
+]
+
+RPM_DISTROS = [
     ("amazonlinux1", INIT_UPSTART),
     ("amazonlinux2", INIT_SYSTEMD),
     ("centos6", INIT_UPSTART),
@@ -44,6 +47,7 @@ SUPPORTED_DISTROS = [
 ]
 
 AGENT_VERSIONS = os.environ.get("AGENT_VERSIONS", "4.7.7,latest").split(",")
+STAGE = os.environ.get("STAGE", "release")
 
 
 @contextmanager
@@ -54,7 +58,7 @@ def _run_tests(base_image, init_system, installer_args, **extra_run_kwargs):
         # Unfortunately, wget and curl both don't like self-signed certs, even
         # if they are in the system bundle, so we need to use the --insecure
         # flag.
-        code, output = cont.exec_run(f"sh /opt/install.sh --insecure {installer_args}")
+        code, output = cont.exec_run(f"sh /opt/install.sh --insecure {installer_args}", tty=True)
         print("Output of install script:")
         print_lines(output)
         assert code == 0, "Agent could not be installed!"
@@ -67,10 +71,15 @@ def _run_tests(base_image, init_system, installer_args, **extra_run_kwargs):
             print_lines(get_agent_logs(cont, init_system))
 
 
-@pytest.mark.parametrize("base_image,init_system", SUPPORTED_DISTROS)
+@pytest.mark.parametrize("base_image,init_system", DEB_DISTROS + RPM_DISTROS)
 @pytest.mark.parametrize("agent_version", AGENT_VERSIONS)
 def test_installer_on_all_distros(base_image, init_system, agent_version):
+    if agent_version.endswith("-post") and (base_image, init_system) in RPM_DISTROS:
+        agent_version = agent_version.replace("-post", "~post")
+    elif agent_version.endswith("~post") and (base_image, init_system) in DEB_DISTROS:
+        agent_version = agent_version.replace("~post", "-post")
     args = "MYTOKEN" if agent_version == "latest" else f"--package-version {agent_version}-1 MYTOKEN"
+    args = args if STAGE == "release" else f"--{STAGE} {args}"
     with _run_tests(base_image, init_system, args) as [backend, cont]:
         if agent_version != "latest":
             installed_version = get_agent_version(cont)
@@ -136,9 +145,9 @@ def test_win_installer(agent_version):
     uninstall_win_agent()
     with ensure_fake_backend() as backend:
         try:
-            args = "-access_token MYTOKEN -stage final"
+            args = "-access_token MYTOKEN -stage release"
             if agent_version == "latest":
-                agent_version = get_latest_win_agent_version(stage="final")
+                agent_version = get_latest_win_agent_version(stage="release")
             else:
                 args += f" -agent_version {agent_version}"
             installed_version = run_win_installer(backend, args)
