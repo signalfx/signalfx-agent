@@ -5,6 +5,8 @@ import string
 import subprocess
 from collections import namedtuple
 
+from tests.helpers.util import retry_on_ebadf
+
 Node = namedtuple("Node", ["flat", "flat_percent", "sum_percent", "cum", "cum_percent", "func", "src_line"])
 
 
@@ -46,7 +48,7 @@ class PProfClient:
         )
 
         # pylint: disable=unexpected-keyword-arg
-        profile_text = subprocess.check_output(command, shell=True, close_fds=False)
+        profile_text = retry_on_ebadf(lambda: subprocess.check_output(command, shell=True, close_fds=False))()
         return self._parse_profile(profile_text)
 
     @staticmethod
