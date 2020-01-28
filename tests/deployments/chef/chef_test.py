@@ -2,7 +2,6 @@
 
 import json
 import os
-import re
 import shutil
 import subprocess
 import sys
@@ -150,14 +149,7 @@ def test_chef(base_image, init_system, chef_version):
             print_lines(get_agent_logs(cont, init_system))
 
 
-def get_win_chef_version():
-    output = run_win_command("chef-client --version").stdout.decode("utf-8")
-    match = re.search(r"(\d+\.\d+\.\d+)", output)
-    assert match and match.group(1).strip(), "failed to get version from output:\n%s" % output
-    return match.group(1).strip()
-
-
-def run_win_chef_client(backend, agent_version, stage):
+def run_win_chef_client(backend, agent_version, stage, chef_version):
     attributes = json.loads(ATTRIBUTES_JSON)
     attributes["signalfx_agent"]["agent_version"] = agent_version
     attributes["signalfx_agent"]["package_stage"] = stage
@@ -171,7 +163,7 @@ def run_win_chef_client(backend, agent_version, stage):
     with open(attributes_path, "w+") as fd:
         fd.write(json.dumps(attributes))
         fd.flush()
-        if int(get_win_chef_version().split(".")[0]) >= 15:
+        if chef_version == "latest" or int(chef_version.split(".")[0]) >= 15:
             cmd = CHEF_CMD.format(attributes_path) + " --chef-license accept-silent"
         else:
             cmd = CHEF_CMD.format(attributes_path)
@@ -218,20 +210,20 @@ def test_chef_on_windows(chef_version):
     run_win_chef_setup(chef_version)
     with ensure_fake_backend() as backend:
         try:
-            run_win_chef_client(backend, INITIAL_VERSION, STAGE)
+            run_win_chef_client(backend, INITIAL_VERSION, STAGE, chef_version)
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
             # upgrade agent
-            run_win_chef_client(backend, UPGRADE_VERSION, STAGE)
+            run_win_chef_client(backend, UPGRADE_VERSION, STAGE, chef_version)
             backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
             # downgrade agent
-            run_win_chef_client(backend, INITIAL_VERSION, STAGE)
+            run_win_chef_client(backend, INITIAL_VERSION, STAGE, chef_version)
             backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
