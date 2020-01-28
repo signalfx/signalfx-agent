@@ -1,10 +1,15 @@
 ---
+- name: Delete old signing key for SignalFx Agent
+  rpm_key:
+    key: 098acf3b
+    state: absent
+
 - name: Add Signalfx Agent repo into source list
   yum_repository:
     name: signalfx-agent
     description: SignalFx Agent Repository
-    baseurl: "{{ sfx_repo_base_url }}/rpms/signalfx-agent/{{ sfx_package_stage }}"
-    gpgkey: "{{ sfx_repo_base_url }}/yum-rpm.key"
+    baseurl: "{{ sfx_repo_base_url }}/signalfx-agent-rpm/{{ sfx_package_stage }}"
+    gpgkey: "{{ sfx_repo_base_url }}/signalfx-agent-rpm/splunk-B3CD4420.pub"
     gpgcheck: yes
     enabled: yes
 

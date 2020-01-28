@@ -15,7 +15,7 @@
     .EXAMPLE
     .\install.ps1 -access_token "ACCESSTOKEN"
 .PARAMETER stage
-    (OPTIONAL) The package stage to install from ['test', 'beta', 'final']. Defaults to 'final'.
+    (OPTIONAL) The package stage to install from ['test', 'beta', 'release']. Defaults to 'release'.
     .EXAMPLE
     .\install.ps1 -access_token "ACCESSTOKEN" -stage "test"
 .PARAMETER ingest_url
@@ -39,8 +39,8 @@
 param (
     [parameter(Mandatory=$true)]
     [string]$access_token = "",
-    [ValidateSet('test','beta','final')]
-    [string]$stage = "final",
+    [ValidateSet('test','beta','release')]
+    [string]$stage = "release",
     [string]$ingest_url = "https://ingest.signalfx.com",
     [string]$api_url = "https://api.signalfx.com",
     [bool]$insecure = $false,
