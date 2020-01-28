@@ -6,6 +6,11 @@ else
   repo_path = '/etc/yum.repos.d'
 end
 
+rpm_package 'delete-old-yum-key' do
+  package_name 'gpg-pubkey-098acf3b-55a5351a'
+  action :remove
+end
+
 if Gem::Requirement.new('>= 12.14').satisfied_by?(Gem::Version.new(Chef::VERSION)) && !is_suse
   yum_repository 'signalfx-agent' do
     description 'SignalFx Agent Repository'

@@ -5,14 +5,14 @@
 
 set -euf
 
-repo_base="https://dl.signalfx.com"
-deb_repo_base="$repo_base/debs/signalfx-agent"
-rpm_repo_base="$repo_base/rpms/signalfx-agent"
-debian_gpg_key_url="$repo_base/debian.gpg"
-yum_gpg_key_url="$repo_base/yum-rpm.key"
+repo_base="https://splunk.jfrog.io/splunk"
+deb_repo_base="$repo_base/signalfx-agent-deb"
+rpm_repo_base="$repo_base/signalfx-agent-rpm"
+debian_gpg_key_url="$deb_repo_base/splunk-B3CD4420.gpg"
+yum_gpg_key_url="$rpm_repo_base/splunk-B3CD4420.pub"
 
 parse_args_and_install() {
-  local stage="final"
+  local stage="release"
   local realm="us0"
   local cluster=
   local ingest_url=
@@ -210,11 +210,11 @@ verify_access_token() {
 }
 
 download_debian_key() {
-  if ! download_file_to_stdout "$debian_gpg_key_url" > /etc/apt/trusted.gpg.d/signalfx.gpg; then
+  if ! download_file_to_stdout "$debian_gpg_key_url" > /etc/apt/trusted.gpg.d/splunk.gpg; then
     echo "Could not get the SignalFx Debian GPG signing key" >&2
     exit 1
   fi
-  chmod 644 /etc/apt/trusted.gpg.d/signalfx.gpg
+  chmod 644 /etc/apt/trusted.gpg.d/splunk.gpg
 }
 
 install_debian_apt_source() {
@@ -223,7 +223,7 @@ install_debian_apt_source() {
   if [ "$stage" = "test" ]; then
     trusted_flag="[trusted=yes]"
   fi
-  echo "deb $trusted_flag $(repo_for_stage $deb_repo_base $stage) /" > /etc/apt/sources.list.d/signalfx-agent.list
+  echo "deb $trusted_flag $deb_repo_base $stage main" > /etc/apt/sources.list.d/signalfx-agent.list
 }
 
 install_with_apt() {

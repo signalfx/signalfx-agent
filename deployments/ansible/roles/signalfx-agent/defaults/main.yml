@@ -1,8 +1,8 @@
 ---
 # Default values for for Signalfx Agent installation
 
-sfx_repo_base_url: https://dl.signalfx.com
-sfx_package_stage: final
+sfx_repo_base_url: https://splunk.jfrog.io/splunk
+sfx_package_stage: release
 sfx_version: latest
 
 sfx_conf_file_path: /etc/signalfx/agent.yaml

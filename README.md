@@ -160,8 +160,8 @@ We provide a Debian package repository that you can make use of with the
 following commands:
 
 ```sh
-curl -sSL https://dl.signalfx.com/debian.gpg > /etc/apt/trusted.gpg.d/signalfx.gpg
-echo 'deb https://dl.signalfx.com/debs/signalfx-agent/final /' > /etc/apt/sources.list.d/signalfx-agent.list
+curl -sSL https://splunk.jfrog.io/splunk/signalfx-agent-deb/splunk-B3CD4420.gpg > /etc/apt/trusted.gpg.d/splunk.gpg
+echo 'deb https://splunk.jfrog.io/splunk/signalfx-agent-deb release main' > /etc/apt/sources.list.d/signalfx-agent.list
 apt-get update
 apt-get install -y signalfx-agent
 ```
@@ -174,9 +174,9 @@ following commands:
 cat <<EOH > /etc/yum.repos.d/signalfx-agent.repo
 [signalfx-agent]
 name=SignalFx Agent Repository
-baseurl=https://dl.signalfx.com/rpms/signalfx-agent/final
+baseurl=https://splunk.jfrog.io/splunk/signalfx-agent-rpm/release
 gpgcheck=1
-gpgkey=https://dl.signalfx.com/yum-rpm.key
+gpgkey=https://splunk.jfrog.io/splunk/signalfx-agent-rpm/splunk-B3CD4420.pub
 enabled=1
 EOH
 

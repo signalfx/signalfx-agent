@@ -1,15 +1,15 @@
 
 
-default['signalfx_agent']['repo_base_url'] = 'https://dl.signalfx.com'
-default['signalfx_agent']['package_stage'] = 'final'
+default['signalfx_agent']['repo_base_url'] = 'https://splunk.jfrog.io/splunk'
+default['signalfx_agent']['package_stage'] = 'release'
 
-default['signalfx_agent']['debian_repo_url'] = "#{node['signalfx_agent']['repo_base_url']}/debs/signalfx-agent"
-default['signalfx_agent']['debian_gpg_key_url'] = "#{node['signalfx_agent']['repo_base_url']}/debian.gpg"
+default['signalfx_agent']['debian_repo_url'] = "#{node['signalfx_agent']['repo_base_url']}/signalfx-agent-deb"
+default['signalfx_agent']['debian_gpg_key_url'] = "#{node['signalfx_agent']['debian_repo_url']}/splunk-B3CD4420.gpg"
 
-default['signalfx_agent']['rhel_repo_url'] = "#{node['signalfx_agent']['repo_base_url']}/rpms/signalfx-agent"
-default['signalfx_agent']['rhel_gpg_key_url'] = "#{node['signalfx_agent']['repo_base_url']}/yum-rpm.key"
+default['signalfx_agent']['rhel_repo_url'] = "#{node['signalfx_agent']['repo_base_url']}/signalfx-agent-rpm"
+default['signalfx_agent']['rhel_gpg_key_url'] = "#{node['signalfx_agent']['rhel_repo_url']}/splunk-B3CD4420.pub"
 
-default['signalfx_agent']['windows_repo_url'] = "#{node['signalfx_agent']['repo_base_url']}/windows"
+default['signalfx_agent']['windows_repo_url'] = 'https://dl.signalfx.com/windows'
 
 default['signalfx_agent']['service_name'] = 'signalfx-agent'
 
