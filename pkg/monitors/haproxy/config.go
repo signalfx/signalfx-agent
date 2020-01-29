@@ -19,7 +19,7 @@ type Config struct {
 	Port uint16 `yaml:"port"`
 	// The path to HAProxy stats. The default is `stats?stats;csv`. This is used to construct the `url` option if not provided.
 	Path string `yaml:"path" default:"stats?stats;csv"`
-	// Whether to connect on HTTPS or HTTP. If you want to use a UNIX socket, then specify the `url` config option with the format `unix://...` and omit `host`, `port` and `useHTTPS`.
+	// URL including the scheme which can be http, http, or unix. If you want to use a Unix socket, then specify the `url` config option with the format `unix://...` and omit `host`, `port` and `useHTTPS`.
 	URL string `yaml:"url"`
 	// A list of the pxname(s) and svname(s) to monitor (e.g. `["http-in", "server1", "backend"]`). If empty then metrics for all proxies will be reported.
 	Proxies []string `yaml:"proxies"`

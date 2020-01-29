@@ -84,7 +84,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `host` | no | `string` | The host/ip address of the HAProxy instance. This is used to construct the `url` option if not provided. |
 | `port` | no | `integer` | The port of the HAProxy instance's stats endpoint (if using HTTP). This is used to construct the `url` option if not provided. (**default:** `0`) |
 | `path` | no | `string` | The path to HAProxy stats. The default is `stats?stats;csv`. This is used to construct the `url` option if not provided. (**default:** `stats?stats;csv`) |
-| `url` | no | `string` | Whether to connect on HTTPS or HTTP. If you want to use a UNIX socket, then specify the `url` config option with the format `unix://...` and omit `host`, `port` and `useHTTPS`. |
+| `url` | no | `string` | URL including the scheme which can be http, http, or unix. If you want to use a Unix socket, then specify the `url` config option with the format `unix://...` and omit `host`, `port` and `useHTTPS`. |
 | `proxies` | no | `list of strings` | A list of the pxname(s) and svname(s) to monitor (e.g. `["http-in", "server1", "backend"]`). If empty then metrics for all proxies will be reported. |
 | `unixTimeout` | no | `int64` | Timeout when communicating over Unix sockets (**default:** `10s`) |
 

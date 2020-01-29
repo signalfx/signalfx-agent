@@ -25858,7 +25858,7 @@
           },
           {
             "yamlName": "url",
-            "doc": "Whether to connect on HTTPS or HTTP. If you want to use a UNIX socket, then specify the `url` config option with the format `unix://...` and omit `host`, `port` and `useHTTPS`.",
+            "doc": "URL including the scheme which can be http, http, or unix. If you want to use a Unix socket, then specify the `url` config option with the format `unix://...` and omit `host`, `port` and `useHTTPS`.",
             "default": "",
             "required": false,
             "type": "string",
