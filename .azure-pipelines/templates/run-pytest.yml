@@ -29,7 +29,6 @@ steps:
     python --version
     pip --version
     pip install -q -r tests\requirements.txt
-    pytest --version
   displayName: 'Install pytest'
   condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
 - powershell: |
