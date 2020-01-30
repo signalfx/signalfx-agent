@@ -26,26 +26,26 @@ AGENT_CONFIG_TEMPLATE = """
     """
 
 EXTENDED_STATS_METRICS = [
-    "extended_stats.count",
-    "extended_stats.min",
-    "extended_stats.max",
-    "extended_stats.avg",
-    "extended_stats.sum",
-    "extended_stats.sum_of_squares",
-    "extended_stats.variance",
-    "extended_stats.std_deviation",
-    "extended_stats.std_deviation_bounds.lower",
-    "extended_stats.std_deviation_bounds.upper",
+    "elasticsearch_query.extended_stats.count",
+    "elasticsearch_query.extended_stats.min",
+    "elasticsearch_query.extended_stats.max",
+    "elasticsearch_query.extended_stats.avg",
+    "elasticsearch_query.extended_stats.sum",
+    "elasticsearch_query.extended_stats.sum_of_squares",
+    "elasticsearch_query.extended_stats.variance",
+    "elasticsearch_query.extended_stats.std_deviation",
+    "elasticsearch_query.extended_stats.std_deviation_bounds.lower",
+    "elasticsearch_query.extended_stats.std_deviation_bounds.upper",
 ]
 
 PERCENTILE_METRICS = [
-    "percentiles.p1",
-    "percentiles.p5",
-    "percentiles.p25",
-    "percentiles.p50",
-    "percentiles.p75",
-    "percentiles.p95",
-    "percentiles.p99",
+    "elasticsearch_query.percentiles.p1",
+    "elasticsearch_query.percentiles.p5",
+    "elasticsearch_query.percentiles.p25",
+    "elasticsearch_query.percentiles.p50",
+    "elasticsearch_query.percentiles.p75",
+    "elasticsearch_query.percentiles.p95",
+    "elasticsearch_query.percentiles.p99",
 ]
 
 HOSTS = ["nairobi", "helsniki", "madrid", "lisbon"]
@@ -75,7 +75,7 @@ def test_elasticsearch_query_simple_metric_aggs(version):
                 )
             ), "Didn't get elasticsearch-query dimensions"
             assert wait_for(
-                p(has_datapoint_with_metric_name, agent.fake_services, "avg")
+                p(has_datapoint_with_metric_name, agent.fake_services, "elasticsearch_query.avg")
             ), "Didn't get elasticsearch-query metric"
 
 
@@ -129,7 +129,7 @@ def test_elasticsearch_query_simple_metric_aggs_with_terms_aggs(version):
 
         with Agent.run(agent_config) as agent:
             assert wait_for(
-                p(has_datapoint_with_metric_name, agent.fake_services, "avg")
+                p(has_datapoint_with_metric_name, agent.fake_services, "elasticsearch_query.avg")
             ), "Didn't get elasticsearch-query metric"
             for host in HOSTS:
                 assert wait_for(
@@ -154,7 +154,7 @@ def test_elasticsearch_query_terminal_bucket_aggs(version):
 
         with Agent.run(agent_config) as agent:
             assert wait_for(
-                p(has_datapoint_with_metric_name, agent.fake_services, "doc_count")
+                p(has_datapoint_with_metric_name, agent.fake_services, "elasticsearch_query.doc_count")
             ), "Didn't get elasticsearch-query metric"
             for host in HOSTS:
                 assert wait_for(
@@ -195,7 +195,11 @@ def test_elasticsearch_query_percentiles_aggs_with_terms_aggs(version):
                     p(
                         has_datapoint_with_all_dims,
                         agent.fake_services,
-                        {"index": "metrics", "metric_aggregation_name": "cpu_utilization_percentiles", "host_name": host},
+                        {
+                            "index": "metrics",
+                            "metric_aggregation_name": "cpu_utilization_percentiles",
+                            "host_name": host,
+                        },
                     )
                 ), "Didn't get elasticsearch-query dimensions"
 

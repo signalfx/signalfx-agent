@@ -79,14 +79,13 @@ func collectDocCountFromTerminalBucket(aggRes *bucketResponse, aggName string, d
 	dimsForBucket := utils.CloneStringMap(dims)
 	dimsForBucket["bucket_aggregation_name"] = aggName
 
-	return []*datapoint.Datapoint{
-		{
-			Metric:     "doc_count",
-			Dimensions: dimsForBucket,
-			Value:      datapoint.NewIntValue(*aggRes.DocCount),
-			MetricType: datapoint.Gauge,
-		},
+	out, ok := collectDatapoint("doc_count", *aggRes.DocCount, dimsForBucket)
+
+	if !ok {
+		return []*datapoint.Datapoint{}
 	}
+
+	return []*datapoint.Datapoint{out}
 }
 
 // Collects datapoints from supported metric aggregations
@@ -238,16 +237,21 @@ func isTerminalBucket(b *bucketResponse) bool {
 
 // Collects a single datapoint from an interface, returns false if no datapoint can be derived
 func collectDatapoint(metricName string, value interface{}, dims map[string]string) (*datapoint.Datapoint, bool) {
-	metricValue, ok := value.(float64)
 
-	if !ok {
+	out := datapoint.Datapoint{
+		Metric:     fmt.Sprintf("%s.%s", "elasticsearch_query", metricName),
+		Dimensions: dims,
+		MetricType: datapoint.Gauge,
+	}
+
+	switch v := value.(type) {
+	case float64:
+		out.Value = datapoint.NewFloatValue(v)
+	case int64:
+		out.Value = datapoint.NewIntValue(v)
+	default:
 		return nil, false
 	}
 
-	return &datapoint.Datapoint{
-		Metric:     metricName,
-		Dimensions: dims,
-		Value:      datapoint.NewFloatValue(metricValue),
-		MetricType: datapoint.Gauge,
-	}, true
+	return &out, true
 }
