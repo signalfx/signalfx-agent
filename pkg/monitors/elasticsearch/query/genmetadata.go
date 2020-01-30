@@ -23,5 +23,5 @@ var monitorMetadata = monitors.Metadata{
 	MetricsExhaustive: false,
 	Groups:            groupSet,
 	GroupMetricsMap:   groupMetricsMap,
-	SendAll:           false,
+	SendAll:           true,
 }
