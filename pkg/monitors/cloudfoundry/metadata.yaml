@@ -5,7 +5,6 @@ monitors:
     instance_id:
       description: The BOSH instance id that pertains to the metric, if any.
   monitorType: cloudfoundry-firehose-nozzle
-  metricsExhaustive: true
   doc: |
     This is a CloudFoundry [firehose
     nozzle](https://docs.pivotal.io/tiledev/2-8/nozzle.html) by connecting to

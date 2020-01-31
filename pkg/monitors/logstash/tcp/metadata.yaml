@@ -89,5 +89,6 @@ monitors:
     for default values.
 
   metrics:
+  sendAll: true
   monitorType: logstash-tcp
   properties:

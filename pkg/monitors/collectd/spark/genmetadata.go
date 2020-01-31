@@ -259,11 +259,11 @@ var defaultMetrics = map[string]bool{
 var groupMetricsMap = map[string][]string{}
 
 var monitorMetadata = monitors.Metadata{
-	MonitorType:       "collectd/spark",
-	DefaultMetrics:    defaultMetrics,
-	Metrics:           metricSet,
-	MetricsExhaustive: false,
-	Groups:            groupSet,
-	GroupMetricsMap:   groupMetricsMap,
-	SendAll:           false,
+	MonitorType:     "collectd/spark",
+	DefaultMetrics:  defaultMetrics,
+	Metrics:         metricSet,
+	SendUnknown:     false,
+	Groups:          groupSet,
+	GroupMetricsMap: groupMetricsMap,
+	SendAll:         false,
 }

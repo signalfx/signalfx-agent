@@ -8,7 +8,6 @@ monitors:
     namespace that the agent is running in for this monitor to be able to
     collect statistics about that filesystem.  This is mostly an issue when
     running the agent in a container.
-  metricsExhaustive: true
   metrics:
     df_complex.free:
       description: |-

@@ -45,7 +45,6 @@ monitors:
         - ubuntu-fan
       sendActiveState: true
     ```
-  sendAll: true
   groups:
     ActiveState:
       description: Metrics which indicate whether a service is currently active or

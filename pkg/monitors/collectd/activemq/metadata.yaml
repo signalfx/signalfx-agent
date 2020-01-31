@@ -206,4 +206,5 @@ monitors:
       default: false
       type: gauge
   monitorType: collectd/activemq
+  sendUnknown: true
   properties:

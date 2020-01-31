@@ -265,6 +265,8 @@ Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
 (*default*) are ***in bold and italics*** in the list below.
 
+This monitor will also emit by default any metrics that are not listed below.
+
 
  - `memstats.alloc` (*gauge*)<br>    Bytes of allocated heap objects. Same as memstats.heap_alloc
  - ***`memstats.buck_hash_sys`*** (*gauge*)<br>    Bytes of memory in profiling bucket hash tables

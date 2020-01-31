@@ -88,6 +88,8 @@ Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
 (*default*) are ***in bold and italics*** in the list below.
 
+This monitor will also emit by default any metrics that are not listed below.
+
 
  - ***`counter.cassandra.ClientRequest.RangeSlice.Latency.Count`*** (*cumulative*)<br>    Count of range slice operations since server start. This typically indicates a server overload condition.
 
