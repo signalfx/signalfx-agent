@@ -4,8 +4,14 @@ import (
 	"encoding/json"
 )
 
+// Maps aggregation names to a corresponding body
+type aggregationsMap map[string]*aggregationResponse
+
+// Maps keys to corresponding buckets
+type bucketsMap map[interface{}]*bucketResponse
+
 type HTTPResponse struct {
-	Aggregations map[string]*aggregationResponse `json:"aggregations"`
+	Aggregations aggregationsMap `json:"aggregations"`
 }
 
 // Represents all kinds of supported aggregations. aggregationResponse type can
@@ -24,9 +30,9 @@ type aggregationResponse struct {
 	Values interface{} `json:"values,omitempty"`
 	// Map of sub aggregations with aggregationInfo names, includes both bucket
 	// and metric aggregations
-	SubAggregations map[string]*aggregationResponse `json:"-"`
+	SubAggregations aggregationsMap `json:"-"`
 	// Non nil for multi-value bucket aggregations
-	Buckets map[interface{}]*bucketResponse `json:"-"`
+	Buckets bucketsMap `json:"-"`
 	// All other key-value pairs
 	OtherValues map[string]interface{} `json:"-"`
 }
@@ -41,7 +47,7 @@ func (agg *aggregationResponse) UnmarshalJSON(b []byte) error {
 	}
 
 	*agg = aggregationResponse(temp)
-	agg.SubAggregations = map[string]*aggregationResponse{}
+	agg.SubAggregations = aggregationsMap{}
 
 	var m map[string]interface{}
 	if err := json.Unmarshal(b, &m); err != nil {
@@ -64,7 +70,7 @@ func (agg *aggregationResponse) UnmarshalJSON(b []byte) error {
 		// object whereas others return a list of buckets with the key embedded
 		// inside the object. Handle these cases separately
 		case "buckets":
-			buckets := make(map[interface{}]*bucketResponse)
+			buckets := bucketsMap{}
 			switch v := v.(type) {
 			case map[string]interface{}:
 				for bk, bv := range v {
@@ -136,7 +142,7 @@ type bucketResponse struct {
 	DocCount *int64 `json:"doc_count,omitempty"`
 	// Map of sub aggregations with aggregationInfo names, includes both bucket
 	// and metric aggregations
-	SubAggregations map[string]*aggregationResponse `json:"-"`
+	SubAggregations aggregationsMap `json:"-"`
 }
 
 // Required to handle certain fields specially
@@ -149,7 +155,7 @@ func (bucket *bucketResponse) UnmarshalJSON(b []byte) error {
 	}
 
 	*bucket = bucketResponse(temp)
-	bucket.SubAggregations = map[string]*aggregationResponse{}
+	bucket.SubAggregations = aggregationsMap{}
 
 	var m map[string]interface{}
 	if err := json.Unmarshal(b, &m); err != nil {

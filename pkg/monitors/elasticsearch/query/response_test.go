@@ -159,16 +159,16 @@ func getAdjacenyMatrixAggregationTestContexts() ([]*testContext, *errors.Error) 
 
 	expected := []HTTPResponse{
 		{
-			Aggregations: map[string]*aggregationResponse{
+			Aggregations: aggregationsMap{
 				"host_groups": {
-					Buckets: map[interface{}]*bucketResponse{
+					Buckets: bucketsMap{
 						"group1": {
 							Key:      "group1",
 							DocCount: newInt64(60),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg": {
 									Value:           51.06666666666667,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -176,10 +176,10 @@ func getAdjacenyMatrixAggregationTestContexts() ([]*testContext, *errors.Error) 
 						"group2": {
 							Key:      "group2",
 							DocCount: newInt64(120),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg": {
 									Value:           47.86666666666667,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -187,16 +187,16 @@ func getAdjacenyMatrixAggregationTestContexts() ([]*testContext, *errors.Error) 
 						"group3": {
 							Key:      "group3",
 							DocCount: newInt64(60),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg": {
 									Value:           54.333333333333336,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
 						},
 					},
-					SubAggregations: map[string]*aggregationResponse{},
+					SubAggregations: aggregationsMap{},
 					OtherValues:     map[string]interface{}{},
 				},
 			},
@@ -213,16 +213,16 @@ func getHistogramAggregationTestContexts() ([]*testContext, *errors.Error) {
 
 	expected := []HTTPResponse{
 		{
-			Aggregations: map[string]*aggregationResponse{
+			Aggregations: aggregationsMap{
 				"cpu_values": {
-					Buckets: map[interface{}]*bucketResponse{
+					Buckets: bucketsMap{
 						0.0: {
 							Key:      0.0,
 							DocCount: newInt64(59),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           10.559322033898304,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -230,10 +230,10 @@ func getHistogramAggregationTestContexts() ([]*testContext, *errors.Error) {
 						20.0: {
 							Key:      20.0,
 							DocCount: newInt64(35),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           30.571428571428573,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -241,10 +241,10 @@ func getHistogramAggregationTestContexts() ([]*testContext, *errors.Error) {
 						40.0: {
 							Key:      40.0,
 							DocCount: newInt64(57),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           48.80701754385965,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -252,10 +252,10 @@ func getHistogramAggregationTestContexts() ([]*testContext, *errors.Error) {
 						60.0: {
 							Key:      60.0,
 							DocCount: newInt64(42),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           69.64285714285714,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -263,10 +263,10 @@ func getHistogramAggregationTestContexts() ([]*testContext, *errors.Error) {
 						80.0: {
 							Key:      80.0,
 							DocCount: newInt64(45),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           89.4,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -274,16 +274,16 @@ func getHistogramAggregationTestContexts() ([]*testContext, *errors.Error) {
 						100.0: {
 							Key:      100.0,
 							DocCount: newInt64(2),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           100.0,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
 						},
 					},
-					SubAggregations: map[string]*aggregationResponse{},
+					SubAggregations: aggregationsMap{},
 					OtherValues:     map[string]interface{}{},
 				},
 			},
@@ -300,13 +300,13 @@ func getSingleBucketFilterAggregationTestContexts() ([]*testContext, *errors.Err
 
 	expected := []HTTPResponse{
 		{
-			Aggregations: map[string]*aggregationResponse{
+			Aggregations: aggregationsMap{
 				"favourite_host": {
 					DocCount: newInt64(9398),
-					SubAggregations: map[string]*aggregationResponse{
+					SubAggregations: aggregationsMap{
 						"metric_agg_1": {
 							Value:           49.55799106192807,
-							SubAggregations: map[string]*aggregationResponse{},
+							SubAggregations: aggregationsMap{},
 							OtherValues:     map[string]interface{}{},
 						},
 					},
@@ -326,16 +326,16 @@ func getDateHistogramAggregationTestContexts() ([]*testContext, *errors.Error) {
 
 	expected := []HTTPResponse{
 		{
-			Aggregations: map[string]*aggregationResponse{
+			Aggregations: aggregationsMap{
 				"bydate": {
-					Buckets: map[interface{}]*bucketResponse{
+					Buckets: bucketsMap{
 						float64(1580318160000): {
 							Key:      float64(1580318160000),
 							DocCount: newInt64(32),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           50.4375,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -343,10 +343,10 @@ func getDateHistogramAggregationTestContexts() ([]*testContext, *errors.Error) {
 						float64(1580318220000): {
 							Key:      float64(1580318220000),
 							DocCount: newInt64(48),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           51.125,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -354,10 +354,10 @@ func getDateHistogramAggregationTestContexts() ([]*testContext, *errors.Error) {
 						float64(1580318280000): {
 							Key:      float64(1580318280000),
 							DocCount: newInt64(48),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           51.166666666666664,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -365,10 +365,10 @@ func getDateHistogramAggregationTestContexts() ([]*testContext, *errors.Error) {
 						float64(1580318340000): {
 							Key:      float64(1580318340000),
 							DocCount: newInt64(48),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           45.354166666666664,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -376,10 +376,10 @@ func getDateHistogramAggregationTestContexts() ([]*testContext, *errors.Error) {
 						float64(1580318400000): {
 							Key:      float64(1580318400000),
 							DocCount: newInt64(48),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           55.916666666666664,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -387,16 +387,16 @@ func getDateHistogramAggregationTestContexts() ([]*testContext, *errors.Error) {
 						float64(1580318460000): {
 							Key:      float64(1580318460000),
 							DocCount: newInt64(16),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           50.625,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
 						},
 					},
-					SubAggregations: map[string]*aggregationResponse{},
+					SubAggregations: aggregationsMap{},
 					OtherValues:     map[string]interface{}{},
 				},
 			},
@@ -413,21 +413,21 @@ func getTerminalBucketAggregationTestContexts() ([]*testContext, *errors.Error) 
 
 	expected := []HTTPResponse{
 		{
-			Aggregations: map[string]*aggregationResponse{
+			Aggregations: aggregationsMap{
 				"host": {
-					Buckets: map[interface{}]*bucketResponse{
+					Buckets: bucketsMap{
 						"helsniki": {
 							Key:             "helsniki",
 							DocCount:        newInt64(8800),
-							SubAggregations: map[string]*aggregationResponse{},
+							SubAggregations: aggregationsMap{},
 						},
 						"nairobi": {
 							Key:             "nairobi",
 							DocCount:        newInt64(8800),
-							SubAggregations: map[string]*aggregationResponse{},
+							SubAggregations: aggregationsMap{},
 						},
 					},
-					SubAggregations: map[string]*aggregationResponse{},
+					SubAggregations: aggregationsMap{},
 					OtherValues:     map[string]interface{}{},
 				},
 			},
@@ -445,16 +445,16 @@ func getSimpleSingleValueAggregationTestContexts() ([]*testContext, *errors.Erro
 
 	expected := []HTTPResponse{
 		{
-			Aggregations: map[string]*aggregationResponse{
+			Aggregations: aggregationsMap{
 				"host": {
-					Buckets: map[interface{}]*bucketResponse{
+					Buckets: bucketsMap{
 						"helsniki": {
 							Key:      "helsniki",
 							DocCount: newInt64(126),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           *newFloat64(49.357142857142854),
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -462,31 +462,31 @@ func getSimpleSingleValueAggregationTestContexts() ([]*testContext, *errors.Erro
 						"nairobi": {
 							Key:      "nairobi",
 							DocCount: newInt64(126),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           *newFloat64(49.04761904761905),
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
 						},
 					},
-					SubAggregations: map[string]*aggregationResponse{},
+					SubAggregations: aggregationsMap{},
 					OtherValues:     map[string]interface{}{},
 				},
 			},
 		},
 		{
-			Aggregations: map[string]*aggregationResponse{
+			Aggregations: aggregationsMap{
 				"host": {
-					Buckets: map[interface{}]*bucketResponse{
+					Buckets: bucketsMap{
 						"helsniki": {
 							Key:      "helsniki",
 							DocCount: newInt64(122),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           *newFloat64(49.622950819672134),
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -494,10 +494,10 @@ func getSimpleSingleValueAggregationTestContexts() ([]*testContext, *errors.Erro
 						"lisbon": {
 							Key:      "lisbon",
 							DocCount: newInt64(122),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           *newFloat64(43.23770491803279),
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -505,10 +505,10 @@ func getSimpleSingleValueAggregationTestContexts() ([]*testContext, *errors.Erro
 						"madrid": {
 							Key:      "madrid",
 							DocCount: newInt64(122),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           *newFloat64(50.50819672131148),
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -516,16 +516,16 @@ func getSimpleSingleValueAggregationTestContexts() ([]*testContext, *errors.Erro
 						"nairobi": {
 							Key:      "nairobi",
 							DocCount: newInt64(122),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Value:           *newFloat64(48.41803278688525),
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
 						},
 					},
-					SubAggregations: map[string]*aggregationResponse{},
+					SubAggregations: aggregationsMap{},
 					OtherValues:     map[string]interface{}{},
 				},
 			},
@@ -544,15 +544,15 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 
 	expected := []HTTPResponse{
 		{
-			Aggregations: map[string]*aggregationResponse{
+			Aggregations: aggregationsMap{
 				"host": {
-					Buckets: map[interface{}]*bucketResponse{
+					Buckets: bucketsMap{
 						"helsniki": {
 							Key:      "helsniki",
 							DocCount: newInt64(4344),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues: map[string]interface{}{
 										"count": 4344.0,
 										"min":   0.0,
@@ -566,9 +566,9 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 						"nairobi": {
 							Key:      "nairobi",
 							DocCount: newInt64(4344),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues: map[string]interface{}{
 										"count": 4344.0,
 										"min":   0.0,
@@ -580,21 +580,21 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 							},
 						},
 					},
-					SubAggregations: map[string]*aggregationResponse{},
+					SubAggregations: aggregationsMap{},
 					OtherValues:     map[string]interface{}{},
 				},
 			},
 		},
 		{
-			Aggregations: map[string]*aggregationResponse{
+			Aggregations: aggregationsMap{
 				"host": {
-					Buckets: map[interface{}]*bucketResponse{
+					Buckets: bucketsMap{
 						"helsniki": {
 							Key:      "helsniki",
 							DocCount: newInt64(4362),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues: map[string]interface{}{
 										"count":          4362.0,
 										"min":            0.0,
@@ -615,9 +615,9 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 						"nairobi": {
 							Key:      "nairobi",
 							DocCount: newInt64(4362),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues: map[string]interface{}{
 										"count":          4362.0,
 										"min":            0.0,
@@ -636,19 +636,19 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 							},
 						},
 					},
-					SubAggregations: map[string]*aggregationResponse{},
+					SubAggregations: aggregationsMap{},
 					OtherValues:     map[string]interface{}{},
 				},
 			},
 		},
 		{
-			Aggregations: map[string]*aggregationResponse{
+			Aggregations: aggregationsMap{
 				"host": {
-					Buckets: map[interface{}]*bucketResponse{
+					Buckets: bucketsMap{
 						"helsniki": {
 							Key:      "helsniki",
 							DocCount: newInt64(4380),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Values: map[string]interface{}{
 										"1.0":  0.0,
@@ -659,7 +659,7 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 										"95.0": 95.0,
 										"99.0": 99.0,
 									},
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -667,7 +667,7 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 						"nairobi": {
 							Key:      "nairobi",
 							DocCount: newInt64(4380),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Values: map[string]interface{}{
 										"1.0":  1.0,
@@ -678,25 +678,25 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 										"95.0": 95.0,
 										"99.0": 100.0,
 									},
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
 						},
 					},
-					SubAggregations: map[string]*aggregationResponse{},
+					SubAggregations: aggregationsMap{},
 					OtherValues:     map[string]interface{}{},
 				},
 			},
 		},
 		{
-			Aggregations: map[string]*aggregationResponse{
+			Aggregations: aggregationsMap{
 				"host": {
-					Buckets: map[interface{}]*bucketResponse{
+					Buckets: bucketsMap{
 						"helsniki": {
 							Key:      "helsniki",
 							DocCount: newInt64(5022),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Values: map[string]interface{}{
 										"1.0":  0.0,
@@ -707,7 +707,7 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 										"95.0": 95.0,
 										"99.0": 99.0,
 									},
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -715,7 +715,7 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 						"nairobi": {
 							Key:      "nairobi",
 							DocCount: newInt64(5022),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Values: map[string]interface{}{
 										"1.0":  1.0,
@@ -726,7 +726,7 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 										"95.0": 95.0,
 										"99.0": 99.13999999999987,
 									},
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -734,7 +734,7 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 						"madrid": {
 							Key:      "madrid",
 							DocCount: newInt64(5022),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Values: map[string]interface{}{
 										"1.0":  0.0,
@@ -745,7 +745,7 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 										"95.0": 95.0,
 										"99.0": 100.0,
 									},
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
@@ -753,7 +753,7 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 						"lisbon": {
 							Key:      "lisbon",
 							DocCount: newInt64(5022),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Values: map[string]interface{}{
 										"1.0":  0.0,
@@ -764,13 +764,13 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 										"95.0": 95.0,
 										"99.0": 100.0,
 									},
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 							},
 						},
 					},
-					SubAggregations: map[string]*aggregationResponse{},
+					SubAggregations: aggregationsMap{},
 					OtherValues:     map[string]interface{}{},
 				},
 			},
@@ -787,13 +787,13 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 
 	expected := []HTTPResponse{
 		{
-			Aggregations: map[string]*aggregationResponse{
+			Aggregations: aggregationsMap{
 				"host": {
-					Buckets: map[interface{}]*bucketResponse{
+					Buckets: bucketsMap{
 						"nairobi": {
 							Key:      "nairobi",
 							DocCount: newInt64(5134),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Values: map[string]interface{}{
 										"1.0":  1.0,
@@ -804,16 +804,16 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 										"95.0": 95.0,
 										"99.0": 99.07999999999993,
 									},
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 								"metric_agg_2": {
 									Value:           50.14530580444098,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 								"metric_agg_3": {
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues: map[string]interface{}{
 										"count":          5134.0,
 										"min":            0.0,
@@ -834,7 +834,7 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 						"madrid": {
 							Key:      "madrid",
 							DocCount: newInt64(5134),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Values: map[string]interface{}{
 										"1.0":  0.0,
@@ -845,16 +845,16 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 										"95.0": 95.0,
 										"99.0": 100.0,
 									},
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 								"metric_agg_2": {
 									Value:           50.03486560186989,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 								"metric_agg_3": {
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues: map[string]interface{}{
 										"count":          5134.0,
 										"min":            0.0,
@@ -875,7 +875,7 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 						"lisbon": {
 							Key:      "lisbon",
 							DocCount: newInt64(5134),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Values: map[string]interface{}{
 										"1.0":  0.0,
@@ -886,16 +886,16 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 										"95.0": 95.0,
 										"99.0": 100.0,
 									},
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 								"metric_agg_2": {
 									Value:           49.577522399688355,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 								"metric_agg_3": {
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues: map[string]interface{}{
 										"count":          5134.0,
 										"min":            0.0,
@@ -916,7 +916,7 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 						"helsniki": {
 							Key:      "helsniki",
 							DocCount: newInt64(5134),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Values: map[string]interface{}{
 										"1.0":  0.0,
@@ -927,16 +927,16 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 										"95.0": 95.0,
 										"99.0": 99.0,
 									},
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 								"metric_agg_2": {
 									Value:           49.273081417997666,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 								"metric_agg_3": {
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues: map[string]interface{}{
 										"count":          5134.0,
 										"min":            0.0,
@@ -955,19 +955,19 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 							},
 						},
 					},
-					SubAggregations: map[string]*aggregationResponse{},
+					SubAggregations: aggregationsMap{},
 					OtherValues:     map[string]interface{}{},
 				},
 			},
 		},
 		{
-			Aggregations: map[string]*aggregationResponse{
+			Aggregations: aggregationsMap{
 				"host": {
-					Buckets: map[interface{}]*bucketResponse{
+					Buckets: bucketsMap{
 						"nairobi": {
 							Key:      "nairobi",
 							DocCount: newInt64(5366),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Values: map[string]interface{}{
 										"1.0":  1.0,
@@ -978,16 +978,16 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 										"95.0": 95.0,
 										"99.0": 99.0,
 									},
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 								"metric_agg_2": {
 									Value:           50.084047707789786,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 								"metric_agg_3": {
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues: map[string]interface{}{
 										"count":          5366.0,
 										"min":            0.0,
@@ -1008,7 +1008,7 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 						"helsniki": {
 							Key:      "helsniki",
 							DocCount: newInt64(5366),
-							SubAggregations: map[string]*aggregationResponse{
+							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
 									Values: map[string]interface{}{
 										"1.0":  0.0,
@@ -1019,16 +1019,16 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 										"95.0": 95.0,
 										"99.0": 99.0,
 									},
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 								"metric_agg_2": {
 									Value:           49.27953783078643,
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues:     map[string]interface{}{},
 								},
 								"metric_agg_3": {
-									SubAggregations: map[string]*aggregationResponse{},
+									SubAggregations: aggregationsMap{},
 									OtherValues: map[string]interface{}{
 										"count":          5366.0,
 										"min":            0.0,
@@ -1047,7 +1047,7 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 							},
 						},
 					},
-					SubAggregations: map[string]*aggregationResponse{},
+					SubAggregations: aggregationsMap{},
 					OtherValues:     map[string]interface{}{},
 				},
 			},
