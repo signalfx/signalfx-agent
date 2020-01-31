@@ -170,6 +170,8 @@ Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
 (*default*) are ***in bold and italics*** in the list below.
 
+This monitor will also emit by default any metrics that are not listed below.
+
 
 #### Group jvm
 All of the following metrics are part of the `jvm` metric group. All of

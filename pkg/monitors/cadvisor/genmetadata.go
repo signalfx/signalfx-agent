@@ -148,21 +148,21 @@ var groupMetricsMap = map[string][]string{
 }
 
 var cadvisorMonitorMetadata = monitors.Metadata{
-	MonitorType:       "cadvisor",
-	DefaultMetrics:    defaultMetrics,
-	Metrics:           metricSet,
-	MetricsExhaustive: false,
-	Groups:            groupSet,
-	GroupMetricsMap:   groupMetricsMap,
-	SendAll:           false,
+	MonitorType:     "cadvisor",
+	DefaultMetrics:  defaultMetrics,
+	Metrics:         metricSet,
+	SendUnknown:     false,
+	Groups:          groupSet,
+	GroupMetricsMap: groupMetricsMap,
+	SendAll:         false,
 }
 
 var kubeletStatsMonitorMetadata = monitors.Metadata{
-	MonitorType:       "kubelet-stats",
-	DefaultMetrics:    defaultMetrics,
-	Metrics:           metricSet,
-	MetricsExhaustive: false,
-	Groups:            groupSet,
-	GroupMetricsMap:   groupMetricsMap,
-	SendAll:           false,
+	MonitorType:     "kubelet-stats",
+	DefaultMetrics:  defaultMetrics,
+	Metrics:         metricSet,
+	SendUnknown:     false,
+	Groups:          groupSet,
+	GroupMetricsMap: groupMetricsMap,
+	SendAll:         false,
 }

@@ -148,11 +148,11 @@ var groupMetricsMap = map[string][]string{
 }
 
 var monitorMetadata = monitors.Metadata{
-	MonitorType:       "collectd/activemq",
-	DefaultMetrics:    defaultMetrics,
-	Metrics:           metricSet,
-	MetricsExhaustive: false,
-	Groups:            groupSet,
-	GroupMetricsMap:   groupMetricsMap,
-	SendAll:           false,
+	MonitorType:     "collectd/activemq",
+	DefaultMetrics:  defaultMetrics,
+	Metrics:         metricSet,
+	SendUnknown:     true,
+	Groups:          groupSet,
+	GroupMetricsMap: groupMetricsMap,
+	SendAll:         false,
 }

@@ -8,7 +8,7 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
-func testMetadata(metricsExhaustive bool) *Metadata {
+func testMetadata(sendUnknown bool) *Metadata {
 	return &Metadata{
 		MonitorType:    "test-monitor",
 		DefaultMetrics: utils.StringSet("cpu.idle", "cpu.min", "cpu.max", "mem.used"),
@@ -19,8 +19,8 @@ func testMetadata(metricsExhaustive bool) *Metadata {
 			"mem.used":      {Type: datapoint.Counter},
 			"mem.free":      {Type: datapoint.Counter},
 			"mem.available": {Type: datapoint.Counter}},
-		MetricsExhaustive: metricsExhaustive,
-		Groups:            utils.StringSet("cpu", "mem"),
+		SendUnknown: sendUnknown,
+		Groups:      utils.StringSet("cpu", "mem"),
 		GroupMetricsMap: map[string][]string{
 			// All cpu metrics are included.
 			"cpu": {"cpu.idle", "cpu.min", "cpu.max"},
@@ -31,8 +31,8 @@ func testMetadata(metricsExhaustive bool) *Metadata {
 	}
 }
 
-var exhaustiveMetadata = testMetadata(true)
-var nonexhaustiveMetadata = testMetadata(false)
+var exhaustiveMetadata = testMetadata(false)
+var nonexhaustiveMetadata = testMetadata(true)
 
 func TestDefaultMetrics(t *testing.T) {
 	if filter, err := newMetricsFilter(exhaustiveMetadata, nil, nil); err != nil {

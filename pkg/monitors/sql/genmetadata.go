@@ -17,11 +17,11 @@ var defaultMetrics = map[string]bool{}
 var groupMetricsMap = map[string][]string{}
 
 var monitorMetadata = monitors.Metadata{
-	MonitorType:       "sql",
-	DefaultMetrics:    defaultMetrics,
-	Metrics:           metricSet,
-	MetricsExhaustive: false,
-	Groups:            groupSet,
-	GroupMetricsMap:   groupMetricsMap,
-	SendAll:           true,
+	MonitorType:     "sql",
+	DefaultMetrics:  defaultMetrics,
+	Metrics:         metricSet,
+	SendUnknown:     false,
+	Groups:          groupSet,
+	GroupMetricsMap: groupMetricsMap,
+	SendAll:         true,
 }

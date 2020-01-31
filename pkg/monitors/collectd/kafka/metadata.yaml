@@ -173,4 +173,5 @@ monitors:
       default: true
       type: cumulative
   monitorType: collectd/kafka
+  sendUnknown: true
   properties:
