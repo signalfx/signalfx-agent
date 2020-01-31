@@ -97,7 +97,7 @@ def test_elasticsearch_query_extened_stats_aggs(version):
 
 
 @pytest.mark.parametrize("version", VERSIONS)
-def test_elasticsearch_query_simple_metric_aggs_with_terms_aggs(version):
+def test_elasticsearch_query_simple_metric_aggs_with_filters_aggs(version):
     with run_service("elasticsearch/%s" % version) as es_container:
         host = container_ip(es_container)
         check_service_status(host)
@@ -107,7 +107,14 @@ def test_elasticsearch_query_simple_metric_aggs_with_terms_aggs(version):
             "query": {"match_all": {}},
             "aggs": {
                 "host_name": {
-                    "terms": {"field": "host"},
+                    "filters": {
+                        "filters": {
+                            "helsniki": {"match": {"host": "helsniki"}},
+                            "nairobi": {"match": {"host": "nairobi"}},
+                            "madrid": {"match": {"host": "madrid"}},
+                            "lisbon": {"match": {"host": "lisbon"}},
+                        }
+                    },
                     "aggs": {"avg_cpu_utilization": {"avg": {"field": "cpu_utilization"}}},
                 }
             },
@@ -134,7 +141,21 @@ def test_elasticsearch_query_terminal_bucket_aggs(version):
         check_service_status(host)
         write_data(host, version)
 
-        query = {"query": {"match_all": {}}, "aggs": {"host_name": {"terms": {"field": "host"}}}}
+        query = {
+            "query": {"match_all": {}},
+            "aggs": {
+                "host_name": {
+                    "filters": {
+                        "filters": {
+                            "helsniki": {"match": {"host": "helsniki"}},
+                            "nairobi": {"match": {"host": "nairobi"}},
+                            "madrid": {"match": {"host": "madrid"}},
+                            "lisbon": {"match": {"host": "lisbon"}},
+                        }
+                    }
+                }
+            },
+        }
 
         agent_config = AGENT_CONFIG_TEMPLATE.format(host=host, index="metrics", query=json.dumps(query))
 
@@ -145,13 +166,13 @@ def test_elasticsearch_query_terminal_bucket_aggs(version):
                         has_datapoint,
                         agent.fake_services,
                         metric_name="elasticsearch_query.host_name.doc_count",
-                        dimensions={"index": "metrics", "bucket_aggregation_type": "terms", "host_name": host},
+                        dimensions={"index": "metrics", "bucket_aggregation_type": "filters", "host_name": host},
                     )
                 ), "Didn't get elasticsearch-query datapoints"
 
 
 @pytest.mark.parametrize("version", VERSIONS)
-def test_elasticsearch_query_percentiles_aggs_with_terms_aggs(version):
+def test_elasticsearch_query_percentiles_aggs_with_filters_aggs(version):
     with run_service("elasticsearch/%s" % version) as es_container:
         host = container_ip(es_container)
         check_service_status(host)
@@ -161,7 +182,14 @@ def test_elasticsearch_query_percentiles_aggs_with_terms_aggs(version):
             "query": {"match_all": {}},
             "aggs": {
                 "host_name": {
-                    "terms": {"field": "host"},
+                    "filters": {
+                        "filters": {
+                            "helsniki": {"match": {"host": "helsniki"}},
+                            "nairobi": {"match": {"host": "nairobi"}},
+                            "madrid": {"match": {"host": "madrid"}},
+                            "lisbon": {"match": {"host": "lisbon"}},
+                        }
+                    },
                     "aggs": {"cpu_utilization_percentiles": {"percentiles": {"field": "cpu_utilization"}}},
                 }
             },
@@ -192,36 +220,14 @@ def write_data(host, version, num_docs=10):
     """
     es = Elasticsearch(hosts=[host])
 
-    doc_type = "doc"
+    doc_type = "datapoint"
     mappings = {
         "mappings": {
             doc_type: {
-                "properties": {
-                    "host": {"type": "text", "fielddata": True},
-                    "service": {"type": "text", "fielddata": True},
-                    "container_id": {"type": "text", "fielddata": True},
-                    "cpu_utilization": {"type": "double"},
-                    "memory_utilization": {"type": "double"},
-                    "@timestamp": {"type": "date"},
-                }
+                "dynamic_templates": [{"strings": {"match_mapping_type": "string", "mapping": {"type": "keyword"}}}]
             }
         }
     }
-
-    if version.startswith("7"):
-        doc_type = "_doc"
-        mappings = {
-            "mappings": {
-                "properties": {
-                    "host": {"type": "text", "fielddata": True},
-                    "service": {"type": "text", "fielddata": True},
-                    "container_id": {"type": "text", "fielddata": True},
-                    "cpu_utilization": {"type": "double"},
-                    "memory_utilization": {"type": "double"},
-                    "@timestamp": {"type": "date"},
-                }
-            }
-        }
 
     # create index with mappings
     es.indices.create(index="metrics", body=mappings, ignore=400)
@@ -258,6 +264,7 @@ def write_data(host, version, num_docs=10):
 
             hash_object = hashlib.md5(id_str.encode("utf-8"))
             id = hash_object.hexdigest()
+
             res = es.index(index="metrics", doc_type=doc_type, id=id, body=doc)
             print("document created: %s" % doc)
             print(res)
