@@ -9,6 +9,21 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// Struct keeps track of info required at a level of recursion
+// An instance of this struct can be thought of as a datapoint
+// collector for a particular aggregation
+type dpCollector struct {
+	aggName       string
+	aggRes        aggregationResponse
+	aggsMeta      map[string]*AggregationMeta
+	sfxDimensions map[string]string
+}
+
+// Returns aggregation type
+func (dpC *dpCollector) getType() string {
+	return dpC.aggsMeta[dpC.aggName].Type
+}
+
 // Walks through the response, collecting dimensions and datapoints depending on the
 // type of aggregation at each recursive level
 func collectDatapoints(resBody HTTPResponse, aggsMeta map[string]*AggregationMeta, sfxDimensions map[string]string) []*datapoint.Datapoint {
@@ -17,57 +32,68 @@ func collectDatapoints(resBody HTTPResponse, aggsMeta map[string]*AggregationMet
 
 	for k, v := range aggsResult {
 		// each aggregation at the highest level starts with an empty set of dimensions
-		out = append(out, collectDatapointsHelper(k, *v, aggsMeta, sfxDimensions)...)
+		out = append(out, (&dpCollector{
+			aggName:       k,
+			aggRes:        *v,
+			aggsMeta:      aggsMeta,
+			sfxDimensions: sfxDimensions,
+		}).recursivelyCollectDatapoints()...)
 	}
 
 	return out
 }
 
-func collectDatapointsHelper(aggName string, aggRes aggregationResponse,
-	aggsMeta map[string]*AggregationMeta, sfxDimensions map[string]string) []*datapoint.Datapoint {
-
-	aggType := aggsMeta[aggName].Type
-
+func (dpC *dpCollector) recursivelyCollectDatapoints() []*datapoint.Datapoint {
 	sfxDatapoints := make([]*datapoint.Datapoint, 0)
 
 	// The absence of "doc_count" and "buckets" field is a good indicator that
 	// the aggregation is a metric aggregation
-	if isMetricAggregation(&aggRes) {
-		return collectDatapointsFromMetricAggregation(&aggRes, aggName, aggType, sfxDimensions)
+	if isMetricAggregation(&dpC.aggRes) {
+		return dpC.collectDatapointsFromMetricAggregation()
 	}
 
 	// Recursively collect all datapoints from buckets at this level
-	for _, b := range aggRes.Buckets {
+	for _, b := range dpC.aggRes.Buckets {
 		key, ok := b.Key.(string)
 
 		if !ok {
 			log.WithFields(
 				log.Fields{
-					"aggregation_name": aggName,
-					"aggregation_type": aggType,
+					"aggregation_name": dpC.aggName,
+					"aggregation_type": dpC.getType(),
 				}).Warn("Found non string key for bucket. Skipping current aggregation and sub aggregations")
 			break
 		}
 
 		// Pick the current bucket's key as a dimension before recursing down to the next level
-		sfxDimensionsForBucket := utils.CloneStringMap(sfxDimensions)
-		sfxDimensionsForBucket[aggName] = key
+		sfxDimensionsForBucket := utils.CloneStringMap(dpC.sfxDimensions)
+		sfxDimensionsForBucket[dpC.aggName] = key
 
 		// Send document count as metrics when there are no metric aggregations specified
 		// under a bucket aggregation and there aren't sub aggregations as well
 		if isTerminalBucket(b) {
-			sfxDatapoints = append(sfxDatapoints, collectDocCountFromTerminalBucket(b, aggName, sfxDimensionsForBucket)...)
+			sfxDatapoints = append(sfxDatapoints, collectDocCountFromTerminalBucket(b, dpC.aggName, sfxDimensionsForBucket)...)
 			continue
 		}
 
 		for k, v := range b.SubAggregations {
-			sfxDatapoints = append(sfxDatapoints, collectDatapointsHelper(k, *v, aggsMeta, sfxDimensionsForBucket)...)
+			sfxDatapoints = append(sfxDatapoints, (&dpCollector{
+				aggName:       k,
+				aggRes:        *v,
+				aggsMeta:      dpC.aggsMeta,
+				sfxDimensions: sfxDimensionsForBucket,
+			}).recursivelyCollectDatapoints()...)
 		}
 	}
 
 	// Recursively collect datapoints from sub aggregations
-	for k, v := range aggRes.SubAggregations {
-		sfxDatapoints = append(sfxDatapoints, collectDatapointsHelper(k, *v, aggsMeta, sfxDimensions)...)
+	for k, v := range dpC.aggRes.SubAggregations {
+		sfxDatapoints = append(sfxDatapoints, (&dpCollector{
+			aggName:       k,
+			aggRes:        *v,
+			aggsMeta:      dpC.aggsMeta,
+			sfxDimensions: dpC.sfxDimensions,
+		}).recursivelyCollectDatapoints()...)
 	}
 
 	return sfxDatapoints
@@ -75,11 +101,11 @@ func collectDatapointsHelper(aggName string, aggRes aggregationResponse,
 
 // Collects "doc_count" from a bucket as a SFx datapoint if a bucket aggregation
 // does not have sub metric aggregations
-func collectDocCountFromTerminalBucket(aggRes *bucketResponse, aggName string, dims map[string]string) []*datapoint.Datapoint {
+func collectDocCountFromTerminalBucket(bucket *bucketResponse, aggName string, dims map[string]string) []*datapoint.Datapoint {
 	dimsForBucket := utils.CloneStringMap(dims)
 	dimsForBucket["bucket_aggregation_name"] = aggName
 
-	out, ok := collectDatapoint("doc_count", *aggRes.DocCount, dimsForBucket)
+	out, ok := collectDatapoint("doc_count", *bucket.DocCount, dimsForBucket)
 
 	if !ok {
 		return []*datapoint.Datapoint{}
@@ -89,29 +115,29 @@ func collectDocCountFromTerminalBucket(aggRes *bucketResponse, aggName string, d
 }
 
 // Collects datapoints from supported metric aggregations
-func collectDatapointsFromMetricAggregation(aggRes *aggregationResponse, aggName string,
-	aggType string, sfxDimensions map[string]string) []*datapoint.Datapoint {
+func (dpC *dpCollector) collectDatapointsFromMetricAggregation() []*datapoint.Datapoint {
 
 	out := make([]*datapoint.Datapoint, 0)
 
 	// Add metric aggregation name as a dimension
-	sfxDimensionsForMetric := utils.CloneStringMap(sfxDimensions)
-	sfxDimensionsForMetric["metric_aggregation_name"] = aggName
+	sfxDimensionsForMetric := utils.CloneStringMap(dpC.sfxDimensions)
+	sfxDimensionsForMetric["metric_aggregation_name"] = dpC.aggName
 
+	aggType := dpC.getType()
 	switch aggType {
 	case "stats":
 		fallthrough
 	case "extended_stats":
-		out = append(out, getDatapointsFromStats(aggType, aggRes, sfxDimensionsForMetric)...)
+		out = append(out, getDatapointsFromStats(aggType, &dpC.aggRes, sfxDimensionsForMetric)...)
 	case "percentiles":
-		out = append(out, getDatapointsFromPerciltes(aggRes, sfxDimensionsForMetric)...)
+		out = append(out, getDatapointsFromPercentiles(&dpC.aggRes, sfxDimensionsForMetric)...)
 	default:
 		metricName := aggType
-		dp, ok := collectDatapoint(metricName, aggRes.Value, sfxDimensionsForMetric)
+		dp, ok := collectDatapoint(metricName, dpC.aggRes.Value, sfxDimensionsForMetric)
 
 		if !ok {
 			log.WithFields(log.Fields{"aggregation_type": aggType,
-				"aggregation_name": aggName}).Warnf("Invalid value found for stat: %v", aggRes.Value)
+				"aggregation_name": dpC.aggName}).Warnf("Invalid value found: %v", dpC.aggRes.Value)
 			return out
 		}
 
@@ -184,7 +210,7 @@ func getDatapointsFromStats(aggType string, aggRes *aggregationResponse, dims ma
 }
 
 // Collect datapoint from "percentiles" metric aggregation
-func getDatapointsFromPerciltes(aggRes *aggregationResponse, dims map[string]string) []*datapoint.Datapoint {
+func getDatapointsFromPercentiles(aggRes *aggregationResponse, dims map[string]string) []*datapoint.Datapoint {
 	aggName := dims["metric_aggregation_name"]
 	out := make([]*datapoint.Datapoint, 0)
 
@@ -249,6 +275,10 @@ func collectDatapoint(metricName string, value interface{}, dims map[string]stri
 		out.Value = datapoint.NewFloatValue(v)
 	case int64:
 		out.Value = datapoint.NewIntValue(v)
+	case *float64:
+		out.Value = datapoint.NewFloatValue(*v)
+	case *int64:
+		out.Value = datapoint.NewIntValue(*v)
 	default:
 		return nil, false
 	}
