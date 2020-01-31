@@ -21,6 +21,7 @@ data:
 
     logging:
       level: info
+      format: text
 
     globalDimensions:
       kubernetes_cluster: MY-CLUSTER
