@@ -69,61 +69,6 @@
         "elementKind": ""
       },
       {
-        "yamlName": "metricsToExclude",
-        "doc": "DEPRECATED in favor of the `datapointsToExclude` option.  That option handles negation of filter items differently.",
-        "default": "",
-        "required": false,
-        "type": "slice",
-        "elementKind": "struct",
-        "elementStruct": {
-          "name": "MetricFilter",
-          "doc": "MetricFilter describes a set of subtractive filters applied to datapoints right before they are sent.",
-          "package": "pkg/core/config",
-          "fields": [
-            {
-              "yamlName": "dimensions",
-              "doc": "A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.  The map values can be either a single string or a list of strings.",
-              "default": "",
-              "required": false,
-              "type": "map",
-              "elementKind": "interface"
-            },
-            {
-              "yamlName": "metricNames",
-              "doc": "A list of metric names to match against",
-              "default": null,
-              "required": false,
-              "type": "slice",
-              "elementKind": "string"
-            },
-            {
-              "yamlName": "metricName",
-              "doc": "A single metric name to match against",
-              "default": "",
-              "required": false,
-              "type": "string",
-              "elementKind": ""
-            },
-            {
-              "yamlName": "monitorType",
-              "doc": "(**Only applicable for the top level filters**) Limits this scope of the filter to datapoints from a specific monitor. If specified, any datapoints not from this monitor type will never match against this filter.",
-              "default": "",
-              "required": false,
-              "type": "string",
-              "elementKind": ""
-            },
-            {
-              "yamlName": "negated",
-              "doc": "(**Only applicable for the top level filters**) Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given.",
-              "default": false,
-              "required": false,
-              "type": "bool",
-              "elementKind": ""
-            }
-          ]
-        }
-      },
-      {
         "yamlName": "datapointsToExclude",
         "doc": "A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](./filtering.md#additional-monitor-level-filtering) for examples and more information.",
         "default": "",
@@ -51760,61 +51705,6 @@
               "required": false,
               "type": "bool",
               "elementKind": ""
-            },
-            {
-              "yamlName": "metricsToExclude",
-              "doc": "DEPRECATED in favor of the `datapointsToExclude` option.  That option handles negation of filter items differently.",
-              "default": "",
-              "required": false,
-              "type": "slice",
-              "elementKind": "struct",
-              "elementStruct": {
-                "name": "MetricFilter",
-                "doc": "MetricFilter describes a set of subtractive filters applied to datapoints right before they are sent.",
-                "package": "pkg/core/config",
-                "fields": [
-                  {
-                    "yamlName": "dimensions",
-                    "doc": "A map of dimension key/values to match against.  All key/values must match a datapoint for it to be matched.  The map values can be either a single string or a list of strings.",
-                    "default": "",
-                    "required": false,
-                    "type": "map",
-                    "elementKind": "interface"
-                  },
-                  {
-                    "yamlName": "metricNames",
-                    "doc": "A list of metric names to match against",
-                    "default": null,
-                    "required": false,
-                    "type": "slice",
-                    "elementKind": "string"
-                  },
-                  {
-                    "yamlName": "metricName",
-                    "doc": "A single metric name to match against",
-                    "default": "",
-                    "required": false,
-                    "type": "string",
-                    "elementKind": ""
-                  },
-                  {
-                    "yamlName": "monitorType",
-                    "doc": "(**Only applicable for the top level filters**) Limits this scope of the filter to datapoints from a specific monitor. If specified, any datapoints not from this monitor type will never match against this filter.",
-                    "default": "",
-                    "required": false,
-                    "type": "string",
-                    "elementKind": ""
-                  },
-                  {
-                    "yamlName": "negated",
-                    "doc": "(**Only applicable for the top level filters**) Negates the result of the match so that it matches all datapoints that do NOT match the metric name and dimension values given. This does not negate monitorType, if given.",
-                    "default": false,
-                    "required": false,
-                    "type": "bool",
-                    "elementKind": ""
-                  }
-                ]
-              }
             },
             {
               "yamlName": "datapointsToExclude",
