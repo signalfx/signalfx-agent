@@ -141,4 +141,5 @@ monitors:
       default: true
       type: gauge
   monitorType: collectd/genericjmx
+  sendUnknown: true
   properties:

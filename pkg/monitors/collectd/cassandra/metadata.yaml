@@ -245,4 +245,5 @@ monitors:
       default: true
       type: gauge
   monitorType: collectd/cassandra
+  sendUnknown: true
   properties:

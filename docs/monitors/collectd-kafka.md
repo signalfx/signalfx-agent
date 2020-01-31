@@ -92,6 +92,8 @@ Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
 (*default*) are ***in bold and italics*** in the list below.
 
+This monitor will also emit by default any metrics that are not listed below.
+
 
  - ***`counter.kafka-bytes-in`*** (*cumulative*)<br>    Number of bytes received per second across all topics
  - ***`counter.kafka-bytes-out`*** (*cumulative*)<br>    Number of bytes transmitted per second across all topics

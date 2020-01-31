@@ -1000,11 +1000,11 @@ var defaultMetrics = map[string]bool{
 var groupMetricsMap = map[string][]string{}
 
 var monitorMetadata = monitors.Metadata{
-	MonitorType:       "kube-controller-manager",
-	DefaultMetrics:    defaultMetrics,
-	Metrics:           metricSet,
-	MetricsExhaustive: false,
-	Groups:            groupSet,
-	GroupMetricsMap:   groupMetricsMap,
-	SendAll:           false,
+	MonitorType:     "kube-controller-manager",
+	DefaultMetrics:  defaultMetrics,
+	Metrics:         metricSet,
+	SendUnknown:     false,
+	Groups:          groupSet,
+	GroupMetricsMap: groupMetricsMap,
+	SendAll:         false,
 }
