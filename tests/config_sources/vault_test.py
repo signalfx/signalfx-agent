@@ -6,7 +6,6 @@ from functools import partial as p
 from textwrap import dedent
 
 import hvac
-
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
 from tests.helpers.util import container_ip, run_container, run_service, wait_for
@@ -122,8 +121,10 @@ def test_vault_nonrenewable_secret_refresh():
                 vaultAddr: {vault_client.url}
             monitors:
              - type: internal-metrics
-               metricsToExclude:
-                - metricName: "!sfxagent.go_num_goroutine"
+               datapointsToExclude:
+                - metricNames:
+                  - "*"
+                  - "!sfxagent.go_num_goroutine"
         """
             )
         ) as agent:
@@ -179,8 +180,10 @@ def test_vault_renewable_secret_refresh():
                 - admin
                username: {{"#from": "vault:database/creds/my-role[username]"}}
                password: {{"#from": "vault:database/creds/my-role[password]"}}
-               metricsToExclude:
-                - metricName: "!gauge.objects"
+               datapointsToExclude:
+                - metricNames:
+                   - "*"
+                   - "!gauge.objects"
         """
             )
         ) as agent:
