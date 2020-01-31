@@ -175,7 +175,7 @@ def test_monitor_filter():
 monitors:
   - type: filesystems
   - type: memory
-    metricsToExclude:
+    datapointsToExclude:
      - metricName: memory.used
   - type: collectd/uptime
 """
