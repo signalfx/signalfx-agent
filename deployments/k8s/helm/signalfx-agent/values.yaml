@@ -119,6 +119,10 @@ metricIntervalSeconds: 10
 # may dump sensitive values in the provided configuration so use with care.
 logLevel: info
 
+# The log format of the agent.  Valid values are 'text' and 'json'
+# The agent will emit logs in either an unstructed text (default) or JSON format. 
+logFormat: text
+
 # Whether to ignore TLS validation issue when connecting to the main K8s API
 # server.  This should almost never need to be set to true since the CA cert is
 # provided with the service account token automatically by K8s.
