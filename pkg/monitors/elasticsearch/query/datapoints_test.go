@@ -38,18 +38,18 @@ func TestDatapointsFromTerminalBucketAggregation(t *testing.T) {
 
 	assert.ElementsMatch(t, dps, []*datapoint.Datapoint{
 		{
-			Metric: "elasticsearch_query.doc_count",
+			Metric: "elasticsearch_query.host.doc_count",
 			Dimensions: map[string]string{
-				"bucket_aggregation_name": "host",
+				"bucket_aggregation_type": "filters",
 				"host":                    "helsniki",
 			},
 			Value:      datapoint.NewIntValue(8800),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric: "elasticsearch_query.doc_count",
+			Metric: "elasticsearch_query.host.doc_count",
 			Dimensions: map[string]string{
-				"bucket_aggregation_name": "host",
+				"bucket_aggregation_type": "filters",
 				"host":                    "nairobi",
 			},
 			Value:      datapoint.NewIntValue(8800),
@@ -102,18 +102,18 @@ func TestMetricAggregationWithTermsAggregation(t *testing.T) {
 
 	assert.ElementsMatch(t, dps, []*datapoint.Datapoint{
 		{
-			Metric: "elasticsearch_query.avg",
+			Metric: "elasticsearch_query.metric_agg_1",
 			Dimensions: map[string]string{
-				"metric_aggregation_name": "metric_agg_1",
+				"metric_aggregation_type": "avg",
 				"host":                    "nairobi",
 			},
 			Value:      datapoint.NewFloatValue(48.41803278688525),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric: "elasticsearch_query.avg",
+			Metric: "elasticsearch_query.metric_agg_1",
 			Dimensions: map[string]string{
-				"metric_aggregation_name": "metric_agg_1",
+				"metric_aggregation_type": "avg",
 				"host":                    "helsniki",
 			},
 			Value:      datapoint.NewFloatValue(49.357142857142854),
@@ -191,131 +191,131 @@ func TestExtendedStatsAggregationsFromFiltersAggregation(t *testing.T) {
 	dims := map[string]map[string]string{
 		"madrid": {
 			"host":                    "madrid",
-			"metric_aggregation_name": "metric_agg_1",
+			"metric_aggregation_type": "extended_stats",
 		},
 		"nairobi": {
 			"host":                    "nairobi",
-			"metric_aggregation_name": "metric_agg_1",
+			"metric_aggregation_type": "extended_stats",
 		},
 	}
 
 	assert.ElementsMatch(t, dps, []*datapoint.Datapoint{
 		{
-			Metric:     "elasticsearch_query.extended_stats.count",
+			Metric:     "elasticsearch_query.metric_agg_1.count",
 			Dimensions: dims["madrid"],
 			Value:      datapoint.NewFloatValue(5134.0),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.min",
+			Metric:     "elasticsearch_query.metric_agg_1.min",
 			Dimensions: dims["madrid"],
 			Value:      datapoint.NewFloatValue(0.0),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.max",
+			Metric:     "elasticsearch_query.metric_agg_1.max",
 			Dimensions: dims["madrid"],
 			Value:      datapoint.NewFloatValue(100.0),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.avg",
+			Metric:     "elasticsearch_query.metric_agg_1.avg",
 			Dimensions: dims["madrid"],
 			Value:      datapoint.NewFloatValue(50.03486560186989),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.sum",
+			Metric:     "elasticsearch_query.metric_agg_1.sum",
 			Dimensions: dims["madrid"],
 			Value:      datapoint.NewFloatValue(256879.0),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.sum_of_squares",
+			Metric:     "elasticsearch_query.metric_agg_1.sum_of_squares",
 			Dimensions: dims["madrid"],
 			Value:      datapoint.NewFloatValue(1.7288541E7),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.variance",
+			Metric:     "elasticsearch_query.metric_agg_1.variance",
 			Dimensions: dims["madrid"],
 			Value:      datapoint.NewFloatValue(863.9724891034797),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.std_deviation",
+			Metric:     "elasticsearch_query.metric_agg_1.std_deviation",
 			Dimensions: dims["madrid"],
 			Value:      datapoint.NewFloatValue(29.39340893981982),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.std_deviation_bounds.lower",
+			Metric:     "elasticsearch_query.metric_agg_1.std_deviation_bounds.lower",
 			Dimensions: dims["madrid"],
 			Value:      datapoint.NewFloatValue(-8.751952277769753),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.std_deviation_bounds.upper",
+			Metric:     "elasticsearch_query.metric_agg_1.std_deviation_bounds.upper",
 			Dimensions: dims["madrid"],
 			Value:      datapoint.NewFloatValue(108.82168348150952),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.count",
+			Metric:     "elasticsearch_query.metric_agg_1.count",
 			Dimensions: dims["nairobi"],
 			Value:      datapoint.NewFloatValue(5134.0),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.min",
+			Metric:     "elasticsearch_query.metric_agg_1.min",
 			Dimensions: dims["nairobi"],
 			Value:      datapoint.NewFloatValue(0.0),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.max",
+			Metric:     "elasticsearch_query.metric_agg_1.max",
 			Dimensions: dims["nairobi"],
 			Value:      datapoint.NewFloatValue(100.0),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.avg",
+			Metric:     "elasticsearch_query.metric_agg_1.avg",
 			Dimensions: dims["nairobi"],
 			Value:      datapoint.NewFloatValue(50.14530580444098),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.sum",
+			Metric:     "elasticsearch_query.metric_agg_1.sum",
 			Dimensions: dims["nairobi"],
 			Value:      datapoint.NewFloatValue(257446.0),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.sum_of_squares",
+			Metric:     "elasticsearch_query.metric_agg_1.sum_of_squares",
 			Dimensions: dims["nairobi"],
 			Value:      datapoint.NewFloatValue(1.7184548E7),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.variance",
+			Metric:     "elasticsearch_query.metric_agg_1.variance",
 			Dimensions: dims["nairobi"],
 			Value:      datapoint.NewFloatValue(832.6528246727477),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.std_deviation",
+			Metric:     "elasticsearch_query.metric_agg_1.std_deviation",
 			Dimensions: dims["nairobi"],
 			Value:      datapoint.NewFloatValue(28.855724296450223),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.std_deviation_bounds.lower",
+			Metric:     "elasticsearch_query.metric_agg_1.std_deviation_bounds.lower",
 			Dimensions: dims["nairobi"],
 			Value:      datapoint.NewFloatValue(-7.566142788459466),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.std_deviation_bounds.upper",
+			Metric:     "elasticsearch_query.metric_agg_1.std_deviation_bounds.upper",
 			Dimensions: dims["nairobi"],
 			Value:      datapoint.NewFloatValue(107.85675439734143),
 			MetricType: datapoint.Gauge,
@@ -376,47 +376,47 @@ func TestPercentilesAggregationsFromFiltersAggregation(t *testing.T) {
 	dims := map[string]map[string]string{
 		"madrid": {
 			"host":                    "madrid",
-			"metric_aggregation_name": "metric_agg_1",
+			"metric_aggregation_type": "percentiles",
 		},
 		"nairobi": {
 			"host":                    "nairobi",
-			"metric_aggregation_name": "metric_agg_1",
+			"metric_aggregation_type": "percentiles",
 		},
 	}
 
 	assert.ElementsMatch(t, dps, []*datapoint.Datapoint{
 		{
-			Metric:     "elasticsearch_query.percentiles.p50",
+			Metric:     "elasticsearch_query.metric_agg_1.p50",
 			Dimensions: dims["nairobi"],
 			Value:      datapoint.NewFloatValue(50.0),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.percentiles.p75",
+			Metric:     "elasticsearch_query.metric_agg_1.p75",
 			Dimensions: dims["nairobi"],
 			Value:      datapoint.NewFloatValue(75.0),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.percentiles.p99",
+			Metric:     "elasticsearch_query.metric_agg_1.p99",
 			Dimensions: dims["nairobi"],
 			Value:      datapoint.NewFloatValue(99.07999999999993),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.percentiles.p50",
+			Metric:     "elasticsearch_query.metric_agg_1.p50",
 			Dimensions: dims["madrid"],
 			Value:      datapoint.NewFloatValue(50.294871794871796),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.percentiles.p75",
+			Metric:     "elasticsearch_query.metric_agg_1.p75",
 			Dimensions: dims["madrid"],
 			Value:      datapoint.NewFloatValue(75.98039215686275),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.percentiles.p99",
+			Metric:     "elasticsearch_query.metric_agg_1.p99",
 			Dimensions: dims["madrid"],
 			Value:      datapoint.NewFloatValue(100.0),
 			MetricType: datapoint.Gauge,
@@ -490,99 +490,99 @@ func TestMultipleMetricAggregationWithTermsAggregation(t *testing.T) {
 	dims := map[string]map[string]string{
 		"metric_agg_1": {
 			"host":                    "nairobi",
-			"metric_aggregation_name": "metric_agg_1",
+			"metric_aggregation_type": "percentiles",
 		},
 		"metric_agg_2": {
 			"host":                    "nairobi",
-			"metric_aggregation_name": "metric_agg_2",
+			"metric_aggregation_type": "avg",
 		},
 		"metric_agg_3": {
 			"host":                    "nairobi",
-			"metric_aggregation_name": "metric_agg_3",
+			"metric_aggregation_type": "extended_stats",
 		},
 	}
 
 	assert.ElementsMatch(t, dps, []*datapoint.Datapoint{
 		{
-			Metric:     "elasticsearch_query.percentiles.p50",
+			Metric:     "elasticsearch_query.metric_agg_1.p50",
 			Dimensions: dims["metric_agg_1"],
 			Value:      datapoint.NewFloatValue(50.0),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.percentiles.p75",
+			Metric:     "elasticsearch_query.metric_agg_1.p75",
 			Dimensions: dims["metric_agg_1"],
 			Value:      datapoint.NewFloatValue(75.0),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.percentiles.p99",
+			Metric:     "elasticsearch_query.metric_agg_1.p99",
 			Dimensions: dims["metric_agg_1"],
 			Value:      datapoint.NewFloatValue(99.07999999999993),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.avg",
+			Metric:     "elasticsearch_query.metric_agg_2",
 			Dimensions: dims["metric_agg_2"],
 			Value:      datapoint.NewFloatValue(48.41803278688525),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.count",
+			Metric:     "elasticsearch_query.metric_agg_3.count",
 			Dimensions: dims["metric_agg_3"],
 			Value:      datapoint.NewFloatValue(5134.0),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.min",
+			Metric:     "elasticsearch_query.metric_agg_3.min",
 			Dimensions: dims["metric_agg_3"],
 			Value:      datapoint.NewFloatValue(0.0),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.max",
+			Metric:     "elasticsearch_query.metric_agg_3.max",
 			Dimensions: dims["metric_agg_3"],
 			Value:      datapoint.NewFloatValue(100.0),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.avg",
+			Metric:     "elasticsearch_query.metric_agg_3.avg",
 			Dimensions: dims["metric_agg_3"],
 			Value:      datapoint.NewFloatValue(50.14530580444098),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.sum",
+			Metric:     "elasticsearch_query.metric_agg_3.sum",
 			Dimensions: dims["metric_agg_3"],
 			Value:      datapoint.NewFloatValue(257446.0),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.sum_of_squares",
+			Metric:     "elasticsearch_query.metric_agg_3.sum_of_squares",
 			Dimensions: dims["metric_agg_3"],
 			Value:      datapoint.NewFloatValue(1.7184548E7),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.variance",
+			Metric:     "elasticsearch_query.metric_agg_3.variance",
 			Dimensions: dims["metric_agg_3"],
 			Value:      datapoint.NewFloatValue(832.6528246727477),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.std_deviation",
+			Metric:     "elasticsearch_query.metric_agg_3.std_deviation",
 			Dimensions: dims["metric_agg_3"],
 			Value:      datapoint.NewFloatValue(28.855724296450223),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.std_deviation_bounds.lower",
+			Metric:     "elasticsearch_query.metric_agg_3.std_deviation_bounds.lower",
 			Dimensions: dims["metric_agg_3"],
 			Value:      datapoint.NewFloatValue(-7.566142788459466),
 			MetricType: datapoint.Gauge,
 		},
 		{
-			Metric:     "elasticsearch_query.extended_stats.std_deviation_bounds.upper",
+			Metric:     "elasticsearch_query.metric_agg_3.std_deviation_bounds.upper",
 			Dimensions: dims["metric_agg_3"],
 			Value:      datapoint.NewFloatValue(107.85675439734143),
 			MetricType: datapoint.Gauge,

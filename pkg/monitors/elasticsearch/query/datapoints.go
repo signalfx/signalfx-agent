@@ -72,7 +72,8 @@ func (dpC *dpCollector) recursivelyCollectDatapoints() []*datapoint.Datapoint {
 		// Send document count as metrics when there are no metric aggregations specified
 		// under a bucket aggregation and there aren't sub aggregations as well
 		if isTerminalBucket(b) {
-			sfxDatapoints = append(sfxDatapoints, collectDocCountFromTerminalBucket(b, dpC.aggName, sfxDimensionsForBucket)...)
+			sfxDatapoints = append(sfxDatapoints,
+				collectDocCountFromTerminalBucket(b, dpC.aggName, dpC.getType(), sfxDimensionsForBucket)...)
 			continue
 		}
 
@@ -101,11 +102,11 @@ func (dpC *dpCollector) recursivelyCollectDatapoints() []*datapoint.Datapoint {
 
 // Collects "doc_count" from a bucket as a SFx datapoint if a bucket aggregation
 // does not have sub metric aggregations
-func collectDocCountFromTerminalBucket(bucket *bucketResponse, aggName string, dims map[string]string) []*datapoint.Datapoint {
+func collectDocCountFromTerminalBucket(bucket *bucketResponse, aggName string, aggType string, dims map[string]string) []*datapoint.Datapoint {
 	dimsForBucket := utils.CloneStringMap(dims)
-	dimsForBucket["bucket_aggregation_name"] = aggName
+	dimsForBucket["bucket_aggregation_type"] = aggType
 
-	out, ok := collectDatapoint("doc_count", *bucket.DocCount, dimsForBucket)
+	out, ok := collectDatapoint(fmt.Sprintf("%s.%s", aggName, "doc_count"), *bucket.DocCount, dimsForBucket)
 
 	if !ok {
 		return []*datapoint.Datapoint{}
@@ -121,18 +122,18 @@ func (dpC *dpCollector) collectDatapointsFromMetricAggregation() []*datapoint.Da
 
 	// Add metric aggregation name as a dimension
 	sfxDimensionsForMetric := utils.CloneStringMap(dpC.sfxDimensions)
-	sfxDimensionsForMetric["metric_aggregation_name"] = dpC.aggName
+	sfxDimensionsForMetric["metric_aggregation_type"] = dpC.getType()
 
 	aggType := dpC.getType()
 	switch aggType {
 	case "stats":
 		fallthrough
 	case "extended_stats":
-		out = append(out, getDatapointsFromStats(aggType, &dpC.aggRes, sfxDimensionsForMetric)...)
+		out = append(out, getDatapointsFromStats(dpC.aggName, &dpC.aggRes, sfxDimensionsForMetric)...)
 	case "percentiles":
-		out = append(out, getDatapointsFromPercentiles(&dpC.aggRes, sfxDimensionsForMetric)...)
+		out = append(out, getDatapointsFromPercentiles(dpC.aggName, &dpC.aggRes, sfxDimensionsForMetric)...)
 	default:
-		metricName := aggType
+		metricName := dpC.aggName
 		dp, ok := collectDatapoint(metricName, dpC.aggRes.Value, sfxDimensionsForMetric)
 
 		if !ok {
@@ -165,8 +166,7 @@ func (dpC *dpCollector) collectDatapointsFromMetricAggregation() []*datapoint.Da
 // }
 // Metric names from this integration will look like "extended_stats.count",
 // "extended_stats.min", "extended_stats.std_deviation_bounds.lower" and so on
-func getDatapointsFromStats(aggType string, aggRes *aggregationResponse, dims map[string]string) []*datapoint.Datapoint {
-	aggName := dims["metric_aggregation_name"]
+func getDatapointsFromStats(aggName string, aggRes *aggregationResponse, dims map[string]string) []*datapoint.Datapoint {
 	out := make([]*datapoint.Datapoint, 0)
 
 	for k, v := range aggRes.OtherValues {
@@ -181,7 +181,7 @@ func getDatapointsFromStats(aggType string, aggRes *aggregationResponse, dims ma
 			}
 
 			for bk, bv := range m {
-				metricName := fmt.Sprintf("%s.%s.%s", aggType, k, bk)
+				metricName := fmt.Sprintf("%s.%s.%s", aggName, k, bk)
 				dp, ok := collectDatapoint(metricName, bv, dims)
 
 				if !ok {
@@ -193,7 +193,7 @@ func getDatapointsFromStats(aggType string, aggRes *aggregationResponse, dims ma
 				out = append(out, dp)
 			}
 		default:
-			metricName := fmt.Sprintf("%s.%s", aggType, k)
+			metricName := fmt.Sprintf("%s.%s", aggName, k)
 			dp, ok := collectDatapoint(metricName, v, dims)
 
 			if !ok {
@@ -210,8 +210,7 @@ func getDatapointsFromStats(aggType string, aggRes *aggregationResponse, dims ma
 }
 
 // Collect datapoint from "percentiles" metric aggregation
-func getDatapointsFromPercentiles(aggRes *aggregationResponse, dims map[string]string) []*datapoint.Datapoint {
-	aggName := dims["metric_aggregation_name"]
+func getDatapointsFromPercentiles(aggName string, aggRes *aggregationResponse, dims map[string]string) []*datapoint.Datapoint {
 	out := make([]*datapoint.Datapoint, 0)
 
 	// Values are always expected to be a map between the percentile and the
@@ -235,7 +234,7 @@ func getDatapointsFromPercentiles(aggRes *aggregationResponse, dims map[string]s
 		}
 
 		// Remove trailing zeros
-		metricName := fmt.Sprintf("%s.p%s", "percentiles", strconv.FormatFloat(p, 'f', -1, 64))
+		metricName := fmt.Sprintf("%s.p%s", aggName, strconv.FormatFloat(p, 'f', -1, 64))
 		dp, ok := collectDatapoint(metricName, v, dims)
 
 		if !ok {

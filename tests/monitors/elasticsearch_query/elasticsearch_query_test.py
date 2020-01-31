@@ -12,10 +12,10 @@ from elasticsearch import Elasticsearch
 from random import randint
 
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_datapoint_with_all_dims, has_datapoint_with_metric_name, http_status
+from tests.helpers.assertions import has_datapoint, http_status
 from tests.helpers.util import container_ip, run_service, wait_for
 
-VERSIONS = ["5.0.0", "5.5.0", "6.2.0", "6.4.2", "7.0.0", "7.5.1"]
+VERSIONS = ["5.0.0", "7.5.1"]
 AGENT_CONFIG_TEMPLATE = """
     monitors:
     - type: elasticsearch-query
@@ -26,27 +26,19 @@ AGENT_CONFIG_TEMPLATE = """
     """
 
 EXTENDED_STATS_METRICS = [
-    "elasticsearch_query.extended_stats.count",
-    "elasticsearch_query.extended_stats.min",
-    "elasticsearch_query.extended_stats.max",
-    "elasticsearch_query.extended_stats.avg",
-    "elasticsearch_query.extended_stats.sum",
-    "elasticsearch_query.extended_stats.sum_of_squares",
-    "elasticsearch_query.extended_stats.variance",
-    "elasticsearch_query.extended_stats.std_deviation",
-    "elasticsearch_query.extended_stats.std_deviation_bounds.lower",
-    "elasticsearch_query.extended_stats.std_deviation_bounds.upper",
+    "count",
+    "min",
+    "max",
+    "avg",
+    "sum",
+    "sum_of_squares",
+    "variance",
+    "std_deviation",
+    "std_deviation_bounds.lower",
+    "std_deviation_bounds.upper",
 ]
 
-PERCENTILE_METRICS = [
-    "elasticsearch_query.percentiles.p1",
-    "elasticsearch_query.percentiles.p5",
-    "elasticsearch_query.percentiles.p25",
-    "elasticsearch_query.percentiles.p50",
-    "elasticsearch_query.percentiles.p75",
-    "elasticsearch_query.percentiles.p95",
-    "elasticsearch_query.percentiles.p99",
-]
+PERCENTILE_METRICS = ["p1", "p5", "p25", "p50", "p75", "p95", "p99"]
 
 HOSTS = ["nairobi", "helsniki", "madrid", "lisbon"]
 
@@ -69,14 +61,12 @@ def test_elasticsearch_query_simple_metric_aggs(version):
         with Agent.run(agent_config) as agent:
             assert wait_for(
                 p(
-                    has_datapoint_with_all_dims,
+                    has_datapoint,
                     agent.fake_services,
-                    {"index": "metrics", "metric_aggregation_name": "avg_cpu_utilization"},
+                    metric_name="elasticsearch_query.avg_cpu_utilization",
+                    dimensions={"index": "metrics", "metric_aggregation_type": "avg"},
                 )
-            ), "Didn't get elasticsearch-query dimensions"
-            assert wait_for(
-                p(has_datapoint_with_metric_name, agent.fake_services, "elasticsearch_query.avg")
-            ), "Didn't get elasticsearch-query metric"
+            ), "Didn't get elasticsearch-query datapoints"
 
 
 @pytest.mark.parametrize("version", VERSIONS)
@@ -95,17 +85,15 @@ def test_elasticsearch_query_extened_stats_aggs(version):
         agent_config = AGENT_CONFIG_TEMPLATE.format(host=host, index="metrics", query=json.dumps(query))
 
         with Agent.run(agent_config) as agent:
-            assert wait_for(
-                p(
-                    has_datapoint_with_all_dims,
-                    agent.fake_services,
-                    {"index": "metrics", "metric_aggregation_name": "cpu_utilization_stats"},
-                )
-            ), "Didn't get elasticsearch-query dimensions"
             for metric in EXTENDED_STATS_METRICS:
                 assert wait_for(
-                    p(has_datapoint_with_metric_name, agent.fake_services, metric)
-                ), "Didn't get elasticsearch-query metric"
+                    p(
+                        has_datapoint,
+                        agent.fake_services,
+                        metric_name="elasticsearch_query.cpu_utilization_stats.%s" % metric,
+                        dimensions={"index": "metrics", "metric_aggregation_type": "extended_stats"},
+                    )
+                ), "Didn't get elasticsearch-query datapoints"
 
 
 @pytest.mark.parametrize("version", VERSIONS)
@@ -128,17 +116,15 @@ def test_elasticsearch_query_simple_metric_aggs_with_terms_aggs(version):
         agent_config = AGENT_CONFIG_TEMPLATE.format(host=host, index="metrics", query=json.dumps(query))
 
         with Agent.run(agent_config) as agent:
-            assert wait_for(
-                p(has_datapoint_with_metric_name, agent.fake_services, "elasticsearch_query.avg")
-            ), "Didn't get elasticsearch-query metric"
             for host in HOSTS:
                 assert wait_for(
                     p(
-                        has_datapoint_with_all_dims,
+                        has_datapoint,
                         agent.fake_services,
-                        {"index": "metrics", "metric_aggregation_name": "avg_cpu_utilization", "host_name": host},
+                        metric_name="elasticsearch_query.avg_cpu_utilization",
+                        dimensions={"index": "metrics", "metric_aggregation_type": "avg", "host_name": host},
                     )
-                ), "Didn't get elasticsearch-query dimensions"
+                ), "Didn't get elasticsearch-query datapoints"
 
 
 @pytest.mark.parametrize("version", VERSIONS)
@@ -153,17 +139,15 @@ def test_elasticsearch_query_terminal_bucket_aggs(version):
         agent_config = AGENT_CONFIG_TEMPLATE.format(host=host, index="metrics", query=json.dumps(query))
 
         with Agent.run(agent_config) as agent:
-            assert wait_for(
-                p(has_datapoint_with_metric_name, agent.fake_services, "elasticsearch_query.doc_count")
-            ), "Didn't get elasticsearch-query metric"
             for host in HOSTS:
                 assert wait_for(
                     p(
-                        has_datapoint_with_all_dims,
+                        has_datapoint,
                         agent.fake_services,
-                        {"index": "metrics", "bucket_aggregation_name": "host_name", "host_name": host},
+                        metric_name="elasticsearch_query.host_name.doc_count",
+                        dimensions={"index": "metrics", "bucket_aggregation_type": "terms", "host_name": host},
                     )
-                ), "Didn't get elasticsearch-query dimensions"
+                ), "Didn't get elasticsearch-query datapoints"
 
 
 @pytest.mark.parametrize("version", VERSIONS)
@@ -187,21 +171,19 @@ def test_elasticsearch_query_percentiles_aggs_with_terms_aggs(version):
 
         with Agent.run(agent_config) as agent:
             for metric in PERCENTILE_METRICS:
-                assert wait_for(
-                    p(has_datapoint_with_metric_name, agent.fake_services, metric)
-                ), "Didn't get elasticsearch-query metric"
-            for host in HOSTS:
-                assert wait_for(
-                    p(
-                        has_datapoint_with_all_dims,
-                        agent.fake_services,
-                        {
-                            "index": "metrics",
-                            "metric_aggregation_name": "cpu_utilization_percentiles",
-                            "host_name": host,
-                        },
-                    )
-                ), "Didn't get elasticsearch-query dimensions"
+                for host in HOSTS:
+                    assert wait_for(
+                        p(
+                            has_datapoint,
+                            agent.fake_services,
+                            metric_name="elasticsearch_query.cpu_utilization_percentiles.%s" % metric,
+                            dimensions={
+                                "index": "metrics",
+                                "metric_aggregation_type": "percentiles",
+                                "host_name": host,
+                            },
+                        )
+                    ), "Didn't get elasticsearch-query datapoints"
 
 
 def write_data(host, version, num_docs=10):

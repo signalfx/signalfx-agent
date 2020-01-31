@@ -41,7 +41,7 @@ monitors:
     }
 ```
 
-The `elasticsearchRequest` take in a request in the format specified
+The `elasticsearchRequest` takes in a `string` request in the format specified
 [here] (https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html).
 
 The above query is performed against an index that has documents that take the following form
@@ -58,14 +58,14 @@ The above query is performed against an index that has documents that take the f
 ```
 
 This query returns the average value of `cpu_utilization` across all documents with a `@timestamp`
-in the last five minutes. This value is metricized to the following form in SignalFx -
+in the last five minutes. This value is metricized to the following form in SignalFx :
 
 ```
 {
-metric_name: avg,
+metric_name: elasticsearch_query.avg_cpu_utilization,
 dimensions:
   index: <name_of_index>
-  metric_aggregation_name: avg_cpu_utilization
+  metric_aggregation_type: avg
 }
 ```
 
@@ -75,25 +75,25 @@ Understanding how this monitor transforms Elasticsearch responses to SignalFx da
 
 At high level this monitor metricizes responses of following types -
 
-1. Metric aggregations inside one or more Bucket aggregations such as the terms and filters
+1. Metric aggregations inside one or more Bucket aggregations such as the `terms` and `filters`
 aggregations. Dimensions on a datapoint are determined by the aggregation name (dimension name)
 and the `key` of each bucket (dimension value). The metric name is derived from the type of
-Metric aggregation and it's values in case of multi-value aggregations. A dimension called
-`metric_aggregation_name` will also be set on the corresponding datapoints. See below for examples.
+Metric aggregation name and it's values in case of multi-value aggregations. A dimension called
+`metric_aggregation_type` will also be set on the corresponding datapoints. See below for examples.
 
 2. Metric aggregations applied without any Bucket aggregation will be transformed just like in
 the above case.
 
 3. Bucket aggregations that do not have any Metric aggregations as sub aggregations will be
-transformed to a metric called `doc_count` and will have `bucket_aggregation_name` dimension
-apart from the `key` of each bucket.
+transformed to a metric called `elasticsearch_query.doc_count` and will have `bucket_aggregation_name`
+dimension apart from the `key` of each bucket.
 
 **Note**: Since Bucket aggregations determine dimensions in SignalFx, in most cases Bucket aggregations
 should be performed on `string` fields that represent a slice of the data from Elasticsearch.
 
 ## Examples
 
-1. Average Metric aggregation as a sub aggregation of Terms aggregation
+1. `avg` metric aggregation as a sub aggregation of `terms` bucket aggregation
 
 
 ```json
@@ -113,11 +113,10 @@ should be performed on `string` fields that represent a slice of the data from E
 }
 ```
 
-The above query will result in a metric called `avg` (aggrregation type defined by Elasticsearch query syntax)
-and each datapoint will have a `host` dimension with its value being the `key` of a bucket in the response. The
-name of the metric aggregation `average_cpu_usage` will be set on the datapoint as `metric_aggregation_name`
-dimension. If the response looked like the below json, 4 datapoints would be collected, each with a different
-value for `host`.
+The above query will result in a metric called `elasticsearch_query.average_cpu_usage` and each datapoint
+will have a `host` dimension with its value being the `key` of a bucket in the response. The type of the
+metric aggregation (`avg`) will be set on the datapoint as `metric_aggregation_type` dimension. If the response
+looked like the below json, 4 datapoints would be collected, each with a different value for `host`.
 
 ```json
 ...
@@ -160,7 +159,7 @@ value for `host`.
 ...
 ```
 
-2. Extended Stats Metric aggregation as a sub aggregation of Terms aggregation
+2. `extended_stats` metric aggregation as a sub aggregation of `terms` bucket aggregation
 
 
 ```json
@@ -239,11 +238,11 @@ value for `host`.
 
 In this case, each bucket will result 5 metrics -
 
-  1. stats.count
-  2. stats.min
-  3. stats.max
-  4. stats.avg
-  5. stats.sum
+  1. elasticsearch_query.cpu_usage_stats.count
+  2. elasticsearch_query.cpu_usage_stats.min
+  3. elasticsearch_query.cpu_usage_stats.max
+  4. elasticsearch_query.cpu_usage_stats.avg
+  5. elasticsearch_query.cpu_usage_stats.sum
 
 The dimensions are derived in the same manner as the previous example.
 
@@ -276,7 +275,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `host` | **yes** | `string` |  |
 | `port` | **yes** | `string` |  |
 | `index` | no | `string` | Index that's being queried. If none is provided, given query will be applied across all indexes. To apply the search query to multiple indices, provide a comma separated list of indices (**default:** `_all`) |
-| `elasticsearchRequest` | **yes** | `string` | Takes in an elasticsearch request body search request. See [here] (https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html) for details. |
+| `elasticsearchRequest` | **yes** | `string` | Takes in an Elasticsearch request body search request. See [here] (https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html) for details. |
 
 
 

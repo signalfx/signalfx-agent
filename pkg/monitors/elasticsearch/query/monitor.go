@@ -24,7 +24,7 @@ type Config struct {
 	// applied across all indexes. To apply the search query to multiple indices,
 	// provide a comma separated list of indices
 	Index string `yaml:"index" default:"_all"`
-	// Takes in an elasticsearch request body search request. See
+	// Takes in an Elasticsearch request body search request. See
 	// [here] (https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html)
 	// for details.
 	ElasticsearchRequest string `yaml:"elasticsearchRequest" validate:"required"`

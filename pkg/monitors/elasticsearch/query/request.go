@@ -2,8 +2,7 @@ package query
 
 import (
 	"encoding/json"
-
-	"github.com/pkg/errors"
+	"fmt"
 )
 
 // Represents HTTP post data for elasticsearch search queries
@@ -102,7 +101,7 @@ func getAggregationType(agg aggregationInfo) (string, error) {
 		return k, nil
 	}
 
-	return "", errors.Errorf("Unable to determine type for %v", agg)
+	return "", fmt.Errorf("unable to determine type for %v", agg)
 }
 
 func getAggregationsMetaHelper(aggsToType map[string]string) map[string]*AggregationMeta {
