@@ -40,7 +40,6 @@ data:
       level: {{ .Values.logLevel | default "info" }}
       format: {{ .Values.logFormat | default "text" }}
 
-
     globalDimensions:
       kubernetes_cluster: {{ .Values.kubernetesClusterName | default .Values.clusterName }}
       {{- range $k, $v := .Values.globalDimensions }}
