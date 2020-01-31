@@ -99,4 +99,5 @@ monitors:
       default: true
       type: gauge
   monitorType: collectd/kafka_consumer
+  sendUnknown: true
   properties:

@@ -353,4 +353,5 @@ monitors:
       default: false
       type: counter
   monitorType: expvar
+  sendUnknown: true
   properties:

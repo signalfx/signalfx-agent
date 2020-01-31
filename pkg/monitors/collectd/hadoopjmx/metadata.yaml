@@ -389,4 +389,5 @@ monitors:
       default: false
       type: gauge
   monitorType: collectd/hadoopjmx
+  sendUnknown: true
   properties:

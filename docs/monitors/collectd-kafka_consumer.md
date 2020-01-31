@@ -96,6 +96,8 @@ Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
 (*default*) are ***in bold and italics*** in the list below.
 
+This monitor will also emit by default any metrics that are not listed below.
+
 
  - ***`gauge.kafka.consumer.bytes-consumed-rate`*** (*gauge*)<br>    Average number of bytes consumed per second. This metric has either client-id dimension or, both client-id and topic dimensions. The former is an aggregate across all topics of the latter.
  - ***`gauge.kafka.consumer.fetch-rate`*** (*gauge*)<br>    Number of records consumed per second.

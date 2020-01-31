@@ -787,11 +787,11 @@ var groupMetricsMap = map[string][]string{
 }
 
 var monitorMetadata = monitors.Metadata{
-	MonitorType:       "cloudfoundry-firehose-nozzle",
-	DefaultMetrics:    defaultMetrics,
-	Metrics:           metricSet,
-	MetricsExhaustive: true,
-	Groups:            groupSet,
-	GroupMetricsMap:   groupMetricsMap,
-	SendAll:           false,
+	MonitorType:     "cloudfoundry-firehose-nozzle",
+	DefaultMetrics:  defaultMetrics,
+	Metrics:         metricSet,
+	SendUnknown:     false,
+	Groups:          groupSet,
+	GroupMetricsMap: groupMetricsMap,
+	SendAll:         false,
 }

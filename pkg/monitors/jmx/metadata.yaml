@@ -1,5 +1,6 @@
 monitors:
  - monitorType: jmx
+   sendAll: true
    doc: |
      This montior allows you to run an arbitrary Groovy script to convert JMX
      MBeans fetched from a remote Java application to SignalFx datapoints.
