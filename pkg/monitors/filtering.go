@@ -94,7 +94,9 @@ func buildFilterSet(metadata *Metadata, conf config.MonitorCustomConfig) (*dpfil
 
 	excludeFilters := []dpfilters.DatapointFilter{oldFilter, newFilter}
 
-	if metadata != nil && !metadata.SendAll {
+	// If sendAll is true or there are no metrics don't bother setting up
+	// filtering
+	if metadata != nil && len(metadata.Metrics) > 0 && !metadata.SendAll {
 		// Make a copy of extra metrics from config so we don't alter what the user configured.
 		extraMetrics := append([]string{}, coreConfig.ExtraMetrics...)
 
@@ -134,7 +136,7 @@ func validateMetricName(metadata *Metadata, metricName string) error {
 		return errors.New("metric name cannot be empty")
 	}
 
-	if !metadata.MetricsExhaustive {
+	if metadata.SendUnknown {
 		// The metrics list isn't exhaustive so can't do extra validation.
 		return nil
 	}
@@ -217,12 +219,19 @@ func newMetricsFilter(metadata *Metadata, extraMetrics, extraGroups []string) (*
 }
 
 func (mf *extraMetricsFilter) Matches(dp *datapoint.Datapoint) bool {
-	if mf.metadata.HasDefaultMetric(dp.Metric) {
-		// It's an included metric or is totally unknown so send by default.
+	if len(mf.metadata.Metrics) == 0 {
+		// This monitor has no defined metrics so send everything by default.
 		return true
 	}
 
-	if !mf.metadata.HasMetric(dp.Metric) && !mf.metadata.MetricsExhaustive {
+	if !mf.metadata.HasMetric(dp.Metric) && mf.metadata.SendUnknown {
+		// This metric is unknown to the metadata and the monitor has requested
+		// to send all unknown metrics.
+		return true
+	}
+
+	if mf.metadata.HasDefaultMetric(dp.Metric) {
+		// It's an included metric so send by default.
 		return true
 	}
 

@@ -239,6 +239,7 @@
     {
       "monitorType": "appmesh",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor starts a StatsD monitor to listen to StatsD metrics emitted\nby AWS AppMesh Envoy Proxy.\n\nTo report AppMesh Envoy metrics, you need to enable Envoy StatsD sink on AppMesh\nand deploy the agent as a sidecar in the services that need to be monitored.\n\n\nSample Envoy StatsD configuration:\n\n```yaml\nstats_sinks:\n -\n  name: \"envoy.statsd\"\n  config:\n   address:\n    socket_address:\n     address: \"127.0.0.1\"\n     port_value: 8125\n     protocol: \"UDP\"\n   prefix: statsd.appmesh\n```\nPlease remember to provide the prefix to the agent monitor configuration.\n\nSee [Envoy API reference](https://www.envoyproxy.io/docs/envoy/latest/api-v2/config/metrics/v2/stats.proto#envoy-api-msg-config-metrics-v2-statsdsink) for more info\n\nSample SignalFx SmartAgent configuration:\n\n```yaml\nmonitors:\n - type: appmesh\n   listenAddress: 0.0.0.0\n   listenPort: 8125\n   metricPrefix: statsd.appmesh\n```\n",
       "groups": {
@@ -734,7 +735,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -772,6 +772,7 @@
     {
       "monitorType": "aspdotnet",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "(Windows Only) This monitor reports metrics about requests, errors, sessions,\nworker processes for ASP.NET applications.\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually Gauges\nthat represent rates per second and percentages.\n\nThis monitor reports the instantaneous values for these Windows Performance Counters.\nThis means that in between a collection interval, spikes could occur on the\nPerformance Counters.  The best way to mitigate this limitation is to increase\nthe reporting interval on this monitor to collect more frequently.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: aspdotnet\n```\n",
       "groups": {
@@ -889,7 +890,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -919,6 +919,7 @@
     {
       "monitorType": "cadvisor",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "container_id": {
           "description": "The ID of the running container"
@@ -1275,7 +1276,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "CHTTPConfig",
         "doc": "CHTTPConfig is the monitor-specific config for cAdvisor",
@@ -1297,6 +1297,7 @@
     {
       "monitorType": "cloudfoundry-firehose-nozzle",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "instance_id": {
           "description": "The BOSH instance id that pertains to the metric, if any."
@@ -3757,7 +3758,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -3827,6 +3827,7 @@
     {
       "monitorType": "collectd/activemq",
       "sendAll": false,
+      "sendUnknown": true,
       "dimensions": null,
       "doc": "SignalFx's integration with ActiveMQ wraps the [Collectd GenericJMX\nmonitor](https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-genericjmx.html)\nto monitor ActiveMQ.\n\nUse this monitor to gather the following types of information from ActiveMQ:\n\n* Broker (Totals per broker)\n* Queue (Queue status)\n* Topic (Topic status)\n\nTo monitor the age of messages inside ActiveMQ queues, see [ActiveMQ\nmessage age listener](https://docs.signalfx.com/en/latest/integrations/integrations-reference/integrations.activemq.message.age.listener.html)[](sfx_link:amq-message-age).\n\n\u003c!--- SETUP ---\u003e\n## Example config\n\n```yaml\nmonitors:\n - type: collectd/activemq\n   host: localhost\n   # This is the remote JMX port for ActiveMQ\n   port: 1099\n```\n",
       "groups": {
@@ -4124,7 +4125,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config has configuration that is specific to GenericJMX. This config should be used by a monitors that use the generic JMX collectd plugin.",
@@ -4336,6 +4336,7 @@
     {
       "monitorType": "collectd/apache",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "plugin_instance": {
           "description": "Set to whatever you set in the `name` config option."
@@ -4457,7 +4458,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -4519,6 +4519,7 @@
     {
       "monitorType": "collectd/cassandra",
       "sendAll": false,
+      "sendUnknown": true,
       "dimensions": null,
       "doc": "Monitors Cassandra using the Collectd GenericJMX plugin.  This is\nessentially a wrapper around the\n[collectd-genericjmx](./collectd-genericjmx.md)[](sfx_link:java) monitor that comes with a\nset of predefined MBean definitions that a standard Cassandra deployment\nwill expose.\n\nUse this integration to monitor the following types of information from Cassandra nodes:\n\n - read/write/range-slice requests\n - read/write/range-slice errors (timeouts and unavailable)\n - read/write/range-slice latency (median, 99th percentile, maximum)\n - compaction activity\n - hint activity\n\nSupports Cassandra 2.0.10+.\n",
       "groups": {
@@ -4753,7 +4754,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config has configuration that is specific to GenericJMX. This config should be used by a monitors that use the generic JMX collectd plugin.",
@@ -4965,12 +4965,12 @@
     {
       "monitorType": "collectd/chrony",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Collectd NTP data from a chronyd instance\n\nSee https://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_chrony\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -5008,6 +5008,7 @@
     {
       "monitorType": "collectd/consul",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "consul_mode": {
           "description": "Whether this consul instance is running as a server or client"
@@ -5436,7 +5437,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -5554,6 +5554,7 @@
     {
       "monitorType": "collectd/couchbase",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This is a Smart Agent monitor for [Couchbase](https://www.couchbase.com/)\nthat uses the [couchbase collectd Python\nplugin](https://github.com/signalfx/collectd-couchbase) to collect metrics\nfrom Couchbase server instances.\n\nFor general reference on how to monitor Couchbase, see \u003ca target=\"_blank\"\nhref=\"http://blog.couchbase.com/monitoring-couchbase-cluster\"\u003eCouchbase\nMonitoring\u003c/a\u003e and \u003ca target=\"_blank\"\nhref=\"http://developer.couchbase.com/documentation/server/4.0/monitoring/monitoring-rest.html\"\u003eMonitor\nusing the REST API\u003c/a\u003e.\n\n\u003c!--- METRICS ---\u003e\n## Note on bucket metrics\n\nThis plugin emits some metrics about the bucket's performance across the\ncluster, and some metrics about the bucket's performance per node.\n\nMetrics beginning with `gauge.bucket.basic.*` and\n`gauge.bucket.quota.*` are reported once per cluster. All other\nbucket metrics (`gauge.bucket.*`) are reported by every node that hosts\nthat bucket. In order to analyze bucket performance for the entire bucket,\napply functions like Sum or Mean to group node-level metrics together by\nbucket.\n\n\u003c!--- SETUP ---\u003e\n## Example Config\n\nSample YAML configuration with custom query:\n\n```yaml\nmonitors:\n- type: collectd/couchbase\n  host: 127.0.0.1\n  port: 8091\n  collectTarget: \"NODE\"\n  clusterName: \"my-cluster\"\n  username: \"user\"\n  password: \"password\"\n```\n",
       "groups": {
@@ -6017,7 +6018,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -6103,6 +6103,7 @@
     {
       "monitorType": "collectd/cpu",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "**This monitor is deprecated in favor of the `cpu` monitor.  Please switch\nto that monitor, as this monitor will be removed in a future agent\nrelease.**\n\nThis monitor collects cpu usage data using the\ncollectd `cpu` plugin.  It aggregates the per-core CPU data into a single\nmetric and sends it to the SignalFx Metadata plugin in collectd, where the\nraw jiffy counts from the `cpu` plugin are converted to percent utilization\n(the `cpu.utilization` metric).\n\nSee https://collectd.org/wiki/index.php/Plugin:CPU\n",
       "groups": {
@@ -6171,7 +6172,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -6184,6 +6184,7 @@
     {
       "monitorType": "collectd/cpufreq",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Monitors the actual clock speed of each CPU on a\nhost.  Useful for systems that vary the clock speed to conserve energy.\n\nSee https://collectd.org/wiki/index.php/Plugin:CPUFreq\n",
       "groups": {
@@ -6203,7 +6204,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -6216,12 +6216,12 @@
     {
       "monitorType": "collectd/custom",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor lets you provide custom collectd\nconfiguration to be run by the managed collectd instance.  You can provide\nconfiguration for as many plugins as you want in a single instance of this\nmonitor configuration by either putting multiple `\u003cPlugin\u003e` blocks in a\nsingle `template` option, or specifying multiple `templates`.\n\nNote that a distinct instance of collectd is run for each instance of this\nmonitor, so it is more efficient to group plugin configurations into a\nsingle monitor configuration (either in one big `template` text blob, or\nsplit into multiple `templates`).  You should not group configurations if\nusing a discoveryRule since that would result in duplicate config for each\ninstance of the service endpoint discovered.\n\nYou can also use your own Python plugins in conjunction with the\n`ModulePath` option in\n[collectd-python](https://collectd.org/documentation/manpages/collectd-python.5.shtml).\nIf your Python plugin has dependencies of its own, you can specify the path\nto them by specifying multiple `ModulePath` options with those paths.\n\nHere is an example of a configuration with a custom Python plugin:\n\n```yaml\n  - type: collectd/custom\n    discoveryRule: container_image =~ \"myservice\"\n    template: |\n      LoadPlugin \"python\"\n      \u003cPlugin python\u003e\n        ModulePath \"/usr/lib/python2.7/dist-packages/health_checker\"\n        Import \"health_checker\"\n        \u003cModule health_checker\u003e\n          URL \"http://{{.Host}}:{{.Port}}\"\n          JSONKey \"isRunning\"\n          JSONVal \"1\"\n        \u003c/Module\u003e\n      \u003c/Plugin\u003e\n```\n\nWe have many collectd plugins included in the image that are not exposed as\nmonitors.  You can see the plugins in the `\u003cAGENT_BUNDLE\u003e/lib/collectd`\ndirectory, where `\u003cAGENT_BUNDLE\u003e` is the root of the filesystem in the\ncontainerized version, and is normally `/usr/lib/signalfx-agent` in the\nnon-containerized agent.\n\n## Running the collectd/exec plugin\nYou can use the collectd/custom monitor to run the collectd/exec plugin.\nIf you are not running the Smart Agent in the container, you can use any appropriate user\non your system.\nIf you are running the Smart Agent in a container, \nthen you need to use a non-root user when you run your script:\n\n```yaml\n  - type: collectd/custom\n    template: |\n      LoadPlugin exec\n      \u003cPlugin exec\u003e\n        Exec \"`non-root user`\" \"/path/to/script.sh\"\n      \u003c/Plugin\u003e\n```\n(replace `non-root user` with an actual non-root user on your host)\n\nTo learn how to use the collectd/exec plugin, see [the collectd-exec](https://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_exec)\ndocumentation.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the configuration for the collectd custom monitor",
@@ -6283,6 +6283,7 @@
     {
       "monitorType": "collectd/df",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Tracks free disk space on the host using the collectd [df\nplugin](https://collectd.org/wiki/index.php/Plugin:DF).\n\nNote that on Linux a filesystem **must** be mounted in the same filesystem\nnamespace that the agent is running in for this monitor to be able to\ncollect statistics about that filesystem.  This is mostly an issue when\nrunning the agent in a container.\n",
       "groups": {
@@ -6389,7 +6390,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -6482,6 +6482,7 @@
     {
       "monitorType": "collectd/disk",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor collects information about the usage of\nphysical disks and logical disks (partitions).\n\nSee https://collectd.org/wiki/index.php/Plugin:Disk.\n\n**This monitor has been deprecated in favor of the `disk-io` monitor.\nPlease migrate to that monitor as this collectd-based monitor will be\nremoved in a future release of the agent.**  Note that the `disk-io`\nmonitor has a different dimension (`disk` instead of `plugin_instance`) to\nspecify the disk.\n",
       "groups": {
@@ -6571,7 +6572,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -6604,6 +6604,7 @@
     {
       "monitorType": "collectd/elasticsearch",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Monitors ElasticSearch instances. We strongly recommend using the\n[elasticsearch](./elasticsearch.md) monitor instead, as it will\nscale much better.\n\nYou can also [view the source of the Python\nplugin](https://github.com/signalfx/collectd-elasticsearch).\n",
       "groups": {
@@ -7827,7 +7828,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -7982,6 +7982,7 @@
     {
       "monitorType": "collectd/etcd",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Monitors an etcd key/value store using the [collectd etcd Python plugin](https://github.com/signalfx/collectd-etcd).\n\nRequires etcd 2.0.8 or later.\n",
       "groups": {
@@ -8197,7 +8198,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -8283,6 +8283,7 @@
     {
       "monitorType": "collectd/genericjmx",
       "sendAll": false,
+      "sendUnknown": true,
       "dimensions": null,
       "doc": "Monitors Java services that expose metrics on JMX using collectd's\nGenericJMX plugin. The GenericJMX plugin reads Managed Beans (MBeans) from\nan MBeanServer using JMX. The monitor uses an embedded Java runtime in\ncollectd via the [Java\nplugin](https://collectd.org/wiki/index.php/Plugin:Java) of collectd.\n\nThe Java Management Extensions (JMX) is a generic framework to provide and\nquery various management information. The interface is used by the Java\nVirtual Machine (JVM) to provide information about the memory used, threads\nand so on. These basic performance values can therefore be collected for\nevery Java process without any support in the Java process itself.\n\nAdvanced Java processes can use the JMX interface to provide performance\ninformation themselves. The Apache Tomcat application server, for example,\nprovides information on the number of requests processed, the number of\nbytes sent, processing time, and thread counts.\n\nSee the following for more information\n- https://collectd.org/documentation/manpages/collectd-java.5.shtml\n- https://collectd.org/wiki/index.php/Plugin:GenericJMX\n\n\u003c!--- SETUP ---\u003e\n### Config Example\nExample (gets the thread count from a standard JMX MBean available on all\nJava JMX-enabled apps):\n\n```yaml\n\nmonitors:\n - type: collectd/genericjmx\n   host: my-java-app\n   port: 7099\n   mBeanDefinitions:\n     threading:\n       objectName: java.lang:type=Threading\n       values:\n       - type: gauge\n         table: false\n         instancePrefix: jvm.threads.count\n         attribute: ThreadCount\n```\n\n\u003c!--- SETUP ---\u003e\n## Troubleshooting\n\nExposing JMX in your Java application can be a tricky process.  Oracle has a\n[helpful guide for Java\n8](https://docs.oracle.com/javase/8/docs/technotes/guides/management/agent.html)\nthat explains how to expose JMX metrics automatically by setting Java\nproperties on your application.  Here are a set of Java properties that are\nknown to work with Java 7+:\n\n```\njava \\\n  -Dcom.sun.management.jmxremote.port=5000 \\\n  -Dcom.sun.management.jmxremote.authenticate=false \\\n  -Dcom.sun.management.jmxremote.ssl=false \\\n  -Dcom.sun.management.jmxremote.rmi.port=5000 \\\n  ...\n```\n\nThis should work as long as the agent is allowed to access port 5000 on the\nJava app's host (i.e. there is no firewall blocking it).  Note that this\ndoes not enable authentication or encryption, but these can be added if\ndesired.\n\nAssuming you have the `host` config set to `172.17.0.3` and the port set to\n`5000` (this is a totally arbitrary port and your JMX app will probably be\nsomething different), here are some errors you might receive and their\nmeanings:\n\n### Connection Refused\n```\nCreating MBean server connection failed: java.io.IOException: Failed to retrieve RMIServer stub: javax.naming.ServiceUnavailableException [Root exception is java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection refused (Connection refused)]\n```\n\nThis error indicates that the JMX connect port is not open on the specified\nhost.  Confirm (via netstat/ss or some other tool) that this port\nis indeed open on the configured host, and is listening on an appropriate\naddress (i.e. if the agent is running on a remote server then JMX should not\nbe listening on localhost only).\n\n### RMI Connection Issues\n\n```\nCreating MBean server connection failed: java.rmi.ConnectException: Connection refused to host: 172.17.0.3; nested exception is:\n     java.net.ConnectException: Connection timed out (Connection timed out)\n```\n\nThis indicates that the JMX connect port was reached successfully, but the\nRMI port that it was directed to is being blocked, probably by a firewall.\nThe easiest thing to do here is to make sure the\n`com.sun.management.jmxremote.rmi.port` property in your Java app is set to\nthe same port as the JMX connect port.  There may be other variations of\nthis that say `Connection reset` or `Connection refused` but they all\ngeneraly indicate a similar cause.\n",
       "groups": {
@@ -8351,7 +8352,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config has configuration that is specific to GenericJMX. This config should be used by a monitors that use the generic JMX collectd plugin.",
@@ -8563,6 +8563,7 @@
     {
       "monitorType": "collectd/hadoop",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Collects metrics about a Hadoop 2.0+ cluster using the [collectd Hadoop Python\nplugin](https://github.com/signalfx/collectd-hadoop). If a remote JMX port\nis exposed in the hadoop cluster, then you may also configure the\n[collectd/hadoopjmx](./collectd-hadoopjmx.md) monitor to collect additional\nmetrics about the hadoop cluster.\n\nThe `collectd/hadoop` monitor will collect metrics from the Resource Manager\nREST API for the following:\n- Cluster Metrics\n- Cluster Scheduler\n- Cluster Applications\n- Cluster Nodes\n- MapReduce Jobs\n\n\n\u003c!--- SETUP ---\u003e\n## Metric Endpoints in Hadoop\nSee the following links for more information about specific metric endpoints:\n\n\u003ca target=\"_blank\" href=\"https://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-common/Metrics.html\"\u003ehttps://hadoop.apache.org/docs/r2.7.4/hadoop-project-dist/hadoop-common/Metrics.html\u003c/a\u003e\n\n\u003ca target=\"_blank\" href=\"https://hadoop.apache.org/docs/r2.7.4/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html\"\u003ehttps://hadoop.apache.org/docs/r2.7.4/hadoop-yarn/hadoop-yarn-site/ResourceManagerRest.html\u003c/a\u003e\n\n\u003ca target=\"_blank\" href=\"https://hadoop.apache.org/docs/current/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapredAppMasterRest.html\"\u003ehttps://hadoop.apache.org/docs/current/hadoop-mapreduce-client/hadoop-mapreduce-client-core/MapredAppMasterRest.html\u003c/a\u003e\n\n\u003c!--- SETUP ---\u003e\n## Sample Config\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/hadoop\n  host: 127.0.0.1\n  port: 8088\n```\n",
       "groups": {
@@ -9759,7 +9760,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -9805,6 +9805,7 @@
     {
       "monitorType": "collectd/hadoopjmx",
       "sendAll": false,
+      "sendUnknown": true,
       "dimensions": null,
       "doc": "Collects metrics about a Hadoop 2.0+ cluster using using collectd's GenericJMX\nplugin. You may also configure the\n[collectd/hadoop](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/collectd-hadoop.md)\nmonitor to collect additional metrics about the hadoop cluster from the\nREST API\n\nTo enable JMX in Hadoop, add the following JVM options to hadoop-env.sh and yarn-env.sh respectively\n\n**hadoop-env.sh:**\n```sh\nexport HADOOP_NAMENODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5677 $HADOOP_NAMENODE_OPTS\"\nexport HADOOP_DATANODE_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5679 $HADOOP_DATANODE_OPTS\"\n```\n\n**yarn-env.sh:**\n```sh\nexport YARN_NODEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=8002 $YARN_NODEMANAGER_OPTS\"\nexport YARN_RESOURCEMANAGER_OPTS=\"-Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.port=5680 $YARN_RESOURCEMANAGER_OPTS\"\n```\n\nThis monitor has a set of built in MBeans configured for:\n  - [Name Nodes](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/hadoopjmx/nameNodeMBeans.go)\n  - [Resource Manager](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/hadoopjmx/resourceManagerMBeans.go)\n  - [Node Manager](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/hadoopjmx/nodeManagerMBeans.go)\n  - [Data Nodes](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/hadoopjmx/dataNodeMBeans.go)\n\nSample YAML configuration:\n\nName Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5677\n  nodeType: nameNode\n```\n\nResource Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5680\n  nodeType: resourceManager\n```\n\nNode Manager\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 8002\n  nodeType: nodeManager\n```\n\nData Node\n```yaml\nmonitors:\n- type: collectd/hadoopjmx\n  host: 127.0.0.1\n  port: 5679\n  nodeType: dataNode\n```\n",
       "groups": {
@@ -10264,7 +10265,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -10484,12 +10484,12 @@
     {
       "monitorType": "collectd/health-checker",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "A simple Collectd Python-based monitor\nthat hits an endpoint and checks if the configured JSON value is returned in\nthe response body.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -10583,6 +10583,7 @@
     {
       "monitorType": "collectd/interface",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Collectd stats about network interfaces on the\nsystem by using the [collectd interface\nplugin](https://collectd.org/wiki/index.php/Plugin:Interface).\n\n**This monitor is deprecated in favor of the `net-io` monitor. Please\nswitch to that monitor as this monitor will be removed in a future release\nof the agent.**  Note that the `net-io` monitor uses the `interface`\ndimension to identify the network card instead of the `plugin_instance`\ndimension, but otherwise the metrics are the same.\n",
       "groups": {
@@ -10651,7 +10652,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -10686,6 +10686,7 @@
     {
       "monitorType": "collectd/jenkins",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Monitors jenkins by using the\n[jenkins collectd Python\nplugin](https://github.com/signalfx/collectd-jenkins), which collects\nmetrics from Jenkins instances by hitting these endpoints:\n[../api/json](https://wiki.jenkins.io/display/jenkins/remote+access+api)\n(job metrics)  and\n[metrics/\u0026lt;MetricsKey\u0026gt;/..](https://wiki.jenkins.io/display/JENKINS/Metrics+Plugin)\n(default and optional Codahale/Dropwizard JVM metrics).\n\nRequires Jenkins 1.580.3 or later, as well as the Jenkins Metrics Plugin (see Setup).\n\n\u003c!--- SETUP ---\u003e\n## Install Jenkins Metrics Plugin\nThis monitor requires the Metrics Plugin in Jenkins. Go to `Manage Jenkins -\u003e Manage Plugins -\u003e Available -\u003e Search \"Metrics Plugin\"`\nto find and install this plugin in your Jenkins UI.\n\n\n\u003c!--- SETUP ---\u003e\n## Example Config\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/jenkins\n  host: 127.0.0.1\n  port: 8080\n  metricsKey: reallylongmetricskey\n```\n\nSample YAML configuration with specific enhanced metrics included\n\n```yaml\nmonitors:\n- type: collectd/jenkins\n  host: 127.0.0.1\n  port: 8080\n  metricsKey: reallylongmetricskey\n  includeMetrics:\n  - \"vm.daemon.count\"\n  - \"vm.terminated.count\"\n```\n\nSample YAML configuration with all enhanced metrics included\n\n```yaml\nmonitors:\n- type: collectd/jenkins\n  host: 127.0.0.1\n  port: 8080\n  metricsKey: reallylongmetricskey\n  enhancedMetrics: true\n```\n",
       "groups": {
@@ -10796,7 +10797,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -10914,6 +10914,7 @@
     {
       "monitorType": "collectd/kafka",
       "sendAll": false,
+      "sendUnknown": true,
       "dimensions": null,
       "doc": "Monitors a Kafka instance using collectd's\nGenericJMX plugin. See the [collectd/genericjmx\nmonitor](./collectd-genericjmx.md)[](sfx_link:java) for more information on\nhow to configure custom MBeans, as well as information on troubleshooting\nJMX setup.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/kafka/mbeans.go)\nfor which it pulls metrics from Kafka's JMX endpoint.\n\nNote that this monitor supports Kafka v0.8.2.x and above. For Kafka v1.x.x and above,\napart from the list of default metrics, kafka.server:type=ZooKeeperClientMetrics,name=ZooKeeperRequestLatencyMs\nis a good metric to monitor since it gives an understanding of how long brokers wait for\nrequests to Zookeeper to be completed. Since Zookeeper is an integral part of a Kafka cluster,\nmonitoring it using the [Zookeeper\nmonitor](https://docs.signalfx.com/en/latest/integrations/agent/monitors/collectd-zookeeper.html)[](sfx_link:zookeeper)\nis recommended. It is also a good idea to monitor disk utilization and network metrics of\nthe underlying host.\n",
       "groups": {
@@ -11155,7 +11156,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -11375,6 +11375,7 @@
     {
       "monitorType": "collectd/kafka_consumer",
       "sendAll": false,
+      "sendUnknown": true,
       "dimensions": null,
       "doc": "Monitors a Java based Kafka consumer using [collectd's GenericJMX plugin](./collectd-genericjmx.md)[](sfx_link:java).\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/kafkaconsumer/mbeans.go)\nfor which it pulls metrics from the Kafka consumer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_consumer\n    host: localhost\n    port: 9099\n    mBeansToOmit:\n      - fetch-size-avg-per-topic\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new consumer API.\nAlso, per-topic metrics that are collected by default are not available through the new consumer API in\nv0.9.0.0 which can cause the logs to flood with warnings related to the MBean not being found.\nUse the `mBeansToOmit` config option in such cases. The above example configuration will not attempt to\ncollect the MBean referenced by `fetch-size-avg-per-topic`. Here is a\n[list](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/kafkaconsumer/mbeans.go)\nof metrics collected by default.\n",
       "groups": {
@@ -11483,7 +11484,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config has configuration that is specific to GenericJMX. This config should be used by a monitors that use the generic JMX collectd plugin.",
@@ -11695,6 +11695,7 @@
     {
       "monitorType": "collectd/kafka_producer",
       "sendAll": false,
+      "sendUnknown": true,
       "dimensions": null,
       "doc": "Monitors a Java based Kafka producer using GenericJMX.\n\nThis monitor has a set of [built in MBeans\nconfigured](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/kafkaproducer/mbeans.go)\nfor which it pulls metrics from the Kafka producer's JMX endpoint.\n\nSample YAML configuration:\n```yaml\nmonitors:\n  - type: collectd/kafka_producer\n    host: localhost\n    port: 8099\n```\n\nNote that this monitor requires Kafka v0.9.0.0 or above and collects metrics from the new producer API.\n",
       "groups": {
@@ -11838,7 +11839,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config has configuration that is specific to GenericJMX. This config should be used by a monitors that use the generic JMX collectd plugin.",
@@ -12050,6 +12050,7 @@
     {
       "monitorType": "collectd/kong",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Monitors a Kong instance using\n[collectd-kong](https://github.com/signalfx/collectd-kong).  The Smart\nAgent includes collectd and this plugin as part of the standard\ninstallation, so no additional installation is required once you have the\nSmart Agent.\n\nThe SignalFx Kong collectd plugin provides users with the ability to gather\nand report their service traffic metrics with collectd, in tandem with\n[kong-plugin-signalfx](https://github.com/signalfx/kong-plugin-signalfx).\n\nThis plugin emits metrics for configurable request/response lifecycle groups including:\n\n* Counters for response counts\n* Counters for cumulative response and request sizes\n* Counters for cumulative request, upstream, and Kong latencies\n\nThese request/response lifecycle groups can be optionally partitioned by tunable levels of granularity by:\n\n* API or Service Name/ID\n* Route ID\n* Request HTTP Method\n* Response HTTP Status Code\n\nIn addition to these groups, system-wide connection stats can be provided, including:\n\n* A counter for total fielded requests\n* Gauges for active connections and their various states\n* A gauge for database connectivity\n\nThe `metrics` field below is populated with a set of metrics that are\ndescribed at https://github.com/signalfx/collectd-kong/blob/master/README.md.\n\n\u003c!--- SETUP ---\u003e\n### Install Kong Lua Plugin\n\nPlease download and install this Lua module on all Kong servers by\nfollowing [these instructions](https://github.com/signalfx/kong-plugin-signalfx/blob/master/README.md).\n\n### REQUIREMENTS AND DEPENDENCIES\n\nThis plugin requires:\n\n| Software          | Version        |\n|-------------------|----------------|\n| Kong | 0.11.2+ |\n| Configured [kong-plugin-signalfx](https://github.com/signalfx/kong-plugin-signalfx) | 0.0.1+ |\n\n\n\u003c!--- SETUP ---\u003e\n## Example Config\n#\nSample YAML configuration:\n\n```yaml\nmonitors:\n  - type: collectd/kong\n    host: 127.0.0.1\n    port: 8001\n    metrics:\n      - metric: request_latency\n        report: true\n      - metric: connections_accepted\n        report: false\n```\n\nSample YAML configuration with custom /signalfx route and white and blacklists\n\n```yaml\nmonitors:\n  - type: collectd/kong\n    host: 127.0.0.1\n    port: 8443\n    url: https://127.0.0.1:8443/routed_signalfx\n    authHeader:\n      header: Authorization\n      value: HeaderValue\n    metrics:\n      - metric: request_latency\n        report: true\n    reportStatusCodeGroups: true\n    statusCodes:\n      - 202\n      - 403\n      - 405\n      - 419\n      - \"5*\"\n    serviceNamesBlacklist:\n      - \"*SomeService*\"\n```\n",
       "groups": {
@@ -12160,7 +12161,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -12492,6 +12492,7 @@
     {
       "monitorType": "collectd/load",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Monitors process load on the host using the collectd\n[Load plugin](https://collectd.org/wiki/index.php/Plugin:Load).\n\n**This monitor has been deprecated in favor of the `load` monitor. That\nmonitor emits the same metrics and is fully compatible.  This\n`collectd/load` monitor will be removed in a future release of the agent.\"\n",
       "groups": {
@@ -12525,7 +12526,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -12537,138 +12537,139 @@
     },
     {
       "monitorType": "collectd/marathon",
-      "sendAll": false,
+      "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Monitors a Mesos Marathon instance using the\n[collectd Marathon Python plugin](https://github.com/signalfx/collectd-marathon).\n\nSee the [integrations\ndoc](https://docs.signalfx.com/en/latest/integrations/integrations-reference/integrations.marathon.html)\nfor more information on configuration.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n  - type: collectd/marathon\n    host: 127.0.0.1\n    port: 8080\n    scheme: http\n```\n\nSample YAML configuration for DC/OS:\n\n```yaml\nmonitors:\n  - type: collectd/marathon\n    host: 127.0.0.1\n    port: 8080\n    scheme: https\n    dcosAuthURL: https://leader.mesos/acs/api/v1/auth/login\n```\n",
       "groups": {
         "": {
           "description": "",
           "metrics": [
-            "gauge.marathon.app.cpu.allocated",
-            "gauge.marathon.app.cpu.allocated.per.instance",
-            "gauge.marathon.app.delayed",
-            "gauge.marathon.app.deployments.total",
-            "gauge.marathon.app.disk.allocated",
-            "gauge.marathon.app.disk.allocated.per.instance",
-            "gauge.marathon.app.gpu.allocated",
-            "gauge.marathon.app.gpu.allocated.per.instance",
-            "gauge.marathon.app.instances.total",
-            "gauge.marathon.app.memory.allocated",
-            "gauge.marathon.app.memory.allocated.per.instance",
-            "gauge.marathon.app.tasks.running",
-            "gauge.marathon.app.tasks.staged",
-            "gauge.marathon.app.tasks.unhealthy",
-            "gauge.marathon.task.healthchecks.failing.total",
-            "gauge.marathon.task.healthchecks.passing.total",
-            "gauge.marathon.task.staged.time.elapsed",
-            "gauge.marathon.task.start.time.elapsed"
+            "gauge.service.mesosphere.marathon.app.cpu.allocated",
+            "gauge.service.mesosphere.marathon.app.cpu.allocated.per.instance",
+            "gauge.service.mesosphere.marathon.app.delayed",
+            "gauge.service.mesosphere.marathon.app.deployments.total",
+            "gauge.service.mesosphere.marathon.app.disk.allocated",
+            "gauge.service.mesosphere.marathon.app.disk.allocated.per.instance",
+            "gauge.service.mesosphere.marathon.app.gpu.allocated",
+            "gauge.service.mesosphere.marathon.app.gpu.allocated.per.instance",
+            "gauge.service.mesosphere.marathon.app.instances.total",
+            "gauge.service.mesosphere.marathon.app.memory.allocated",
+            "gauge.service.mesosphere.marathon.app.memory.allocated.per.instance",
+            "gauge.service.mesosphere.marathon.app.tasks.running",
+            "gauge.service.mesosphere.marathon.app.tasks.staged",
+            "gauge.service.mesosphere.marathon.app.tasks.unhealthy",
+            "gauge.service.mesosphere.marathon.task.healthchecks.failing.total",
+            "gauge.service.mesosphere.marathon.task.healthchecks.passing.total",
+            "gauge.service.mesosphere.marathon.task.staged.time.elapsed",
+            "gauge.service.mesosphere.marathon.task.start.time.elapsed"
           ]
         }
       },
       "metrics": {
-        "gauge.marathon.app.cpu.allocated": {
+        "gauge.service.mesosphere.marathon.app.cpu.allocated": {
           "type": "gauge",
           "description": "Number of CPUs allocated to an application",
           "group": null,
           "default": true
         },
-        "gauge.marathon.app.cpu.allocated.per.instance": {
+        "gauge.service.mesosphere.marathon.app.cpu.allocated.per.instance": {
           "type": "gauge",
           "description": "Configured number of CPUs allocated to each application instance",
           "group": null,
           "default": true
         },
-        "gauge.marathon.app.delayed": {
+        "gauge.service.mesosphere.marathon.app.delayed": {
           "type": "gauge",
           "description": "Indicates if the application is delayed or not",
           "group": null,
           "default": false
         },
-        "gauge.marathon.app.deployments.total": {
+        "gauge.service.mesosphere.marathon.app.deployments.total": {
           "type": "gauge",
           "description": "Number of application deployments",
           "group": null,
           "default": false
         },
-        "gauge.marathon.app.disk.allocated": {
+        "gauge.service.mesosphere.marathon.app.disk.allocated": {
           "type": "gauge",
           "description": "Storage allocated to a Marathon application",
           "group": null,
           "default": true
         },
-        "gauge.marathon.app.disk.allocated.per.instance": {
+        "gauge.service.mesosphere.marathon.app.disk.allocated.per.instance": {
           "type": "gauge",
           "description": "Configured storage allocated each to application instance",
           "group": null,
           "default": true
         },
-        "gauge.marathon.app.gpu.allocated": {
+        "gauge.service.mesosphere.marathon.app.gpu.allocated": {
           "type": "gauge",
           "description": "GPU Allocated to a Marathon application",
           "group": null,
           "default": false
         },
-        "gauge.marathon.app.gpu.allocated.per.instance": {
+        "gauge.service.mesosphere.marathon.app.gpu.allocated.per.instance": {
           "type": "gauge",
           "description": "Configured number of GPUs allocated to each application instance",
           "group": null,
           "default": false
         },
-        "gauge.marathon.app.instances.total": {
+        "gauge.service.mesosphere.marathon.app.instances.total": {
           "type": "gauge",
           "description": "Number of application instances",
           "group": null,
           "default": true
         },
-        "gauge.marathon.app.memory.allocated": {
+        "gauge.service.mesosphere.marathon.app.memory.allocated": {
           "type": "gauge",
           "description": "Memory Allocated to a Marathon application",
           "group": null,
           "default": true
         },
-        "gauge.marathon.app.memory.allocated.per.instance": {
+        "gauge.service.mesosphere.marathon.app.memory.allocated.per.instance": {
           "type": "gauge",
           "description": "Configured amount of memory allocated to each application instance",
           "group": null,
           "default": true
         },
-        "gauge.marathon.app.tasks.running": {
+        "gauge.service.mesosphere.marathon.app.tasks.running": {
           "type": "gauge",
           "description": "Number tasks running for an application",
           "group": null,
           "default": true
         },
-        "gauge.marathon.app.tasks.staged": {
+        "gauge.service.mesosphere.marathon.app.tasks.staged": {
           "type": "gauge",
           "description": "Number tasks staged for an application",
           "group": null,
           "default": true
         },
-        "gauge.marathon.app.tasks.unhealthy": {
+        "gauge.service.mesosphere.marathon.app.tasks.unhealthy": {
           "type": "gauge",
           "description": "Number unhealthy tasks for an application",
           "group": null,
           "default": true
         },
-        "gauge.marathon.task.healthchecks.failing.total": {
+        "gauge.service.mesosphere.marathon.task.healthchecks.failing.total": {
           "type": "gauge",
           "description": "The number of failing health checks for a task",
           "group": null,
           "default": true
         },
-        "gauge.marathon.task.healthchecks.passing.total": {
+        "gauge.service.mesosphere.marathon.task.healthchecks.passing.total": {
           "type": "gauge",
           "description": "The number of passing health checks for a task",
           "group": null,
           "default": true
         },
-        "gauge.marathon.task.staged.time.elapsed": {
+        "gauge.service.mesosphere.marathon.task.staged.time.elapsed": {
           "type": "gauge",
           "description": "The amount of time the task spent in staging",
           "group": null,
           "default": false
         },
-        "gauge.marathon.task.start.time.elapsed": {
+        "gauge.service.mesosphere.marathon.task.start.time.elapsed": {
           "type": "gauge",
           "description": "Time elapsed since the task started",
           "group": null,
@@ -12676,7 +12677,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -12746,6 +12746,7 @@
     {
       "monitorType": "collectd/memcached",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Monitors an instance of memcached using the [collectd memcached\nplugin](https://collectd.org/wiki/index.php/Plugin:memcached).  Requires\nMemcached 1.1 or later.\n\nThe monitor collects the following information from Memcached nodes:\n\n* request information (including hits, misses \u0026 evictions)\n* current connections\n* net input/output bytes\n* number of items cached\n\nDocumentation for Memcached can be found at https://github.com/memcached/memcached/wiki.\n",
       "groups": {
@@ -12933,7 +12934,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -12979,6 +12979,7 @@
     {
       "monitorType": "collectd/memory",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Sends memory usage stats for the underlying host.\nSee https://collectd.org/wiki/index.php/Plugin:Memory\n",
       "groups": {
@@ -13033,7 +13034,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -13046,6 +13046,7 @@
     {
       "monitorType": "collectd/mongodb",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "plugin_instance": {
           "description": "Port number of the MongoDB instance"
@@ -13597,7 +13598,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -13715,6 +13715,7 @@
     {
       "monitorType": "collectd/mysql",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Monitors a MySQL database server using collectd's [MySQL\nplugin](https://collectd.org/wiki/index.php/Plugin:MySQL). It supports\nMySQL versions 5.x or later.\n\nThis monitor connects to a MySQL instance and reports on the values\nreturned by a `SHOW STATUS` command. This includes the following:\n\n  - Number of commands processed\n  - Table and row operations (handlers)\n  - State of the query cache\n  - Status of MySQL threads\n  - Network traffic\n\n\u003c!--- SETUP ---\u003e\n### Note on localhost\nOn Unix, MySQL programs treat the host name `localhost` specially, in a way\nthat is likely different from what is expected compared to other\nnetwork-based programs. For connections to `localhost`, MySQL programs\nattempt to connect to the local server by using a Unix socket file. To ensure\nthat the client makes a TCP/IP connection to the local server specify a host\nname value of `127.0.0.1`, or the IP address or name of the local server.\n\n\u003c!--- SETUP ---\u003e\n### Databases\nYou have to specify each database you want to monitor individually under\nthe `databases` config option.  If you have a common authentication to all\ndatabases being monitored, you can specify that in the top-level\n`username`/`password` options, otherwise they can be specified at the\ndatabase level.\n\n\n\u003c!--- SETUP ---\u003e\n### Example Config\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: collectd/mysql\n   host: 127.0.0.1\n   port: 3306\n   databases:\n     - name: dbname\n     - name: securedb\n       username: admin\n       password: s3cr3t\n   username: dbuser\n   password: passwd\n```\n",
       "groups": {
@@ -14938,7 +14939,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -15039,6 +15039,7 @@
     {
       "monitorType": "collectd/nginx",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Monitors an NGINX instance using our fork of the\ncollectd nginx plugin based on the [collectd nginx\nplugin](https://collectd.org/wiki/index.php/Plugin:nginx).\n\nNote that this montior requires special configuration enabled in NGINX (see Setup).\n\n\u003c!--- SETUP ---\u003e\n### NGINX-specific configuration\n\nYou must configure NGINX to expose status information by editing the NGINX\nconfiguration.  Please see\n[ngx_http_stub_status_module](http://nginx.org/en/docs/http/ngx_http_stub_status_module.html)\nfor a guide to configuring the NGINX stats module\n`ngx_http_stub_status_module`.\n",
       "groups": {
@@ -15107,7 +15108,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -15177,6 +15177,7 @@
     {
       "monitorType": "collectd/openstack",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "plugin": {
           "description": "This is always set to `openstack`."
@@ -15581,7 +15582,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -15651,6 +15651,7 @@
     {
       "monitorType": "collectd/postgresql",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "**This monitor is deprecated in favor of the [postgresql monitor](./postgresql.md).**\n\nMonitors a PostgreSQL database server using collectd's\n[PostgreSQL plugin](https://collectd.org/wiki/index.php/Plugin:PostgreSQL).\n\nYou have to specify each database you want to monitor individually under the\n`databases` key.  If you have a common authentication to all databases being\nmonitored, you can specify that in the top-level `username`/`password`\noptions, otherwise they can be specified at the database level.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/postgresql\n  host: 127.0.0.1\n  port: 5432\n  username: \"username1\"\n  password: \"password1\"\n  databases:\n  - name: \"testdb\"\n    username: \"test_user\"\n    password: \"test_pwd\"\n```\n\nSample YAML configuration with custom query:\n\n```yaml\nmonitors:\n- type: collectd/postgresql\n  host: 127.0.0.1\n  port: 5432\n  username: \"username1\"\n  password: \"password1\"\n  queries:\n  - name: \"exampleQuery\"\n    params:\n    - \"hostname\"\n    statement: \"Select * From test Where host = $1;\"\n    results:\n    - type: \"gauge\"\n      valuesFrom:\n      - \"test\"\n      instancePrefix: \"test\"\n databases:\n - name: \"test\"\n   username: \"username2\"\n   password: \"password2\"\n   queries:\n   - \"exampleQuery\"\n\nmetricsToInclude:\n   - metricNames:\n     - gauge.test\n     monitorType: collectd/postgresql\n```\nNote that the metric names for the additional metrics picked up from the\nqueries provided depend on the type, instancePrefix and/or instancesFrom\nparameters being passed in.\nSee [PostgreSQL plugin](https://collectd.org/wiki/index.php/Plugin:PostgreSQL)\nfor details.\n",
       "groups": {
@@ -15824,7 +15825,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -16067,6 +16067,7 @@
     {
       "monitorType": "collectd/processes",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Gathers information about processes running on\nthe host.  See\nhttps://collectd.org/documentation/manpages/collectd.conf.5.shtml#plugin_processes\nand https://collectd.org/wiki/index.php/Plugin:Processes for more\ninformation on the configuration options.\n\nExample:\n\n```yaml\n procPath: /proc\n monitors:\n  - type: collectd/processes\n    processes:\n      - mysql\n      - myapp\n    processMatch:\n      docker: \"docker.*\"\n    collectContextSwitch: true\n```\n\nThe above config will send process metrics for processes named *mysql* and\n*myapp*, along with additional metrics on the number of context switches the\nprocess has made.  Also, all processes that start with `docker` will have\ntheir process metrics aggregated together and sent with a `plugin_instance`\nvalue of `docker`.\n",
       "groups": {
@@ -16247,7 +16248,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -16293,6 +16293,7 @@
     {
       "monitorType": "collectd/protocols",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Gathers metrics about the network protocol\nstacks running on the system by using the [collectd protocols\nplugin](https://collectd.org/wiki/index.php/Plugin:Protocols).\n",
       "groups": {
@@ -16354,7 +16355,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -16367,12 +16367,12 @@
     {
       "monitorType": "collectd/python",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor runs arbitrary collectd Python\nplugins directly, apart from collectd.  It implements a mock collectd Python\ninterface that supports most, but not all, of the real collectd.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config specifies configurations that are specific to the individual python based monitor",
@@ -16442,6 +16442,7 @@
     {
       "monitorType": "collectd/rabbitmq",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Monitors an instance of RabbitMQ using the [collectd RabbitMQ Python\nPlugin](https://github.com/signalfx/collectd-rabbitmq). This monitor uses\nthe [RabbitMQ Management HTTP\nAPI](https://www.rabbitmq.com/management.html) to poll for statistics on a\nRabbitMQ server, then reports them to the agent.  Works for RabbitMQ 3.0\nand later.\n\n**Note that you must individually enable each of the five `collect*`\noptions to get metrics pertaining to those facets of a RabbitMQ instance.\nIf none of them are enabled, no metrics will be sent.**\n",
       "groups": {
@@ -17237,7 +17238,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -17355,6 +17355,7 @@
     {
       "monitorType": "collectd/redis",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "plugin_instance": {
           "description": "Identifies the Redis instance -- will be of the form `\u003chost\u003e_\u003cport\u003e`."
@@ -17637,7 +17638,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -17730,6 +17730,7 @@
     {
       "monitorType": "collectd/signalfx-metadata",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Collectd Python plugin that aggregates various metrics from other collectd\nplugins.\n\nIt has deprecated functionality to send host metadata and process \"top\"\ninfo, but this has been replaced by the `host-metadata` and `processlist`\nmonitors, respectively.\n\nYou can also [view the Python plugin\ncode](https://github.com/signalfx/collectd-signalfx/).\n",
       "groups": {
@@ -17791,7 +17792,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -17893,6 +17893,7 @@
     {
       "monitorType": "collectd/solr",
       "sendAll": false,
+      "sendUnknown": true,
       "dimensions": null,
       "doc": "Monitors Solr instances by using the [collectd Solr\nplugin](https://github.com/signalfx/collectd-solr).  Supports Solr 6.6 and\nlater.\n\n*NOTE: This plugin can collect metrics from Solr only when a Solr instance is running in SolrCloud mode*\n\nThe [solr-collectd](https://github.com/signalfx/collectd-solr) plugin\ncollects metrics from solr instances hitting these endpoints:\n\n - [statistics](https://lucene.apache.org/solr/guide/6_6/performance-statistics-reference.html) (default metrics)\n - [metrics](https://lucene.apache.org/solr/guide/6_6/metrics-reporting.html) (optional metrics)\n\n\n\u003c!--- SETUP ---\u003e\n### Sample YAML configuration\n\n```yaml\nmonitors:\n- type: collectd/solr\n  host: 127.0.0.1\n  port: 8983\n```\n",
       "groups": {
@@ -18241,7 +18242,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -18311,6 +18311,7 @@
     {
       "monitorType": "collectd/spark",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "cluster": {
           "description": "set to value corresponding to key `cluster` in configuration file"
@@ -18960,7 +18961,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -19030,12 +19030,12 @@
     {
       "monitorType": "collectd/statsd",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "The StatsD plugin for collectd listens for StatsD\nevents, aggregates them and transmits them according to collectd's\nconfiguration. Use this plugin to send data from StatsD to SignalFx [statsd\nplugin](https://collectd.org/wiki/index.php/Plugin:StatsD).\n\nSignalFx supports `Counter`, `Timer` and `Gauge` types which are dispatched\nas the collectd types - `derive`, `latency` and `gauge` respectively.\nIn SignalFx, for a statsd metric, its collectd type is attached as a\nprefix to the metric name. As an example, if you send in the gauge -\n\n```\n$ echo \"statsd.test:1|g\" | nc -w 1 -u 127.0.0.1 8125\n```\n\nThis will be reported to SignalFx as \"gauge.statsd.test\"\n\n### USAGE\n\n#### Adding dimensions to StatsD metrics\n\nAdd dimensions to your metrics by adding key-value pairs to your StatsD\nmetric names as follows:\n\n```\n$ echo \"statsd.[foo=bar,dim=val]test:1|g\" | nc -w 1 -u 127.0.0.1 8125\n```\n\nThis creates a metric called `statsd.test` of type gauge, with dimensions\n`foo=bar` and `dim=val`.\n\n#### Delete[Type]s boolean setting\n\nThese options control what happens if metrics are not updated in an\ninterval. If set to False, the default, metrics are dispatched unchanged,\ni.e. the rate of counters and size of sets will be zero, timers report NaN\nand gauges are unchanged. If set to True, the such metrics are not\ndispatched and removed from the internal cache.\n\nSignalFx's default configuration for this plugin sets all `Delete[Type]s`\nconfiguration options to `True`. We strongly recommend this in order to\nensure that metrics that have stopped reporting are not reported as 0 in\nperpetuity. Setting these parameters to `False` results in collectd's memory\nusage increasing over time, as the set of metrics reported from StatsD grows\nindefinitely. This is especially important in environments that are\nlong-running or whose metrics change frequently.\n\n#### CounterSum boolean setting\n\nWhen enabled, creates a count metric which reports the change since the last\nread. This option primarily exists for compatibility with the statsd\nimplementation by Etsy.\n\nIf you are only looking at the counts generated by each reporting interval,\nequivalent to\n[Counters](https://docs.signalfx.com/en/latest/metrics-metadata/metric-types.html?highlight=Counters)\nin SignalFx then we'd recommend that you set CounterSum to `True`. It will\nsend in an additional counter metric with a prefix of `count`.\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: collectd/statsd\n   listenAddress: \"0.0.0.0\"\n   listenPort: 8125\n   deleteSets: true\n   timerPercentile: 90.0\n```\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -19144,7 +19144,8 @@
     },
     {
       "monitorType": "collectd/systemd",
-      "sendAll": true,
+      "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "plugin": {
           "description": "The name of the collectd plugin. Facilitates filtering operations in the SignalFx app"
@@ -19274,7 +19275,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -19320,6 +19320,7 @@
     {
       "monitorType": "collectd/uptime",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Sends a single metric of the total number of\nseconds the host has been up, using the [collectd uptime\nplugin](https://collectd.org/wiki/index.php/Plugin:Uptime).\n",
       "groups": {
@@ -19339,7 +19340,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -19352,6 +19352,7 @@
     {
       "monitorType": "collectd/vmem",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Collects information about the virtual memory\nsubsystem of the kernel using the [collectd vmem\nplugin](https://collectd.org/wiki/index.php/Plugin:vmem).  There is no\nconfiguration available for this plugin.\n\n**This monitor is deprecated in favor of the `vmem` monitor.  The metrics\nshould be fully compatible with this monitor.** This monitor will be\nremoved in a future agent release.\n",
       "groups": {
@@ -19427,7 +19428,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -19440,6 +19440,7 @@
     {
       "monitorType": "collectd/zookeeper",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Monitors an Apache Zookeeper instance using the [Zookeeper collectd\nplugin](https://github.com/signalfx/collectd-zookeeper). This plugin is\ninstalled with the Smart Agent so no additional installation is required to\nuse this monitor.  Supports Zookeeper 3.4.0 or later.\n",
       "groups": {
@@ -19564,7 +19565,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the monitor-specific config with the generic config embedded",
@@ -19610,6 +19610,7 @@
     {
       "monitorType": "conviva",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor uses version 2.4 of the Conviva Experience Insights REST APIs to pull\n`Real-Time/Live` video playing experience metrics from Conviva.\n\nOnly `Live` conviva metrics listed\n[here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics)\nare supported. All metrics are gauges. The Conviva metrics are converted to SignalFx metrics with dimensions\nnamed account and filter. The account dimension is the name of the Conviva account and the filter dimension\nis the name of the Conviva filter applied to the metric. In the case of MetricLenses, the constituent\nMetricLens metrics and MetricLens dimensions are included. The values of the MetricLens dimensions are\nderived from the values of the associated MetricLens dimension entities.\n\nBelow is a sample YAML configuration showing the most basic configuration of the Conviva monitor\nusing only the required fields. For this configuration the monitor will default to fetching quality MetricLens\nmetrics for all dimensions from the default Conviva account using the `All Traffic` filter.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n```\n\nIndividual metrics are configured as a list of metricConfigs as shown in sample configuration below. The\nmetrics a fetched using the specified metricParameter. Find the list of metric parameters [below](#conviva-monitor-metric-parameters-and-metrics).\nThe Conviva metrics reported to SignalFx are prefixed by `conviva.`, `conviva.quality_metriclens.` and\n`conviva.audience_metriclens.` accordingly. The metric names are the `titles` of the metrics, which correspond to the Conviva\n`metric parameters` [here](https://community.conviva.com/site/global/apis_data/experience_insights_api/index.gsp#metrics).\nWhere an account is not provided the default account is fetched and used. Where no filters are specified the\n`All Traffic` filter is used. Where MetricLens dimensions are not specified all MetricLens dimensions\nare fetched and used. The `_ALL_` keyword means all. MetricLens dimension configuration applies only to MetricLenses.\nIf specified for a regular metric they will be ignored. MetricLens dimensions listed in `excludeMetricLensDimensions`\nwill be excluded.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n metricConfigs:\n   - account: c3.NBC\n     metricParameter: quality_metriclens\n     filters:\n       - All Traffic\n     metricLensDimensions:\n       - Cities\n   - metricParameter: avg_bitrate\n     maxFiltersPerRequest: 99\n     filters:\n       - _ALL_\n   - metricParameter: concurrent_plays\n   - metricParameter: audience_metriclens\n     filters:\n       - All Traffic\n     metricLensDimensions:\n       - _ALL_\n     excludeMetricLensDimensions:\n       - CDNs\n```\n\nAdd the extra dimension metric_source as shown in sample configuration below for the convenience of searching\nfor your metrics in SignalFx using the metric_source value you specify. Also, version 2.4 of the Conviva Experience\nInsights REST APIs limits the number of filters per request to 99. Specify the maximum number of filters per request\nusing `maxFiltersPerRequest` as shown in the example above in order to limit the number of filters per request.\n\n```\nmonitors:\n- type: conviva\n pulseUsername: \u003cusername\u003e\n pulsePassword: \u003cpassword\u003e\n extraDimensions:\n   metric_source: conviva\n```\n\n## Conviva Monitor Metric Parameters and Metrics\n\nMetric Parameters are conviva monitor metricParameter configuration values. Metrics are the metrics that get reported to SignalFx\n\n|Metric Parameters|Metrics|Description|\n|----------------|------|-----------|\n|attempts|conviva.\u003cbr/\u003eattempts|Attempts time-series|\n|avg_bitrate|conviva.\u003cbr/\u003eavg_bitrate|Average bitrate time-series|\n|concurrent_plays|conviva.\u003cbr/\u003econcurrent_plays|Concurrent plays time-series|\n|connection_induced\u003cbr/\u003e_rebuffering_ratio|conviva.\u003cbr/\u003econnection_induced\u003cbr/\u003e_rebuffering_ratio|Connection induced rebuffering ratio simple-series|\n|connection_induced\u003cbr/\u003e_rebuffering_ratio\u003cbr/\u003e_timeseries|conviva.\u003cbr/\u003econnection_induced\u003cbr/\u003e_rebuffering_ratio\u003cbr/\u003e_timeseries|Connection induced rebuffering ratio time-series|\n|duration_connection\u003cbr/\u003e_induced_rebuffering\u003cbr/\u003e_ratio_distribution|conviva.\u003cbr/\u003eduration_connection\u003cbr/\u003e_induced_rebuffering\u003cbr/\u003e_ratio_distribution|Duration vs. connection induced rebuffering ratio distribution label-series|\n|exits_before\u003cbr/\u003e_video_star|conviva.\u003cbr/\u003eexits_before\u003cbr/\u003e_video_start|Exits before video start time-series|\n|ended_plays|conviva.\u003cbr/\u003eended_plays|Ended plays simple-series|\n|ended_plays\u003cbr/\u003e_timeseries|conviva.\u003cbr/\u003eended_plays\u003cbr/\u003e_timeseries|Ended plays time-series|\n|plays|conviva.\u003cbr/\u003eplays|Plays time-series|\n|play_bitrate\u003cbr/\u003e_distribution|conviva.\u003cbr/\u003eplay_bitrate\u003cbr/\u003e_distribution|Play bitrate distribution label-series|\n|play_buffering\u003cbr/\u003e_ratio_distribution|conviva.\u003cbr/\u003eplay_buffering\u003cbr/\u003e_ratio_distribution|Play buffering ratio distribution label-series|\n|play_connection\u003cbr/\u003e_induced_rebuffering\u003cbr/\u003e_ratio_distribution|conviva.\u003cbr/\u003eplay_connection\u003cbr/\u003e_induced_rebuffering\u003cbr/\u003e_ratio_distribution|Play connection induced rebuffering ratio distribution label-series|\n|quality_summary|conviva.\u003cbr/\u003equality_summary|Quality summary label-series|\n|rebuffered_plays|conviva.\u003cbr/\u003erebuffered_plays|Rebuffered plays time-series|\n|rebuffering_ratio|conviva.\u003cbr/\u003erebuffering_ratio|Rebuffering ratio time-series|\n|top_assets_15_mins|conviva.\u003cbr/\u003etop_assets_15_mins|Top assets over last 15 minutes simple-table|\n|top_assets_summary|conviva.\u003cbr/\u003etop_assets_summary|Top assets summary label-series|\n|video_playback\u003cbr/\u003e_failures|conviva.\u003cbr/\u003evideo_playback\u003cbr/\u003e_failures|Video playback failures simple-series|\n|video_playback\u003cbr/\u003e_failures_timeseries|conviva.\u003cbr/\u003evideo_playback\u003cbr/\u003e_failures_timeseries|Video playback failures time-series|\n|video_playback\u003cbr/\u003e_failures_distribution|conviva.\u003cbr/\u003evideo_playback\u003cbr/\u003e_failures_distribution|Video playback failures distribution label-series|\n|video_restart\u003cbr/\u003e_time|conviva.\u003cbr/\u003evideo_restart\u003cbr/\u003e_time|Video restart time simple-series|\n|video_restart\u003cbr/\u003e_time_timeseries|conviva.\u003cbr/\u003evideo_restart\u003cbr/\u003e_time_timeseries|Video restart time time-series|\n|video_restart\u003cbr/\u003e_time_distribution|conviva.\u003cbr/\u003evideo_restart_time\u003cbr/\u003e_distribution|Video restart time distribution label-series|\n|video_start\u003cbr/\u003e_failures|conviva.\u003cbr/\u003evideo_start\u003cbr/\u003e_failures|Video start failures time-series|\n|video_start\u003cbr/\u003e_failures_errornames|conviva.\u003cbr/\u003evideo_start\u003cbr/\u003e_failures_errornames|Video start failures by error names simple-table|\n|video_startup_time|conviva.\u003cbr/\u003evideo_startup_time|Video startup time label-series|\n|quality_metriclens|conviva.\u003cbr/\u003equality_metriclens.\u003cbr/\u003etotal_attempts|Attempts|\n||conviva.\u003cbr/\u003equality_metriclens.\u003cbr/\u003evideo_start\u003cbr/\u003e_failures_percent|Video Start Failures(VSF) (%)|\n||conviva.\u003cbr/\u003equality_metriclens.\u003cbr/\u003eexits_before\u003cbr/\u003e_video_start\u003cbr/\u003e_percent|Exits Before Video Starts (EBVS) (%)|\n||conviva.\u003cbr/\u003equality_metriclens.\u003cbr/\u003eplays_percent|Plays (%)|\n||conviva.\u003cbr/\u003equality_metriclens.\u003cbr/\u003evideo_startup\u003cbr/\u003e_time_sec|Video Startup Time (sec)|\n||conviva.\u003cbr/\u003equality_metriclens.\u003cbr/\u003erebuffering_ratio\u003cbr/\u003e_percent|Rebuffering Ratio (%)|\n||conviva.\u003cbr/\u003equality_metriclens.\u003cbr/\u003eaverage_bitrate\u003cbr/\u003e_kbps|Average Bitrate (bps). This metric can be returned in kbps with the ab_units=kbps parameter. Unless this parameter is specified, average bitrate is bps.|\n||conviva.\u003cbr/\u003equality_metriclens.\u003cbr/\u003evideo_playback\u003cbr/\u003e_failures_percent|Video Playback Failures (%)|\n||conviva.\u003cbr/\u003equality_metriclens.\u003cbr/\u003eended_plays|Ended Plays|\n||conviva.\u003cbr/\u003equality_metriclens.\u003cbr/\u003econnection_induced\u003cbr/\u003e_rebuffering_ratio\u003cbr/\u003e_percent|Connection Induced ReBuffering Ratio (%)|\n||conviva.\u003cbr/\u003equality_metriclens.\u003cbr/\u003evideo_restart_time|Video Restart Time|\n|audience_metriclens|conviva.\u003cbr/\u003eaudience_metriclens.\u003cbr/\u003econcurrent_plays|Concurrent Plays|\n||conviva.\u003cbr/\u003eaudience_metriclens.\u003cbr/\u003eplays|Plays|\n||conviva.\u003cbr/\u003eaudience_metriclens.\u003cbr/\u003eended_plays|Ended Plays|\n",
       "groups": {
@@ -20049,7 +20050,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -20150,6 +20150,7 @@
     {
       "monitorType": "coredns",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor scrapes prometheus metrics exposed by CoreDNS. The default port for these metrics\nare exposed on port 9153, at the /metrics path. For more information about CoreDNS prometheus\nmetrics, check out their [documentation](https://coredns.io/plugins/metrics/).\n\nThe following is an example configuration for a Kubernetes environment:\n\n```\nmonitors:\n- type: coredns\n  discoveryRule: kubernetes_pod_name =~ \"coredns\" \u0026\u0026 port == 9153\n  extraDimensions:\n    metric_source: \"k8s-coredns\"\n```",
       "groups": {
@@ -20561,7 +20562,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -20687,6 +20687,7 @@
     {
       "monitorType": "cpu",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor reports cpu metrics.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: cpu\n```\n",
       "groups": {
@@ -20718,7 +20719,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -20731,6 +20731,7 @@
     {
       "monitorType": "disk-io",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "disk": {
           "description": "The name of the disk that the metric describes"
@@ -20852,7 +20853,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -20894,6 +20894,7 @@
     {
       "monitorType": "docker-container-stats",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor reads container stats from a\nDocker API server.  It is meant as a metric-compatible replacement of our\n[docker-collectd](https://github.com/signalfx/docker-collectd-plugin)\nplugin, which scales rather poorly against a large number of containers.\n\nThis currently does not support CPU share/quota metrics.\n\nFor more information on block IO metrics, see [the Linux cgroup block io\ncontroller\ndoc](https://www.kernel.org/doc/Documentation/cgroup-v1/blkio-controller.txt).\n\nIf you are running the agent directly on a host (outside of a container\nitself) and you are using the default Docker UNIX socket URL, you will\nprobably need to add the `signalfx-agent` user to the `docker` group in\norder to have permission to access the Docker API via the socket.\n\nRequires Docker API version 1.22+.\n",
       "groups": {
@@ -21565,7 +21566,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -21651,6 +21651,7 @@
     {
       "monitorType": "dotnet",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "(Windows Only) This monitor reports metrics for .NET applications.\n\nThe most critical .NET performance counters\n* exceptions\n* logical threads\n* physical threads\n* heap bytes\n* time in GC\n* committed bytes\n* pinned objects\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually Gauges\nthat represent rates per second and percentages.\n\nThis monitor reports the instantaneous values for these Windows Performance Counters.\nThis means that in between a collection interval, spikes could occur on the\nPerformance Counters.  The best way to mitigate this limitation is to increase\nthe reporting interval on this monitor to collect more frequently.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: dotnet\n```\n",
       "groups": {
@@ -21740,7 +21741,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -21770,6 +21770,7 @@
     {
       "monitorType": "ecs-metadata",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor reads container stats from a\n[ECS Task Metadata Endpoint version 2](https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-metadata-endpoint-v2.html).\n\nThis currently does not support CPU share/quota metrics.\n",
       "groups": {
@@ -22028,7 +22029,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -22114,6 +22114,7 @@
     {
       "monitorType": "elasticsearch",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "aggregation": {
           "description": "Aggregation of index metrics. Whether the value of the metric is from the primary shard only or across all shards. Valid values - primaries, total respectively (only on index stats)"
@@ -23400,7 +23401,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -23657,12 +23657,12 @@
     {
       "monitorType": "elasticsearch-query",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "**This monitor is in beta.**\n\nThis monitor metricizes aggregated responses from Elasticsearch. The monitor\nconstructs SignalFx datapoints based on Elasticsearch aggregation types and\nalso aggregation names.\n\nAn simple configuration looks like the following:\n\n```yaml\nmonitors:\n- type: elasticsearch-query\n host: localhost\n port: 9200\n index: \u003cname_of_index\u003e\n elasticsearchRequest: |\n    {\n      \"query\" : {\n        \"range\" : {\n          \"@timestamp\" : {\n            \"gte\": \"now-5m\"\n          }\n        }\n      },\n      \"aggs\": {\n        \"avg_cpu_utilization\": {\n          \"avg\": {\n            \"field\": \"cpu_utilization\"\n          }\n        }\n      }\n    }\nintervalSeconds: 300\n```\n\nThe `elasticsearchRequest` takes in a `string` request in the format specified\n[here] (https://www.elastic.co/guide/en/elasticsearch/reference/current/search-request-body.html).\n\nThe above query is performed against an index that has documents that take the following form\n\n```\n{\n   'cpu_utilization':87,\n   'memory_utilization':94,\n   'host':'helsniki',\n   'service':'android',\n   'container_id':'macbook',\n   '@timestamp':1580321240579\n}\n```\n\nThe query specified in `elasticsearchRequest` returns the average value of `cpu_utilization` across all documents with a `@timestamp`\nin the last five minutes. This value is metricized to the following form in SignalFx :\n\n```\n{\nmetric_name: avg_cpu_utilization,\ndimensions:\n  index: \u003cname_of_index\u003e\n  metric_aggregation_type: avg\n}\n```\n\n## Data Model Transformation\n\nRead through the following section to understand how this monitor transforms Elasticsearch\nresponses to SignalFx datapoints.\n\nAt high level this monitor metricizes responses of the following types -\n\n1. Metric aggregations inside one or more Bucket aggregations such as the `terms` and `filters`\naggregations. Dimensions on a datapoint are determined by the aggregation name (dimension name)\nand the `key` of each bucket (dimension value). The metric name is derived from the type of\nMetric aggregation name and it's values in case of multi-value aggregations. A dimension called\n`metric_aggregation_type` will also be set on the corresponding datapoints. See below for examples.\n\n2. Metric aggregations applied without any Bucket aggregation will be transformed just like in\nthe above case.\n\n3. Bucket aggregations that do not have any Metric aggregations as sub aggregations will be\ntransformed to a metric called `\u003cname_of_aggregation\u003e.doc_count` and will have `bucket_aggregation_name`\ndimension apart from the `key` of each bucket.\n\n**Note**: Since Bucket aggregations determine dimensions in SignalFx, in most cases Bucket aggregations\nshould be performed on `string` fields that represent a slice of the data from Elasticsearch.\n\n## Examples\n\n1. `avg` metric aggregation as a sub aggregation of `terms` bucket aggregation\n\n\n```json\n{\n  \"aggs\":{\n    \"host\" : {\n      \"terms\":{\"field\" : \"host\"},\n      \"aggs\": {\n        \"average_cpu_usage\": {\n          \"avg\": {\n            \"field\": \"cpu_utilization\"\n          }\n        }\n      }\n    }\n  }\n}\n```\n\nThe above query will result in a metric called `elasticsearch_query.average_cpu_usage` and each datapoint\nwill have a `host` dimension with its value being the `key` of a bucket in the response. The type of the\nmetric aggregation (`avg`) will be set on the datapoint as `metric_aggregation_type` dimension. If the response\nlooked like the below json, 4 datapoints would be collected, each with a different value for `host`.\n\n```json\n...\n\"aggregations\" : {\n  \"host\" : {\n    \"doc_count_error_upper_bound\" : 0,\n    \"sum_other_doc_count\" : 0,\n    \"buckets\" : [\n      {\n        \"key\" : \"helsniki\",\n        \"doc_count\" : 13802,\n        \"average_cpu_usage\" : {\n          \"value\" : 49.77438052456166\n        }\n      },\n      {\n        \"key\" : \"lisbon\",\n        \"doc_count\" : 13802,\n        \"average_cpu_usage\" : {\n          \"value\" : 49.919866685987536\n        }\n      },\n      {\n        \"key\" : \"madrid\",\n        \"doc_count\" : 13802,\n        \"average_cpu_usage\" : {\n          \"value\" : 49.878350963628456\n        }\n      },\n      {\n        \"key\" : \"nairobi\",\n        \"doc_count\" : 13802,\n        \"average_cpu_usage\" : {\n          \"value\" : 49.99789885523837\n        }\n      }\n    ]\n  }\n}\n...\n```\n\n2. `extended_stats` metric aggregation as a sub aggregation of `terms` bucket aggregation\n\n\n```json\n{\n \"aggs\":{\n   \"host\" : {\n     \"terms\":{\"field\" : \"host\"},\n     \"aggs\": {\n       \"cpu_usage_stats\": {\n         \"extended_stats\": {\n           \"field\": \"cpu_utilization\"\n         }\n       }\n     }\n   }\n }\n}\n```\n\n```json\n...\n\"aggregations\" : {\n  \"host\" : {\n    \"doc_count_error_upper_bound\" : 0,\n    \"sum_other_doc_count\" : 0,\n    \"buckets\" : [\n      {\n        \"key\" : \"helsniki\",\n        \"doc_count\" : 13996,\n        \"cpu_usage_stats\" : {\n          \"count\" : 13996,\n          \"min\" : 0.0,\n          \"max\" : 100.0,\n          \"avg\" : 49.86660474421263,\n          \"sum\" : 697933.0\n        }\n      },\n      {\n        \"key\" : \"lisbon\",\n        \"doc_count\" : 13996,\n        \"cpu_usage_stats\" : {\n          \"count\" : 13996,\n          \"min\" : 0.0,\n          \"max\" : 100.0,\n          \"avg\" : 49.88225207202058,\n          \"sum\" : 698152.0\n        }\n      },\n      {\n        \"key\" : \"madrid\",\n        \"doc_count\" : 13996,\n        \"cpu_usage_stats\" : {\n          \"count\" : 13996,\n          \"min\" : 0.0,\n          \"max\" : 100.0,\n          \"avg\" : 49.92469276936267,\n          \"sum\" : 698746.0\n        }\n      },\n      {\n        \"key\" : \"nairobi\",\n        \"doc_count\" : 13996,\n        \"cpu_usage_stats\" : {\n          \"count\" : 13996,\n          \"min\" : 0.0,\n          \"max\" : 100.0,\n          \"avg\" : 49.98320948842527,\n          \"sum\" : 699565.0\n        }\n      }\n    ]\n  }\n}\n...\n```\n\nIn this case, each bucket will result 5 metrics -\n\n  1. `cpu_usage_stats.count`\n  2. `cpu_usage_stats.min`\n  3. `cpu_usage_stats.max`\n  4. `cpu_usage_stats.avg`\n  5. `cpu_usage_stats.sum`\n\nThe dimensions are derived in the same manner as the previous example.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -23780,6 +23780,7 @@
     {
       "monitorType": "etcd",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor reports etcd server metrics under the `/metrics` path on its\nclient port and optionally on locations given by `--listen-metrics-urls`.\nNote that this monitor collects metrics solely from the prometheus endpoint,\nunlike the `collectd/etcd` monitor which collects  metrics from the `/stats`\nendpoint.\n\nAn example configuration for this monitor:\n\n```yaml\nmonitors:\n- type: etcd\n  discoveryRule: kubernetes_pod_name =~ \"etcd\" \u0026\u0026 target == \"pod\"\n  port: 2379\n  useHTTPS: true\n  skipVerify: true\n  sendAllMetrics: true\n  clientCertPath: /var/lib/minikube/certs/etcd/server.crt\n  clientKeyPath: /var/lib/minikube/certs/etcd/server.key\n  extraDimensions:\n    metric_source: etcd\n```\n\nNote that the above config assumes that the client certificate and key are accessible\nby the SignalFx Agent in the specified path.",
       "groups": {
@@ -25241,7 +25242,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -25367,6 +25367,7 @@
     {
       "monitorType": "expvar",
       "sendAll": false,
+      "sendUnknown": true,
       "dimensions": null,
       "doc": "The expvar monitor is a SignalFx Smart Agent monitor that scrapes metrics from variables exposed in JSON\nformat at an HTTP endpoint by [expvar](https://golang.org/pkg/expvar/). The monitor uses configured paths\nto get metric and dimension values from fetched JSON objects.\n\nThe Metrics section in this document shows metrics derived from expvar variable\n[memstats](https://golang.org/pkg/runtime/). The memstat variable is exposed by default. These memstat\nmetrics are referred to as standard or default metrics. The configuration examples shown are excerpts\nlimited to the monitor configuration section of the SignalFx Smart Agent configuration file `agent.yml`.\n\nBelow is an example showing the minimal required expvar monitor configuration for exporting\nthe default metrics from endpoint `http://172.17.0.3:8000/debug/vars`. `/debug/vars` is the default path.\n```\nmonitors:\n- type: expvar\n  host: 172.17.0.3\n  path: /debug/vars\n  port: 8000\n```\nWe recommend you include the extra dimension `metric_source` with a meaningful value in order to facilitate\nfiltering in the SignalFx app. See below.\n```\nmonitors:\n- type: expvar\n  host: 172.17.0.3\n  path: /debug/vars\n  port: 8000\n  extraDimensions:\n    metric_source: expvar\n```\nBelow is an example showing part of a JSON payload containing the exposed variable `requestsPerSecond` containing\nrequests per second metric information.\n```\n{\n  ...\n  \"requestsPerSecond\": 919,\n  ...\n}\n```\nSuppose that the payload is emanating from endpoint `http://172.17.0.4:6000/appmetrics`. The monitor can be\nconfigured as shown below in order to scrape `requestsPerSecond`. The metric name is optional. If not provided,\nthe JSONPath value `requestsPerSecond` snake cased to `requests_per_second` will be used instead.\n```\nmonitors:\n- type: expvar\n  host: 172.17.0.4\n  path: /debug/vars\n  port: 6000\n  metrics:\n    - name: requests.sec\n      JSONPath: requestsPerSecond\n      type: gauge\n  extraDimensions:\n    metric_source: expvar-aws\n```\nThe expvar monitor can be configured to extract metric values from complex JSON objects such as the one shown\nbelow. Suppose the `memstats` variable shown below is exposed at endpoint `http://172.17.0.5:5000/debug/vars`\nand you want to extract the cumulative `Mallocs` values.\n```\n{\n  ...\n  \"memstats\": {\n                ...\n                \"GCCPUFraction\": 0.0000032707490586459204,\n                \"BySize\": [\n                  {\n                      \"Size\": 32,\n                      \"Mallocs\": 35387,\n                      \"Frees\": 35021\n                  },\n                  {\n                      \"Size\": 48,\n                      \"Mallocs\": 35387,\n                      \"Frees\": 63283\n                  }\n                ]\n                \"HeapAlloc\": 2138088,\n                ...\n              }\n  ...\n}\n```\nTo fetch the first cumulative `Mallocs` value in the `BySize` array configure the monitor as shown below. The\nconfigured path (JSONPath) contains character delimited keys of metric values in the JSON object. The path must\nbe defined fully, terminating on primitive values or array of primitive values. The path should not terminated\non embedded object(s). No metric name was provided for this configuration so the metric name defaults to\n`memstats.by_size.mallocs`. Also, a dimension named `memstats_by_size_index` containing the array index 0 is\ncreated.\n```\nmonitors:\n- type: expvar\n  host: 172.12.0.5\n  path: /debug/vars\n  port: 5000\n  metrics:\n    - JSONPath: memstats.BySize.0.Mallocs\n      type: cumulative\n  extraDimensions:\n    metric_source: expvar\n```\n`.` is the default path separator character and thus no need to specify. Below is the same configuration using\n `/` as the path separator character.\n```\nmonitors:\n- type: expvar\n  host: 172.12.0.5\n  path: /debug/vars\n  port: 5000\n  metrics:\n    - JSONPath: memstats/BySize/0/Mallocs\n      pathSeparator: /\n      type: cumulative\n  extraDimensions:\n    metric_source: expvar\n```\nTo fetch all `Mallocs` values or a combination thereof, configure JSONPath with regular expression. The\nconfiguration below configures the monitor to fetch all 2 `Mallocs` values (35387 and 35387). Two data points\nfor metric `memstats.by_size.mallocs` containing the values will be fetched. The datapoints will have dimension\n`memstats_by_size_index` containing their respective array index. Note that the escape character `\\` is used to\nescape character `.` of regex `.*` in order take `.` literally as opposed to a path separator character.\n```\nmonitors:\n- type: expvar\n  host: 172.12.0.5\n  path: /debug/vars\n  port: 5000\n  metrics:\n    - JSONPath: memstats.BySize.\\\\.*.Mallocs\n      type: cumulative\n  extraDimensions:\n    metric_source: expvar\n```\nThe configuration below will fetch all the `BySize` values.\n```\nmonitors:\n- type: expvar\n  host: 172.12.0.5\n  path: /debug/vars\n  port: 5000\n  metrics:\n    - JSONPath: memstats.BySize.\\\\.*.\\\\.*\n      type: cumulative\n  extraDimensions:\n    metric_source: expvar\n```\nThe configuration below will also fetch all the `BySize` values.\n```\nmonitors:\n- type: expvar\n  host: 172.12.0.5\n  path: /debug/vars\n  port: 5000\n  metrics:\n    - JSONPath: memstats.BySize.\\\\d+.\\\\.*\n      type: cumulative\n  extraDimensions:\n    metric_source: expvar\n```\nCustom dimensions can be added to metrics as shown below. The dimension name is required if a dimension\nvalue is provided. The dimension name is optional when JSONPath for the dimension is provided.\n```\nmonitors:\n- type: expvar\n  host: 172.12.0.5\n  path: /debug/vars\n  port: 5000\n  metrics:\n    - JSONPath: memstats.BySize.\\\\.*.Mallocs\n      type: cumulative\n      - dimensions:\n        name: physical_memory\n        value: 4GiB\n      - name: app_mem\n        value: \"10 MiB\"\n  extraDimensions:\n    metric_source: expvar\n```\nThe dimension JSONPathcan be configured as shown below. If the dimension name is not provided the dimension\nname is constructed from snake casing the JSONPath. The dimension JSONPath must be shorter than the metric JSONPath\nand start at same root. So, for the configuration below, dimensions `memory_stats` and `memstats_by_size` will\ncontain values `BySize` and `0` respectively.\n```\nmonitors:\n- type: expvar\n  host: 172.12.0.5\n  path: /debug/vars\n  port: 5000\n  metrics:\n    - JSONPath: memstats.BySize.0.Mallocs\n      type: cumulative\n      - dimensions:\n        name: memory_stats\n        JSONPath: memstats\n      - dimensions:\n        JSONPath: memstats/BySize\n  extraDimensions:\n    metric_source: expvar\n```\n DO NOT\nconfigure the monitor for memstats metrics because they are standard metrics provided by default. We use memstats\nhere to provide a realistic example.\n",
       "groups": {
@@ -25617,7 +25618,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for monitor configuration",
@@ -25765,6 +25765,7 @@
     {
       "monitorType": "filesystems",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor reports metrics about free disk space on mounted devices.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /hostfs/proc\nmonitors:\n - type: filesystems\n   hostFSPath: /hostfs\n```\n",
       "groups": {
@@ -25857,7 +25858,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -25895,6 +25895,7 @@
     {
       "monitorType": "gitlab",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "GitLab is an open-source web-based git repository manager developed by\nGitLab Inc. GitLab has built-in features for creating wiki pages,\nissue-tracking and CI/CD pipelines. GitLab is bundled with [Prometheus\nexporters](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html)\nthat can be configured to export performance metrics of itself and that of\nthe bundled software that GitLab depends on. These exporters publish\nPrometheus metrics at endpoints are scraped by this monitor.\n\n### REQUIREMENTS AND DEPENDENCIES\n\n| Software | Version |\n|----------|---------|\n| GitLab   | 9.3+    |\n\n### INSTALLATION\n\n### CONFIGURATION\n#### GitLab Configuration\n\nFollow the instructions\n[here](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html)\nto configure the GitLab's Prometheus exporters to expose metric endpoint\ntargets. For GitLab Runner monitoring configuration go\n[here](https://docs.gitlab.com/runner/monitoring/README.html).\n\nNote that configuring GitLab by editing `/etc/gitlab/gitlab.rb` should be\naccompanied by running the command `gitlab-ctl reconfigure` in order for\nthe changes to take effect.\n\nAlso, configuring Nginx by editing the file\n`/var/opt/gitlab/nginx/conf/nginx-status.conf`, for instance, should be\naccompanied by running command `gitlab-ctl restart`. Note that changes to\nthe configuration file `/var/opt/gitlab/nginx/conf/nginx-status.conf` in\nparticular are erased by subsequent runs of command `gitlab-ctl\nreconfigure` because `gitlab-ctl reconfigure` restores the original\nconfiguration file.\n\nBelow is a list of some of the Prometheus endpoint targets with links to\ntheir respective configuration pages. Note that target `gitlab_monitor`\nmetrics are just targets `gitlab_monitor_database`,\n`gitlab_monitor_process` and `gitlab_monitor_sidekiq` metrics combined.\n\n| Agent Monitor Type    |     Gitlab Doc                           | Standard Port | Standard Path |\n|-----------------------|------------------------------------------|---------------|---------------|\n| gitlab | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_exporter.html) | 9168 | /metrics |\n| [gitlab-gitaly](./gitlab-gitaly.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/gitaly/#doc-nav) | 9236 | /metrics |\n| [gitlab-sidekiq](./gitlab-sidekiq.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8082 | /metrics |\n| [gitlab-unicorn](./gitlab-unicorn.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/gitlab_metrics.html#unicorn-metrics-available) | 8080 | /-/metrics |\n| [gitlab-workhorse](./gitlab-workhorse.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9229 | /metrics |\n| [prometheus/nginx-vts](./prometheus-nginx-vts.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 8060 | /metrics |\n| [prometheus/node](./prometheus-node.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/node_exporter.html) | 9100 | /metrics |\n| [promteheus/postgres](./prometheus-postgres.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/postgres_exporter.html) | 9187 | /metrics |\n| [prometheus/prometheus](./prometheus-prometheus.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9090 | /metrics |\n| [prometheus/redis](./prometheus-redis.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/redis_exporter.html) | 9121 | /metrics |\n| [gitlab-runner](./gitlab-runner.md) | [Gitlab doc](https://docs.gitlab.com/ee/administration/monitoring/prometheus/index.html) | 9252 | /metrics |\n\nGitLab Prometheus exporters, Nginx and GitLab Runner must be configured to\nlisten to IP address(es) that include the IP address of the host or docker\ncontainer of the SignalFx Smart Agent. For example, the configuration below\nin `/etc/gitlab/gitlab.rb` configures the GitLab Postgres Prometheus\nexporter to allow network connections on port `9187` from any IP address.\n\n```\npostgres_exporter['listen_address'] = '0.0.0.0:9187'\n```\n\nThe above configuration can also be written as:\n\n```\npostgres_exporter['listen_address'] = ':9187'\n```\n\nBelow is part of file `/var/opt/gitlab/nginx/conf/nginx-status.conf`\nshowing the `location /metrics` block for metric related configuration.\nThis file configures Nginx. The statement `allow 172.17.0.0/16;` allows\nnetwork connection in the `172.17.0.0/16` IP range. The assumption is that\nthe IP address associated with the SignalFx Smart Agent is in that IP\nrange.\n\n```\nserver {\n    ...\n    location /metrics {\n    ...\n    allow 172.17.0.0/16;\n    deny all;\n    }\n}\n```\n\nBelow is part of the global section of `/etc/gitlab-runner/config.toml`. This file configures GitLab Runner. The statement below configures GitLab Runner's Prometheus metrics HTTP server to allows network connection on port `9252` from any IP address.\n\n```\nlisten_address = \"0.0.0.0:9252\"\n...\n\n```\n\n#### Sample Config\n\nTo monitor everything we support in Gitlab, use the following configuration in the Smart Agent config:\n\n```\nmonitors:\n - type: gitlab-unicorn\n   host: localhost\n   port: 8080\n\n - type: gitlab\n   host: localhost\n   port: 9168\n\n - type: gitlab-runner\n   host: localhost\n   port: 9252\n\n - type: gitlab-workhorse\n   host: localhost\n   port: 9229\n\n - type: gitlab-sidekiq\n   host: localhost\n   port: 8082\n\n - type: gitlab-gitaly\n   host: localhost\n   port: 9236\n\n - type: prometheus/postgres\n   host: localhost\n   port: 9187\n\n - type: prometheus/nginx-vts\n   host: localhost\n   port: 8060\n\n```\n\nYou can, of course, use auto-discovery by specifying a `discoveryRule` instead of `host` and `port`.\n",
       "groups": {
@@ -26271,7 +26272,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -26397,6 +26397,7 @@
     {
       "monitorType": "gitlab-gitaly",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor scrapes the [Gitlab Gitaly GRPC server](https://docs.gitlab.com/ee/administration/gitaly/).  See the [Gitlab monitor](gitlab.md) for more information.\n",
       "groups": {
@@ -26500,7 +26501,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -26626,6 +26626,7 @@
     {
       "monitorType": "gitlab-runner",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Monitor for the [Gitlab runner service](https://docs.gitlab.com/runner/).  This usually runs on port 9252, so to monitor an instance on the same host as the agent, you can do:\n\n```yaml\nmonitors:\n- type: gitlab-runner\n  host: localhost\n  port: 9252\n```\n\nFor more information on configuring monitoring within Gitlab runner itself, see https://docs.gitlab.com/runner/monitoring/README.html.\n\nSee the [Gitlab monitor](gitlab.md) for more information.\n",
       "groups": {
@@ -26715,7 +26716,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -26841,6 +26841,7 @@
     {
       "monitorType": "gitlab-sidekiq",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor scrapes the Gitlab Sidekiq Prometheus Exporter.  See the [Gitlab monitor](gitlab.md) for more information.\n",
       "groups": {
@@ -26986,7 +26987,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -27112,6 +27112,7 @@
     {
       "monitorType": "gitlab-unicorn",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This is a monitor for GitLab's Unicorn server.  The Unicorn server comes\nwith a Prometheus exporter that runs by default on port 8080 at the path\n`/-/metrics`.  The IP address of the SignalFx Smart Agent container or\nhost, **needs to be whitelisted** as described\n[here](https://docs.gitlab.com/ee/administration/monitoring/ip_whitelist.html)\nin order for the agent to access the endpoint.\n\nTo monitor GitLab's Unicorn server using its Prometheus exporter, use a\nmonitor configuration similar to:\n\n```yaml\nmonitors:\n  - type: gitlab-unicorn\n    discoveryRule: port == 8080  # \u0026\u0026 \u003cother expressions to avoid false-positives on port alone\u003e\n    metricPath: /-/metrics\n```\n\nThe available metrics are [documented by GitLab](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/doc/administration/monitoring/prometheus/gitlab_metrics.md#unicorn-metrics-available).\n\nSee the [Gitlab monitor](gitlab.md) for more information.\n",
       "groups": {
@@ -27334,7 +27335,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -27460,6 +27460,7 @@
     {
       "monitorType": "gitlab-workhorse",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This is a monitor for [GitLab\nWorkhorse](https://gitlab.com/gitlab-org/gitlab-workhorse), the GitLab\nservice that handles slow HTTP requests.  Workhorse includes a built-in\nPrometheus exporter that this monitor will hit to gather metrics.  By\ndefault, the exporter runs on port 9229.\n\nTo monitor Workhorse using its Prometheus exporter, use a monitor configuration similar to:\n\n```yaml\nmonitors:\n  - type: gitlab-workhorse\n    discoveryRule: port == 9229  # \u0026\u0026 \u003cother expressions to avoid false-positives on port alone\u003e\n```\n\nSee the [Gitlab monitor](gitlab.md) for more information.\n",
       "groups": {
@@ -27654,7 +27655,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -27780,6 +27780,7 @@
     {
       "monitorType": "haproxy",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "process_id": {
           "description": "A number assigned to an HAProxy process instance (1 for first instance, 2 for second, ...)."
@@ -28343,7 +28344,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config is the config for this monitor.",
@@ -28437,6 +28437,7 @@
     {
       "monitorType": "heroku-metadata",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor collects metadata from a Heroku dyno and syncs them as properties\nto `dyno_id` dimension, which is synced by datapoints emitted by the\n[Heroku SignalFx Collector (https://github.com/signalfx/heroku-signalfx-collector).\n\nMetadata on Heroku dyno's need to be enabled explicitly. For information about this,\nsee [here] (https://devcenter.heroku.com/articles/dyno-metadata).\n",
       "groups": {},
@@ -28463,7 +28464,6 @@
           "description": "The commit hash for the current release"
         }
       },
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -28476,6 +28476,7 @@
     {
       "monitorType": "host-metadata",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "collectd": {
           "description": "The version of collectd in the signalfx-agent"
@@ -28514,7 +28515,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -28526,7 +28526,8 @@
     },
     {
       "monitorType": "internal-metrics",
-      "sendAll": false,
+      "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Emits metrics about the internal state of the\nagent.  Useful for debugging performance issues with the agent and to ensure\nthe agent isn't overloaded.\n\nThis can also scrape any HTTP endpoint that exposes metrics as a JSON array\ncontaining JSON-formatted SignalFx datapoint objects.  It is roughly\nanalogous to the `prometheus-exporter` monitor except for SignalFx\ndatapoints.\n\n```yaml\nmonitors:\n  - type: internal-metrics\n```\n",
       "groups": {
@@ -28563,9 +28564,9 @@
             "sfxagent.go_mallocs",
             "sfxagent.go_next_gc",
             "sfxagent.go_num_gc",
+            "sfxagent.go_num_goroutine",
             "sfxagent.go_stack_inuse",
-            "sfxagent.go_total_alloc",
-            "sfxgent.go_num_goroutine"
+            "sfxagent.go_total_alloc"
           ]
         }
       },
@@ -28750,6 +28751,12 @@
           "group": null,
           "default": true
         },
+        "sfxagent.go_num_goroutine": {
+          "type": "gauge",
+          "description": "Number of goroutines in the agent",
+          "group": null,
+          "default": true
+        },
         "sfxagent.go_stack_inuse": {
           "type": "gauge",
           "description": "Size in bytes of spans that have at least one goroutine stack in them",
@@ -28761,16 +28768,9 @@
           "description": "Total number of bytes allocated to the heap throughout the lifetime of the agent",
           "group": null,
           "default": true
-        },
-        "sfxgent.go_num_goroutine": {
-          "type": "gauge",
-          "description": "Number of goroutines in the agent",
-          "group": null,
-          "default": true
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for internal metric monitoring",
@@ -28808,12 +28808,12 @@
     {
       "monitorType": "jaeger-grpc",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Runs a GRPC server that listens for Jaeger trace batches\nand forwards them to SignalFx (or the configured ingest host in the\n`writer` section of the agent config).  By default, the server listens on\nlocalhost port 14250 but can be configured to anything.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -28866,12 +28866,12 @@
     {
       "monitorType": "java-monitor",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor allows you to generate metrics from a Java application.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config specifies configurations that are specific to the individual Java based monitor",
@@ -28940,13 +28940,13 @@
     },
     {
       "monitorType": "jmx",
-      "sendAll": false,
+      "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This montior allows you to run an arbitrary Groovy script to convert JMX\nMBeans fetched from a remote Java application to SignalFx datapoints.\nThis is a much more powerful and flexible alternative to the\n[collectd/genericjmx](./collectd-genericjmx.md) monitor.\n\nThe following utility helpers are available to use in the Groovy script\nwithin the `util` variable that will be set in the script's context:\n\n- `util.queryJMX(String objectName)`: This helper will\n  query the pre-configured JMX application for the given `objectName`,\n  which can include wildcards.  In any case, the return value will be a\n  `List` of zero or more `GroovyMBean` objects, which are a convenience\n  wrapper that Groovy provides to make accessing attribute on the MBean\n  simple. See http://groovy-lang.org/jmx.html for more information about\n  the `GroovyMBean` object.  You can use the Groovy `.first()` method on\n  the returned list to access the first MBean is you are only expecting\n  one.\n\n- `util.makeGauge(String name, double val, Map\u003cString, String\u003e\n  dimensions)`: A convenience function to create a SignalFx gauge\n  datapoint. This creates a `DataPoint` instance that can be fed to\n  `output.sendDatapoint[s]`.  This **does not send** the datapoint, only\n  creates it.\n\n- `util.makeCumulative(String name, double val, Map\u003cString, String\u003e dimensions)`:\n  A convenience function to create a SignalFx cumulative counter\n  datapoint.  This creates a `DataPoint` instance that can be fed to\n  `output.sendDatapoint[s]`.  This **does not send** the datapoint, only\n  creates it.\n\nThe `output` instance available in the script context is what is used to\nsend data to SignalFx.  It contains the following methods:\n\n- `output.sendDatapoint(DataPoint dp)` - Emit the given datapoint to\n  SignalFx.  We recommend using the `util.make[Gauge|Cumulative]` helpers\n  to create the `DataPoint` instance.\n\n- `output.sendDatapoints(List\u003cDataPoint\u003e dp)` - Emit the given datapoints\n  to SignalFx. We recommend using the `util.make[Gauge|Cumulative]`\n  helpers to create the `DataPoint` instance. It is slightly more\n  efficient to send multiple datapoints at once, but doesn't matter that\n  much unless sending very high volumes.\n\nHere is an example Groovy script that replicates some of the data\npresented by the Cassandra `nodetool status` utility:\n\n```groovy\n// Query the JMX endpoint for a single MBean.\nss = util.queryJMX(\"org.apache.cassandra.db:type=StorageService\").first()\n\n// Copied and modified from https://github.com/apache/cassandra\ndef parseFileSize(String value) {\n\tif (!value.matches(\"\\\\d+(\\\\.\\\\d+)? (GiB|KiB|MiB|TiB|bytes)\")) {\n\t\tthrow new IllegalArgumentException(\n\t\t\tString.format(\"value %s is not a valid human-readable file size\", value));\n\t}\n\tif (value.endsWith(\" TiB\")) {\n\t\treturn Math.round(Double.valueOf(value.replace(\" TiB\", \"\")) * 1e12);\n\t}\n\telse if (value.endsWith(\" GiB\")) {\n\t\treturn Math.round(Double.valueOf(value.replace(\" GiB\", \"\")) * 1e9);\n\t}\n\telse if (value.endsWith(\" KiB\")) {\n\t\treturn Math.round(Double.valueOf(value.replace(\" KiB\", \"\")) * 1e3);\n\t}\n\telse if (value.endsWith(\" MiB\")) {\n\t\treturn Math.round(Double.valueOf(value.replace(\" MiB\", \"\")) * 1e6);\n\t}\n\telse if (value.endsWith(\" bytes\")) {\n\t\treturn Math.round(Double.valueOf(value.replace(\" bytes\", \"\")));\n\t}\n\telse {\n\t\tthrow new IllegalStateException(String.format(\"FileUtils.parseFileSize() reached an illegal state parsing %s\", value));\n\t}\n}\n\nlocalEndpoint = ss.HostIdToEndpoint.get(ss.LocalHostId)\ndims = [host_id: ss.LocalHostId, cluster_name: ss.ClusterName]\n\noutput.sendDatapoints([\n\t// Equivalent of \"Up/Down\" in the `nodetool status` output.\n\t// 1 = Live; 0 = Dead; -1 = Unknown\n\tutil.makeGauge(\n\t\t\"cassandra.status\",\n\t\tss.LiveNodes.contains(localEndpoint) ? 1 : (ss.DeadNodes.contains(localEndpoint) ? 0 : -1),\n\t\tdims),\n\n\tutil.makeGauge(\n\t\t\"cassandra.state\",\n\t\tss.JoiningNodes.contains(localEndpoint) ? 3 : (ss.LeavingNodes.contains(localEndpoint) ? 2 : 1),\n\t\tdims),\n\n\tutil.makeGauge(\n\t\t\"cassandra.load\",\n\t\tparseFileSize(ss.LoadString),\n\t\tdims),\n\n\tutil.makeGauge(\n\t\t\"cassandra.ownership\",\n\t\tss.Ownership.get(InetAddress.getByName(localEndpoint)),\n\t\tdims)\n\t])\n\n```\n\nBe careful that your script is carefully tested before using it to monitor\na production JMX service.  The script can do anything exposed via JMX,\nincluding writing attributes and running methods via JMX. In general\nscripts should only read attributes, but nothing enforces that.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for the JMX Monitor",
@@ -29008,6 +29008,7 @@
     {
       "monitorType": "kube-controller-manager",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Exports Prometheus metrics from the [kube-controller-manager]\n(https://kubernetes.io/docs/reference/command-line-tools-reference/kube-controller-manager/).\nThe monitor queries path `/metrics` by default when no path is configured. The monitor converts\nthe Prometheus metric types to SignalFx metric types as described [here](prometheus-exporter.md)\n\nAn example configuration\n\n```yaml\nmonitors:\n- type: kube-controller-manager\n  discoveryRule: kubernetes_pod_name =~ \"kube-controller-manager\" \u0026\u0026 target == \"pod\"\n  port: 10252\n  extraDimensions:\n    metric_source: kube-controller-manager\n```\n\nNote that all metrics of this monitor are non-default and will be emitted only\nif specified explicitly.\n",
       "groups": {
@@ -32422,7 +32423,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -32548,6 +32548,7 @@
     {
       "monitorType": "kubelet-stats",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "container_id": {
           "description": "The ID of the running container"
@@ -32923,7 +32924,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "KubeletStatsConfig",
         "doc": "KubeletStatsConfig respresents config for the Kubelet stats monitor",
@@ -33008,6 +33008,7 @@
     {
       "monitorType": "kubernetes-apiserver",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor queries the Kubernetes API server for kube-apiserver metrics in Prometheus format.\nThe monitor queries path `/metrics` by default when no path is configured. The monitor converts\nthe Prometheus metric types to SignalFx metric types as described [here](prometheus-exporter.md)\n\nExample YAML Configuration\n\n```yaml\nmonitors:\n- type: kubernetes-apiserver\n  discoveryRule: Get(container_labels, \"component\") == \"kube-apiserver\"\n  extraDimensions:\n    metric_source: kubernetes-apiserver\n```\n",
       "groups": {
@@ -34912,7 +34913,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -35038,6 +35038,7 @@
     {
       "monitorType": "kubernetes-cluster",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "kubernetes_name": {
           "description": "The name of the resource that the metric describes"
@@ -35409,7 +35410,6 @@
           "description": "Timestamp (in RFC3339 format) representing the server time when the stateful set was created and is in UTC. This property is synced onto `kubernetes_uid`."
         }
       },
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for the K8s monitor",
@@ -35504,12 +35504,12 @@
     {
       "monitorType": "kubernetes-events",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor sends Kubernetes events as SignalFx\nevents.  Upon startup, it will send all of the events that K8s has that are\nstill persisted and then send any new events that come in.  The various\nagents perform leader election amongst themselves to decide which instance\nwill send events, unless the `alwaysClusterReporter` config option is set to\ntrue.\n\nTo use this monitor, will need to configure which events to send. You can\nsee the types of events happening in your cluster with\n`kubectl get events -o yaml --all-namespaces`.\nFrom the output, you can select which events you would like to send by picking\nout the Reason (Started, Created, Scheduled...) and\nKind (Pod, ReplicaSet, Deployment...) combinations. These are placed in the\nwhitelistedEvents configuration option as a list of events you want to send.\n\nExample YAML Configuration\n\n```\n- type: kubernetes-events\n  whitelistedEvents:\n    - reason: Created\n      involvedObjectKind: Pod\n    - reason: SuccessfulCreate\n      involvedObjectKind: ReplicaSet\n```\n\nEvent names will match the `reason` name.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for the K8s event monitor",
@@ -35617,6 +35617,7 @@
     {
       "monitorType": "kubernetes-proxy",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Exports Prometheus metrics from the [kube-proxy](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-proxy)\nmetrics in Prometheus format. The monitor queries path `/metrics` by default when no path is configured. The monitor converts\nthe Prometheus metric types to SignalFx metric types as described [here](prometheus-exporter.md)\n\nExample YAML Configuration\n\n```yaml\nmonitors:\n- type: kubernetes-proxy\n  discoveryRule: kubernetes_pod_name =~ \"kube-proxy\" \u0026\u0026 target == \"pod\"\n  configEndpointMappings:\n    host: '\"127.0.0.1\"'\n  port: 10249\n  extraDimensions:\n    metric_source: kubernetes-proxy\n```\n",
       "groups": {
@@ -36119,7 +36120,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -36245,6 +36245,7 @@
     {
       "monitorType": "kubernetes-scheduler",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Exports Prometheus metrics from the [kube-scheduler](https://kubernetes.io/docs/reference/command-line-tools-reference/kube-scheduler).\n",
       "groups": {
@@ -37083,7 +37084,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -37209,6 +37209,7 @@
     {
       "monitorType": "kubernetes-volumes",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": {
         "VolumeId": {
           "description": "(*EBS volumes only*) The EBS volume id of the underlying volume source"
@@ -37263,7 +37264,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -37403,6 +37403,7 @@
     {
       "monitorType": "load",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Monitors process load on the host. Process load is the average number of\nrunning or waiting processes over a certain time period (1, 5, and 15\nminutes).\n\nSee http://www.brendangregg.com/blog/2017-08-08/linux-load-averages.html\nfor a good explanation of load on Linux.\n\nThis monitor is only available on Linux.\n",
       "groups": {
@@ -37436,7 +37437,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -37458,6 +37458,7 @@
     {
       "monitorType": "logstash",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Monitors the health and performance of Logstash deployments through \nLogstash's [Monitoring APIs](https://www.elastic.co/guide/en/logstash/current/monitoring-logstash.html).\n",
       "groups": {
@@ -38069,7 +38070,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -38114,13 +38114,13 @@
     },
     {
       "monitorType": "logstash-tcp",
-      "sendAll": false,
+      "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Fetches events from the [logstash tcp output\nplugin](https://www.elastic.co/guide/en/logstash/current/plugins-outputs-tcp.html)\noperating in either `server` or `client` mode and converts them to SignalFx\ndatapoints.  It is meant to be used in conjunction with the Logstash\n[Metrics filter\nplugin](https://www.elastic.co/guide/en/logstash/current/plugins-filters-metrics.html)\nthat turns events into metrics.\n\nYou can only use auto-discovery when this monitor is in `client` mode.\n\n### Example Logstash Config\n\nThis is a somewhat contrived example that shows the use of both `timer` and\n`meter` metrics from the Logstash Metrics filter plugin:\n\n```\ninput {\n  file {\n    path =\u003e \"/var/log/auth.log\"\n    start_position =\u003e \"beginning\"\n    tags =\u003e [\"auth_log\"]\n  }\n\n  # A contrived file that contains timing messages\n  file {\n    path =\u003e \"/var/log/durations.log\"\n    tags =\u003e [\"duration_log\"]\n    start_position =\u003e \"beginning\"\n  }\n}\n\nfilter {\n  if \"duration_log\" in [tags] {\n    dissect {\n      mapping =\u003e {\n        \"message\" =\u003e \"Processing took %{duration} seconds\"\n      }\n      convert_datatype =\u003e {\n        \"duration\" =\u003e \"float\"\n      }\n    }\n    if \"_dissectfailure\" not in [tags] { # Filter out bad events\n      metrics {\n        timer =\u003e { \"process_time\" =\u003e \"%{duration}\" }\n        flush_interval =\u003e 10\n        # This makes the timing stats pertain to only the previous 5 minutes\n        # instead of since Logstash last started.\n        clear_interval =\u003e 300\n        add_field =\u003e {\"type\" =\u003e \"processing\"}\n        add_tag =\u003e \"metric\"\n      }\n    }\n  }\n  # Count the number of logins via SSH from /var/log/auth.log\n  if \"auth_log\" in [tags] and [message] =~ /sshd.*session opened/ {\n    metrics {\n      # This determines how often metric events will be sent to the agent, and\n      # thus how often datapoints will be emitted.\n      flush_interval =\u003e 10\n      # The name of the meter will be used to construct the name of the metric\n      # in SignalFx.  For this example, a datapoint called `logins.count` would\n      # be generated.\n      meter =\u003e \"logins\"\n      add_tag =\u003e \"metric\"\n    }\n  }\n}\n\noutput {\n  # This can be helpful to debug\n  stdout { codec =\u003e rubydebug }\n\n  if \"metric\" in [tags] {\n    tcp {\n      port =\u003e 8900\n      # The agent will connect to Logstash\n      mode =\u003e \"server\"\n      # Needs to be '0.0.0.0' if running in a container.\n      host =\u003e \"127.0.0.1\"\n    }\n  }\n}\n```\nOnce Logstash is configured with the above configuration. The logstash-tcp monitor\nwill collect `logins.count` and `process_time.\u003ctimer_field\u003e`. See config options\nfor default values.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -38187,6 +38187,7 @@
     {
       "monitorType": "memory",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor reports memory and memory utilization metrics.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: memory\n```\n",
       "groups": {
@@ -38255,7 +38256,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -38268,6 +38268,7 @@
     {
       "monitorType": "net-io",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "interface": {
           "description": "The name of the network interface (e.g. `eth0`)"
@@ -38347,7 +38348,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -38376,6 +38376,7 @@
     {
       "monitorType": "openshift-cluster",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "kubernetes_name": {
           "description": "The name of the resource that the metric describes"
@@ -38943,7 +38944,6 @@
           "description": "Timestamp (in RFC3339 format) representing the server time when the stateful set was created and is in UTC. This property is synced onto `kubernetes_uid`."
         }
       },
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for the K8s monitor",
@@ -39038,6 +39038,7 @@
     {
       "monitorType": "postgresql",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "database": {
           "description": "The name of the database within a PostgreSQL server to which the metric pertains."
@@ -39189,7 +39190,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for the postgresql monitor",
@@ -39269,12 +39269,12 @@
     {
       "monitorType": "processlist",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor reports the currently running processes for a host, analogous\nto how the `top` or `ps` command on Unix/Linux systems works.  The output\nformat is a special base64-encoded event that gets processed by our backend\nand displayed under the Infrastructure view for a specific host.\nHistorical process information is not retained on the backend, only the\nmost recent version.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -39287,12 +39287,12 @@
     {
       "monitorType": "prometheus-exporter",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor reads metrics from a [Prometheus\nexporter](https://prometheus.io/docs/instrumenting/exporters/) endpoint.\n\nAll metric types are supported.  See\nhttps://prometheus.io/docs/concepts/metric_types/ for a description of the\nPrometheus metric types.  The conversion happens as follows:\n\n - Gauges are converted directly to SignalFx gauges\n - Counters are converted directly to SignalFx cumulative counters\n - Untyped metrics are converted directly to SignalFx gauges\n - Summary metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each quantile value is converted to a gauge called\n     `\u003cbasename\u003e_quantile` and will include a dimension called `quantile` that\n     specifies the quantile.\n - Histogram metrics are converted to three distinct metrics, where\n   `\u003cbasename\u003e` is the root name of the metric:\n   - The total count gets converted to a cumulative counter called `\u003cbasename\u003e_count`\n   - The total sum gets converted to a cumulative counter called `\u003cbasename\u003e`\n   - Each histogram bucket is converted to a cumulative counter called\n     `\u003cbasename\u003e_bucket` and will include a dimension called `upper_bound` that\n     specifies the maximum value in that bucket.  This metric specifies the\n     number of events with a value that is less than or equal to the upper\n     bound.\n\nAll Prometheus labels will be converted directly to SignalFx dimensions.\n\nThis supports service discovery so you can set a discovery rule such as:\n\n`port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 containerImage =~ \"exporter\"`\n\nassuming you are running exporters in container images that have the word\n\"exporter\" in them and fall within the standard exporter port range.  In\nK8s, you could also try matching on the container port name as defined in\nthe pod spec, which is the `name` variable in discovery rules for the\n`k8s-api` observer.\n\nFiltering can be very useful here since exporters tend to be fairly verbose.\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: prometheus-exporter\n   discoveryRule: port \u003e= 9100 \u0026\u0026 port \u003c= 9500 \u0026\u0026 container_image =~ \"exporter\"\n   extraDimensions:\n     metric_source: prometheus\n```\n\n## Authentication\nFor basic HTTP authentication use the `username` and `password` options.\n\nOn Kubernetes if the monitored service requires authentication use the `useServiceAccount`\noption to use the service account of the agent when connecting. Make sure that the\nSignalFx Agent service account has sufficient permissions for the monitored service.\n\n## Troubleshooting\n* Log contains the error `net/http: HTTP/1.x transport connection broken: malformed HTTP response`\n\n    **Solution**: enable HTTPS with `useHTTPS`.\n\n* Log contains the error `forbidden: User \\\"system:anonymous\\\" cannot get path \\\"/metrics\\\"`\n\n    **Solution**: enable `useServiceAccount` and make sure the service account SignalFx agent\n    is running with has the necessary permissions.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -39418,6 +39418,7 @@
     {
       "monitorType": "prometheus/go",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor scrapes [Prmoetheus Go\ncollector](https://godoc.org/github.com/prometheus/client_golang/prometheus#NewGoCollector)\nand [Prometheus process\ncollector](https://godoc.org/github.com/prometheus/client_golang/prometheus#NewProcessCollector)\nmetrics from a Prometheus exporter and sends them to SignalFx.  It is a\nwrapper around the [prometheus-exporter](./prometheus-exporter.md) monitor\nthat provides a restricted but expandable set of metrics.\n",
       "groups": {
@@ -39689,7 +39690,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -39815,6 +39815,7 @@
     {
       "monitorType": "prometheus/nginx-vts",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor scrapes [Prmoetheus Nginx VTS\nexporter](https://github.com/hnlq715/nginx-vts-exporter) metrics from a\nPrometheus exporter and sends them to SignalFx.  It is a wrapper around the\n[prometheus-exporter](./prometheus-exporter.md) monitor that provides a\nrestricted but expandable set of metrics.\n",
       "groups": {
@@ -39953,7 +39954,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -40079,6 +40079,7 @@
     {
       "monitorType": "prometheus/node",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor scrapes [Prmoetheus Node\nExporter](https://github.com/prometheus/node_exporter) metrics and sends\nthem to SignalFx.  It is a wrapper around the\n[prometheus-exporter](./prometheus-exporter.md) monitor that provides a\nrestricted but expandable set of metrics.\n",
       "groups": {
@@ -41197,7 +41198,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -41323,6 +41323,7 @@
     {
       "monitorType": "prometheus/postgres",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor scrapes [Prmoetheus PostgreSQL Server\nExporter](https://github.com/wrouesnel/postgres_exporter) metrics and sends\nthem to SignalFx.  It is a wrapper around the\n[prometheus-exporter](./prometheus-exporter.md) monitor that provides a\nrestricted but expandable set of metrics.\n",
       "groups": {
@@ -43022,7 +43023,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -43148,6 +43148,7 @@
     {
       "monitorType": "prometheus/prometheus",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor scrapes [Prmoetheus server's own internal\ncollector](https://prometheus.io/docs/prometheus/latest/getting_started/#configuring-prometheus-to-monitor-itself)\nmetrics from a Prometheus exporter and sends them to SignalFx.  It is a\nwrapper around the [prometheus-exporter](./prometheus-exporter.md) monitor\nthat provides a restricted but expandable set of metrics.\n",
       "groups": {
@@ -44154,7 +44155,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -44280,6 +44280,7 @@
     {
       "monitorType": "prometheus/redis",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor scrapes [Prmoetheus Redis\nExporter](https://github.com/oliver006/redis_exporter) metrics and sends\nthem to SignalFx.  It is a wrapper around the\n[prometheus-exporter](./prometheus-exporter.md) monitor that provides a\nrestricted but expandable set of metrics.\n",
       "groups": {
@@ -44705,7 +44706,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -44831,12 +44831,12 @@
     {
       "monitorType": "python-monitor",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor allows you to generate metrics from a Python script.\n\nYour Python code should be Python 2.7+ *AND* 3.0+ compatible.  The Python\nruntime bundled with the agent is currently version 2.7 but this could be\nupgraded at anytime to Python 3.  If you want to use Python 3 at this time,\nyou can specify a custom Python binary with the `pythonBinary` config\noption.\n\n## Module Loading\nThe full file path to the Python script that you want to run should be\nspecified in the `scriptFilePath` config option.  This file will be loaded in\nPython by adding the directory containing the file to the front of the Python\npath (`sys.path`) and then dynamically importing the file as a module.  For\na hypothetical script at `/opt/scripts/mymonitor.py`, this is roughly\nequivalent to the following Python code:\n\n```\nimport sys\nsys.path.insert(0, \"/opt/scripts\")\n\nimport mymodule\n```\n\nThere are two ways you can implement a monitor in Python, a simple way or a\ncomplex, but more powerful way.  \n\n## Simple monitor \nThe simple way is to write a script that has a `run` function in it.  This\nfunction should accept two parameters: `config` and `output`.  The `run`\nfunction will be called on a regular interval, specified by the common\n`intervalSeconds` config option on the monitor config.\n\nHere is [an example of a simple monitor](https://github.com/signalfx/signalfx-agent/tree/master/python/sample/monitor_simple.py).\n\n## Complex monitor\n\nIf you need more power and flexibility in defining your monitor, you can\nuse the complex monitor format.  With this, you define a class called\n`Monitor` in a Python module. Here is [a documented example of a complex\nmonitor](https://github.com/signalfx/signalfx-agent/tree/master/python/sample/monitor_complex.py).\n\n## Auto-discovery\n\nThis monitor works with auto-discovery just like other monitors.  If you\nset a `discoveryRule` on the monitor config, a new instance of the monitor\nwill be created for each matching endpoint and the `host` and `port` config\nfields will be populated with the appropriate values and passed to the\nPython script in the `config` dictionary.\n\n## Example Config\n\nThis shows loading a Python module from the agent repo using a single custom config value (`myconfig`):\n\n```yaml\nmonitors:\n - type: python-monitor\n   # pythonBinary: /usr/bin/python\n   scriptFilePath: /usr/src/signalfx-agent/python/sample/monitor_complex.py\n   myconfig: [1,2,3]\n```\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config specifies configurations that are specific to the individual python based monitor",
@@ -44890,12 +44890,12 @@
     {
       "monitorType": "signalfx-forwarder",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Runs an HTTP server that listens for SignalFx datapoints and trace spans\nand forwards them to SignalFx (or the configured ingest host in the\n`writer` section of the agent config).  This supports the latest formats\nfor datapoints (v2) and spans (v1) that our ingest server supports and at\nthe same path (`/v2/datapoint`, `/v1/trace`).  By default, the server listens on\nlocalhost port 9080 but can be configured to anything.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -44933,12 +44933,12 @@
     {
       "monitorType": "sql",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Run arbitrary SQL queries against a relational database and use the results to generate dataponts.\n\nFor example, if you had a database table `customers` that looked like:\n\n| id | name       | country | status   |\n|----|------------|---------|----------|\n| 1  | Bill       | USA     | active   |\n| 2  | Mary       | USA     | inactive |\n| 3  | Joe        | USA     | active   |\n| 4  | Elizabeth  | Germany | active   |\n\nYou could use the following monitor config to generate metrics about active users and customer counts by country:\n\n```yaml\nmonitors:\n  - type: sql\n    host: localhost\n    port: 5432\n    dbDriver: postgres\n    params:\n      user: admin\n      password: s3cr3t\n    # The `host` and `port` values from above (or provided through auto-discovery) should be interpolated\n    # to the connection string as appropriate for your database driver.\n    # Also, the values from the `params` config option above can be\n    # interpolated.\n    connectionString: 'host={{.host}} port={{.port}} dbname=main user={{.user}} password={{.password}} sslmode=disabled'\n    queries:\n      - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'\n        metrics:\n          - metricName: \"customers\"\n            valueColumn: \"count\"\n            dimensionColumns: [\"country\", \"status\"]\n```\n\nThis would generate a series of timeseries, all with the metric name\n`customers` that includes a `county` and `status` dimension.  The value\nis the number of customers that belong to that combination of `country`\nand `status`.  You could also specify multiple `metrics` items to\ngenerate more than one metric from a single query.\n\n## Supported Drivers\n\nThe `dbDriver` config option must specify the database driver to use.\nThese are equivalent to the name of the Golang SQL driver used in the\nagent.  The `connectionString` option will be formatted according to the\ndriver that is going to receive it.  Here is a list of the drivers we\ncurrently support and documentation on the connection string:\n\n  - `postgres`: https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters\n  - `mysql`: https://github.com/go-sql-driver/mysql#dsn-data-source-name\n  - `sqlserver`: https://github.com/denisenkom/go-mssqldb#connection-parameters-and-dsn\n\n## Parameterized Connection String\n\nThe `connectionString` config option acts as a template with a context\nconsisting of the variables: `host`, `port`, and all the values from\nthe `params` config option map.  You interpolate variables into it\nwith the Go template syntax `{{.varname}}` (see example config\nabove).\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -45086,12 +45086,12 @@
     {
       "monitorType": "statsd",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor will receive and aggergate Statsd metrics and convert them to\ndatapoints.  It listens on a configured address and port in order to\nreceive the statsd metrics.  Note that this monitor does not support statsd\nextensions such as tags.\n\nThe monitor supports the `Counter`, `Timer`, `Gauge` and `Set` types which\nare dispatched as the SignalFx types `counter`, `gauge`, `gauge` and\n`gauge` respectively.\n\n**Note that datapoints will get a `host` dimension of the current host that\nthe agent is running on, not the host from which the statsd metric was sent.\nFor this reason, it is recommended to send statsd metrics to a local agent\ninstance. If you don't want the `host` dimension, you can set\n`disableHostDimensions: true` on the monitor configuration**\n\n\u003c!--- SETUP ---\u003e\n#### Verifying installation\n\nYou can send StatsD metrics locally with `netcat` as follows, then verify\nin SignalFx that the metric arrived (assuming the default config).\n\n```\n$ echo \"statsd.test:1|g\" | nc -w 1 -u 127.0.0.1 8125\n```\n\n\u003c!--- SETUP ---\u003e\n#### Adding dimensions to StatsD metrics\n\nThe StatsD monitor can parse keywords from a statsd metric name by a set of\nconverters that was configured by user.\n\n```\nconverters:\n  - pattern: \"cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}\"\n    ...\n```\n\nThis converter will parse `traffic`, `mesh`, `service` and `action` as dimensions\nfrom a metric name `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success`.\nIf a section has only a pair of brackets without a name, it will not capture a dimension.\n\nWhen multiple converters were provided, a metric will be converted by the first converter with a\nmatching pattern to the metric name.\n\n\u003c!--- SETUP ---\u003e\n#### Formatting metric name\n\nYou can customize a metric name by providing a format string within the converter configuration.\n\n```\nconverters:\n  - pattern: \"cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}\"\n    metricName: \"{traffic}.{action}\"\n```\n\nThe metrics which match to the given pattern will be reported to SignalFx as `{traffic}.{action}`.\nFor instance, metric `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success`\nwill be reported as `egress.update_success`.\n\n`metricName` is required for a converter configuration. A converter will be\ndisabled if `metricName` is not provided.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -45160,12 +45160,12 @@
     {
       "monitorType": "telegraf/logparser",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor is based on the Telegraf logparser plugin.\nThe monitor tails log files. More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/logparser).\nAll metrics emitted from this monitor will have the `plugin` dimension set to `telegraf-logparser`\n\nSample YAML configuration:\n\n```yaml\n - type: telegraf/logparser\n   files:\n    - '$file'\n   watchMethod: poll       # specify the file watch method (\"inotify\" or \"poll\")\n   fromBeginning: true     # specify to read from the beginning\n   measurementName: test-measurement # the metric name prefix\n   patterns:\n    - \"%{COMMON_LOG_FORMAT}\" # specifies the apache common log format\n   timezone: UTC\n```\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -45251,6 +45251,7 @@
     {
       "monitorType": "telegraf/procstat",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor reports metrics about processes.\nThis monitor is based on the Telegraf procstat plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/procstat).\n\nPlease note that the Smart Agent only supports the `native` pid finder and the options\n`cgroup` and `systemd unit` are not supported at this time.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\nSample Yaml Configuration\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: telegraf/procstat\n   exe: \"signalfx-agent*\"\n```\n",
       "groups": {
@@ -45550,7 +45551,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -45636,12 +45636,12 @@
     {
       "monitorType": "telegraf/snmp",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor reports metrics from snmp agents.\nThis monitor is based on the Telegraf SNMP plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/snmp).\n\n**NOTE:** This snmp monitor does not currently support MIB look ups because of a dependency on `net-snmp`\nand specifically the commands `snmptranslate` and `snmptable`.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/snmp\n   agents:\n     - \"127.0.0.1:161\"\n   version: 2\n   community: \"public\"\n   fields:\n     - name: \"uptime\"\n       oid: \".1.3.6.1.2.1.1.3.0\"\n```\n\nUsing a discovery rule to discover and configure for a specific snmp agent\n```yaml\nmonitors:\n - type: telegraf/snmp\n   discoveryRule: container_name =~ \"snmp\" \u0026\u0026 port == 161\n   version: 2\n   community: \"public\"\n   fields:\n     - name: \"uptime\"\n       oid: \".1.3.6.1.2.1.1.3.0\"\n```\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -45964,6 +45964,7 @@
     {
       "monitorType": "telegraf/sqlserver",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor reports metrics about Microsoft SQL servers.\nThis monitor is based on the telegraf sqlserver plugin.  More information about the telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/sqlserver).\n\nYou will need to create a login on the SQL server for the monitor to use.  You can create this login by\nexecuting the following commands in an a SQL client while logged in as an administrator.\n\n```\nUSE master;\nGO\nCREATE LOGIN [signalfxagent] WITH PASSWORD = N'\u003cYOUR PASSWORD HERE\u003e';\nGO\nGRANT VIEW SERVER STATE TO [signalfxagent];\nGO\nGRANT VIEW ANY DEFINITION TO [signalfxagent];\nGO\n```\n\nTroubleshooting:\n\nOn some Windows based SQL server distributions TCP/IP has been disabled by default.  This behavior\nhas been observed on Azure SQL server instances.  You may need to explicitly turn on TCP/IP for the\nSQL server if you see error messages simillar to the following.\n\n```\nCannot read handshake packet: read tcp: wsarecv: An existing connection was forcibly closed by the remote host.\n```\n\n1. Verify agent configurations are correct.\n2. Ensure TCP/IP is enabled for the SQL server by going to `Start` -\u003e `Administrative Tools` -\u003e `Computer Management`\n3. In the `Computer Management` side bar, drill down to `Services and Applications` -\u003e `SQL Server Configuration Manager` -\u003e `SQL Server Network Configuration`\n4. Select `Protocols for \u003cYOUR SQL SERVER NAME\u003e`.\n5. In the protocol list to the right, right-click on the `TCP/IP` protocol and `enable` it.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/sqlserver\n   host: hostname\n   port: 1433\n   userID: sa\n   password: P@ssw0rd!\n   appName: signalfxagent\n```\n",
       "groups": {
@@ -46816,7 +46817,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -46902,12 +46902,12 @@
     {
       "monitorType": "telegraf/statsd",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor acts as a Telegraf StatsD listener for receiving telegrafstatsd metrics.\nThis monitor is based on the Telegraf Statsd input plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/statsd).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/statsd\n   protocol: udp\n   serviceAddress: \":8125\"\n   parseDataDogTags: true\n```\n\n```yaml\nmonitors:\n - type: telegraf/statsd\n   protocol: udp\n   serviceAddress: \"127.0.0.1:0\"\n   parseDataDogTags: true\n   metricSeparator: '.'\n```\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -47033,12 +47033,12 @@
     {
       "monitorType": "telegraf/tail",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor is based on the Telegraf tail plugin.  The monitor tails files and\nnamed pipes.  The Telegraf parser configured with this monitor extracts metrics in different\n[formats](https://github.com/influxdata/telegraf/blob/master/docs/DATA_FORMATS_INPUT.md)\nfrom the tailed output. More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/tail).\nAll metrics emitted from this monitor will have the `plugin` dimension set to `telegraf-tail`\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/tail\n   files:\n    - '/logs/**.log'       # find all .log files in /logs\n    - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/\n    - '/var/log/agent.log' # tail the specified log file\n   watchMethod: inotify    # specify the file watch method (\"ionotify\" or \"poll\")\n```\n\nSample YAML configuration that specifies a parser:\n\n```yaml\nmonitors:\n - type: telegraf/tail\n   files:\n    - '/logs/**.log'       # find all .log files in /logs\n    - '/logs/*/*.log'      # find all .log files who are contained in a directory under /logs/\n    - '/var/log/agent.log' # tail the specified log file\n   watchMethod: inotify    # specify the file watch method (\"inotify\" or \"poll\")\n   telegrafParser:         # specify a parser\n     dataFormat: \"influx\"  # set the parser's dataFormat\n```\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -47403,12 +47403,12 @@
     {
       "monitorType": "telegraf/win_perf_counters",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "This monitor reads Windows performance\ncounters\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/win_perf_counters\n   printValid: true\n   objects:\n    - objectName: \"Processor\"\n      instances:\n       - \"*\"\n      counters:\n       - \"% Idle Time\"\n       - \"% Interrupt Time\"\n       - \"% Privileged Time\"\n       - \"% User Time\"\n       - \"% Processor Time\"\n      includeTotal: true\n      measurement: \"win_cpu\"\n```\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -47525,6 +47525,7 @@
     {
       "monitorType": "telegraf/win_services",
       "sendAll": true,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "(Windows Only) This monitor reports metrics about Windows services.\nThis monitor is based on the Telegraf win_services plugin.  More information about the Telegraf plugin\ncan be found [here](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/win_services).\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: telegraf/win_services  # monitor all services\n```\n\n```yaml\nmonitors:\n - type: telegraf/win_services\n   serviceNames:\n     - exampleService1  # only monitor exampleService1\n```\n",
       "groups": {
@@ -47551,7 +47552,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -47573,12 +47573,12 @@
     {
       "monitorType": "trace-forwarder",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Runs an HTTP server that listens for trace spans\nand forwards them to SignalFx (or the configured ingest host in the `writer`\nsection of the agent config).  This supports the same span formats that our\ningest server supports and at the same path (`/v1/trace`).  By default, the\nserver listens on localhost port 9080 but can be configured to anything.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -47616,6 +47616,7 @@
     {
       "monitorType": "traefik",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Traefik is an open-source HTTP reverse proxy and load balancer. Traefik exports Prometheus metrics that can be\nscraped by the SignalFx Smart Agent. These metrics can be categorized into Traefik-related, entrypoint-related and\nbackend-related metrics. The Traefik-related metrics are prefixed by `go_` and `process_`. The entrypoint-related\nmetrics are prefixed by `traefik_entrypoint_` and the backend-related metrics prefixed by `traefik_backend_`.\n\nThe Traefik-related metrics are for monitoring Traefik itself. For instance, the `go_memstats_sys_bytes` metric can\nbe used to plot Traefik memory usage. The entrypoint-related and backend-related metrics are the number and duration\nof requests measured at entrypoints and backends. These metrics are used to compute measurements such as the average\nrequest duration.\n\n## Requirements and Dependencies\n\n| Software          | Version        |\n|-------------------|----------------|\n| signalfx-agent    |     4.7.0+     |\n\n## Traefik Configuration\n\nEdit the Traefik configuration file, typically `traefik.toml`, to enable Traefik to expose prometheus metrics at an\nendpoint. The endpoint is on path `/metrics` by default. When running the Traefik binary, the configuration file is\ntypically passed in as a command line argument. For example,\n\n`./traefik -c traefik.toml`\n\nHowever, when running the Traefik Docker image, the configuration file is mounted to volume\n`/etc/traefik/traefik.toml`. For example,\n\n`docker run -d -p 8080:8080 -p 80:80 -v $PWD/traefik.toml:/etc/traefik/traefik.toml`\n\nIf the Traefik configuration file is not available use the sample configuration file\n\u003ca target=\"_blank\" href=\"https://raw.githubusercontent.com/containous/traefik/master/traefik.sample.toml\"\u003ehere\u003c/a\u003e\nto get started.\n\nSee \u003ca target=\"_blank\" href=\"https://docs.traefik.io/\"\u003ehere\u003c/a\u003e for complete Traefik docs.\n\n## Smart Agent Configuration\n\nSignalFx Smart Agent docs can be found \u003ca target=\"_blank\" href=\"https://github.com/signalfx/signalfx-agent\"\u003ehere\u003c/a\u003e.\nChoose deployment specific configuration instruction\n\u003ca target=\"_blank\" href=\"https://github.com/signalfx/signalfx-agent/tree/master/deployments\"\u003ehere\u003c/a\u003e. The\nSignalFx Smart Agent must have network access to Traefik.\n\nBelow is an example configuration that enables the traefik monitor. For the given configuration below, the monitor\nwill scrape Prometheus metrics in the default path `/metrics` on port 8080, add dimension\n`metric_source=traefik` to the metrics and export them to SignalFx.\n\n```\nmonitors:\n- type: traefik\n  discoveryRule: port == 8080\n  extraDimensions:\n    metric_source: traefik\n```\n",
       "groups": {
@@ -47978,7 +47979,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -48104,6 +48104,7 @@
     {
       "monitorType": "vmem",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "Collects information specific to the virtual memory subsystem of the\nkernel.  For general memory statistics, see the [memory monitor](./memory.md).\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: vmem\n```\n",
       "groups": {
@@ -48200,7 +48201,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -48230,6 +48230,7 @@
     {
       "monitorType": "vsphere",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": {
         "cluster": {
           "description": "If the metric's host or virtual machine is attached to a cluster, the name of the cluster."
@@ -49720,7 +49721,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for the vSphere monitor",
@@ -49806,6 +49806,7 @@
     {
       "monitorType": "windows-iis",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "(Windows Only) This monitor reports metrics for Windows Internet Information Services.\nIt is used to drive the Windows IIS dashboard content.\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually Gauges\nthat represent rates per second and percentages.\n\nThis monitor reports the instantaneous values for these Windows Performance Counters.\nThis means that in between a collection interval, spikes could occur on the\nPerformance Counters.  The best way to mitigate this limitation is to increase\nthe reporting interval on this monitor to collect more frequently.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: windows-iis\n```\n",
       "groups": {
@@ -49965,7 +49966,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",
@@ -49995,6 +49995,7 @@
     {
       "monitorType": "windows-legacy",
       "sendAll": false,
+      "sendUnknown": false,
       "dimensions": null,
       "doc": "(Windows Only) This monitor reports metrics for Windows system Performance Counters.\nThe metric names are intended to match what was originally reported by\nthe SignalFx [PerfCounterReporter](https://github.com/signalfx/PerfCounterReporter)\nThe metric types are all gauges as originally reported by the PerfCounterReporter.\n\n## Windows Performance Counters\nThe underlying source for these metrics are Windows Performance Counters.\nMost of the performance counters that we query in this monitor are actually\nrates per second and percentages that we report as instantaneous Gauge values\neach collection interval.\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n - type: windows-legacy\n```\n",
       "groups": {
@@ -50224,7 +50225,6 @@
         }
       },
       "properties": null,
-      "metricsExhaustive": false,
       "config": {
         "name": "Config",
         "doc": "Config for this monitor",

@@ -227,21 +227,21 @@ var GroupMetricsMap = map[string][]string{
 }
 
 var KubernetesClusterMonitorMetadata = monitors.Metadata{
-	MonitorType:       "kubernetes-cluster",
-	DefaultMetrics:    DefaultMetrics,
-	Metrics:           MetricSet,
-	MetricsExhaustive: false,
-	Groups:            GroupSet,
-	GroupMetricsMap:   GroupMetricsMap,
-	SendAll:           false,
+	MonitorType:     "kubernetes-cluster",
+	DefaultMetrics:  DefaultMetrics,
+	Metrics:         MetricSet,
+	SendUnknown:     false,
+	Groups:          GroupSet,
+	GroupMetricsMap: GroupMetricsMap,
+	SendAll:         false,
 }
 
 var OpenshiftClusterMonitorMetadata = monitors.Metadata{
-	MonitorType:       "openshift-cluster",
-	DefaultMetrics:    DefaultMetrics,
-	Metrics:           MetricSet,
-	MetricsExhaustive: false,
-	Groups:            GroupSet,
-	GroupMetricsMap:   GroupMetricsMap,
-	SendAll:           false,
+	MonitorType:     "openshift-cluster",
+	DefaultMetrics:  DefaultMetrics,
+	Metrics:         MetricSet,
+	SendUnknown:     false,
+	Groups:          GroupSet,
+	GroupMetricsMap: GroupMetricsMap,
+	SendAll:         false,
 }

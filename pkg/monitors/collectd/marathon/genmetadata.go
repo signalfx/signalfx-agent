@@ -12,70 +12,70 @@ const monitorType = "collectd/marathon"
 var groupSet = map[string]bool{}
 
 const (
-	gaugeMarathonAppCPUAllocated               = "gauge.marathon.app.cpu.allocated"
-	gaugeMarathonAppCPUAllocatedPerInstance    = "gauge.marathon.app.cpu.allocated.per.instance"
-	gaugeMarathonAppDelayed                    = "gauge.marathon.app.delayed"
-	gaugeMarathonAppDeploymentsTotal           = "gauge.marathon.app.deployments.total"
-	gaugeMarathonAppDiskAllocated              = "gauge.marathon.app.disk.allocated"
-	gaugeMarathonAppDiskAllocatedPerInstance   = "gauge.marathon.app.disk.allocated.per.instance"
-	gaugeMarathonAppGpuAllocated               = "gauge.marathon.app.gpu.allocated"
-	gaugeMarathonAppGpuAllocatedPerInstance    = "gauge.marathon.app.gpu.allocated.per.instance"
-	gaugeMarathonAppInstancesTotal             = "gauge.marathon.app.instances.total"
-	gaugeMarathonAppMemoryAllocated            = "gauge.marathon.app.memory.allocated"
-	gaugeMarathonAppMemoryAllocatedPerInstance = "gauge.marathon.app.memory.allocated.per.instance"
-	gaugeMarathonAppTasksRunning               = "gauge.marathon.app.tasks.running"
-	gaugeMarathonAppTasksStaged                = "gauge.marathon.app.tasks.staged"
-	gaugeMarathonAppTasksUnhealthy             = "gauge.marathon.app.tasks.unhealthy"
-	gaugeMarathonTaskHealthchecksFailingTotal  = "gauge.marathon.task.healthchecks.failing.total"
-	gaugeMarathonTaskHealthchecksPassingTotal  = "gauge.marathon.task.healthchecks.passing.total"
-	gaugeMarathonTaskStagedTimeElapsed         = "gauge.marathon.task.staged.time.elapsed"
-	gaugeMarathonTaskStartTimeElapsed          = "gauge.marathon.task.start.time.elapsed"
+	gaugeServiceMesosphereMarathonAppCPUAllocated               = "gauge.service.mesosphere.marathon.app.cpu.allocated"
+	gaugeServiceMesosphereMarathonAppCPUAllocatedPerInstance    = "gauge.service.mesosphere.marathon.app.cpu.allocated.per.instance"
+	gaugeServiceMesosphereMarathonAppDelayed                    = "gauge.service.mesosphere.marathon.app.delayed"
+	gaugeServiceMesosphereMarathonAppDeploymentsTotal           = "gauge.service.mesosphere.marathon.app.deployments.total"
+	gaugeServiceMesosphereMarathonAppDiskAllocated              = "gauge.service.mesosphere.marathon.app.disk.allocated"
+	gaugeServiceMesosphereMarathonAppDiskAllocatedPerInstance   = "gauge.service.mesosphere.marathon.app.disk.allocated.per.instance"
+	gaugeServiceMesosphereMarathonAppGpuAllocated               = "gauge.service.mesosphere.marathon.app.gpu.allocated"
+	gaugeServiceMesosphereMarathonAppGpuAllocatedPerInstance    = "gauge.service.mesosphere.marathon.app.gpu.allocated.per.instance"
+	gaugeServiceMesosphereMarathonAppInstancesTotal             = "gauge.service.mesosphere.marathon.app.instances.total"
+	gaugeServiceMesosphereMarathonAppMemoryAllocated            = "gauge.service.mesosphere.marathon.app.memory.allocated"
+	gaugeServiceMesosphereMarathonAppMemoryAllocatedPerInstance = "gauge.service.mesosphere.marathon.app.memory.allocated.per.instance"
+	gaugeServiceMesosphereMarathonAppTasksRunning               = "gauge.service.mesosphere.marathon.app.tasks.running"
+	gaugeServiceMesosphereMarathonAppTasksStaged                = "gauge.service.mesosphere.marathon.app.tasks.staged"
+	gaugeServiceMesosphereMarathonAppTasksUnhealthy             = "gauge.service.mesosphere.marathon.app.tasks.unhealthy"
+	gaugeServiceMesosphereMarathonTaskHealthchecksFailingTotal  = "gauge.service.mesosphere.marathon.task.healthchecks.failing.total"
+	gaugeServiceMesosphereMarathonTaskHealthchecksPassingTotal  = "gauge.service.mesosphere.marathon.task.healthchecks.passing.total"
+	gaugeServiceMesosphereMarathonTaskStagedTimeElapsed         = "gauge.service.mesosphere.marathon.task.staged.time.elapsed"
+	gaugeServiceMesosphereMarathonTaskStartTimeElapsed          = "gauge.service.mesosphere.marathon.task.start.time.elapsed"
 )
 
 var metricSet = map[string]monitors.MetricInfo{
-	gaugeMarathonAppCPUAllocated:               {Type: datapoint.Gauge},
-	gaugeMarathonAppCPUAllocatedPerInstance:    {Type: datapoint.Gauge},
-	gaugeMarathonAppDelayed:                    {Type: datapoint.Gauge},
-	gaugeMarathonAppDeploymentsTotal:           {Type: datapoint.Gauge},
-	gaugeMarathonAppDiskAllocated:              {Type: datapoint.Gauge},
-	gaugeMarathonAppDiskAllocatedPerInstance:   {Type: datapoint.Gauge},
-	gaugeMarathonAppGpuAllocated:               {Type: datapoint.Gauge},
-	gaugeMarathonAppGpuAllocatedPerInstance:    {Type: datapoint.Gauge},
-	gaugeMarathonAppInstancesTotal:             {Type: datapoint.Gauge},
-	gaugeMarathonAppMemoryAllocated:            {Type: datapoint.Gauge},
-	gaugeMarathonAppMemoryAllocatedPerInstance: {Type: datapoint.Gauge},
-	gaugeMarathonAppTasksRunning:               {Type: datapoint.Gauge},
-	gaugeMarathonAppTasksStaged:                {Type: datapoint.Gauge},
-	gaugeMarathonAppTasksUnhealthy:             {Type: datapoint.Gauge},
-	gaugeMarathonTaskHealthchecksFailingTotal:  {Type: datapoint.Gauge},
-	gaugeMarathonTaskHealthchecksPassingTotal:  {Type: datapoint.Gauge},
-	gaugeMarathonTaskStagedTimeElapsed:         {Type: datapoint.Gauge},
-	gaugeMarathonTaskStartTimeElapsed:          {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonAppCPUAllocated:               {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonAppCPUAllocatedPerInstance:    {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonAppDelayed:                    {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonAppDeploymentsTotal:           {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonAppDiskAllocated:              {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonAppDiskAllocatedPerInstance:   {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonAppGpuAllocated:               {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonAppGpuAllocatedPerInstance:    {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonAppInstancesTotal:             {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonAppMemoryAllocated:            {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonAppMemoryAllocatedPerInstance: {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonAppTasksRunning:               {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonAppTasksStaged:                {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonAppTasksUnhealthy:             {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonTaskHealthchecksFailingTotal:  {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonTaskHealthchecksPassingTotal:  {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonTaskStagedTimeElapsed:         {Type: datapoint.Gauge},
+	gaugeServiceMesosphereMarathonTaskStartTimeElapsed:          {Type: datapoint.Gauge},
 }
 
 var defaultMetrics = map[string]bool{
-	gaugeMarathonAppCPUAllocated:               true,
-	gaugeMarathonAppCPUAllocatedPerInstance:    true,
-	gaugeMarathonAppDiskAllocated:              true,
-	gaugeMarathonAppDiskAllocatedPerInstance:   true,
-	gaugeMarathonAppInstancesTotal:             true,
-	gaugeMarathonAppMemoryAllocated:            true,
-	gaugeMarathonAppMemoryAllocatedPerInstance: true,
-	gaugeMarathonAppTasksRunning:               true,
-	gaugeMarathonAppTasksStaged:                true,
-	gaugeMarathonAppTasksUnhealthy:             true,
-	gaugeMarathonTaskHealthchecksFailingTotal:  true,
-	gaugeMarathonTaskHealthchecksPassingTotal:  true,
+	gaugeServiceMesosphereMarathonAppCPUAllocated:               true,
+	gaugeServiceMesosphereMarathonAppCPUAllocatedPerInstance:    true,
+	gaugeServiceMesosphereMarathonAppDiskAllocated:              true,
+	gaugeServiceMesosphereMarathonAppDiskAllocatedPerInstance:   true,
+	gaugeServiceMesosphereMarathonAppInstancesTotal:             true,
+	gaugeServiceMesosphereMarathonAppMemoryAllocated:            true,
+	gaugeServiceMesosphereMarathonAppMemoryAllocatedPerInstance: true,
+	gaugeServiceMesosphereMarathonAppTasksRunning:               true,
+	gaugeServiceMesosphereMarathonAppTasksStaged:                true,
+	gaugeServiceMesosphereMarathonAppTasksUnhealthy:             true,
+	gaugeServiceMesosphereMarathonTaskHealthchecksFailingTotal:  true,
+	gaugeServiceMesosphereMarathonTaskHealthchecksPassingTotal:  true,
 }
 
 var groupMetricsMap = map[string][]string{}
 
 var monitorMetadata = monitors.Metadata{
-	MonitorType:       "collectd/marathon",
-	DefaultMetrics:    defaultMetrics,
-	Metrics:           metricSet,
-	MetricsExhaustive: false,
-	Groups:            groupSet,
-	GroupMetricsMap:   groupMetricsMap,
-	SendAll:           false,
+	MonitorType:     "collectd/marathon",
+	DefaultMetrics:  defaultMetrics,
+	Metrics:         metricSet,
+	SendUnknown:     false,
+	Groups:          groupSet,
+	GroupMetricsMap: groupMetricsMap,
+	SendAll:         true,
 }

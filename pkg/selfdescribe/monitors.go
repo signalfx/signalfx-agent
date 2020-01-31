@@ -66,6 +66,7 @@ func monitorsStructMetadata() []monitorDoc {
 					Config: getStructMetadata(t),
 					MonitorMetadata: MonitorMetadata{
 						SendAll:     monitor.SendAll,
+						SendUnknown: monitor.SendUnknown,
 						MonitorType: monType,
 						Dimensions:  monitor.Dimensions,
 						Groups:      monitor.Groups,

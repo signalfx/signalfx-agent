@@ -42,9 +42,9 @@ const (
 	sfxagentGoMallocs                  = "sfxagent.go_mallocs"
 	sfxagentGoNextGc                   = "sfxagent.go_next_gc"
 	sfxagentGoNumGc                    = "sfxagent.go_num_gc"
+	sfxagentGoNumGoroutine             = "sfxagent.go_num_goroutine"
 	sfxagentGoStackInuse               = "sfxagent.go_stack_inuse"
 	sfxagentGoTotalAlloc               = "sfxagent.go_total_alloc"
-	sfxgentGoNumGoroutine              = "sfxgent.go_num_goroutine"
 )
 
 var metricSet = map[string]monitors.MetricInfo{
@@ -78,9 +78,9 @@ var metricSet = map[string]monitors.MetricInfo{
 	sfxagentGoMallocs:                  {Type: datapoint.Counter},
 	sfxagentGoNextGc:                   {Type: datapoint.Gauge},
 	sfxagentGoNumGc:                    {Type: datapoint.Gauge},
+	sfxagentGoNumGoroutine:             {Type: datapoint.Gauge},
 	sfxagentGoStackInuse:               {Type: datapoint.Gauge},
 	sfxagentGoTotalAlloc:               {Type: datapoint.Counter},
-	sfxgentGoNumGoroutine:              {Type: datapoint.Gauge},
 }
 
 var defaultMetrics = map[string]bool{
@@ -114,19 +114,19 @@ var defaultMetrics = map[string]bool{
 	sfxagentGoMallocs:                  true,
 	sfxagentGoNextGc:                   true,
 	sfxagentGoNumGc:                    true,
+	sfxagentGoNumGoroutine:             true,
 	sfxagentGoStackInuse:               true,
 	sfxagentGoTotalAlloc:               true,
-	sfxgentGoNumGoroutine:              true,
 }
 
 var groupMetricsMap = map[string][]string{}
 
 var monitorMetadata = monitors.Metadata{
-	MonitorType:       "internal-metrics",
-	DefaultMetrics:    defaultMetrics,
-	Metrics:           metricSet,
-	MetricsExhaustive: false,
-	Groups:            groupSet,
-	GroupMetricsMap:   groupMetricsMap,
-	SendAll:           false,
+	MonitorType:     "internal-metrics",
+	DefaultMetrics:  defaultMetrics,
+	Metrics:         metricSet,
+	SendUnknown:     false,
+	Groups:          groupSet,
+	GroupMetricsMap: groupMetricsMap,
+	SendAll:         true,
 }

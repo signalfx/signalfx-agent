@@ -42,13 +42,13 @@ type MetricInfo struct {
 
 // Metadata describes information about a monitor.
 type Metadata struct {
-	MonitorType       string
-	SendAll           bool
-	DefaultMetrics    map[string]bool
-	Metrics           map[string]MetricInfo
-	MetricsExhaustive bool
-	Groups            map[string]bool
-	GroupMetricsMap   map[string][]string
+	MonitorType     string
+	SendAll         bool
+	SendUnknown     bool
+	DefaultMetrics  map[string]bool
+	Metrics         map[string]MetricInfo
+	Groups          map[string]bool
+	GroupMetricsMap map[string][]string
 }
 
 // HasMetric returns whether the metric exists at all (custom or included).

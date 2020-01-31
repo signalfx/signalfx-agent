@@ -216,4 +216,5 @@ monitors:
       default: false
       type: gauge
   monitorType: collectd/solr
+  sendUnknown: true
   properties:
