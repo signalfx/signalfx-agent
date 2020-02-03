@@ -50,7 +50,7 @@
         "_source": {
           "cpu_utilization": 75,
           "memory_utilization": 13,
-          "host": "helsniki",
+          "host": "helsinki",
           "service": "android",
           "container_id": "macbook",
           "@timestamp": 1580243570275
@@ -64,7 +64,7 @@
         "_source": {
           "cpu_utilization": 47,
           "memory_utilization": 56,
-          "host": "helsniki",
+          "host": "helsinki",
           "service": "ios",
           "container_id": "lenovo",
           "@timestamp": 1580243570275
@@ -159,7 +159,7 @@
   "aggregations": {
     "host": {
       "buckets": {
-        "helsniki": {
+        "helsinki": {
           "doc_count": 4362,
           "metric_agg_1": {
             "count": 4362,

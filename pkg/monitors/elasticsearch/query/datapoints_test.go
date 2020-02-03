@@ -15,8 +15,8 @@ func TestDatapointsFromTerminalBucketAggregation(t *testing.T) {
 			Aggregations: map[string]*aggregationResponse{
 				"host": {
 					Buckets: map[interface{}]*bucketResponse{
-						"helsniki": {
-							Key:             "helsniki",
+						"helsinki": {
+							Key:             "helsinki",
 							DocCount:        newInt64(8800),
 							SubAggregations: map[string]*aggregationResponse{},
 						},
@@ -41,7 +41,7 @@ func TestDatapointsFromTerminalBucketAggregation(t *testing.T) {
 			Metric: "elasticsearch_query.host.doc_count",
 			Dimensions: map[string]string{
 				"bucket_aggregation_type": "filters",
-				"host":                    "helsniki",
+				"host":                    "helsinki",
 			},
 			Value:      datapoint.NewIntValue(8800),
 			MetricType: datapoint.Gauge,
@@ -75,8 +75,8 @@ func TestMetricAggregationWithTermsAggregation(t *testing.T) {
 							},
 						},
 					},
-					"helsniki": {
-						Key:      "helsniki",
+					"helsinki": {
+						Key:      "helsinki",
 						DocCount: newInt64(126),
 						SubAggregations: map[string]*aggregationResponse{
 							"metric_agg_1": {
@@ -114,7 +114,7 @@ func TestMetricAggregationWithTermsAggregation(t *testing.T) {
 			Metric: "elasticsearch_query.metric_agg_1",
 			Dimensions: map[string]string{
 				"metric_aggregation_type": "avg",
-				"host":                    "helsniki",
+				"host":                    "helsinki",
 			},
 			Value:      datapoint.NewFloatValue(49.357142857142854),
 			MetricType: datapoint.Gauge,

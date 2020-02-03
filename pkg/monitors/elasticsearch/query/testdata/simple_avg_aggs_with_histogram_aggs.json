@@ -50,7 +50,7 @@
         "_source": {
           "cpu_utilization": 70,
           "memory_utilization": 42,
-          "host": "helsniki",
+          "host": "helsinki",
           "service": "android",
           "container_id": "macbook",
           "@timestamp": 1580320265806
@@ -64,7 +64,7 @@
         "_source": {
           "cpu_utilization": 28,
           "memory_utilization": 44,
-          "host": "helsniki",
+          "host": "helsinki",
           "service": "ios",
           "container_id": "lenovo",
           "@timestamp": 1580320265806

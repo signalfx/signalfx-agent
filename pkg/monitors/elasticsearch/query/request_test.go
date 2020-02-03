@@ -86,9 +86,9 @@ func TestGetAggregationsMetaComplexQuery_terms(t *testing.T) {
             "host":{ 
                "filters":{ 
                   "filters":{ 
-                     "helsniki":{ 
+                     "helsinki":{ 
                         "match":{ 
-                           "server.host":"helsniki"
+                           "server.host":"helsinki"
                         }
                      },
                      "nairobi":{ 

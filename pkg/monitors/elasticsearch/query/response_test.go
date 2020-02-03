@@ -16,7 +16,7 @@ structure:
 {
    'cpu_utilization':87,
    'memory_utilization':94,
-   'host':'helsniki',
+   'host':'helsinki',
    'service':'android',
    'container_id':'macbook',
    '@timestamp':1580321240579
@@ -416,8 +416,8 @@ func getTerminalBucketAggregationTestContexts() ([]*testContext, *errors.Error) 
 			Aggregations: aggregationsMap{
 				"host": {
 					Buckets: bucketsMap{
-						"helsniki": {
-							Key:             "helsniki",
+						"helsinki": {
+							Key:             "helsinki",
 							DocCount:        newInt64(8800),
 							SubAggregations: aggregationsMap{},
 						},
@@ -448,8 +448,8 @@ func getSimpleSingleValueAggregationTestContexts() ([]*testContext, *errors.Erro
 			Aggregations: aggregationsMap{
 				"host": {
 					Buckets: bucketsMap{
-						"helsniki": {
-							Key:      "helsniki",
+						"helsinki": {
+							Key:      "helsinki",
 							DocCount: newInt64(126),
 							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
@@ -480,8 +480,8 @@ func getSimpleSingleValueAggregationTestContexts() ([]*testContext, *errors.Erro
 			Aggregations: aggregationsMap{
 				"host": {
 					Buckets: bucketsMap{
-						"helsniki": {
-							Key:      "helsniki",
+						"helsinki": {
+							Key:      "helsinki",
 							DocCount: newInt64(122),
 							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
@@ -547,8 +547,8 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 			Aggregations: aggregationsMap{
 				"host": {
 					Buckets: bucketsMap{
-						"helsniki": {
-							Key:      "helsniki",
+						"helsinki": {
+							Key:      "helsinki",
 							DocCount: newInt64(4344),
 							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
@@ -589,8 +589,8 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 			Aggregations: aggregationsMap{
 				"host": {
 					Buckets: bucketsMap{
-						"helsniki": {
-							Key:      "helsniki",
+						"helsinki": {
+							Key:      "helsinki",
 							DocCount: newInt64(4362),
 							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
@@ -645,8 +645,8 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 			Aggregations: aggregationsMap{
 				"host": {
 					Buckets: bucketsMap{
-						"helsniki": {
-							Key:      "helsniki",
+						"helsinki": {
+							Key:      "helsinki",
 							DocCount: newInt64(4380),
 							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
@@ -693,8 +693,8 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 			Aggregations: aggregationsMap{
 				"host": {
 					Buckets: bucketsMap{
-						"helsniki": {
-							Key:      "helsniki",
+						"helsinki": {
+							Key:      "helsinki",
 							DocCount: newInt64(5022),
 							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
@@ -913,8 +913,8 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 								},
 							},
 						},
-						"helsniki": {
-							Key:      "helsniki",
+						"helsinki": {
+							Key:      "helsinki",
 							DocCount: newInt64(5134),
 							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
@@ -1005,8 +1005,8 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 								},
 							},
 						},
-						"helsniki": {
-							Key:      "helsniki",
+						"helsinki": {
+							Key:      "helsinki",
 							DocCount: newInt64(5366),
 							SubAggregations: aggregationsMap{
 								"metric_agg_1": {
