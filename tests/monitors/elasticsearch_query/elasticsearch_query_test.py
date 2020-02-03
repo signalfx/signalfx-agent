@@ -40,11 +40,11 @@ EXTENDED_STATS_METRICS = [
 
 PERCENTILE_METRICS = ["p1", "p5", "p25", "p50", "p75", "p95", "p99"]
 
-HOSTS = ["nairobi", "helsniki", "madrid", "lisbon"]
+HOSTS = ["nairobi", "helsinki", "madrid", "lisbon"]
 
 
 def check_service_status(host):
-    assert wait_for(p(http_status, url=f"http://{host}:9200/_nodes/_local", status=[200]), 180), "service didn't start"
+    assert wait_for(p(http_status, url=f"http://{host}:9200/_nodes/_local", status=[200]), 300), "service didn't start"
 
 
 @pytest.mark.parametrize("version", VERSIONS)
@@ -109,7 +109,7 @@ def test_elasticsearch_query_simple_metric_aggs_with_filters_aggs(version):
                 "host_name": {
                     "filters": {
                         "filters": {
-                            "helsniki": {"match": {"host": "helsniki"}},
+                            "helsinki": {"match": {"host": "helsinki"}},
                             "nairobi": {"match": {"host": "nairobi"}},
                             "madrid": {"match": {"host": "madrid"}},
                             "lisbon": {"match": {"host": "lisbon"}},
@@ -147,7 +147,7 @@ def test_elasticsearch_query_terminal_bucket_aggs(version):
                 "host_name": {
                     "filters": {
                         "filters": {
-                            "helsniki": {"match": {"host": "helsniki"}},
+                            "helsinki": {"match": {"host": "helsinki"}},
                             "nairobi": {"match": {"host": "nairobi"}},
                             "madrid": {"match": {"host": "madrid"}},
                             "lisbon": {"match": {"host": "lisbon"}},
@@ -184,7 +184,7 @@ def test_elasticsearch_query_percentiles_aggs_with_filters_aggs(version):
                 "host_name": {
                     "filters": {
                         "filters": {
-                            "helsniki": {"match": {"host": "helsniki"}},
+                            "helsinki": {"match": {"host": "helsinki"}},
                             "nairobi": {"match": {"host": "nairobi"}},
                             "madrid": {"match": {"host": "madrid"}},
                             "lisbon": {"match": {"host": "lisbon"}},
@@ -239,8 +239,8 @@ def write_data(host, version, num_docs=10):
     dimensions_set = [
         {"host": "nairobi", "service": "android", "container_id": "macbook"},
         {"host": "nairobi", "service": "ios", "container_id": "lenovo"},
-        {"host": "helsniki", "service": "android", "container_id": "macbook"},
-        {"host": "helsniki", "service": "ios", "container_id": "lenovo"},
+        {"host": "helsinki", "service": "android", "container_id": "macbook"},
+        {"host": "helsinki", "service": "ios", "container_id": "lenovo"},
         {"host": "madrid", "service": "android", "container_id": "macbook"},
         {"host": "madrid", "service": "ios", "container_id": "lenovo"},
         {"host": "lisbon", "service": "android", "container_id": "macbook"},
