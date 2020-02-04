@@ -3,6 +3,7 @@ package query
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
@@ -17,6 +18,7 @@ type dpCollector struct {
 	aggRes        aggregationResponse
 	aggsMeta      map[string]*AggregationMeta
 	sfxDimensions map[string]string
+	logger        *utils.ThrottledLogger
 }
 
 // Returns aggregation type
@@ -37,6 +39,10 @@ func collectDatapoints(resBody HTTPResponse, aggsMeta map[string]*AggregationMet
 			aggRes:        *v,
 			aggsMeta:      aggsMeta,
 			sfxDimensions: sfxDimensions,
+			logger: getNewLoggerWithFields(log.Fields{
+				"aggregation_name": k,
+				"aggregation_type": aggsMeta[k].Type,
+			}),
 		}).recursivelyCollectDatapoints()...)
 	}
 
@@ -57,11 +63,7 @@ func (dpC *dpCollector) recursivelyCollectDatapoints() []*datapoint.Datapoint {
 		key, ok := b.Key.(string)
 
 		if !ok {
-			log.WithFields(
-				log.Fields{
-					"aggregation_name": dpC.aggName,
-					"aggregation_type": dpC.getType(),
-				}).Warn("Found non string key for bucket. Skipping current aggregation and sub aggregations")
+			log.Warn("Found non string key for bucket. Skipping current aggregation and sub aggregations")
 			break
 		}
 
@@ -83,6 +85,10 @@ func (dpC *dpCollector) recursivelyCollectDatapoints() []*datapoint.Datapoint {
 				aggRes:        *v,
 				aggsMeta:      dpC.aggsMeta,
 				sfxDimensions: sfxDimensionsForBucket,
+				logger: getNewLoggerWithFields(log.Fields{
+					"aggregation_name": k,
+					"aggregation_type": dpC.aggsMeta[k].Type,
+				}),
 			}).recursivelyCollectDatapoints()...)
 		}
 	}
@@ -94,6 +100,10 @@ func (dpC *dpCollector) recursivelyCollectDatapoints() []*datapoint.Datapoint {
 			aggRes:        *v,
 			aggsMeta:      dpC.aggsMeta,
 			sfxDimensions: dpC.sfxDimensions,
+			logger: getNewLoggerWithFields(log.Fields{
+				"aggregation_name": k,
+				"aggregation_type": dpC.aggsMeta[k].Type,
+			}),
 		}).recursivelyCollectDatapoints()...)
 	}
 
@@ -137,8 +147,7 @@ func (dpC *dpCollector) collectDatapointsFromMetricAggregation() []*datapoint.Da
 		dp, ok := collectDatapoint(metricName, dpC.aggRes.Value, sfxDimensionsForMetric)
 
 		if !ok {
-			log.WithFields(log.Fields{"aggregation_type": aggType,
-				"aggregation_name": dpC.aggName}).Warnf("Invalid value found: %v", dpC.aggRes.Value)
+			log.Warnf("Invalid value found: %v", dpC.aggRes.Value)
 			return out
 		}
 
@@ -175,8 +184,7 @@ func getDatapointsFromStats(aggName string, aggRes *aggregationResponse, dims ma
 			m, ok := v.(map[string]interface{})
 
 			if !ok {
-				log.WithFields(log.Fields{"extended_stat": k,
-					"aggregation_name": aggName}).Warnf("Invalid value found for stat: %v", v)
+				log.WithFields(log.Fields{"extended_stat": k}).Warnf("Invalid value found for stat: %v", v)
 				continue
 			}
 
@@ -185,8 +193,7 @@ func getDatapointsFromStats(aggName string, aggRes *aggregationResponse, dims ma
 				dp, ok := collectDatapoint(metricName, bv, dims)
 
 				if !ok {
-					log.WithFields(log.Fields{"stat": k,
-						"aggregation_name": aggName}).Warnf("Invalid value found for stat: %v", bv)
+					log.WithFields(log.Fields{"stat": k}).Warnf("Invalid value found for stat: %v", bv)
 					continue
 				}
 
@@ -197,8 +204,7 @@ func getDatapointsFromStats(aggName string, aggRes *aggregationResponse, dims ma
 			dp, ok := collectDatapoint(metricName, v, dims)
 
 			if !ok {
-				log.WithFields(log.Fields{"stat": k,
-					"aggregation_name": aggName}).Warnf("Invalid value found for stat: %v", v)
+				log.WithFields(log.Fields{"stat": k}).Warnf("Invalid value found for stat: %v", v)
 				continue
 			}
 
@@ -218,7 +224,7 @@ func getDatapointsFromPercentiles(aggName string, aggRes *aggregationResponse, d
 	values, ok := aggRes.Values.(map[string]interface{})
 
 	if !ok {
-		log.WithFields(log.Fields{"aggregation_name": aggName}).Warnf("No valid values found in percentiles aggregation")
+		log.Warnf("No valid values found in percentiles aggregation")
 	}
 
 	// Metric name is constituted of the aggregation type "percentiles" and the actual percentile
@@ -229,7 +235,7 @@ func getDatapointsFromPercentiles(aggName string, aggRes *aggregationResponse, d
 		p, err := strconv.ParseFloat(k, 64)
 
 		if err != nil {
-			log.WithFields(log.Fields{"aggregation_name": aggName}).Warnf("Invalid percentile found: %s", k)
+			log.Warnf("Invalid percentile found: %s", k)
 			continue
 		}
 
@@ -238,8 +244,7 @@ func getDatapointsFromPercentiles(aggName string, aggRes *aggregationResponse, d
 		dp, ok := collectDatapoint(metricName, v, dims)
 
 		if !ok {
-			log.WithFields(log.Fields{"percentile": k,
-				"aggregation_name": aggName}).Warnf("Invalid value found for percentile: %v", v)
+			log.WithFields(log.Fields{"percentile": k}).Warnf("Invalid value found for percentile: %v", v)
 			continue
 		}
 
@@ -264,7 +269,7 @@ func isTerminalBucket(b *bucketResponse) bool {
 func collectDatapoint(metricName string, value interface{}, dims map[string]string) (*datapoint.Datapoint, bool) {
 
 	out := datapoint.Datapoint{
-		Metric:     fmt.Sprintf("%s.%s", "elasticsearch_query", metricName),
+		Metric:     metricName,
 		Dimensions: dims,
 		MetricType: datapoint.Gauge,
 	}
@@ -283,4 +288,9 @@ func collectDatapoint(metricName string, value interface{}, dims map[string]stri
 	}
 
 	return &out, true
+}
+
+func getNewLoggerWithFields(fields log.Fields) *utils.ThrottledLogger {
+	fields["monitorType"] = monitorType
+	return utils.NewThrottledLogger(log.WithFields(fields), 20*time.Second)
 }

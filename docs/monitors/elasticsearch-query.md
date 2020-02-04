@@ -39,6 +39,7 @@ monitors:
         }
       }
     }
+intervalSeconds: 300
 ```
 
 The `elasticsearchRequest` takes in a `string` request in the format specified
@@ -57,12 +58,12 @@ The above query is performed against an index that has documents that take the f
 }
 ```
 
-This query returns the average value of `cpu_utilization` across all documents with a `@timestamp`
+The query specified in `elasticsearchRequest` returns the average value of `cpu_utilization` across all documents with a `@timestamp`
 in the last five minutes. This value is metricized to the following form in SignalFx :
 
 ```
 {
-metric_name: elasticsearch_query.avg_cpu_utilization,
+metric_name: avg_cpu_utilization,
 dimensions:
   index: <name_of_index>
   metric_aggregation_type: avg
@@ -71,9 +72,10 @@ dimensions:
 
 ## Data Model Transformation
 
-Understanding how this monitor transforms Elasticsearch responses to SignalFx datapoints.
+Read through the following section to understand how this monitor transforms Elasticsearch
+responses to SignalFx datapoints.
 
-At high level this monitor metricizes responses of following types -
+At high level this monitor metricizes responses of the following types -
 
 1. Metric aggregations inside one or more Bucket aggregations such as the `terms` and `filters`
 aggregations. Dimensions on a datapoint are determined by the aggregation name (dimension name)
@@ -85,7 +87,7 @@ Metric aggregation name and it's values in case of multi-value aggregations. A d
 the above case.
 
 3. Bucket aggregations that do not have any Metric aggregations as sub aggregations will be
-transformed to a metric called `elasticsearch_query.doc_count` and will have `bucket_aggregation_name`
+transformed to a metric called `<name_of_aggregation>.doc_count` and will have `bucket_aggregation_name`
 dimension apart from the `key` of each bucket.
 
 **Note**: Since Bucket aggregations determine dimensions in SignalFx, in most cases Bucket aggregations
@@ -238,11 +240,11 @@ looked like the below json, 4 datapoints would be collected, each with a differe
 
 In this case, each bucket will result 5 metrics -
 
-  1. elasticsearch_query.cpu_usage_stats.count
-  2. elasticsearch_query.cpu_usage_stats.min
-  3. elasticsearch_query.cpu_usage_stats.max
-  4. elasticsearch_query.cpu_usage_stats.avg
-  5. elasticsearch_query.cpu_usage_stats.sum
+  1. `cpu_usage_stats.count`
+  2. `cpu_usage_stats.min`
+  3. `cpu_usage_stats.max`
+  4. `cpu_usage_stats.avg`
+  5. `cpu_usage_stats.sum`
 
 The dimensions are derived in the same manner as the previous example.
 

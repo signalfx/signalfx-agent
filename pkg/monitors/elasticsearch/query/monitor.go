@@ -35,7 +35,6 @@ type Monitor struct {
 	Output types.FilteringOutput
 	cancel context.CancelFunc
 	ctx    context.Context
-	logger *utils.ThrottledLogger
 }
 
 func init() {
@@ -44,8 +43,6 @@ func init() {
 
 // Configure monitor
 func (m *Monitor) Configure(config *Config) error {
-	m.logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType}), 20*time.Second)
-
 	httpClient, err := config.HTTPConfig.Build()
 	if err != nil {
 		return err

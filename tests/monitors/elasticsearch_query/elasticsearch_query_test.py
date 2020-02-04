@@ -63,7 +63,7 @@ def test_elasticsearch_query_simple_metric_aggs(version):
                 p(
                     has_datapoint,
                     agent.fake_services,
-                    metric_name="elasticsearch_query.avg_cpu_utilization",
+                    metric_name="avg_cpu_utilization",
                     dimensions={"index": "metrics", "metric_aggregation_type": "avg"},
                 )
             ), "Didn't get elasticsearch-query datapoints"
@@ -90,7 +90,7 @@ def test_elasticsearch_query_extened_stats_aggs(version):
                     p(
                         has_datapoint,
                         agent.fake_services,
-                        metric_name="elasticsearch_query.cpu_utilization_stats.%s" % metric,
+                        metric_name="cpu_utilization_stats.%s" % metric,
                         dimensions={"index": "metrics", "metric_aggregation_type": "extended_stats"},
                     )
                 ), "Didn't get elasticsearch-query datapoints"
@@ -128,7 +128,7 @@ def test_elasticsearch_query_simple_metric_aggs_with_filters_aggs(version):
                     p(
                         has_datapoint,
                         agent.fake_services,
-                        metric_name="elasticsearch_query.avg_cpu_utilization",
+                        metric_name="avg_cpu_utilization",
                         dimensions={"index": "metrics", "metric_aggregation_type": "avg", "host_name": host},
                     )
                 ), "Didn't get elasticsearch-query datapoints"
@@ -165,7 +165,7 @@ def test_elasticsearch_query_terminal_bucket_aggs(version):
                     p(
                         has_datapoint,
                         agent.fake_services,
-                        metric_name="elasticsearch_query.host_name.doc_count",
+                        metric_name="host_name.doc_count",
                         dimensions={"index": "metrics", "bucket_aggregation_type": "filters", "host_name": host},
                     )
                 ), "Didn't get elasticsearch-query datapoints"
@@ -204,7 +204,7 @@ def test_elasticsearch_query_percentiles_aggs_with_filters_aggs(version):
                         p(
                             has_datapoint,
                             agent.fake_services,
-                            metric_name="elasticsearch_query.cpu_utilization_percentiles.%s" % metric,
+                            metric_name="cpu_utilization_percentiles.%s" % metric,
                             dimensions={
                                 "index": "metrics",
                                 "metric_aggregation_type": "percentiles",
