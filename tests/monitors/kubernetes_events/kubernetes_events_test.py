@@ -8,11 +8,11 @@ pytestmark = [pytest.mark.kubernetes_events, pytest.mark.monitor_without_endpoin
 
 def has_event(fake_services, event_dict):
     event_type = event_dict["reason"]
-    kubernetes_kind = event_dict["involvedObjectKind"]
+    obj_kind = event_dict["involvedObjectKind"]
     for event in fake_services.events:
         if event.eventType == event_type:
             for dim in event.dimensions:
-                if dim.key == "kubernetes_kind" and dim.value == kubernetes_kind:
+                if dim.key == "kubernetes_kind" and dim.value == obj_kind:
                     return True
     return False
 
