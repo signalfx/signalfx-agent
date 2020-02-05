@@ -31147,7 +31147,7 @@
           "description": "",
           "metrics": [
             "apiserver_current_inflight_requests",
-            "apiserver_init_events",
+            "apiserver_init_events_total",
             "apiserver_longrunning_gauge",
             "apiserver_registered_watchers",
             "authenticated_user_requests",
@@ -31232,8 +31232,8 @@
         "apiserver_audit": {
           "description": "",
           "metrics": [
-            "apiserver_audit_event",
-            "apiserver_audit_requests_rejected"
+            "apiserver_audit_event_total",
+            "apiserver_audit_requests_rejected_total"
           ]
         },
         "apiserver_client": {
@@ -31247,7 +31247,6 @@
         "apiserver_request": {
           "description": "",
           "metrics": [
-            "apiserver_request",
             "apiserver_request_count",
             "apiserver_request_duration_seconds",
             "apiserver_request_duration_seconds_bucket",
@@ -31257,7 +31256,8 @@
             "apiserver_request_latencies_count",
             "apiserver_request_latencies_summary",
             "apiserver_request_latencies_summary_count",
-            "apiserver_request_latencies_summary_quantile"
+            "apiserver_request_latencies_summary_quantile",
+            "apiserver_request_total"
           ]
         },
         "apiserver_response": {
@@ -31274,11 +31274,11 @@
             "apiserver_storage_data_key_generation_duration_seconds",
             "apiserver_storage_data_key_generation_duration_seconds_bucket",
             "apiserver_storage_data_key_generation_duration_seconds_count",
-            "apiserver_storage_data_key_generation_failures",
+            "apiserver_storage_data_key_generation_failures_total",
             "apiserver_storage_data_key_generation_latencies_microseconds",
             "apiserver_storage_data_key_generation_latencies_microseconds_bucket",
             "apiserver_storage_data_key_generation_latencies_microseconds_count",
-            "apiserver_storage_envelope_transformation_cache_misses"
+            "apiserver_storage_envelope_transformation_cache_misses_total"
           ]
         },
         "autoregister": {
@@ -31420,10 +31420,10 @@
         "grpc_client": {
           "description": "",
           "metrics": [
-            "grpc_client_handled",
-            "grpc_client_msg_received",
-            "grpc_client_msg_sent",
-            "grpc_client_started"
+            "grpc_client_handled_total",
+            "grpc_client_msg_received_total",
+            "grpc_client_msg_sent_total",
+            "grpc_client_started_total"
           ]
         },
         "http_request": {
@@ -31454,9 +31454,9 @@
             "go_gc_duration_seconds_quantile",
             "go_goroutines",
             "go_info",
-            "go_memstats_alloc_bytes",
+            "go_memstats_alloc_bytes_total",
             "go_memstats_buck_hash_sys_bytes",
-            "go_memstats_frees",
+            "go_memstats_frees_total",
             "go_memstats_gc_cpu_fraction",
             "go_memstats_gc_sys_bytes",
             "go_memstats_heap_alloc_bytes",
@@ -31466,8 +31466,8 @@
             "go_memstats_heap_released_bytes",
             "go_memstats_heap_sys_bytes",
             "go_memstats_last_gc_time_seconds",
-            "go_memstats_lookups",
-            "go_memstats_mallocs",
+            "go_memstats_lookups_total",
+            "go_memstats_mallocs_total",
             "go_memstats_mcache_inuse_bytes",
             "go_memstats_mcache_sys_bytes",
             "go_memstats_mspan_inuse_bytes",
@@ -31483,7 +31483,7 @@
         "prometheus_process": {
           "description": "",
           "metrics": [
-            "process_cpu_seconds",
+            "process_cpu_seconds_total",
             "process_max_fds",
             "process_open_fds",
             "process_resident_memory_bytes",
@@ -31501,7 +31501,7 @@
             "rest_client_request_latency_seconds",
             "rest_client_request_latency_seconds_bucket",
             "rest_client_request_latency_seconds_count",
-            "rest_client_requests"
+            "rest_client_requests_total"
           ]
         },
         "ssh_tunnel": {
@@ -31521,13 +31521,13 @@
         "workqueue": {
           "description": "",
           "metrics": [
-            "workqueue_adds",
+            "workqueue_adds_total",
             "workqueue_depth",
             "workqueue_longest_running_processor_seconds",
             "workqueue_queue_duration_seconds",
             "workqueue_queue_duration_seconds_bucket",
             "workqueue_queue_duration_seconds_count",
-            "workqueue_retries",
+            "workqueue_retries_total",
             "workqueue_unfinished_work_seconds",
             "workqueue_work_duration_seconds",
             "workqueue_work_duration_seconds_bucket",
@@ -31968,13 +31968,13 @@
           "group": "apiserver_admission_step_admission",
           "default": false
         },
-        "apiserver_audit_event": {
+        "apiserver_audit_event_total": {
           "type": "cumulative",
           "description": "Counter of audit events generated and sent to the audit backend.",
           "group": "apiserver_audit",
           "default": false
         },
-        "apiserver_audit_requests_rejected": {
+        "apiserver_audit_requests_rejected_total": {
           "type": "cumulative",
           "description": "Counter of apiserver requests rejected due to an error in audit logging backend.",
           "group": "apiserver_audit",
@@ -32004,7 +32004,7 @@
           "group": null,
           "default": false
         },
-        "apiserver_init_events": {
+        "apiserver_init_events_total": {
           "type": "cumulative",
           "description": "Counter of init events processed in watchcache broken by resource type",
           "group": null,
@@ -32020,12 +32020,6 @@
           "type": "gauge",
           "description": "Number of currently registered watchers for a given resources",
           "group": null,
-          "default": false
-        },
-        "apiserver_request": {
-          "type": "cumulative",
-          "description": "Counter of apiserver requests broken out for each verb, dry run value, group, version, resource, scope, component, client, and HTTP response contentType and code.",
-          "group": "apiserver_request",
           "default": false
         },
         "apiserver_request_count": {
@@ -32088,6 +32082,12 @@
           "group": "apiserver_request",
           "default": false
         },
+        "apiserver_request_total": {
+          "type": "cumulative",
+          "description": "Counter of apiserver requests broken out for each verb, dry run value, group, version, resource, scope, component, client, and HTTP response contentType and code.",
+          "group": "apiserver_request",
+          "default": false
+        },
         "apiserver_response_sizes": {
           "type": "cumulative",
           "description": "Response size distribution in bytes for each group, version, verb, resource, subresource, scope and component. (sum)",
@@ -32124,7 +32124,7 @@
           "group": "apiserver_storage",
           "default": false
         },
-        "apiserver_storage_data_key_generation_failures": {
+        "apiserver_storage_data_key_generation_failures_total": {
           "type": "cumulative",
           "description": "Total number of failed data encryption key(DEK) generation operations.",
           "group": "apiserver_storage",
@@ -32148,7 +32148,7 @@
           "group": "apiserver_storage",
           "default": false
         },
-        "apiserver_storage_envelope_transformation_cache_misses": {
+        "apiserver_storage_envelope_transformation_cache_misses_total": {
           "type": "cumulative",
           "description": "Total number of cache misses while accessing key decryption key(KEK).",
           "group": "apiserver_storage",
@@ -32646,7 +32646,7 @@
           "group": "prometheus_go",
           "default": false
         },
-        "go_memstats_alloc_bytes": {
+        "go_memstats_alloc_bytes_total": {
           "type": "cumulative",
           "description": "Total number of bytes allocated, even if freed.",
           "group": "prometheus_go",
@@ -32658,7 +32658,7 @@
           "group": "prometheus_go",
           "default": false
         },
-        "go_memstats_frees": {
+        "go_memstats_frees_total": {
           "type": "cumulative",
           "description": "Total number of frees.",
           "group": "prometheus_go",
@@ -32718,13 +32718,13 @@
           "group": "prometheus_go",
           "default": false
         },
-        "go_memstats_lookups": {
+        "go_memstats_lookups_total": {
           "type": "cumulative",
           "description": "Total number of pointer lookups.",
           "group": "prometheus_go",
           "default": false
         },
-        "go_memstats_mallocs": {
+        "go_memstats_mallocs_total": {
           "type": "cumulative",
           "description": "Total number of mallocs.",
           "group": "prometheus_go",
@@ -32790,25 +32790,25 @@
           "group": "prometheus_go",
           "default": false
         },
-        "grpc_client_handled": {
+        "grpc_client_handled_total": {
           "type": "cumulative",
           "description": "Total number of RPCs completed by the client, regardless of success or failure.",
           "group": "grpc_client",
           "default": false
         },
-        "grpc_client_msg_received": {
+        "grpc_client_msg_received_total": {
           "type": "cumulative",
           "description": "Total number of RPC stream messages received by the client.",
           "group": "grpc_client",
           "default": false
         },
-        "grpc_client_msg_sent": {
+        "grpc_client_msg_sent_total": {
           "type": "cumulative",
           "description": "Total number of gRPC stream messages sent by the client.",
           "group": "grpc_client",
           "default": false
         },
-        "grpc_client_started": {
+        "grpc_client_started_total": {
           "type": "cumulative",
           "description": "Total number of RPCs started on the client.",
           "group": "grpc_client",
@@ -32880,7 +32880,7 @@
           "group": null,
           "default": false
         },
-        "process_cpu_seconds": {
+        "process_cpu_seconds_total": {
           "type": "cumulative",
           "description": "Total user and system CPU time spent in seconds.",
           "group": "prometheus_process",
@@ -32958,7 +32958,7 @@
           "group": "rest_client",
           "default": false
         },
-        "rest_client_requests": {
+        "rest_client_requests_total": {
           "type": "cumulative",
           "description": "Number of HTTP requests, partitioned by status code, method, and host.",
           "group": "rest_client",
@@ -32976,7 +32976,7 @@
           "group": "ssh_tunnel",
           "default": false
         },
-        "workqueue_adds": {
+        "workqueue_adds_total": {
           "type": "cumulative",
           "description": "Total number of adds handled by workqueue",
           "group": "workqueue",
@@ -33012,7 +33012,7 @@
           "group": "workqueue",
           "default": false
         },
-        "workqueue_retries": {
+        "workqueue_retries_total": {
           "type": "cumulative",
           "description": "Total number of retries handled by workqueue",
           "group": "workqueue",
