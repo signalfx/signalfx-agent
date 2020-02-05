@@ -142,16 +142,15 @@ const (
 	apiserverAdmissionStepAdmissionLatenciesMillisecondsSummary                     = "apiserver_admission_step_admission_latencies_milliseconds_summary"
 	apiserverAdmissionStepAdmissionLatenciesMillisecondsSummaryCount                = "apiserver_admission_step_admission_latencies_milliseconds_summary_count"
 	apiserverAdmissionStepAdmissionLatenciesMillisecondsSummaryQuantile             = "apiserver_admission_step_admission_latencies_milliseconds_summary_quantile"
-	apiserverAuditEvent                                                             = "apiserver_audit_event"
-	apiserverAuditRequestsRejected                                                  = "apiserver_audit_requests_rejected"
+	apiserverAuditEventTotal                                                        = "apiserver_audit_event_total"
+	apiserverAuditRequestsRejectedTotal                                             = "apiserver_audit_requests_rejected_total"
 	apiserverClientCertificateExpirationSeconds                                     = "apiserver_client_certificate_expiration_seconds"
 	apiserverClientCertificateExpirationSecondsBucket                               = "apiserver_client_certificate_expiration_seconds_bucket"
 	apiserverClientCertificateExpirationSecondsCount                                = "apiserver_client_certificate_expiration_seconds_count"
 	apiserverCurrentInflightRequests                                                = "apiserver_current_inflight_requests"
-	apiserverInitEvents                                                             = "apiserver_init_events"
+	apiserverInitEventsTotal                                                        = "apiserver_init_events_total"
 	apiserverLongrunningGauge                                                       = "apiserver_longrunning_gauge"
 	apiserverRegisteredWatchers                                                     = "apiserver_registered_watchers"
-	apiserverRequest                                                                = "apiserver_request"
 	apiserverRequestCount                                                           = "apiserver_request_count"
 	apiserverRequestDurationSeconds                                                 = "apiserver_request_duration_seconds"
 	apiserverRequestDurationSecondsBucket                                           = "apiserver_request_duration_seconds_bucket"
@@ -162,17 +161,18 @@ const (
 	apiserverRequestLatenciesSummary                                                = "apiserver_request_latencies_summary"
 	apiserverRequestLatenciesSummaryCount                                           = "apiserver_request_latencies_summary_count"
 	apiserverRequestLatenciesSummaryQuantile                                        = "apiserver_request_latencies_summary_quantile"
+	apiserverRequestTotal                                                           = "apiserver_request_total"
 	apiserverResponseSizes                                                          = "apiserver_response_sizes"
 	apiserverResponseSizesBucket                                                    = "apiserver_response_sizes_bucket"
 	apiserverResponseSizesCount                                                     = "apiserver_response_sizes_count"
 	apiserverStorageDataKeyGenerationDurationSeconds                                = "apiserver_storage_data_key_generation_duration_seconds"
 	apiserverStorageDataKeyGenerationDurationSecondsBucket                          = "apiserver_storage_data_key_generation_duration_seconds_bucket"
 	apiserverStorageDataKeyGenerationDurationSecondsCount                           = "apiserver_storage_data_key_generation_duration_seconds_count"
-	apiserverStorageDataKeyGenerationFailures                                       = "apiserver_storage_data_key_generation_failures"
+	apiserverStorageDataKeyGenerationFailuresTotal                                  = "apiserver_storage_data_key_generation_failures_total"
 	apiserverStorageDataKeyGenerationLatenciesMicroseconds                          = "apiserver_storage_data_key_generation_latencies_microseconds"
 	apiserverStorageDataKeyGenerationLatenciesMicrosecondsBucket                    = "apiserver_storage_data_key_generation_latencies_microseconds_bucket"
 	apiserverStorageDataKeyGenerationLatenciesMicrosecondsCount                     = "apiserver_storage_data_key_generation_latencies_microseconds_count"
-	apiserverStorageEnvelopeTransformationCacheMisses                               = "apiserver_storage_envelope_transformation_cache_misses"
+	apiserverStorageEnvelopeTransformationCacheMissesTotal                          = "apiserver_storage_envelope_transformation_cache_misses_total"
 	authenticatedUserRequests                                                       = "authenticated_user_requests"
 	autoregisterAdds                                                                = "autoregister_adds"
 	autoregisterDepth                                                               = "autoregister_depth"
@@ -255,9 +255,9 @@ const (
 	goGcDurationSecondsQuantile                                                     = "go_gc_duration_seconds_quantile"
 	goGoroutines                                                                    = "go_goroutines"
 	goInfo                                                                          = "go_info"
-	goMemstatsAllocBytes                                                            = "go_memstats_alloc_bytes"
+	goMemstatsAllocBytesTotal                                                       = "go_memstats_alloc_bytes_total"
 	goMemstatsBuckHashSysBytes                                                      = "go_memstats_buck_hash_sys_bytes"
-	goMemstatsFrees                                                                 = "go_memstats_frees"
+	goMemstatsFreesTotal                                                            = "go_memstats_frees_total"
 	goMemstatsGcCPUFraction                                                         = "go_memstats_gc_cpu_fraction"
 	goMemstatsGcSysBytes                                                            = "go_memstats_gc_sys_bytes"
 	goMemstatsHeapAllocBytes                                                        = "go_memstats_heap_alloc_bytes"
@@ -267,8 +267,8 @@ const (
 	goMemstatsHeapReleasedBytes                                                     = "go_memstats_heap_released_bytes"
 	goMemstatsHeapSysBytes                                                          = "go_memstats_heap_sys_bytes"
 	goMemstatsLastGcTimeSeconds                                                     = "go_memstats_last_gc_time_seconds"
-	goMemstatsLookups                                                               = "go_memstats_lookups"
-	goMemstatsMallocs                                                               = "go_memstats_mallocs"
+	goMemstatsLookupsTotal                                                          = "go_memstats_lookups_total"
+	goMemstatsMallocsTotal                                                          = "go_memstats_mallocs_total"
 	goMemstatsMcacheInuseBytes                                                      = "go_memstats_mcache_inuse_bytes"
 	goMemstatsMcacheSysBytes                                                        = "go_memstats_mcache_sys_bytes"
 	goMemstatsMspanInuseBytes                                                       = "go_memstats_mspan_inuse_bytes"
@@ -279,10 +279,10 @@ const (
 	goMemstatsStackSysBytes                                                         = "go_memstats_stack_sys_bytes"
 	goMemstatsSysBytes                                                              = "go_memstats_sys_bytes"
 	goThreads                                                                       = "go_threads"
-	grpcClientHandled                                                               = "grpc_client_handled"
-	grpcClientMsgReceived                                                           = "grpc_client_msg_received"
-	grpcClientMsgSent                                                               = "grpc_client_msg_sent"
-	grpcClientStarted                                                               = "grpc_client_started"
+	grpcClientHandledTotal                                                          = "grpc_client_handled_total"
+	grpcClientMsgReceivedTotal                                                      = "grpc_client_msg_received_total"
+	grpcClientMsgSentTotal                                                          = "grpc_client_msg_sent_total"
+	grpcClientStartedTotal                                                          = "grpc_client_started_total"
 	httpRequestDurationMicroseconds                                                 = "http_request_duration_microseconds"
 	httpRequestDurationMicrosecondsCount                                            = "http_request_duration_microseconds_count"
 	httpRequestDurationMicrosecondsQuantile                                         = "http_request_duration_microseconds_quantile"
@@ -294,7 +294,7 @@ const (
 	httpResponseSizeBytesCount                                                      = "http_response_size_bytes_count"
 	httpResponseSizeBytesQuantile                                                   = "http_response_size_bytes_quantile"
 	kubernetesBuildInfo                                                             = "kubernetes_build_info"
-	processCPUSeconds                                                               = "process_cpu_seconds"
+	processCPUSecondsTotal                                                          = "process_cpu_seconds_total"
 	processMaxFds                                                                   = "process_max_fds"
 	processOpenFds                                                                  = "process_open_fds"
 	processResidentMemoryBytes                                                      = "process_resident_memory_bytes"
@@ -307,16 +307,16 @@ const (
 	restClientRequestLatencySeconds                                                 = "rest_client_request_latency_seconds"
 	restClientRequestLatencySecondsBucket                                           = "rest_client_request_latency_seconds_bucket"
 	restClientRequestLatencySecondsCount                                            = "rest_client_request_latency_seconds_count"
-	restClientRequests                                                              = "rest_client_requests"
+	restClientRequestsTotal                                                         = "rest_client_requests_total"
 	sshTunnelOpenCount                                                              = "ssh_tunnel_open_count"
 	sshTunnelOpenFailCount                                                          = "ssh_tunnel_open_fail_count"
-	workqueueAdds                                                                   = "workqueue_adds"
+	workqueueAddsTotal                                                              = "workqueue_adds_total"
 	workqueueDepth                                                                  = "workqueue_depth"
 	workqueueLongestRunningProcessorSeconds                                         = "workqueue_longest_running_processor_seconds"
 	workqueueQueueDurationSeconds                                                   = "workqueue_queue_duration_seconds"
 	workqueueQueueDurationSecondsBucket                                             = "workqueue_queue_duration_seconds_bucket"
 	workqueueQueueDurationSecondsCount                                              = "workqueue_queue_duration_seconds_count"
-	workqueueRetries                                                                = "workqueue_retries"
+	workqueueRetriesTotal                                                           = "workqueue_retries_total"
 	workqueueUnfinishedWorkSeconds                                                  = "workqueue_unfinished_work_seconds"
 	workqueueWorkDurationSeconds                                                    = "workqueue_work_duration_seconds"
 	workqueueWorkDurationSecondsBucket                                              = "workqueue_work_duration_seconds_bucket"
@@ -396,16 +396,15 @@ var metricSet = map[string]monitors.MetricInfo{
 	apiserverAdmissionStepAdmissionLatenciesMillisecondsSummary:                     {Type: datapoint.Counter, Group: groupApiserverAdmissionStepAdmission},
 	apiserverAdmissionStepAdmissionLatenciesMillisecondsSummaryCount:                {Type: datapoint.Counter, Group: groupApiserverAdmissionStepAdmission},
 	apiserverAdmissionStepAdmissionLatenciesMillisecondsSummaryQuantile:             {Type: datapoint.Gauge, Group: groupApiserverAdmissionStepAdmission},
-	apiserverAuditEvent:                                                             {Type: datapoint.Counter, Group: groupApiserverAudit},
-	apiserverAuditRequestsRejected:                                                  {Type: datapoint.Counter, Group: groupApiserverAudit},
+	apiserverAuditEventTotal:                                                        {Type: datapoint.Counter, Group: groupApiserverAudit},
+	apiserverAuditRequestsRejectedTotal:                                             {Type: datapoint.Counter, Group: groupApiserverAudit},
 	apiserverClientCertificateExpirationSeconds:                                     {Type: datapoint.Counter, Group: groupApiserverClient},
 	apiserverClientCertificateExpirationSecondsBucket:                               {Type: datapoint.Counter, Group: groupApiserverClient},
 	apiserverClientCertificateExpirationSecondsCount:                                {Type: datapoint.Counter, Group: groupApiserverClient},
 	apiserverCurrentInflightRequests:                                                {Type: datapoint.Gauge},
-	apiserverInitEvents:                                                             {Type: datapoint.Counter},
+	apiserverInitEventsTotal:                                                        {Type: datapoint.Counter},
 	apiserverLongrunningGauge:                                                       {Type: datapoint.Gauge},
 	apiserverRegisteredWatchers:                                                     {Type: datapoint.Gauge},
-	apiserverRequest:                                                                {Type: datapoint.Counter, Group: groupApiserverRequest},
 	apiserverRequestCount:                                                           {Type: datapoint.Counter, Group: groupApiserverRequest},
 	apiserverRequestDurationSeconds:                                                 {Type: datapoint.Counter, Group: groupApiserverRequest},
 	apiserverRequestDurationSecondsBucket:                                           {Type: datapoint.Counter, Group: groupApiserverRequest},
@@ -416,17 +415,18 @@ var metricSet = map[string]monitors.MetricInfo{
 	apiserverRequestLatenciesSummary:                                                {Type: datapoint.Counter, Group: groupApiserverRequest},
 	apiserverRequestLatenciesSummaryCount:                                           {Type: datapoint.Counter, Group: groupApiserverRequest},
 	apiserverRequestLatenciesSummaryQuantile:                                        {Type: datapoint.Gauge, Group: groupApiserverRequest},
+	apiserverRequestTotal:                                                           {Type: datapoint.Counter, Group: groupApiserverRequest},
 	apiserverResponseSizes:                                                          {Type: datapoint.Counter, Group: groupApiserverResponse},
 	apiserverResponseSizesBucket:                                                    {Type: datapoint.Counter, Group: groupApiserverResponse},
 	apiserverResponseSizesCount:                                                     {Type: datapoint.Counter, Group: groupApiserverResponse},
 	apiserverStorageDataKeyGenerationDurationSeconds:                                {Type: datapoint.Counter, Group: groupApiserverStorage},
 	apiserverStorageDataKeyGenerationDurationSecondsBucket:                          {Type: datapoint.Counter, Group: groupApiserverStorage},
 	apiserverStorageDataKeyGenerationDurationSecondsCount:                           {Type: datapoint.Counter, Group: groupApiserverStorage},
-	apiserverStorageDataKeyGenerationFailures:                                       {Type: datapoint.Counter, Group: groupApiserverStorage},
+	apiserverStorageDataKeyGenerationFailuresTotal:                                  {Type: datapoint.Counter, Group: groupApiserverStorage},
 	apiserverStorageDataKeyGenerationLatenciesMicroseconds:                          {Type: datapoint.Counter, Group: groupApiserverStorage},
 	apiserverStorageDataKeyGenerationLatenciesMicrosecondsBucket:                    {Type: datapoint.Counter, Group: groupApiserverStorage},
 	apiserverStorageDataKeyGenerationLatenciesMicrosecondsCount:                     {Type: datapoint.Counter, Group: groupApiserverStorage},
-	apiserverStorageEnvelopeTransformationCacheMisses:                               {Type: datapoint.Counter, Group: groupApiserverStorage},
+	apiserverStorageEnvelopeTransformationCacheMissesTotal:                          {Type: datapoint.Counter, Group: groupApiserverStorage},
 	authenticatedUserRequests:                                                       {Type: datapoint.Counter},
 	autoregisterAdds:                                                                {Type: datapoint.Counter, Group: groupAutoregister},
 	autoregisterDepth:                                                               {Type: datapoint.Gauge, Group: groupAutoregister},
@@ -509,9 +509,9 @@ var metricSet = map[string]monitors.MetricInfo{
 	goGcDurationSecondsQuantile:             {Type: datapoint.Gauge, Group: groupPrometheusGo},
 	goGoroutines:                            {Type: datapoint.Gauge, Group: groupPrometheusGo},
 	goInfo:                                  {Type: datapoint.Gauge, Group: groupPrometheusGo},
-	goMemstatsAllocBytes:                    {Type: datapoint.Counter, Group: groupPrometheusGo},
+	goMemstatsAllocBytesTotal:               {Type: datapoint.Counter, Group: groupPrometheusGo},
 	goMemstatsBuckHashSysBytes:              {Type: datapoint.Gauge, Group: groupPrometheusGo},
-	goMemstatsFrees:                         {Type: datapoint.Counter, Group: groupPrometheusGo},
+	goMemstatsFreesTotal:                    {Type: datapoint.Counter, Group: groupPrometheusGo},
 	goMemstatsGcCPUFraction:                 {Type: datapoint.Gauge, Group: groupPrometheusGo},
 	goMemstatsGcSysBytes:                    {Type: datapoint.Gauge, Group: groupPrometheusGo},
 	goMemstatsHeapAllocBytes:                {Type: datapoint.Gauge, Group: groupPrometheusGo},
@@ -521,8 +521,8 @@ var metricSet = map[string]monitors.MetricInfo{
 	goMemstatsHeapReleasedBytes:             {Type: datapoint.Gauge, Group: groupPrometheusGo},
 	goMemstatsHeapSysBytes:                  {Type: datapoint.Gauge, Group: groupPrometheusGo},
 	goMemstatsLastGcTimeSeconds:             {Type: datapoint.Gauge, Group: groupPrometheusGo},
-	goMemstatsLookups:                       {Type: datapoint.Counter, Group: groupPrometheusGo},
-	goMemstatsMallocs:                       {Type: datapoint.Counter, Group: groupPrometheusGo},
+	goMemstatsLookupsTotal:                  {Type: datapoint.Counter, Group: groupPrometheusGo},
+	goMemstatsMallocsTotal:                  {Type: datapoint.Counter, Group: groupPrometheusGo},
 	goMemstatsMcacheInuseBytes:              {Type: datapoint.Gauge, Group: groupPrometheusGo},
 	goMemstatsMcacheSysBytes:                {Type: datapoint.Gauge, Group: groupPrometheusGo},
 	goMemstatsMspanInuseBytes:               {Type: datapoint.Gauge, Group: groupPrometheusGo},
@@ -533,10 +533,10 @@ var metricSet = map[string]monitors.MetricInfo{
 	goMemstatsStackSysBytes:                 {Type: datapoint.Gauge, Group: groupPrometheusGo},
 	goMemstatsSysBytes:                      {Type: datapoint.Gauge, Group: groupPrometheusGo},
 	goThreads:                               {Type: datapoint.Gauge, Group: groupPrometheusGo},
-	grpcClientHandled:                       {Type: datapoint.Counter, Group: groupGrpcClient},
-	grpcClientMsgReceived:                   {Type: datapoint.Counter, Group: groupGrpcClient},
-	grpcClientMsgSent:                       {Type: datapoint.Counter, Group: groupGrpcClient},
-	grpcClientStarted:                       {Type: datapoint.Counter, Group: groupGrpcClient},
+	grpcClientHandledTotal:                  {Type: datapoint.Counter, Group: groupGrpcClient},
+	grpcClientMsgReceivedTotal:              {Type: datapoint.Counter, Group: groupGrpcClient},
+	grpcClientMsgSentTotal:                  {Type: datapoint.Counter, Group: groupGrpcClient},
+	grpcClientStartedTotal:                  {Type: datapoint.Counter, Group: groupGrpcClient},
 	httpRequestDurationMicroseconds:         {Type: datapoint.Counter, Group: groupHTTPRequest},
 	httpRequestDurationMicrosecondsCount:    {Type: datapoint.Counter, Group: groupHTTPRequest},
 	httpRequestDurationMicrosecondsQuantile: {Type: datapoint.Gauge, Group: groupHTTPRequest},
@@ -548,7 +548,7 @@ var metricSet = map[string]monitors.MetricInfo{
 	httpResponseSizeBytesCount:              {Type: datapoint.Counter, Group: groupHTTPResponse},
 	httpResponseSizeBytesQuantile:           {Type: datapoint.Gauge, Group: groupHTTPResponse},
 	kubernetesBuildInfo:                     {Type: datapoint.Gauge},
-	processCPUSeconds:                       {Type: datapoint.Counter, Group: groupPrometheusProcess},
+	processCPUSecondsTotal:                  {Type: datapoint.Counter, Group: groupPrometheusProcess},
 	processMaxFds:                           {Type: datapoint.Gauge, Group: groupPrometheusProcess},
 	processOpenFds:                          {Type: datapoint.Gauge, Group: groupPrometheusProcess},
 	processResidentMemoryBytes:              {Type: datapoint.Gauge, Group: groupPrometheusProcess},
@@ -561,16 +561,16 @@ var metricSet = map[string]monitors.MetricInfo{
 	restClientRequestLatencySeconds:         {Type: datapoint.Counter, Group: groupRestClient},
 	restClientRequestLatencySecondsBucket:   {Type: datapoint.Counter, Group: groupRestClient},
 	restClientRequestLatencySecondsCount:    {Type: datapoint.Counter, Group: groupRestClient},
-	restClientRequests:                      {Type: datapoint.Counter, Group: groupRestClient},
+	restClientRequestsTotal:                 {Type: datapoint.Counter, Group: groupRestClient},
 	sshTunnelOpenCount:                      {Type: datapoint.Counter, Group: groupSSHTunnel},
 	sshTunnelOpenFailCount:                  {Type: datapoint.Counter, Group: groupSSHTunnel},
-	workqueueAdds:                           {Type: datapoint.Counter, Group: groupWorkqueue},
+	workqueueAddsTotal:                      {Type: datapoint.Counter, Group: groupWorkqueue},
 	workqueueDepth:                          {Type: datapoint.Gauge, Group: groupWorkqueue},
 	workqueueLongestRunningProcessorSeconds: {Type: datapoint.Gauge, Group: groupWorkqueue},
 	workqueueQueueDurationSeconds:           {Type: datapoint.Counter, Group: groupWorkqueue},
 	workqueueQueueDurationSecondsBucket:     {Type: datapoint.Counter, Group: groupWorkqueue},
 	workqueueQueueDurationSecondsCount:      {Type: datapoint.Counter, Group: groupWorkqueue},
-	workqueueRetries:                        {Type: datapoint.Counter, Group: groupWorkqueue},
+	workqueueRetriesTotal:                   {Type: datapoint.Counter, Group: groupWorkqueue},
 	workqueueUnfinishedWorkSeconds:          {Type: datapoint.Gauge, Group: groupWorkqueue},
 	workqueueWorkDurationSeconds:            {Type: datapoint.Counter, Group: groupWorkqueue},
 	workqueueWorkDurationSecondsBucket:      {Type: datapoint.Counter, Group: groupWorkqueue},
@@ -581,7 +581,7 @@ var defaultMetrics = map[string]bool{
 	admissionQuotaControllerAdds:          true,
 	apiserverRequestCount:                 true,
 	apiserverRequestDurationSecondsBucket: true,
-	workqueueAdds:                         true,
+	workqueueAddsTotal:                    true,
 	workqueueDepth:                        true,
 }
 
@@ -647,8 +647,8 @@ var groupMetricsMap = map[string][]string{
 		apiserverAdmissionStepAdmissionLatenciesMillisecondsSummaryQuantile,
 	},
 	groupApiserverAudit: []string{
-		apiserverAuditEvent,
-		apiserverAuditRequestsRejected,
+		apiserverAuditEventTotal,
+		apiserverAuditRequestsRejectedTotal,
 	},
 	groupApiserverClient: []string{
 		apiserverClientCertificateExpirationSeconds,
@@ -656,7 +656,6 @@ var groupMetricsMap = map[string][]string{
 		apiserverClientCertificateExpirationSecondsCount,
 	},
 	groupApiserverRequest: []string{
-		apiserverRequest,
 		apiserverRequestCount,
 		apiserverRequestDurationSeconds,
 		apiserverRequestDurationSecondsBucket,
@@ -667,6 +666,7 @@ var groupMetricsMap = map[string][]string{
 		apiserverRequestLatenciesSummary,
 		apiserverRequestLatenciesSummaryCount,
 		apiserverRequestLatenciesSummaryQuantile,
+		apiserverRequestTotal,
 	},
 	groupApiserverResponse: []string{
 		apiserverResponseSizes,
@@ -677,11 +677,11 @@ var groupMetricsMap = map[string][]string{
 		apiserverStorageDataKeyGenerationDurationSeconds,
 		apiserverStorageDataKeyGenerationDurationSecondsBucket,
 		apiserverStorageDataKeyGenerationDurationSecondsCount,
-		apiserverStorageDataKeyGenerationFailures,
+		apiserverStorageDataKeyGenerationFailuresTotal,
 		apiserverStorageDataKeyGenerationLatenciesMicroseconds,
 		apiserverStorageDataKeyGenerationLatenciesMicrosecondsBucket,
 		apiserverStorageDataKeyGenerationLatenciesMicrosecondsCount,
-		apiserverStorageEnvelopeTransformationCacheMisses,
+		apiserverStorageEnvelopeTransformationCacheMissesTotal,
 	},
 	groupAutoregister: []string{
 		autoregisterAdds,
@@ -796,10 +796,10 @@ var groupMetricsMap = map[string][]string{
 		etcdRequestCacheGetLatenciesSummaryQuantile,
 	},
 	groupGrpcClient: []string{
-		grpcClientHandled,
-		grpcClientMsgReceived,
-		grpcClientMsgSent,
-		grpcClientStarted,
+		grpcClientHandledTotal,
+		grpcClientMsgReceivedTotal,
+		grpcClientMsgSentTotal,
+		grpcClientStartedTotal,
 	},
 	groupHTTPRequest: []string{
 		httpRequestDurationMicroseconds,
@@ -821,9 +821,9 @@ var groupMetricsMap = map[string][]string{
 		goGcDurationSecondsQuantile,
 		goGoroutines,
 		goInfo,
-		goMemstatsAllocBytes,
+		goMemstatsAllocBytesTotal,
 		goMemstatsBuckHashSysBytes,
-		goMemstatsFrees,
+		goMemstatsFreesTotal,
 		goMemstatsGcCPUFraction,
 		goMemstatsGcSysBytes,
 		goMemstatsHeapAllocBytes,
@@ -833,8 +833,8 @@ var groupMetricsMap = map[string][]string{
 		goMemstatsHeapReleasedBytes,
 		goMemstatsHeapSysBytes,
 		goMemstatsLastGcTimeSeconds,
-		goMemstatsLookups,
-		goMemstatsMallocs,
+		goMemstatsLookupsTotal,
+		goMemstatsMallocsTotal,
 		goMemstatsMcacheInuseBytes,
 		goMemstatsMcacheSysBytes,
 		goMemstatsMspanInuseBytes,
@@ -847,7 +847,7 @@ var groupMetricsMap = map[string][]string{
 		goThreads,
 	},
 	groupPrometheusProcess: []string{
-		processCPUSeconds,
+		processCPUSecondsTotal,
 		processMaxFds,
 		processOpenFds,
 		processResidentMemoryBytes,
@@ -862,7 +862,7 @@ var groupMetricsMap = map[string][]string{
 		restClientRequestLatencySeconds,
 		restClientRequestLatencySecondsBucket,
 		restClientRequestLatencySecondsCount,
-		restClientRequests,
+		restClientRequestsTotal,
 	},
 	groupSSHTunnel: []string{
 		sshTunnelOpenCount,
@@ -873,13 +873,13 @@ var groupMetricsMap = map[string][]string{
 		getTokenFailCount,
 	},
 	groupWorkqueue: []string{
-		workqueueAdds,
+		workqueueAddsTotal,
 		workqueueDepth,
 		workqueueLongestRunningProcessorSeconds,
 		workqueueQueueDurationSeconds,
 		workqueueQueueDurationSecondsBucket,
 		workqueueQueueDurationSecondsCount,
-		workqueueRetries,
+		workqueueRetriesTotal,
 		workqueueUnfinishedWorkSeconds,
 		workqueueWorkDurationSeconds,
 		workqueueWorkDurationSecondsBucket,

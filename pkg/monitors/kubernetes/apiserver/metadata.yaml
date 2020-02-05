@@ -455,12 +455,12 @@ monitors:
         admit). (quantized)
       type: gauge
       group: apiserver_admission_step_admission
-    apiserver_audit_event:
+    apiserver_audit_event_total:
       default: false
       description: Counter of audit events generated and sent to the audit backend.
       type: cumulative
       group: apiserver_audit
-    apiserver_audit_requests_rejected:
+    apiserver_audit_requests_rejected_total:
       default: false
       description: Counter of apiserver requests rejected due to an error in audit
         logging backend.
@@ -489,7 +489,7 @@ monitors:
       description: Maximal number of currently used inflight request limit of this
         apiserver per request kind in last second.
       type: gauge
-    apiserver_init_events:
+    apiserver_init_events_total:
       default: false
       description: Counter of init events processed in watchcache broken by resource
         type
@@ -565,7 +565,7 @@ monitors:
         verb, group, version, resource, subresource, scope and component. (quantized)
       type: gauge
       group: apiserver_request
-    apiserver_request:
+    apiserver_request_total:
       default: false
       description: Counter of apiserver requests broken out for each verb, dry run
         value, group, version, resource, scope, component, client, and HTTP response
@@ -608,7 +608,7 @@ monitors:
         (bucket)
       type: cumulative
       group: apiserver_storage
-    apiserver_storage_data_key_generation_failures:
+    apiserver_storage_data_key_generation_failures_total:
       default: false
       description: Total number of failed data encryption key(DEK) generation operations.
       type: cumulative
@@ -631,7 +631,7 @@ monitors:
         generation operations. (bucket)
       type: cumulative
       group: apiserver_storage
-    apiserver_storage_envelope_transformation_cache_misses:
+    apiserver_storage_envelope_transformation_cache_misses_total:
       default: false
       description: Total number of cache misses while accessing key decryption key(KEK).
       type: cumulative
@@ -1105,7 +1105,7 @@ monitors:
       description: Information about the Go environment.
       type: gauge
       group: prometheus_go
-    go_memstats_alloc_bytes:
+    go_memstats_alloc_bytes_total:
       default: false
       description: Total number of bytes allocated, even if freed.
       type: cumulative
@@ -1115,7 +1115,7 @@ monitors:
       description: Number of bytes used by the profiling bucket hash table.
       type: gauge
       group: prometheus_go
-    go_memstats_frees:
+    go_memstats_frees_total:
       default: false
       description: Total number of frees.
       type: cumulative
@@ -1166,12 +1166,12 @@ monitors:
       description: Number of seconds since 1970 of last garbage collection.
       type: gauge
       group: prometheus_go
-    go_memstats_lookups:
+    go_memstats_lookups_total:
       default: false
       description: Total number of pointer lookups.
       type: cumulative
       group: prometheus_go
-    go_memstats_mallocs:
+    go_memstats_mallocs_total:
       default: false
       description: Total number of mallocs.
       type: cumulative
@@ -1226,23 +1226,23 @@ monitors:
       description: Number of OS threads created.
       type: gauge
       group: prometheus_go
-    grpc_client_handled:
+    grpc_client_handled_total:
       default: false
       description: Total number of RPCs completed by the client, regardless of success
         or failure.
       type: cumulative
       group: grpc_client
-    grpc_client_msg_received:
+    grpc_client_msg_received_total:
       default: false
       description: Total number of RPC stream messages received by the client.
       type: cumulative
       group: grpc_client
-    grpc_client_msg_sent:
+    grpc_client_msg_sent_total:
       default: false
       description: Total number of gRPC stream messages sent by the client.
       type: cumulative
       group: grpc_client
-    grpc_client_started:
+    grpc_client_started_total:
       default: false
       description: Total number of RPCs started on the client.
       type: cumulative
@@ -1303,7 +1303,7 @@ monitors:
         version, git commit, git tree state, build date, Go version, and compiler
         from which Kubernetes was built, and platform on which it is running.
       type: gauge
-    process_cpu_seconds:
+    process_cpu_seconds_total:
       default: false
       description: Total user and system CPU time spent in seconds.
       type: cumulative
@@ -1371,7 +1371,7 @@ monitors:
         URL. (bucket)
       type: cumulative
       group: rest_client
-    rest_client_requests:
+    rest_client_requests_total:
       default: false
       description: Number of HTTP requests, partitioned by status code, method, and
         host.
@@ -1387,7 +1387,7 @@ monitors:
       description: Counter of ssh tunnel failed open attempts
       type: cumulative
       group: ssh_tunnel
-    workqueue_adds:
+    workqueue_adds_total:
       default: true
       description: Total number of adds handled by workqueue
       type: cumulative
@@ -1421,7 +1421,7 @@ monitors:
         (bucket)
       type: cumulative
       group: workqueue
-    workqueue_retries:
+    workqueue_retries_total:
       default: false
       description: Total number of retries handled by workqueue
       type: cumulative
