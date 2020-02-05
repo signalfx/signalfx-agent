@@ -29,6 +29,8 @@ if [ $WITH_SUDO -eq 1 ]; then
     PYTEST_PATH="sudo -E $PYENV_ROOT/shims/pytest"
 fi
 
+sudo sysctl -w vm.max_map_count=262144
+
 set -x
 if [ -n "$MARKERS" ]; then
   $PYTEST_PATH -m "$MARKERS" $PYTEST_OPTIONS $TESTS
