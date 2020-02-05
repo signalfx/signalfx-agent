@@ -1,6 +1,8 @@
 monitors:
   - monitorType: elasticsearch-query
     doc: |
+      **This monitor is in beta.**
+
       This monitor metricizes aggregated responses from Elasticsearch. The monitor
       constructs SignalFx datapoints based on Elasticsearch aggregation types and
       also aggregation names.
