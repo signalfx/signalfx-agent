@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/event"
+	"github.com/signalfx/signalfx-agent/pkg/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/pkg/core/common/kubernetes"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
@@ -151,6 +152,7 @@ func (m *Monitor) shouldSendEvent(ev *v1.Event) bool {
 func (m *Monitor) handleNewEvent(ev *v1.Event) {
 	if m.shouldSendEvent(ev) {
 		sfxEvent := k8sEventToSignalFxEvent(ev)
+		sfxEvent.Properties[dpmeta.NotHostSpecificMeta] = true
 		m.Output.SendEvent(sfxEvent)
 	}
 }
@@ -162,11 +164,15 @@ func k8sEventToSignalFxEvent(ev *v1.Event) *event.Event {
 		"obj_field_path":       ev.InvolvedObject.FieldPath,
 	}
 
-	// Reuse the existing pod dimensions that we send for metrics
-	if ev.InvolvedObject.Kind == "Pod" {
+	// Reuse the existing kubernetes-cluster monitor dimensions that we send for metrics
+	switch ev.InvolvedObject.Kind {
+	case "Pod":
 		dims["kubernetes_pod_name"] = ev.InvolvedObject.Name
 		dims["kubernetes_pod_uid"] = string(ev.InvolvedObject.UID)
-	} else {
+	case "Node":
+		dims["kubernetes_node"] = ev.InvolvedObject.Name
+		dims["kubernetes_node_uid"] = string(ev.InvolvedObject.UID)
+	default:
 		dims["kubernetes_name"] = ev.InvolvedObject.Name
 		dims["kubernetes_uid"] = string(ev.InvolvedObject.UID)
 	}
