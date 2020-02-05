@@ -13,7 +13,7 @@ from kubernetes import client
 from kubernetes import config as kconfig
 from tests.helpers.fake_backend import start as start_fake_backend
 from tests.helpers.formatting import print_dp_or_event
-from tests.helpers.util import wait_for
+from tests.helpers.util import retry_on_ebadf, wait_for
 
 from . import tunnel, utils
 from .agent import Agent
@@ -54,6 +54,7 @@ class Cluster:
             self.test_namespace, grace_period_seconds=0, body=client.V1DeleteOptions(propagation_policy="Background")
         )
 
+    @retry_on_ebadf
     def exec_kubectl(self, command, namespace=None):
         """
         Runs kubectl with the given command in the given namespace.

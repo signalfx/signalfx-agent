@@ -9,7 +9,14 @@ from pathlib import Path
 import docker
 import requests
 from tests.helpers import fake_backend
-from tests.helpers.util import get_docker_client, get_host_ip, pull_from_reader_in_background, retry, run_container
+from tests.helpers.util import (
+    get_docker_client,
+    get_host_ip,
+    pull_from_reader_in_background,
+    retry,
+    retry_on_ebadf,
+    run_container,
+)
 from tests.paths import REPO_ROOT_DIR
 
 PACKAGING_DIR = REPO_ROOT_DIR / "packaging"
@@ -121,12 +128,14 @@ def socat_https_proxy(container, target_host, target_port, source_host, bind_add
 
     threading.Thread(target=keep_running_in_container, args=(container, socket_path)).start()
 
-    proc = subprocess.Popen(
-        [socat_bin, "-v", "UNIX-LISTEN:%s,fork" % socket_path, "TCP4:%s:%d" % (target_host, target_port)],
-        stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,
-        close_fds=False,
-    )
+    proc = retry_on_ebadf(
+        lambda: subprocess.Popen(
+            [socat_bin, "-v", "UNIX-LISTEN:%s,fork" % socket_path, "TCP4:%s:%d" % (target_host, target_port)],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            close_fds=False,
+        )
+    )()
 
     get_local_out = pull_from_reader_in_background(proc.stdout)
 
@@ -190,12 +199,14 @@ def run_init_system_image(
                 yield [cont, backend]
 
 
+@retry_on_ebadf
 def is_agent_running_as_non_root(container):
     code, output = container.exec_run("pgrep -u signalfx-agent signalfx-agent")
     print("pgrep check: %s" % output)
     return code == 0
 
 
+@retry_on_ebadf
 def get_agent_version(cont):
     code, output = cont.exec_run("signalfx-agent -version")
     output = output.decode("utf-8").strip()
