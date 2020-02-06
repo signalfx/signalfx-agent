@@ -23,6 +23,10 @@ type HTTPConfig struct {
 	// If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.
 	UseHTTPS bool `yaml:"useHTTPS"`
 
+	// A map of key=message-header and value=header-value.
+	// Comma separated multiple values for the same message-header is supported.
+	HTTPHeaders map[string]string `yaml:"httpHeaders,omitempty"`
+
 	// If useHTTPS is true and this option is also true, the exporter's TLS
 	// cert will not be verified.
 	SkipVerify bool `yaml:"skipVerify"`
@@ -73,8 +77,27 @@ func (h *HTTPConfig) Build() (*http.Client, error) {
 		}
 	}
 
+	if len(h.HTTPHeaders) > 0 {
+		roundTripper = &addHeader{
+			rt:      roundTripper,
+			headers: h.HTTPHeaders,
+		}
+	}
+
 	return &http.Client{
 		Timeout:   h.HTTPTimeout.AsDuration(),
 		Transport: roundTripper,
 	}, nil
+}
+
+type addHeader struct {
+	headers map[string]string
+	rt      http.RoundTripper
+}
+
+func (h *addHeader) RoundTrip(req *http.Request) (*http.Response, error) {
+	for k, v := range h.headers {
+		req.Header.Add(k, v)
+	}
+	return h.rt.RoundTrip(req)
 }

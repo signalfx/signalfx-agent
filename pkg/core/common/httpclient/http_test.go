@@ -12,9 +12,10 @@ import (
 	"testing"
 	"time"
 
+	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
 	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 
-	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -39,6 +40,10 @@ func runServer(t *testing.T, h *HTTPConfig, cb func(host string)) {
 				_, _ = writer.Write([]byte("unauthorized"))
 				return
 			}
+		}
+
+		for configHeader, configValue := range h.HTTPHeaders {
+			assert.Equal(t, configValue, request.Header.Get(configHeader))
 		}
 
 		writer.WriteHeader(http.StatusOK)
@@ -175,4 +180,14 @@ func TestHttpConfig_Scheme(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestHttpHeaders(t *testing.T) {
+	h := &HTTPConfig{
+		HTTPHeaders: map[string]string{
+			"HeaderOne": "ValueOne, ValueTwo",
+			"HeaderTwo": "ValueThree",
+		},
+	}
+	runServer(t, h, verify(t, h))
 }
