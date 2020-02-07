@@ -18890,6 +18890,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
             "default": false,
@@ -21716,6 +21724,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
             "default": false,
@@ -21968,6 +21984,14 @@
             "required": false,
             "type": "bool",
             "elementKind": ""
+          },
+          {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
           },
           {
             "yamlName": "skipVerify",
@@ -23541,6 +23565,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
             "default": false,
@@ -24613,6 +24645,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
             "default": false,
@@ -24834,6 +24874,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
             "default": false,
@@ -25039,6 +25087,14 @@
             "required": false,
             "type": "bool",
             "elementKind": ""
+          },
+          {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
           },
           {
             "yamlName": "skipVerify",
@@ -25302,6 +25358,14 @@
             "required": false,
             "type": "bool",
             "elementKind": ""
+          },
+          {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
           },
           {
             "yamlName": "skipVerify",
@@ -25644,6 +25708,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
             "default": false,
@@ -25954,6 +26026,14 @@
             "required": false,
             "type": "bool",
             "elementKind": ""
+          },
+          {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
           },
           {
             "yamlName": "skipVerify",
@@ -30716,6 +30796,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
             "default": false,
@@ -33198,6 +33286,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
             "default": false,
@@ -34401,6 +34497,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
             "default": false,
@@ -35355,6 +35459,14 @@
             "required": false,
             "type": "bool",
             "elementKind": ""
+          },
+          {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
           },
           {
             "yamlName": "skipVerify",
@@ -37544,6 +37656,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
             "default": false,
@@ -37933,6 +38053,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
             "default": false,
@@ -38187,6 +38315,14 @@
             "required": false,
             "type": "bool",
             "elementKind": ""
+          },
+          {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
           },
           {
             "yamlName": "skipVerify",
@@ -39423,6 +39559,14 @@
             "required": false,
             "type": "bool",
             "elementKind": ""
+          },
+          {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
           },
           {
             "yamlName": "skipVerify",
@@ -41242,6 +41386,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
             "default": false,
@@ -42366,6 +42518,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
             "yamlName": "skipVerify",
             "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
             "default": false,
@@ -42907,6 +43067,14 @@
             "required": false,
             "type": "bool",
             "elementKind": ""
+          },
+          {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
           },
           {
             "yamlName": "skipVerify",
@@ -46172,6 +46340,14 @@
             "required": false,
             "type": "bool",
             "elementKind": ""
+          },
+          {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
           },
           {
             "yamlName": "skipVerify",
