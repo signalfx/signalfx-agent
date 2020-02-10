@@ -480,6 +480,23 @@ var _ = Describe("Config Loader", func() {
 		Expect(config.Monitors[0].OtherConfig["templates"]).Should(ConsistOf(`LoadPlugin "cpufreq"`))
 	})
 
+	It("Allows JSONPath processing of source values", func() {
+		path := mkFile("agent/agent.yaml", outdent(`
+			signalFxAccessToken: {"#from": "env:ASDF_INFO", jsonPath: "$.token"}
+		`))
+
+		os.Setenv("ASDF_INFO", `{"token": "s3cr3t", "app_name": "my_app"}`)
+		loads, err := LoadConfig(ctx, path)
+		os.Unsetenv("ASDF_INFO")
+
+		Expect(err).ShouldNot(HaveOccurred())
+
+		var config *Config
+		Eventually(loads).Should(Receive(&config))
+
+		Expect(config.SignalFxAccessToken).Should(Equal(`s3cr3t`))
+	})
+
 })
 
 func TestLoader(t *testing.T) {

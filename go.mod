@@ -141,6 +141,7 @@ require (
 	github.com/vjeantet/grok v1.0.0 // indirect
 	github.com/vmware/govmomi v0.21.0
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
+	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.etcd.io/etcd v0.0.0-20190321122103-41f7142ff986
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	golang.org/x/sys v0.0.0-20191105231009-c1f44814a5cd
