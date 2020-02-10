@@ -44,6 +44,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/heroku"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/internalmetrics"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/jaegergrpc"
+	_ "github.com/signalfx/signalfx-agent/pkg/monitors/jenkins"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/jmx"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/kubernetes"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/load"
