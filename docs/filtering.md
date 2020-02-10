@@ -1,5 +1,13 @@
 # Filtering
 
+## Before you begin
+
+This document only applies to users who are running Smart Agent version 4.7.0 or higher. 
+
+If you are running any version of the Smart Agent lower than 4.7.0, see [Legacy Filtering](legacy-filtering.md).
+
+## Overview
+
 You may wish to filter out certain datapoints or properties to prevent them
 from ever leaving the agent. Filtering can be useful to reduce clutter in
 charts without having to resort to filtering in the UI.  If possible, it is
