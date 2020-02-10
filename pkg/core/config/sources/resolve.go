@@ -1,9 +1,11 @@
 package sources
 
 import (
+	"encoding/json"
 	"fmt"
 
 	"github.com/pkg/errors"
+	"github.com/yalp/jsonpath"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -47,13 +49,13 @@ func (r *resolver) Resolve(raw RawDynamicValueSpec) ([]interface{}, string, *dyn
 			spec.Default,
 		}
 	} else {
-		value, err = convertFileBytesToValues(contentMap, spec.Raw)
+		value, err = convertFileBytesToValues(contentMap, spec.Raw, spec.JSONPath)
 	}
 
 	return value, spec.From.Path(), spec, err
 }
 
-func convertFileBytesToValues(content map[string][]byte, raw bool) ([]interface{}, error) {
+func convertFileBytesToValues(content map[string][]byte, raw bool, jsonPath string) ([]interface{}, error) {
 	var out []interface{}
 	for path := range content {
 		if len(content[path]) == 0 {
@@ -61,9 +63,21 @@ func convertFileBytesToValues(content map[string][]byte, raw bool) ([]interface{
 		}
 
 		var v interface{}
-		if raw {
+		switch {
+		case raw:
 			v = string(content[path])
-		} else {
+		case jsonPath != "":
+			var data interface{}
+			err := json.Unmarshal(content[path], &data)
+			if err != nil {
+				return nil, fmt.Errorf("could not parse value as JSON for jsonPath: %v", err)
+			}
+
+			v, err = jsonpath.Read(data, jsonPath)
+			if err != nil {
+				return nil, fmt.Errorf("could not resolve jsonPath value: %v", err)
+			}
+		default:
 			err := yaml.Unmarshal(content[path], &v)
 			if err != nil {
 				return nil, errors.WithMessage(err, "deserialization error at path "+path)

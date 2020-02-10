@@ -15,6 +15,7 @@ type dynamicValueSpec struct {
 	Optional bool        `yaml:"optional"`
 	Raw      bool        `yaml:"raw"`
 	Default  interface{} `yaml:"default"`
+	JSONPath string      `yaml:"jsonPath"`
 }
 
 type fromPath struct {
