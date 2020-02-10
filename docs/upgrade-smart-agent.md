@@ -8,7 +8,6 @@ SignalFx recommends that you upgrade your Smart Agent as soon as possible.
 
 Current users can continue to run Smart Agent 4.X; however, after XX/XX/XXX, any new installs or upgrades will require you to change to the new Splunk-signed repositories.
 
-
 ## Upgrade the Smart Agent
 
 Review the following options to learn how to upgrade the Smart Agent:
@@ -18,37 +17,41 @@ Review the following options to learn how to upgrade the Smart Agent:
 Note: For commands prefixed by #, you must run as root.
 
 1. Delete the existing SignalFx apt key:
-  * # apt-key del 5AE495F6
+  * apt-key del 5AE495F6
+  * You must run this command as root. 
 
 2. Import the new key:
-  * # curl https://dl.signalfx.com/splunk-B3CD4420.gpg \
- | apt-key add -
+  * curl https://dl.signalfx.com/splunk-B3CD4420.gpg \
+  | apt-key add -
+  * You must run this command as root. 
 
 3. Replace /etc/apt/sources.list.d/signalfx-agent.list with the contents:
   * deb  https://dl.signalfx.com/debs/signalfx-agent/release /
 
 4. Update package metadata:
-  * # apt-get update
+  * apt-get update
+  * You must run this command as root. 
 
 5. Install latest signalfx-agent:
-  * # apt-get upgrade signalfx-agent
+  * apt-get upgrade signalfx-agent
+  * You must run this command as root. 
 
 ### Option 2: YUM:
 
-Note: For commands prefixed by #, you must run as root.
-
 1. Delete the existing SignalFx RPM key:
-  * # rpm -e gpg-pubkey-098acf3b-55a5351a
+  * rpm -e gpg-pubkey-098acf3b-55a5351a
+  * You must run this command as root. 
 
 2. Modify /etc/yum.repos.d/signalfx-agent.repo
   * Change baseurl to https://dl.signalfx.com/rpms/signalfx-agent/release
   * Change gpgkey to https://dl.signalfx.com/splunk-B3CD4420.pub
 
 3. Upgrade to the latest signalfx-agent package:
-  * # yum update signalfx-agent
+  * yum update signalfx-agent
+  * You must run this command as root. 
 
-4. You will be prompted to import the key with fingerprint:
-  * 58C3 3310 B7A3 54C1 279D  B669 5EFA 01ED B3CD 4420, press y to accept.
+4. You will be prompted to import the key with the fingerprint 58C3 3310 B7A3 54C1 279D  B669 5EFA 01ED B3CD 4420. 
+  * Press **y** to accept.
 
 ### Option 3: Chef, Ansible, Puppet, and Salt
 
@@ -87,17 +90,20 @@ Note: Current users can continue to run Smart Agent 4.X; however, after XX/XX/XX
 Note: For commands prefixed by #, you must run as root.
 
 1. Delete the existing SignalFx apt key:
-  * # apt-key del 5AE495F6
+  * apt-key del 5AE495F6
+  * You must run this command as root. 
 
 2. Import the new key:
-  * # curl https://dl.signalfx.com/splunk-B3CD4420.gpg \
-    | apt-key add -
+  * curl https://dl.signalfx.com/splunk-B3CD4420.gpg \
+  | apt-key add -
+  * You must run this command as root. 
 
 3. Replace /etc/apt/sources.list.d/signalfx-agent.list with the contents:
   * deb  https://dl.signalfx.com/debs/signalfx-agent/release /
 
 4. Update package metadata:
-  * # apt-get update
+  * apt-get update
+  * You must run this command as root. 
 
 5. Pin the agent version.
   * To learn more, see https://github.com/signalfx/signalfx-agent/tree/master/deployments.
@@ -111,7 +117,8 @@ Note: For commands prefixed by #, you must run as root.
 #### Option 2: RPM
 
 1. Delete the existing SignalFx RPM key:
-  * # rpm -e gpg-pubkey-098acf3b-55a5351a
+  * rpm -e gpg-pubkey-098acf3b-55a5351a
+  * You must run this command as root. 
 
 2. Modify /etc/yum.repos.d/signalfx-agent.repo
   * Change baseurl to https://dl.signalfx.com/rpms/signalfx-agent/release
