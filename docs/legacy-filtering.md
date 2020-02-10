@@ -1,10 +1,10 @@
 # Legacy Filtering
-This page describes the old style of filtering and is deprecated and removed in
-agent version 5.0+. See [Filtering](filtering.md) for how to configure
-filtering in SignalFx Smart Agent 4.7.0+.
+This document only applies to users who are running any version of the SignalFx Smart Agent lower than 4.7.0. 
+
+If you are running Smart Agent version 4.7.0 or higher, see [Filtering](filtering.md).
 
 ## Old-style whitelist filtering
-In the Smart Agent prior to version 4.7.0, custom metrics were filtered out of
+Before version 4.7.0 of the Smart Agent, custom metrics were filtered out of
 the agent by means of a `whitelist.json` file that was referenced under the
 `metricsToExclude` section of the standard distributed config file.  This
 method is now deprecated but will continue to work if already configured as
