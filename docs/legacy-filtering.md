@@ -1,4 +1,6 @@
 # Legacy Filtering
+
+## Before you begin
 This document only applies to users who are running any version of the SignalFx Smart Agent lower than 4.7.0. 
 
 If you are running Smart Agent version 4.7.0 or higher, see [Filtering](filtering.md).
