@@ -290,6 +290,8 @@ jobs:
           paths:
             - image.tar
             - signalfx-agent-latest.tar.gz
+      - store_artifacts:
+          path: /tmp/workspace/signalfx-agent-latest.tar.gz
 
   modules_and_generate:
     executor: goexecutor
