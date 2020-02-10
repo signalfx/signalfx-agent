@@ -4,6 +4,8 @@ go 1.13
 
 replace git.apache.org/thrift.git => github.com/apache/thrift v0.0.0-20180902110319-2566ecd5d999
 
+replace github.com/bndr/gojenkins => github.com/signalfx/gojenkins v1.0.2-0.20200213164243-900cf3f0ed74
+
 require (
 	collectd.org v0.3.0 // indirect
 	github.com/Azure/azure-sdk-for-go v26.4.0+incompatible // indirect
@@ -19,6 +21,7 @@ require (
 	github.com/aliyun/alibaba-cloud-sdk-go v0.0.0-20190315122603-6f9e54af456e // indirect
 	github.com/araddon/gou v0.0.0-20190110011759-c797efecbb61 // indirect
 	github.com/aws/aws-sdk-go v1.18.4 // indirect
+	github.com/bndr/gojenkins v1.0.1
 	github.com/boombuler/barcode v1.0.0 // indirect
 	github.com/briankassouf/jose v0.9.1 // indirect
 	github.com/cenkalti/backoff v2.1.1+incompatible // indirect

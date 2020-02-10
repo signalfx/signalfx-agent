@@ -1,0 +1,123 @@
+monitors:
+- dimensions:
+    job_name:
+      description: Name of the job.
+    job_type:
+      description: Type of the job.
+    build_result:
+      description: Result of the build.
+    slave_name:
+      description: Slave display name.
+    jenkins_cluster:
+      description: A user defined value that uniquely identifies the current jenkins instance.
+    jenkins_version:
+      description: The Jenkins version.
+  doc: |
+    This monitor collects metrics from the Jenkins Metrics Plugin by hitting these endpoints:
+    [../api/json](https://wiki.jenkins.io/display/jenkins/remote+access+api)
+    and the plugin [metrics/&lt;MetricsKey&gt;/..](https://wiki.jenkins.io/display/JENKINS/Metrics+Plugin)
+    (default and optional Codahale/Dropwizard JVM metrics).
+
+    Requires Jenkins 1.580.3 or later, as well as the Jenkins Metrics Plugin (see Setup).
+
+    <!--- SETUP --->
+    ## Install Jenkins Metrics Plugin
+    This monitor requires the Metrics Plugin in Jenkins. Go to `Manage Jenkins -> Manage Plugins -> Available -> Search "Metrics Plugin"`
+    to find and install this plugin in your Jenkins UI.
+
+    <!--- SETUP --->
+    ## Example Config
+
+    Sample YAML configuration:
+
+    ```yaml
+    monitors:
+    - type: collectd/jenkins
+      host: 127.0.0.1
+      port: 8080
+      metricsKey: reallylongmetricskey
+      jenkins_cluster: my_custom_unique_jenkins_identifier
+    ```
+
+  metrics:
+    jenkins.job.total.time:
+      description: The total builds time for the job.
+      default: true
+      type: cumulative
+      group: job
+    jenkins.job.build.count:
+      description: The total number of builds the job ran.
+      default: true
+      type: cumulative
+      group: job
+    jenkins.node.vm.memory.total.used:
+      description: Total Memory used by instance
+      default: true
+      type: gauge
+      group: node
+    jenkins.node.vm.memory.heap.usage:
+      description: Percent utilization of the heap memory
+      default: true
+      type: gauge
+      group: node
+    jenkins.node.vm.memory.non-heap.used:
+      description: Total amount of non-heap memory used
+      default: true
+      type: gauge
+      group: node
+    jenkins.node.queue.size:
+      description: Total number pending jobs in queue
+      default: true
+      type: gauge
+      group: node
+    jenkins.node.health-check.score:
+      description: Mean health score of an instance
+      default: true
+      type: gauge
+      group: node
+    jenkins.node.executor.count:
+      description: Total Number of executors in an instance
+      default: true
+      type: gauge
+      group: node
+    jenkins.node.executor.in-use:
+      description: Total number of executors being used in an instance
+      default: true
+      type: gauge
+      group: node
+    jenkins.node.health.disk.space:
+      description: Binary value of disk space health
+      default: true
+      type: gauge
+      group: health
+    jenkins.node.health.plugins:
+      description: Boolean value indicating state of plugins
+      default: true
+      type: gauge
+      group: health
+    jenkins.node.health.temporary.space:
+      description: Binary value of temporary space health
+      default: true
+      type: gauge
+      group: health
+    jenkins.node.health.thread-deadlock:
+      description: Boolean value indicating a deadlock
+      default: true
+      type: gauge
+      group: health
+    jenkins.node.online.status:
+      description: Boolean value of instance is reachable or not
+      default: true
+      type: gauge
+      group: node/status
+    jenkins.node.slave.online.status:
+      description: Boolean value for slave is reachable or not
+      default: true
+      type: gauge
+      group: slave/status
+  monitorType: jenkins
+  properties:
+    <jenkins labels>:
+      description: The labels will be used as tags against the jenkins_cluster dimension.
+        Note that the label "master", which exists on every master instance, is filtered out.
+      dimension: jenkins_cluster

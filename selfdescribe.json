@@ -27274,6 +27274,285 @@
       "singleInstance": false
     },
     {
+      "monitorType": "jenkins",
+      "sendAll": false,
+      "dimensions": {
+        "build_result": {
+          "description": "Result of the build."
+        },
+        "jenkins_cluster": {
+          "description": "A user defined value that uniquely identifies the current jenkins instance."
+        },
+        "jenkins_version": {
+          "description": "The Jenkins version."
+        },
+        "job_name": {
+          "description": "Name of the job."
+        },
+        "job_type": {
+          "description": "Type of the job."
+        },
+        "slave_name": {
+          "description": "Slave display name."
+        }
+      },
+      "doc": "This monitor collects metrics from the Jenkins Metrics Plugin by hitting these endpoints:\n[../api/json](https://wiki.jenkins.io/display/jenkins/remote+access+api)\nand the plugin [metrics/\u0026lt;MetricsKey\u0026gt;/..](https://wiki.jenkins.io/display/JENKINS/Metrics+Plugin)\n(default and optional Codahale/Dropwizard JVM metrics).\n\nRequires Jenkins 1.580.3 or later, as well as the Jenkins Metrics Plugin (see Setup).\n\n\u003c!--- SETUP ---\u003e\n## Install Jenkins Metrics Plugin\nThis monitor requires the Metrics Plugin in Jenkins. Go to `Manage Jenkins -\u003e Manage Plugins -\u003e Available -\u003e Search \"Metrics Plugin\"`\nto find and install this plugin in your Jenkins UI.\n\n\u003c!--- SETUP ---\u003e\n## Example Config\n\nSample YAML configuration:\n\n```yaml\nmonitors:\n- type: collectd/jenkins\n  host: 127.0.0.1\n  port: 8080\n  metricsKey: reallylongmetricskey\n  jenkins_cluster: my_custom_unique_jenkins_identifier\n```\n",
+      "groups": {
+        "health": {
+          "description": "",
+          "metrics": [
+            "jenkins.node.health.disk.space",
+            "jenkins.node.health.plugins",
+            "jenkins.node.health.temporary.space",
+            "jenkins.node.health.thread-deadlock"
+          ]
+        },
+        "job": {
+          "description": "",
+          "metrics": [
+            "jenkins.job.build.count",
+            "jenkins.job.total.time"
+          ]
+        },
+        "node": {
+          "description": "",
+          "metrics": [
+            "jenkins.node.executor.count",
+            "jenkins.node.executor.in-use",
+            "jenkins.node.health-check.score",
+            "jenkins.node.queue.size",
+            "jenkins.node.vm.memory.heap.usage",
+            "jenkins.node.vm.memory.non-heap.used",
+            "jenkins.node.vm.memory.total.used"
+          ]
+        },
+        "node/status": {
+          "description": "",
+          "metrics": [
+            "jenkins.node.online.status"
+          ]
+        },
+        "slave/status": {
+          "description": "",
+          "metrics": [
+            "jenkins.node.slave.online.status"
+          ]
+        }
+      },
+      "metrics": {
+        "jenkins.job.build.count": {
+          "type": "cumulative",
+          "description": "The total number of builds the job ran.",
+          "group": "job",
+          "default": true
+        },
+        "jenkins.job.total.time": {
+          "type": "cumulative",
+          "description": "The total builds time for the job.",
+          "group": "job",
+          "default": true
+        },
+        "jenkins.node.executor.count": {
+          "type": "gauge",
+          "description": "Total Number of executors in an instance",
+          "group": "node",
+          "default": true
+        },
+        "jenkins.node.executor.in-use": {
+          "type": "gauge",
+          "description": "Total number of executors being used in an instance",
+          "group": "node",
+          "default": true
+        },
+        "jenkins.node.health-check.score": {
+          "type": "gauge",
+          "description": "Mean health score of an instance",
+          "group": "node",
+          "default": true
+        },
+        "jenkins.node.health.disk.space": {
+          "type": "gauge",
+          "description": "Binary value of disk space health",
+          "group": "health",
+          "default": true
+        },
+        "jenkins.node.health.plugins": {
+          "type": "gauge",
+          "description": "Boolean value indicating state of plugins",
+          "group": "health",
+          "default": true
+        },
+        "jenkins.node.health.temporary.space": {
+          "type": "gauge",
+          "description": "Binary value of temporary space health",
+          "group": "health",
+          "default": true
+        },
+        "jenkins.node.health.thread-deadlock": {
+          "type": "gauge",
+          "description": "Boolean value indicating a deadlock",
+          "group": "health",
+          "default": true
+        },
+        "jenkins.node.online.status": {
+          "type": "gauge",
+          "description": "Boolean value of instance is reachable or not",
+          "group": "node/status",
+          "default": true
+        },
+        "jenkins.node.queue.size": {
+          "type": "gauge",
+          "description": "Total number pending jobs in queue",
+          "group": "node",
+          "default": true
+        },
+        "jenkins.node.slave.online.status": {
+          "type": "gauge",
+          "description": "Boolean value for slave is reachable or not",
+          "group": "slave/status",
+          "default": true
+        },
+        "jenkins.node.vm.memory.heap.usage": {
+          "type": "gauge",
+          "description": "Percent utilization of the heap memory",
+          "group": "node",
+          "default": true
+        },
+        "jenkins.node.vm.memory.non-heap.used": {
+          "type": "gauge",
+          "description": "Total amount of non-heap memory used",
+          "group": "node",
+          "default": true
+        },
+        "jenkins.node.vm.memory.total.used": {
+          "type": "gauge",
+          "description": "Total Memory used by instance",
+          "group": "node",
+          "default": true
+        }
+      },
+      "properties": {
+        "\u003cjenkins labels\u003e": {
+          "dimension": "jenkins_cluster",
+          "description": "The labels will be used as tags against the jenkins_cluster dimension. Note that the label \"master\", which exists on every master instance, is filtered out."
+        }
+      },
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/jenkins",
+        "fields": [
+          {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "skipVerify",
+            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the jenkins instance",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the jenkins instance",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "metricsKey",
+            "doc": "Api key to authenticate to the jenkins metrics plugin",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "jenkins_cluster",
+            "doc": "Dimension with a value that uniquely identifies the jenkins cluster. Jenkins master has no unique identifier, this dimension will be used for that purpose. In addition, the monitor tags the jenkins_cluster dimension with the instance labels.",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "jmx",
       "sendAll": false,
       "dimensions": null,
