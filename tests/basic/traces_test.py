@@ -152,3 +152,48 @@ def test_tracing_load():
         assert ensure_never(
             p(has_datapoint, agent.fake_services, metric_name="sf.int.service.heartbeat"), timeout_seconds=5
         ), "Got infra correlation metric when it should have been expired"
+
+
+def test_tracing_tags():
+    """
+    Test that the writer adds global dimensions as span tags when specified.
+    """
+    port = random.randint(5001, 20000)
+    with Agent.run(
+        dedent(
+            f"""
+        hostname: "testhost"
+        globalDimensions:
+          env: test
+          os: linux
+        writer:
+            addGlobalDimensionsAsSpanTags: true
+        monitors:
+          - type: trace-forwarder
+            listenAddress: localhost:{port}
+    """
+        )
+    ) as agent:
+        assert wait_for(p(tcp_port_open_locally, port)), "trace forwarder port never opened!"
+        resp = requests.post(
+            f"http://localhost:{port}/v1/trace",
+            headers={"Content-Type": "application/json"},
+            data=json.dumps(_test_trace()),
+        )
+
+        assert resp.status_code == 200
+
+        # It should keep the "env" tag from the original span and not overwrite
+        # it.
+        assert wait_for(
+            p(has_trace_span, agent.fake_services, name="get", tags={"os": "linux", "env": "prod"})
+        ), "Didn't get 'get' span"
+
+        assert wait_for(
+            p(
+                has_trace_span,
+                agent.fake_services,
+                name="fetch",
+                tags={"os": "linux", "env": "prod", "file": "test.pdf"},
+            )
+        ), "Didn't get fetch span"

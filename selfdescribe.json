@@ -50388,6 +50388,14 @@
               "elementKind": ""
             },
             {
+              "yamlName": "addGlobalDimensionsAsSpanTags",
+              "doc": "If true, the dimensions specified in the top-level `globalDimensions` configuration will be added to the tag set of all spans that are emitted by the writer.  If this is false, only the \"host id\" dimensions such as `host`, `AwsUniqueId`, etc. are added to the span tags.",
+              "default": false,
+              "required": false,
+              "type": "bool",
+              "elementKind": ""
+            },
+            {
               "yamlName": "sendTraceHostCorrelationMetrics",
               "doc": "Whether to send host correlation metrics to correlation traced services with the underlying host",
               "default": true,
