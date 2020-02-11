@@ -7,7 +7,7 @@ This document only applies to users who:
    * Have updated their filtering preference.
       * Specifically, this document applies to users who have set `enableBuiltInFiltering: true` in the config file for the `whitelist.json` file. 
 
-If you are running a previous version of the Smart Agent and have not updated this filtering perference, see [Legacy Filtering](legacy-filtering.md).
+If you are running a previous version of the Smart Agent and have not updated this filtering preference, see [Legacy Filtering](legacy-filtering.md).
 
 ## Overview
 
