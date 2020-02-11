@@ -2,9 +2,12 @@
 
 ## Before you begin
 
-This document only applies to users who are running Smart Agent version 4.7.0 or higher. 
+This document only applies to users who: 
+   * Are running Smart Agent version 5.0, and
+   * Have updated their filtering preference.
+      * Specifically, this document applies to users who have set `enableBuiltInFiltering: true` in the config file for the `whitelist.json` file. 
 
-If you are running a previous version of the Smart Agent, see [Legacy Filtering](legacy-filtering.md).
+If you are running a previous version of the Smart Agent and have not updated this filtering perference, see [Legacy Filtering](legacy-filtering.md).
 
 ## Overview
 
