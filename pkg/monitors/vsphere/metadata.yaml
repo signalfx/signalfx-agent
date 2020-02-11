@@ -3,7 +3,7 @@ monitors:
     doc: |
       A VMware vSphere deployment includes physical hosts, ESXi hypervisors, virtual machines, and a vCenter Server.
       
-      To report metrics for a vSphere deployment, this monitor logs into into a vCenter Server 
+      To report metrics for a vSphere deployment, this monitor logs into a vCenter Server 
       and retrieves data about the deployment and its real-time performance data on a regular interval.
 
       When the monitor first runs, it logs into the vCenter Server and traverses the inventory, gathering and caching all of
