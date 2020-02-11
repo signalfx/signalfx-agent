@@ -1,9 +1,10 @@
 # Legacy Filtering
 
 ## Before you begin
-This document only applies to users who are running any version of the SignalFx Smart Agent lower than 4.7.0. 
+This document only applies to users who are running a version of the Smart Agent previous to 4.7.0. 
 
 If you are running Smart Agent version 4.7.0 or higher, see [Filtering](filtering.md).
+
 
 ## Old-style whitelist filtering
 Before version 4.7.0 of the Smart Agent, custom metrics were filtered out of
