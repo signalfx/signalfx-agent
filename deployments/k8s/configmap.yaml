@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: signalfx-agent
+  name: signalfx-agent-v5
   labels:
     app: signalfx-agent
 data:

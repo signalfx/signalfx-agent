@@ -40,6 +40,10 @@ spec:
       imagePullSecrets:
       - name: {{ . }}
       {{- end }}
+      {{- with .Values.nodeSelector -}}
+      nodeSelector:
+        {{ toYaml . | indent 8 | trim }}
+      {{- end}}
       tolerations:
       {{ if .Values.runOnMaster -}}
       - effect: NoSchedule
@@ -99,7 +103,7 @@ spec:
       volumes:
       - name: config
         configMap:
-          name: {{ template "signalfx-agent.fullname" . }}
+          name: {{ template "signalfx-agent.fullname" . }}-v5
       - name: hostfs
         hostPath:
           path: /

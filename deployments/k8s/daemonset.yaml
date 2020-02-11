@@ -84,7 +84,7 @@ spec:
       volumes:
       - name: config
         configMap:
-          name: signalfx-agent
+          name: signalfx-agent-v5
       - name: hostfs
         hostPath:
           path: /
