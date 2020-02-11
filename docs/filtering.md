@@ -4,7 +4,7 @@
 
 This document only applies to users who are running Smart Agent version 4.7.0 or higher. 
 
-If you are running any version of the Smart Agent lower than 4.7.0, see [Legacy Filtering](legacy-filtering.md).
+If you are running a previous version of the Smart Agent, see [Legacy Filtering](legacy-filtering.md).
 
 ## Overview
 
