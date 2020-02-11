@@ -14,7 +14,7 @@ monitors:
       As a result, regardless of the IntervalSeconds value in the agent config, this monitor will run every 20 seconds.
       
       The monitor also refreshes, at a configurable interval, the cache of hosts, virtual machines, and metrics. 
-      By default, this refresh takes place every 60 seconds; however, this internal can be changed by updating the configuration field
+      By default, this refresh takes place every 60 seconds; however, this interval can be changed by updating the configuration field
       `InventoryRefreshInterval`.
 
       Compatibility:
