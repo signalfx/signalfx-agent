@@ -1,26 +1,25 @@
 monitors:
   - monitorType: vsphere
     doc: |
-      A VMware vSphere deployment includes physical hosts, ESXi hypervisors, virtual machines, and vCenter Server.
-      This monitor reports metrics for a vSphere deployment by logging into a vCenter Server and periodically
-      retrieving data about the deployment and its real time performance data.
+      A VMware vSphere deployment includes physical hosts, ESXi hypervisors, virtual machines, and a vCenter Server.
+      
+      To report metrics for a vSphere deployment, this monitor logs into into a vCenter Server 
+      and retrieves data about the deployment and its real-time performance data on a regular interval.
 
-      When this monitor starts up, it logs into vCenter Server and traverses the inventory, gathering and caching all of
+      When the monitor first runs, it logs into the vCenter Server and traverses the inventory, gathering and caching all of
       the hosts and virtual machines, and their available metrics.
 
-      Then it periodically queries the vCenter for the performance data for those metrics. It does so at a rate of
-      once every 20 seconds, the interval at which vCenter makes real-time performance data avaialable.
-
-      Because the 20 second interval for real-time metrics is fixed by vSphere, this monitor runs every 20 seconds,
-      regardless of the IntervalSeconds value in the agent config.
-
-      It also refreshes, at a configurable interval, the cache of hosts, virtual machines, and metrics. By default,
-      it does this every 60 seconds, but this interval can be changed by updating the configuration field
+      After this initial sweep, the monitor will query the vCenter for performance data and metrics. 
+      This query takes place every 20 seconds, which is the interval at which the vCenter makes real-time performance data available.
+      As a result, regardless of the IntervalSeconds value in the agent config, this monitor will run every 20 seconds.
+      
+      The monitor also refreshes, at a configurable interval, the cache of hosts, virtual machines, and metrics. 
+      By default, this refresh takes place every 60 seconds; however, this internal can be changed by updating the configuration field
       `InventoryRefreshInterval`.
 
       Compatibility:
-      This monitor uses VMware's govmomi SDK, which is built for and tested against vCenter 6.0, 6.5 and 6.7.
-      It may work with versions 5.5 and 5.1, but neither are officially supported.
+      This monitor uses VMware's govmomi SDK, which officially supports vCenter 6.0, 6.5 and 6.7.
+      While this monitor may work with vCenter 5.5 and 5.1, these versions are not officially supported.
 
       Sample YAML configuration:
       ```yaml
