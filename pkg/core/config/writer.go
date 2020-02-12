@@ -69,6 +69,11 @@ type WriterConfig struct {
 	// If true, and the log level is `debug`, filtered out datapoints will be
 	// logged.
 	LogDroppedDatapoints bool `yaml:"logDroppedDatapoints"`
+	// If true, the dimensions specified in the top-level `globalDimensions`
+	// configuration will be added to the tag set of all spans that are emitted
+	// by the writer.  If this is false, only the "host id" dimensions such as
+	// `host`, `AwsUniqueId`, etc. are added to the span tags.
+	AddGlobalDimensionsAsSpanTags bool `yaml:"addGlobalDimensionsAsSpanTags"`
 	// Whether to send host correlation metrics to correlation traced services
 	// with the underlying host
 	SendTraceHostCorrelationMetrics *bool `yaml:"sendTraceHostCorrelationMetrics" default:"true"`

@@ -35,6 +35,10 @@ func (sw *SignalFxWriter) preprocessSpan(span *trace.Span) bool {
 
 	sw.spanSourceTracker.AddSourceTagsToSpan(span)
 
+	if sw.conf.AddGlobalDimensionsAsSpanTags {
+		sw.addGlobalDims(span.Tags)
+	}
+
 	// adding smart agent version as a tag
 	span.Tags["signalfx.smartagent.version"] = constants.Version
 	if sw.conf.LogTraceSpans {
