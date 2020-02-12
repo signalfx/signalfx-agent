@@ -55,7 +55,7 @@ monitors:
 
       - `postgres`: https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters
       - `mysql`: https://github.com/go-sql-driver/mysql#dsn-data-source-name
-      - `mssql`: https://github.com/denisenkom/go-mssqldb#connection-parameters-and-dsn
+      - `sqlserver`: https://github.com/denisenkom/go-mssqldb#connection-parameters-and-dsn
 
     ## Parameterized Connection String
 

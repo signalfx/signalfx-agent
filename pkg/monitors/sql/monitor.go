@@ -66,7 +66,7 @@ type Config struct {
 	// Go template syntax (e.g. `{{.key}}`).
 	Params map[string]string `yaml:"params"`
 
-	// The database driver to use, valid values are `postgres` and `mysql`.
+	// The database driver to use, valid values are `postgres`, `mysql` and `sqlserver`.
 	DBDriver string `yaml:"dbDriver"`
 	// A URL or simple option string used to connect to the database.
 	// If using PostgreSQL, [see the list of connection string
@@ -82,7 +82,7 @@ type Config struct {
 
 // Validate that the config is right
 func (c *Config) Validate() error {
-	if c.DBDriver != "postgres" && c.DBDriver != "mysql" {
+	if c.DBDriver != "postgres" && c.DBDriver != "mysql" && c.DBDriver != "sqlserver" {
 		return fmt.Errorf("database driver %s is not supported", c.DBDriver)
 	}
 
