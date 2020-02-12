@@ -54,6 +54,9 @@ func (dh *DimensionHandler) HandleAdd(newObj runtime.Object) interface{} {
 	case *appsv1.DaemonSet:
 		dh.sendDimensionFunc(dimensionForDaemonSet(o))
 		kind = "DaemonSet"
+	case *v1.ReplicationController:
+		dh.sendDimensionFunc(dimensionForReplicationController(o))
+		kind = "ReplicationController"
 	case *appsv1.Deployment:
 		dh.sendDimensionFunc(dimensionForDeployment(o))
 		kind = "Deployment"
