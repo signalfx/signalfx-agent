@@ -63,6 +63,7 @@ MONITORS_TO_INTEGRATIONS_DIR = {
     ("pkg/monitors/logstash/logstash", "logstash"): "logstash",
     ("pkg/monitors/logstash/tcp", "logstash-tcp"): "logstash",
     ("pkg/monitors/internalmetrics", "internal-metrics"): "signalfx-agent",
+    ("pkg/monitors/vsphere", "vsphere"): "vsphere",
 }
 
 
