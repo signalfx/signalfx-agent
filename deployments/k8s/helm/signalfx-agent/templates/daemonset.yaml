@@ -103,7 +103,7 @@ spec:
       volumes:
       - name: config
         configMap:
-          name: {{ template "signalfx-agent.fullname" . }}-v5
+          name: {{ include "configmap-name" . }}
       - name: hostfs
         hostPath:
           path: /
