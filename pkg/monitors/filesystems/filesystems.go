@@ -69,6 +69,9 @@ func (m *Monitor) getCommonDimensions(partition *gopsutil.PartitionStat) map[str
 	// sanitize hostfs path in mountpoint
 	if m.hostFSPath != "" {
 		dims["mountpoint"] = strings.Replace(dims["mountpoint"], m.hostFSPath, "", 1)
+		if dims["mountpoint"] == "" {
+			dims["mountpoint"] = "/"
+		}
 	}
 
 	return dims
