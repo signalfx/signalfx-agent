@@ -4,13 +4,14 @@
 
 set -eu
 
+# The final place where the files will live
 root=${1}
+# The place where the files currently live when this script is run
+tmproot=${2-$root}
 interpreter="${root%/}/bin/ld-linux.so"
 
-echo "Setting interpreter on ${root%/}/bin/* to $interpreter"
+echo "Setting interpreter on ${tmproot%/}/bin/* to $interpreter"
 
-cd $root
-
-for f in ${root%/}/bin/* ${root%/}/jre/bin/*; do
-  ${root%/}/bin/patchelf --set-interpreter $interpreter $f 2>/dev/null || true
+for f in ${tmproot%/}/bin/* ${tmproot%/}/jre/bin/*; do
+  ${tmproot%/}/bin/patchelf --set-interpreter $interpreter $f 2>/dev/null || true
 done
