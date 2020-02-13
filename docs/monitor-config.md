@@ -118,6 +118,7 @@ These are all of the monitors included in the agent, along with their possible c
 - [internal-metrics](./monitors/internal-metrics.md)
 - [jaeger-grpc](./monitors/jaeger-grpc.md)
 - [java-monitor](./monitors/java-monitor.md)
+- [jenkins](./monitors/jenkins.md)
 - [jmx](./monitors/jmx.md)
 - [kube-controller-manager](./monitors/kube-controller-manager.md)
 - [kubelet-stats](./monitors/kubelet-stats.md)
