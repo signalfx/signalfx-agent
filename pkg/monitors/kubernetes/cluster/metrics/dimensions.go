@@ -63,6 +63,9 @@ func (dh *DimensionHandler) HandleAdd(newObj runtime.Object) interface{} {
 		dh.handleAddReplicaSet(o)
 		dh.sendDimensionFunc(dimensionForReplicaSet(o))
 		kind = "ReplicaSet"
+	case *v1.ReplicationController:
+		dh.sendDimensionFunc(dimensionForReplicationController(o))
+		kind = "ReplicationController"
 	case *v1.Node:
 		dh.sendDimensionFunc(dimensionForNode(o, dh.useNodeName))
 		kind = "Node"

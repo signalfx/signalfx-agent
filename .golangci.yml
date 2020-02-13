@@ -35,6 +35,7 @@ issues:
     - path: pkg/monitors/kubernetes/cluster/metrics
       linters:
         - goconst
+        - dupl
 
 linters:
   enable-all: true
