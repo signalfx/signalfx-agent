@@ -1295,6 +1295,2536 @@
       "singleInstance": false
     },
     {
+      "monitorType": "cloudfoundry-firehose-nozzle",
+      "sendAll": false,
+      "dimensions": {
+        "instance_id": {
+          "description": "The BOSH instance id that pertains to the metric, if any."
+        },
+        "source_id": {
+          "description": "The source of the metric"
+        }
+      },
+      "doc": "This is a CloudFoundry [firehose\nnozzle](https://docs.pivotal.io/tiledev/2-8/nozzle.html) by connecting to\nthe Cloud Foundry Reverse Log Proxy (RLP) Gateway that feeds metrics from\nthe Loggregator. This uses the new RLP Gateway model that was [introduced\nin Pivotal Cloud Foundry (PCF)\n2.4](https://docs.pivotal.io/tiledev/2-4/release-notes.html#log-api), so it\nwill not work with older releases.\n\nPivotal has a helpful guide for [Key Performance Indicators\n(KPIs)](https://docs.pivotal.io/platform/2-8/monitoring/kpi.html) to\nmonitor.  Most of these metrics come through the firehose.  They also have\na guide for [Key Capacity Scaling\nIndicators](https://docs.pivotal.io/platform/2-8/monitoring/key-cap-scaling.html)\nthat will help determine when to scale up or down your cluster.\n\nThis supports `gauge` and `counter` metrics at this time.  Firehose `gauge`\nmetrics gets converted to SignalFx gauges, an firehose `counter` metrics\nget converted to SignalFx cumulative counters metrics.  All of the `tags`\nin the firehose envelopes will be converted to dimensions when sending to\nSignalFx.\n\nTo create a UAA user with the proper permissions to access the RLP Gateway,\nrun the following:\n\n```sh\n$ uaac client add my-v2-nozzle \\\n    --name signalfx-nozzle \\\n    --secret \u003csignalfx-nozzle client secret\u003e \\\n    --authorized_grant_types client_credentials,refresh_token \\\n    --authorities logs.admin\n```\n\nThen set the `uaaUsername` config value to `signalfx-nozzle` and the\n`uaaPassword` field to the `\u003csignalfx-nozzle client secret\u003e` that you\nselect.\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "auctioneer.AuctioneerFetchStatesDuration",
+            "auctioneer.AuctioneerLRPAuctionsFailed",
+            "auctioneer.AuctioneerLRPAuctionsStarted",
+            "auctioneer.AuctioneerTaskAuctionsFailed",
+            "auctioneer.AuctioneerTaskAuctionsStarted",
+            "auctioneer.LockHeld.v1-locks-auctioneer_lock",
+            "auctioneer.LockHeldDuration.v1-locks-auctioneer_lock",
+            "auctioneer.memoryStats.lastGCPauseTimeNS",
+            "auctioneer.memoryStats.numBytesAllocated",
+            "auctioneer.memoryStats.numBytesAllocatedHeap",
+            "auctioneer.memoryStats.numBytesAllocatedStack",
+            "auctioneer.memoryStats.numFrees",
+            "auctioneer.memoryStats.numMallocs",
+            "auctioneer.numCPUS",
+            "auctioneer.numGoRoutines",
+            "bbs.BBSMasterElected",
+            "bbs.ConvergenceLRPDuration",
+            "bbs.ConvergenceLRPPreProcessingActualLRPsDeleted",
+            "bbs.ConvergenceLRPPreProcessingMalformedRunInfos",
+            "bbs.ConvergenceLRPPreProcessingMalformedSchedulingInfos",
+            "bbs.ConvergenceLRPRuns",
+            "bbs.ConvergenceTaskDuration",
+            "bbs.ConvergenceTaskRuns",
+            "bbs.ConvergenceTasksKicked",
+            "bbs.ConvergenceTasksPruned",
+            "bbs.CrashedActualLRPs",
+            "bbs.CrashingDesiredLRPs",
+            "bbs.Domain.cf-apps",
+            "bbs.Domain.cf-tasks",
+            "bbs.ETCDLeader",
+            "bbs.ETCDRaftTerm",
+            "bbs.ETCDReceivedBandwidthRate",
+            "bbs.ETCDReceivedRequestRate",
+            "bbs.ETCDSentBandwidthRate",
+            "bbs.ETCDSentRequestRate",
+            "bbs.ETCDWatchers",
+            "bbs.LRPsClaimed",
+            "bbs.LRPsDesired",
+            "bbs.LRPsExtra",
+            "bbs.LRPsMissing",
+            "bbs.LRPsRunning",
+            "bbs.LRPsUnclaimed",
+            "bbs.LockHeld.v1-locks-bbs_lock",
+            "bbs.LockHeldDuration.v1-locks-bbs_lock",
+            "bbs.MetricsReportingDuration",
+            "bbs.MigrationDuration",
+            "bbs.RequestCount",
+            "bbs.RequestLatency",
+            "bbs.TasksCompleted",
+            "bbs.TasksPending",
+            "bbs.TasksResolving",
+            "bbs.TasksRunning",
+            "bbs.memoryStats.lastGCPauseTimeNS",
+            "bbs.memoryStats.numBytesAllocated",
+            "bbs.memoryStats.numBytesAllocatedHeap",
+            "bbs.memoryStats.numBytesAllocatedStack",
+            "bbs.memoryStats.numFrees",
+            "bbs.memoryStats.numMallocs",
+            "bbs.numCPUS",
+            "bbs.numGoRoutines",
+            "bosh-system-metrics-forwarder.system.cpu.sys",
+            "bosh-system-metrics-forwarder.system.cpu.user",
+            "bosh-system-metrics-forwarder.system.cpu.wait",
+            "bosh-system-metrics-forwarder.system.disk.ephemeral.percent",
+            "bosh-system-metrics-forwarder.system.disk.system.percent",
+            "bosh-system-metrics-forwarder.system.healthy",
+            "bosh-system-metrics-forwarder.system.mem.percent",
+            "bosh-system-metrics-forwarder.system.swap.percent",
+            "cc.failed_job_count.VM_NAME-VM_INDEX",
+            "cc.failed_job_count.cc-generic",
+            "cc.failed_job_count.total",
+            "cc.http_status.1XX",
+            "cc.http_status.2XX",
+            "cc.http_status.3XX",
+            "cc.http_status.4XX",
+            "cc.http_status.5XX",
+            "cc.job_queue_length.cc-VM_NAME-VM_INDEX",
+            "cc.job_queue_length.cc-generic",
+            "cc.job_queue_length.total",
+            "cc.log_count.all",
+            "cc.log_count.debug",
+            "cc.log_count.debug1",
+            "cc.log_count.debug2",
+            "cc.log_count.error",
+            "cc.log_count.fatal",
+            "cc.log_count.info",
+            "cc.log_count.off",
+            "cc.log_count.warn",
+            "cc.requests.completed",
+            "cc.requests.outstanding",
+            "cc.tasks_running.count",
+            "cc.tasks_running.memory_in_mb",
+            "cc.thread_info.event_machine.connection_count",
+            "cc.thread_info.event_machine.resultqueue.num_waiting",
+            "cc.thread_info.event_machine.resultqueue.size",
+            "cc.thread_info.event_machine.threadqueue.num_waiting",
+            "cc.thread_info.event_machine.threadqueue.size",
+            "cc.thread_info.thread_count",
+            "cc.total_users",
+            "cc.vitals.cpu",
+            "cc.vitals.cpu_load_avg",
+            "cc.vitals.mem_bytes",
+            "cc.vitals.mem_free_bytes",
+            "cc.vitals.mem_used_bytes",
+            "cc.vitals.num_cores",
+            "cc.vitals.uptime",
+            "cc_uploader.memoryStats.lastGCPauseTimeNS",
+            "cc_uploader.memoryStats.numBytesAllocated",
+            "cc_uploader.memoryStats.numBytesAllocatedHeap",
+            "cc_uploader.memoryStats.numBytesAllocatedStack",
+            "cc_uploader.memoryStats.numFrees",
+            "cc_uploader.memoryStats.numMallocs",
+            "cc_uploader.numCPUS",
+            "cc_uploader.numGoRoutines",
+            "container.cpu_percentage",
+            "container.disk_bytes",
+            "container.disk_bytes_quota",
+            "container.memory_bytes",
+            "container.memory_bytes_quota",
+            "etcd.CompareAndDeleteFail",
+            "etcd.CompareAndDeleteSuccess",
+            "etcd.CompareAndSwapFail",
+            "etcd.CompareAndSwapSuccess",
+            "etcd.CreateFail",
+            "etcd.CreateSuccess",
+            "etcd.DeleteFail",
+            "etcd.DeleteSuccess",
+            "etcd.EtcdIndex",
+            "etcd.ExpireCount",
+            "etcd.Followers",
+            "etcd.GetsFail",
+            "etcd.GetsSuccess",
+            "etcd.IsLeader",
+            "etcd.Latency",
+            "etcd.RaftIndex",
+            "etcd.RaftTerm",
+            "etcd.ReceivedAppendRequests",
+            "etcd.ReceivingBandwidthRate",
+            "etcd.ReceivingRequestRate",
+            "etcd.SendingBandwidthRate",
+            "etcd.SendingRequestRate",
+            "etcd.SentAppendRequests",
+            "etcd.SetsFail",
+            "etcd.SetsSuccess",
+            "etcd.UpdateFail",
+            "etcd.UpdateSuccess",
+            "etcd.Watchers",
+            "file_server.memoryStats.lastGCPauseTimeNS",
+            "file_server.memoryStats.numBytesAllocated",
+            "file_server.memoryStats.numBytesAllocatedHeap",
+            "file_server.memoryStats.numBytesAllocatedStack",
+            "file_server.memoryStats.numFrees",
+            "file_server.memoryStats.numMallocs",
+            "file_server.numCPUS",
+            "file_server.numGoRoutines",
+            "garden_linux.BackingStores",
+            "garden_linux.DepotDirs",
+            "garden_linux.LoopDevices",
+            "garden_linux.MetricsReporting",
+            "garden_linux.memoryStats.lastGCPauseTimeNS",
+            "garden_linux.memoryStats.numBytesAllocated",
+            "garden_linux.memoryStats.numBytesAllocatedHeap",
+            "garden_linux.memoryStats.numBytesAllocatedStack",
+            "garden_linux.memoryStats.numFrees",
+            "garden_linux.memoryStats.numMallocs",
+            "garden_linux.numCPUS",
+            "garden_linux.numGoRoutines",
+            "gorouter.backend_exhausted_conns",
+            "gorouter.bad_gateways",
+            "gorouter.responses",
+            "gorouter.total_requests",
+            "gorouter.total_routes",
+            "nsync_bulker.DesiredLRPSyncDuration",
+            "nsync_bulker.LRPsDesired",
+            "nsync_bulker.LockHeld.v1-locks-nsync_bulker_lock",
+            "nsync_bulker.LockHeldDuration.v1-locks-nsync_bulker_lock",
+            "nsync_bulker.NsyncInvalidDesiredLRPsFound",
+            "nsync_bulker.memoryStats.lastGCPauseTimeNS",
+            "nsync_bulker.memoryStats.numBytesAllocated",
+            "nsync_bulker.memoryStats.numBytesAllocatedHeap",
+            "nsync_bulker.memoryStats.numBytesAllocatedStack",
+            "nsync_bulker.memoryStats.numFrees",
+            "nsync_bulker.memoryStats.numMallocs",
+            "nsync_bulker.numCPUS",
+            "nsync_bulker.numGoRoutines",
+            "nsync_listener.memoryStats.lastGCPauseTimeNS",
+            "nsync_listener.memoryStats.numBytesAllocated",
+            "nsync_listener.memoryStats.numBytesAllocatedHeap",
+            "nsync_listener.memoryStats.numBytesAllocatedStack",
+            "nsync_listener.memoryStats.numFrees",
+            "nsync_listener.memoryStats.numMallocs",
+            "nsync_listener.numCPUS",
+            "nsync_listener.numGoRoutines",
+            "rep.CM",
+            "rep.CapacityRemainingContainers",
+            "rep.CapacityRemainingDisk",
+            "rep.CapacityRemainingMemory",
+            "rep.CapacityTotalContainers",
+            "rep.CapacityTotalDisk",
+            "rep.CapacityTotalMemory",
+            "rep.ContainerCount",
+            "rep.GardenContainerCreationDuration",
+            "rep.LogMessage",
+            "rep.RepBulkSyncDuration",
+            "rep.UnhealthyCell",
+            "rep.logSenderTotalMessagesRead",
+            "rep.memoryStats.lastGCPauseTimeNS",
+            "rep.memoryStats.numBytesAllocated",
+            "rep.memoryStats.numBytesAllocatedHeap",
+            "rep.memoryStats.numBytesAllocatedStack",
+            "rep.memoryStats.numFrees",
+            "rep.memoryStats.numMallocs",
+            "rep.numCPUS",
+            "rep.numGoRoutines",
+            "route_emitter.LockHeld.v1-locks-route_emitter_lock",
+            "route_emitter.LockHeldDuration.v1-locks-route_emitter_lock",
+            "route_emitter.MessagesEmitted",
+            "route_emitter.RouteEmitterSyncDuration",
+            "route_emitter.RoutesRegistered",
+            "route_emitter.RoutesSynced",
+            "route_emitter.RoutesTotal",
+            "route_emitter.RoutesUnregistered",
+            "route_emitter.memoryStats.lastGCPauseTimeNS",
+            "route_emitter.memoryStats.numBytesAllocated",
+            "route_emitter.memoryStats.numBytesAllocatedHeap",
+            "route_emitter.memoryStats.numBytesAllocatedStack",
+            "route_emitter.memoryStats.numFrees",
+            "route_emitter.memoryStats.numMallocs",
+            "route_emitter.numCPUS",
+            "route_emitter.numGoRoutines",
+            "ssh_proxy.memoryStats.lastGCPauseTimeNS",
+            "ssh_proxy.memoryStats.numBytesAllocated",
+            "ssh_proxy.memoryStats.numBytesAllocatedHeap",
+            "ssh_proxy.memoryStats.numBytesAllocatedStack",
+            "ssh_proxy.memoryStats.numFrees",
+            "ssh_proxy.memoryStats.numMallocs",
+            "ssh_proxy.numCPUS",
+            "ssh_proxy.numGoRoutines",
+            "stager.StagingRequestFailedDuration",
+            "stager.StagingRequestSucceededDuration",
+            "stager.StagingRequestsFailed",
+            "stager.StagingRequestsSucceeded",
+            "stager.StagingStartRequestsReceived",
+            "stager.memoryStats.lastGCPauseTimeNS",
+            "stager.memoryStats.numBytesAllocated",
+            "stager.memoryStats.numBytesAllocatedHeap",
+            "stager.memoryStats.numBytesAllocatedStack",
+            "stager.memoryStats.numFrees",
+            "stager.memoryStats.numMallocs",
+            "stager.numCPUS",
+            "stager.numGoRoutines",
+            "syslog_drain_binder.memoryStats.lastGCPauseTimeNS",
+            "syslog_drain_binder.memoryStats.numBytesAllocated",
+            "syslog_drain_binder.memoryStats.numBytesAllocatedHeap",
+            "syslog_drain_binder.memoryStats.numBytesAllocatedStack",
+            "syslog_drain_binder.memoryStats.numFrees",
+            "syslog_drain_binder.memoryStats.numMallocs",
+            "syslog_drain_binder.numCPUS",
+            "syslog_drain_binder.numGoRoutines",
+            "syslog_drain_binder.pollCount",
+            "syslog_drain_binder.totalDrains",
+            "system_metrics_agent.system_cpu_core_idle",
+            "system_metrics_agent.system_cpu_core_sys",
+            "system_metrics_agent.system_cpu_core_user",
+            "system_metrics_agent.system_cpu_core_wait",
+            "system_metrics_agent.system_cpu_idle",
+            "system_metrics_agent.system_cpu_sys",
+            "system_metrics_agent.system_cpu_user",
+            "system_metrics_agent.system_cpu_wait",
+            "system_metrics_agent.system_disk_ephemeral_inode_percent",
+            "system_metrics_agent.system_disk_ephemeral_io_time",
+            "system_metrics_agent.system_disk_ephemeral_percent",
+            "system_metrics_agent.system_disk_ephemeral_read_bytes",
+            "system_metrics_agent.system_disk_ephemeral_read_time",
+            "system_metrics_agent.system_disk_ephemeral_write_bytes",
+            "system_metrics_agent.system_disk_ephemeral_write_time",
+            "system_metrics_agent.system_disk_persistent_inode_percent",
+            "system_metrics_agent.system_disk_persistent_io_time",
+            "system_metrics_agent.system_disk_persistent_percent",
+            "system_metrics_agent.system_disk_persistent_read_bytes",
+            "system_metrics_agent.system_disk_persistent_read_time",
+            "system_metrics_agent.system_disk_persistent_write_bytes",
+            "system_metrics_agent.system_disk_persistent_write_time",
+            "system_metrics_agent.system_disk_system_inode_percent",
+            "system_metrics_agent.system_disk_system_io_time",
+            "system_metrics_agent.system_disk_system_percent",
+            "system_metrics_agent.system_disk_system_read_bytes",
+            "system_metrics_agent.system_disk_system_read_time",
+            "system_metrics_agent.system_disk_system_write_bytes",
+            "system_metrics_agent.system_disk_system_write_time",
+            "system_metrics_agent.system_healthy",
+            "system_metrics_agent.system_load_15m",
+            "system_metrics_agent.system_load_1m",
+            "system_metrics_agent.system_load_5m",
+            "system_metrics_agent.system_mem_kb",
+            "system_metrics_agent.system_mem_percent",
+            "system_metrics_agent.system_network_bytes_received",
+            "system_metrics_agent.system_network_bytes_sent",
+            "system_metrics_agent.system_network_drop_in",
+            "system_metrics_agent.system_network_drop_out",
+            "system_metrics_agent.system_network_error_in",
+            "system_metrics_agent.system_network_error_out",
+            "system_metrics_agent.system_network_ip_forwarding",
+            "system_metrics_agent.system_network_packets_received",
+            "system_metrics_agent.system_network_packets_sent",
+            "system_metrics_agent.system_network_tcp_active_opens",
+            "system_metrics_agent.system_network_tcp_curr_estab",
+            "system_metrics_agent.system_network_tcp_retrans_segs",
+            "system_metrics_agent.system_network_udp_in_errors",
+            "system_metrics_agent.system_network_udp_lite_in_errors",
+            "system_metrics_agent.system_network_udp_no_ports",
+            "system_metrics_agent.system_swap_kb",
+            "system_metrics_agent.system_swap_percent",
+            "tps_listener.memoryStats.lastGCPauseTimeNS",
+            "tps_listener.memoryStats.numBytesAllocated",
+            "tps_listener.memoryStats.numBytesAllocatedHeap",
+            "tps_listener.memoryStats.numBytesAllocatedStack",
+            "tps_listener.memoryStats.numFrees",
+            "tps_listener.memoryStats.numMallocs",
+            "tps_listener.numCPUS",
+            "tps_listener.numGoRoutines",
+            "tps_watcher.LockHeld.v1-locks-tps_watcher_lock",
+            "tps_watcher.LockHeldDuration.v1-locks-tps_watcher_lock",
+            "tps_watcher.memoryStats.lastGCPauseTimeNS",
+            "tps_watcher.memoryStats.numBytesAllocated",
+            "tps_watcher.memoryStats.numBytesAllocatedHeap",
+            "tps_watcher.memoryStats.numBytesAllocatedStack",
+            "tps_watcher.memoryStats.numFrees",
+            "tps_watcher.memoryStats.numMallocs",
+            "tps_watcher.numCPUS",
+            "tps_watcher.numGoRoutines",
+            "uaa.audit_service.client_authentication_count",
+            "uaa.audit_service.client_authentication_failure_count",
+            "uaa.audit_service.principal_authentication_failure_count",
+            "uaa.audit_service.principal_not_found_count",
+            "uaa.audit_service.user_authentication_count",
+            "uaa.audit_service.user_authentication_failure_count",
+            "uaa.audit_service.user_not_found_count",
+            "uaa.audit_service.user_password_changes",
+            "uaa.audit_service.user_password_failures"
+          ]
+        },
+        "container": {
+          "description": "",
+          "metrics": [
+            "rep.absolute_entitlement",
+            "rep.absolute_usage",
+            "rep.container_age",
+            "rep.cpu",
+            "rep.disk",
+            "rep.disk_quota",
+            "rep.memory",
+            "rep.memory_quota"
+          ]
+        }
+      },
+      "metrics": {
+        "auctioneer.AuctioneerFetchStatesDuration": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the auctioneer took to fetch state from all the cells when running its auction. Emitted every 30 seconds during each auction.",
+          "group": null,
+          "default": true
+        },
+        "auctioneer.AuctioneerLRPAuctionsFailed": {
+          "type": "cumulative",
+          "description": "Cumulative number of LRP instances that the auctioneer failed to place on Diego cells. Emitted every 30 seconds during each auction.",
+          "group": null,
+          "default": true
+        },
+        "auctioneer.AuctioneerLRPAuctionsStarted": {
+          "type": "cumulative",
+          "description": "Cumulative number of LRP instances that the auctioneer successfully placed on Diego cells. Emitted every 30 seconds during each auction.",
+          "group": null,
+          "default": true
+        },
+        "auctioneer.AuctioneerTaskAuctionsFailed": {
+          "type": "cumulative",
+          "description": "Cumulative number of Tasks that the auctioneer failed to place on Diego cells. Emitted every 30 seconds during each auction.",
+          "group": null,
+          "default": true
+        },
+        "auctioneer.AuctioneerTaskAuctionsStarted": {
+          "type": "cumulative",
+          "description": "Cumulative number of Tasks that the auctioneer successfully placed on Diego cells. Emitted every 30 seconds during each auction.",
+          "group": null,
+          "default": false
+        },
+        "auctioneer.LockHeld.v1-locks-auctioneer_lock": {
+          "type": "gauge",
+          "description": "Whether an auctioneer holds the auctioneer lock: 1 means the lock is held, and 0 means the lock was lost. Emitted every 30 seconds by the active auctioneer.",
+          "group": null,
+          "default": false
+        },
+        "auctioneer.LockHeldDuration.v1-locks-auctioneer_lock": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the active auctioneer has held the auctioneer lock. Emitted every 30 seconds by the active auctioneer.",
+          "group": null,
+          "default": false
+        },
+        "auctioneer.memoryStats.lastGCPauseTimeNS": {
+          "type": "gauge",
+          "description": "Duration in nanoseconds of the last garbage collector pause.",
+          "group": null,
+          "default": false
+        },
+        "auctioneer.memoryStats.numBytesAllocated": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "auctioneer.memoryStats.numBytesAllocatedHeap": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated on the main heap and still in use.",
+          "group": null,
+          "default": false
+        },
+        "auctioneer.memoryStats.numBytesAllocatedStack": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes used by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "auctioneer.memoryStats.numFrees": {
+          "type": "gauge",
+          "description": "Lifetime number of memory deallocations.",
+          "group": null,
+          "default": false
+        },
+        "auctioneer.memoryStats.numMallocs": {
+          "type": "gauge",
+          "description": "Lifetime number of memory allocations.",
+          "group": null,
+          "default": false
+        },
+        "auctioneer.numCPUS": {
+          "type": "gauge",
+          "description": "Number of CPUs on the machine.",
+          "group": null,
+          "default": false
+        },
+        "auctioneer.numGoRoutines": {
+          "type": "gauge",
+          "description": "Instantaneous number of active goroutines in the process.",
+          "group": null,
+          "default": false
+        },
+        "bbs.BBSMasterElected": {
+          "type": "gauge",
+          "description": "Emitted once when the BBS is elected as master.",
+          "group": null,
+          "default": false
+        },
+        "bbs.ConvergenceLRPDuration": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the BBS took to run its LRP convergence pass. Emitted every 30 seconds when LRP convergence runs.",
+          "group": null,
+          "default": true
+        },
+        "bbs.ConvergenceLRPPreProcessingActualLRPsDeleted": {
+          "type": "gauge",
+          "description": "Cumulative number of times the BBS has detected and deleted a malformed ActualLRP in its LRP convergence pass. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.ConvergenceLRPPreProcessingMalformedRunInfos": {
+          "type": "gauge",
+          "description": "Cumulative number of times the BBS has detected a malformed DesiredLRP RunInfo in its LRP convergence pass. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.ConvergenceLRPPreProcessingMalformedSchedulingInfos": {
+          "type": "gauge",
+          "description": "Cumulative number of times the BBS has detected a malformed DesiredLRP SchedulingInfo in its LRP convergence pass. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.ConvergenceLRPRuns": {
+          "type": "cumulative",
+          "description": "Cumulative number of times BBS has run its LRP convergence pass. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.ConvergenceTaskDuration": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the BBS took to run its Task convergence pass. Emitted every 30 seconds when Task convergence runs.",
+          "group": null,
+          "default": false
+        },
+        "bbs.ConvergenceTaskRuns": {
+          "type": "cumulative",
+          "description": "Cumulative number of times the BBS has run its Task convergence pass. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.ConvergenceTasksKicked": {
+          "type": "cumulative",
+          "description": "Cumulative number of times the BBS has updated a Task during its Task convergence pass. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.ConvergenceTasksPruned": {
+          "type": "cumulative",
+          "description": "Cumulative number of times the BBS has deleted a malformed Task during its Task convergence pass. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.CrashedActualLRPs": {
+          "type": "gauge",
+          "description": "Total number of LRP instances that have crashed. Emitted every 30 seconds.",
+          "group": null,
+          "default": true
+        },
+        "bbs.CrashingDesiredLRPs": {
+          "type": "gauge",
+          "description": "Total number of DesiredLRPs that have at least one crashed instance. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.Domain.cf-apps": {
+          "type": "gauge",
+          "description": "Whether the ‘cf-apps’ domain is up-to-date, so that CF apps from CC have been synchronized with DesiredLRPs for Diego to run. 1 means the domain is up-to-date, no data means it is not. Emitted every 30 seconds.",
+          "group": null,
+          "default": true
+        },
+        "bbs.Domain.cf-tasks": {
+          "type": "gauge",
+          "description": "Whether the ‘cf-tasks’ domain is up-to-date, so that CF tasks from CC have been synchronized with tasks for Diego to run. 1 means the domain is up-to-date, no data means it is not. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.ETCDLeader": {
+          "type": "gauge",
+          "description": "Index of the leader node in the etcd cluster. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.ETCDRaftTerm": {
+          "type": "gauge",
+          "description": "Raft term of the etcd cluster. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.ETCDReceivedBandwidthRate": {
+          "type": "gauge",
+          "description": "Number of bytes per second received by the follower etcd node. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.ETCDReceivedRequestRate": {
+          "type": "gauge",
+          "description": "Number of requests per second received by the follower etcd node. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.ETCDSentBandwidthRate": {
+          "type": "gauge",
+          "description": "Number of bytes per second sent by the leader etcd node. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.ETCDSentRequestRate": {
+          "type": "gauge",
+          "description": "Number of requests per second sent by the leader etcd node. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.ETCDWatchers": {
+          "type": "gauge",
+          "description": "Number of watches set against the etcd cluster. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.LRPsClaimed": {
+          "type": "gauge",
+          "description": "Total number of LRP instances that have been claimed by some cell. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.LRPsDesired": {
+          "type": "gauge",
+          "description": "Total number of LRP instances desired across all LRPs. Emitted periodically.",
+          "group": null,
+          "default": false
+        },
+        "bbs.LRPsExtra": {
+          "type": "gauge",
+          "description": "Total number of LRP instances that are no longer desired but still have a BBS record. Emitted every 30 seconds.",
+          "group": null,
+          "default": true
+        },
+        "bbs.LRPsMissing": {
+          "type": "gauge",
+          "description": "Total number of LRP instances that are desired but have no record in the BBS. Emitted every 30 seconds.",
+          "group": null,
+          "default": true
+        },
+        "bbs.LRPsRunning": {
+          "type": "gauge",
+          "description": "Total number of LRP instances that are running on cells. Emitted every 30 seconds.",
+          "group": null,
+          "default": true
+        },
+        "bbs.LRPsUnclaimed": {
+          "type": "gauge",
+          "description": "Total number of LRP instances that have not yet been claimed by a cell. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.LockHeld.v1-locks-bbs_lock": {
+          "type": "gauge",
+          "description": "Whether a BBS holds the BBS lock: 1 means the lock is held, and 0 means the lock was lost. Emitted every 30 seconds by the active BBS server.",
+          "group": null,
+          "default": false
+        },
+        "bbs.LockHeldDuration.v1-locks-bbs_lock": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the active BBS has held the BBS lock. Emitted every 30 seconds by the active BBS server.",
+          "group": null,
+          "default": false
+        },
+        "bbs.MetricsReportingDuration": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the BBS took to emit metrics about etcd. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.MigrationDuration": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the BBS took to run migrations against its persistence store. Emitted each time a BBS becomes the active master.",
+          "group": null,
+          "default": false
+        },
+        "bbs.RequestCount": {
+          "type": "cumulative",
+          "description": "Cumulative number of requests the BBS has handled through its API. Emitted for each BBS request.",
+          "group": null,
+          "default": false
+        },
+        "bbs.RequestLatency": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the BBS took to handle requests to its API endpoints. Emitted when the BBS API handles requests.",
+          "group": null,
+          "default": true
+        },
+        "bbs.TasksCompleted": {
+          "type": "gauge",
+          "description": "Total number of Tasks that have completed. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.TasksPending": {
+          "type": "gauge",
+          "description": "Total number of Tasks that have not yet been placed on a cell. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.TasksResolving": {
+          "type": "gauge",
+          "description": "Total number of Tasks locked for deletion. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.TasksRunning": {
+          "type": "gauge",
+          "description": "Total number of Tasks running on cells. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "bbs.memoryStats.lastGCPauseTimeNS": {
+          "type": "gauge",
+          "description": "Duration in nanoseconds of the last garbage collector pause.",
+          "group": null,
+          "default": false
+        },
+        "bbs.memoryStats.numBytesAllocated": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "bbs.memoryStats.numBytesAllocatedHeap": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated on the main heap and still in use.",
+          "group": null,
+          "default": false
+        },
+        "bbs.memoryStats.numBytesAllocatedStack": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes used by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "bbs.memoryStats.numFrees": {
+          "type": "gauge",
+          "description": "Lifetime number of memory deallocations.",
+          "group": null,
+          "default": false
+        },
+        "bbs.memoryStats.numMallocs": {
+          "type": "gauge",
+          "description": "Lifetime number of memory allocations.",
+          "group": null,
+          "default": false
+        },
+        "bbs.numCPUS": {
+          "type": "gauge",
+          "description": "Number of CPUs on the machine.",
+          "group": null,
+          "default": false
+        },
+        "bbs.numGoRoutines": {
+          "type": "gauge",
+          "description": "Instantaneous number of active goroutines in the process.",
+          "group": null,
+          "default": false
+        },
+        "bosh-system-metrics-forwarder.system.cpu.sys": {
+          "type": "gauge",
+          "description": "CPU load consumed by the kernel.",
+          "group": null,
+          "default": true
+        },
+        "bosh-system-metrics-forwarder.system.cpu.user": {
+          "type": "gauge",
+          "description": "CPU load consumed by userspace.",
+          "group": null,
+          "default": true
+        },
+        "bosh-system-metrics-forwarder.system.cpu.wait": {
+          "type": "gauge",
+          "description": "Time CPU spent waiting for IO.",
+          "group": null,
+          "default": true
+        },
+        "bosh-system-metrics-forwarder.system.disk.ephemeral.percent": {
+          "type": "gauge",
+          "description": "Percentage of the ephemeral disk used.",
+          "group": null,
+          "default": true
+        },
+        "bosh-system-metrics-forwarder.system.disk.system.percent": {
+          "type": "gauge",
+          "description": "Percentage of the system disk used.",
+          "group": null,
+          "default": true
+        },
+        "bosh-system-metrics-forwarder.system.healthy": {
+          "type": "gauge",
+          "description": "Overall status of system health.",
+          "group": null,
+          "default": true
+        },
+        "bosh-system-metrics-forwarder.system.mem.percent": {
+          "type": "gauge",
+          "description": "Percentage of RAM used.",
+          "group": null,
+          "default": true
+        },
+        "bosh-system-metrics-forwarder.system.swap.percent": {
+          "type": "gauge",
+          "description": "Percentage of swap space used.",
+          "group": null,
+          "default": true
+        },
+        "cc.failed_job_count.VM_NAME-VM_INDEX": {
+          "type": "cumulative",
+          "description": "Number of failed jobs in the \u003cVM_NAME\u003e-\u003cVM_INDEX\u003e queue. This is the number of delayed jobs where the failed at column is populated with the time of the most recently failed attempt at the job. The failed job count is not specific to the jobs run by the Cloud Controller worker. By default, Cloud Controller deletes failed jobs after 31 days. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.failed_job_count.cc-generic": {
+          "type": "cumulative",
+          "description": "Number of failed jobs in the cc-generic queue. By default, Cloud Controller deletes failed jobs after 31 days. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.failed_job_count.total": {
+          "type": "gauge",
+          "description": "Number of failed jobs in all queues. By default, Cloud Controller deletes failed jobs after 31 days. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.http_status.1XX": {
+          "type": "cumulative",
+          "description": "Number of HTTP response status codes of type 1xx (informational). This resets when the Cloud Controller process is restarted and is incremented at the end of each request cycle.",
+          "group": null,
+          "default": false
+        },
+        "cc.http_status.2XX": {
+          "type": "cumulative",
+          "description": "Number of HTTP response status codes of type 2xx (success). This resets when the Cloud Controller process is restarted and is incremented at the end of each request cycle. Emitted for each Cloud Controller request.",
+          "group": null,
+          "default": false
+        },
+        "cc.http_status.3XX": {
+          "type": "cumulative",
+          "description": "Number of HTTP response status codes of type 3xx (redirection). This resets when the Cloud Controller process is restarted and is incremented at the end of each request cycle. Emitted for each Cloud Controller request.",
+          "group": null,
+          "default": false
+        },
+        "cc.http_status.4XX": {
+          "type": "cumulative",
+          "description": "Number of HTTP response status codes of type 4xx (client error). This resets when the Cloud Controller process is restarted and is incremented at the end of each request cycle. Emitted for each Cloud Controller request.",
+          "group": null,
+          "default": false
+        },
+        "cc.http_status.5XX": {
+          "type": "cumulative",
+          "description": "Number of HTTP response status codes of type 5xx (server error). This resets when the Cloud Controller process is restarted and is incremented at the end of each request cycle.",
+          "group": null,
+          "default": false
+        },
+        "cc.job_queue_length.cc-VM_NAME-VM_INDEX": {
+          "type": "gauge",
+          "description": "Number of background jobs in the \u003cVM_NAME\u003e-\u003cVM_INDEX\u003e queue that have yet to run for the first time. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.job_queue_length.cc-generic": {
+          "type": "gauge",
+          "description": "Number of background jobs in the cc-generic queue that have yet to run for the first time. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.job_queue_length.total": {
+          "type": "gauge",
+          "description": "Total number of background jobs in the queues that have yet to run for the first time. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.log_count.all": {
+          "type": "gauge",
+          "description": "Total number of log messages, sum of messages of all severity levels. The count resets when the Cloud Controller process is restarted. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.log_count.debug": {
+          "type": "gauge",
+          "description": "Number of log messages of severity “debug.” The count resets when the Cloud Controller process is restarted. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.log_count.debug1": {
+          "type": "gauge",
+          "description": "Not used.",
+          "group": null,
+          "default": false
+        },
+        "cc.log_count.debug2": {
+          "type": "gauge",
+          "description": "Number of log messages of severity “debug2.” The count resets when the Cloud Controller process is restarted. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.log_count.error": {
+          "type": "cumulative",
+          "description": "Number of error log messages.",
+          "group": null,
+          "default": true
+        },
+        "cc.log_count.fatal": {
+          "type": "cumulative",
+          "description": "Number of fatal log messages.",
+          "group": null,
+          "default": true
+        },
+        "cc.log_count.info": {
+          "type": "gauge",
+          "description": "Number of log messages of severity “info.” Examples of info messages are droplet created, copying package, uploading package, access denied due to insufficient scope, job logging, blobstore actions, staging requests, and app running requests. The count resets when the Cloud Controller process is restarted. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.log_count.off": {
+          "type": "gauge",
+          "description": "Number of log messages of severity “off.” The count resets when the Cloud Controller process is restarted. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.log_count.warn": {
+          "type": "cumulative",
+          "description": "Number of warn log messages.",
+          "group": null,
+          "default": true
+        },
+        "cc.requests.completed": {
+          "type": "cumulative",
+          "description": "Number of Cloud Controller API requests completed.",
+          "group": null,
+          "default": true
+        },
+        "cc.requests.outstanding": {
+          "type": "cumulative",
+          "description": "Number of Cloud Controller requests made but not completed.",
+          "group": null,
+          "default": true
+        },
+        "cc.tasks_running.count": {
+          "type": "gauge",
+          "description": "Number of tasks currently running.",
+          "group": null,
+          "default": true
+        },
+        "cc.tasks_running.memory_in_mb": {
+          "type": "gauge",
+          "description": "Memory being consumed by all currently running tasks. Emitted every 30 seconds per VM. This metric is only seen in version 3 of the Cloud Foundry API.",
+          "group": null,
+          "default": false
+        },
+        "cc.thread_info.event_machine.connection_count": {
+          "type": "gauge",
+          "description": "Number of open connections to event machine. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.thread_info.event_machine.resultqueue.num_waiting": {
+          "type": "gauge",
+          "description": "Number of scheduled tasks in the result. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.thread_info.event_machine.resultqueue.size": {
+          "type": "gauge",
+          "description": "Number of unscheduled tasks in the result. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.thread_info.event_machine.threadqueue.num_waiting": {
+          "type": "gauge",
+          "description": "Number of scheduled tasks in the threadqueue. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.thread_info.event_machine.threadqueue.size": {
+          "type": "gauge",
+          "description": "Number of unscheduled tasks in the threadqueue. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.thread_info.thread_count": {
+          "type": "gauge",
+          "description": "Total number of threads that are either runnable or stopped. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.total_users": {
+          "type": "gauge",
+          "description": "Total number of users ever created, including inactive users. Emitted every 10 minutes per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.vitals.cpu": {
+          "type": "gauge",
+          "description": "Percentage of CPU used by the Cloud Controller process. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.vitals.cpu_load_avg": {
+          "type": "gauge",
+          "description": "System CPU load averaged over the last 1 minute according to the OS. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.vitals.mem_bytes": {
+          "type": "gauge",
+          "description": "The RSS bytes (resident set size) or real memory of the Cloud Controller process. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.vitals.mem_free_bytes": {
+          "type": "gauge",
+          "description": "Total memory available according to the OS. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.vitals.mem_used_bytes": {
+          "type": "gauge",
+          "description": "Total memory used (active + wired) according to the OS. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.vitals.num_cores": {
+          "type": "gauge",
+          "description": "The number of CPUs of a host machine. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc.vitals.uptime": {
+          "type": "gauge",
+          "description": "The uptime of the Cloud Controller process in seconds. Emitted every 30 seconds per VM.",
+          "group": null,
+          "default": false
+        },
+        "cc_uploader.memoryStats.lastGCPauseTimeNS": {
+          "type": "gauge",
+          "description": "Duration in nanoseconds of the last garbage collector pause.",
+          "group": null,
+          "default": false
+        },
+        "cc_uploader.memoryStats.numBytesAllocated": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "cc_uploader.memoryStats.numBytesAllocatedHeap": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated on the main heap and still in use.",
+          "group": null,
+          "default": false
+        },
+        "cc_uploader.memoryStats.numBytesAllocatedStack": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes used by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "cc_uploader.memoryStats.numFrees": {
+          "type": "gauge",
+          "description": "Lifetime number of memory deallocations.",
+          "group": null,
+          "default": false
+        },
+        "cc_uploader.memoryStats.numMallocs": {
+          "type": "gauge",
+          "description": "Lifetime number of memory allocations.",
+          "group": null,
+          "default": false
+        },
+        "cc_uploader.numCPUS": {
+          "type": "gauge",
+          "description": "Number of CPUs on the machine.",
+          "group": null,
+          "default": false
+        },
+        "cc_uploader.numGoRoutines": {
+          "type": "gauge",
+          "description": "Instantaneous number of active goroutines in the process.",
+          "group": null,
+          "default": false
+        },
+        "container.cpu_percentage": {
+          "type": "gauge",
+          "description": "Percentage of CPU used by this container",
+          "group": null,
+          "default": false
+        },
+        "container.disk_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes of disk used by this container",
+          "group": null,
+          "default": false
+        },
+        "container.disk_bytes_quota": {
+          "type": "gauge",
+          "description": "Number of bytes of disk allowed for this container",
+          "group": null,
+          "default": false
+        },
+        "container.memory_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes of RAM used by this container",
+          "group": null,
+          "default": false
+        },
+        "container.memory_bytes_quota": {
+          "type": "gauge",
+          "description": "Number of bytes of RAM allocated to this container",
+          "group": null,
+          "default": false
+        },
+        "etcd.CompareAndDeleteFail": {
+          "type": "gauge",
+          "description": "CompareAndDeleteFail operation count. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.CompareAndDeleteSuccess": {
+          "type": "gauge",
+          "description": "CompareAndDeleteSuccess operation countEmitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.CompareAndSwapFail": {
+          "type": "gauge",
+          "description": "CompareAndSwapFail operation count. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.CompareAndSwapSuccess": {
+          "type": "gauge",
+          "description": "CompareAndSwapSuccess operation count. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.CreateFail": {
+          "type": "gauge",
+          "description": "CreateFail operation count. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.CreateSuccess": {
+          "type": "gauge",
+          "description": "CreateSuccess operation count. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.DeleteFail": {
+          "type": "gauge",
+          "description": "DeleteFail operation count. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.DeleteSuccess": {
+          "type": "gauge",
+          "description": "DeleteSuccess operation count. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.EtcdIndex": {
+          "type": "gauge",
+          "description": "X-Etcd-Index value from the /stats/store endpoint. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.ExpireCount": {
+          "type": "gauge",
+          "description": "ExpireCount operation count. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.Followers": {
+          "type": "gauge",
+          "description": "Number of etcd followers. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.GetsFail": {
+          "type": "gauge",
+          "description": "GetsFail operation count. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.GetsSuccess": {
+          "type": "gauge",
+          "description": "GetsSuccess operation count. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.IsLeader": {
+          "type": "gauge",
+          "description": "1 if the current server is the leader, 0 if it is a follower. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.Latency": {
+          "type": "gauge",
+          "description": "Current latency in milliseconds from leader to a specific follower. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.RaftIndex": {
+          "type": "gauge",
+          "description": "X-Raft-Index value from the /stats/store endpoint. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.RaftTerm": {
+          "type": "gauge",
+          "description": "X-Raft-Term value from the /stats/store endpoint. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.ReceivedAppendRequests": {
+          "type": "gauge",
+          "description": "Number of append requests this node has processed. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.ReceivingBandwidthRate": {
+          "type": "gauge",
+          "description": "Number of bytes per second this node is receiving (follower only). Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.ReceivingRequestRate": {
+          "type": "gauge",
+          "description": "Number of requests per second this node is receiving (follower only). Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.SendingBandwidthRate": {
+          "type": "gauge",
+          "description": "Number of bytes per second this node is sending (leader only). This value is undefined on single member clusters. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.SendingRequestRate": {
+          "type": "gauge",
+          "description": "Number of requests per second this node is sending (leader only). This value is undefined on single member clusters. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.SentAppendRequests": {
+          "type": "gauge",
+          "description": "Number of requests that this node has sent. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.SetsFail": {
+          "type": "gauge",
+          "description": "SetsFail operation count. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.SetsSuccess": {
+          "type": "gauge",
+          "description": "SetsSuccess operation count. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.UpdateFail": {
+          "type": "gauge",
+          "description": "UpdateFail operation count. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.UpdateSuccess": {
+          "type": "gauge",
+          "description": "UpdateSuccess operation count. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "etcd.Watchers": {
+          "type": "gauge",
+          "description": "Watchers operation count. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "file_server.memoryStats.lastGCPauseTimeNS": {
+          "type": "gauge",
+          "description": "Duration in nanoseconds of the last garbage collector pause.",
+          "group": null,
+          "default": false
+        },
+        "file_server.memoryStats.numBytesAllocated": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "file_server.memoryStats.numBytesAllocatedHeap": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated on the main heap and still in use.",
+          "group": null,
+          "default": false
+        },
+        "file_server.memoryStats.numBytesAllocatedStack": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes used by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "file_server.memoryStats.numFrees": {
+          "type": "gauge",
+          "description": "Lifetime number of memory deallocations.",
+          "group": null,
+          "default": false
+        },
+        "file_server.memoryStats.numMallocs": {
+          "type": "gauge",
+          "description": "Lifetime number of memory allocations.",
+          "group": null,
+          "default": false
+        },
+        "file_server.numCPUS": {
+          "type": "gauge",
+          "description": "Number of CPUs on the machine.",
+          "group": null,
+          "default": false
+        },
+        "file_server.numGoRoutines": {
+          "type": "gauge",
+          "description": "Instantaneous number of active goroutines in the process.",
+          "group": null,
+          "default": false
+        },
+        "garden_linux.BackingStores": {
+          "type": "gauge",
+          "description": "Number of container backing store files. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "garden_linux.DepotDirs": {
+          "type": "gauge",
+          "description": "Number of directories in the Garden depot. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "garden_linux.LoopDevices": {
+          "type": "gauge",
+          "description": "Number of attached loop devices. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "garden_linux.MetricsReporting": {
+          "type": "gauge",
+          "description": "How long it took to emit the BackingStores, DepotDirs, and LoopDevices metrics. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "garden_linux.memoryStats.lastGCPauseTimeNS": {
+          "type": "gauge",
+          "description": "Duration in nanoseconds of the last garbage collector pause.",
+          "group": null,
+          "default": false
+        },
+        "garden_linux.memoryStats.numBytesAllocated": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "garden_linux.memoryStats.numBytesAllocatedHeap": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated on the main heap and still in use.",
+          "group": null,
+          "default": false
+        },
+        "garden_linux.memoryStats.numBytesAllocatedStack": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes used by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "garden_linux.memoryStats.numFrees": {
+          "type": "gauge",
+          "description": "Lifetime number of memory deallocations.",
+          "group": null,
+          "default": false
+        },
+        "garden_linux.memoryStats.numMallocs": {
+          "type": "gauge",
+          "description": "Lifetime number of memory allocations.",
+          "group": null,
+          "default": false
+        },
+        "garden_linux.numCPUS": {
+          "type": "gauge",
+          "description": "Number of CPUs on the machine.",
+          "group": null,
+          "default": false
+        },
+        "garden_linux.numGoRoutines": {
+          "type": "gauge",
+          "description": "Instantaneous number of active goroutines in the process.",
+          "group": null,
+          "default": false
+        },
+        "gorouter.backend_exhausted_conns": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": true
+        },
+        "gorouter.bad_gateways": {
+          "type": "cumulative",
+          "description": "Number of bad gateway events.",
+          "group": null,
+          "default": true
+        },
+        "gorouter.responses": {
+          "type": "cumulative",
+          "description": "Number of router responses.",
+          "group": null,
+          "default": true
+        },
+        "gorouter.total_requests": {
+          "type": "cumulative",
+          "description": "Number of router requests received",
+          "group": null,
+          "default": true
+        },
+        "gorouter.total_routes": {
+          "type": "gauge",
+          "description": "Number of registered routes",
+          "group": null,
+          "default": true
+        },
+        "nsync_bulker.DesiredLRPSyncDuration": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the nsync-bulker took to synchronize CF apps and Diego DesiredLRPs. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "nsync_bulker.LRPsDesired": {
+          "type": "gauge",
+          "description": "Cumulative number of LRPs desired through the nsync API. Emitted on each request desiring a new LRP, every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "nsync_bulker.LockHeld.v1-locks-nsync_bulker_lock": {
+          "type": "gauge",
+          "description": "Whether an nsync-bulker holds the nsync-bulker lock: 1 means the lock is held, and 0 means the lock was lost. Emitted every 30 seconds by the active nsync-bulker.",
+          "group": null,
+          "default": false
+        },
+        "nsync_bulker.LockHeldDuration.v1-locks-nsync_bulker_lock": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the active nsync-bulker has held the convergence lock. Emitted every 30 seconds by the active nsync-bulker.",
+          "group": null,
+          "default": false
+        },
+        "nsync_bulker.NsyncInvalidDesiredLRPsFound": {
+          "type": "gauge",
+          "description": "Number of invalid DesiredLRPs found during nsync-bulker periodic synchronization. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "nsync_bulker.memoryStats.lastGCPauseTimeNS": {
+          "type": "gauge",
+          "description": "Duration in nanoseconds of the last garbage collector pause.",
+          "group": null,
+          "default": false
+        },
+        "nsync_bulker.memoryStats.numBytesAllocated": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "nsync_bulker.memoryStats.numBytesAllocatedHeap": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated on the main heap and still in use.",
+          "group": null,
+          "default": false
+        },
+        "nsync_bulker.memoryStats.numBytesAllocatedStack": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes used by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "nsync_bulker.memoryStats.numFrees": {
+          "type": "gauge",
+          "description": "Lifetime number of memory deallocations.",
+          "group": null,
+          "default": false
+        },
+        "nsync_bulker.memoryStats.numMallocs": {
+          "type": "gauge",
+          "description": "Lifetime number of memory allocations.",
+          "group": null,
+          "default": false
+        },
+        "nsync_bulker.numCPUS": {
+          "type": "gauge",
+          "description": "Number of CPUs on the machine.",
+          "group": null,
+          "default": false
+        },
+        "nsync_bulker.numGoRoutines": {
+          "type": "gauge",
+          "description": "Instantaneous number of active goroutines in the process.",
+          "group": null,
+          "default": false
+        },
+        "nsync_listener.memoryStats.lastGCPauseTimeNS": {
+          "type": "gauge",
+          "description": "Duration in nanoseconds of the last garbage collector pause.",
+          "group": null,
+          "default": false
+        },
+        "nsync_listener.memoryStats.numBytesAllocated": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "nsync_listener.memoryStats.numBytesAllocatedHeap": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated on the main heap and still in use.",
+          "group": null,
+          "default": false
+        },
+        "nsync_listener.memoryStats.numBytesAllocatedStack": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes used by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "nsync_listener.memoryStats.numFrees": {
+          "type": "gauge",
+          "description": "Lifetime number of memory deallocations.",
+          "group": null,
+          "default": false
+        },
+        "nsync_listener.memoryStats.numMallocs": {
+          "type": "gauge",
+          "description": "Lifetime number of memory allocations.",
+          "group": null,
+          "default": false
+        },
+        "nsync_listener.numCPUS": {
+          "type": "gauge",
+          "description": "Number of CPUs on the machine.",
+          "group": null,
+          "default": false
+        },
+        "nsync_listener.numGoRoutines": {
+          "type": "gauge",
+          "description": "Instantaneous number of active goroutines in the process.",
+          "group": null,
+          "default": false
+        },
+        "rep.CM": {
+          "type": "gauge",
+          "description": "Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "rep.CapacityRemainingContainers": {
+          "type": "gauge",
+          "description": "Remaining number of containers this cell can host. Emitted every 60 seconds.",
+          "group": null,
+          "default": true
+        },
+        "rep.CapacityRemainingDisk": {
+          "type": "gauge",
+          "description": "Amount of disk available to allocate in the cell, in megabytes.",
+          "group": null,
+          "default": true
+        },
+        "rep.CapacityRemainingMemory": {
+          "type": "gauge",
+          "description": "Amount of memory available to allocate in the cell, in megabytes.",
+          "group": null,
+          "default": true
+        },
+        "rep.CapacityTotalContainers": {
+          "type": "gauge",
+          "description": "Total number of containers this cell can host. Emitted every 60 seconds.",
+          "group": null,
+          "default": true
+        },
+        "rep.CapacityTotalDisk": {
+          "type": "gauge",
+          "description": "Total amount of disk in a cell, in megabytes.",
+          "group": null,
+          "default": true
+        },
+        "rep.CapacityTotalMemory": {
+          "type": "gauge",
+          "description": "Total amount of memory in a cell, in megabytes.",
+          "group": null,
+          "default": true
+        },
+        "rep.ContainerCount": {
+          "type": "gauge",
+          "description": "Number of Diego containers currently running.",
+          "group": null,
+          "default": true
+        },
+        "rep.GardenContainerCreationDuration": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the rep Garden backend took to create a container. Emitted after every successful container creation.",
+          "group": null,
+          "default": false
+        },
+        "rep.LogMessage": {
+          "type": "gauge",
+          "description": "Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "rep.RepBulkSyncDuration": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the cell rep took to synchronize the ActualLRPs it has claimed with its actual garden containers. Emitted every 30 seconds by each rep.",
+          "group": null,
+          "default": true
+        },
+        "rep.UnhealthyCell": {
+          "type": "gauge",
+          "description": "Number of unhealthy Diego cells",
+          "group": null,
+          "default": true
+        },
+        "rep.absolute_entitlement": {
+          "type": "cumulative",
+          "description": "The total number of nanoseconds the container is entitled to spend using CPU",
+          "group": "container",
+          "default": false
+        },
+        "rep.absolute_usage": {
+          "type": "cumulative",
+          "description": "The total number of nanoseconds the container has used CPU",
+          "group": "container",
+          "default": false
+        },
+        "rep.container_age": {
+          "type": "cumulative",
+          "description": "The total number of nanoseconds the Diego-managed container has been alive",
+          "group": "container",
+          "default": false
+        },
+        "rep.cpu": {
+          "type": "gauge",
+          "description": "Percentage of time container spent using CPU.",
+          "group": "container",
+          "default": true
+        },
+        "rep.disk": {
+          "type": "gauge",
+          "description": "Disk space (bytes) in use by this container.",
+          "group": "container",
+          "default": true
+        },
+        "rep.disk_quota": {
+          "type": "gauge",
+          "description": "User requested disk quota (bytes) set on the DesiredLRP for this container",
+          "group": "container",
+          "default": true
+        },
+        "rep.logSenderTotalMessagesRead": {
+          "type": "cumulative",
+          "description": "Count of application log messages sent by Diego Executor. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "rep.memory": {
+          "type": "gauge",
+          "description": "Memory in use by this container (bytes). If the per-instance proxy is\nenabled, memory usage is scaled set based on the additional memory\nallocation for the proxy.\n",
+          "group": "container",
+          "default": true
+        },
+        "rep.memoryStats.lastGCPauseTimeNS": {
+          "type": "gauge",
+          "description": "Duration in nanoseconds of the last garbage collector pause.",
+          "group": null,
+          "default": false
+        },
+        "rep.memoryStats.numBytesAllocated": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "rep.memoryStats.numBytesAllocatedHeap": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated on the main heap and still in use.",
+          "group": null,
+          "default": false
+        },
+        "rep.memoryStats.numBytesAllocatedStack": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes used by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "rep.memoryStats.numFrees": {
+          "type": "gauge",
+          "description": "Lifetime number of memory deallocations.",
+          "group": null,
+          "default": false
+        },
+        "rep.memoryStats.numMallocs": {
+          "type": "gauge",
+          "description": "Lifetime number of memory allocations.",
+          "group": null,
+          "default": false
+        },
+        "rep.memory_quota": {
+          "type": "gauge",
+          "description": "User requested memory quota (bytes) set on the DesiredLRP for this container",
+          "group": "container",
+          "default": true
+        },
+        "rep.numCPUS": {
+          "type": "gauge",
+          "description": "Number of CPUs on the machine.",
+          "group": null,
+          "default": false
+        },
+        "rep.numGoRoutines": {
+          "type": "gauge",
+          "description": "Instantaneous number of active goroutines in the process.",
+          "group": null,
+          "default": false
+        },
+        "route_emitter.LockHeld.v1-locks-route_emitter_lock": {
+          "type": "gauge",
+          "description": "Whether a route-emitter holds the route-emitter lock: 1 means the lock is held, and 0 means the lock was lost. Emitted every 30 seconds by the active route-emitter.",
+          "group": null,
+          "default": false
+        },
+        "route_emitter.LockHeldDuration.v1-locks-route_emitter_lock": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the active route-emitter has held the route-emitter lock. Emitted every 30 seconds by the active route-emitter.",
+          "group": null,
+          "default": false
+        },
+        "route_emitter.MessagesEmitted": {
+          "type": "cumulative",
+          "description": "The cumulative number of registration messages that this process has sent. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "route_emitter.RouteEmitterSyncDuration": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the active route-emitter took to perform its synchronization pass. Emitted every 60 seconds.",
+          "group": null,
+          "default": true
+        },
+        "route_emitter.RoutesRegistered": {
+          "type": "cumulative",
+          "description": "Cumulative number of route registrations emitted from the route-emitter as it reacts to changes to LRPs. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "route_emitter.RoutesSynced": {
+          "type": "cumulative",
+          "description": "Cumulative number of route registrations emitted from the route-emitter during its periodic route-table synchronization. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "route_emitter.RoutesTotal": {
+          "type": "gauge",
+          "description": "Number of routes in the route-emitter’s routing table. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "route_emitter.RoutesUnregistered": {
+          "type": "cumulative",
+          "description": "Cumulative number of route unregistrations emitted from the route-emitter as it reacts to changes to LRPs. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "route_emitter.memoryStats.lastGCPauseTimeNS": {
+          "type": "gauge",
+          "description": "Duration in nanoseconds of the last garbage collector pause.",
+          "group": null,
+          "default": false
+        },
+        "route_emitter.memoryStats.numBytesAllocated": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "route_emitter.memoryStats.numBytesAllocatedHeap": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated on the main heap and still in use.",
+          "group": null,
+          "default": false
+        },
+        "route_emitter.memoryStats.numBytesAllocatedStack": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes used by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "route_emitter.memoryStats.numFrees": {
+          "type": "gauge",
+          "description": "Lifetime number of memory deallocations.",
+          "group": null,
+          "default": false
+        },
+        "route_emitter.memoryStats.numMallocs": {
+          "type": "gauge",
+          "description": "Lifetime number of memory allocations.",
+          "group": null,
+          "default": false
+        },
+        "route_emitter.numCPUS": {
+          "type": "gauge",
+          "description": "Number of CPUs on the machine.",
+          "group": null,
+          "default": false
+        },
+        "route_emitter.numGoRoutines": {
+          "type": "gauge",
+          "description": "Instantaneous number of active goroutines in the process.",
+          "group": null,
+          "default": false
+        },
+        "ssh_proxy.memoryStats.lastGCPauseTimeNS": {
+          "type": "gauge",
+          "description": "Duration in nanoseconds of the last garbage collector pause.",
+          "group": null,
+          "default": false
+        },
+        "ssh_proxy.memoryStats.numBytesAllocated": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "ssh_proxy.memoryStats.numBytesAllocatedHeap": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated on the main heap and still in use.",
+          "group": null,
+          "default": false
+        },
+        "ssh_proxy.memoryStats.numBytesAllocatedStack": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes used by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "ssh_proxy.memoryStats.numFrees": {
+          "type": "gauge",
+          "description": "Lifetime number of memory deallocations.",
+          "group": null,
+          "default": false
+        },
+        "ssh_proxy.memoryStats.numMallocs": {
+          "type": "gauge",
+          "description": "Lifetime number of memory allocations.",
+          "group": null,
+          "default": false
+        },
+        "ssh_proxy.numCPUS": {
+          "type": "gauge",
+          "description": "Number of CPUs on the machine.",
+          "group": null,
+          "default": false
+        },
+        "ssh_proxy.numGoRoutines": {
+          "type": "gauge",
+          "description": "Instantaneous number of active goroutines in the process .",
+          "group": null,
+          "default": false
+        },
+        "stager.StagingRequestFailedDuration": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the failed staging task took to run. Emitted each time a staging task fails.",
+          "group": null,
+          "default": false
+        },
+        "stager.StagingRequestSucceededDuration": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the successful staging task took to run. Emitted each time a staging task completes successfully.",
+          "group": null,
+          "default": false
+        },
+        "stager.StagingRequestsFailed": {
+          "type": "gauge",
+          "description": "Cumulative number of failed staging tasks handled by each stager. Emitted every time a staging task fails.",
+          "group": null,
+          "default": false
+        },
+        "stager.StagingRequestsSucceeded": {
+          "type": "gauge",
+          "description": "Cumulative number of successful staging tasks handled by each stager. Emitted every time a staging task completes successfully.",
+          "group": null,
+          "default": false
+        },
+        "stager.StagingStartRequestsReceived": {
+          "type": "gauge",
+          "description": "Cumulative number of requests to start a staging task. Emitted by a stager each time it handles a request.",
+          "group": null,
+          "default": false
+        },
+        "stager.memoryStats.lastGCPauseTimeNS": {
+          "type": "gauge",
+          "description": "Duration in nanoseconds of the last garbage collector pause.",
+          "group": null,
+          "default": false
+        },
+        "stager.memoryStats.numBytesAllocated": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "stager.memoryStats.numBytesAllocatedHeap": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated on the main heap and still in use.",
+          "group": null,
+          "default": false
+        },
+        "stager.memoryStats.numBytesAllocatedStack": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes used by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "stager.memoryStats.numFrees": {
+          "type": "gauge",
+          "description": "Lifetime number of memory deallocations.",
+          "group": null,
+          "default": false
+        },
+        "stager.memoryStats.numMallocs": {
+          "type": "gauge",
+          "description": "Lifetime number of memory allocations.",
+          "group": null,
+          "default": false
+        },
+        "stager.numCPUS": {
+          "type": "gauge",
+          "description": "Number of CPUs on the machine.",
+          "group": null,
+          "default": false
+        },
+        "stager.numGoRoutines": {
+          "type": "gauge",
+          "description": "Instantaneous number of active goroutines in the process.",
+          "group": null,
+          "default": false
+        },
+        "syslog_drain_binder.memoryStats.lastGCPauseTimeNS": {
+          "type": "gauge",
+          "description": "Duration of the last Garbage Collector pause in nanoseconds.",
+          "group": null,
+          "default": false
+        },
+        "syslog_drain_binder.memoryStats.numBytesAllocated": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "syslog_drain_binder.memoryStats.numBytesAllocatedHeap": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated on the main heap and still in use.",
+          "group": null,
+          "default": false
+        },
+        "syslog_drain_binder.memoryStats.numBytesAllocatedStack": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes used by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "syslog_drain_binder.memoryStats.numFrees": {
+          "type": "gauge",
+          "description": "Lifetime number of memory deallocations.",
+          "group": null,
+          "default": false
+        },
+        "syslog_drain_binder.memoryStats.numMallocs": {
+          "type": "gauge",
+          "description": "Lifetime number of memory allocations.",
+          "group": null,
+          "default": false
+        },
+        "syslog_drain_binder.numCPUS": {
+          "type": "gauge",
+          "description": "Number of CPUs on the machine.",
+          "group": null,
+          "default": false
+        },
+        "syslog_drain_binder.numGoRoutines": {
+          "type": "gauge",
+          "description": "Instantaneous number of active goroutines in the Doppler process.",
+          "group": null,
+          "default": false
+        },
+        "syslog_drain_binder.pollCount": {
+          "type": "cumulative",
+          "description": "Number of times the syslog drain binder has polled the cloud controller for syslog drain bindings. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "syslog_drain_binder.totalDrains": {
+          "type": "gauge",
+          "description": "Number of syslog drains returned by cloud controller. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_cpu_core_idle": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_cpu_core_sys": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_cpu_core_user": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_cpu_core_wait": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_cpu_idle": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_cpu_sys": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_cpu_user": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_cpu_wait": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_ephemeral_inode_percent": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_ephemeral_io_time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_ephemeral_percent": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_ephemeral_read_bytes": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_ephemeral_read_time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_ephemeral_write_bytes": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_ephemeral_write_time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_persistent_inode_percent": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_persistent_io_time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_persistent_percent": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_persistent_read_bytes": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_persistent_read_time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_persistent_write_bytes": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_persistent_write_time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_system_inode_percent": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_system_io_time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_system_percent": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_system_read_bytes": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_system_read_time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_system_write_bytes": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_disk_system_write_time": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_healthy": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_load_15m": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_load_1m": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_load_5m": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_mem_kb": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_mem_percent": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_network_bytes_received": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_network_bytes_sent": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_network_drop_in": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_network_drop_out": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_network_error_in": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_network_error_out": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_network_ip_forwarding": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_network_packets_received": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_network_packets_sent": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_network_tcp_active_opens": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_network_tcp_curr_estab": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_network_tcp_retrans_segs": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_network_udp_in_errors": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_network_udp_lite_in_errors": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_network_udp_no_ports": {
+          "type": "cumulative",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_swap_kb": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "system_metrics_agent.system_swap_percent": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": false
+        },
+        "tps_listener.memoryStats.lastGCPauseTimeNS": {
+          "type": "gauge",
+          "description": "Duration in nanoseconds of the last garbage collector pause.",
+          "group": null,
+          "default": false
+        },
+        "tps_listener.memoryStats.numBytesAllocated": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "tps_listener.memoryStats.numBytesAllocatedHeap": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated on the main heap and still in use.",
+          "group": null,
+          "default": false
+        },
+        "tps_listener.memoryStats.numBytesAllocatedStack": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes used by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "tps_listener.memoryStats.numFrees": {
+          "type": "gauge",
+          "description": "Lifetime number of memory deallocations.",
+          "group": null,
+          "default": false
+        },
+        "tps_listener.memoryStats.numMallocs": {
+          "type": "gauge",
+          "description": "Lifetime number of memory allocations.",
+          "group": null,
+          "default": false
+        },
+        "tps_listener.numCPUS": {
+          "type": "gauge",
+          "description": "Number of CPUs on the machine.",
+          "group": null,
+          "default": false
+        },
+        "tps_listener.numGoRoutines": {
+          "type": "gauge",
+          "description": "Instantaneous number of active goroutines in the process.",
+          "group": null,
+          "default": false
+        },
+        "tps_watcher.LockHeld.v1-locks-tps_watcher_lock": {
+          "type": "gauge",
+          "description": "Whether a tps-watcher holds the tps-watcher lock: 1 means the lock is held, and 0 means the lock was lost. Emitted every 30 seconds by the active tps-watcher.",
+          "group": null,
+          "default": false
+        },
+        "tps_watcher.LockHeldDuration.v1-locks-tps_watcher_lock": {
+          "type": "gauge",
+          "description": "Time in nanoseconds that the active tps-watcher has held the convergence lock. Emitted every 30 seconds by the active tps-watcher.",
+          "group": null,
+          "default": false
+        },
+        "tps_watcher.memoryStats.lastGCPauseTimeNS": {
+          "type": "gauge",
+          "description": "Duration in nanoseconds of the last garbage collector pause.",
+          "group": null,
+          "default": false
+        },
+        "tps_watcher.memoryStats.numBytesAllocated": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated and still in use.",
+          "group": null,
+          "default": false
+        },
+        "tps_watcher.memoryStats.numBytesAllocatedHeap": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes allocated on the main heap and still in use.",
+          "group": null,
+          "default": false
+        },
+        "tps_watcher.memoryStats.numBytesAllocatedStack": {
+          "type": "gauge",
+          "description": "Instantaneous count of bytes used by the stack allocator.",
+          "group": null,
+          "default": false
+        },
+        "tps_watcher.memoryStats.numFrees": {
+          "type": "gauge",
+          "description": "Lifetime number of memory deallocations.",
+          "group": null,
+          "default": false
+        },
+        "tps_watcher.memoryStats.numMallocs": {
+          "type": "gauge",
+          "description": "Lifetime number of memory allocations.",
+          "group": null,
+          "default": false
+        },
+        "tps_watcher.numCPUS": {
+          "type": "gauge",
+          "description": "Number of CPUs on the machine. Emitted every 30 seconds.",
+          "group": null,
+          "default": false
+        },
+        "tps_watcher.numGoRoutines": {
+          "type": "gauge",
+          "description": "Instantaneous number of active goroutines in the process.",
+          "group": null,
+          "default": false
+        },
+        "uaa.audit_service.client_authentication_count": {
+          "type": "cumulative",
+          "description": "Number of client authentication attempts.",
+          "group": null,
+          "default": false
+        },
+        "uaa.audit_service.client_authentication_failure_count": {
+          "type": "cumulative",
+          "description": "Number of failed client authentication attempts.",
+          "group": null,
+          "default": true
+        },
+        "uaa.audit_service.principal_authentication_failure_count": {
+          "type": "cumulative",
+          "description": "Number of failed principal authentication attempts.",
+          "group": null,
+          "default": true
+        },
+        "uaa.audit_service.principal_not_found_count": {
+          "type": "cumulative",
+          "description": "Number of times a non-user was not found.",
+          "group": null,
+          "default": true
+        },
+        "uaa.audit_service.user_authentication_count": {
+          "type": "cumulative",
+          "description": "Number of times a user has successfully authenticated.",
+          "group": null,
+          "default": false
+        },
+        "uaa.audit_service.user_authentication_failure_count": {
+          "type": "cumulative",
+          "description": "Number of failed user authentication attempts.",
+          "group": null,
+          "default": true
+        },
+        "uaa.audit_service.user_not_found_count": {
+          "type": "cumulative",
+          "description": "Number of times a user was not found.",
+          "group": null,
+          "default": true
+        },
+        "uaa.audit_service.user_password_changes": {
+          "type": "cumulative",
+          "description": "Number of times a user password has changed.",
+          "group": null,
+          "default": false
+        },
+        "uaa.audit_service.user_password_failures": {
+          "type": "cumulative",
+          "description": "Number of times a user password change has failed.",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "metricsExhaustive": false,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/cloudfoundry",
+        "fields": [
+          {
+            "yamlName": "rlpGatewayUrl",
+            "doc": "The base URL to the RLP Gateway server. This is quite often of the form https://log-stream.\u003cCLOUD CONTROLLER SYSTEM DOMAIN\u003e if using PCF 2.4+.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "rlpGatewaySkipVerify",
+            "doc": "Whether to skip SSL/TLS verification when using HTTPS to connect to the RLP Gateway",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "uaaUser",
+            "doc": "The UAA username for a user that has the appropriate authority to fetch logs from the firehose (usually the `logs.admin` authority)",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "uaaPassword",
+            "doc": "The password for the above UAA user",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "uaaUrl",
+            "doc": "The URL to the UAA server. This monitor will obtain an access token from this server that it will use to authenticate with the RLP Gateway.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "uaaSkipVerify",
+            "doc": "Whether to skip SSL/TLS verification when using HTTPS to connect to the UAA server",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "shardId",
+            "doc": "The nozzle's shard id.  All nozzle instances with the same id will receive an exclusive subset of the data from the firehose. The default should suffice in the vast majority of use cases.",
+            "default": "signalfx_nozzle",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": false,
+      "singleInstance": false
+    },
+    {
       "monitorType": "collectd/activemq",
       "sendAll": false,
       "dimensions": null,

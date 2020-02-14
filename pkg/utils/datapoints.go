@@ -83,3 +83,12 @@ func TruncateDimensionValue(value string) string {
 	}
 	return value
 }
+
+// SetDatapointMeta sets a field on the datapoint.Meta field, initializing the
+// Meta map if it is nil.
+func SetDatapointMeta(dp *datapoint.Datapoint, name interface{}, val interface{}) {
+	if dp.Meta == nil {
+		dp.Meta = make(map[interface{}]interface{})
+	}
+	dp.Meta[name] = val
+}

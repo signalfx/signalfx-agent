@@ -410,7 +410,7 @@ def run_simple_sanic_app(app):
     threading.Thread(target=loop.run_forever).start()
 
     try:
-        yield port
+        yield f"http://127.0.0.1:{port}"
     finally:
         app_sock.close()
         loop.stop()
