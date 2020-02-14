@@ -1,0 +1,32 @@
+---
+name: signalfx-agent-standalone
+
+releases:
+- name: signalfx-agent
+  version: latest
+
+stemcells:
+- alias: default
+  name: ubuntu-xenial
+  version: latest
+
+update:
+  canaries: 1
+  max_in_flight: 1
+  canary_watch_time: 1000-30000
+  update_watch_time: 1000-30000
+
+instance_groups:
+- name: agent
+  instances: 1
+  jobs:
+  - name: signalfx-agent
+    release: signalfx-agent
+    properties:
+      signalfx.access_token: ((signalfx.access_token))
+      signalfx.send_internal_metrics: false
+
+  vm_type: default
+  stemcell: default
+  networks:
+  - name: default

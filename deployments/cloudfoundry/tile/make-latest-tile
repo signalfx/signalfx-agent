@@ -1,0 +1,29 @@
+#!/bin/bash
+
+# This script will bundle up the buildpack as it is, create a release of the
+# bosh release of the agent, and generate the tile from those two things.
+# You have to provide the AGENT_VERSION envvar as well as the AGENT_BUNDLE var
+# that points to the path of the latest agent bundle tar.gz file.
+# If you are doing a non-initial tile release for a particular agent version,
+# you should set RELEASE_REVISION to the next value (the initial tile release
+# uses 1).
+
+set -euo pipefail
+set -x
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+(cd $SCRIPT_DIR/../buildpack; zip $SCRIPT_DIR/../tile/resources/signalfx_agent_buildpack.zip *)
+
+$SCRIPT_DIR/../bosh/release
+
+mkdir -p $SCRIPT_DIR/resources
+cp $SCRIPT_DIR/../bosh/latest-release.tgz $SCRIPT_DIR/resources/
+
+DEFAULT_TILE_VERSION="${AGENT_VERSION}-${RELEASE_REVISION-1}"
+TILE_VERSION=${TILE_VERSION-$DEFAULT_TILE_VERSION}
+
+rm -f $SCRIPT_DIR/tile-history.yml
+
+cd $SCRIPT_DIR
+tile build ${TILE_VERSION}

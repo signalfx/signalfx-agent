@@ -1,0 +1,81 @@
+<% if p("signalfx.agent_config_yaml", "").length > 0 %>
+<%= p("signalfx.agent_config_yaml") %>
+<% else %>
+---
+# *Required* The access token for the org that you wish to send metrics to.
+signalFxAccessToken: {"#from": "/var/vcap/jobs/signalfx-agent/config/token"}
+signalFxRealm: {"#from": "/var/vcap/jobs/signalfx-agent/config/realm"}
+ingestUrl: {"#from": "/var/vcap/jobs/signalfx-agent/config/ingest_url"}
+apiUrl: {"#from": "/var/vcap/jobs/signalfx-agent/config/api_url"}
+cluster: <%= p("signalfx.cluster", "") %>
+
+<% if not p("nozzle.enabled") %>
+globalDimensions:
+  bosh_id: {"#from": "/var/vcap/instance/id", optional: true}
+  deployment: {"#from": "/var/vcap/instance/deployment", optional: true}
+<% end %>
+
+<% if_p("signalfx.interval_seconds") do |interval_seconds| %>
+intervalSeconds: <%= interval_seconds %>
+<% end %>
+
+<% if_p("signalfx.log_level") do |level| %>
+logging:
+  # Valid values are 'debug', 'info', 'warning', and 'error'
+  level: <%= level %>
+<% end %>
+
+# observers are what discover running services in the environment
+observers:
+  - type: host
+
+<% if_p("signalfx.max_datapoints_buffered") do |max| %>
+writer:
+  maxDatapointsBuffered: <%= max %>
+<% end %>
+
+collectd:
+  logLevel: info
+  configDir: /var/vcap/sys/run/signalfx-agent/collectd
+
+monitors:
+<% if p("signalfx.send_internal_metrics") %>
+ - type: internal-metrics
+<% end %>
+<% if p("nozzle.enabled") %>
+ - type: cloudfoundry-firehose-nozzle
+   disableHostDimensions: true
+   uaaUrl: "<%= p("nozzle.uaa_url") %>"
+   <% if_p("nozzle.ssl_skip_verify") do |skip_verify| %>
+   uaaSkipVerify: <%= skip_verify %>
+   <% end %>
+   rlpGatewayUrl: <%= p("nozzle.rlp_gateway_url") %>
+   <% if_p("nozzle.ssl_skip_verify") do |skip_verify| %>
+   rlpGatewaySkipVerify: <%= skip_verify %>
+   <% end %>
+   uaaUser: <%= p("nozzle.uaa_username") %>
+   uaaPassword: <%= p("nozzle.uaa_password") %>
+   extraMetrics:
+     - {"#from": "/var/vcap/jobs/signalfx-agent/config/extra-nozzle-metrics.yaml", flatten: true, optional: true}
+   datapointsToExclude:
+     - {"#from": "/var/vcap/jobs/signalfx-agent/config/nozzle-filtering.yaml", flatten: true, optional: true}
+<% else %>
+ - type: host-metadata
+ - type: processlist
+ - type: collectd/cpu
+ - type: collectd/cpufreq
+ - type: collectd/df
+ - type: disk-io
+ - type: collectd/interface
+ - type: load
+ - type: collectd/memory
+ - type: collectd/signalfx-metadata
+   omitProcessInfo: true
+ - type: collectd/vmem
+ - {"#from": "/var/vcap/jobs/signalfx-agent/config/extra-monitors.yaml", flatten: true, optional: true}
+<% end %>
+
+enableBuiltInFiltering: true
+
+_: {"#from": "/var/vcap/jobs/signalfx-agent/config/extra-config.yaml", optional: true, flatten: true}
+<% end %>

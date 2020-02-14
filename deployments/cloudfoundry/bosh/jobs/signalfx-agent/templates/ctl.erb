@@ -1,0 +1,35 @@
+#!/bin/bash -e
+
+RUN_DIR=/var/vcap/sys/run/signalfx-agent
+LOG_DIR=/var/vcap/sys/log/signalfx-agent
+PIDFILE=$RUN_DIR/pid
+
+case $1 in
+start)
+  mkdir -p $RUN_DIR
+  mkdir -p $LOG_DIR
+  
+  chown -R vcap:vcap $LOG_DIR
+  chmod 640 $LOG_DIR
+  
+  (crontab -l | sed /signalfx-agent.*logrotate/d; cat /var/vcap/jobs/signalfx-agent/config/logrotate.cron) | sed /^$/d | crontab
+  
+  exec >>$LOG_DIR/signalfx-agent.stdout.log \
+      2>>$LOG_DIR/signalfx-agent.stderr.log
+  
+  source /var/vcap/jobs/signalfx-agent/config/envvars
+  
+  echo $$ > $PIDFILE
+  
+  exec chpst -u vcap:vcap /var/vcap/packages/signalfx_agent/bin/signalfx-agent -config /var/vcap/jobs/signalfx-agent/config/agent.yaml
+  ;;
+
+stop)
+  kill -9 `cat $PIDFILE`
+  rm -f $PIDFILE
+  ;;
+
+*)
+  echo "Usage: signalfx-agent/bin {start|stop}"
+  ;;
+esac

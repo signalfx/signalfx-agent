@@ -1,0 +1,8 @@
+/var/vcap/sys/log/signalfx-agent/*.log {
+  missingok
+  rotate <%= p("logrotate.rotate") %>
+  compress
+  delaycompress
+  copytruncate
+  size=<%= p("logrotate.size") %>
+}

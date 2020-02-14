@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# This script is meant to be run when releasing the agent bosh release.  It
+# does not use the formal "final" BOSH release process as the Ops Manager tiles
+# don't really require them and we are dumping everything to a tarball anyway.
+# This script is mostly intended to be invoked by the tile
+# `make-latest-version` script and not run standalone, although that is
+# entirely possible.
+
+set -euo pipefail
+set -x
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+# Validate AGENT_VERSION and AGENT_BUNDLE are set
+[[ "${AGENT_VERSION:?}" ]]
+[[ "${AGENT_BUNDLE:?}" ]]
+
+cd $SCRIPT_DIR
+
+bosh init-release
+bosh add-blob ${AGENT_BUNDLE} signalfx_agent/signalfx-agent.tar.gz
+
+rm -rf $SCRIPT_DIR/.dev_builds $SCRIPT_DIR/dev_releases
+
+bosh create-release --force  --version ${AGENT_VERSION}-${RELEASE_REVISION-1} --tarball ./latest-release.tgz --name signalfx-agent
+

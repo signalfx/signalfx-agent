@@ -1,0 +1,120 @@
+---
+name: signalfx-agent
+
+templates:
+  ctl.erb: bin/ctl
+  agent.yaml.erb: config/agent.yaml
+  logrotate.conf.erb: config/logrotate.conf
+  logrotate.cron.erb: config/logrotate.cron
+  envvars.erb: config/envvars
+  nozzle-filtering.yaml.erb: config/nozzle-filtering.yaml
+  extra-nozzle-metrics.yaml.erb: config/extra-nozzle-metrics.yaml
+  token.erb: config/token
+  realm.erb: config/realm
+  ingest_url.erb: config/ingest_url
+  api_url.erb: config/api_url
+
+packages:
+  - signalfx_agent
+
+properties:
+
+  signalfx.agent_config_yaml:
+    description: "A full agent.yaml config file for the Smart Agent to use.  If not provided, the options below will be used to construct an agent config file."
+
+  signalfx.extra_monitors:
+    description: |
+      YAML that will be inserted at the end of the agent.yaml's `monitors`
+      list.  This should be a list of monitor configurations.  Ignored if
+      `signalfx.agent_config_yaml` is provided.
+
+  signalfx.extra_config:
+    description: |
+      YAML that will be inserted at the end of the generated agent.yaml.
+      Ignored if `signalfx.agent_config_yaml` is provided.
+
+  signalfx.ingest_url:
+    description: "The ingest base URL for SignalFx -- this option takes precidence over signalfx.realm"
+
+  signalfx.api_url:
+    description: "The API server base URL for SignalFx -- this option takes precidence over signalfx.realm"
+
+  signalfx.realm:
+    description: "The SignalFx realm in which your organization resides -- used to derive signalfx.ingest_url and signalfx.api_url if those are not provided"
+
+  signalfx.access_token:
+    description: "Your SignalFx organization access token"
+
+  signalfx.send_internal_metrics:
+    description: "If true, the internal-metrics monitor will be enabled. Ignored if `signalfx.agent_config_yaml` is provided."
+    default: false
+
+  signalfx.max_datapoints_buffered:
+    description: "The maximum number of datapoints buffered in the agent. Corresponds to the `writer.maxDatapointsBuffered` config in the agent."
+
+  logrotate.freq_min:
+    description: "The frequency in minutes which logrotate will rotate VM logs"
+    default: 5
+  logrotate.rotate:
+    description: "The number of files that logrotate will keep around on the VM"
+    default: 3
+  logrotate.size:
+    description: "The size at which logrotate will decide to rotate the log file"
+    default: 50M
+
+  nozzle.enabled:
+    description: |
+      If true, the firehose nozzle monitor in the agent will be configured and
+      other monitors will be omitted.
+    default: false
+
+  nozzle.extra_metrics:
+    description: |
+      A YAML list of additional metrics that will go into the `extraMetrics`
+      block of the `cloudfoundry-firehose-nozzle` monitor in the Smart Agent.
+      See "extraMetrics" under
+      https://github.com/signalfx/signalfx-agent/blob/master/docs/monitor-config.md#common-configuration.
+
+  nozzle.datapoints_to_exclude:
+    description: |
+      A YAML list of filters that will go in the `datapointsToExclude` filter
+      in the Smart Agent firehose monitor.  See
+      https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#additional-monitor-level-filtering.
+
+  nozzle.uaa_url:
+    description: "UAA server URL to use when `use_nozzle_config` is true."
+
+  nozzle.uaa_username:
+    description: |
+      The name of the user that has access to the loggregator firehose -- used
+      when `use_nozzle_config` is true.
+
+  nozzle.uaa_password:
+    description: "The secret for the UAA user -- used when `use_nozzle_config` is true"
+
+  nozzle.ssl_skip_verify:
+    description: |
+      Skip verifying SSL certificate for the RLP Gateway and UAA server -- used
+      when `use_nozzle_config` is true.
+    default: false
+
+  nozzle.shard_id:
+    description: |
+      The shard id to be used for the firehose nozzle -- only relevant when
+      `use_nozzle_config` is true.
+    default: signalfx-nozzle
+
+  nozzle.rlp_gateway_url:
+    description: |
+      The URL of the RLP Gateway that acts as a proxy for the firehose -- only
+      relevant when `use_nozzle_config` is true.
+
+  env.http_proxy:
+    description: "HTTP proxy URL"
+    default: ""
+  env.https_proxy:
+    description: "HTTPS proxy URL"
+    default: ""
+  env.no_proxy:
+    description: "Proxy exclusion list"
+    default: ""
