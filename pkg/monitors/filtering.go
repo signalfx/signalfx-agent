@@ -217,8 +217,12 @@ func newMetricsFilter(metadata *Metadata, extraMetrics, extraGroups []string) (*
 }
 
 func (mf *extraMetricsFilter) Matches(dp *datapoint.Datapoint) bool {
-	if mf.metadata.HasDefaultMetric(dp.Metric) || !mf.metadata.HasMetric(dp.Metric) {
+	if mf.metadata.HasDefaultMetric(dp.Metric) {
 		// It's an included metric or is totally unknown so send by default.
+		return true
+	}
+
+	if !mf.metadata.HasMetric(dp.Metric) && !mf.metadata.MetricsExhaustive {
 		return true
 	}
 

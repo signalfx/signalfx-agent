@@ -4,7 +4,11 @@ go 1.13
 
 replace git.apache.org/thrift.git => github.com/apache/thrift v0.0.0-20180902110319-2566ecd5d999
 
+replace code.cloudfoundry.org/go-loggregator => github.com/signalfx/go-loggregator v1.0.1-0.20200205155641-5ba5ca92118d
+
 require (
+	code.cloudfoundry.org/go-diodes v0.0.0-20190809170250-f77fb823c7ee // indirect
+	code.cloudfoundry.org/go-loggregator v7.4.0+incompatible
 	collectd.org v0.3.0 // indirect
 	github.com/Azure/azure-sdk-for-go v26.4.0+incompatible // indirect
 	github.com/Azure/go-autorest/autorest/azure/auth v0.4.2 // indirect
@@ -24,6 +28,7 @@ require (
 	github.com/cenkalti/backoff v2.1.1+incompatible // indirect
 	github.com/centrify/cloud-golang-sdk v0.0.0-20190214225812-119110094d0f // indirect
 	github.com/chrismalek/oktasdk-go v0.0.0-20181212195951-3430665dfaa0 // indirect
+	github.com/cloudfoundry-incubator/uaago v0.0.0-20190307164349-8136b7bbe76e
 	github.com/containerd/continuity v0.0.0-20181203112020-004b46473808 // indirect
 	github.com/coreos/go-oidc v2.0.0+incompatible // indirect
 	github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e

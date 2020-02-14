@@ -6,9 +6,11 @@ import re
 import socket
 import urllib.request
 from base64 import b64encode
+from collections import defaultdict
 from http.client import HTTPException
 
 import psutil
+from signalfx.generated_protocol_buffers import signal_fx_protocol_buffers_pb2 as sf_pbuf
 
 
 def has_datapoint_with_metric_name(fake_services, metric_name):
@@ -106,6 +108,38 @@ def has_datapoint(fake_services, metric_name=None, dimensions=None, value=None, 
         if found >= count:
             return True
     return False
+
+
+def tsid_for_datapoint(dp: sf_pbuf.DataPoint):
+    key = f"{dp.metric}"
+    dim_keys = []
+    for dim in dp.dimensions:
+        dim_keys.append(f"#{dim.key}|{dim.value}")
+
+    dim_keys.sort()
+    tsid = hash(key + "|".join(dim_keys))
+    return tsid
+
+
+def all_timeseries(fake_services):
+    mts_by_id = defaultdict(list)
+    for dp in fake_services.datapoints:
+        mts_by_id[tsid_for_datapoint(dp)].append(dp)
+
+    return dict(mts_by_id)
+
+
+def has_time_series(fake_services, metric_name: str, dimensions: dict) -> bool:
+    dp = sf_pbuf.DataPoint()
+    dp.metric = metric_name
+    for k, v in dimensions.items():
+        dim = sf_pbuf.Dimension()
+        dim.key = k
+        dim.value = v
+        dp.dimensions.extend([dim])  # pylint:disable=no-member
+
+    tsid = tsid_for_datapoint(dp)
+    return tsid in all_timeseries(fake_services)
 
 
 def has_event_type(fake_services, event_type):

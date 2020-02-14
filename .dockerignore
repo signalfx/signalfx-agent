@@ -1,4 +1,5 @@
 *.tar.gz
+*.tgz
 .git/**
 .githooks/**
 .github/**
@@ -28,3 +29,4 @@ java/**/target
 python/**/build
 python/**/dist
 python/**/*.egg-info
+deployments/cloudfoundry/**/*

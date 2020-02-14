@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	stdlog "log"
 	"time"
 
 	lru "github.com/hashicorp/golang-lru"
@@ -151,4 +152,23 @@ func (tl *ThrottledLogger) ThrottledWarning(args ...interface{}) {
 	tl.warningsSeen.Add(key, &rightNow)
 
 	tl.FieldLogger.Warn(args...)
+}
+
+func NewStdLogWithLogrus(logger logrus.FieldLogger) *stdlog.Logger {
+	return stdlog.New(&StdLogLogrusWriter{Logger: logger}, "", 0)
+}
+
+// This exploits the documented fact that the standard log pkg sends each log
+// entry as a single io.Writer.Write call: https://golang.org/pkg/log/#Logger
+type StdLogLogrusWriter struct {
+	Logger logrus.FieldLogger
+}
+
+func (w *StdLogLogrusWriter) Write(b []byte) (int, error) {
+	n := len(b)
+	if n > 0 && b[n-1] == '\n' {
+		b = b[:n-1]
+	}
+	w.Logger.Warning(string(b))
+	return n, nil
 }

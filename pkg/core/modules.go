@@ -8,6 +8,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/appmesh"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/aspdotnet"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/cadvisor"
+	_ "github.com/signalfx/signalfx-agent/pkg/monitors/cloudfoundry"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/consul"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/couchbase"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/elasticsearch"

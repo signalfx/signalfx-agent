@@ -3,6 +3,7 @@ package sources
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/yalp/jsonpath"
@@ -58,7 +59,7 @@ func (r *resolver) Resolve(raw RawDynamicValueSpec) ([]interface{}, string, *dyn
 func convertFileBytesToValues(content map[string][]byte, raw bool, jsonPath string) ([]interface{}, error) {
 	var out []interface{}
 	for path := range content {
-		if len(content[path]) == 0 {
+		if len(strings.TrimSpace(string(content[path]))) == 0 {
 			continue
 		}
 
