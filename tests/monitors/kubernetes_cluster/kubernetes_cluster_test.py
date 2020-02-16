@@ -448,3 +448,29 @@ def test_containers(k8s_cluster):
                                         dimensions={"container_id": containers_cache[container.name]},
                                     )
                                 )
+
+
+@pytest.mark.kubernetes
+def test_replication_controllers(k8s_cluster):
+    config = """
+    monitors:
+     - type: kubernetes-cluster
+    """
+    yamls = [SCRIPT_DIR / "nginx-replication-controller.yaml"]
+    with k8s_cluster.create_resources(yamls) as resources:
+        with k8s_cluster.run_agent(agent_yaml=config) as agent:
+            assert wait_for(
+                p(
+                    has_all_dim_props,
+                    agent.fake_services,
+                    dim_name="kubernetes_uid",
+                    dim_value=resources[0].metadata.uid,
+                    props={
+                        "kubernetes_workload": "ReplicationController",
+                        "kubernetes_workload_name": resources[0].metadata.name,
+                        "replication_controller_creation_timestamp": resources[0].metadata.creation_timestamp.strftime(
+                            "%Y-%m-%dT%H:%M:%SZ"
+                        ),
+                    },
+                )
+            )
