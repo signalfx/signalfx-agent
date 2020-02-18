@@ -26,7 +26,7 @@ apt-key del 5AE495F6
 curl https://dl.signalfx.com/splunk-B3CD4420.gpg | apt-key add -
 ```
 
-3. Replace /etc/apt/sources.list.d/signalfx-agent.list with the contents in the following file:
+3. Replace /etc/apt/sources.list.d/signalfx-agent.list with the following contents:
 
 ```sh
 deb  https://dl.signalfx.com/debs/signalfx-agent/release /
@@ -119,7 +119,7 @@ apt-key del 5AE495F6
 curl https://dl.signalfx.com/splunk-B3CD4420.gpg | apt-key add -
 ```
 
-3. Replace /etc/apt/sources.list.d/signalfx-agent.list with the contents in the following file:
+3. Replace /etc/apt/sources.list.d/signalfx-agent.list with the following contents:
 ```sh
 deb  https://dl.signalfx.com/debs/signalfx-agent/release /
 ```
@@ -151,16 +151,47 @@ rpm -e gpg-pubkey-098acf3b-55a5351a
   * Change baseurl to https://dl.signalfx.com/rpms/signalfx-agent/release
   * Change gpgkey to https://dl.signalfx.com/splunk-B3CD4420.pub
 
-3. Pin the agent version.
-  * To learn more, see https://github.com/signalfx/signalfx-agent/tree/master/deployments.
-
-4. Run the following command:
+3. Run the following command:
 ```sh
 $ rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n'
 ```
 
-5. Verify that the gpg-pubkey-098acf3b-55a5351a key is not present.
+4. Verify that the gpg-pubkey-098acf3b-55a5351a key is not present.
   * You should only see gpg-pubkey-b3cd4420-5b5b79b1.
+
+#### Method 3: Chef, Ansible, Puppet, and Salt
+
+1. Upgrade to the latest version:
+
+Chef:
+ * 1.0
+
+Ansible:
+ * https://github.com/signalfx/signalfx-agent/tree/v5.0.0/deployments/ansible
+
+Puppet:
+ * 1.0
+
+Salt:
+ * https://github.com/signalfx/signalfx-agent/tree/v5.0.0/deployments/salt
+
+2. Verify that the old keys were removed. Based on how you installed the agent, there are two method:
+  * Method 1: APT
+    1. Run the following command: 
+    ```sh
+    $ apt-key list
+    ```
+    2. Verify that the key ending in 5AE495F6 is not present. You should see 58C3 3310 B7A3 54C1 279D  B669 5EFA 01ED B3CD 4420.
+
+  * Method 2: RPM
+    1. Run the following command: 
+      ```sh
+      $ rpm -q gpg-pubkey --qf '%{NAME}-%{VERSION}-%{RELEASE}\t%{SUMMARY}\n'
+      ```
+    2. Verify that the gpg-pubkey-098acf3b-55a5351a key is not present. You should only see gpg-pubkey-b3cd4420-5b5b79b1.
+    
+3. Pin the agent version.
+  * To learn more, see https://github.com/signalfx/signalfx-agent/tree/master/deployments.    
 
 ### Locate your Smart Agent version
 
