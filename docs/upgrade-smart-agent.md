@@ -12,7 +12,7 @@ Current users can continue to run Smart Agent 4.X; however, after XX/XX/XXX, any
 
 Review the following options to learn how to upgrade the Smart Agent:
 
-### Option 1: ATP
+### Option 1: APT
 
 Note: For commands prefixed by #, you must run as root.
 
@@ -143,4 +143,3 @@ For RPM, run:
 ## Related documentation
 
 To learn how to install the Smart Agent, see [Quick Install](./quick-install.md).
-
