@@ -1,21 +1,79 @@
-#!/bin/bash
+#!/usr/bin/env python3
 
-# If the envvar PUSH_TO_REPO=yes (the default), then stuff is pushed to remote
-# locations
+import argparse
+from pathlib import Path
 
-set -euo pipefail
+from git import Repo
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+SCRIPT_DIR = Path(__file__).parent
+REPO_ROOT = SCRIPT_DIR / ".."
+GIT_REPO = Repo(REPO_ROOT)
 
-stage_from_version() {
-  if [[ "$1" =~ -beta[0-9]$ ]]; then
-    echo -n "beta"
-  elif [[ "$1" =~ -post$ ]]; then
-    echo -n "test"
-  else
-    echo -n "final"
-  fi
-}
+FINAL_STAGE_RE = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+$")
+BETA_STAGE_RE = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+-beta[0-9]+$")
+TEST_STAGE_RE = re.compile(r"^[0-9]+\.[0-9]+\.[0-9]+-post$")
+
+STAGE_FINAL = "final"
+STAGE_BETA = "beta"
+STAGE_TEST = "test"
+
+COMPONENT_DOCKER = "docker"
+COMPONENT_DEB = "deb"
+COMPONENT_RPM = "rpm"
+COMPONENT_BUNDLE = "bundle"
+COMPONENT_DEPLOYMENTS = "deployments"
+COMPONENT_WINDOWS = "windows"
+COMPONENT_PYPI = "pypi"
+COMPONENT_GITHUB_RELEASE = "github-release"
+
+
+def stage_from_version(version: str) -> bool:
+    if BETA_VERSION_RE.fullmatch(version):
+        return STAGE_BETA
+    if TEST_STAGE_RE.fullmatch(version):
+        return STAGE_TEST
+    if FINAL_STAGE_RE.fullmatch(version):
+        return STAGE_FINAL
+
+    raise ArgumentError(f"Version {version} is in an unknown format")
+
+
+def default_version():
+    for t in GIT_REPO.tags:
+        if not t.name.startswith('v'):
+            continue
+
+        if t.commit == GIT_REPO.head.ref.commit:
+            return t.name.lstrip('v')
+
+    print("Could not determine version from git repo HEAD and tags")
+    return None
+
+def parse_cli():
+    parser = argparse.ArgumentParser(description='Process some integers.')
+    parser.add_argument('component', nargs=1, help='The component to release',
+            choices=[
+                COMPONENT_DOCKER,
+                COMPONENT_DEB,
+                COMPONENT_RPM,
+                COMPONENT_BUNDLE,
+                COMPONENT_DEPLOYMENTS,
+                COMPONENT_WINDOWS,
+                COMPONENT_PYPI,
+                COMPONENT_GITHUB_RELEASE,
+            ])
+
+    parser.add_argument('--github-user', help='The Github username used to create and add assets to the Github release')
+    parser.add_argument('--github-token', help='The API token corresponding to the --github-user username')
+    parser.add_argument('--stage', help="The type of release", choices=[STAGE_FINAL, STAGE_BETA, STAGE_TEST])
+    parser.add_argument('--force', help="If set, various sanity checks will be ignored", action='store_true')
+    parser.add_argument('--new-version', required=True, help="The version number of the release", default=default_version())
+
+    return parser.parse_args()
+
+def validate_args(args):
+    component = args.component[0]
+    
 
 parse_args_and_release() {
   local new_version=$($SCRIPT_DIR/current-version)
