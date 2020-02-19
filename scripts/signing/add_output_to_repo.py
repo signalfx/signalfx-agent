@@ -58,8 +58,7 @@ def getargs():
         help=f"Signing request timeout in seconds. Defaults to {DEFAULT_TIMEOUT}.",
     )
     parser.add_argument(
-        "--yes",
-        "-y",
+        "--force",
         action="store_true",
         default=False,
         required=False,
@@ -90,12 +89,16 @@ def add_debs_to_repo(paths, args):
         deb_url = f"{ARTIFACTORY_DEB_REPO_URL}/pool/{base}"
         dest_opts = f"deb.distribution={args.stage};deb.component=main;deb.architecture=amd64;deb.architecture=arm64"
         dest_url = f"{deb_url};{dest_opts}"
-        if not args.yes and artifactory_file_exists(deb_url, args.artifactory_user, args.artifactory_token):
+
+        if not args.force and artifactory_file_exists(deb_url, args.artifactory_user, args.artifactory_token):
             overwrite = input(f"package {deb_url} already exists. Overwrite? [y/N] ")
             if overwrite.lower() not in ("y", "yes"):
-                sys.exit(0)
+                sys.exit(1)
+
         orig_metadata_md5 = get_md5_from_artifactory(metadata_api_url, args.artifactory_user, args.artifactory_token)
+
         upload_file_to_artifactory(path, dest_url, args.artifactory_user, args.artifactory_token)
+
         wait_for_artifactory_metadata(
             metadata_api_url, orig_metadata_md5, args.artifactory_user, args.artifactory_token, args.timeout
         )
@@ -110,11 +113,14 @@ def add_rpms_to_repo(paths, args):
     for path in paths:
         base = os.path.basename(path)
         dest_url = f"{ARTIFACTORY_RPM_REPO_URL}/{args.stage}/{base}"
-        if not args.yes and artifactory_file_exists(dest_url, args.artifactory_user, args.artifactory_token):
+
+        if not args.force and artifactory_file_exists(dest_url, args.artifactory_user, args.artifactory_token):
             overwrite = input(f"package {dest_url} already exists. Overwrite? [y/N] ")
             if overwrite.lower() not in ("y", "yes"):
-                sys.exit(0)
+                sys.exit(1)
+
         orig_metadata_md5 = get_md5_from_artifactory(metadata_api_url, args.artifactory_user, args.artifactory_token)
+
         if args.chaperone_token and args.staging_user and args.staging_token:
             with tempfile.TemporaryDirectory() as tmpdir:
                 signed_rpm_path = os.path.join(tmpdir, base)
@@ -131,6 +137,7 @@ def add_rpms_to_repo(paths, args):
                 upload_file_to_artifactory(signed_rpm_path, dest_url, args.artifactory_user, args.artifactory_token)
         else:
             upload_file_to_artifactory(path, dest_url, args.artifactory_user, args.artifactory_token)
+
         wait_for_artifactory_metadata(
             metadata_api_url, orig_metadata_md5, args.artifactory_user, args.artifactory_token, args.timeout
         )

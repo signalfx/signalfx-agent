@@ -22,7 +22,11 @@ STAGES = ("test", "beta", "release")
 
 def getargs():
     parser = argparse.ArgumentParser(
-        formatter_class=argparse.RawDescriptionHelpFormatter, description="Sign deb/rpm metadata from artifactory."
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="""
+Sign deb/rpm metadata from artifactory.
+Should be executed if a package in artifactory is manually deleted/modifed.
+""",
     )
     parser.add_argument(
         "package_type",

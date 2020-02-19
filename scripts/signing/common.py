@@ -21,31 +21,43 @@ DEFAULT_TIMEOUT = 300
 
 def upload_file_to_artifactory(src, dest, user, token):
     print(f"uploading {src} to {dest} ...")
+
     with open(src, "rb") as fd:
         data = fd.read()
         headers = {"X-Checksum-MD5": hashlib.md5(data).hexdigest()}
         resp = requests.put(dest, auth=(user, token), headers=headers, data=data)
-        assert resp.status_code == 201, f"upload failed:\n{resp.reason}"
+
+        assert resp.status_code == 201, f"upload failed:\n{resp.reason}\n{resp.text}"
+
         return resp
 
 
 def submit_signing_request(src, sign_type, token):
     print(f"submitting '{sign_type}' signing request for {src} ...")
+
     headers = {"Accept": "application/json", "Authorization": f"Bearer {token}"}
     data = {"artifact_url": src, "sign_type": sign_type, "project_key": "signalfx-agent"}
+
     resp = requests.post(CHAPERONE_API_URL + "/sign/submit", headers=headers, data=data)
+
     assert resp.status_code == 200, f"signing request failed:\n{resp.reason}"
     assert "item_key" in resp.json().keys(), f"'item_key' not found in response:\n{resp.text}"
+
     print(resp.text)
+
     return resp.json().get("item_key")
 
 
 def run_chaperone_check(item_key, token):
     url = f"{CHAPERONE_API_URL}/{item_key}/check"
-    print(f"running chaperone check {url}:")
     headers = {"Accept": "application/json", "Authorization": f"Bearer {token}"}
+
+    print(f"running chaperone check {url}:")
+
     resp = requests.get(url, headers=headers)
-    assert resp.status_code == 200, f"chaperone check failed for {item_key}:\n{resp.reason}"
+
+    assert resp.status_code == 200, f"chaperone check failed for {item_key}:\n{resp.reason}\n{resp.text}"
+
     return resp
 
 
@@ -55,36 +67,50 @@ def artifactory_file_exists(url, user, token):
 
 def download_artifactory_file(url, dest, user, token):
     print(f"downloading {url} to {dest} ...")
+
     resp = requests.get(url, auth=(user, token))
-    assert resp.status_code == 200, f"download failed:\n{resp.reason}"
+
+    assert resp.status_code == 200, f"download failed:\n{resp.reason}\n{resp.text}"
+
     with open(dest, "wb") as fd:
         fd.write(resp.content)
 
 
 def delete_artifactory_file(url, user, token):
     print(f"deleting {url} ...")
+
     resp = requests.delete(url, auth=(user, token))
-    assert resp.status_code == 204, f"delete failed:\n{resp.reason}"
+
+    assert resp.status_code == 204, f"delete failed:\n{resp.reason}\n{resp.text}"
 
 
 def get_md5_from_artifactory(url, user, token):
     if not artifactory_file_exists(url, user, token):
         return None
+
     resp = requests.get(url, auth=(user, token))
-    assert resp.status_code == 200, f"md5 request failed:\n{resp.reason}"
+
+    assert resp.status_code == 200, f"md5 request failed:\n{resp.reason}\n{resp.text}"
+
     md5 = resp.json().get("checksums", {}).get("md5", "")
+
     assert md5, f"md5 not found in response:\n{resp.text}"
+
     return md5
 
 
 def wait_for_artifactory_metadata(url, orig_md5, user, token, timeout=DEFAULT_TIMEOUT):
     print(f"waiting for {url} to be updated ...")
+
     start_time = time.time()
     while True:
         assert (time.time() - start_time) < timeout, f"timed out waiting for {url} to be updated"
+
         new_md5 = get_md5_from_artifactory(url, user, token)
+
         if new_md5 and str(orig_md5).lower() != str(new_md5).lower():
             break
+
         time.sleep(5)
 
 
@@ -92,39 +118,51 @@ def wait_for_signed_artifact(
     item_key, artifact_name, chaperone_token, staging_user, staging_token, timeout=DEFAULT_TIMEOUT
 ):
     url = f"{SIGNED_ARTIFACTS_REPO_URL}/{item_key}/{artifact_name}"
+
     print(f"waiting for {url} ...")
+
     start_time = time.time()
     while True:
         assert (time.time() - start_time) < timeout, f"timed out waiting for {url}"
+
         resp = run_chaperone_check(item_key, chaperone_token)
         status = resp.json().get("status", "").lower()
         node = resp.json().get("node", "").lower()
+
         assert status not in ("", "exception") and node in (
             "submit",
             "begin signing",
             "signed",
         ), f"signing request failed:\n{resp.text}"
+
         print(resp.text)
+
         if node == "signed" and artifactory_file_exists(url, staging_user, staging_token):
             break
+
         time.sleep(10)
+
     return url
 
 
 def sign_file(src, dest, sign_type, chaperone_token, staging_user, staging_token, timeout=DEFAULT_TIMEOUT):
     assert os.path.isfile(src), f"{src} not found"
     assert sign_type.upper() in SIGN_TYPES, f"sign type '{sign_type}' not supported"
+
     base = os.path.basename(src)
     staged_artifact_url = f"{STAGING_REPO_URL}/{base}"
+
     try:
         upload_file_to_artifactory(src, staged_artifact_url, staging_user, staging_token)
+
         item_key = submit_signing_request(staged_artifact_url, sign_type.upper(), chaperone_token)
-        artifact_name = base
-        if sign_type.lower() == "gpg":
-            artifact_name += ".asc"
+
+        artifact_name = f"{base}.asc" if sign_type.lower() == "gpg" else base
+
         signed_artifact_url = wait_for_signed_artifact(
             item_key, artifact_name, chaperone_token, staging_user, staging_token, timeout
         )
+
         download_artifactory_file(signed_artifact_url, dest, staging_user, staging_token)
     finally:
         if artifactory_file_exists(staged_artifact_url, staging_user, staging_token):
@@ -139,9 +177,12 @@ def sign_artifactory_metadata(
         tmp_metadata = os.path.join(tmpdir, base)
         signature_ext = ".gpg" if base == "Release" else ".asc"
         signature_path = tmp_metadata + signature_ext
-        download_artifactory_file(src, tmp_metadata, artifactory_user, artifactory_token)
-        sign_file(tmp_metadata, signature_path, "GPG", chaperone_token, staging_user, staging_token, timeout)
         signature_url = src + signature_ext
+
+        download_artifactory_file(src, tmp_metadata, artifactory_user, artifactory_token)
+
+        sign_file(tmp_metadata, signature_path, "GPG", chaperone_token, staging_user, staging_token, timeout)
+
         upload_file_to_artifactory(signature_path, signature_url, artifactory_user, artifactory_token)
 
 
