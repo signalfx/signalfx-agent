@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# This will make a bosh release of the agent from the latest bundle built by
+# the command `AGENT_VERSION=latest make bundle` in the root of this repo.
+
+set -euo pipefail
+set -x
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+AGENT_BUNDLE=${AGENT_BUNDLE-$SCRIPT_DIR/../../../signalfx-agent-latest.tar.gz} AGENT_VERSION=latest $SCRIPT_DIR/release

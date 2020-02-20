@@ -1,0 +1,236 @@
+---
+name: signalfx-monitoring
+icon_file: resources/signalfx.png
+label: SignalFx Monitoring and Alerting For Pivotal Platform
+description: |
+  This tile contains a SignalFx Smart Agent BOSH Release, a firehose nozzle job
+  that will send metrics to SignalFx, and also an application buildpack that
+  can be used to run the agent within PWS containers/apps.
+
+  The firehose nozzle pulls events off of the Loggregator Firehose via the RLP
+  Gateway and sends them to SignalFx.  This uses the
+  `cloudfoundry-firehose-nozzle` monitor of the SignalFx Smart Agent under the
+  hood.
+
+  This also includes a BOSH release of the Smart Agent, called "signalfx-agent"
+  that can be used in deployments to put the agent on individual VMs.
+
+  This also includes an application buildpack of the agent, called
+  "signalfx_agent_buildpack".  You can use this in PWS applications to do
+  additional monitoring or for sending trace spans from your application.
+
+apply_open_security_group: true
+
+forms:
+- name: signalfx_form
+  label: SignalFx Config
+  description: SignalFx organization configuration values
+  properties:
+  - name: access_token
+    type: secret
+    label: SignalFx Access Token
+    optional: false
+
+  - name: signalfx_realm
+    type: string
+    label: SignalFx Realm
+    description: SignalFx realm (e.g. 'us0', 'ap0'). This option will implicitly set the 'SignalFx Ingest Base URL' config below. If 'SignalFx Ingest Base URL' is explicitly set below, this option is ignored. You must set either this or 'SignalFx Ingest Base URL'.
+    optional: true
+
+  - name: ingest_url
+    type: string
+    label: SignalFx Ingest Base URL
+    description: SignalFx Ingest Base URL (e.g. 'https://ingest.us0.signalfx.com'). This option takes precidence over the 'SignalFx Realm' option. This will default to the form 'https://ingest.<SignalFx Realm>.signalfx.com' if the 'SignalFx Realm' option above is set. You must set either this or 'SignalFx Realm'.
+    optional: true
+
+
+- name: nozzle_form
+  label: Nozzle Config
+  description: SignalFx Nozzle configuration values
+  properties:
+  - name: uaa_username
+    type: string
+    label: UAA Client Name
+    description: This user should have the `logs.admin` authority.
+    optional: false
+
+  - name: uaa_password
+    type: secret
+    label: UAA Client Secret
+    optional: false
+
+  - name: skip_ssl_validation
+    type: boolean
+    label: Skip SSL/TLS Validation
+    description: Whether to skip the SSL/TLS verification step for RLP Gateway and UAA servers (if connecting over HTTPS)
+    default: true
+
+  - name: max_buffered
+    type: integer
+    label: Max Buffered Datapoints
+    description: The maximum number of datapoints to buffer in the app before dropping. This comes with a fixed memory overhead cost, but it is pretty small.
+    default: 10000
+
+  - name: extra_metrics
+    type: text
+    label: Extra Firehose Metrics
+    description: |
+      A YAML list of additional metrics that will go into the `extraMetrics` block of the `cloudfoundry-firehose-nozzle` monitor in the Smart Agent. See 'extraMetrics' at https://github.com/signalfx/signalfx-agent/blob/master/docs/monitor-config.md#common-configuration. By default, only metrics that are marked as default in the Smart Agent for the `cloudfoundry-firehose-nozzle` monitor will be sent.  The list is at https://github.com/signalfx/signalfx-agent/blob/master/docs/monitors/cloudfoundry-firehose-nozzle.md#metrics.
+    optional: true
+
+  - name: datapoints_to_exclude
+    type: text
+    label: Datapoint To Exclude
+    description: |
+      YAML list that will be put in the datapointsToExclude config option for the firehose nozzle agent monitor (see Additional Monitor Level Filtering at https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#additional-monitor-level-filtering).
+    optional: true
+
+  - name: http_proxy
+    type: string
+    label: HTTP Proxy URL
+    description: If you need HTTP proxying, you can specify the proxy for HTTP traffic here
+    optional: true
+
+  - name: https_proxy
+    type: string
+    label: HTTPS Proxy URL
+    description: If you need HTTPS proxying, you can specify the proxy for HTTPS traffic here
+    optional: true
+
+  - name: no_proxy
+    type: string
+    label: Proxy Exclusions
+    description: If some domain names should not go through the proxy, specify them here as a comma-separated list.  Do not specify the scheme (e.g. http/https), only the domain names.
+    optional: true
+
+# - name: addon_form
+#   label: 'BOSH Addon Config'
+#   description: 'Configuration of the Smart Agent on each host'
+#   properties:
+#   - name: agent_yaml
+#     type: text
+#     label: Agent Configuration
+#     optional: false
+#     description: |
+#       This is the agent config file
+#       (https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md)
+#       to use.  This gives you maximum flexibility in configuring the agent.
+#     default: |
+#       signalFxAccessToken: {"#from": "/var/vcap/jobs/signalfx-agent/config/token"}
+#       signalFxRealm: {"#from": "/var/vcap/jobs/signalfx-agent/config/realm"}
+#       ingestUrl: {"#from": "/var/vcap/jobs/signalfx-agent/config/ingest_url"}
+#       apiUrl: {"#from": "/var/vcap/jobs/signalfx-agent/config/api_url"}
+#
+#       globalDimensions:
+#         bosh_id: {"#from": "/var/vcap/instance/id", optional: true}
+#         deployment: {"#from": "/var/vcap/instance/deployment", optional: true}
+#
+#       logging:
+#         # Valid values are 'debug', 'info', 'warning', and 'error'
+#         level: info
+#
+#       # observers are what discover running services in the environment
+#       observers:
+#         - type: host
+#
+#       collectd:
+#         logLevel: info
+#         configDir: /var/vcap/sys/run/signalfx-agent/collectd
+#
+#       monitors:
+#        - type: host-metadata
+#        - type: processlist
+#        - type: collectd/cpu
+#        - type: collectd/cpufreq
+#        - type: collectd/df
+#        - type: disk-io
+#        - type: collectd/interface
+#        - type: load
+#        - type: collectd/memory
+#        - type: collectd/signalfx-metadata
+#          omitProcessInfo: true
+#        - type: collectd/vmem
+#
+#   - name: addon_http_proxy
+#     type: string
+#     label: HTTP Proxy URL
+#     description: If you need HTTP proxying, you can specify the proxy for HTTP traffic here
+#     optional: true
+#
+#   - name: addon_https_proxy
+#     type: string
+#     label: HTTPS Proxy URL
+#     description: If you need HTTPS proxying, you can specify the proxy for HTTPS traffic here
+#     optional: true
+#
+#   - name: addon_no_proxy
+#     type: string
+#     label: Proxy Exclusions
+#     description: If some domain names should not go through the proxy, specify them here as a comma-separated list.  Do not specify the scheme (e.g. http/https), only the domain names.
+#     optional: true
+
+packages:
+
+- name: signalfx_agent_buildpack
+  type: buildpack
+  path: ./resources/signalfx_agent_buildpack.zip
+  buildpack_order: 99
+
+- name: signalfx_firehose_nozzle
+  type: bosh-release
+  path: ./resources/latest-release.tgz
+  jobs:
+  - name: signalfx-agent
+    instances: 1
+    templates:
+     - name: signalfx-agent
+       release: signalfx-agent
+    properties:
+      env:
+        http_proxy: (( .properties.http_proxy.value ))
+        https_proxy: (( .properties.https_proxy.value ))
+        no_proxy: (( .properties.no_proxy.value ))
+      nozzle:
+        enabled: true
+        datapoints_to_exclude: (( .properties.datapoints_to_exclude.value ))
+        extra_metrics: (( .properties.extra_metrics.value ))
+        uaa_url: https://uaa.(( ..cf.cloud_controller.system_domain.value ))
+        uaa_username: (( .properties.uaa_username.value ))
+        uaa_password: (( .properties.uaa_password.value ))
+        rlp_gateway_url: https://log-stream.(( ..cf.cloud_controller.system_domain.value ))
+        ssl_skip_verify: (( .properties.skip_ssl_validation.value ))
+      signalfx:
+        access_token: (( .properties.access_token.value ))
+        send_internal_metrics: true
+        realm: (( .properties.signalfx_realm.value ))
+        ingest_url: (( .properties.ingest_url.value ))
+        max_datapoints_buffered: (( .properties.max_buffered.value ))
+
+# TODO: including this majorly bogs down the Ops Manager "apply changes"
+# operation and breaks it badly.
+# runtime_configs:
+#   - name: signalfx-agent
+#     runtime_config:
+#       releases:
+#         - name: signalfx-agent
+#           version: 4.19.0-dev18+dev.1581692714
+#       addons:
+#       - name: signalfx-agent
+#         include:
+#           stemcell:
+#           - os: ubuntu-xenial
+#           - os: ubuntu-trusty
+#           - os: centos-7
+#         jobs:
+#         - name: signalfx-agent
+#           release: signalfx-agent
+#         properties:
+#           env:
+#             http_proxy: (( .properties.addon_http_proxy.value ))
+#             https_proxy: (( .properties.addon_https_proxy.value ))
+#             no_proxy: (( .properties.addon_no_proxy.value ))
+#           signalfx:
+#             agent_config_yaml: (( .properties.agent_yaml.value ))
+#             access_token: (( .properties.access_token.value ))
+#             realm: (( .properties.signalfx_realm.value ))
+#             ingest_url: (( .properties.ingest_url.value ))

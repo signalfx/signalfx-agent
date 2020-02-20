@@ -1,0 +1,5 @@
+check process signalfx-agent
+  with pidfile /var/vcap/sys/run/signalfx-agent/pid
+  start program "/var/vcap/jobs/signalfx-agent/bin/ctl start"
+  stop program "/var/vcap/jobs/signalfx-agent/bin/ctl stop"
+  group vcap

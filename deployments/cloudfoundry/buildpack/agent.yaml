@@ -1,0 +1,37 @@
+# *Required* The access token for the org that you wish to send metrics to.
+signalFxAccessToken: {"#from": "env:SIGNALFX_ACCESS_TOKEN"}
+
+signalFxRealm: {"#from": "env:SIGNALFX_REALM", optional: true}
+ingestUrl: {"#from": "env:SIGNALFX_INGEST_URL", optional: true}
+apiUrl: {"#from": "env:SIGNALFX_API_URL", optional: true}
+
+disableHostDimensions: true
+
+writer:
+  addGlobalDimensionsAsSpanTags: true
+
+globalDimensions:
+  app_name: {"#from": "env:VCAP_APPLICATION", jsonPath: "$.application_name", optional: true}
+  organization_id: {"#from": "env:VCAP_APPLICATION", jsonPath: "$.organization_id", optional: true}
+  space_id: {"#from": "env:VCAP_APPLICATION", jsonPath: "$.space_id", optional: true}
+  space_name: {"#from": "env:VCAP_APPLICATION", jsonPath: "$.space_name", optional: true}
+  organization_name: {"#from": "env:VCAP_APPLICATION", jsonPath: "$.organization_name", optional: true}
+  process_type: {"#from": "env:VCAP_APPLICATION", jsonPath: "$.process_type", optional: true}
+  process_id: {"#from": "env:VCAP_APPLICATION", jsonPath: "$.process_id", optional: true}
+  ip: {"#from": "env:CF_INSTANCE_IP", optional: true}
+  instance_id: {"#from": "env:CF_INSTANCE_INDEX", optional: true}
+  process_instance_id: {"#from": "env:CF_INSTANCE_GUID", optional: true}
+
+intervalSeconds: 10
+
+logging:
+  # Valid values are 'debug', 'info', 'warning', and 'error'
+  level: info
+
+collectd:
+  disableCollectd: true
+  configDir: /tmp/collectd
+
+monitors:
+  - type: trace-forwarder
+    listenAddress: 127.0.0.1:9080

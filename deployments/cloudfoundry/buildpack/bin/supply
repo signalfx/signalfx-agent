@@ -1,0 +1,59 @@
+#!/bin/bash
+
+set -euo pipefail
+
+BUILD_DIR=$1
+CACHE_DIR=$2
+DEPS_DIR=$3
+IDX=$4
+
+BUILDPACK_DIR=`dirname $(readlink -f ${BASH_SOURCE%/*})`
+TARGET_DIR="$BUILD_DIR/.signalfx"
+
+# Set a default version of the SignalFx Agent to use if none is specified
+SIGNALFX_AGENT_VERSION="${SIGNALFX_AGENT_VERSION-4.20.0}"
+
+echo "-----> Installing signalfx-agent ${SIGNALFX_AGENT_VERSION}"
+echo "       BUILD_DIR: $BUILD_DIR"
+echo "       CACHE_DIR: $CACHE_DIR"
+echo "       DEPS_DIR: $DEPS_DIR"
+echo "       BUILDPACK_INDEX: $IDX"
+echo "       BUILDPACK_DIR: $BUILDPACK_DIR"
+echo "       TARGET_DIR: $TARGET_DIR"
+
+mkdir -p $TARGET_DIR
+
+signalfx_agent_tar="signalfx-agent-$SIGNALFX_AGENT_VERSION.tar.gz"
+
+SIGNALFX_CONFIG_DIR="$TARGET_DIR/etc/"
+mkdir -p "$SIGNALFX_CONFIG_DIR"
+
+cp "$BUILDPACK_DIR/agent.yaml" "$SIGNALFX_CONFIG_DIR/agent.yaml"
+
+cached_tar="$CACHE_DIR/$signalfx_agent_tar"
+
+if [[ -f "$cached_tar" ]]; then
+  echo "-----> Using cached agent tarball: $cached_tar"
+  cp $cached_tar $TARGET_DIR
+else
+  default_download_url="https://github.com/signalfx/signalfx-agent/releases/download/v$SIGNALFX_AGENT_VERSION/$signalfx_agent_tar"
+  SIGNALFX_DOWNLOAD_URL="${SIGNALFX_DOWNLOAD_URL-$default_download_url}"
+
+  echo "-----> Downloading SignalFx Agent $SIGNALFX_AGENT_VERSION ($SIGNALFX_DOWNLOAD_URL)"
+  wget -O "$TARGET_DIR/$signalfx_agent_tar" $SIGNALFX_DOWNLOAD_URL > /dev/null 2>&1
+fi
+
+if [ $? -ne 0 ]; then
+    echo "Downloading agent tarball failed" | sed -e 's/^/           /'
+    echo "$SIGNALFX_AGENT_VERSION does not appear to be a valid version of the SignalFx Agent. Find valid versions here: https://github.com/signalfx/signalfx-agent/tags" | sed -e 's/^/           /'
+    exit 1;
+fi
+
+echo "-----> Extracting SignalFx Agent"
+# Strip the tar's root dir 'signalfx-agent' that everything lives in so that
+# everything is flattened out to the TARGET_DIR
+tar -xf "$TARGET_DIR/$signalfx_agent_tar" -C "$TARGET_DIR"
+
+mv "$TARGET_DIR/$signalfx_agent_tar" $CACHE_DIR
+
+$TARGET_DIR/signalfx-agent/bin/patch-interpreter /home/vcap/app/.signalfx/signalfx-agent $TARGET_DIR/signalfx-agent

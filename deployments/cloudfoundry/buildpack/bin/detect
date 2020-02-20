@@ -1,0 +1,8 @@
+#!/bin/sh
+
+if [ -n "$DISABLE_SIGNALFX_AGENT" ]; then
+	exit 1
+fi
+
+echo "SignalFx Agent"
+exit 0
