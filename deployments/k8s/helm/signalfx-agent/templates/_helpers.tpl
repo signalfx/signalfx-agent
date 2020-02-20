@@ -55,3 +55,15 @@ Create the name of the secret holding the token
 {{- define "signalfx-agent.secretName" -}}
     {{ default (include "signalfx-agent.fullname" .) .Values.signalFxAccessTokenSecretName }}
 {{- end -}}
+
+{{/*
+Create the configmap name. It will have -v<major version> appended to it from v5 and onward.
+*/}}
+{{- define "configmap-name" -}}
+{{- $major_version := .Values.agentVersion | default "0.0.0" | splitList "." | first | atoi -}}
+{{- if ge $major_version 5 -}}
+{{- template "signalfx-agent.fullname" . -}}-v{{- $major_version -}}
+{{- else -}}
+{{- template "signalfx-agent.fullname" . -}}
+{{- end -}}
+{{- end -}}

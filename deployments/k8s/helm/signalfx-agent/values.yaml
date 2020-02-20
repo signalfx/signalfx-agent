@@ -67,6 +67,13 @@ serviceAccount:
 # need custom tolerations, see the 'tolerations' config option below.
 runOnMaster: true
 
+# You can specify a node selector (https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector)
+# that limits what nodes the agent will run on.
+nodeSelector: {
+  # label1: value
+  # label2: value
+}
+
 # You can specify additional tolerations for the pods that the DaemonSet
 # creates.
 tolerations: []
