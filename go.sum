@@ -503,8 +503,6 @@ github.com/influxdata/platform v0.0.0-20190117200541-d500d3cf5589/go.mod h1:YVhy
 github.com/influxdata/tail v1.0.0 h1:RGikfjB/b5C/YP3p47YD48eE0WSsJyAVbBHNpoTHdX0=
 github.com/influxdata/tail v1.0.0/go.mod h1:xTFF2SILpIYc5N+Srb0d5qpx7d+f733nBrbasb13DtQ=
 github.com/influxdata/tdigest v0.0.0-20181121200506-bf2b5ad3c0a9/go.mod h1:Js0mqiSBE6Ffsg94weZZ2c+v/ciT8QRHFOap7EKDrR0=
-github.com/influxdata/telegraf v0.10.2-0.20190319005412-5e88824c153e h1:tfGPLDKE2X1PaU0TQn7H0ZkoNrcVW2a33CnSd8uSTi4=
-github.com/influxdata/telegraf v0.10.2-0.20190319005412-5e88824c153e/go.mod h1:HIOhVICa+3kYiBmzfDt9LEnDA++FNzRzf9eP0o365us=
 github.com/influxdata/toml v0.0.0-20180607005434-2a2e3012f7cf h1:SDlFXYATjEbWThjvSTGdLmHyPozB8QsUFQs/LQ/bOcE=
 github.com/influxdata/toml v0.0.0-20180607005434-2a2e3012f7cf/go.mod h1:zApaNFpP/bTpQItGZNNUMISDMDAnTXu9UqJ4yT3ocz8=
 github.com/influxdata/usage-client v0.0.0-20160829180054-6d3895376368/go.mod h1:Wbbw6tYNvwa5dlB6304Sd+82Z3f7PmVZHVKU637d4po=
@@ -810,6 +808,8 @@ github.com/signalfx/signalfx-go v1.6.9-0.20191121015807-da8b1dfaab43 h1:HWQ7OIrm
 github.com/signalfx/signalfx-go v1.6.9-0.20191121015807-da8b1dfaab43/go.mod h1:CeCGXKT2wqqky0Nz8eV0NH/CpMPE7tzYUcV8eQS1U1s=
 github.com/signalfx/tdigest v0.0.0-20191031204725-c860c3ff6902 h1:V/uPctkyrXFOwGmWbFFEJP48ntw8ykJN6oxEJBTPARE=
 github.com/signalfx/tdigest v0.0.0-20191031204725-c860c3ff6902/go.mod h1:fbvuJM3o+bwr36+TVjokMUGd4muJVHiCshTmKZ/6eNU=
+github.com/signalfx/telegraf v0.10.2-0.20200220234948-7794d95dad35 h1:omjpEdZFH1oSV8CqAvMdmVtQJ3FipW0gO6DnPM8eXbI=
+github.com/signalfx/telegraf v0.10.2-0.20200220234948-7794d95dad35/go.mod h1:1gnMOcwGO3lAxfoMq28M8gjooF2MqVwquPVEvgZ1its=
 github.com/signalfx/thrift v0.0.0-20181211001559-3838fa316492/go.mod h1:Xv29nl9fxdk0hmeqcUHgAZZwvYrOhduNW+9qk4H+6K0=
 github.com/signalfx/xdgbasedir v0.0.0-20160106035722-cd6a71c07e4e h1:QCYFq7iZwqlBTbP5xcJNIaLnAhozjhcrySGiEegRYus=
 github.com/signalfx/xdgbasedir v0.0.0-20160106035722-cd6a71c07e4e/go.mod h1:RnQhO4a62x0VHvh8eSMsqgTgYRso2hfat7ioM8rD1jc=
