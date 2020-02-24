@@ -26,9 +26,9 @@ var cumulativeCounters = map[string]string{
 }
 
 var gauges = map[string]string{
-	"nr_free_pages": "vmpage_number.free_pages",
-	"nr_mapped":     "vmpage_number.mapped",
-	"nr_shmem":      "vmpage_number.shmem_pmdmapped",
+	"nr_free_pages":      "vmpage_number.free_pages",
+	"nr_mapped":          "vmpage_number.mapped",
+	"nr_shmem_pmdmapped": "vmpage_number.shmem_pmdmapped",
 }
 
 func (m *Monitor) parseFileForDatapoints(contents []byte) []*datapoint.Datapoint {
