@@ -25782,15 +25782,18 @@
           "description": "",
           "metrics": [
             "df_complex.free",
+            "df_complex.reserved",
             "df_complex.used",
             "disk.summary_utilization",
-            "disk.utilization"
+            "disk.utilization",
+            "percent_inodes.reserved"
           ]
         },
         "inodes": {
           "description": "",
           "metrics": [
             "df_inodes.free",
+            "df_inodes.reserved",
             "df_inodes.used",
             "percent_inodes.free",
             "percent_inodes.used"
@@ -25800,6 +25803,7 @@
           "description": "",
           "metrics": [
             "percent_bytes.free",
+            "percent_bytes.reserved",
             "percent_bytes.used"
           ]
         }
@@ -25811,6 +25815,12 @@
           "group": null,
           "default": true
         },
+        "df_complex.reserved": {
+          "type": "gauge",
+          "description": "Measures disk space in bytes reserved for the super-user on this file system.",
+          "group": null,
+          "default": false
+        },
         "df_complex.used": {
           "type": "gauge",
           "description": "Used disk space in bytes",
@@ -25820,6 +25830,12 @@
         "df_inodes.free": {
           "type": "gauge",
           "description": "(Linux Only) Number of inodes that are free.",
+          "group": "inodes",
+          "default": false
+        },
+        "df_inodes.reserved": {
+          "type": "gauge",
+          "description": "(Linux Only) Measures inodes reserved for the super user in the file system. Inodes are structures used by Unix filesystems to store metadata about files.",
           "group": "inodes",
           "default": false
         },
@@ -25847,6 +25863,12 @@
           "group": "percentage",
           "default": false
         },
+        "percent_bytes.reserved": {
+          "type": "gauge",
+          "description": "Measures disk space reserved for the super-user as a percentage of total disk space of this file system.",
+          "group": "percentage",
+          "default": false
+        },
         "percent_bytes.used": {
           "type": "gauge",
           "description": "Used disk space on the file system, expressed as a percentage.",
@@ -25857,6 +25879,12 @@
           "type": "gauge",
           "description": "(Linux Only) Free inodes on the file system, expressed as a percentage.",
           "group": "inodes",
+          "default": false
+        },
+        "percent_inodes.reserved": {
+          "type": "gauge",
+          "description": "(Linux Only) Measures inodes reserved for the super-user as a percentage of total inodes in the file system. Inodes are structures used by file systems to store information about files (other than its content).",
+          "group": null,
           "default": false
         },
         "percent_inodes.used": {
