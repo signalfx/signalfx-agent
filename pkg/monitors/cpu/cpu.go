@@ -8,6 +8,7 @@ import (
 
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
@@ -29,6 +30,11 @@ func init() {
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
+	// If `true`, stats will be generated for the system as a whole _as well
+	// as_ for each individual CPU/core in the system and will be distinguished
+	// by the `cpu` dimension.  If `false`, stats will only be generated for
+	// the system as a whole that will not include a `cpu` dimension.
+	ReportPerCPU bool `yaml:"reportPerCPU"`
 }
 
 type totalUsed struct {
@@ -63,28 +69,36 @@ func (m *Monitor) generatePerCoreDatapoints() []*datapoint.Datapoint {
 		// get current times as totalUsed
 		current := cpuTimeStatTototalUsed(&core)
 
+		dps := makeSecondaryDatapoints(&core)
+
 		// calculate utilization
 		if prev, ok := m.previousPerCore[core.CPU]; ok && prev != nil {
 			utilization, err := getUtilization(prev, current)
 
 			if err != nil {
 				m.logger.WithError(err).Errorf("failed to calculate utilization for cpu core %s", core.CPU)
-				continue
+			} else {
+				dps = append(dps,
+					datapoint.New(
+						percoreMetricName,
+						nil,
+						datapoint.NewFloatValue(utilization),
+						datapoint.Gauge,
+						time.Time{},
+					))
 			}
+		}
 
-			// add datapoint to be returned
-			out = append(out,
-				datapoint.New(
-					percoreMetricName,
-					map[string]string{"cpu": strings.ReplaceAll(core.CPU, "cpu", "")},
-					datapoint.NewFloatValue(utilization),
-					datapoint.Gauge,
-					time.Time{},
-				))
+		for i := range dps {
+			dps[i].Dimensions = utils.MergeStringMaps(dps[i].Dimensions,
+				map[string]string{"cpu": strings.ReplaceAll(core.CPU, "cpu", "")},
+			)
 		}
 
 		// store current as previous value for next time
 		m.previousPerCore[core.CPU] = current
+
+		out = append(out, dps...)
 	}
 
 	return out
@@ -103,7 +117,8 @@ func (m *Monitor) generateDatapoints() []*datapoint.Datapoint {
 	// get current times as totalUsed
 	current := cpuTimeStatTototalUsed(&total[0])
 
-	dps := make([]*datapoint.Datapoint, 0)
+	dps := makeSecondaryDatapoints(&total[0])
+
 	// calculate utilization
 	if m.previousTotal != nil {
 		utilization, err := getUtilization(m.previousTotal, current)
@@ -132,6 +147,19 @@ func (m *Monitor) generateDatapoints() []*datapoint.Datapoint {
 	m.previousTotal = current
 
 	return dps
+}
+
+func makeSecondaryDatapoints(stat *cpu.TimesStat) []*datapoint.Datapoint {
+	return []*datapoint.Datapoint{
+		sfxclient.CumulativeF(cpuIdle, nil, stat.Idle),
+		sfxclient.CumulativeF(cpuNice, nil, stat.Nice),
+		sfxclient.CumulativeF(cpuSoftirq, nil, stat.Softirq),
+		sfxclient.CumulativeF(cpuInterrupt, nil, stat.Irq),
+		sfxclient.CumulativeF(cpuSteal, nil, stat.Steal),
+		sfxclient.CumulativeF(cpuSystem, nil, stat.System),
+		sfxclient.CumulativeF(cpuUser, nil, stat.User),
+		sfxclient.CumulativeF(cpuWait, nil, stat.Iowait),
+	}
 }
 
 func getUtilization(prev *totalUsed, current *totalUsed) (utilization float64, err error) {
@@ -204,10 +232,12 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.initializeCPUTimes()
 	m.initializePerCoreCPUTimes()
 
+	hasPerCPUMetric := utils.StringSliceToMap(m.Output.EnabledMetrics())[cpuUtilizationPerCore]
+
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		dps := m.generateDatapoints()
-		if m.Output.HasEnabledMetricInGroup(groupPerCore) {
+		if hasPerCPUMetric || conf.ReportPerCPU {
 			// NOTE: If this monitor ever fails to complete in a reporting interval
 			// maybe run this on a separate go routine
 			perCoreDPs := m.generatePerCoreDatapoints()
