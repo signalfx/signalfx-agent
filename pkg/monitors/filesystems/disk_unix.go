@@ -3,15 +3,14 @@
 package filesystems
 
 import (
-	"context"
 	"github.com/shirou/gopsutil/disk"
 	"golang.org/x/sys/unix"
 )
 
 type diskUsageStat struct {
 	disk.UsageStat
-	Reserved              uint64  `json:"reserved"`
-	BytesReservedPercent  float64 `json:"bytesReservedPercent"`
+	Reserved             uint64  `json:"reserved"`
+	BytesReservedPercent float64 `json:"bytesReservedPercent"`
 	// TODO: add fields InodesReserved and InodesReservedPercent
 	// Derive how InodesReserved is calculated from https://github.com/collectd/collectd/blob/master/src/df.c#L303.
 	// However, we are using Statfs_t and Statfs_t does not expose available inodes.
@@ -20,7 +19,7 @@ type diskUsageStat struct {
 // Usage returns a file system usage. path is a filesystem path such
 // as "/", not device file path like "/dev/vda1". If you want to use
 // a return value of disk.Partitions, use "Mountpoint" not "Device".
-func diskUsage(ctx context.Context, path string) (*diskUsageStat, error) {
+func diskUsage(path string) (*diskUsageStat, error) {
 	stat := unix.Statfs_t{}
 	err := unix.Statfs(path, &stat)
 	if err != nil {
@@ -33,8 +32,6 @@ func newDiskUsageStat(stat *unix.Statfs_t) (*diskUsageStat, error) {
 	bsize := stat.Bsize
 	ret := &diskUsageStat{
 		UsageStat: disk.UsageStat{
-			//Path:        unescapeFstab(path),
-			//Fstype:      getFsType(stat),
 			Total:       stat.Blocks * uint64(bsize),
 			Free:        stat.Bavail * uint64(bsize),
 			InodesTotal: stat.Files,
@@ -65,5 +62,3 @@ func newDiskUsageStat(stat *unix.Statfs_t) (*diskUsageStat, error) {
 
 	return ret, nil
 }
-
-
