@@ -45,6 +45,10 @@ monitors:
       description: Used disk space in bytes
       default: true
       type: gauge
+    df_complex.reserved:
+      description: Measures disk space in bytes reserved for the super-user on this file system.
+      default: false
+      type: gauge
     df_inodes.free:
       description: (Linux Only) Number of inodes that are free.
       default: false
@@ -52,6 +56,12 @@ monitors:
       group: inodes
     df_inodes.used:
       description: (Linux Only) Number of inodes that are used.
+      default: false
+      type: gauge
+      group: inodes
+    df_inodes.reserved:
+      description: (Linux Only) Measures inodes reserved for the super user in the file system.
+        Inodes are structures used by Unix filesystems to store metadata about files.
       default: false
       type: gauge
       group: inodes
@@ -73,6 +83,12 @@ monitors:
       default: false
       type: gauge
       group: percentage
+    percent_bytes.reserved:
+      description: Measures disk space reserved for the super-user as a percentage of total
+        disk space of this file system.
+      default: false
+      type: gauge
+      group: percentage
     percent_inodes.free:
       description: (Linux Only) Free inodes on the file system, expressed as a percentage.
       default: false
@@ -83,5 +99,11 @@ monitors:
       default: false
       type: gauge
       group: inodes
+    percent_inodes.reserved:
+      description: (Linux Only) Measures inodes reserved for the super-user as a percentage of
+        total inodes in the file system. Inodes are structures used by file systems to store
+        information about files (other than its content).
+      default: false
+      type: gauge
   monitorType: filesystems
   properties:

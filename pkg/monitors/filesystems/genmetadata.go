@@ -21,27 +21,35 @@ var groupSet = map[string]bool{
 
 const (
 	dfComplexFree          = "df_complex.free"
+	dfComplexReserved      = "df_complex.reserved"
 	dfComplexUsed          = "df_complex.used"
 	dfInodesFree           = "df_inodes.free"
+	dfInodesReserved       = "df_inodes.reserved"
 	dfInodesUsed           = "df_inodes.used"
 	diskSummaryUtilization = "disk.summary_utilization"
 	diskUtilization        = "disk.utilization"
 	percentBytesFree       = "percent_bytes.free"
+	percentBytesReserved   = "percent_bytes.reserved"
 	percentBytesUsed       = "percent_bytes.used"
 	percentInodesFree      = "percent_inodes.free"
+	percentInodesReserved  = "percent_inodes.reserved"
 	percentInodesUsed      = "percent_inodes.used"
 )
 
 var metricSet = map[string]monitors.MetricInfo{
 	dfComplexFree:          {Type: datapoint.Gauge},
+	dfComplexReserved:      {Type: datapoint.Gauge},
 	dfComplexUsed:          {Type: datapoint.Gauge},
 	dfInodesFree:           {Type: datapoint.Gauge, Group: groupInodes},
+	dfInodesReserved:       {Type: datapoint.Gauge, Group: groupInodes},
 	dfInodesUsed:           {Type: datapoint.Gauge, Group: groupInodes},
 	diskSummaryUtilization: {Type: datapoint.Gauge},
 	diskUtilization:        {Type: datapoint.Gauge},
 	percentBytesFree:       {Type: datapoint.Gauge, Group: groupPercentage},
+	percentBytesReserved:   {Type: datapoint.Gauge, Group: groupPercentage},
 	percentBytesUsed:       {Type: datapoint.Gauge, Group: groupPercentage},
 	percentInodesFree:      {Type: datapoint.Gauge, Group: groupInodes},
+	percentInodesReserved:  {Type: datapoint.Gauge},
 	percentInodesUsed:      {Type: datapoint.Gauge, Group: groupInodes},
 }
 
@@ -55,12 +63,14 @@ var defaultMetrics = map[string]bool{
 var groupMetricsMap = map[string][]string{
 	groupInodes: []string{
 		dfInodesFree,
+		dfInodesReserved,
 		dfInodesUsed,
 		percentInodesFree,
 		percentInodesUsed,
 	},
 	groupPercentage: []string{
 		percentBytesFree,
+		percentBytesReserved,
 		percentBytesUsed,
 	},
 }
