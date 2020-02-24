@@ -22,6 +22,8 @@ spec:
         app: signalfx-agent
         version: 4.20.0
 
+      annotations:
+        {}
     spec:
       # Use host network so we can access kubelet directly
       hostNetwork: true

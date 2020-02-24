@@ -30,6 +30,8 @@ spec:
         {{ with .Values.extraPodLabels -}}
         {{ toYaml . | indent 8 | trim }}
         {{- end }}
+      annotations:
+        {{- toYaml .Values.podAnnotations | trim | nindent 8 }}
     spec:
       # Use host network so we can access kubelet directly
       hostNetwork: true
