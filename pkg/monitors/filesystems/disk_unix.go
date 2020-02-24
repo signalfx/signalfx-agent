@@ -1,3 +1,5 @@
+// +build freebsd linux darwin
+
 // Duplication of github.com/shirou/gopsutil/disk/disk_unix.go to gain access to golang.org/x/sys/unix.Statfs_t.
 
 package filesystems
