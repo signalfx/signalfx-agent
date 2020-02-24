@@ -32,6 +32,9 @@ type MonitorManager struct {
 	// Map of service endpoints that have been discovered
 	discoveredEndpoints map[services.ID]services.Endpoint
 
+	collectdConfig     *config.CollectdConfig
+	collectdConfigured bool
+
 	DPs              chan<- []*datapoint.Datapoint
 	Events           chan<- *event.Event
 	DimensionUpdates chan<- *types.Dimension
@@ -74,6 +77,7 @@ func (mm *MonitorManager) Configure(confs []config.MonitorConfig, collectdConf *
 	requireSoloTrue := anyMarkedSolo(confs)
 
 	newConfig, deletedHashes := diffNewConfig(confs, mm.allConfigHashes())
+	mm.collectdConfig = collectdConf
 
 	if !collectdConf.DisableCollectd {
 		// By configuring collectd with the monitor manager, we absolve the monitor
@@ -85,6 +89,7 @@ func (mm *MonitorManager) Configure(confs []config.MonitorConfig, collectdConf *
 				"collectdConfig": spew.Sdump(collectdConf),
 			}).Error("Could not configure collectd")
 		}
+		mm.collectdConfigured = true
 	}
 
 	for _, hash := range deletedHashes {
@@ -320,6 +325,19 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 	id := types.MonitorID(mm.idGenerator())
 	coreConfig := config.MonitorConfigCore()
 	monitorType := coreConfig.Type
+
+	// This accounts for the possibility that collectd was marked as disabled
+	// when the agent was first started but later an self-configured endpoint
+	// that depends on collectd is discovered.
+	if coreConfig.IsCollectdBased() && !mm.collectdConfigured {
+		if err := collectd.ConfigureMainCollectd(mm.collectdConfig); err != nil {
+			log.WithFields(log.Fields{
+				"error":          err,
+				"collectdConfig": spew.Sdump(mm.collectdConfig),
+			}).Error("Could not configure collectd")
+		}
+		mm.collectdConfigured = true
+	}
 
 	log.WithFields(log.Fields{
 		"monitorType":   monitorType,

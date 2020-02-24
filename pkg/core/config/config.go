@@ -268,6 +268,12 @@ func (c *Config) propagateValuesDown() error {
 		}
 	}
 
+	anyCollectdMonitors := false
+	for i := range c.Monitors {
+		anyCollectdMonitors = anyCollectdMonitors || c.Monitors[i].IsCollectdBased()
+	}
+
+	c.Collectd.DisableCollectd = c.Collectd.DisableCollectd || !anyCollectdMonitors
 	c.Collectd.IntervalSeconds = utils.FirstNonZero(c.Collectd.IntervalSeconds, c.IntervalSeconds)
 	c.Collectd.BundleDir = c.BundleDir
 
