@@ -71,6 +71,9 @@ runOnMaster: true
 # creates.
 tolerations: []
 
+## Annotations for signalfx-agent pods
+podAnnotations: {}
+
 # Extra labels to put on agent pods.  Values must be strings per the k8s label
 # schema.
 extraPodLabels: {}
@@ -120,7 +123,7 @@ metricIntervalSeconds: 10
 logLevel: info
 
 # The log format of the agent.  Valid values are 'text' and 'json'
-# The agent will emit logs in either an unstructed text (default) or JSON format. 
+# The agent will emit logs in either an unstructed text (default) or JSON format.
 logFormat: text
 
 # Whether to ignore TLS validation issue when connecting to the main K8s API
