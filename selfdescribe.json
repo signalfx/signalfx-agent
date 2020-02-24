@@ -20633,33 +20633,88 @@
       "monitorType": "cpu",
       "sendAll": false,
       "sendUnknown": false,
-      "dimensions": null,
+      "dimensions": {
+        "cpu": {
+          "description": "The number/id of the core/cpu on the system.  Only present if `reportPerCPU: true`."
+        }
+      },
       "doc": "This monitor reports cpu metrics.\n\nOn Linux hosts, this monitor relies on the `/proc` filesystem.\nIf the underlying host's `/proc` file system is mounted somewhere other than\n/proc please specify the path using the top level configuration `procPath`.\n\n```yaml\nprocPath: /proc\nmonitors:\n - type: cpu\n```\n",
       "groups": {
         "": {
           "description": "",
           "metrics": [
-            "cpu.utilization"
-          ]
-        },
-        "per_core": {
-          "description": "Per-core CPU metrics",
-          "metrics": [
-            "cpu.utilization_per_core"
+            "cpu.idle",
+            "cpu.interrupt",
+            "cpu.nice",
+            "cpu.softirq",
+            "cpu.steal",
+            "cpu.system",
+            "cpu.user",
+            "cpu.utilization",
+            "cpu.utilization_per_core",
+            "cpu.wait"
           ]
         }
       },
       "metrics": {
+        "cpu.idle": {
+          "type": "cumulative",
+          "description": "CPU time spent not in any other state. In order to get a percentage this value must be compared against the sum of all CPU states.\n",
+          "group": null,
+          "default": true
+        },
+        "cpu.interrupt": {
+          "type": "cumulative",
+          "description": "CPU time spent while servicing hardware interrupts. A hardware interrupt happens at the physical layer. When this occurs, the CPU will stop whatever else it is doing and service the interrupt. This metric measures how many jiffies were spent handling these interrupts. In order to get a percentage this value must be compared against the sum of all CPU states. A sustained high value for this metric may be caused by faulty hardware such as a broken peripheral.\n",
+          "group": null,
+          "default": false
+        },
+        "cpu.nice": {
+          "type": "cumulative",
+          "description": "CPU time spent in userspace running 'nice'-ed processes. In order to get a percentage this value must be compared against the sum of all CPU states. A sustained high value for this metric may be caused by: 1) The server not having enough CPU capacity for a process, 2) A programming error which causes a process to use an unexpected amount of CPU\n",
+          "group": null,
+          "default": false
+        },
+        "cpu.softirq": {
+          "type": "cumulative",
+          "description": "CPU time spent while servicing software interrupts. Unlike a hardware interrupt, a software interrupt happens at the sofware layer. Usually it is a userspace program requesting a service of the kernel. This metric measures how many jiffies were spent by the CPU handling these interrupts. In order to get a percentage this value must be compared against the sum of all CPU states. A sustained high value for this metric may be caused by a programming error which causes a process to unexpectedly request too many services from the kernel.\n",
+          "group": null,
+          "default": false
+        },
+        "cpu.steal": {
+          "type": "cumulative",
+          "description": "CPU time spent waiting for a hypervisor to service requests from other virtual machines. This metric is only present on virtual machines. This metric records how much time this virtual machine had to wait to have the hypervisor kernel service a request. In order to get a percentage this value must be compared against the sum of all CPU states. A sustained high value for this metric may be caused by: 1) Another VM on the same hypervisor using too many resources, or 2) An underpowered hypervisor\n",
+          "group": null,
+          "default": false
+        },
+        "cpu.system": {
+          "type": "cumulative",
+          "description": "CPU time spent running in the kernel. This value reflects how often processes are calling into the kernel for services (e.g to log to the console). In order to get a percentage this value must be compared against the sum of all CPU states. A sustained high value for this metric may be caused by: 1) A process that needs to be re-written to use kernel resources more efficiently, or 2) A userspace driver that is broken\n",
+          "group": null,
+          "default": false
+        },
+        "cpu.user": {
+          "type": "cumulative",
+          "description": "CPU time spent running in userspace. In order to get a percentage this value must be compared against the sum of all CPU states. If this value is high: 1) A process requires more CPU to run than is available on the server, or 2) There is an application programming error which is causing the CPU to be used unexpectedly.\n",
+          "group": null,
+          "default": false
+        },
         "cpu.utilization": {
           "type": "gauge",
-          "description": "Percent of CPU used on this host. This metric is emitted with a plugin dimension set to \"signalfx-metadata\".",
+          "description": "Percent of CPU used on this host.",
           "group": null,
           "default": true
         },
         "cpu.utilization_per_core": {
           "type": "gauge",
-          "description": "Percent of CPU used on each core. This metric is emitted with the plugin dimension set to \"signalfx-metadata\"",
-          "group": "per_core",
+          "description": "Percent of CPU used on each core",
+          "group": null,
+          "default": false
+        },
+        "cpu.wait": {
+          "type": "cumulative",
+          "description": "Amount of total CPU time spent idle while waiting for an I/O operation to complete. In order to get a percentage this value must be compared against the sum of all CPU states. A high value for a sustained period may be caused by: 1) A slow hardware device that is taking too long to service requests, or 2) Too many requests being sent to an I/O device\n",
+          "group": null,
           "default": false
         }
       },
@@ -20668,7 +20723,16 @@
         "name": "Config",
         "doc": "Config for this monitor",
         "package": "pkg/monitors/cpu",
-        "fields": []
+        "fields": [
+          {
+            "yamlName": "reportPerCPU",
+            "doc": "If `true`, stats will be generated for the system as a whole _as well as_ for each individual CPU/core in the system and will be distinguished by the `cpu` dimension.  If `false`, stats will only be generated for the system as a whole that will not include a `cpu` dimension.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
       },
       "acceptsEndpoints": false,
       "singleInstance": true
