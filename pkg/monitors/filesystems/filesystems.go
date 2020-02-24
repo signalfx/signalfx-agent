@@ -77,30 +77,33 @@ func (m *Monitor) getCommonDimensions(partition *gopsutil.PartitionStat) map[str
 	return dims
 }
 
-func (m *Monitor) makeInodeDatapoints(dimensions map[string]string, disk *gopsutil.UsageStat) []*datapoint.Datapoint {
+func (m *Monitor) makeInodeDatapoints(dimensions map[string]string, disk *diskUsageStat) []*datapoint.Datapoint {
 	return []*datapoint.Datapoint{
 		datapoint.New(dfInodesFree, dimensions, datapoint.NewIntValue(int64(disk.InodesFree)), datapoint.Gauge, time.Time{}),
 		datapoint.New(dfInodesUsed, dimensions, datapoint.NewIntValue(int64(disk.InodesUsed)), datapoint.Gauge, time.Time{}),
-		// TODO: implement df_inodes.reserved
+		// TODO: implement df_inodes.reserved.
+		// However, we get inode stats from Statfs_t and Statfs_t does not expose available inodes. Available inodes are
+		// needed to calculated inodes reserved according to https://github.com/collectd/collectd/blob/master/src/df.c#L303 .
 		datapoint.New(percentInodesFree, dimensions, datapoint.NewIntValue(int64(100-disk.InodesUsedPercent)), datapoint.Gauge, time.Time{}),
 		datapoint.New(percentInodesUsed, dimensions, datapoint.NewIntValue(int64(disk.InodesUsedPercent)), datapoint.Gauge, time.Time{}),
 		// TODO: implement percent_inodes.reserved
+		// But, Statfs_t does not expose available inodes. See comment above.
 	}
 }
 
-func (m *Monitor) makeDFComplex(dimensions map[string]string, disk *gopsutil.UsageStat) []*datapoint.Datapoint {
+func (m *Monitor) makeDFComplex(dimensions map[string]string, disk *diskUsageStat) []*datapoint.Datapoint {
 	return []*datapoint.Datapoint{
 		datapoint.New(dfComplexFree, dimensions, datapoint.NewIntValue(int64(disk.Free)), datapoint.Gauge, time.Time{}),
 		datapoint.New(dfComplexUsed, dimensions, datapoint.NewIntValue(int64(disk.Used)), datapoint.Gauge, time.Time{}),
-		// TODO: implement df_complex.reserved
+		datapoint.New(dfComplexReserved, dimensions, datapoint.NewIntValue(int64(disk.Reserved)), datapoint.Gauge, time.Time{}),
 	}
 }
 
-func (m *Monitor) makePercentBytes(dimensions map[string]string, disk *gopsutil.UsageStat) []*datapoint.Datapoint {
+func (m *Monitor) makePercentBytes(dimensions map[string]string, disk *diskUsageStat) []*datapoint.Datapoint {
 	return []*datapoint.Datapoint{
 		datapoint.New(percentBytesFree, dimensions, datapoint.NewFloatValue(100-disk.UsedPercent), datapoint.Gauge, time.Time{}),
 		datapoint.New(percentBytesUsed, dimensions, datapoint.NewFloatValue(disk.UsedPercent), datapoint.Gauge, time.Time{}),
-		// TODO: implement percent_bytes.reserved
+		datapoint.New(percentBytesReserved, dimensions, datapoint.NewFloatValue(disk.BytesReservedPercent), datapoint.Gauge, time.Time{}),
 	}
 }
 
@@ -146,7 +149,7 @@ func (m *Monitor) emitDatapoints() {
 		}
 
 		// if we can't collect usage stats about the mountpoint then skip it
-		disk, err := gopsutil.Usage(partition.Mountpoint)
+		disk, err := diskUsage(context.Background(), partition.Mountpoint)
 		if err != nil {
 			m.logger.WithError(err).WithField("mountpoint", partition.Mountpoint).Error("failed to collect usage for mountpoint")
 			continue
@@ -176,7 +179,7 @@ func (m *Monitor) emitDatapoints() {
 
 		// update totals
 		used += disk.Used
-		total += (disk.Used + disk.Free)
+		total += disk.Used + disk.Free
 	}
 
 	diskSummary, err := calculateUtil(float64(used), float64(total))
