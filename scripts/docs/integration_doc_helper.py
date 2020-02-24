@@ -60,6 +60,7 @@ REQUIRED_AGENT_DOCS = {
         "windows",
         "faq",
         "legacy-filtering",
+        "deb-rpm-repo-migration",
     ],
 }
 
