@@ -39,10 +39,11 @@ func (m *Monitor) emitDatapoints() {
 		return
 	}
 
-	// all platforms
+	used := memInfo.Total - memInfo.Free - memInfo.Buffers - (memInfo.Cached - memInfo.SReclaimable) - memInfo.Slab
+
 	dps := []*datapoint.Datapoint{
-		datapoint.New("memory.utilization", nil, datapoint.NewFloatValue(memInfo.UsedPercent), datapoint.Gauge, time.Time{}),
-		datapoint.New("memory.used", nil, datapoint.NewIntValue(int64(memInfo.Used)), datapoint.Gauge, time.Time{}),
+		datapoint.New("memory.utilization", nil, datapoint.NewFloatValue(float64(used)/float64(memInfo.Total)*100), datapoint.Gauge, time.Time{}),
+		datapoint.New("memory.used", nil, datapoint.NewIntValue(int64(used)), datapoint.Gauge, time.Time{}),
 	}
 
 	dps = append(dps, m.makeMemoryDatapoints(memInfo, nil)...)
