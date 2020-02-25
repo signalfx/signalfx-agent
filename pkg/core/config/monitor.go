@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"reflect"
+	"strings"
 
 	"github.com/mitchellh/hashstructure"
 	"github.com/signalfx/signalfx-agent/pkg/core/common/constants"
@@ -173,6 +174,12 @@ func (mc *MonitorConfig) Hash() uint64 {
 // BundleDir returns the path to the agent's bundle directory.
 func (mc *MonitorConfig) BundleDir() string {
 	return os.Getenv(constants.BundleDirEnvVar)
+}
+
+// IsCollectdBased returns whether this montior type depends on the
+// collectd subprocess to run.
+func (mc *MonitorConfig) IsCollectdBased() bool {
+	return strings.HasPrefix(mc.Type, "collectd/")
 }
 
 // MonitorCustomConfig represents monitor-specific configuration that doesn't
