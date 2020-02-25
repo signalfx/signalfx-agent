@@ -185,6 +185,10 @@ def run_init_system_image(
             container_options["command"] = command
 
         with run_container(image_id, wait_for_ip=True, **container_options) as cont:
+            # Workaround for https://bugzilla.redhat.com/show_bug.cgi?id=1769831 which
+            # causes yum/dnf to exit with error code 141 when importing GPG keys.
+            cont.exec_run("mkdir -p /run/user/0")
+
             if with_socat:
                 # Proxy the backend calls through a fake HTTPS endpoint so that we
                 # don't have to change the default configuration default by the
