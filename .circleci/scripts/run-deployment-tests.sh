@@ -6,7 +6,7 @@ set -eo pipefail
 
 mkdir -p ~/testresults
 if [ "$CIRCLE_BRANCH" != "master" ]; then
-    if ! scripts/changes-include-dir deployments/${DEPLOYMENT_TYPE} tests/deployments/${DEPLOYMENT_TYPE} ${BASH_SOURCE[0]}; then
+    if ! scripts/changes-include-dir deployments/${DEPLOYMENT_TYPE} tests/deployments/${DEPLOYMENT_TYPE} tests/packaging/common.py ${BASH_SOURCE[0]}; then
         echo "${DEPLOYMENT_TYPE} code has not changed, skipping tests!"
         touch ~/.skip
         exit 0
