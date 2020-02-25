@@ -81,10 +81,13 @@ func (m *Monitor) makeInodeDatapoints(dimensions map[string]string, disk *gopsut
 	return []*datapoint.Datapoint{
 		datapoint.New(dfInodesFree, dimensions, datapoint.NewIntValue(int64(disk.InodesFree)), datapoint.Gauge, time.Time{}),
 		datapoint.New(dfInodesUsed, dimensions, datapoint.NewIntValue(int64(disk.InodesUsed)), datapoint.Gauge, time.Time{}),
-		// TODO: implement df_inodes.reserved
 		datapoint.New(percentInodesFree, dimensions, datapoint.NewIntValue(int64(100-disk.InodesUsedPercent)), datapoint.Gauge, time.Time{}),
 		datapoint.New(percentInodesUsed, dimensions, datapoint.NewIntValue(int64(disk.InodesUsedPercent)), datapoint.Gauge, time.Time{}),
-		// TODO: implement percent_inodes.reserved
+		// TODO: implement percent_inodes.reserved and df_inodes.reserved.
+		// collectd doesn't appear to get the inode reserved stats right on
+		// linux due to the glibc implementation that sets f_favail = f_ffree
+		// in statvfs() (the value for these metrics are always 0 in collectd).
+		// See https://sourceware.org/git/?p=glibc.git;a=blob;f=sysdeps/unix/sysv/linux/internal_statvfs.c;h=99dce0749086eaad5d592e210e2ad2176159874a;hb=HEAD#l84
 	}
 }
 
@@ -92,7 +95,7 @@ func (m *Monitor) makeDFComplex(dimensions map[string]string, disk *gopsutil.Usa
 	return []*datapoint.Datapoint{
 		datapoint.New(dfComplexFree, dimensions, datapoint.NewIntValue(int64(disk.Free)), datapoint.Gauge, time.Time{}),
 		datapoint.New(dfComplexUsed, dimensions, datapoint.NewIntValue(int64(disk.Used)), datapoint.Gauge, time.Time{}),
-		// TODO: implement df_complex.reserved
+		datapoint.New(dfComplexReserved, dimensions, datapoint.NewIntValue(int64(disk.Total-disk.Used-disk.Free)), datapoint.Gauge, time.Time{}),
 	}
 }
 
@@ -100,7 +103,7 @@ func (m *Monitor) makePercentBytes(dimensions map[string]string, disk *gopsutil.
 	return []*datapoint.Datapoint{
 		datapoint.New(percentBytesFree, dimensions, datapoint.NewFloatValue(100-disk.UsedPercent), datapoint.Gauge, time.Time{}),
 		datapoint.New(percentBytesUsed, dimensions, datapoint.NewFloatValue(disk.UsedPercent), datapoint.Gauge, time.Time{}),
-		// TODO: implement percent_bytes.reserved
+		datapoint.New(percentBytesReserved, dimensions, datapoint.NewFloatValue((float64(disk.Total-disk.Used-disk.Free)/float64(disk.Total))*100.0), datapoint.Gauge, time.Time{}),
 	}
 }
 

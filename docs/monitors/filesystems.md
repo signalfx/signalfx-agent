@@ -78,6 +78,7 @@ Metrics that are categorized as
 
 
  - ***`df_complex.free`*** (*gauge*)<br>    Free disk space in bytes
+ - `df_complex.reserved` (*gauge*)<br>    Measures disk space in bytes reserved for the super-user on this file system.
  - ***`df_complex.used`*** (*gauge*)<br>    Used disk space in bytes
  - ***`disk.summary_utilization`*** (*gauge*)<br>    Percent of disk space utilized on all volumes on this host.
  - ***`disk.utilization`*** (*gauge*)<br>    Percent of disk used on this volume.
@@ -96,6 +97,7 @@ All of the following metrics are part of the `percentage` metric group. All of
 the non-default metrics below can be turned on by adding `percentage` to the
 monitor config option `extraGroups`:
  - `percent_bytes.free` (*gauge*)<br>    Free disk space on the file system, expressed as a percentage.
+ - `percent_bytes.reserved` (*gauge*)<br>    Measures disk space reserved for the super-user as a percentage of total disk space of this file system.
  - `percent_bytes.used` (*gauge*)<br>    Used disk space on the file system, expressed as a percentage.
 
 ### Non-default metrics (version 4.7.0+)
