@@ -25782,6 +25782,7 @@
           "description": "",
           "metrics": [
             "df_complex.free",
+            "df_complex.reserved",
             "df_complex.used",
             "disk.summary_utilization",
             "disk.utilization"
@@ -25800,6 +25801,7 @@
           "description": "",
           "metrics": [
             "percent_bytes.free",
+            "percent_bytes.reserved",
             "percent_bytes.used"
           ]
         }
@@ -25810,6 +25812,12 @@
           "description": "Free disk space in bytes",
           "group": null,
           "default": true
+        },
+        "df_complex.reserved": {
+          "type": "gauge",
+          "description": "Measures disk space in bytes reserved for the super-user on this file system.",
+          "group": null,
+          "default": false
         },
         "df_complex.used": {
           "type": "gauge",
@@ -25844,6 +25852,12 @@
         "percent_bytes.free": {
           "type": "gauge",
           "description": "Free disk space on the file system, expressed as a percentage.",
+          "group": "percentage",
+          "default": false
+        },
+        "percent_bytes.reserved": {
+          "type": "gauge",
+          "description": "Measures disk space reserved for the super-user as a percentage of total disk space of this file system.",
           "group": "percentage",
           "default": false
         },
