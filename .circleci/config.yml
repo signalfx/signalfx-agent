@@ -27,6 +27,10 @@ executors:
     docker:
       - image: alpine/helm:3.0.0
 
+  tile_generator:
+    docker:
+      - image: cfplatformeng/tile-generator:v14.0.3
+
 commands:
   goexecutor_setup:
     steps:
@@ -496,6 +500,24 @@ jobs:
       - save_test_results:
           dir: /root/project/reports
 
+  pcf_tile_build:
+    executor: tile_generator
+    steps:
+      - run: |
+          if ! command -v git; then
+            apt-get update
+            apt-get install -y git
+          fi
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace
+      - run: |
+          AGENT_VERSION=$(./scripts/current-version) AGENT_BUNDLE=/tmp/workspace/signalfx-agent-latest.tar.gz deployments/cloudfoundry/tile/make-latest-tile
+          mkdir -p /tmp/pcf_tile
+          mv deployments/cloudfoundry/tile/product/signalfx-monitoring-*.pivotal /tmp/pcf_tile
+      - store_artifacts:
+          path: /tmp/pcf_tile
+
   update_stage_cache:
     docker:
       - image: docker:18.09
@@ -589,6 +611,9 @@ workflows:
       - helm_check
       - check_links
       - dependency_check:
+          requires:
+            - build
+      - pcf_tile_build:
           requires:
             - build
 
