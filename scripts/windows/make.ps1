@@ -125,14 +125,14 @@ function bundle (
     if ($ZIP_BUNDLE -And !$ONLY_BUILD_AGENT) {
         # clean up empty directories
         remove_empty_directories -buildDir $buildDir
-        zip_file -src "$buildDir\$AGENT_NAME" -dest "$buildDir\$AGENT_NAME-$AGENT_VERSION-win64.zip"
+        zip_file -src "$buildDir\$AGENT_NAME" -dest "$buildDir\$AGENT_NAME-$env:AGENT_VERSION-win64.zip"
     }
     # remove latest.txt if it already exists
     if (Test-Path -Path "$buildDir\latest.txt"){
         Remove-Item "$buildDir\latest.txt"
     }
     # generate latest.txt file with agent version/tag
-    Add-Content -NoNewline -Path "$buildDir\latest.txt" -Value $AGENT_VERSION
+    Add-Content -NoNewline -Path "$buildDir\latest.txt" -Value $env:AGENT_VERSION
 }
 
 function lint() {
