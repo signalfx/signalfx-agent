@@ -512,6 +512,10 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - run: |
+          if [[ "$CIRCLE_BRANCH" != "master" && -z "$CIRCLE_TAG" ]] && ! scripts/changes-include-dir deployments/cloudfoundry; then
+              echo "No changes in deployments/cloudfoundry, skipping build."
+              exit 0
+          fi
           AGENT_VERSION=$(./scripts/current-version) AGENT_BUNDLE=/tmp/workspace/signalfx-agent-latest.tar.gz deployments/cloudfoundry/tile/make-latest-tile
           mkdir -p /tmp/pcf_tile
           mv deployments/cloudfoundry/tile/product/signalfx-monitoring-*.pivotal /tmp/pcf_tile
@@ -533,7 +537,11 @@ jobs:
 workflows:
   build_test:
     jobs:
-      - build
+      - build:
+          filters:
+            tags:
+              only:
+                - /^v\d+\.\d+\.\d+.*/
       - modules_and_generate
       - gotests
       - integration_tests:
@@ -614,6 +622,10 @@ workflows:
           requires:
             - build
       - pcf_tile_build:
+          filters:
+            tags:
+              only:
+                - /^v\d+\.\d+\.\d+.*/
           requires:
             - build
 
