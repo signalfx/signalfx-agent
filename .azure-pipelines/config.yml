@@ -57,7 +57,7 @@ jobs:
       } else {
           $env:AGENT_VERSION = "$(Build.SourceVersion)"
       }
-      & ./scripts/windows/make.ps1 signalfx-agent
+      & ./scripts/windows/make.ps1 signalfx-agent -AGENT_VERSION "$env:AGENT_VERSION"
     displayName: 'Run go build'
   - task: PublishBuildArtifacts@1
     inputs:
