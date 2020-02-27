@@ -3,16 +3,16 @@ from functools import partial as p
 
 import pytest
 import requests
-
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import (
+    has_datapoint,
     has_datapoint_with_dim,
     has_datapoint_with_metric_name,
     has_log_message,
     http_status,
 )
 from tests.helpers.metadata import Metadata
-from tests.helpers.util import run_service, container_ip, wait_for
+from tests.helpers.util import container_ip, run_service, wait_for
 from tests.helpers.verify import verify
 
 pytestmark = [
@@ -53,12 +53,10 @@ def test_elasticsearch_included():
             """
         with Agent.run(config) as agent:
             verify(agent, METADATA.default_metrics - EXCLUDED)
-            assert has_datapoint_with_dim(
-                agent.fake_services, "plugin", "elasticsearch"
-            ), "Didn't get elasticsearch datapoints"
-            assert has_datapoint_with_dim(
-                agent.fake_services, "plugin_instance", "testCluster"
-            ), "Cluster name not picked from read callback"
+            assert has_datapoint(
+                agent.fake_services,
+                dimensions={"plugin_instance": "testCluster", "plugin": "elasticsearch", "index": "twitter"},
+            )
             assert not has_log_message(agent.output.lower(), "error"), "error found in agent output!"
 
 
