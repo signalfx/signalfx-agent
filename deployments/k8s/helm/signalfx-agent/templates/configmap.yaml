@@ -32,9 +32,16 @@ data:
     etcPath: {{ .Values.etcPath }}
     procPath: {{ .Values.procPath }}
 
+    enableBuiltInFiltering: true
+
     intervalSeconds: {{ .Values.metricIntervalSeconds }}
 
     cluster: {{ required ".Values.clusterName is required" .Values.clusterName }}
+
+{{- $major_version := .Values.agentVersion | default "0.0.0" | splitList "." | first | atoi -}}
+{{- if lt $major_version 5 }}
+    sendMachineID: false
+{{- end }}
 
     logging:
       level: {{ .Values.logLevel | default "info" }}
@@ -54,6 +61,8 @@ data:
       {{- end }}
 
     monitors:
+{{- if .Values.configureStandardMonitors }}
+{{- if ge $major_version 5 }}
     - type: cpu
     - type: filesystems
       hostFSPath: {{ .Values.hostFSPath }}
@@ -64,6 +73,23 @@ data:
     - type: host-metadata
     - type: processlist
     - type: vmem
+{{- else }}
+    - type: collectd/cpu
+    - type: collectd/cpufreq
+    - type: collectd/df
+      hostFSPath: /hostfs
+    - type: disk-io
+    - type: collectd/interface
+    - type: load
+    - type: collectd/memory
+    - type: collectd/protocols
+    - type: collectd/signalfx-metadata
+      omitProcessInfo: true
+    - type: host-metadata
+    - type: processlist
+    - type: collectd/uptime
+    - type: collectd/vmem
+{{- end }}
 
     - type: kubelet-stats
       {{- if .Values.containerStatsIntervalSeconds }}
@@ -85,6 +111,9 @@ data:
     {{ if .Values.gatherClusterMetrics -}}
     # Collects k8s cluster-level metrics
     - type: {{.Values.kubernetesDistro}}-cluster
+{{- if lt $major_version 5 }}
+      useNodeName: true
+{{- end }}
     {{- end }}
 
     {{ if .Values.gatherDockerMetrics -}}
@@ -99,7 +128,7 @@ data:
         io.kubernetes.pod.uid: kubernetes_pod_uid
         io.kubernetes.pod.namespace: kubernetes_namespace
     {{- end }}
-
+{{- end }}
     {{ range .Values.monitors -}}
     - type: {{ .type }}
       {{- with .discoveryRule }}
