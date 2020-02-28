@@ -1,13 +1,23 @@
 ---
+- name: Delete old signing key for SignalFx Agent
+  apt_key:
+    id: 91668001288D1C6D2885D651185894C15AE495F6
+    state: absent
+
+- name: Delete old signing key file for SignalFx Agent
+  file:
+    path: /etc/apt/trusted.gpg.d/signalfx.gpg
+    state: absent
+
 - name: Add an Apt signing key for Signalfx Agent
   apt_key:
-    url: "{{ sfx_repo_base_url }}/debian.gpg"
-    keyring: /etc/apt/trusted.gpg.d/signalfx.gpg
+    url: "{{ sfx_repo_base_url }}/signalfx-agent-deb/splunk-B3CD4420.gpg"
+    keyring: /etc/apt/trusted.gpg.d/splunk.gpg
     state: present
 
 - name: Add Signalfx Agent repository into sources list
   apt_repository:
-    repo: "deb {{ sfx_repo_base_url }}/debs/signalfx-agent/{{ sfx_package_stage }} /"
+    repo: "deb {{ sfx_repo_base_url }}/signalfx-agent-deb {{ sfx_package_stage }} main"
     filename: 'signalfx-agent'
     mode: 644
     state: present

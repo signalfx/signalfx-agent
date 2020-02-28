@@ -4,7 +4,7 @@ FROM ubuntu:14.04
 
 RUN rm -f /etc/apt/sources.list.d/ubuntu-esm-infra-trusty.list && \
     apt update &&\
-    apt install -y ca-certificates procps wget apt-transport-https
+    apt install -y ca-certificates procps wget apt-transport-https curl gnupg
 
 ARG PUPPET_RELEASE=""
 RUN wget https://apt.puppetlabs.com/puppet${PUPPET_RELEASE}-release-trusty.deb && \

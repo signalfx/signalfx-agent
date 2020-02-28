@@ -490,7 +490,7 @@ RUN mkdir /docs &&\
 FROM debian:9 as debian-packager
 
 RUN apt update &&\
-    apt install -y dh-make devscripts dh-systemd apt-utils awscli
+    apt install -y dh-make devscripts dh-systemd apt-utils
 
 ARG agent_version="latest"
 WORKDIR /opt/signalfx-agent_${agent_version}
@@ -503,7 +503,6 @@ COPY packaging/etc/systemd/signalfx-agent.service ./debian/signalfx-agent.servic
 COPY packaging/etc/systemd/signalfx-agent.tmpfile ./debian/signalfx-agent.tmpfile
 COPY packaging/etc/logrotate.d/signalfx-agent.conf ./debian/signalfx-agent.logrotate
 COPY packaging/deb/make-changelog ./make-changelog
-COPY packaging/deb/add-output-to-repo ./add-output-to-repo
 COPY packaging/deb/devscripts.conf /etc/devscripts.conf
 COPY --from=pandoc-converter /docs/signalfx-agent.1 ./signalfx-agent.1
 
@@ -522,7 +521,7 @@ RUN mv /usr/lib/signalfx-agent ./signalfx-agent
 ###### RPM Packager #######
 FROM fedora:27 as rpm-packager
 
-RUN yum install -y rpmdevtools createrepo rpm-sign awscli
+RUN yum install -y rpmdevtools
 
 WORKDIR /root/rpmbuild
 
@@ -530,7 +529,6 @@ COPY packaging/etc/agent.yaml ./SOURCES/agent.yaml
 COPY packaging/etc/init.d/signalfx-agent.rhel ./SOURCES/signalfx-agent.init
 COPY packaging/etc/systemd/ ./SOURCES/systemd/
 COPY packaging/rpm/signalfx-agent.spec ./SPECS/signalfx-agent.spec
-COPY packaging/rpm/add-output-to-repo ./add-output-to-repo
 COPY --from=pandoc-converter /docs/signalfx-agent.1 ./SOURCES/signalfx-agent.1
 
 COPY --from=final-image / /usr/lib/signalfx-agent/

@@ -13,7 +13,7 @@ stage_from_version() {
   elif [[ "$1" =~ -post$ ]]; then
     echo -n "test"
   else
-    echo -n "final"
+    echo -n "release"
   fi
 }
 
@@ -37,6 +37,11 @@ parse_args_and_release() {
   local new_image=
   local image_base=
   local image_digest=
+  local artifactory_username="${ARTIFACTORY_USERNAME:-signalfx-agent}"
+  local artifactory_token="${ARTIFACTORY_TOKEN-}"
+  local chaperone_token="${CHAPERONE_TOKEN-}"
+  local staging_username="${STAGING_USERNAME:-srv-signalfx-agent}"
+  local staging_token="${STAGING_TOKEN-}"
 
   while [ -n "${1-}" ]; do
     case $1 in
@@ -44,8 +49,8 @@ parse_args_and_release() {
         stage="$2"
 
         case $stage in
-          final|beta|test) ;;
-          *) echo "stage must be 'final', 'beta' or 'test'" >&2 && exit 1 ;;
+          release|beta|test) ;;
+          *) echo "stage must be 'release, 'beta' or 'test'" >&2 && exit 1 ;;
         esac
 
         shift 1
@@ -66,6 +71,26 @@ parse_args_and_release() {
         ;;
       --github-token)
         github_token="$2"
+        shift 1
+        ;;
+      --artifactory-user)
+        artifactory_username="$2"
+        shift 1
+        ;;
+      --artifactory-token)
+        artifactory_token="$2"
+        shift 1
+        ;;
+      --chaperone-token)
+        chaperone_token="$2"
+        shift 1
+        ;;
+      --staging-user)
+        staging_username="$2"
+        shift 1
+        ;;
+      --staging-token)
+        staging_token="$2"
         shift 1
         ;;
       --push)
@@ -111,7 +136,7 @@ parse_args_and_release() {
   new_image="$image_base:$new_version"
 
   # fail immediately if releasing to Github and either the username or token is not set
-  if [[ "$push" == "yes" ]] && [[ "$stage" == "final" ]] && [[ "$build_all" == "yes" || "$github_release" == "yes" || "$build_bundle" == "yes" || "$push_windows" == "yes" ]]; then
+  if [[ "$push" == "yes" ]] && [[ "$stage" == "release" ]] && [[ "$build_all" == "yes" || "$github_release" == "yes" || "$build_bundle" == "yes" || "$push_windows" == "yes" ]]; then
     if [[ -z "$github_username" ]]; then
       echo "Github username is required when releasing to Github." >&2
       echo "Set the GITHUB_USERNAME env var or use the '--github-user <username>' option." >&2
@@ -130,13 +155,38 @@ parse_args_and_release() {
       echo "Nothing to do"
       exit 0
     fi
-    if [[ "$stage" != "final" ]]; then
-      echo "Release stage must be 'final' in order to create a Github release." >&2
+    if [[ "$stage" != "release" ]]; then
+      echo "Release stage must be 'release' in order to create a Github release." >&2
       exit 1
     fi
     if ! docker pull $new_image; then
       echo "$new_image must already be built and pushed in order to create a Github release." >&2
       exit 1
+    fi
+  fi
+
+  # fail immediately if releasing packages and the requirements are not met
+  if [[ "$push" == "yes" ]]; then
+    # fail immediately if releasing deb/rpm packages and the artifactory credentials are not set
+    if [[ "$build_all" == "yes" || "$build_deb_package" == "yes" || "$build_rpm_package" == "yes" ]]; then
+      if [[ -z "$artifactory_username" ]]; then
+        echo "Artifactory username is required when releasing the deb/rpm packages." >&2
+        echo "Set the ARTIFACTORY_USERNAME env var or use the '--artifactory-user <username>' option." >&2
+        exit 1
+      fi
+      if [[ -z "$artifactory_token" ]]; then
+        echo "Artifactory token is required when releasing the deb/rpm packages." >&2
+        echo "Set the ARTIFACTORY_TOKEN env var or use the '--artifactory-token <token>' option." >&2
+        exit 1
+      fi
+    fi
+    # fail immediately if releasing to the release/beta stages and the signing/staging credentials are not set
+    if [[ "$stage" != "test" ]] && [[ "$build_all" == "yes" || "$build_deb_package" == "yes" || "$build_rpm_package" == "yes" || "$push_windows" == "yes" ]]; then
+      signing_credentials_are_set "$staging_username" "$staging_token" "$chaperone_token" >&2 || exit 1
+    fi
+    # fail immediately if signing packages and not connected to the splunk network
+    if signing_credentials_are_set "$staging_username" "$staging_token" "$chaperone_token" >/dev/null; then
+      curl -sSf repo.splunk.com >/dev/null || (echo "Signing packages require that you are connected to the splunk network." >&2 && exit 1)
     fi
   fi
 
@@ -153,8 +203,8 @@ parse_args_and_release() {
   read -p "This is a $stage release of version $new_version, please confirm: [y/N] "
   [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Cancelling release" && exit 1
 
-  if [[ "$push_windows" == "yes" ]]; then
-    push_windows_bundle "$new_version" "$stage" "$push" "$github_username" "$github_token"
+  if [[ "$push" == "yes" ]] && [[ "$push_windows" == "yes" ]]; then
+    push_windows_bundle "$new_version" "$stage" "$push" "$github_username" "$github_token" "$staging_username" "$staging_token" "$chaperone_token"
     exit 0
   fi
 
@@ -164,7 +214,7 @@ parse_args_and_release() {
     if [[ "$push" == "yes" ]]; then
       echo "Pushing docker image"
       docker push $new_image
-      if [[ "$stage" == "final" ]]; then
+      if [[ "$stage" == "release" ]]; then
         update_floating_docker_tags "$new_version" "$new_image" "$image_base"
       fi
     fi
@@ -172,23 +222,19 @@ parse_args_and_release() {
 
   if [[ "$build_all" == "yes" ]] || [[ "$build_deb_package" == "yes" ]]; then
     echo "Building and pushing deb package"
-    build_and_push_package "deb" "$stage" "$push"
-    if [[ "$push" == "yes" ]]; then
-      $SCRIPT_DIR/invalidate-cloudfront "/debs/signalfx-agent/$stage/*"
-    fi
+    build_and_push_package "deb" "$stage" "$push" "$artifactory_username" "$artifactory_token" "$chaperone_token" "$staging_username" "$staging_token"
   fi
 
   if [[ "$build_all" == "yes" ]] || [[ "$build_rpm_package" == "yes" ]]; then
     echo "Building and pushing rpm package"
-    build_and_push_package "rpm" "$stage" "$push"
-    $SCRIPT_DIR/invalidate-cloudfront "/rpms/signalfx-agent/$stage/*"
+    build_and_push_package "rpm" "$stage" "$push" "$artifactory_username" "$artifactory_token" "$chaperone_token" "$staging_username" "$staging_token"
   fi
 
   if [[ "$stage" != "test" ]] && [[ "$($SCRIPT_DIR/current-version)" != "$new_version" ]]; then
     create_and_push_tag $new_version
   fi
 
-  if [[ "$stage" == "final" ]] && [[ "$build_all" == "yes" || "$github_release" == "yes" ]]; then
+  if [[ "$stage" == "release" ]] && [[ "$build_all" == "yes" || "$github_release" == "yes" ]]; then
     image_digest=$(get_image_digest $new_image)
     ensure_github_release "v$new_version" "$github_username" "$github_token"
     add_digest_to_release "v$new_version" "$new_image" "$image_digest" "$github_username" "$github_token"
@@ -198,7 +244,7 @@ parse_args_and_release() {
     echo "Making bundle tar.gz"
     make_bundle "$new_version"
 
-    if [[ "$push" == "yes" ]] && [[ "$stage" == "final" ]]; then
+    if [[ "$push" == "yes" ]] && [[ "$stage" == "release" ]]; then
       echo "Pushing bundle to Github"
       push_bundle_to_github "$new_version" "$github_username" "$github_token"
     fi
@@ -206,11 +252,11 @@ parse_args_and_release() {
 
   # Do these updates after everything has been pushed so that nobody ever sees
   # versions in the master branch that haven't been released.
-  if [[ "$stage" == "final" ]] && ([[ "$build_deployments" == "yes" ]] || [[ "$build_all" == "yes" ]]); then
+  if [[ "$stage" == "release" ]] && ([[ "$build_deployments" == "yes" ]] || [[ "$build_all" == "yes" ]]); then
     update_deployment_files "$new_version" "$force"
   fi
 
-  if [[ "$stage" == "final" ]] && ([[ "$build_all" == "yes" ]] || [[ "$build_pypi" == "yes" ]]); then
+  if [[ "$stage" == "release" ]] && ([[ "$build_all" == "yes" ]] || [[ "$build_pypi" == "yes" ]]); then
     echo "Pushing python extensions to PyPi"
     if python_code_has_changed "$new_version"; then
       release_python_to_pypi
@@ -234,13 +280,18 @@ Options:
                                              Note that the version should not include a leading 'v'!
   --component <component>                    <component> can be docker, deb, rpm, bundle, github, or windows
                                              Releases only the selected component if specified, otherwise does everything except windows
-                                             If "github" is selected, the release stage must be "final", and the agent docker image must already be built and pushed
+                                             If "github" is selected, the release stage must be "release", and the agent docker image must already be built and pushed
   --[no-]push                                Whether to push the components to remote sources or not (default, yes)
   --force                                    Ignore checks for uncommited local changes and package repo confirmation
   --allow-uncommitted-files                  Whether to ignore uncommitted files in the current directory
-  --stage test|beta|final                    What kind of release this is.  If not specified, will be inferred from the version
+  --stage test|beta|release                  What kind of release this is.  If not specified, will be inferred from the version
   --github-user <username>                   Github username of a user that has permisssions to manage releases
   --github-token <token>                     Github API token for the given user
+  --artifactory-user <username>              Artifactory username (https://splunk.jfrog.io)
+  --artifactory-token <token>                Artifactory token (https://splunk.jfrog.io)
+  --chaperone-token <token>                  Chaperone token (https://chaperone.re.splunkdev.com)
+  --staging-user <username>                  Staging username (https://repo.splunk.com)
+  --staging-token <token>                    Staging token (https://repo.splunk.com)
 
 EOH
 }
@@ -302,7 +353,7 @@ ensure_github_release() {
 
 docker_repo_from_stage() {
   local stage=$1
-  if [[ "$stage" != "final" && "$stage" != "beta" ]]; then
+  if [[ "$stage" != "release" && "$stage" != "beta" ]]; then
     echo -n "quay.io/signalfx/signalfx-agent-dev"
   else
     echo -n "quay.io/signalfx/signalfx-agent"
@@ -333,8 +384,19 @@ build_and_push_package() {
   local package_type=$1
   local stage=$2
   local push=$3
+  local artifactory_username=$4
+  local artifactory_token=$5
+  local chaperone_token=$6
+  local staging_username=$7
+  local staging_token=$8
 
-  PUSH_TO_REPO=$push make ${package_type}-$stage-package
+  PUSH_TO_REPO=$push \
+  ARTIFACTORY_USERNAME=$artifactory_username \
+  ARTIFACTORY_TOKEN=$artifactory_token \
+  CHAPERONE_TOKEN=$chaperone_token \
+  STAGING_USERNAME=$staging_username \
+  STAGING_TOKEN=$staging_token \
+    make ${package_type}-$stage-package
 }
 
 make_bundle() {
@@ -369,11 +431,15 @@ push_windows_bundle() {
   local new_version="$1"
   local stage="$2"
   local push="$3"
-  local username="$4"
-  local token="$5"
+  local github_username="$4"
+  local github_token="$5"
+  local staging_username="$6"
+  local staging_token="$7"
+  local chaperone_token="$8"
   local src_dir="$SCRIPT_DIR/../build"
   local dest_dir="s3://public-downloads--signalfuse-com/windows/$stage/zip"
   local bundle_path="$src_dir/SignalFxAgent-${new_version}-win64.zip"
+  local signed_bundle_path="$src_dir/signed/SignalFxAgent-${new_version}-win64.zip"
   local tag="v$new_version"
 
   if [[ ! -f "$bundle_path" ]]; then
@@ -385,22 +451,29 @@ push_windows_bundle() {
   # ensure that latest.txt is created and has the same version of the bundle
   echo -n "$new_version" > "$src_dir/latest.txt"
 
+  if signing_credentials_are_set "$staging_username" "$staging_token" "$chaperone_token" >/dev/null; then
+    $SCRIPT_DIR/signing/sign_win_agent.py "$bundle_path" \
+      --chaperone-token=$chaperone_token --staging-user=$staging_username --staging-token=$staging_token
+    bundle_path=$signed_bundle_path
+  fi
+
   if [[ "$push" == "yes" ]]; then
-    if [[ "$stage" == "final" ]]; then
+    if [[ "$stage" == "release" ]]; then
       . $SCRIPT_DIR/github-releases.sh
-      if ! get_github_release "$tag" "$username" "$token"; then
+      if ! get_github_release "$tag" "$github_username" "$github_token"; then
         echo "Github release $tag not found!"
         echo "You must release the other components before releasing the Windows bundle."
         exit 1
       fi
-      upload_asset_to_release "$tag" "$bundle_path" "application/zip" "$username" "$token"
+
+      upload_asset_to_release "$tag" "$bundle_path" "application/zip" "$github_username" "$github_token"
     fi
-    if aws s3 ls "$dest_dir/SignalFxAgent-${new_version}-win64.zip"; then
+    if aws --profile prod s3 ls "$dest_dir/SignalFxAgent-${new_version}-win64.zip"; then
       read -p "SignalFxAgent-${new_version}-win64.zip already exists in $dest_dir. Overwrite? [y/N] "
       [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Not pushing windows bundle" >&2 && return 1
     fi
-    aws s3 cp "$bundle_path" "$dest_dir/SignalFxAgent-${new_version}-win64.zip"
-    aws s3 cp "$src_dir/latest.txt" "${dest_dir}/latest/latest.txt"
+    aws --profile prod s3 cp "$bundle_path" "$dest_dir/SignalFxAgent-${new_version}-win64.zip"
+    aws --profile prod s3 cp "$src_dir/latest.txt" "${dest_dir}/latest/latest.txt"
     $SCRIPT_DIR/invalidate-cloudfront "/windows/$stage/zip/*"
   else
     echo "Nothing to do"
@@ -492,6 +565,30 @@ add_digest_to_release() {
 EOH
 
   github_request "$username" "$token" "PATCH" "releases/$release_id" $tmpfile
+}
+
+signing_credentials_are_set() {
+    local staging_username=$1
+    local staging_token=$2
+    local chaperone_token=$3
+
+    if [[ -z "$staging_username" ]]; then
+      echo "Staging username is required to sign packages."
+      echo "Set the STAGING_USERNAME env var or use the '--staging-user <username>' option."
+      return 1
+    fi
+
+    if [[ -z "$staging_token" ]]; then
+      echo "Staging token is required to sign packages."
+      echo "Set the STAGING_TOKEN env var or use the '--staging-token <token>' option."
+      return 1
+    fi
+
+    if [[ -z "$chaperone_token" ]]; then
+      echo "Chaperone token is required to sign packages."
+      echo "Set the CHAPERONE_TOKEN env var or use the '--chaperone-token <token>' option."
+      return 1
+    fi
 }
 
 parse_args_and_release $@

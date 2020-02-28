@@ -28,7 +28,7 @@ of the form `<agent version>-<package revision>` (e.g. package version
 the packaging scripts (e.g. init scripts) but contain the same agent bundle.
 
 `signalfx-agent.package_stage`: The package repository to use.  Can
-be `main` (default, for final releases), `beta` (for beta releases), or `test`
+be `release` (default, for final releases), `beta` (for beta releases), or `test`
 (for unsigned test releases).
 
 `signalfx-agent.conf`: Agent configuration object.  Everything
