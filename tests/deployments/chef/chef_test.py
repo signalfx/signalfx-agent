@@ -78,7 +78,7 @@ CHEF_VERSIONS = os.environ.get("CHEF_VERSIONS", "12.22.5,latest").split(",")
 
 STAGE = os.environ.get("STAGE", "release")
 INITIAL_VERSION = os.environ.get("INITIAL_VERSION", "4.7.7")
-UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "4.7.8")
+UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "5.0.0")
 
 WIN_CHEF_BIN_DIR = r"C:\opscode\chef\bin"
 WIN_CHEF_COOKBOOKS_DIR = r"C:\chef\cookbooks"

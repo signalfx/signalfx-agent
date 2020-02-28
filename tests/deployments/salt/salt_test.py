@@ -50,7 +50,7 @@ PILLAR_PATH = "/srv/pillar/signalfx-agent.sls"
 SALT_CMD = "salt-call --local state.apply"
 STAGE = os.environ.get("STAGE", "release")
 INITIAL_VERSION = os.environ.get("INITIAL_VERSION", "4.7.5")
-UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "4.7.6")
+UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "5.0.0")
 
 
 def get_config(backend, agent_version, monitors, stage):

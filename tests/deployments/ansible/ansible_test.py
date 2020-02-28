@@ -57,7 +57,7 @@ ANSIBLE_CMD = f"ansible-playbook -vvvv -i {INVENTORY_DEST_PATH} -e @{CONFIG_DEST
 ANSIBLE_VERSIONS = os.environ.get("ANSIBLE_VERSIONS", "2.5.0,latest").split(",")
 STAGE = os.environ.get("STAGE", "release")
 INITIAL_VERSION = os.environ.get("INITIAL_VERSION", "4.14.0")
-UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "4.15.0")
+UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "5.0.0")
 
 
 def get_config(backend, monitors, agent_version, stage):
