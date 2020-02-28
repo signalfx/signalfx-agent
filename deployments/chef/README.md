@@ -30,7 +30,7 @@ to `<agent_version>-1` based on the `node['signalfx_agent']['agent_version']`
 attribute above.  For Windows, it is equivalent to the agent version attribute. 
 
 `node['signalfx_agent']['package_stage']`: The package repository to use.  Can
-be `final` (default, for main releases), `beta` (for beta releases), or `test`
+be `release` (default, for main releases), `beta` (for beta releases), or `test`
 (for unsigned test releases).
 
 **Note:** SLES and openSUSE are only supported with cookbook versions 0.3.0 and newer,

@@ -1,6 +1,6 @@
 [signalfx-agent]
 name=SignalFx Agent Repository
-baseurl=https://dl.signalfx.com/rpms/signalfx-agent/final
+baseurl=https://splunk.jfrog.io/splunk/signalfx-agent-rpm/release
 gpgcheck=1
-gpgkey=https://dl.signalfx.com/yum-rpm.key
+gpgkey=https://splunk.jfrog.io/splunk/signalfx-agent-rpm/splunk-B3CD4420.pub
 enabled=1

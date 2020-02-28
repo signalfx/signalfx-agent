@@ -12,8 +12,10 @@ from tests.helpers.util import print_lines, wait_for, copy_file_into_container
 from tests.packaging.common import (
     INIT_SYSTEMD,
     INIT_UPSTART,
+    assert_old_key_removed,
     get_agent_logs,
     get_agent_version,
+    import_old_key,
     is_agent_running_as_non_root,
     run_init_system_image,
 )
@@ -52,16 +54,16 @@ CONFIG_DEST_PATH = os.path.join(PLAYBOOK_DEST_DIR, "config.yml")
 PLAYBOOK_DEST_PATH = os.path.join(PLAYBOOK_DEST_DIR, "playbook.yml")
 ANSIBLE_CMD = f"ansible-playbook -vvvv -i {INVENTORY_DEST_PATH} -e @{CONFIG_DEST_PATH} {PLAYBOOK_DEST_PATH}"
 
-ANSIBLE_VERSIONS = os.environ.get("ANSIBLE_VERSIONS", "2.4.0,latest").split(",")
-STAGE = os.environ.get("STAGE", "final")
-INITIAL_VERSION = os.environ.get("INITIAL_VERSION", "4.14.0-1")
-UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "4.15.0-1")
+ANSIBLE_VERSIONS = os.environ.get("ANSIBLE_VERSIONS", "2.5.0,latest").split(",")
+STAGE = os.environ.get("STAGE", "release")
+INITIAL_VERSION = os.environ.get("INITIAL_VERSION", "4.14.0")
+UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "4.15.0")
 
 
 def get_config(backend, monitors, agent_version, stage):
     config_yaml = yaml.safe_load(CONFIG)
     config_yaml["sfx_package_stage"] = stage
-    config_yaml["sfx_version"] = agent_version
+    config_yaml["sfx_version"] = agent_version + "-1"
     config_yaml["sfx_agent_config"]["ingestUrl"] = backend.ingest_url
     config_yaml["sfx_agent_config"]["apiUrl"] = backend.api_url
     config_yaml["sfx_agent_config"]["monitors"] = monitors
@@ -94,6 +96,10 @@ def run_ansible(cont, backend, monitors, agent_version, stage):
 )
 @pytest.mark.parametrize("ansible_version", ANSIBLE_VERSIONS)
 def test_ansible(base_image, init_system, ansible_version):
+    if (base_image, init_system) in DEB_DISTROS:
+        distro_type = "deb"
+    else:
+        distro_type = "rpm"
     if base_image == "centos8" and ansible_version != "latest" and tuple(ansible_version.split(".")) < ("2", "8", "1"):
         pytest.skip(f"ansible {ansible_version} not supported on {base_image}")
     buildargs = {"ANSIBLE_VERSION": ""}
@@ -106,12 +112,15 @@ def test_ansible(base_image, init_system, ansible_version):
         "with_socat": False,
     }
     with run_init_system_image(base_image, **opts) as [cont, backend]:
+        import_old_key(cont, distro_type)
         try:
             monitors = [{"type": "host-metadata"}]
             run_ansible(cont, backend, monitors, INITIAL_VERSION, STAGE)
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
+
+            assert_old_key_removed(cont, distro_type)
 
             if UPGRADE_VERSION:
                 # upgrade agent

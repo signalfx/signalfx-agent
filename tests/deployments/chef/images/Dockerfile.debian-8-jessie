@@ -3,7 +3,7 @@ FROM debian:jessie-slim
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN apt-get update &&\
-    apt-get install -yq ca-certificates procps wget apt-transport-https init-system-helpers curl
+    apt-get install -yq ca-certificates procps wget apt-transport-https init-system-helpers curl gnupg
 
 WORKDIR /opt/cookbooks
 RUN curl -Lo windows.tar.gz https://supermarket.chef.io/cookbooks/windows/versions/4.3.4/download && \
