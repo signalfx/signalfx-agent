@@ -3,7 +3,7 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: signalfx-agent
+  name: signalfx-agent-v5
   labels:
     app: signalfx-agent
 data:
@@ -14,6 +14,8 @@ data:
 
     etcPath: /hostfs/etc
     procPath: /hostfs/proc
+
+    enableBuiltInFiltering: true
 
     intervalSeconds: 10
 
@@ -66,69 +68,6 @@ data:
         io.kubernetes.pod.name: kubernetes_pod_name
         io.kubernetes.pod.uid: kubernetes_pod_uid
         io.kubernetes.pod.namespace: kubernetes_namespace
-
-    - type: collectd/activemq
-      discoveryRule: container_image =~ "activemq" && private_port == 1099
-
-    - type: collectd/apache
-      discoveryRule: container_image =~ "apache" && private_port == 80
-
-    - type: collectd/cassandra
-      discoveryRule: container_image =~ "cassandra" && private_port == 7199
-
-    - type: collectd/consul
-      discoveryRule: container_image =~ "consul" && private_port == 8500
-
-    - type: elasticsearch
-      discoveryRule: container_image =~ "elasticsearch" && port == 9200
-
-    - type: collectd/etcd
-      discoveryRule: container_image =~ "etcd" && port == 2379
-      clusterName: my-cluster
-
-    - type: haproxy
-      discoveryRule: container_image =~ "haproxy" && port == 9000
-
-    - type: collectd/kafka
-      discoveryRule: container_image =~ "kafka" && private_port == 9092
-
-    - type: collectd/memcached
-      discoveryRule: container_image =~ "memcache" && private_port == 11211
-
-    - type: collectd/mongodb
-      discoveryRule: container_image =~ "mongo" && private_port == 27017
-      databases:
-      - mydatabase
-
-    - type: collectd/mysql
-      discoveryRule: container_image =~ "mysql" && private_port == 3306
-      databases:
-      - name: mydb
-      username: admin
-
-    - type: collectd/nginx
-      discoveryRule: container_image =~ "nginx" && private_port == 80
-
-    - type: collectd/rabbitmq
-      discoveryRule: container_image =~ "rabbitmq" && private_port == 15672
-
-    - type: collectd/redis
-      discoveryRule: container_image =~ "redis" && private_port == 6379
-
-    - type: collectd/spark
-      discoveryRule: container_image =~ "spark" && private_port == 8080
-      clusterType: Standalone
-      collectApplicationMetrics: true
-      isMaster: true
-
-    - type: collectd/spark
-      discoveryRule: container_image =~ "spark" && private_port >= 8081
-      clusterType: Standalone
-      isMaster: false
-
-    - type: collectd/zookeeper
-      discoveryRule: container_image =~ "zookeeper" && private_port == 2181
-
 
 
     collectd:
