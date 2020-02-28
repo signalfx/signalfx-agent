@@ -16,8 +16,8 @@ REPO_STAGE=${1:-test}
 cpu_arch="$(uname -m)"
 
 case $REPO_STAGE in
-  final|beta|test) ;;
-  *) echo "REPO_STAGE must be 'final', 'beta' or 'test'" >&2 && exit 1 ;;
+  release|beta|test) ;;
+  *) echo "REPO_STAGE must be 'release', 'beta' or 'test'" >&2 && exit 1 ;;
 esac
 
 current_commit_tag=$(git describe --abbrev=0 --tags --exact-match --match 'v*-rpm[0-9]' 2>/dev/null || true)
@@ -35,7 +35,6 @@ fi
 # RPM really dislikes dashes in version names, so replace them with tilde if
 # any (e.g. in beta releases).
 clean_agent_version=$(echo "$agent_version" | sed -e 's/-/~/g')
-GPG_DIR=${GPG_DIR:-"$HOME/.gnupg"}
 
 image_name=signalfx-agent-rpm-packager
 image_tag=${agent_version}-rpm${rpm_revision}
@@ -66,24 +65,13 @@ create_rpm() {
   echo "SignalFx Agent ${agent_version}-${rpm_revision} build successfully.  Output is in ${OUTPUT_DIR}."
 }
 
-push_to_repo() {
-  docker run --rm \
-    -v $HOME/.gnupg:/root/.gnupg \
-    -v $HOME/.aws:/root/.aws \
-    -v ${OUTPUT_DIR}:/output \
-    -v /opt/signalfx-agent-rpm-cache:/repo \
-    -it \
-    $image_name:$image_tag \
-    bash -e -c "./add-output-to-repo $REPO_STAGE"
-}
-
 if [[ ${BUILD_RPM-yes} == "yes" ]]; then
   create_rpm
 fi
 
 if [[ "${PUSH_TO_REPO-}" == "yes" ]]; then
-  if [[ ! "$agent_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ "$REPO_STAGE" = "final" ]]; then
-    echo "Only final releases should go to the final package repo" >&2
+  if [[ ! "$agent_version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] && [[ "$REPO_STAGE" = "release" ]]; then
+    echo "Only final releases should go to the release package repo" >&2
     exit 2
   fi
 
@@ -92,5 +80,8 @@ if [[ "${PUSH_TO_REPO-}" == "yes" ]]; then
     exit 3
   fi
 
-  push_to_repo
+  ${SCRIPT_DIR}/../../scripts/signing/add_output_to_repo.py $OUTPUT_DIR "rpm" $REPO_STAGE \
+    --artifactory-user=$ARTIFACTORY_USERNAME --artifactory-token=$ARTIFACTORY_TOKEN \
+    --staging-user=$STAGING_USERNAME --staging-token=$STAGING_TOKEN \
+    --chaperone-token=$CHAPERONE_TOKEN
 fi

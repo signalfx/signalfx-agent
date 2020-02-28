@@ -1,7 +1,7 @@
 FROM debian:jessie-slim
 
 RUN apt-get update &&\
-    apt-get install -yq ca-certificates procps wget apt-transport-https init-system-helpers
+    apt-get install -yq ca-certificates procps wget apt-transport-https init-system-helpers curl gnupg
 
 ARG PUPPET_RELEASE=""
 RUN wget https://apt.puppetlabs.com/puppet${PUPPET_RELEASE}-release-jessie.deb && \

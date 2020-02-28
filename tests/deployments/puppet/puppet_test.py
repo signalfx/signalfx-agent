@@ -17,10 +17,12 @@ from tests.packaging.common import (
     INIT_SYSTEMD,
     INIT_UPSTART,
     WIN_REPO_ROOT_DIR,
+    assert_old_key_removed,
     get_agent_logs,
     get_agent_version,
     get_win_agent_version,
     has_choco,
+    import_old_key,
     is_agent_running_as_non_root,
     run_init_system_image,
     run_win_command,
@@ -68,9 +70,9 @@ HIERA_DEST_PATH = os.path.join(PUPPET_MODULE_DEST_DIR, "data", "default.yaml")
 LINUX_PUPPET_RELEASES = os.environ.get("PUPPET_RELEASES", "5,latest").split(",")
 WIN_PUPPET_VERSIONS = os.environ.get("PUPPET_VERSIONS", "5.0.0,latest").split(",")
 
-STAGE = "final"
-INITIAL_VERSION = "4.7.5"
-UPGRADE_VERSION = "4.7.6"
+STAGE = os.environ.get("STAGE", "release")
+INITIAL_VERSION = os.environ.get("INITIAL_VERSION", "4.7.5")
+UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "4.7.6")
 
 WIN_PUPPET_BIN_DIR = r"C:\Program Files\Puppet Labs\Puppet\bin"
 WIN_PUPPET_MODULE_SRC_DIR = os.path.join(WIN_REPO_ROOT_DIR, "deployments", "puppet")
@@ -127,6 +129,10 @@ def run_puppet_agent(cont, backend, monitors, agent_version, stage):
 )
 @pytest.mark.parametrize("puppet_release", LINUX_PUPPET_RELEASES)
 def test_puppet(base_image, init_system, puppet_release):
+    if (base_image, init_system) in DEB_DISTROS:
+        distro_type = "deb"
+    else:
+        distro_type = "rpm"
     buildargs = {"PUPPET_RELEASE": ""}
     if puppet_release != "latest":
         buildargs = {"PUPPET_RELEASE": puppet_release}
@@ -137,6 +143,7 @@ def test_puppet(base_image, init_system, puppet_release):
         "with_socat": False,
     }
     with run_init_system_image(base_image, **opts) as [cont, backend]:
+        import_old_key(cont, distro_type)
         if (base_image, init_system) in DEB_DISTROS:
             code, output = cont.exec_run(f"puppet module install puppetlabs-apt --version {APT_MODULE_VERSION}")
             assert code == 0, output.decode("utf-8")
@@ -148,19 +155,22 @@ def test_puppet(base_image, init_system, puppet_release):
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
-            # upgrade agent
-            run_puppet_agent(cont, backend, monitors, UPGRADE_VERSION, STAGE)
-            backend.reset_datapoints()
-            assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
-            ), "Datapoints didn't come through"
+            assert_old_key_removed(cont, distro_type)
 
-            # downgrade agent
-            run_puppet_agent(cont, backend, monitors, INITIAL_VERSION, STAGE)
-            backend.reset_datapoints()
-            assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
-            ), "Datapoints didn't come through"
+            if UPGRADE_VERSION:
+                # upgrade agent
+                run_puppet_agent(cont, backend, monitors, UPGRADE_VERSION, STAGE)
+                backend.reset_datapoints()
+                assert wait_for(
+                    p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
+                ), "Datapoints didn't come through"
+
+                # downgrade agent
+                run_puppet_agent(cont, backend, monitors, INITIAL_VERSION, STAGE)
+                backend.reset_datapoints()
+                assert wait_for(
+                    p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
+                ), "Datapoints didn't come through"
 
             # change agent config
             monitors = [{"type": "internal-metrics"}]
@@ -223,19 +233,20 @@ def test_puppet_on_windows(puppet_version):
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
-            # upgrade agent
-            run_win_puppet_agent(backend, monitors, UPGRADE_VERSION, STAGE)
-            backend.reset_datapoints()
-            assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
-            ), "Datapoints didn't come through"
+            if UPGRADE_VERSION:
+                # upgrade agent
+                run_win_puppet_agent(backend, monitors, UPGRADE_VERSION, STAGE)
+                backend.reset_datapoints()
+                assert wait_for(
+                    p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
+                ), "Datapoints didn't come through"
 
-            # downgrade agent
-            run_win_puppet_agent(backend, monitors, INITIAL_VERSION, STAGE)
-            backend.reset_datapoints()
-            assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
-            ), "Datapoints didn't come through"
+                # downgrade agent
+                run_win_puppet_agent(backend, monitors, INITIAL_VERSION, STAGE)
+                backend.reset_datapoints()
+                assert wait_for(
+                    p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
+                ), "Datapoints didn't come through"
 
             # change agent config
             monitors = [{"type": "internal-metrics"}]

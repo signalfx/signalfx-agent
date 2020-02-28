@@ -12,17 +12,19 @@ from pathlib import Path
 import pytest
 
 from tests.helpers.agent import ensure_fake_backend
-from tests.helpers.assertions import has_datapoint_with_dim
+from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name
 from tests.helpers.formatting import print_dp_or_event
 from tests.helpers.util import print_lines, wait_for
 from tests.packaging.common import (
     INIT_SYSTEMD,
     INIT_UPSTART,
     WIN_REPO_ROOT_DIR,
+    assert_old_key_removed,
     get_agent_logs,
     get_agent_version,
     get_win_agent_version,
     has_choco,
+    import_old_key,
     is_agent_running_as_non_root,
     run_init_system_image,
     run_win_command,
@@ -35,7 +37,7 @@ pytestmark = [pytest.mark.chef, pytest.mark.deployment]
 
 ATTRIBUTES_JSON = """
 {"signalfx_agent": {
-  "package_stage": "final",
+  "package_stage": "release",
   "agent_version": null,
   "conf": {
     "signalFxAccessToken": "testing",
@@ -74,7 +76,7 @@ RPM_DISTROS = [
 # allow CHEF_VERSIONS env var with comma-separated chef versions for test parameterization
 CHEF_VERSIONS = os.environ.get("CHEF_VERSIONS", "12.22.5,latest").split(",")
 
-STAGE = os.environ.get("STAGE", "final")
+STAGE = os.environ.get("STAGE", "release")
 INITIAL_VERSION = os.environ.get("INITIAL_VERSION", "4.7.7")
 UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "4.7.8")
 
@@ -88,10 +90,11 @@ WIN_GEM_BIN_DIR = r"C:\opscode\chef\embedded\bin"
 RUBYZIP_VERSION = "1.3.0"
 
 
-def run_chef_client(cont, chef_version, agent_version, stage):
+def run_chef_client(cont, chef_version, agent_version, stage, monitors):
     attributes = json.loads(ATTRIBUTES_JSON)
     attributes["signalfx_agent"]["agent_version"] = agent_version
     attributes["signalfx_agent"]["package_stage"] = stage
+    attributes["signalfx_agent"]["conf"]["monitors"] = monitors
     print(attributes)
     with tempfile.NamedTemporaryFile(mode="w", dir="/tmp/scratch") as fd:
         fd.write(json.dumps(attributes))
@@ -119,6 +122,10 @@ def run_chef_client(cont, chef_version, agent_version, stage):
 )
 @pytest.mark.parametrize("chef_version", CHEF_VERSIONS)
 def test_chef(base_image, init_system, chef_version):
+    if (base_image, init_system) in DEB_DISTROS:
+        distro_type = "deb"
+    else:
+        distro_type = "rpm"
     if base_image == "centos8" and chef_version != "latest" and int(chef_version.split(".")[0]) < 15:
         pytest.skip(f"chef {chef_version} not supported on centos 8")
     buildargs = {"CHEF_INSTALLER_ARGS": ""}
@@ -126,37 +133,54 @@ def test_chef(base_image, init_system, chef_version):
         buildargs["CHEF_INSTALLER_ARGS"] = f"-v {chef_version}"
     opts = {"path": REPO_ROOT_DIR, "dockerfile": DOCKERFILES_DIR / f"Dockerfile.{base_image}", "buildargs": buildargs}
     with run_init_system_image(base_image, **opts) as [cont, backend]:
+        import_old_key(cont, distro_type)
         try:
-            run_chef_client(cont, chef_version, INITIAL_VERSION, STAGE)
+            agent_version = INITIAL_VERSION
+            monitors = [{"type": "host-metadata"}]
+            run_chef_client(cont, chef_version, agent_version, STAGE, monitors)
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
-            # upgrade agent
-            run_chef_client(cont, chef_version, UPGRADE_VERSION, STAGE)
-            backend.reset_datapoints()
-            assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
-            ), "Datapoints didn't come through"
+            assert_old_key_removed(cont, distro_type)
 
-            # downgrade agent for distros that support package downgrades
-            if base_image not in ("debian-7-wheezy", "debian-8-jessie", "ubuntu1404"):
-                run_chef_client(cont, chef_version, INITIAL_VERSION, STAGE)
+            if UPGRADE_VERSION:
+                # upgrade agent
+                agent_version = UPGRADE_VERSION
+                run_chef_client(cont, chef_version, agent_version, STAGE, monitors)
                 backend.reset_datapoints()
                 assert wait_for(
                     p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
                 ), "Datapoints didn't come through"
+
+                # downgrade agent for distros that support package downgrades
+                if base_image not in ("debian-7-wheezy", "debian-8-jessie", "ubuntu1404"):
+                    agent_version = INITIAL_VERSION
+                    run_chef_client(cont, chef_version, agent_version, STAGE, monitors)
+                    backend.reset_datapoints()
+                    assert wait_for(
+                        p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
+                    ), "Datapoints didn't come through"
+
+            # change agent config
+            monitors = [{"type": "internal-metrics"}]
+            run_chef_client(cont, chef_version, agent_version, STAGE, monitors)
+            backend.reset_datapoints()
+            assert wait_for(
+                p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
+            ), "Didn't get internal metric datapoints"
         finally:
             print("Agent log:")
             print_lines(get_agent_logs(cont, init_system))
 
 
-def run_win_chef_client(backend, agent_version, stage, chef_version):
+def run_win_chef_client(backend, agent_version, stage, chef_version, monitors):
     attributes = json.loads(ATTRIBUTES_JSON)
     attributes["signalfx_agent"]["agent_version"] = agent_version
     attributes["signalfx_agent"]["package_stage"] = stage
     attributes["signalfx_agent"]["conf"]["ingestUrl"] = backend.ingest_url
     attributes["signalfx_agent"]["conf"]["apiUrl"] = backend.api_url
+    attributes["signalfx_agent"]["conf"]["monitors"] = monitors
     if running_in_azure_pipelines():
         attributes["signalfx_agent"]["user"] = os.environ.get("USERNAME")
         attributes["signalfx_agent"]["group"] = os.environ.get("USERNAME")
@@ -215,24 +239,34 @@ def test_chef_on_windows(chef_version):
     run_win_chef_setup(chef_version)
     with ensure_fake_backend() as backend:
         try:
-            run_win_chef_client(backend, INITIAL_VERSION, STAGE, chef_version)
+            monitors = [{"type": "host-metadata"}]
+            run_win_chef_client(backend, INITIAL_VERSION, STAGE, chef_version, monitors)
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
 
-            # upgrade agent
-            run_win_chef_client(backend, UPGRADE_VERSION, STAGE, chef_version)
-            backend.reset_datapoints()
-            assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
-            ), "Datapoints didn't come through"
+            if UPGRADE_VERSION:
+                # upgrade agent
+                run_win_chef_client(backend, UPGRADE_VERSION, STAGE, chef_version, monitors)
+                backend.reset_datapoints()
+                assert wait_for(
+                    p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
+                ), "Datapoints didn't come through"
 
-            # downgrade agent
-            run_win_chef_client(backend, INITIAL_VERSION, STAGE, chef_version)
+                # downgrade agent
+                run_win_chef_client(backend, INITIAL_VERSION, STAGE, chef_version, monitors)
+                backend.reset_datapoints()
+                assert wait_for(
+                    p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
+                ), "Datapoints didn't come through"
+
+            # change agent config
+            monitors = [{"type": "internal-metrics"}]
+            run_win_chef_client(backend, INITIAL_VERSION, STAGE, chef_version, monitors)
             backend.reset_datapoints()
             assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
-            ), "Datapoints didn't come through"
+                p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
+            ), "Didn't get internal metric datapoints"
         finally:
             print("\nDatapoints received:")
             for dp in backend.datapoints:

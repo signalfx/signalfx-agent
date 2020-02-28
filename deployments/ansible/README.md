@@ -57,10 +57,10 @@ This role sources the following variables:
    '/etc/signalfx/agent.yaml')
 
  - `sfx_repo_base_url`: The url provided to yum/apt for obtaining the SignalFx Smart Agent
-   (**default:** 'https://dl.signalfx.com')
+   (**default:** `https://splunk.jfrog.io/splunk`)
 
- - `sfx_package_stage`: The package repo stage to use: `final`, `beta`, or `test`
-   (**default:** 'final')
+ - `sfx_package_stage`: The package repo stage to use: `release`, `beta`, or `test`
+   (**default:** 'release')
 
  - `sfx_version`: The agent package version.  This is of the form `<agent
    version>-<package revision>` (e.g. package version `3.0.1-1` is the first

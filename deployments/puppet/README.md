@@ -43,8 +43,8 @@ class accepts the following parameters:
     either the `signalFxRealm` or the endpoint URL options will need to be explicitly
     specified if using a realm other than `us0`.
 
- - `$package_stage`: The package repo stage to use: `final`, `beta`, or `test`
-   (**default:** 'final')
+ - `$package_stage`: The package repo stage to use: `release`, `beta`, or `test`
+   (**default:** 'release')
 
  - `$config_file_path`: The path of the config file that will be rendered by the
    module (**default:** '/etc/signalfx/agent.yaml')

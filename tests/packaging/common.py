@@ -248,5 +248,29 @@ def uninstall_win_agent():
     run_win_command(f'powershell.exe "{WIN_UNINSTALLER_PATH}"')
 
 
-def get_latest_win_agent_version(stage="final"):
+def get_latest_win_agent_version(stage="release"):
     return requests.get(WIN_AGENT_LATEST_URL.format(stage=stage)).text.strip()
+
+
+def import_old_key(cont, distro_type):
+    if distro_type == "deb":
+        cmd = (
+            "bash -ec 'curl -o /etc/apt/trusted.gpg.d/signalfx.gpg https://dl.signalfx.com/debian.gpg && "
+            "sleep 2 &&"
+            "apt-key add /etc/apt/trusted.gpg.d/signalfx.gpg'"
+        )
+    else:
+        cmd = "rpm --import https://dl.signalfx.com/yum-rpm.key"
+    code, output = cont.exec_run(cmd, tty=True)
+    assert code == 0, output.decode("utf-8")
+
+
+def assert_old_key_removed(cont, distro_type):
+    if distro_type == "deb":
+        code, output = cont.exec_run("apt-key list")
+        assert "5ae495f6" not in output.decode("utf-8").lower(), "old key still exists!"
+        code, output = cont.exec_run("test -f /etc/apt/trusted.gpg.d/signalfx.gpg")
+        assert code != 0, "old key file still exists!"
+    else:
+        code, output = cont.exec_run("rpm -q gpg-pubkey-098acf3b-55a5351a")
+        assert code != 0, "old key still exists!"

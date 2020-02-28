@@ -15,18 +15,12 @@ point but for now the process is manual.
    This is genrally done by adding a section with the header `[prod]` in the
    file `~/.aws/credentials`.
 
-1. If using Mac, create the directories `/opt/signalfx-agent-deb-cache` and
-   `/opt/signalfx-agent-rpm-cache` on your Mac filesystem.  Then add those
-   directories to the allowed list in Docker Preferences -> File Sharing, and
-   then click "Apply & Restart" to enable this config in Docker for Mac.
-
 1. Ensure you are authorized to push images to the Quay.io Docker repository
    `quay.io/signalfx/signalfx-agent`.
 
-1. Import the GPG keys for Debian and RPM package signing.  These are two
-   separate keys that you will have to obtain securely from somebody else on
-   the project who has them.  Once you have them, you can import them with
-   `gpg2 --import <keyfile>`.
+1. Ensure you are on the Splunk network and have access to the required
+   credentials for artifactory and signing (check with an Integrations team
+   member for details).
 
 1. Create a Github access token by going to [Personal Access tokens](
    https://github.com/settings/tokens) on Github.  Create a new token that can
@@ -113,10 +107,11 @@ point but for now the process is manual.
 1. Run the release script:
 
    ```sh
-   $ scripts/release --github-user <github username> --github-token <github token>
+   $ scripts/release --github-user <github username> --github-token <github token> --artifactory-token <splunk.jfrog.io token> --chaperone-token <chaperone token> --staging-token <repo.splunk.com token>
    ```
 
-   Using the Github token created earlier in the Setup section.
+   Using the service account tokens and your personal Github token created
+   earlier in the Setup section.
 
    This will run for several minutes.  If there is an error, it will output on
    the command line.  Otherwise, the output should say "Successfully released
@@ -155,15 +150,18 @@ point but for now the process is manual.
 
 ## Setup
 
-1. You must have access to the `SFX_Windows.pfx` code signing certificate and password.
+1. You must be on the Splunk network and have access to the required credentials
+   for signing (check with an Integrations team member for details).
+
+1. You must have a Github access token to publish the agent bundle to Github Releases.
 
 1. You must have your AWS CLI set up on your local workstation and have access to our
    S3 bucket.
 
-1. Build, provision, and start the Windows Server 2008 vagrant box. See the "Windows"
-   section in [development.md](docs/development.md) for details.
-
-1. Copy `SFX_Windows.pfx` to some folder in the virtual machine.
+1. You must have access to a Windows machine that is provisioned with the required
+   build tools.  Alternatively, you can build, provision, and start the Windows
+   Server 2016 vagrant box. See the "Windows" section in
+   [development.md](docs/development.md) for details.
 
 ## Release Process
 
@@ -171,23 +169,24 @@ point but for now the process is manual.
 
    ```
    $ cd c:\users\vagrant\signalfx-agent
-   $ scripts/windows/make.ps1 bundle -AGENT_VERSION "<X.Y.Z>" -PFX_PATH "<PFX_PATH>" -PFX_PASSWORD "<PFX_PASSWORD>"
+   $ scripts/windows/make.ps1 bundle -AGENT_VERSION "<X.Y.Z>"
    ```
 
-   Where `<X.Y.Z>` is the release version, `<PFX_PATH>` is the path to `SFX_Windows.pfx`
-   in the virtual machine, and `<PFX_PASSWORD>` is the password for `SFX_Windows.pfx`.
+   Where `<X.Y.Z>` is the release version.
 
 1. If the build is successful, verify that
-   `c:\users\vagrant\signalfx-agent\build\SignalFxAgent\bin\signalfx-agent.exe` is signed and that
    `c:\users\vagrant\signalfx-agent\build\SignalFxAgent-X.Y.Z-win64.zip` exists.
 
-1. If everything looks good, run the release script from your local workstation:
+1. If everything looks good, run the release script from your local workstation (must be
+   on the Splunk network):
 
    ```
-   $ scripts/release --stage <STAGE> --push --new-version <X.Y.Z> --component windows
+   $ scripts/release --stage <STAGE> --push --new-version <X.Y.Z> --component windows --staging-token <repo.splunk.com token> --chaperone-token <chaperone token>
    ```
 
-   Where `<STAGE>` is `test`, `beta`, or `final` and `<X.Y.Z>` is the same version from step 1.
+   Where `<STAGE>` is `test`, `beta`, or `release`,`<X.Y.Z>` is the same version from
+   step 1, and `<repo.splunk.com token>` and `<chaperone token>` are the API tokens for
+   the `srv-signalfx-agent` service account.
 
 1. Install/deploy the new release by running the installer script in a Powershell terminal
    (replace `YOUR_SIGNALFX_API_TOKEN` and `STAGE` with the appropriate values):

@@ -262,8 +262,8 @@ def _test_package_install(base_image, package_path, init_system):
 
 # pylint: disable=line-too-long
 OLD_INSTALL_COMMAND = {
-    ".rpm": "yum install -y https://s3.amazonaws.com/public-downloads--signalfuse-com/rpms/signalfx-agent/final/signalfx-agent-3.0.1-1.x86_64.rpm",
-    ".deb": "bash -ec 'wget -nv https://s3.amazonaws.com/public-downloads--signalfuse-com/debs/signalfx-agent/final/pool/signalfx-agent_3.0.1-1_amd64.deb && dpkg -i signalfx-agent_3.0.1-1_amd64.deb'",
+    ".rpm": "yum install -y https://splunk.jfrog.io/splunk/signalfx-agent-rpm/release/signalfx-agent-3.0.1-1.x86_64.rpm",
+    ".deb": "bash -ec 'wget -nv https://splunk.jfrog.io/splunk/signalfx-agent-deb/pool/signalfx-agent_3.0.1-1_amd64.deb && dpkg -i signalfx-agent_3.0.1-1_amd64.deb'",
 }
 
 UPGRADE_COMMAND = {

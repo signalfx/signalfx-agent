@@ -1,8 +1,8 @@
 # Main class that installs and configures the agent
 class signalfx_agent (
   $config                 = lookup('signalfx_agent::config', Hash, 'deep'),
-  $package_stage          = 'final',
-  $repo_base              = 'dl.signalfx.com',
+  $package_stage          = 'release',
+  $repo_base              = 'splunk.jfrog.io/splunk',
   $config_file_path       = $::osfamily ? {
     'debian'  => '/etc/signalfx/agent.yaml',
     'redhat'  => '/etc/signalfx/agent.yaml',
@@ -72,7 +72,7 @@ class signalfx_agent (
       File[$config_file_path]
 
       -> class { 'signalfx_agent::win_repo':
-        repo_base              => $repo_base,
+        repo_base              => 'dl.signalfx.com',
         package_stage          => $package_stage,
         version                => $agent_version,
         config_file_path       => $config_file_path,
