@@ -87,9 +87,18 @@ def test_installer_on_all_distros(base_image, init_system, agent_version):
             assert (
                 installed_version == agent_version
             ), f"Installed agent version is {installed_version} but should be {agent_version}"
-        assert wait_for(
-            p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
-        ), "Datapoints didn't come through"
+        try:
+            assert wait_for(
+                p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
+            ), "Datapoints didn't come through"
+        finally:
+            print("\nDatapoints received:")
+            for dp in backend.datapoints:
+                print_dp_or_event(dp)
+            print("\nEvents received:")
+            for event in backend.events:
+                print_dp_or_event(event)
+            print(f"\nDimensions set: {backend.dims}")
 
 
 def test_installer_different_realm():
@@ -100,9 +109,7 @@ def test_installer_different_realm():
         ingest_host="ingest.us1.signalfx.com",
         api_host="api.us1.signalfx.com",
     ) as [backend, _]:
-        assert wait_for(
-            p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
-        ), "Datapoints didn't come through"
+        assert wait_for(p(has_datapoint_with_dim, backend, "plugin", "host-metadata")), "Datapoints didn't come through"
 
 
 def first_host_dimension(backend):
@@ -156,7 +163,7 @@ def test_win_installer(agent_version):
                 agent_version,
             )
             assert wait_for(
-                p(has_datapoint_with_dim, backend, "plugin", "signalfx-metadata")
+                p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
         finally:
             print("\nDatapoints received:")

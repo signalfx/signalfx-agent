@@ -72,7 +72,7 @@ WIN_PUPPET_VERSIONS = os.environ.get("PUPPET_VERSIONS", "5.0.0,latest").split(",
 
 STAGE = os.environ.get("STAGE", "release")
 INITIAL_VERSION = os.environ.get("INITIAL_VERSION", "4.7.5")
-UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "4.7.6")
+UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "5.0.0")
 
 WIN_PUPPET_BIN_DIR = r"C:\Program Files\Puppet Labs\Puppet\bin"
 WIN_PUPPET_MODULE_SRC_DIR = os.path.join(WIN_REPO_ROOT_DIR, "deployments", "puppet")
