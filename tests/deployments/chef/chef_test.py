@@ -74,7 +74,7 @@ RPM_DISTROS = [
 ]
 
 # allow CHEF_VERSIONS env var with comma-separated chef versions for test parameterization
-CHEF_VERSIONS = os.environ.get("CHEF_VERSIONS", "12.22.5,latest").split(",")
+CHEF_VERSIONS = os.environ.get("CHEF_VERSIONS", "14.12.9,latest").split(",")
 
 STAGE = os.environ.get("STAGE", "release")
 INITIAL_VERSION = os.environ.get("INITIAL_VERSION", "4.7.7")
