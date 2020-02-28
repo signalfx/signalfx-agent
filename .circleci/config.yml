@@ -279,11 +279,11 @@ jobs:
   build:
     executor: docker1809
     steps:
+      - run: apk add git make bash openssh-client
       - checkout
       - setup_remote_docker:
           docker_layer_caching: false
       - run: |
-          apk add make bash
           PULL_CACHE=yes AGENT_VERSION=latest make bundle
       - run: |
           mkdir -p /tmp/workspace
