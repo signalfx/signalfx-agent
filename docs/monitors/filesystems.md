@@ -21,6 +21,7 @@ procPath: /hostfs/proc
 monitors:
  - type: filesystems
    hostFSPath: /hostfs
+```
 
 ## Migrating from collectd/df
 The `collectd/df` monitor is being deprecated in favor of the `filesystems`
@@ -43,8 +44,6 @@ the two monitors:
 
  - The `collectd/df` plugin set a dimension `plugin: df` on all datapoints,
    but `filesystems` has no such comparable dimension.
-
-```
 
 
 ## Configuration
