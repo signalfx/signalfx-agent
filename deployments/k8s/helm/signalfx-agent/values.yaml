@@ -1,6 +1,6 @@
 # Version of the signalfx-agent to deploy.  This will be the default for the
 # docker image tag if not overridden with imageTag
-agentVersion: 4.20.2
+agentVersion: 5.0.0
 
 # The access token for SignalFx. (REQUIRED if signalFxAccessTokenSecretName not set)
 signalFxAccessToken: ""
@@ -135,13 +135,14 @@ logFormat: text
 
 # Whether to ignore TLS validation issue when connecting to the main K8s API
 # server.  This should almost never need to be set to true since the CA cert is
-# provided with the service account token automatically by K8s.
+# provided with the service account token automatically by K8s. Has no effect
+# if `configureStandardMonitors: false`.
 apiServerSkipVerify: false
 
 # Additional options for connecting to the Kubelet.  These options are
 # equivalent to what is under the 'kubeletAPI' key of the 'kubelet-stats'
 # monitor.  By default, the agent tries to use its service account if kubelet
-# authentication is required.
+# authentication is required.  Has no effect if `configureStandardMonitors: false`.
 kubeletAPI:
   authType: serviceAccount
   # Replace the above with the following if using GKE/PKE or any
@@ -155,23 +156,24 @@ kubeletAPI:
 collectd: {}
 
 # How often to send cAdvisor-based container metrics.  Defaults to whatever is
-# in metricIntervalSeconds.
+# in metricIntervalSeconds. Has no effect if `configureStandardMonitors: false`.
 containerStatsIntervalSeconds:
 
 # Kubernetes distribution. Can be one either `kubernetes` or `openshift`. Defaults to
-# `kubernetes`.
+# `kubernetes`. Has no effect if `configureStandardMonitors: false`.
 kubernetesDistro: kubernetes
 
 # If true, K8s cluster-level metrics will be collected (e.g. pod counts,
 # deployment status, etc).  The agents will decide amongst themselves which
-# instance should send the metrics so that they are only sent once.
+# instance should send the metrics so that they are only sent once.  Has no
+# effect if `configureStandardMonitors: false`.
 gatherClusterMetrics: true
 
 # Enables the docker-container-stats monitor with some specific config that
 # causes it to send container stats from Docker with certain dimensions from
 # container labels that makes it easy to correlate metrics between cadvisor and
 # docker. Note that docker metrics are not sent for pause containers by
-# default.
+# default.  Has no effect if `configureStandardMonitors: false`.
 gatherDockerMetrics: true
 
 # A list of metric names that are collected by monitors but are not to be sent
@@ -195,73 +197,10 @@ procPath: /hostfs/proc
 # necessary to get filesystem usage information.
 hostFSPath: /hostfs
 
+# If true, a standard set of host infrastructure and Kubernetes cluster
+# monitors will be configured.
+configureStandardMonitors: true
+
 # A list of monitor configurations to include in the agent config.  These
 # values correspond exactly to what goes under 'monitors' in the agent config.
-# The following are a set of monitors with discovery rules that should cover
-# many standard deployments.  Most users will want to override this with their
-# own monitors and discovery rules.
 monitors:
-  - type: collectd/activemq
-    discoveryRule: container_image =~ "activemq" && private_port == 1099
-
-  - type: collectd/apache
-    discoveryRule: container_image =~ "apache" && private_port == 80
-
-  - type: collectd/cassandra
-    discoveryRule: container_image =~ "cassandra" && private_port == 7199
-
-  - type: collectd/consul
-    discoveryRule: container_image =~ "consul" && private_port == 8500
-
-  - type: elasticsearch
-    discoveryRule: container_image =~ "elasticsearch" && port == 9200
-
-  - type: collectd/etcd
-    discoveryRule: container_image =~ "etcd" && port == 2379
-    # REQUIRED
-    clusterName: my-cluster
-
-  - type: haproxy
-    discoveryRule: container_image =~ "haproxy" && port == 9000
-
-  - type: collectd/kafka
-    discoveryRule: container_image =~ "kafka" && private_port == 9092
-
-  - type: collectd/memcached
-    discoveryRule: container_image =~ "memcache" && private_port == 11211
-
-  - type: collectd/mongodb
-    discoveryRule: container_image =~ "mongo" && private_port == 27017
-    # REQUIRED
-    databases:
-    - mydatabase
-
-  - type: collectd/mysql
-    discoveryRule: container_image =~ "mysql" && private_port == 3306
-    # REQUIRED
-    username: admin
-    databases:
-    - name: mydb
-
-  - type: collectd/nginx
-    discoveryRule: container_image =~ "nginx" && private_port == 80
-
-  - type: collectd/rabbitmq
-    discoveryRule: container_image =~ "rabbitmq" && private_port == 15672
-
-  - type: collectd/redis
-    discoveryRule: container_image =~ "redis" && private_port == 6379
-
-  - type: collectd/spark
-    discoveryRule: container_image =~ "spark" && private_port == 8080
-    isMaster: true
-    collectApplicationMetrics: true
-    clusterType: Standalone
-
-  - type: collectd/spark
-    discoveryRule: container_image =~ "spark" && private_port >= 8081
-    isMaster: false
-    clusterType: Standalone
-
-  - type: collectd/zookeeper
-    discoveryRule: container_image =~ "zookeeper" && private_port == 2181

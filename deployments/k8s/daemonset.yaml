@@ -6,7 +6,7 @@ metadata:
   name: signalfx-agent
   labels:
     app: signalfx-agent
-    version: 4.20.2
+    version: 5.0.0
 spec:
   selector:
     matchLabels:
@@ -20,7 +20,7 @@ spec:
     metadata:
       labels:
         app: signalfx-agent
-        version: 4.20.2
+        version: 5.0.0
 
       annotations:
         {}
@@ -41,7 +41,7 @@ spec:
 
       containers:
       - name: signalfx-agent
-        image: "quay.io/signalfx/signalfx-agent:4.20.2"
+        image: "quay.io/signalfx/signalfx-agent:5.0.0"
         imagePullPolicy: IfNotPresent
         command:
         - /bin/signalfx-agent
@@ -86,7 +86,7 @@ spec:
       volumes:
       - name: config
         configMap:
-          name: signalfx-agent
+          name: signalfx-agent-v5
       - name: hostfs
         hostPath:
           path: /

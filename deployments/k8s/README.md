@@ -8,7 +8,7 @@ are generated from our [Helm](https://github.com/kubernetes/helm) chart, which
 is available in a SignalFx Helm repository -- see [SignalFx Agent Helm Chart
 Use](./helm/signalfx-agent#use) for more information.
 
-A few things to do before deploying these directly (when not using Helm):
+A few things to do before deploying these directly (when **not using Helm**):
 
  1. Make sure you change the `kubernetes_cluster` global dimension *and* the
 	`cluster` config option to something specific to your cluster in the
