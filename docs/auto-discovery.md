@@ -36,7 +36,11 @@ operators are:
 | \|\| | Or | 
 
 For all available operators, see <a target="_blank" 
-href="https://github.com/Knetic/govaluate/blob/master/MANUAL.md">the govaluate documentation</a>.
+href="https://github.com/antonmedv/expr/blob/master/docs/Language-Definition.md">the
+expr language definition</a> (this is what the agent uses under the covers).
+We have a shim set of logic that lets you use the `=~` operator even though it
+is not actually part of the expr language -- mainly to preserve backwards
+compatibility with older agent releases before expr was used.
 
 The variables available in the expression are dependent on which observer you
 are using.  The following three variables are common to all observers:
