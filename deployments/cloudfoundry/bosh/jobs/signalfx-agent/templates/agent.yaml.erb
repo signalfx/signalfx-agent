@@ -62,16 +62,13 @@ monitors:
 <% else %>
  - type: host-metadata
  - type: processlist
- - type: collectd/cpu
- - type: collectd/cpufreq
- - type: collectd/df
+ - type: cpu
+ - type: filesystems
  - type: disk-io
- - type: collectd/interface
+ - type: net-io
  - type: load
- - type: collectd/memory
- - type: collectd/signalfx-metadata
-   omitProcessInfo: true
- - type: collectd/vmem
+ - type: memory
+ - type: vmem
  - {"#from": "/var/vcap/jobs/signalfx-agent/config/extra-monitors.yaml", flatten: true, optional: true}
 <% end %>
 
