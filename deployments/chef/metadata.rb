@@ -1,6 +1,6 @@
 name 'signalfx_agent'
-maintainer 'SignalFx, Inc.'
-maintainer_email 'support@signalfx.com'
+maintainer 'Splunk, Inc.'
+maintainer_email 'signalfx-support@splunk.com'
 license 'Apache-2.0'
 description 'Installs/Configures the SignalFx Agent'
 version '1.0.0'
