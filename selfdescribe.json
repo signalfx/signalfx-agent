@@ -12453,19 +12453,19 @@
       "metrics": {
         "load.longterm": {
           "type": "gauge",
-          "description": "Average CPU load per core over the last 15 minutes",
+          "description": "Average CPU load for the whole system over the last 15 minutes",
           "group": null,
           "default": true
         },
         "load.midterm": {
           "type": "gauge",
-          "description": "Average CPU load per core over the last five minutes",
+          "description": "Average CPU load for the whole system over the last five minutes",
           "group": null,
           "default": true
         },
         "load.shortterm": {
           "type": "gauge",
-          "description": "Average CPU load per core over the last one minute",
+          "description": "Average CPU load for the whole system over the last one minute",
           "group": null,
           "default": true
         }
