@@ -9,15 +9,15 @@ monitors:
     `collectd/load` monitor will be removed in a future release of the agent."
   metrics:
     load.longterm:
-      description: Average CPU load per core over the last 15 minutes
+      description: Average CPU load for the whole system over the last 15 minutes
       default: true
       type: gauge
     load.midterm:
-      description: Average CPU load per core over the last five minutes
+      description: Average CPU load for the whole system over the last five minutes
       default: true
       type: gauge
     load.shortterm:
-      description: Average CPU load per core over the last one minute
+      description: Average CPU load for the whole system over the last one minute
       default: true
       type: gauge
   monitorType: collectd/load
