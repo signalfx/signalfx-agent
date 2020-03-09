@@ -61,7 +61,7 @@ configuration documentation, as well as to file bug reports or ask questions.
 
 # AUTHOR
 
-SignalFx, Inc. <support@signalfx.com>
+Splunk, Inc. <signalfx-support@splunk.com>
 
 # SOURCE
 
