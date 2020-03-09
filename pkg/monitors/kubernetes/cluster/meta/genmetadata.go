@@ -7,8 +7,6 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 )
 
-const MonitorType = "kubernetes-cluster"
-
 const (
 	GroupHpa = "hpa"
 )

@@ -7,8 +7,6 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 )
 
-const monitorType = "gitlab"
-
 var groupSet = map[string]bool{}
 
 const (
