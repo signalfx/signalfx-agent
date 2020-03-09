@@ -39,6 +39,11 @@ const (
 	OpenShift
 )
 
+var distributionToMonitorType = map[KubernetesDistribution]string{
+	Generic:   meta.KubernetesClusterMonitorMetadata.MonitorType,
+	OpenShift: meta.OpenshiftClusterMonitorMetadata.MonitorType,
+}
+
 // Config for the K8s monitor
 type Config struct {
 	config.MonitorConfig
@@ -89,7 +94,7 @@ func init() {
 // Configure is called by the plugin framework when configuration changes
 func (m *Monitor) Configure(config *Config) error {
 	var err error
-	m.logger = logrus.WithFields(logrus.Fields{"monitorType": meta.MonitorType})
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": distributionToMonitorType[m.distribution]})
 
 	m.config = config
 

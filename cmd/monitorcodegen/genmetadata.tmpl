@@ -9,7 +9,7 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 )
 
-{{if (len .monitors) eq 1 }}
+{{if eq (len .monitors) 1 }}
 const {{"monitorType" | formatVariable}} = "{{(index .monitors 0).MonitorType}}"
 {{end}}
 

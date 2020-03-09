@@ -7,8 +7,6 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 )
 
-const monitorType = "cadvisor"
-
 const (
 	groupPodEphemeralStats = "podEphemeralStats"
 )
