@@ -90,7 +90,7 @@ type Config struct {
 	// variables that will never possibly match a rule.  If using multiple
 	// observers, it is convenient to set this to false to suppress spurious
 	// errors.
-	ValidateDiscoveryRules *bool `yaml:"validateDiscoveryRules" default:"true"`
+	ValidateDiscoveryRules *bool `yaml:"validateDiscoveryRules" default:"false"`
 	// A list of observers to use (see observer config)
 	Observers []ObserverConfig `yaml:"observers" default:"[]"`
 	// A list of monitors to use (see monitor config)
