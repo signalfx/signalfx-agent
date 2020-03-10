@@ -8,6 +8,8 @@ replace code.cloudfoundry.org/go-loggregator => github.com/signalfx/go-loggregat
 
 replace github.com/influxdata/telegraf => github.com/signalfx/telegraf v0.10.2-0.20200220234948-7794d95dad35
 
+replace launchpad.net/gocheck => github.com/go-check/check v0.0.0-20200227125254-8fa46927fb4f
+
 require (
 	code.cloudfoundry.org/go-diodes v0.0.0-20190809170250-f77fb823c7ee // indirect
 	code.cloudfoundry.org/go-loggregator v7.4.0+incompatible
@@ -117,7 +119,7 @@ require (
 	github.com/olekukonko/tablewriter v0.0.1
 	github.com/onsi/ginkgo v1.10.1
 	github.com/onsi/gomega v1.7.0
-	github.com/openshift/api v3.9.0+incompatible
+	github.com/openshift/api v0.0.0-20191213091414-3fbf6bcf78e8
 	github.com/openshift/client-go v0.0.0-20191216194936-57f413491e9e
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/ory-am/common v0.4.0 // indirect
