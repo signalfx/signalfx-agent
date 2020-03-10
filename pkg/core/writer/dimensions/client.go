@@ -110,6 +110,9 @@ func (dc *DimensionClient) AcceptDimension(dim *types.Dimension) error {
 	filteredDim := &(*dim)
 
 	filteredDim = dc.PropertyFilterSet.FilterDimension(filteredDim)
+	if filteredDim == nil {
+		return nil
+	}
 
 	dc.Lock()
 	defer dc.Unlock()

@@ -90,6 +90,12 @@ func (f *basicDimensionFilter) FilterDimension(dim *types.Dimension) *types.Dime
 		filteredProperties = dim.Properties
 	}
 
+	// If the filtering has removed all properties, then don't consider this
+	// dimension at all.
+	if len(filteredProperties) == 0 && len(dim.Tags) == 0 {
+		return nil
+	}
+
 	return &types.Dimension{
 		Name:       dim.Name,
 		Value:      dim.Value,

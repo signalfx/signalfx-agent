@@ -270,6 +270,7 @@ func (c *Config) propagateValuesDown() error {
 
 	c.Writer.MetricsToInclude = c.MetricsToInclude
 	c.Writer.MetricsToExclude = c.MetricsToExclude
+	c.Writer.PropertiesToExclude = c.PropertiesToExclude
 	c.Writer.IngestURL = c.IngestURL
 	c.Writer.APIURL = c.APIURL
 	c.Writer.EventEndpointURL = c.EventEndpointURL
