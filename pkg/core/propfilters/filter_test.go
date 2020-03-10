@@ -154,8 +154,7 @@ func TestFilters(t *testing.T) {
 		}
 
 		filtered := f.FilterDimension(dim)
-		assert.Len(t, filtered.Properties, 0)
-		assert.Nil(t, filtered.Tags)
+		assert.Nil(t, filtered)
 	})
 
 	t.Run("Filter a dimension object given property name", func(t *testing.T) {
@@ -222,8 +221,7 @@ func TestFilters(t *testing.T) {
 		}
 
 		filtered := f.FilterDimension(dim)
-		assert.Len(t, filtered.Properties, 0)
-		assert.Nil(t, filtered.Tags)
+		assert.Nil(t, filtered)
 	})
 
 	t.Run("Filter a dimension object given dimension name and property name", func(t *testing.T) {
