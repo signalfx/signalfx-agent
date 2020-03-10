@@ -209,6 +209,14 @@ func (m *Monitor) determineDatabases() ([]string, error) {
 	if err != nil {
 		return nil, err
 	}
+	if rows != nil {
+		defer func() {
+			err := rows.Close()
+			if err != nil {
+				logger.WithError(err).Errorf("Error closing rows: %v", err)
+			}
+		}()
+	}
 
 	var out []string
 	for rows.Next() {
@@ -218,7 +226,10 @@ func (m *Monitor) determineDatabases() ([]string, error) {
 		}
 		out = append(out, name)
 	}
-	return out, rows.Close()
+	if err := rows.Err(); err != nil {
+		logger.WithError(err).Errorf("Error iterating and scanning rows: %v", err)
+	}
+	return out, nil
 }
 
 func (m *Monitor) monitorServer() (*sql.Monitor, error) {

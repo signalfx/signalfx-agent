@@ -69,7 +69,8 @@ class PProfClient:
         assert lines.pop(0).split() == ["flat", "flat%", "sum%", "cum", "cum%"], "unexpected pprof header line"
 
         nodes = [
-            Node(*[float(c.strip(string.ascii_letters + "%")) for c in li.split()[:5]], *li.split()[5:]) for li in lines
+            Node(*[float(c.strip(string.ascii_letters + "%")) for c in li.split()[:5]], *li.split()[5:7])
+            for li in lines
         ]
 
         return Profile(
