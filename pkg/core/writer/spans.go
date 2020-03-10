@@ -18,7 +18,7 @@ func (sw *SignalFxWriter) sendSpans(ctx context.Context, spans []*trace.Span) er
 		sw.serviceTracker.AddSpans(sw.ctx, spans)
 	}
 
-	// This sends synchonously
+	// This sends synchronously
 	return sw.client.AddSpans(context.Background(), spans)
 }
 
@@ -49,8 +49,8 @@ func (sw *SignalFxWriter) preprocessSpan(span *trace.Span) bool {
 	return true
 }
 
-func (sw *SignalFxWriter) startGeneratingHostCorrelationMetrics() *tracetracker.ActiveServiceTracker {
-	tracker := tracetracker.New(sw.conf.StaleServiceTimeout.AsDuration(), func(dp *datapoint.Datapoint) {
+func (sw *SignalFxWriter) startHostCorrelationTracking() *tracetracker.ActiveServiceTracker {
+	tracker := tracetracker.New(sw.conf.StaleServiceTimeout.AsDuration(), sw.correlationClient, sw.hostIDDims, func(dp *datapoint.Datapoint) {
 		// Immediately send correlation datapoints when we first see a service
 		sw.dpChan <- []*datapoint.Datapoint{dp}
 	})
@@ -58,6 +58,8 @@ func (sw *SignalFxWriter) startGeneratingHostCorrelationMetrics() *tracetracker.
 	// Send the correlation datapoints at a regular interval to keep the
 	// service live on the backend.
 	utils.RunOnInterval(sw.ctx, func() {
+		// purge old services and environments before collecting datapoints
+		tracker.Purge()
 		for _, dp := range tracker.CorrelationDatapoints() {
 			sw.dpChan <- []*datapoint.Datapoint{dp}
 		}

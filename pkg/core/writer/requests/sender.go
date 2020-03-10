@@ -1,4 +1,4 @@
-package dimensions
+package requests
 
 import (
 	"context"
@@ -8,11 +8,12 @@ import (
 	"sync/atomic"
 )
 
-type reqSender struct {
-	client      *http.Client
-	requests    chan *http.Request
-	workerCount uint
-	ctx         context.Context
+type ReqSender struct {
+	client               *http.Client
+	requests             chan *http.Request
+	workerCount          uint
+	ctx                  context.Context
+	additionalDimensions map[string]string
 
 	RunningWorkers         int64
 	TotalRequestsStarted   int64
@@ -20,9 +21,10 @@ type reqSender struct {
 	TotalRequestsFailed    int64
 }
 
-func newReqSender(ctx context.Context, client *http.Client, workerCount uint) *reqSender {
-	return &reqSender{
-		client: client,
+func NewReqSender(ctx context.Context, client *http.Client, workerCount uint, diagnosticDimensions map[string]string) *ReqSender {
+	return &ReqSender{
+		client:               client,
+		additionalDimensions: diagnosticDimensions,
 		// Unbuffered so that it blocks clients
 		requests:    make(chan *http.Request),
 		workerCount: workerCount,
@@ -31,7 +33,7 @@ func newReqSender(ctx context.Context, client *http.Client, workerCount uint) *r
 }
 
 // Not thread-safe
-func (rs *reqSender) send(req *http.Request) {
+func (rs *ReqSender) Send(req *http.Request) {
 	// Slight optimization to avoid spinning up unnecessary workers if there
 	// aren't ever that many dim updates. Once workers start, they remain for the
 	// duration of the agent.
@@ -48,7 +50,7 @@ func (rs *reqSender) send(req *http.Request) {
 	}
 }
 
-func (rs *reqSender) processRequests() {
+func (rs *ReqSender) processRequests() {
 	atomic.AddInt64(&rs.RunningWorkers, int64(1))
 	defer atomic.AddInt64(&rs.RunningWorkers, int64(-1))
 
@@ -67,7 +69,7 @@ func (rs *reqSender) processRequests() {
 	}
 }
 
-func (rs *reqSender) sendRequest(req *http.Request) error {
+func (rs *ReqSender) sendRequest(req *http.Request) error {
 	body, statusCode, err := sendRequest(rs.client, req)
 	// If it was successful there is nothing else to do.
 	if statusCode == 200 {
@@ -88,15 +90,15 @@ func (rs *reqSender) sendRequest(req *http.Request) error {
 
 type key int
 
-const requestFailedCallbackKey key = 1
-const requestSuccessCallbackKey key = 2
+const RequestFailedCallbackKey key = 1
+const RequestSuccessCallbackKey key = 2
 
-type requestFailedCallback func(statusCode int, err error)
-type requestSuccessCallback func()
+type RequestFailedCallback func(statusCode int, err error)
+type RequestSuccessCallback func()
 
 func onRequestSuccess(req *http.Request) {
 	ctx := req.Context()
-	cb, ok := ctx.Value(requestSuccessCallbackKey).(requestSuccessCallback)
+	cb, ok := ctx.Value(RequestSuccessCallbackKey).(RequestSuccessCallback)
 	if !ok {
 		return
 	}
@@ -104,7 +106,7 @@ func onRequestSuccess(req *http.Request) {
 }
 func onRequestFailed(req *http.Request, statusCode int, err error) {
 	ctx := req.Context()
-	cb, ok := ctx.Value(requestFailedCallbackKey).(requestFailedCallback)
+	cb, ok := ctx.Value(RequestFailedCallbackKey).(RequestFailedCallback)
 	if !ok {
 		return
 	}

@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/signalfx/signalfx-agent/pkg/core/writer/requests"
 	"net"
 	"net/http"
 	"net/url"
@@ -29,7 +30,7 @@ type DimensionClient struct {
 	Token         string
 	APIURL        *url.URL
 	client        *http.Client
-	requestSender *reqSender
+	requestSender *requests.ReqSender
 	deduplicator  *deduplicator
 	sendDelay     time.Duration
 	// Set of dims that have been queued up for sending.  Use map to quickly
@@ -81,7 +82,7 @@ func NewDimensionClient(ctx context.Context, conf *config.WriterConfig) (*Dimens
 			TLSHandshakeTimeout: 10 * time.Second,
 		},
 	}
-	sender := newReqSender(ctx, client, conf.PropertiesMaxRequests)
+	sender := requests.NewReqSender(ctx, client, conf.PropertiesMaxRequests, map[string]string{"client": "dimension"})
 
 	return &DimensionClient{
 		ctx:               ctx,
@@ -178,7 +179,7 @@ func (dc *DimensionClient) processQueue() {
 			dc.Unlock()
 
 			if err := dc.setPropertiesOnDimension(delayedDim.Dimension); err != nil {
-				log.WithError(err).WithField("dim", delayedDim.Key()).Error("Could not send dimension update")
+				log.WithError(err).WithField("dim", delayedDim.Key()).Error("Could not Send dimension update")
 			}
 		}
 	}
@@ -194,7 +195,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 
 	if dim.Name == "" || dim.Value == "" {
 		atomic.AddInt64(&dc.TotalInvalidDimensions, int64(1))
-		return fmt.Errorf("dimension %v is missing key or value, cannot send", dim)
+		return fmt.Errorf("dimension %v is missing key or value, cannot Send", dim)
 	}
 
 	if dim.MergeIntoExisting {
@@ -208,7 +209,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 	}
 
 	req = req.WithContext(
-		context.WithValue(req.Context(), requestFailedCallbackKey, requestFailedCallback(func(statusCode int, err error) {
+		context.WithValue(req.Context(), requests.RequestFailedCallbackKey, requests.RequestFailedCallback(func(statusCode int, err error) {
 			if statusCode >= 400 && statusCode < 500 && statusCode != 404 {
 				atomic.AddInt64(&dc.TotalClientError4xxResponses, int64(1))
 				log.WithError(err).WithFields(log.Fields{
@@ -242,7 +243,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 		})))
 
 	req = req.WithContext(
-		context.WithValue(req.Context(), requestSuccessCallbackKey, requestSuccessCallback(func() {
+		context.WithValue(req.Context(), requests.RequestSuccessCallbackKey, requests.RequestSuccessCallback(func() {
 			dc.deduplicator.Add(dim)
 			if dc.logUpdates {
 				log.WithFields(log.Fields{
@@ -253,7 +254,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 
 	if !dc.deduplicator.IsDuplicate(dim) {
 		// This will block if we don't have enough requests
-		dc.requestSender.send(req)
+		dc.requestSender.Send(req)
 	} else {
 		atomic.AddInt64(&dc.TotalDuplicates, int64(1))
 	}

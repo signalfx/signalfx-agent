@@ -24,6 +24,7 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/dpfilters"
+	"github.com/signalfx/signalfx-agent/pkg/core/writer/correlations"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/dimensions"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/tap"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/tracetracker"
@@ -44,10 +45,11 @@ const (
 // receives events/datapoints on two buffered channels and writes them to
 // SignalFx on a regular interval.
 type SignalFxWriter struct {
-	client          *sfxclient.HTTPSink
-	dimensionClient *dimensions.DimensionClient
-	datapointWriter *sfxwriter.DatapointWriter
-	spanWriter      *sfxwriter.SpanWriter
+	client            *sfxclient.HTTPSink
+	correlationClient correlations.CorrelationClient
+	dimensionClient   *dimensions.DimensionClient
+	datapointWriter   *sfxwriter.DatapointWriter
+	spanWriter        *sfxwriter.SpanWriter
 
 	// Monitors should send events to this
 	eventChan     chan *event.Event
@@ -101,11 +103,18 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 		return nil, err
 	}
 
+	correlationClient, err := correlations.NewCorrelationClient(ctx, conf)
+	if err != nil {
+		cancel()
+		return nil, err
+	}
+
 	sw := &SignalFxWriter{
 		ctx:               ctx,
 		cancel:            cancel,
 		conf:              conf,
 		logger:            logger,
+		correlationClient: correlationClient,
 		dimensionClient:   dimensionClient,
 		hostIDDims:        conf.HostIDDims,
 		eventChan:         eventChan,
@@ -188,6 +197,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 	}
 
 	sw.dimensionClient.Start()
+	sw.correlationClient.Start()
 
 	go sw.listenForEventsAndDimensionUpdates()
 
@@ -207,7 +217,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 
 	// The only reason this is on the struct and not a local var is so we can
 	// easily get diagnostic metrics from it
-	sw.serviceTracker = sw.startGeneratingHostCorrelationMetrics()
+	sw.serviceTracker = sw.startHostCorrelationTracking()
 
 	sw.spanWriter = &sfxwriter.SpanWriter{
 		PreprocessFunc: sw.preprocessSpan,

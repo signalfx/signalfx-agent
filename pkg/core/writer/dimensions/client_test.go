@@ -231,7 +231,7 @@ func TestDimensionClient(t *testing.T) {
 		},
 	})
 
-	t.Run("send a distinct prop/tag set for existing dim with server error", func(t *testing.T) {
+	t.Run("Send a distinct prop/tag set for existing dim with server error", func(t *testing.T) {
 		forcedResp.Store(500)
 
 		// Send a distinct prop/tag set for same dim with an error
@@ -314,7 +314,7 @@ func TestDimensionClient(t *testing.T) {
 		})
 	})
 
-	t.Run("send a duplicate", func(t *testing.T) {
+	t.Run("Send a duplicate", func(t *testing.T) {
 		require.NoError(t, client.AcceptDimension(&types.Dimension{
 			Name:  "AWSUniqueID",
 			Value: "abcd",
@@ -332,7 +332,7 @@ func TestDimensionClient(t *testing.T) {
 	})
 
 	// Send something unique again
-	t.Run("send something unique to same dim", func(t *testing.T) {
+	t.Run("Send something unique to same dim", func(t *testing.T) {
 		require.NoError(t, client.AcceptDimension(&types.Dimension{
 			Name:  "AWSUniqueID",
 			Value: "abcd",
@@ -359,7 +359,7 @@ func TestDimensionClient(t *testing.T) {
 		})
 	})
 
-	t.Run("send a distinct patch that covers the same prop keys", func(t *testing.T) {
+	t.Run("Send a distinct patch that covers the same prop keys", func(t *testing.T) {
 		require.NoError(t, client.AcceptDimension(&types.Dimension{
 			Name:  "host",
 			Value: "test-box",
@@ -384,7 +384,7 @@ func TestDimensionClient(t *testing.T) {
 		})
 	})
 
-	t.Run("send a distinct patch that covers the same tags", func(t *testing.T) {
+	t.Run("Send a distinct patch that covers the same tags", func(t *testing.T) {
 		require.NoError(t, client.AcceptDimension(&types.Dimension{
 			Name:  "host",
 			Value: "test-box",

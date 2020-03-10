@@ -1,8 +1,8 @@
 package tracetracker
 
 import (
-	"container/list"
 	"context"
+	"github.com/signalfx/signalfx-agent/pkg/core/writer/correlations"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -20,43 +20,47 @@ const spanCorrelationMetricName = "sf.int.service.heartbeat"
 // they are not seen for a certain amount of time.
 type ActiveServiceTracker struct {
 	sync.Mutex
-	// How long to keep sending metrics for a particular service name after it
-	// is last seen
-	timeout time.Duration
-	// A linked list of serviceNames sorted by time last seen
-	serviceNameByTime *list.List
-	// Which service names are active currently.  The value is an entry in the
-	// serviceNameByTime linked list so that it can be quickly accessed and
-	// moved to the back of the list.
-	serviceNamesActive map[string]*list.Element
+
+	// hostIDDims is the map of key/values discovered by the agent that identify the host
+	hostIDDims map[string]string
+
+	// keyCache of services and environment associations beyond the host level
+	// NOTE: if we ever care about specific stats, we could always move these to separate caches later
+	keyCache *TimeoutCache
+
+	// hostServiceCache is a cache of services associated with the host
+	hostServiceCache *TimeoutCache
+
+	// hostEnvironmentCache is a cache of environments associated with the host
+	hostEnvironmentCache *TimeoutCache
+
 	// Datapoints don't change over time for a given service, so make them once
 	// and stick them in here.
 	dpCache map[string]*datapoint.Datapoint
+
 	// A callback that gets called with the correlation datapoint when a
 	// service is first seen
 	newServiceCallback func(dp *datapoint.Datapoint)
 	timeNow            func() time.Time
 
-	// Internal metrics
-	activeServiceCount int64
-	purgedServiceCount int64
-	spansProcessed     int64
-}
+	// correlationClient is the client used for updating infrastructure correlation properties
+	correlationClient correlations.CorrelationClient
 
-type serviceStatus struct {
-	LastSeen    time.Time
-	ServiceName string
+	// Internal metrics
+	spansProcessed int64
 }
 
 // New creates a new initialized service tracker
-func New(timeout time.Duration, newServiceCallback func(dp *datapoint.Datapoint)) *ActiveServiceTracker {
+func New(timeout time.Duration, correlationClient correlations.CorrelationClient, hostIDDims map[string]string, newServiceCallback func(dp *datapoint.Datapoint)) *ActiveServiceTracker {
 	return &ActiveServiceTracker{
-		timeout:            timeout,
-		serviceNameByTime:  list.New(),
-		serviceNamesActive: make(map[string]*list.Element),
-		dpCache:            make(map[string]*datapoint.Datapoint),
-		newServiceCallback: newServiceCallback,
-		timeNow:            time.Now,
+		hostIDDims:           hostIDDims,
+		hostServiceCache:     NewTimeoutCache(timeout),
+		hostEnvironmentCache: NewTimeoutCache(timeout),
+		keyCache:             NewTimeoutCache(timeout),
+		dpCache:              make(map[string]*datapoint.Datapoint),
+		newServiceCallback:   newServiceCallback,
+		correlationClient:    correlationClient,
+		timeNow:              time.Now,
 	}
 }
 
@@ -65,9 +69,6 @@ func New(timeout time.Duration, newServiceCallback func(dp *datapoint.Datapoint)
 func (a *ActiveServiceTracker) CorrelationDatapoints() []*datapoint.Datapoint {
 	a.Lock()
 	defer a.Unlock()
-
-	// Get rid of everything that is old
-	a.purgeOldServices()
 
 	out := make([]*datapoint.Datapoint, 0, len(a.dpCache))
 	for _, dp := range a.dpCache {
@@ -98,68 +99,136 @@ func (a *ActiveServiceTracker) processSpan(span *trace.Span, now time.Time) {
 	if span.LocalEndpoint == nil || span.LocalEndpoint.ServiceName == nil {
 		return
 	}
-
 	service := *span.LocalEndpoint.ServiceName
-	a.ensureServiceActive(service, now)
+
+	// TODO: check on what the tag name should be in order to fetch environment
+	environment, environmentFound := span.Tags["environment"]
+	if !environmentFound {
+		// TODO set to default environment
+	}
+
+	// Handle host level service and environment correlation
+	if dimValue, ok := span.Tags["host"]; ok {
+		if isNew := a.ensureServiceActive(&CacheKey{service: service, dimName: "host", dimValue: dimValue}, now); isNew {
+			// all of the host id dims need to be correlated with the service
+			for dimName, dimValue := range a.hostIDDims {
+				a.correlationClient.AcceptCorrelation(&correlations.Correlation{
+					Type:      correlations.Service,
+					Operation: correlations.Put,
+					DimName:   dimName,
+					DimValue:  dimValue,
+					Value:     service,
+				})
+			}
+		}
+		// TODO: add host/environment pair to a cache and send a property update if necessary
+		if isNew := a.hostEnvironmentCache.UpdateOrCreate(&CacheKey{dimName: "host", dimValue: dimValue, environment: environment}, now); isNew {
+			for dimName, dimValue := range a.hostIDDims {
+				a.correlationClient.AcceptCorrelation(&correlations.Correlation{
+					Type:      correlations.Environment,
+					Operation: correlations.Put,
+					DimName:   dimName,
+					DimValue:  dimValue,
+					Value:     environment,
+				})
+			}
+		}
+	}
+
+	// container / pod level stuff (this should not directly affect the active service count)
+	// this cache is necessary to identify services associated with a kubernetes pod or container id
+	for _, dimName := range dimsToSyncSource {
+		if dimValue, ok := span.Tags[dimName]; ok {
+			if isNew := a.keyCache.UpdateOrCreate(&CacheKey{dimName: dimName, dimValue: dimValue, service: service}, now); isNew {
+				a.correlationClient.AcceptCorrelation(&correlations.Correlation{
+					Type:      correlations.Service,
+					Operation: correlations.Put,
+					DimName:   dimName,
+					DimValue:  dimValue,
+					Value:     service,
+				})
+			}
+			if isNew := a.keyCache.UpdateOrCreate(&CacheKey{dimName: dimName, dimValue: dimValue, environment: environment}, now); isNew {
+				// TODO put default environment in if not default (specific to container/pod)
+				a.correlationClient.AcceptCorrelation(&correlations.Correlation{
+					Type:      correlations.Environment,
+					Operation: correlations.Put,
+					DimName:   dimName,
+					DimValue:  dimValue,
+					Value:     environment,
+				})
+			}
+		}
+	}
 }
 
-func (a *ActiveServiceTracker) ensureServiceActive(service string, now time.Time) {
-	if timeElm, ok := a.serviceNamesActive[service]; ok {
-		timeElm.Value.(*serviceStatus).LastSeen = now
-		a.serviceNameByTime.MoveToFront(timeElm)
-	} else {
-		elm := a.serviceNameByTime.PushFront(&serviceStatus{
-			LastSeen:    now,
-			ServiceName: service,
-		})
-		a.serviceNamesActive[service] = elm
-		dp := dpForService(service)
-		a.dpCache[service] = dp
-
-		atomic.AddInt64(&a.activeServiceCount, 1)
+func (a *ActiveServiceTracker) ensureServiceActive(key *CacheKey, now time.Time) bool {
+	isNew := a.hostServiceCache.UpdateOrCreate(key, now)
+	if isNew {
+		dp := dpForService(key.service)
+		a.dpCache[key.service] = dp
 
 		if a.newServiceCallback != nil {
 			a.newServiceCallback(dp)
 		}
 		log.WithFields(log.Fields{
-			"service": service,
+			"service": key.service,
 		}).Debug("Tracking service name from trace span")
 	}
+	return isNew
 }
 
-// Walks the serviceNameByTime list backwards and deletes until it finds an
-// element that is not timed out.
-func (a *ActiveServiceTracker) purgeOldServices() {
+// Purges caches on the ActiveServiceTracker
+func (a *ActiveServiceTracker) Purge() {
+	a.Lock()
+	defer a.Unlock()
 	now := a.timeNow()
-	for {
-		elm := a.serviceNameByTime.Back()
-		if elm == nil {
-			break
+	a.hostServiceCache.PurgeOld(now, func(purged *CacheKey) {
+		// delete the correlation from all host id dims
+		for dimName, dimValue := range a.hostIDDims {
+			a.correlationClient.AcceptCorrelation(&correlations.Correlation{
+				Type:      correlations.Service,
+				Operation: correlations.Delete,
+				DimName:   dimName,
+				DimValue:  dimValue,
+				Value:     purged.service,
+			})
 		}
-		status := elm.Value.(*serviceStatus)
-		// If this one isn't timed out, nothing else in the list is either.
-		if now.Sub(status.LastSeen) < a.timeout {
-			break
-		}
-
-		a.serviceNameByTime.Remove(elm)
-		delete(a.serviceNamesActive, status.ServiceName)
-		delete(a.dpCache, status.ServiceName)
-
-		atomic.AddInt64(&a.activeServiceCount, -1)
-		atomic.AddInt64(&a.purgedServiceCount, 1)
-
+		// remove host/service correlation metric from tracker
+		delete(a.dpCache, purged.service)
 		log.WithFields(log.Fields{
-			"serviceName": status.ServiceName,
+			"serviceName": purged.service,
 		}).Debug("No longer tracking service name from trace span")
-	}
+	})
+	a.hostEnvironmentCache.PurgeOld(now, func(purged *CacheKey) {
+		// delete the correlation from all host id dims
+		for dimName, dimValue := range a.hostIDDims {
+			a.correlationClient.AcceptCorrelation(&correlations.Correlation{
+				Type:      correlations.Environment,
+				Operation: correlations.Delete,
+				DimName:   dimName,
+				DimValue:  dimValue,
+				Value:     purged.service,
+			})
+		}
+		log.WithFields(log.Fields{
+			"envrionmentName": purged.environment,
+		}).Debug("No longer tracking environment name from trace span")
+	})
+
+	// Purge the cache, but don't do the deletion for container id and pod id.
+	// These values aren't expected to change, and can be overwritten.
+	// The onPurge() function doesn't need to do anything
+	a.keyCache.PurgeOld(now, func(purged *CacheKey) {})
 }
 
 // InternalMetrics returns datapoint describing the status of the tracker
 func (a *ActiveServiceTracker) InternalMetrics() []*datapoint.Datapoint {
 	return []*datapoint.Datapoint{
-		sfxclient.Gauge("sfxagent.tracing_active_services", nil, atomic.LoadInt64(&a.activeServiceCount)),
-		sfxclient.CumulativeP("sfxagent.tracing_purged_services", nil, &a.purgedServiceCount),
+		sfxclient.Gauge("sfxagent.tracing_active_services", nil, atomic.LoadInt64(&a.hostServiceCache.ActiveCount)),
+		sfxclient.CumulativeP("sfxagent.tracing_purged_services", nil, &a.hostServiceCache.PurgedCount),
+		sfxclient.Gauge("sfxagent.tracing_active_environments", nil, atomic.LoadInt64(&a.hostEnvironmentCache.ActiveCount)),
+		sfxclient.CumulativeP("sfxagent.tracing_purged_environments", nil, &a.hostEnvironmentCache.PurgedCount),
 		sfxclient.CumulativeP("sfxagent.tracing_spans_processed", nil, &a.spansProcessed),
 	}
 }
