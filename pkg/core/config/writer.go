@@ -107,6 +107,7 @@ type WriterConfig struct {
 	// hardware/networking.
 	MaxTraceSpansInFlight uint `yaml:"maxTraceSpansInFlight" default:"100000"`
 	// The following are propagated from elsewhere
+	Environment         string                 `yaml:"-"`
 	HostIDDims          map[string]string      `yaml:"-"`
 	IngestURL           string                 `yaml:"-"`
 	APIURL              string                 `yaml:"-"`

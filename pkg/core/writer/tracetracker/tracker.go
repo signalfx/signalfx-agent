@@ -21,6 +21,9 @@ const spanCorrelationMetricName = "sf.int.service.heartbeat"
 type ActiveServiceTracker struct {
 	sync.Mutex
 
+	// environment is the default environment value to associate with the host
+	environment string
+
 	// hostIDDims is the map of key/values discovered by the agent that identify the host
 	hostIDDims map[string]string
 
@@ -51,8 +54,9 @@ type ActiveServiceTracker struct {
 }
 
 // New creates a new initialized service tracker
-func New(timeout time.Duration, correlationClient correlations.CorrelationClient, hostIDDims map[string]string, newServiceCallback func(dp *datapoint.Datapoint)) *ActiveServiceTracker {
+func New(timeout time.Duration, correlationClient correlations.CorrelationClient, hostIDDims map[string]string, environment string, newServiceCallback func(dp *datapoint.Datapoint)) *ActiveServiceTracker {
 	return &ActiveServiceTracker{
+		environment:          environment,
 		hostIDDims:           hostIDDims,
 		hostServiceCache:     NewTimeoutCache(timeout),
 		hostEnvironmentCache: NewTimeoutCache(timeout),
@@ -95,35 +99,29 @@ func (a *ActiveServiceTracker) AddSpans(ctx context.Context, spans []*trace.Span
 }
 
 func (a *ActiveServiceTracker) processSpan(span *trace.Span, now time.Time) {
-	// Can't do anything if the spans don't have a local service name
-	if span.LocalEndpoint == nil || span.LocalEndpoint.ServiceName == nil {
-		return
-	}
-	service := *span.LocalEndpoint.ServiceName
-
-	// TODO: check on what the tag name should be in order to fetch environment
 	environment, environmentFound := span.Tags["environment"]
 	if !environmentFound {
-		// TODO set to default environment
+		environment = a.environment
 	}
 
-	// Handle host level service and environment correlation
-	if dimValue, ok := span.Tags["host"]; ok {
-		if isNew := a.ensureServiceActive(&CacheKey{service: service, dimName: "host", dimValue: dimValue}, now); isNew {
-			// all of the host id dims need to be correlated with the service
-			for dimName, dimValue := range a.hostIDDims {
-				a.correlationClient.AcceptCorrelation(&correlations.Correlation{
-					Type:      correlations.Service,
-					Operation: correlations.Put,
-					DimName:   dimName,
-					DimValue:  dimValue,
-					Value:     service,
-				})
-			}
+	// update the environment for the hostIDDims
+	if isNew := a.hostEnvironmentCache.UpdateOrCreate(&CacheKey{environment: environment}, now); isNew {
+		for dimName, dimValue := range a.hostIDDims {
+			a.correlationClient.AcceptCorrelation(&correlations.Correlation{
+				Type:      correlations.Environment,
+				Operation: correlations.Put,
+				DimName:   dimName,
+				DimValue:  dimValue,
+				Value:     environment,
+			})
 		}
-		// TODO: add host/environment pair to a cache and send a property update if necessary
-		if isNew := a.hostEnvironmentCache.UpdateOrCreate(&CacheKey{dimName: "host", dimValue: dimValue, environment: environment}, now); isNew {
-			for dimName, dimValue := range a.hostIDDims {
+	}
+
+	// container / pod level stuff
+	// this cache is necessary to identify environments associated with a kubernetes pod or container id
+	for _, dimName := range dimsToSyncSource {
+		if dimValue, ok := span.Tags[dimName]; ok {
+			if isNew := a.keyCache.UpdateOrCreate(&CacheKey{dimName: dimName, dimValue: dimValue, environment: environment}, now); isNew {
 				a.correlationClient.AcceptCorrelation(&correlations.Correlation{
 					Type:      correlations.Environment,
 					Operation: correlations.Put,
@@ -132,6 +130,34 @@ func (a *ActiveServiceTracker) processSpan(span *trace.Span, now time.Time) {
 					Value:     environment,
 				})
 			}
+
+			if environment != a.environment {
+				// if a span comes through with an environment, we add it to the cache.
+				// we must also add the default environment so that a later span without
+				// an environment tag doesn't overwrite the environment property with the
+				// default environment for the same k8s/container id
+				a.keyCache.UpdateOrCreate(&CacheKey{dimName: dimName, dimValue: dimValue, environment: a.environment}, now)
+			}
+		}
+	}
+
+	// Can't do anything if the spans don't have a local service name
+	if span.LocalEndpoint == nil || span.LocalEndpoint.ServiceName == nil {
+		return
+	}
+	service := *span.LocalEndpoint.ServiceName
+
+	// Handle host level service and environment correlation
+	if isNew := a.ensureServiceActive(&CacheKey{service: service}, now); isNew {
+		// all of the host id dims need to be correlated with the service
+		for dimName, dimValue := range a.hostIDDims {
+			a.correlationClient.AcceptCorrelation(&correlations.Correlation{
+				Type:      correlations.Service,
+				Operation: correlations.Put,
+				DimName:   dimName,
+				DimValue:  dimValue,
+				Value:     service,
+			})
 		}
 	}
 
@@ -146,16 +172,6 @@ func (a *ActiveServiceTracker) processSpan(span *trace.Span, now time.Time) {
 					DimName:   dimName,
 					DimValue:  dimValue,
 					Value:     service,
-				})
-			}
-			if isNew := a.keyCache.UpdateOrCreate(&CacheKey{dimName: dimName, dimValue: dimValue, environment: environment}, now); isNew {
-				// TODO put default environment in if not default (specific to container/pod)
-				a.correlationClient.AcceptCorrelation(&correlations.Correlation{
-					Type:      correlations.Environment,
-					Operation: correlations.Put,
-					DimName:   dimName,
-					DimValue:  dimValue,
-					Value:     environment,
 				})
 			}
 		}

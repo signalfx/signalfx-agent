@@ -30,7 +30,7 @@ func TestDatapointsAreGenerated(t *testing.T) {
 	correlationClient, err := correlations.NewCorrelationClient(testCtx, &config.WriterConfig{})
 	assert.NoError(t, err, "failed to create correlation client")
 
-	a := New(5*time.Minute, correlationClient, nil, nil)
+	a := New(5*time.Minute, correlationClient, nil, "", nil)
 
 	a.AddSpans(context.Background(), []*trace.Span{
 		{
@@ -67,7 +67,7 @@ func TestExpiration(t *testing.T) {
 	assert.NoError(t, err, "failed to create correlation client")
 
 	hostIdDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
-	a := New(5*time.Minute, correlationClient, hostIdDims, nil)
+	a := New(5*time.Minute, correlationClient, hostIdDims, "", nil)
 	setTime(a, time.Unix(100, 0))
 
 	a.AddSpans(context.Background(), []*trace.Span{
@@ -149,7 +149,7 @@ func TestCorrelationUpdates(t *testing.T) {
 	correlationClient := &correlationTestClient{}
 	hostIdDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
 	containerLevelIDDims := map[string]string{"kubernetes_pod_uid": "testk8sPodUID", "container_id": "testContainerID"}
-	a := New(5*time.Minute, correlationClient, hostIdDims, nil)
+	a := New(5*time.Minute, correlationClient, hostIdDims, "", nil)
 	setTime(a, time.Unix(100, 0))
 
 	a.AddSpans(context.Background(), []*trace.Span{

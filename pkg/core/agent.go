@@ -102,12 +102,12 @@ func (a *Agent) configure(conf *config.Config) {
 		a.ensureProfileServerRunning(conf.ProfilingHost, conf.ProfilingPort)
 	}
 
-	if a.lastConfig == nil || a.lastConfig.Writer.Hash() != conf.Writer.Hash() || a.lastConfig.Cluster != conf.Cluster {
+	if a.lastConfig == nil || a.lastConfig.Writer.Hash() != conf.Writer.Hash() || a.lastConfig.Environment != conf.Environment {
 		if a.writer != nil {
 			a.writer.Shutdown()
 		}
 
-		spanSourceTracker := tracetracker.NewSpanSourceTracker(a.endpointHostTracker, a.dimensionChan, conf.Cluster)
+		spanSourceTracker := tracetracker.NewSpanSourceTracker(a.endpointHostTracker, a.dimensionChan, conf.Environment)
 
 		var err error
 		a.writer, err = writer.New(
@@ -124,8 +124,8 @@ func (a *Agent) configure(conf *config.Config) {
 		}
 	}
 
-	if conf.Cluster != "" {
-		startSyncClusterProperty(a.dimensionChan, conf.Cluster, hostDims, conf.SyncClusterOnHostDimension)
+	if conf.Environment != "" {
+		startSyncClusterProperty(a.dimensionChan, conf.Environment, hostDims, conf.SyncClusterOnHostDimension)
 	}
 
 	a.meta.InternalStatusHost = conf.InternalStatusHost

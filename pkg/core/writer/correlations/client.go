@@ -44,7 +44,6 @@ type Client struct {
 
 // NewCorrelationClient returns a new Client
 func NewCorrelationClient(ctx context.Context, conf *config.WriterConfig) (CorrelationClient, error) {
-	// TODO: someday... adapt property filters to work with correlation objects
 	client := &http.Client{
 		Timeout: 10 * time.Second,
 		Transport: &http.Transport{
