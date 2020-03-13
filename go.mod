@@ -97,6 +97,7 @@ require (
 	github.com/jefferai/jsonx v1.0.0 // indirect
 	github.com/kardianos/service v1.0.0
 	github.com/karrick/godirwalk v1.8.0 // indirect
+	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
 	github.com/keybase/go-crypto v0.0.0-20190312101036-b475f2ecc1fe // indirect
 	github.com/kr/pretty v0.1.0
 	github.com/leodido/go-urn v1.1.0 // indirect
