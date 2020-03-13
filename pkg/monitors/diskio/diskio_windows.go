@@ -122,7 +122,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	emitter.RenameMetrics(metricNameMapping)
 
 	// don't include the telegraf_type dimension
-	emitter.SetOmitOrignalMetricType(true)
+	emitter.SetOmitOriginalMetricType(true)
 
 	// Hard code the plugin name because the emitter will parse out the
 	// configured measurement name as plugin and that is confusing.

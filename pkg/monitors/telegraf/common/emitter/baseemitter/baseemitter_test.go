@@ -30,6 +30,7 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 		nameMap                    map[string]string
 		metricNameTransformations  []func(metricName string) string
 		measurementTransformations []func(telegraf.Metric) error
+		datapointTransformations   []func(*datapoint.Datapoint) error
 	}
 	ts := time.Now()
 	tests := []struct {
@@ -340,6 +341,37 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 			},
 		},
 		{
+			name: "apply datapoint transformation function",
+			args: args{
+				measurement: "name",
+				fields: map[string]interface{}{
+					"fieldname": 5,
+				},
+				tags: map[string]string{
+					"dim1Key": "dim1Val",
+				},
+				metricType: telegraf.Gauge,
+				t:          ts,
+				datapointTransformations: []func(dp *datapoint.Datapoint) error{
+					func(dp *datapoint.Datapoint) error {
+						dp.MetricType = datapoint.Counter
+						return nil
+					},
+				},
+			},
+			wantDatapoints: []*datapoint.Datapoint{
+				datapoint.New(
+					"name.fieldname",
+					map[string]string{
+						"dim1Key": "dim1Val",
+						"plugin":  "name",
+					},
+					datapoint.NewIntValue(int64(5)),
+					datapoint.Counter,
+					ts),
+			},
+		},
+		{
 			name: "apply measurement transformation function",
 			args: args{
 				measurement: "name",
@@ -387,6 +419,7 @@ func TestImmediateEmitter_Emit(t *testing.T) {
 			I.RenameMetrics(args.nameMap)
 			I.AddMetricNameTransformations(args.metricNameTransformations)
 			I.AddMeasurementTransformations(args.measurementTransformations)
+			I.AddDatapointTransformations(args.datapointTransformations)
 			met, _ := metric.New(args.measurement, args.tags, args.fields, args.t, args.metricType)
 			I.AddMetric(met)
 			dps := out.FlushDatapoints()

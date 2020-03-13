@@ -102,7 +102,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	emitter.OmitTag("objectname")
 
 	// don't include the telegraf_type dimension
-	emitter.SetOmitOrignalMetricType(true)
+	emitter.SetOmitOriginalMetricType(true)
 
 	// set metric name replacements to match SignalFx PerfCounterReporter
 	emitter.AddMetricNameTransformation(winperfcounters.NewPCRMetricNamesTransformer())

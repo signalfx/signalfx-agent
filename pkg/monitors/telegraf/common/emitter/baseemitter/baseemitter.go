@@ -31,8 +31,10 @@ func TelegrafToSFXMetricType(m telegraf.Metric) (datapoint.MetricType, string) {
 // BaseEmitter immediately converts a telegraf measurement into datapoints and
 // sends them through Output
 type BaseEmitter struct {
-	Output types.Output
-	Logger log.FieldLogger
+	Output              types.Output
+	Logger              log.FieldLogger
+	OmitPluginDimension bool
+
 	// omittedTags are tags that should be removed from measurements before
 	// being processed
 	omittedTags map[string]bool
@@ -58,6 +60,7 @@ type BaseEmitter struct {
 	// before retrieving the metric name, checking for inclusion/exclusion, etc.
 	// Use great discretion with this.
 	measurementTransformations []func(telegraf.Metric) error
+	datapointTransformations   []func(*datapoint.Datapoint) error
 	// whether to omit the "telegraf_type"
 	// dimension for documenting original metric type
 	omitOriginalMetricType bool
@@ -221,6 +224,27 @@ func (b *BaseEmitter) TransformMeasurement(m telegraf.Metric) {
 	}
 }
 
+// AddDatapointTransformation adds a callback function that can mutate a
+// SignalFx datapoint before it is emitted to the output object.
+func (b *BaseEmitter) AddDatapointTransformation(f func(*datapoint.Datapoint) error) {
+	b.datapointTransformations = append(b.datapointTransformations, f)
+}
+
+func (b *BaseEmitter) AddDatapointTransformations(fns []func(*datapoint.Datapoint) error) {
+	for _, f := range fns {
+		b.AddDatapointTransformation(f)
+	}
+}
+
+// TransformMeasurement applies all measurementTransformations to the supplied measurement
+func (b *BaseEmitter) TransformDatapoint(dp *datapoint.Datapoint) {
+	for _, tf := range b.datapointTransformations {
+		if err := tf(dp); err != nil {
+			b.Logger.WithError(err).Errorf("An error occurred applying a transformation to the datapoint %v", dp)
+		}
+	}
+}
+
 // AddMetric parses metrics from telegraf and emits them through Output
 func (b *BaseEmitter) AddMetric(m telegraf.Metric) {
 
@@ -247,7 +271,7 @@ func (b *BaseEmitter) AddMetric(m telegraf.Metric) {
 	}
 
 	// add plugin dimension if it doesn't exist
-	if !m.HasTag("plugin") {
+	if !m.HasTag("plugin") && !b.OmitPluginDimension {
 		m.AddTag("plugin", m.Name())
 	}
 
@@ -271,6 +295,8 @@ func (b *BaseEmitter) AddMetric(m telegraf.Metric) {
 				metricType,
 				m.Time(),
 			)
+			b.TransformDatapoint(dp)
+
 			b.Output.SendDatapoints(dp)
 		} else {
 			// Skip if it's not included
@@ -306,9 +332,9 @@ func (b *BaseEmitter) AddDebug(deb string, args ...interface{}) {
 	}
 }
 
-// SetOmitOrignalMetricType accepts a boolean to indicate whether the emitter should
+// SetOmitOriginalMetricType accepts a boolean to indicate whether the emitter should
 // add the original metric type or not to each metric
-func (b *BaseEmitter) SetOmitOrignalMetricType(in bool) {
+func (b *BaseEmitter) SetOmitOriginalMetricType(in bool) {
 	b.omitOriginalMetricType = in
 }
 
