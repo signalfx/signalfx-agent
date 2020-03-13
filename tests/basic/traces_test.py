@@ -9,7 +9,7 @@ from textwrap import dedent
 
 import requests
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_datapoint, has_trace_span, tcp_port_open_locally
+from tests.helpers.assertions import has_datapoint, has_trace_span, tcp_port_open_locally, has_dim_set_prop
 from tests.helpers.util import ensure_never, retry_on_ebadf, wait_for
 
 
@@ -80,6 +80,17 @@ def test_tracing_output():
             )
         ), "Didn't get host correlation datapoint"
 
+        assert wait_for(
+            p(
+                has_dim_set_prop,
+                agent.fake_services,
+                dim_name="host",
+                dim_value="testhost",
+                prop_name="sf_services",
+                prop_values=["myapp", "file-server"]
+            ), "Didn't get infrastructure correlation property"
+        )
+
         # Service names expire after 5s in the config provided in this test
         time.sleep(8)
         agent.fake_services.reset_datapoints()
@@ -87,6 +98,17 @@ def test_tracing_output():
         assert ensure_never(
             p(has_datapoint, agent.fake_services, metric_name="sf.int.service.heartbeat"), timeout_seconds=5
         ), "Got infra correlation metric when it should have been expired"
+
+        assert wait_for(
+            p(
+                has_dim_set_prop,
+                agent.fake_services,
+                dim_name="host",
+                dim_value="testhost",
+                prop_name="sf_environments",
+                prop_values=[]
+            )
+        )
 
 
 def test_tracing_load():
@@ -142,6 +164,17 @@ def test_tracing_load():
                     dimensions={"sf_hasService": f"file-server-{i}", "host": "testhost"},
                 )
             ), "Didn't get host correlation datapoint"
+
+            assert wait_for(
+                p(
+                    has_dim_set_prop,
+                    agent.fake_services,
+                    dim_name="host",
+                    dim_value="testhost",
+                    prop_name="sf_services",
+                    prop_values=[f"myapp-{i}", f"file-server-{i}"]
+                )
+            ), "Didn't get infrastructure correlation properties"
 
         time.sleep(10)
         agent.fake_services.reset_datapoints()

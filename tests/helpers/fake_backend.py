@@ -133,6 +133,80 @@ def _make_fake_api(dims):
 
         return response.json(existing)
 
+    @app.put("/v2/apm/correlate/<key>/<value>/service")
+    async def put_service(request, key, value):
+        service = request.body.decode("utf-8")
+        dim = dims.get(key, {}).get(value)
+        if not dim:
+            dims[key] = {}
+            dims[key][value] = {}
+            dims[key][value] = {"sf_services": [service]}
+        elif key is "kubernetes_pod_uid" or key is "container_id":
+            dims[key][value]["sf_services"] = [service]
+        else:
+            dim_services = dim.get("sf_services")
+            if not dim_services:
+                dim_services = [service]
+            else:
+                dim_services.append(service)
+            dims[key][value]["sf_services"] = dim_services
+        return response.json({})
+
+    @app.put("/v2/apm/correlate/<key>/<value>/environment")
+    async def put_environment(request, key, value):
+        environment = request.body.decode("utf-8")
+        dim = dims.get(key, {}).get(value)
+        if not dim:
+            dims[key] = {}
+            dims[key][value] = {}
+            dims[key][value] = {"sf_environments": [environment]}
+        elif key is "kubernetes_pod_uid" or key is "container_id":
+            dims[key][value]["sf_environments"] = [environment]
+        else:
+            dim_environments = dim.get("sf_environments")
+            if not dim_environments:
+                dim_environments = [environment]
+            else:
+                dim_environments.append(environment)
+            dims[key][value]["sf_environments"] = dim_environments
+        return response.json({})
+
+    @app.delete("/v2/apm/correlate/<key>/<value>/service/<propValue>")
+    async def delete_service(key, value, prop_value):
+        dim = dims.get(key, {}).get(value)
+        if not dim:
+            return response.json({})
+        services = dim.get("sf_services")
+        if prop_value in services:
+            services.remove(prop_value)
+        dim["sf_services"] = services
+        return response.json({})
+
+    @app.delete("/v2/apm/correlate/<key>/<value>/environment/<propValue>")
+    async def delete_environment(key, value, prop_value):
+        dim = dims.get(key, {}).get(value)
+        if not dim:
+            return response.json({})
+        environments = dim.get("sf_environments")
+        if prop_value in environments:
+            environments.remove(prop_value)
+        dim["sf_environments"] = environments
+        return response.json({})
+
+    @app.get("/v2/apm/correlate/<key>/<value>")
+    async def get_correlation(key, value):
+        dim = dims.get(key, {}).get(value)
+        if not dim:
+            return response.json({})
+        props = {}
+        services = dim["sf_services"]
+        if services:
+            props["sf_services"] = services
+        environments = dim["sf_environments"]
+        if environments:
+            props["sf_environments"] = environments
+        return response.json(props)
+
     return app
 
 
