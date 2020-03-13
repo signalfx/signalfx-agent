@@ -14,7 +14,7 @@ import (
 )
 
 func (sw *SignalFxWriter) sendSpans(ctx context.Context, spans []*trace.Span) error {
-	if *sw.conf.SendTraceHostCorrelationMetrics {
+	if sw.serviceTracker != nil {
 		sw.serviceTracker.AddSpans(sw.ctx, spans)
 	}
 
@@ -50,7 +50,16 @@ func (sw *SignalFxWriter) preprocessSpan(span *trace.Span) bool {
 }
 
 func (sw *SignalFxWriter) startHostCorrelationTracking() *tracetracker.ActiveServiceTracker {
-	tracker := tracetracker.New(sw.conf.StaleServiceTimeout.AsDuration(), sw.correlationClient, sw.hostIDDims, sw.conf.Environment, func(dp *datapoint.Datapoint) {
+	if (sw.conf.TraceInfrastructureCorrelation == nil || !*sw.conf.TraceInfrastructureCorrelation) && (sw.conf.SendTraceHostCorrelationMetrics == nil || !*sw.conf.SendTraceHostCorrelationMetrics) {
+		return nil
+	}
+
+	var sendTraceHostCorrelationMetrics bool
+	if sw.conf.SendTraceHostCorrelationMetrics != nil {
+		sendTraceHostCorrelationMetrics = *sw.conf.SendTraceHostCorrelationMetrics
+	}
+
+	tracker := tracetracker.New(sw.conf.StaleServiceTimeout.AsDuration(), sw.correlationClient, sw.hostIDDims, sw.conf.Environment, sendTraceHostCorrelationMetrics, func(dp *datapoint.Datapoint) {
 		// Immediately send correlation datapoints when we first see a service
 		sw.dpChan <- []*datapoint.Datapoint{dp}
 	})

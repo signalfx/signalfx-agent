@@ -24,6 +24,14 @@ type CorrelationClient interface {
 	Start()
 }
 
+// NOOPClient implements CorrelationClient interface but doesn't do anything with the correlation
+type NOOPClient struct{}
+
+func (*NOOPClient) AcceptCorrelation(*Correlation) {}
+func (*NOOPClient) Start()                         {}
+
+var _ CorrelationClient = &NOOPClient{}
+
 // Client is a client for making dimensional correlations
 type Client struct {
 	sync.RWMutex
@@ -160,7 +168,7 @@ func (cc *Client) processChan() {
 		case <-cc.ctx.Done():
 			return
 		case correlation := <-cc.correlationChan:
-			cc.correlate(correlation)
+			_ = cc.correlate(correlation)
 		}
 	}
 }

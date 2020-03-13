@@ -150,7 +150,8 @@ The **nested** `writer` config object has the following fields:
 | `logDimensionUpdates` | no | bool | If `true`, dimension updates will be logged at the INFO level. (**default:** `false`) |
 | `logDroppedDatapoints` | no | bool | If true, and the log level is `debug`, filtered out datapoints will be logged. (**default:** `false`) |
 | `addGlobalDimensionsAsSpanTags` | no | bool | If true, the dimensions specified in the top-level `globalDimensions` configuration will be added to the tag set of all spans that are emitted by the writer.  If this is false, only the "host id" dimensions such as `host`, `AwsUniqueId`, etc. are added to the span tags. (**default:** `false`) |
-| `sendTraceHostCorrelationMetrics` | no | bool | Whether to send host correlation metrics to correlation traced services with the underlying host (**default:** `true`) |
+| `traceInfrastructureCorrelation` | no | bool | Whether to send host correlation properties to correlate traced services with the infrastructure (**default:** `"false"`) |
+| `sendTraceHostCorrelationMetrics` | no | bool | Whether to send host correlation metrics to correlate traced services with the underlying host (**default:** `true`) |
 | `staleServiceTimeout` | no | int64 | How long to wait after a trace span's service name is last seen to continue sending the correlation datapoints for that service.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if `sendTraceHostCorrelationMetrics` is false. (**default:** `"5m"`) |
 | `traceHostCorrelationMetricsInterval` | no | int64 | How frequently to send host correlation metrics that are generated from the service name seen in trace spans sent through or by the agent.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if `sendTraceHostCorrelationMetrics` is false. (**default:** `"1m"`) |
 | `maxTraceSpansInFlight` | no | unsigned integer | How many trace spans are allowed to be in the process of sending.  While this number is exceeded, the oldest spans will be discarded to accommodate new spans generated to avoid memory exhaustion.  If you see log messages about "Aborting pending trace requests..." or "Dropping new trace spans..." it means that the downstream target for traces is not able to accept them fast enough. Usually if the downstream is offline you will get connection refused errors and most likely spans will not build up in the agent (there is no retry mechanism). In the case of slow downstreams, you might be able to increase `maxRequests` to increase the concurrent stream of spans downstream (if the target can make efficient use of additional connections) or, less likely, increase `traceSpanMaxBatchSize` if your batches are maxing out (turn on debug logging to see the batch sizes being sent) and being split up too much. If neither of those options helps, your downstream is likely too slow to handle the volume of trace spans and should be upgraded to more powerful hardware/networking. (**default:** `100000`) |
@@ -393,6 +394,7 @@ where applicable:
     logDimensionUpdates: false
     logDroppedDatapoints: false
     addGlobalDimensionsAsSpanTags: false
+    traceInfrastructureCorrelation: "false"
     sendTraceHostCorrelationMetrics: true
     staleServiceTimeout: "5m"
     traceHostCorrelationMetricsInterval: "1m"

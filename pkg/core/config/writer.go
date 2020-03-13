@@ -74,7 +74,10 @@ type WriterConfig struct {
 	// by the writer.  If this is false, only the "host id" dimensions such as
 	// `host`, `AwsUniqueId`, etc. are added to the span tags.
 	AddGlobalDimensionsAsSpanTags bool `yaml:"addGlobalDimensionsAsSpanTags"`
-	// Whether to send host correlation metrics to correlation traced services
+	// Whether to send host correlation properties to correlate traced services
+	// with the infrastructure
+	TraceInfrastructureCorrelation *bool `yaml:"traceInfrastructureCorrelation"`
+	// Whether to send host correlation metrics to correlate traced services
 	// with the underlying host
 	SendTraceHostCorrelationMetrics *bool `yaml:"sendTraceHostCorrelationMetrics" default:"true"`
 	// How long to wait after a trace span's service name is last seen to

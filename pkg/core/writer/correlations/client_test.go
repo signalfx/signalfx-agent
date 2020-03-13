@@ -130,6 +130,8 @@ func TestCorrelationClient(t *testing.T) {
 
 	for _, correlationType := range []Type{Service, Environment} {
 		for _, op := range []Operation{Put, Delete} {
+			correlationType := correlationType
+			op := op
 			t.Run(fmt.Sprintf("%v %v", op, correlationType), func(t *testing.T) {
 				testData := &Correlation{Type: correlationType, Operation: op, DimName: "host", DimValue: "test-box", Value: "test-service"}
 				client.AcceptCorrelation(testData)

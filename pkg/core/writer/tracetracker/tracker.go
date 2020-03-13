@@ -2,7 +2,6 @@ package tracetracker
 
 import (
 	"context"
-	"github.com/signalfx/signalfx-agent/pkg/core/writer/correlations"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -10,6 +9,7 @@ import (
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/golib/v3/trace"
+	"github.com/signalfx/signalfx-agent/pkg/core/writer/correlations"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -26,6 +26,9 @@ type ActiveServiceTracker struct {
 
 	// hostIDDims is the map of key/values discovered by the agent that identify the host
 	hostIDDims map[string]string
+
+	// sendTraceHostCorrelationMetrics turns metric emission on and off
+	sendTraceHostCorrelationMetrics bool
 
 	// keyCache of services and environment associations beyond the host level
 	// NOTE: if we ever care about specific stats, we could always move these to separate caches later
@@ -54,17 +57,18 @@ type ActiveServiceTracker struct {
 }
 
 // New creates a new initialized service tracker
-func New(timeout time.Duration, correlationClient correlations.CorrelationClient, hostIDDims map[string]string, environment string, newServiceCallback func(dp *datapoint.Datapoint)) *ActiveServiceTracker {
+func New(timeout time.Duration, correlationClient correlations.CorrelationClient, hostIDDims map[string]string, environment string, sendTraceHostCorrelationMetrics bool, newServiceCallback func(dp *datapoint.Datapoint)) *ActiveServiceTracker {
 	return &ActiveServiceTracker{
-		environment:          environment,
-		hostIDDims:           hostIDDims,
-		hostServiceCache:     NewTimeoutCache(timeout),
-		hostEnvironmentCache: NewTimeoutCache(timeout),
-		keyCache:             NewTimeoutCache(timeout),
-		dpCache:              make(map[string]*datapoint.Datapoint),
-		newServiceCallback:   newServiceCallback,
-		correlationClient:    correlationClient,
-		timeNow:              time.Now,
+		environment:                     environment,
+		hostIDDims:                      hostIDDims,
+		hostServiceCache:                NewTimeoutCache(timeout),
+		hostEnvironmentCache:            NewTimeoutCache(timeout),
+		keyCache:                        NewTimeoutCache(timeout),
+		dpCache:                         make(map[string]*datapoint.Datapoint),
+		newServiceCallback:              newServiceCallback,
+		correlationClient:               correlationClient,
+		sendTraceHostCorrelationMetrics: sendTraceHostCorrelationMetrics,
+		timeNow:                         time.Now,
 	}
 }
 
@@ -115,6 +119,9 @@ func (a *ActiveServiceTracker) processSpan(span *trace.Span, now time.Time) {
 				Value:     environment,
 			})
 		}
+		log.WithFields(log.Fields{
+			"environment": environment,
+		}).Debug("Tracking environment name from trace span")
 	}
 
 	// container / pod level stuff
@@ -181,11 +188,13 @@ func (a *ActiveServiceTracker) processSpan(span *trace.Span, now time.Time) {
 func (a *ActiveServiceTracker) ensureServiceActive(key *CacheKey, now time.Time) bool {
 	isNew := a.hostServiceCache.UpdateOrCreate(key, now)
 	if isNew {
-		dp := dpForService(key.service)
-		a.dpCache[key.service] = dp
+		if a.sendTraceHostCorrelationMetrics {
+			dp := dpForService(key.service)
+			a.dpCache[key.service] = dp
 
-		if a.newServiceCallback != nil {
-			a.newServiceCallback(dp)
+			if a.newServiceCallback != nil {
+				a.newServiceCallback(dp)
+			}
 		}
 		log.WithFields(log.Fields{
 			"service": key.service,

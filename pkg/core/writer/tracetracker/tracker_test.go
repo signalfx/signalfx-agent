@@ -2,7 +2,6 @@ package tracetracker
 
 import (
 	"context"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"sync"
 	"testing"
 	"time"
@@ -13,6 +12,7 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/correlations"
 	"github.com/signalfx/signalfx-agent/pkg/neotest"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,7 +30,7 @@ func TestDatapointsAreGenerated(t *testing.T) {
 	correlationClient, err := correlations.NewCorrelationClient(testCtx, &config.WriterConfig{})
 	assert.NoError(t, err, "failed to create correlation client")
 
-	a := New(5*time.Minute, correlationClient, nil, "", nil)
+	a := New(5*time.Minute, correlationClient, nil, "", true, nil)
 
 	a.AddSpans(context.Background(), []*trace.Span{
 		{
@@ -66,8 +66,8 @@ func TestExpiration(t *testing.T) {
 	correlationClient, err := correlations.NewCorrelationClient(testCtx, &config.WriterConfig{})
 	assert.NoError(t, err, "failed to create correlation client")
 
-	hostIdDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
-	a := New(5*time.Minute, correlationClient, hostIdDims, "", nil)
+	hostIDDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
+	a := New(5*time.Minute, correlationClient, hostIDDims, "", true, nil)
 	setTime(a, time.Unix(100, 0))
 
 	a.AddSpans(context.Background(), []*trace.Span{
@@ -75,19 +75,19 @@ func TestExpiration(t *testing.T) {
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("one"),
 			},
-			Tags: utils.MergeStringMaps(hostIdDims, map[string]string{"environment": "environment1"}),
+			Tags: utils.MergeStringMaps(hostIDDims, map[string]string{"environment": "environment1"}),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("two"),
 			},
-			Tags: utils.MergeStringMaps(hostIdDims, map[string]string{"environment": "environment2"}),
+			Tags: utils.MergeStringMaps(hostIDDims, map[string]string{"environment": "environment2"}),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("three"),
 			},
-			Tags: utils.MergeStringMaps(hostIdDims, map[string]string{"environment": "environment3"}),
+			Tags: utils.MergeStringMaps(hostIDDims, map[string]string{"environment": "environment3"}),
 		},
 	})
 
@@ -101,7 +101,7 @@ func TestExpiration(t *testing.T) {
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("two"),
 			},
-			Tags: utils.MergeStringMaps(hostIdDims, map[string]string{"environment": "environment2"}),
+			Tags: utils.MergeStringMaps(hostIDDims, map[string]string{"environment": "environment2"}),
 		},
 	})
 
@@ -135,21 +135,16 @@ func (c *correlationTestClient) AcceptCorrelation(cl *correlations.Correlation) 
 func (c *correlationTestClient) getCorrelations() []*correlations.Correlation {
 	c.Lock()
 	defer c.Unlock()
-	return c.cors[:]
-}
-func (c *correlationTestClient) reset() {
-	c.Lock()
-	defer c.Unlock()
-	c.cors = c.cors[0:]
+	return c.cors
 }
 
 var _ correlations.CorrelationClient = &correlationTestClient{}
 
 func TestCorrelationUpdates(t *testing.T) {
 	correlationClient := &correlationTestClient{}
-	hostIdDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
+	hostIDDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
 	containerLevelIDDims := map[string]string{"kubernetes_pod_uid": "testk8sPodUID", "container_id": "testContainerID"}
-	a := New(5*time.Minute, correlationClient, hostIdDims, "", nil)
+	a := New(5*time.Minute, correlationClient, hostIDDims, "", true, nil)
 	setTime(a, time.Unix(100, 0))
 
 	a.AddSpans(context.Background(), []*trace.Span{
@@ -157,19 +152,19 @@ func TestCorrelationUpdates(t *testing.T) {
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("one"),
 			},
-			Tags: utils.MergeStringMaps(hostIdDims, utils.MergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment1"})),
+			Tags: utils.MergeStringMaps(hostIDDims, utils.MergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment1"})),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("two"),
 			},
-			Tags: utils.MergeStringMaps(hostIdDims, utils.MergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment2"})),
+			Tags: utils.MergeStringMaps(hostIDDims, utils.MergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment2"})),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("three"),
 			},
-			Tags: utils.MergeStringMaps(hostIdDims, utils.MergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment3"})),
+			Tags: utils.MergeStringMaps(hostIDDims, utils.MergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment3"})),
 		},
 	})
 
@@ -178,7 +173,7 @@ func TestCorrelationUpdates(t *testing.T) {
 
 	numEnvironments := 3
 	numServices := 3
-	numHostIDDimCorrelations := len(hostIdDims) * (numEnvironments + numServices)
+	numHostIDDimCorrelations := len(hostIDDims) * (numEnvironments + numServices)
 	numContainerLevelCorrelations := len(containerLevelIDDims) * (numEnvironments + numServices)
 	totalExpectedCorrelations := numHostIDDimCorrelations + numContainerLevelCorrelations
 	assert.Equal(t, totalExpectedCorrelations, len(correlationClient.getCorrelations()), "#of correlation requests do not match")
