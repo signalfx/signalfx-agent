@@ -9,7 +9,7 @@ from textwrap import dedent
 
 import requests
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_datapoint, has_trace_span, tcp_port_open_locally, has_dim_set_prop
+from tests.helpers.assertions import has_datapoint, has_trace_span, tcp_port_open_locally, has_dim_set_prop, not_has_dim_set_prop
 from tests.helpers.util import ensure_never, retry_on_ebadf, wait_for
 
 
@@ -101,14 +101,14 @@ def test_tracing_output():
 
         assert wait_for(
             p(
-                has_dim_set_prop,
+                not_has_dim_set_prop,
                 agent.fake_services,
                 dim_name="host",
                 dim_value="testhost",
-                prop_name="sf_environments",
-                prop_values=[]
+                prop_name="sf_services",
+                prop_values=["myapp", "file-server"]
             )
-        )
+        ), "Got correlation property when it should have been expired"
 
 
 def test_tracing_load():
@@ -182,6 +182,19 @@ def test_tracing_load():
         assert ensure_never(
             p(has_datapoint, agent.fake_services, metric_name="sf.int.service.heartbeat"), timeout_seconds=5
         ), "Got infra correlation metric when it should have been expired"
+
+        for i in range(0, 100):
+            assert wait_for(
+                p(
+                    not_has_dim_set_prop,
+                    agent.fake_services,
+                    dim_name="host",
+                    dim_value="testhost",
+                    prop_name="sf_services",
+                    prop_values=[f"myapp-{i}", f"file-server-{i}"]
+                ),
+                timeout_seconds=1
+            ), "Got infra correlation property when it should have been expired"
 
 
 def test_tracing_tags():

@@ -171,8 +171,8 @@ def _make_fake_api(dims):
             dims[key][value]["sf_environments"] = dim_environments
         return response.json({})
 
-    @app.delete("/v2/apm/correlate/<key>/<value>/service/<propValue>")
-    async def delete_service(key, value, prop_value):
+    @app.delete("/v2/apm/correlate/<key>/<value>/service/<prop_value>")
+    async def delete_service(_, key, value, prop_value):
         dim = dims.get(key, {}).get(value)
         if not dim:
             return response.json({})
@@ -182,8 +182,8 @@ def _make_fake_api(dims):
         dim["sf_services"] = services
         return response.json({})
 
-    @app.delete("/v2/apm/correlate/<key>/<value>/environment/<propValue>")
-    async def delete_environment(key, value, prop_value):
+    @app.delete("/v2/apm/correlate/<key>/<value>/environment/<prop_value>")
+    async def delete_environment(_, key, value, prop_value):
         dim = dims.get(key, {}).get(value)
         if not dim:
             return response.json({})
