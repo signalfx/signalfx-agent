@@ -73,7 +73,7 @@ func (rs *ReqSender) sendRequest(req *http.Request) error {
 	body, statusCode, err := sendRequest(rs.client, req)
 	// If it was successful there is nothing else to do.
 	if statusCode == 200 {
-		onRequestSuccess(req)
+		onRequestSuccess(req, body)
 		return nil
 	}
 
@@ -94,15 +94,15 @@ const RequestFailedCallbackKey key = 1
 const RequestSuccessCallbackKey key = 2
 
 type RequestFailedCallback func(statusCode int, err error)
-type RequestSuccessCallback func()
+type RequestSuccessCallback func([]byte)
 
-func onRequestSuccess(req *http.Request) {
+func onRequestSuccess(req *http.Request, body []byte) {
 	ctx := req.Context()
 	cb, ok := ctx.Value(RequestSuccessCallbackKey).(RequestSuccessCallback)
 	if !ok {
 		return
 	}
-	cb()
+	cb(body)
 }
 func onRequestFailed(req *http.Request, statusCode int, err error) {
 	ctx := req.Context()

@@ -243,7 +243,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 		})))
 
 	req = req.WithContext(
-		context.WithValue(req.Context(), requests.RequestSuccessCallbackKey, requests.RequestSuccessCallback(func() {
+		context.WithValue(req.Context(), requests.RequestSuccessCallbackKey, requests.RequestSuccessCallback(func([]byte) {
 			dc.deduplicator.Add(dim)
 			if dc.logUpdates {
 				log.WithFields(log.Fields{

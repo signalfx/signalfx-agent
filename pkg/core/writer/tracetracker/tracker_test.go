@@ -126,8 +126,14 @@ type correlationTestClient struct {
 	cors []*correlations.Correlation
 }
 
-func (c *correlationTestClient) Start() { /*no-op*/ }
-func (c *correlationTestClient) AcceptCorrelation(cl *correlations.Correlation) {
+func (c *correlationTestClient) Start()                                               { /*no-op*/ }
+func (c *correlationTestClient) Get(string, string, func(map[string][]string, error)) { /*no-op*/ }
+func (c *correlationTestClient) Correlate(cl *correlations.Correlation) {
+	c.Lock()
+	defer c.Unlock()
+	c.cors = append(c.cors, cl)
+}
+func (c *correlationTestClient) Delete(cl *correlations.Correlation) {
 	c.Lock()
 	defer c.Unlock()
 	c.cors = append(c.cors, cl)

@@ -56,9 +56,37 @@ type ActiveServiceTracker struct {
 	spansProcessed int64
 }
 
+// LoadCorrelations asynchronously retrieves all known correlations from the backend
+// for all known hostIDDims.  This allows the agent to timeout and manage correlation
+// deletions on restart.
+func (a *ActiveServiceTracker) LoadCorrelations() {
+	// asynchronously fetch all services and environments for each hostIDDim at startup
+	for dimName, dimValue := range a.hostIDDims {
+		a.correlationClient.Get(dimName, dimValue, func(correlations map[string][]string, err error) {
+			// if there was an error unmarshalling the response,
+			// then there's not much we can do.  Just move on.
+			if err != nil {
+				return
+			}
+			a.Lock()
+			defer a.Unlock()
+			if services, ok := correlations["sf_services"]; ok {
+				for _, service := range services {
+					a.ensureServiceActive(&CacheKey{dimName: dimName, dimValue: dimValue, service: service}, a.timeNow())
+				}
+			}
+			if environments, ok := correlations["sf_environments"]; ok {
+				for _, environment := range environments {
+					a.hostEnvironmentCache.UpdateOrCreate(&CacheKey{dimName: dimName, dimValue: dimValue, environment: environment}, a.timeNow())
+				}
+			}
+		})
+	}
+}
+
 // New creates a new initialized service tracker
 func New(timeout time.Duration, correlationClient correlations.CorrelationClient, hostIDDims map[string]string, environment string, sendTraceHostCorrelationMetrics bool, newServiceCallback func(dp *datapoint.Datapoint)) *ActiveServiceTracker {
-	return &ActiveServiceTracker{
+	a := &ActiveServiceTracker{
 		environment:                     environment,
 		hostIDDims:                      hostIDDims,
 		hostServiceCache:                NewTimeoutCache(timeout),
@@ -70,6 +98,9 @@ func New(timeout time.Duration, correlationClient correlations.CorrelationClient
 		sendTraceHostCorrelationMetrics: sendTraceHostCorrelationMetrics,
 		timeNow:                         time.Now,
 	}
+	a.LoadCorrelations()
+
+	return a
 }
 
 // CorrelationDatapoints returns a list of host correlation datapoints based on
@@ -111,12 +142,11 @@ func (a *ActiveServiceTracker) processSpan(span *trace.Span, now time.Time) {
 	// update the environment for the hostIDDims
 	if isNew := a.hostEnvironmentCache.UpdateOrCreate(&CacheKey{environment: environment}, now); isNew {
 		for dimName, dimValue := range a.hostIDDims {
-			a.correlationClient.AcceptCorrelation(&correlations.Correlation{
-				Type:      correlations.Environment,
-				Operation: correlations.Put,
-				DimName:   dimName,
-				DimValue:  dimValue,
-				Value:     environment,
+			a.correlationClient.Correlate(&correlations.Correlation{
+				Type:     correlations.Environment,
+				DimName:  dimName,
+				DimValue: dimValue,
+				Value:    environment,
 			})
 		}
 		log.WithFields(log.Fields{
@@ -129,12 +159,11 @@ func (a *ActiveServiceTracker) processSpan(span *trace.Span, now time.Time) {
 	for _, dimName := range dimsToSyncSource {
 		if dimValue, ok := span.Tags[dimName]; ok {
 			if isNew := a.keyCache.UpdateOrCreate(&CacheKey{dimName: dimName, dimValue: dimValue, environment: environment}, now); isNew {
-				a.correlationClient.AcceptCorrelation(&correlations.Correlation{
-					Type:      correlations.Environment,
-					Operation: correlations.Put,
-					DimName:   dimName,
-					DimValue:  dimValue,
-					Value:     environment,
+				a.correlationClient.Correlate(&correlations.Correlation{
+					Type:     correlations.Environment,
+					DimName:  dimName,
+					DimValue: dimValue,
+					Value:    environment,
 				})
 			}
 
@@ -158,12 +187,11 @@ func (a *ActiveServiceTracker) processSpan(span *trace.Span, now time.Time) {
 	if isNew := a.ensureServiceActive(&CacheKey{service: service}, now); isNew {
 		// all of the host id dims need to be correlated with the service
 		for dimName, dimValue := range a.hostIDDims {
-			a.correlationClient.AcceptCorrelation(&correlations.Correlation{
-				Type:      correlations.Service,
-				Operation: correlations.Put,
-				DimName:   dimName,
-				DimValue:  dimValue,
-				Value:     service,
+			a.correlationClient.Correlate(&correlations.Correlation{
+				Type:     correlations.Service,
+				DimName:  dimName,
+				DimValue: dimValue,
+				Value:    service,
 			})
 		}
 	}
@@ -173,12 +201,11 @@ func (a *ActiveServiceTracker) processSpan(span *trace.Span, now time.Time) {
 	for _, dimName := range dimsToSyncSource {
 		if dimValue, ok := span.Tags[dimName]; ok {
 			if isNew := a.keyCache.UpdateOrCreate(&CacheKey{dimName: dimName, dimValue: dimValue, service: service}, now); isNew {
-				a.correlationClient.AcceptCorrelation(&correlations.Correlation{
-					Type:      correlations.Service,
-					Operation: correlations.Put,
-					DimName:   dimName,
-					DimValue:  dimValue,
-					Value:     service,
+				a.correlationClient.Correlate(&correlations.Correlation{
+					Type:     correlations.Service,
+					DimName:  dimName,
+					DimValue: dimValue,
+					Value:    service,
 				})
 			}
 		}
@@ -211,12 +238,11 @@ func (a *ActiveServiceTracker) Purge() {
 	a.hostServiceCache.PurgeOld(now, func(purged *CacheKey) {
 		// delete the correlation from all host id dims
 		for dimName, dimValue := range a.hostIDDims {
-			a.correlationClient.AcceptCorrelation(&correlations.Correlation{
-				Type:      correlations.Service,
-				Operation: correlations.Delete,
-				DimName:   dimName,
-				DimValue:  dimValue,
-				Value:     purged.service,
+			a.correlationClient.Delete(&correlations.Correlation{
+				Type:     correlations.Service,
+				DimName:  dimName,
+				DimValue: dimValue,
+				Value:    purged.service,
 			})
 		}
 		// remove host/service correlation metric from tracker
@@ -228,12 +254,11 @@ func (a *ActiveServiceTracker) Purge() {
 	a.hostEnvironmentCache.PurgeOld(now, func(purged *CacheKey) {
 		// delete the correlation from all host id dims
 		for dimName, dimValue := range a.hostIDDims {
-			a.correlationClient.AcceptCorrelation(&correlations.Correlation{
-				Type:      correlations.Environment,
-				Operation: correlations.Delete,
-				DimName:   dimName,
-				DimValue:  dimValue,
-				Value:     purged.service,
+			a.correlationClient.Delete(&correlations.Correlation{
+				Type:     correlations.Environment,
+				DimName:  dimName,
+				DimValue: dimValue,
+				Value:    purged.service,
 			})
 		}
 		log.WithFields(log.Fields{
