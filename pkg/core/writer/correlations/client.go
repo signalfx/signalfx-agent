@@ -3,6 +3,7 @@ package correlations
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net"
 	"net/http"
@@ -140,7 +141,7 @@ func (cc *Client) makeRequest(r *request) error {
 
 	if r.DimName == "" || r.DimValue == "" {
 		atomic.AddInt64(&cc.TotalInvalidDimensions, int64(1))
-		return fmt.Errorf("correlation dimension %v is missing key or value, cannot send", r)
+		return errors.New("correlation dimension is missing key or value, cannot send")
 	}
 
 	// build endpoint url
@@ -158,7 +159,7 @@ func (cc *Client) makeRequest(r *request) error {
 		endpoint = fmt.Sprintf("%s/%s/%s", endpoint, r.Type, r.Value)
 		req, err = http.NewRequest(r.operation, endpoint, nil)
 	default:
-		return fmt.Errorf("unknown operation for client")
+		return fmt.Errorf("unknown operation for correlation client")
 	}
 
 	if err != nil {
@@ -215,8 +216,13 @@ func (cc *Client) processChan() {
 		select {
 		case <-cc.ctx.Done():
 			return
-		case req := <-cc.requestChan:
-			_ = cc.makeRequest(req)
+		case r := <-cc.requestChan:
+			err := cc.makeRequest(r)
+			if err != nil {
+				log.WithError(err).WithFields(log.Fields{
+					"correlation": r,
+				}).Error("Unable to update correlation, not retrying")
+			}
 		}
 	}
 }
