@@ -114,6 +114,7 @@ type WriterConfig struct {
 	TraceEndpointURL    string                 `yaml:"-"`
 	SignalFxAccessToken string                 `yaml:"-"`
 	GlobalDimensions    map[string]string      `yaml:"-"`
+	GlobalSpanTags 		map[string]string 	   `yaml:"-"`
 	MetricsToInclude    []MetricFilter         `yaml:"-"`
 	MetricsToExclude    []MetricFilter         `yaml:"-"`
 	PropertiesToExclude []PropertyFilterConfig `yaml:"-"`

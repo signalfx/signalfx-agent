@@ -48,6 +48,7 @@ if not set.
 | `disableHostDimensions` | no | bool | Our standard agent model is to collect metrics for services running on the same host as the agent.  Therefore, host-specific dimensions (e.g. `host`, `AWSUniqueId`, etc) are automatically added to every datapoint that is emitted from the agent by default.  Set this to true if you are using the agent primarily to monitor things on other hosts.  You can set this option at the monitor level as well. (**default:** `false`) |
 | `intervalSeconds` | no | integer | How often to send metrics to SignalFx.  Monitors can override this individually. (**default:** `10`) |
 | `globalDimensions` | no | map of strings | Dimensions (key:value pairs) that will be added to every datapoint emitted by the agent. To specify that all metrics should be high-resolution, add the dimension `sf_hires: 1` |
+| `globalSpanTags` | no | map of strings | Tags (key:value pairs) that will be added to every span emitted by the agent. |
 | `environment` | no | string | The logical environment/cluster that this agent instance is running in. All of the services that this instance monitors should be in the same environment as well. This value, if provided, will be synced as a property onto the `host` dimension, or onto any cloud-provided specific dimensions (`AWSUniqueId`, `gcp_id`, and `azure_resource_id`) when available. Example values: "prod-usa", "dev" |
 | `cluster` | no | string | This configuration is deprecated and has been replaced with `environment`. Setting `environment` will override `cluster`.  If `environment` is not set then `cluster` will be used as a fallback. |
 | `syncClusterOnHostDimension` | no | bool | If true, force syncing of the `cluster` property on the `host` dimension, even when cloud-specific dimensions are present. (**default:** `false`) |
@@ -98,6 +99,8 @@ The following are generic options that apply to all monitors.  Each monitor type
 | `discoveryRule` | no | string | The rule used to match up this configuration with a discovered endpoint. If blank, the configuration will be run immediately when the agent is started.  If multiple endpoints match this rule, multiple instances of the monitor type will be created with the same configuration (except different host/port). |
 | `validateDiscoveryRule` | no | bool | If true, a warning will be emitted if a discovery rule contains variables that will never possibly match a rule.  If using multiple observers, it is convenient to set this to false to suppress spurious errors.  The top-level setting `validateDiscoveryRules` acts as a default if this isn't set. (**default:** `"false"`) |
 | `extraDimensions` | no | map of strings | A set of extra dimensions (key:value pairs) to include on datapoints emitted by the monitor(s) created from this configuration. To specify metrics from this monitor should be high-resolution, add the dimension `sf_hires: 1` |
+| `extraSpanTags` | no | map of strings | A set of extra span tags (key:value pairs) to include on spans emitted by the monitor(s) created from this configuration. |
+| `extraSpanTagFromEndpoint` | no | map of strings | A mapping of extra span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}` |
 | `extraDimensionsFromEndpoint` | no | map of strings | A mapping of extra dimension names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the dimension.  For example, to use a certain container label as a dimension, you could use something like this in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}` |
 | `configEndpointMappings` | no | map of strings | A set of mappings from a configuration option on this monitor to attributes of a discovered endpoint.  The keys are the config option on this monitor and the value can be any valid expression used in discovery rules. |
 | `intervalSeconds` | no | integer | The interval (in seconds) at which to emit datapoints from the monitor(s) created by this configuration.  If not set (or set to 0), the global agent intervalSeconds config option will be used instead. (**default:** `0`) |
@@ -369,6 +372,7 @@ where applicable:
   disableHostDimensions: false
   intervalSeconds: 10
   globalDimensions: 
+  globalSpanTags: 
   environment: 
   cluster: 
   syncClusterOnHostDimension: false

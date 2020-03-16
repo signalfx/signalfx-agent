@@ -18,6 +18,8 @@ type Output interface {
 	SendDimensionUpdate(*Dimension)
 	AddExtraDimension(key, value string)
 	RemoveExtraDimension(key string)
+	AddExtraSpanTag(key, value string)
+	RemoveExtraSpanTag(key string)
 }
 
 // FilteringOutput is Output enhanced with additional filtering mechanisms.

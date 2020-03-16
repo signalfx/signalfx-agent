@@ -389,6 +389,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		dimensionChan:             mm.DimensionUpdates,
 		spanChan:                  mm.TraceSpans,
 		extraDims:                 map[string]string{},
+		extraSpanTags:             map[string]string{},
 		dimensionTransformations:  renderedConf.MonitorConfigCore().DimensionTransformations,
 		monitorFiltering:          monFiltering,
 	}

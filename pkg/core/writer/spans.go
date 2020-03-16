@@ -22,6 +22,22 @@ func (sw *SignalFxWriter) sendSpans(ctx context.Context, spans []*trace.Span) er
 	return sw.client.AddSpans(context.Background(), spans)
 }
 
+// Mutates span tags in place to add global span tags.  Also
+// returns tags in case they were nil to begin with, so the return value should
+// be assigned back to the span Tags field.
+func (sw *SignalFxWriter) addGlobalSpanTags(tags map[string]string) map[string]string {
+	if tags == nil {
+		tags = make(map[string]string)
+	}
+	for name, value := range sw.conf.GlobalSpanTags {
+		// If the tags are already set, don't override
+		if _, ok := tags[name]; !ok {
+			tags[name] = value
+		}
+	}
+	return tags
+}
+
 func (sw *SignalFxWriter) preprocessSpan(span *trace.Span) bool {
 	// Some spans aren't really specific to the host they are running
 	// on and shouldn't have any host-specific tags.  This is indicated by a
@@ -33,10 +49,12 @@ func (sw *SignalFxWriter) preprocessSpan(span *trace.Span) bool {
 		delete(span.Tags, dpmeta.NotHostSpecificMeta)
 	}
 
+	span.Tags = sw.addGlobalSpanTags(span.Tags)
+
 	sw.spanSourceTracker.AddSourceTagsToSpan(span)
 
 	if sw.conf.AddGlobalDimensionsAsSpanTags {
-		sw.addGlobalDims(span.Tags)
+		span.Tags = sw.addGlobalDims(span.Tags)
 	}
 
 	// adding smart agent version as a tag
