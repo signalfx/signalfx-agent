@@ -179,7 +179,7 @@ func (dc *DimensionClient) processQueue() {
 			dc.Unlock()
 
 			if err := dc.setPropertiesOnDimension(delayedDim.Dimension); err != nil {
-				log.WithError(err).WithField("dim", delayedDim.Key()).Error("Could not Send dimension update")
+				log.WithError(err).WithField("dim", delayedDim.Key()).Error("Could not send dimension update")
 			}
 		}
 	}
@@ -195,7 +195,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 
 	if dim.Name == "" || dim.Value == "" {
 		atomic.AddInt64(&dc.TotalInvalidDimensions, int64(1))
-		return fmt.Errorf("dimension %v is missing key or value, cannot Send", dim)
+		return fmt.Errorf("dimension %v is missing key or value, cannot send", dim)
 	}
 
 	if dim.MergeIntoExisting {

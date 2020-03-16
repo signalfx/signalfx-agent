@@ -140,7 +140,7 @@ func (cc *Client) makeRequest(r *request) error {
 
 	if r.DimName == "" || r.DimValue == "" {
 		atomic.AddInt64(&cc.TotalInvalidDimensions, int64(1))
-		return fmt.Errorf("correlation dimension %v is missing key or value, cannot Send", r)
+		return fmt.Errorf("correlation dimension %v is missing key or value, cannot send", r)
 	}
 
 	// build endpoint url
