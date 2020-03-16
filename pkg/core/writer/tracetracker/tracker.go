@@ -216,6 +216,7 @@ func (a *ActiveServiceTracker) ensureServiceActive(key *CacheKey, now time.Time)
 	isNew := a.hostServiceCache.UpdateOrCreate(key, now)
 	if isNew {
 		if a.sendTraceHostCorrelationMetrics {
+			// only add to the dp cache if we're sending host/service correlation metrics
 			dp := dpForService(key.service)
 			a.dpCache[key.service] = dp
 

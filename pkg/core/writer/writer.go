@@ -104,15 +104,10 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 	}
 
 	var correlationClient correlations.CorrelationClient
-	if conf.TraceInfrastructureCorrelation != nil && *conf.TraceInfrastructureCorrelation {
-		var err error
-		correlationClient, err = correlations.NewCorrelationClient(ctx, conf)
-		if err != nil {
-			cancel()
-			return nil, err
-		}
-	} else {
-		correlationClient = &correlations.NOOPClient{}
+	correlationClient, err = correlations.NewCorrelationClient(ctx, conf)
+	if err != nil {
+		cancel()
+		return nil, err
 	}
 
 	sw := &SignalFxWriter{

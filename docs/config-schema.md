@@ -150,7 +150,6 @@ The **nested** `writer` config object has the following fields:
 | `logDimensionUpdates` | no | bool | If `true`, dimension updates will be logged at the INFO level. (**default:** `false`) |
 | `logDroppedDatapoints` | no | bool | If true, and the log level is `debug`, filtered out datapoints will be logged. (**default:** `false`) |
 | `addGlobalDimensionsAsSpanTags` | no | bool | If true, the dimensions specified in the top-level `globalDimensions` configuration will be added to the tag set of all spans that are emitted by the writer.  If this is false, only the "host id" dimensions such as `host`, `AwsUniqueId`, etc. are added to the span tags. (**default:** `false`) |
-| `traceInfrastructureCorrelation` | no | bool | Whether to send host correlation properties to correlate traced services with the infrastructure (**default:** `"false"`) |
 | `sendTraceHostCorrelationMetrics` | no | bool | Whether to send host correlation metrics to correlate traced services with the underlying host (**default:** `true`) |
 | `staleServiceTimeout` | no | int64 | How long to wait after a trace span's service name is last seen to continue sending the correlation datapoints for that service.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if `sendTraceHostCorrelationMetrics` is false. (**default:** `"5m"`) |
 | `traceHostCorrelationMetricsInterval` | no | int64 | How frequently to send host correlation metrics that are generated from the service name seen in trace spans sent through or by the agent.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if `sendTraceHostCorrelationMetrics` is false. (**default:** `"1m"`) |
@@ -394,7 +393,6 @@ where applicable:
     logDimensionUpdates: false
     logDroppedDatapoints: false
     addGlobalDimensionsAsSpanTags: false
-    traceInfrastructureCorrelation: "false"
     sendTraceHostCorrelationMetrics: true
     staleServiceTimeout: "5m"
     traceHostCorrelationMetricsInterval: "1m"

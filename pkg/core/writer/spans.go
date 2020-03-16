@@ -50,10 +50,6 @@ func (sw *SignalFxWriter) preprocessSpan(span *trace.Span) bool {
 }
 
 func (sw *SignalFxWriter) startHostCorrelationTracking() *tracetracker.ActiveServiceTracker {
-	if (sw.conf.TraceInfrastructureCorrelation == nil || !*sw.conf.TraceInfrastructureCorrelation) && (sw.conf.SendTraceHostCorrelationMetrics == nil || !*sw.conf.SendTraceHostCorrelationMetrics) {
-		return nil
-	}
-
 	var sendTraceHostCorrelationMetrics bool
 	if sw.conf.SendTraceHostCorrelationMetrics != nil {
 		sendTraceHostCorrelationMetrics = *sw.conf.SendTraceHostCorrelationMetrics

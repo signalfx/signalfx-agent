@@ -52409,14 +52409,6 @@
               "elementKind": ""
             },
             {
-              "yamlName": "traceInfrastructureCorrelation",
-              "doc": "Whether to send host correlation properties to correlate traced services with the infrastructure",
-              "default": "false",
-              "required": false,
-              "type": "bool",
-              "elementKind": ""
-            },
-            {
               "yamlName": "sendTraceHostCorrelationMetrics",
               "doc": "Whether to send host correlation metrics to correlate traced services with the underlying host",
               "default": true,
