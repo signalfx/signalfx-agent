@@ -18,8 +18,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const correlationChanCapacity = 1000
-
 // CorrelationClient is an interface for correlations.Client
 type CorrelationClient interface {
 	Correlate(correlation *Correlation)
@@ -27,16 +25,6 @@ type CorrelationClient interface {
 	Get(dimName string, dimValue string, callback func(map[string][]string, error))
 	Start()
 }
-
-// NOOPClient implements CorrelationClient interface but doesn't do anything with the correlation
-type NOOPClient struct{}
-
-func (*NOOPClient) Correlate(*Correlation)                                                         {}
-func (*NOOPClient) Delete(*Correlation)                                                            {}
-func (*NOOPClient) Get(dimName string, dimValue string, callback func(map[string][]string, error)) {}
-func (*NOOPClient) Start()                                                                         {}
-
-var _ CorrelationClient = &NOOPClient{}
 
 type request struct {
 	*Correlation
@@ -89,7 +77,7 @@ func NewCorrelationClient(ctx context.Context, conf *config.WriterConfig) (Corre
 		client:        client,
 		now:           time.Now,
 		logUpdates:    conf.LogDimensionUpdates,
-		requestChan:   make(chan *request, correlationChanCapacity),
+		requestChan:   make(chan *request, conf.PropertiesMaxBuffered),
 	}, nil
 }
 
@@ -183,16 +171,26 @@ func (cc *Client) makeRequest(r *request) error {
 				return
 			}
 
+			// The retry is meant to provide some measure of robustness against
+			// temporary API failures.  If the API is down for significant
+			// periods of time, correlation updates will probably eventually back
+			// up beyond conf.PropertiesMaxBuffered and start dropping.
 			log.WithError(err).WithFields(log.Fields{
 				"url":         req.URL.String(),
 				"correlation": r,
 			}).Error("Unable to update dimension, retrying")
-			atomic.AddInt64(&cc.TotalRetriedUpdates, int64(1))
-			// The retry is meant to provide some measure of robustness against
-			// temporary API failures.  If the API is down for significant
-			// periods of time, dimension updates will probably eventually back
-			// up beyond conf.PropertiesMaxBuffered and start dropping.
-			if err := cc.makeRequest(r); err != nil {
+			select {
+			// on non 400 errors push the request back on the requestChan to retry,
+			// but drop the requests if the requestChan is full.
+			// This is not ideal because we won't resend the request,
+			// but this is a necessary safety mechanism to prevent the agent from
+			// locking up.
+			case <-cc.ctx.Done():
+				return
+			case cc.requestChan <- r:
+				atomic.AddInt64(&cc.TotalRetriedUpdates, int64(1))
+				return
+			default:
 				log.WithFields(log.Fields{
 					"error": err,
 					"dim":   r.DimName,
