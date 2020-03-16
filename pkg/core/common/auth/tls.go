@@ -53,7 +53,6 @@ func TLSConfig(tlsConfig *tls.Config, caCertPath string, clientCertPath string, 
 
 	tlsConfig.Certificates = clientCerts
 	tlsConfig.RootCAs = certs
-	tlsConfig.BuildNameToCertificate()
 
 	return tlsConfig, nil
 }

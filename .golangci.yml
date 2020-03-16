@@ -54,6 +54,11 @@ linters:
     # There are many legitimate uses of globals
     - gochecknoglobals
     - godox
+    # An analyzer to detect magic numbers.
+    - gomnd
+    # Checks whether Err of rows is checked successfully
+    # Re-enable when this false positive is fixed https://github.com/golangci/golangci-lint/issues/943
+    - rowserrcheck
     # Too many of these errors to fix in a reasonable amount of time.
     - wsl
     # TODO: reenable this one after a fix up of the existing code base
