@@ -64,6 +64,12 @@ func (to *TestOutput) AddExtraDimension(key, value string) {}
 // RemoveExtraDimension is a noop here
 func (to *TestOutput) RemoveExtraDimension(key string) {}
 
+// AddExtraSpanTag is a noop here
+func (to *TestOutput) AddExtraSpanTag(key, value string) {}
+
+// RemoveExtraSpanTag is a noop here
+func (to *TestOutput) RemoveExtraSpanTag(key string) {}
+
 // FlushDatapoints returns all of the datapoints injected into the channel so
 // far.
 func (to *TestOutput) FlushDatapoints() []*datapoint.Datapoint {

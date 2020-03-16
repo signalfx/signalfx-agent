@@ -117,8 +117,6 @@ func (mo *monitorOutput) preprocessSpan(span *trace.Span) {
 		span.Meta = map[interface{}]interface{}{}
 	}
 	span.Meta[dpmeta.EndpointMeta] = mo.endpoint
-
-	return
 }
 
 func (mo *monitorOutput) SendSpans(spans ...*trace.Span) {

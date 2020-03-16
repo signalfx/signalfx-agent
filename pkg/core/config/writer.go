@@ -4,11 +4,10 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
-
 	"github.com/mitchellh/hashstructure"
 	"github.com/signalfx/signalfx-agent/pkg/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/pkg/core/propfilters"
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -114,7 +113,7 @@ type WriterConfig struct {
 	TraceEndpointURL    string                 `yaml:"-"`
 	SignalFxAccessToken string                 `yaml:"-"`
 	GlobalDimensions    map[string]string      `yaml:"-"`
-	GlobalSpanTags 		map[string]string 	   `yaml:"-"`
+	GlobalSpanTags      map[string]string      `yaml:"-"`
 	MetricsToInclude    []MetricFilter         `yaml:"-"`
 	MetricsToExclude    []MetricFilter         `yaml:"-"`
 	PropertiesToExclude []PropertyFilterConfig `yaml:"-"`
