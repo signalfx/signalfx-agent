@@ -62,6 +62,8 @@ type ActiveServiceTracker struct {
 func (a *ActiveServiceTracker) LoadCorrelations() {
 	// asynchronously fetch all services and environments for each hostIDDim at startup
 	for dimName, dimValue := range a.hostIDDims {
+		dimName := dimName
+		dimValue := dimValue
 		a.correlationClient.Get(dimName, dimValue, func(correlations map[string][]string, err error) {
 			// if there was an error unmarshalling the response,
 			// then there's not much we can do.  Just move on.

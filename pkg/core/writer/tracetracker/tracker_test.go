@@ -9,7 +9,6 @@ import (
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/pointer"
 	"github.com/signalfx/golib/v3/trace"
-	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/correlations"
 	"github.com/signalfx/signalfx-agent/pkg/neotest"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
@@ -25,12 +24,11 @@ func advanceTime(a *ActiveServiceTracker, minutes int64) {
 }
 
 func TestDatapointsAreGenerated(t *testing.T) {
-	testCtx, cancelFn := context.WithCancel(context.Background())
-	defer cancelFn()
-	correlationClient, err := correlations.NewCorrelationClient(testCtx, &config.WriterConfig{})
-	assert.NoError(t, err, "failed to create correlation client")
+	//testCtx, cancelFn := context.WithCancel(context.Background())
+	//defer cancelFn()
+	correlationClient := &correlationTestClient{}
 
-	a := New(5*time.Minute, correlationClient, nil, "", true, nil)
+	a := New(5*time.Minute, correlationClient, nil, true, nil)
 
 	a.AddSpans(context.Background(), []*trace.Span{
 		{
@@ -61,13 +59,10 @@ func TestDatapointsAreGenerated(t *testing.T) {
 }
 
 func TestExpiration(t *testing.T) {
-	testCtx, cancelFn := context.WithCancel(context.Background())
-	defer cancelFn()
-	correlationClient, err := correlations.NewCorrelationClient(testCtx, &config.WriterConfig{})
-	assert.NoError(t, err, "failed to create correlation client")
+	correlationClient := &correlationTestClient{}
 
 	hostIDDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
-	a := New(5*time.Minute, correlationClient, hostIDDims, "", true, nil)
+	a := New(5*time.Minute, correlationClient, hostIDDims, true, nil)
 	setTime(a, time.Unix(100, 0))
 
 	a.AddSpans(context.Background(), []*trace.Span{
@@ -150,7 +145,7 @@ func TestCorrelationUpdates(t *testing.T) {
 	correlationClient := &correlationTestClient{}
 	hostIDDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
 	containerLevelIDDims := map[string]string{"kubernetes_pod_uid": "testk8sPodUID", "container_id": "testContainerID"}
-	a := New(5*time.Minute, correlationClient, hostIDDims, "", true, nil)
+	a := New(5*time.Minute, correlationClient, hostIDDims, true, nil)
 	setTime(a, time.Unix(100, 0))
 
 	a.AddSpans(context.Background(), []*trace.Span{
