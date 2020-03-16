@@ -24,8 +24,6 @@ func advanceTime(a *ActiveServiceTracker, minutes int64) {
 }
 
 func TestDatapointsAreGenerated(t *testing.T) {
-	//testCtx, cancelFn := context.WithCancel(context.Background())
-	//defer cancelFn()
 	correlationClient := &correlationTestClient{}
 
 	a := New(5*time.Minute, correlationClient, nil, true, nil)

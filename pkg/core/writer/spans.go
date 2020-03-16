@@ -55,7 +55,7 @@ func (sw *SignalFxWriter) startHostCorrelationTracking() *tracetracker.ActiveSer
 		sendTraceHostCorrelationMetrics = *sw.conf.SendTraceHostCorrelationMetrics
 	}
 
-	tracker := tracetracker.New(sw.conf.StaleServiceTimeout.AsDuration(), sw.correlationClient, sw.hostIDDims, sw.conf.Environment, sendTraceHostCorrelationMetrics, func(dp *datapoint.Datapoint) {
+	tracker := tracetracker.New(sw.conf.StaleServiceTimeout.AsDuration(), sw.correlationClient, sw.hostIDDims, sendTraceHostCorrelationMetrics, func(dp *datapoint.Datapoint) {
 		// Immediately send correlation datapoints when we first see a service
 		sw.dpChan <- []*datapoint.Datapoint{dp}
 	})

@@ -160,7 +160,7 @@ func TestCorrelationClient(t *testing.T) {
 					client.Delete(testData)
 				}
 				cors := waitForCors(serverCh, 1, 5)
-				require.Equal(t, []*request{&request{operation: op, Correlation: testData}}, cors)
+				require.Equal(t, []*request{{operation: op, Correlation: testData}}, cors)
 			})
 		}
 	}
@@ -188,6 +188,6 @@ func TestCorrelationClient(t *testing.T) {
 
 		forcedResp.Store(200)
 		cors = waitForCors(serverCh, 1, 2)
-		require.Equal(t, []*request{&request{Correlation: testData, operation: http.MethodPut}}, cors)
+		require.Equal(t, []*request{{Correlation: testData, operation: http.MethodPut}}, cors)
 	})
 }

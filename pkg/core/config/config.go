@@ -165,19 +165,6 @@ type Config struct {
 	SysPath string `yaml:"sysPath" default:"/sys"`
 }
 
-// remapValues is used to move deprecated config values to newer keys.
-// a warning should be logged for each migrated value
-func (c *Config) remapValues() {
-	// if environment is empty, then set it to conf.cluster for legacy behavior
-	if c.Environment == "" && c.Cluster != "" {
-		log.WithFields(log.Fields{
-			"cluster":     c.Cluster,
-			"environment": c.Environment,
-		}).Warn("Config value 'cluster' is deprecated, please use `environment` instead")
-		c.Environment = c.Cluster
-	}
-}
-
 func (c *Config) initialize() (*Config, error) {
 	if c.SignalFxRealm != "" {
 		if c.IngestURL == "" {
@@ -195,7 +182,6 @@ func (c *Config) initialize() (*Config, error) {
 		return nil, errors.WithMessage(err, "configuration is invalid")
 	}
 
-	c.remapValues()
 	err := c.propagateValuesDown()
 	if err != nil {
 		return nil, err
@@ -295,7 +281,6 @@ func (c *Config) propagateValuesDown() error {
 	c.Writer.TraceEndpointURL = c.TraceEndpointURL
 	c.Writer.SignalFxAccessToken = c.SignalFxAccessToken
 	c.Writer.GlobalDimensions = c.GlobalDimensions
-	c.Writer.Environment = c.Environment
 
 	return nil
 }

@@ -87,9 +87,8 @@ func (a *ActiveServiceTracker) LoadCorrelations() {
 }
 
 // New creates a new initialized service tracker
-func New(timeout time.Duration, correlationClient correlations.CorrelationClient, hostIDDims map[string]string, environment string, sendTraceHostCorrelationMetrics bool, newServiceCallback func(dp *datapoint.Datapoint)) *ActiveServiceTracker {
+func New(timeout time.Duration, correlationClient correlations.CorrelationClient, hostIDDims map[string]string, sendTraceHostCorrelationMetrics bool, newServiceCallback func(dp *datapoint.Datapoint)) *ActiveServiceTracker {
 	a := &ActiveServiceTracker{
-		environment:                     environment,
 		hostIDDims:                      hostIDDims,
 		hostServiceCache:                NewTimeoutCache(timeout),
 		hostEnvironmentCache:            NewTimeoutCache(timeout),
@@ -128,17 +127,21 @@ func (a *ActiveServiceTracker) AddSpans(ctx context.Context, spans []*trace.Span
 	defer a.Unlock()
 
 	for i := range spans {
-		a.processSpan(spans[i], now)
+		a.processEnvironment(spans[i], now)
+		a.processService(spans[i], now)
 	}
 
 	// Protected by lock above
 	a.spansProcessed += int64(len(spans))
 }
 
-func (a *ActiveServiceTracker) processSpan(span *trace.Span, now time.Time) {
-	environment, environmentFound := span.Tags["environment"]
-	if !environmentFound {
-		environment = a.environment
+func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Time) {
+	if span.Tags == nil {
+		return
+	}
+	environment, envrionmentFound := span.Tags["environment"]
+	if !envrionmentFound {
+		return
 	}
 
 	// update the environment for the hostIDDims
@@ -178,7 +181,9 @@ func (a *ActiveServiceTracker) processSpan(span *trace.Span, now time.Time) {
 			}
 		}
 	}
+}
 
+func (a *ActiveServiceTracker) processService(span *trace.Span, now time.Time) {
 	// Can't do anything if the spans don't have a local service name
 	if span.LocalEndpoint == nil || span.LocalEndpoint.ServiceName == nil {
 		return
