@@ -64,21 +64,25 @@ func (a *ActiveServiceTracker) LoadCorrelations() {
 		dimName := dimName
 		dimValue := dimValue
 		a.correlationClient.Get(dimName, dimValue, func(correlations map[string][]string, err error) {
-			// if there was an error unmarshalling the response,
-			// then there's not much we can do.  Just move on.
 			if err != nil {
+				log.WithError(err).WithFields(log.Fields{
+					"dim":   dimName,
+					"value": dimValue,
+				}).Error("Unable to unmarshall correlations for dimension")
 				return
 			}
-			a.Lock()
-			defer a.Unlock()
 			if services, ok := correlations["sf_services"]; ok {
 				for _, service := range services {
+					a.Lock() // lock before accessing services cache and dpcache
 					a.ensureServiceActive(&cacheKey{dimName: dimName, dimValue: dimValue, value: service}, a.timeNow())
+					a.Unlock()
 				}
 			}
 			if environments, ok := correlations["sf_environments"]; ok {
 				for _, environment := range environments {
+					a.Lock() // lock before accessing environments cache
 					a.hostEnvironmentCache.UpdateOrCreate(&cacheKey{dimName: dimName, dimValue: dimValue, value: environment}, a.timeNow())
+					a.Unlock()
 				}
 			}
 		})
