@@ -133,7 +133,7 @@ func (cc *Client) makeRequest(r *request) error {
 	}
 
 	// build endpoint url
-	endpoint := fmt.Sprintf("%s/v2/apm/correlate/%s/%s", cc.APIURL, r.DimName, r.DimValue)
+	endpoint := fmt.Sprintf("%s/v2/apm/correlate/%s/%s", cc.APIURL, url.PathEscape(r.DimName), url.PathEscape(r.DimValue))
 
 	switch r.operation {
 	case http.MethodGet:
@@ -144,7 +144,7 @@ func (cc *Client) makeRequest(r *request) error {
 		req, err = http.NewRequest(r.operation, endpoint, strings.NewReader(r.Value))
 		req.Header.Add("Content-Type", "text/plain")
 	case http.MethodDelete:
-		endpoint = fmt.Sprintf("%s/%s/%s", endpoint, r.Type, r.Value)
+		endpoint = fmt.Sprintf("%s/%s/%s", endpoint, r.Type, url.PathEscape(r.Value))
 		req, err = http.NewRequest(r.operation, endpoint, nil)
 	default:
 		return fmt.Errorf("unknown operation for correlation client")
