@@ -160,6 +160,13 @@ func (cc *Client) makeRequest(r *request) error {
 		context.WithValue(req.Context(), requests.RequestFailedCallbackKey, requests.RequestFailedCallback(func(statusCode int, err error) {
 			if statusCode >= 400 && statusCode < 500 {
 				atomic.AddInt64(&cc.TotalClientError4xxResponses, int64(1))
+
+				// don't log a message if we get 404 NotFound on GET
+				if statusCode == 404 && r.operation == http.MethodGet {
+					// don't retry on 4xx errors
+					return
+				}
+
 				log.WithError(err).WithFields(log.Fields{
 					"url":         req.URL.String(),
 					"correlation": r,
