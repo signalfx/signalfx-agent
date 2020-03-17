@@ -73,9 +73,7 @@ def _make_fake_ingest(datapoint_queue, events, spans):
 
 # Fake the dimension PUT method to capture dimension property/tag updates.
 # pylint: disable=unused-variable
-def _make_fake_api(dims):
-    app = Sanic()
-
+def _make_fake_dimension_api(app, dims):
     @app.get("/v2/dimension/<key>/<value>")
     async def get_dim(_, key, value):
         dim = dims.get(key, {}).get(value)
@@ -133,15 +131,18 @@ def _make_fake_api(dims):
 
         return response.json(existing)
 
+    return app
+
+
+def _make_fake_correlation_api(app, dims):
     @app.put("/v2/apm/correlate/<key>/<value>/service")
     async def put_service(request, key, value):
         service = request.body.decode("utf-8")
         dim = dims.get(key, {}).get(value)
         if not dim:
-            dims[key] = {}
-            dims[key][value] = {}
+            dims[key] = {value: {}}
             dims[key][value] = {"sf_services": [service]}
-        elif key is "kubernetes_pod_uid" or key is "container_id":
+        elif key in ("kubernetes_pod_uid", "container_id"):
             dims[key][value]["sf_services"] = [service]
         else:
             dim_services = dim.get("sf_services")
@@ -157,10 +158,9 @@ def _make_fake_api(dims):
         environment = request.body.decode("utf-8")
         dim = dims.get(key, {}).get(value)
         if not dim:
-            dims[key] = {}
-            dims[key][value] = {}
+            dims[key] = {value: {}}
             dims[key][value] = {"sf_environments": [environment]}
-        elif key is "kubernetes_pod_uid" or key is "container_id":
+        elif key in ("kubernetes_pod_uid", "container_id"):
             dims[key][value]["sf_environments"] = [environment]
         else:
             dim_environments = dim.get("sf_environments")
@@ -194,7 +194,7 @@ def _make_fake_api(dims):
         return response.json({})
 
     @app.get("/v2/apm/correlate/<key>/<value>")
-    async def get_correlation(key, value):
+    async def get_correlation(_, key, value):
         dim = dims.get(key, {}).get(value)
         if not dim:
             return response.json({})
@@ -226,7 +226,9 @@ def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0):
     _dims = defaultdict(defaultdict)
 
     ingest_app = _make_fake_ingest(_dp_upload_queue, _events, _spans)
-    api_app = _make_fake_api(_dims)
+    api_app = Sanic()
+    api_app = _make_fake_dimension_api(api_app, _dims)
+    api_app = _make_fake_correlation_api(api_app, _dims)
 
     [ingest_sock, _ingest_port] = bind_tcp_socket(ip_addr, ingest_port)
     [api_sock, _api_port] = bind_tcp_socket(ip_addr, api_port)

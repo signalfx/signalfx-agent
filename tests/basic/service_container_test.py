@@ -9,7 +9,13 @@ from textwrap import dedent
 import pytest
 from kubernetes import client as kube_client
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_all_dim_props, has_datapoint, has_trace_span, tcp_port_open_locally
+from tests.helpers.assertions import (
+    has_all_dim_props,
+    has_datapoint,
+    has_dim_set_prop,
+    has_trace_span,
+    tcp_port_open_locally,
+)
 from tests.helpers.kubernetes.utils import exec_pod_command
 from tests.helpers.util import get_host_ip, get_stripped_container_id, run_service, wait_for
 from tests.paths import TEST_SERVICES_DIR
@@ -93,6 +99,17 @@ def test_docker_container_spans_get_container_id_tag():
                 )
             )
 
+            assert wait_for(
+                p(
+                    has_dim_set_prop,
+                    agent.fake_services,
+                    dim_name="container_id",
+                    dim_value=container.id,
+                    prop_name="sf_services",
+                    prop_values=["myapp"],
+                )
+            )
+
 
 @pytest.mark.kubernetes
 def test_k8s_pod_spans_get_pod_and_container_tags(k8s_cluster):
@@ -163,5 +180,27 @@ def test_k8s_pod_spans_get_pod_and_container_tags(k8s_cluster):
                     dim_name="container_id",
                     dim_value=container_id,
                     props={"service": "myapp", "cluster": "my-cluster"},
+                )
+            )
+
+            assert wait_for(
+                p(
+                    has_dim_set_prop,
+                    agent.fake_services,
+                    dim_name="kubernetes_pod_uid",
+                    dim_value=curl_pod.metadata.uid,
+                    prop_name="sf_services",
+                    prop_values=["myapp"],
+                )
+            )
+
+            assert wait_for(
+                p(
+                    has_dim_set_prop,
+                    agent.fake_services,
+                    dim_name="container_id",
+                    dim_value=container_id,
+                    prop_name="sf_services",
+                    prop_values=["myapp"],
                 )
             )

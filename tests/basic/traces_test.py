@@ -9,7 +9,13 @@ from textwrap import dedent
 
 import requests
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_datapoint, has_trace_span, tcp_port_open_locally, has_dim_set_prop, not_has_dim_set_prop
+from tests.helpers.assertions import (
+    has_datapoint,
+    has_trace_span,
+    tcp_port_open_locally,
+    has_dim_set_prop,
+    has_no_dim_set_prop,
+)
 from tests.helpers.util import ensure_never, retry_on_ebadf, wait_for
 
 
@@ -87,8 +93,9 @@ def test_tracing_output():
                 dim_name="host",
                 dim_value="testhost",
                 prop_name="sf_services",
-                prop_values=["myapp", "file-server"]
-            ), "Didn't get infrastructure correlation property"
+                prop_values=["myapp", "file-server"],
+            ),
+            "Didn't get infrastructure correlation property",
         )
 
         # Service names expire after 5s in the config provided in this test
@@ -100,14 +107,7 @@ def test_tracing_output():
         ), "Got infra correlation metric when it should have been expired"
 
         assert wait_for(
-            p(
-                not_has_dim_set_prop,
-                agent.fake_services,
-                dim_name="host",
-                dim_value="testhost",
-                prop_name="sf_services",
-                prop_values=["myapp", "file-server"]
-            )
+            p(has_no_dim_set_prop, agent.fake_services, "host", "testhost", "sf_services", "myapp", "file-server")
         ), "Got correlation property when it should have been expired"
 
 
@@ -172,7 +172,7 @@ def test_tracing_load():
                     dim_name="host",
                     dim_value="testhost",
                     prop_name="sf_services",
-                    prop_values=[f"myapp-{i}", f"file-server-{i}"]
+                    prop_values=[f"myapp-{i}", f"file-server-{i}"],
                 )
             ), "Didn't get infrastructure correlation properties"
 
@@ -186,14 +186,15 @@ def test_tracing_load():
         for i in range(0, 100):
             assert wait_for(
                 p(
-                    not_has_dim_set_prop,
+                    has_no_dim_set_prop,
                     agent.fake_services,
-                    dim_name="host",
-                    dim_value="testhost",
-                    prop_name="sf_services",
-                    prop_values=[f"myapp-{i}", f"file-server-{i}"]
+                    "host",
+                    "testhost",
+                    "sf_services",
+                    f"myapp-{i}",
+                    f"file-server-{i}",
                 ),
-                timeout_seconds=1
+                timeout_seconds=1,
             ), "Got infra correlation property when it should have been expired"
 
 
@@ -248,20 +249,21 @@ def test_tracing_environment():
     """
     port = random.randint(5001, 20000)
     with Agent.run(
-            dedent(
-                f"""
+        dedent(
+            f"""
         hostname: "testhost"
-        environment: "integ"
         globalDimensions:
           env: test
           os: linux
+        globalSpanTags:
+          environment: "integ"
         writer:
             addGlobalDimensionsAsSpanTags: true
         monitors:
           - type: trace-forwarder
             listenAddress: localhost:{port}
     """
-            )
+        )
     ) as agent:
         assert wait_for(p(tcp_port_open_locally, port)), "trace forwarder port never opened!"
         resp = requests.post(
@@ -281,6 +283,6 @@ def test_tracing_environment():
                 dim_name="host",
                 dim_value="testhost",
                 prop_name="sf_environments",
-                prop_values=["prod", "integ"]
+                prop_values=["prod", "integ"],
             )
         ), "Didn't get infrastructure correlation properties"

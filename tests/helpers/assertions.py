@@ -395,7 +395,8 @@ def has_dim_prop(fake_services, dim_name, dim_value, prop_name, prop_value=None)
         return props.get(prop_name) == prop_value
     return False
 
-def has_dim_set_prop(fake_services, dim_name, dim_value, prop_name, prop_values=[]):
+
+def has_dim_set_prop(fake_services, dim_name, dim_value, prop_name, prop_values):
     """
     Tests if the given dimension has a set property containing all of the given values. If prop_values is None,
     tests for the presence of the property regardless of value. Only tests if the given properties are present, does
@@ -407,17 +408,18 @@ def has_dim_set_prop(fake_services, dim_name, dim_value, prop_name, prop_values=
     if props is not None:
         has_props = True
         for v in prop_values:
-            has_props = True and v in props
+            has_props = has_props and v in props
     return has_props
 
-def not_has_dim_set_prop(fake_services, dim_name, dim_value, prop_name, prop_values):
+
+def has_no_dim_set_prop(fake_services, dim_name, dim_value, prop_name, *prop_value):
     """
     Tests that none of the given prop values are present on the given dimension
     """
     dim = fake_services.dims[dim_name].get(dim_value, {})
     props = dim.get(prop_name, [])
     if props is not None:
-        for v in prop_values:
+        for v in prop_value:
             if v in props:
                 return False
     return True
