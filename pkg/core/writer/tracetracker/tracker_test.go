@@ -173,9 +173,9 @@ func TestCorrelationUpdates(t *testing.T) {
 	numEnvironments := 3
 	numServices := 3
 	numHostIDDimCorrelations := len(hostIDDims) * (numEnvironments + numServices)
-	numContainerLevelCorrelations := len(containerLevelIDDims) * (numEnvironments + numServices)
+	numContainerLevelCorrelations := 2 * len(containerLevelIDDims)
 	totalExpectedCorrelations := numHostIDDimCorrelations + numContainerLevelCorrelations
-	assert.Equal(t, totalExpectedCorrelations, len(correlationClient.getCorrelations()), "#of correlation requests do not match")
+	assert.Equal(t, totalExpectedCorrelations, len(correlationClient.getCorrelations()), "# of correlation requests do not match")
 
 	// TODO @scotts @charlie actually look at the correlations returned and make sure they are what we expect
 

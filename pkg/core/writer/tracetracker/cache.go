@@ -6,16 +6,15 @@ import (
 	"time"
 )
 
-type CacheKey struct {
-	dimName     string
-	dimValue    string
-	environment string
-	service     string
+type cacheKey struct {
+	dimName  string
+	dimValue string
+	value    string
 }
 
 type cacheElem struct {
 	LastSeen time.Time
-	Obj      *CacheKey
+	Obj      *cacheKey
 }
 
 type TimeoutCache struct {
@@ -27,7 +26,7 @@ type TimeoutCache struct {
 	// Which keys are active currently.  The value is an entry in the
 	// keysByTime linked list so that it can be quickly accessed and
 	// moved to the back of the list.
-	keysActive map[CacheKey]*list.Element
+	keysActive map[cacheKey]*list.Element
 
 	// Internal metrics
 	ActiveCount int64
@@ -35,7 +34,7 @@ type TimeoutCache struct {
 }
 
 // UpdateOrCreate
-func (t *TimeoutCache) UpdateOrCreate(o *CacheKey, now time.Time) (isNew bool) {
+func (t *TimeoutCache) UpdateOrCreate(o *cacheKey, now time.Time) (isNew bool) {
 	if timeElm, ok := t.keysActive[*o]; ok {
 		timeElm.Value.(*cacheElem).LastSeen = now
 		t.keysByTime.MoveToFront(timeElm)
@@ -52,7 +51,7 @@ func (t *TimeoutCache) UpdateOrCreate(o *CacheKey, now time.Time) (isNew bool) {
 }
 
 // PurgeOld
-func (t *TimeoutCache) PurgeOld(now time.Time, onPurge func(*CacheKey)) {
+func (t *TimeoutCache) PurgeOld(now time.Time, onPurge func(*cacheKey)) {
 	for {
 		elm := t.keysByTime.Back()
 		if elm == nil {
@@ -77,6 +76,6 @@ func NewTimeoutCache(timeout time.Duration) *TimeoutCache {
 	return &TimeoutCache{
 		timeout:    timeout,
 		keysByTime: list.New(),
-		keysActive: make(map[CacheKey]*list.Element),
+		keysActive: make(map[cacheKey]*list.Element),
 	}
 }
