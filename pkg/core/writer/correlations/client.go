@@ -115,7 +115,7 @@ func (cc *Client) Get(dimName string, dimValue string, callback func(map[string]
 		callback: func(r *request, body []byte, _ error) {
 			// on success unmarshal the response body and
 			// pass it to the call back
-			var response map[string][]string
+			var response = map[string][]string{}
 			callback(response, json.Unmarshal(body, &response))
 		},
 	}

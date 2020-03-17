@@ -116,11 +116,18 @@ func TestExpiration(t *testing.T) {
 
 type correlationTestClient struct {
 	sync.Mutex
-	cors []*correlations.Correlation
+	cors        []*correlations.Correlation
+	getPayload  map[string]map[string][]string
+	getCallback func()
 }
 
-func (c *correlationTestClient) Start()                                               { /*no-op*/ }
-func (c *correlationTestClient) Get(string, string, func(map[string][]string, error)) { /*no-op*/ }
+func (c *correlationTestClient) Start() { /*no-op*/ }
+func (c *correlationTestClient) Get(dimName string, dimValue string, cb func(map[string][]string, error)) {
+	cb(c.getPayload[dimValue], nil)
+	if c.getCallback != nil {
+		c.getCallback()
+	}
+}
 func (c *correlationTestClient) Correlate(cl *correlations.Correlation) {
 	c.Lock()
 	defer c.Unlock()
@@ -140,10 +147,33 @@ func (c *correlationTestClient) getCorrelations() []*correlations.Correlation {
 var _ correlations.CorrelationClient = &correlationTestClient{}
 
 func TestCorrelationUpdates(t *testing.T) {
-	correlationClient := &correlationTestClient{}
+	var wg sync.WaitGroup
+	correlationClient := &correlationTestClient{
+		getPayload: map[string]map[string][]string{
+			"test": {
+				"sf_services":     {"one"},
+				"sf_environments": {"environment1"},
+			},
+		},
+		getCallback: func() {
+			wg.Done()
+		},
+	}
+
 	hostIDDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
+	wg.Add(len(hostIDDims))
 	containerLevelIDDims := map[string]string{"kubernetes_pod_uid": "testk8sPodUID", "container_id": "testContainerID"}
 	a := New(5*time.Minute, correlationClient, hostIDDims, true, nil)
+	wg.Wait()
+	assert.Equal(t, int64(1), a.hostServiceCache.ActiveCount, "activeServiceCount is not properly tracked")
+	assert.Equal(t, int64(1), a.hostEnvironmentCache.ActiveCount, "activeEnvironmentCount is not properly tracked")
+	advanceTime(a, 6)
+	a.Purge()
+	assert.Equal(t, int64(0), a.hostServiceCache.ActiveCount, "activeServiceCount is not properly tracked")
+	assert.Equal(t, int64(0), a.hostEnvironmentCache.ActiveCount, "activeEnvironmentCount is not properly tracked")
+	assert.Equal(t, int64(1), a.hostServiceCache.PurgedCount, "hostServiceCache purged count is not properly tracked")
+	assert.Equal(t, int64(1), a.hostEnvironmentCache.PurgedCount, "hostEnvironmentCache purged count is not properly tracked")
+
 	setTime(a, time.Unix(100, 0))
 
 	a.AddSpans(context.Background(), []*trace.Span{
@@ -172,12 +202,10 @@ func TestCorrelationUpdates(t *testing.T) {
 
 	numEnvironments := 3
 	numServices := 3
-	numHostIDDimCorrelations := len(hostIDDims) * (numEnvironments + numServices)
+	numHostIDDimCorrelations := len(hostIDDims)*(numEnvironments+numServices) + 4 /* 4 deletes for service & environment fetched at startup */
 	numContainerLevelCorrelations := 2 * len(containerLevelIDDims)
 	totalExpectedCorrelations := numHostIDDimCorrelations + numContainerLevelCorrelations
 	assert.Equal(t, totalExpectedCorrelations, len(correlationClient.getCorrelations()), "# of correlation requests do not match")
-
-	// TODO @scotts @charlie actually look at the correlations returned and make sure they are what we expect
 
 	advanceTime(a, 6)
 	a.Purge()
@@ -185,6 +213,6 @@ func TestCorrelationUpdates(t *testing.T) {
 	assert.Len(t, dps, 0, "Expected all datapoints to be expired")
 	assert.Equal(t, int64(0), a.hostServiceCache.ActiveCount, "activeServiceCount is not properly tracked")
 	assert.Equal(t, int64(0), a.hostEnvironmentCache.ActiveCount, "activeEnvironmentCount is not properly tracked")
-	assert.Equal(t, int64(3), a.hostServiceCache.PurgedCount, "purgedServiceCount is not properly tracked")
-	assert.Equal(t, int64(3), a.hostEnvironmentCache.PurgedCount, "activeEnvironmentCount is not properly tracked")
+	assert.Equal(t, int64(4), a.hostServiceCache.PurgedCount, "purgedServiceCount is not properly tracked")
+	assert.Equal(t, int64(4), a.hostEnvironmentCache.PurgedCount, "activeEnvironmentCount is not properly tracked")
 }
