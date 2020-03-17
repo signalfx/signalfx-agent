@@ -19,7 +19,7 @@ const spanCorrelationMetricName = "sf.int.service.heartbeat"
 // spans passed through ProcessSpans.  It supports expiry of service names if
 // they are not seen for a certain amount of time.
 type ActiveServiceTracker struct {
-	sync.Mutex
+	dpCacheLock sync.Mutex
 
 	// hostIDDims is the map of key/values discovered by the agent that identify the host
 	hostIDDims map[string]string
@@ -73,16 +73,12 @@ func (a *ActiveServiceTracker) LoadCorrelations() {
 			}
 			if services, ok := correlations["sf_services"]; ok {
 				for _, service := range services {
-					a.Lock() // lock before accessing services cache and dpcache
 					a.ensureServiceActive(&cacheKey{dimName: dimName, dimValue: dimValue, value: service}, a.timeNow())
-					a.Unlock()
 				}
 			}
 			if environments, ok := correlations["sf_environments"]; ok {
 				for _, environment := range environments {
-					a.Lock() // lock before accessing environments cache
 					a.hostEnvironmentCache.UpdateOrCreate(&cacheKey{dimName: dimName, dimValue: dimValue, value: environment}, a.timeNow())
-					a.Unlock()
 				}
 			}
 		})
@@ -111,8 +107,8 @@ func New(timeout time.Duration, correlationClient correlations.CorrelationClient
 // CorrelationDatapoints returns a list of host correlation datapoints based on
 // the spans sent through ProcessSpans
 func (a *ActiveServiceTracker) CorrelationDatapoints() []*datapoint.Datapoint {
-	a.Lock()
-	defer a.Unlock()
+	a.dpCacheLock.Lock()
+	defer a.dpCacheLock.Unlock()
 
 	out := make([]*datapoint.Datapoint, 0, len(a.dpCache))
 	for _, dp := range a.dpCache {
@@ -127,16 +123,13 @@ func (a *ActiveServiceTracker) AddSpans(ctx context.Context, spans []*trace.Span
 	// Take current time once since this is a system call.
 	now := a.timeNow()
 
-	a.Lock()
-	defer a.Unlock()
-
 	for i := range spans {
 		a.processEnvironment(spans[i], now)
 		a.processService(spans[i], now)
 	}
 
 	// Protected by lock above
-	a.spansProcessed += int64(len(spans))
+	atomic.AddInt64(&a.spansProcessed, int64(len(spans)))
 }
 
 func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Time) {
@@ -219,6 +212,8 @@ func (a *ActiveServiceTracker) ensureServiceActive(key *cacheKey, now time.Time)
 	isNew := a.hostServiceCache.UpdateOrCreate(key, now)
 	if isNew {
 		if a.sendTraceHostCorrelationMetrics {
+			a.dpCacheLock.Lock()
+			defer a.dpCacheLock.Unlock()
 			// only add to the dp cache if we're sending host/service correlation metrics
 			dp := dpForService(key.value)
 			a.dpCache[key.value] = dp
@@ -236,8 +231,6 @@ func (a *ActiveServiceTracker) ensureServiceActive(key *cacheKey, now time.Time)
 
 // Purges caches on the ActiveServiceTracker
 func (a *ActiveServiceTracker) Purge() {
-	a.Lock()
-	defer a.Unlock()
 	now := a.timeNow()
 	a.hostServiceCache.PurgeOld(now, func(purged *cacheKey) {
 		// delete the correlation from all host id dims
@@ -250,6 +243,8 @@ func (a *ActiveServiceTracker) Purge() {
 			})
 		}
 		// remove host/service correlation metric from tracker
+		a.dpCacheLock.Lock()
+		defer a.dpCacheLock.Unlock()
 		delete(a.dpCache, purged.value)
 		log.WithFields(log.Fields{
 			"serviceName": purged.value,

@@ -2,7 +2,7 @@ package tracetracker
 
 import (
 	"container/list"
-	"sync/atomic"
+	"sync"
 	"time"
 )
 
@@ -18,6 +18,8 @@ type cacheElem struct {
 }
 
 type TimeoutCache struct {
+	sync.Mutex
+
 	// How long to keep sending metrics for a particular service name after it
 	// is last seen
 	timeout time.Duration
@@ -35,6 +37,8 @@ type TimeoutCache struct {
 
 // UpdateOrCreate
 func (t *TimeoutCache) UpdateOrCreate(o *cacheKey, now time.Time) (isNew bool) {
+	t.Lock()
+	defer t.Unlock()
 	if timeElm, ok := t.keysActive[*o]; ok {
 		timeElm.Value.(*cacheElem).LastSeen = now
 		t.keysByTime.MoveToFront(timeElm)
@@ -45,13 +49,15 @@ func (t *TimeoutCache) UpdateOrCreate(o *cacheKey, now time.Time) (isNew bool) {
 			Obj:      o,
 		})
 		t.keysActive[*o] = elm
-		atomic.AddInt64(&t.ActiveCount, 1)
+		t.ActiveCount++
 	}
 	return
 }
 
 // PurgeOld
 func (t *TimeoutCache) PurgeOld(now time.Time, onPurge func(*cacheKey)) {
+	t.Lock()
+	defer t.Unlock()
 	for {
 		elm := t.keysByTime.Back()
 		if elm == nil {
@@ -67,8 +73,8 @@ func (t *TimeoutCache) PurgeOld(now time.Time, onPurge func(*cacheKey)) {
 		delete(t.keysActive, *e.Obj)
 		onPurge(e.Obj)
 
-		atomic.AddInt64(&t.ActiveCount, -1)
-		atomic.AddInt64(&t.PurgedCount, 1)
+		t.ActiveCount--
+		t.PurgedCount++
 	}
 }
 
