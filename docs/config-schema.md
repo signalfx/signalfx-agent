@@ -49,8 +49,7 @@ if not set.
 | `intervalSeconds` | no | integer | How often to send metrics to SignalFx.  Monitors can override this individually. (**default:** `10`) |
 | `globalDimensions` | no | map of strings | Dimensions (key:value pairs) that will be added to every datapoint emitted by the agent. To specify that all metrics should be high-resolution, add the dimension `sf_hires: 1` |
 | `globalSpanTags` | no | map of strings | Tags (key:value pairs) that will be added to every span emitted by the agent. |
-| `environment` | no | string | The logical environment/cluster that this agent instance is running in. All of the services that this instance monitors should be in the same environment as well. This value, if provided, will be synced as a property onto the `host` dimension, or onto any cloud-provided specific dimensions (`AWSUniqueId`, `gcp_id`, and `azure_resource_id`) when available. Example values: "prod-usa", "dev" |
-| `cluster` | no | string | This configuration is deprecated and has been replaced with `environment`. Setting `environment` will override `cluster`.  If `environment` is not set then `cluster` will be used as a fallback. |
+| `cluster` | no | string | The logical environment/cluster that this agent instance is running in. All of the services that this instance monitors should be in the same environment as well. This value, if provided, will be synced as a property onto the `host` dimension, or onto any cloud-provided specific dimensions (`AWSUniqueId`, `gcp_id`, and `azure_resource_id`) when available. Example values: "prod-usa", "dev" |
 | `syncClusterOnHostDimension` | no | bool | If true, force syncing of the `cluster` property on the `host` dimension, even when cloud-specific dimensions are present. (**default:** `false`) |
 | `validateDiscoveryRules` | no | bool | If true, a warning will be emitted if a discovery rule contains variables that will never possibly match a rule.  If using multiple observers, it is convenient to set this to false to suppress spurious errors. (**default:** `false`) |
 | `observers` | no | [list of objects (see below)](#observers) | A list of observers to use (see observer config) |
@@ -373,7 +372,6 @@ where applicable:
   intervalSeconds: 10
   globalDimensions: 
   globalSpanTags: 
-  environment: 
   cluster: 
   syncClusterOnHostDimension: false
   validateDiscoveryRules: false

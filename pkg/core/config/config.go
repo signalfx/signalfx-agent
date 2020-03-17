@@ -84,10 +84,6 @@ type Config struct {
 	// property onto the `host` dimension, or onto any cloud-provided specific
 	// dimensions (`AWSUniqueId`, `gcp_id`, and `azure_resource_id`) when
 	// available. Example values: "prod-usa", "dev"
-	Environment string `yaml:"environment"`
-	// This configuration is deprecated and has been replaced with `environment`.
-	// Setting `environment` will override `cluster`.  If `environment` is not set
-	// then `cluster` will be used as a fallback.
 	Cluster string `yaml:"cluster"`
 	// If true, force syncing of the `cluster` property on the `host` dimension,
 	// even when cloud-specific dimensions are present.
