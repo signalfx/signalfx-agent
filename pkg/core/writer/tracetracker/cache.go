@@ -78,6 +78,18 @@ func (t *TimeoutCache) PurgeOld(now time.Time, onPurge func(*cacheKey)) {
 	}
 }
 
+func (t *TimeoutCache) GetActiveCount() int64 {
+	t.Lock()
+	defer t.Unlock()
+	return t.ActiveCount
+}
+
+func (t *TimeoutCache) GetPurgedCount() int64 {
+	t.Lock()
+	defer t.Unlock()
+	return t.PurgedCount
+}
+
 func NewTimeoutCache(timeout time.Duration) *TimeoutCache {
 	return &TimeoutCache{
 		timeout:    timeout,

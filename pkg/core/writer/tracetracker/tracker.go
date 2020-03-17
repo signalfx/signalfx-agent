@@ -275,10 +275,10 @@ func (a *ActiveServiceTracker) Purge() {
 // InternalMetrics returns datapoint describing the status of the tracker
 func (a *ActiveServiceTracker) InternalMetrics() []*datapoint.Datapoint {
 	return []*datapoint.Datapoint{
-		sfxclient.Gauge("sfxagent.tracing_active_services", nil, atomic.LoadInt64(&a.hostServiceCache.ActiveCount)),
-		sfxclient.CumulativeP("sfxagent.tracing_purged_services", nil, &a.hostServiceCache.PurgedCount),
-		sfxclient.Gauge("sfxagent.tracing_active_environments", nil, atomic.LoadInt64(&a.hostEnvironmentCache.ActiveCount)),
-		sfxclient.CumulativeP("sfxagent.tracing_purged_environments", nil, &a.hostEnvironmentCache.PurgedCount),
+		sfxclient.Gauge("sfxagent.tracing_active_services", nil, a.hostServiceCache.GetActiveCount()),
+		sfxclient.Cumulative("sfxagent.tracing_purged_services", nil, a.hostServiceCache.GetPurgedCount()),
+		sfxclient.Gauge("sfxagent.tracing_active_environments", nil, a.hostEnvironmentCache.GetActiveCount()),
+		sfxclient.Cumulative("sfxagent.tracing_purged_environments", nil, a.hostEnvironmentCache.GetPurgedCount()),
 		sfxclient.CumulativeP("sfxagent.tracing_spans_processed", nil, &a.spansProcessed),
 	}
 }
