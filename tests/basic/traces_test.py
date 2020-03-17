@@ -107,7 +107,14 @@ def test_tracing_output():
         ), "Got infra correlation metric when it should have been expired"
 
         assert wait_for(
-            p(has_no_dim_set_prop, agent.fake_services, "host", "testhost", "sf_services", "myapp", "file-server")
+            p(
+                has_no_dim_set_prop,
+                agent.fake_services,
+                dim_name="host",
+                dim_value="testhost",
+                prop_name="sf_services",
+                prop_value=["myapp", "file-server"],
+            )
         ), "Got correlation property when it should have been expired"
 
 
@@ -188,11 +195,10 @@ def test_tracing_load():
                 p(
                     has_no_dim_set_prop,
                     agent.fake_services,
-                    "host",
-                    "testhost",
-                    "sf_services",
-                    f"myapp-{i}",
-                    f"file-server-{i}",
+                    dim_name="host",
+                    dim_value="testhost",
+                    prop_name="sf_services",
+                    prop_value=[f"myapp-{i}", f"file-server-{i}"],
                 ),
                 timeout_seconds=1,
             ), "Got infra correlation property when it should have been expired"

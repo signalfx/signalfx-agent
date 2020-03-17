@@ -8,6 +8,7 @@ import urllib.request
 from base64 import b64encode
 from collections import defaultdict
 from http.client import HTTPException
+from typing import Union, List
 
 import psutil
 from signalfx.generated_protocol_buffers import signal_fx_protocol_buffers_pb2 as sf_pbuf
@@ -412,13 +413,16 @@ def has_dim_set_prop(fake_services, dim_name, dim_value, prop_name, prop_values)
     return has_props
 
 
-def has_no_dim_set_prop(fake_services, dim_name, dim_value, prop_name, *prop_value):
+def has_no_dim_set_prop(fake_services, dim_name, dim_value, prop_name, prop_value: Union[str, List[str]]):
     """
-    Tests that none of the given prop values are present on the given dimension
+    Tests that none of the given prop values are present on the given dimension. prop_value can be a single
+    String, or a List of strings
     """
     dim = fake_services.dims[dim_name].get(dim_value, {})
     props = dim.get(prop_name, [])
     if props is not None:
+        if isinstance(prop_value, str):
+            prop_value = [prop_value]
         for v in prop_value:
             if v in props:
                 return False
