@@ -262,7 +262,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 }
 
 func (dc *DimensionClient) makeDimURL(key, value string) (*url.URL, error) {
-	url, err := dc.APIURL.Parse(fmt.Sprintf("/v2/dimension/%s/%s", key, value))
+	url, err := dc.APIURL.Parse(fmt.Sprintf("/v2/dimension/%s/%s", url.PathEscape(key), url.PathEscape(value)))
 	if err != nil {
 		return nil, fmt.Errorf("could not construct dimension property PUT URL with %s / %s: %v", key, value, err)
 	}
