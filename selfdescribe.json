@@ -28993,7 +28993,7 @@
           },
           {
             "yamlName": "serviceURL",
-            "doc": "The service URL for the JMX RMI endpoint.  If empty it will be filled in with values from `host` and `port` using a standard template: service:jmx:rmi:///jndi/rmi://\u003chost\u003e:\u003cport\u003e/jmxrmi.  If overridden, `host` and `port` will have no effect.",
+            "doc": "The service URL for the JMX RMI/JMXMP endpoint. If empty it will be filled in with values from `host` and `port` using a standard JMX RMI template: service:jmx:rmi:///jndi/rmi://\u003chost\u003e:\u003cport\u003e/jmxrmi. If overridden, `host` and `port` will have no effect. For JMXMP endpoint the service URL must be specified. The JMXMP endpoint URL format is service:jmx:jmxmp://\u003chost\u003e:\u003cport\u003e.",
             "default": "",
             "required": false,
             "type": "string",
@@ -29001,7 +29001,7 @@
           },
           {
             "yamlName": "groovyScript",
-            "doc": "A literal Groovy script that generates datapoints from JMX MBeans.  See the top-level `jmx` monitor doc for more information on how to write this script. You can put the Groovy script in a separate file and refer to it here with the [remote config reference](https://docs.signalfx.com/en/latest/integrations/agent/remote-config.html) `{\"#from\": \"/path/to/file.groovy\", raw: true}`, or you can put it straight in YAML by using the `|` heredoc syntax.",
+            "doc": "A literal Groovy script that generates datapoints from JMX MBeans. See the top-level `jmx` monitor doc for more information on how to write this script. You can put the Groovy script in a separate file and refer to it here with the [remote config reference](https://docs.signalfx.com/en/latest/integrations/agent/remote-config.html) `{\"#from\": \"/path/to/file.groovy\", raw: true}`, or you can put it straight in YAML by using the `|` heredoc syntax.",
             "default": "",
             "required": false,
             "type": "string",
@@ -29017,7 +29017,63 @@
           },
           {
             "yamlName": "password",
-            "doc": "Password for JMX autentication, if applicable.",
+            "doc": "Password for JMX authentication, if applicable.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "trustStorePath",
+            "doc": "The trusted store path. Set if ssl is enabled.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "trustStorePassword",
+            "doc": "The TrustStore.jks file password. Set if ssl is enabled.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "keyStorePath",
+            "doc": "The key store path. Set if client authentication is enabled on the target JVM.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "keyStorePassword",
+            "doc": "The KeyStore.jks file password. Set if client authentication is enabled on the target JVM.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "keyStoreType",
+            "doc": "The key store type.",
+            "default": "jks",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "jmxRemoteProfiles",
+            "doc": "SASL profiles. Supported profiles: \"PLAIN\", \"DIGEST-MD5\", \"CRAM-MD5\", \"TLS PLAIN\", \"TLS DIGEST-MD5\", \"TLS CRAM-MD5\".",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "realm",
+            "doc": "Realm for DIGEST SASL mechanism.",
             "default": "",
             "required": false,
             "type": "string",

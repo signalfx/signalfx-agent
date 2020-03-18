@@ -2,6 +2,7 @@ package com.signalfx.agent.jmx;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.security.Security;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -20,12 +21,16 @@ public class Client {
     private final JMXServiceURL url;
     private final String username;
     private final String password;
+    private final String realm;
+    private final String jmxRemoteProfiles;
     private JMXConnector jmxConn;
 
-    Client(String serviceUrl, String username, String password) throws MalformedURLException {
-        this.url = new JMXServiceURL(serviceUrl);
-        this.username = username;
-        this.password = password;
+    Client(JMXMonitor.JMXConfig conf) throws MalformedURLException {
+        this.url = new JMXServiceURL(conf.serviceURL);
+        this.username = conf.username;
+        this.password = conf.password;
+        this.realm = conf.realm;
+        this.jmxRemoteProfiles = conf.jmxRemoteProfiles;
     }
 
     private MBeanServerConnection ensureConnected() {
@@ -36,13 +41,15 @@ public class Client {
                 // Go on and reestablish the connection below if this is reached.
             }
         }
-
         try {
             Map<String,Object> env = null;
             if (username != null && !username.equals("")) {
                 env = new HashMap();
                 env.put(JMXConnector.CREDENTIALS, new String[]{this.username, this.password});
             }
+            env.put("jmx.remote.profiles", this.jmxRemoteProfiles);
+            env.put("jmx.remote.sasl.callback.handler", new ClientCallbackHandler(this.username, this.password, this.realm));
+            Security.addProvider(new com.sun.security.sasl.Provider());
             jmxConn = JMXConnectorFactory.connect(url, env);
             return jmxConn.getMBeanServerConnection();
         } catch (IOException e) {
