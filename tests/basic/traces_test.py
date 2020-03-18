@@ -56,6 +56,7 @@ def test_tracing_output():
             f"""
         hostname: "testhost"
         writer:
+            traceHostCorrelationPurgeInterval: 1s
             traceHostCorrelationMetricsInterval: 1s
             staleServiceTimeout: 5s
         monitors:
@@ -130,6 +131,7 @@ def test_tracing_load():
         hostname: "testhost"
         writer:
             sendTraceHostCorrelationMetrics: true
+            traceHostCorrelationPurgeInterval: 1s
             traceHostCorrelationMetricsInterval: 1s
             staleServiceTimeout: 7s
         monitors:

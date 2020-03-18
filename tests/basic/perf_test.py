@@ -44,6 +44,7 @@ def test_service_correlation():
         hostname: "testhost"
         writer:
           maxRequests: 100
+          traceHostCorrelationPurgeInterval: 1s
           traceHostCorrelationMetricsInterval: 1s
           staleServiceTimeout: {expire_sec}s
         monitors:
