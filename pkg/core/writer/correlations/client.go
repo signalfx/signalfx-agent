@@ -18,6 +18,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+var errChFull = errors.New("request channel full")
+
 // CorrelationClient is an interface for correlations.Client
 type CorrelationClient interface {
 	Correlate(correlation *Correlation)
@@ -81,32 +83,54 @@ func NewCorrelationClient(ctx context.Context, conf *config.WriterConfig) (Corre
 	}, nil
 }
 
+func (cc *Client) putRequestOnChan(r *request) error {
+	var err error
+	select {
+	case cc.requestChan <- r:
+	case <-cc.ctx.Done():
+		err = context.DeadlineExceeded
+	default:
+		err = errChFull
+	}
+	return err
+}
+
 func (cc *Client) correlateCb(r *request, _ []byte, _ error) {
 	if cc.logUpdates {
 		log.WithFields(log.Fields{
 			"correlation": r.Correlation,
-		}).Info("Updated dimension")
+		}).Info("Added correlation")
 	}
 }
 
 func (cc *Client) Correlate(cor *Correlation) {
-	cc.requestChan <- &request{Correlation: cor, operation: http.MethodPut, callback: cc.correlateCb}
+	err := cc.putRequestOnChan(&request{Correlation: cor, operation: http.MethodPut, callback: cc.correlateCb})
+	if err != nil {
+		log.WithError(err).WithFields(log.Fields{
+			"correlation": cor,
+		}).Error("Unable to correlate dimension, not retrying")
+	}
 }
 
 func (cc *Client) deleteCb(r *request, _ []byte, _ error) {
 	if cc.logUpdates {
 		log.WithFields(log.Fields{
 			"correlation": r.Correlation,
-		}).Info("Updated dimension")
+		}).Info("Deleted correlation")
 	}
 }
 
 func (cc *Client) Delete(cor *Correlation) {
-	cc.requestChan <- &request{Correlation: cor, operation: http.MethodDelete, callback: cc.deleteCb}
+	err := cc.putRequestOnChan(&request{Correlation: cor, operation: http.MethodDelete, callback: cc.deleteCb})
+	if err != nil {
+		log.WithError(err).WithFields(log.Fields{
+			"correlation": cor,
+		}).Error("Unable to delete correlation on dimension, not retrying")
+	}
 }
 
 func (cc *Client) Get(dimName string, dimValue string, callback func(map[string][]string, error)) {
-	cc.requestChan <- &request{
+	err := cc.putRequestOnChan(&request{
 		Correlation: &Correlation{
 			DimName:  dimName,
 			DimValue: dimValue,
@@ -118,6 +142,12 @@ func (cc *Client) Get(dimName string, dimValue string, callback func(map[string]
 			var response = map[string][]string{}
 			callback(response, json.Unmarshal(body, &response))
 		},
+	})
+	if err != nil {
+		log.WithError(err).WithFields(log.Fields{
+			"dimensionName":  dimName,
+			"dimensionValue": dimValue,
+		}).Error("Unable to get correlations for dimension, not retrying")
 	}
 }
 
