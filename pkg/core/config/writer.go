@@ -79,13 +79,18 @@ type WriterConfig struct {
 	// How long to wait after a trace span's service name is last seen to
 	// continue sending the correlation datapoints for that service.  This
 	// should be a duration string that is accepted by
-	// https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if
+	// https://golang.org/pkg/time/#ParseDuration.  This option is irrelevant if
 	// `sendTraceHostCorrelationMetrics` is false.
 	StaleServiceTimeout timeutil.Duration `yaml:"staleServiceTimeout" default:"5m"`
+	// How frequently to purge host correlation caches that are generated from
+	// the service and environment names seen in trace spans sent through or by
+	// the agent.  This should be a duration string that is accepted by
+	// https://golang.org/pkg/time/#ParseDuration.
+	TraceHostCorrelationPurgeInterval timeutil.Duration `yaml:"traceHostCorrelationPurgeInterval" default:"1m"`
 	// How frequently to send host correlation metrics that are generated from
 	// the service name seen in trace spans sent through or by the agent.  This
 	// should be a duration string that is accepted by
-	// https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if
+	// https://golang.org/pkg/time/#ParseDuration.  This option is irrelevant if
 	// `sendTraceHostCorrelationMetrics` is false.
 	TraceHostCorrelationMetricsInterval timeutil.Duration `yaml:"traceHostCorrelationMetricsInterval" default:"1m"`
 	// How many trace spans are allowed to be in the process of sending.  While

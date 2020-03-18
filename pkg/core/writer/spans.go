@@ -78,11 +78,14 @@ func (sw *SignalFxWriter) startHostCorrelationTracking() *tracetracker.ActiveSer
 		sw.dpChan <- []*datapoint.Datapoint{dp}
 	})
 
+	// purge the active service tracker periodically
+	utils.RunOnInterval(sw.ctx, func() {
+		tracker.Purge()
+	}, sw.conf.TraceHostCorrelationPurgeInterval.AsDuration())
+
 	// Send the correlation datapoints at a regular interval to keep the
 	// service live on the backend.
 	utils.RunOnInterval(sw.ctx, func() {
-		// purge old services and environments before collecting datapoints
-		tracker.Purge()
 		for _, dp := range tracker.CorrelationDatapoints() {
 			sw.dpChan <- []*datapoint.Datapoint{dp}
 		}

@@ -52450,15 +52450,23 @@
             },
             {
               "yamlName": "staleServiceTimeout",
-              "doc": "How long to wait after a trace span's service name is last seen to continue sending the correlation datapoints for that service.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if `sendTraceHostCorrelationMetrics` is false.",
+              "doc": "How long to wait after a trace span's service name is last seen to continue sending the correlation datapoints for that service.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.  This option is irrelevant if `sendTraceHostCorrelationMetrics` is false.",
               "default": "5m",
               "required": false,
               "type": "int64",
               "elementKind": ""
             },
             {
+              "yamlName": "traceHostCorrelationPurgeInterval",
+              "doc": "How frequently to purge host correlation caches that are generated from the service and environment names seen in trace spans sent through or by the agent.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.",
+              "default": "1m",
+              "required": false,
+              "type": "int64",
+              "elementKind": ""
+            },
+            {
               "yamlName": "traceHostCorrelationMetricsInterval",
-              "doc": "How frequently to send host correlation metrics that are generated from the service name seen in trace spans sent through or by the agent.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if `sendTraceHostCorrelationMetrics` is false.",
+              "doc": "How frequently to send host correlation metrics that are generated from the service name seen in trace spans sent through or by the agent.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.  This option is irrelevant if `sendTraceHostCorrelationMetrics` is false.",
               "default": "1m",
               "required": false,
               "type": "int64",
