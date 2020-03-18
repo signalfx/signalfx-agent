@@ -36,7 +36,7 @@ type ActiveServiceTracker struct {
 	// tenantServiceCache is the cache for services related to containers/pods
 	tenantServiceCache *TimeoutCache
 
-	// tenantEnvrionmentCache is the cache for environments related to containers/pods
+	// tenantEnvironmentCache is the cache for environments related to containers/pods
 	tenantEnvironmentCache *TimeoutCache
 
 	// Datapoints don't change over time for a given service, so make them once
@@ -136,8 +136,8 @@ func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Tim
 	if span.Tags == nil {
 		return
 	}
-	environment, envrionmentFound := span.Tags["environment"]
-	if !envrionmentFound || environment == "" {
+	environment, environmentFound := span.Tags["environment"]
+	if !environmentFound || environment == "" {
 		return
 	}
 
@@ -261,7 +261,7 @@ func (a *ActiveServiceTracker) Purge() {
 			})
 		}
 		log.WithFields(log.Fields{
-			"envrionmentName": purged.value,
+			"environmentName": purged.value,
 		}).Debug("No longer tracking environment name from trace span")
 	})
 
