@@ -224,6 +224,7 @@ def run_win_command(cmd, returncodes=None, shell=True, **kwargs):
     if returncodes is None:
         returncodes = [0]
     print('running "%s" ...' % cmd)
+    # pylint: disable=subprocess-run-check
     proc = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=shell, close_fds=False, **kwargs)
     output = proc.stdout.decode("utf-8")
     if returncodes:
