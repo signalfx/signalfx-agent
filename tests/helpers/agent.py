@@ -95,6 +95,7 @@ class Agent:
             stderr=subprocess.STDOUT,
             close_fds=False,
             encoding="utf-8",
+            check=False,
         )
         return status_proc.stdout
 

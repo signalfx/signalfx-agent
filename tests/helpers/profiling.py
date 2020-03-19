@@ -90,7 +90,7 @@ class PProfClient:
         return self.run_pprof("heap", "inuse_space")
 
     def assert_goroutine_count_under(self, count):
-        from .util import assert_wait_for
+        from .util import assert_wait_for  # pylint: disable=import-outside-toplevel
 
         def check():
             check.last_profile = self.get_goroutine_profile()
@@ -101,7 +101,7 @@ class PProfClient:
         )
 
     def assert_heap_alloc_under(self, bytes_total):
-        from .util import assert_wait_for
+        from .util import assert_wait_for  # pylint: disable=import-outside-toplevel
 
         def check():
             check.last_profile = self.get_heap_profile()

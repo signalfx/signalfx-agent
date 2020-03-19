@@ -195,7 +195,13 @@ def run_win_chef_client(backend, agent_version, stage, chef_version, monitors):
             cmd = CHEF_CMD.format(attributes_path)
         print('running "%s" ...' % cmd)
         proc = subprocess.run(
-            cmd, cwd=r"C:\chef\cookbooks", stdout=subprocess.PIPE, stderr=subprocess.STDOUT, shell=True, close_fds=False
+            cmd,
+            cwd=r"C:\chef\cookbooks",
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            shell=True,
+            close_fds=False,
+            check=False,
         )
         output = proc.stdout.decode("utf-8")
         assert proc.returncode == 0, output

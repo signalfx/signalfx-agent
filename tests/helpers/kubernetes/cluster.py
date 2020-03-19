@@ -73,7 +73,9 @@ class Cluster:
 
         args += shlex.split(command)
 
-        proc = subprocess.run(args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8", close_fds=False)
+        proc = subprocess.run(
+            args, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, encoding="utf-8", close_fds=False, check=False
+        )
         assert proc.returncode == 0, f"{args}:\n{proc.stdout}"
         return proc.stdout
 
