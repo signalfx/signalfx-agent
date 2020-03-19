@@ -35,6 +35,15 @@ type MonitorConfig struct {
 	// monitor(s) created from this configuration. To specify metrics from this
 	// monitor should be high-resolution, add the dimension `sf_hires: 1`
 	ExtraDimensions map[string]string `yaml:"extraDimensions" json:"extraDimensions"`
+	// A set of extra span tags (key:value pairs) to include on spans emitted by the
+	// monitor(s) created from this configuration.
+	ExtraSpanTags map[string]string `yaml:"extraSpanTags" json:"extraSpanTags"`
+	// A mapping of extra span tag names to a [discovery rule
+	// expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html)
+	// that is used to derive the value of the span tag.  For example, to use
+	// a certain container label as a span tag, you could use something like this
+	// in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`
+	ExtraSpanTagsFromEndpoint map[string]string `yaml:"extraSpanTagFromEndpoint" json:"extraSpanTagFromEndpoint"`
 	// A mapping of extra dimension names to a [discovery rule
 	// expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html)
 	// that is used to derive the value of the dimension.  For example, to use

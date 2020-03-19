@@ -24,6 +24,7 @@ type monitorOutput struct {
 	spanChan                  chan<- []*trace.Span
 	dimensionChan             chan<- *types.Dimension
 	extraDims                 map[string]string
+	extraSpanTags             map[string]string
 	dimensionTransformations  map[string]string
 }
 
@@ -33,6 +34,7 @@ var _ types.Output = &monitorOutput{}
 func (mo *monitorOutput) Copy() types.Output {
 	o := *mo
 	o.extraDims = utils.CloneStringMap(mo.extraDims)
+	o.extraSpanTags = utils.CloneStringMap(mo.extraSpanTags)
 	o.dimensionTransformations = utils.CloneStringMap(mo.dimensionTransformations)
 	o.filterSet = &(*mo.filterSet)
 	return &o
@@ -105,12 +107,21 @@ func (mo *monitorOutput) SendEvent(event *event.Event) {
 	mo.eventChan <- event
 }
 
+func (mo *monitorOutput) preprocessSpan(span *trace.Span) {
+	// utils.MergeStringMaps always returns a non-nil map
+	// saving the results to span.Tags ensures span Tags map
+	// will never be nil
+	span.Tags = utils.MergeStringMaps(span.Tags, mo.extraSpanTags)
+
+	if span.Meta == nil {
+		span.Meta = map[interface{}]interface{}{}
+	}
+	span.Meta[dpmeta.EndpointMeta] = mo.endpoint
+}
+
 func (mo *monitorOutput) SendSpans(spans ...*trace.Span) {
 	for i := range spans {
-		if spans[i].Meta == nil {
-			spans[i].Meta = map[interface{}]interface{}{}
-		}
-		spans[i].Meta[dpmeta.EndpointMeta] = mo.endpoint
+		mo.preprocessSpan(spans[i])
 	}
 
 	mo.spanChan <- spans
@@ -132,4 +143,18 @@ func (mo *monitorOutput) AddExtraDimension(key, value string) {
 // This method is not thread-safe!
 func (mo *monitorOutput) RemoveExtraDimension(key string) {
 	delete(mo.extraDims, key)
+}
+
+// AddExtraSpanTag can be called by monitors *before* spans are flowing
+// to add an extra tag value to all spans coming out of this output.
+// This method is not thread-safe!
+func (mo *monitorOutput) AddExtraSpanTag(key, value string) {
+	mo.extraSpanTags[key] = value
+}
+
+// RemoveExtraDimension will remove any tag added to this output, either
+// from the original configuration or from the AddExtraSpanTag method.
+// This method is not thread-safe!
+func (mo *monitorOutput) RemoveExtraSpanTag(key string) {
+	delete(mo.extraSpanTags, key)
 }

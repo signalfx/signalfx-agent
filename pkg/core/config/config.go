@@ -76,6 +76,8 @@ type Config struct {
 	// Dimensions (key:value pairs) that will be added to every datapoint emitted by the agent.
 	// To specify that all metrics should be high-resolution, add the dimension `sf_hires: 1`
 	GlobalDimensions map[string]string `yaml:"globalDimensions" default:"{}"`
+	// Tags (key:value pairs) that will be added to every span emitted by the agent.
+	GlobalSpanTags map[string]string `yaml:"globalSpanTags" default:"{}"`
 	// The logical environment/cluster that this agent instance is running in.
 	// All of the services that this instance monitors should be in the same
 	// environment as well. This value, if provided, will be synced as a
@@ -277,6 +279,7 @@ func (c *Config) propagateValuesDown() error {
 	c.Writer.TraceEndpointURL = c.TraceEndpointURL
 	c.Writer.SignalFxAccessToken = c.SignalFxAccessToken
 	c.Writer.GlobalDimensions = c.GlobalDimensions
+	c.Writer.GlobalSpanTags = c.GlobalSpanTags
 
 	return nil
 }

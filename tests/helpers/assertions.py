@@ -8,6 +8,7 @@ import urllib.request
 from base64 import b64encode
 from collections import defaultdict
 from http.client import HTTPException
+from typing import Union, List
 
 import psutil
 from signalfx.generated_protocol_buffers import signal_fx_protocol_buffers_pb2 as sf_pbuf
@@ -394,6 +395,38 @@ def has_dim_prop(fake_services, dim_name, dim_value, prop_name, prop_value=None)
             return prop_name in props
         return props.get(prop_name) == prop_value
     return False
+
+
+def has_dim_set_prop(fake_services, dim_name, dim_value, prop_name, prop_values):
+    """
+    Tests if the given dimension has a set property containing all of the given values. If prop_values is None,
+    tests for the presence of the property regardless of value. Only tests if the given properties are present, does
+    not test that they are the only values in the given property set
+    """
+    dim = fake_services.dims[dim_name].get(dim_value, {})
+    props = dim.get(prop_name, [])
+    has_props = False
+    if props is not None:
+        has_props = True
+        for v in prop_values:
+            has_props = has_props and v in props
+    return has_props
+
+
+def has_no_dim_set_prop(fake_services, dim_name, dim_value, prop_name, prop_value: Union[str, List[str]]):
+    """
+    Tests that none of the given prop values are present on the given dimension. prop_value can be a single
+    String, or a List of strings
+    """
+    dim = fake_services.dims[dim_name].get(dim_value, {})
+    props = dim.get(prop_name, [])
+    if props is not None:
+        if isinstance(prop_value, str):
+            prop_value = [prop_value]
+        for v in prop_value:
+            if v in props:
+                return False
+    return True
 
 
 def has_all_dim_props(fake_services, dim_name, dim_value, props):

@@ -15,6 +15,7 @@ var essentialWriterConfig = config.WriterConfig{
 	PropertiesSendDelaySeconds:          1,
 	TraceExportFormat:                   "zipkin",
 	TraceHostCorrelationMetricsInterval: timeutil.Duration(1 * time.Second),
+	TraceHostCorrelationPurgeInterval:   timeutil.Duration(1 * time.Second),
 	StaleServiceTimeout:                 timeutil.Duration(1 * time.Second),
 	EventSendIntervalSeconds:            1,
 }

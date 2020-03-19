@@ -2,13 +2,16 @@ package tracetracker
 
 import (
 	"context"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/pointer"
 	"github.com/signalfx/golib/v3/trace"
+	"github.com/signalfx/signalfx-agent/pkg/core/writer/correlations"
 	"github.com/signalfx/signalfx-agent/pkg/neotest"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -21,21 +24,26 @@ func advanceTime(a *ActiveServiceTracker, minutes int64) {
 }
 
 func TestDatapointsAreGenerated(t *testing.T) {
-	a := New(5*time.Minute, nil)
+	correlationClient := &correlationTestClient{}
+
+	a := New(5*time.Minute, correlationClient, nil, true, nil)
 
 	a.AddSpans(context.Background(), []*trace.Span{
 		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("one"),
 			},
+			Tags: map[string]string{"host": "test"},
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("two"),
 			},
+			Tags: map[string]string{"host": "test"},
 		},
 	})
 
+	a.Purge()
 	dps := a.CorrelationDatapoints()
 	assert.Len(t, dps, 2, "Expected two datapoints")
 
@@ -49,7 +57,10 @@ func TestDatapointsAreGenerated(t *testing.T) {
 }
 
 func TestExpiration(t *testing.T) {
-	a := New(5*time.Minute, nil)
+	correlationClient := &correlationTestClient{}
+
+	hostIDDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
+	a := New(5*time.Minute, correlationClient, hostIDDims, true, nil)
 	setTime(a, time.Unix(100, 0))
 
 	a.AddSpans(context.Background(), []*trace.Span{
@@ -57,20 +68,24 @@ func TestExpiration(t *testing.T) {
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("one"),
 			},
+			Tags: utils.MergeStringMaps(hostIDDims, map[string]string{"environment": "environment1"}),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("two"),
 			},
+			Tags: utils.MergeStringMaps(hostIDDims, map[string]string{"environment": "environment2"}),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("three"),
 			},
+			Tags: utils.MergeStringMaps(hostIDDims, map[string]string{"environment": "environment3"}),
 		},
 	})
 
-	assert.Equal(t, a.activeServiceCount, int64(3), "activeServiceCount is not properly tracked")
+	assert.Equal(t, int64(3), a.hostServiceCache.ActiveCount, "activeServiceCount is not properly tracked")
+	assert.Equal(t, int64(3), a.hostEnvironmentCache.ActiveCount, "activeEnvironmentCount is not properly tracked")
 
 	advanceTime(a, 4)
 
@@ -79,18 +94,125 @@ func TestExpiration(t *testing.T) {
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("two"),
 			},
+			Tags: utils.MergeStringMaps(hostIDDims, map[string]string{"environment": "environment2"}),
 		},
 	})
 
 	advanceTime(a, 2)
-
+	a.Purge()
 	dps := a.CorrelationDatapoints()
 	assert.Len(t, dps, 1, "Expected one datapoint")
 	assert.Equal(t, dps[0].Dimensions["sf_hasService"], "two", "expected service two to still be active")
 
-	assert.Equal(t, a.activeServiceCount, int64(1), "activeServiceCount is not properly tracked")
-	assert.Equal(t, a.purgedServiceCount, int64(2), "purgedServiceCount is not properly tracked")
+	assert.Equal(t, int64(1), a.hostServiceCache.ActiveCount, "activeServiceCount is not properly tracked")
+	assert.Equal(t, int64(1), a.hostEnvironmentCache.ActiveCount, "activeEnvironmentCount is not properly tracked")
+	assert.Equal(t, int64(2), a.hostServiceCache.PurgedCount, "purgedServiceCount is not properly tracked")
+	assert.Equal(t, int64(2), a.hostEnvironmentCache.PurgedCount, "activeEnvironmentCount is not properly tracked")
 
 	advanceTime(a, 4)
+	a.Purge()
 	assert.Len(t, a.CorrelationDatapoints(), 0, "Expected all datapoints to be expired")
+}
+
+type correlationTestClient struct {
+	sync.Mutex
+	cors        []*correlations.Correlation
+	getPayload  map[string]map[string][]string
+	getCallback func()
+}
+
+func (c *correlationTestClient) Start() { /*no-op*/ }
+func (c *correlationTestClient) Get(dimName string, dimValue string, cb func(map[string][]string, error)) {
+	cb(c.getPayload[dimValue], nil)
+	if c.getCallback != nil {
+		c.getCallback()
+	}
+}
+func (c *correlationTestClient) Correlate(cl *correlations.Correlation) {
+	c.Lock()
+	defer c.Unlock()
+	c.cors = append(c.cors, cl)
+}
+func (c *correlationTestClient) Delete(cl *correlations.Correlation) {
+	c.Lock()
+	defer c.Unlock()
+	c.cors = append(c.cors, cl)
+}
+func (c *correlationTestClient) getCorrelations() []*correlations.Correlation {
+	c.Lock()
+	defer c.Unlock()
+	return c.cors
+}
+
+var _ correlations.CorrelationClient = &correlationTestClient{}
+
+func TestCorrelationUpdates(t *testing.T) {
+	var wg sync.WaitGroup
+	correlationClient := &correlationTestClient{
+		getPayload: map[string]map[string][]string{
+			"test": {
+				"sf_services":     {"one"},
+				"sf_environments": {"environment1"},
+			},
+		},
+		getCallback: func() {
+			wg.Done()
+		},
+	}
+
+	hostIDDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
+	wg.Add(len(hostIDDims))
+	containerLevelIDDims := map[string]string{"kubernetes_pod_uid": "testk8sPodUID", "container_id": "testContainerID"}
+	a := New(5*time.Minute, correlationClient, hostIDDims, true, nil)
+	wg.Wait()
+	assert.Equal(t, int64(1), a.hostServiceCache.ActiveCount, "activeServiceCount is not properly tracked")
+	assert.Equal(t, int64(1), a.hostEnvironmentCache.ActiveCount, "activeEnvironmentCount is not properly tracked")
+	advanceTime(a, 6)
+	a.Purge()
+	assert.Equal(t, int64(0), a.hostServiceCache.ActiveCount, "activeServiceCount is not properly tracked")
+	assert.Equal(t, int64(0), a.hostEnvironmentCache.ActiveCount, "activeEnvironmentCount is not properly tracked")
+	assert.Equal(t, int64(1), a.hostServiceCache.PurgedCount, "hostServiceCache purged count is not properly tracked")
+	assert.Equal(t, int64(1), a.hostEnvironmentCache.PurgedCount, "hostEnvironmentCache purged count is not properly tracked")
+
+	setTime(a, time.Unix(100, 0))
+
+	a.AddSpans(context.Background(), []*trace.Span{
+		{
+			LocalEndpoint: &trace.Endpoint{
+				ServiceName: pointer.String("one"),
+			},
+			Tags: utils.MergeStringMaps(hostIDDims, utils.MergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment1"})),
+		},
+		{
+			LocalEndpoint: &trace.Endpoint{
+				ServiceName: pointer.String("two"),
+			},
+			Tags: utils.MergeStringMaps(hostIDDims, utils.MergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment2"})),
+		},
+		{
+			LocalEndpoint: &trace.Endpoint{
+				ServiceName: pointer.String("three"),
+			},
+			Tags: utils.MergeStringMaps(hostIDDims, utils.MergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment3"})),
+		},
+	})
+
+	assert.Equal(t, int64(3), a.hostServiceCache.ActiveCount, "activeServiceCount is not properly tracked")
+	assert.Equal(t, int64(3), a.hostEnvironmentCache.ActiveCount, "activeEnvironmentCount is not properly tracked")
+
+	numEnvironments := 3
+	numServices := 3
+	numHostIDDimCorrelations := len(hostIDDims)*(numEnvironments+numServices) + 4 /* 4 deletes for service & environment fetched at startup */
+	numContainerLevelCorrelations := 2 * len(containerLevelIDDims)
+	totalExpectedCorrelations := numHostIDDimCorrelations + numContainerLevelCorrelations
+	assert.Equal(t, totalExpectedCorrelations, len(correlationClient.getCorrelations()), "# of correlation requests do not match")
+
+	advanceTime(a, 6)
+	a.Purge()
+	dps := a.CorrelationDatapoints()
+	assert.Len(t, dps, 0, "Expected all datapoints to be expired")
+	assert.Equal(t, int64(0), a.hostServiceCache.ActiveCount, "activeServiceCount is not properly tracked")
+	assert.Equal(t, int64(0), a.hostEnvironmentCache.ActiveCount, "activeEnvironmentCount is not properly tracked")
+	assert.Equal(t, int64(4), a.hostServiceCache.PurgedCount, "purgedServiceCount is not properly tracked")
+	assert.Equal(t, int64(4), a.hostEnvironmentCache.PurgedCount, "activeEnvironmentCount is not properly tracked")
 }

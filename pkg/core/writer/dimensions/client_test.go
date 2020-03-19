@@ -234,7 +234,7 @@ func TestDimensionClient(t *testing.T) {
 	t.Run("send a distinct prop/tag set for existing dim with server error", func(t *testing.T) {
 		forcedResp.Store(500)
 
-		// Send a distinct prop/tag set for same dim with an error
+		// send a distinct prop/tag set for same dim with an error
 		require.NoError(t, client.AcceptDimension(&types.Dimension{
 			Name:  "AWSUniqueID",
 			Value: "abcd",
@@ -270,7 +270,7 @@ func TestDimensionClient(t *testing.T) {
 	t.Run("does not retry 4xx responses", func(t *testing.T) {
 		forcedResp.Store(400)
 
-		// Send a distinct prop/tag set for same dim with an error
+		// send a distinct prop/tag set for same dim with an error
 		require.NoError(t, client.AcceptDimension(&types.Dimension{
 			Name:  "AWSUniqueID",
 			Value: "aslfkj",
@@ -289,7 +289,7 @@ func TestDimensionClient(t *testing.T) {
 	t.Run("does retry 404 responses", func(t *testing.T) {
 		forcedResp.Store(404)
 
-		// Send a distinct prop/tag set for same dim with an error
+		// send a distinct prop/tag set for same dim with an error
 		require.NoError(t, client.AcceptDimension(&types.Dimension{
 			Name:  "AWSUniqueID",
 			Value: "id404",
@@ -331,7 +331,7 @@ func TestDimensionClient(t *testing.T) {
 		require.Len(t, dims, 0)
 	})
 
-	// Send something unique again
+	// send something unique again
 	t.Run("send something unique to same dim", func(t *testing.T) {
 		require.NoError(t, client.AcceptDimension(&types.Dimension{
 			Name:  "AWSUniqueID",

@@ -9,7 +9,13 @@ from textwrap import dedent
 
 import requests
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import has_datapoint, has_trace_span, tcp_port_open_locally
+from tests.helpers.assertions import (
+    has_datapoint,
+    has_trace_span,
+    tcp_port_open_locally,
+    has_dim_set_prop,
+    has_no_dim_set_prop,
+)
 from tests.helpers.util import ensure_never, retry_on_ebadf, wait_for
 
 
@@ -35,7 +41,7 @@ def _test_trace():
             "timestamp": 1_538_406_068_536_000,
             "duration": 5000,
             "localEndpoint": {"serviceName": "file-server", "ipv4": "10.0.0.2"},
-            "tags": {"env": "prod", "file": "test.pdf"},
+            "tags": {"env": "prod", "environment": "prod", "file": "test.pdf"},
         },
     ]
 
@@ -50,6 +56,7 @@ def test_tracing_output():
             f"""
         hostname: "testhost"
         writer:
+            traceHostCorrelationPurgeInterval: 1s
             traceHostCorrelationMetricsInterval: 1s
             staleServiceTimeout: 5s
         monitors:
@@ -80,6 +87,18 @@ def test_tracing_output():
             )
         ), "Didn't get host correlation datapoint"
 
+        assert wait_for(
+            p(
+                has_dim_set_prop,
+                agent.fake_services,
+                dim_name="host",
+                dim_value="testhost",
+                prop_name="sf_services",
+                prop_values=["myapp", "file-server"],
+            ),
+            timeout_seconds=1,
+        ), "Didn't get infrastructure correlation property"
+
         # Service names expire after 5s in the config provided in this test
         time.sleep(8)
         agent.fake_services.reset_datapoints()
@@ -87,6 +106,17 @@ def test_tracing_output():
         assert ensure_never(
             p(has_datapoint, agent.fake_services, metric_name="sf.int.service.heartbeat"), timeout_seconds=5
         ), "Got infra correlation metric when it should have been expired"
+
+        assert wait_for(
+            p(
+                has_no_dim_set_prop,
+                agent.fake_services,
+                dim_name="host",
+                dim_value="testhost",
+                prop_name="sf_services",
+                prop_value=["myapp", "file-server"],
+            )
+        ), "Got correlation property when it should have been expired"
 
 
 def test_tracing_load():
@@ -101,6 +131,7 @@ def test_tracing_load():
         hostname: "testhost"
         writer:
             sendTraceHostCorrelationMetrics: true
+            traceHostCorrelationPurgeInterval: 1s
             traceHostCorrelationMetricsInterval: 1s
             staleServiceTimeout: 7s
         monitors:
@@ -143,12 +174,36 @@ def test_tracing_load():
                 )
             ), "Didn't get host correlation datapoint"
 
+            assert wait_for(
+                p(
+                    has_dim_set_prop,
+                    agent.fake_services,
+                    dim_name="host",
+                    dim_value="testhost",
+                    prop_name="sf_services",
+                    prop_values=[f"myapp-{i}", f"file-server-{i}"],
+                )
+            ), "Didn't get infrastructure correlation properties"
+
         time.sleep(10)
         agent.fake_services.reset_datapoints()
 
         assert ensure_never(
             p(has_datapoint, agent.fake_services, metric_name="sf.int.service.heartbeat"), timeout_seconds=5
         ), "Got infra correlation metric when it should have been expired"
+
+        for i in range(0, 100):
+            assert wait_for(
+                p(
+                    has_no_dim_set_prop,
+                    agent.fake_services,
+                    dim_name="host",
+                    dim_value="testhost",
+                    prop_name="sf_services",
+                    prop_value=[f"myapp-{i}", f"file-server-{i}"],
+                ),
+                timeout_seconds=1,
+            ), "Got infra correlation property when it should have been expired"
 
 
 def test_tracing_tags():
@@ -194,3 +249,48 @@ def test_tracing_tags():
                 tags={"os": "linux", "env": "prod", "file": "test.pdf"},
             )
         ), "Didn't get fetch span"
+
+
+def test_tracing_environment():
+    """
+    Test that the writer adds environment property from config or from span tags
+    """
+    port = random.randint(5001, 20000)
+    with Agent.run(
+        dedent(
+            f"""
+        hostname: "testhost"
+        globalDimensions:
+          env: test
+          os: linux
+        globalSpanTags:
+          environment: "integ"
+        writer:
+            addGlobalDimensionsAsSpanTags: true
+        monitors:
+          - type: trace-forwarder
+            listenAddress: localhost:{port}
+    """
+        )
+    ) as agent:
+        assert wait_for(p(tcp_port_open_locally, port)), "trace forwarder port never opened!"
+        resp = requests.post(
+            f"http://localhost:{port}/v1/trace",
+            headers={"Content-Type": "application/json"},
+            data=json.dumps(_test_trace()),
+        )
+
+        assert resp.status_code == 200
+
+        # Both environments (default from config and from span tag)
+        # should be added as properties on the host dimension
+        assert wait_for(
+            p(
+                has_dim_set_prop,
+                agent.fake_services,
+                dim_name="host",
+                dim_value="testhost",
+                prop_name="sf_environments",
+                prop_values=["prod", "integ"],
+            )
+        ), "Didn't get infrastructure correlation properties"

@@ -14,12 +14,28 @@ import (
 )
 
 func (sw *SignalFxWriter) sendSpans(ctx context.Context, spans []*trace.Span) error {
-	if *sw.conf.SendTraceHostCorrelationMetrics {
+	if sw.serviceTracker != nil {
 		sw.serviceTracker.AddSpans(sw.ctx, spans)
 	}
 
-	// This sends synchonously
+	// This sends synchronously
 	return sw.client.AddSpans(context.Background(), spans)
+}
+
+// Mutates span tags in place to add global span tags.  Also
+// returns tags in case they were nil to begin with, so the return value should
+// be assigned back to the span Tags field.
+func (sw *SignalFxWriter) addGlobalSpanTags(tags map[string]string) map[string]string {
+	if tags == nil {
+		tags = make(map[string]string)
+	}
+	for name, value := range sw.conf.GlobalSpanTags {
+		// If the tags are already set, don't override
+		if _, ok := tags[name]; !ok {
+			tags[name] = value
+		}
+	}
+	return tags
 }
 
 func (sw *SignalFxWriter) preprocessSpan(span *trace.Span) bool {
@@ -33,10 +49,12 @@ func (sw *SignalFxWriter) preprocessSpan(span *trace.Span) bool {
 		delete(span.Tags, dpmeta.NotHostSpecificMeta)
 	}
 
+	span.Tags = sw.addGlobalSpanTags(span.Tags)
+
 	sw.spanSourceTracker.AddSourceTagsToSpan(span)
 
 	if sw.conf.AddGlobalDimensionsAsSpanTags {
-		sw.addGlobalDims(span.Tags)
+		span.Tags = sw.addGlobalDims(span.Tags)
 	}
 
 	// adding smart agent version as a tag
@@ -49,11 +67,21 @@ func (sw *SignalFxWriter) preprocessSpan(span *trace.Span) bool {
 	return true
 }
 
-func (sw *SignalFxWriter) startGeneratingHostCorrelationMetrics() *tracetracker.ActiveServiceTracker {
-	tracker := tracetracker.New(sw.conf.StaleServiceTimeout.AsDuration(), func(dp *datapoint.Datapoint) {
+func (sw *SignalFxWriter) startHostCorrelationTracking() *tracetracker.ActiveServiceTracker {
+	var sendTraceHostCorrelationMetrics bool
+	if sw.conf.SendTraceHostCorrelationMetrics != nil {
+		sendTraceHostCorrelationMetrics = *sw.conf.SendTraceHostCorrelationMetrics
+	}
+
+	tracker := tracetracker.New(sw.conf.StaleServiceTimeout.AsDuration(), sw.correlationClient, sw.hostIDDims, sendTraceHostCorrelationMetrics, func(dp *datapoint.Datapoint) {
 		// Immediately send correlation datapoints when we first see a service
 		sw.dpChan <- []*datapoint.Datapoint{dp}
 	})
+
+	// purge the active service tracker periodically
+	utils.RunOnInterval(sw.ctx, func() {
+		tracker.Purge()
+	}, sw.conf.TraceHostCorrelationPurgeInterval.AsDuration())
 
 	// Send the correlation datapoints at a regular interval to keep the
 	// service live on the backend.

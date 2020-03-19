@@ -4,11 +4,10 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
-
 	"github.com/mitchellh/hashstructure"
 	"github.com/signalfx/signalfx-agent/pkg/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/pkg/core/propfilters"
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -74,19 +73,24 @@ type WriterConfig struct {
 	// by the writer.  If this is false, only the "host id" dimensions such as
 	// `host`, `AwsUniqueId`, etc. are added to the span tags.
 	AddGlobalDimensionsAsSpanTags bool `yaml:"addGlobalDimensionsAsSpanTags"`
-	// Whether to send host correlation metrics to correlation traced services
+	// Whether to send host correlation metrics to correlate traced services
 	// with the underlying host
 	SendTraceHostCorrelationMetrics *bool `yaml:"sendTraceHostCorrelationMetrics" default:"true"`
 	// How long to wait after a trace span's service name is last seen to
 	// continue sending the correlation datapoints for that service.  This
 	// should be a duration string that is accepted by
-	// https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if
+	// https://golang.org/pkg/time/#ParseDuration.  This option is irrelevant if
 	// `sendTraceHostCorrelationMetrics` is false.
 	StaleServiceTimeout timeutil.Duration `yaml:"staleServiceTimeout" default:"5m"`
+	// How frequently to purge host correlation caches that are generated from
+	// the service and environment names seen in trace spans sent through or by
+	// the agent.  This should be a duration string that is accepted by
+	// https://golang.org/pkg/time/#ParseDuration.
+	TraceHostCorrelationPurgeInterval timeutil.Duration `yaml:"traceHostCorrelationPurgeInterval" default:"1m"`
 	// How frequently to send host correlation metrics that are generated from
 	// the service name seen in trace spans sent through or by the agent.  This
 	// should be a duration string that is accepted by
-	// https://golang.org/pkg/time/#ParseDuration.  This option is irrelvant if
+	// https://golang.org/pkg/time/#ParseDuration.  This option is irrelevant if
 	// `sendTraceHostCorrelationMetrics` is false.
 	TraceHostCorrelationMetricsInterval timeutil.Duration `yaml:"traceHostCorrelationMetricsInterval" default:"1m"`
 	// How many trace spans are allowed to be in the process of sending.  While
@@ -114,6 +118,7 @@ type WriterConfig struct {
 	TraceEndpointURL    string                 `yaml:"-"`
 	SignalFxAccessToken string                 `yaml:"-"`
 	GlobalDimensions    map[string]string      `yaml:"-"`
+	GlobalSpanTags      map[string]string      `yaml:"-"`
 	MetricsToInclude    []MetricFilter         `yaml:"-"`
 	MetricsToExclude    []MetricFilter         `yaml:"-"`
 	PropertiesToExclude []PropertyFilterConfig `yaml:"-"`

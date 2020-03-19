@@ -30,7 +30,7 @@ def bind_tcp_socket(host="127.0.0.1", port=0):
 # Fake the /v2/datapoint endpoint and just stick all of the metrics in a
 # list
 # pylint: disable=unused-variable
-def _make_fake_ingest(datapoint_queue, events, spans):
+def _make_fake_ingest(datapoint_queue, events, spans, save_datapoints, save_events, save_spans):
     app = Sanic()
 
     @app.middleware("request")
@@ -48,7 +48,8 @@ def _make_fake_ingest(datapoint_queue, events, spans):
             json_format.Parse(request.body, dp_upload)
         else:
             dp_upload.ParseFromString(request.body)
-        datapoint_queue.put(dp_upload)
+        if save_datapoints:
+            datapoint_queue.put(dp_upload)
         return response.json("OK")
 
     @app.post("/v2/event")
@@ -60,12 +61,14 @@ def _make_fake_ingest(datapoint_queue, events, spans):
             json_format.Parse(request.body, event_upload)
         else:
             event_upload.ParseFromString(request.body)
-        events.extend(event_upload.events)  # pylint: disable=no-member
+        if save_events:
+            events.extend(event_upload.events)  # pylint: disable=no-member
         return response.json("OK")
 
     @app.post("/v1/trace")
     async def handle_trace(request):
-        spans.extend(request.json)
+        if save_spans:
+            spans.extend(request.json)
         return response.json("OK")
 
     return app
@@ -73,9 +76,7 @@ def _make_fake_ingest(datapoint_queue, events, spans):
 
 # Fake the dimension PUT method to capture dimension property/tag updates.
 # pylint: disable=unused-variable
-def _make_fake_api(dims):
-    app = Sanic()
-
+def _make_fake_dimension_api(app, dims):
     @app.get("/v2/dimension/<key>/<value>")
     async def get_dim(_, key, value):
         dim = dims.get(key, {}).get(value)
@@ -136,12 +137,88 @@ def _make_fake_api(dims):
     return app
 
 
+def _make_fake_correlation_api(app, dims):
+    @app.put("/v2/apm/correlate/<key>/<value>/service")
+    async def put_service(request, key, value):
+        service = request.body.decode("utf-8")
+        dim = dims.get(key, {}).get(value)
+        if not dim:
+            dims[key] = {value: {}}
+            dims[key][value] = {"sf_services": [service]}
+        elif key in ("kubernetes_pod_uid", "container_id"):
+            dims[key][value]["sf_services"] = [service]
+        else:
+            dim_services = dim.get("sf_services")
+            if not dim_services:
+                dim_services = [service]
+            else:
+                dim_services.append(service)
+            dims[key][value]["sf_services"] = dim_services
+        return response.json({})
+
+    @app.put("/v2/apm/correlate/<key>/<value>/environment")
+    async def put_environment(request, key, value):
+        environment = request.body.decode("utf-8")
+        dim = dims.get(key, {}).get(value)
+        if not dim:
+            dims[key] = {value: {}}
+            dims[key][value] = {"sf_environments": [environment]}
+        elif key in ("kubernetes_pod_uid", "container_id"):
+            dims[key][value]["sf_environments"] = [environment]
+        else:
+            dim_environments = dim.get("sf_environments")
+            if not dim_environments:
+                dim_environments = [environment]
+            else:
+                dim_environments.append(environment)
+            dims[key][value]["sf_environments"] = dim_environments
+        return response.json({})
+
+    @app.delete("/v2/apm/correlate/<key>/<value>/service/<prop_value>")
+    async def delete_service(_, key, value, prop_value):
+        dim = dims.get(key, {}).get(value)
+        if not dim:
+            return response.json({})
+        services = dim.get("sf_services")
+        if prop_value in services:
+            services.remove(prop_value)
+        dim["sf_services"] = services
+        return response.json({})
+
+    @app.delete("/v2/apm/correlate/<key>/<value>/environment/<prop_value>")
+    async def delete_environment(_, key, value, prop_value):
+        dim = dims.get(key, {}).get(value)
+        if not dim:
+            return response.json({})
+        environments = dim.get("sf_environments")
+        if prop_value in environments:
+            environments.remove(prop_value)
+        dim["sf_environments"] = environments
+        return response.json({})
+
+    @app.get("/v2/apm/correlate/<key>/<value>")
+    async def get_correlation(_, key, value):
+        dim = dims.get(key, {}).get(value)
+        if not dim:
+            return response.json({})
+        props = {}
+        services = dim["sf_services"]
+        if services:
+            props["sf_services"] = services
+        environments = dim["sf_environments"]
+        if environments:
+            props["sf_environments"] = environments
+        return response.json(props)
+
+    return app
+
+
 # Starts up a new set of backend services that will run on a random port.  The
 # returned object will have properties on it for datapoints, events, and dims.
 # The fake servers will be stopped once the context manager block is exited.
 # pylint: disable=too-many-locals,too-many-statements
 @contextmanager
-def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0):
+def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0, save_datapoints=True, save_events=True, save_spans=True):
     # Data structures are thread-safe due to the GIL
     _dp_upload_queue = Queue()
     _datapoints = []
@@ -151,25 +228,33 @@ def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0):
     _spans = []
     _dims = defaultdict(defaultdict)
 
-    ingest_app = _make_fake_ingest(_dp_upload_queue, _events, _spans)
-    api_app = _make_fake_api(_dims)
+    ingest_app = _make_fake_ingest(_dp_upload_queue, _events, _spans, save_datapoints, save_events, save_spans)
+    api_app = Sanic()
+    api_app = _make_fake_dimension_api(api_app, _dims)
+    api_app = _make_fake_correlation_api(api_app, _dims)
 
     [ingest_sock, _ingest_port] = bind_tcp_socket(ip_addr, ingest_port)
     [api_sock, _api_port] = bind_tcp_socket(ip_addr, api_port)
 
-    loop = asyncio.new_event_loop()
+    ingest_loop = asyncio.new_event_loop()
 
-    async def start_servers():
+    async def start_ingest_server():
         ingest_app.config.REQUEST_TIMEOUT = ingest_app.config.KEEP_ALIVE_TIMEOUT = 1000
-        api_app.config.REQUEST_TIMEOUT = api_app.config.KEEP_ALIVE_TIMEOUT = 1000
         ingest_server = ingest_app.create_server(sock=ingest_sock, access_log=False)
+        ingest_loop.create_task(ingest_server)
+
+    ingest_loop.create_task(start_ingest_server())
+    threading.Thread(target=ingest_loop.run_forever).start()
+
+    api_loop = asyncio.new_event_loop()
+
+    async def start_api_server():
+        api_app.config.REQUEST_TIMEOUT = api_app.config.KEEP_ALIVE_TIMEOUT = 1000
         api_server = api_app.create_server(sock=api_sock, access_log=False)
+        api_loop.create_task(api_server)
 
-        loop.create_task(ingest_server)
-        loop.create_task(api_server)
-
-    loop.create_task(start_servers())
-    threading.Thread(target=loop.run_forever).start()
+    api_loop.create_task(start_api_server())
+    threading.Thread(target=api_loop.run_forever).start()
 
     def _add_datapoints():
         """
@@ -228,5 +313,6 @@ def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0):
     finally:
         ingest_sock.close()
         api_sock.close()
-        loop.stop()
+        api_loop.stop()
+        ingest_loop.stop()
         _dp_upload_queue.put(STOP)

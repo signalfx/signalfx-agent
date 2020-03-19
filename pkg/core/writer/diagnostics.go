@@ -48,6 +48,7 @@ func (sw *SignalFxWriter) maintainLastMinuteActivity() {
 func (sw *SignalFxWriter) DiagnosticText() string {
 	return fmt.Sprintf(
 		"Global Dimensions:                %s\n"+
+			"GlobalSpanTags:                   %s\n"+
 			"Datapoints sent (last minute):    %d\n"+
 			"Datapoints failed (last minute):  %d\n"+
 			"Datapoints overwritten (total):   %d\n"+
@@ -55,6 +56,7 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 			"Trace Spans Sent (last minute):   %d\n"+
 			"Trace Spans overwritten (total):  %d",
 		utils.FormatStringMapCompact(utils.MergeStringMaps(sw.conf.GlobalDimensions, sw.hostIDDims)),
+		sw.conf.GlobalSpanTags,
 		sw.datapointsLastMinute,
 		sw.datapointsFailedLastMinute,
 		atomic.LoadInt64(&sw.datapointWriter.TotalOverwritten),
