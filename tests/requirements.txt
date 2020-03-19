@@ -10,7 +10,7 @@ psutil==5.6.6
 pylint==2.3.0
 pytest-html==1.22
 pytest-rerunfailures==4.1
-pytest-xdist==1.30.0
+pytest-xdist==1.31.0
 pytest==5.3.1
 redis==2.10.6
 requests==2.22.0

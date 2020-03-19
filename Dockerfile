@@ -387,13 +387,16 @@ FROM ubuntu:18.04 as dev-extras
 
 RUN apt update &&\
     apt install -y \
+      build-essential \
       curl \
       git \
       inotify-tools \
       iproute2 \
       jq \
       net-tools \
-      python3-pip \
+      python3.8 \
+      python3.8-dev \
+      python3.8-distutils \
       socat \
       sudo \
       vim \
@@ -410,15 +413,22 @@ ENV SIGNALFX_BUNDLE_DIR=/bundle \
     LC_ALL=C.UTF-8 \
     LANG=C.UTF-8
 
+RUN rm -f /usr/bin/python3 && \
+    ln -s /usr/bin/python3.8 /usr/bin/python && \
+    ln -s /usr/bin/python3.8 /usr/bin/python3
+
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+    python get-pip.py pip==20.0.2 && \
+    rm get-pip.py
+
 RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
     sh /tmp/get-docker.sh
 
 # Get integration test deps in here
 RUN pip3 install ipython ipdb
 COPY tests/requirements.txt /tmp/
-RUN pip3 install --upgrade pip==9.0.1 && pip3 install -r /tmp/requirements.txt
-RUN ln -s /usr/bin/python3 /usr/bin/python &&\
-    ln -s /usr/bin/pip3 /usr/bin/pip
+RUN pip3 install -r /tmp/requirements.txt
+RUN ln -s /usr/bin/pip3 /usr/bin/pip
 
 ARG TARGET_ARCH
 
