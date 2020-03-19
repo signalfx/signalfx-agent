@@ -3,7 +3,7 @@
 set -eo pipefail
 
 if [ "$CIRCLE_BRANCH" != "master" ]; then
-    if ! scripts/changes-include-dir deployments/installer tests/packaging/installer_test.py tests/packaging/common.py tests/packaging/images ${BASH_SOURCE[0]}; then
+    if ! scripts/changes-include-dir deployments/installer tests/packaging/installer_test.py tests/packaging/common.py tests/packaging/images tests/requirements.txt ${BASH_SOURCE[0]}; then
         echo "Installer code has not changed, skipping tests!"
         touch ~/.skip
         exit 0
