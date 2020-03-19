@@ -46,7 +46,7 @@ def test_service_correlation():
           maxRequests: 100
           traceHostCorrelationPurgeInterval: 1s
           traceHostCorrelationMetricsInterval: 1s
-          sendTraceHostCorrelationMetrics: false
+          sendTraceHostCorrelationMetrics: true
           staleServiceTimeout: {expire_sec}s
         monitors:
           - type: trace-forwarder

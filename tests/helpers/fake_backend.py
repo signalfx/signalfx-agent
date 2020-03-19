@@ -236,19 +236,25 @@ def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0, save_datapoints=True, 
     [ingest_sock, _ingest_port] = bind_tcp_socket(ip_addr, ingest_port)
     [api_sock, _api_port] = bind_tcp_socket(ip_addr, api_port)
 
-    loop = asyncio.new_event_loop()
+    ingest_loop = asyncio.new_event_loop()
 
-    async def start_servers():
+    async def start_ingest_server():
         ingest_app.config.REQUEST_TIMEOUT = ingest_app.config.KEEP_ALIVE_TIMEOUT = 1000
-        api_app.config.REQUEST_TIMEOUT = api_app.config.KEEP_ALIVE_TIMEOUT = 1000
         ingest_server = ingest_app.create_server(sock=ingest_sock, access_log=False)
+        ingest_loop.create_task(ingest_server)
+
+    ingest_loop.create_task(start_ingest_server())
+    threading.Thread(target=ingest_loop.run_forever).start()
+
+    api_loop = asyncio.new_event_loop()
+
+    async def start_api_server():
+        api_app.config.REQUEST_TIMEOUT = api_app.config.KEEP_ALIVE_TIMEOUT = 1000
         api_server = api_app.create_server(sock=api_sock, access_log=False)
+        api_loop.create_task(api_server)
 
-        loop.create_task(ingest_server)
-        loop.create_task(api_server)
-
-    loop.create_task(start_servers())
-    threading.Thread(target=loop.run_forever).start()
+    api_loop.create_task(start_api_server())
+    threading.Thread(target=api_loop.run_forever).start()
 
     def _add_datapoints():
         """
@@ -307,5 +313,6 @@ def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0, save_datapoints=True, 
     finally:
         ingest_sock.close()
         api_sock.close()
-        loop.stop()
+        api_loop.stop()
+        ingest_loop.stop()
         _dp_upload_queue.put(STOP)
