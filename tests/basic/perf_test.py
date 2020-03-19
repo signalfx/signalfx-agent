@@ -6,9 +6,13 @@ from textwrap import dedent
 import time
 import requests
 
+import pytest
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_dim_set_prop, has_no_dim_set_prop, tcp_port_open_locally
 from tests.helpers.util import wait_for
+
+# mark all tests in this file as performance tests
+pytestmark = [pytest.mark.perf_test]
 
 
 def _test_span(service, environment):
