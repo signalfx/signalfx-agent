@@ -126,7 +126,7 @@ jobs:
   - template: 'templates/run-pytest.yml'
     parameters:
       markers: '(windows or windows_only) and not deployment and not installer'
-      options: '-n4'
+      options: '--workers=4'
       # Install IIS for windows-iis integration test.
       chocoPackages: '--source windowsfeatures IIS-WebServerRole'
 
@@ -139,7 +139,7 @@ jobs:
   - template: 'templates/run-pytest.yml'
     parameters:
       markers: '(windows or windows_only) and not deployment and not installer'
-      options: '-n4'
+      options: '--workers=4'
       # Install IIS for windows-iis integration test.
       chocoPackages: '--source windowsfeatures IIS-WebServerRole'
 

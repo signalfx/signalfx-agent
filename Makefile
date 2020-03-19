@@ -119,7 +119,7 @@ run-integration-tests: MARKERS ?= integration
 run-integration-tests:
 	pytest \
 		-m "$(MARKERS)" \
-		-n auto \
+		--workers=auto \
 		--verbose \
 		--html=test_output/results.html \
 		--self-contained-html \
@@ -131,7 +131,7 @@ run-k8s-tests: run-minikube push-minikube-agent
 	scripts/get-kubectl
 	pytest \
 		-m "$(MARKERS)" \
-		-n auto \
+		--workers=auto \
 		--verbose \
 		--html=test_output/k8s_results.html \
 		--self-contained-html \
@@ -219,7 +219,7 @@ run-devstack:
 
 .PHONY: run-chef-tests
 run-chef-tests:
-	pytest -v -n auto -m chef --html=test_output/chef_results.html --self-contained-html tests/deployments
+	pytest -v --workers=auto -m chef --html=test_output/chef_results.html --self-contained-html tests/deployments
 
 .PHONY: check-links
 check-links:

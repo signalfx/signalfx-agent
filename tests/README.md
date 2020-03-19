@@ -8,11 +8,12 @@ These tests run the agent and associated packaging in a more fully functional
 environment, along with a fake backend that simulates the SignalFx ingest and
 API servers.
 
-To run all of them in parallel, simply invoke `pytest tests -n auto` from the
-root of the repo in the dev-image (see note below for kubernetes
-limitations). You can run individual test files by replacing `tests` with the
-relative path to the test Python module. You can also use the `-k` and `-m`
-flags to pick tests by name or tags, respectively.
+To run all of them in parallel, simply invoke
+`pytest --workers=auto -m integration tests` from the root of the repo in the
+dev-image (see note below for kubernetes limitations). You can run individual
+test files by replacing `tests` with the relative path to the test Python
+module. You can also use the `-k` and `-m` flags to pick tests by name or
+tags, respectively.
 
 A key goal in writing these tests is that they be both fully parallelizable to
 minimize run time, and very robust with minimal transient failures due to
