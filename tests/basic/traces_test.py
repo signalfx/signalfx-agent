@@ -96,8 +96,8 @@ def test_tracing_output():
                 prop_name="sf_services",
                 prop_values=["myapp", "file-server"],
             ),
-            "Didn't get infrastructure correlation property",
-        )
+            timeout_seconds=1,
+        ), "Didn't get infrastructure correlation property"
 
         # Service names expire after 5s in the config provided in this test
         time.sleep(8)
