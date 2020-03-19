@@ -84,9 +84,7 @@ def test_service_correlation():
                 dim_value="testhost",
                 prop_name="sf_services",
                 prop_values=service_names,
-            ),
-            interval_seconds=2,
-            timeout_seconds=10,
+            )
         ), "Didn't get all service name properties"
 
         assert wait_for(
@@ -97,9 +95,7 @@ def test_service_correlation():
                 dim_value="testhost",
                 prop_name="sf_environments",
                 prop_values=environment_names,
-            ),
-            interval_seconds=2,
-            timeout_seconds=10,
+            )
         ), "Didn't get all environment name properties"
 
         # wait for services and environments to expire
@@ -112,8 +108,7 @@ def test_service_correlation():
                 dim_value="testhost",
                 prop_name="sf_services",
                 prop_value=service_names,
-            ),
-            timeout_seconds=10,
+            )
         ), "Didn't expire all services"
 
         assert wait_for(
@@ -124,8 +119,7 @@ def test_service_correlation():
                 dim_value="testhost",
                 prop_name="sf_environments",
                 prop_value=environment_names,
-            ),
-            timeout_seconds=10,
+            )
         ), "Didn't expire all environments"
 
         agent.pprof_client.assert_goroutine_count_under(150)
