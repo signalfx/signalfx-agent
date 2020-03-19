@@ -54,6 +54,10 @@ def test_service_correlation():
         ),
         profiling=True,
         debug=False,
+        # This test generates a lot of spans and datapoints that we never check.
+        # We must disable the storage of this data in the "fake" backend
+        # or this test will consume a lot of (too much) memory.
+        backend_options={"save_datapoints": False, "save_spans": False, "save_events": False},
     ) as agent:
         assert wait_for(p(tcp_port_open_locally, port)), "trace forwarder port never opened!"
 

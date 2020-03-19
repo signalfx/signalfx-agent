@@ -30,7 +30,7 @@ def bind_tcp_socket(host="127.0.0.1", port=0):
 # Fake the /v2/datapoint endpoint and just stick all of the metrics in a
 # list
 # pylint: disable=unused-variable
-def _make_fake_ingest(datapoint_queue, events, spans):
+def _make_fake_ingest(datapoint_queue, events, spans, save_datapoints, save_events, save_spans):
     app = Sanic()
 
     @app.middleware("request")
@@ -48,7 +48,8 @@ def _make_fake_ingest(datapoint_queue, events, spans):
             json_format.Parse(request.body, dp_upload)
         else:
             dp_upload.ParseFromString(request.body)
-        datapoint_queue.put(dp_upload)
+        if save_datapoints:
+            datapoint_queue.put(dp_upload)
         return response.json("OK")
 
     @app.post("/v2/event")
@@ -60,12 +61,14 @@ def _make_fake_ingest(datapoint_queue, events, spans):
             json_format.Parse(request.body, event_upload)
         else:
             event_upload.ParseFromString(request.body)
-        events.extend(event_upload.events)  # pylint: disable=no-member
+        if save_events:
+            events.extend(event_upload.events)  # pylint: disable=no-member
         return response.json("OK")
 
     @app.post("/v1/trace")
     async def handle_trace(request):
-        spans.extend(request.json)
+        if save_spans:
+            spans.extend(request.json)
         return response.json("OK")
 
     return app
@@ -215,7 +218,7 @@ def _make_fake_correlation_api(app, dims):
 # The fake servers will be stopped once the context manager block is exited.
 # pylint: disable=too-many-locals,too-many-statements
 @contextmanager
-def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0):
+def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0, save_datapoints=True, save_events=True, save_spans=True):
     # Data structures are thread-safe due to the GIL
     _dp_upload_queue = Queue()
     _datapoints = []
@@ -225,7 +228,7 @@ def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0):
     _spans = []
     _dims = defaultdict(defaultdict)
 
-    ingest_app = _make_fake_ingest(_dp_upload_queue, _events, _spans)
+    ingest_app = _make_fake_ingest(_dp_upload_queue, _events, _spans, save_datapoints, save_events, save_spans)
     api_app = Sanic()
     api_app = _make_fake_dimension_api(api_app, _dims)
     api_app = _make_fake_correlation_api(api_app, _dims)
