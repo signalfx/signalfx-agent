@@ -14,10 +14,10 @@ executors:
           AGENT_BIN: /code/signalfx-agent
           GOPATH: /go
 
-  python36:
+  python38:
     working_directory: /opt/signalfx-agent
     docker:
-      - image: python:3.6
+      - image: python:3.8
 
   docker1809:
     docker:
@@ -457,7 +457,7 @@ jobs:
           tests_dir: ./tests/deployments/
 
   pylint_black:
-    executor: python36
+    executor: python38
     parameters:
       target:
         default: "python"
