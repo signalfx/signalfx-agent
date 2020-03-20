@@ -28993,7 +28993,7 @@
           },
           {
             "yamlName": "serviceURL",
-            "doc": "The service URL for the JMX RMI/JMXMP endpoint. If empty it will be filled in with values from `host` and `port` using a standard JMX RMI template: service:jmx:rmi:///jndi/rmi://\u003chost\u003e:\u003cport\u003e/jmxrmi. If overridden, `host` and `port` will have no effect. For JMXMP endpoint the service URL must be specified. The JMXMP endpoint URL format is service:jmx:jmxmp://\u003chost\u003e:\u003cport\u003e.",
+            "doc": "The service URL for the JMX RMI/JMXMP endpoint. If empty it will be filled in with values from `host` and `port` using a standard JMX RMI template: `service:jmx:rmi:///jndi/rmi://\u003chost\u003e:\u003cport\u003e/jmxrmi`. If overridden, `host` and `port` will have no effect. For JMXMP endpoint the service URL must be specified. The JMXMP endpoint URL format is `service:jmx:jmxmp://\u003chost\u003e:\u003cport\u003e`.",
             "default": "",
             "required": false,
             "type": "string",
@@ -29024,24 +29024,8 @@
             "elementKind": ""
           },
           {
-            "yamlName": "trustStorePath",
-            "doc": "The trusted store path. Set if ssl is enabled.",
-            "default": "",
-            "required": false,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
-            "yamlName": "trustStorePassword",
-            "doc": "The TrustStore.jks file password. Set if ssl is enabled.",
-            "default": "",
-            "required": false,
-            "type": "string",
-            "elementKind": ""
-          },
-          {
             "yamlName": "keyStorePath",
-            "doc": "The key store path. Set if client authentication is enabled on the target JVM.",
+            "doc": "The key store path is required if client authentication is enabled on the target JVM.",
             "default": "",
             "required": false,
             "type": "string",
@@ -29049,7 +29033,7 @@
           },
           {
             "yamlName": "keyStorePassword",
-            "doc": "The KeyStore.jks file password. Set if client authentication is enabled on the target JVM.",
+            "doc": "The key store file password if required.",
             "default": "",
             "required": false,
             "type": "string",
@@ -29064,8 +29048,24 @@
             "elementKind": ""
           },
           {
+            "yamlName": "trustStorePath",
+            "doc": "The trusted store path if the TLS profile is required.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "trustStorePassword",
+            "doc": "The trust store file password if required.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "jmxRemoteProfiles",
-            "doc": "SASL profiles. Supported profiles: \"PLAIN\", \"DIGEST-MD5\", \"CRAM-MD5\", \"TLS PLAIN\", \"TLS DIGEST-MD5\", \"TLS CRAM-MD5\".",
+            "doc": "Supported JMX remote profiles are TLS in combination with SASL profiles: SASL/PLAIN, SASL/DIGEST-MD5 and SASL/CRAM-MD5. Thus valid `jmxRemoteProfiles` values are: `SASL/PLAIN`, `SASL/DIGEST-MD5`, `SASL/CRAM-MD5`, `TLS SASL/PLAIN`, `TLS SASL/DIGEST-MD5` and `TLS SASL/CRAM-MD5`.",
             "default": "",
             "required": false,
             "type": "string",
@@ -29073,7 +29073,7 @@
           },
           {
             "yamlName": "realm",
-            "doc": "Realm for DIGEST SASL mechanism.",
+            "doc": "The realm is required by profile SASL/DIGEST-MD5.",
             "default": "",
             "required": false,
             "type": "string",
