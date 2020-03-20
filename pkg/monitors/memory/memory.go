@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/shirou/gopsutil/mem"
-	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
@@ -39,15 +38,7 @@ func (m *Monitor) emitDatapoints() {
 		return
 	}
 
-	used := memInfo.Total - memInfo.Free - memInfo.Buffers - (memInfo.Cached - memInfo.SReclaimable) - memInfo.Slab
-
-	dps := []*datapoint.Datapoint{
-		datapoint.New("memory.utilization", nil, datapoint.NewFloatValue(float64(used)/float64(memInfo.Total)*100), datapoint.Gauge, time.Time{}),
-		datapoint.New("memory.used", nil, datapoint.NewIntValue(int64(used)), datapoint.Gauge, time.Time{}),
-	}
-
-	dps = append(dps, m.makeMemoryDatapoints(memInfo, nil)...)
-
+	dps := m.makeMemoryDatapoints(memInfo, nil)
 	m.Output.SendDatapoints(dps...)
 }
 
