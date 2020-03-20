@@ -351,7 +351,6 @@ COPY --from=extra-packages /lib/*-linux-gnu/ld-2.23.so /bin/ld-linux.so
 # Java dependencies
 COPY --from=extra-packages /opt/root/jre/ /jre
 COPY --from=java /usr/src/agent-java/jmx/target/agent-jmx-monitor-1.0-SNAPSHOT.jar /lib/jmx-monitor.jar
-COPY --from=java /usr/src/agent-java/lib/jmxremote_optional-tc-1.0.5.jar /lib/jmxremote_optional-tc-1.0.5.jar
 
 COPY --from=extra-packages /opt/root/lib/ /lib/
 COPY --from=extra-packages /opt/root/bin/ /bin/
