@@ -25,6 +25,7 @@ type monitorOutput struct {
 	dimensionChan             chan<- *types.Dimension
 	extraDims                 map[string]string
 	extraSpanTags             map[string]string
+	defaultSpanTags           map[string]string
 	dimensionTransformations  map[string]string
 }
 
@@ -35,6 +36,7 @@ func (mo *monitorOutput) Copy() types.Output {
 	o := *mo
 	o.extraDims = utils.CloneStringMap(mo.extraDims)
 	o.extraSpanTags = utils.CloneStringMap(mo.extraSpanTags)
+	o.defaultSpanTags = utils.CloneStringMap(mo.defaultSpanTags)
 	o.dimensionTransformations = utils.CloneStringMap(mo.dimensionTransformations)
 	o.filterSet = &(*mo.filterSet)
 	return &o
@@ -107,10 +109,30 @@ func (mo *monitorOutput) SendEvent(event *event.Event) {
 	mo.eventChan <- event
 }
 
+// Mutates span tags in place to add default span tags.  Also
+// returns tags in case they were nil to begin with, so the return value should
+// be assigned back to the span tags field.
+func (mo *monitorOutput) addDefaultSpanTags(tags map[string]string) map[string]string {
+	if tags == nil {
+		tags = make(map[string]string)
+	}
+	for name, value := range mo.defaultSpanTags {
+		// If the tags are already set, don't override
+		if _, ok := tags[name]; !ok {
+			tags[name] = value
+		}
+	}
+	return tags
+}
+
 func (mo *monitorOutput) preprocessSpan(span *trace.Span) {
-	// utils.MergeStringMaps always returns a non-nil map
+	// addDefaultSpanTags adds default span tags if they do not
+	// already exist. This always returns a non-nil map
 	// saving the results to span.Tags ensures span Tags map
-	// will never be nil
+	// will never be nil.
+	span.Tags = mo.addDefaultSpanTags(span.Tags)
+
+	// add extra span tags
 	span.Tags = utils.MergeStringMaps(span.Tags, mo.extraSpanTags)
 
 	if span.Meta == nil {
@@ -152,9 +174,23 @@ func (mo *monitorOutput) AddExtraSpanTag(key, value string) {
 	mo.extraSpanTags[key] = value
 }
 
-// RemoveExtraDimension will remove any tag added to this output, either
+// RemoveExtraSpanTag will remove any extra span tag added to this output, either
 // from the original configuration or from the AddExtraSpanTag method.
 // This method is not thread-safe!
 func (mo *monitorOutput) RemoveExtraSpanTag(key string) {
 	delete(mo.extraSpanTags, key)
+}
+
+// AddDefaultSpanTag can be called by monitors *before* spans are flowing
+// to add a default tag to all spans coming out of this output.
+// This method is not thread-safe!
+func (mo *monitorOutput) AddDefaultSpanTag(key, value string) {
+	mo.defaultSpanTags[key] = value
+}
+
+// RemoveDefaultSpanTag will remove any default span tag added to this output, either
+// from the original configuration or from the AddDefaultSpanTag method.
+// This method is not thread-safe!
+func (mo *monitorOutput) RemoveDefaultSpanTag(key string) {
+	delete(mo.defaultSpanTags, key)
 }

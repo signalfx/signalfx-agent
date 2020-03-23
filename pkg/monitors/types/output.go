@@ -20,6 +20,8 @@ type Output interface {
 	RemoveExtraDimension(key string)
 	AddExtraSpanTag(key, value string)
 	RemoveExtraSpanTag(key string)
+	AddDefaultSpanTag(key, value string)
+	RemoveDefaultSpanTag(key string)
 }
 
 // FilteringOutput is Output enhanced with additional filtering mechanisms.

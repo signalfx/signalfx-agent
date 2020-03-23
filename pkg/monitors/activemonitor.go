@@ -88,6 +88,18 @@ func (am *ActiveMonitor) configureMonitor(monConfig config.MonitorCustomConfig) 
 		am.output.AddExtraSpanTag(k, fmt.Sprintf("%v", val))
 	}
 
+	for k, v := range monConfig.MonitorConfigCore().DefaultSpanTags {
+		am.output.AddDefaultSpanTag(k, v)
+	}
+
+	for k, v := range monConfig.MonitorConfigCore().DefaultSpanTagsFromEndpoint {
+		val, err := services.EvaluateRule(am.endpoint, v, true, true)
+		if err != nil {
+			return err
+		}
+		am.output.AddDefaultSpanTag(k, fmt.Sprintf("%v", val))
+	}
+
 	if err := validateConfig(monConfig); err != nil {
 		return err
 	}

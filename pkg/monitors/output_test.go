@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/golib/v3/pointer"
+	"github.com/signalfx/golib/v3/trace"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/stretchr/testify/assert"
 )
@@ -107,4 +109,38 @@ func TestSendDatapoint(t *testing.T) {
 
 	// Make sure it's come through as expected
 	assert.Equal(t, map[string]string{"testDim1": "testValue1"}, resultDps[0].Dimensions)
+}
+
+func TestSendSpan(t *testing.T) {
+	// Setup our 'fixture' super basic monitorOutput
+	testMO, err := helperTestMonitorOuput()
+	assert.Nil(t, err)
+
+	// And our Datapoint channel to receive Datapoints
+	spanChan := make(chan []*trace.Span)
+	testMO.spanChan = spanChan
+
+	// And our reference timestamp
+	spanTimestamp := time.Now()
+
+	// Create a test Datapoint
+	testSpan := &trace.Span{
+		Name:      pointer.String("testSpan"),
+		TraceID:   "testTraceID",
+		ParentID:  pointer.String("testParentID"),
+		Kind:      pointer.String("CLIENT"),
+		Timestamp: pointer.Int64(spanTimestamp.UnixNano() / 1000),
+		Duration:  pointer.Int64(time.Since(spanTimestamp).Microseconds()),
+		LocalEndpoint: &trace.Endpoint{
+			ServiceName: pointer.String("testService"),
+		},
+	}
+
+	// Send the datapoint
+	go func() { testMO.SendSpans(testSpan) }()
+
+	// Receive the datapoint
+	resultSpans := <-spanChan
+
+	assert.NotEmpty(t, resultSpans)
 }

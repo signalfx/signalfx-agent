@@ -43,7 +43,16 @@ type MonitorConfig struct {
 	// that is used to derive the value of the span tag.  For example, to use
 	// a certain container label as a span tag, you could use something like this
 	// in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`
-	ExtraSpanTagsFromEndpoint map[string]string `yaml:"extraSpanTagFromEndpoint" json:"extraSpanTagFromEndpoint"`
+	ExtraSpanTagsFromEndpoint map[string]string `yaml:"extraSpanTagsFromEndpoint" json:"extraSpanTagsFromEndpoint"`
+	// A set of default span tags (key:value pairs) to include on spans emitted by the
+	// monitor(s) created from this configuration.
+	DefaultSpanTags map[string]string `yaml:"defaultSpanTags" json:"defaultSpanTags"`
+	// A mapping of default span tag names to a [discovery rule
+	// expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html)
+	// that is used to derive the default value of the span tag.  For example, to use
+	// a certain container label as a span tag, you could use something like this
+	// in your monitor config block: `defaultSpanTagsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`
+	DefaultSpanTagsFromEndpoint map[string]string `yaml:"defaultSpanTagsFromEndpoint" json:"defaultSpanTagsFromEndpoint"`
 	// A mapping of extra dimension names to a [discovery rule
 	// expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html)
 	// that is used to derive the value of the dimension.  For example, to use
