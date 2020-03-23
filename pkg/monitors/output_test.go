@@ -116,31 +116,99 @@ func TestSendSpan(t *testing.T) {
 	testMO, err := helperTestMonitorOuput()
 	assert.Nil(t, err)
 
-	// And our Datapoint channel to receive Datapoints
+	// And our Span channel to receive Spans
 	spanChan := make(chan []*trace.Span)
 	testMO.spanChan = spanChan
 
 	// And our reference timestamp
 	spanTimestamp := time.Now()
 
-	// Create a test Datapoint
+	// Create a test Span
 	testSpan := &trace.Span{
 		Name:      pointer.String("testSpan"),
 		TraceID:   "testTraceID",
 		ParentID:  pointer.String("testParentID"),
 		Kind:      pointer.String("CLIENT"),
 		Timestamp: pointer.Int64(spanTimestamp.UnixNano() / 1000),
-		Duration:  pointer.Int64(time.Since(spanTimestamp).Microseconds()),
+		Duration:  pointer.Int64(1 + time.Since(spanTimestamp).Microseconds()),
 		LocalEndpoint: &trace.Endpoint{
 			ServiceName: pointer.String("testService"),
 		},
 	}
 
-	// Send the datapoint
+	// Send the span
 	go func() { testMO.SendSpans(testSpan) }()
 
-	// Receive the datapoint
+	// Receive the span
 	resultSpans := <-spanChan
 
+	// Make sure it's come through as expected
 	assert.NotEmpty(t, resultSpans)
+	assert.Equal(t, "testSpan", *resultSpans[0].Name)
+	assert.Equal(t, "testTraceID", resultSpans[0].TraceID)
+	assert.Equal(t, "testParentID", *resultSpans[0].ParentID)
+	assert.Equal(t, "CLIENT", *resultSpans[0].Kind)
+	assert.Equal(t, spanTimestamp.UnixNano()/1000, *resultSpans[0].Timestamp)
+	assert.True(t, *resultSpans[0].Duration > 0)
+	assert.Equal(t, "testService", *resultSpans[0].LocalEndpoint.ServiceName)
+
+	// Let's add some default tags to our monitorOutput
+	testMO.defaultSpanTags = map[string]string{"defaultSpanTag": "testValue1"}
+
+	// Resend the span
+	go func() { testMO.SendSpans(testSpan) }()
+
+	// Receive the span
+	resultSpans = <-spanChan
+
+	// Make sure it's come through as expected
+	assert.Equal(t, map[string]string{"defaultSpanTag": "testValue1"}, resultSpans[0].Tags)
+
+	// Add some tags to the test Span
+	go func() {
+		testSpan.Tags = map[string]string{"testTag2": "testValue2"}
+		testMO.SendSpans(testSpan)
+	}()
+
+	// Receive the span
+	resultSpans = <-spanChan
+
+	// Make sure it's come through as expected
+	assert.Equal(t, map[string]string{"defaultSpanTag": "testValue1", "testTag2": "testValue2"}, resultSpans[0].Tags)
+
+	// Add a tag that collides with defaultSpanTags
+	go func() {
+		testSpan.Tags["defaultSpanTag"] = "testValue3"
+		testMO.SendSpans(testSpan)
+	}()
+
+	// Receive the span
+	resultSpans = <-spanChan
+
+	// Make sure that defaultSpanTags does not overwrite the existing tag
+	assert.Equal(t, map[string]string{"defaultSpanTag": "testValue3", "testTag2": "testValue2"}, resultSpans[0].Tags)
+
+	// Add extraSpanTags to our monitorOutput
+	testMO.extraSpanTags = map[string]string{"extraSpanTag": "testValue4"}
+
+	// Resend the span
+	go func() { testMO.SendSpans(testSpan) }()
+
+	// Receive the span
+	resultSpans = <-spanChan
+
+	// Make sure the extra span tag was added
+	assert.Equal(t, map[string]string{"extraSpanTag": "testValue4", "defaultSpanTag": "testValue3", "testTag2": "testValue2"}, resultSpans[0].Tags)
+
+	// Add a span tag that collides with the extraSpanTag
+	go func() {
+		testSpan.Tags["extraSpanTag"] = "testValue5"
+		testMO.SendSpans(testSpan)
+	}()
+
+	// Receive the span
+	resultSpans = <-spanChan
+
+	// Make sure that extraSpanTags overwrites the tag that is already present
+	assert.Equal(t, map[string]string{"extraSpanTag": "testValue4", "defaultSpanTag": "testValue3", "testTag2": "testValue2"}, resultSpans[0].Tags)
 }
