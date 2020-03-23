@@ -45,8 +45,24 @@
         "elementKind": "string"
       },
       {
-        "yamlName": "extraSpanTagFromEndpoint",
+        "yamlName": "extraSpanTagsFromEndpoint",
         "doc": "A mapping of extra span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`",
+        "default": null,
+        "required": false,
+        "type": "map",
+        "elementKind": "string"
+      },
+      {
+        "yamlName": "defaultSpanTags",
+        "doc": "A set of default span tags (key:value pairs) to include on spans emitted by the monitor(s) created from this configuration.",
+        "default": null,
+        "required": false,
+        "type": "map",
+        "elementKind": "string"
+      },
+      {
+        "yamlName": "defaultSpanTagsFromEndpoint",
+        "doc": "A mapping of default span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the default value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `defaultSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`",
         "default": null,
         "required": false,
         "type": "map",
@@ -52211,8 +52227,24 @@
               "elementKind": "string"
             },
             {
-              "yamlName": "extraSpanTagFromEndpoint",
+              "yamlName": "extraSpanTagsFromEndpoint",
               "doc": "A mapping of extra span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`",
+              "default": null,
+              "required": false,
+              "type": "map",
+              "elementKind": "string"
+            },
+            {
+              "yamlName": "defaultSpanTags",
+              "doc": "A set of default span tags (key:value pairs) to include on spans emitted by the monitor(s) created from this configuration.",
+              "default": null,
+              "required": false,
+              "type": "map",
+              "elementKind": "string"
+            },
+            {
+              "yamlName": "defaultSpanTagsFromEndpoint",
+              "doc": "A mapping of default span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the default value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `defaultSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`",
               "default": null,
               "required": false,
               "type": "map",
