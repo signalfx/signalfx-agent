@@ -1,5 +1,7 @@
 package com.signalfx.agent.jmx;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.security.Security;
@@ -42,9 +44,8 @@ public class Client {
             }
         }
         try {
-            Map<String,Object> env = null;
-            if (username != null && !username.equals("")) {
-                env = new HashMap();
+            Map<String,Object> env = new HashMap<>();
+            if (StringUtils.isNotBlank(username)) {
                 env.put(JMXConnector.CREDENTIALS, new String[]{this.username, this.password});
             }
             env.put("jmx.remote.profiles", this.jmxRemoteProfiles);

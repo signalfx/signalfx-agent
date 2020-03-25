@@ -1,5 +1,7 @@
 package com.signalfx.agent.jmx;
 
+import org.apache.commons.lang3.StringUtils;
+
 import javax.security.auth.callback.*;
 import javax.security.sasl.RealmCallback;
 import java.util.logging.Logger;
@@ -11,7 +13,9 @@ public class ClientCallbackHandler implements CallbackHandler {
 
     public ClientCallbackHandler(String username, String password, String realm) {
         this.username = username;
-        this.password = password.toCharArray();
+        if (password != null) {
+            this.password = password.toCharArray();
+        }
         this.realm = realm;
     }
 
