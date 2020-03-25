@@ -182,6 +182,9 @@ gatherDockerMetrics: true
 # customers.
 metricsToExclude:
 
+# A list of annotation names that should be used to infer additional ports to be
+# discovered on a particular pod. The pod's annotation value should be a port number.
+additionalPortAnnotations: []
 
 # The path to the 'etc' directory of the underlying K8s node.  This allows the
 # agent to pull certain metadata about the node, such as the Linux distro

@@ -59,6 +59,12 @@ data:
       kubernetesAPI:
         skipVerify: true
       {{- end }}
+      {{- if .Values.additionalPortAnnotations }}
+      additionalPortAnnotations: 
+      {{ range .Values.additionalPortAnnotations -}}
+      - {{ toYaml . | indent 8 | trim }}
+      {{- end }}
+      {{- end }}
 
     monitors:
 {{- if .Values.configureStandardMonitors }}
