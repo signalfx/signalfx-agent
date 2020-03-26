@@ -76,8 +76,8 @@ github.com/SermoDigital/jose v0.9.1/go.mod h1:ARgCUhI1MHQH+ONky/PAtmVHQrP5JlGY0F
 github.com/ShowMax/go-fqdn v0.0.0-20160909083404-2501cdd51ef4 h1:LbMMQr4Ij1Eq5RUNsLBpNmcnhRXuq+BlyInEbI4FTAU=
 github.com/ShowMax/go-fqdn v0.0.0-20160909083404-2501cdd51ef4/go.mod h1:Wbphg/zwBzq1nUotnHP8day9iRhcMOwh7JFW1vkzq6w=
 github.com/StackExchange/wmi v0.0.0-20180116203802-5d049714c4a6/go.mod h1:3eOhrUMpNV+6aFIbp5/iudMxNCF27Vw2OZgy4xEx0Fg=
-github.com/StackExchange/wmi v0.0.0-20180725035823-b12b22c5341f h1:5ZfJxyXo8KyX8DgGXC5B7ILL8y51fci/qYz2B4j8iLY=
-github.com/StackExchange/wmi v0.0.0-20180725035823-b12b22c5341f/go.mod h1:3eOhrUMpNV+6aFIbp5/iudMxNCF27Vw2OZgy4xEx0Fg=
+github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d h1:G0m3OIz70MZUWq3EgK3CesDbo8upS2Vm9/P3FtgI+Jk=
+github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d/go.mod h1:3eOhrUMpNV+6aFIbp5/iudMxNCF27Vw2OZgy4xEx0Fg=
 github.com/alcortesm/tgz v0.0.0-20161220082320-9c5fe88206d7/go.mod h1:6zEj6s6u/ghQa61ZWa/C2Aw3RkjiTBOix7dkqa1VLIs=
 github.com/alecthomas/gocyclo v0.0.0-20150208221726-aa8f8b160214/go.mod h1:Ef5UOtJdJ5rVFObdOVsrNgKV/Wf4I+daTCSk8GTrHIk=
 github.com/alecthomas/kingpin v2.2.6+incompatible/go.mod h1:59OFYbFVLKQKq+mqrL6Rw5bR0c3ACQaawgXx0QYndlE=
@@ -813,14 +813,14 @@ github.com/signalfx/golib v2.4.1+incompatible h1:UZaLOB4i2Dz7/Fkal2+xY9NRtv+adgh
 github.com/signalfx/golib v2.4.1+incompatible/go.mod h1:nWYefOwlUKWm/SpN/LgVSBnyH1T9NpT1ANlmgRIi1Cs=
 github.com/signalfx/golib/v3 v3.0.0 h1:7jU1iitxa4qsLMbOlquaHHaUf0GJ86P8ZFxnE5hTUVA=
 github.com/signalfx/golib/v3 v3.0.0/go.mod h1:p+krygP/cDlWvCBEgdkQp3H16rbP4NW7YQa81TDMRe8=
-github.com/signalfx/golib/v3 v3.1.0 h1:Z1QfvlrrydSaECMtwthv2B2fRouOHCAETFoiVZD2LK4=
-github.com/signalfx/golib/v3 v3.1.0/go.mod h1:T2tQQDunZGVJ0ALW1oKYyJF3SyrwNpjmsxU0evdycVc=
+github.com/signalfx/golib/v3 v3.3.0 h1:vSXsAb73bdrlnjk5rnZ7y3t09Qzu9qfBEbXdcyBHsmE=
+github.com/signalfx/golib/v3 v3.3.0/go.mod h1:GzjWpV0skAXZn7+u9LnkOkiXAx9KKd5XZcd5r+RoF5o=
 github.com/signalfx/gomemcache v0.0.0-20180823214636-4f7ef64c72a9/go.mod h1:Ytb8KfCSyuwy/VILnROdgCvbQLA5ch0nkbG7lKT0BXw=
 github.com/signalfx/ondiskencoding v0.0.0-20190715171447-33ec316a03f8/go.mod h1:QnApFvs6JyNrtyeE9dTCtAWYxDqUZv2KzFpuQm853FU=
 github.com/signalfx/ondiskencoding v0.0.0-20191121154813-762ffb677f8e h1:i5+qho6onQ5YgMb9VuWfVCw2OTCb+n9Pw3KN+zASiE0=
 github.com/signalfx/ondiskencoding v0.0.0-20191121154813-762ffb677f8e/go.mod h1:3RBt2qfxrVKp+SW2N19wHlukwLm9f0xqUd4dSeU8ul4=
-github.com/signalfx/sapm-proto v0.2.0 h1:uaNhSN9qE8g16YtXSbryPmbkRiyCt8Bw4XTjV/MC5Xg=
-github.com/signalfx/sapm-proto v0.2.0/go.mod h1:X/wS1ofuOAW+OTFhCALiHVZvihqMDiNPhzmbusWCQi8=
+github.com/signalfx/sapm-proto v0.4.0 h1:5lQX++6FeIjUZEIcnSgBqhOpmSjMkRBW3y/4ZiKMo5E=
+github.com/signalfx/sapm-proto v0.4.0/go.mod h1:x3gtwJ1GRejtkghB4nYpwixh2zqJrLbPU959ZNhM0Fk=
 github.com/signalfx/signalfx-go v1.6.9-0.20191121015807-da8b1dfaab43 h1:HWQ7OIrm8s+vMYZZbLrMgNxaQqyTu1WoedG6tj5wOiA=
 github.com/signalfx/signalfx-go v1.6.9-0.20191121015807-da8b1dfaab43/go.mod h1:CeCGXKT2wqqky0Nz8eV0NH/CpMPE7tzYUcV8eQS1U1s=
 github.com/signalfx/tdigest v0.0.0-20191031204725-c860c3ff6902 h1:V/uPctkyrXFOwGmWbFFEJP48ntw8ykJN6oxEJBTPARE=
@@ -997,7 +997,6 @@ golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3/go.mod h1:t9HGtf8HONx5eT2rtn
 golang.org/x/net v0.0.0-20190613194153-d28f0bde5980/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
 golang.org/x/net v0.0.0-20190620200207-3b0461eec859 h1:R/3boaszxrf1GEUWTVDzSKVwLmSJpwZ1yqXm8j0v2QI=
 golang.org/x/net v0.0.0-20190620200207-3b0461eec859/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
-golang.org/x/net v0.0.0-20190724013045-ca1201d0de80/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
 golang.org/x/net v0.0.0-20190827160401-ba9fcec4b297/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
 golang.org/x/net v0.0.0-20191004110552-13f9640d40b9 h1:rjwSpXsdiK0dV8/Naq3kAw9ymfAeJIyd0upUIElB+lI=
 golang.org/x/net v0.0.0-20191004110552-13f9640d40b9/go.mod h1:z5CRVTTTmAJ677TzLLGU+0bjPO0LkuOLi4/5GtJWs/s=
