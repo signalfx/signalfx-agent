@@ -20,7 +20,7 @@ require (
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/SAP/go-hdb v0.14.1 // indirect
 	github.com/ShowMax/go-fqdn v0.0.0-20160909083404-2501cdd51ef4
-	github.com/StackExchange/wmi v0.0.0-20180725035823-b12b22c5341f
+	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d
 	github.com/aliyun/alibaba-cloud-sdk-go v0.0.0-20190315122603-6f9e54af456e // indirect
 	github.com/antonmedv/expr v1.3.0
 	github.com/araddon/gou v0.0.0-20190110011759-c797efecbb61 // indirect
@@ -48,7 +48,6 @@ require (
 	github.com/garyburd/redigo v1.6.0 // indirect
 	github.com/go-errors/errors v1.0.1
 	github.com/go-ldap/ldap v3.0.2+incompatible // indirect
-	github.com/go-ole/go-ole v1.2.4 // indirect
 	github.com/go-playground/locales v0.11.2
 	github.com/go-playground/universal-translator v0.16.0
 	github.com/go-sql-driver/mysql v1.4.1
@@ -134,7 +133,7 @@ require (
 	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.0-20190222193949-1fb69526e884
 	github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 	github.com/signalfx/gateway v1.2.19-0.20191125135538-2c417b7ae0bd
-	github.com/signalfx/golib/v3 v3.1.0
+	github.com/signalfx/golib/v3 v3.3.0
 	github.com/signalfx/signalfx-go v1.6.9-0.20191121015807-da8b1dfaab43
 	github.com/sirupsen/logrus v1.4.0
 	github.com/smartystreets/goconvey v1.6.4
