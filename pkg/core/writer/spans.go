@@ -18,8 +18,18 @@ func (sw *SignalFxWriter) sendSpans(ctx context.Context, spans []*trace.Span) er
 		sw.serviceTracker.AddSpans(sw.ctx, spans)
 	}
 
-	// This sends synchronously
-	return sw.client.AddSpans(context.Background(), spans)
+	// This sends synchonously
+	err := sw.client.AddSpans(context.Background(), spans)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Error shipping spans to SignalFx")
+		// If there is an error sending spans then just forget about them.
+		return err
+	}
+	log.Debugf("Sent %d spans out of the agent", len(spans))
+
+	return nil
 }
 
 // Mutates span tags in place to add global span tags.  Also
