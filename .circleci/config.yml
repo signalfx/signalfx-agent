@@ -401,7 +401,6 @@ jobs:
     executor: machine_image
     steps:
       - checkout
-      - run: .circleci/scripts/setup-installer-tests.sh
       - run_pytest:
           markers: installer
           pytest_options: -n auto
@@ -640,3 +639,13 @@ workflows:
             branches:
               only:
                 - master
+
+  test_artifactory:
+    jobs:
+      - installer_tests
+    triggers:
+      - schedule:
+          cron: "0 * * * *"
+          filters:
+            branches:
+              only: test_artifactory

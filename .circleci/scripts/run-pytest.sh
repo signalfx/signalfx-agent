@@ -33,7 +33,9 @@ sudo sysctl -w vm.max_map_count=262144
 
 set -x
 if [ -n "$MARKERS" ]; then
-  $PYTEST_PATH -m "$MARKERS" $PYTEST_OPTIONS $TESTS
+    $PYTEST_PATH -m "$MARKERS" $PYTEST_OPTIONS $TESTS || \
+        $PYTEST_PATH -m "$MARKERS" --last-failed $PYTEST_OPTIONS $TESTS
 else
-    $PYTEST_PATH $PYTEST_OPTIONS $TESTS
+    $PYTEST_PATH $PYTEST_OPTIONS $TESTS || \
+        $PYTEST_PATH --last-failed $PYTEST_OPTIONS $TESTS
 fi
