@@ -40,6 +40,8 @@ func ListAndWatchContainers(ctx context.Context, client *docker.Client, changeHa
 	}
 
 	watchStarted := make(chan struct{})
+	// channel to end goroutines when the initial list of containers fails
+	endRoutine := make(chan struct{})
 	go func() {
 		// This pattern is taken from
 		// https://github.com/docker/cli/blob/master/cli/command/container/stats.go
@@ -100,6 +102,10 @@ func ListAndWatchContainers(ctx context.Context, client *docker.Client, changeHa
 					time.Sleep(3 * time.Second)
 					continue START_STREAM
 
+				case <-endRoutine:
+					logger.Error("Error building the initial container list, ending routine")
+					return
+
 				case <-ctx.Done():
 					// Event stream is tied to the same context and will quit
 					// also.
@@ -118,6 +124,7 @@ func ListAndWatchContainers(ctx context.Context, client *docker.Client, changeHa
 	}
 	containerList, err := client.ContainerList(ctx, options)
 	if err != nil {
+		close(endRoutine)
 		return err
 	}
 
