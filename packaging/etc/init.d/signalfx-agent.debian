@@ -47,11 +47,11 @@ case "$1" in
         echo "Starting $name"
 
         mkdir -p "$rundir"
-        chown -R signalfx-agent "$rundir"
+        chown -R $user "$rundir"
         chmod 0755 "$rundir"
 
         touch $logfile
-        chown signalfx-agent $logfile
+        chown $user $logfile
 
         start-stop-daemon --start \
           --startas /bin/sh \
