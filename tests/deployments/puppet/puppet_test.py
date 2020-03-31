@@ -34,6 +34,7 @@ pytestmark = [pytest.mark.puppet, pytest.mark.deployment]
 
 DOCKERFILES_DIR = Path(__file__).parent.joinpath("images").resolve()
 
+STDLIB_MODULE_VERSION = "4.24.0"
 APT_MODULE_VERSION = "7.0.0"
 
 DEB_DISTROS = [
@@ -58,6 +59,8 @@ class { signalfx_agent:
     package_stage => '$stage',
     agent_version => '$version',
     config => lookup('signalfx_agent::config', Hash, 'deep'),
+    service_user => '$user',
+    service_group => '$group',
 }
 """
 )
@@ -81,10 +84,10 @@ WIN_HIERA_SRC_PATH = os.path.join(WIN_PUPPET_MODULE_SRC_DIR, "data", "default.ya
 WIN_HIERA_DEST_PATH = os.path.join(WIN_PUPPET_MODULE_DEST_DIR, "data", "default.yaml")
 
 
-def get_config(version, stage):
+def get_config(version, stage, user="signalfx-agent"):
     if not version:
         version = ""
-    return CONFIG.substitute(version=version, stage=stage)
+    return CONFIG.substitute(version=version, stage=stage, user=user, group=user)
 
 
 def get_hiera(path, backend, monitors):
@@ -98,7 +101,7 @@ def get_hiera(path, backend, monitors):
     return yaml.dump(hiera_yaml)
 
 
-def run_puppet_agent(cont, backend, monitors, agent_version, stage):
+def run_puppet_agent(cont, backend, monitors, agent_version, stage, user="signalfx-agent"):
     with tempfile.NamedTemporaryFile(mode="w+") as fd:
         hiera_yaml = get_hiera(HIERA_SRC_PATH, backend, monitors)
         print(hiera_yaml)
@@ -106,7 +109,7 @@ def run_puppet_agent(cont, backend, monitors, agent_version, stage):
         fd.flush()
         copy_file_into_container(fd.name, cont, HIERA_DEST_PATH)
     with tempfile.NamedTemporaryFile(mode="w+") as fd:
-        config = get_config(agent_version, stage)
+        config = get_config(agent_version, stage, user=user)
         print(config)
         fd.write(config)
         fd.flush()
@@ -119,7 +122,7 @@ def run_puppet_agent(cont, backend, monitors, agent_version, stage):
         installed_version,
         agent_version,
     )
-    assert is_agent_running_as_non_root(cont), "Agent is not running as non-root user"
+    assert is_agent_running_as_non_root(cont, user=user), f"Agent is not running as {user} user"
 
 
 @pytest.mark.parametrize(
@@ -144,6 +147,9 @@ def test_puppet(base_image, init_system, puppet_release):
     }
     with run_init_system_image(base_image, **opts) as [cont, backend]:
         import_old_key(cont, distro_type)
+        code, output = cont.exec_run(f"puppet module install puppetlabs-stdlib --version {STDLIB_MODULE_VERSION}")
+        assert code == 0, output.decode("utf-8")
+        print_lines(output)
         if (base_image, init_system) in DEB_DISTROS:
             code, output = cont.exec_run(f"puppet module install puppetlabs-apt --version {APT_MODULE_VERSION}")
             assert code == 0, output.decode("utf-8")
@@ -159,14 +165,14 @@ def test_puppet(base_image, init_system, puppet_release):
 
             if UPGRADE_VERSION:
                 # upgrade agent
-                run_puppet_agent(cont, backend, monitors, UPGRADE_VERSION, STAGE)
+                run_puppet_agent(cont, backend, monitors, UPGRADE_VERSION, STAGE, user="test-user")
                 backend.reset_datapoints()
                 assert wait_for(
                     p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
                 ), "Datapoints didn't come through"
 
                 # downgrade agent
-                run_puppet_agent(cont, backend, monitors, INITIAL_VERSION, STAGE)
+                run_puppet_agent(cont, backend, monitors, INITIAL_VERSION, STAGE, user="test-user")
                 backend.reset_datapoints()
                 assert wait_for(
                     p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
@@ -174,7 +180,7 @@ def test_puppet(base_image, init_system, puppet_release):
 
             # change agent config
             monitors = [{"type": "internal-metrics"}]
-            run_puppet_agent(cont, backend, monitors, INITIAL_VERSION, STAGE)
+            run_puppet_agent(cont, backend, monitors, INITIAL_VERSION, STAGE, user="test-user")
             backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
