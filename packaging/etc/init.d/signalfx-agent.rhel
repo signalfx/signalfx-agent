@@ -46,21 +46,21 @@ case "$1" in
       echo "Starting $name"
 
       mkdir -p "$rundir"
-      chown -R signalfx-agent "$rundir"
+      chown -R $user "$rundir"
       chmod 0755 "$rundir"
 
       touch $logfile
-      chown signalfx-agent $logfile
+      chown $user $logfile
 
-      nohup su -s /bin/sh -c 'exec "$0" "$@"' $user -- $cmd >> /var/log/signalfx-agent.log 2>&1 &
+      nohup su -s /bin/sh -c 'exec "$0" "$@"' $user -- $cmd >> $logfile 2>&1 &
       pid=$!
 
       if [ $? -eq 0 ]; then
-        echo "Started.  Logs will go to /var/log/signalfx-agent.log"
+        echo "Started.  Logs will go to $logfile"
         echo -n $pid > $pidfile
         exit 0
       else
-        echo "Failed to start, see /var/log/signalfx-agent.log"
+        echo "Failed to start, see $logfile"
         exit 1
       fi
     fi
