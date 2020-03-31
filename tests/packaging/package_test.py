@@ -138,13 +138,13 @@ def _test_service_list(container, init_system, service_name="signalfx-agent"):
     assert service_name in output.decode("utf-8"), "Agent service not registered"
 
 
-def _test_service_start(container, init_system, backend):
+def _test_service_start(container, init_system, backend, user="signalfx-agent"):
     code, output = container.exec_run(INIT_START_COMMAND[init_system])
     print("%s start command output:" % init_system)
     print_lines(output)
     backend.reset_datapoints()
     assert code == 0, "Agent could not be started"
-    assert wait_for(p(is_agent_running_as_non_root, container), timeout_seconds=INIT_START_TIMEOUT)
+    assert wait_for(p(is_agent_running_as_non_root, container, user=user), timeout_seconds=INIT_START_TIMEOUT)
     assert wait_for(p(has_datapoint, backend, metric_name="disk.utilization")), "Datapoints didn't come through"
 
 
@@ -198,6 +198,50 @@ def _test_agent_status(container):
         assert code == 0, output.decode("utf-8")
 
 
+def _test_package_verify(container, package_ext, base_image):
+    if package_ext == ".rpm":
+        if "opensuse" in base_image:
+            code, output = container.exec_run("rpm --verify --nodeps signalfx-agent")
+        else:
+            code, output = container.exec_run("rpm --verify signalfx-agent")
+        assert code == 0, "rpm verify failed!\n%s" % output.decode("utf-8")
+    elif package_ext == ".deb":
+        code, output = container.exec_run("dpkg --verify signalfx-agent")
+        assert code == 0, "dpkg verify failed!\n%s" % output.decode("utf-8")
+
+
+def _test_service_override(container, init_system, backend):
+    _test_service_stop(container, init_system, backend)
+
+    code, output = container.exec_run(f"useradd --system --user-group --no-create-home --shell /sbin/nologin test-user")
+    assert code == 0, output.decode("utf-8")
+
+    if init_system == INIT_SYSTEMD:
+        override_path = "/etc/systemd/system/signalfx-agent.service.d/override.conf"
+        config = "[Service]\nUser=test-user\nGroup=test-user"
+    else:
+        override_path = "/etc/default/signalfx-agent"
+        config = "user=test-user\ngroup=test-user"
+
+    container.exec_run(f"mkdir -p {os.path.dirname(override_path)}")
+    container.exec_run(f'''bash -c "echo -e '{config}' > {override_path}"''')
+
+    if init_system == INIT_SYSTEMD:
+        # override tmpfile with the new user/group
+        tmpfile_override_path = "/etc/tmpfiles.d/signalfx-agent.conf"
+        tmpfile_override_config = "D /run/signalfx-agent 0755 test-user test-user - -"
+        container.exec_run(f'''bash -c "echo '{tmpfile_override_config}' > {tmpfile_override_path}"''')
+        code, output = container.exec_run(f"systemd-tmpfiles --create --remove {tmpfile_override_path}")
+        assert code == 0, output.decode("utf-8")
+
+        code, output = container.exec_run("systemctl daemon-reload")
+        assert code == 0, output.decode("utf-8")
+
+    _test_service_start(container, init_system, backend, user="test-user")
+
+    _test_service_status(container, init_system, "active")
+
+
 INSTALL_COMMAND = {
     ".rpm": "yum --nogpgcheck localinstall -y /opt/signalfx-agent.rpm",
     ".deb": "dpkg -i /opt/signalfx-agent.deb",
@@ -222,15 +266,7 @@ def _test_package_install(base_image, package_path, init_system):
         print_lines(output)
         assert code == 0, "Package could not be installed!"
 
-        if package_ext == ".rpm":
-            if "opensuse" in base_image:
-                code, output = cont.exec_run("rpm --verify --nodeps signalfx-agent")
-            else:
-                code, output = cont.exec_run("rpm --verify signalfx-agent")
-            assert code == 0, "rpm verify failed!\n%s" % output.decode("utf-8")
-        elif package_ext == ".deb":
-            code, output = cont.exec_run("dpkg --verify signalfx-agent")
-            assert code == 0, "dpkg verify failed!\n%s" % output.decode("utf-8")
+        _test_package_verify(cont, package_ext, base_image)
 
         if init_system == INIT_SYSTEMD:
             assert not path_exists_in_container(cont, "/etc/init.d/signalfx-agent")
@@ -253,9 +289,12 @@ def _test_package_install(base_image, package_path, init_system):
             if init_system == INIT_SYSTEMD:
                 _test_service_status_redirect(cont)
             _test_agent_status(cont)
+            _test_service_override(cont, init_system, backend)
         finally:
             cont.reload()
             if cont.status.lower() == "running":
+                print("Agent service status:")
+                print_lines(cont.exec_run(INIT_STATUS_COMMAND[init_system]).output)
                 print("Agent log:")
                 print_lines(get_agent_logs(cont, init_system))
 
@@ -291,15 +330,7 @@ def _test_package_upgrade(base_image, package_path, init_system):
         print_lines(output)
         assert code == 0, "Package could not be upgraded!"
 
-        if package_ext == ".rpm":
-            if "opensuse" in base_image:
-                code, output = cont.exec_run("rpm --verify --nodeps signalfx-agent")
-            else:
-                code, output = cont.exec_run("rpm --verify signalfx-agent")
-            assert code == 0, "rpm verify failed!\n%s" % output.decode("utf-8")
-        elif package_ext == ".deb":
-            code, output = cont.exec_run("dpkg --verify signalfx-agent")
-            assert code == 0, "dpkg verify failed!\n%s" % output.decode("utf-8")
+        _test_package_verify(cont, package_ext, base_image)
 
         if init_system == INIT_SYSTEMD:
             assert not path_exists_in_container(cont, "/etc/init.d/signalfx-agent")
@@ -323,9 +354,12 @@ def _test_package_upgrade(base_image, package_path, init_system):
             if init_system == INIT_SYSTEMD:
                 _test_service_status_redirect(cont)
             _test_agent_status(cont)
+            _test_service_override(cont, init_system, backend)
         finally:
             cont.reload()
             if cont.status.lower() == "running":
+                print("Agent service status:")
+                print_lines(cont.exec_run(INIT_STATUS_COMMAND[init_system]).output)
                 print("Agent log:")
                 print_lines(get_agent_logs(cont, init_system))
 

@@ -204,8 +204,8 @@ def run_init_system_image(
 
 
 @retry_on_ebadf
-def is_agent_running_as_non_root(container):
-    code, output = container.exec_run("pgrep -u signalfx-agent signalfx-agent")
+def is_agent_running_as_non_root(container, user="signalfx-agent"):
+    code, output = container.exec_run(f"pgrep -u {user} signalfx-agent")
     print("pgrep check: %s" % output)
     return code == 0
 
