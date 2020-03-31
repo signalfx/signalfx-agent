@@ -277,6 +277,7 @@ install_with_zypper() {
     version_flag="-${package_version}"
   fi
 
+  rpm --import $yum_gpg_key_url
   zypper -n --gpg-auto-import-keys refresh
   zypper install -y -l libcap2 libcap-progs libpcap1 shadow
   local tmpdir=$(mktemp -d)
