@@ -121,6 +121,25 @@ def update_agent_yaml(container, backend, hostname="test-hostname"):
     return get_container_file_content(container, AGENT_YAML_PATH)
 
 
+def install_deps(cont, base_image):
+    if "debian" in base_image or "ubuntu" in base_image:
+        cmd = "sh -ec 'apt-get update && apt-get install -y libcap2-bin'"
+    elif "opensuse" in base_image:
+        cmd = "zypper install -y -l libcap2 libcap-progs libpcap1 shadow"
+    else:
+        return
+
+    code, output = cont.exec_run(cmd)
+    assert code == 0, "Failed to install dependencies:\n%s" % output.decode("utf-8")
+
+
+def _test_install_package(cont, cmd):
+    code, output = cont.exec_run(cmd)
+    print("Output of package install:")
+    print_lines(output)
+    assert code == 0, "Package could not be installed!"
+
+
 def _test_service_status(container, init_system, expected_status):
     _, output = container.exec_run(INIT_STATUS_COMMAND[init_system])
     print("%s status command output:" % init_system)
@@ -253,18 +272,14 @@ def _test_package_install(base_image, package_path, init_system):
         _, package_ext = os.path.splitext(package_path)
         copy_file_into_container(package_path, cont, "/opt/signalfx-agent%s" % package_ext)
 
+        install_deps(cont, base_image)
+
         if "opensuse" in base_image:
-            # suse-specific installation (this will usually be handled by the installer script)
-            code, output = cont.exec_run("zypper install -y -l libcap2 libcap-progs libpcap1 shadow")
-            assert code == 0, "Failed to install dependencies:\n%s" % output.decode("utf-8")
             install_cmd = "rpm -ivh --nodeps /opt/signalfx-agent.rpm"
         else:
             install_cmd = INSTALL_COMMAND[package_ext]
 
-        code, output = cont.exec_run(install_cmd)
-        print("Output of package install:")
-        print_lines(output)
-        assert code == 0, "Package could not be installed!"
+        _test_install_package(cont, install_cmd)
 
         _test_package_verify(cont, package_ext, base_image)
 
@@ -299,10 +314,16 @@ def _test_package_install(base_image, package_path, init_system):
                 print_lines(get_agent_logs(cont, init_system))
 
 
-# pylint: disable=line-too-long
+OLD_RPM_URL = "https://splunk.jfrog.io/splunk/signalfx-agent-rpm/release/signalfx-agent-3.0.1-1.x86_64.rpm"
+OLD_RPM_NAME = OLD_RPM_URL.split("/")[-1]
+OLD_SUSE_RPM_URL = "https://splunk.jfrog.io/splunk/signalfx-agent-rpm/release/signalfx-agent-4.7.7-1.x86_64.rpm"
+OLD_SUSE_RPM_NAME = OLD_SUSE_RPM_URL.split("/")[-1]
+OLD_DEB_URL = "https://splunk.jfrog.io/splunk/signalfx-agent-deb/pool/signalfx-agent_3.0.1-1_amd64.deb"
+OLD_DEB_NAME = OLD_DEB_URL.split("/")[-1]
+
 OLD_INSTALL_COMMAND = {
-    ".rpm": "yum install -y https://splunk.jfrog.io/splunk/signalfx-agent-rpm/release/signalfx-agent-3.0.1-1.x86_64.rpm",
-    ".deb": "bash -ec 'wget -nv https://splunk.jfrog.io/splunk/signalfx-agent-deb/pool/signalfx-agent_3.0.1-1_amd64.deb && dpkg -i signalfx-agent_3.0.1-1_amd64.deb'",
+    ".rpm": f"yum install -y {OLD_RPM_URL}",
+    ".deb": f"bash -ec 'wget -nv {OLD_DEB_URL} && dpkg -i {OLD_DEB_NAME}'",
 }
 
 UPGRADE_COMMAND = {
@@ -316,16 +337,22 @@ def _test_package_upgrade(base_image, package_path, init_system):
         _, package_ext = os.path.splitext(package_path)
         copy_file_into_container(package_path, cont, "/opt/signalfx-agent%s" % package_ext)
 
-        code, output = cont.exec_run(OLD_INSTALL_COMMAND[package_ext])
-        print("Output of old package install:")
-        print_lines(output)
-        assert code == 0, "Old package could not be installed!"
+        install_deps(cont, base_image)
+
+        if "opensuse" in base_image:
+            install_cmd = f"bash -ec 'wget -nv {OLD_SUSE_RPM_URL} && rpm -ivh --nodeps {OLD_SUSE_RPM_NAME}'"
+            upgrade_cmd = "rpm -Uvh --nodeps /opt/signalfx-agent.rpm"
+        else:
+            install_cmd = OLD_INSTALL_COMMAND[package_ext]
+            upgrade_cmd = UPGRADE_COMMAND[package_ext]
+
+        _test_install_package(cont, install_cmd)
 
         cont.exec_run("bash -ec 'echo -n testing123 > /etc/signalfx/token'")
         old_agent_yaml = update_agent_yaml(cont, backend, hostname="test-" + base_image)
         _, _ = cont.exec_run("cp -f %s %s.orig" % (AGENT_YAML_PATH, AGENT_YAML_PATH))
 
-        code, output = cont.exec_run(UPGRADE_COMMAND[package_ext])
+        code, output = cont.exec_run(upgrade_cmd)
         print("Output of package upgrade:")
         print_lines(output)
         assert code == 0, "Package could not be upgraded!"
@@ -405,6 +432,7 @@ def test_deb_package(base_image, init_system):
         ("centos6", INIT_UPSTART),
         ("centos7", INIT_SYSTEMD),
         ("centos8", INIT_SYSTEMD),
+        ("opensuse15", INIT_SYSTEMD),
     ],
 )
 def test_rpm_package_upgrade(base_image, init_system):
