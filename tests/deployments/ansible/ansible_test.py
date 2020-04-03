@@ -8,7 +8,7 @@ import pytest
 import yaml
 
 from tests.helpers.assertions import has_datapoint_with_dim, has_datapoint_with_metric_name
-from tests.helpers.util import print_lines, wait_for, copy_file_into_container
+from tests.helpers.util import copy_file_into_container, print_lines, wait_for
 from tests.packaging.common import (
     INIT_SYSTEMD,
     INIT_UPSTART,
@@ -18,6 +18,7 @@ from tests.packaging.common import (
     import_old_key,
     is_agent_running_as_non_root,
     run_init_system_image,
+    verify_override_files,
 )
 from tests.paths import REPO_ROOT_DIR
 
@@ -43,6 +44,8 @@ RPM_DISTROS = [
 CONFIG = """
 sfx_package_stage: null
 sfx_version: null
+sfx_service_user: null
+sfx_service_group: null
 sfx_agent_config:
   signalFxAccessToken: testing123
   ingestUrl: null
@@ -62,22 +65,24 @@ ANSIBLE_CMD = f"ansible-playbook -vvvv -i {INVENTORY_DEST_PATH} -e @{CONFIG_DEST
 ANSIBLE_VERSIONS = os.environ.get("ANSIBLE_VERSIONS", "2.4.1,latest").split(",")
 STAGE = os.environ.get("STAGE", "release")
 INITIAL_VERSION = os.environ.get("INITIAL_VERSION", "4.14.0")
-UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "5.0.0")
+UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "5.1.0")
 
 
-def get_config(backend, monitors, agent_version, stage):
+def get_config(backend, monitors, agent_version, stage, user):
     config_yaml = yaml.safe_load(CONFIG)
     config_yaml["sfx_package_stage"] = stage
     config_yaml["sfx_version"] = agent_version + "-1"
+    config_yaml["sfx_service_user"] = user
+    config_yaml["sfx_service_group"] = user
     config_yaml["sfx_agent_config"]["ingestUrl"] = backend.ingest_url
     config_yaml["sfx_agent_config"]["apiUrl"] = backend.api_url
     config_yaml["sfx_agent_config"]["monitors"] = monitors
     return yaml.dump(config_yaml)
 
 
-def run_ansible(cont, backend, monitors, agent_version, stage):
+def run_ansible(cont, init_system, backend, monitors, agent_version, stage, user="signalfx-agent"):
     with tempfile.NamedTemporaryFile(mode="w+") as fd:
-        config_yaml = get_config(backend, monitors, agent_version, stage)
+        config_yaml = get_config(backend, monitors, agent_version, stage, user)
         print(config_yaml)
         fd.write(config_yaml)
         fd.flush()
@@ -85,13 +90,14 @@ def run_ansible(cont, backend, monitors, agent_version, stage):
     code, output = cont.exec_run(ANSIBLE_CMD)
     assert code == 0, output.decode("utf-8")
     print_lines(output)
+    verify_override_files(cont, init_system, user)
     installed_version = get_agent_version(cont).replace("~", "-")
     agent_version = re.sub(r"-\d+$", "", agent_version).replace("~", "-")
     assert installed_version == agent_version, "installed agent version is '%s', expected '%s'" % (
         installed_version,
         agent_version,
     )
-    assert is_agent_running_as_non_root(cont), "Agent is not running as non-root user"
+    assert is_agent_running_as_non_root(cont, user=user), f"Agent is not running as {user} user"
 
 
 @pytest.mark.parametrize(
@@ -120,7 +126,7 @@ def test_ansible(base_image, init_system, ansible_version):
         import_old_key(cont, distro_type)
         try:
             monitors = [{"type": "host-metadata"}]
-            run_ansible(cont, backend, monitors, INITIAL_VERSION, STAGE)
+            run_ansible(cont, init_system, backend, monitors, INITIAL_VERSION, STAGE)
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
@@ -129,14 +135,14 @@ def test_ansible(base_image, init_system, ansible_version):
 
             if UPGRADE_VERSION:
                 # upgrade agent
-                run_ansible(cont, backend, monitors, UPGRADE_VERSION, STAGE)
+                run_ansible(cont, init_system, backend, monitors, UPGRADE_VERSION, STAGE, user="test-user")
                 backend.reset_datapoints()
                 assert wait_for(
                     p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
                 ), "Datapoints didn't come through"
 
                 # downgrade agent
-                run_ansible(cont, backend, monitors, INITIAL_VERSION, STAGE)
+                run_ansible(cont, init_system, backend, monitors, INITIAL_VERSION, STAGE)
                 backend.reset_datapoints()
                 assert wait_for(
                     p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
@@ -144,7 +150,7 @@ def test_ansible(base_image, init_system, ansible_version):
 
             # change agent config
             monitors = [{"type": "internal-metrics"}]
-            run_ansible(cont, backend, monitors, INITIAL_VERSION, STAGE)
+            run_ansible(cont, init_system, backend, monitors, INITIAL_VERSION, STAGE)
             backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
