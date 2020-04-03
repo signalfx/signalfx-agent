@@ -71,7 +71,7 @@ ansible)
         -e '{"sfx_agent_config": {"signalFxAccessToken": "MyToken"}}' | tee ~/testresults/ansible.out
     docker run --rm \
         signalfx-agent-ansible-dev \
-        ansible-lint .
+        ansible-lint roles/signalfx-agent
     if [ $CIRCLE_NODE_INDEX -eq 0 ]; then
         echo "export MARKERS='ansible and rpm'" >> $BASH_ENV
     else
