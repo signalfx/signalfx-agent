@@ -1,0 +1,90 @@
+---
+- name: Create user/group
+  block:
+    - name: Get groups
+      getent:
+        database: group
+        key: "{{ sfx_service_group }}"
+        fail_key: no
+    - name: Create group
+      group:
+        name: "{{ sfx_service_group }}"
+        system: yes
+      when: not getent_group[sfx_service_group]
+    - name: Get users
+      getent:
+        database: passwd
+        key: "{{ sfx_service_user }}"
+        fail_key: no
+    - name: Create user
+      user:
+        name: "{{ sfx_service_user }}"
+        group: "{{ sfx_service_group }}"
+        createhome: no
+        shell: /sbin/nologin
+        system: yes
+      when: not getent_passwd[sfx_service_user]
+
+- name: Set user/group for signalfx-agent systemd service
+  block:
+    - name: Stop systemd service
+      service:
+        name: signalfx-agent
+        state: stopped
+    - name: Create tmpfile override
+      lineinfile:
+        path: /etc/tmpfiles.d/signalfx-agent.conf
+        create: yes
+        line: "D /run/signalfx-agent 0755 {{ sfx_service_user }} {{ sfx_service_group }} - -"
+        regexp: '^D /run/signalfx-agent .*'
+        insertafter: EOF
+    - name: Initialize tmpfile override
+      command: systemd-tmpfiles --create --remove /etc/tmpfiles.d/signalfx-agent.conf
+    - name: Create systemd override directory
+      file:
+        path: /etc/systemd/system/signalfx-agent.service.d/
+        state: directory
+    - name: Create systemd service owner override file
+      lineinfile:
+        path: /etc/systemd/system/signalfx-agent.service.d/service-owner.conf
+        create: yes
+        line: '[Service]'
+        regexp: '^\[Service\].*'
+        insertafter: EOF
+    - name: Set systemd service owner user
+      lineinfile:
+        path: /etc/systemd/system/signalfx-agent.service.d/service-owner.conf
+        line: "User={{ sfx_service_user }}"
+        regexp: '^User=.*'
+        insertafter: '^\[Service\].*'
+    - name: Set systemd service owner group
+      lineinfile:
+        path: /etc/systemd/system/signalfx-agent.service.d/service-owner.conf
+        line: "Group={{ sfx_service_group }}"
+        regexp: '^Group=.*'
+        insertafter: '^User=.*'
+    - name: Reload systemd service
+      systemd:
+        daemon_reload: yes
+  when: ansible_service_mgr == 'systemd'
+
+- name: Set user/group for signalfx-agent initd service
+  block:
+    - name: Stop initd service
+      service:
+        name: signalfx-agent
+        state: stopped
+    - name: Set initd service owner user
+      lineinfile:
+        path: /etc/default/signalfx-agent
+        create: yes
+        line: "user={{ sfx_service_user }}"
+        regexp: '^user=.*'
+        insertafter: EOF
+    - name: Set initd service owner group
+      lineinfile:
+        path: /etc/default/signalfx-agent
+        line: "group={{ sfx_service_group }}"
+        regexp: '^group=.*'
+        insertafter: '^user=.*'
+  when: ansible_service_mgr != 'systemd'

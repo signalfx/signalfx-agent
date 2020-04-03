@@ -66,6 +66,10 @@ This role sources the following variables:
    (e.g. init scripts) but contain the same agent bundle. (**default:**
    'latest')
 
+ - `sfx_service_user` and `sfx_service_group`: Set the user/group ownership for the
+   signalfx-agent service. The user/group will be created if they do not exist.
+   Requires agent package version 5.1.0 or newer. (**default:** 'signalfx-agent')
+
 **Note**: After the `signalfx-agent` role is deployed, Ansible will manage the
 `signalfx-agent` service via the Ansible core `service` module.  This module
 will automatically determine the host's init system for starting/stopping the
