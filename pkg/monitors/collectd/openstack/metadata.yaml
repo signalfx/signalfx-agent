@@ -39,6 +39,15 @@ monitors:
       username: "admin"
       password: "secret"
     ```
+    ### Example config using skipVerify
+    ```yaml
+    monitors:
+    - type: collectd/openstack
+      authURL: "https://192.168.11.111/identity/v3"
+      username: "admin"
+      password: "secret"
+      skipVerify: true
+    ```
   metrics:
     counter.openstack.nova.server.cpu_time:
       description: Virtual CPU time consumed in nanoseconds

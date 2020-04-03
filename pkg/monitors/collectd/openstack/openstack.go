@@ -36,6 +36,8 @@ type Config struct {
 	ProjectDomainID string `yaml:"projectDomainID"`
 	// The user domain id (**default**:"default")
 	UserDomainID string `yaml:"userDomainID"`
+	// Skip SSL certificate validation
+	SkipVerify bool `yaml:"skipVerify"`
 }
 
 // PythonConfig returns the embedded python.Config struct from the interface
@@ -63,6 +65,7 @@ func (m *Monitor) Configure(conf *Config) error {
 			"ProjectName":     conf.ProjectName,
 			"ProjectDomainId": conf.ProjectDomainID,
 			"UserDomainId":    conf.UserDomainID,
+			"SSLVerify":       !conf.SkipVerify,
 		},
 	}
 
