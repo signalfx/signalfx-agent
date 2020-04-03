@@ -223,6 +223,10 @@ install_debian_apt_source() {
   if [ "$stage" = "test" ]; then
     trusted_flag="[trusted=yes]"
   fi
+
+  apt-get -y update
+  apt-get -y install apt-transport-https
+
   echo "deb $trusted_flag $deb_repo_base $stage main" > /etc/apt/sources.list.d/signalfx-agent.list
 }
 
