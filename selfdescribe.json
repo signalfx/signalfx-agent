@@ -34018,7 +34018,7 @@
           "type": "cumulative",
           "description": "Response latency distribution in seconds for each verb, dry run value, group, version, resource, subresource, scope and component. (bucket)",
           "group": "apiserver_request",
-          "default": true
+          "default": false
         },
         "apiserver_request_duration_seconds_count": {
           "type": "cumulative",
