@@ -524,7 +524,7 @@ monitors:
       type: cumulative
       group: apiserver_request
     apiserver_request_duration_seconds_bucket:
-      default: true
+      default: false
       description: Response latency distribution in seconds for each verb, dry run
         value, group, version, resource, subresource, scope and component. (bucket)
       type: cumulative
