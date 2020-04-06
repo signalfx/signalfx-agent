@@ -7,11 +7,13 @@ class signalfx_agent (
     'debian'  => '/etc/signalfx/agent.yaml',
     'redhat'  => '/etc/signalfx/agent.yaml',
     'windows' => 'C:\\ProgramData\\SignalFxAgent\\agent.yaml',
-    'default' => '/etc/signalfx/agent.yaml'
+    default   => '/etc/signalfx/agent.yaml'
   },
   $agent_version          = '',
   $package_version        = '',
   $installation_directory = 'C:\\Program Files\\SignalFx',
+  $service_user           = 'signalfx-agent',  # linux only
+  $service_group          = 'signalfx-agent',  # linux only
 ) {
 
   $service_name = 'signalfx-agent'
@@ -90,6 +92,14 @@ class signalfx_agent (
   -> service { $service_name:
     ensure => true,
     enable => true,
+  }
+
+  if $::osfamily != 'windows' {
+    class { 'signalfx_agent::service_owner':
+      service_name  => $service_name,
+      service_user  => $service_user,
+      service_group => $service_group,
+    }
   }
 
   file { $config_parent_directory_path:

@@ -10,6 +10,7 @@ import docker
 import requests
 from tests.helpers import fake_backend
 from tests.helpers.util import (
+    get_container_file_content,
     get_docker_client,
     get_host_ip,
     pull_from_reader_in_background,
@@ -279,3 +280,21 @@ def assert_old_key_removed(cont, distro_type):
     else:
         code, output = cont.exec_run("rpm -q gpg-pubkey-098acf3b-55a5351a")
         assert code != 0, "old key still exists!"
+
+
+def verify_override_files(cont, init_system, user, group=None):
+    if not group:
+        group = user
+
+    if init_system == INIT_SYSTEMD:
+        tmpfile_path = "/etc/tmpfiles.d/signalfx-agent.conf"
+        expected = f"D /run/signalfx-agent 0755 {user} {group} - -"
+        assert expected == get_container_file_content(cont, tmpfile_path).strip()
+
+        override_path = "/etc/systemd/system/signalfx-agent.service.d/service-owner.conf"
+        expected = f"[Service]\nUser={user}\nGroup={group}"
+        assert expected == get_container_file_content(cont, override_path).strip()
+    else:
+        override_path = "/etc/default/signalfx-agent"
+        expected = f"user={user}\ngroup={group}"
+        assert expected == get_container_file_content(cont, override_path).strip()
