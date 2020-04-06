@@ -59,7 +59,7 @@ class accepts the following parameters:
    Agent should be downloaded to. (**default:** 'C:\\Program Files\\SignalFx\\')
 
  - `$service_user` and `$service_group`: Valid only on Linux and requires
-   agent package version 5.0.5 or newer.  Set the user/group ownership for the
+   agent package version 5.1.0 or newer.  Set the user/group ownership for the
    signalfx-agent service. The user/group will be created if they do not exist.
    (**default:** 'signalfx-agent')
 
