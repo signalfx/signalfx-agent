@@ -30,6 +30,7 @@ from tests.packaging.common import (
     run_win_command,
     running_in_azure_pipelines,
     uninstall_win_agent,
+    verify_override_files,
 )
 from tests.paths import REPO_ROOT_DIR
 
@@ -38,6 +39,8 @@ pytestmark = [pytest.mark.chef, pytest.mark.deployment]
 ATTRIBUTES_JSON = """
 {"signalfx_agent": {
   "package_stage": "release",
+  "user": null,
+  "group": null,
   "agent_version": null,
   "conf": {
     "signalFxAccessToken": "testing",
@@ -78,7 +81,7 @@ CHEF_VERSIONS = os.environ.get("CHEF_VERSIONS", "14.12.9,latest").split(",")
 
 STAGE = os.environ.get("STAGE", "release")
 INITIAL_VERSION = os.environ.get("INITIAL_VERSION", "4.7.7")
-UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "5.0.0")
+UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "5.1.0")
 
 WIN_CHEF_BIN_DIR = r"C:\opscode\chef\bin"
 WIN_CHEF_COOKBOOKS_DIR = r"C:\chef\cookbooks"
@@ -90,10 +93,12 @@ WIN_GEM_BIN_DIR = r"C:\opscode\chef\embedded\bin"
 RUBYZIP_VERSION = "1.3.0"
 
 
-def run_chef_client(cont, chef_version, agent_version, stage, monitors):
+def run_chef_client(cont, init_system, chef_version, agent_version, stage, monitors, user="signalfx-agent"):
     attributes = json.loads(ATTRIBUTES_JSON)
     attributes["signalfx_agent"]["agent_version"] = agent_version
     attributes["signalfx_agent"]["package_stage"] = stage
+    attributes["signalfx_agent"]["user"] = user
+    attributes["signalfx_agent"]["group"] = user
     attributes["signalfx_agent"]["conf"]["monitors"] = monitors
     print(attributes)
     with tempfile.NamedTemporaryFile(mode="w", dir="/tmp/scratch") as fd:
@@ -107,12 +112,13 @@ def run_chef_client(cont, chef_version, agent_version, stage, monitors):
         output = output.decode("utf-8").strip()
         assert code == 0, "failed to install agent:\n%s" % output
         print(output)
+    verify_override_files(cont, init_system, user)
     installed_version = get_agent_version(cont)
     assert installed_version == agent_version, "installed agent version is '%s', expected '%s'" % (
         installed_version,
         agent_version,
     )
-    assert is_agent_running_as_non_root(cont), "Agent is not running as non-root user"
+    assert is_agent_running_as_non_root(cont, user=user), f"Agent is not running as {user} user"
 
 
 @pytest.mark.parametrize(
@@ -137,7 +143,7 @@ def test_chef(base_image, init_system, chef_version):
         try:
             agent_version = INITIAL_VERSION
             monitors = [{"type": "host-metadata"}]
-            run_chef_client(cont, chef_version, agent_version, STAGE, monitors)
+            run_chef_client(cont, init_system, chef_version, agent_version, STAGE, monitors)
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
             ), "Datapoints didn't come through"
@@ -147,7 +153,7 @@ def test_chef(base_image, init_system, chef_version):
             if UPGRADE_VERSION:
                 # upgrade agent
                 agent_version = UPGRADE_VERSION
-                run_chef_client(cont, chef_version, agent_version, STAGE, monitors)
+                run_chef_client(cont, init_system, chef_version, agent_version, STAGE, monitors, user="test-user")
                 backend.reset_datapoints()
                 assert wait_for(
                     p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
@@ -156,7 +162,7 @@ def test_chef(base_image, init_system, chef_version):
                 # downgrade agent for distros that support package downgrades
                 if base_image not in ("debian-7-wheezy", "debian-8-jessie", "ubuntu1404"):
                     agent_version = INITIAL_VERSION
-                    run_chef_client(cont, chef_version, agent_version, STAGE, monitors)
+                    run_chef_client(cont, init_system, chef_version, agent_version, STAGE, monitors)
                     backend.reset_datapoints()
                     assert wait_for(
                         p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
@@ -164,7 +170,7 @@ def test_chef(base_image, init_system, chef_version):
 
             # change agent config
             monitors = [{"type": "internal-metrics"}]
-            run_chef_client(cont, chef_version, agent_version, STAGE, monitors)
+            run_chef_client(cont, init_system, chef_version, agent_version, STAGE, monitors)
             backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
