@@ -10,8 +10,14 @@ metadata:
     chart: {{ template "signalfx-agent.chart" . }}
 data:
   agent.yaml: |
-{{- if .Values.agentConfig }}
-{{ toYaml .Values.agentConfig | indent 4 }}
+{{ if .Values.agentConfig }}
+  {{- $agentConf := .Values.agentConfig }}
+  {{- $confType := printf "%T" $agentConf }}
+  {{- if eq $confType "string" }}
+    {{- $agentConf | indent 4 }}
+  {{ else }}
+    {{- toYaml $agentConf | indent 4 }}
+  {{ end }}
 {{- else }}
     signalFxAccessToken: ${SFX_ACCESS_TOKEN}
 
