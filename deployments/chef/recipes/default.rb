@@ -5,15 +5,17 @@
 # Copyright:: 2018, SignalFx, Inc., All Rights Reserved.
 
 if node['platform_family'] != 'windows'
-  group 'signalfx-agent' do
+  group node['signalfx_agent']['group'] do
     system true
+    not_if "getent group #{node['signalfx_agent']['group']}"
   end
 
-  user 'signalfx-agent' do
+  user node['signalfx_agent']['user'] do
     system true
     manage_home false
-    group 'signalfx-agent'
+    group node['signalfx_agent']['group']
     shell '/sbin/nologin'
+    not_if "getent passwd #{node['signalfx_agent']['user']}"
   end
 end
 
@@ -73,6 +75,10 @@ else
     allow_downgrade true if platform_family?('rhel', 'amazon', 'fedora')
     notifies :restart, 'service[signalfx-agent]', :delayed
   end
+end
+
+if node['platform_family'] != 'windows'
+  include_recipe 'signalfx_agent::service_owner'
 end
 
 template node['signalfx_agent']['conf_file_path'] do

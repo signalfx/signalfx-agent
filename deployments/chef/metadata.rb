@@ -3,7 +3,7 @@ maintainer 'Splunk, Inc.'
 maintainer_email 'signalfx-support@splunk.com'
 license 'Apache-2.0'
 description 'Installs/Configures the SignalFx Agent'
-version '1.0.0'
+version '1.1.0'
 chef_version '>= 12.1' if respond_to?(:chef_version)
 
 supports 'amazon'
