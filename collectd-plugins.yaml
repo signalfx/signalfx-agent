@@ -42,13 +42,13 @@
   repo: signalfx/collectd-marathon
 
 - name: mongodb
-  version: v1.3.0
+  version: v1.3.2
   repo: signalfx/collectd-mongodb
   pip_packages:
     - pymongo[tls]==3.3.1
 
 - name: openstack
-  version: v3.0.0
+  version: v4.0.0
   repo: signalfx/collectd-openstack
 
 - name: rabbitmq
