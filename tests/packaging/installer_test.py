@@ -25,6 +25,7 @@ from .common import (
     run_init_system_image,
     run_win_command,
     uninstall_win_agent,
+    verify_override_files,
 )
 
 pytestmark = pytest.mark.installer
@@ -51,7 +52,11 @@ STAGE = os.environ.get("STAGE", "release")
 
 
 @contextmanager
-def _run_tests(base_image, init_system, installer_args, **extra_run_kwargs):
+def _run_tests(base_image, init_system, installer_args, user=None, **extra_run_kwargs):
+    if user:
+        installer_args = f"--service-user {user} --service-group {user} {installer_args}"
+    else:
+        user = "signalfx-agent"
     with run_init_system_image(base_image, **extra_run_kwargs) as [cont, backend]:
         copy_file_into_container(INSTALLER_PATH, cont, "/opt/install.sh")
 
@@ -64,7 +69,8 @@ def _run_tests(base_image, init_system, installer_args, **extra_run_kwargs):
         assert code == 0, "Agent could not be installed!"
 
         try:
-            assert is_agent_running_as_non_root(cont), "Agent is running as root user"
+            verify_override_files(cont, init_system, user)
+            assert is_agent_running_as_non_root(cont, user), f"Agent is not running as {user} user"
             yield backend, cont
         finally:
             print("Agent log:")
@@ -80,7 +86,11 @@ def test_installer_on_all_distros(base_image, init_system, agent_version):
         agent_version = agent_version.replace("~post", "-post")
     args = "MYTOKEN" if agent_version == "latest" else f"--package-version {agent_version}-1 MYTOKEN"
     args = args if STAGE == "release" else f"--{STAGE} {args}"
-    with _run_tests(base_image, init_system, args) as [backend, cont]:
+    if agent_version == "latest" or tuple(agent_version.split(".")) >= ("5", "1", "0"):
+        user = "test-user"
+    else:
+        user = None
+    with _run_tests(base_image, init_system, args, user=user) as [backend, cont]:
         if agent_version != "latest":
             installed_version = get_agent_version(cont)
             agent_version = agent_version.replace("~", "-")
@@ -130,7 +140,7 @@ def test_installer_cluster():
 
         def assert_cluster_property():
             host = first_host_dimension(backend)
-            assert host
+            assert host is not None
             assert host in backend.dims["host"]
             dim = backend.dims["host"][host]
             assert dim["customProperties"] == {"cluster": "prod"}
