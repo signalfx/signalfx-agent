@@ -14,7 +14,7 @@
     enabled: yes
 
 - name: Install signalfx-agent via yum package manager
-  yum: 
+  yum:
     name: signalfx-agent{% if sfx_version is defined and sfx_version != "latest" %}-{{ sfx_version }}{% endif %}
     state: "{% if sfx_version is defined and sfx_version != 'latest' %}present{% else %}{{ sfx_version }}{% endif %}"
     allow_downgrade: yes

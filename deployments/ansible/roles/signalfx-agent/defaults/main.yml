@@ -6,3 +6,6 @@ sfx_package_stage: release
 sfx_version: latest
 
 sfx_conf_file_path: /etc/signalfx/agent.yaml
+
+sfx_service_user: signalfx-agent
+sfx_service_group: signalfx-agent
