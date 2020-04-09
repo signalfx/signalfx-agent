@@ -1,0 +1,17 @@
+FROM amazonlinux:1
+
+ENV container docker
+
+RUN yum install -y upstart procps initscripts
+RUN yum install -y https://repo.saltstack.com/yum/amazon/salt-amzn-repo-latest.amzn1.noarch.rpm && \
+    yum install -y salt-minion
+
+RUN sed -i "s|#file_client:.*|file_client: local|" /etc/salt/minion
+
+COPY deployments/salt/signalfx-agent/ /srv/salt/signalfx-agent/
+COPY tests/deployments/salt/images/top.sls /srv/salt/top.sls
+COPY tests/deployments/salt/images/top.sls /srv/pillar/top.sls
+RUN chkconfig salt-minion off
+
+VOLUME [ "/sys/fs/cgroup" ]
+CMD ["/sbin/init"]
