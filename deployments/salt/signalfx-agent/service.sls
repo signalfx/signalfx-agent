@@ -8,4 +8,6 @@ signalfx-agent-service:
       - pkg: signalfx-agent
     - watch:
       - pkg: signalfx-agent
+      - user: service_user
+      - group: service_group
       - file: {{ conf_file_path }}

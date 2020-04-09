@@ -55,6 +55,11 @@ signalfx-agent:
       - type: processlist
 ```
 
+`signalfx-agent.service_user` and `signalfx-agent.service_group`: Set the
+user/group ownership for the signalfx-agent service.  The user/group will be
+created if they do not exist.  Requires agent package version 5.1.0 or newer.
+(**default:** 'signalfx-agent')
+
 ## Development
 
 To test this formula in the dev image (which is Ubuntu-based, so this won't be

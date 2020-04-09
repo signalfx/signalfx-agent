@@ -2,6 +2,8 @@ signalfx-agent:
   repo_base_url: https://splunk.jfrog.io/splunk
   package_stage: release
   conf_file_path: '/etc/signalfx/agent.yaml'
+  service_user: signalfx-agent
+  service_group: signalfx-agent
   conf:
     signalFxAccessToken: 'My_Token'
     monitors:
