@@ -76,7 +76,7 @@ WIN_PUPPET_VERSIONS = os.environ.get("PUPPET_VERSIONS", "5.0.0,latest").split(",
 
 STAGE = os.environ.get("STAGE", "release")
 INITIAL_VERSION = os.environ.get("INITIAL_VERSION", "4.7.5")
-UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "5.0.0")
+UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "5.1.0")
 
 WIN_PUPPET_BIN_DIR = r"C:\Program Files\Puppet Labs\Puppet\bin"
 WIN_PUPPET_MODULE_SRC_DIR = os.path.join(WIN_REPO_ROOT_DIR, "deployments", "puppet")
@@ -167,7 +167,7 @@ def test_puppet(base_image, init_system, puppet_release):
 
             if UPGRADE_VERSION:
                 # upgrade agent
-                run_puppet_agent(cont, init_system, backend, monitors, UPGRADE_VERSION, STAGE)
+                run_puppet_agent(cont, init_system, backend, monitors, UPGRADE_VERSION, STAGE, user="test-user")
                 backend.reset_datapoints()
                 assert wait_for(
                     p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
@@ -181,9 +181,8 @@ def test_puppet(base_image, init_system, puppet_release):
                 ), "Datapoints didn't come through"
 
             # change agent config
-            service_owner = "test-user" if init_system == INIT_SYSTEMD else "signalfx-agent"
             monitors = [{"type": "internal-metrics"}]
-            run_puppet_agent(cont, init_system, backend, monitors, INITIAL_VERSION, STAGE, user=service_owner)
+            run_puppet_agent(cont, init_system, backend, monitors, INITIAL_VERSION, STAGE)
             backend.reset_datapoints()
             assert wait_for(
                 p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
