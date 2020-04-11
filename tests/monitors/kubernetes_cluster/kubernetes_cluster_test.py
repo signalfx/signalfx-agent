@@ -36,9 +36,10 @@ def test_kubernetes_cluster_in_k8s(k8s_cluster):
 def test_resource_quota_metrics(k8s_cluster):
     yamls = [SCRIPT_DIR / "resource_quota.yaml"]
     with k8s_cluster.create_resources(yamls):
-        config = """
+        config = f"""
             monitors:
             - type: kubernetes-cluster
+              namespace: {k8s_cluster.test_namespace}
               kubernetesAPI:
                 authType: serviceAccount
         """
@@ -88,9 +89,10 @@ def test_resource_quota_metrics(k8s_cluster):
 def test_kubernetes_cluster_namespace_scope(k8s_cluster):
     yamls = [SCRIPT_DIR / "good-pod.yaml", SCRIPT_DIR / "bad-pod.yaml"]
     with k8s_cluster.create_resources(yamls):
-        config = """
+        config = f"""
             monitors:
             - type: kubernetes-cluster
+              namespace: {k8s_cluster.test_namespace}
               kubernetesAPI:
                 authType: serviceAccount
               namespace: good
@@ -108,9 +110,10 @@ def test_kubernetes_cluster_namespace_scope(k8s_cluster):
 def test_stateful_sets(k8s_cluster):
     yamls = [SCRIPT_DIR / "statefulset.yaml"]
     with k8s_cluster.create_resources(yamls) as resources:
-        config = """
+        config = f"""
             monitors:
             - type: kubernetes-cluster
+              namespace: {k8s_cluster.test_namespace}
               kubernetesAPI:
                 authType: serviceAccount
               extraMetrics:
@@ -152,9 +155,10 @@ def test_stateful_sets(k8s_cluster):
 def test_jobs(k8s_cluster):
     yamls = [SCRIPT_DIR / "job.yaml"]
     with k8s_cluster.create_resources(yamls) as resources:
-        config = """
+        config = f"""
             monitors:
             - type: kubernetes-cluster
+              namespace: {k8s_cluster.test_namespace}
               kubernetesAPI:
                 authType: serviceAccount
               extraMetrics:
@@ -191,9 +195,10 @@ def test_jobs(k8s_cluster):
 def test_jobs_no_completions(k8s_cluster):
     yamls = [SCRIPT_DIR / "job-no-completions.yaml"]
     with k8s_cluster.create_resources(yamls) as resources:
-        config = """
+        config = f"""
             monitors:
             - type: kubernetes-cluster
+              namespace: {k8s_cluster.test_namespace}
               kubernetesAPI:
                 authType: serviceAccount
               extraMetrics:
@@ -238,9 +243,10 @@ def test_jobs_no_completions(k8s_cluster):
 def test_cronjobs(k8s_cluster):
     yamls = [SCRIPT_DIR / "cronjob.yaml"]
     with k8s_cluster.create_resources(yamls) as resources:
-        config = """
+        config = f"""
             monitors:
             - type: kubernetes-cluster
+              namespace: {k8s_cluster.test_namespace}
               kubernetesAPI:
                 authType: serviceAccount
               extraMetrics:
@@ -280,9 +286,10 @@ def test_cronjobs(k8s_cluster):
 
 @pytest.mark.kubernetes
 def test_deployments(k8s_cluster):
-    config = """
+    config = f"""
     monitors:
      - type: kubernetes-cluster
+       namespace: {k8s_cluster.test_namespace}
     """
     yamls = [TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
     with k8s_cluster.create_resources(yamls) as resources:
@@ -307,9 +314,10 @@ def test_deployments(k8s_cluster):
 
 @pytest.mark.kubernetes
 def test_deployment_workload_property(k8s_cluster):
-    config = """
+    config = f"""
     monitors:
      - type: kubernetes-cluster
+       namespace: {k8s_cluster.test_namespace}
     """
     yamls = [TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
     with k8s_cluster.create_resources(yamls) as resources:
@@ -336,9 +344,10 @@ def test_deployment_workload_property(k8s_cluster):
 
 @pytest.mark.kubernetes
 def test_replicaset_workload_property(k8s_cluster):
-    config = """
+    config = f"""
     monitors:
      - type: kubernetes-cluster
+       namespace: {k8s_cluster.test_namespace}
     """
     yamls = [SCRIPT_DIR / "replicaSet.yaml"]
     with k8s_cluster.create_resources(yamls) as resources:
@@ -392,6 +401,7 @@ def test_containers(k8s_cluster):
     config = f"""
     monitors:
      - type: kubernetes-cluster
+       namespace: {k8s_cluster.test_namespace}
        extraMetrics:
         - {CONTAINER_RESOURCE_METRICS["request"]["cpu"]}
         - {CONTAINER_RESOURCE_METRICS["request"]["memory"]}
@@ -479,9 +489,10 @@ def test_containers(k8s_cluster):
 
 @pytest.mark.kubernetes
 def test_replication_controllers(k8s_cluster):
-    config = """
+    config = f"""
     monitors:
      - type: kubernetes-cluster
+       namespace: {k8s_cluster.test_namespace}
     """
     yamls = [SCRIPT_DIR / "nginx-replication-controller.yaml"]
     with k8s_cluster.create_resources(yamls) as resources:
@@ -506,9 +517,9 @@ def test_replication_controllers(k8s_cluster):
 @pytest.mark.kubernetes
 def test_node_metrics_and_props(k8s_cluster):
     config = """
-            monitors:
-            - type: kubernetes-cluster
-        """
+    monitors:
+     - type: kubernetes-cluster
+    """
     with k8s_cluster.run_agent(agent_yaml=config) as agent:
         for node in k8s_cluster.client.CoreV1Api().list_node().items:
             assert wait_for(
