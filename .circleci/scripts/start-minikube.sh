@@ -11,6 +11,17 @@ export OPTIONS=${OPTIONS:-}
 
 [ -f ~/.skip ] && exit 0
 
+sudo apt-get update
+sudo apt-get -y install conntrack
+
+# enable kubelet port 10255 for cadvisor and stats
+OPTIONS="$OPTIONS --extra-config=kubelet.read-only-port=10255"
+
+if [[ "$K8S_VERSION" =~ ^v1\.18\. ]]; then
+    # enable kubelet cadvisor for K8S_VERSION v1.18
+    OPTIONS="$OPTIONS --extra-config=kubelet.enable-cadvisor-json-endpoints=true"
+fi
+
 if [ -f test-services/minikube/config.json ]; then
     mkdir -p $HOME/.minikube/config
     cp test-services/minikube/config.json $HOME/.minikube/config/config.json

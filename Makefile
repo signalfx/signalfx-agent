@@ -138,7 +138,7 @@ run-k8s-tests: run-minikube push-minikube-agent
 		tests
 
 K8S_VERSION ?= latest
-MINIKUBE_VERSION ?= v1.4.0
+MINIKUBE_VERSION ?= v1.9.2
 
 .PHONY: run-minikube
 run-minikube:
