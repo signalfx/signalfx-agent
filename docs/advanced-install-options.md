@@ -79,7 +79,7 @@ If you don’t want to use the installer script, we offer a .zip that can be dep
 
 Before proceeding, you must install [.Net Framework 3.5 (Windows 8+)](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10).
 
-As an optional step, if you want to invoke a Python script for non-default monitors, specifically **exec**, then you must have Python 3.8.
+As an optional step, if you want to invoke a Python script for non-default monitors, specifically **exec**, then you must have Python installed.
    
 To use the bundle:
 
