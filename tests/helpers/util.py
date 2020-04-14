@@ -26,6 +26,39 @@ DOCKER_API_VERSION = "1.34"
 STATSD_RE = re.compile(r"SignalFx StatsD monitor: Listening on host & port udp:\[::\]:([0-9]*)")
 
 
+T = TypeVar("T")
+
+
+def retry_on_ebadf(func: T) -> T:
+    max_tries = 10
+
+    def wrap(*args, **kwargs):
+        tries = 0
+        while True:
+            try:
+                return func(*args, **kwargs)
+            except requests.exceptions.ConnectionError as e:
+                if "bad file descriptor" in str(e).lower():
+                    tries += 1
+                    if tries >= max_tries:
+                        raise
+
+                    logging.error("Retrying ConnectionError EBADF")
+                    continue
+                raise
+            except OSError as e:
+                if e.errno == 9:
+                    tries += 1
+                    if tries >= max_tries:
+                        raise
+
+                    logging.error("Retrying OSError EBADF")
+                    continue
+                raise
+
+    return cast(T, wrap)
+
+
 def get_docker_client():
     return docker.from_env(version=DOCKER_API_VERSION)
 
@@ -182,7 +215,9 @@ def run_container(image_name, wait_for_ip=True, print_logs=True, **kwargs):
 
     if not image_name.startswith("sha256"):
         container = client.images.pull(image_name)
-    container = retry(lambda: client.containers.create(image_name, **kwargs), docker.errors.DockerException)
+    container = retry_on_ebadf(
+        lambda: retry(lambda: client.containers.create(image_name, **kwargs), docker.errors.DockerException)
+    )()
 
     for src, dst in files:
         copy_file_into_container(src, container, dst)
@@ -216,10 +251,14 @@ def run_service(service_name, buildargs=None, print_logs=True, path=None, docker
         path = os.path.join(TEST_SERVICES_DIR, service_name)
 
     client = get_docker_client()
-    image, _ = retry(
-        lambda: client.images.build(path=str(path), dockerfile=dockerfile, rm=True, forcerm=True, buildargs=buildargs),
-        docker.errors.BuildError,
-    )
+    image, _ = retry_on_ebadf(
+        lambda: retry(
+            lambda: client.images.build(
+                path=str(path), dockerfile=dockerfile, rm=True, forcerm=True, buildargs=buildargs
+            ),
+            docker.errors.BuildError,
+        )
+    )()
     with run_container(image.id, print_logs=print_logs, **kwargs) as cont:
         yield cont
 
@@ -353,6 +392,7 @@ def copy_file_content_into_container(content, container, target_path):
 
 # This is more convoluted that it should be but seems to be the simplest way in
 # the face of docker-in-docker environments where volume bind mounting is hard.
+@retry_on_ebadf
 def copy_file_object_into_container(fd, container, target_path, size=None):
     tario = BytesIO()
     tar = tarfile.TarFile(fileobj=tario, mode="w")
@@ -414,36 +454,3 @@ def run_simple_sanic_app(app):
     finally:
         app_sock.close()
         loop.stop()
-
-
-T = TypeVar("T")
-
-
-def retry_on_ebadf(func: T) -> T:
-    max_tries = 10
-
-    def wrap(*args, **kwargs):
-        tries = 0
-        while True:
-            try:
-                return func(*args, **kwargs)
-            except requests.exceptions.ConnectionError as e:
-                if "bad file descriptor" in str(e).lower():
-                    tries += 1
-                    if tries >= max_tries:
-                        raise
-
-                    logging.error("Retrying ConnectionError EBADF")
-                    continue
-                raise
-            except OSError as e:
-                if e.errno == 9:
-                    tries += 1
-                    if tries >= max_tries:
-                        raise
-
-                    logging.error("Retrying OSError EBADF")
-                    continue
-                raise
-
-    return cast(T, wrap)
