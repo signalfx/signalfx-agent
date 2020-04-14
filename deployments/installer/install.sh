@@ -20,6 +20,8 @@ parse_args_and_install() {
   local access_token=
   local insecure=
   local package_version=
+  local service_user="signalfx-agent"
+  local service_group="signalfx-agent"
 
   while [ -n "${1-}" ]; do
     case $1 in
@@ -50,6 +52,14 @@ parse_args_and_install() {
         ;;
       --package-version)
         package_version="$2"
+        shift 1
+        ;;
+      --service-user)
+        service_user="$2"
+        shift 1
+        ;;
+      --service-group)
+        service_group="$2"
         shift 1
         ;;
       --)
@@ -89,7 +99,7 @@ parse_args_and_install() {
   echo "Ingest URL: $ingest_url"
   echo "API URL: $api_url"
 
-  install "$stage" "$ingest_url" "$api_url" "$access_token" "$insecure" "$package_version" "$cluster"
+  install "$stage" "$ingest_url" "$api_url" "$access_token" "$insecure" "$package_version" "$cluster" "$service_user" "$service_group"
   exit 0
 }
 
@@ -108,6 +118,12 @@ Options:
   --cluster <custer name>     The user-defined environment/cluster to use (corresponds to 'cluster' option in agent)
   --ingest-url <ingest url>   Base URL of the SignalFx ingest server
   --api-url <api url>         Base URL of the SignalFx API server
+  --service-user <user>       Set the user for the signalfx-agent service (default: "signalfx-agent")
+                              The user will be created if it does not exist
+                              Requires agent package version 5.1.0 or newer
+  --service-group <group>     Set the group for the signalfx-agent service (default: "signalfx-agent")
+                              The group will be created if it does not exist
+                              Requires agent package version 5.1.0 or newer
   --test                      Use the test package repo instead of the primary
   --beta                      Use the beta package repo instead of the primary
   --                          Use -- if your access_token starts with -
@@ -325,6 +341,60 @@ configure_cluster() {
   printf "%s" "$cluster" > /etc/signalfx/cluster
 }
 
+create_user_group() {
+  local user="$1"
+  local group="$2"
+
+  getent group $group >/dev/null 2>&1 || \
+    groupadd --system $group
+
+  getent passwd $user >/dev/null 2>&1 || \
+    useradd --system --no-user-group --home-dir /usr/lib/signalfx-agent --no-create-home --shell $(command -v nologin) --groups $group $user
+}
+
+override_systemd_service() {
+  local service_user="$1"
+  local service_group="$2"
+  local tmpfile_path="/etc/tmpfiles.d/signalfx-agent.conf"
+  local override_path="/etc/systemd/system/signalfx-agent.service.d/service-owner.conf"
+
+  systemctl stop signalfx-agent
+
+  mkdir -p $(dirname $tmpfile_path)
+  cat <<EOH > $tmpfile_path
+D /run/signalfx-agent 0755 ${service_user} ${service_group} - -
+EOH
+  systemd-tmpfiles --create --remove $tmpfile_path
+
+  mkdir -p $(dirname $override_path)
+  cat <<EOH > $override_path
+[Service]
+User=${service_user}
+Group=${service_group}
+EOH
+  systemctl daemon-reload
+}
+
+override_initd_service() {
+  local service_user="$1"
+  local service_group="$2"
+  local default_path="/etc/default/signalfx-agent"
+
+  service signalfx-agent stop
+
+  if [ -f $default_path ] && grep -q "^user=" $default_path; then
+    sed -i "s/^user=.*/user=${service_user}/" $default_path
+  else
+    echo "user=${service_user}" >> $default_path
+  fi
+
+  if [ -f $default_path ] && grep -q "^group=" $default_path; then
+    sed -i "s/^group=.*/group=${service_group}/" $default_path
+  else
+    echo "group=${service_group}" >> $default_path
+  fi
+}
+
 start_agent() {
   if command -v systemctl > /dev/null; then
     systemctl start signalfx-agent
@@ -341,6 +411,8 @@ install() {
   local insecure="$5"
   local package_version="$6"
   local cluster="$7"
+  local service_user="$8"
+  local service_group="$9"
   local distro="$(get_distro)"
 
   ensure_not_installed
@@ -386,6 +458,13 @@ install() {
   configure_ingest_url "$ingest_url"
   configure_api_url "$api_url"
   configure_cluster "$cluster"
+
+  create_user_group "$service_user" "$service_group"
+  if command -v systemctl >/dev/null; then
+    override_systemd_service "$service_user" "$service_group"
+  else
+    override_initd_service "$service_user" "$service_group"
+  fi
 
   start_agent
 
