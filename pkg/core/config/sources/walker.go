@@ -94,7 +94,22 @@ func (w *walker) injectDynamicValues(v interface{}) (interface{}, error) {
 
 func (w *walker) injectDynamicValuesInMap(m map[interface{}]interface{}) (map[interface{}]interface{}, error) {
 	out := make(map[interface{}]interface{})
-	for k, v := range m {
+	keys := make([]interface{}, 0, len(m))
+	index := 0
+	swap := 0
+	for k := range m {
+		if strings.HasPrefix(k.(string), "_") {
+			swap = index
+		}
+		keys = append(keys, k)
+		index++
+	}
+	if swap > 0 && index > 1 {
+		keys[len(keys)-1], keys[swap] = keys[swap], keys[len(keys)-1]
+	}
+
+	for _, k := range keys {
+		v := m[k]
 		if isDynamicValue(v) {
 			values, spec, err := w.doResolution(RawDynamicValueSpec(v))
 			if err != nil {
