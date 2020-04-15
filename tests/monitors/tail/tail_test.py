@@ -41,3 +41,48 @@ def test_tail():
             assert wait_for(
                 p(has_datapoint_with_dim, agent.fake_services, "plugin", "telegraf-tail")
             ), "didn't get datapoint with expected plugin dimension"
+
+
+MONITOR_JSON_CONFIG = string.Template(
+    """
+monitors:
+  - type: telegraf/tail
+    files:
+     - '$file'
+    watchMethod: poll       # specify the file watch method ("inotify" or "poll")
+    fromBeginning: true     # specify to read from the beginning
+    telegrafParser:         # configure the telegrafParser
+      dataFormat: json  # set the parseer format to "influx"
+      JSONTagKeys:
+       - "first"
+      JSONNameKey: "test-key"
+      JSONQuery: "friends"
+"""
+)
+
+
+def test_json_tail():
+    with tempfile.NamedTemporaryFile("w+b") as tmpfile:
+        config = MONITOR_JSON_CONFIG.substitute(file=tmpfile.name)
+        tmpfile.write(
+            b"""{"friends": [\
+            {"first": "Dale", "last": "Murphy", "age": 44},\
+            {"first": "Roger", "last": "Craig", "age": 68},\
+            {"first": "Jane", "last": "Murphy", "age": 47}\
+            ]}\n"""
+        )
+        tmpfile.flush()
+
+        with Agent.run(config) as agent:
+            assert wait_for(
+                p(has_datapoint_with_dim, agent.fake_services, "first", "Dale")
+            ), "didn't get datapoint written before startup"
+            assert wait_for(
+                p(has_datapoint_with_dim, agent.fake_services, "first", "Roger")
+            ), "didn't get datapoint written before startup"
+            assert wait_for(
+                p(has_datapoint_with_dim, agent.fake_services, "first", "Jane")
+            ), "didn't get datapoint written before startup"
+            assert wait_for(
+                p(has_datapoint_with_dim, agent.fake_services, "plugin", "telegraf-tail")
+            ), "didn't get datapoint with expected plugin dimension"

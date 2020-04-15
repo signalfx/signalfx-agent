@@ -825,8 +825,8 @@ github.com/signalfx/signalfx-go v1.6.9-0.20191121015807-da8b1dfaab43 h1:HWQ7OIrm
 github.com/signalfx/signalfx-go v1.6.9-0.20191121015807-da8b1dfaab43/go.mod h1:CeCGXKT2wqqky0Nz8eV0NH/CpMPE7tzYUcV8eQS1U1s=
 github.com/signalfx/tdigest v0.0.0-20191031204725-c860c3ff6902 h1:V/uPctkyrXFOwGmWbFFEJP48ntw8ykJN6oxEJBTPARE=
 github.com/signalfx/tdigest v0.0.0-20191031204725-c860c3ff6902/go.mod h1:fbvuJM3o+bwr36+TVjokMUGd4muJVHiCshTmKZ/6eNU=
-github.com/signalfx/telegraf v0.10.2-0.20200220234948-7794d95dad35 h1:omjpEdZFH1oSV8CqAvMdmVtQJ3FipW0gO6DnPM8eXbI=
-github.com/signalfx/telegraf v0.10.2-0.20200220234948-7794d95dad35/go.mod h1:1gnMOcwGO3lAxfoMq28M8gjooF2MqVwquPVEvgZ1its=
+github.com/signalfx/telegraf v0.10.2-0.20200415004250-249b98cac6c7 h1:2yl1neQAA7FvggdNsY65PiZnTTzQH/mBQhNEiwUV/fQ=
+github.com/signalfx/telegraf v0.10.2-0.20200415004250-249b98cac6c7/go.mod h1:1gnMOcwGO3lAxfoMq28M8gjooF2MqVwquPVEvgZ1its=
 github.com/signalfx/thrift v0.0.0-20181211001559-3838fa316492/go.mod h1:Xv29nl9fxdk0hmeqcUHgAZZwvYrOhduNW+9qk4H+6K0=
 github.com/signalfx/xdgbasedir v0.0.0-20160106035722-cd6a71c07e4e h1:QCYFq7iZwqlBTbP5xcJNIaLnAhozjhcrySGiEegRYus=
 github.com/signalfx/xdgbasedir v0.0.0-20160106035722-cd6a71c07e4e/go.mod h1:RnQhO4a62x0VHvh8eSMsqgTgYRso2hfat7ioM8rD1jc=

@@ -6,7 +6,7 @@ replace git.apache.org/thrift.git => github.com/apache/thrift v0.0.0-20180902110
 
 replace code.cloudfoundry.org/go-loggregator => github.com/signalfx/go-loggregator v1.0.1-0.20200205155641-5ba5ca92118d
 
-replace github.com/influxdata/telegraf => github.com/signalfx/telegraf v0.10.2-0.20200220234948-7794d95dad35
+replace github.com/influxdata/telegraf => github.com/signalfx/telegraf v0.10.2-0.20200415004250-249b98cac6c7
 
 require (
 	code.cloudfoundry.org/go-diodes v0.0.0-20190809170250-f77fb823c7ee // indirect
