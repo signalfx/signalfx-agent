@@ -1,6 +1,6 @@
 parameters:
   packages: ''
-  version: '1.14'
+  version: '1.14.2'
 
 steps:
 - task: GoTool@0

@@ -8,7 +8,7 @@ executors:
   goexecutor:
     working_directory: /code
     docker:
-      - image: golang:1.14.0-alpine
+      - image: golang:1.14.2-alpine
         environment:
           CGO_ENABLED: 0
           AGENT_BIN: /code/signalfx-agent
@@ -73,8 +73,8 @@ commands:
 
             # Machine image only has Go 1.9 installed
             cd /tmp
-            wget https://dl.google.com/go/go1.14.linux-amd64.tar.gz
-            sudo tar -C /usr/local -xzf go1.14.linux-amd64.tar.gz
+            wget https://dl.google.com/go/go1.14.2.linux-amd64.tar.gz
+            sudo tar -C /usr/local -xzf go1.14.2.linux-amd64.tar.gz
       - save_cache:
           key: v1-pytest-<< parameters.python_version >>-{{ checksum "tests/requirements.txt" }}
           paths:
