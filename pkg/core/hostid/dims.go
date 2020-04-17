@@ -28,12 +28,18 @@ func Dimensions(conf *config.Config) map[string]string {
 	// The envvar exists primarily for testing but could be useful otherwise.
 	// It remains undocumented for the time being though.
 	if os.Getenv("SKIP_PLATFORM_HOST_DIMS") != "yes" {
-		g.GatherDim("AWSUniqueId", AWSUniqueID)
-		g.GatherDim("gcp_id", GoogleComputeID)
+		g.GatherDim("AWSUniqueId", func() string {
+			return AWSUniqueID(conf.CloudMetadataTimeout)
+		})
+		g.GatherDim("gcp_id", func() string {
+			return GoogleComputeID(conf.CloudMetadataTimeout)
+		})
 		g.GatherDim("kubernetes_node_uid", func() string {
 			return KubernetesNodeUID(conf.Monitors)
 		})
-		g.GatherDim("azure_resource_id", AzureUniqueID)
+		g.GatherDim("azure_resource_id", func() string {
+			return AzureUniqueID(conf.CloudMetadataTimeout)
+		})
 	}
 
 	dims := g.WaitForDimensions()

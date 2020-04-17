@@ -10,6 +10,8 @@ import (
 	"runtime"
 	"strings"
 
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
+
 	set "gopkg.in/fatih/set.v0"
 
 	"github.com/mitchellh/hashstructure"
@@ -73,6 +75,9 @@ type Config struct {
 	// How often to send metrics to SignalFx.  Monitors can override this
 	// individually.
 	IntervalSeconds int `yaml:"intervalSeconds" default:"10"`
+	// This flag sets the HTTP timeout duration for metadata queries from AWS, Azure and GCP.
+	// This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration
+	CloudMetadataTimeout timeutil.Duration `yaml:"cloudMetadataTimeout" default:"2s"`
 	// Dimensions (key:value pairs) that will be added to every datapoint emitted by the agent.
 	// To specify that all metrics should be high-resolution, add the dimension `sf_hires: 1`
 	GlobalDimensions map[string]string `yaml:"globalDimensions" default:"{}"`

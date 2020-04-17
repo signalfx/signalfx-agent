@@ -52120,6 +52120,14 @@
         "elementKind": ""
       },
       {
+        "yamlName": "cloudMetadataTimeout",
+        "doc": "This flag sets the HTTP timeout duration for metadata queries from AWS, Azure and GCP. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+        "default": "2s",
+        "required": false,
+        "type": "int64",
+        "elementKind": ""
+      },
+      {
         "yamlName": "globalDimensions",
         "doc": "Dimensions (key:value pairs) that will be added to every datapoint emitted by the agent. To specify that all metrics should be high-resolution, add the dimension `sf_hires: 1`",
         "default": "",
