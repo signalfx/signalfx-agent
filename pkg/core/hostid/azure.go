@@ -6,16 +6,17 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strings"
-	"time"
+
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 )
 
 // AzureUniqueID constructs the unique ID of the underlying Azure VM.  If
 // not running on Azure VM, returns the empty string.
 // Details about Azure Instance Metadata ednpoint:
 // https://docs.microsoft.com/en-us/azure/virtual-machines/windows/instance-metadata-service
-func AzureUniqueID() string {
+func AzureUniqueID(cloudMetadataTimeout timeutil.Duration) string {
 	c := http.Client{
-		Timeout: 1 * time.Second,
+		Timeout: cloudMetadataTimeout.AsDuration(),
 	}
 	req, err := http.NewRequest("GET", "http://169.254.169.254/metadata/instance?api-version=2018-10-01", nil)
 	if err != nil {

@@ -4,18 +4,19 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"time"
+
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 )
 
 // GoogleComputeID generates a unique id for the compute instance that the
 // agent is running on.  It returns a blank string if we are not running on GCP
 // or there was an error getting the metadata.
-func GoogleComputeID() string {
-	projectID := getMetadata("project/project-id")
+func GoogleComputeID(cloudMetadataTimeout timeutil.Duration) string {
+	projectID := getMetadata("project/project-id", cloudMetadataTimeout)
 	if projectID == "" {
 		return ""
 	}
-	instanceID := getMetadata("instance/id")
+	instanceID := getMetadata("instance/id", cloudMetadataTimeout)
 	if instanceID == "" {
 		return ""
 	}
@@ -23,7 +24,7 @@ func GoogleComputeID() string {
 	return fmt.Sprintf("%s_%s", projectID, instanceID)
 }
 
-func getMetadata(path string) string {
+func getMetadata(path string, cloudMetadataTimeout timeutil.Duration) string {
 	url := fmt.Sprintf("http://metadata.google.pkg/computeMetadata/v1/%s", path)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -34,7 +35,7 @@ func getMetadata(path string) string {
 	req.Header.Add("Metadata-Flavor", "Google")
 
 	c := http.Client{
-		Timeout: 2 * time.Second,
+		Timeout: cloudMetadataTimeout.AsDuration(),
 	}
 
 	resp, err := c.Do(req)
