@@ -77,6 +77,33 @@ def test_expvar_custom_metric():
         )
 
 
+def test_expvar_custom_name_metric():
+    """
+    Given the JSON object below:
+    {
+        "queues": {
+            "count": 5,
+            "lengths": [ 4, 2, 1, 0, 5]
+        }
+    }
+    """
+    expected = METADATA.default_metrics | {"number_queues"}
+    with run_expvar() as expvar_container_ip:
+        run_agent_verify(
+            f"""
+            monitors:
+            - type: expvar
+              host: {expvar_container_ip}
+              port: 8080
+              metrics:
+              - JSONPath: queues.count
+                type: gauge
+                name: number_queues
+            """,
+            expected,
+        )
+
+
 def test_expvar_path_separator():
     """
     Given the JSON object below:
