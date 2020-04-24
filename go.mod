@@ -25,6 +25,7 @@ require (
 	github.com/antonmedv/expr v1.3.0
 	github.com/araddon/gou v0.0.0-20190110011759-c797efecbb61 // indirect
 	github.com/aws/aws-sdk-go v1.18.4 // indirect
+	github.com/beevik/ntp v0.3.0
 	github.com/boombuler/barcode v1.0.0 // indirect
 	github.com/briankassouf/jose v0.9.1 // indirect
 	github.com/cenkalti/backoff v2.1.1+incompatible // indirect

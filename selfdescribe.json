@@ -38493,6 +38493,71 @@
       "singleInstance": false
     },
     {
+      "monitorType": "ntp",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": null,
+      "doc": "Monitors retrieves clock offset from ntp server.\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "ntp.offset"
+          ]
+        }
+      },
+      "metrics": {
+        "ntp.offset": {
+          "type": "gauge",
+          "description": "clock offset from NTP server.",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/ntp",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "",
+            "default": "pool.ntp.org",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "",
+            "default": 123,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "version",
+            "doc": "",
+            "default": 4,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "timeout",
+            "doc": "",
+            "default": 5,
+            "required": false,
+            "type": "uint16",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": false,
+      "singleInstance": false
+    },
+    {
       "monitorType": "openshift-cluster",
       "sendAll": false,
       "sendUnknown": false,

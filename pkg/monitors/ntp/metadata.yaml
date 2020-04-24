@@ -1,0 +1,13 @@
+monitors:
+- dimensions:
+  doc: |
+    Monitors retrieves clock offset from ntp server.
+
+  metrics:
+    ntp.offset:
+      description: clock offset from NTP server.
+      default: true
+      type: gauge
+  monitorType: ntp
+  properties:
+
