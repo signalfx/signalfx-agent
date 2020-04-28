@@ -129,7 +129,7 @@ func (c *Config) getAllMetricConfigs() []*MetricConfig {
 		"memstats.HeapAlloc", "memstats.HeapIdle", "memstats.HeapInuse", "memstats.HeapReleased",
 		"memstats.HeapObjects", "memstats.StackInuse", "memstats.StackSys", "memstats.MSpanInuse", "memstats.MSpanSys",
 		"memstats.MCacheInuse", "memstats.MCacheSys", "memstats.BuckHashSys", "memstats.GCSys", "memstats.OtherSys",
-		"memstats.Sys", "memstats.NextGC", "memstats.LastGC", "memstats.GCCPUFraction", "memstats.EnableGC",
+		"memstats.Sys", "memstats.NextGC", "memstats.LastGC", "memstats.GCCPUFraction", "memstats.EnableGC", "memstats.HeapSys",
 		memstatsPauseNsMetricPath, memstatsPauseEndMetricPath,
 	}
 	memstatsMetricPathsCumulative := []string{
@@ -137,7 +137,7 @@ func (c *Config) getAllMetricConfigs() []*MetricConfig {
 		memstatsNumGCMetricPath, "memstats.NumForcedGC",
 	}
 	if c.EnhancedMetrics {
-		memstatsMetricPathsGauge = append(memstatsMetricPathsGauge, "memstats.HeapSys", "memstats.DebugGC", "memstats.Alloc")
+		memstatsMetricPathsGauge = append(memstatsMetricPathsGauge, "memstats.DebugGC", "memstats.Alloc")
 		memstatsMetricPathsCumulative = append(memstatsMetricPathsCumulative, memstatsBySizeSizeMetricPath, memstatsBySizeMallocsMetricPath, memstatsBySizeFreesMetricPath)
 	}
 	for _, path := range memstatsMetricPathsGauge {

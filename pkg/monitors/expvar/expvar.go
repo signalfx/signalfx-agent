@@ -115,7 +115,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		now := time.Now()
 		for _, mConf := range allMetricConfigs {
 			for _, metricVal := range valsMap[mConf.JSONPath] {
-				dp := m.newDp(metricVal, mConf.JSONPath, mConf.metricType(), now)
+				dp := m.newDp(metricVal, mConf.Name, mConf.JSONPath, mConf.metricType(), now)
 				if applicationName != "" {
 					dp.Dimensions["application_name"] = applicationName
 				}
@@ -228,7 +228,7 @@ func (m *Monitor) getValuesInPathHelper(obj interface{}, pathComps []string) (va
 	}
 }
 
-func (m *Monitor) newDp(val *metricVal, path string, metricType datapoint.MetricType, now time.Time) *datapoint.Datapoint {
+func (m *Monitor) newDp(val *metricVal, name string, path string, metricType datapoint.MetricType, now time.Time) *datapoint.Datapoint {
 	dp := datapoint.Datapoint{
 		Metric:     strings.TrimSpace(val.metric),
 		MetricType: metricType,
@@ -236,7 +236,11 @@ func (m *Monitor) newDp(val *metricVal, path string, metricType datapoint.Metric
 		Timestamp:  now,
 	}
 	if dp.Metric == "" {
-		dp.Metric = joinWords(snakeCaseSlice(val.keys), ".")
+		if strings.TrimSpace(name) == "" {
+			dp.Metric = joinWords(snakeCaseSlice(val.keys), ".")
+		} else {
+			dp.Metric = name
+		}
 	}
 	dp.Dimensions = make(map[string]string)
 	for k, v := range val.arrayIndexDimension {
