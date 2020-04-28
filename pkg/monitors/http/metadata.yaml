@@ -1,0 +1,33 @@
+monitors:
+- dimensions:
+  doc: |
+    Monitors tests http endpoints and tls validity. 
+
+  metrics:
+    http.content_length:
+      description: HTTP response content length.
+      default: true
+      type: gauge
+    http.response_time:
+      description: HTTP response time.
+      default: true
+      type: gauge
+    http.status_code:
+      description: HTTP response status code.
+      default: true
+      type: gauge
+    http.regex_match:
+      description: Response match regex expression if 1.
+      default: true
+      type: gauge
+    http.certificate_valid:
+      description: TLS certificate is valid if 1.
+      default: true
+      type: gauge
+    http.certificate_expiration:
+      description: TLS expiration in seconds.
+      default: true
+      type: gauge
+  monitorType: http
+  properties:
+

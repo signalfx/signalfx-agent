@@ -28588,6 +28588,130 @@
       "singleInstance": true
     },
     {
+      "monitorType": "http",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": null,
+      "doc": "Monitors tests http endpoints and tls validity. \n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "http.certificate_expiration",
+            "http.certificate_valid",
+            "http.content_length",
+            "http.regex_match",
+            "http.response_time",
+            "http.status_code"
+          ]
+        }
+      },
+      "metrics": {
+        "http.certificate_expiration": {
+          "type": "gauge",
+          "description": "TLS expiration in seconds.",
+          "group": null,
+          "default": true
+        },
+        "http.certificate_valid": {
+          "type": "gauge",
+          "description": "TLS certificate is valid if 1.",
+          "group": null,
+          "default": true
+        },
+        "http.content_length": {
+          "type": "gauge",
+          "description": "HTTP response content length.",
+          "group": null,
+          "default": true
+        },
+        "http.regex_match": {
+          "type": "gauge",
+          "description": "Response match regex expression if 1.",
+          "group": null,
+          "default": true
+        },
+        "http.response_time": {
+          "type": "gauge",
+          "description": "HTTP response time.",
+          "group": null,
+          "default": true
+        },
+        "http.status_code": {
+          "type": "gauge",
+          "description": "HTTP response status code.",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/http",
+        "fields": [
+          {
+            "yamlName": "body",
+            "doc": "",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "followRedirects",
+            "doc": "",
+            "default": true,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "headers",
+            "doc": "",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "method",
+            "doc": "",
+            "default": "GET",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "timeout",
+            "doc": "",
+            "default": 5,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "urls",
+            "doc": "",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "regex",
+            "doc": "",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": false,
+      "singleInstance": false
+    },
+    {
       "monitorType": "internal-metrics",
       "sendAll": true,
       "sendUnknown": false,
