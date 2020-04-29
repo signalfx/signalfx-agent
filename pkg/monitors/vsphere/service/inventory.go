@@ -17,104 +17,155 @@ func NewInventorySvc(gateway IGateway, log *logrus.Entry) *InventorySvc {
 	return &InventorySvc{gateway: gateway, log: log}
 }
 
-// RetrieveInventory traverses the inventory tree and returns all of the hosts and VMs.
+// use slice semantics to build parent dimensions while traversing the inv tree
+type pair [2]string
+type pairs []pair
+
 func (svc *InventorySvc) RetrieveInventory() (*model.Inventory, error) {
-	topFolder, err := svc.gateway.retrieveTopLevelFolder()
-	if err != nil {
-		return nil, err
-	}
 	inv := model.NewInventory()
-	for _, ref := range topFolder.ChildEntity {
-		if ref.Type == model.DatacenterType {
-			inv, err = svc.retrieveDatacenter(inv, ref)
-			if err != nil {
-				return nil, err
-			}
-		}
+	err := svc.followFolder(inv, svc.gateway.topLevelFolderRef(), nil)
+	if err != nil {
+		return nil, err
 	}
-	svc.log.Debugf("retrieved inventory: %v", inv.DimensionMap)
 	return inv, nil
 }
 
-// Retrieves the contents of the passed-in datacenter and puts them in the passed-in Inventory object.
-func (svc *InventorySvc) retrieveDatacenter(inv *model.Inventory, dcRef types.ManagedObjectReference) (*model.Inventory, error) {
-	var datacenter mo.Datacenter
-	err := svc.gateway.retrieveRefProperties(dcRef, &datacenter)
+func (svc *InventorySvc) followFolder(
+	inv *model.Inventory,
+	parentFolderRef types.ManagedObjectReference,
+	dims pairs,
+) error {
+	var parentFolder mo.Folder
+	err := svc.gateway.retrieveRefProperties(parentFolderRef, &parentFolder)
 	if err != nil {
-		return nil, err
+		return err
 	}
-	var dcHostFolder mo.Folder
-	err = svc.gateway.retrieveRefProperties(datacenter.HostFolder, &dcHostFolder)
-	if err != nil {
-		return nil, err
-	}
-	for _, ref := range dcHostFolder.ChildEntity {
-		switch t := ref.Type; t {
+	for _, childRef := range parentFolder.ChildEntity {
+		switch childRef.Type {
+		case model.FolderType:
+			err = svc.followFolder(inv, childRef, dims)
+		case model.DatacenterType:
+			err = svc.followDatacenter(inv, childRef, dims)
 		case model.ClusterComputeType:
-			var cluster mo.ClusterComputeResource
-			err := svc.gateway.retrieveRefProperties(ref, &cluster)
-			if err != nil {
-				return nil, err
-			}
-			for _, hostRef := range cluster.ComputeResource.Host {
-				err := svc.retrieveHost(inv, hostRef, &datacenter, &cluster)
-				if err != nil {
-					return nil, err
-				}
-			}
+			err = svc.followCluster(inv, childRef, dims)
 		case model.ComputeType:
-			var computeResource mo.ComputeResource
-			err := svc.gateway.retrieveRefProperties(ref, &computeResource)
-			if err != nil {
-				return nil, err
-			}
-			for _, hostRef := range computeResource.Host {
-				err = svc.retrieveHost(inv, hostRef, &datacenter, nil)
-				if err != nil {
-					return nil, err
-				}
-			}
-		default:
-			svc.log.WithField("ref", ref).Warn("retrieveDatacenter: unknown type")
+			err = svc.followCompute(inv, childRef, dims)
+		}
+		if err != nil {
+			return err
 		}
 	}
-	return inv, nil
+	return nil
 }
 
-func (svc *InventorySvc) retrieveHost(inv *model.Inventory, hostRef types.ManagedObjectReference, datacenter *mo.Datacenter, cluster *mo.ClusterComputeResource) error {
+func (svc *InventorySvc) followDatacenter(
+	inv *model.Inventory,
+	dcRef types.ManagedObjectReference,
+	dims pairs,
+) error {
+	var dc mo.Datacenter
+	err := svc.gateway.retrieveRefProperties(dcRef, &dc)
+	if err != nil {
+		return err
+	}
+	dims = append(dims, pair{"datacenter", dc.Name})
+	// There is also a `dc.VmFolder` but it appears to only receive copies of VMs
+	// that live under hosts. Omitting that folder to prevent double counting.
+	err = svc.followFolder(inv, dc.HostFolder, dims)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (svc *InventorySvc) followCluster(
+	inv *model.Inventory,
+	clusterRef types.ManagedObjectReference,
+	dims pairs,
+) error {
+	var cluster mo.ClusterComputeResource
+	err := svc.gateway.retrieveRefProperties(clusterRef, &cluster)
+	if err != nil {
+		return err
+	}
+	dims = append(dims, pair{"cluster", cluster.Name})
+	for _, hostRef := range cluster.ComputeResource.Host {
+		err = svc.followHost(inv, hostRef, dims)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (svc *InventorySvc) followCompute(
+	inv *model.Inventory,
+	computeRef types.ManagedObjectReference,
+	dims pairs,
+) error {
+	var computeResource mo.ComputeResource
+	err := svc.gateway.retrieveRefProperties(computeRef, &computeResource)
+	if err != nil {
+		return err
+	}
+	for _, hostRef := range computeResource.Host {
+		err = svc.followHost(inv, hostRef, dims)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (svc *InventorySvc) followHost(
+	inv *model.Inventory,
+	hostRef types.ManagedObjectReference,
+	dims pairs,
+) error {
 	var host mo.HostSystem
 	err := svc.gateway.retrieveRefProperties(hostRef, &host)
 	if err != nil {
 		return err
 	}
-
-	hostDims := map[string]string{
-		"esx_ip":     host.Name,
-		"datacenter": datacenter.Name,
-	}
-	if cluster != nil {
-		hostDims["cluster"] = cluster.Name
-	}
+	dims = append(dims, pair{"esx_ip", host.Name})
+	hostDims := map[string]string{}
+	amendDims(hostDims, dims)
 	hostInvObj := model.NewInventoryObject(host.Self, hostDims)
 	inv.AddObject(hostInvObj)
-
 	for _, vmRef := range host.Vm {
-		var vm mo.VirtualMachine
-		err = svc.gateway.retrieveRefProperties(vmRef, &vm)
+		err = svc.followVm(inv, vmRef, dims)
 		if err != nil {
 			return err
 		}
-
-		vmDims := map[string]string{
-			"vm_name":        vm.Name,           // e.g. "MyDebian10Host"
-			"guest_id":       vm.Config.GuestId, // e.g. "debian10_64Guest"
-			"vm_ip":          vm.Guest.IpAddress,
-			"guest_family":   vm.Guest.GuestFamily,   // e.g. "linuxGuest"
-			"guest_fullname": vm.Guest.GuestFullName, // e.g. "Other 4.x or later Linux (64-bit)"
-		}
-		updateMap(vmDims, hostDims)
-		vmInvObj := model.NewInventoryObject(vm.Self, vmDims)
-		inv.AddObject(vmInvObj)
 	}
 	return nil
+}
+
+func (svc *InventorySvc) followVm(
+	inv *model.Inventory,
+	vmRef types.ManagedObjectReference,
+	dims pairs,
+) error {
+	var vm mo.VirtualMachine
+	err := svc.gateway.retrieveRefProperties(vmRef, &vm)
+	if err != nil {
+		return err
+	}
+	vmDims := map[string]string{
+		"vm_name":        vm.Name,           // e.g. "MyDebian10Host"
+		"guest_id":       vm.Config.GuestId, // e.g. "debian10_64Guest"
+		"vm_ip":          vm.Guest.IpAddress,
+		"guest_family":   vm.Guest.GuestFamily,   // e.g. "linuxGuest"
+		"guest_fullname": vm.Guest.GuestFullName, // e.g. "Other 4.x or later Linux (64-bit)"
+	}
+	amendDims(vmDims, dims)
+	vmInvObj := model.NewInventoryObject(vm.Self, vmDims)
+	inv.AddObject(vmInvObj)
+	return nil
+}
+
+func amendDims(dims map[string]string, pairs pairs) {
+	for _, pair := range pairs {
+		dims[pair[0]] = pair[1]
+	}
 }

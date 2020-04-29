@@ -15,6 +15,7 @@ const (
 	ComputeType        = "ComputeResource"
 	VMType             = "VirtualMachine"
 	HostType           = "HostSystem"
+	FolderType         = "Folder"
 )
 
 // Config for the vSphere monitor
