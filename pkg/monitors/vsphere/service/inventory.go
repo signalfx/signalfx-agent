@@ -133,7 +133,7 @@ func (svc *InventorySvc) followHost(
 	hostInvObj := model.NewInventoryObject(host.Self, hostDims)
 	inv.AddObject(hostInvObj)
 	for _, vmRef := range host.Vm {
-		err = svc.followVm(inv, vmRef, dims)
+		err = svc.followVM(inv, vmRef, dims)
 		if err != nil {
 			return err
 		}
@@ -141,7 +141,7 @@ func (svc *InventorySvc) followHost(
 	return nil
 }
 
-func (svc *InventorySvc) followVm(
+func (svc *InventorySvc) followVM(
 	inv *model.Inventory,
 	vmRef types.ManagedObjectReference,
 	dims pairs,
