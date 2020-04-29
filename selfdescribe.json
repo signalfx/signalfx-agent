@@ -53589,6 +53589,101 @@
               "required": false,
               "type": "uint",
               "elementKind": ""
+            },
+            {
+              "yamlName": "splunk",
+              "doc": "Configures the writer specifically writing to Splunk.",
+              "default": null,
+              "required": false,
+              "type": "struct",
+              "elementKind": "",
+              "elementStruct": {
+                "name": "SplunkConfig",
+                "doc": "SplunkConfig configures the writer specifically writing to Splunk.",
+                "package": "pkg/core/config",
+                "fields": [
+                  {
+                    "yamlName": "enabled",
+                    "doc": "Enable logging to a Splunk Enterprise instance",
+                    "default": false,
+                    "required": false,
+                    "type": "bool",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "url",
+                    "doc": "Full URL (including path) of Splunk HTTP Event Collector (HEC) endpoint",
+                    "default": "",
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "token",
+                    "doc": "Splunk HTTP Event Collector token",
+                    "default": "",
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "source",
+                    "doc": "Splunk source field value, description of the source of the event",
+                    "default": "",
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "sourceType",
+                    "doc": "Splunk source type, optional name of a sourcetype field value",
+                    "default": "",
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "index",
+                    "doc": "Splunk index, optional name of the Splunk index to store the event in",
+                    "default": "",
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "skipTLSVerify",
+                    "doc": "Skip verifying the certificate of the HTTP Event Collector",
+                    "default": false,
+                    "required": false,
+                    "type": "bool",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "maxBuffered",
+                    "doc": "The maximum number of Splunk log entries of all types (e.g. metric, event) to be buffered before old events are dropped.  Defaults to the writer.maxDatapointsBuffered config if not specified.",
+                    "default": 0,
+                    "required": false,
+                    "type": "int",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "maxRequests",
+                    "doc": "The maximum number of simultaneous requests to the Splunk HEC endpoint. Defaults to the writer.maxBuffered config if not specified.",
+                    "default": 0,
+                    "required": false,
+                    "type": "int",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "maxBatchSize",
+                    "doc": "The maximum number of Splunk log entries to submit in one request to the HEC",
+                    "default": 0,
+                    "required": false,
+                    "type": "int",
+                    "elementKind": ""
+                  }
+                ]
+              }
             }
           ]
         }

@@ -1,0 +1,24 @@
+# A Kubernetes Helm values file that you can use when deploying the agent in a
+# development K8s cluster with a Splunk cluster. You should change the imageTag
+# to whatever tag you are using for development.
+
+# Disable sending to SignalFx
+signalFxEnabled: false
+
+splunkUrl: https://localhost:8088
+splunkToken: 00000000-0000-0000-0000-000000000000
+splunkSource: sfx
+splunkIndex: sfx
+splunkSkipTlsVerify: true
+
+clusterName: dev-cluster
+
+image:
+  repository: tmio/signalfx-agent-demo
+  tag: 5.1.3
+  pullPolicy: Always
+fullnameOverride: agent
+
+
+kubeletAPI:
+  skipVerify: true

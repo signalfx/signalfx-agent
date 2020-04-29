@@ -14,6 +14,9 @@
         },
         {
             "pattern": "^https://log-stream"
+        },
+        {
+            "pattern": "localhost\\:18000"
         }
     ]
 }

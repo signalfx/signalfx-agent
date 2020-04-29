@@ -93,6 +93,13 @@ spec:
             secretKeyRef:
               name: {{ template "signalfx-agent.secretName" . }}
               key: access-token
+        {{- if .Values.splunkUrl }}
+        - name: SPLUNK_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "signalfx-agent.secretName" . }}
+              key: splunk-token
+        {{- end }}
         - name: MY_POD_NAME
           valueFrom:
             fieldRef:

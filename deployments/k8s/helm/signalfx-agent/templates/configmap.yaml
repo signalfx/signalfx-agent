@@ -13,7 +13,12 @@ data:
 {{- if .Values.agentConfig }}
 {{ toYaml .Values.agentConfig | indent 4 }}
 {{- else }}
+
+    {{- if .Values.signalFxEnabled }}
+
+    {{- if or (.Values.signalFxAccessToken) (.Values.signalFxAccessTokenSecretName)}}
     signalFxAccessToken: ${SFX_ACCESS_TOKEN}
+    {{- end }}
 
     signalFxRealm: {{ .Values.signalFxRealm  | default "us0" }}
 
@@ -31,6 +36,8 @@ data:
     traceEndpointUrl: {{ .Values.traceEndpointUrl }}
     {{- end }}
 
+    {{- end }}
+
     etcPath: {{ .Values.etcPath }}
     procPath: {{ .Values.procPath }}
 
@@ -40,6 +47,23 @@ data:
 
     cluster: {{ required ".Values.clusterName is required" .Values.clusterName }}
 
+    {{- if .Values.splunkUrl }}
+    writer:
+      splunk:
+        enabled: true
+        url: {{ .Values.splunkUrl }}
+        token: ${SPLUNK_TOKEN}
+        {{- if .Values.splunkIndex }}
+        index: {{ .Values.splunkIndex }}
+        {{- end }}
+        {{- if .Values.splunkSource }}
+        source: {{ .Values.splunkSource }}
+        {{- end }}
+        {{- if .Values.splunkSourceType }}
+        sourceType: {{ .Values.splunkSourceType }}
+        {{- end }}
+        skipTLSVerify: {{ .Values.splunkSkipTLSVerify | default "false" }}
+    {{- end }}
 {{- $major_version := .Values.agentVersion | default "0.0.0" | splitList "." | first | atoi -}}
 {{- if lt $major_version 5 }}
     sendMachineID: false

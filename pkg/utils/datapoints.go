@@ -92,3 +92,15 @@ func SetDatapointMeta(dp *datapoint.Datapoint, name interface{}, val interface{}
 	}
 	dp.Meta[name] = val
 }
+
+func CloneDatapoint(dp *datapoint.Datapoint) *datapoint.Datapoint {
+	return datapoint.NewWithMeta(dp.Metric, CloneStringMap(dp.Dimensions), CloneFullInterfaceMap(dp.Meta), dp.Value, dp.MetricType, dp.Timestamp)
+}
+
+func CloneDatapointSlice(dps []*datapoint.Datapoint) []*datapoint.Datapoint {
+	out := make([]*datapoint.Datapoint, len(dps))
+	for i := range dps {
+		out[i] = CloneDatapoint(dps[i])
+	}
+	return out
+}

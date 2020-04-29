@@ -87,6 +87,15 @@ func CloneInterfaceMap(m map[string]interface{}) map[string]interface{} {
 	return m2
 }
 
+// CloneFullInterfaceMap makes a shallow copy of a map[interface{}]interface{}
+func CloneFullInterfaceMap(m map[interface{}]interface{}) map[interface{}]interface{} {
+	m2 := make(map[interface{}]interface{}, len(m))
+	for k, v := range m {
+		m2[k] = v
+	}
+	return m2
+}
+
 // CloneAndFilterStringMapWithFunc clones a string map and only includes
 // key/value pairs for which the filter function returns true
 func CloneAndFilterStringMapWithFunc(in map[string]string, filter func(string, string) bool) (out map[string]string) {

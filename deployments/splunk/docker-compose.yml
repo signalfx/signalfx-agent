@@ -1,0 +1,36 @@
+version: "3"
+services:
+  splunk:
+    image: splunk/splunk:latest
+    container_name: splunk
+    environment:
+      - SPLUNK_START_ARGS=--accept-license
+      - SPLUNK_HEC_TOKEN=00000000-0000-0000-0000-0000000000000
+      - SPLUNK_PASSWORD=changeme
+    ports:
+      - 18000:8000
+    healthcheck:
+      test: ['CMD', 'curl', '-f', 'http://localhost:8000']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    volumes:
+      - ./splunk.yml:/tmp/defaults/default.yml
+      - /opt/splunk/var
+      - /opt/splunk/etc
+  signalfx-agent:
+    image: quay.io/signalfx/signalfx-agent:latest
+    container_name: signalfx-agent
+    restart: always
+    depends_on:
+      - splunk
+    environment:
+      - SPLUNK_URL=https://splunk:8088/services/collector
+      - SPLUNK_TOKEN=00000000-0000-0000-0000-0000000000000
+      - SPLUNK_SKIP_TLS_VERIFY=true
+      - SPLUNK_INDEX=metrics
+      - SPLUNK_SOURCE=signalfx
+    volumes:
+      - /:/hostfs:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./agent.yaml:/etc/signalfx/agent.yaml:ro

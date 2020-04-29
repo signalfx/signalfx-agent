@@ -178,24 +178,6 @@ func (c *Config) initialize() (*Config, error) {
 		}
 	}
 
-	c.Writer.initialize()
-	c.setupEnvironment()
-
-	if err := c.validate(); err != nil {
-		return nil, errors.WithMessage(err, "configuration is invalid")
-	}
-
-	err := c.propagateValuesDown()
-	if err != nil {
-		return nil, err
-	}
-
-	return c, nil
-}
-
-// Setup envvars that will be used by collectd to use the bundled dependencies
-// instead of looking to the normal system paths.
-func (c *Config) setupEnvironment() {
 	if c.BundleDir == "" {
 		c.BundleDir = os.Getenv(constants.BundleDirEnvVar)
 	}
@@ -209,6 +191,22 @@ func (c *Config) setupEnvironment() {
 			panic("Cannot determine absolute path of executable parent dir " + exePath)
 		}
 	}
+
+	c.propagateValuesDown()
+
+	if err := c.validate(); err != nil {
+		return nil, fmt.Errorf("configuration is invalid: %v", err)
+	}
+
+	c.Writer.initialize()
+	c.setupEnvironment()
+
+	return c, nil
+}
+
+// Setup envvars that will be used by collectd to use the bundled dependencies
+// instead of looking to the normal system paths.
+func (c *Config) setupEnvironment() {
 	os.Setenv(constants.BundleDirEnvVar, c.BundleDir)
 
 	os.Setenv("JAVA_HOME", filepath.Join(c.BundleDir, "jre"))
@@ -226,7 +224,7 @@ func (c *Config) validate() error {
 		return err
 	}
 
-	if !*c.EnableBuiltInFiltering {
+	if c.EnableBuiltInFiltering != nil && !*c.EnableBuiltInFiltering {
 		return errors.New("enableBuiltInFiltering must be true or unset, false is no longer supported")
 	}
 
@@ -248,16 +246,23 @@ func (c *Config) validate() error {
 		}
 	}
 
-	return c.Collectd.Validate()
-}
+	if err := c.Collectd.Validate(); err != nil {
+		return err
+	}
 
-// Send values from the top of the config down to nested configs that might
-// need them
-func (c *Config) propagateValuesDown() error {
 	for i := range c.Monitors {
 		if err := c.Monitors[i].Validate(); err != nil {
 			return fmt.Errorf("monitor config for type '%s' is invalid: %v", c.Monitors[i].Type, err)
 		}
+	}
+
+	return c.Writer.Validate()
+}
+
+// Send values from the top of the config down to nested configs that might
+// need them
+func (c *Config) propagateValuesDown() {
+	for i := range c.Monitors {
 		if c.Monitors[i].ValidateDiscoveryRule == nil {
 			c.Monitors[i].ValidateDiscoveryRule = c.ValidateDiscoveryRules
 		}
@@ -285,8 +290,6 @@ func (c *Config) propagateValuesDown() error {
 	c.Writer.SignalFxAccessToken = c.SignalFxAccessToken
 	c.Writer.GlobalDimensions = c.GlobalDimensions
 	c.Writer.GlobalSpanTags = c.GlobalSpanTags
-
-	return nil
 }
 
 // CustomConfigurable should be implemented by config structs that have the

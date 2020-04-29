@@ -1,0 +1,37 @@
+intervalSeconds: 10
+
+etcPath: /hostfs/etc
+procPath: /hostfs/proc
+runPath: /hostfs/run
+varPath: /hostfs/var
+sysPath: /hostfs/sys
+
+logging:
+  # Valid values are 'debug', 'info', 'warning', and 'error'
+  level: info
+
+# observers are what discover running services in the environment
+observers:
+  - type: docker
+
+writer:
+  splunk:
+    enabled: true
+    url: ${SPLUNK_URL}
+    token: ${SPLUNK_TOKEN}
+    index: ${SPLUNK_INDEX}
+    source: ${SPLUNK_SOURCE}
+    skipTLSVerify: ${SPLUNK_SKIP_TLS_VERIFY}
+monitors:
+  - {"#from": "/etc/signalfx/monitors/*.yaml", flatten: true, optional: true}
+  - type: cpu
+  - type: filesystems
+    hostFSPath: /hostfs
+  - type: disk-io
+  - type: net-io
+  - type: load
+  - type: memory
+  - type: vmem
+  - type: host-metadata
+  - type: processlist
+  - type: docker-container-stats
