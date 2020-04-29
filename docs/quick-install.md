@@ -31,7 +31,7 @@ Please note that the Smart Agent does not support Mac OS.
 
 **Windows requirements**
 - You must run .Net Framework 3.5 on Windows 8 or higher.
-- You must run Visual C++ Compiler for Python 2.7.
+- (Optional) If you want to invoke a Python script for non-default monitors, specifically **exec**, then you must have Python installed.
 
 
 ### Step 1. Install the SignalFx Smart Agent on your host
