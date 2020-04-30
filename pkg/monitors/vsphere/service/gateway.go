@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
+	log "github.com/sirupsen/logrus"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/vim25/methods"
 	"github.com/vmware/govmomi/vim25/mo"
@@ -26,13 +27,15 @@ type IGateway interface {
 type Gateway struct {
 	ctx    context.Context
 	client *govmomi.Client
+	log    *log.Entry
 	vcName string
 }
 
-func NewGateway(ctx context.Context, client *govmomi.Client) *Gateway {
+func NewGateway(ctx context.Context, client *govmomi.Client, log *log.Entry) *Gateway {
 	return &Gateway{
 		ctx:    ctx,
 		client: client,
+		log:    log,
 		vcName: client.Client.URL().Host,
 	}
 }
@@ -85,6 +88,7 @@ func (g *Gateway) queryPerf(invObjs []*model.InventoryObject, maxSample int32) (
 	if numObjs == 0 {
 		// empty inventory, return empty response
 		// passing an empty spec to the api causes an error
+		g.log.Warn("empty inventory, skipping QueryPerf")
 		return &types.QueryPerfResponse{}, nil
 	}
 

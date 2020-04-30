@@ -40,6 +40,7 @@ func (svc *InventorySvc) followFolder(
 	if err != nil {
 		return err
 	}
+	svc.debug(&parentFolder)
 	for _, childRef := range parentFolder.ChildEntity {
 		switch childRef.Type {
 		case model.FolderType:
@@ -68,6 +69,7 @@ func (svc *InventorySvc) followDatacenter(
 	if err != nil {
 		return err
 	}
+	svc.debug(&dc)
 	dims = append(dims, pair{"datacenter", dc.Name})
 	// There is also a `dc.VmFolder` but it appears to only receive copies of VMs
 	// that live under hosts. Omitting that folder to prevent double counting.
@@ -88,6 +90,7 @@ func (svc *InventorySvc) followCluster(
 	if err != nil {
 		return err
 	}
+	svc.debug(&cluster)
 	dims = append(dims, pair{"cluster", cluster.Name})
 	for _, hostRef := range cluster.ComputeResource.Host {
 		err = svc.followHost(inv, hostRef, dims)
@@ -108,6 +111,7 @@ func (svc *InventorySvc) followCompute(
 	if err != nil {
 		return err
 	}
+	svc.debug(&computeResource)
 	for _, hostRef := range computeResource.Host {
 		err = svc.followHost(inv, hostRef, dims)
 		if err != nil {
@@ -127,6 +131,7 @@ func (svc *InventorySvc) followHost(
 	if err != nil {
 		return err
 	}
+	svc.debug(&host)
 	dims = append(dims, pair{"esx_ip", host.Name})
 	hostDims := map[string]string{}
 	amendDims(hostDims, dims)
@@ -151,6 +156,7 @@ func (svc *InventorySvc) followVM(
 	if err != nil {
 		return err
 	}
+	svc.debug(&vm)
 	vmDims := map[string]string{
 		"vm_name":        vm.Name,           // e.g. "MyDebian10Host"
 		"guest_id":       vm.Config.GuestId, // e.g. "debian10_64Guest"
@@ -162,6 +168,11 @@ func (svc *InventorySvc) followVM(
 	vmInvObj := model.NewInventoryObject(vm.Self, vmDims)
 	inv.AddObject(vmInvObj)
 	return nil
+}
+
+func (svc *InventorySvc) debug(moe mo.Entity) {
+	e := moe.Entity()
+	svc.log.Debugf("inventory: type=[%s] name=[%s]", e.Self.Type, e.Name)
 }
 
 func amendDims(dims map[string]string, pairs pairs) {
