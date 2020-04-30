@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
+	log "github.com/sirupsen/logrus"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/vim25/methods"
 	"github.com/vmware/govmomi/vim25/mo"
@@ -14,7 +15,7 @@ import (
 // A thin wrapper around the vmomi SDK so that callers don't have to use it directly.
 type IGateway interface {
 	retrievePerformanceManager() (*mo.PerformanceManager, error)
-	retrieveTopLevelFolder() (*mo.Folder, error)
+	topLevelFolderRef() types.ManagedObjectReference
 	retrieveRefProperties(mor types.ManagedObjectReference, dst interface{}) error
 	queryAvailablePerfMetric(ref types.ManagedObjectReference) (*types.QueryAvailablePerfMetricResponse, error)
 	queryPerfProviderSummary(mor types.ManagedObjectReference) (*types.QueryPerfProviderSummaryResponse, error)
@@ -26,13 +27,15 @@ type IGateway interface {
 type Gateway struct {
 	ctx    context.Context
 	client *govmomi.Client
+	log    *log.Entry
 	vcName string
 }
 
-func NewGateway(ctx context.Context, client *govmomi.Client) *Gateway {
+func NewGateway(ctx context.Context, client *govmomi.Client, log *log.Entry) *Gateway {
 	return &Gateway{
 		ctx:    ctx,
 		client: client,
+		log:    log,
 		vcName: client.Client.URL().Host,
 	}
 }
@@ -49,16 +52,8 @@ func (g *Gateway) retrievePerformanceManager() (*mo.PerformanceManager, error) {
 	return &pm, err
 }
 
-func (g *Gateway) retrieveTopLevelFolder() (*mo.Folder, error) {
-	var folder mo.Folder
-	err := mo.RetrieveProperties(
-		g.ctx,
-		g.client,
-		g.client.ServiceContent.PropertyCollector,
-		g.client.ServiceContent.RootFolder,
-		&folder,
-	)
-	return &folder, err
+func (g *Gateway) topLevelFolderRef() types.ManagedObjectReference {
+	return g.client.ServiceContent.RootFolder
 }
 
 func (g *Gateway) retrieveRefProperties(ref types.ManagedObjectReference, dst interface{}) error {
@@ -89,7 +84,15 @@ func (g *Gateway) queryPerfProviderSummary(ref types.ManagedObjectReference) (*t
 }
 
 func (g *Gateway) queryPerf(invObjs []*model.InventoryObject, maxSample int32) (*types.QueryPerfResponse, error) {
-	specs := make([]types.PerfQuerySpec, 0, len(invObjs))
+	numObjs := len(invObjs)
+	if numObjs == 0 {
+		// empty inventory, return empty response
+		// passing an empty spec to the api causes an error
+		g.log.Warn("empty inventory, skipping QueryPerf")
+		return &types.QueryPerfResponse{}, nil
+	}
+
+	specs := make([]types.PerfQuerySpec, 0, numObjs)
 	for _, invObj := range invObjs {
 		specs = append(specs, types.PerfQuerySpec{
 			Entity:     invObj.Ref,

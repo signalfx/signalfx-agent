@@ -57,7 +57,7 @@ func (vsm *vSphereMonitor) firstTimeSetup(ctx context.Context, conf *model.Confi
 
 // Creates the service objects and assigns them to the vSphereMonitor struct.
 func (vsm *vSphereMonitor) wireUpServices(ctx context.Context, client *govmomi.Client) {
-	gateway := service.NewGateway(ctx, client)
+	gateway := service.NewGateway(ctx, client, vsm.log)
 	vsm.ptsSvc = service.NewPointsSvc(gateway, vsm.log)
 	vsm.invSvc = service.NewInventorySvc(gateway, vsm.log)
 	vsm.metricSvc = service.NewMetricsService(gateway, vsm.log)

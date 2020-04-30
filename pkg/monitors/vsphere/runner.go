@@ -13,7 +13,7 @@ type runner struct {
 	monitor               *Monitor
 	conf                  *model.Config
 	vsm                   *vSphereMonitor
-	vsphereReloadInterval int //seconds
+	vsphereReloadInterval int // seconds
 }
 
 func newRunner(ctx context.Context, log *logrus.Entry, conf *model.Config, monitor *Monitor) runner {

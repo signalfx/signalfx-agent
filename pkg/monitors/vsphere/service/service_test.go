@@ -34,6 +34,12 @@ func newFakeGateway() *fakeGateway {
 	return &fakeGateway{}
 }
 
+func (g *fakeGateway) topLevelFolderRef() types.ManagedObjectReference {
+	return types.ManagedObjectReference{
+		Value: "top",
+	}
+}
+
 func (g *fakeGateway) retrievePerformanceManager() (*mo.PerformanceManager, error) {
 	return &mo.PerformanceManager{
 		PerfCounter: []types.PerfCounterInfo{{
@@ -45,21 +51,20 @@ func (g *fakeGateway) retrievePerformanceManager() (*mo.PerformanceManager, erro
 	}, nil
 }
 
-func (g *fakeGateway) retrieveTopLevelFolder() (*mo.Folder, error) {
-	return &mo.Folder{
-		ChildEntity: []types.ManagedObjectReference{
-			{Type: model.DatacenterType, Value: "dc-1"},
-		},
-	}, nil
-}
-
 func (g *fakeGateway) retrieveRefProperties(mor types.ManagedObjectReference, dst interface{}) error {
 	switch t := dst.(type) {
 	case *mo.Folder:
-		t.Self = mor
-		cluster := g.createRef(model.ClusterComputeType, "cluster", &g.typeCounts.cluster)
-		freeStandingHost := g.createRef(model.ComputeType, "compute", &g.typeCounts.compute)
-		t.ChildEntity = []types.ManagedObjectReference{cluster, freeStandingHost}
+		if mor.Value == "top" {
+			t.Self = mor
+			t.ChildEntity = []types.ManagedObjectReference{
+				{Type: model.DatacenterType, Value: "dc-1"},
+			}
+		} else {
+			t.Self = mor
+			cluster := g.createRef(model.ClusterComputeType, "cluster", &g.typeCounts.cluster)
+			freeStandingHost := g.createRef(model.ComputeType, "compute", &g.typeCounts.compute)
+			t.ChildEntity = []types.ManagedObjectReference{cluster, freeStandingHost}
+		}
 	case *mo.ClusterComputeResource:
 		t.Self = mor
 		t.Name = "foo cluster"
