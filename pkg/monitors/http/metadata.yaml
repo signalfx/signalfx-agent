@@ -1,11 +1,35 @@
 monitors:
 - dimensions:
   doc: |
-    Monitors tests http endpoints and tls validity. 
+    This monitor will retrieve metrics (see below) from a list of configured URLs.
+
+    TLS information will automatically be fetched if applicable (from base url or redirection).
+
+    The configuration will be applied to every requests URLs from configured list
+    so you need to instance multiple times this monitor for different behavior.
+  
+    It could also affect the dimensions available on reported metrics.
+    Some dimensions are optionanly added to its corresponding metric depending of the configuration.
+
+    For example, on status code metric:
+      - "matchCode" is always available (default is true when 200). 
+      Useful to use in detector to raise alert for every "false" urls.
+      - "desiredCode" is always available as information.
+      Useful to compare with the actual value of status code.
+
+    In general, metrics and dimensions are available only if applicable
+    to be able to create "generic" detector config which will work:
+      - depending of the agent configuration (if wanted) instead of duplicated detectors
+      - using reach filtering of signalflow to match dimensions
+      - avoiding false alerts not reporting dimensions or metric when bad result is expected
+    This is why:
+      - tls metric is reported only for url(s) where https is available
+      - "matchRegex" dimensions is added to content length metric only if configured
+
 
   metrics:
     http.content_length:
-      description: HTTP response content length.
+      description: HTTP response body length. Optional "matchRegex" dimension only if regex is configured.
       default: true
       type: gauge
     http.response_time:
@@ -13,19 +37,11 @@ monitors:
       default: true
       type: gauge
     http.status_code:
-      description: HTTP response status code.
+      description: HTTP response status code. "matchCode" dimension is always available.
       default: true
       type: gauge
-    http.regex_match:
-      description: Response match regex expression if 1.
-      default: true
-      type: gauge
-    http.certificate_valid:
-      description: TLS certificate is valid if 1.
-      default: true
-      type: gauge
-    http.certificate_expiration:
-      description: TLS expiration in seconds.
+    http.cert_expiry:
+      description: Certificate expiry in seconds. "isValid" dimension is always available. This metric is reported only if HTTPS is available (from configured url or followed redirections)
       default: true
       type: gauge
   monitorType: http

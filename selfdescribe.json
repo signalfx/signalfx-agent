@@ -28592,42 +28592,28 @@
       "sendAll": false,
       "sendUnknown": false,
       "dimensions": null,
-      "doc": "Monitors tests http endpoints and tls validity. \n",
+      "doc": "This monitor will retrieve metrics (see below) from a list of configured URLs.\n\nTLS information will automatically be fetched if applicable (from base url or redirection).\n\nThe configuration will be applied to every requests URLs from configured list\nso you need to instance multiple times this monitor for different behavior.\n\nIt could also affect the dimensions available on reported metrics.\nSome dimensions are optionanly added to its corresponding metric depending of the configuration.\n\nFor example, on status code metric:\n  - \"matchCode\" is always available (default is true when 200). \n  Useful to use in detector to raise alert for every \"false\" urls.\n  - \"desiredCode\" is always available as information.\n  Useful to compare with the actual value of status code.\n\nIn general, metrics and dimensions are available only if applicable\nto be able to create \"generic\" detector config which will work:\n  - depending of the agent configuration (if wanted) instead of duplicated detectors\n  - using reach filtering of signalflow to match dimensions\n  - avoiding false alerts not reporting dimensions or metric when bad result is expected\nThis is why:\n  - tls metric is reported only for url(s) where https is available\n  - \"matchRegex\" dimensions is added to content length metric only if configured\n",
       "groups": {
         "": {
           "description": "",
           "metrics": [
-            "http.certificate_expiration",
-            "http.certificate_valid",
+            "http.cert_expiry",
             "http.content_length",
-            "http.regex_match",
             "http.response_time",
             "http.status_code"
           ]
         }
       },
       "metrics": {
-        "http.certificate_expiration": {
+        "http.cert_expiry": {
           "type": "gauge",
-          "description": "TLS expiration in seconds.",
-          "group": null,
-          "default": true
-        },
-        "http.certificate_valid": {
-          "type": "gauge",
-          "description": "TLS certificate is valid if 1.",
+          "description": "Certificate expiry in seconds. \"isValid\" dimension is always available. This metric is reported only if HTTPS is available (from configured url or followed redirections)",
           "group": null,
           "default": true
         },
         "http.content_length": {
           "type": "gauge",
-          "description": "HTTP response content length.",
-          "group": null,
-          "default": true
-        },
-        "http.regex_match": {
-          "type": "gauge",
-          "description": "Response match regex expression if 1.",
+          "description": "HTTP response body length. Optional \"matchRegex\" dimension only if regex is configured.",
           "group": null,
           "default": true
         },
@@ -28639,7 +28625,7 @@
         },
         "http.status_code": {
           "type": "gauge",
-          "description": "HTTP response status code.",
+          "description": "HTTP response status code. \"matchCode\" dimension is always available.",
           "group": null,
           "default": true
         }
@@ -28651,64 +28637,128 @@
         "package": "pkg/monitors/http",
         "fields": [
           {
-            "yamlName": "body",
-            "doc": "",
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
             "default": "",
             "required": false,
             "type": "string",
             "elementKind": ""
           },
           {
-            "yamlName": "followRedirects",
-            "doc": "",
-            "default": true,
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "default": false,
             "required": false,
             "type": "bool",
             "elementKind": ""
           },
           {
-            "yamlName": "headers",
-            "doc": "",
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
             "elementKind": "string"
           },
           {
+            "yamlName": "skipVerify",
+            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "body",
+            "doc": "Optional HTTP request body as string like '{\"foo\":\"bar\"}'",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "noRedirects",
+            "doc": "Do not follow redirect (default is false)",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
             "yamlName": "method",
-            "doc": "",
+            "doc": "HTTP request method to use (default is \"GET\")",
             "default": "GET",
             "required": false,
             "type": "string",
             "elementKind": ""
           },
           {
-            "yamlName": "timeout",
-            "doc": "",
-            "default": 5,
-            "required": false,
-            "type": "int",
-            "elementKind": ""
-          },
-          {
             "yamlName": "urls",
-            "doc": "",
+            "doc": "List of HTTP URLs to monitor (required)",
             "default": null,
-            "required": false,
+            "required": true,
             "type": "slice",
             "elementKind": "string"
           },
           {
             "yamlName": "regex",
-            "doc": "",
+            "doc": "Optional Regex to match on URL(s) response(s)",
             "default": "",
             "required": false,
             "type": "string",
             "elementKind": ""
+          },
+          {
+            "yamlName": "desiredCode",
+            "doc": "Desired code to match for URL(s) response(s)",
+            "default": 200,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
           }
         ]
       },
-      "acceptsEndpoints": false,
+      "acceptsEndpoints": true,
       "singleInstance": false
     },
     {

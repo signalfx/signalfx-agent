@@ -12,30 +12,24 @@ const monitorType = "http"
 var groupSet = map[string]bool{}
 
 const (
-	httpCertificateExpiration = "http.certificate_expiration"
-	httpCertificateValid      = "http.certificate_valid"
-	httpContentLength         = "http.content_length"
-	httpRegexMatch            = "http.regex_match"
-	httpResponseTime          = "http.response_time"
-	httpStatusCode            = "http.status_code"
+	httpCertExpiry    = "http.cert_expiry"
+	httpContentLength = "http.content_length"
+	httpResponseTime  = "http.response_time"
+	httpStatusCode    = "http.status_code"
 )
 
 var metricSet = map[string]monitors.MetricInfo{
-	httpCertificateExpiration: {Type: datapoint.Gauge},
-	httpCertificateValid:      {Type: datapoint.Gauge},
-	httpContentLength:         {Type: datapoint.Gauge},
-	httpRegexMatch:            {Type: datapoint.Gauge},
-	httpResponseTime:          {Type: datapoint.Gauge},
-	httpStatusCode:            {Type: datapoint.Gauge},
+	httpCertExpiry:    {Type: datapoint.Gauge},
+	httpContentLength: {Type: datapoint.Gauge},
+	httpResponseTime:  {Type: datapoint.Gauge},
+	httpStatusCode:    {Type: datapoint.Gauge},
 }
 
 var defaultMetrics = map[string]bool{
-	httpCertificateExpiration: true,
-	httpCertificateValid:      true,
-	httpContentLength:         true,
-	httpRegexMatch:            true,
-	httpResponseTime:          true,
-	httpStatusCode:            true,
+	httpCertExpiry:    true,
+	httpContentLength: true,
+	httpResponseTime:  true,
+	httpStatusCode:    true,
 }
 
 var groupMetricsMap = map[string][]string{}

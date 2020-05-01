@@ -4,13 +4,36 @@
 
 Monitor Type: `http` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/http))
 
-**Accepts Endpoints**: No
+**Accepts Endpoints**: **Yes**
 
 **Multiple Instances Allowed**: Yes
 
 ## Overview
 
-Monitors tests http endpoints and tls validity. 
+This monitor will retrieve metrics (see below) from a list of configured URLs.
+
+TLS information will automatically be fetched if applicable (from base url or redirection).
+
+The configuration will be applied to every requests URLs from configured list
+so you need to instance multiple times this monitor for different behavior.
+
+It could also affect the dimensions available on reported metrics.
+Some dimensions are optionanly added to its corresponding metric depending of the configuration.
+
+For example, on status code metric:
+  - "matchCode" is always available (default is true when 200). 
+  Useful to use in detector to raise alert for every "false" urls.
+  - "desiredCode" is always available as information.
+  Useful to compare with the actual value of status code.
+
+In general, metrics and dimensions are available only if applicable
+to be able to create "generic" detector config which will work:
+  - depending of the agent configuration (if wanted) instead of duplicated detectors
+  - using reach filtering of signalflow to match dimensions
+  - avoiding false alerts not reporting dimensions or metric when bad result is expected
+This is why:
+  - tls metric is reported only for url(s) where https is available
+  - "matchRegex" dimensions is added to content length metric only if configured
 
 
 ## Configuration
@@ -30,13 +53,21 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `body` | no | `string` |  |
-| `followRedirects` | no | `bool` |  (**default:** `true`) |
-| `headers` | no | `map of strings` |  |
-| `method` | no | `string` |  (**default:** `GET`) |
-| `timeout` | no | `integer` |  (**default:** `5`) |
-| `urls` | no | `list of strings` |  |
-| `regex` | no | `string` |  |
+| `httpTimeout` | no | `int64` | HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration (**default:** `10s`) |
+| `username` | no | `string` | Basic Auth username to use on each request, if any. |
+| `password` | no | `string` | Basic Auth password to use on each request, if any. |
+| `useHTTPS` | no | `bool` | If true, the agent will connect to the exporter using HTTPS instead of plain HTTP. (**default:** `false`) |
+| `httpHeaders` | no | `map of strings` | A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported. |
+| `skipVerify` | no | `bool` | If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified. (**default:** `false`) |
+| `caCertPath` | no | `string` | Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false. |
+| `clientCertPath` | no | `string` | Path to the client TLS cert to use for TLS required connections |
+| `clientKeyPath` | no | `string` | Path to the client TLS key to use for TLS required connections |
+| `body` | no | `string` | Optional HTTP request body as string like '{"foo":"bar"}' |
+| `noRedirects` | no | `bool` | Do not follow redirect (default is false) (**default:** `false`) |
+| `method` | no | `string` | HTTP request method to use (default is "GET") (**default:** `GET`) |
+| `urls` | **yes** | `list of strings` | List of HTTP URLs to monitor (required) |
+| `regex` | no | `string` | Optional Regex to match on URL(s) response(s) |
+| `desiredCode` | no | `integer` | Desired code to match for URL(s) response(s) (**default:** `200`) |
 
 
 ## Metrics
@@ -47,12 +78,10 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`http.certificate_expiration`*** (*gauge*)<br>    TLS expiration in seconds.
- - ***`http.certificate_valid`*** (*gauge*)<br>    TLS certificate is valid if 1.
- - ***`http.content_length`*** (*gauge*)<br>    HTTP response content length.
- - ***`http.regex_match`*** (*gauge*)<br>    Response match regex expression if 1.
+ - ***`http.cert_expiry`*** (*gauge*)<br>    Certificate expiry in seconds. "isValid" dimension is always available. This metric is reported only if HTTPS is available (from configured url or followed redirections)
+ - ***`http.content_length`*** (*gauge*)<br>    HTTP response body length. Optional "matchRegex" dimension only if regex is configured.
  - ***`http.response_time`*** (*gauge*)<br>    HTTP response time.
- - ***`http.status_code`*** (*gauge*)<br>    HTTP response status code.
+ - ***`http.status_code`*** (*gauge*)<br>    HTTP response status code. "matchCode" dimension is always available.
 
 ### Non-default metrics (version 4.7.0+)
 

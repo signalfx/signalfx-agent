@@ -10,10 +10,13 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
+	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
@@ -22,146 +25,79 @@ import (
 )
 
 func init() {
-	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
+
+	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{monitorName: monitorMetadata.MonitorType} }, &Config{})
 }
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
-	Body                 string            `yaml:"body"`
-	FollowRedirects      bool              `yaml:"followRedirects" default:"true"`
-	Headers              map[string]string `yaml:"headers"`
-	Method               string            `yaml:"method" default:"GET"`
-	Timeout              int               `yaml:"timeout" default:"5"`
-	URLs                 []string          `yaml:"urls"`
-	Regex                string            `yaml:"regex"`
+	config.MonitorConfig  `yaml:",inline" singleInstance:"false" acceptsEndpoints:"true"`
+	httpclient.HTTPConfig `yaml:",inline"`
+	// Optional HTTP request body as string like '{"foo":"bar"}'
+	Body string `yaml:"body"`
+	// Do not follow redirect (default is false)
+	NoRedirects bool `yaml:"noRedirects" default:"false"`
+	// HTTP request method to use (default is "GET")
+	Method string `yaml:"method" default:"GET"`
+	// List of HTTP URLs to monitor (required)
+	URLs []string `yaml:"urls" validate:"required"`
+	// Optional Regex to match on URL(s) response(s)
+	Regex string `yaml:"regex"`
+	// Desired code to match for URL(s) response(s)
+	DesiredCode int `yaml:"desiredCode" default:"200"`
 }
 
 // Monitor that collect metrics
 type Monitor struct {
 	Output types.FilteringOutput
-	cancel func()
-	logger logrus.FieldLogger
+	cancel context.CancelFunc
+	//ctx         context.Context
+	logger      logrus.FieldLogger
+	conf        *Config
+	monitorName string
+	regex       *regexp.Regexp
 }
 
 // Configure and kick off internal metric collection
-func (m *Monitor) Configure(conf *Config) error {
-	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
+func (m *Monitor) Configure(conf *Config) (err error) {
+	m.conf = conf
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": m.monitorName})
+	// always try https if available
+	m.conf.UseHTTPS = true
+	// Ignore certificate error which will be checked after
+	m.conf.SkipVerify = true
+	if m.conf.Regex != "" {
+		// Compile regex
+		m.regex, err = regexp.Compile(m.conf.Regex)
+		if err != nil {
+			m.logger.WithError(err).Error("failed to compile regular expression")
+		}
+	}
 	// Start the metric gathering process here
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 	utils.RunOnInterval(ctx, func() {
-		tlsCfg := &tls.Config{InsecureSkipVerify: true}
-		timeoutDuration := time.Duration(conf.Timeout) * time.Second
-		// add data
-		var body io.Reader
-		if conf.Body != "" {
-			body = strings.NewReader(conf.Body)
-		}
 		// get stats for each website
-		for _, site := range conf.URLs {
-			m.logger = m.logger.WithFields(logrus.Fields{"url": site})
-			m.logger.Debug("starting monitor url")
-			var dps []*datapoint.Datapoint
-			dimensions := map[string]string{"url": site}
-			dialer := &net.Dialer{Timeout: timeoutDuration}
-			client := &http.Client{
-				Transport: &http.Transport{
-					DialContext:       dialer.DialContext,
-					DisableKeepAlives: true,
-					TLSClientConfig:   tlsCfg,
-				},
-				Timeout: timeoutDuration,
-			}
-			if !conf.FollowRedirects {
-				client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
-					return http.ErrUseLastResponse
-				}
-			}
-			req, err := http.NewRequest(conf.Method, site, body)
+		for _, site := range m.conf.URLs {
+			logger := m.logger.WithFields(logrus.Fields{"url": site})
+			_, err := url.Parse(site)
 			if err != nil {
-				m.logger.WithError(err).Error("could not create new request")
+				logger.WithError(err).Error("could not parse url, ignore this url")
 				continue
 			}
-			// add hearders
-			for key, val := range conf.Headers {
-				req.Header.Add(key, val)
-				if key == "Host" {
-					req.Host = val
-				}
-			}
-			// starts timer
-			now := time.Now()
-			resp, err := client.Do(req)
-			if err != nil {
-				m.logger.WithError(err).Error("could not do the request")
-				continue
-			}
-			dps = append(dps, datapoint.New("http.response_time", dimensions, datapoint.NewFloatValue(time.Since(now).Seconds()), datapoint.Gauge, time.Time{}))
-			dps = append(dps, datapoint.New("http.status_code", dimensions, datapoint.NewIntValue(int64(resp.StatusCode)), datapoint.Gauge, time.Time{}))
-			defer resp.Body.Close()
-			bodyBytes, err := ioutil.ReadAll(resp.Body)
-			dps = append(dps, datapoint.New("http.content_length", dimensions, datapoint.NewIntValue(int64(len(bodyBytes))), datapoint.Gauge, time.Time{}))
-			if err != nil {
-				m.logger.WithError(err).Error("could not parse body")
-			} else if conf.Regex != "" {
-				var match int64 = 0
-				regex, err := regexp.Compile(conf.Regex)
-				if err != nil {
-					m.logger.WithError(err).Error("failed to compile regular expression")
-				}
-				if regex.Match(bodyBytes) {
-					match = 1
-				}
-				dps = append(dps, datapoint.New("http.regex_match", dimensions, datapoint.NewIntValue(match), datapoint.Gauge, time.Time{}))
-			}
-			parsedURL, err := url.Parse(resp.Request.URL.String())
-			if err != nil {
-				m.logger.WithError(err).Error("could not parse url")
-				m.Output.SendDatapoints(dps...)
-				continue
-			}
-			// check TLS if last url followed is https
-			if err == nil && parsedURL.Scheme == "https" {
-				host := parsedURL.Hostname()
-				port := parsedURL.Port()
-				tlsCfg.ServerName = host
-				if port == "" {
-					port = "443"
-				}
-				conn, err := tls.DialWithDialer(dialer, "tcp", host+":"+port, tlsCfg)
-				if err != nil {
-					m.logger.WithError(err).Error("could not connect to server")
-					m.Output.SendDatapoints(dps...)
-					continue
-				}
-				defer conn.Close()
-				err = conn.Handshake()
-				if err != nil {
-					m.logger.WithError(err).Error("failed during handshake")
-				}
-				var valid int64 = 1
-				certs := conn.ConnectionState().PeerCertificates
-				for i, cert := range certs {
-					opts := x509.VerifyOptions{
-						Intermediates: x509.NewCertPool(),
+			dps, lastURL, err := m.getHTTPStats(site, logger)
+			if err == nil {
+				parsedURL, _ := url.Parse(lastURL)
+				if parsedURL.Scheme == "https" {
+					tlsDps, err := m.getTLSStats(parsedURL, logger)
+					if err == nil {
+						dps = append(dps, tlsDps...)
+					} else {
+						logger.WithError(err).Error("Failed gathering TLS stats")
 					}
-					if i == 0 {
-						opts.DNSName = host
-						for j, cert := range certs {
-							if j != 0 {
-								opts.Intermediates.AddCert(cert)
-							}
-						}
-						dps = append(dps, datapoint.New("http.certificate_expiration", dimensions, datapoint.NewFloatValue(cert.NotAfter.Sub(now).Seconds()), datapoint.Gauge, time.Time{}))
-					}
-					_, err := cert.Verify(opts)
-					if err != nil {
-						valid = 0
-						m.logger.WithError(err).Info("failed verify certificate")
-					}
-					dps = append(dps, datapoint.New("http.certificate_valid", dimensions, datapoint.NewIntValue(valid), datapoint.Gauge, time.Time{}))
 				}
+			} else {
+				logger.WithError(err).Error("Failed gathering HTTP stats, ignore other stats")
 			}
 			m.Output.SendDatapoints(dps...)
 		}
@@ -176,4 +112,140 @@ func (m *Monitor) Shutdown() {
 	if m.cancel != nil {
 		m.cancel()
 	}
+}
+
+func (m *Monitor) getTLSStats(site *url.URL, logger *logrus.Entry) (dps []*datapoint.Datapoint, err error) {
+	// use as an fmt.Stringer
+	host := site.Hostname()
+	port := site.Port()
+	valid := true
+	var secondsLeft float64
+	if port == "" {
+		port = "443"
+	}
+	ipConn, err := net.Dial("tcp", host+":"+port)
+	if err != nil {
+		return
+	}
+	defer ipConn.Close()
+	tlsCfg := &tls.Config{
+		InsecureSkipVerify: m.conf.SkipVerify,
+		ServerName:         host,
+	}
+	if _, err := auth.TLSConfig(tlsCfg, m.conf.CACertPath, m.conf.ClientCertPath, m.conf.ClientKeyPath); err != nil {
+		return nil, err
+	}
+	conn := tls.Client(ipConn, tlsCfg)
+	if err != nil {
+		return
+	}
+	defer conn.Close()
+	err = conn.Handshake()
+	if err != nil {
+		logger.WithError(err).Error("failed during handshake")
+		valid = false
+	}
+	certs := conn.ConnectionState().PeerCertificates
+	for i, cert := range certs {
+		opts := x509.VerifyOptions{
+			Intermediates: x509.NewCertPool(),
+		}
+		if i == 0 {
+			opts.DNSName = host
+			for j, cert := range certs {
+				if j != 0 {
+					opts.Intermediates.AddCert(cert)
+				}
+			}
+			secondsLeft = time.Until(cert.NotAfter).Seconds()
+		}
+		_, err := cert.Verify(opts)
+		if err != nil {
+			logger.WithError(err).Info("failed verify certificate")
+			valid = false
+		}
+	}
+	dimensions := map[string]string{
+		"url":        site.String(),
+		"serverName": host,
+		"isValid":    strconv.FormatBool(valid),
+	}
+	dps = append(dps, datapoint.New(httpCertExpiry, dimensions, datapoint.NewFloatValue(secondsLeft), datapoint.Gauge, time.Time{}))
+	return dps, nil
+}
+
+func (m *Monitor) getHTTPStats(site string, logger *logrus.Entry) (dps []*datapoint.Datapoint, lastURL string, err error) {
+	// Init http client
+	client, err := m.conf.HTTPConfig.Build()
+	if err != nil {
+		return
+	}
+	// Init body if applicable
+	var body io.Reader
+	if m.conf.Body != "" {
+		body = strings.NewReader(m.conf.Body)
+	}
+	if m.conf.NoRedirects {
+		logger.Debug("Do not follow redirects")
+		client.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+			return http.ErrUseLastResponse
+		}
+	}
+	req, err := http.NewRequest(m.conf.Method, site, body)
+	if err != nil {
+		return
+	}
+	// starts timer
+	now := time.Now()
+	resp, err := client.Do(req)
+	if err != nil {
+		return
+	}
+	responseTime := time.Since(now).Seconds()
+	defer resp.Body.Close()
+	lastURL = resp.Request.URL.String()
+	dimensions := map[string]string{
+		"url":    lastURL,
+		"method": m.conf.Method,
+	}
+	matchCode := false
+	statusCode := resp.StatusCode
+	if statusCode == m.conf.DesiredCode {
+		matchCode = true
+	}
+	dps = append(dps,
+		datapoint.New(httpResponseTime, dimensions, datapoint.NewFloatValue(responseTime), datapoint.Gauge, time.Time{}),
+		datapoint.New(httpStatusCode, addDimensions(dimensions, map[string]string{
+			"matchCode":   strconv.FormatBool(matchCode),
+			"desiredCode": strconv.Itoa(m.conf.DesiredCode),
+		}), datapoint.NewIntValue(int64(statusCode)), datapoint.Gauge, time.Time{}),
+	)
+	bodyBytes, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		logger.WithError(err).Error("could not parse body response")
+	} else {
+		contentDimensions := dimensions
+		if m.conf.Regex != "" {
+			matchRegex := false
+			if m.regex.Match(bodyBytes) {
+				matchRegex = true
+			}
+			contentDimensions = addDimensions(contentDimensions, map[string]string{
+				"matchRegex": strconv.FormatBool(matchRegex),
+			})
+		}
+		dps = append(dps, datapoint.New(httpContentLength, contentDimensions, datapoint.NewIntValue(int64(len(bodyBytes))), datapoint.Gauge, time.Time{}))
+	}
+	return dps, lastURL, nil
+}
+
+func addDimensions(globalDimensions map[string]string, newDimensions map[string]string) (dimensions map[string]string) {
+	dimensions = make(map[string]string)
+	for k, v := range globalDimensions {
+		dimensions[k] = v
+	}
+	for k, v := range newDimensions {
+		dimensions[k] = v
+	}
+	return dimensions
 }
