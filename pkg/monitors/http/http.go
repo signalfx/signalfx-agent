@@ -35,15 +35,15 @@ type Config struct {
 	httpclient.HTTPConfig `yaml:",inline"`
 	// Optional HTTP request body as string like '{"foo":"bar"}'
 	Body string `yaml:"body"`
-	// Do not follow redirect (default is false)
+	// Do not follow redirect.
 	NoRedirects bool `yaml:"noRedirects" default:"false"`
-	// HTTP request method to use (default is "GET")
+	// HTTP request method to use.
 	Method string `yaml:"method" default:"GET"`
-	// List of HTTP URLs to monitor (required)
+	// List of HTTP URLs to monitor.
 	URLs []string `yaml:"urls" validate:"required"`
-	// Optional Regex to match on URL(s) response(s)
+	// Optional Regex to match on URL(s) response(s).
 	Regex string `yaml:"regex"`
-	// Desired code to match for URL(s) response(s)
+	// Desired code to match for URL(s) response(s).
 	DesiredCode int `yaml:"desiredCode" default:"200"`
 }
 

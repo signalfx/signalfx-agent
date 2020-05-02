@@ -21,19 +21,10 @@ It could also affect the dimensions available on reported metrics.
 Some dimensions are optionanly added to its corresponding metric depending of the configuration.
 
 For example, on status code metric:
-  - "matchCode" is always available (default is true when 200). 
-  Useful to use in detector to raise alert for every "false" urls.
-  - "desiredCode" is always available as information.
-  Useful to compare with the actual value of status code.
-
-In general, metrics and dimensions are available only if applicable
-to be able to create "generic" detector config which will work:
-  - depending of the agent configuration (if wanted) instead of duplicated detectors
-  - using reach filtering of signalflow to match dimensions
-  - avoiding false alerts not reporting dimensions or metric when bad result is expected
-This is why:
-  - tls metric is reported only for url(s) where https is available
-  - "matchRegex" dimensions is added to content length metric only if configured
+  - `matchCode` is always available (default is true when 200). 
+  Useful to use in detector to raise alert filtering only `matchCode:false` urls.
+  - `desiredCode` is always available as information.
+  Useful to compare with the actual value of status code in dashboard.
 
 
 ## Configuration
@@ -63,11 +54,11 @@ Configuration](../monitor-config.md#common-configuration).**
 | `clientCertPath` | no | `string` | Path to the client TLS cert to use for TLS required connections |
 | `clientKeyPath` | no | `string` | Path to the client TLS key to use for TLS required connections |
 | `body` | no | `string` | Optional HTTP request body as string like '{"foo":"bar"}' |
-| `noRedirects` | no | `bool` | Do not follow redirect (default is false) (**default:** `false`) |
-| `method` | no | `string` | HTTP request method to use (default is "GET") (**default:** `GET`) |
-| `urls` | **yes** | `list of strings` | List of HTTP URLs to monitor (required) |
-| `regex` | no | `string` | Optional Regex to match on URL(s) response(s) |
-| `desiredCode` | no | `integer` | Desired code to match for URL(s) response(s) (**default:** `200`) |
+| `noRedirects` | no | `bool` | Do not follow redirect. (**default:** `false`) |
+| `method` | no | `string` | HTTP request method to use. (**default:** `GET`) |
+| `urls` | **yes** | `list of strings` | List of HTTP URLs to monitor. |
+| `regex` | no | `string` | Optional Regex to match on URL(s) response(s). |
+| `desiredCode` | no | `integer` | Desired code to match for URL(s) response(s). (**default:** `200`) |
 
 
 ## Metrics
@@ -78,10 +69,10 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`http.cert_expiry`*** (*gauge*)<br>    Certificate expiry in seconds. "isValid" dimension is always available. This metric is reported only if HTTPS is available (from configured url or followed redirections)
- - ***`http.content_length`*** (*gauge*)<br>    HTTP response body length. Optional "matchRegex" dimension only if regex is configured.
- - ***`http.response_time`*** (*gauge*)<br>    HTTP response time.
- - ***`http.status_code`*** (*gauge*)<br>    HTTP response status code. "matchCode" dimension is always available.
+ - ***`http.cert_expiry`*** (*gauge*)<br>    Certificate expiry in seconds. This metric is reported only if HTTPS is available (from last followed URL).
+ - ***`http.content_length`*** (*gauge*)<br>    HTTP response body length.
+ - ***`http.response_time`*** (*gauge*)<br>    HTTP response time in seconds.
+ - ***`http.status_code`*** (*gauge*)<br>    HTTP response status code.
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -92,6 +83,21 @@ metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
+
+## Dimensions
+
+The following dimensions may occur on metrics emitted by this monitor.  Some
+dimensions may be specific to certain metrics.
+
+| Name | Description |
+| ---  | ---         |
+| `desiredCode` | Configured desired code used to compare with response one.  Always available but only on `http.status_code` metric. |
+| `isValid` | Boolean for TLS validation. Always and only available on `http.cert_expiry` metric. |
+| `matchCode` | Boolean for response status code matching. Always available but only on `http.status_code` metric. |
+| `matchRegex` | Boolean for regex matching. Only available if `regex` is configured and on `http.content_length` metric. |
+| `method` | HTTP method used to do request. Not available on `http.cert_expiry` metric. |
+| `serverName` | ServerName used for TLS validation. Always and only available on `http.cert_expiry` metric. |
+| `url` | Last URL retrieved from configured one. Always available on every metrics. |
 
 
 
