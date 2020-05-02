@@ -38496,8 +38496,12 @@
       "monitorType": "ntp",
       "sendAll": false,
       "sendUnknown": false,
-      "dimensions": null,
-      "doc": "Monitors retrieves clock offset from ntp server.\n",
+      "dimensions": {
+        "ntp": {
+          "description": "NTP server used. Corresponds to configured `host`."
+        }
+      },
+      "doc": "This monitor will retrieve clock offset from ntp server.\n\nIt enforces a minimum interval of 15m.\n",
       "groups": {
         "": {
           "description": "",
@@ -38509,7 +38513,7 @@
       "metrics": {
         "ntp.offset": {
           "type": "gauge",
-          "description": "clock offset from NTP server.",
+          "description": "Clock offset from NTP server.",
           "group": null,
           "default": true
         }
@@ -38522,7 +38526,7 @@
         "fields": [
           {
             "yamlName": "host",
-            "doc": "",
+            "doc": "The host/ip address of the NTP server.",
             "default": "pool.ntp.org",
             "required": false,
             "type": "string",
@@ -38530,7 +38534,7 @@
           },
           {
             "yamlName": "port",
-            "doc": "",
+            "doc": "The port of the NTP server.",
             "default": 123,
             "required": false,
             "type": "int",
@@ -38538,7 +38542,7 @@
           },
           {
             "yamlName": "version",
-            "doc": "",
+            "doc": "NTP protocol version to.",
             "default": 4,
             "required": false,
             "type": "int",
@@ -38546,7 +38550,7 @@
           },
           {
             "yamlName": "timeout",
-            "doc": "",
+            "doc": "Timeout in seconds for the request.",
             "default": 5,
             "required": false,
             "type": "uint16",

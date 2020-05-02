@@ -23,10 +23,14 @@ func init() {
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
-	Host                 string `yaml:"host" default:"pool.ntp.org"`
-	Port                 int    `yaml:"port" default:"123"`
-	Version              int    `yaml:"version" default:"4"`
-	Timeout              uint16 `yaml:"timeout" default:"5"`
+	// The host/ip address of the NTP server.
+	Host string `yaml:"host" default:"pool.ntp.org"`
+	// The port of the NTP server.
+	Port int `yaml:"port" default:"123"`
+	// NTP protocol version to.
+	Version int `yaml:"version" default:"4"`
+	// Timeout in seconds for the request.
+	Timeout uint16 `yaml:"timeout" default:"5"`
 }
 
 // Monitor that collect metrics

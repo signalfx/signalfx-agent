@@ -10,7 +10,9 @@ Monitor Type: `ntp` ([Source](https://github.com/signalfx/signalfx-agent/tree/ma
 
 ## Overview
 
-Monitors retrieves clock offset from ntp server.
+This monitor will retrieve clock offset from ntp server.
+
+It enforces a minimum interval of 15m.
 
 
 ## Configuration
@@ -30,10 +32,10 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `host` | no | `string` |  (**default:** `pool.ntp.org`) |
-| `port` | no | `integer` |  (**default:** `123`) |
-| `version` | no | `integer` |  (**default:** `4`) |
-| `timeout` | no | `integer` |  (**default:** `5`) |
+| `host` | no | `string` | The host/ip address of the NTP server. (**default:** `pool.ntp.org`) |
+| `port` | no | `integer` | The port of the NTP server. (**default:** `123`) |
+| `version` | no | `integer` | NTP protocol version to. (**default:** `4`) |
+| `timeout` | no | `integer` | Timeout in seconds for the request. (**default:** `5`) |
 
 
 ## Metrics
@@ -44,7 +46,7 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`ntp.offset`*** (*gauge*)<br>    clock offset from NTP server.
+ - ***`ntp.offset`*** (*gauge*)<br>    Clock offset from NTP server.
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -55,6 +57,15 @@ metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
+
+## Dimensions
+
+The following dimensions may occur on metrics emitted by this monitor.  Some
+dimensions may be specific to certain metrics.
+
+| Name | Description |
+| ---  | ---         |
+| `ntp` | NTP server used. Corresponds to configured `host`. |
 
 
 
