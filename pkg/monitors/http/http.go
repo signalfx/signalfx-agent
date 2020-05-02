@@ -99,6 +99,9 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 			} else {
 				logger.WithError(err).Error("Failed gathering HTTP stats, ignore other stats")
 			}
+			// for _, v := range dps {
+			// 	logger.Warn(v.Metric, v.Value, v.Dimensions)
+			// }
 			m.Output.SendDatapoints(dps...)
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
