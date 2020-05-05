@@ -10,8 +10,9 @@ from tests.helpers.verify import run_agent_verify_default_metrics
 
 pytestmark = [pytest.mark.windows, pytest.mark.filesystems, pytest.mark.monitor_without_endpoints]
 
-METADATA = Metadata.from_package("ntp")
-HOST = "0.pool.ntp.org"
+MONITOR="ntp"
+METADATA = Metadata.from_package(MONITOR)
+HOST = "pool.ntp.org"
 
 
 def test_default_metrics():
@@ -20,6 +21,7 @@ def test_default_metrics():
         f"""
         monitors:
         - type: ntp
+          host: {HOST}
         """
     )
     # every metrics should be reported for https site
@@ -37,8 +39,8 @@ def test_min_interval():
     ) as agent:
         # configured host should be in dimension of metric
         assert wait_for(
-            p(has_datapoint_with_dim, agent.fake_services, "ntp", HOST)
-        ), "Didn't get ntp datapoints  with {}:{} dimension".format("ntp", HOST)
+            p(has_datapoint_with_dim, agent.fake_services, MONITOR, HOST)
+        ), "Didn't get ntp datapoints with {}:{} dimension".format(MONITOR, HOST)
         # should have only one metric while default interval should be enforced
         if len(METADATA.default_metrics) != len(agent.fake_services.datapoints):
             assert False
