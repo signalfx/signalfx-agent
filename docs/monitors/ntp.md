@@ -12,7 +12,7 @@ Monitor Type: `ntp` ([Source](https://github.com/signalfx/signalfx-agent/tree/ma
 
 This monitor will retrieve clock offset from ntp server.
 
-It enforces a minimum interval of 15m.
+It enforces a minimum interval of 30m.
 
 
 ## Configuration

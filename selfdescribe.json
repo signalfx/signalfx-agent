@@ -38501,7 +38501,7 @@
           "description": "NTP server used. Corresponds to configured `host`."
         }
       },
-      "doc": "This monitor will retrieve clock offset from ntp server.\n\nIt enforces a minimum interval of 15m.\n",
+      "doc": "This monitor will retrieve clock offset from ntp server.\n\nIt enforces a minimum interval of 30m.\n",
       "groups": {
         "": {
           "description": "",
