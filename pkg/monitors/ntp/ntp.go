@@ -30,7 +30,7 @@ type Config struct {
 	// NTP protocol version to.
 	Version int `yaml:"version" default:"4"`
 	// Timeout in seconds for the request.
-	Timeout uint16 `yaml:"timeout" default:"5"`
+	Timeout timeutil.Duration `yaml:"timeout" default:"5s"`
 }
 
 // Monitor that collect metrics
