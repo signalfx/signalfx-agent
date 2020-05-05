@@ -12,15 +12,15 @@ const monitorType = "ntp"
 var groupSet = map[string]bool{}
 
 const (
-	ntpOffset = "ntp.offset"
+	ntpOffsetSeconds = "ntp.offset_seconds"
 )
 
 var metricSet = map[string]monitors.MetricInfo{
-	ntpOffset: {Type: datapoint.Gauge},
+	ntpOffsetSeconds: {Type: datapoint.Gauge},
 }
 
 var defaultMetrics = map[string]bool{
-	ntpOffset: true,
+	ntpOffsetSeconds: true,
 }
 
 var groupMetricsMap = map[string][]string{}

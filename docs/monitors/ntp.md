@@ -32,7 +32,7 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `host` | no | `string` | The host/ip address of the NTP server. (**default:** `pool.ntp.org`) |
+| `host` | no | `string` | The host/ip address of the NTP server (i.e. `pool.ntp.org`). |
 | `port` | no | `integer` | The port of the NTP server. (**default:** `123`) |
 | `version` | no | `integer` | NTP protocol version to. (**default:** `4`) |
 | `timeout` | no | `integer` | Timeout in seconds for the request. (**default:** `5`) |
@@ -46,7 +46,7 @@ Metrics that are categorized as
 (*default*) are ***in bold and italics*** in the list below.
 
 
- - ***`ntp.offset`*** (*gauge*)<br>    Clock offset from NTP server.
+ - ***`ntp.offset_seconds`*** (*gauge*)<br>    Time difference between local and NTP server clocks in seconds.
 
 ### Non-default metrics (version 4.7.0+)
 

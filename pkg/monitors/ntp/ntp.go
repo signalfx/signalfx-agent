@@ -23,8 +23,8 @@ func init() {
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
-	// The host/ip address of the NTP server.
-	Host string `yaml:"host" default:"pool.ntp.org"`
+	// The host/ip address of the NTP server (i.e. `pool.ntp.org`).
+	Host string `yaml:"host"`
 	// The port of the NTP server.
 	Port int `yaml:"port" default:"123"`
 	// NTP protocol version to.
@@ -60,7 +60,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		}
 		clockOffset := response.ClockOffset.Seconds()
 		m.Output.SendDatapoints([]*datapoint.Datapoint{
-			datapoint.New("ntp.offset", map[string]string{"ntp": conf.Host}, datapoint.NewFloatValue(clockOffset), datapoint.Gauge, time.Time{}),
+			datapoint.New(ntpOffsetSeconds, map[string]string{"ntp": conf.Host}, datapoint.NewFloatValue(clockOffset), datapoint.Gauge, time.Time{}),
 		}...)
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 

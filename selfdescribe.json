@@ -38506,14 +38506,14 @@
         "": {
           "description": "",
           "metrics": [
-            "ntp.offset"
+            "ntp.offset_seconds"
           ]
         }
       },
       "metrics": {
-        "ntp.offset": {
+        "ntp.offset_seconds": {
           "type": "gauge",
-          "description": "Clock offset from NTP server.",
+          "description": "Time difference between local and NTP server clocks in seconds.",
           "group": null,
           "default": true
         }
@@ -38526,8 +38526,8 @@
         "fields": [
           {
             "yamlName": "host",
-            "doc": "The host/ip address of the NTP server.",
-            "default": "pool.ntp.org",
+            "doc": "The host/ip address of the NTP server (i.e. `pool.ntp.org`).",
+            "default": "",
             "required": false,
             "type": "string",
             "elementKind": ""
