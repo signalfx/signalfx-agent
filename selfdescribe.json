@@ -38527,8 +38527,8 @@
           {
             "yamlName": "host",
             "doc": "The host/ip address of the NTP server (i.e. `pool.ntp.org`).",
-            "default": "",
-            "required": false,
+            "default": null,
+            "required": true,
             "type": "string",
             "elementKind": ""
           },
