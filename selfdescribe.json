@@ -38551,9 +38551,9 @@
           {
             "yamlName": "timeout",
             "doc": "Timeout in seconds for the request.",
-            "default": 5,
+            "default": "5s",
             "required": false,
-            "type": "uint16",
+            "type": "int64",
             "elementKind": ""
           }
         ]

@@ -9,12 +9,13 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 	"github.com/sirupsen/logrus"
 
 	"github.com/beevik/ntp"
 )
 
-const minIntervalSeconds = 1800
+const minInterval = 30 * time.Minute
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
@@ -44,15 +45,16 @@ type Monitor struct {
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
 	// respect terms of service https://www.pool.ntp.org/tos.html
-	if conf.IntervalSeconds < minIntervalSeconds {
+	minIntervalSeconds := minInterval.Seconds()
+	if float64(conf.IntervalSeconds) < minIntervalSeconds {
 		m.logger.WithField("IntervalSeconds", minIntervalSeconds).Info("overrides to minimum interval")
-		conf.IntervalSeconds = minIntervalSeconds
+		conf.IntervalSeconds = int(minIntervalSeconds)
 	}
 	// Start the metric gathering process here
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 	utils.RunOnInterval(ctx, func() {
-		options := ntp.QueryOptions{Version: conf.Version, Port: conf.Port, Timeout: time.Duration(conf.Timeout) * time.Second}
+		options := ntp.QueryOptions{Version: conf.Version, Port: conf.Port, Timeout: conf.Timeout.AsDuration()}
 		response, err := ntp.QueryWithOptions(conf.Host, options)
 		if err != nil {
 			m.logger.WithError(err).Error("unable to get ntp statistics")

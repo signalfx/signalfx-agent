@@ -35,7 +35,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `host` | no | `string` | The host/ip address of the NTP server (i.e. `pool.ntp.org`). |
 | `port` | no | `integer` | The port of the NTP server. (**default:** `123`) |
 | `version` | no | `integer` | NTP protocol version to. (**default:** `4`) |
-| `timeout` | no | `integer` | Timeout in seconds for the request. (**default:** `5`) |
+| `timeout` | no | `int64` | Timeout in seconds for the request. (**default:** `5s`) |
 
 
 ## Metrics
