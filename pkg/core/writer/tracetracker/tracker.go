@@ -96,10 +96,10 @@ func (a *ActiveServiceTracker) CorrelationDatapoints() []*datapoint.Datapoint {
 	return out
 }
 
-// LoadCorrelations asynchronously retrieves all known correlations from the backend
+// LoadHostIDDimCorrelations asynchronously retrieves all known correlations from the backend
 // for all known hostIDDims.  This allows the agent to timeout and manage correlation
 // deletions on restart.
-func (a *ActiveServiceTracker) LoadCorrelations() {
+func (a *ActiveServiceTracker) LoadHostIDDimCorrelations() {
 	// asynchronously fetch all services and environments for each hostIDDim at startup
 	for dimName, dimValue := range a.hostIDDims {
 		dimName := dimName
@@ -157,7 +157,7 @@ func New(timeout time.Duration, correlationClient correlations.CorrelationClient
 		sendTraceHostCorrelationMetrics: sendTraceHostCorrelationMetrics,
 		timeNow:                         time.Now,
 	}
-	a.LoadCorrelations()
+	a.LoadHostIDDimCorrelations()
 
 	return a
 }
