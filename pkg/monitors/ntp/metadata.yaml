@@ -2,7 +2,7 @@ monitors:
 - doc: |
     This monitor will retrieve clock offset from ntp server.
 
-    It enforces a minimum interval of 15m.
+    It enforces a minimum interval of 30m.
 
   dimensions:
     ntp:
@@ -14,4 +14,3 @@ monitors:
       type: gauge
   monitorType: ntp
   properties:
-
