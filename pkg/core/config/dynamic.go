@@ -42,11 +42,6 @@ func DecodeExtraConfig(in CustomConfigurable, out interface{}, strict bool) erro
 		err = yaml.Unmarshal(otherYaml, out)
 	}
 	if err != nil {
-		log.WithFields(log.Fields{
-			"package":     pkgPaths[len(pkgPaths)-1],
-			"otherConfig": spew.Sdump(in.ExtraConfig()),
-			"error":       err,
-		}).Error("Invalid module-specific configuration")
 		return err
 	}
 
