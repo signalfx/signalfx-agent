@@ -18,7 +18,7 @@ type runner struct {
 
 func newRunner(ctx context.Context, log *logrus.Entry, conf *model.Config, monitor *Monitor) runner {
 	vsphereReloadInterval := int(conf.InventoryRefreshInterval.AsDuration().Seconds())
-	vsm := newVsphereMonitor(log)
+	vsm := newVsphereMonitor(conf, log)
 	return runner{
 		ctx:                   ctx,
 		log:                   log,
@@ -31,7 +31,7 @@ func newRunner(ctx context.Context, log *logrus.Entry, conf *model.Config, monit
 
 // Called periodically. This is the entry point to the vSphere monitor.
 func (r *runner) run() {
-	err := r.vsm.firstTimeSetup(r.ctx, r.conf)
+	err := r.vsm.firstTimeSetup(r.ctx)
 	if err != nil {
 		r.log.WithError(err).Error("firstTimeSetup failed")
 		return

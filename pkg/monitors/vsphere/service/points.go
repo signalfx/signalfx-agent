@@ -11,18 +11,20 @@ import (
 )
 
 type PointsSvc struct {
-	log     *logrus.Entry
-	gateway IGateway
+	log           *logrus.Entry
+	gateway       IGateway
+	perfPaginator queryPerfPaginator
 }
 
-func NewPointsSvc(gateway IGateway, log *logrus.Entry) *PointsSvc {
-	return &PointsSvc{gateway: gateway, log: log}
+func NewPointsSvc(gateway IGateway, log *logrus.Entry, batchSize int) *PointsSvc {
+	paginator := queryPerfPaginator{gateway: gateway, pageSize: batchSize, log: log}
+	return &PointsSvc{gateway: gateway, log: log, perfPaginator: paginator}
 }
 
 // Retrieves datapoints for all of the inventory objects in the passed-in VsphereInfo for the number of 20-second
 // intervals indicated by the passed-in numSamplesReqd. Also returns the most recent sample time for the returned points.
 func (svc *PointsSvc) RetrievePoints(vsInfo *model.VsphereInfo, numSamplesReqd int32) ([]*datapoint.Datapoint, time.Time) {
-	perf, err := svc.gateway.queryPerf(vsInfo.Inv.Objects, numSamplesReqd)
+	perf, err := svc.perfPaginator.paginate(vsInfo.Inv.Objects, numSamplesReqd)
 	if err != nil {
 		svc.log.WithError(err).Error("queryPerf failed")
 		return nil, time.Time{}
