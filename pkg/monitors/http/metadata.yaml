@@ -1,14 +1,14 @@
 monitors:
 - doc: |
-    This monitor will retrieve metrics (see below) from a list of configured URLs.
+    This monitor will generate metrics based on whether the HTTP responses from the configured URLs match expectations (e.g. correct body, status code, etc).
 
-    TLS information will automatically be fetched if applicable (from base url or redirection).
+    TLS information will automatically be fetched if applicable (from base URL or redirection).
 
     The configuration will be applied to every requests URLs from configured list
     so you need to instance multiple times this monitor for different behavior.
   
     It could also affect the dimensions available on reported metrics.
-    Some dimensions are optionanly added to its corresponding metric depending of the configuration.
+    Some dimensions are optionally added to its corresponding metric depending on the configuration.
 
     For example, on status code metric:
       - `matchCode` is always available (default is true when 200). 
@@ -50,4 +50,3 @@ monitors:
       type: gauge
   monitorType: http
   properties:
-
