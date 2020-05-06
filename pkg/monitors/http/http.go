@@ -229,10 +229,7 @@ func (m *Monitor) getHTTPStats(site string, logger *logrus.Entry) (dps []*datapo
 	} else {
 		contentDimensions := dimensions
 		if m.conf.Regex != "" {
-			matchRegex := false
-			if m.regex.Match(bodyBytes) {
-				matchRegex = true
-			}
+			matchRegex := m.regex.Match(bodyBytes)
 			contentDimensions = addDimensions(contentDimensions, map[string]string{
 				"matchRegex": strconv.FormatBool(matchRegex),
 			})
