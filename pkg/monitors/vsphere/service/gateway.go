@@ -14,14 +14,18 @@ import (
 
 // A thin wrapper around the vmomi SDK so that callers don't have to use it directly.
 type IGateway interface {
+	IPerfQuerier
 	retrievePerformanceManager() (*mo.PerformanceManager, error)
 	topLevelFolderRef() types.ManagedObjectReference
 	retrieveRefProperties(mor types.ManagedObjectReference, dst interface{}) error
 	queryAvailablePerfMetric(ref types.ManagedObjectReference) (*types.QueryAvailablePerfMetricResponse, error)
 	queryPerfProviderSummary(mor types.ManagedObjectReference) (*types.QueryPerfProviderSummaryResponse, error)
-	queryPerf(invObjs []*model.InventoryObject, maxSample int32) (*types.QueryPerfResponse, error)
 	retrieveCurrentTime() (*time.Time, error)
 	vcenterName() string
+}
+
+type IPerfQuerier interface {
+	queryPerf(invObjs []*model.InventoryObject, maxSample int32) (*types.QueryPerfResponse, error)
 }
 
 type Gateway struct {
