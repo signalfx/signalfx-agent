@@ -38493,6 +38493,75 @@
       "singleInstance": false
     },
     {
+      "monitorType": "ntp",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": {
+        "ntp": {
+          "description": "NTP server used. Corresponds to configured `host`."
+        }
+      },
+      "doc": "This monitor will retrieve clock offset from ntp server.\n\nIt enforces a minimum interval of 30m.\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "ntp.offset_seconds"
+          ]
+        }
+      },
+      "metrics": {
+        "ntp.offset_seconds": {
+          "type": "gauge",
+          "description": "Time difference between local and NTP server clocks in seconds.",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/ntp",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "The host/ip address of the NTP server (i.e. `pool.ntp.org`).",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "The port of the NTP server.",
+            "default": 123,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "version",
+            "doc": "NTP protocol version to.",
+            "default": 4,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "timeout",
+            "doc": "Timeout in seconds for the request.",
+            "default": "5s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": false,
+      "singleInstance": false
+    },
+    {
       "monitorType": "openshift-cluster",
       "sendAll": false,
       "sendUnknown": false,
