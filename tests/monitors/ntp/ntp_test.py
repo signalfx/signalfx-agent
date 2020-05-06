@@ -10,7 +10,7 @@ from tests.helpers.verify import run_agent_verify_default_metrics
 
 pytestmark = [pytest.mark.windows, pytest.mark.filesystems, pytest.mark.monitor_without_endpoints]
 
-MONITOR="ntp"
+MONITOR = "ntp"
 METADATA = Metadata.from_package(MONITOR)
 HOST = "pool.ntp.org"
 
