@@ -35,6 +35,17 @@ type TimeoutCache struct {
 	PurgedCount int64
 }
 
+// RunIfKeyDoesNotExist locks and runs the supplied function if the key does not exist.
+// Be careful not to perform cache operations inside of this function because they will deadlock
+func (t *TimeoutCache) RunIfKeyDoesNotExist(o *cacheKey, fn func()) {
+	t.Lock()
+	defer t.Unlock()
+	if _, ok := t.keysActive[*o]; ok {
+		return
+	}
+	fn()
+}
+
 // UpdateOrCreate
 func (t *TimeoutCache) UpdateOrCreate(o *cacheKey, now time.Time) (isNew bool) {
 	t.Lock()

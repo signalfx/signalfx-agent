@@ -2,6 +2,7 @@ package tracetracker
 
 import (
 	"context"
+	"strings"
 	"sync"
 	"sync/atomic"
 	"time"
@@ -38,6 +39,11 @@ type ActiveServiceTracker struct {
 
 	// tenantEnvironmentCache is the cache for environments related to containers/pods
 	tenantEnvironmentCache *TimeoutCache
+
+	// tenantEnvironmentEmptyCache is the cache to make sure we don't send multiple requests to mitigate a very
+	// specific corner case.  This is a separate cache so we don't impact metrics.  See the note in processEnvironment()
+	// for more information
+	tenantEmptyEnvironmentCache *TimeoutCache
 
 	// Datapoints don't change over time for a given service, so make them once
 	// and stick them in here.
@@ -151,6 +157,7 @@ func New(timeout time.Duration, correlationClient correlations.CorrelationClient
 		hostEnvironmentCache:            NewTimeoutCache(timeout),
 		tenantServiceCache:              NewTimeoutCache(timeout),
 		tenantEnvironmentCache:          NewTimeoutCache(timeout),
+		tenantEmptyEnvironmentCache:     NewTimeoutCache(timeout),
 		dpCache:                         make(map[string]*datapoint.Datapoint),
 		newServiceCallback:              newServiceCallback,
 		correlationClient:               correlationClient,
@@ -182,7 +189,60 @@ func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Tim
 		return
 	}
 	environment, environmentFound := span.Tags["environment"]
-	if !environmentFound || environment == "" {
+
+	if !environmentFound || strings.TrimSpace(environment) == "" {
+		// The following is ONLY to mitigate a corner case scenario where the environment for a container/pod is set on
+		// the backend with an old default environment set by the agent, and the agent has been restarted with no
+		// default environment. On restart, the agent only fetches existing environment values for hostIDDims, and does
+		// not fetch for containers/pod dims. If a container/pod is emitting spans without an environment value, then
+		// the agent won't be able to overwrite the value. The agent is also unable to age out environment values for
+		// containers/pods from startup.
+		//
+		// Under that VERY specific circumstance, we need to fetch and delete the environment values for each
+		// pod/container that we have not already scraped an environment off of this agent runtime.
+		for i := range dimsToSyncSource {
+			dimName := dimsToSyncSource[i]
+			if dimValue, ok := span.Tags[dimName]; ok {
+				// look up the dimension / value in the environment cache to ensure it doesn't already exist
+				// if it does exist, this means we've already scraped and overwritten what was on the backend
+				// probably from another span. This also implies that some spans for the tenant have an environment
+				// and some do not.
+				a.tenantEnvironmentCache.RunIfKeyDoesNotExist(&cacheKey{dimName: dimName, dimValue: dimValue}, func() {
+					// create a cache key ensuring that we don't fetch environment values multiple times for spans with
+					// empty environments
+					if isNew := a.tenantEmptyEnvironmentCache.UpdateOrCreate(&cacheKey{dimName: dimName, dimValue: dimValue}, now); isNew {
+						// get the existing value from the backend
+						a.correlationClient.Get(dimName, dimValue, func(response map[string][]string, err error) {
+							if err != nil || len(response) == 0 {
+								return
+							}
+
+							// look for the existing environment value
+							environments, ok := response["sf_environments"]
+							if !ok || len(environments) == 0 {
+								return
+							}
+
+							// Note: This cache operation is OK to execute inside of the encapsulating
+							// tenantEnvironmentCache.RunIfKeyDoesNotExist() because it is actually inside an
+							// asynchronous callback to the correlation client's Get(). So... by the time the callback
+							// is actually executed, the parent RunIfKeyDoesNotExist will have already released the lock
+							// on the cache
+							a.tenantEnvironmentCache.RunIfKeyDoesNotExist(&cacheKey{dimName: dimName, dimValue: dimValue}, func() {
+								a.correlationClient.Delete(&correlations.Correlation{
+									Type:     correlations.Environment,
+									DimName:  dimName,
+									DimValue: dimValue,
+									Value:    environments[0], // We already checked for empty, and backend enforces 1 value max.
+								})
+							})
+						})
+					}
+				})
+			}
+		}
+
+		// return so we don't set empty string or spaces as an environment value
 		return
 	}
 
@@ -313,8 +373,9 @@ func (a *ActiveServiceTracker) Purge() {
 	// Purge the caches for containers and pods, but don't do the deletions.
 	// These values aren't expected to change, and can be overwritten.
 	// The onPurge() function doesn't need to do anything
-	a.tenantServiceCache.PurgeOld(now, func(purged *cacheKey) {})
-	a.tenantEnvironmentCache.PurgeOld(now, func(purged *cacheKey) {})
+	a.tenantServiceCache.PurgeOld(now, func(_ *cacheKey) {})
+	a.tenantEnvironmentCache.PurgeOld(now, func(_ *cacheKey) {})
+	a.tenantEmptyEnvironmentCache.PurgeOld(now, func(_ *cacheKey) {})
 }
 
 // InternalMetrics returns datapoint describing the status of the tracker
