@@ -28614,7 +28614,7 @@
           "description": "Last URL retrieved from configured one. Always available on every metrics."
         }
       },
-      "doc": "This monitor will retrieve metrics (see below) from a list of configured URLs.\n\nTLS information will automatically be fetched if applicable (from base url or redirection).\n\nThe configuration will be applied to every requests URLs from configured list\nso you need to instance multiple times this monitor for different behavior.\n\nIt could also affect the dimensions available on reported metrics.\nSome dimensions are optionanly added to its corresponding metric depending of the configuration.\n\nFor example, on status code metric:\n  - `matchCode` is always available (default is true when 200). \n  Useful to use in detector to raise alert filtering only `matchCode:false` urls.\n  - `desiredCode` is always available as information.\n  Useful to compare with the actual value of status code in dashboard.\n",
+      "doc": "This monitor will generate metrics based on whether the HTTP responses from the configured URLs match expectations (e.g. correct body, status code, etc).\n\nTLS information will automatically be fetched if applicable (from base URL or redirection).\n\nThe configuration will be applied to every requests URLs from configured list\nso you need to instance multiple times this monitor for different behavior.\n\nIt could also affect the dimensions available on reported metrics.\nSome dimensions are optionally added to its corresponding metric depending on the configuration.\n\nFor example, on status code metric:\n  - `matchCode` is always available (default is true when 200). \n  Useful to use in detector to raise alert filtering only `matchCode:false` urls.\n  - `desiredCode` is always available as information.\n  Useful to compare with the actual value of status code in dashboard.\n",
       "groups": {
         "": {
           "description": "",
@@ -28731,7 +28731,7 @@
             "elementKind": ""
           },
           {
-            "yamlName": "body",
+            "yamlName": "requestBody",
             "doc": "Optional HTTP request body as string like '{\"foo\":\"bar\"}'",
             "default": "",
             "required": false,

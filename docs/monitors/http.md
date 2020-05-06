@@ -10,15 +10,15 @@ Monitor Type: `http` ([Source](https://github.com/signalfx/signalfx-agent/tree/m
 
 ## Overview
 
-This monitor will retrieve metrics (see below) from a list of configured URLs.
+This monitor will generate metrics based on whether the HTTP responses from the configured URLs match expectations (e.g. correct body, status code, etc).
 
-TLS information will automatically be fetched if applicable (from base url or redirection).
+TLS information will automatically be fetched if applicable (from base URL or redirection).
 
 The configuration will be applied to every requests URLs from configured list
 so you need to instance multiple times this monitor for different behavior.
 
 It could also affect the dimensions available on reported metrics.
-Some dimensions are optionanly added to its corresponding metric depending of the configuration.
+Some dimensions are optionally added to its corresponding metric depending on the configuration.
 
 For example, on status code metric:
   - `matchCode` is always available (default is true when 200). 
@@ -53,7 +53,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `caCertPath` | no | `string` | Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false. |
 | `clientCertPath` | no | `string` | Path to the client TLS cert to use for TLS required connections |
 | `clientKeyPath` | no | `string` | Path to the client TLS key to use for TLS required connections |
-| `body` | no | `string` | Optional HTTP request body as string like '{"foo":"bar"}' |
+| `requestBody` | no | `string` | Optional HTTP request body as string like '{"foo":"bar"}' |
 | `noRedirects` | no | `bool` | Do not follow redirect. (**default:** `false`) |
 | `method` | no | `string` | HTTP request method to use. (**default:** `GET`) |
 | `urls` | **yes** | `list of strings` | List of HTTP URLs to monitor. |

@@ -34,7 +34,7 @@ type Config struct {
 	config.MonitorConfig  `yaml:",inline" singleInstance:"false" acceptsEndpoints:"true"`
 	httpclient.HTTPConfig `yaml:",inline"`
 	// Optional HTTP request body as string like '{"foo":"bar"}'
-	Body string `yaml:"body"`
+	RequestBody string `yaml:"requestBody"`
 	// Do not follow redirect.
 	NoRedirects bool `yaml:"noRedirects" default:"false"`
 	// HTTP request method to use.
@@ -185,8 +185,8 @@ func (m *Monitor) getHTTPStats(site string, logger *logrus.Entry) (dps []*datapo
 	}
 	// Init body if applicable
 	var body io.Reader
-	if m.conf.Body != "" {
-		body = strings.NewReader(m.conf.Body)
+	if m.conf.RequestBody != "" {
+		body = strings.NewReader(m.conf.RequestBody)
 	}
 	if m.conf.NoRedirects {
 		logger.Debug("Do not follow redirects")
