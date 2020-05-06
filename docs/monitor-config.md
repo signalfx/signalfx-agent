@@ -50,6 +50,7 @@ These are all of the monitors included in the agent, along with their possible c
 - [appmesh](./monitors/appmesh.md)
 - [aspdotnet](./monitors/aspdotnet.md)
 - [cadvisor](./monitors/cadvisor.md)
+- [cgroups](./monitors/cgroups.md)
 - [cloudfoundry-firehose-nozzle](./monitors/cloudfoundry-firehose-nozzle.md)
 - [collectd/activemq](./monitors/collectd-activemq.md)
 - [collectd/apache](./monitors/collectd-apache.md)

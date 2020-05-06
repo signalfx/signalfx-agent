@@ -1272,6 +1272,398 @@
       "singleInstance": false
     },
     {
+      "monitorType": "cgroups",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": {
+        "cgroup": {
+          "description": "The name of the cgroup being described.  The name of a cgroup is the full relative path of the cgroup based on the cgroup controller's root directory."
+        },
+        "cpu": {
+          "description": "For metrics that end with `_per_cpu`, this dimension will indicate which cpu the time series refers to."
+        }
+      },
+      "doc": "Reports statistics about cgroups on Linux.  This only supports cgroups v1\nand not the newer v2 unified implementation.\n\nFor general information on cgroups, see http://man7.org/linux/man-pages/man7/cgroups.7.html.\n\nFor detailed information on `cpu` cgroup metrics, see [Red Hat's guide to CPU management](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/sec-cpu). Many of the metric descriptions come from that document. Note that the `cpuacct` cgroup is primarily an informational cgroup that gives detailed information on how long processes in a cgroup used the CPU.\n\nFor detailed information on `memory` cgroup metrics, see [Red Hat's guide to the Memory cgroup](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/sec-memory). Many of the metric description come from that document.  Also refer to the Linux Kernel's [memory cgroup document](https://www.kernel.org/doc/Documentation/cgroup-v1/memory.txt).\n\n### Filtering\nYou can limit the cgroups for which metrics are generated with the\n`cgroups` config option to the monitor.\n",
+      "groups": {
+        "cpu": {
+          "description": "",
+          "metrics": [
+            "cgroup.cpu_cfs_period_us",
+            "cgroup.cpu_cfs_quota_us",
+            "cgroup.cpu_shares",
+            "cgroup.cpu_stat_nr_periods",
+            "cgroup.cpu_stat_nr_throttled",
+            "cgroup.cpu_stat_throttled_time"
+          ]
+        },
+        "cpuacct": {
+          "description": "",
+          "metrics": [
+            "cgroup.cpuacct_usage_ns",
+            "cgroup.cpuacct_usage_system_ns",
+            "cgroup.cpuacct_usage_user_ns"
+          ]
+        },
+        "cpuacct-per-cpu": {
+          "description": "",
+          "metrics": [
+            "cgroup.cpuacct_usage_ns_per_cpu",
+            "cgroup.cpuacct_usage_system_ns_per_cpu",
+            "cgroup.cpuacct_usage_user_ns_per_cpu"
+          ]
+        },
+        "memory": {
+          "description": "",
+          "metrics": [
+            "cgroup.memory_failcnt",
+            "cgroup.memory_limit_in_bytes",
+            "cgroup.memory_max_usage_in_bytes",
+            "cgroup.memory_stat_active_anon",
+            "cgroup.memory_stat_active_file",
+            "cgroup.memory_stat_cache",
+            "cgroup.memory_stat_dirty",
+            "cgroup.memory_stat_hierarchical_memory_limit",
+            "cgroup.memory_stat_inactive_anon",
+            "cgroup.memory_stat_inactive_file",
+            "cgroup.memory_stat_mapped_file",
+            "cgroup.memory_stat_pgfault",
+            "cgroup.memory_stat_pgmajfault",
+            "cgroup.memory_stat_pgpgin",
+            "cgroup.memory_stat_pgpgout",
+            "cgroup.memory_stat_rss",
+            "cgroup.memory_stat_rss_huge",
+            "cgroup.memory_stat_shmem",
+            "cgroup.memory_stat_total_active_anon",
+            "cgroup.memory_stat_total_active_file",
+            "cgroup.memory_stat_total_cache",
+            "cgroup.memory_stat_total_dirty",
+            "cgroup.memory_stat_total_inactive_anon",
+            "cgroup.memory_stat_total_inactive_file",
+            "cgroup.memory_stat_total_mapped_file",
+            "cgroup.memory_stat_total_pgfault",
+            "cgroup.memory_stat_total_pgmajfault",
+            "cgroup.memory_stat_total_pgpgin",
+            "cgroup.memory_stat_total_pgpgout",
+            "cgroup.memory_stat_total_rss",
+            "cgroup.memory_stat_total_rss_huge",
+            "cgroup.memory_stat_total_shmem",
+            "cgroup.memory_stat_total_unevictable",
+            "cgroup.memory_stat_total_writeback",
+            "cgroup.memory_stat_unevictable",
+            "cgroup.memory_stat_writeback"
+          ]
+        }
+      },
+      "metrics": {
+        "cgroup.cpu_cfs_period_us": {
+          "type": "gauge",
+          "description": "The period of time in microseconds for how regularly a cgroup's access to CPU resources should be reallocated",
+          "group": "cpu",
+          "default": true
+        },
+        "cgroup.cpu_cfs_quota_us": {
+          "type": "gauge",
+          "description": "The total amount of time in microseconds for which all tasks in a cgroup can run during one period.  The period is in the metric `cgroup.cpu_cfs_period_us`.",
+          "group": "cpu",
+          "default": true
+        },
+        "cgroup.cpu_shares": {
+          "type": "gauge",
+          "description": "The relative share of CPU that this cgroup gets.  This number is divided into the sum total of all cpu share values to determine the share any individual cgroup is entitled to.\n",
+          "group": "cpu",
+          "default": true
+        },
+        "cgroup.cpu_stat_nr_periods": {
+          "type": "cumulative",
+          "description": "Number of period intervals that have elapsed (the period length is in the metric `cgroup.cpu_cfs_period_us`)",
+          "group": "cpu",
+          "default": false
+        },
+        "cgroup.cpu_stat_nr_throttled": {
+          "type": "cumulative",
+          "description": "Number of times tasks in a cgroup have been throttled",
+          "group": "cpu",
+          "default": false
+        },
+        "cgroup.cpu_stat_throttled_time": {
+          "type": "cumulative",
+          "description": "The total time in nanoseconds for which tasks in a cgroup have been throttled",
+          "group": "cpu",
+          "default": true
+        },
+        "cgroup.cpuacct_usage_ns": {
+          "type": "cumulative",
+          "description": "Total time in nanoseconds spent using any CPU by tasks in this cgroup",
+          "group": "cpuacct",
+          "default": true
+        },
+        "cgroup.cpuacct_usage_ns_per_cpu": {
+          "type": "cumulative",
+          "description": "Total time in nanoseconds spent using a specific CPU (core) by tasks in this cgroup.  This metric will have the `cpu` dimension that specifies the specific cpu/core.\n",
+          "group": "cpuacct-per-cpu",
+          "default": false
+        },
+        "cgroup.cpuacct_usage_system_ns": {
+          "type": "cumulative",
+          "description": "Total time in nanoseconds spent in system (kernel) mode on any CPU by tasks in this cgroup",
+          "group": "cpuacct",
+          "default": false
+        },
+        "cgroup.cpuacct_usage_system_ns_per_cpu": {
+          "type": "cumulative",
+          "description": "Total time in nanoseconds spent in system (kernel) mode on a specific CPU (core) by tasks in this cgroup.  This metric will have the `cpu` dimension that specifies the specific cpu/core.\n",
+          "group": "cpuacct-per-cpu",
+          "default": false
+        },
+        "cgroup.cpuacct_usage_user_ns": {
+          "type": "cumulative",
+          "description": "Total time in nanoseconds spent in user mode on any CPU by tasks in this cgroup",
+          "group": "cpuacct",
+          "default": false
+        },
+        "cgroup.cpuacct_usage_user_ns_per_cpu": {
+          "type": "cumulative",
+          "description": "Total time in nanoseconds spent in user mode on a specific CPU (core) by tasks in this cgroup.  This metric will have the `cpu` dimension that specifies the specific cpu/core.\n",
+          "group": "cpuacct-per-cpu",
+          "default": false
+        },
+        "cgroup.memory_failcnt": {
+          "type": "cumulative",
+          "description": "The number of times that the memory limit has reached the `limit_in_bytes` (reported in metric `cgroup.memory_limit_in_bytes`).\n",
+          "group": "memory",
+          "default": true
+        },
+        "cgroup.memory_limit_in_bytes": {
+          "type": "gauge",
+          "description": "The maximum amount of user memory (including file cache).  A value of `9223372036854771712` (the max 64-bit int aligned to the nearest memory page) indicates no limit and is the default.\n",
+          "group": "memory",
+          "default": true
+        },
+        "cgroup.memory_max_usage_in_bytes": {
+          "type": "gauge",
+          "description": "The maximum memory used by processes in the cgroup (in bytes)",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_active_anon": {
+          "type": "gauge",
+          "description": "Bytes of anonymous and swap cache memory on active LRU list",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_active_file": {
+          "type": "gauge",
+          "description": "Bytes of file-backed memory on active LRU list",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_cache": {
+          "type": "gauge",
+          "description": "Page cache, including tmpfs (shmem), in bytes",
+          "group": "memory",
+          "default": true
+        },
+        "cgroup.memory_stat_dirty": {
+          "type": "gauge",
+          "description": "Bytes that are waiting to get written back to the disk",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_hierarchical_memory_limit": {
+          "type": "gauge",
+          "description": "Bytes of memory limit with regard to hierarchy under which the memory cgroup is",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_inactive_anon": {
+          "type": "gauge",
+          "description": "Bytes of anonymous and swap cache memory on inactive LRU list",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_inactive_file": {
+          "type": "gauge",
+          "description": "Bytes of file-backed memory on inactive LRU list",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_mapped_file": {
+          "type": "gauge",
+          "description": "Bytes of mapped file (includes tmpfs/shmem)",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_pgfault": {
+          "type": "cumulative",
+          "description": "Total number of page faults incurred",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_pgmajfault": {
+          "type": "cumulative",
+          "description": "Number of major page faults incurred",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_pgpgin": {
+          "type": "cumulative",
+          "description": "Number of charging events to the memory cgroup. The charging event happens each time a page is accounted as either mapped anon page(RSS) or cache page(Page Cache) to the cgroup.\n",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_pgpgout": {
+          "type": "cumulative",
+          "description": "Number of uncharging events to the memory cgroup. The uncharging event happens each time a page is unaccounted from the cgroup.\n",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_rss": {
+          "type": "gauge",
+          "description": "Anonymous and swap cache, not including tmpfs (shmem), in bytes",
+          "group": "memory",
+          "default": true
+        },
+        "cgroup.memory_stat_rss_huge": {
+          "type": "gauge",
+          "description": "Bytes of anonymous transparent hugepages",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_shmem": {
+          "type": "gauge",
+          "description": "Bytes of shared memory",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_active_anon": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_active_anon` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_active_file": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_active_file` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_cache": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_cache` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_dirty": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_dirty` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_inactive_anon": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_inactive_anon` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_inactive_file": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_inactive_file` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_mapped_file": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_mapped_file` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_pgfault": {
+          "type": "cumulative",
+          "description": "The equivalent of `cgroup.memory_stat_pgfault` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_pgmajfault": {
+          "type": "cumulative",
+          "description": "The equivalent of `cgroup.memory_stat_pgmajfault` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_pgpgin": {
+          "type": "cumulative",
+          "description": "The equivalent of `cgroup.memory_stat_pgpgin` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_pgpgout": {
+          "type": "cumulative",
+          "description": "The equivalent of `cgroup.memory_stat_pgpgout` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_rss": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_rss` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_rss_huge": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_rss_huge` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_shmem": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_shmem` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_unevictable": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_unevictable` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_writeback": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_writeback` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_unevictable": {
+          "type": "gauge",
+          "description": "Bytes of memory that cannot be reclaimed (mlocked, etc).",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_writeback": {
+          "type": "gauge",
+          "description": "Bytes of file/anon cache that are queued for syncing to disk",
+          "group": "memory",
+          "default": false
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/cgroups",
+        "fields": [
+          {
+            "yamlName": "cgroups",
+            "doc": "The cgroup names to include/exclude, based on the full hierarchy path. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). If not provided, this defaults to all cgroups. E.g. to monitor all Docker container cgroups, you could use a value of `[\"/docker/*\"]`.",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          }
+        ]
+      },
+      "acceptsEndpoints": false,
+      "singleInstance": false
+    },
+    {
       "monitorType": "cloudfoundry-firehose-nozzle",
       "sendAll": false,
       "sendUnknown": false,
