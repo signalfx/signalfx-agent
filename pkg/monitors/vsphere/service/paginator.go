@@ -27,11 +27,15 @@ func (p *queryPerfPaginator) paginate(
 ) (*types.QueryPerfResponse, error) {
 	numObjs := len(objs)
 	pages := p.numPages(numObjs)
+	pageSize := p.pageSize
+	if pageSize == 0 {
+		pageSize = numObjs
+	}
 	start := time.Now()
 	var metrics []types.BasePerfEntityMetricBase
 	for i := 0; i < pages; i++ {
-		startIdx := i * p.pageSize
-		endIdx := startIdx + p.pageSize
+		startIdx := i * pageSize
+		endIdx := startIdx + pageSize
 		if endIdx > numObjs {
 			endIdx = numObjs
 		}
@@ -51,7 +55,7 @@ func (p *queryPerfPaginator) paginate(
 func (p *queryPerfPaginator) numPages(n int) int {
 	// no pagination if page size is zero
 	if p.pageSize == 0 {
-		return n
+		return 1
 	}
 	return (n + p.pageSize - 1) / p.pageSize
 }

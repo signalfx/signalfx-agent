@@ -30,7 +30,7 @@ func TestNumPages(t *testing.T) {
 
 	// if page size is zero, there should be no pagination
 	p = queryPerfPaginator{pageSize: 0}
-	require.Equal(t, 42, p.numPages(42))
+	require.Equal(t, 1, p.numPages(42))
 }
 
 func TestPagination1(t *testing.T) {
@@ -45,6 +45,14 @@ func TestPagination2(t *testing.T) {
 	numObjs := 5
 	resp, _ := p.paginate(invObjs(numObjs), 1)
 	require.Equal(t, numObjs, len(resp.Returnval))
+}
+
+func TestPageSizeZero(t *testing.T) {
+	p := queryPerfPaginator{pageSize: 0, gateway: &fakePaginatorGateway{}, log: getTestingLog()}
+	numObjs := 42
+	_, err := p.paginate(invObjs(numObjs), 1)
+	// a single, big page should trigger a too many inv obj error
+	require.NotNil(t, err)
 }
 
 func invObjs(n int) []*model.InventoryObject {
