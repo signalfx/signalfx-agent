@@ -6,10 +6,9 @@ from textwrap import dedent
 
 import psutil
 import pytest
-
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint
-from tests.helpers.util import wait_for
+from tests.helpers.util import run_service, wait_for
 
 pytestmark = [pytest.mark.monitor_with_endpoints]
 
@@ -90,4 +89,23 @@ def test_python_monitor_respects_python_path():
         with Agent.run(config) as agent:
             assert wait_for(
                 p(has_datapoint, agent.fake_services, metric_name="my.gauge", dimensions={"a": "test"}, count=5)
+            ), "Didn't get datapoints"
+
+
+def test_with_discovery_rule():
+    with Agent.run(
+        f"""
+            observers:
+             - type: docker
+            monitors:
+              - type: python-monitor
+                discoveryRule: container_name =~ "nginx-python-monitor" && port == 80
+                scriptFilePath: {script_path("monitor1.py")}
+                intervalSeconds: 1
+                a: test
+            """
+    ) as agent:
+        with run_service("nginx", name="nginx-python-monitor"):
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, metric_name="my.gauge", dimensions={"a": "test"})
             ), "Didn't get datapoints"
