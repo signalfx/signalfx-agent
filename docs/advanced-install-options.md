@@ -63,7 +63,7 @@ To use the bundle:
 
     See [Privileges](#privileges) for information on the capabilities the Smart Agent requires.
 
-4.Run the Smart Agent by invoking the archive path:
+4. Run the Smart Agent by invoking the archive path:
 
 ```sh
  signalfx-agent/bin/signalfx-agent -config <path to config.yaml>
@@ -92,7 +92,7 @@ To use the bundle:
 
     See [Privileges](#privileges) for information on the capabilities the Smart Agent requires.
 
-3. Run the Smart Agent by invoking the Smart Agent executable
+3. Run the Smart Agent by invoking the Smart Agent executable:
 
 ```sh
 SignalFxAgent\bin\signalfx-agent.exe-config <path to config.yaml>
@@ -100,7 +100,7 @@ SignalFxAgent\bin\signalfx-agent.exe-config <path to config.yaml>
 ```
 By default, the Smart Agent logs only to stdout/err. If you want to persist logs, you must direct the output to a log file or other log management system. See the [signalfx-agent command doc](https://github.com/signalfx/signalfx-agent/blob/master/docs/signalfx-agent.1.man) for more information on supported command flags.
 
-You may optionally install the Smart Agent as a Windows service by invoking the agent executable and specifying a few command line flags. The examples below show how to do install and start the Smart Agent as a Windows service.
+You may optionally install the Smart Agent as a Windows service by invoking the agent executable and specifying a few command line flags. The examples below show how to install and start the Smart Agent as a Windows service.
 
 _Install Service_
 
