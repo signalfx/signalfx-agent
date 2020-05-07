@@ -13,11 +13,11 @@ import (
 type PointsSvc struct {
 	log         *logrus.Entry
 	gateway     IGateway
-	perfQuerier IPerfQuerier
+	perfQuerier PerfQuerier
 }
 
 func NewPointsSvc(gateway IGateway, log *logrus.Entry, batchSize int) *PointsSvc {
-	var q IPerfQuerier
+	var q PerfQuerier
 	if batchSize == 0 {
 		// if batchSize == 0 we don't paginate at all
 		q = gateway

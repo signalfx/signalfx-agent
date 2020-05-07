@@ -14,7 +14,7 @@ import (
 
 // A thin wrapper around the vmomi SDK so that callers don't have to use it directly.
 type IGateway interface {
-	IPerfQuerier
+	PerfQuerier
 	retrievePerformanceManager() (*mo.PerformanceManager, error)
 	topLevelFolderRef() types.ManagedObjectReference
 	retrieveRefProperties(mor types.ManagedObjectReference, dst interface{}) error
@@ -24,7 +24,7 @@ type IGateway interface {
 	vcenterName() string
 }
 
-type IPerfQuerier interface {
+type PerfQuerier interface {
 	queryPerf(invObjs []*model.InventoryObject, maxSample int32) (*types.QueryPerfResponse, error)
 }
 
