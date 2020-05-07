@@ -3,6 +3,7 @@ package tracetracker
 import (
 	"context"
 	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -116,27 +117,35 @@ func TestExpiration(t *testing.T) {
 
 type correlationTestClient struct {
 	sync.Mutex
-	cors        []*correlations.Correlation
-	getPayload  map[string]map[string][]string
-	getCallback func()
+	cors             []*correlations.Correlation
+	getPayload       map[string]map[string][]string
+	getCallback      func()
+	getCounter       int64
+	deleteCounter    int64
+	correlateCounter int64
 }
 
 func (c *correlationTestClient) Start() { /*no-op*/ }
 func (c *correlationTestClient) Get(dimName string, dimValue string, cb func(map[string][]string, error)) {
-	cb(c.getPayload[dimValue], nil)
-	if c.getCallback != nil {
-		c.getCallback()
-	}
+	atomic.AddInt64(&c.getCounter, 1)
+	go func() {
+		cb(c.getPayload[dimValue], nil)
+		if c.getCallback != nil {
+			c.getCallback()
+		}
+	}()
 }
 func (c *correlationTestClient) Correlate(cl *correlations.Correlation) {
 	c.Lock()
 	defer c.Unlock()
 	c.cors = append(c.cors, cl)
+	atomic.AddInt64(&c.correlateCounter, 1)
 }
 func (c *correlationTestClient) Delete(cl *correlations.Correlation) {
 	c.Lock()
 	defer c.Unlock()
 	c.cors = append(c.cors, cl)
+	atomic.AddInt64(&c.deleteCounter, 1)
 }
 func (c *correlationTestClient) getCorrelations() []*correlations.Correlation {
 	c.Lock()
@@ -145,6 +154,61 @@ func (c *correlationTestClient) getCorrelations() []*correlations.Correlation {
 }
 
 var _ correlations.CorrelationClient = &correlationTestClient{}
+
+func TestCorrelationEmptyEnvironment(t *testing.T) {
+	var wg sync.WaitGroup
+	correlationClient := &correlationTestClient{
+		getPayload: map[string]map[string][]string{
+			"testk8sPodUID": {
+				"sf_services":     {"one"},
+				"sf_environments": {"environment1"},
+			},
+			"testContainerID": {
+				"sf_services":     {"one"},
+				"sf_environments": {"environment1"},
+			},
+		},
+		getCallback: func() {
+			wg.Done()
+		},
+	}
+
+	hostIDDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
+	wg.Add(len(hostIDDims))
+	containerLevelIDDims := map[string]string{"kubernetes_pod_uid": "testk8sPodUID", "container_id": "testContainerID"}
+	a := New(5*time.Minute, correlationClient, hostIDDims, true, nil)
+	wg.Wait() // wait for the initial fetch of hostIDDims to complete
+
+	// for each container level ID we're going to perform a GET to check for an environment
+	wg.Add(len(containerLevelIDDims))
+	a.AddSpans(context.Background(), []*trace.Span{
+		{
+			LocalEndpoint: &trace.Endpoint{},
+			Tags:          utils.MergeStringMaps(hostIDDims, containerLevelIDDims),
+		},
+		{
+			LocalEndpoint: &trace.Endpoint{},
+			Tags:          utils.MergeStringMaps(hostIDDims, containerLevelIDDims),
+		},
+		{
+			LocalEndpoint: &trace.Endpoint{},
+			Tags:          utils.MergeStringMaps(hostIDDims, containerLevelIDDims),
+		},
+	})
+
+	wg.Wait() // wait for the gets to complete to check for existing tenant environment values
+
+	// there shouldn't be any active tenant environments.  None of the spans had environments on them,
+	// and we don't actively fetch and store environments from the back end.  That's kind of the whole point of this
+	// the workaround this is testing.
+	assert.Equal(t, int64(0), a.tenantEnvironmentCache.ActiveCount, "tenantEnvironmentCache is not properly tracked")
+	// ensure we only have 1 entry per container / pod id
+	assert.Equal(t, int64(len(containerLevelIDDims)), a.tenantEmptyEnvironmentCache.ActiveCount, "tenantEmptyEnvironmentCount is not properly tracked")
+	// len(hostIDDims) * len(containerLevelIDDims)
+	assert.Equal(t, int64(len(containerLevelIDDims)+len(hostIDDims)), atomic.LoadInt64(&correlationClient.getCounter), "")
+	// 1 DELETE * len(containerLevelIDDims)
+	assert.Equal(t, len(containerLevelIDDims), len(correlationClient.getCorrelations()), "")
+}
 
 func TestCorrelationUpdates(t *testing.T) {
 	var wg sync.WaitGroup
