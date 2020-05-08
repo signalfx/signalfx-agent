@@ -14,14 +14,23 @@ var groupSet = map[string]bool{}
 const (
 	kubernetesVolumeAvailableBytes = "kubernetes.volume_available_bytes"
 	kubernetesVolumeCapacityBytes  = "kubernetes.volume_capacity_bytes"
+	kubernetesVolumeInodes         = "kubernetes.volume_inodes"
+	kubernetesVolumeInodesFree     = "kubernetes.volume_inodes_free"
+	kubernetesVolumeInodesUsed     = "kubernetes.volume_inodes_used"
 )
 
 var metricSet = map[string]monitors.MetricInfo{
 	kubernetesVolumeAvailableBytes: {Type: datapoint.Gauge},
 	kubernetesVolumeCapacityBytes:  {Type: datapoint.Gauge},
+	kubernetesVolumeInodes:         {Type: datapoint.Gauge},
+	kubernetesVolumeInodesFree:     {Type: datapoint.Gauge},
+	kubernetesVolumeInodesUsed:     {Type: datapoint.Gauge},
 }
 
-var defaultMetrics = map[string]bool{}
+var defaultMetrics = map[string]bool{
+	kubernetesVolumeAvailableBytes: true,
+	kubernetesVolumeCapacityBytes:  true,
+}
 
 var groupMetricsMap = map[string][]string{}
 
@@ -32,5 +41,5 @@ var monitorMetadata = monitors.Metadata{
 	SendUnknown:     false,
 	Groups:          groupSet,
 	GroupMetricsMap: groupMetricsMap,
-	SendAll:         true,
+	SendAll:         false,
 }

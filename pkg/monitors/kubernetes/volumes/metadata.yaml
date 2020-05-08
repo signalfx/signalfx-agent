@@ -34,13 +34,27 @@ monitors:
     Dimensions that identify the underlying volume source will be added for
     `awsElasticBlockStore` and `glusterfs` volumes.  Support for more can be
     easily added as needed.
-  sendAll: true
+  sendAll: false
   metrics:
     kubernetes.volume_available_bytes:
       description: The number of available bytes in the volume
       type: gauge
+      default: true
     kubernetes.volume_capacity_bytes:
       description: The total capacity in bytes of the volume
       type: gauge
+      default: true
+    kubernetes.volume_inodes:
+      description: The total inodes in the filesystem
+      type: gauge
+      default: false
+    kubernetes.volume_inodes_free:
+      description: The free inodes in the filesystem
+      type: gauge
+      default: false
+    kubernetes.volume_inodes_used:
+      description: The inodes used by the filesystem. This may not equal `inodes - free` because filesystem may share inodes with other filesystems.
+      type: gauge
+      default: false
   monitorType: kubernetes-volumes
   properties:
