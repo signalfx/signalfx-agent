@@ -15,7 +15,7 @@ This monitor will generate metrics based on whether the HTTP responses from the 
 TLS information will automatically be fetched if applicable (from base URL or redirection).
 
 The configuration will be applied to every requests URLs from configured list
-so you need to instance multiple times this monitor for different behavior.
+so you need to instance multiple times this monitor for different behavior on multiple URLs.
 
 
 ## Configuration
@@ -85,7 +85,6 @@ dimensions may be specific to certain metrics.
 
 | Name | Description |
 | ---  | ---         |
-| `desiredCode` | Configured desired code used to compare with response one. Always and only available on `http.status_code` metric. |
 | `method` | HTTP method used to do request. Not available on `http.cert_*` metrics. |
 | `serverName` | ServerName used for TLS validation. Always and only available on `http.cert_expiry` metric. |
 | `url` | Last URL retrieved from configured one. Always available on every metrics. |

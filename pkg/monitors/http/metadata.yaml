@@ -5,7 +5,7 @@ monitors:
     TLS information will automatically be fetched if applicable (from base URL or redirection).
 
     The configuration will be applied to every requests URLs from configured list
-    so you need to instance multiple times this monitor for different behavior.
+    so you need to instance multiple times this monitor for different behavior on multiple URLs.
 
   dimensions:
     url:
@@ -14,8 +14,6 @@ monitors:
       description: ServerName used for TLS validation. Always and only available on `http.cert_expiry` metric.
     method:
       description: HTTP method used to do request. Not available on `http.cert_*` metrics.
-    desiredCode:
-      description: Configured desired code used to compare with response one. Always and only available on `http.status_code` metric.
   metrics:
     http.content_length:
       description: HTTP response body length. Always reported.
