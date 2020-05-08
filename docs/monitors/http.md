@@ -17,15 +17,6 @@ TLS information will automatically be fetched if applicable (from base URL or re
 The configuration will be applied to every requests URLs from configured list
 so you need to instance multiple times this monitor for different behavior.
 
-It could also affect the dimensions available on reported metrics.
-Some dimensions are optionally added to its corresponding metric depending on the configuration.
-
-For example, on status code metric:
-  - `matchCode` is always available (default is true when 200). 
-  Useful to use in detector to raise alert filtering only `matchCode:false` urls.
-  - `desiredCode` is always available as information.
-  Useful to compare with the actual value of status code in dashboard.
-
 
 ## Configuration
 
@@ -70,9 +61,12 @@ Metrics that are categorized as
 
 
  - ***`http.cert_expiry`*** (*gauge*)<br>    Certificate expiry in seconds. This metric is reported only if HTTPS is available (from last followed URL).
- - ***`http.content_length`*** (*gauge*)<br>    HTTP response body length.
- - ***`http.response_time`*** (*gauge*)<br>    HTTP response time in seconds.
- - ***`http.status_code`*** (*gauge*)<br>    HTTP response status code.
+ - ***`http.cert_valid`*** (*gauge*)<br>    Value is 1 if certificate is valid (including expiration test) or 0 else. This metric is reported only if HTTPS is available (from last followed URL).
+ - ***`http.code_matched`*** (*gauge*)<br>    Value is 1 if `status_code` value match `desiredCode` set in config. Always reported.
+ - ***`http.content_length`*** (*gauge*)<br>    HTTP response body length. Always reported.
+ - ***`http.regex_matched`*** (*gauge*)<br>    Value is 1 if pattern match in response body. Only reported if `regex` is configured.
+ - ***`http.response_time`*** (*gauge*)<br>    HTTP response time in seconds. Always reported.
+ - ***`http.status_code`*** (*gauge*)<br>    HTTP response status code. Always reported.
 
 ### Non-default metrics (version 4.7.0+)
 
@@ -91,11 +85,8 @@ dimensions may be specific to certain metrics.
 
 | Name | Description |
 | ---  | ---         |
-| `desiredCode` | Configured desired code used to compare with response one.  Always available but only on `http.status_code` metric. |
-| `isValid` | Boolean for TLS validation. Always and only available on `http.cert_expiry` metric. |
-| `matchCode` | Boolean for response status code matching. Always available but only on `http.status_code` metric. |
-| `matchRegex` | Boolean for regex matching. Only available if `regex` is configured and on `http.content_length` metric. |
-| `method` | HTTP method used to do request. Not available on `http.cert_expiry` metric. |
+| `desiredCode` | Configured desired code used to compare with response one. Always and only available on `http.status_code` metric. |
+| `method` | HTTP method used to do request. Not available on `http.cert_*` metrics. |
 | `serverName` | ServerName used for TLS validation. Always and only available on `http.cert_expiry` metric. |
 | `url` | Last URL retrieved from configured one. Always available on every metrics. |
 

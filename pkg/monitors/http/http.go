@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 
@@ -121,7 +120,7 @@ func (m *Monitor) getTLSStats(site *url.URL, logger *logrus.Entry) (dps []*datap
 	// use as an fmt.Stringer
 	host := site.Hostname()
 	port := site.Port()
-	valid := true
+	var valid int64 = 1
 	var secondsLeft float64
 	if port == "" {
 		port = "443"
@@ -146,7 +145,7 @@ func (m *Monitor) getTLSStats(site *url.URL, logger *logrus.Entry) (dps []*datap
 	err = conn.Handshake()
 	if err != nil {
 		logger.WithError(err).Error("failed during handshake")
-		valid = false
+		valid = 0
 	}
 	certs := conn.ConnectionState().PeerCertificates
 	for i, cert := range certs {
@@ -165,15 +164,15 @@ func (m *Monitor) getTLSStats(site *url.URL, logger *logrus.Entry) (dps []*datap
 		_, err := cert.Verify(opts)
 		if err != nil {
 			logger.WithError(err).Info("failed verify certificate")
-			valid = false
+			valid = 0
 		}
 	}
 	dimensions := map[string]string{
 		"url":        site.String(),
 		"serverName": host,
-		"isValid":    strconv.FormatBool(valid),
 	}
 	dps = append(dps, datapoint.New(httpCertExpiry, dimensions, datapoint.NewFloatValue(secondsLeft), datapoint.Gauge, time.Time{}))
+	dps = append(dps, datapoint.New(httpCertValid, dimensions, datapoint.NewIntValue(valid), datapoint.Gauge, time.Time{}))
 	return dps, nil
 }
 
@@ -211,41 +210,28 @@ func (m *Monitor) getHTTPStats(site string, logger *logrus.Entry) (dps []*datapo
 		"url":    lastURL,
 		"method": m.conf.Method,
 	}
-	matchCode := false
-	statusCode := resp.StatusCode
-	if statusCode == m.conf.DesiredCode {
-		matchCode = true
+	statusCode := int64(resp.StatusCode)
+	var matchCode int64 = 0
+	if statusCode == int64(m.conf.DesiredCode) {
+		matchCode = 1
 	}
 	dps = append(dps,
 		datapoint.New(httpResponseTime, dimensions, datapoint.NewFloatValue(responseTime), datapoint.Gauge, time.Time{}),
-		datapoint.New(httpStatusCode, addDimensions(dimensions, map[string]string{
-			"matchCode":   strconv.FormatBool(matchCode),
-			"desiredCode": strconv.Itoa(m.conf.DesiredCode),
-		}), datapoint.NewIntValue(int64(statusCode)), datapoint.Gauge, time.Time{}),
+		datapoint.New(httpStatusCode, dimensions, datapoint.NewIntValue(statusCode), datapoint.Gauge, time.Time{}),
+		datapoint.New(httpCodeMatched, dimensions, datapoint.NewIntValue(matchCode), datapoint.Gauge, time.Time{}),
 	)
 	bodyBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		logger.WithError(err).Error("could not parse body response")
 	} else {
-		contentDimensions := dimensions
+		dps = append(dps, datapoint.New(httpContentLength, dimensions, datapoint.NewIntValue(int64(len(bodyBytes))), datapoint.Gauge, time.Time{}))
 		if m.conf.Regex != "" {
-			matchRegex := m.regex.Match(bodyBytes)
-			contentDimensions = addDimensions(contentDimensions, map[string]string{
-				"matchRegex": strconv.FormatBool(matchRegex),
-			})
+			var matchRegex int64 = 0
+			if m.regex.Match(bodyBytes) {
+				matchRegex = 1
+			}
+			dps = append(dps, datapoint.New(httpRegexMatched, dimensions, datapoint.NewIntValue(matchRegex), datapoint.Gauge, time.Time{}))
 		}
-		dps = append(dps, datapoint.New(httpContentLength, contentDimensions, datapoint.NewIntValue(int64(len(bodyBytes))), datapoint.Gauge, time.Time{}))
 	}
 	return dps, lastURL, nil
-}
-
-func addDimensions(globalDimensions map[string]string, newDimensions map[string]string) (dimensions map[string]string) {
-	dimensions = make(map[string]string)
-	for k, v := range globalDimensions {
-		dimensions[k] = v
-	}
-	for k, v := range newDimensions {
-		dimensions[k] = v
-	}
-	return dimensions
 }

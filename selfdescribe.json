@@ -28593,19 +28593,10 @@
       "sendUnknown": false,
       "dimensions": {
         "desiredCode": {
-          "description": "Configured desired code used to compare with response one.  Always available but only on `http.status_code` metric."
-        },
-        "isValid": {
-          "description": "Boolean for TLS validation. Always and only available on `http.cert_expiry` metric."
-        },
-        "matchCode": {
-          "description": "Boolean for response status code matching. Always available but only on `http.status_code` metric."
-        },
-        "matchRegex": {
-          "description": "Boolean for regex matching. Only available if `regex` is configured and on `http.content_length` metric."
+          "description": "Configured desired code used to compare with response one. Always and only available on `http.status_code` metric."
         },
         "method": {
-          "description": "HTTP method used to do request. Not available on `http.cert_expiry` metric."
+          "description": "HTTP method used to do request. Not available on `http.cert_*` metrics."
         },
         "serverName": {
           "description": "ServerName used for TLS validation. Always and only available on `http.cert_expiry` metric."
@@ -28614,13 +28605,16 @@
           "description": "Last URL retrieved from configured one. Always available on every metrics."
         }
       },
-      "doc": "This monitor will generate metrics based on whether the HTTP responses from the configured URLs match expectations (e.g. correct body, status code, etc).\n\nTLS information will automatically be fetched if applicable (from base URL or redirection).\n\nThe configuration will be applied to every requests URLs from configured list\nso you need to instance multiple times this monitor for different behavior.\n\nIt could also affect the dimensions available on reported metrics.\nSome dimensions are optionally added to its corresponding metric depending on the configuration.\n\nFor example, on status code metric:\n  - `matchCode` is always available (default is true when 200). \n  Useful to use in detector to raise alert filtering only `matchCode:false` urls.\n  - `desiredCode` is always available as information.\n  Useful to compare with the actual value of status code in dashboard.\n",
+      "doc": "This monitor will generate metrics based on whether the HTTP responses from the configured URLs match expectations (e.g. correct body, status code, etc).\n\nTLS information will automatically be fetched if applicable (from base URL or redirection).\n\nThe configuration will be applied to every requests URLs from configured list\nso you need to instance multiple times this monitor for different behavior.\n",
       "groups": {
         "": {
           "description": "",
           "metrics": [
             "http.cert_expiry",
+            "http.cert_valid",
+            "http.code_matched",
             "http.content_length",
+            "http.regex_matched",
             "http.response_time",
             "http.status_code"
           ]
@@ -28633,21 +28627,39 @@
           "group": null,
           "default": true
         },
+        "http.cert_valid": {
+          "type": "gauge",
+          "description": "Value is 1 if certificate is valid (including expiration test) or 0 else. This metric is reported only if HTTPS is available (from last followed URL).",
+          "group": null,
+          "default": true
+        },
+        "http.code_matched": {
+          "type": "gauge",
+          "description": "Value is 1 if `status_code` value match `desiredCode` set in config. Always reported.",
+          "group": null,
+          "default": true
+        },
         "http.content_length": {
           "type": "gauge",
-          "description": "HTTP response body length.",
+          "description": "HTTP response body length. Always reported.",
+          "group": null,
+          "default": true
+        },
+        "http.regex_matched": {
+          "type": "gauge",
+          "description": "Value is 1 if pattern match in response body. Only reported if `regex` is configured.",
           "group": null,
           "default": true
         },
         "http.response_time": {
           "type": "gauge",
-          "description": "HTTP response time in seconds.",
+          "description": "HTTP response time in seconds. Always reported.",
           "group": null,
           "default": true
         },
         "http.status_code": {
           "type": "gauge",
-          "description": "HTTP response status code.",
+          "description": "HTTP response status code. Always reported.",
           "group": null,
           "default": true
         }
