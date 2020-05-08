@@ -34,14 +34,14 @@
                 },
                 {
                     "name": "CONFIG_URL",
-                    "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/v5.1.4/deployments/fargate/agent.yaml"
+                    "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/v5.1.5/deployments/fargate/agent.yaml"
                 }
             ],
             "dockerLabels": {
                 "app": "signalfx-agent"
             },
             "name": "signalfx-agent",
-            "image": "quay.io/signalfx/signalfx-agent:5.1.4"
+            "image": "quay.io/signalfx/signalfx-agent:5.1.5"
         }
     ],
     "cpu": "128",
