@@ -46121,6 +46121,120 @@
       "singleInstance": false
     },
     {
+      "monitorType": "telegraf/dns",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": {
+        "domain": {
+          "description": "The DNS domain queried."
+        },
+        "plugin": {
+          "description": "The plugin name \"telegraf/dns\"."
+        },
+        "rcode": {
+          "description": "Error string. See [this tab](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/dns_query#rcode-descriptions) for detailled descriptions."
+        },
+        "record_type": {
+          "description": "The DNS record type queried."
+        },
+        "result": {
+          "description": "Resolution result string (success = 0, timeout = 1, error = 2)."
+        },
+        "server": {
+          "description": "The DNS server queried."
+        }
+      },
+      "doc": "This is an embedded form of the [Telegraf DNS Query\nplugin](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/dns_query).\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "dns.query_time_ms",
+            "dns.rcode_value",
+            "dns.result_code"
+          ]
+        }
+      },
+      "metrics": {
+        "dns.query_time_ms": {
+          "type": "gauge",
+          "description": "Reponse time of the query in ms.",
+          "group": null,
+          "default": true
+        },
+        "dns.rcode_value": {
+          "type": "gauge",
+          "description": "Error code. See [this tab](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/dns_query#rcode-descriptions) for detailled descriptions.",
+          "group": null,
+          "default": true
+        },
+        "dns.result_code": {
+          "type": "gauge",
+          "description": "Resolution result code (success = 0, timeout = 1, error = 2).",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/telegraf/monitors/dns",
+        "fields": [
+          {
+            "yamlName": "domains",
+            "doc": "Domains or subdomains to query.",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "network",
+            "doc": "Network is the network protocol name.",
+            "default": "udp",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Dns server port.",
+            "default": 53,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "servers",
+            "doc": "Servers to query.",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "recordType",
+            "doc": "Query record type (A, AAAA, CNAME, MX, NS, PTR, TXT, SOA, SPF, SRV).",
+            "default": "NS",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "timeout",
+            "doc": "Query timeout. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.",
+            "default": "2s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "telegraf/exec",
       "sendAll": true,
       "sendUnknown": false,
