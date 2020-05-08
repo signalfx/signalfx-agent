@@ -13,7 +13,8 @@ import (
 
 // Encapsulates services and the current state of the vSphere monitor.
 type vSphereMonitor struct {
-	log *logrus.Entry
+	conf *model.Config
+	log  *logrus.Entry
 
 	invSvc    *service.InventorySvc
 	metricSvc *service.MetricsSvc
@@ -26,17 +27,20 @@ type vSphereMonitor struct {
 	lastPointRetrievalTime time.Time
 }
 
-func newVsphereMonitor(log *logrus.Entry) *vSphereMonitor {
-	return &vSphereMonitor{log: log}
+func newVsphereMonitor(conf *model.Config, log *logrus.Entry) *vSphereMonitor {
+	return &vSphereMonitor{
+		conf: conf,
+		log:  log,
+	}
 }
 
 // Logs into vSphere, wires up service objects, and retrieves vSphereInfo (inventory, available metrics, and metric index).
-func (vsm *vSphereMonitor) firstTimeSetup(ctx context.Context, conf *model.Config) error {
+func (vsm *vSphereMonitor) firstTimeSetup(ctx context.Context) error {
 	if !vsm.lastVsphereLoadTime.IsZero() {
 		return nil
 	}
 	authSvc := service.NewAuthService(vsm.log)
-	client, err := authSvc.LogIn(ctx, conf)
+	client, err := authSvc.LogIn(ctx, vsm.conf)
 	if err != nil {
 		return err
 	}
@@ -58,7 +62,7 @@ func (vsm *vSphereMonitor) firstTimeSetup(ctx context.Context, conf *model.Confi
 // Creates the service objects and assigns them to the vSphereMonitor struct.
 func (vsm *vSphereMonitor) wireUpServices(ctx context.Context, client *govmomi.Client) {
 	gateway := service.NewGateway(ctx, client, vsm.log)
-	vsm.ptsSvc = service.NewPointsSvc(gateway, vsm.log)
+	vsm.ptsSvc = service.NewPointsSvc(gateway, vsm.log, vsm.conf.PerfBatchSize)
 	vsm.invSvc = service.NewInventorySvc(gateway, vsm.log)
 	vsm.metricSvc = service.NewMetricsService(gateway, vsm.log)
 	vsm.timeSvc = service.NewTimeSvc(gateway)
