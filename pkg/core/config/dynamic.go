@@ -39,7 +39,22 @@ func DecodeExtraConfig(in CustomConfigurable, out interface{}, strict bool) erro
 	if strict {
 		err = yaml.UnmarshalStrict(otherYaml, out)
 	} else {
+		// Preserve any special "catch-all" config that is typed with the
+		// special AdditionalConfig type.  This is needed because many config
+		// structs will be Unmarshaled to multiple times from various sources,
+		// and any inline struct fields will be overwritten on subsequent
+		// Unmarshals.
+		var additionalConf AdditionalConfig
+		additionalConfigField := utils.FindFirstFieldOfType(out, reflect.TypeOf((AdditionalConfig)(nil)))
+		if additionalConfigField.IsValid() {
+			additionalConf = additionalConfigField.Interface().(AdditionalConfig)
+		}
+
 		err = yaml.Unmarshal(otherYaml, out)
+
+		for k, v := range additionalConf {
+			additionalConfigField.Interface().(AdditionalConfig)[k] = v
+		}
 	}
 	if err != nil {
 		return err

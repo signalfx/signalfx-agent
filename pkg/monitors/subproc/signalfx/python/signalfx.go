@@ -29,9 +29,6 @@ type PyConfig interface {
 	PythonConfig() *Config
 }
 
-// CustomConfig is embedded in Config struct to catch all extra config to pass to Python
-type CustomConfig map[string]interface{}
-
 // Config specifies configurations that are specific to the individual python based monitor
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
@@ -51,8 +48,8 @@ type Config struct {
 	// The PYTHONPATH that will be used when importing the script specified at
 	// `scriptFilePath`.  The directory of `scriptFilePath` will always be
 	// included in the path.
-	PythonPath   []string `yaml:"pythonPath" json:"pythonPath"`
-	CustomConfig `yaml:",inline" json:"-" neverLog:"true"`
+	PythonPath              []string `yaml:"pythonPath" json:"pythonPath"`
+	config.AdditionalConfig `yaml:",inline" json:"-" neverLog:"true"`
 }
 
 // MarshalJSON flattens out the CustomConfig provided by the user into a single
@@ -72,7 +69,7 @@ func (c Config) MarshalJSON() ([]byte, error) {
 	// Don't need this.
 	delete(m, "OtherConfig")
 
-	for k, v := range c.CustomConfig {
+	for k, v := range c.AdditionalConfig {
 		m[k], err = json.Marshal(v)
 		if err != nil {
 			return nil, err

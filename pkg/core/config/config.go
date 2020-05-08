@@ -462,3 +462,9 @@ func BundlePythonHomeEnvvar() string {
 	}
 	return "PYTHONHOME=" + bundleDir
 }
+
+// AdditionalConfig is the type that should be used for any "catch-all" config
+// fields in a monitor/observer.  That field should be marked as
+// `yaml:",inline"`.  It will receive special handling when config is rendered
+// to merge all values from multiple decoding rounds.
+type AdditionalConfig map[string]interface{}
