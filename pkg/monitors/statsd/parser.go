@@ -28,6 +28,26 @@ func initConverter(input *ConverterInput) *converter {
 	}
 }
 
+// parseDogstatsdTags extracts any dogstatd style tags from a metric.
+func parseDogstatsdTags(s string) (string, map[string]string) {
+	var dims map[string]string
+	tagsIdx := strings.LastIndex(s, "|#")
+	if tagsIdx >= 0 {
+		tagsRaw := s[tagsIdx+2:]
+		s = s[:tagsIdx]
+		dims = make(map[string]string)
+		for _, t := range strings.Split(tagsRaw, ",") {
+			parts := strings.Split(t, ":")
+			if len(parts) != 2 {
+				logger.Warnf("Invalid StatsD metric tag : %s", t)
+				continue
+			}
+			dims[parts[0]] = parts[1]
+		}
+	}
+	return s, dims
+}
+
 // parsePattern takes a pattern string and convert it into parsed fieldPattern object
 func parseFields(p string) *fieldPattern {
 	var substrs []string
@@ -79,9 +99,11 @@ func parseFields(p string) *fieldPattern {
 
 // convertMetric takes a statsd metric name and a list of fieldPattern objects
 // and return the dimensions from the first matching pattern
-func convertMetric(name string, converters []*converter) (string, map[string]string) {
+func convertMetric(name string, converters []*converter, fields map[string]string) (string, map[string]string) {
 	for _, c := range converters {
-		fields := make(map[string]string)
+		if fields == nil {
+			fields = make(map[string]string)
+		}
 		w := 0
 		i := 0
 
