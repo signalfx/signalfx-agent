@@ -1,0 +1,2 @@
+#!/usr/bin/execlineb -P
+php-fpm{VERSION} --nodaemonize --fpm-config /etc/php/{VERSION}/fpm/php-fpm.conf

@@ -14,6 +14,8 @@ var CollectdTemplate = template.Must(InjectTemplateFuncs(template.New("collectd"
 # it strips off trailing slashes from the path before doing the chdir.
 BaseDir "{{ stripTrailingSlash .BundleDir }}/lib/.."
 TypesDB "{{ stripTrailingSlash .BundleDir }}/types.db"
+TypesDB "{{ stripTrailingSlash .BundleDir }}/signalfx_types.db"
+
 PluginDir "{{ stripTrailingSlash .BundleDir }}/lib/collectd"
 
 Hostname ""
@@ -55,7 +57,6 @@ LoadPlugin target_set
 </Plugin>
 
 {{if .HasGenericJMXMonitor}}
-TypesDB "{{ stripTrailingSlash .BundleDir }}/collectd-java/signalfx_types_db"
 LoadPlugin "java"
 
 <Plugin java>

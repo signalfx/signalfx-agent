@@ -359,7 +359,7 @@ COPY --from=extra-packages /opt/root/bin/ /bin/
 COPY --from=collectd /usr/share/collectd/postgresql_default.conf /postgresql_default.conf
 COPY --from=collectd /usr/share/collectd/types.db /types.db
 COPY --from=collectd /usr/share/collectd/java/ /collectd-java/
-COPY --from=agent-builder /usr/src/signalfx-agent/pkg/monitors/collectd/signalfx_types.db /collectd-java/signalfx_types_db
+COPY --from=agent-builder /usr/src/signalfx-agent/pkg/monitors/collectd/signalfx_types.db /signalfx_types.db
 
 # Pull in Python collectd plugin scripts
 COPY --from=python-plugins /opt/collectd-python/ /collectd-python/
