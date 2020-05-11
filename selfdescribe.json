@@ -28595,14 +28595,14 @@
         "method": {
           "description": "HTTP method used to do request. Not available on `http.cert_*` metrics."
         },
-        "serverName": {
+        "server_name": {
           "description": "ServerName used for TLS validation. Always and only available on `http.cert_expiry` metric."
         },
         "url": {
           "description": "Last URL retrieved from configured one. Always available on every metrics."
         }
       },
-      "doc": "This monitor will generate metrics based on whether the HTTP responses from the configured URLs match expectations (e.g. correct body, status code, etc).\n\nTLS information will automatically be fetched if applicable (from base URL or redirection).\n\nThe configuration will be applied to every requests URLs from configured list\nso you need to instance multiple times this monitor for different behavior on multiple URLs.\n",
+      "doc": "This monitor will generate metrics based on whether the HTTP responses from\nthe configured URLs match expectations (e.g. correct body, status code,\netc).\n\nTLS information will automatically be fetched if applicable (from base URL\nor redirection).\n\nThe configuration will be applied to every requests URLs from configured\nlist so you need to instance multiple times this monitor for different\nbehavior on multiple URLs.\n",
       "groups": {
         "": {
           "description": "",

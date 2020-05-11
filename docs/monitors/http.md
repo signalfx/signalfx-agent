@@ -10,12 +10,16 @@ Monitor Type: `http` ([Source](https://github.com/signalfx/signalfx-agent/tree/m
 
 ## Overview
 
-This monitor will generate metrics based on whether the HTTP responses from the configured URLs match expectations (e.g. correct body, status code, etc).
+This monitor will generate metrics based on whether the HTTP responses from
+the configured URLs match expectations (e.g. correct body, status code,
+etc).
 
-TLS information will automatically be fetched if applicable (from base URL or redirection).
+TLS information will automatically be fetched if applicable (from base URL
+or redirection).
 
-The configuration will be applied to every requests URLs from configured list
-so you need to instance multiple times this monitor for different behavior on multiple URLs.
+The configuration will be applied to every requests URLs from configured
+list so you need to instance multiple times this monitor for different
+behavior on multiple URLs.
 
 
 ## Configuration
@@ -86,7 +90,7 @@ dimensions may be specific to certain metrics.
 | Name | Description |
 | ---  | ---         |
 | `method` | HTTP method used to do request. Not available on `http.cert_*` metrics. |
-| `serverName` | ServerName used for TLS validation. Always and only available on `http.cert_expiry` metric. |
+| `server_name` | ServerName used for TLS validation. Always and only available on `http.cert_expiry` metric. |
 | `url` | Last URL retrieved from configured one. Always available on every metrics. |
 
 
