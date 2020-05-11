@@ -37327,7 +37327,7 @@
     },
     {
       "monitorType": "kubernetes-volumes",
-      "sendAll": true,
+      "sendAll": false,
       "sendUnknown": false,
       "dimensions": {
         "VolumeId": {
@@ -37364,7 +37364,10 @@
           "description": "",
           "metrics": [
             "kubernetes.volume_available_bytes",
-            "kubernetes.volume_capacity_bytes"
+            "kubernetes.volume_capacity_bytes",
+            "kubernetes.volume_inodes",
+            "kubernetes.volume_inodes_free",
+            "kubernetes.volume_inodes_used"
           ]
         }
       },
@@ -37373,11 +37376,29 @@
           "type": "gauge",
           "description": "The number of available bytes in the volume",
           "group": null,
-          "default": false
+          "default": true
         },
         "kubernetes.volume_capacity_bytes": {
           "type": "gauge",
           "description": "The total capacity in bytes of the volume",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.volume_inodes": {
+          "type": "gauge",
+          "description": "The total inodes in the filesystem",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.volume_inodes_free": {
+          "type": "gauge",
+          "description": "The free inodes in the filesystem",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.volume_inodes_used": {
+          "type": "gauge",
+          "description": "The inodes used by the filesystem. This may not equal `inodes - free` because filesystem may share inodes with other filesystems.",
           "group": null,
           "default": false
         }
