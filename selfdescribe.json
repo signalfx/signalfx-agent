@@ -33121,7 +33121,7 @@
           }
         ]
       },
-      "acceptsEndpoints": false,
+      "acceptsEndpoints": true,
       "singleInstance": false
     },
     {
@@ -51270,7 +51270,7 @@
     },
     {
       "name": "Config",
-      "doc": " Discovers services running in a Kubernetes cluster by\nquerying the Kubernetes API server.  This observer is designed to only\ndiscover pod endpoints exposed on the same node that the agent is running,\nso that the monitoring of services does not generate cross-node traffic.  To\nknow which node the agent is running on, you should set an environment\nvariable called `MY_NODE_NAME` using the downward API `spec.nodeName` value\nin the pod spec.  Our provided K8s DaemonSet resource does this already and\nprovides an example.\n\nNote that this observer discovers exposed ports on pod containers, not K8s\nEndpoint resources, so don't let the terminology of agent \"endpoints\"\nconfuse you.\n",
+      "doc": " Discovers pod endpoints and nodes running in a Kubernetes\ncluster by querying the Kubernetes API server.  This observer by default\nwill only discover pod endpoints exposed on the same node that the agent is\nrunning, so that the monitoring of services does not generate cross-node\ntraffic.  To know which node the agent is running on, you should set an\nenvironment variable called `MY_NODE_NAME` using the downward API\n`spec.nodeName` value in the pod spec. Our provided K8s DaemonSet resource\ndoes this already and provides an example.\n\nIf `discoverAllPods` is set to `true`, then the observer will discover pods on all\nnodes in the cluster (or namespace if specified).\n\nNote that this observer discovers exposed ports on pod containers, not K8s\nEndpoint resources, so don't let the terminology of agent \"endpoints\"\nconfuse you.\n",
       "package": "pkg/observers/kubernetes",
       "fields": [
         {
@@ -51343,6 +51343,22 @@
           "required": false,
           "type": "slice",
           "elementKind": "string"
+        },
+        {
+          "yamlName": "discoverAllPods",
+          "doc": "If true, this observer will watch all Kubernetes pods and discover endpoints/services from each of them.  The default behavior (when `false`) is to only watch the pods on the current node that this agent is running on (it knows the current node via the `MY_NODE_NAME` envvar provided by the downward API).",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "discoverNodes",
+          "doc": "If `true`, the observer will discover nodes as a special type of endpoint.  You can match these endpoints in your discovery rules with the condition `target == \"k8s-node\"`.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
         }
       ],
       "observerType": "k8s-api",

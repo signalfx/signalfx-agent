@@ -2,14 +2,17 @@
 
 # k8s-api
 
- Discovers services running in a Kubernetes cluster by
-querying the Kubernetes API server.  This observer is designed to only
-discover pod endpoints exposed on the same node that the agent is running,
-so that the monitoring of services does not generate cross-node traffic.  To
-know which node the agent is running on, you should set an environment
-variable called `MY_NODE_NAME` using the downward API `spec.nodeName` value
-in the pod spec.  Our provided K8s DaemonSet resource does this already and
-provides an example.
+ Discovers pod endpoints and nodes running in a Kubernetes
+cluster by querying the Kubernetes API server.  This observer by default
+will only discover pod endpoints exposed on the same node that the agent is
+running, so that the monitoring of services does not generate cross-node
+traffic.  To know which node the agent is running on, you should set an
+environment variable called `MY_NODE_NAME` using the downward API
+`spec.nodeName` value in the pod spec. Our provided K8s DaemonSet resource
+does this already and provides an example.
+
+If `discoverAllPods` is set to `true`, then the observer will discover pods on all
+nodes in the cluster (or namespace if specified).
 
 Note that this observer discovers exposed ports on pod containers, not K8s
 Endpoint resources, so don't let the terminology of agent "endpoints"
@@ -27,6 +30,8 @@ Observer Type: `k8s-api`
 | `namespace` | no | `string` | If specified, only pods within the given namespace on the same node as the agent will be discovered. If blank, all pods on the same node as the agent will be discovered. |
 | `kubernetesAPI` | no | `object (see below)` | Configuration for the K8s API client |
 | `additionalPortAnnotations` | no | `list of strings` | A list of annotation names that should be used to infer additional ports to be discovered on a particular pod.  The pod's annotation value should be a port number.  This is useful for annotations like `prometheus.io/port: 9230`.  If you don't already have preexisting annotations like this, we recommend using the [SignalFx-specific annotations](https://docs.signalfx.com/en/latest/kubernetes/k8s-monitors-observers.html#config-via-k8s-annotations). |
+| `discoverAllPods` | no | `bool` | If true, this observer will watch all Kubernetes pods and discover endpoints/services from each of them.  The default behavior (when `false`) is to only watch the pods on the current node that this agent is running on (it knows the current node via the `MY_NODE_NAME` envvar provided by the downward API). (**default:** `false`) |
+| `discoverNodes` | no | `bool` | If `true`, the observer will discover nodes as a special type of endpoint.  You can match these endpoints in your discovery rules with the condition `target == "k8s-node"`. (**default:** `false`) |
 
 
 The **nested** `kubernetesAPI` config object has the following fields:

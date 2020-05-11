@@ -12,10 +12,11 @@ import (
 type TargetType string
 
 const (
-	TargetTypePod       TargetType = "pod"
-	TargetTypeHostPort  TargetType = "hostport"
-	TargetTypeContainer TargetType = "container"
-	TargetTypeHost      TargetType = "host"
+	TargetTypePod            TargetType = "pod"
+	TargetTypeHostPort       TargetType = "hostport"
+	TargetTypeContainer      TargetType = "container"
+	TargetTypeHost           TargetType = "host"
+	TargetTypeKubernetesNode TargetType = "k8s-node"
 )
 
 // PortType represents the transport protocol used to communicate with this port

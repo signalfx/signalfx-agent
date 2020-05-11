@@ -17,6 +17,8 @@ data:
 
     signalFxRealm: {{ .Values.signalFxRealm  | default "us0" }}
 
+    disableHostDimensions: {{ toYaml .Values.isServerless }}
+
     {{- if .Values.ingestUrl }}
     ingestUrl: {{ .Values.ingestUrl }}
     {{- end }}
@@ -59,8 +61,10 @@ data:
       kubernetesAPI:
         skipVerify: true
       {{- end }}
+      discoverAllPods: {{ toYaml .Values.isServerless }}
+      discoverNodes: {{ toYaml .Values.isServerless }}
       {{- if .Values.additionalPortAnnotations }}
-      additionalPortAnnotations: 
+      additionalPortAnnotations:
       {{ range .Values.additionalPortAnnotations -}}
       - {{ toYaml . | indent 8 | trim }}
       {{- end }}
@@ -68,6 +72,7 @@ data:
 
     monitors:
 {{- if .Values.configureStandardMonitors }}
+{{- if not .Values.isServerless }}
 {{- if ge $major_version 5 }}
     - type: cpu
     - type: filesystems
@@ -96,8 +101,22 @@ data:
     - type: collectd/uptime
     - type: collectd/vmem
 {{- end }}
+{{- end }}
 
     - type: kubelet-stats
+      {{- if .Values.isServerless }}
+      # Change 'fargate' part to something else if using another serverless K8s
+      # platform.  We avoid scraping kubelet stats from the same node as the
+      # agent because EKS restricts connections between a pod and its own
+      # virtual kubelet, but not other kubelets.
+      discoveryRule: 'target == "k8s-node" && name =~ "fargate" && name != Getenv("MY_NODE_NAME")'
+      configEndpointMappings:
+        kubeletAPI: |
+          {
+            url: Sprintf("https://%s:%d", host, node_status.DaemonEndpoints.KubeletEndpoint.Port),
+            authType: "serviceAccount"
+          }
+      {{- end }}
       {{- if .Values.containerStatsIntervalSeconds }}
       intervalSeconds: {{ .Values.containerStatsIntervalSeconds }}
       {{- end }}
@@ -120,8 +139,12 @@ data:
 {{- if lt $major_version 5 }}
       useNodeName: true
 {{- end }}
+{{- if .Values.isServerless }}
+      alwaysClusterReporter: true
+{{- end }}
     {{- end }}
 
+    {{ if not .Values.isServerless -}}
     {{ if .Values.gatherDockerMetrics -}}
     - type: docker-container-stats
       dockerURL: unix:///var/run/docker.sock
@@ -133,6 +156,7 @@ data:
         io.kubernetes.pod.name: kubernetes_pod_name
         io.kubernetes.pod.uid: kubernetes_pod_uid
         io.kubernetes.pod.namespace: kubernetes_namespace
+    {{- end }}
     {{- end }}
 {{- end }}
     {{ range .Values.monitors -}}

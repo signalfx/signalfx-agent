@@ -1,0 +1,71 @@
+---
+# Source: signalfx-agent/templates/deployment.yaml
+# This is only used for the serverless deployment model where we can't use
+# DaemonSets.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: signalfx-agent
+  labels:
+    app: signalfx-agent
+    version: 5.1.4
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: signalfx-agent
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
+
+  template:
+    metadata:
+      labels:
+        app: signalfx-agent
+        version: 5.1.4
+
+      annotations:
+        {}
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      restartPolicy: Always
+      serviceAccountName: signalfx-agent
+
+      containers:
+      - name: signalfx-agent
+        image: "quay.io/signalfx/signalfx-agent:5.1.4"
+        imagePullPolicy: IfNotPresent
+        command:
+        - /bin/signalfx-agent
+        volumeMounts:
+        - mountPath: /etc/signalfx
+          name: config
+        resources:
+          {}
+        env:
+        - name: SFX_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: signalfx-agent
+              key: access-token
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        # Keep this so that we know the agent node when virtual nodes are
+        # involved.
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: MY_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+      volumes:
+      - name: config
+        configMap:
+          name: signalfx-agent-v5

@@ -56,6 +56,35 @@ can make the agent run with its own network namespace by doing the following:
 
 This requires version 3.6.2 or later of the agent to work.
 
+## AWS EKS/Fargate
+If you are running on AWS EKS with Fargate profiles, you will need to deploy a
+special instance of the agent within the cluster in such a way that it can
+access the Fargate virtual nodes and pods.  The simplest way to do this is to
+just run the agent as a single-replica Deployment in a namespace that a Fargate
+profile covers.  The signalfx-agent Helm chart supports this by specifying the
+chart value `isServerless: true`.  This will skip the creation of the normal
+DaemonSet in favor of a 1-replica Deployment.  There will also be special
+configuration to automatically discover all pods on all nodes within the
+cluster, as well as config to make the agent discover and scrape container
+metrics from the virtual kubelets that are created by EKS.  All traditional
+host infrastructure monitors will be disabled if `isServerless: true`.
+
+Two notable limitations when running the agent as a Deployment in Fargate:
+
+ - Due to network configuration set by AWS, the agent pod cannot access its own
+   kubelet, which means container stats (those from `kubelet-stats`) will not
+   be emitted for the agent container.
+
+ - All pod monitoring must be done in a single, centralized agent instance.
+   The agent should will vertically quite well so more CPU or (to a lesser
+   extent) memory will help it monitor a very large Fargate-based cluster if
+   needed.  You can also deploy the agent as a sidecar container on each pod
+   but this is generally unnecessary and somewhat wasteful of resources.
+
+The [serverless](./serverless) directory contains a set of sample YAML
+resources that you can start from to deploy the agent in a serverless K8s
+environment.
+
 ## Development
 
 These resources can be refreshed from the Helm chart by using the

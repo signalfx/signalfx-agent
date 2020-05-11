@@ -157,7 +157,7 @@ func (kc *Client) DoRequestAndSetValue(req *http.Request, value interface{}) err
 	}
 
 	if kc.config.LogResponses {
-		log.Debugf("Raw response from Kubelet url %s: %s", req.URL.String(), string(body))
+		log.WithField("url", req.URL.String()).WithField("body", string(body)).Info("Raw response from Kubelet url")
 	}
 
 	err = json.Unmarshal(body, value)

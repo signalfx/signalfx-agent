@@ -1,6 +1,8 @@
-{{ if not .Values.isServerless -}}
+# This is only used for the serverless deployment model where we can't use
+# DaemonSets.
+{{ if .Values.isServerless -}}
 apiVersion: apps/v1
-kind: DaemonSet
+kind: Deployment
 metadata:
   name: {{ template "signalfx-agent.fullname" . }}
   namespace: {{ template "signalfx-agent.namespace" . }}
@@ -11,11 +13,12 @@ metadata:
     release: {{ .Release.Name }}
     chart: {{ template "signalfx-agent.chart" . }}
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: {{ template "signalfx-agent.name" . }}
       release: {{ .Release.Name }}
-  updateStrategy:
+  strategy:
     rollingUpdate:
       maxUnavailable: {{ .Values.rollingUpdateMaxUnavailable | default 1 }}
     type: RollingUpdate
@@ -34,8 +37,6 @@ spec:
       annotations:
         {{- toYaml .Values.podAnnotations | trim | nindent 8 }}
     spec:
-      # Use host network so we can access kubelet directly
-      hostNetwork: true
       dnsPolicy: ClusterFirstWithHostNet
       restartPolicy: Always
       serviceAccountName: {{ template "signalfx-agent.serviceAccountName" . }}
@@ -43,22 +44,6 @@ spec:
       imagePullSecrets:
       - name: {{ . }}
       {{- end }}
-      {{- with .Values.nodeSelector -}}
-      nodeSelector:
-        {{ toYaml . | indent 8 | trim }}
-      {{- end}}
-      tolerations:
-      {{ if .Values.runOnMaster -}}
-      - effect: NoSchedule
-        key: node.alpha.kubernetes.io/role
-        operator: Exists
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/master
-        operator: Exists
-      {{- end }}
-      {{ range .Values.tolerations -}}
-      - {{ toYaml . | indent 8 | trim }}
-      {{ end }}
       containers:
       - name: signalfx-agent
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Values.agentVersion }}"
@@ -68,19 +53,6 @@ spec:
         volumeMounts:
         - mountPath: /etc/signalfx
           name: config
-        - mountPath: /etc/machine-id
-          name: machine-id
-          readOnly: true
-        - mountPath: /hostfs
-          name: hostfs
-          readOnly: true
-          mountPropagation: HostToContainer
-        - mountPath: /var/run/docker.sock
-          name: docker
-          readOnly: true
-        - mountPath: /etc/passwd
-          name: etc-passwd
-          readOnly: true
         resources:
           {{- toYaml .Values.resources | trim | nindent 10 }}
         env:
@@ -93,6 +65,8 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
+        # Keep this so that we know the agent node when virtual nodes are
+        # involved.
         - name: MY_NODE_NAME
           valueFrom:
             fieldRef:
@@ -107,16 +81,4 @@ spec:
       - name: config
         configMap:
           name: {{ include "configmap-name" . }}
-      - name: hostfs
-        hostPath:
-          path: /
-      - name: docker
-        hostPath:
-          path: /var/run/docker.sock
-      - name: machine-id
-        hostPath:
-          path: /etc/machine-id
-      - name: etc-passwd
-        hostPath:
-          path: /etc/passwd
 {{- end }}
