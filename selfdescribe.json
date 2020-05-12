@@ -28588,6 +28588,211 @@
       "singleInstance": true
     },
     {
+      "monitorType": "http",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": {
+        "method": {
+          "description": "HTTP method used to do request. Not available on `http.cert_*` metrics."
+        },
+        "server_name": {
+          "description": "ServerName used for TLS validation. Always and only available on `http.cert_expiry` metric."
+        },
+        "url": {
+          "description": "Last URL retrieved from configured one. Always available on every metrics."
+        }
+      },
+      "doc": "This monitor will generate metrics based on whether the HTTP responses from\nthe configured URLs match expectations (e.g. correct body, status code,\netc).\n\nTLS information will automatically be fetched if applicable (from base URL\nor redirection).\n\nThe configuration will be applied to every requests URLs from configured\nlist so you need to instance multiple times this monitor for different\nbehavior on multiple URLs.\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "http.cert_expiry",
+            "http.cert_valid",
+            "http.code_matched",
+            "http.content_length",
+            "http.regex_matched",
+            "http.response_time",
+            "http.status_code"
+          ]
+        }
+      },
+      "metrics": {
+        "http.cert_expiry": {
+          "type": "gauge",
+          "description": "Certificate expiry in seconds. This metric is reported only if HTTPS is available (from last followed URL).",
+          "group": null,
+          "default": true
+        },
+        "http.cert_valid": {
+          "type": "gauge",
+          "description": "Value is 1 if certificate is valid (including expiration test) or 0 else. This metric is reported only if HTTPS is available (from last followed URL).",
+          "group": null,
+          "default": true
+        },
+        "http.code_matched": {
+          "type": "gauge",
+          "description": "Value is 1 if `status_code` value match `desiredCode` set in config. Always reported.",
+          "group": null,
+          "default": true
+        },
+        "http.content_length": {
+          "type": "gauge",
+          "description": "HTTP response body length. Always reported.",
+          "group": null,
+          "default": true
+        },
+        "http.regex_matched": {
+          "type": "gauge",
+          "description": "Value is 1 if pattern match in response body. Only reported if `regex` is configured.",
+          "group": null,
+          "default": true
+        },
+        "http.response_time": {
+          "type": "gauge",
+          "description": "HTTP response time in seconds. Always reported.",
+          "group": null,
+          "default": true
+        },
+        "http.status_code": {
+          "type": "gauge",
+          "description": "HTTP response status code. Always reported.",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/http",
+        "fields": [
+          {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "skipVerify",
+            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "requestBody",
+            "doc": "Optional HTTP request body as string like '{\"foo\":\"bar\"}'",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "noRedirects",
+            "doc": "Do not follow redirect.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "method",
+            "doc": "HTTP request method to use.",
+            "default": "GET",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "urls",
+            "doc": "List of HTTP URLs to monitor.",
+            "default": null,
+            "required": true,
+            "type": "slice",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "regex",
+            "doc": "Optional Regex to match on URL(s) response(s).",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "desiredCode",
+            "doc": "Desired code to match for URL(s) response(s).",
+            "default": 200,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "internal-metrics",
       "sendAll": true,
       "sendUnknown": false,
