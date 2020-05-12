@@ -57,3 +57,23 @@ Set Smart Agent configuration options in the configuration YAML file. To learn m
 see [Agent Configuration](./config-schema.md).
 
 ### Verification
+
+To verify that your installation and config is working:
+
+* For infrastructure monitoring:
+  - In SignalFx UI, open the **Infrastructure** built-in dashboard
+  - In the override bar at the top of the back, select **Choose a host**. Select one of your hosts from the dropdown.
+  - The charts display metrics from your infrastructure.
+ To learn more, see [Built-In Dashboards and Charts](https://docs.signalfx.com/en/latest/getting-started/built-in-content/built-in-dashboards.html).
+
+* For Kubernetes monitoring:
+  - In SignalFx UI, from the main menu select **Infrastructure** > **Kubernetes Navigator** > **Cluster map**.
+  - In the cluster display, find the cluster you installed.
+  - Click the magnification icon to view the nodes in the cluster.
+  - The detail pane on the right hand side of the page displays details of your cluster and nodes.
+  To learn more, see [Getting Around the Kubernetes Navigator](https://docs.signalfx.com/en/latest/integrations/kubernetes/get-around-k8s-navigator.html)
+
+* For APM monitoring:
+
+To learn how to install, configure, and verify the Smart Agent for Microservices APM (**µAPM**), see
+[Overview of Microservices APM (µAPM)](https://docs.signalfx.com/en/latest/apm2/apm2-overview/apm2-overview.html).
