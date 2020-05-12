@@ -1,4 +1,4 @@
-# Install and Configure SignalFx Smart Agent
+# Install and Configure the Smart Agent
 
 SignalFx Smart Agent collects infrastructure metrics, Kubernetes cluster
 data, and Microservice APM data from you systems and sends it to
