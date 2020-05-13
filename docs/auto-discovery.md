@@ -29,7 +29,7 @@ discovery rules with the expression `target == <type>`, where `<types>` are:
 
  - `hostport`: A host and port combination, i.e. a network endpoint.  This
    endpoint could be on any type of runtime, e.g. container, remote host,
-   straigh on same host with no container.  This type of target will always
+   running on same host with no container.  This type of target will always
    have `host`, `port`, and `port_type` fields set.
 
  - `container`: A container, e.g. a Docker container. The `host` field will be
