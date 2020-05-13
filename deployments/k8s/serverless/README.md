@@ -1,7 +1,7 @@
 # Serverless Kubernetes Deployment
 
 This is a set of (mostly) ready to go resources to deploy the agent in a
-serverless environment.  This is taylored to the AWS EKS model but might work
+serverless environment.  This is tailored to the AWS EKS model but might work
 generally in serverless K8s environments where there is no access to the nodes
 and where DaemonSets are not allowed.
 

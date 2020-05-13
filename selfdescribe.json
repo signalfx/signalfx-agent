@@ -50988,7 +50988,7 @@
           "name": "port_labels",
           "type": "map",
           "elementKind": "string",
-          "description": "A map of labels on the container port. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions)."
+          "description": "A map of labels on the container port"
         },
         {
           "name": "port_type",
@@ -51157,7 +51157,7 @@
           "name": "port_labels",
           "type": "map",
           "elementKind": "string",
-          "description": "A map of labels on the container port. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions)."
+          "description": "A map of labels on the container port"
         },
         {
           "name": "port_type",
@@ -51270,7 +51270,7 @@
     },
     {
       "name": "Config",
-      "doc": " Discovers pod endpoints and nodes running in a Kubernetes\ncluster by querying the Kubernetes API server.  This observer by default\nwill only discover pod endpoints exposed on the same node that the agent is\nrunning, so that the monitoring of services does not generate cross-node\ntraffic.  To know which node the agent is running on, you should set an\nenvironment variable called `MY_NODE_NAME` using the downward API\n`spec.nodeName` value in the pod spec. Our provided K8s DaemonSet resource\ndoes this already and provides an example.\n\nIf `discoverAllPods` is set to `true`, then the observer will discover pods on all\nnodes in the cluster (or namespace if specified).\n\nNote that this observer discovers exposed ports on pod containers, not K8s\nEndpoint resources, so don't let the terminology of agent \"endpoints\"\nconfuse you.\n",
+      "doc": " Discovers pod endpoints and nodes running in a Kubernetes\ncluster by querying the Kubernetes API server.  This observer by default\nwill only discover pod endpoints exposed on the same node that the agent is\nrunning, so that the monitoring of services does not generate cross-node\ntraffic.  To know which node the agent is running on, you should set an\nenvironment variable called `MY_NODE_NAME` using the downward API\n`spec.nodeName` value in the pod spec. Our provided K8s DaemonSet resource\ndoes this already and provides an example.\n\nThis observer also emits high-level `pod` targets that only contain a `host`\nfield but no `port`.  This allows monitoring ports on a pod that are not\nexplicitly specified in the pod spec, which would result in no normal\n`hostport` target being emitted for that particular endpoint.\n\nIf `discoverAllPods` is set to `true`, then the observer will discover pods on all\nnodes in the cluster (or namespace if specified).  By default, only pods on\nthe same node as the agent are discovered.\n\nNote that this observer discovers exposed ports on pod containers, not K8s\nEndpoint resources, so don't let the terminology of agent \"endpoints\"\nconfuse you.\n",
       "package": "pkg/observers/kubernetes",
       "fields": [
         {
@@ -51378,6 +51378,12 @@
         "kubernetes_namespace": {
           "description": "The namespace that the discovered service endpoint is running in."
         },
+        "kubernetes_node": {
+          "description": "For Node (`k8s-node`) targets, the name of the Node"
+        },
+        "kubernetes_node_uid": {
+          "description": "For Node (`k8s-node`) targets, the UID of the Node"
+        },
         "kubernetes_pod_name": {
           "description": "The name of the running pod that is exposing the discovered endpoint"
         },
@@ -51408,13 +51414,37 @@
           "name": "kubernetes_annotations",
           "type": "string",
           "elementKind": "",
-          "description": "The set of annotations on the discovered pod."
+          "description": "The set of annotations on the discovered pod or node."
         },
         {
           "name": "network_port",
           "type": "string",
           "elementKind": "",
           "description": "An alias for `port`"
+        },
+        {
+          "name": "node_addresses",
+          "type": "string",
+          "elementKind": "",
+          "description": "A map of the different Node addresses specified in the Node status object.  The key of the map is the address type and the value is the address string. The address types are `Hostname`, `ExternalIP`, `InternalIP`, `ExternalDNS`, `InternalDNS`.  Most likely not all of these address types will be present for a given Node."
+        },
+        {
+          "name": "node_metadata",
+          "type": "string",
+          "elementKind": "",
+          "description": "The metadata about the Node, for `k8s-node` targets, with fields in TitleCase.  See [ObjectMeta v1 meta reference](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#objectmeta-v1-meta)."
+        },
+        {
+          "name": "node_spec",
+          "type": "string",
+          "elementKind": "",
+          "description": "The Node spec object, for `k8s-node` targets.  See [the K8s reference on this resource](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#nodespec-v1-core), but keep in the mind that fields will be in TitleCase due to passing through Go."
+        },
+        {
+          "name": "node_status",
+          "type": "string",
+          "elementKind": "",
+          "description": "The Node status object, for `k8s-node` targets. See [the K8s reference on Node Status](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#nodestatus-v1-core) but keep in mind that fields will be in TitleCase due to passing through Go."
         },
         {
           "name": "pod_metadata",
@@ -51522,7 +51552,7 @@
           "name": "port_labels",
           "type": "map",
           "elementKind": "string",
-          "description": "A map of labels on the container port. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions)."
+          "description": "A map of labels on the container port"
         },
         {
           "name": "port_type",
@@ -51766,7 +51796,7 @@
           "name": "port_labels",
           "type": "map",
           "elementKind": "string",
-          "description": "A map of labels on the container port. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions)."
+          "description": "A map of labels on the container port"
         },
         {
           "name": "port_type",

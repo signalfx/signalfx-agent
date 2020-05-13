@@ -15,7 +15,6 @@ const (
 	TargetTypePod            TargetType = "pod"
 	TargetTypeHostPort       TargetType = "hostport"
 	TargetTypeContainer      TargetType = "container"
-	TargetTypeHost           TargetType = "host"
 	TargetTypeKubernetesNode TargetType = "k8s-node"
 )
 

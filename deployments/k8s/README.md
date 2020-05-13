@@ -76,7 +76,7 @@ Two notable limitations when running the agent as a Deployment in Fargate:
    be emitted for the agent container.
 
  - All pod monitoring must be done in a single, centralized agent instance.
-   The agent should will vertically quite well so more CPU or (to a lesser
+   The agent should scale vertically quite well so more CPU or (to a lesser
    extent) memory will help it monitor a very large Fargate-based cluster if
    needed.  You can also deploy the agent as a sidecar container on each pod
    but this is generally unnecessary and somewhat wasteful of resources.
