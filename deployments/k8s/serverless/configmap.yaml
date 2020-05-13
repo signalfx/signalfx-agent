@@ -12,7 +12,7 @@ data:
 
     signalFxRealm: us0
 
-    disableHostDimensions: false
+    disableHostDimensions: true
 
     etcPath: /hostfs/etc
     procPath: /hostfs/proc
@@ -32,22 +32,23 @@ data:
 
     observers:
     - type: k8s-api
-      discoverAllPods: false
-      discoverNodes: false
+      discoverAllPods: true
+      discoverNodes: true
 
     monitors:
-    - type: cpu
-    - type: filesystems
-      hostFSPath: /hostfs
-    - type: disk-io
-    - type: net-io
-    - type: load
-    - type: memory
-    - type: host-metadata
-    - type: processlist
-    - type: vmem
 
     - type: kubelet-stats
+      # Change 'fargate' part to something else if using another serverless K8s
+      # platform.  We avoid scraping kubelet stats from the same node as the
+      # agent because EKS restricts connections between a pod and its own
+      # virtual kubelet, but not other kubelets.
+      discoveryRule: 'target == "k8s-node" && name =~ "fargate" && name != Getenv("MY_NODE_NAME")'
+      configEndpointMappings:
+        kubeletAPI: |
+          {
+            url: Sprintf("https://%s:%d", host, node_status.DaemonEndpoints.KubeletEndpoint.Port),
+            authType: "serviceAccount"
+          }
       kubeletAPI:
         authType: serviceAccount
       datapointsToExclude:
@@ -61,17 +62,9 @@ data:
 
     # Collects k8s cluster-level metrics
     - type: kubernetes-cluster
+      alwaysClusterReporter: true
 
-    - type: docker-container-stats
-      dockerURL: unix:///var/run/docker.sock
-      excludedImages:
-       - '*pause-amd64*'
-       - 'k8s.gcr.io/pause*'
-      labelsToDimensions:
-        io.kubernetes.container.name: container_spec_name
-        io.kubernetes.pod.name: kubernetes_pod_name
-        io.kubernetes.pod.uid: kubernetes_pod_uid
-        io.kubernetes.pod.namespace: kubernetes_namespace
+
 
 
     collectd:

@@ -1,10 +1,11 @@
 // Package kubernetes contains an observer that watches the Kubernetes API for
-// pods that are running on the same node as the agent.  It uses the streaming
-// watch API in K8s so that updates are seen immediately without any polling
-// interval.
+// pods and nodes that are running on the same node as the agent.  It uses the
+// streaming watch API in K8s so that updates are seen immediately without any
+// polling interval.
 package kubernetes
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"reflect"
@@ -19,6 +20,7 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/k8sutil"
 	v1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/types"
 	k8s "k8s.io/client-go/kubernetes"
@@ -31,14 +33,23 @@ const (
 	runningPhase = "Running"
 )
 
-// OBSERVER(k8s-api): Discovers services running in a Kubernetes cluster by
-// querying the Kubernetes API server.  This observer is designed to only
-// discover pod endpoints exposed on the same node that the agent is running,
-// so that the monitoring of services does not generate cross-node traffic.  To
-// know which node the agent is running on, you should set an environment
-// variable called `MY_NODE_NAME` using the downward API `spec.nodeName` value
-// in the pod spec.  Our provided K8s DaemonSet resource does this already and
-// provides an example.
+// OBSERVER(k8s-api): Discovers pod endpoints and nodes running in a Kubernetes
+// cluster by querying the Kubernetes API server.  This observer by default
+// will only discover pod endpoints exposed on the same node that the agent is
+// running, so that the monitoring of services does not generate cross-node
+// traffic.  To know which node the agent is running on, you should set an
+// environment variable called `MY_NODE_NAME` using the downward API
+// `spec.nodeName` value in the pod spec. Our provided K8s DaemonSet resource
+// does this already and provides an example.
+//
+// This observer also emits high-level `pod` targets that only contain a `host`
+// field but no `port`.  This allows monitoring ports on a pod that are not
+// explicitly specified in the pod spec, which would result in no normal
+// `hostport` target being emitted for that particular endpoint.
+//
+// If `discoverAllPods` is set to `true`, then the observer will discover pods on all
+// nodes in the cluster (or namespace if specified).  By default, only pods on
+// the same node as the agent are discovered.
 //
 // Note that this observer discovers exposed ports on pod containers, not K8s
 // Endpoint resources, so don't let the terminology of agent "endpoints"
@@ -58,8 +69,13 @@ const (
 // DIMENSION(container_spec_name): The short name of the container in the pod spec,
 // **NOT** the running container's name in the Docker engine
 
+// DIMENSION(kubernetes_node): For Node (`k8s-node`) targets, the name of the Node
+
+// DIMENSION(kubernetes_node_uid): For Node (`k8s-node`) targets, the UID of
+// the Node
+
 // ENDPOINT_VAR(kubernetes_annotations): The set of annotations on the
-// discovered pod.
+// discovered pod or node.
 
 // ENDPOINT_VAR(pod_spec): The full pod spec object, as represented by the Go
 // K8s client library (client-go): https://godoc.org/k8s.io/api/core/v1#PodSpec.
@@ -67,11 +83,32 @@ const (
 // ENDPOINT_VAR(pod_metadata): The full pod metadata object, as represented by the Go
 // K8s client library (client-go): https://godoc.org/k8s.io/apimachinery/pkg/apis/meta/v1#ObjectMeta.
 
+// ENDPOINT_VAR(node_metadata): The metadata about the Node, for `k8s-node`
+// targets, with fields in TitleCase.  See [ObjectMeta v1 meta
+// reference](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#objectmeta-v1-meta).
+
+// ENDPOINT_VAR(node_spec): The Node spec object, for `k8s-node` targets.  See
+// [the K8s reference on this
+// resource](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#nodespec-v1-core),
+// but keep in the mind that fields will be in TitleCase due to passing through
+// Go.
+
+// ENDPOINT_VAR(node_status): The Node status object, for `k8s-node` targets.
+// See [the K8s reference on Node
+// Status](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#nodestatus-v1-core)
+// but keep in mind that fields will be in TitleCase due to passing through Go.
+
+// ENDPOINT_VAR(node_addresses): A map of the different Node addresses
+// specified in the Node status object.  The key of the map is the address type
+// and the value is the address string. The address types are `Hostname`,
+// `ExternalIP`, `InternalIP`, `ExternalDNS`, `InternalDNS`.  Most likely not
+// all of these address types will be present for a given Node.
+
 func init() {
 	observers.Register(observerType, func(cbs *observers.ServiceCallbacks) interface{} {
 		return &Observer{
-			serviceCallbacks:  cbs,
-			endpointsByPodUID: make(map[types.UID][]services.Endpoint),
+			serviceCallbacks: cbs,
+			endpointsByUID:   make(map[types.UID][]services.Endpoint),
 		}
 	}, &Config{})
 }
@@ -92,6 +129,16 @@ type Config struct {
 	// annotations like this, we recommend using the [SignalFx-specific
 	// annotations](https://docs.signalfx.com/en/latest/kubernetes/k8s-monitors-observers.html#config-via-k8s-annotations).
 	AdditionalPortAnnotations []string `yaml:"additionalPortAnnotations"`
+	// If true, this observer will watch all Kubernetes pods and discover
+	// endpoints/services from each of them.  The default behavior (when
+	// `false`) is to only watch the pods on the current node that this agent
+	// is running on (it knows the current node via the `MY_NODE_NAME` envvar
+	// provided by the downward API).
+	DiscoverAllPods bool `yaml:"discoverAllPods"`
+	// If `true`, the observer will discover nodes as a special type of
+	// endpoint.  You can match these endpoints in your discovery rules with
+	// the condition `target == "k8s-node"`.
+	DiscoverNodes bool `yaml:"discoverNodes"`
 }
 
 // Validate the observer-specific config
@@ -100,7 +147,7 @@ func (c *Config) Validate() error {
 		return err
 	}
 
-	if os.Getenv(nodeEnvVar) == "" {
+	if os.Getenv(nodeEnvVar) == "" && !c.DiscoverAllPods {
 		return fmt.Errorf("kubernetes node name was not provided in the %s envvar", nodeEnvVar)
 	}
 	return nil
@@ -115,9 +162,9 @@ type Observer struct {
 	serviceCallbacks *observers.ServiceCallbacks
 	// A cache for endpoints so they don't have to be reconstructed when being
 	// removed.
-	endpointsByPodUID map[types.UID][]services.Endpoint
-	stopper           chan struct{}
-	logger            logrus.FieldLogger
+	endpointsByUID map[types.UID][]services.Endpoint
+	stopper        chan struct{}
+	logger         logrus.FieldLogger
 }
 
 // Configure configures and starts watching for endpoints
@@ -144,14 +191,23 @@ func (o *Observer) Configure(config *Config) error {
 	o.stopIfRunning()
 	o.watchPods()
 
+	if config.DiscoverNodes {
+		o.watchNodes()
+	}
+
 	return nil
 }
 
 func (o *Observer) watchPods() {
 	o.stopper = make(chan struct{})
 
+	podSelector := fields.Everything()
+	if !o.config.DiscoverAllPods {
+		podSelector = fields.ParseSelectorOrDie("spec.nodeName=" + o.thisNode)
+	}
+
 	client := o.clientset.CoreV1().RESTClient()
-	watchList := cache.NewListWatchFromClient(client, "pods", o.config.Namespace, fields.ParseSelectorOrDie("spec.nodeName="+o.thisNode))
+	watchList := cache.NewListWatchFromClient(client, "pods", o.config.Namespace, podSelector)
 
 	_, controller := cache.NewInformer(
 		watchList,
@@ -172,6 +228,33 @@ func (o *Observer) watchPods() {
 	go controller.Run(o.stopper)
 }
 
+func (o *Observer) watchNodes() {
+	o.stopper = make(chan struct{})
+
+	nodeSelector := fields.Everything()
+
+	client := o.clientset.CoreV1().RESTClient()
+	watchList := cache.NewListWatchFromClient(client, "nodes", "", nodeSelector)
+
+	_, controller := cache.NewInformer(
+		watchList,
+		&v1.Node{},
+		0,
+		cache.ResourceEventHandlerFuncs{
+			AddFunc: func(obj interface{}) {
+				o.changeHandler(nil, obj.(*v1.Node))
+			},
+			UpdateFunc: func(oldObj, newObj interface{}) {
+				o.changeHandler(oldObj.(*v1.Node), newObj.(*v1.Node))
+			},
+			DeleteFunc: func(obj interface{}) {
+				o.changeHandler(obj.(*v1.Node), nil)
+			},
+		})
+
+	go controller.Run(o.stopper)
+}
+
 func (o *Observer) stopIfRunning() {
 	// Stop previous informers
 	if o.stopper != nil {
@@ -181,18 +264,31 @@ func (o *Observer) stopIfRunning() {
 }
 
 // Handles notifications of changes to pods from the API server
-func (o *Observer) changeHandler(oldPod *v1.Pod, newPod *v1.Pod) {
+func (o *Observer) changeHandler(oldObj metav1.ObjectMetaAccessor, newObj metav1.ObjectMetaAccessor) {
 	var newEndpoints []services.Endpoint
 	var oldEndpoints []services.Endpoint
 
-	if oldPod != nil {
-		oldEndpoints = o.endpointsByPodUID[oldPod.UID]
-		delete(o.endpointsByPodUID, oldPod.UID)
+	if oldObj != nil {
+		oldEndpoints = o.endpointsByUID[oldObj.GetObjectMeta().GetUID()]
+		delete(o.endpointsByUID, oldObj.GetObjectMeta().GetUID())
 	}
 
-	if newPod != nil {
-		newEndpoints = o.endpointsInPod(newPod, o.clientset, utils.StringSliceToMap(o.config.AdditionalPortAnnotations))
-		o.endpointsByPodUID[newPod.UID] = newEndpoints
+	if newObj != nil {
+		switch obj := newObj.(type) {
+		case *v1.Pod:
+			newEndpoints = o.endpointsInPod(obj, o.clientset, utils.StringSliceToMap(o.config.AdditionalPortAnnotations))
+		case *v1.Node:
+			nodeEndpoint, err := endpointForNode(obj)
+			if err != nil {
+				o.logger.WithError(err).Warn("Failed to derive endpoint from K8s node")
+			} else {
+				newEndpoints = append(newEndpoints, nodeEndpoint)
+			}
+		}
+
+		if len(newEndpoints) > 0 {
+			o.endpointsByUID[newObj.GetObjectMeta().GetUID()] = newEndpoints
+		}
 	}
 
 	// Prevent spurious churn of endpoints if they haven't changed
@@ -203,14 +299,62 @@ func (o *Observer) changeHandler(oldPod *v1.Pod, newPod *v1.Pod) {
 	// If it is an update, there will be a remove and immediately subsequent
 	// add.
 	for i := range oldEndpoints {
-		log.Debugf("Removing K8s endpoint from pod %s", oldPod.UID)
 		o.serviceCallbacks.Removed(oldEndpoints[i])
 	}
 
 	for i := range newEndpoints {
-		log.Debugf("Adding K8s endpoint for pod %s", newPod.UID)
 		o.serviceCallbacks.Added(newEndpoints[i])
 	}
+}
+
+func endpointForNode(node *v1.Node) (services.Endpoint, error) {
+	id := fmt.Sprintf("node-%s-%s", node.Name, node.UID[:7])
+	dims := map[string]string{
+		"kubernetes_node":     node.Name,
+		"kubernetes_node_uid": string(node.UID),
+	}
+
+	endpoint := services.NewEndpointCore(id, node.Name, observerType, dims)
+
+	addrs := map[v1.NodeAddressType]string{}
+	for _, addr := range node.Status.Addresses {
+		addrs[addr.Type] = addr.Address
+	}
+
+	if len(addrs) == 0 {
+		return nil, errors.New("failed to determine node IP")
+	}
+	for _, addrTyp := range []v1.NodeAddressType{
+		// These are in priority order
+		v1.NodeInternalIP,
+		v1.NodeInternalDNS,
+		v1.NodeHostName,
+		v1.NodeExternalIP,
+		v1.NodeExternalDNS,
+	} {
+		if addrs[addrTyp] != "" {
+			endpoint.Host = addrs[addrTyp]
+			break
+		}
+	}
+
+	// Zero out the timestamps in the conditions so that the endpoints don't
+	// churn so much.
+	for i := range node.Status.Conditions {
+		node.Status.Conditions[i].LastHeartbeatTime = metav1.Time{}
+		node.Status.Conditions[i].LastTransitionTime = metav1.Time{}
+	}
+	// Blank out this to avoid unnecessary churn.
+	node.ResourceVersion = ""
+
+	endpoint.AddExtraField("kubernetes_annotations", node.Annotations)
+	endpoint.AddExtraField("node_metadata", &node.ObjectMeta)
+	endpoint.AddExtraField("node_spec", &node.Spec)
+	endpoint.AddExtraField("node_status", &node.Status)
+	endpoint.AddExtraField("node_addresses", addrs)
+	endpoint.Target = services.TargetTypeKubernetesNode
+
+	return endpoint, nil
 }
 
 func (o *Observer) endpointsInPod(pod *v1.Pod, client *k8s.Clientset, portAnnotationSet map[string]bool) []services.Endpoint {

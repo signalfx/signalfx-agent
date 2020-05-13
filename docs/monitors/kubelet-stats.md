@@ -4,7 +4,7 @@
 
 Monitor Type: `kubelet-stats` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/cadvisor))
 
-**Accepts Endpoints**: No
+**Accepts Endpoints**: **Yes**
 
 **Multiple Instances Allowed**: Yes
 

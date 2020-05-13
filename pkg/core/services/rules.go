@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"os"
 	"reflect"
 	"strings"
 
@@ -54,6 +55,8 @@ var ruleFunctions = map[string]interface{}{
 	"ToString": func(val interface{}) string {
 		return fmt.Sprintf("%v", val)
 	},
+	"Sprintf": fmt.Sprintf,
+	"Getenv":  os.Getenv,
 }
 
 func parseRuleText(text string) (*parser.Tree, error) {

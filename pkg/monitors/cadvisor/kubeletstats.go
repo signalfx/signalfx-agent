@@ -27,7 +27,7 @@ func init() {
 
 // KubeletStatsConfig respresents config for the Kubelet stats monitor
 type KubeletStatsConfig struct {
-	config.MonitorConfig
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 	// Kubelet client configuration
 	KubeletAPI kubelet.APIConfig `yaml:"kubeletAPI" default:""`
 }
