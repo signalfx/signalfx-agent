@@ -16026,6 +16026,87 @@
       "singleInstance": false
     },
     {
+      "monitorType": "collectd/php-fpm",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": {
+        "plugin_instance": {
+          "description": "Set to whatever you set in the `name` config option."
+        }
+      },
+      "doc": "Monitors PHP-FPM using pool status URL.\n\n\u003c!--- SETUP ---\u003e\n## PHP-FPM Setup\nTo configure the PHP-FPM service itself to expose status metrics:\n\n1. Enable status https://www.php.net/manual/en/install.fpm.configuration.php#pm.status-path\n2. Then, configure access through the webserver, i.e. nginx:\n\n   ```\n    location ~ ^/(status|ping)$ {\n      access_log off;\n      fastcgi_pass unix:/run/php/php-fpm.sock;\n      include fastcgi_params;\n      fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;\n    }\n   ```\n3. Restart Webserver (i.e. Nginx) and PHP-FPM.\n\n\u003c!--- SETUP ---\u003e\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "phpfpm_processes.active",
+            "phpfpm_processes.idle",
+            "phpfpm_processes.max_reached",
+            "phpfpm_requests.accepted",
+            "phpfpm_requests.slow"
+          ]
+        }
+      },
+      "metrics": {
+        "phpfpm_processes.active": {
+          "type": "gauge",
+          "description": "Total number of active processes.",
+          "group": null,
+          "default": true
+        },
+        "phpfpm_processes.idle": {
+          "type": "gauge",
+          "description": "Total number of idle processes.",
+          "group": null,
+          "default": true
+        },
+        "phpfpm_processes.max_reached": {
+          "type": "counter",
+          "description": "The number of times the process limit has been reached.",
+          "group": null,
+          "default": true
+        },
+        "phpfpm_requests.accepted": {
+          "type": "counter",
+          "description": "Total number of accepted requests.",
+          "group": null,
+          "default": true
+        },
+        "phpfpm_requests.slow": {
+          "type": "counter",
+          "description": "Total number of slow requests.",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config is the monitor-specific config with the generic config embedded",
+        "package": "pkg/monitors/collectd/php",
+        "fields": [
+          {
+            "yamlName": "name",
+            "doc": "This will be sent as the `plugin_instance` dimension and can be any name you like.",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "url",
+            "doc": "Final URL ending by `?json` (i.e. http://127.0.0.1/_fpmstatus?json).",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "collectd/postgresql",
       "sendAll": false,
       "sendUnknown": false,

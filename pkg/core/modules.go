@@ -20,6 +20,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/marathon"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/mongodb"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/openstack"
+	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/php"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/python"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/rabbitmq"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/collectd/redis"
