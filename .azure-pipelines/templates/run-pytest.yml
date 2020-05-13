@@ -33,8 +33,14 @@ steps:
   condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
 - powershell: |
     mkdir test_output -ea 0
+    $msi_path = ""
+    $nupkg_path = ""
+    if (Test-Path -Path bundle) {
+        $msi_path = (Resolve-Path bundle\SignalFxAgent-*.msi)
+        $nupkg_path = (Resolve-Path bundle\signalfx-agent*.nupkg)
+    }
     echo "Executing '$env:MARKERS' tests"
-    pytest -m "$env:MARKERS" $env:OPTIONS --verbose --junitxml=test_output/test_results.xml --html=test_output/test_results.html --self-contained-html tests
+    pytest -m "$env:MARKERS" $env:OPTIONS --test-msi-path="$msi_path" --test-nupkg-path="$nupkg_path" --verbose --junitxml=test_output/test_results.xml --html=test_output/test_results.html --self-contained-html tests
     if ($lastexitcode -gt 1) { throw }
   env:
     MARKERS: ${{ parameters.markers }}
