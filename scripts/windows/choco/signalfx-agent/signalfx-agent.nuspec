@@ -1,0 +1,39 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>signalfx-agent</id>
+    <version>0.0.0</version>
+    <description>
+The SignalFx Smart Agent is a metric-based agent written in Go that is used to monitor infrastructure and application services from a variety of environments.
+
+#### Package Parameters
+The following package parameters can be set:
+
+ * `/access_token` - The token used to send metric data to SignalFx. Required if C:\ProgramData\SignalFxAgent\token does not exist.
+ * `/ingest_url` - Base URL of the SignalFx ingest server. Defaults to 'https://ingest.signalfx.com'.
+ * `/api_url` - Base URL of the SignalFx API server. Defaults to 'https://api.signalfx.com'.
+
+To pass parameters, use `--params "''"` (e.g. `choco install signalfx-agent [choco options] --params="'/access_token:MY_ACCESS_TOKEN /ingest_url:MY_INGEST_URL /api_url:MY_API_URL'"`).
+
+To have choco remember parameters on upgrade, be sure to set `choco feature enable -n=useRememberedArgumentsForUpgrades`.
+    </description>
+    <authors>SignalFx, Inc.</authors>
+    <title>SignalFx Smart Agent</title>
+    <projectUrl>https://www.signalfx.com</projectUrl>
+    <iconUrl>https://cdn.signalfx.com/favicon.ico</iconUrl>
+    <licenseUrl>https://github.com/signalfx/signalfx-agent/blob/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/signalfx/signalfx-agent</projectSourceUrl>
+    <docsUrl>https://docs.signalfx.com/en/latest/integrations/agent/index.html</docsUrl>
+    <tags>signalfx-agent</tags>
+    <releaseNotes>https://github.com/signalfx/signalfx-agent/releases</releaseNotes>
+    <dependencies>
+      <dependency id="chocolatey-core.extension" version="1.1.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <!-- this section controls what actually gets packaged into the Chocolatey package -->
+    <file src="tools\**" target="tools" />
+    <!--Building from Linux? You may need this instead: <file src="tools/**" target="tools" />-->
+  </files>
+</package>
