@@ -25,7 +25,7 @@ These prerequisites are for the host to which you're installing the Agent.
 ## Steps
 
 1. To get the latest `gzip` standalone installation package, navigate to
-https://github.com/signalfx/signalfx-agent/releases, then download
+[Smart Agent releases](https://github.com/signalfx/signalfx-agent/releases), then download
 `signalfx-agent-<latest_version>.tar.gz`.
 
 For example, if the latest version is **5.1.6**:
