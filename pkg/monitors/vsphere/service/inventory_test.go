@@ -8,8 +8,8 @@ import (
 )
 
 func TestRetrieveInventory(t *testing.T) {
-	gateway := newFakeGateway()
-	svc := NewInventorySvc(gateway, getTestingLog())
+	gateway := newFakeGateway(1)
+	svc := NewInventorySvc(gateway, testLog)
 	inv, _ := svc.RetrieveInventory()
 	requireClusterHost(t, inv, 0)
 	requireClusterVM(t, inv, 1)

@@ -8,16 +8,20 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var testLog = logrus.WithField("monitorType", "vsphere-test")
+
 func TestRetrievePoints(t *testing.T) {
-	gateway := newFakeGateway()
-	log := logrus.WithField("monitorType", "vsphere-test")
-	inventorySvc := NewInventorySvc(gateway, log)
-	metricsSvc := NewMetricsService(gateway, log)
+	gateway := newFakeGateway(1)
+	inventorySvc := NewInventorySvc(gateway, testLog)
+	metricsSvc := NewMetricsService(gateway, testLog)
 	infoSvc := NewVSphereInfoService(inventorySvc, metricsSvc)
 	vsphereInfo, _ := infoSvc.RetrieveVSphereInfo()
-	svc := NewPointsSvc(gateway, log, 0)
-	pts, _ := svc.RetrievePoints(vsphereInfo, 1)
-	pt := pts[0]
+	var points []*datapoint.Datapoint
+	ptsSvc := NewPointsSvc(gateway, testLog, 0, func(dp ...*datapoint.Datapoint) {
+		points = append(points, dp...)
+	})
+	ptsSvc.FetchPoints(vsphereInfo, 1)
+	pt := points[0]
 	require.Equal(t, "vsphere.cpu_core_utilization_percent", pt.Metric)
 	require.Equal(t, datapoint.Count, pt.MetricType)
 	require.EqualValues(t, 1.11, pt.Value)
