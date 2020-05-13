@@ -64,6 +64,16 @@ def pytest_addoption(parser):
         action="store",
         help="Path to a bundle .tar.gz file for testing.  Required for tests that need a bundle.",
     )
+    parser.addoption(
+        "--test-msi-path",
+        action="store",
+        help="Path to a .msi file for testing.  Required for tests that need a msi package.",
+    )
+    parser.addoption(
+        "--test-nupkg-path",
+        action="store",
+        help="Path to a .nupkg file for testing.  Required for tests that need a nupkg package.",
+    )
 
 
 @pytest.fixture

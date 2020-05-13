@@ -21,6 +21,7 @@ from .common import (
     get_agent_version,
     get_latest_win_agent_version,
     get_win_agent_version,
+    has_choco,
     is_agent_running_as_non_root,
     run_init_system_image,
     run_win_command,
@@ -158,13 +159,13 @@ def run_win_installer(backend, args=""):
 @pytest.mark.windows_only
 @pytest.mark.skipif(sys.platform != "win32", reason="only runs on windows")
 @pytest.mark.parametrize("agent_version", AGENT_VERSIONS)
-def test_win_installer(agent_version):
+def test_win_zip_installer(agent_version):
     uninstall_win_agent()
     with ensure_fake_backend() as backend:
         try:
-            args = "-access_token MYTOKEN -stage release"
+            args = f"-access_token MYTOKEN -stage {STAGE} -format zip"
             if agent_version == "latest":
-                agent_version = get_latest_win_agent_version(stage="release")
+                agent_version = get_latest_win_agent_version(stage=STAGE, agent_format="zip")
             else:
                 args += f" -agent_version {agent_version}"
             installed_version = run_win_installer(backend, args)
@@ -183,3 +184,70 @@ def test_win_installer(agent_version):
             for event in backend.events:
                 print_dp_or_event(event)
             print(f"\nDimensions set: {backend.dims}")
+
+
+@pytest.mark.windows_only
+@pytest.mark.skipif(sys.platform != "win32", reason="only runs on windows")
+def test_win_local_msi_installer(request):
+    # Get msi path from command line flag to pytest
+    msi_path = request.config.getoption("--test-msi-path")
+    if not msi_path:
+        raise ValueError("You must specify the --test-msi-path flag to run msi tests")
+
+    msi_path = os.path.abspath(msi_path)
+    assert os.path.isfile(msi_path), f"{msi_path} not found!"
+
+    uninstall_win_agent()
+
+    with ensure_fake_backend() as backend:
+        try:
+            args = f"-access_token MYTOKEN -msi_path {msi_path}"
+            run_win_installer(backend, args)
+            assert wait_for(
+                p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
+            ), "Datapoints didn't come through"
+        finally:
+            print("\nDatapoints received:")
+            for dp in backend.datapoints:
+                print_dp_or_event(dp)
+            print("\nEvents received:")
+            for event in backend.events:
+                print_dp_or_event(event)
+            print(f"\nDimensions set: {backend.dims}")
+            uninstall_win_agent(msi_path=msi_path)
+
+
+@pytest.mark.windows_only
+@pytest.mark.skipif(sys.platform != "win32", reason="only runs on windows")
+def test_win_local_nupkg(request):
+    assert has_choco(), "choco not installed"
+
+    # Get nupkg path from command line flag to pytest
+    nupkg_path = request.config.getoption("--test-nupkg-path")
+    if not nupkg_path:
+        raise ValueError("You must specify the --test-nupkg-path flag to run choco tests")
+
+    nupkg_path = os.path.abspath(nupkg_path)
+    assert os.path.isfile(nupkg_path), f"{nupkg_path} not found!"
+
+    nupkg_dir = os.path.dirname(nupkg_path)
+
+    uninstall_win_agent()
+
+    with ensure_fake_backend() as backend:
+        try:
+            params = f"/access_token:MYTOKEN /ingest_url:{backend.ingest_url} /api_url:{backend.api_url}"
+            run_win_command(f"choco install signalfx-agent -y -s {nupkg_dir} --params=\"'{params}'\"")
+            assert wait_for(
+                p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
+            ), "Datapoints didn't come through"
+        finally:
+            print("\nDatapoints received:")
+            for dp in backend.datapoints:
+                print_dp_or_event(dp)
+            print("\nEvents received:")
+            for event in backend.events:
+                print_dp_or_event(event)
+            print(f"\nDimensions set: {backend.dims}")
+            run_win_command("choco uninstall -y signalfx-agent")
+            uninstall_win_agent()
