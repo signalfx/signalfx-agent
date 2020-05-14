@@ -39,8 +39,6 @@ download the file `signalfx-agent-task.json`.
 
 ## Configure the Smart Agent
 
-[agent.yaml])https://github.com/signalfx/signalfx-agent/blob/master/deployments/ecs/agent.yaml)
-
 By default, the agent container initialization script uses the agent configuration in
 the file [agent.yaml])https://github.com/signalfx/signalfx-agent/blob/master/deployments/ecs/agent.yaml). The script
 uses `curl` to pull this file from GitHub.

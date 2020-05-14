@@ -19,14 +19,7 @@ To quickly install the SignalFx Smart Agent see the `Quick Install <https://docs
    :hidden:
 
    /integrations/agent/quick-install
-   /integrations/agent/agent-install-pguidance
-   /integrations/agent/install-packages
-   /integrations/agent/install-standalone-linux
-   /integrations/agent/install-standalone-windows
-   /integrations/agent/agent-k8s-install-helm
-   /integrations/agent/agent-k8s-install-kubectl
-   /integrations/agent/agent-install-awsecs
-   /integrations/agent/agent-install-config-mgmt
+   /integrations/agent/advanced-install-options
    /integrations/agent/config-schema
    /integrations/agent/observers/index
    /integrations/agent/monitors/index
@@ -37,3 +30,4 @@ To quickly install the SignalFx Smart Agent see the `Quick Install <https://docs
    /integrations/agent/faq
    /integrations/agent/legacy-filtering
    /integrations/agent/deb-rpm-repo-migration
+   /integrations/agent/pguidance/index

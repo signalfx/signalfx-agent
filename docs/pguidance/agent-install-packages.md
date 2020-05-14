@@ -54,7 +54,7 @@ These prerequisites are for the host to which you're installing the Agent.
 ## Configuration
 
 Set Smart Agent configuration options in the configuration YAML file. To learn more,
-see [Agent Configuration](./config-schema.md).
+see [Agent Configuration](../config-schema.md).
 
 ### Verification
 
