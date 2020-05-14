@@ -152,6 +152,7 @@ These are all of the monitors included in the agent, along with their possible c
 - [signalfx-forwarder](./monitors/signalfx-forwarder.md)
 - [sql](./monitors/sql.md)
 - [statsd](./monitors/statsd.md)
+- [supervisor](./monitors/supervisor.md)
 - [telegraf/exec](./monitors/telegraf-exec.md)
 - [telegraf/logparser](./monitors/telegraf-logparser.md)
 - [telegraf/procstat](./monitors/telegraf-procstat.md)

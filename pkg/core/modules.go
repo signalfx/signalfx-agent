@@ -68,6 +68,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/statsd"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/subproc/signalfx/java"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/subproc/signalfx/python"
+	_ "github.com/signalfx/signalfx-agent/pkg/monitors/supervisor"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/monitors/exec"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/monitors/mssqlserver"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/monitors/procstat"
