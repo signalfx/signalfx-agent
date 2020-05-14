@@ -1,115 +1,94 @@
-# Install to Windows using a ZIP file
-
-Install the SignalFx Smart Agent to a Windows host using a standalone package in
-a ZIP file.
+# Install to Windows Using zip File
 
 ## Prerequisites
 
-* Windows Server 2012 or higher
+These prerequisites are for the host to which you're installing the Agent.
+
+* Tasks
+
+  Remove collector services such as `collectd`
+
+  Remove third-party instrumentation and agent software
+  **Note:**
+
+  Do not use automatic instrumentation or instrumentation agents from
+  other vendors when you're using SignalFx instrumentation. The results
+  are unpredictable, but your instrumentation may break and your
+  application may crash.
+
+* Windows 8 or higher
 * Windows PowerShell access
-* Windows decompression application, such as WinZip
-* .NET Framework 3.5 or higher
+* Windows decompression application, such as **WinZip**
+* .Net Framework 3.5 or higher
 * Visual C++ compiler for Python
-* TLS 1.0 or 1.2
-* Administrator account in which to run the Smart Agent
+* Administrator account in which to run Smart Agent
 
-If you want to invoke a Python script for non-default monitors such as `exec`,
-you must have Python 3 installed. The ZIP file includes the Python 3.8.0
-runtime.
+## Steps
 
-## Install using a ZIP file
+1. To get the latest Windows standalone installation package, navigate to
+https://github.com/signalfx/signalfx-agent/releases, then download
+`signalfx-agent-<latest_version>-win64.zip`.
 
-1. Remove collector services such as `collectd`
+For example, if the latest version is **5.1.6**:
+- In the **releases** section, find the section entitled **v5.1.6**.
+- In the **Assets** section, click `signalfx-agent-5.1.6-win64.zip`
+- The `zip` file starts downloading.
 
-2. Remove third-party instrumentation and agent software
+2. Uncompress the `zip` file using your decompression application. The
+package contents expand into the directory `signalfx-agent`.
 
-> Don't use automatic instrumentation or instrumentation agents from
-> other vendors when you're using SignalFx instrumentation. The results
-> are unpredictable, and your instrumentation might break and your
-> application might crash.
+## Configuration
 
-3. To get the latest Windows standalone installation package, navigate to
-   [Smart Agent releases](https://github.com/signalfx/signalfx-agent/releases)
-   and download the following file:
+Navigate to the `SignalFxAgent` directory, then create a configuration file for the agent:
 
-   ```
-   signalfx-agent-<latest_version>-win64.zip
-   ```
+- In a text editor, create a new file called `SignalFxAgent\agent-config.yml`
+- In the file, add your host's hostname and port:
+  `internalStatusHost: <local_hostname>`
+  `internalStatusPort: <local_port>`
+- Save the file
 
-   For example, if the latest version is **5.1.6**, follow these steps:
+Smart Agent collects metrics based on the settings in
+`agent-config.yml`. `internalStatusHost` and `internalStatusPort` specify
+the host name and port of the host that's running the Smart Agent.
 
-   1. In the **releases** section, find the section called **v5.1.6**.
-   2. In the **Assets** section, click `signalfx-agent-5.1.6-win64.zip`
-   3. The ZIP file starts downloading.
-
-4. Uncompress the ZIP file using your decompression application. The
-   package contents expand into the `signalfx-agent` directory.
-
-## Configure the ZIP file installation
-
-Navigate to the `signalfx-agent` directory, then create a configuration
-file for the agent:
-
-1. In a text editor, create a new file called signalfx-agent\agent-config.yml.
-2. In the file, add your hostname and port number:
-
-   ```
-   internalStatusHost: <local_hostname>
-   internalStatusPort: <local_port>
-   ```
-
-3. Save the file.
-
-The Smart Agent collects metrics based on the settings in
-`agent-config.yml`. The `internalStatusHost` and `internalStatusPort`
-properties specify the host and port number of the host that's running the Smart Agent.
+## Verification
 
 ### Start the Smart Agent
 
-To run the Smart Agent as a Windows program, run the following command in a console window:
+* To run the Smart Agent as a Windows program, run the following command in a console window:
+`SignalFxAgent\bin\signalfx-agent.exe -config SignalFxAgent\agent-config.yml > <log_file>`
 
-  ```
-  SignalFxAgent\bin\signalfx-agent.exe -config SignalFxAgent\agent-config.yml > <log_file>`
-  ```
+NOTE:The default log output for Smart Agent goes to `STDOUT` and `STDERR`. To persist log output, direct log output to <log_file>.
 
-> The default log output for Smart Agent goes to `STDOUT` and `STDERR`.
-> To persist log output, direct the log output to `<log_file>`.
+* To run Smart Agent as a Windows service:
 
-To install the Smart Agent as a Windows service, run the following command in a console window:
+- To install the agent as a service, run the following command in a console window:
+`SignalFxAgent\bin\signalfx-agent.exe -service "install" -logEvents -config SignalFxAgent\agent-config.yml
+- To start the agent service, run the following command in a console window:
+`SignalFxAgent\bin\signalfx-agent.exe -service "start"`
 
-  ```
-  SignalFxAgent\bin\signalfx-agent.exe -service "install" -logEvents -config SignalFxAgent\agent-config.yml
-  ```
-
-To start the Smart Agent as a Windows service, run the following command in a console window:
-
-  ```
-  SignalFxAgent\bin\signalfx-agent.exe -service "start"
-  ```
-
-To learn about other Windows service options, see
-[Service Configuration](https://docs.signalfx.com/en/latest/integrations/agent/windows.html#service-configuration).
+To learn about other Windows service options, see [Service Configuration](https://docs.signalfx.com/en/latest/integrations/agent/windows.html#service-configuration).
 
 ### Verify the Smart Agent
 
-To verify your installation and configuration, perform these steps:
+To verify that your installation and config is working:
 
-* For infrastructure monitoring, perform these steps:
-  1. In SignalFx, open the **Infrastructure** built-in dashboard
-  2. In the override bar, select **Choose a host**. Select one of your hosts from the dropdown list.
+* For infrastructure monitoring:
+  - In SignalFx UI, open the **Infrastructure** built-in dashboard
+  - In the override bar at the top of the back, select **Choose a host**. Select one of your hosts from the dropdown.
+  - The charts display metrics from your infrastructure.
+ To learn more, see [Built-In Dashboards and Charts](https://docs.signalfx.com/en/latest/getting-started/built-in-content/built-in-dashboards.html).
 
-  The charts display metrics from your infrastructure.
-
-  To learn more, see [Built-In Dashboards and Charts](https://docs.signalfx.com/en/latest/getting-started/built-in-content/built-in-dashboards.html).
-
-* For Kubernetes monitoring, perform these steps:
-  1. In SignalFx, from the main menu select **Infrastructure** > **Kubernetes Navigator** > **Cluster map**.
-  2. In the cluster display, find the cluster you installed.
-  3. Click the magnification icon to view the nodes in the cluster.
-
-  The detail pane on the right hand side of the page displays details of your cluster and nodes.
-
+* For Kubernetes monitoring:
+  - In SignalFx UI, from the main menu select **Infrastructure** > **Kubernetes Navigator** > **Cluster map**.
+  - In the cluster display, find the cluster you installed.
+  - Click the magnification icon to view the nodes in the cluster.
+  - The detail pane on the right hand side of the page displays details of your cluster and nodes.
   To learn more, see [Getting Around the Kubernetes Navigator](https://docs.signalfx.com/en/latest/integrations/kubernetes/get-around-k8s-navigator.html)
 
-* For APM monitoring, learn how to install, configure, and verify the Smart Agent for Microservices APM (**µAPM**). See
-  [Overview of Microservices APM (µAPM)](https://docs.signalfx.com/en/latest/apm2/apm2-overview/apm2-overview.html).
+* For APM monitoring:
+
+To learn how to install, configure, and verify the Smart Agent for Microservices APM (**µAPM**), see
+[Overview of Microservices APM (µAPM)](https://docs.signalfx.com/en/latest/apm2/apm2-overview/apm2-overview.html).
+
+
