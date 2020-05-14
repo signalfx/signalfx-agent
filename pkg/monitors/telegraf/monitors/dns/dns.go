@@ -61,8 +61,15 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 
 	emitter := baseemitter.NewEmitter(m.Output, m.logger)
 
+	// don't include the telegraf_type dimension
+	emitter.SetOmitOriginalMetricType(true)
+
 	// transform "dns_query" to "telegraf/dns"
 	emitter.AddTag("plugin", strings.Replace(monitorType, "dns_query", "dns", -1))
+
+	for _, tag := range []string{"rcode", "result"} {
+		emitter.OmitTag(tag)
+	}
 
 	// transform "dns_query.my_metric" to "dns.my_metric"
 	emitter.AddMetricNameTransformation(func(metric string) string {

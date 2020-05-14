@@ -70,9 +70,7 @@ dimensions may be specific to certain metrics.
 | ---  | ---         |
 | `domain` | The DNS domain queried. |
 | `plugin` | The plugin name "telegraf/dns". |
-| `rcode` | Error string. See [this tab](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/dns_query#rcode-descriptions) for detailled descriptions. |
 | `record_type` | The DNS record type queried. |
-| `result` | Resolution result string (success = 0, timeout = 1, error = 2). |
 | `server` | The DNS server queried. |
 
 

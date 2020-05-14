@@ -46131,14 +46131,8 @@
         "plugin": {
           "description": "The plugin name \"telegraf/dns\"."
         },
-        "rcode": {
-          "description": "Error string. See [this tab](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/dns_query#rcode-descriptions) for detailled descriptions."
-        },
         "record_type": {
           "description": "The DNS record type queried."
-        },
-        "result": {
-          "description": "Resolution result string (success = 0, timeout = 1, error = 2)."
         },
         "server": {
           "description": "The DNS server queried."

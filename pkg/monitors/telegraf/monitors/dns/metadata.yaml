@@ -12,10 +12,6 @@ monitors:
       description: The DNS server queried.
     record_type:
       description: The DNS record type queried.
-    result:
-      description: Resolution result string (success = 0, timeout = 1, error = 2).
-    rcode:
-      description: Error string. See [this tab](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/dns_query#rcode-descriptions) for detailled descriptions.
   metrics:
     dns.query_time_ms:
       description: Reponse time of the query in ms.
