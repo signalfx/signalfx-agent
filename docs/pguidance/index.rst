@@ -1,21 +1,14 @@
-.. _condition-reference:
+.. _prescriptive-guidance:
 
-*****************************************************************
-Using Built-in Alert Conditions
-*****************************************************************
-
-.. meta updated 5/13/20
-
-.. meta::
-  :description: Prescriptive guidance for installing the Smart Agent
-  :keywords: Smart Agent, installation, Linux, Windows, Kubernetes, kubectl, Helm, Puppet, Chef, Ansible, Salt, Docker 
-
-
+*********************************************
+Install and Configure the Smart Agent
+*********************************************
 
 .. toctree::
+   :maxdepth: 1
    :hidden:
-   :glob:
 
+   /integrations/agent/pguidance/agent-choose-install-type
    /integrations/agent/pguidance/agent-install-packages
    /integrations/agent/pguidance/agent-install-standalone-linux
    /integrations/agent/pguidance/agent-install-standalone-windows
@@ -23,6 +16,9 @@ Using Built-in Alert Conditions
    /integrations/agent/pguidance/agent-k8s-install-kubectl
    /integrations/agent/pguidance/agent-install-awsecs
    /integrations/agent/pguidance/agent-install-config-mgmt
+
+SignalFx provides several ways to install the Smart Agent, so you can choose the
+one that best suits your needs. To get started, see :ref:`agent-choose-install-type`.
 
 
 
