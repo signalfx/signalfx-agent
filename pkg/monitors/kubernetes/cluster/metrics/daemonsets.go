@@ -43,6 +43,12 @@ func datapointsForDaemonSet(ds *appsv1.DaemonSet) []*datapoint.Datapoint {
 			datapoint.NewIntValue(int64(ds.Status.NumberReady)),
 			datapoint.Gauge,
 			time.Time{}),
+		datapoint.New(
+			"kubernetes.daemon_set.updated",
+			dimensions,
+			datapoint.NewIntValue(int64(ds.Status.UpdatedNumberScheduled)),
+			datapoint.Gauge,
+			time.Time{}),
 	}
 }
 

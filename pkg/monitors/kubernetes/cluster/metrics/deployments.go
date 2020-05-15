@@ -23,8 +23,18 @@ func datapointsForDeployment(dep *appsv1.Deployment) []*datapoint.Datapoint {
 		return nil
 	}
 
-	return makeReplicaDPs("deployment", dimensions,
+	dps := makeReplicaDPs("deployment", dimensions,
 		*dep.Spec.Replicas, dep.Status.AvailableReplicas)
+
+	dps = append(dps, datapoint.New(
+		"kubernetes.deployment.updated",
+		dimensions,
+		datapoint.NewIntValue(int64(dep.Status.UpdatedReplicas)),
+		datapoint.Gauge,
+		time.Time{}),
+	)
+
+	return dps
 }
 
 func dimensionForDeployment(dep *appsv1.Deployment) *atypes.Dimension {
