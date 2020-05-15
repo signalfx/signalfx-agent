@@ -47,6 +47,19 @@ type Monitor struct {
 	logger logrus.FieldLogger
 }
 
+type Emitter struct {
+	*baseemitter.BaseEmitter
+}
+
+func (e *Emitter) AddError(err error) {
+	// Suppress invalid answer errors since they will spam the logs like crazy,
+	// and since the fact that it is an error is emitted as a metric anyway.
+	if strings.Contains(err.Error(), "Invalid answer") {
+		return
+	}
+	e.BaseEmitter.AddError(err)
+}
+
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) (err error) {
 	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
@@ -59,7 +72,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	plugin.RecordType = conf.RecordType
 	plugin.Timeout = int(conf.Timeout.AsDuration().Seconds())
 
-	emitter := baseemitter.NewEmitter(m.Output, m.logger)
+	emitter := &Emitter{baseemitter.NewEmitter(m.Output, m.logger)}
 
 	// don't include the telegraf_type dimension
 	emitter.SetOmitOriginalMetricType(true)
