@@ -35880,8 +35880,10 @@
             "kubernetes.daemon_set.desired_scheduled",
             "kubernetes.daemon_set.misscheduled",
             "kubernetes.daemon_set.ready",
+            "kubernetes.daemon_set.updated",
             "kubernetes.deployment.available",
             "kubernetes.deployment.desired",
+            "kubernetes.deployment.updated",
             "kubernetes.job.active",
             "kubernetes.job.completions",
             "kubernetes.job.failed",
@@ -35994,6 +35996,12 @@
           "group": null,
           "default": true
         },
+        "kubernetes.daemon_set.updated": {
+          "type": "gauge",
+          "description": "The total number of nodes that are running updated daemon pod",
+          "group": null,
+          "default": false
+        },
         "kubernetes.deployment.available": {
           "type": "gauge",
           "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.",
@@ -36005,6 +36013,12 @@
           "description": "Number of desired pods in this deployment",
           "group": null,
           "default": true
+        },
+        "kubernetes.deployment.updated": {
+          "type": "gauge",
+          "description": "Total number of non-terminated pods targeted by this deployment that have the desired template spec",
+          "group": null,
+          "default": false
         },
         "kubernetes.hpa.spec.max_replicas": {
           "type": "gauge",
@@ -39308,8 +39322,10 @@
             "kubernetes.daemon_set.desired_scheduled",
             "kubernetes.daemon_set.misscheduled",
             "kubernetes.daemon_set.ready",
+            "kubernetes.daemon_set.updated",
             "kubernetes.deployment.available",
             "kubernetes.deployment.desired",
+            "kubernetes.deployment.updated",
             "kubernetes.job.active",
             "kubernetes.job.completions",
             "kubernetes.job.failed",
@@ -39450,6 +39466,12 @@
           "group": null,
           "default": true
         },
+        "kubernetes.daemon_set.updated": {
+          "type": "gauge",
+          "description": "The total number of nodes that are running updated daemon pod",
+          "group": null,
+          "default": false
+        },
         "kubernetes.deployment.available": {
           "type": "gauge",
           "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.",
@@ -39461,6 +39483,12 @@
           "description": "Number of desired pods in this deployment",
           "group": null,
           "default": true
+        },
+        "kubernetes.deployment.updated": {
+          "type": "gauge",
+          "description": "Total number of non-terminated pods targeted by this deployment that have the desired template spec",
+          "group": null,
+          "default": false
         },
         "kubernetes.hpa.spec.max_replicas": {
           "type": "gauge",

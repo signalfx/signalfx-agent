@@ -98,6 +98,10 @@ common:
         one or more of the daemon pod running and ready
       default: true
       type: gauge
+    kubernetes.daemon_set.updated:
+      description: The total number of nodes that are running updated daemon pod
+      default: false
+      type: gauge
     kubernetes.deployment.available:
       description: Total number of available pods (ready for at least minReadySeconds)
         targeted by this deployment.
@@ -106,6 +110,10 @@ common:
     kubernetes.deployment.desired:
       description: Number of desired pods in this deployment
       default: true
+      type: gauge
+    kubernetes.deployment.updated:
+      description: Total number of non-terminated pods targeted by this deployment that have the desired template spec
+      default: false
       type: gauge
     kubernetes.namespace_phase:
       description: The current phase of namespaces (`1` for _active_ and `0` for _terminating_)
