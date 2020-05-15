@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/kubernetes/cluster/meta"
 	k8sutil "github.com/signalfx/signalfx-agent/pkg/monitors/kubernetes/utils"
 	atypes "github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
@@ -27,7 +28,7 @@ func datapointsForDeployment(dep *appsv1.Deployment) []*datapoint.Datapoint {
 		*dep.Spec.Replicas, dep.Status.AvailableReplicas)
 
 	dps = append(dps, datapoint.New(
-		"kubernetes.deployment.updated",
+		meta.KubernetesDeploymentUpdated,
 		dimensions,
 		datapoint.NewIntValue(int64(dep.Status.UpdatedReplicas)),
 		datapoint.Gauge,
