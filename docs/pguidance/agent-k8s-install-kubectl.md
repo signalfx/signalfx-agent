@@ -22,10 +22,10 @@
 
 ## Configuration
 
-To install the Smart Agent using `kubectl`, you need to create a
+To install the Smart Agent using kubectl, you need to create a
 Kubernetes **secret** for your org token and update settings in the Agent's configuration files.
 
-1. To create the Kubernetes secret, log in to the host from which you run `kubectl`.
+1. To create the Kubernetes secret, log in to the host from which you run kubectl.
 2. Run the following command to create the Kubernetes secret `signalfx-agent`, substituting your org token for `<org_token>`:
 `kubectl create secret generic --from-literal access-token=<org_token> signalfx-agent`
 3. On the same host, download the following configuration files from the

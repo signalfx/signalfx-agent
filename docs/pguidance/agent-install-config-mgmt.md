@@ -1,4 +1,4 @@
-# Install Smart Agent using Configuration Management
+# Install Using Configuration Management
 
 ## Prerequisites
 
@@ -39,7 +39,7 @@ to obtain an org token, see [Working with access tokens](https://docs.signalfx.c
 - Microsoft Visual C++ Compiler for Python
 -`puppet/archive` and `puppetlabs/powershell`
 
-## Install using Puppet
+## Puppet install
 
 The following sites host a Puppet module that installs the Smart Agent:
 
@@ -51,7 +51,7 @@ The following sites host a Puppet module that installs the Smart Agent:
 Before you use Puppet to install the Agent, update your Puppet manifest with the class `signalfx_agent` and these
 parameters:
 * `$config`: The Smart Agent configuration. In this parameter, replace `<org_token>` and `<realm>` with the org token and realm values you
-obtained previously. All other properties are optional. For example, this parameter represents a basic configuration that monitors host-level
+obtained previously (see [Prerequisites](#prerequisites)). All other properties are optional. For example, this parameter represents a basic configuration that monitors host-level
 components:
 
 ```
@@ -71,6 +71,7 @@ $config = {
   ]
 }
 ```
+
 * `$package_stage`: The module version to use: 'release', 'beta', or 'test'. The default is 'release'.
 * `$config_file_path`: The Smart Agent configuration file that the Puppet module uses to install the Agent. The default is `/etc/signalfx/agent.yaml`
 * `$agent_version`: The agent release version, in the form n.n.n. Use the Smart Agent release version without the "v" prefix. This option is **required** on Windows.
@@ -86,13 +87,13 @@ The defaults are `$service_user = signalfx-agent` and `$service_group = signalfx
 To learn more about the Smart Agent configuration options,  
 see the [Agent Configuration Schema](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md).
 
-### Installation
+### Install for Puppet
 
 After you have your manifest updated, use Puppet to install the Smart Agent to your hosts.
 
-### Verify your installation
+### Verify Puppet installation
 
-See the following section [Verification](#verification)
+See the following section entitled [Verify the Smart Agent](#verify-the-smart-agent).
 
 ## Install using Chef
 
@@ -113,7 +114,8 @@ Next, update the following attributes according to your system's configuration:
 
 * `node['signalfx_agent']['conf']`: The Smart Agent configuration. This attribute becomes the agent configuration YAML file.
 See the Agent Config Schema for a full list of acceptable options. In this parameter, replace `<org_token>` with the org token value you
-obtained previously. All other properties are optional. For example, this attribute represents a basic configuration that monitors host-level components:
+obtained previously (see [Prerequisites](#prerequisites)). All other properties are optional. For example, this attribute
+represents a basic configuration that monitors host-level components:
 
 ```
 node['signalfx_agent']['conf'] = {
@@ -132,7 +134,7 @@ node['signalfx_agent']['conf'] = {
 }
 ```
 
-* **Required** `node['signalfx_agent']['conf_file_path']`: Filename where Chef should put the agent configuration.
+* **Required** `node['signalfx_agent']['conf_file_path']`: File name where Chef should put the agent configuration.
 - For Linux, the default is `/etc/signalfx/agent.yaml`.
 - For Windows, the default is `\ProgramData\SignalFxAgent\agent.yaml`.
 * **Required** `node['signalfx_agent']['agent_version']`: The agent release version, in the form n.n.n. Use the
@@ -144,13 +146,16 @@ For Windows, the default is `$agent_version`.
 These attributes set the user and group ownership for the `signalfx-agent` service. The user or group (or both) are created if they don't exist.
 The default value for both is `signalfx-agent`.
 
-### Installation
+To learn more about the Smart Agent configuration options,
+see the [Agent Configuration Schema](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md).
+
+### Install for Chef
 
 After you add the Smart Agent recipe, use Chef to install the Smart Agent to your hosts.
 
-### Verify your installation
+### Verify for Chef
 
-See the following section [Verification](#verification)
+See the following section entitled [Verify the Smart Agent](#verify-the-smart-agent).
 
 ## Install using Ansible
 
@@ -162,45 +167,222 @@ To install the role from GitHub:
 * You can also get the role from Ansible Galaxy. To install the role from Galaxy, run the following command:
 `ansible-galaxy install signalfx.smart_agent`
 
-## Configure for Ansible
+### Configure for Ansible
 
 The Smart Agent Ansible role uses the following variables:
 
 * `sfx_agent_config`: A mapping that Ansible converts to the Smart Agent configuration YAML file.
-See the Agent Config Schema for a full list of acceptable options and their default values. The only required key-value pair is signalFxAccessToken.
+See the Agent Config Schema for a full list of acceptable options and their default values.
+In this mapping, replace `<org_token>` with the org token value you obtained previously (see [Prerequisites](#prerequisites)).
+All other properties are optional.
 
-    Here is a basic sfx_agent_config that will monitor a basic set of host-level components:
+For example, this mapping monitors basic host-level components:
 
-    sfx_agent_config:
-      signalFxAccessToken: MY-TOKEN  # Required
-      monitors:
-        - type: cpu
-        - type: filesystems
-        - type: disk-io
-        - type: net-io
-        - type: load
-        - type: memory
-        - type: vmem
-        - type: host-metadata
-        - type: processlist
+```yaml
+sfx_agent_config:
+    signalFxAccessToken: MY-TOKEN  # Required
+    monitors:
+    - type: cpu
+    - type: filesystems
+    - type: disk-io
+    - type: net-io
+    - type: load
+    - type: memory
+    - type: vmem
+    - type: host-metadata
+    - type: processlist
+```
 
-    It is suggested to keep this mapping in a variable file in the respective group_vars or host_vars directory for your target remote hosts, or to pass it in via the -e @path/to/variable_file ansible-playbook extra vars option for a "global" configuration.
+Keep your mapping in a custom file in your target remote host's `group_vars` or `host_vars` directory,
+or pass it to Ansible using the `-e @<path_to_file>` ansible-playbook extra vars option for a global configuration.
 
-    sfx_config_file_path: The target path for the Smart Agent configuration file generated from sfx_agent_config (default: '/etc/signalfx/agent.yaml')
+* `sfx_config_file_path`: Destination path for the Smart Agent configuration file generated from the `sfx_agent_config` mapping.
+The default is `/etc/signalfx/agent.yaml`.
+* `sfx_repo_base_url`: URL for the SignalFx Smart Agent repo. The default is `https://splunk.jfrog.io/splunk)`.
+* `sfx_package_stage`: Module version to use: `release`, `beta`, or `test`. The default is `release`.
+* `sfx_version`: Desired agent version, specified as `<agent version>-<package revision>`. For example,
+`3.0.1-1` is the first package revision that contains the agent version 3.0.1.
+Releases with package revision > 1 contain changes to some aspect of the packaging scripts, such as the `init` scripts, but
+contain the same agent bundle, which defaults to 'latest'.
+* `sfx_service_user`, `sfx_service_group`: Set the user and group for the `signalfx-agent` service.
+They're created if they don't exist. This property is only available in agent package version 5.1.0 or higher.
+The default value for both properties is `signalfx-agent`.
 
-    sfx_repo_base_url: The url provided to yum/apt for obtaining the SignalFx Smart Agent (default: https://splunk.jfrog.io/splunk)
+Note: After deploying the signalfx-agent role, Ansible manages the `signalfx-agent` service  
+using the Ansible core service module. This module automatically determines the  
+host's init system for starting and stopping the signalfx-agent service, with a preference for systemd (systemctl).
 
-    sfx_package_stage: The package repo stage to use: release, beta, or test (default: 'release')
+To learn more about the Smart Agent configuration options,  
+see the [Agent Configuration Schema](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md).
 
-    sfx_version: The agent package version. This is of the form <agent version>-<package revision> (e.g. package version 3.0.1-1 is the first package revision that contains the agent version 3.0.1). Releases with package revision > 1 contain changes to some aspect of the packaging scripts (e.g. init scripts) but contain the same agent bundle. (default: 'latest')
+### Install for Ansible
 
-    sfx_service_user and sfx_service_group: Set the user/group ownership for the signalfx-agent service. The user/group will be created if they do not exist. Requires agent package version 5.1.0 or newer. (default: 'signalfx-agent')
+After you install the Ansible role, use Ansible to install the Smart Agent to your hosts.
 
-Note: After the signalfx-agent role is deployed, Ansible will manage the signalfx-agent service via the Ansible core service module. This module will automatically determine the host's init system for starting/stopping the signalfx-agent service, with a preference for systemd (systemctl).
+### Verify for Ansible
+
+See the following section entitled [Verify the Smart Agent](#verify-the-smart-agent).
 
 ## Install using Salt
 
+SignalFx offers a Salt formula that installs and configures the Smart Agent on Linux.
+Download the formula from the [SignalFx Agent Salt formula site](https://github.com/signalfx/signalfx-agent/tree/master/deployments/salt).
+
+### Configure for Salt
+
+1. Download the Smart Agent formula to `/srv/salt`.
+2. Copy `pillar.example` from the download to `/srv/pillar` and rename it to `pillar`.
+3. Update `top.sls` in `/srv/salt` and `/srv/pillar` to point to the Smart Agent formula.
+4. Update the new `pillar` with these attributes:
+- `signalfx-agent.conf`: The agent configuration object. Replace `<org_token>` with the org token value you
+obtained previously (see [Prerequisites](#prerequisites)).
+All other properties are optional. For example, this configuration object monitors basic host-level components:
+
+```yaml
+signalfx-agent:
+  conf:
+    signalFxAccessToken: '<org_token>'
+    monitors:
+      - type: cpu
+      - type: filesystems
+      - type: disk-io
+      - type: net-io
+      - type: load
+      - type: memory
+      - type: vmem
+      - type: host-metadata
+      - type: processlist
+```
+- `signalfx-agent.version`: Desired agent version, specified as `<agent version>-<package revision>`. For example,
+`3.0.1-1` is the first package revision that contains the agent version 3.0.1. Releases with package revision > 1
+contain changes to some aspect of the packaging scripts, such as the `init` scripts, but
+contain the same agent bundle, which defaults to 'latest'.
+- `signalfx-agent.package_stage`: Module version to use: `release`, `beta`, or `test`. The default is `release`.
+Test releases are unsigned.
+- `signalfx-agent.conf_file_path`: Destination file for the Smart Agent configuration file generated by the installation.
+The installation overwrites the `agent.yaml` downloaded in the Salt formula with the values specified by the `signalfx-agent.conf`
+attribute in `pillar`. The default destination is `/etc/signalfx/agent.yaml`.
+- `signalfx-agent.service_user`, `signalfx-agent.service_group`: Set the user and group for the `signalfx-agent` service.
+They're created if they don't exist. This property is only available in agent package version 5.1.0 or higher.
+The default value for both properties is `signalfx-agent`.
+
+To learn more about the Smart Agent configuration options,  
+see the [Agent Configuration Schema](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md).
+
+### Install for Salt
+
+After you configure the Smart Agent Salt formula, Salt installs the Smart Agent on your hosts.
+
+### Verify for Salt
+
+See the following section entitled [Verify the Smart Agent](#verify-the-smart-agent).
+
 ## Install using a Docker image
 
+SignalFx hosts a Docker image for the Smart Agent at [https://quay.io/signalfx/signalfx-agent](https://quay.io/signalfx/signalfx-agent).
+This image is tagged with the same values as the Smart Agent itself. For example, to get version 5.1.6 of the Smart Agent,
+download the Docker image with the tag 5.1.6.
 
-## Verification
+Install using the Docker image if you're using Docker **without** Kubernetes. To
+install the Smart Agent to Docker containers with Kubernetes, see [Install using Helm](agent-k8s-install-helm.md) or
+[Install using kubectl](agent-k8s-install-kubectl.md).
+
+### Configure for Docker
+
+To configure the Docker image for the Smart Agent:
+
+1. In the container for the Smart Agent, set the following environment variables:
+- `SFX_ACCESS_TOKEN`: Org token value you obtained previously
+- `SFX_API_URL`: SignalFx API server URL. This value has the following syntax:
+`https://api.<realm>.signalfx.com`. Replace `<realm>` with the realm value you obtained previously
+(see [Prerequisites](#prerequisites)).
+- `SFX_INGEST_URL`: SignalFx ingest URL. Set this if you're using the Smart Gateway or a different target for
+datapoints and events.
+2. In the agent configuration file `agent.yaml` that's downloaded with the  Docker image,
+update any incorrect property values to match your system.
+3. In `agent.yaml`, add additional properties such as monitors and observers. To learn
+more about all the available configuration options, see the [Agent Configuration Schema](../config-schema.md).
+4. In your agent container, copy `agent.yaml` to the directory `/etc/signalfx/`.
+5. If you have the Docker API available through the conventional UNIX domain socket, mount it so
+you can use the [docker-container-stats](../monitors/docker-container-stats.md) monitor.
+6. To determine the agent version you want to run, see [SignalFx Smart Agent Releases](https://github.com/signalfx/signalfx-agent/releases).
+Unless SignalFx advises you to do otherwise, choose the latest version.
+
+To configure optional monitors, add the following lines to `agent.yaml`:
+
+1. To load monitor configuration YAML files from `/etc/signalfx/monitors/`, add the following line to
+the `monitors` property in `agent.yaml`:
+
+```
+monitors:
+  [omitted lines]
+  - {"#from": "/etc/signalfx/monitors/*.yaml", flatten: true, optional: true}
+```
+
+2. To get disk usage metrics for the host filesystems using the [filesystems](../monitors/filesystems.md) monitor:
+- Mount the `hostfs` root file system.
+- Add the `filesystems` monitor to `agent.yaml`:
+
+```
+procPath: /hostfs/proc
+[omitted lines]
+monitors:
+  [omitted lines]
+  - type: filesystems
+    hostFSPath: /hostfs```
+```
+
+3. Add the **host metadata** monitor to `agent.yaml`:
+
+```
+etcPath: /hostfs/etc
+[omitted lines]
+monitors:
+  - type: host-metadata
+```
+To learn more about configuring monitors and observers for the Smart Agent in Docker, see
+[Agent Configuration](../config-schema.md).
+
+### Run in a Docker container
+
+To start the Smart Agent in a Docker container, run the following command, replacing `<version>` with  
+Smart Agent version number you obtained previously:
+
+```
+docker run \
+  --name signalfx-agent \
+  --pid host \
+  --net host \
+  -v /:/hostfs:ro \
+  -v /var/run/docker.sock:/var/run/docker.sock:ro \
+  -v /etc/signalfx/:/etc/signalfx/:ro \
+  -v /etc/passwd:/etc/passwd:ro \
+  quay.io/signalfx/signalfx-agent:<version>
+
+```
+
+### Verify for Docker
+
+See the following section entitled [Verify the Smart Agent](#verify-the-smart-agent).
+
+### Verify the Smart Agent
+
+To verify that your installation and config is working:
+
+* For infrastructure monitoring:
+  - In SignalFx UI, open the **Infrastructure** built-in dashboard
+  - In the override bar at the top of the back, select **Choose a host**. Select one of your hosts from the dropdown.
+  - The charts display metrics from your infrastructure.
+ To learn more, see [Built-In Dashboards and Charts](https://docs.signalfx.com/en/latest/getting-started/built-in-content/built-in-dashboards.html).
+
+* For Kubernetes monitoring:
+  - In SignalFx UI, from the main menu select **Infrastructure** > **Kubernetes Navigator** > **Cluster map**.
+  - In the cluster display, find the cluster you installed.
+  - Click the magnification icon to view the nodes in the cluster.
+  - The detail pane on the right hand side of the page displays details of your cluster and nodes.
+  To learn more, see [Getting Around the Kubernetes Navigator](https://docs.signalfx.com/en/latest/integrations/kubernetes/get-around-k8s-navigator.html)
+
+* For APM monitoring:
+
+To learn how to install, configure, and verify the Smart Agent for Microservices APM (**µAPM**), see
+[Overview of Microservices APM (µAPM)](https://docs.signalfx.com/en/latest/apm2/apm2-overview/apm2-overview.html).
