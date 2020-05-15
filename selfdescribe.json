@@ -46073,6 +46073,54 @@
       "singleInstance": false
     },
     {
+      "monitorType": "supervisor",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": {
+        "group": {
+          "description": "Name of the process group."
+        },
+        "name": {
+          "description": "Name of the process."
+        }
+      },
+      "doc": "This monitor will retrieve state of processes running by Supervisor.\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "supervisor.state"
+          ]
+        }
+      },
+      "metrics": {
+        "supervisor.state": {
+          "type": "gauge",
+          "description": "State code, see [Supervisor process states](http://supervisord.org/subprocess.html#process-states).",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/supervisor",
+        "fields": [
+          {
+            "yamlName": "url",
+            "doc": "The Supervisor XML-RPC API URL (i.e. `http://localhost:9001/RPC2`).",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": false,
+      "singleInstance": false
+    },
+    {
       "monitorType": "telegraf/exec",
       "sendAll": true,
       "sendUnknown": false,
