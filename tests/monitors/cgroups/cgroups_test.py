@@ -11,7 +11,7 @@ pytestmark = [pytest.mark.monitor_without_endpoints]
 METADATA = Metadata.from_package("cgroups")
 
 
-def test_docker_container_stats():
+def test_cgroup_monitor():
     with run_service(
         "nginx", cpu_period=100_000, cpu_quota=10000, cpu_shares=50, mem_limit=20 * 1024 * 1024
     ) as nginx_container:
