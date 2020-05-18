@@ -10,7 +10,6 @@ import (
 type runner struct {
 	ctx                   context.Context
 	log                   *logrus.Entry
-	monitor               *Monitor
 	conf                  *model.Config
 	vsm                   *vSphereMonitor
 	vsphereReloadInterval int // seconds
@@ -18,11 +17,10 @@ type runner struct {
 
 func newRunner(ctx context.Context, log *logrus.Entry, conf *model.Config, monitor *Monitor) runner {
 	vsphereReloadInterval := int(conf.InventoryRefreshInterval.AsDuration().Seconds())
-	vsm := newVsphereMonitor(conf, log)
+	vsm := newVsphereMonitor(conf, log, monitor.Output.SendDatapoints)
 	return runner{
 		ctx:                   ctx,
 		log:                   log,
-		monitor:               monitor,
 		conf:                  conf,
 		vsphereReloadInterval: vsphereReloadInterval,
 		vsm:                   vsm,
@@ -36,8 +34,7 @@ func (r *runner) run() {
 		r.log.WithError(err).Error("firstTimeSetup failed")
 		return
 	}
-	dps := r.vsm.retrieveDatapoints()
-	r.monitor.Output.SendDatapoints(dps...)
+	r.vsm.generateDatapoints()
 	if r.vsm.isTimeForVSphereInfoReload(r.vsphereReloadInterval) {
 		r.vsm.reloadVSphereInfo()
 	}
