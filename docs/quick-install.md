@@ -88,7 +88,7 @@ The install script starts the agent as a Windows service that writes messages to
 The command displays output that is similar to the following:
 
     ```sh
-    SignalFx Agent version:           5.0.0
+    SignalFx Agent version:           5.1.0
     Agent uptime:                     8m44s
     Observers active:                 host
     Active Monitors:                  16
@@ -115,7 +115,7 @@ Shows Smart Agent's active monitors. These plugins poll apps and services to ret
 ## Troubleshoot Smart Agent Installation
 If the Smart Agent installation fails, use the following procedures to gather troubleshooting information.
 
-### General information
+### General troubleshooting
 To learn how to review signalfx-agent logs, see [Frequently Asked Questions](./faq.md).
 
 ### Linux troubleshooting
@@ -123,6 +123,6 @@ To view the most recent 100 error logs that signalfx-agent has written to the sy
 
 `journalctl -u signalfx-agent | tail -100`
 
-### Windows
+### Windows troubleshooting
 Run **Administrative Tools > Event Viewer** to view signalfx-agent error logs.
 
