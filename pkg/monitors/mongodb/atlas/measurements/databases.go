@@ -58,7 +58,7 @@ func databaseMeasurementsHelper(g *databasesGetter, p *process, database string,
 
 	measurementsResp, resp, err := g.client.ProcessDatabaseMeasurements.List(g.ctx, g.projectID, p.Host, p.Port, database, optionPT1M(page))
 
-	if format, err := formatError(err, resp); err != nil {
+	if format, err := errorMsgFormat(err, resp); err != nil {
 		log.WithError(err).Errorf(format, "database measurements", g.projectID, p.Host, p.Port)
 		return measurements
 	}
@@ -77,16 +77,22 @@ func getDatabases(g *databasesGetter, processes []*process) map[*process][]strin
 	var databases = make(map[*process][]string)
 
 	var wg sync.WaitGroup
+
+	var mutex sync.Mutex
+
 	for _, p := range processes {
 		wg.Add(1)
 		go func(p *process) {
 			defer wg.Done()
+			mutex.Lock()
+			defer mutex.Unlock()
 			databases[p] = getDatabasesHelper(g, p, 1)
 			if g.enableCache {
 				g.databasesCache.Store(databases)
 			}
 		}(p)
 	}
+
 	if g.databasesCache.Load() == nil || !g.enableCache {
 		wg.Wait()
 	}
@@ -104,7 +110,7 @@ func getDatabasesHelper(g *databasesGetter, p *process, page int) []string {
 
 	databasesResp, resp, err := g.client.ProcessDatabases.List(g.ctx, g.projectID, p.Host, p.Port, &mongodbatlas.ListOptions{PageNum: page})
 
-	if format, err := formatError(err, resp); err != nil {
+	if format, err := errorMsgFormat(err, resp); err != nil {
 		log.WithError(err).Errorf(format, "database names", g.projectID, p.Host, p.Port)
 		return databases
 	}

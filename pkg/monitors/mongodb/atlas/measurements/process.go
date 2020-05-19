@@ -38,7 +38,7 @@ func (g *processesGetter) measurements(processes []*process) []*ProcessMeasureme
 		wg.Add(1)
 		go func(p *process) {
 			defer wg.Done()
-			measurements = processMeasurementsHelper(g, p, 1)
+			measurements = append(measurements, processMeasurementsHelper(g, p, 1)...)
 			if g.enableCache {
 				g.measurementsCache.Store(measurements)
 			}
@@ -61,7 +61,7 @@ func processMeasurementsHelper(g *processesGetter, p *process, pageNum int) []*P
 
 	processMeasurements, resp, err := g.client.ProcessMeasurements.List(g.ctx, g.projectID, p.Host, p.Port, optionPT1M(pageNum))
 
-	if format, err := formatError(err, resp); err != nil {
+	if format, err := errorMsgFormat(err, resp); err != nil {
 		log.WithError(err).Errorf(format, "process measurements", g.projectID, p.Host, p.Port)
 		return measurements
 	}

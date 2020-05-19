@@ -60,7 +60,7 @@ func diskMeasurementsHelper(g *disksGetter, p *process, diskPartition string, pa
 
 	measurementsResp, resp, err := g.client.ProcessDiskMeasurements.List(g.ctx, g.projectID, p.Host, p.Port, diskPartition, optionPT1M(page))
 
-	if format, err := formatError(err, resp); err != nil {
+	if format, err := errorMsgFormat(err, resp); err != nil {
 		log.WithError(err).Errorf(format, "disk measurements", g.projectID, p.Host, p.Port)
 		return measurements
 	}
@@ -108,7 +108,7 @@ func getDisksHelper(g *disksGetter, p *process, page int) []string {
 
 	disksResp, resp, err := g.client.ProcessDisks.List(g.ctx, g.projectID, p.Host, p.Port, &mongodbatlas.ListOptions{PageNum: page})
 
-	if format, err := formatError(err, resp); err != nil {
+	if format, err := errorMsgFormat(err, resp); err != nil {
 		log.WithError(err).Errorf(format, "disk partition names", g.projectID, p.Host, p.Port)
 		return disks
 	}

@@ -19,14 +19,14 @@ type config struct {
 
 // nextPage gets the next page for pagination request.
 func nextPage(resp *mongodbatlas.Response) (bool, int) {
-	if len(resp.Links) == 0 {
+	if resp == nil || len(resp.Links) == 0 || resp.IsLastPage() {
 		return false, -1
 	}
 
 	currentPage, err := resp.CurrentPage()
 
-	if resp.IsLastPage() || err != nil {
-		log.WithError(err).Error(fmt.Sprintf("failed to get the next page, response: %+v", resp))
+	if err != nil {
+		log.WithError(err).Error("failed to get the next page")
 		return false, -1
 	}
 
@@ -43,7 +43,7 @@ func optionPT1M(pageNum int) *mongodbatlas.ProcessMeasurementListOptions {
 	}
 }
 
-func formatError(err error, resp *mongodbatlas.Response) (string, error) {
+func errorMsgFormat(err error, resp *mongodbatlas.Response) (string, error) {
 	if err != nil {
 		return "request for getting %s failed (Atlas project: %s, host: %s, port: %d)", err
 	}
