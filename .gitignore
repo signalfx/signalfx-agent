@@ -30,3 +30,4 @@ integration_results.*
 local-etc/
 test_output/
 tmp/
+copyof*
