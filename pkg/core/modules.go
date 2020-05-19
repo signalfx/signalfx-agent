@@ -53,7 +53,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/logstash/tcp"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/memory"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/metadata/hostmetadata"
-	_ "github.com/signalfx/signalfx-agent/pkg/monitors/mongodbatlas"
+	_ "github.com/signalfx/signalfx-agent/pkg/monitors/mongodb/atlas"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/netio"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/ntp"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/postgresql"
