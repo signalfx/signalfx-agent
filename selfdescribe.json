@@ -39102,7 +39102,7 @@
       "sendAll": false,
       "sendUnknown": false,
       "dimensions": null,
-      "doc": "This mongodb-atlas monitor scrapes metric measurements of MongoDB processes in Atlas. The monitor translates the\nmetric measurements are mapped to SignalFx metric datapoints then forwards them SignalFx. The original Atlas metric\nmeasurement names are included in the metric descriptions.\n\nAlthough this monitor can be configured to fetch metric measurements at rates measured in seconds, the finest\nmeasurement granularity allowed by Atlas is 1 minute. Thus multiple requests withing a 1 minute window will\nreturn the same metric values. This monitor fetches Atlas metric measurements using the finest granularity of\n1 minute and a period of 1 minute. This results in only one datapoint per metric measurement per request.\n\nBelow is an excerpt of the agent configuration yaml showing the minimal required fields.\n```\nmonitors:\n- type: mongodb-atlas\n  projectID:  \u003cProject ID\u003e\n  publicKey:  \u003cPublic API Key\u003e\n  privateKey: \u003cPrivate API Key\u003e\n```\n",
+      "doc": "This mongodb-atlas monitor scrapes metric measurements of MongoDB processes in Atlas. The monitor translates the\nmetric measurements to SignalFx metric datapoints and forwards them SignalFx. The original Atlas metric names are\nincluded in the metric descriptions.\n\nAlthough this monitor can be configured to fetch metric measurements at rates measured in seconds, the finest\nmeasurement granularity allowed by Atlas is 1 minute. Thus multiple requests withing a 1 minute window will\nreturn the same metric values. This monitor fetches metric measurements using the finest allowed granularity of\n1 minute and over a period of 1 minute. This results in only one metric datapoint per measurement per request.\n\nBelow is an excerpt of the agent configuration yaml showing the minimal required fields.\n```\nmonitors:\n- type: mongodb-atlas\n  projectID:  \u003cProject ID\u003e\n  publicKey:  \u003cPublic API Key\u003e\n  privateKey: \u003cPrivate API Key\u003e\n```\n",
       "groups": {
         "WiredTiger": {
           "description": "",
@@ -39750,7 +39750,7 @@
           },
           {
             "yamlName": "enableCache",
-            "doc": "EnableCache is a flag to enable caching",
+            "doc": "EnableCache enables locally cached Atlas metric measurements to be used when true. The metric measurements that were supposed to be fetched are in fact always fetched asynchronously and the cache updated.",
             "default": true,
             "required": false,
             "type": "bool",

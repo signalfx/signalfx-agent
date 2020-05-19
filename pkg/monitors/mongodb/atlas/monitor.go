@@ -35,7 +35,8 @@ type Config struct {
 	PrivateKey string `yaml:"privateKey" validate:"required" neverLog:"true"`
 	// Timeout for HTTP requests to get MongoDB Atlas process measurements. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration
 	Timeout timeutil.Duration `yaml:"timeout" default:"5s"`
-	// EnableCache is a flag to enable caching
+	// EnableCache enables locally cached Atlas metric measurements to be used when true. The metric measurements that
+	// were supposed to be fetched are in fact always fetched asynchronously and the cache updated.
 	EnableCache bool `yaml:"enableCache" default:"true"`
 }
 

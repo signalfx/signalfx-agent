@@ -11,13 +11,13 @@ Monitor Type: `mongodb-atlas` ([Source](https://github.com/signalfx/signalfx-age
 ## Overview
 
 This mongodb-atlas monitor scrapes metric measurements of MongoDB processes in Atlas. The monitor translates the
-metric measurements are mapped to SignalFx metric datapoints then forwards them SignalFx. The original Atlas metric
-measurement names are included in the metric descriptions.
+metric measurements to SignalFx metric datapoints and forwards them SignalFx. The original Atlas metric names are
+included in the metric descriptions.
 
 Although this monitor can be configured to fetch metric measurements at rates measured in seconds, the finest
 measurement granularity allowed by Atlas is 1 minute. Thus multiple requests withing a 1 minute window will
-return the same metric values. This monitor fetches Atlas metric measurements using the finest granularity of
-1 minute and a period of 1 minute. This results in only one datapoint per metric measurement per request.
+return the same metric values. This monitor fetches metric measurements using the finest allowed granularity of
+1 minute and over a period of 1 minute. This results in only one metric datapoint per measurement per request.
 
 Below is an excerpt of the agent configuration yaml showing the minimal required fields.
 ```
@@ -50,7 +50,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `publicKey` | **yes** | `string` | PublicKey is the MongoDB Atlas public API key |
 | `privateKey` | **yes** | `string` | PrivateKey is the MongoDB Atlas private API key |
 | `timeout` | no | `int64` | Timeout for HTTP requests to get MongoDB Atlas process measurements. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration (**default:** `5s`) |
-| `enableCache` | no | `bool` | EnableCache is a flag to enable caching (**default:** `true`) |
+| `enableCache` | no | `bool` | EnableCache enables locally cached Atlas metric measurements to be used when true. The metric measurements that were supposed to be fetched are in fact always fetched asynchronously and the cache updated. (**default:** `true`) |
 
 
 ## Metrics

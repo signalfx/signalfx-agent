@@ -113,7 +113,7 @@ func getProcessesHelper(g *processesGetter, pageNum int) []*process {
 	}
 
 	if resp == nil {
-		log.Error(fmt.Sprintf("the response for getting processes returned empty (Atlas project: %s)", g.projectID))
+		log.Errorf("the response for getting processes returned empty (Atlas project: %s)", g.projectID)
 		return processes
 	}
 
