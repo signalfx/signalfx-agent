@@ -10,7 +10,7 @@ Use the Smart Agent
 
 
    /integrations/agent/quick-install
-   /integrations/agent/pguidance/index
+   /integrations/agent/agent-choose-install-type
    /integrations/agent/advanced-install-options
    /integrations/agent/config-schema
    /integrations/agent/observers/index
@@ -43,10 +43,11 @@ Check out the health of your network and nodes using
 
 The Smart Agent also supports receiving and sending trace data: See :new-page-ref:`apm2-smart-agent`.
 
-To quickly install the SignalFx Smart Agent, see the
+To quickly install the SignalFx Smart Agent, see the topic
 `Quick Install <https://docs.signalfx.com/en/latest/integrations/agent/quick-install.html>`__.
 
-To choose an installation method that's best suited to your needs, see :ref:`choose-install-type`.
+To learn about all the available installation methods, see topic
+`Choose a Smart Agent Install Method <agent-choose-install-type.rst>`__.
 
-Then, for a guided tour around SignalFx capabilities, try the
+For a guided tour around SignalFx capabilities, try the
 `15-Minute Quick Start <https://docs.signalfx.com/en/latest/getting-started/quick-start.html>`__.
