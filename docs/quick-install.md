@@ -59,7 +59,9 @@ When this command finishes, it displays the following:
 
 `The agent's main configuration file is located at /etc/signalfx/agent.yaml.`
 
-4. If your installation succeeds, proceed to the section **Verify Your Installation**. Otherwise, see the section **Troubleshoot Your Installation**.
+4. (Optional) If you want to override the default user and group names, review your [deployment's README file](https://github.com/signalfx/signalfx-agent/tree/master/deployments) and locate the option to set the user/group ownership for the signalfx-agent service.
+
+5. If your installation succeeds, proceed to the section **Verify Your Installation**. Otherwise, see the section **Troubleshoot Your Installation**.
 
 ### Install SignalFx Smart Agent on Windows
 
