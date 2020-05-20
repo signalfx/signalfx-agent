@@ -7,10 +7,7 @@ Use the Smart Agent
 .. toctree::
    :hidden:
 
-
-   /integrations/agent/quick-install
-   /integrations/agent/agent-choose-install-type
-   /integrations/agent/advanced-install-options
+   /integrations/agent/agent-install-methods
    /integrations/agent/config-schema
    /integrations/agent/observers/index
    /integrations/agent/monitors/index
