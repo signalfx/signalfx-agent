@@ -24,7 +24,8 @@ then
 
   docker export $cid | tar -C $tmpdir/signalfx-agent -xf -
   rm -rf $tmpdir/signalfx-agent/{proc,sys,dev,etc} $tmpdir/signalfx-agent/.dockerenv
-  tar -C $tmpdir -zcf $output_tar.gz .
+  curdir=$(pwd)
+  (cd $tmpdir && tar -zcf ${curdir}/${output_tar}.gz *)
 fi
 
 if [[ "${PUSH-}" = "yes" ]]
