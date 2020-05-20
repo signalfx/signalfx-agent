@@ -5,7 +5,6 @@ Use the Smart Agent
 *********************************
 
 .. toctree::
-   :maxdepth: 1
    :hidden:
 
 
