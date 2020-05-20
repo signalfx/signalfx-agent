@@ -21,7 +21,7 @@
                 },
                 {
                     "name": "CONFIG_URL",
-                    "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/v5.1.3/deployments/ecs/agent.yaml"
+                    "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/v5.1.6/deployments/ecs/agent.yaml"
                 }
             ],
             "ulimits": null,
@@ -48,7 +48,7 @@
             "memory": null,
             "memoryReservation": null,
             "volumesFrom": [],
-            "image": "quay.io/signalfx/signalfx-agent:5.1.3",
+            "image": "quay.io/signalfx/signalfx-agent:5.1.6",
             "disableNetworking": null,
             "healthCheck": null,
             "essential": true,

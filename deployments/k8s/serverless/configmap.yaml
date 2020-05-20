@@ -1,0 +1,81 @@
+---
+# Source: signalfx-agent/templates/configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: signalfx-agent-v5
+  labels:
+    app: signalfx-agent
+data:
+  agent.yaml: |
+    signalFxAccessToken: ${SFX_ACCESS_TOKEN}
+
+    signalFxRealm: us0
+
+    disableHostDimensions: true
+
+    etcPath: /hostfs/etc
+    procPath: /hostfs/proc
+
+    enableBuiltInFiltering: true
+
+    intervalSeconds: 10
+
+    cluster: MY-CLUSTER
+
+    logging:
+      level: info
+      format: text
+
+    globalDimensions:
+      kubernetes_cluster: MY-CLUSTER
+
+    observers:
+    - type: k8s-api
+      discoverAllPods: true
+      discoverNodes: true
+
+    monitors:
+
+    - type: kubelet-stats
+      # Change 'fargate' part to something else if using another serverless K8s
+      # platform.  We avoid scraping kubelet stats from the same node as the
+      # agent because EKS restricts connections between a pod and its own
+      # virtual kubelet, but not other kubelets.
+      discoveryRule: 'target == "k8s-node" && name =~ "fargate" && name != Getenv("MY_NODE_NAME")'
+      configEndpointMappings:
+        kubeletAPI: |
+          {
+            url: Sprintf("https://%s:%d", host, node_status.DaemonEndpoints.KubeletEndpoint.Port),
+            authType: "serviceAccount"
+          }
+      kubeletAPI:
+        authType: serviceAccount
+      datapointsToExclude:
+      - dimensions:
+          container_image:
+           - '*pause-amd64*'
+           - 'k8s.gcr.io/pause*'
+        metricNames:
+          - '*'
+          - '!*network*'
+
+    # Collects k8s cluster-level metrics
+    - type: kubernetes-cluster
+      alwaysClusterReporter: true
+
+
+
+
+    collectd:
+      readThreads: 5
+      writeQueueLimitHigh: 500000
+      writeQueueLimitLow: 400000
+      timeout: 40
+      logLevel: info
+
+    metricsToExclude:
+      # The StackDriver metadata-agent pod on GKE restarts every few minutes so
+      # ignore its containers
+      - dimensions:
+          container_spec_name: metadata-agent

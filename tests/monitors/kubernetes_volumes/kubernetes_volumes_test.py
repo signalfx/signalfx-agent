@@ -15,7 +15,10 @@ def test_kubernetes_volumes_in_k8s(k8s_cluster):
          kubeletAPI:
            skipVerify: true
            authType: serviceAccount
+         extraMetrics:
+           - kubernetes.volume_inodes
       """
     with k8s_cluster.run_agent(config) as agent:
         assert wait_for(p(has_datapoint, agent.fake_services, metric_name="kubernetes.volume_available_bytes"))
         assert wait_for(p(has_datapoint, agent.fake_services, metric_name="kubernetes.volume_capacity_bytes"))
+        assert wait_for(p(has_datapoint, agent.fake_services, metric_name="kubernetes.volume_inodes"))

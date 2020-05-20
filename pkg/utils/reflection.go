@@ -57,6 +57,16 @@ func FindFieldWithEmbeddedStructs(st interface{}, name string, typ reflect.Type)
 	return fieldValue
 }
 
+func FindFirstFieldOfType(st interface{}, typ reflect.Type) reflect.Value {
+	val := reflect.Indirect(reflect.ValueOf(st))
+	for i := 0; i < val.NumField(); i++ {
+		if val.Field(i).Type() == typ {
+			return val.Field(i)
+		}
+	}
+	return reflect.ValueOf(nil)
+}
+
 // IsStructOrPointerToStruct returns true if the given reflect.Type is a
 // struct or pointer to a struct
 func IsStructOrPointerToStruct(typ reflect.Type) bool {

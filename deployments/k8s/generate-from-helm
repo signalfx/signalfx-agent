@@ -12,26 +12,46 @@ tmpdir=$(mktemp -d)
 
 trap "rm -rf $tmpdir" EXIT
 
-helm template \
-    signalfx-agent \
-    --namespace signalfx-agent \
-    --set signalFxAccessToken=MY_TOKEN \
-    --set clusterName=MY-CLUSTER \
-    --set fullnameOverride=signalfx-agent \
-    --set agentVersion=$AGENT_RELEASE_VERSION \
-    --output-dir $tmpdir \
-    $AGENT_CHART_DIR
+render() {
+  local outdir=$1
+  local isServerless=$2
 
-templates="configmap.yaml daemonset.yaml clusterrole.yaml clusterrolebinding.yaml serviceaccount.yaml"
-for f in $templates; do
-  cat $tmpdir/signalfx-agent/templates/$f | \
-      sed -e 's/[[:space:]]*$//' | \
-      grep -v 'chart: signalfx-agent' | \
-      grep -v 'namespace: signalfx-agent' | \
-      grep -v 'heritage: Helm' | \
-      grep -iv 'release: signalfx-agent' \
-    > $SCRIPT_DIR/$f
-  echo "Wrote resource $f"
-done
+  helm template \
+      signalfx-agent \
+      --namespace signalfx-agent \
+      --set signalFxAccessToken=MY_TOKEN \
+      --set clusterName=MY-CLUSTER \
+      --set fullnameOverride=signalfx-agent \
+      --set agentVersion=$AGENT_RELEASE_VERSION \
+	  --set isServerless=$isServerless \
+      --output-dir $tmpdir \
+      $AGENT_CHART_DIR
 
-echo '  namespace: MY_AGENT_NAMESPACE' >> $SCRIPT_DIR/clusterrolebinding.yaml
+  templates="configmap.yaml daemonset.yaml deployment.yaml clusterrole.yaml clusterrolebinding.yaml serviceaccount.yaml"
+  for f in $templates; do
+	fullpath=$tmpdir/signalfx-agent/templates/$f
+	if [[ "$f" == "daemonset.yaml" && $isServerless == "true" ]]; then
+	  continue
+	fi
+
+	if [[ "$f" == "deployment.yaml" && $isServerless == "false" ]]; then
+	  continue
+	fi
+
+    cat $fullpath | \
+        sed -e 's/[[:space:]]*$//' | \
+        grep -v 'chart: signalfx-agent' | \
+        grep -v 'namespace: signalfx-agent' | \
+        grep -v 'heritage: Helm' | \
+        grep -iv 'release: signalfx-agent' \
+      > $outdir/$f
+    echo "Wrote resource $f"
+  done
+
+  echo '  namespace: MY_AGENT_NAMESPACE' >> $outdir/clusterrolebinding.yaml
+
+  rm -rf $tmpdir/*
+}
+
+render $SCRIPT_DIR "false"
+render $SCRIPT_DIR/serverless "true"

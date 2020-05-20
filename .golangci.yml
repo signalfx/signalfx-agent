@@ -32,6 +32,12 @@ issues:
       linters:
         - gosec
 
+    # There is duplication in structure here but it would be far more complex
+    # and unreadable to abstract it out.
+    - path: pkg/monitors/cgroups
+      linters:
+        - dupl
+
     - path: pkg/monitors/kubernetes/cluster/metrics
       linters:
         - goconst

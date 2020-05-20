@@ -1,0 +1,84 @@
+# This is only used for the serverless deployment model where we can't use
+# DaemonSets.
+{{ if .Values.isServerless -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "signalfx-agent.fullname" . }}
+  namespace: {{ template "signalfx-agent.namespace" . }}
+  labels:
+    app: {{ template "signalfx-agent.name" . }}
+    version: {{ .Values.agentVersion }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+    chart: {{ template "signalfx-agent.chart" . }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ template "signalfx-agent.name" . }}
+      release: {{ .Release.Name }}
+  strategy:
+    rollingUpdate:
+      maxUnavailable: {{ .Values.rollingUpdateMaxUnavailable | default 1 }}
+    type: RollingUpdate
+  {{ with .Values.minReadySeconds -}}
+  minReadySeconds: {{ . }}
+  {{- end}}
+  template:
+    metadata:
+      labels:
+        app: {{ template "signalfx-agent.name" . }}
+        version: {{ .Values.agentVersion }}
+        release: {{ .Release.Name }}
+        {{ with .Values.extraPodLabels -}}
+        {{ toYaml . | indent 8 | trim }}
+        {{- end }}
+      annotations:
+        {{- toYaml .Values.podAnnotations | trim | nindent 8 }}
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      restartPolicy: Always
+      serviceAccountName: {{ template "signalfx-agent.serviceAccountName" . }}
+      {{ with .Values.image.pullSecret -}}
+      imagePullSecrets:
+      - name: {{ . }}
+      {{- end }}
+      containers:
+      - name: signalfx-agent
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Values.agentVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+        - /bin/signalfx-agent
+        volumeMounts:
+        - mountPath: /etc/signalfx
+          name: config
+        resources:
+          {{- toYaml .Values.resources | trim | nindent 10 }}
+        env:
+        - name: SFX_ACCESS_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "signalfx-agent.secretName" . }}
+              key: access-token
+        - name: MY_POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        # Keep this so that we know the agent node when virtual nodes are
+        # involved.
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: spec.nodeName
+        - name: MY_NAMESPACE
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.namespace
+      volumes:
+      - name: config
+        configMap:
+          name: {{ include "configmap-name" . }}
+{{- end }}

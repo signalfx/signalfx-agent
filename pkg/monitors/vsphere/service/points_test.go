@@ -15,7 +15,7 @@ func TestRetrievePoints(t *testing.T) {
 	metricsSvc := NewMetricsService(gateway, log)
 	infoSvc := NewVSphereInfoService(inventorySvc, metricsSvc)
 	vsphereInfo, _ := infoSvc.RetrieveVSphereInfo()
-	svc := NewPointsSvc(gateway, log)
+	svc := NewPointsSvc(gateway, log, 0)
 	pts, _ := svc.RetrievePoints(vsphereInfo, 1)
 	pt := pts[0]
 	require.Equal(t, "vsphere.cpu_core_utilization_percent", pt.Metric)

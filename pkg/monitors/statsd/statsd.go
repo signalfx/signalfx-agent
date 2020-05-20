@@ -116,6 +116,10 @@ func parseMetrics(raw []string, converters []*converter, prefix string) []*stats
 	var metrics []*statsDMetric
 
 	for _, m := range raw {
+		if m == "" {
+			continue
+		}
+		m, dims := parseDogstatsdTags(m)
 		colonIdx := strings.Index(m, ":")
 		pipeIdx := strings.Index(m, "|")
 		if pipeIdx >= len(m)-1 || pipeIdx < 0 || colonIdx-1 > len(m) || colonIdx < 0 {
@@ -134,8 +138,6 @@ func parseMetrics(raw []string, converters []*converter, prefix string) []*stats
 			metricType = m[pipeIdx+1:]
 		}
 
-		var dims map[string]string
-
 		if prefix != "" {
 			metricName = strings.TrimPrefix(rawMetricName, prefix+".")
 		} else {
@@ -143,7 +145,7 @@ func parseMetrics(raw []string, converters []*converter, prefix string) []*stats
 		}
 
 		if converters != nil {
-			metricName, dims = convertMetric(metricName, converters)
+			metricName, dims = convertMetric(metricName, converters, dims)
 		}
 
 		strValue := m[colonIdx+1 : pipeIdx]

@@ -1,6 +1,6 @@
 # Version of the signalfx-agent to deploy.  This will be the default for the
 # docker image tag if not overridden with imageTag
-agentVersion: 5.1.3
+agentVersion: 5.1.6
 
 # The access token for SignalFx. (REQUIRED if signalFxAccessTokenSecretName not set)
 signalFxAccessToken: ""
@@ -66,6 +66,16 @@ serviceAccount:
 # that are deployed with standard master taints (see daemonset.yaml).  If you
 # need custom tolerations, see the 'tolerations' config option below.
 runOnMaster: true
+
+# If this is set to `true`, none of the host-based monitors will be enabled by
+# default.  Also, the k8s-api observer will be configured to discover all
+# services in the cluster, regardless of node.  The kubelet-stats monitor will
+# also be configured to have a separate instance for each node with the
+# appropriate URL to scrape container metrics for each virtual kubelet.  Right
+# now this config option is geared towards AWS EKS on Fargate but will be
+# expanded in the future to support other serverless K8s platforms if they are
+# sufficiently similar.
+isServerless: false
 
 # You can specify a node selector (https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector)
 # that limits what nodes the agent will run on.
@@ -182,6 +192,9 @@ gatherDockerMetrics: true
 # customers.
 metricsToExclude:
 
+# A list of annotation names that should be used to infer additional ports to be
+# discovered on a particular pod. The pod's annotation value should be a port number.
+additionalPortAnnotations: []
 
 # The path to the 'etc' directory of the underlying K8s node.  This allows the
 # agent to pull certain metadata about the node, such as the Linux distro

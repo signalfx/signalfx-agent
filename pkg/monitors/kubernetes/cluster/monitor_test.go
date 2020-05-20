@@ -406,19 +406,21 @@ var _ = Describe("Kubernetes plugin", func() {
 				},
 				Status: appsv1.DeploymentStatus{
 					AvailableReplicas: 1,
+					UpdatedReplicas:   1,
 				},
 			},
 		})
 
 		doSetup(true, "")
 
-		dps := waitForDatapoints(7)
+		dps := waitForDatapoints(8)
 
 		By("Reporting on existing deployments")
 		expectIntMetric(dps, "kubernetes_uid", "abcd", "kubernetes.deployment.desired", 10)
 		expectIntMetric(dps, "kubernetes_uid", "abcd", "kubernetes.deployment.available", 5)
 		expectIntMetric(dps, "kubernetes_uid", "efgh", "kubernetes.deployment.desired", 1)
 		expectIntMetric(dps, "kubernetes_uid", "efgh", "kubernetes.deployment.available", 1)
+		expectIntMetric(dps, "kubernetes_uid", "efgh", "kubernetes.deployment.updated", 1)
 
 		fakeK8s.CreateOrReplaceResource(&appsv1.Deployment{
 			TypeMeta: metav1.TypeMeta{
@@ -438,13 +440,14 @@ var _ = Describe("Kubernetes plugin", func() {
 			},
 		})
 
-		_ = waitForDatapoints(7)
-		dps = waitForDatapoints(7)
+		_ = waitForDatapoints(8)
+		dps = waitForDatapoints(8)
 		By("Responding to events pushed on the watch API")
 		expectIntMetric(dps, "kubernetes_uid", "abcd", "kubernetes.deployment.desired", 10)
 		expectIntMetric(dps, "kubernetes_uid", "abcd", "kubernetes.deployment.available", 5)
 		expectIntMetric(dps, "kubernetes_uid", "efgh", "kubernetes.deployment.desired", 1)
 		expectIntMetric(dps, "kubernetes_uid", "efgh", "kubernetes.deployment.available", 0)
+		expectIntMetric(dps, "kubernetes_uid", "efgh", "kubernetes.deployment.updated", 0)
 	})
 
 })

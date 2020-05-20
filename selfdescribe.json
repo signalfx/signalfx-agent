@@ -1272,6 +1272,398 @@
       "singleInstance": false
     },
     {
+      "monitorType": "cgroups",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": {
+        "cgroup": {
+          "description": "The name of the cgroup being described.  The name of a cgroup is the full relative path of the cgroup based on the cgroup controller's root directory."
+        },
+        "cpu": {
+          "description": "For metrics that end with `_per_cpu`, this dimension will indicate which cpu the time series refers to."
+        }
+      },
+      "doc": "Reports statistics about cgroups on Linux.  This only supports cgroups v1\nand not the newer v2 unified implementation.\n\nFor general information on cgroups, see http://man7.org/linux/man-pages/man7/cgroups.7.html.\n\nFor detailed information on `cpu` cgroup metrics, see [Red Hat's guide to CPU management](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/sec-cpu). Many of the metric descriptions come from that document. Note that the `cpuacct` cgroup is primarily an informational cgroup that gives detailed information on how long processes in a cgroup used the CPU.\n\nFor detailed information on `memory` cgroup metrics, see [Red Hat's guide to the Memory cgroup](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/resource_management_guide/sec-memory). Many of the metric description come from that document.  Also refer to the Linux Kernel's [memory cgroup document](https://www.kernel.org/doc/Documentation/cgroup-v1/memory.txt).\n\n### Filtering\nYou can limit the cgroups for which metrics are generated with the\n`cgroups` config option to the monitor.\n",
+      "groups": {
+        "cpu": {
+          "description": "",
+          "metrics": [
+            "cgroup.cpu_cfs_period_us",
+            "cgroup.cpu_cfs_quota_us",
+            "cgroup.cpu_shares",
+            "cgroup.cpu_stat_nr_periods",
+            "cgroup.cpu_stat_nr_throttled",
+            "cgroup.cpu_stat_throttled_time"
+          ]
+        },
+        "cpuacct": {
+          "description": "",
+          "metrics": [
+            "cgroup.cpuacct_usage_ns",
+            "cgroup.cpuacct_usage_system_ns",
+            "cgroup.cpuacct_usage_user_ns"
+          ]
+        },
+        "cpuacct-per-cpu": {
+          "description": "",
+          "metrics": [
+            "cgroup.cpuacct_usage_ns_per_cpu",
+            "cgroup.cpuacct_usage_system_ns_per_cpu",
+            "cgroup.cpuacct_usage_user_ns_per_cpu"
+          ]
+        },
+        "memory": {
+          "description": "",
+          "metrics": [
+            "cgroup.memory_failcnt",
+            "cgroup.memory_limit_in_bytes",
+            "cgroup.memory_max_usage_in_bytes",
+            "cgroup.memory_stat_active_anon",
+            "cgroup.memory_stat_active_file",
+            "cgroup.memory_stat_cache",
+            "cgroup.memory_stat_dirty",
+            "cgroup.memory_stat_hierarchical_memory_limit",
+            "cgroup.memory_stat_inactive_anon",
+            "cgroup.memory_stat_inactive_file",
+            "cgroup.memory_stat_mapped_file",
+            "cgroup.memory_stat_pgfault",
+            "cgroup.memory_stat_pgmajfault",
+            "cgroup.memory_stat_pgpgin",
+            "cgroup.memory_stat_pgpgout",
+            "cgroup.memory_stat_rss",
+            "cgroup.memory_stat_rss_huge",
+            "cgroup.memory_stat_shmem",
+            "cgroup.memory_stat_total_active_anon",
+            "cgroup.memory_stat_total_active_file",
+            "cgroup.memory_stat_total_cache",
+            "cgroup.memory_stat_total_dirty",
+            "cgroup.memory_stat_total_inactive_anon",
+            "cgroup.memory_stat_total_inactive_file",
+            "cgroup.memory_stat_total_mapped_file",
+            "cgroup.memory_stat_total_pgfault",
+            "cgroup.memory_stat_total_pgmajfault",
+            "cgroup.memory_stat_total_pgpgin",
+            "cgroup.memory_stat_total_pgpgout",
+            "cgroup.memory_stat_total_rss",
+            "cgroup.memory_stat_total_rss_huge",
+            "cgroup.memory_stat_total_shmem",
+            "cgroup.memory_stat_total_unevictable",
+            "cgroup.memory_stat_total_writeback",
+            "cgroup.memory_stat_unevictable",
+            "cgroup.memory_stat_writeback"
+          ]
+        }
+      },
+      "metrics": {
+        "cgroup.cpu_cfs_period_us": {
+          "type": "gauge",
+          "description": "The period of time in microseconds for how regularly a cgroup's access to CPU resources should be reallocated",
+          "group": "cpu",
+          "default": true
+        },
+        "cgroup.cpu_cfs_quota_us": {
+          "type": "gauge",
+          "description": "The total amount of time in microseconds for which all tasks in a cgroup can run during one period.  The period is in the metric `cgroup.cpu_cfs_period_us`.",
+          "group": "cpu",
+          "default": true
+        },
+        "cgroup.cpu_shares": {
+          "type": "gauge",
+          "description": "The relative share of CPU that this cgroup gets.  This number is divided into the sum total of all cpu share values to determine the share any individual cgroup is entitled to.\n",
+          "group": "cpu",
+          "default": true
+        },
+        "cgroup.cpu_stat_nr_periods": {
+          "type": "cumulative",
+          "description": "Number of period intervals that have elapsed (the period length is in the metric `cgroup.cpu_cfs_period_us`)",
+          "group": "cpu",
+          "default": false
+        },
+        "cgroup.cpu_stat_nr_throttled": {
+          "type": "cumulative",
+          "description": "Number of times tasks in a cgroup have been throttled",
+          "group": "cpu",
+          "default": false
+        },
+        "cgroup.cpu_stat_throttled_time": {
+          "type": "cumulative",
+          "description": "The total time in nanoseconds for which tasks in a cgroup have been throttled",
+          "group": "cpu",
+          "default": true
+        },
+        "cgroup.cpuacct_usage_ns": {
+          "type": "cumulative",
+          "description": "Total time in nanoseconds spent using any CPU by tasks in this cgroup",
+          "group": "cpuacct",
+          "default": true
+        },
+        "cgroup.cpuacct_usage_ns_per_cpu": {
+          "type": "cumulative",
+          "description": "Total time in nanoseconds spent using a specific CPU (core) by tasks in this cgroup.  This metric will have the `cpu` dimension that specifies the specific cpu/core.\n",
+          "group": "cpuacct-per-cpu",
+          "default": false
+        },
+        "cgroup.cpuacct_usage_system_ns": {
+          "type": "cumulative",
+          "description": "Total time in nanoseconds spent in system (kernel) mode on any CPU by tasks in this cgroup",
+          "group": "cpuacct",
+          "default": false
+        },
+        "cgroup.cpuacct_usage_system_ns_per_cpu": {
+          "type": "cumulative",
+          "description": "Total time in nanoseconds spent in system (kernel) mode on a specific CPU (core) by tasks in this cgroup.  This metric will have the `cpu` dimension that specifies the specific cpu/core.\n",
+          "group": "cpuacct-per-cpu",
+          "default": false
+        },
+        "cgroup.cpuacct_usage_user_ns": {
+          "type": "cumulative",
+          "description": "Total time in nanoseconds spent in user mode on any CPU by tasks in this cgroup",
+          "group": "cpuacct",
+          "default": false
+        },
+        "cgroup.cpuacct_usage_user_ns_per_cpu": {
+          "type": "cumulative",
+          "description": "Total time in nanoseconds spent in user mode on a specific CPU (core) by tasks in this cgroup.  This metric will have the `cpu` dimension that specifies the specific cpu/core.\n",
+          "group": "cpuacct-per-cpu",
+          "default": false
+        },
+        "cgroup.memory_failcnt": {
+          "type": "cumulative",
+          "description": "The number of times that the memory limit has reached the `limit_in_bytes` (reported in metric `cgroup.memory_limit_in_bytes`).\n",
+          "group": "memory",
+          "default": true
+        },
+        "cgroup.memory_limit_in_bytes": {
+          "type": "gauge",
+          "description": "The maximum amount of user memory (including file cache).  A value of `9223372036854771712` (the max 64-bit int aligned to the nearest memory page) indicates no limit and is the default.\n",
+          "group": "memory",
+          "default": true
+        },
+        "cgroup.memory_max_usage_in_bytes": {
+          "type": "gauge",
+          "description": "The maximum memory used by processes in the cgroup (in bytes)",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_active_anon": {
+          "type": "gauge",
+          "description": "Bytes of anonymous and swap cache memory on active LRU list",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_active_file": {
+          "type": "gauge",
+          "description": "Bytes of file-backed memory on active LRU list",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_cache": {
+          "type": "gauge",
+          "description": "Page cache, including tmpfs (shmem), in bytes",
+          "group": "memory",
+          "default": true
+        },
+        "cgroup.memory_stat_dirty": {
+          "type": "gauge",
+          "description": "Bytes that are waiting to get written back to the disk",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_hierarchical_memory_limit": {
+          "type": "gauge",
+          "description": "Bytes of memory limit with regard to hierarchy under which the memory cgroup is",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_inactive_anon": {
+          "type": "gauge",
+          "description": "Bytes of anonymous and swap cache memory on inactive LRU list",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_inactive_file": {
+          "type": "gauge",
+          "description": "Bytes of file-backed memory on inactive LRU list",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_mapped_file": {
+          "type": "gauge",
+          "description": "Bytes of mapped file (includes tmpfs/shmem)",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_pgfault": {
+          "type": "cumulative",
+          "description": "Total number of page faults incurred",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_pgmajfault": {
+          "type": "cumulative",
+          "description": "Number of major page faults incurred",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_pgpgin": {
+          "type": "cumulative",
+          "description": "Number of charging events to the memory cgroup. The charging event happens each time a page is accounted as either mapped anon page(RSS) or cache page(Page Cache) to the cgroup.\n",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_pgpgout": {
+          "type": "cumulative",
+          "description": "Number of uncharging events to the memory cgroup. The uncharging event happens each time a page is unaccounted from the cgroup.\n",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_rss": {
+          "type": "gauge",
+          "description": "Anonymous and swap cache, not including tmpfs (shmem), in bytes",
+          "group": "memory",
+          "default": true
+        },
+        "cgroup.memory_stat_rss_huge": {
+          "type": "gauge",
+          "description": "Bytes of anonymous transparent hugepages",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_shmem": {
+          "type": "gauge",
+          "description": "Bytes of shared memory",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_active_anon": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_active_anon` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_active_file": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_active_file` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_cache": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_cache` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_dirty": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_dirty` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_inactive_anon": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_inactive_anon` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_inactive_file": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_inactive_file` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_mapped_file": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_mapped_file` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_pgfault": {
+          "type": "cumulative",
+          "description": "The equivalent of `cgroup.memory_stat_pgfault` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_pgmajfault": {
+          "type": "cumulative",
+          "description": "The equivalent of `cgroup.memory_stat_pgmajfault` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_pgpgin": {
+          "type": "cumulative",
+          "description": "The equivalent of `cgroup.memory_stat_pgpgin` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_pgpgout": {
+          "type": "cumulative",
+          "description": "The equivalent of `cgroup.memory_stat_pgpgout` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_rss": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_rss` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_rss_huge": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_rss_huge` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_shmem": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_shmem` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_unevictable": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_unevictable` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_writeback": {
+          "type": "gauge",
+          "description": "The equivalent of `cgroup.memory_stat_writeback` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_unevictable": {
+          "type": "gauge",
+          "description": "Bytes of memory that cannot be reclaimed (mlocked, etc).",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_writeback": {
+          "type": "gauge",
+          "description": "Bytes of file/anon cache that are queued for syncing to disk",
+          "group": "memory",
+          "default": false
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/cgroups",
+        "fields": [
+          {
+            "yamlName": "cgroups",
+            "doc": "The cgroup names to include/exclude, based on the full hierarchy path. This is an [overridable set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters). If not provided, this defaults to all cgroups. E.g. to monitor all Docker container cgroups, you could use a value of `[\"/docker/*\"]`.",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          }
+        ]
+      },
+      "acceptsEndpoints": false,
+      "singleInstance": false
+    },
+    {
       "monitorType": "cloudfoundry-firehose-nozzle",
       "sendAll": false,
       "sendUnknown": false,
@@ -15634,6 +16026,87 @@
       "singleInstance": false
     },
     {
+      "monitorType": "collectd/php-fpm",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": {
+        "plugin_instance": {
+          "description": "Set to whatever you set in the `name` config option."
+        }
+      },
+      "doc": "Monitors PHP-FPM using pool status URL.\n\n\u003c!--- SETUP ---\u003e\n## PHP-FPM Setup\nTo configure the PHP-FPM service itself to expose status metrics:\n\n1. Enable status https://www.php.net/manual/en/install.fpm.configuration.php#pm.status-path\n2. Then, configure access through the webserver, i.e. nginx:\n\n   ```\n    location ~ ^/(status|ping)$ {\n      access_log off;\n      fastcgi_pass unix:/run/php/php-fpm.sock;\n      include fastcgi_params;\n      fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;\n    }\n   ```\n3. Restart Webserver (i.e. Nginx) and PHP-FPM.\n\n\u003c!--- SETUP ---\u003e\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "phpfpm_processes.active",
+            "phpfpm_processes.idle",
+            "phpfpm_processes.max_reached",
+            "phpfpm_requests.accepted",
+            "phpfpm_requests.slow"
+          ]
+        }
+      },
+      "metrics": {
+        "phpfpm_processes.active": {
+          "type": "gauge",
+          "description": "Total number of active processes.",
+          "group": null,
+          "default": true
+        },
+        "phpfpm_processes.idle": {
+          "type": "gauge",
+          "description": "Total number of idle processes.",
+          "group": null,
+          "default": true
+        },
+        "phpfpm_processes.max_reached": {
+          "type": "counter",
+          "description": "The number of times the process limit has been reached.",
+          "group": null,
+          "default": true
+        },
+        "phpfpm_requests.accepted": {
+          "type": "counter",
+          "description": "Total number of accepted requests.",
+          "group": null,
+          "default": true
+        },
+        "phpfpm_requests.slow": {
+          "type": "counter",
+          "description": "Total number of slow requests.",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config is the monitor-specific config with the generic config embedded",
+        "package": "pkg/monitors/collectd/php",
+        "fields": [
+          {
+            "yamlName": "name",
+            "doc": "This will be sent as the `plugin_instance` dimension and can be any name you like.",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "url",
+            "doc": "Final URL ending by `?json` (i.e. http://127.0.0.1/_fpmstatus?json).",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "collectd/postgresql",
       "sendAll": false,
       "sendUnknown": false,
@@ -28588,6 +29061,211 @@
       "singleInstance": true
     },
     {
+      "monitorType": "http",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": {
+        "method": {
+          "description": "HTTP method used to do request. Not available on `http.cert_*` metrics."
+        },
+        "server_name": {
+          "description": "ServerName used for TLS validation. Always and only available on `http.cert_expiry` metric."
+        },
+        "url": {
+          "description": "Last URL retrieved from configured one. Always available on every metrics."
+        }
+      },
+      "doc": "This monitor will generate metrics based on whether the HTTP responses from\nthe configured URLs match expectations (e.g. correct body, status code,\netc).\n\nTLS information will automatically be fetched if applicable (from base URL\nor redirection).\n\nThe configuration will be applied to every requests URLs from configured\nlist so you need to instance multiple times this monitor for different\nbehavior on multiple URLs.\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "http.cert_expiry",
+            "http.cert_valid",
+            "http.code_matched",
+            "http.content_length",
+            "http.regex_matched",
+            "http.response_time",
+            "http.status_code"
+          ]
+        }
+      },
+      "metrics": {
+        "http.cert_expiry": {
+          "type": "gauge",
+          "description": "Certificate expiry in seconds. This metric is reported only if HTTPS is available (from last followed URL).",
+          "group": null,
+          "default": true
+        },
+        "http.cert_valid": {
+          "type": "gauge",
+          "description": "Value is 1 if certificate is valid (including expiration test) or 0 else. This metric is reported only if HTTPS is available (from last followed URL).",
+          "group": null,
+          "default": true
+        },
+        "http.code_matched": {
+          "type": "gauge",
+          "description": "Value is 1 if `status_code` value match `desiredCode` set in config. Always reported.",
+          "group": null,
+          "default": true
+        },
+        "http.content_length": {
+          "type": "gauge",
+          "description": "HTTP response body length. Always reported.",
+          "group": null,
+          "default": true
+        },
+        "http.regex_matched": {
+          "type": "gauge",
+          "description": "Value is 1 if pattern match in response body. Only reported if `regex` is configured.",
+          "group": null,
+          "default": true
+        },
+        "http.response_time": {
+          "type": "gauge",
+          "description": "HTTP response time in seconds. Always reported.",
+          "group": null,
+          "default": true
+        },
+        "http.status_code": {
+          "type": "gauge",
+          "description": "HTTP response status code. Always reported.",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/http",
+        "fields": [
+          {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "httpHeaders",
+            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "skipVerify",
+            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "requestBody",
+            "doc": "Optional HTTP request body as string like '{\"foo\":\"bar\"}'",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "noRedirects",
+            "doc": "Do not follow redirect.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "method",
+            "doc": "HTTP request method to use.",
+            "default": "GET",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "urls",
+            "doc": "List of HTTP URLs to monitor.",
+            "default": null,
+            "required": true,
+            "type": "slice",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "regex",
+            "doc": "Optional Regex to match on URL(s) response(s).",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "desiredCode",
+            "doc": "Desired code to match for URL(s) response(s).",
+            "default": 200,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "internal-metrics",
       "sendAll": true,
       "sendUnknown": false,
@@ -33121,7 +33799,7 @@
           }
         ]
       },
-      "acceptsEndpoints": false,
+      "acceptsEndpoints": true,
       "singleInstance": false
     },
     {
@@ -35202,8 +35880,10 @@
             "kubernetes.daemon_set.desired_scheduled",
             "kubernetes.daemon_set.misscheduled",
             "kubernetes.daemon_set.ready",
+            "kubernetes.daemon_set.updated",
             "kubernetes.deployment.available",
             "kubernetes.deployment.desired",
+            "kubernetes.deployment.updated",
             "kubernetes.job.active",
             "kubernetes.job.completions",
             "kubernetes.job.failed",
@@ -35316,6 +35996,12 @@
           "group": null,
           "default": true
         },
+        "kubernetes.daemon_set.updated": {
+          "type": "gauge",
+          "description": "The total number of nodes that are running updated daemon pod",
+          "group": null,
+          "default": false
+        },
         "kubernetes.deployment.available": {
           "type": "gauge",
           "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.",
@@ -35327,6 +36013,12 @@
           "description": "Number of desired pods in this deployment",
           "group": null,
           "default": true
+        },
+        "kubernetes.deployment.updated": {
+          "type": "gauge",
+          "description": "Total number of non-terminated pods targeted by this deployment that have the desired template spec",
+          "group": null,
+          "default": false
         },
         "kubernetes.hpa.spec.max_replicas": {
           "type": "gauge",
@@ -37327,7 +38019,7 @@
     },
     {
       "monitorType": "kubernetes-volumes",
-      "sendAll": true,
+      "sendAll": false,
       "sendUnknown": false,
       "dimensions": {
         "VolumeId": {
@@ -37364,7 +38056,10 @@
           "description": "",
           "metrics": [
             "kubernetes.volume_available_bytes",
-            "kubernetes.volume_capacity_bytes"
+            "kubernetes.volume_capacity_bytes",
+            "kubernetes.volume_inodes",
+            "kubernetes.volume_inodes_free",
+            "kubernetes.volume_inodes_used"
           ]
         }
       },
@@ -37373,11 +38068,29 @@
           "type": "gauge",
           "description": "The number of available bytes in the volume",
           "group": null,
-          "default": false
+          "default": true
         },
         "kubernetes.volume_capacity_bytes": {
           "type": "gauge",
           "description": "The total capacity in bytes of the volume",
+          "group": null,
+          "default": true
+        },
+        "kubernetes.volume_inodes": {
+          "type": "gauge",
+          "description": "The total inodes in the filesystem",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.volume_inodes_free": {
+          "type": "gauge",
+          "description": "The free inodes in the filesystem",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.volume_inodes_used": {
+          "type": "gauge",
+          "description": "The inodes used by the filesystem. This may not equal `inodes - free` because filesystem may share inodes with other filesystems.",
           "group": null,
           "default": false
         }
@@ -38493,6 +39206,75 @@
       "singleInstance": false
     },
     {
+      "monitorType": "ntp",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": {
+        "ntp": {
+          "description": "NTP server used. Corresponds to configured `host`."
+        }
+      },
+      "doc": "This monitor will retrieve clock offset from ntp server.\n\nIt enforces a minimum interval of 30m.\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "ntp.offset_seconds"
+          ]
+        }
+      },
+      "metrics": {
+        "ntp.offset_seconds": {
+          "type": "gauge",
+          "description": "Time difference between local and NTP server clocks in seconds.",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/ntp",
+        "fields": [
+          {
+            "yamlName": "host",
+            "doc": "The host/ip address of the NTP server (i.e. `pool.ntp.org`).",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "The port of the NTP server.",
+            "default": 123,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "version",
+            "doc": "NTP protocol version to.",
+            "default": 4,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "timeout",
+            "doc": "Timeout in seconds for the request.",
+            "default": "5s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": false,
+      "singleInstance": false
+    },
+    {
       "monitorType": "openshift-cluster",
       "sendAll": false,
       "sendUnknown": false,
@@ -38540,8 +39322,10 @@
             "kubernetes.daemon_set.desired_scheduled",
             "kubernetes.daemon_set.misscheduled",
             "kubernetes.daemon_set.ready",
+            "kubernetes.daemon_set.updated",
             "kubernetes.deployment.available",
             "kubernetes.deployment.desired",
+            "kubernetes.deployment.updated",
             "kubernetes.job.active",
             "kubernetes.job.completions",
             "kubernetes.job.failed",
@@ -38682,6 +39466,12 @@
           "group": null,
           "default": true
         },
+        "kubernetes.daemon_set.updated": {
+          "type": "gauge",
+          "description": "The total number of nodes that are running updated daemon pod",
+          "group": null,
+          "default": false
+        },
         "kubernetes.deployment.available": {
           "type": "gauge",
           "description": "Total number of available pods (ready for at least minReadySeconds) targeted by this deployment.",
@@ -38693,6 +39483,12 @@
           "description": "Number of desired pods in this deployment",
           "group": null,
           "default": true
+        },
+        "kubernetes.deployment.updated": {
+          "type": "gauge",
+          "description": "Total number of non-terminated pods targeted by this deployment that have the desired template spec",
+          "group": null,
+          "default": false
         },
         "kubernetes.hpa.spec.max_replicas": {
           "type": "gauge",
@@ -45277,6 +46073,54 @@
       "singleInstance": false
     },
     {
+      "monitorType": "supervisor",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": {
+        "group": {
+          "description": "Name of the process group."
+        },
+        "name": {
+          "description": "Name of the process."
+        }
+      },
+      "doc": "This monitor will retrieve state of processes running by Supervisor.\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "supervisor.state"
+          ]
+        }
+      },
+      "metrics": {
+        "supervisor.state": {
+          "type": "gauge",
+          "description": "State code, see [Supervisor process states](http://supervisord.org/subprocess.html#process-states).",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/supervisor",
+        "fields": [
+          {
+            "yamlName": "url",
+            "doc": "The Supervisor XML-RPC API URL (i.e. `http://localhost:9001/RPC2`).",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": false,
+      "singleInstance": false
+    },
+    {
       "monitorType": "telegraf/exec",
       "sendAll": true,
       "sendUnknown": false,
@@ -50264,6 +51108,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "perfBatchSize",
+            "doc": "Maximum number of inventory objects to be queried for performance data per request. Set this value to zero (0) to request performance data for all inventory objects at a time.",
+            "default": 10,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          },
+          {
             "yamlName": "tlsCACertPath",
             "doc": "Path to the ca file",
             "default": "",
@@ -50919,7 +51771,7 @@
           "name": "port_labels",
           "type": "map",
           "elementKind": "string",
-          "description": "A map of labels on the container port. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions)."
+          "description": "A map of labels on the container port"
         },
         {
           "name": "port_type",
@@ -51088,7 +51940,7 @@
           "name": "port_labels",
           "type": "map",
           "elementKind": "string",
-          "description": "A map of labels on the container port. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions)."
+          "description": "A map of labels on the container port"
         },
         {
           "name": "port_type",
@@ -51201,7 +52053,7 @@
     },
     {
       "name": "Config",
-      "doc": " Discovers services running in a Kubernetes cluster by\nquerying the Kubernetes API server.  This observer is designed to only\ndiscover pod endpoints exposed on the same node that the agent is running,\nso that the monitoring of services does not generate cross-node traffic.  To\nknow which node the agent is running on, you should set an environment\nvariable called `MY_NODE_NAME` using the downward API `spec.nodeName` value\nin the pod spec.  Our provided K8s DaemonSet resource does this already and\nprovides an example.\n\nNote that this observer discovers exposed ports on pod containers, not K8s\nEndpoint resources, so don't let the terminology of agent \"endpoints\"\nconfuse you.\n",
+      "doc": " Discovers pod endpoints and nodes running in a Kubernetes\ncluster by querying the Kubernetes API server.  This observer by default\nwill only discover pod endpoints exposed on the same node that the agent is\nrunning, so that the monitoring of services does not generate cross-node\ntraffic.  To know which node the agent is running on, you should set an\nenvironment variable called `MY_NODE_NAME` using the downward API\n`spec.nodeName` value in the pod spec. Our provided K8s DaemonSet resource\ndoes this already and provides an example.\n\nThis observer also emits high-level `pod` targets that only contain a `host`\nfield but no `port`.  This allows monitoring ports on a pod that are not\nexplicitly specified in the pod spec, which would result in no normal\n`hostport` target being emitted for that particular endpoint.\n\nIf `discoverAllPods` is set to `true`, then the observer will discover pods on all\nnodes in the cluster (or namespace if specified).  By default, only pods on\nthe same node as the agent are discovered.\n\nNote that this observer discovers exposed ports on pod containers, not K8s\nEndpoint resources, so don't let the terminology of agent \"endpoints\"\nconfuse you.\n",
       "package": "pkg/observers/kubernetes",
       "fields": [
         {
@@ -51274,6 +52126,22 @@
           "required": false,
           "type": "slice",
           "elementKind": "string"
+        },
+        {
+          "yamlName": "discoverAllPods",
+          "doc": "If true, this observer will watch all Kubernetes pods and discover endpoints/services from each of them.  The default behavior (when `false`) is to only watch the pods on the current node that this agent is running on (it knows the current node via the `MY_NODE_NAME` envvar provided by the downward API).",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
+          "yamlName": "discoverNodes",
+          "doc": "If `true`, the observer will discover nodes as a special type of endpoint.  You can match these endpoints in your discovery rules with the condition `target == \"k8s-node\"`.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
         }
       ],
       "observerType": "k8s-api",
@@ -51292,6 +52160,12 @@
         },
         "kubernetes_namespace": {
           "description": "The namespace that the discovered service endpoint is running in."
+        },
+        "kubernetes_node": {
+          "description": "For Node (`k8s-node`) targets, the name of the Node"
+        },
+        "kubernetes_node_uid": {
+          "description": "For Node (`k8s-node`) targets, the UID of the Node"
         },
         "kubernetes_pod_name": {
           "description": "The name of the running pod that is exposing the discovered endpoint"
@@ -51323,13 +52197,37 @@
           "name": "kubernetes_annotations",
           "type": "string",
           "elementKind": "",
-          "description": "The set of annotations on the discovered pod."
+          "description": "The set of annotations on the discovered pod or node."
         },
         {
           "name": "network_port",
           "type": "string",
           "elementKind": "",
           "description": "An alias for `port`"
+        },
+        {
+          "name": "node_addresses",
+          "type": "string",
+          "elementKind": "",
+          "description": "A map of the different Node addresses specified in the Node status object.  The key of the map is the address type and the value is the address string. The address types are `Hostname`, `ExternalIP`, `InternalIP`, `ExternalDNS`, `InternalDNS`.  Most likely not all of these address types will be present for a given Node."
+        },
+        {
+          "name": "node_metadata",
+          "type": "string",
+          "elementKind": "",
+          "description": "The metadata about the Node, for `k8s-node` targets, with fields in TitleCase.  See [ObjectMeta v1 meta reference](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#objectmeta-v1-meta)."
+        },
+        {
+          "name": "node_spec",
+          "type": "string",
+          "elementKind": "",
+          "description": "The Node spec object, for `k8s-node` targets.  See [the K8s reference on this resource](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#nodespec-v1-core), but keep in the mind that fields will be in TitleCase due to passing through Go."
+        },
+        {
+          "name": "node_status",
+          "type": "string",
+          "elementKind": "",
+          "description": "The Node status object, for `k8s-node` targets. See [the K8s reference on Node Status](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#nodestatus-v1-core) but keep in mind that fields will be in TitleCase due to passing through Go."
         },
         {
           "name": "pod_metadata",
@@ -51437,7 +52335,7 @@
           "name": "port_labels",
           "type": "map",
           "elementKind": "string",
-          "description": "A map of labels on the container port. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions)."
+          "description": "A map of labels on the container port"
         },
         {
           "name": "port_type",
@@ -51681,7 +52579,7 @@
           "name": "port_labels",
           "type": "map",
           "elementKind": "string",
-          "description": "A map of labels on the container port. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions)."
+          "description": "A map of labels on the container port"
         },
         {
           "name": "port_type",

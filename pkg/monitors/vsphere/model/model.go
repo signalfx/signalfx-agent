@@ -31,6 +31,10 @@ type Config struct {
 	InsecureSkipVerify bool `yaml:"insecureSkipVerify"`
 	// How often to reload the inventory and inventory metrics
 	InventoryRefreshInterval timeutil.Duration `yaml:"inventoryRefreshInterval" default:"60s"`
+	// Maximum number of inventory objects to be queried for performance data
+	// per request. Set this value to zero (0) to request performance data for
+	// all inventory objects at a time.
+	PerfBatchSize int `yaml:"perfBatchSize" default:"10"`
 
 	// Path to the ca file
 	TLSCACertPath string `yaml:"tlsCACertPath"`

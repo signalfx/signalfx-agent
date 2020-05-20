@@ -31,6 +31,7 @@ var _ = Describe("Kubernetes Observer", func() {
 			AuthType:   "none",
 			SkipVerify: true,
 		}
+		config.DiscoverNodes = true
 
 		fakeK8s = NewFakeK8s()
 		fakeK8s.Start()
@@ -50,7 +51,7 @@ var _ = Describe("Kubernetes Observer", func() {
 				Added:   func(se services.Endpoint) { endpoints[se.Core().ID] = se },
 				Removed: func(se services.Endpoint) { delete(endpoints, se.Core().ID) },
 			},
-			endpointsByPodUID: make(map[types.UID][]services.Endpoint),
+			endpointsByUID: make(map[types.UID][]services.Endpoint),
 		}
 
 		err := observer.Configure(config)
@@ -242,6 +243,152 @@ var _ = Describe("Kubernetes Observer", func() {
 		Expect(endpoints["test1-abcdefg-80"].Core().Configuration["password"]).To(Equal("s3cr3t"))
 		Expect(endpoints["test1-abcdefg-80"].Core().Configuration["databases"]).To(Equal([]interface{}{"admin", "db1"}))
 	})
+
+	It("Updates endpoints for changed and deleted pods", func() {
+		fakeK8s.SetInitialList([]runtime.Object{
+			&v1.Pod{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Pod",
+					APIVersion: "v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      "test1",
+					Namespace: "default",
+					UID:       "abcdefghij",
+				},
+				Status: v1.PodStatus{
+					Phase: v1.PodRunning,
+					PodIP: "10.0.4.3",
+					ContainerStatuses: []v1.ContainerStatus{
+						{
+							Name:         "container1",
+							RestartCount: 5,
+							State: v1.ContainerState{
+								Running: &v1.ContainerStateRunning{},
+							},
+						},
+					},
+				},
+				Spec: v1.PodSpec{
+					Containers: []v1.Container{
+						{
+							Name: "container1",
+							Ports: []v1.ContainerPort{
+								{
+									Name:          "http",
+									ContainerPort: 80,
+								},
+							},
+						},
+					},
+				},
+			},
+		})
+
+		startObserver()
+
+		Eventually(func() int { return len(endpoints) }).Should(Equal(2))
+		Expect(endpoints["test1-abcdefg-pod"].Core().Host).To(Equal("10.0.4.3"))
+		Expect(endpoints["test1-abcdefg-pod"].Core().Port).To(Equal(uint16(0)))
+		Expect(endpoints["test1-abcdefg-80"].Core().Host).To(Equal("10.0.4.3"))
+		Expect(endpoints["test1-abcdefg-80"].Core().Port).To(Equal(uint16(80)))
+
+		fakeK8s.CreateOrReplaceResource(&v1.Pod{
+			TypeMeta: metav1.TypeMeta{
+				Kind:       "Pod",
+				APIVersion: "v1",
+			},
+			ObjectMeta: metav1.ObjectMeta{
+				Name:      "test1",
+				Namespace: "default",
+				UID:       "abcdefghij",
+			},
+			Status: v1.PodStatus{
+				Phase: v1.PodRunning,
+				PodIP: "10.0.4.5",
+				ContainerStatuses: []v1.ContainerStatus{
+					{
+						Name:         "container1",
+						RestartCount: 5,
+						State: v1.ContainerState{
+							Running: &v1.ContainerStateRunning{},
+						},
+					},
+				},
+			},
+			Spec: v1.PodSpec{
+				Containers: []v1.Container{
+					{
+						Name: "container1",
+						Ports: []v1.ContainerPort{
+							{
+								Name:          "http",
+								ContainerPort: 80,
+							},
+							{
+								Name:          "http-alt",
+								ContainerPort: 8080,
+							},
+						},
+					},
+				},
+			},
+		})
+
+		Eventually(func() int { return len(endpoints) }).Should(Equal(3))
+		Expect(endpoints["test1-abcdefg-pod"].Core().Host).To(Equal("10.0.4.5"))
+		Expect(endpoints["test1-abcdefg-pod"].Core().Port).To(Equal(uint16(0)))
+		Expect(endpoints["test1-abcdefg-80"].Core().Host).To(Equal("10.0.4.5"))
+		Expect(endpoints["test1-abcdefg-80"].Core().Port).To(Equal(uint16(80)))
+		Expect(endpoints["test1-abcdefg-8080"].Core().Host).To(Equal("10.0.4.5"))
+		Expect(endpoints["test1-abcdefg-8080"].Core().Port).To(Equal(uint16(8080)))
+
+		fakeK8s.DeleteResourceByName("Pod", "default", "test1")
+		Eventually(func() int { return len(endpoints) }).Should(Equal(0))
+	})
+
+	It("Emits endpoints for nodes", func() {
+		fakeK8s.SetInitialList([]runtime.Object{
+			&v1.Node{
+				TypeMeta: metav1.TypeMeta{
+					Kind:       "Node",
+					APIVersion: "v1",
+				},
+				ObjectMeta: metav1.ObjectMeta{
+					Name: "node1",
+					UID:  "node-1234",
+				},
+				Status: v1.NodeStatus{
+					Addresses: []v1.NodeAddress{
+						{
+							Type:    v1.NodeExternalIP,
+							Address: "1.2.3.4",
+						},
+						{
+							Type:    v1.NodeInternalIP,
+							Address: "10.5.4.3",
+						},
+						{
+							Type:    v1.NodeInternalDNS,
+							Address: "node1.internal",
+						},
+					},
+				},
+				Spec: v1.NodeSpec{},
+			},
+		})
+
+		startObserver()
+
+		Eventually(func() int { return len(endpoints) }).Should(Equal(1))
+		Expect(endpoints["node-node1-node-12"].Core().Host).To(Equal("10.5.4.3"))
+		Expect(endpoints["node-node1-node-12"].Core().DerivedFields()["node_addresses"].(map[v1.NodeAddressType]string)[v1.NodeInternalDNS]).To(Equal("node1.internal"))
+		Expect(endpoints["node-node1-node-12"].Core().Target).To(Equal(services.TargetTypeKubernetesNode))
+
+		fakeK8s.DeleteResourceByName("Node", "", "node1")
+		Eventually(func() int { return len(endpoints) }).Should(Equal(0))
+	})
+
 })
 
 func TestKubernetes(t *testing.T) {

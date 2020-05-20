@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/kubernetes/cluster/meta"
 	k8sutil "github.com/signalfx/signalfx-agent/pkg/monitors/kubernetes/utils"
 	atypes "github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
@@ -41,6 +42,12 @@ func datapointsForDaemonSet(ds *appsv1.DaemonSet) []*datapoint.Datapoint {
 			"kubernetes.daemon_set.ready",
 			dimensions,
 			datapoint.NewIntValue(int64(ds.Status.NumberReady)),
+			datapoint.Gauge,
+			time.Time{}),
+		datapoint.New(
+			meta.KubernetesDaemonSetUpdated,
+			dimensions,
+			datapoint.NewIntValue(int64(ds.Status.UpdatedNumberScheduled)),
 			datapoint.Gauge,
 			time.Time{}),
 	}
