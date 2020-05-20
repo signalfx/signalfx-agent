@@ -4,18 +4,17 @@
 Choose a Smart Agent Install Method
 *********************************************
 
-.. toctree:: :maxdepth: 1 :hidden:
+.. toctree::
+   :maxdepth: 1
+   :hidden:
 
-/integrations/agent/pguidance/agent-install-packages
-/integrations/agent/pguidance/agent-install-standalone-linux
-/integrations/agent/pguidance/agent-install-standalone-windows
-/integrations/agent/pguidance/agent-k8s-install-helm
-/integrations/agent/pguidance/agent-k8s-install-kubectl
-/integrations/agent/pguidance/agent-install-awsecs
-/integrations/agent/pguidance/agent-install-config-mgmt
-
-Choose a Smart Agent Install Method
-===================================
+   /integrations/agent/pguidance/agent-install-packages
+   /integrations/agent/pguidance/agent-install-standalone-linux
+   /integrations/agent/pguidance/agent-install-standalone-windows
+   /integrations/agent/pguidance/agent-k8s-install-helm
+   /integrations/agent/pguidance/agent-k8s-install-kubectl
+   /integrations/agent/pguidance/agent-install-awsecs
+   /integrations/agent/pguidance/agent-install-config-mgmt
 
 SignalFx offers several different installation mechanisms to match your
 needs. The following list organizes the mechanisms by use case:
