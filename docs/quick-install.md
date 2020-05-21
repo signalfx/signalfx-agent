@@ -44,7 +44,7 @@ This section lists the steps for installing SignalFx Smart Agent on Linux. If yo
 1. Open your command line application.
 
 2. Download the Smart Agent install script from its repository location. Copy the following command and paste it into the window of `terminal` or a similar app.
-`curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh`
+`curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh;`
 
 If the download succeeds, you don't see any output, but you do see a new command prompt.
 
