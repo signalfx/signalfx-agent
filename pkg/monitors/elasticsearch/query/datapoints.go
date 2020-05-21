@@ -63,8 +63,20 @@ func (dpC *dpCollector) recursivelyCollectDatapoints() []*datapoint.Datapoint {
 		key, ok := b.Key.(string)
 
 		if !ok {
-			log.Warn("Found non string key for bucket. Skipping current aggregation and sub aggregations")
-			break
+
+			// If key is not a string value, check to see if its an integer value
+			// Convert to float after UnMarshalling from JSON
+			floatValue,isFloat := b.Key.(float64)
+			
+			if !isFloat{
+				log.Warn("Found non string or int key for bucket. Skipping current aggregation and sub aggregations")
+				break
+			} else {
+				// Check to see if the float is a whole number & if so, convert value to string
+				if newValue == float64(int64(floatValue)){
+					key = strconv.FormatInt(int64(floatValue), 10)
+				}
+			}
 		}
 
 		// Pick the current bucket's key as a dimension before recursing down to the next level

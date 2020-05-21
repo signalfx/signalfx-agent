@@ -1,7 +1,9 @@
 param (
     [parameter(Mandatory=$false)]
     [string]$installation_path = "C:\Program Files",
-    [string]$config_path = "C:\ProgramData\SignalFxAgent\agent.yaml"
+    [string]$config_path = "C:\ProgramData\SignalFxAgent\agent.yaml",
+    [string]$msi_path = "",
+    [bool]$delete_config = $false
 )
 
 $config_dir = Split-Path -Path $config_path
@@ -55,6 +57,11 @@ function remove_agent_registry_entries() {
     }
 }
 
+# check registry for the agent msi package
+function msi_installed([string]$name="SignalFx Smart Agent") {
+    return (Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Where { $_.DisplayName -eq $name }) -ne $null
+}
+
 # uninstall the agent
 function uninstall_agent($installation_path=$installation_path) {
     if (Test-Path -Path "$installation_path\SignalFx\SignalFxAgent") {
@@ -71,15 +78,25 @@ function uninstall_agent($installation_path=$installation_path) {
             }
         }
 
-        echo "Deleting $installation_path\SignalFx"
-        Remove-Item -Recurse -Force "$installation_path\SignalFx"
+        if (($msi_path -ne "") -And (msi_installed)) {
+            $msi_path = Resolve-Path "$msi_path"
+            Start-Process msiexec.exe -Wait -ArgumentList "/qn /norestart /x $msi_path"
+        } else {
+            echo "Deleting $installation_path\SignalFx"
+            Remove-Item -Recurse -Force "$installation_path\SignalFx"
+        }
+
         remove_agent_registry_entries
-        echo "Deleting $config_dir"
-        Remove-Item -Recurse -Force "$config_dir"
+
         echo "- Done"
     } else {
         echo "No existing agent installation found!"
     }
 }
 
-uninstall_agent -installation_path $installation_path
+uninstall_agent -installation_path $installation_path -msi_path $msi_path
+
+if ($delete_config -And (Test-Path -Path "$config_dir")) {
+    echo "Deleting $config_dir"
+    Remove-Item -Recurse -Force "$config_dir"
+}

@@ -1,0 +1,4 @@
+﻿From: https://raw.githubusercontent.com/signalfx/signalfx-agent/master/LICENSE
+
+LICENSE
+
