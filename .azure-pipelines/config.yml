@@ -96,18 +96,23 @@ jobs:
   - template: 'templates/install-go.yml'
     parameters:
       version: $(GOVERSION)
+  - template: 'templates/install-choco.yml'
   - powershell: |
-      if ("$(Build.SourceBranch)" -match "^refs/tags/v\d+\.\d+\.\d+$") {
-          $env:AGENT_VERSION = ("$(Build.SourceBranchName)").Replace("v", "")
-      } else {
-          $env:AGENT_VERSION = "$(Build.SourceVersion)"
-      }
-      & ./scripts/windows/make.ps1 bundle
-    displayName: 'Build bundle'
+      choco install -y checksum
+      choco install -y wixtoolset --version 3.11.2
+      $env:PATH = "C:\ProgramData\chocolatey\bin;C:\Program Files (x86)\WiX Toolset v3.11\bin;$env:PATH"
+      echo "##vso[task.setvariable variable=PATH]$env:PATH"
+    displayName: 'Install msi dependencies'
+  - powershell: |
+      & ./scripts/windows/make.ps1 bundle -build_msi 1 -build_choco 1
+    displayName: 'Build bundle, msi, and nupkg'
   - task: CopyFiles@2
     inputs:
       sourceFolder: 'build'
-      contents: 'SignalFxAgent-*-win64.zip'
+      contents: |
+        SignalFxAgent-*-win64.zip
+        SignalFxAgent-*-win64.msi
+        signalfx-agent*.nupkg
       targetFolder: '$(Build.ArtifactStagingDirectory)'
       cleanTargetFolder: true
       overWrite: true
@@ -182,17 +187,27 @@ jobs:
 - job: 'win_2019_installer_tests'
   pool:
     vmImage: 'windows-2019'
+  dependsOn: 'win_bundle_build'
   steps:
+  - task: DownloadBuildArtifacts@0
+    inputs:
+      artifactName: 'bundle'
+      downloadPath: '$(Build.SourcesDirectory)'
   - template: 'templates/run-pytest.yml'
     parameters:
       markers: 'installer and windows_only'
-      changesInclude: 'deployments/installer tests/packaging .azure-pipelines'
+      changesInclude: 'deployments/installer tests/packaging scripts/windows .azure-pipelines'
 
 - job: 'win_2016_installer_tests'
   pool:
     vmImage: 'vs2017-win2016'
+  dependsOn: 'win_bundle_build'
   steps:
+  - task: DownloadBuildArtifacts@0
+    inputs:
+      artifactName: 'bundle'
+      downloadPath: '$(Build.SourcesDirectory)'
   - template: 'templates/run-pytest.yml'
     parameters:
       markers: 'installer and windows_only'
-      changesInclude: 'deployments/installer tests/packaging .azure-pipelines'
+      changesInclude: 'deployments/installer tests/packaging scripts/windows .azure-pipelines'
