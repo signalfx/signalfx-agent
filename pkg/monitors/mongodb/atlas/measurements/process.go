@@ -1,134 +1,160 @@
 package measurements
 
 import (
-	"fmt"
+	"context"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	log "github.com/sirupsen/logrus"
 
 	"github.com/mongodb/go-client-mongodb-atlas/mongodbatlas"
 )
 
-// processesGetter is for getting metric measurements of MongoDB processes.
+// ProcessesMeasurements are the metric measurements of a particular MongoDB Process.
+type ProcessesMeasurements map[Process][]*mongodbatlas.Measurements
+
+// ProcessesGetter is for getting metric measurements of MongoDB processes.
+type ProcessesGetter interface {
+	GetProcesses(ctx context.Context, timeout time.Duration) []Process
+	GetMeasurements(ctx context.Context, timeout time.Duration, processes []Process) ProcessesMeasurements
+}
+
+// processesGetter implements ProcessesGetter
 type processesGetter struct {
-	*config
-	processesCache    *atomic.Value
+	projectID         string
+	client            *mongodbatlas.Client
+	enableCache       bool
+	mutex             *sync.Mutex
 	measurementsCache *atomic.Value
+	processesCache    *atomic.Value
 }
 
-// ProcessMeasurements are the metric measurements of a particular MongoDB process.
-type ProcessMeasurements struct {
-	*process
-	Measurements []*mongodbatlas.Measurements
+// NewProcessesGetter returns a new ProcessesGetter.
+func NewProcessesGetter(projectID string, client *mongodbatlas.Client, enableCache bool) ProcessesGetter {
+	return &processesGetter{
+		projectID:         projectID,
+		client:            client,
+		enableCache:       enableCache,
+		mutex:             new(sync.Mutex),
+		measurementsCache: new(atomic.Value),
+		processesCache:    new(atomic.Value),
+	}
 }
 
-// process is the MongoDB process identified by the host and port on which the process is running.
-type process struct {
-	Host string // The name of the host in which the MongoDB process is running
-	Port int    // The port number on which the MongoDB process is running
-}
-
-// measurements gets metric measurements of the given MongoDB processes.
-func (g *processesGetter) measurements(processes []*process) []*ProcessMeasurements {
-	var measurements []*ProcessMeasurements
-
-	var wg sync.WaitGroup
-	for _, p := range processes {
-		wg.Add(1)
-		go func(p *process) {
-			defer wg.Done()
-			measurements = append(measurements, processMeasurementsHelper(g, p, 1)...)
-			if g.enableCache {
-				g.measurementsCache.Store(measurements)
-			}
-		}(p)
-	}
-	if g.measurementsCache.Load() == nil || !g.enableCache {
-		wg.Wait()
-	}
-
-	if g.measurementsCache.Load() != nil && g.enableCache {
-		return g.measurementsCache.Load().([]*ProcessMeasurements)
-	}
-
-	return measurements
-}
-
-// processMeasurementsHelper is a helper function of method measurements.
-func processMeasurementsHelper(g *processesGetter, p *process, pageNum int) []*ProcessMeasurements {
-	var measurements []*ProcessMeasurements
-
-	processMeasurements, resp, err := g.client.ProcessMeasurements.List(g.ctx, g.projectID, p.Host, p.Port, optionPT1M(pageNum))
-
-	if format, err := errorMsgFormat(err, resp); err != nil {
-		log.WithError(err).Errorf(format, "process measurements", g.projectID, p.Host, p.Port)
-		return measurements
-	}
-
-	measurements = append(measurements, &ProcessMeasurements{process: p, Measurements: processMeasurements.Measurements})
-
-	if ok, next := nextPage(resp); ok {
-		measurements = append(measurements, processMeasurementsHelper(g, p, next)...)
-	}
-
-	return measurements
-}
-
-// get gets all MongoDB processes in the configured project ID.
-func getProcesses(g *processesGetter) []*process {
-	var processes []*process
-
+// GetProcesses gets all MongoDB processes in the configured project ID.
+func (getter *processesGetter) GetProcesses(ctx context.Context, timeout time.Duration) (processes []Process) {
 	var wg sync.WaitGroup
 
 	wg.Add(1)
+
 	go func() {
 		defer wg.Done()
-		processes = getProcessesHelper(g, 1)
-		if g.enableCache {
-			g.processesCache.Store(processes)
+
+		ctx, cancel := context.WithTimeout(ctx, timeout)
+		defer cancel()
+
+		processes = getter.getProcessesHelper(ctx, 1)
+
+		if getter.enableCache {
+			getter.processesCache.Store(processes)
 		}
 	}()
 
-	if g.processesCache.Load() == nil || !g.enableCache {
-		wg.Wait()
+	if getter.processesCache.Load() != nil && getter.enableCache {
+		return getter.processesCache.Load().([]Process)
 	}
 
-	if g.processesCache.Load() != nil && g.enableCache {
-		return g.processesCache.Load().([]*process)
-	}
+	wg.Wait()
 
 	return processes
 }
 
-// getProcessesHelper is a helper function for method get.
-func getProcessesHelper(g *processesGetter, pageNum int) []*process {
-	var processes []*process
+// GetMeasurements gets metric measurements of the given MongoDB processes.
+func (getter *processesGetter) GetMeasurements(ctx context.Context, timeout time.Duration, processes []Process) ProcessesMeasurements {
+	var processesMeasurements = make(ProcessesMeasurements)
 
-	processesResp, resp, err := g.client.Processes.List(g.ctx, g.projectID, &mongodbatlas.ListOptions{PageNum: pageNum})
+	var wg1 sync.WaitGroup
+	wg1.Add(1)
 
-	if err != nil {
-		log.WithError(err).Error(fmt.Sprintf("the request for getting processes failed (Atlas project: %s)", g.projectID))
-		return processes
+	// Get measurements and update cache asynchronously.
+	go func() {
+		defer wg1.Done()
+
+		var wg2 sync.WaitGroup
+		for _, process := range processes {
+			wg2.Add(1)
+
+			go func(process Process) {
+				defer wg2.Done()
+
+				ctx, cancel := context.WithTimeout(ctx, timeout)
+				defer cancel()
+
+				getter.setMeasurements(ctx, process, processesMeasurements, 1)
+			}(process)
+		}
+		wg2.Wait()
+
+		if getter.enableCache {
+			getter.measurementsCache.Store(processesMeasurements)
+		}
+	}()
+
+	// Get current cached measurements
+	if getter.measurementsCache.Load() != nil && getter.enableCache {
+		return getter.measurementsCache.Load().(ProcessesMeasurements)
 	}
 
-	if resp == nil {
-		log.Errorf("the response for getting processes returned empty (Atlas project: %s)", g.projectID)
-		return processes
-	}
+	wg1.Wait()
 
-	if err := mongodbatlas.CheckResponse(resp.Response); err != nil {
-		log.WithError(err).Error(fmt.Sprintf("the response for getting processes returned an error (Atlas project: %s)", g.projectID))
-		return processes
-	}
+	return processesMeasurements
+}
 
-	for _, p := range processesResp {
-		processes = append(processes, &process{Host: p.Hostname, Port: p.Port})
+// setMeasurements is a helper function of method GetMeasurements.
+func (getter *processesGetter) setMeasurements(ctx context.Context, process Process, processesMeasurements ProcessesMeasurements, pageNum int) {
+	list, resp, err := getter.client.ProcessMeasurements.List(ctx, getter.projectID, process.Host, process.Port, optionPT1M(pageNum))
+
+	if msg, err := errorMsg(err, resp); err != nil {
+		log.WithError(err).Errorf(msg, "process measurements", getter.projectID, process.Host, process.Port)
+		return
 	}
 
 	if ok, next := nextPage(resp); ok {
-		processes = append(processes, getProcessesHelper(g, next)...)
+		getter.setMeasurements(ctx, process, processesMeasurements, next)
 	}
 
+	getter.mutex.Lock()
+	defer getter.mutex.Unlock()
+
+	processesMeasurements[process] = list.Measurements
+}
+
+// getProcessesHelper is a helper function for method get.
+func (getter *processesGetter) getProcessesHelper(ctx context.Context, pageNum int) (processes []Process) {
+	list, resp, err := getter.client.Processes.List(ctx, getter.projectID, &mongodbatlas.ListOptions{PageNum: pageNum})
+
+	if err != nil {
+		log.WithError(err).Errorf("the request for getting processes failed (Atlas project: %s)", getter.projectID)
+		return
+	}
+
+	if resp == nil {
+		log.Errorf("the response for getting processes returned empty (Atlas project: %s)", getter.projectID)
+		return
+	}
+
+	if err := mongodbatlas.CheckResponse(resp.Response); err != nil {
+		log.WithError(err).Errorf("the response for getting processes returned an error (Atlas project: %s)", getter.projectID)
+		return
+	}
+
+	if ok, next := nextPage(resp); ok {
+		processes = append(processes, getter.getProcessesHelper(ctx, next)...)
+	}
+
+	for _, p := range list {
+		processes = append(processes, Process{Host: p.Hostname, Port: p.Port})
+	}
 	return processes
 }

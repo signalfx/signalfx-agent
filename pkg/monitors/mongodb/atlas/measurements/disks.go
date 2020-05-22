@@ -1,125 +1,174 @@
 package measurements
 
 import (
+	"context"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/mongodb/go-client-mongodb-atlas/mongodbatlas"
 	log "github.com/sirupsen/logrus"
 )
 
-// For querying disk partition metric measurements of the MongoDB process hosts.
+// DisksMeasurements are the metric measurements of a particular disk partition in a MongoDB process host.
+type DisksMeasurements map[Process]struct {
+	DiskName     string
+	Measurements []*mongodbatlas.Measurements
+}
 
-// disksGetter is for fetching metric measurements of disk partitions in hosts of the MongoDB processes.
+// DisksGetter is for fetching metric measurements of disk partitions in the MongoDB processes hosts.
+type DisksGetter interface {
+	GetMeasurements(ctx context.Context, timeout time.Duration, processes []Process) DisksMeasurements
+}
+
+// disksGetter implements DisksGetter
 type disksGetter struct {
-	*config
-	disksCache        *atomic.Value
+	projectID         string
+	client            *mongodbatlas.Client
+	enableCache       bool
+	mutex             *sync.Mutex
 	measurementsCache *atomic.Value
+	disksCache        *atomic.Value
 }
 
-// DisksMeasurements are the metric measurements of a particular disk partition in the MongoDB process host.
-type DisksMeasurements struct {
-	*process
-	PartitionName string
-	Measurements  []*mongodbatlas.Measurements
+// NewProcessesGetter returns a new ProcessesGetter.
+func NewDisksGetter(projectID string, client *mongodbatlas.Client, enableCache bool) DisksGetter {
+	return &disksGetter{
+		projectID:         projectID,
+		client:            client,
+		enableCache:       enableCache,
+		mutex:             new(sync.Mutex),
+		measurementsCache: new(atomic.Value),
+		disksCache:        new(atomic.Value),
+	}
 }
 
-// measurements gets metric measurements of disk partitions in the hosts of the given MongoDB processes.
-func (g *disksGetter) measurements(processes []*process) []*DisksMeasurements {
-	disks := getDisks(g, processes)
+// GetMeasurements gets metric measurements of disk partitions in the hosts of the given MongoDB processes.
+func (getter *disksGetter) GetMeasurements(ctx context.Context, timeout time.Duration, processes []Process) DisksMeasurements {
+	var measurements = make(DisksMeasurements)
 
-	var measurements []*DisksMeasurements
+	disks := getter.getDisks(ctx, timeout, processes)
 
-	var wg sync.WaitGroup
-	for p, partitions := range disks {
-		for _, partition := range partitions {
-			wg.Add(1)
-			go func(p *process, partition string) {
-				defer wg.Done()
-				measurements = append(measurements, diskMeasurementsHelper(g, p, partition, 1)...)
-				if g.enableCache {
-					g.measurementsCache.Store(measurements)
-				}
-			}(p, partition)
+	var wg1 sync.WaitGroup
+
+	wg1.Add(1)
+
+	go func() {
+		defer wg1.Done()
+
+		var wg2 sync.WaitGroup
+		for process, diskNames := range disks {
+			for _, diskName := range diskNames {
+				wg2.Add(1)
+
+				go func(process Process, diskName string) {
+					defer wg2.Done()
+
+					var ctx, cancel = context.WithTimeout(ctx, timeout)
+					defer cancel()
+
+					getter.setMeasurements(ctx, measurements, process, diskName, 1)
+				}(process, diskName)
+			}
 		}
-	}
-	if g.measurementsCache.Load() == nil || !g.enableCache {
-		wg.Wait()
+		wg2.Wait()
+
+		if getter.enableCache {
+			getter.measurementsCache.Store(measurements)
+		}
+	}()
+
+	if getter.measurementsCache.Load() != nil && getter.enableCache {
+		return getter.measurementsCache.Load().(DisksMeasurements)
 	}
 
-	if g.measurementsCache.Load() != nil && g.enableCache {
-		return g.measurementsCache.Load().([]*DisksMeasurements)
-	}
+	wg1.Wait()
 
 	return measurements
 }
 
-// diskMeasurementsHelper is a helper function of method measurements.
-func diskMeasurementsHelper(g *disksGetter, p *process, diskPartition string, page int) []*DisksMeasurements {
-	var measurements []*DisksMeasurements
+// setMeasurements is a helper function of method GetMeasurements.
+func (getter *disksGetter) setMeasurements(ctx context.Context, disksMeasurements DisksMeasurements, process Process, diskName string, page int) {
+	list, resp, err := getter.client.ProcessDiskMeasurements.List(ctx, getter.projectID, process.Host, process.Port, diskName, optionPT1M(page))
 
-	measurementsResp, resp, err := g.client.ProcessDiskMeasurements.List(g.ctx, g.projectID, p.Host, p.Port, diskPartition, optionPT1M(page))
-
-	if format, err := errorMsgFormat(err, resp); err != nil {
-		log.WithError(err).Errorf(format, "disk measurements", g.projectID, p.Host, p.Port)
-		return measurements
+	if msg, err := errorMsg(err, resp); err != nil {
+		log.WithError(err).Errorf(msg, "disk measurements", getter.projectID, process.Host, process.Port)
+		return
 	}
-
-	measurements = append(measurements, &DisksMeasurements{process: p, PartitionName: diskPartition, Measurements: measurementsResp.Measurements})
 
 	if ok, next := nextPage(resp); ok {
-		measurements = append(measurements, diskMeasurementsHelper(g, p, diskPartition, next)...)
+		getter.setMeasurements(ctx, disksMeasurements, process, diskName, next)
 	}
 
-	return measurements
+	getter.mutex.Lock()
+	defer getter.mutex.Unlock()
+
+	disksMeasurements[process] = struct {
+		DiskName     string
+		Measurements []*mongodbatlas.Measurements
+	}{DiskName: diskName, Measurements: list.Measurements}
 }
 
 // getDisks is a helper function for fetching the names of disk partitions is the hosts of given MongoDB processes.
-func getDisks(g *disksGetter, processes []*process) map[*process][]string {
-	var disks = make(map[*process][]string)
+func (getter *disksGetter) getDisks(ctx context.Context, timeout time.Duration, processes []Process) map[Process][]string {
+	var disks = make(map[Process][]string)
 
-	var wg sync.WaitGroup
+	var wg1 sync.WaitGroup
 
-	for _, p := range processes {
-		wg.Add(1)
-		go func(p *process) {
-			defer wg.Done()
-			disks[p] = getDisksHelper(g, p, 1)
-			if g.enableCache {
-				g.disksCache.Store(disks)
-			}
-		}(p)
+	wg1.Add(1)
+
+	go func() {
+		defer wg1.Done()
+
+		var wg2 sync.WaitGroup
+		for _, process := range processes {
+			wg2.Add(1)
+
+			go func(process Process) {
+				defer wg2.Done()
+
+				var ctx, cancel = context.WithTimeout(ctx, timeout)
+				defer cancel()
+
+				diskNames := getter.getDiskNames(ctx, process, 1)
+
+				getter.mutex.Lock()
+				defer getter.mutex.Unlock()
+				disks[process] = diskNames
+			}(process)
+		}
+		wg2.Wait()
+
+		if getter.enableCache {
+			getter.disksCache.Store(disks)
+		}
+	}()
+
+	if getter.disksCache.Load() != nil && getter.enableCache {
+		return getter.disksCache.Load().(map[Process][]string)
 	}
 
-	if g.disksCache.Load() == nil || !g.enableCache {
-		wg.Wait()
-	}
-
-	if g.disksCache.Load() != nil && g.enableCache {
-		return g.disksCache.Load().(map[*process][]string)
-	}
+	wg1.Wait()
 
 	return disks
 }
 
-// getDisksHelper is a helper function of function getDisks.
-func getDisksHelper(g *disksGetter, p *process, page int) []string {
-	var disks []string
+// getDiskNames is a helper function of function getDisks.
+func (getter *disksGetter) getDiskNames(ctx context.Context, process Process, page int) (names []string) {
+	list, resp, err := getter.client.ProcessDisks.List(ctx, getter.projectID, process.Host, process.Port, &mongodbatlas.ListOptions{PageNum: page})
 
-	disksResp, resp, err := g.client.ProcessDisks.List(g.ctx, g.projectID, p.Host, p.Port, &mongodbatlas.ListOptions{PageNum: page})
-
-	if format, err := errorMsgFormat(err, resp); err != nil {
-		log.WithError(err).Errorf(format, "disk partition names", g.projectID, p.Host, p.Port)
-		return disks
-	}
-
-	for _, r := range disksResp.Results {
-		disks = append(disks, r.PartitionName)
+	if msg, err := errorMsg(err, resp); err != nil {
+		log.WithError(err).Errorf(msg, "disk partition names", getter.projectID, process.Host, process.Port)
+		return names
 	}
 
 	if ok, next := nextPage(resp); ok {
-		disks = append(disks, getDisksHelper(g, p, next)...)
+		names = append(names, getter.getDiskNames(ctx, process, next)...)
 	}
 
-	return disks
+	for _, r := range list.Results {
+		names = append(names, r.PartitionName)
+	}
+
+	return names
 }

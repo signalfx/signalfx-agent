@@ -39102,7 +39102,7 @@
       "sendAll": false,
       "sendUnknown": false,
       "dimensions": null,
-      "doc": "This mongodb-atlas monitor scrapes metric measurements of MongoDB processes in Atlas. The monitor translates the\nmetric measurements to SignalFx metric datapoints and forwards them SignalFx. The original Atlas metric names are\nincluded in the metric descriptions.\n\nAlthough this monitor can be configured to fetch metric measurements at rates measured in seconds, the finest\nmeasurement granularity allowed by Atlas is 1 minute. Thus multiple requests withing a 1 minute window will\nreturn the same metric values. This monitor fetches metric measurements using the finest allowed granularity of\n1 minute and over a period of 1 minute. This results in only one metric datapoint per measurement per request.\n\nBelow is an excerpt of the agent configuration yaml showing the minimal required fields.\n```\nmonitors:\n- type: mongodb-atlas\n  projectID:  \u003cProject ID\u003e\n  publicKey:  \u003cPublic API Key\u003e\n  privateKey: \u003cPrivate API Key\u003e\n```\n",
+      "doc": "This monitor enables the monitoring of Atlas clusters by scraping the [monitoring and logs](https://docs.atlas.mongodb.com/reference/api/monitoring-and-logs/)\nREST API endpoints for metric measurements of MongoDB processes. Atlas groups the monitoring API resources into\nprocess, disk and database measurements. This monitor collects process and disk measurements. This is inline\nwith other monitoring services. The measurements are renamed but the original names are included in the metric\ndescriptions.\n\nThis monitor fetches metric measurements using the finest allowed granularity of 1 minute over a period of 1 minute\nresulting in 1 metric datapoint per measurement.\n\nBelow is an excerpt of the agent configuration yaml showing the minimal required fields.\n```\nmonitors:\n- type: mongodb-atlas\n  projectID:  \u003cProject ID\u003e\n  publicKey:  \u003cPublic API Key\u003e\n  privateKey: \u003cPrivate API Key\u003e\n  disableHostDimensions: true\n```\n",
       "groups": {
         "WiredTiger": {
           "description": "",
@@ -39750,7 +39750,7 @@
           },
           {
             "yamlName": "enableCache",
-            "doc": "EnableCache enables locally cached Atlas metric measurements to be used when true. The metric measurements that were supposed to be fetched are in fact always fetched asynchronously and the cache updated.",
+            "doc": "EnableCache enables locally cached Atlas metric measurements to be used when true. The metric measurements that were supposed to be fetched are in fact always fetched asynchronously and cached.",
             "default": true,
             "required": false,
             "type": "bool",

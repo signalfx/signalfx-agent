@@ -1,6 +1,7 @@
 package atlas
 
-var measurementMetricMap = map[string]string{
+// metricsMap maps Atlas measurement names to metrics.
+var metricsMap = map[string]string{
 	"ASSERT_REGULAR":                               assertsRegular,
 	"ASSERT_WARNING":                               assertsWarning,
 	"ASSERT_MSG":                                   assertsMsg,

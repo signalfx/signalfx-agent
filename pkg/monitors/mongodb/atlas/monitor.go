@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"strconv"
+	"sync"
 	"time"
 
 	"github.com/signalfx/signalfx-agent/pkg/monitors/mongodb/atlas/measurements"
@@ -36,68 +37,70 @@ type Config struct {
 	// Timeout for HTTP requests to get MongoDB Atlas process measurements. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration
 	Timeout timeutil.Duration `yaml:"timeout" default:"5s"`
 	// EnableCache enables locally cached Atlas metric measurements to be used when true. The metric measurements that
-	// were supposed to be fetched are in fact always fetched asynchronously and the cache updated.
+	// were supposed to be fetched are in fact always fetched asynchronously and cached.
 	EnableCache bool `yaml:"enableCache" default:"true"`
 }
 
 // Monitor for MongoDB Atlas metrics
 type Monitor struct {
-	Output types.FilteringOutput
-	cancel context.CancelFunc
+	Output        types.FilteringOutput
+	cancel        context.CancelFunc
+	processGetter measurements.ProcessesGetter
+	diskGetter    measurements.DisksGetter
 }
 
 // Configure monitor
 func (m *Monitor) Configure(conf *Config) (err error) {
-	var ctx context.Context
-	ctx, m.cancel = context.WithTimeout(context.Background(), conf.Timeout.AsDuration())
-
 	var client *mongodbatlas.Client
+	var processMeasurements measurements.ProcessesMeasurements
+	var diskMeasurements measurements.DisksMeasurements
+
+	ctx, cancel := context.WithCancel(context.Background())
+	m.cancel = cancel
+
+	timeout := conf.Timeout.AsDuration()
+
 	if client, err = newDigestClient(conf.PublicKey, conf.PrivateKey); err != nil {
 		return fmt.Errorf("error making HTTP digest client: %+v", err)
 	}
 
-	interval := time.Duration(conf.IntervalSeconds) * time.Second
-
-	measurementsGetter := measurements.NewGetter(ctx, client, conf.ProjectID, conf.EnableCache)
+	m.processGetter = measurements.NewProcessesGetter(conf.ProjectID, client, conf.EnableCache)
+	m.diskGetter = measurements.NewDisksGetter(conf.ProjectID, client, conf.EnableCache)
 
 	utils.RunOnInterval(ctx, func() {
-		now := time.Now()
-		dps := make([]*datapoint.Datapoint, 0)
-		allMeasurements := measurementsGetter.GetAll()
+		processes := m.processGetter.GetProcesses(ctx, timeout)
+
+		var wg sync.WaitGroup
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			processMeasurements = m.processGetter.GetMeasurements(ctx, timeout, processes)
+		}()
+
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			diskMeasurements = m.diskGetter.GetMeasurements(ctx, timeout, processes)
+		}()
+
+		wg.Wait()
+
+		var dps = make([]*datapoint.Datapoint, 0)
 
 		// Creating metric datapoints from the 1 minute resolution process measurement datapoints
-		for _, process := range allMeasurements.Processes {
-			for _, m := range process.Measurements {
-				if measurementMetricMap[m.Name] == "" {
-					continue
-				}
-				dps = append(dps, newDp(m.Name, m.DataPoints, now, process.Host, process.Port, "", ""))
-			}
+		for k, v := range processMeasurements {
+			dps = append(dps, newDps(k, v, "", "")...)
 		}
 
 		// Creating metric datapoints from the 1 minute resolution disk measurement datapoints
-		for _, disk := range allMeasurements.Disks {
-			for _, m := range disk.Measurements {
-				if measurementMetricMap[m.Name] == "" {
-					continue
-				}
-				dps = append(dps, newDp(m.Name, m.DataPoints, now, disk.Host, disk.Port, disk.PartitionName, ""))
-			}
-		}
-
-		// Creating metric datapoints from the 1 minute resolution database measurement datapoints
-		for _, database := range allMeasurements.Databases {
-			for _, m := range database.Measurements {
-				if measurementMetricMap[m.Name] == "" {
-					continue
-				}
-				dps = append(dps, newDp(m.Name, m.DataPoints, now, database.Host, database.Port, "", database.DatabaseName))
-			}
+		for k, v := range diskMeasurements {
+			dps = append(dps, newDps(k, v.Measurements, v.DiskName, "")...)
 		}
 
 		m.Output.SendDatapoints(dps...)
 
-	}, interval)
+	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
 	return nil
 }
@@ -121,24 +124,35 @@ func newDigestClient(publicKey, privateKey string) (*mongodbatlas.Client, error)
 	return mongodbatlas.NewClient(client), nil
 }
 
-func newDp(measurementName string, dataPoints []*mongodbatlas.DataPoints, timestamp time.Time, host string, port int, partition string, database string) *datapoint.Datapoint {
-	dp := &datapoint.Datapoint{
-		Metric:     measurementMetricMap[measurementName],
-		MetricType: datapoint.Gauge,
-		Value:      newFloatValue(dataPoints),
-		Timestamp:  timestamp,
-		Dimensions: map[string]string{"hostname": host, "port": strconv.Itoa(port)},
+func newDps(process measurements.Process, measurementsArr []*mongodbatlas.Measurements, partition string, database string) []*datapoint.Datapoint {
+	var dps = make([]*datapoint.Datapoint, 0)
+
+	for _, measures := range measurementsArr {
+		metricValue := newFloatValue(measures.DataPoints)
+
+		if metricValue == nil || metricsMap[measures.Name] == "" {
+			continue
+		}
+
+		dp := &datapoint.Datapoint{
+			Metric:     metricsMap[measures.Name],
+			MetricType: datapoint.Gauge,
+			Value:      metricValue,
+			Dimensions: map[string]string{"host": process.Host, "port": strconv.Itoa(process.Port)},
+		}
+
+		if partition != "" {
+			dp.Dimensions["partition"] = partition
+		}
+
+		if database != "" {
+			dp.Dimensions["database"] = database
+		}
+
+		dps = append(dps, dp)
 	}
 
-	if partition != "" {
-		dp.Dimensions["partition"] = partition
-	}
-
-	if database != "" {
-		dp.Dimensions["database"] = database
-	}
-
-	return dp
+	return dps
 }
 
 func newFloatValue(dataPoints []*mongodbatlas.DataPoints) datapoint.FloatValue {

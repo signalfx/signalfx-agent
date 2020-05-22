@@ -10,14 +10,14 @@ Monitor Type: `mongodb-atlas` ([Source](https://github.com/signalfx/signalfx-age
 
 ## Overview
 
-This mongodb-atlas monitor scrapes metric measurements of MongoDB processes in Atlas. The monitor translates the
-metric measurements to SignalFx metric datapoints and forwards them SignalFx. The original Atlas metric names are
-included in the metric descriptions.
+This monitor enables the monitoring of Atlas clusters by scraping the [monitoring and logs](https://docs.atlas.mongodb.com/reference/api/monitoring-and-logs/)
+REST API endpoints for metric measurements of MongoDB processes. Atlas groups the monitoring API resources into
+process, disk and database measurements. This monitor collects process and disk measurements. This is inline
+with other monitoring services. The measurements are renamed but the original names are included in the metric
+descriptions.
 
-Although this monitor can be configured to fetch metric measurements at rates measured in seconds, the finest
-measurement granularity allowed by Atlas is 1 minute. Thus multiple requests withing a 1 minute window will
-return the same metric values. This monitor fetches metric measurements using the finest allowed granularity of
-1 minute and over a period of 1 minute. This results in only one metric datapoint per measurement per request.
+This monitor fetches metric measurements using the finest allowed granularity of 1 minute over a period of 1 minute
+resulting in 1 metric datapoint per measurement.
 
 Below is an excerpt of the agent configuration yaml showing the minimal required fields.
 ```
@@ -26,6 +26,7 @@ monitors:
   projectID:  <Project ID>
   publicKey:  <Public API Key>
   privateKey: <Private API Key>
+  disableHostDimensions: true
 ```
 
 
@@ -50,7 +51,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `publicKey` | **yes** | `string` | PublicKey is the MongoDB Atlas public API key |
 | `privateKey` | **yes** | `string` | PrivateKey is the MongoDB Atlas private API key |
 | `timeout` | no | `int64` | Timeout for HTTP requests to get MongoDB Atlas process measurements. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration (**default:** `5s`) |
-| `enableCache` | no | `bool` | EnableCache enables locally cached Atlas metric measurements to be used when true. The metric measurements that were supposed to be fetched are in fact always fetched asynchronously and the cache updated. (**default:** `true`) |
+| `enableCache` | no | `bool` | EnableCache enables locally cached Atlas metric measurements to be used when true. The metric measurements that were supposed to be fetched are in fact always fetched asynchronously and cached. (**default:** `true`) |
 
 
 ## Metrics

@@ -1,20 +1,16 @@
 package measurements
 
 import (
-	"context"
 	"fmt"
 
-	log "github.com/sirupsen/logrus"
-
 	"github.com/mongodb/go-client-mongodb-atlas/mongodbatlas"
+	log "github.com/sirupsen/logrus"
 )
 
-// Common configuration for getting metric measurements from Atlas API endpoints.
-type config struct {
-	projectID   string
-	ctx         context.Context
-	client      *mongodbatlas.Client
-	enableCache bool
+// Process is the MongoDB Process identified by the host and port on which the Process is running.
+type Process struct {
+	Host string // The name of the host in which the MongoDB Process is running
+	Port int    // The port number on which the MongoDB Process is running
 }
 
 // nextPage gets the next page for pagination request.
@@ -43,7 +39,7 @@ func optionPT1M(pageNum int) *mongodbatlas.ProcessMeasurementListOptions {
 	}
 }
 
-func errorMsgFormat(err error, resp *mongodbatlas.Response) (string, error) {
+func errorMsg(err error, resp *mongodbatlas.Response) (string, error) {
 	if err != nil {
 		return "request for getting %s failed (Atlas project: %s, host: %s, port: %d)", err
 	}
