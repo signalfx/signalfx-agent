@@ -23,6 +23,21 @@ For other installation options, including bulk deployments, see [Advanced Instal
 - Ensure that you have access to Windows PowerShell 6
 - Ensure that your machine is running Windows 8 or higher.
 - Ensure that .Net Framework 3.5 or higher is installed.
+- While SignalFx recommends that you use TLS 1.2, if you use TLS 1.0 and want to continue using TLS 1.0, then:
+    - Ensure that you support the following ciphers:
+        - TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA (secp256r1) - A
+        - TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA (secp256r1) - A
+        - TLS_RSA_WITH_AES_256_CBC_SHA (rsa 2048) - A
+        - TLS_RSA_WITH_AES_128_CBC_SHA (rsa 2048) - A
+        - TLS_RSA_WITH_3DES_EDE_CBC_SHA (rsa 2048) - C
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256 (secp256r1) - A
+        - TLS_ECDHE_RSA_WITH_AES_128_CBC_SHA256 (secp256r1) - A
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384 (secp256r1) - A
+        - TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA384 (secp256r1) - A
+        - TLS_RSA_WITH_AES_128_GCM_SHA256 (rsa 2048) - A
+        - TLS_RSA_WITH_AES_256_GCM_SHA384 (rsa 2048) - A
+        - TLS_RSA_WITH_AES_128_CBC_SHA256 (rsa 2048) - A
+    - Review and follow this [article from Microsoft](https://docs.microsoft.com/en-us/security/engineering/solving-tls1-problem). 
 
 ## Steps
 
