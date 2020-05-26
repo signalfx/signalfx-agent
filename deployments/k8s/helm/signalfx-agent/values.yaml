@@ -36,6 +36,19 @@ minReadySeconds:
 # Namespace to deploy agent in (Optional: Will default to release namespace)
 namespace:
 
+# Optional field that allows more control on the DNS settings for the pod.
+# Ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
+dnsConfig: {}
+  # nameservers:
+  #   - 1.2.3.4
+  # searches:
+  #   - ns1.svc.cluster-domain.example
+  #   - my.dns.search.suffix
+  # options:
+  #   - name: ndots
+  #     value: "2"
+  #   - name: edns0
+
 # Configure resource requests and limits.
 # https://kubernetes.io/docs/concepts/configuration/manage-compute-resources-container/
 resources: {}
