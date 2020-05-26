@@ -38,6 +38,10 @@ spec:
         {{- toYaml .Values.podAnnotations | trim | nindent 8 }}
     spec:
       dnsPolicy: ClusterFirstWithHostNet
+      {{- if .Values.dnsConfig }}
+      dnsConfig:
+      {{ toYaml .Values.dnsConfig | nindent 8 }}
+      {{- end }}
       restartPolicy: Always
       serviceAccountName: {{ template "signalfx-agent.serviceAccountName" . }}
       {{ with .Values.image.pullSecret -}}
