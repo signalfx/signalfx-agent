@@ -156,9 +156,25 @@ func newDps(process measurements.Process, measurementsArr []*mongodbatlas.Measur
 }
 
 func newFloatValue(dataPoints []*mongodbatlas.DataPoints) datapoint.FloatValue {
-	if len(dataPoints) == 0 || dataPoints[0].Value == nil {
+	if len(dataPoints) == 0 {
 		return nil
 	}
 
-	return datapoint.NewFloatValue(float64(*dataPoints[0].Value))
+	var timestamp = dataPoints[0].Timestamp
+
+	var value = dataPoints[0].Value
+
+	// Getting the latest non nil value
+	for i := 1; i < len(dataPoints); i++ {
+		if dataPoints[i].Timestamp > timestamp && dataPoints[i].Value != nil {
+			value = dataPoints[i].Value
+			timestamp = dataPoints[i].Timestamp
+		}
+	}
+
+	if value == nil {
+		return nil
+	}
+
+	return datapoint.NewFloatValue(float64(*value))
 }

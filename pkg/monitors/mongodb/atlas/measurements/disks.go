@@ -87,28 +87,6 @@ func (getter *disksGetter) GetMeasurements(ctx context.Context, timeout time.Dur
 	return measurements
 }
 
-// setMeasurements is a helper function of method GetMeasurements.
-func (getter *disksGetter) setMeasurements(ctx context.Context, disksMeasurements DisksMeasurements, process Process, diskName string, page int) {
-	list, resp, err := getter.client.ProcessDiskMeasurements.List(ctx, getter.projectID, process.Host, process.Port, diskName, optionPT1M(page))
-
-	if msg, err := errorMsg(err, resp); err != nil {
-		log.WithError(err).Errorf(msg, "disk measurements", getter.projectID, process.Host, process.Port)
-		return
-	}
-
-	if ok, next := nextPage(resp); ok {
-		getter.setMeasurements(ctx, disksMeasurements, process, diskName, next)
-	}
-
-	getter.mutex.Lock()
-	defer getter.mutex.Unlock()
-
-	disksMeasurements[process] = struct {
-		DiskName     string
-		Measurements []*mongodbatlas.Measurements
-	}{DiskName: diskName, Measurements: list.Measurements}
-}
-
 // getDisks is a helper function for fetching the names of disk partitions is the hosts of given MongoDB processes.
 func (getter *disksGetter) getDisks(ctx context.Context, timeout time.Duration, processes []Process) map[Process][]string {
 	var disks = make(map[Process][]string)
@@ -171,4 +149,26 @@ func (getter *disksGetter) getDiskNames(ctx context.Context, process Process, pa
 	}
 
 	return names
+}
+
+// setMeasurements is a helper function of method GetMeasurements.
+func (getter *disksGetter) setMeasurements(ctx context.Context, disksMeasurements DisksMeasurements, process Process, diskName string, page int) {
+	list, resp, err := getter.client.ProcessDiskMeasurements.List(ctx, getter.projectID, process.Host, process.Port, diskName, optionPT1M(page))
+
+	if msg, err := errorMsg(err, resp); err != nil {
+		log.WithError(err).Errorf(msg, "disk measurements", getter.projectID, process.Host, process.Port)
+		return
+	}
+
+	if ok, next := nextPage(resp); ok {
+		getter.setMeasurements(ctx, disksMeasurements, process, diskName, next)
+	}
+
+	getter.mutex.Lock()
+	defer getter.mutex.Unlock()
+
+	disksMeasurements[process] = struct {
+		DiskName     string
+		Measurements []*mongodbatlas.Measurements
+	}{DiskName: diskName, Measurements: list.Measurements}
 }

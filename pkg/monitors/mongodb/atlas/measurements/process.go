@@ -70,6 +70,35 @@ func (getter *processesGetter) GetProcesses(ctx context.Context, timeout time.Du
 	return processes
 }
 
+// getProcessesHelper is a helper function for method get.
+func (getter *processesGetter) getProcessesHelper(ctx context.Context, pageNum int) (processes []Process) {
+	list, resp, err := getter.client.Processes.List(ctx, getter.projectID, &mongodbatlas.ListOptions{PageNum: pageNum})
+
+	if err != nil {
+		log.WithError(err).Errorf("the request for getting processes failed (Atlas project: %s)", getter.projectID)
+		return
+	}
+
+	if resp == nil {
+		log.Errorf("the response for getting processes returned empty (Atlas project: %s)", getter.projectID)
+		return
+	}
+
+	if err := mongodbatlas.CheckResponse(resp.Response); err != nil {
+		log.WithError(err).Errorf("the response for getting processes returned an error (Atlas project: %s)", getter.projectID)
+		return
+	}
+
+	if ok, next := nextPage(resp); ok {
+		processes = append(processes, getter.getProcessesHelper(ctx, next)...)
+	}
+
+	for _, p := range list {
+		processes = append(processes, Process{Host: p.Hostname, Port: p.Port})
+	}
+	return processes
+}
+
 // GetMeasurements gets metric measurements of the given MongoDB processes.
 func (getter *processesGetter) GetMeasurements(ctx context.Context, timeout time.Duration, processes []Process) ProcessesMeasurements {
 	var processesMeasurements = make(ProcessesMeasurements)
@@ -128,33 +157,4 @@ func (getter *processesGetter) setMeasurements(ctx context.Context, process Proc
 	defer getter.mutex.Unlock()
 
 	processesMeasurements[process] = list.Measurements
-}
-
-// getProcessesHelper is a helper function for method get.
-func (getter *processesGetter) getProcessesHelper(ctx context.Context, pageNum int) (processes []Process) {
-	list, resp, err := getter.client.Processes.List(ctx, getter.projectID, &mongodbatlas.ListOptions{PageNum: pageNum})
-
-	if err != nil {
-		log.WithError(err).Errorf("the request for getting processes failed (Atlas project: %s)", getter.projectID)
-		return
-	}
-
-	if resp == nil {
-		log.Errorf("the response for getting processes returned empty (Atlas project: %s)", getter.projectID)
-		return
-	}
-
-	if err := mongodbatlas.CheckResponse(resp.Response); err != nil {
-		log.WithError(err).Errorf("the response for getting processes returned an error (Atlas project: %s)", getter.projectID)
-		return
-	}
-
-	if ok, next := nextPage(resp); ok {
-		processes = append(processes, getter.getProcessesHelper(ctx, next)...)
-	}
-
-	for _, p := range list {
-		processes = append(processes, Process{Host: p.Hostname, Port: p.Port})
-	}
-	return processes
 }
