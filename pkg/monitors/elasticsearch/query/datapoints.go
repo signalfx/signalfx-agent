@@ -73,7 +73,7 @@ func (dpC *dpCollector) recursivelyCollectDatapoints() []*datapoint.Datapoint {
 				break
 			} else {
 				// Check to see if the float is a whole number & if so, convert value to string
-				if newValue == float64(int64(floatValue)){
+				if floatValue == float64(int64(floatValue)){
 					key = strconv.FormatInt(int64(floatValue), 10)
 				}
 			}
