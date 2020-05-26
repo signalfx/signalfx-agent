@@ -39,9 +39,12 @@ function signalfx-agent([string]$AGENT_VERSION="", [string]$AGENT_BIN=".\signalf
     }
 }
 
-# build msi, requires bundle to be built in buildDir
+# build msi with files from $bundleDir
+# if $zipFile is not empty, extract $zipFile and build msi with the extracted files instead
 function build_msi(
         [string]$version="",
+        [string]$bundleDir="$repoDir\build\SignalFxAgent",
+        [string]$zipFile="",
         [string]$buildDir="$repoDir\build",
         [string]$iconPath="$scriptDir\msi\signalfx.ico",
         [string]$dest=""){
@@ -55,18 +58,29 @@ function build_msi(
         $dest = "$buildDir\SignalFxAgent-$version-win64.msi"
     }
 
-    if (!(Test-Path -Path "$buildDir\SignalFxAgent")) {
-        throw "$buildDir\SignalFxAgent not found!"
-    }
-
     if (!(Test-Path -Path "$iconPath")) {
         throw "$iconPath not found!"
     } else {
         $env:ICON_PATH = $iconPath
     }
 
+    if ($zipFile -ne "") {
+        if (!(Test-Path -Path "$zipFile")) {
+            throw "$zipFile not found!"
+        }
+        $zipFile = Resolve-Path "$zipFile"
+        $outputDir = Split-Path -parent "$zipFile"
+        $bundleDir = "$outputDir\SignalFxAgent"
+        Remove-Item -Recurse -Force "$bundleDir" -ErrorAction Ignore
+        unzip_file "$zipFile" "$outputDir"
+    }
+
+    if (!(Test-Path -Path "$bundleDir")) {
+        throw "$bundleDir not found!"
+    }
+
     Remove-Item "$buildDir\files.wsx" -ErrorAction Ignore
-    heat dir "$buildDir\SignalFxAgent" -srd -sreg -gg -template fragment -cg SignalFxAgent -dr INSTALLDIR -out "$buildDir\files.wsx"
+    heat dir "$bundleDir" -srd -sreg -gg -template fragment -cg SignalFxAgent -dr INSTALLDIR -out "$buildDir\files.wsx"
     if ($lastexitcode -gt 0){ throw }
 
     Remove-Item "$buildDir\signalfx-agent.wixobj" -ErrorAction Ignore
@@ -78,7 +92,7 @@ function build_msi(
     if ($lastexitcode -gt 0){ throw }
 
     Remove-Item "$dest" -ErrorAction Ignore
-    light -ext WixUtilExtension.dll -out "$dest" -b "$buildDir\SignalFxAgent" "$buildDir\signalfx-agent.wixobj" "$buildDir\files.wixobj"
+    light -ext WixUtilExtension.dll -out "$dest" -b "$bundleDir" "$buildDir\signalfx-agent.wixobj" "$buildDir\files.wixobj"
     if ($lastexitcode -gt 0){ throw }
     if (!(Test-Path -Path "$dest")) {
         throw "$dest not found!"
@@ -87,9 +101,11 @@ function build_msi(
     echo "built $dest"
 }
 
+# build nupkg package for chocolatey
+# if $msiFile is empty, default to $buildDir\SignalFxAgent-$version-win64.msi
 function build_choco(
         [string]$version="",
-        [string]$msi_path="",
+        [string]$msiFile="",
         [string]$buildDir="$repoDir\build",
         [string]$chocoDir="$scriptDir\choco") {
     if ($version -Eq ""){
@@ -97,15 +113,15 @@ function build_choco(
     }
     echo "setting choco package version to $version"
 
-    if ($msi_path -Eq "") {
-        $msi_path = "$buildDir\SignalFxAgent-$version-win64.msi"
+    if ($msiFile -Eq "") {
+        $msiFile = "$buildDir\SignalFxAgent-$version-win64.msi"
     }
 
-    if (!(Test-Path -Path "$msi_path")) {
-        throw "$msi_path not found!"
+    if (!(Test-Path -Path "$msiFile")) {
+        throw "$msiFile not found!"
     }
 
-    $msi_hash = (checksum -t sha256 "$msi_path")
+    $msi_hash = (checksum -t sha256 "$msiFile")
     if ($lastexitcode -gt 0){ throw }
 
     if (Test-Path -Path "$buildDir\choco") {
@@ -118,7 +134,7 @@ function build_choco(
     if (!(Test-Path -Path "$installer_path")) {
         throw "$installer_path not found!"
     }
-    ((Get-Content -Path "$installer_path" -Raw) -Replace "MSI_NAME", ("$msi_path" | Split-Path -Leaf)) | Set-Content -Path "$installer_path"
+    ((Get-Content -Path "$installer_path" -Raw) -Replace "MSI_NAME", ("$msiFile" | Split-Path -Leaf)) | Set-Content -Path "$installer_path"
     ((Get-Content -Path "$installer_path" -Raw) -Replace "MSI_HASH", "$msi_hash") | Set-Content -Path "$installer_path"
 
     # update VERIFICATION.txt with MSI name and hash
@@ -126,18 +142,22 @@ function build_choco(
     if (!(Test-Path -Path "$verification_path")) {
         throw "$verification_path not found!"
     }
-    ((Get-Content -Path "$verification_path" -Raw) -Replace "MSI_NAME", ("$msi_path" | Split-Path -Leaf)) | Set-Content -Path "$verification_path"
+    ((Get-Content -Path "$verification_path" -Raw) -Replace "MSI_NAME", ("$msiFile" | Split-Path -Leaf)) | Set-Content -Path "$verification_path"
     ((Get-Content -Path "$verification_path" -Raw) -Replace "MSI_HASH", "$msi_hash") | Set-Content -Path "$verification_path"
 
     # append LICENSE content to LICENSE.txt in choco package
     Get-Content "scriptDir\..\LICENSE" | Add-Content "$buildDir\choco\signalfx-agent\tools\LICENSE.txt"
 
-    Copy-Item "$msi_path" "$buildDir\choco\signalfx-agent\tools\"
+    Copy-Item "$msiFile" "$buildDir\choco\signalfx-agent\tools\"
+
+    $dest = "$buildDir\signalfx-agent.$version.nupkg"
+
+    Remove-Item -Force "$dest" -ErrorAction Ignore
 
     choco pack --version=$version --out "$buildDir" "$buildDir\choco\signalfx-agent\signalfx-agent.nuspec"
     if ($lastexitcode -gt 0){ throw }
-    if (!(Test-Path -Path "$buildDir\signalfx-agent.$version.nupkg")) {
-        throw "$buildDir\signalfx-agent.$version.nupkg not found!"
+    if (!(Test-Path -Path "$dest")) {
+        throw "$dest not found!"
     }
 
     echo "built $buildDir\signalfx-agent.$version.nupkg"
@@ -154,8 +174,8 @@ function bundle (
         [bool]$DOWNLOAD_COLLECTD_PLUGINS=$false,
         [bool]$ZIP_BUNDLE=$true,
         [bool]$ONLY_BUILD_AGENT=$false,
-        [bool]$build_msi=$true,
-        [bool]$build_choco=$true,
+        [bool]$build_msi=$false,
+        [bool]$build_choco=$false,
         [string]$AGENT_NAME="SignalFxAgent") {
     if ($AGENT_VERSION -Eq ""){
         $env:AGENT_VERSION = getGitTag
@@ -207,15 +227,16 @@ function bundle (
     remove_empty_directories -buildDir $buildDir
 
     if ($ZIP_BUNDLE -And !$ONLY_BUILD_AGENT) {
+        Remove-Item -Force "$buildDir\$AGENT_NAME-$env:AGENT_VERSION-win64.zip" -ErrorAction Ignore
         zip_file -src "$buildDir\$AGENT_NAME" -dest "$buildDir\$AGENT_NAME-$env:AGENT_VERSION-win64.zip"
     }
 
-    if ($build_msi -And !$ONLY_BUILD_AGENT) {
-        build_msi -version "$env:AGENT_VERSION" -buildDir "$buildDir" -dest "$buildDir\$AGENT_NAME-$env:AGENT_VERSION-win64.msi"
+    if (($build_msi -Or $build_choco) -And !$ONLY_BUILD_AGENT) {
+        build_msi -version "$env:AGENT_VERSION" -bundleDir "$buildDir\SignalFxAgent" -buildDir "$buildDir" -dest "$buildDir\$AGENT_NAME-$env:AGENT_VERSION-win64.msi"
     }
 
     if ($build_choco -And !$ONLY_BUILD_AGENT) {
-        build_choco -version "$env:AGENT_VERSION" -buildDir "$buildDir" -msi_path "$buildDir\$AGENT_NAME-$env:AGENT_VERSION-win64.msi"
+        build_choco -version "$env:AGENT_VERSION" -buildDir "$buildDir" -msiFile "$buildDir\$AGENT_NAME-$env:AGENT_VERSION-win64.msi"
     }
 
     # remove latest.txt if it already exists
