@@ -1,7 +1,7 @@
-.. _choose-install-type:
+.. _install-smart-agent:
 
 *********************************************
-Install the Smart Agent
+Install and Configure the Smart Agent
 *********************************************
 
 .. toctree::
@@ -18,140 +18,67 @@ Install the Smart Agent
    /integrations/agent/pguidance/agent-install-config-mgmt
 
 SignalFx offers several different installation mechanisms to match your
-needs. Select the one that matches your situation or preference.
+needs. Select the topic that matches your situation or preference. Each
+topic includes:
 
+* Prerequisites
+* Configuration instructions
+* Installation instructions
+* Instructions for verifying your installation
 
-+---------------------------------------+----------------------------------------------------------------------------------+
-| Situation                             | Procedure                                                                        |
-+=======================================+==================================================================================+
-| You want a quick test of SignalFx     | `Quick Install <quick-install.md>`__                                             |
-+---------------------------------------+----------------------------------------------------------------------------------+
-| You want to test monitoring for       | `Install Using Linux Packages <pguidance/agent-install-packages.md>`__           |
-| Linux hosts that have Internet access |                                                                                  |
-|                                       |                                                                                  |
-+---------------------------------------+----------------------------------------------------------------------------------+
-| Test Kubernetes monitoring            |                                                                                  |
-+---------------------------------------+----------------------------------------------------------------------------------+
-| Test µAPM monitoring                  |                                                                                  |
-+---------------------------------------+----------------------------------------------------------------------------------+
-| Monitor infrastructure in             |                                                                                  |
-| beta test or production               |                                                                                  |
-+---------------------------------------+----------------------------------------------------------------------------------+
-| Monitor Kubernetes in                 |                                                                                  |
-| beta test or production               |                                                                                  |
-+---------------------------------------+----------------------------------------------------------------------------------+
-| Monitor µAPM in                       |                                                                                  |
-| beta test or production               |                                                                                  |
-+---------------------------------------|----------------------------------------------------------------------------------+
+.. list-table::
+   :header-rows: 1
+   :widths: 60 40
 
-========================
-Install to a single host
-========================
+   * - :strong:`Goal`
+     - :strong:`Procedure`
 
-For a single host, follow the instructions in the Setup section of
-the topic .
+   * - :strong:`Evaluate monitoring` using a quick install to a single host
+     - `Quick Install <quick-install.md>`__
 
-=======================================
-Test infrastructure monitoring
-=======================================
+   * - :strong:`Evaluate monitoring on *nix hosts` that support Debian or RPG packages
+     - `Install Using Linux Packages <pguidance/agent-install-packages.md>`__
 
-Install and configure the Smart Agent on a few test hosts. The Smart Agent sends
-data such as cpu usage to SignalFx, and you can view it using visualization tools
-such as charts. Use one of these installation methods:
+   * - :strong:`Evaluate monitoring on Linux hosts` that are behind a firewall
+     - `Install to Linux Using gzip File <pguidance/agent-install-standalone-linux.md>`__
 
-* For Linux hosts that have Internet access, follow the instructions in
-  the topic `Install Using Linux Packages <pguidance/agent-install-packages.md>`__.
+   * - :strong:`Evaluate monitoring on Windows hosts` that are behind a firewall
+     - `Install to Windows Using zip File <pguidance/agent-install-standalone-windows.md>`__
 
-* For Linux hosts that don't have Internet access, follow the
-  instructions in the topic `Install to Linux Using gzip File <pguidance/agent-install-standalone-linux.md>`__.
+   * - :strong:`Evaluate Kubernetes monitoring` using Helm to install the Smart Agent
+     - `Install Using helm <pguidance/agent-k8s-install-helm.md>`__
 
-* For Windows hosts, use `Install to Windows Using zip File <pguidance/agent-install-standalone-windows.md>`__.
+   * - :strong:`Evaluate Kubernetes monitoring` using kubectl to install the Smart Agent
+     - `Install Using kubectl <pguidance/agent-k8s-install-kubectl.md>`__
 
-.. _test-kubernetes-install:
+   * - :strong:`Evaluate µAPM monitoring` for hosts that use Docker **outside of** Kubernetes
+     - Install using the `SignalFx Agent Docker Image <https://github.com/signalfx/signalfx-agent/tree/master/deployments/docker>`__
 
-====================================
-Test Kubernetes cluster monitoring
-====================================
+   * - :strong:`Evaluate µAPM monitoring` for hosts that use Kubernetes
+     - If you use Helm: `Install Using helm <pguidance/agent-k8s-install-helm.md>`__.
 
-Install and configure the Smart Agent in a test Kubernetes cluster. The Agent
-sends Kubernetes monitoring data to Splunk, which you can visualize using Kubernetes
-Navigator.
+       If you use kubectl: `Install Using kubectl <pguidance/agent-k8s-install-kubectl.md>`__.
 
-* If you have Helm installed, follow the instructions in the topic
-  `Install Using helm <pguidance/agent-k8s-install-helm.md>`__.
+   * - :strong:`Monitor AWS ECS production hosts` by installing the Smart Agent to AWS ECS
+     - `Install to AWS ECS <pguidance/agent-install-awsecs.md>`__
 
-* If you don't have Helm, you can install Smart Agent with kubectl.
-  Follow the instructions in the topic `Install Using
-  kubectl <pguidance/agent-k8s-install-kubectl.md>`__.
+   * - :strong:`Monitor production hosts` that use configuration management tools
+     - `Install Smart Agent using Configuration Management <pguidance/agent-install-config-mgmt.md>`__.
 
-=================================
-Test microservices APM (**µAPM**)
-=================================
+   * - :strong:`Monitor *nix production hosts` that support Debian or RPG
+     - `Install Using Linux Packages <pguidance/agent-install-packages.md>`__
 
-Install and configure the Smart Agent in a test µAPM system. The Agent sends
-monitoring data to Splunk, which you can visualize using µAPM tools.
+   * - :strong:`Monitor Linux production hosts` that are behind a firewall
+     - `Install to Linux Using gzip File <pguidance/agent-install-standalone-linux.md>`__
 
-* If you're running your microservices in Docker outside of Kubernetes,
-  follow the instructions in the topic `SignalFx Agent Docker
-  Image <https://github.com/signalfx/signalfx-agent/tree/master/deployments/docker>`__.
+   * - :strong:`Monitor Windows production hosts` that are behind a firewall
+     - `Install to Windows Using zip File <pguidance/agent-install-standalone-windows.md>`__
 
-* If you're running your microservices in Kubernetes, install and
-  configure Smart Agent according to the instructions in the section
-  :ref:`test-kubernetes-install`.
+   * - :strong:`Monitor Kubernetes production hosts`, using Helm to install the Smart Agent
+     - `Install Using helm <pguidance/agent-k8s-install-helm.md>`__
 
-==================================================
-Monitor infrastructure in beta test or production
-==================================================
+   * - :strong:`Monitor Kubernetes hosts`, using kubectl to install the Smart Agent
+     - `Install Using kubectl <pguidance/agent-k8s-install-kubectl.md>`__
 
-If you want to monitor your infrastructure, but you're not using Kubernetes clusters
-or APM, use one of the following methods to install the Smart Agent to beta test or
-production systems. You can then view incoming metrics in SignalFx:
-
-* To install the Agent in Amazon Web Services
-  (**AWS**) Elastic Container Service (**ECS**), see `Install to AWS ECS <pguidance/agent-install-awsecs.md>`__.
-
-* SignalFx provides installation packages for several popular configuration management
-  tools such as ``puppet``. To see a list of supported configuration management
-  tools, and to learn how to use a supported tool to install the Smart Agent, see
-  `Install Smart Agent using Configuration Management <pguidance/agent-install-config-mgmt.md>`__..
-
-* If you don't have a configuration management tool:
-
-  ** **For Linux:** Install the Smart Agent to each host in your system.
-     See `Install Using Linux Packages <pguidance/agent-install-packages.md>`__.
-
-     **If your hosts are firewalled for Internet access, download a
-     standalone Linux package to a machine that has access and install the
-     package to each host. See `Install to Linux Using gzip File <pguidance/agent-install-standalone-linux.md>`__.
-
-  ** **For Windows:** Install the Smart agent to each host in your system.
-
-     **If your hosts are firewalled for Internet access, download a
-     standalone Windows package to a machine that has access and install the
-     package to each host. See `Install to Windows Using zip File <pguidance/agent-install-standalone-windows.md>`__.
-
-
-=============================================
-Monitor Kubernetes in beta test or production
-=============================================
-
-If you want to monitor your infrastructure, and you're also using Kubernetes clusters,
-use one of the following methods to install the Smart Agent to beta test or
-production systems. You can then view incoming infrastructure metrics. You can also
-view Kubernetes metrics and troubleshoot Kubernetes using the Kubernetes Navigator:
-
-
-* If you have Helm installed, follow the instructions in the topic
-  `Install Using helm <pguidance/agent-k8s-install-helm.md>`__.
-
-* If you don't have Helm, you can install Smart Agent with kubectl.
-  Follow the instructions in the topic `Install Using
-  kubectl <pguidance/agent-k8s-install-kubectl.md>`__.
-
-=======================================
-Monitor µAPM in beta test or production
-=======================================
-
-To monitor infrastructure, Kubernetes clusters and µAPM,
-install the Smart Agent
-
+   * - :strong:`Monitor µAPM hosts`
+     - `Installing the SignalFx Smart Agent <https://docs.signalfx.com/en/latest/apm2/apm2-getting-started/apm2-smart-agent.html>`__
