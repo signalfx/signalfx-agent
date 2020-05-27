@@ -107,6 +107,9 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
+      {{- with .Values.extraEnv }}
+        {{- toYaml . | trim | nindent 8 }}
+      {{- end }}
       volumes:
       - name: config
         configMap:
