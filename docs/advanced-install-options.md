@@ -62,8 +62,19 @@ To use the bundle:
     - collectd.configDir - This is where the Smart Agent writes the managed collectd config, since collectd can only be configured by files. Note that this entire dir will be wiped by the Smart Agent upon startup so that it doesn’t pick up stale collectd config, so be sure that it is not used for anything else. Also note that these files could have sensitive information in them if you have passwords configured for collectd monitors, so you might want to place this dir on a tmpfs mount to avoid credentials persisting on disk.
 
     See [Privileges](#privileges) for information on the capabilities the Smart Agent requires.
+    
+4. (Optional) To override the default user and group names, at a minimum, you must have permission to:
 
-4. Run the Smart Agent by invoking the archive path:
+- Execute the extracted files in signalfx-agent/bin/
+
+- Read the agent.yaml and any remote config files referenced in the agent.yaml
+
+Based on how the agent has been configured and started and where the bundle is extracted, you may need additional permissions. For example, if the agent is configured for `collectd` monitors, then you must also have create, read, and write permissions for the `/var/run/signalfx-agent` directory.  
+
+Alternatively, the `configDir` option in the agent.yaml can be configured for a directory that is accessible to non-root users. To learn more, see [Config schema](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md#collectd).
+
+
+5. Run the Smart Agent by invoking the archive path:
 
 ```sh
  signalfx-agent/bin/signalfx-agent -config <path to config.yaml>
