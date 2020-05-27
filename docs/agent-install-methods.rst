@@ -34,51 +34,51 @@ topic includes:
      - :strong:`Procedure`
 
    * - :strong:`Evaluate monitoring` using a quick install to a single host
-     - `Quick Install <quick-install.md>`__
+     - `Quick Install <../../../html/integrations/agent/quick-install.html>`_
 
    * - :strong:`Evaluate monitoring on *nix hosts` that support Debian or RPG packages
-     - `Install Using Linux Packages <pguidance/agent-install-packages.md>`__
+     - `Install Using *nix Packages <../../../html/integrations/agent/pguidance/agent-install-packages.html>`_
 
    * - :strong:`Evaluate monitoring on Linux hosts` that are behind a firewall
-     - `Install to Linux Using gzip File <pguidance/agent-install-standalone-linux.md>`__
+     - `Install to Linux Using gzip File <../../../html/integrations/agent/pguidance/agent-install-standalone-linux.html>`_
 
    * - :strong:`Evaluate monitoring on Windows hosts` that are behind a firewall
-     - `Install to Windows Using zip File <pguidance/agent-install-standalone-windows.md>`__
+     - `Install to Windows Using zip File <../../../html/integrations/agent/pguidance/agent-install-standalone-windows.html>`_
 
    * - :strong:`Evaluate Kubernetes monitoring` using Helm to install the Smart Agent
-     - `Install Using helm <pguidance/agent-k8s-install-helm.md>`__
+     - `Install Using helm <../../../html/integrations/agent/pguidance/agent-k8s-install-helm.html>`_
 
    * - :strong:`Evaluate Kubernetes monitoring` using kubectl to install the Smart Agent
-     - `Install Using kubectl <pguidance/agent-k8s-install-kubectl.md>`__
+     - `Install Using kubectl <../../../html/integrations/agent/pguidance/agent-k8s-install-kubectl.html>`_
 
    * - :strong:`Evaluate µAPM monitoring` for hosts that use Docker **outside of** Kubernetes
-     - Install using the `SignalFx Agent Docker Image <https://github.com/signalfx/signalfx-agent/tree/master/deployments/docker>`__
+     - Install using the `SignalFx Agent Docker Image <https://github.com/signalfx/signalfx-agent/tree/master/deployments/docker>`_
 
    * - :strong:`Evaluate µAPM monitoring` for hosts that use Kubernetes
-     - If you use Helm: `Install Using helm <pguidance/agent-k8s-install-helm.md>`__.
+     - If you use Helm: `Install Using helm <../../../html/integrations/agent/pguidance/agent-k8s-install-helm.html>`_
 
-       If you use kubectl: `Install Using kubectl <pguidance/agent-k8s-install-kubectl.md>`__.
+       If you use kubectl: `Install Using kubectl <../../../html/integrations/agent/pguidance/agent-k8s-install-kubectl.html>`_
 
    * - :strong:`Monitor AWS ECS production hosts` by installing the Smart Agent to AWS ECS
-     - `Install to AWS ECS <pguidance/agent-install-awsecs.md>`__
+     - `Install to AWS ECS <../../../html/integrations/agent/pguidance/agent-install-awsecs.html>`_
 
    * - :strong:`Monitor production hosts` that use configuration management tools
-     - `Install Smart Agent using Configuration Management <pguidance/agent-install-config-mgmt.md>`__.
+     - `Install Smart Agent using Configuration Management <../../../html/integrations/agent/pguidance/agent-install-config-mgmt.html>`_
 
    * - :strong:`Monitor *nix production hosts` that support Debian or RPG
-     - `Install Using Linux Packages <pguidance/agent-install-packages.md>`__
+     - `Install Using *nix Packages <../../../html/integrations/agent/pguidance/agent-install-packages.html>`_
 
    * - :strong:`Monitor Linux production hosts` that are behind a firewall
-     - `Install to Linux Using gzip File <pguidance/agent-install-standalone-linux.md>`__
+     - `Install to Linux Using gzip File <../../../html/integrations/agent/pguidance/agent-install-standalone-linux.html>`_
 
    * - :strong:`Monitor Windows production hosts` that are behind a firewall
-     - `Install to Windows Using zip File <pguidance/agent-install-standalone-windows.md>`__
+     - `Install to Windows Using zip File <../../../html/integrations/agent/pguidance/agent-install-standalone-windows.html>`_
 
    * - :strong:`Monitor Kubernetes production hosts`, using Helm to install the Smart Agent
-     - `Install Using helm <pguidance/agent-k8s-install-helm.md>`__
+     - `Install Using helm <../../../html/integrations/agent/pguidance/agent-k8s-install-helm.html>`_
 
    * - :strong:`Monitor Kubernetes hosts`, using kubectl to install the Smart Agent
-     - `Install Using kubectl <pguidance/agent-k8s-install-kubectl.md>`__
+     - `Install Using kubectl <../../../html/integrations/agent/pguidance/agent-k8s-install-kubectl.html>`_
 
    * - :strong:`Monitor µAPM hosts`
-     - `Installing the SignalFx Smart Agent <https://docs.signalfx.com/en/latest/apm2/apm2-getting-started/apm2-smart-agent.html>`__
+     - `Installing the SignalFx Smart Agent <https://docs.signalfx.com/en/latest/apm2/apm2-getting-started/apm2-smart-agent.html>`_
