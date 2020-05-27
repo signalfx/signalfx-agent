@@ -1,4 +1,4 @@
-# Install Using Unix Packages
+# Install Using *nix Packages
 
 Install SignalFx Smart Agent using either a Debian or RPM package.
 
@@ -6,7 +6,7 @@ Install SignalFx Smart Agent using either a Debian or RPM package.
 
 ### Prerequisites for Debian
 
-* Unix distro that's based on Debian or supports Debian packages
+* *nix distro that's based on Debian or supports Debian packages
 * Kernel version 2.6 or higher
 * `CAP_DAC_READ_SEARCH` and `CAP_SYS_PTRACE` capabilities
 * APT or similar package tools. These instructions show you how to install the package using `apt-get`.
@@ -16,28 +16,33 @@ Install SignalFx Smart Agent using either a Debian or RPM package.
 
 ### Install with Debian
 
-1. Remove collector services such as `collectd`
+1. Remove collector services such as `collectd`.
 
-2. Remove third-party instrumentation and agent software
-   **Note:**
+2. Remove third-party instrumentation and agent software.
+
+   **NOTE:**
    Do not use automatic instrumentation or instrumentation agents from
    other vendors when you're using SignalFx instrumentation. The results
    are unpredictable, but your instrumentation may break and your
    application may crash.
 
-3. To download the GNU Privacy Guard (**GnuPG**) security key for the Debian package, run
+3. To download the GNU Privacy Guard (**GnuPG**) security key for the Debian package,
+   run the following command:
 
         curl -sSL https://splunk.jfrog.io/splunk/signalfx-agent-deb/splunk-B3CD4420.gpg > /etc/apt/trusted.gpg.d/splunk.gpg
 
-4. To add an entry for the SignalFx Smart Agent package to Debian, run
+4. To add an entry for the SignalFx Smart Agent package to Debian,
+   run the following command:
 
         echo 'deb https://splunk.jfrog.io/splunk/signalfx-agent-deb release main' > /etc/apt/sources.list.d/signalfx-agent.list
 
-5. To update the Debian package lists with the SignalFx Smart Agent package information, run
+5. To update the Debian package lists with the SignalFx Smart Agent package information,
+   run the following command:
 
         apt-get update
 
-6. To install the Agent, run
+6. To install the Agent, run the following command:
+
 
         apt-get install -y signalfx-agent
 
@@ -54,9 +59,7 @@ See the section entitled [Verify the Smart Agent](#verify-the-smart-agent).
 
 ### Prerequisites for RPM
 
-These prerequisites are for the host to which you're installing the Agent:
-
-* Unix distribution that supports RPM, such as a Linux distribution or CentOS
+* *nix distribution that supports RPM, such as a Linux distribution or CentOS
 * Kernel version 2.6 or higher
 * `CAP_DAC_READ_SEARCH` and `CAP_SYS_PTRACE` capabilities
 * `yum` or similar package tools. These instructions show you how to install the package using `yum`.
@@ -66,10 +69,11 @@ These prerequisites are for the host to which you're installing the Agent:
 
 ### Install with RPM
 
-1. Remove collector services such as `collectd`
+1. Remove collector services such as `collectd`.
 
-2. Remove third-party instrumentation and agent software
-   **Note:**
+2. Remove third-party instrumentation and agent software.
+
+   **NOTE:**
    Do not use automatic instrumentation or instrumentation agents from
    other vendors when you're using SignalFx instrumentation. The results
    are unpredictable, but your instrumentation may break and your
@@ -103,7 +107,7 @@ See the section entitled [Verify the Smart Agent](#verify-the-smart-agent).
 For Debian or RPM, to verify that your installation and configuration are working:
 
 * For infrastructure monitoring:
-  - In SignalFx UI, open the **Infrastructure** built-in dashboard
+  - In SignalFx UI, open the **Infrastructure** built-in dashboard.
   - In the override bar at the top of the back, select **Choose a host**. Select one of your hosts from the dropdown.
   - The charts display metrics from your infrastructure.
   To learn more, see [Built-In Dashboards and Charts](https://docs.signalfx.com/en/latest/getting-started/built-in-content/built-in-dashboards.html).
@@ -113,7 +117,7 @@ For Debian or RPM, to verify that your installation and configuration are workin
   - In the cluster display, find the cluster you installed.
   - Click the magnification icon to view the nodes in the cluster.
   - The detail pane on the right hand side of the page displays details of your cluster and nodes.
-  To learn more, see [Getting Around the Kubernetes Navigator](https://docs.signalfx.com/en/latest/integrations/kubernetes/get-around-k8s-navigator.html)
+  To learn more, see [Getting Around the Kubernetes Navigator](https://docs.signalfx.com/en/latest/integrations/kubernetes/get-around-k8s-navigator.html).
 
 * For APM monitoring:
 
