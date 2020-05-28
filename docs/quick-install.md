@@ -136,9 +136,13 @@ If the Smart Agent installation fails, use the following procedures to gather tr
 To learn how to review signalfx-agent logs, see [Frequently Asked Questions](./faq.md).
 
 ### Linux troubleshooting
-To view the most recent 100 error logs that signalfx-agent has written to the systemd journal, run the following command in terminal or a similar application:
 
-`journalctl -u signalfx-agent | tail -100`
+To view recent error logs that signalfx-agent has written to the systemd journal, run the following command in terminal or a similar application:
+
+For Ubuntu, run `journalctl -u signalfx-agent | tail -f /var/log/messages`
+
+For Debian, run `journalctl -u signalfx-agent | tail -100`
+
 
 ### Windows troubleshooting
 Run **Administrative Tools > Event Viewer** to view signalfx-agent error logs.
