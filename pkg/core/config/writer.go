@@ -114,6 +114,8 @@ type WriterConfig struct {
 	MaxTraceSpansInFlight uint `yaml:"maxTraceSpansInFlight" default:"100000"`
 	// Configures the writer specifically writing to Splunk.
 	Splunk *SplunkConfig `yaml:"splunk"`
+	// If set to `false`, output to SignalFx will be disabled.
+	SignalFxEnabled *bool `yaml:"signalFxEnabled" default:"true"`
 	// The following are propagated from elsewhere
 	HostIDDims          map[string]string      `yaml:"-"`
 	IngestURL           string                 `yaml:"-"`
@@ -153,7 +155,7 @@ func (wc *WriterConfig) IsSplunkOutputEnabled() bool {
 }
 
 func (wc *WriterConfig) IsSignalFxOutputEnabled() bool {
-	return wc.IngestURL != ""
+	return wc.SignalFxEnabled == nil || *wc.SignalFxEnabled
 }
 
 func (wc *WriterConfig) Validate() error {

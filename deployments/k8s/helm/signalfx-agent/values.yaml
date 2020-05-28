@@ -2,7 +2,8 @@
 # docker image tag if not overridden with imageTag
 agentVersion: 5.2.1
 
-# Whether to send data to SignalFx
+# If false, datapoints, events, and spans will not be emitted to the SignalFx
+# backend.
 signalFxEnabled: true
 
 # The access token for SignalFx.

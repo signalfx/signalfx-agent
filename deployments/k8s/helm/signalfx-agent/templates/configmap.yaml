@@ -14,15 +14,11 @@ data:
 {{ toYaml .Values.agentConfig | indent 4 }}
 {{- else }}
 
-    {{- if .Values.signalFxEnabled }}
-
     {{- if or (.Values.signalFxAccessToken) (.Values.signalFxAccessTokenSecretName)}}
     signalFxAccessToken: ${SFX_ACCESS_TOKEN}
     {{- end }}
 
     signalFxRealm: {{ .Values.signalFxRealm  | default "us0" }}
-
-    disableHostDimensions: {{ toYaml .Values.isServerless }}
 
     {{- if .Values.ingestUrl }}
     ingestUrl: {{ .Values.ingestUrl }}
@@ -36,7 +32,7 @@ data:
     traceEndpointUrl: {{ .Values.traceEndpointUrl }}
     {{- end }}
 
-    {{- end }}
+    disableHostDimensions: {{ toYaml .Values.isServerless }}
 
     etcPath: {{ .Values.etcPath }}
     procPath: {{ .Values.procPath }}
@@ -47,8 +43,9 @@ data:
 
     cluster: {{ required ".Values.clusterName is required" .Values.clusterName }}
 
-    {{- if .Values.splunkUrl }}
     writer:
+      signalFxEnabled: {{ .Values.signalFxEnabled }}
+    {{- if .Values.splunkUrl }}
       splunk:
         enabled: true
         url: {{ .Values.splunkUrl }}
@@ -64,6 +61,7 @@ data:
         {{- end }}
         skipTLSVerify: {{ .Values.splunkSkipTLSVerify | default "false" }}
     {{- end }}
+
 {{- $major_version := .Values.agentVersion | default "0.0.0" | splitList "." | first | atoi -}}
 {{- if lt $major_version 5 }}
     sendMachineID: false
