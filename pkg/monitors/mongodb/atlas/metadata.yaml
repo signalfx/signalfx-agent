@@ -49,29 +49,29 @@ monitors:
       default: false
       type: counter
       group: mongodb
-#    counter.backgroundFlushing.flushes:
+#    counter.background_flushing.flushes:
 #      description: Number of times the database has been flushed
 #      default: true
 #      type: gauge
-    cache.bytes.readInto:
+    cache.bytes.read_into:
       description: "This is Atlas metric measurement CACHE_BYTES_READ_INTO. The average rate of bytes per second read
       into WiredTiger's cache over the selected sample period."
       default: false
       type: counter
       group: mongodb
-    cache.bytes.writtenFrom:
+    cache.bytes.written_from:
       description: "This is Atlas metric measurement CACHE_BYTES_WRITTEN_FROM. The average rate of bytes per second
       written from WiredTiger's cache over the selected sample period."
       default: false
       type: counter
       group: mongodb
-    cache.dirtyBytes:
+    cache.dirty_bytes:
       description: "This is Atlas metric measurement CACHE_DIRTY_BYTES. The number of tracked dirty bytes currently in
       the WiredTiger cache."
       default: false
       type: gauge
       group: mongodb
-    cache.usedBytes:
+    cache.used_bytes:
       description: "This is Atlas metric measurement CACHE_USED_BYTES. The number of bytes currently in the WiredTiger
       cache."
       default: false
@@ -114,25 +114,25 @@ monitors:
       default: true
       type: counter
       group: mongodb
-    opcounterRepl.command:
+    opcounter.repl.command:
       description: "This is Atlas metric measurement OPCOUNTER_REPL_CMD. The average rate of replicated commands
       applied per second over the selected sample period."
       default: false
       type: counter
       group: mongodb
-    opcounterRepl.delete:
+    opcounter.repl.delete:
       description: "This is Atlas metric measurement OPCOUNTER_REPL_DELETE. The average rate of replicated deletes
       applied per second over the selected sample period."
       default: false
       type: counter
       group: mongodb
-    opcounterRepl.insert:
+    opcounter.repl.insert:
       description: "This is Atlas metric measurement OPCOUNTER_REPL_INSERT. The average rate of replicated inserts
       applied per second over the selected sample period."
       default: false
       type: counter
       group: mongodb
-    opcounterRepl.update:
+    opcounter.repl.update:
       description: "This is Atlas metric measurement OPCOUNTER_REPL_UPDATE. The average rate of replicated updates
       applied per second over the selected sample period."
       default: false
@@ -144,32 +144,32 @@ monitors:
       default: true
       type: gauge
       group: mongodb
-    cursors.totalOpen:
+    cursors.total_open:
       description: "This is Atlas metric measurement CURSORS_TOTAL_OPEN. The number of cursors that the server is
       maintaining for clients. Because MongoDB exhausts unused cursors, typically this value is small or zero. However,
       if there is a queue, stale tailable cursors, or a large number of operations this value may rise."
       default: false
       type: gauge
       group: mongodb
-    cursors.timedOut:
+    cursors.timed_out:
       description: "This is Atlas metric measurement CURSORS_TOTAL_TIMED_OUT. The average rate of cursors that have
       timed out per second over the selected sample period."
       default: false
       type: counter
       group: mongodb
-    storageSize:
+    storage_size:
       description: "This is Atlas metric measurement DB_STORAGE_TOTAL. Sum total on-disk storage space allocated for
       document storage across all databases."
       default: true
       type: gauge
       group: mongodb
-    dataSize:
+    data_size:
       description: "This is Atlas metric measurement DB_DATA_SIZE_TOTAL. Sum total size in bytes of the document data
       (including the padding factor) across all databases."
       default: true
       type: gauge
       group: mongodb
-    indexSize:
+    index_size:
       description: "This is Atlas metric measurement DB_INDEX_SIZE_TOTAL. Sum total size in bytes of the index data
       across all databases."
       default: true
@@ -231,19 +231,19 @@ monitors:
       default: true
       type: gauge
       group: mongodb
-    network.bytesIn:
+    network.bytes_in:
       description: "This is Atlas metric measurement NETWORK_BYTES_IN. The average rate of physical
       (after any wire compression) bytes sent to this database server per second over the selected sample period."
       default: true
       type: gauge
       group: mongodb
-    network.bytesOut:
+    network.bytes_out:
       description: "This is Atlas metric measurement NETWORK_BYTES_OUT. The average rate of physical
       (after any wire compression) bytes sent from this database server per second over the selected sample period."
       default: true
       type: gauge
       group: mongodb
-    network.numRequests:
+    network.num_requests:
       description: "This is Atlas metric measurement NETWORK_NUM_REQUESTS. The average rate of requests sent to this
       database server per second over the selected sample period."
       default: true
@@ -267,7 +267,7 @@ monitors:
       default: false
       type: gauge
       group: mongodb
-#    op.execution.time.writeMinusFlowControl:
+#    op.execution.time.write_minus_flow_control:
 #      description: The average execution time in milliseconds per write operation over the selected sample period once the impact of flow control is subtracted from the total.
 #      default: false
 #      type: gauge
@@ -278,14 +278,14 @@ monitors:
       default: false
       type: gauge
       group: mongodb
-    oplog.master.lagTimeDiff:
+    oplog.master.lag_time_diff:
       description: "This is Atlas metric measurement OPLOG_MASTER_LAG_TIME_DIFF. The replication headroom which is the
       difference between the primary's replication oplog window (i.e. latest minus oldest oplog entry time) and the
       secondary's replication lag. A secondary can go into RECOVERING if this value goes to zero."
       default: false
       type: gauge
       group: mongodb
-    oplog.slave.lagMasterTime:
+    oplog.slave.lag_master_time:
       description: "This is Atlas metric measurement OPLOG_SLAVE_LAG_MASTER_TIME. The replication lag. The approximate
       number of seconds the secondary is behind the primary in write application. Only accurate if the lag is larger
       than 1-2 seconds, as the precision of this statistic is limited."
@@ -312,14 +312,14 @@ monitors:
       default: false
       type: counter
       group: mongodb
-    query.executor.scannedObjects:
+    query.executor.scanned_objects:
       description: "This is Atlas metric measurement QUERY_EXECUTOR_SCANNED_OBJECTS. The average rate per second over
       the selected sample period of documents scanned during queries and query-plan evaluation. This rate is driven by
       the same value as totalDocsExamined in the output of explain()."
       default: false
       type: counter
       group: mongodb
-    query.targeting.scannedPerReturned:
+    query.targeting.scanned_per_returned:
       description: "This is Atlas metric measurement QUERY_TARGETING_SCANNED_PER_RETURNED. The ratio of the number of
       index items scanned to the number of documents returned by queries, since the previous data point for the
       selected sample period. A value of 1.0 means all documents returned exactly match query criteria for the sample
@@ -328,26 +328,26 @@ monitors:
       default: false
       type: gauge
       group: mongodb
-    query.targeting.scannedObjectsPerReturned:
+    query.targeting.scanned_objects_per_returned:
       description: "This is Atlas metric measurement QUERY_TARGETING_SCANNED_OBJECTS_PER_RETURNED. The ratio of the
       number of documents scanned to the number of documents returned by queries, since the previous data point for the
       selected sample period."
       default: false
       type: gauge
       group: mongodb
-    globalLock.currentQueue.total:
+    global_lock.current_queue.total:
       description: "This is Atlas metric measurement GLOBAL_LOCK_CURRENT_QUEUE_TOTAL. The number of operations queued
       waiting for any lock."
       default: false
       type: gauge
       group: mongodb
-    globalLock.currentQueue.readers:
+    global_lock.current_queue.readers:
       description: "This is Atlas metric measurement GLOBAL_LOCK_CURRENT_QUEUE_READERS. The number of operations queued
       waiting for a read lock."
       default: true
       type: gauge
       group: mongodb
-    globalLock.currentQueue.writers:
+    global_lock.current_queue.writers:
       description: "This is Atlas metric measurement GLOBAL_LOCK_CURRENT_QUEUE_WRITERS. The number of operations queued
       waiting for a write lock."
       default: true
@@ -403,7 +403,7 @@ monitors:
       default: false
       type: gauge
       group: hardware
-    disk.partition.space.percentFree:
+    disk.partition.space.percent_free:
       description: "This is Atlas metric measurement DISK_PARTITION_SPACE_PERCENT_FREE. The percent of free disk space
       on the partition used by MongoDB."
       default: false
@@ -415,7 +415,7 @@ monitors:
       default: false
       type: gauge
       group: hardware
-    disk.partition.space.percentUsed:
+    disk.partition.space.percent_used:
       description: "This is Atlas metric measurement DISK_PARTITION_SPACE_PERCENT_USED. The percent of used disk space
       on the partition that runs MongoDB."
       default: false
@@ -454,14 +454,14 @@ monitors:
       default: false
       type: gauge
       group: hardware
-    process.normalized.cpu.childrenUser:
+    process.normalized.cpu.children_user:
       description: "This is Atlas metric measurement PROCESS_NORMALIZED_CPU_CHILDREN_USER. The percentage of time the
       CPU spent servicing this MongoDB process's children, scaled to a range of 0-100% by dividing by the number of
       CPU cores."
       default: false
       type: gauge
       group: hardware
-    process.normalized.cpu.childrenKernel:
+    process.normalized.cpu.children_kernel:
       description: "This is Atlas metric measurement PROCESS_NORMALIZED_CPU_CHILDREN_KERNEL. The percentage of time the
       CPU spent servicing operating system calls for this MongoDB process's children, scaled to a range of 0-100% by
       dividing by the number of CPU cores."
@@ -571,7 +571,7 @@ monitors:
       default: false
       type: gauge
       group: hardware
-    operationsScanAndOrder:
+    operations_scan_and_order:
       description: "This is Atlas metric measurement OPERATIONS_SCAN_AND_ORDER. The average rate per second over the
       selected sample period of queries that return sorted results that cannot perform the sort operation using an
       index."

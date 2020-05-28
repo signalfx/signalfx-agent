@@ -39113,14 +39113,14 @@
             "disk.partition.latency.read",
             "disk.partition.latency.write",
             "disk.partition.space.free",
-            "disk.partition.space.percentFree",
-            "disk.partition.space.percentUsed",
+            "disk.partition.space.percent_free",
+            "disk.partition.space.percent_used",
             "disk.partition.space.used",
             "disk.partition.utilization",
             "process.cpu.kernel",
             "process.cpu.user",
-            "process.normalized.cpu.childrenKernel",
-            "process.normalized.cpu.childrenUser",
+            "process.normalized.cpu.children_kernel",
+            "process.normalized.cpu.children_user",
             "process.normalized.cpu.kernel",
             "process.normalized.cpu.user",
             "system.cpu.guest",
@@ -39148,28 +39148,28 @@
             "asserts.regular",
             "asserts.user",
             "asserts.warning",
-            "cache.bytes.readInto",
-            "cache.bytes.writtenFrom",
-            "cache.dirtyBytes",
-            "cache.usedBytes",
+            "cache.bytes.read_into",
+            "cache.bytes.written_from",
+            "cache.dirty_bytes",
+            "cache.used_bytes",
             "connections.current",
-            "cursors.timedOut",
-            "cursors.totalOpen",
-            "dataSize",
+            "cursors.timed_out",
+            "cursors.total_open",
+            "data_size",
             "document.metrics.deleted",
             "document.metrics.inserted",
             "document.metrics.returned",
             "document.metrics.updated",
-            "globalLock.currentQueue.readers",
-            "globalLock.currentQueue.total",
-            "globalLock.currentQueue.writers",
-            "indexSize",
+            "global_lock.current_queue.readers",
+            "global_lock.current_queue.total",
+            "global_lock.current_queue.writers",
+            "index_size",
             "memory.mapped",
             "memory.resident",
             "memory.virtual",
-            "network.bytesIn",
-            "network.bytesOut",
-            "network.numRequests",
+            "network.bytes_in",
+            "network.bytes_out",
+            "network.num_requests",
             "op.execution.time.commands",
             "op.execution.time.reads",
             "op.execution.time.writes",
@@ -39178,22 +39178,22 @@
             "opcounter.getmore",
             "opcounter.insert",
             "opcounter.query",
+            "opcounter.repl.command",
+            "opcounter.repl.delete",
+            "opcounter.repl.insert",
+            "opcounter.repl.update",
             "opcounter.update",
-            "opcounterRepl.command",
-            "opcounterRepl.delete",
-            "opcounterRepl.insert",
-            "opcounterRepl.update",
-            "operationsScanAndOrder",
-            "oplog.master.lagTimeDiff",
+            "operations_scan_and_order",
+            "oplog.master.lag_time_diff",
             "oplog.master.time",
             "oplog.rate",
-            "oplog.slave.lagMasterTime",
+            "oplog.slave.lag_master_time",
             "pageFaults",
             "query.executor.scanned",
-            "query.executor.scannedObjects",
-            "query.targeting.scannedObjectsPerReturned",
-            "query.targeting.scannedPerReturned",
-            "storageSize",
+            "query.executor.scanned_objects",
+            "query.targeting.scanned_objects_per_returned",
+            "query.targeting.scanned_per_returned",
+            "storage_size",
             "tickets.available.reads",
             "tickets.available.write"
           ]
@@ -39224,25 +39224,25 @@
           "group": "mongodb",
           "default": false
         },
-        "cache.bytes.readInto": {
+        "cache.bytes.read_into": {
           "type": "counter",
           "description": "This is Atlas metric measurement CACHE_BYTES_READ_INTO. The average rate of bytes per second read into WiredTiger's cache over the selected sample period.",
           "group": "mongodb",
           "default": false
         },
-        "cache.bytes.writtenFrom": {
+        "cache.bytes.written_from": {
           "type": "counter",
           "description": "This is Atlas metric measurement CACHE_BYTES_WRITTEN_FROM. The average rate of bytes per second written from WiredTiger's cache over the selected sample period.",
           "group": "mongodb",
           "default": false
         },
-        "cache.dirtyBytes": {
+        "cache.dirty_bytes": {
           "type": "gauge",
           "description": "This is Atlas metric measurement CACHE_DIRTY_BYTES. The number of tracked dirty bytes currently in the WiredTiger cache.",
           "group": "mongodb",
           "default": false
         },
-        "cache.usedBytes": {
+        "cache.used_bytes": {
           "type": "gauge",
           "description": "This is Atlas metric measurement CACHE_USED_BYTES. The number of bytes currently in the WiredTiger cache.",
           "group": "mongodb",
@@ -39254,19 +39254,19 @@
           "group": "mongodb",
           "default": true
         },
-        "cursors.timedOut": {
+        "cursors.timed_out": {
           "type": "counter",
           "description": "This is Atlas metric measurement CURSORS_TOTAL_TIMED_OUT. The average rate of cursors that have timed out per second over the selected sample period.",
           "group": "mongodb",
           "default": false
         },
-        "cursors.totalOpen": {
+        "cursors.total_open": {
           "type": "gauge",
           "description": "This is Atlas metric measurement CURSORS_TOTAL_OPEN. The number of cursors that the server is maintaining for clients. Because MongoDB exhausts unused cursors, typically this value is small or zero. However, if there is a queue, stale tailable cursors, or a large number of operations this value may rise.",
           "group": "mongodb",
           "default": false
         },
-        "dataSize": {
+        "data_size": {
           "type": "gauge",
           "description": "This is Atlas metric measurement DB_DATA_SIZE_TOTAL. Sum total size in bytes of the document data (including the padding factor) across all databases.",
           "group": "mongodb",
@@ -39308,13 +39308,13 @@
           "group": "hardware",
           "default": false
         },
-        "disk.partition.space.percentFree": {
+        "disk.partition.space.percent_free": {
           "type": "gauge",
           "description": "This is Atlas metric measurement DISK_PARTITION_SPACE_PERCENT_FREE. The percent of free disk space on the partition used by MongoDB.",
           "group": "hardware",
           "default": false
         },
-        "disk.partition.space.percentUsed": {
+        "disk.partition.space.percent_used": {
           "type": "gauge",
           "description": "This is Atlas metric measurement DISK_PARTITION_SPACE_PERCENT_USED. The percent of used disk space on the partition that runs MongoDB.",
           "group": "hardware",
@@ -39356,25 +39356,25 @@
           "group": "mongodb",
           "default": false
         },
-        "globalLock.currentQueue.readers": {
+        "global_lock.current_queue.readers": {
           "type": "gauge",
           "description": "This is Atlas metric measurement GLOBAL_LOCK_CURRENT_QUEUE_READERS. The number of operations queued waiting for a read lock.",
           "group": "mongodb",
           "default": true
         },
-        "globalLock.currentQueue.total": {
+        "global_lock.current_queue.total": {
           "type": "gauge",
           "description": "This is Atlas metric measurement GLOBAL_LOCK_CURRENT_QUEUE_TOTAL. The number of operations queued waiting for any lock.",
           "group": "mongodb",
           "default": false
         },
-        "globalLock.currentQueue.writers": {
+        "global_lock.current_queue.writers": {
           "type": "gauge",
           "description": "This is Atlas metric measurement GLOBAL_LOCK_CURRENT_QUEUE_WRITERS. The number of operations queued waiting for a write lock.",
           "group": "mongodb",
           "default": true
         },
-        "indexSize": {
+        "index_size": {
           "type": "gauge",
           "description": "This is Atlas metric measurement DB_INDEX_SIZE_TOTAL. Sum total size in bytes of the index data across all databases.",
           "group": "mongodb",
@@ -39398,19 +39398,19 @@
           "group": "mongodb",
           "default": true
         },
-        "network.bytesIn": {
+        "network.bytes_in": {
           "type": "gauge",
           "description": "This is Atlas metric measurement NETWORK_BYTES_IN. The average rate of physical (after any wire compression) bytes sent to this database server per second over the selected sample period.",
           "group": "mongodb",
           "default": true
         },
-        "network.bytesOut": {
+        "network.bytes_out": {
           "type": "gauge",
           "description": "This is Atlas metric measurement NETWORK_BYTES_OUT. The average rate of physical (after any wire compression) bytes sent from this database server per second over the selected sample period.",
           "group": "mongodb",
           "default": true
         },
-        "network.numRequests": {
+        "network.num_requests": {
           "type": "counter",
           "description": "This is Atlas metric measurement NETWORK_NUM_REQUESTS. The average rate of requests sent to this database server per second over the selected sample period.",
           "group": "mongodb",
@@ -39464,43 +39464,43 @@
           "group": "mongodb",
           "default": true
         },
+        "opcounter.repl.command": {
+          "type": "counter",
+          "description": "This is Atlas metric measurement OPCOUNTER_REPL_CMD. The average rate of replicated commands applied per second over the selected sample period.",
+          "group": "mongodb",
+          "default": false
+        },
+        "opcounter.repl.delete": {
+          "type": "counter",
+          "description": "This is Atlas metric measurement OPCOUNTER_REPL_DELETE. The average rate of replicated deletes applied per second over the selected sample period.",
+          "group": "mongodb",
+          "default": false
+        },
+        "opcounter.repl.insert": {
+          "type": "counter",
+          "description": "This is Atlas metric measurement OPCOUNTER_REPL_INSERT. The average rate of replicated inserts applied per second over the selected sample period.",
+          "group": "mongodb",
+          "default": false
+        },
+        "opcounter.repl.update": {
+          "type": "counter",
+          "description": "This is Atlas metric measurement OPCOUNTER_REPL_UPDATE. The average rate of replicated updates applied per second over the selected sample period.",
+          "group": "mongodb",
+          "default": false
+        },
         "opcounter.update": {
           "type": "counter",
           "description": "This is Atlas metric measurement OPCOUNTER_UPDATE. The average rate of updates performed per second over the selected sample period.",
           "group": "mongodb",
           "default": true
         },
-        "opcounterRepl.command": {
-          "type": "counter",
-          "description": "This is Atlas metric measurement OPCOUNTER_REPL_CMD. The average rate of replicated commands applied per second over the selected sample period.",
-          "group": "mongodb",
-          "default": false
-        },
-        "opcounterRepl.delete": {
-          "type": "counter",
-          "description": "This is Atlas metric measurement OPCOUNTER_REPL_DELETE. The average rate of replicated deletes applied per second over the selected sample period.",
-          "group": "mongodb",
-          "default": false
-        },
-        "opcounterRepl.insert": {
-          "type": "counter",
-          "description": "This is Atlas metric measurement OPCOUNTER_REPL_INSERT. The average rate of replicated inserts applied per second over the selected sample period.",
-          "group": "mongodb",
-          "default": false
-        },
-        "opcounterRepl.update": {
-          "type": "counter",
-          "description": "This is Atlas metric measurement OPCOUNTER_REPL_UPDATE. The average rate of replicated updates applied per second over the selected sample period.",
-          "group": "mongodb",
-          "default": false
-        },
-        "operationsScanAndOrder": {
+        "operations_scan_and_order": {
           "type": "counter",
           "description": "This is Atlas metric measurement OPERATIONS_SCAN_AND_ORDER. The average rate per second over the selected sample period of queries that return sorted results that cannot perform the sort operation using an index.",
           "group": "mongodb",
           "default": false
         },
-        "oplog.master.lagTimeDiff": {
+        "oplog.master.lag_time_diff": {
           "type": "gauge",
           "description": "This is Atlas metric measurement OPLOG_MASTER_LAG_TIME_DIFF. The replication headroom which is the difference between the primary's replication oplog window (i.e. latest minus oldest oplog entry time) and the secondary's replication lag. A secondary can go into RECOVERING if this value goes to zero.",
           "group": "mongodb",
@@ -39518,7 +39518,7 @@
           "group": "mongodb",
           "default": false
         },
-        "oplog.slave.lagMasterTime": {
+        "oplog.slave.lag_master_time": {
           "type": "gauge",
           "description": "This is Atlas metric measurement OPLOG_SLAVE_LAG_MASTER_TIME. The replication lag. The approximate number of seconds the secondary is behind the primary in write application. Only accurate if the lag is larger than 1-2 seconds, as the precision of this statistic is limited.",
           "group": "mongodb",
@@ -39542,13 +39542,13 @@
           "group": "hardware",
           "default": false
         },
-        "process.normalized.cpu.childrenKernel": {
+        "process.normalized.cpu.children_kernel": {
           "type": "gauge",
           "description": "This is Atlas metric measurement PROCESS_NORMALIZED_CPU_CHILDREN_KERNEL. The percentage of time the CPU spent servicing operating system calls for this MongoDB process's children, scaled to a range of 0-100% by dividing by the number of CPU cores.",
           "group": "hardware",
           "default": false
         },
-        "process.normalized.cpu.childrenUser": {
+        "process.normalized.cpu.children_user": {
           "type": "gauge",
           "description": "This is Atlas metric measurement PROCESS_NORMALIZED_CPU_CHILDREN_USER. The percentage of time the CPU spent servicing this MongoDB process's children, scaled to a range of 0-100% by dividing by the number of CPU cores.",
           "group": "hardware",
@@ -39572,25 +39572,25 @@
           "group": "mongodb",
           "default": false
         },
-        "query.executor.scannedObjects": {
+        "query.executor.scanned_objects": {
           "type": "counter",
           "description": "This is Atlas metric measurement QUERY_EXECUTOR_SCANNED_OBJECTS. The average rate per second over the selected sample period of documents scanned during queries and query-plan evaluation. This rate is driven by the same value as totalDocsExamined in the output of explain().",
           "group": "mongodb",
           "default": false
         },
-        "query.targeting.scannedObjectsPerReturned": {
+        "query.targeting.scanned_objects_per_returned": {
           "type": "gauge",
           "description": "This is Atlas metric measurement QUERY_TARGETING_SCANNED_OBJECTS_PER_RETURNED. The ratio of the number of documents scanned to the number of documents returned by queries, since the previous data point for the selected sample period.",
           "group": "mongodb",
           "default": false
         },
-        "query.targeting.scannedPerReturned": {
+        "query.targeting.scanned_per_returned": {
           "type": "gauge",
           "description": "This is Atlas metric measurement QUERY_TARGETING_SCANNED_PER_RETURNED. The ratio of the number of index items scanned to the number of documents returned by queries, since the previous data point for the selected sample period. A value of 1.0 means all documents returned exactly match query criteria for the sample period. A value of 100 means on average for the sample period, a query scans 100 documents to find one that's returned.",
           "group": "mongodb",
           "default": false
         },
-        "storageSize": {
+        "storage_size": {
           "type": "gauge",
           "description": "This is Atlas metric measurement DB_STORAGE_TOTAL. Sum total on-disk storage space allocated for document storage across all databases.",
           "group": "mongodb",

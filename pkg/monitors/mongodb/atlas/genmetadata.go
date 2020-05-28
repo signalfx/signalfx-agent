@@ -24,38 +24,38 @@ const (
 	assertsRegular                          = "asserts.regular"
 	assertsUser                             = "asserts.user"
 	assertsWarning                          = "asserts.warning"
-	cacheBytesReadInto                      = "cache.bytes.readInto"
-	cacheBytesWrittenFrom                   = "cache.bytes.writtenFrom"
-	cacheDirtyBytes                         = "cache.dirtyBytes"
-	cacheUsedBytes                          = "cache.usedBytes"
+	cacheBytesReadInto                      = "cache.bytes.read_into"
+	cacheBytesWrittenFrom                   = "cache.bytes.written_from"
+	cacheDirtyBytes                         = "cache.dirty_bytes"
+	cacheUsedBytes                          = "cache.used_bytes"
 	connectionsCurrent                      = "connections.current"
-	cursorsTimedOut                         = "cursors.timedOut"
-	cursorsTotalOpen                        = "cursors.totalOpen"
-	dataSize                                = "dataSize"
+	cursorsTimedOut                         = "cursors.timed_out"
+	cursorsTotalOpen                        = "cursors.total_open"
+	dataSize                                = "data_size"
 	diskPartitionIopsRead                   = "disk.partition.iops.read"
 	diskPartitionIopsTotal                  = "disk.partition.iops.total"
 	diskPartitionIopsWrite                  = "disk.partition.iops.write"
 	diskPartitionLatencyRead                = "disk.partition.latency.read"
 	diskPartitionLatencyWrite               = "disk.partition.latency.write"
 	diskPartitionSpaceFree                  = "disk.partition.space.free"
-	diskPartitionSpacePercentFree           = "disk.partition.space.percentFree"
-	diskPartitionSpacePercentUsed           = "disk.partition.space.percentUsed"
+	diskPartitionSpacePercentFree           = "disk.partition.space.percent_free"
+	diskPartitionSpacePercentUsed           = "disk.partition.space.percent_used"
 	diskPartitionSpaceUsed                  = "disk.partition.space.used"
 	diskPartitionUtilization                = "disk.partition.utilization"
 	documentMetricsDeleted                  = "document.metrics.deleted"
 	documentMetricsInserted                 = "document.metrics.inserted"
 	documentMetricsReturned                 = "document.metrics.returned"
 	documentMetricsUpdated                  = "document.metrics.updated"
-	globalLockCurrentQueueReaders           = "globalLock.currentQueue.readers"
-	globalLockCurrentQueueTotal             = "globalLock.currentQueue.total"
-	globalLockCurrentQueueWriters           = "globalLock.currentQueue.writers"
-	indexSize                               = "indexSize"
+	globalLockCurrentQueueReaders           = "global_lock.current_queue.readers"
+	globalLockCurrentQueueTotal             = "global_lock.current_queue.total"
+	globalLockCurrentQueueWriters           = "global_lock.current_queue.writers"
+	indexSize                               = "index_size"
 	memoryMapped                            = "memory.mapped"
 	memoryResident                          = "memory.resident"
 	memoryVirtual                           = "memory.virtual"
-	networkBytesIn                          = "network.bytesIn"
-	networkBytesOut                         = "network.bytesOut"
-	networkNumRequests                      = "network.numRequests"
+	networkBytesIn                          = "network.bytes_in"
+	networkBytesOut                         = "network.bytes_out"
+	networkNumRequests                      = "network.num_requests"
 	opExecutionTimeCommands                 = "op.execution.time.commands"
 	opExecutionTimeReads                    = "op.execution.time.reads"
 	opExecutionTimeWrites                   = "op.execution.time.writes"
@@ -64,28 +64,28 @@ const (
 	opcounterGetmore                        = "opcounter.getmore"
 	opcounterInsert                         = "opcounter.insert"
 	opcounterQuery                          = "opcounter.query"
+	opcounterReplCommand                    = "opcounter.repl.command"
+	opcounterReplDelete                     = "opcounter.repl.delete"
+	opcounterReplInsert                     = "opcounter.repl.insert"
+	opcounterReplUpdate                     = "opcounter.repl.update"
 	opcounterUpdate                         = "opcounter.update"
-	opcounterReplCommand                    = "opcounterRepl.command"
-	opcounterReplDelete                     = "opcounterRepl.delete"
-	opcounterReplInsert                     = "opcounterRepl.insert"
-	opcounterReplUpdate                     = "opcounterRepl.update"
-	operationsScanAndOrder                  = "operationsScanAndOrder"
-	oplogMasterLagTimeDiff                  = "oplog.master.lagTimeDiff"
+	operationsScanAndOrder                  = "operations_scan_and_order"
+	oplogMasterLagTimeDiff                  = "oplog.master.lag_time_diff"
 	oplogMasterTime                         = "oplog.master.time"
 	oplogRate                               = "oplog.rate"
-	oplogSlaveLagMasterTime                 = "oplog.slave.lagMasterTime"
+	oplogSlaveLagMasterTime                 = "oplog.slave.lag_master_time"
 	pageFaults                              = "pageFaults"
 	processCPUKernel                        = "process.cpu.kernel"
 	processCPUUser                          = "process.cpu.user"
-	processNormalizedCPUChildrenKernel      = "process.normalized.cpu.childrenKernel"
-	processNormalizedCPUChildrenUser        = "process.normalized.cpu.childrenUser"
+	processNormalizedCPUChildrenKernel      = "process.normalized.cpu.children_kernel"
+	processNormalizedCPUChildrenUser        = "process.normalized.cpu.children_user"
 	processNormalizedCPUKernel              = "process.normalized.cpu.kernel"
 	processNormalizedCPUUser                = "process.normalized.cpu.user"
 	queryExecutorScanned                    = "query.executor.scanned"
-	queryExecutorScannedObjects             = "query.executor.scannedObjects"
-	queryTargetingScannedObjectsPerReturned = "query.targeting.scannedObjectsPerReturned"
-	queryTargetingScannedPerReturned        = "query.targeting.scannedPerReturned"
-	storageSize                             = "storageSize"
+	queryExecutorScannedObjects             = "query.executor.scanned_objects"
+	queryTargetingScannedObjectsPerReturned = "query.targeting.scanned_objects_per_returned"
+	queryTargetingScannedPerReturned        = "query.targeting.scanned_per_returned"
+	storageSize                             = "storage_size"
 	systemCPUGuest                          = "system.cpu.guest"
 	systemCPUIowait                         = "system.cpu.iowait"
 	systemCPUIrq                            = "system.cpu.irq"
@@ -151,11 +151,11 @@ var metricSet = map[string]monitors.MetricInfo{
 	opcounterGetmore:                        {Type: datapoint.Count, Group: groupMongodb},
 	opcounterInsert:                         {Type: datapoint.Count, Group: groupMongodb},
 	opcounterQuery:                          {Type: datapoint.Count, Group: groupMongodb},
-	opcounterUpdate:                         {Type: datapoint.Count, Group: groupMongodb},
 	opcounterReplCommand:                    {Type: datapoint.Count, Group: groupMongodb},
 	opcounterReplDelete:                     {Type: datapoint.Count, Group: groupMongodb},
 	opcounterReplInsert:                     {Type: datapoint.Count, Group: groupMongodb},
 	opcounterReplUpdate:                     {Type: datapoint.Count, Group: groupMongodb},
+	opcounterUpdate:                         {Type: datapoint.Count, Group: groupMongodb},
 	operationsScanAndOrder:                  {Type: datapoint.Count, Group: groupMongodb},
 	oplogMasterLagTimeDiff:                  {Type: datapoint.Gauge, Group: groupMongodb},
 	oplogMasterTime:                         {Type: datapoint.Gauge, Group: groupMongodb},
@@ -283,11 +283,11 @@ var groupMetricsMap = map[string][]string{
 		opcounterGetmore,
 		opcounterInsert,
 		opcounterQuery,
-		opcounterUpdate,
 		opcounterReplCommand,
 		opcounterReplDelete,
 		opcounterReplInsert,
 		opcounterReplUpdate,
+		opcounterUpdate,
 		operationsScanAndOrder,
 		oplogMasterLagTimeDiff,
 		oplogMasterTime,
