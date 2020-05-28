@@ -15,7 +15,7 @@
   the way that the installation chart works, you need Tiller even if you're using
   Helm version 3.
 * Your SignalFx realm. See [Realms](../../../_sidebars-and-includes/realm-note.html).
-* A SignalFx access token. See [Smart Agent Access Token](../../../_sidebars-and-includes/access-token.html)
+* A SignalFx access token. See [Smart Agent Access Token](../../../_sidebars-and-includes/access-token.html).
 
 
 ## Configure Helm for the Smart Agent
@@ -33,8 +33,8 @@ For example, add the parameter `-f myValues.yaml`.
 
 ## Install with Helm
 
-1. Remove collector services such as `collectd`
-2. Remove third-party instrumentation and agent software
+1. Remove collector services such as `collectd`.
+2. Remove third-party instrumentation and agent software.
 
    **Note:**
 
@@ -53,13 +53,13 @@ For example, add the parameter `-f myValues.yaml`.
 
 5. Determine the following values:
 
-| Name                 | Example                  | Meaning                                                         |
-|----------------------|--------------------------|-----------------------------------------------------------------|
-| `<values_yaml_file>` | `myValues.yaml`          | Optional. YAML file containing your configuration values¹       |
-| `<access_token>`     | '-zz9a_Z9z99ZZzZZZZ-ZZz' | **REQUIRED**. Access token. See [Prerequisites](#prerequisites) |
-| `<cluster_name>`     | 'myCluster'              | **REQUIRED**.Name of the cluster to monitor                     |
-| `<version>`          | 5.1.6                    | Optional. Version of the Smart Agent you want to use²           |
-| `<realm>`            | 'us0'                    | **REQUIRED**. Your realm. See [Prerequisites](#prerequisites)   |
+| Name                 | Example                  | Meaning                                                          |
+|----------------------|--------------------------|------------------------------------------------------------------|
+| `<values_yaml_file>` | `myValues.yaml`          | Optional. YAML file containing your configuration values¹        |
+| `<access_token>`     | '-zz9a_Z9z99ZZzZZZZ-ZZz' | **REQUIRED**. Access token. See [Prerequisites](#prerequisites). |
+| `<cluster_name>`     | 'myCluster'              | **REQUIRED**.Name of the cluster to monitor                      |
+| `<version>`          | 5.1.6                    | Optional. Version of the Smart Agent you want to use²            |
+| `<realm>`            | 'us0'                    | **REQUIRED**. Your realm. See [Prerequisites](#prerequisites).   |
 
 ¹ If you don't specify a values file, Helm installs the defaults. If you don't use this parameter,
   don't use `-f`.
@@ -69,7 +69,7 @@ For example, add the parameter `-f myValues.yaml`.
 
 4. To install the Smart Agent
 
-   If you want to have OpenShift support, substitute the values from the previous step and run this command :
+   If you want to have OpenShift support, substitute the values from the previous step and run this command:
 
        helm install -f <values_yaml_file> --set signalFxAccessToken=<access_token> --set clusterName=<cluster_name> --set agentVersion=<version> --set signalFxRealm=<realm> signalfx/signalfx-agent --set kubernetesDistro=openshift
 
@@ -84,7 +84,7 @@ The Smart Agent runs as soon as you install it using Helm.
 To verify that your installation and config is working:
 
 * For infrastructure monitoring:
-  - In SignalFx UI, open the **Infrastructure** built-in dashboard
+  - In SignalFx UI, open the **Infrastructure** built-in dashboard.
   - In the override bar at the top of the back, select **Choose a host**. Select one of your nodes from the dropdown.
   - The charts display metrics from the infrastructure for that node.
     To learn more, see [Built-In Dashboards and Charts](https://docs.signalfx.com/en/latest/getting-started/built-in-content/built-in-dashboards.html).
@@ -94,7 +94,7 @@ To verify that your installation and config is working:
   - In the cluster display, find the cluster `<cluster_name>` you chose in the previous steps.
   - Click the magnification icon to view the nodes in the cluster.
   - The detail pane on the right hand side of the page displays details of your cluster and nodes.
-    To learn more, see [Getting Around the Kubernetes Navigator](https://docs.signalfx.com/en/latest/integrations/kubernetes/get-around-k8s-navigator.html)
+    To learn more, see [Getting Around the Kubernetes Navigator](https://docs.signalfx.com/en/latest/integrations/kubernetes/get-around-k8s-navigator.html).
 
 * For APM monitoring:
 
