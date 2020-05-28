@@ -1,4 +1,4 @@
-package writer
+package signalfx
 
 import (
 	"fmt"
@@ -12,7 +12,7 @@ import (
 
 // Call this in a goroutine to maintain a moving window average DPM, EPM, and
 // SPM, updated every 10 seconds.
-func (sw *SignalFxWriter) maintainLastMinuteActivity() {
+func (sw *Writer) maintainLastMinuteActivity() {
 	t := time.NewTicker(10 * time.Second)
 	defer t.Stop()
 
@@ -45,7 +45,7 @@ func (sw *SignalFxWriter) maintainLastMinuteActivity() {
 
 // DiagnosticText outputs a string that describes the state of the writer to a
 // human.
-func (sw *SignalFxWriter) DiagnosticText() string {
+func (sw *Writer) DiagnosticText() string {
 	return fmt.Sprintf(
 		"Global Dimensions:                %s\n"+
 			"GlobalSpanTags:                   %s\n"+
@@ -67,7 +67,7 @@ func (sw *SignalFxWriter) DiagnosticText() string {
 
 // InternalMetrics returns a set of metrics showing how the writer is currently
 // doing.
-func (sw *SignalFxWriter) InternalMetrics() []*datapoint.Datapoint {
+func (sw *Writer) InternalMetrics() []*datapoint.Datapoint {
 	return append(append(append(append(append([]*datapoint.Datapoint{
 		sfxclient.CumulativeP("sfxagent.events_sent", nil, &sw.eventsSent),
 		sfxclient.Gauge("sfxagent.datapoint_channel_len", nil, int64(len(sw.dpChan))),

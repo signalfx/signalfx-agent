@@ -65,6 +65,9 @@ class Agent:
         self.config["writer"] = self.config.get("writer", {})
         self.config["writer"].setdefault("propertiesSendDelaySeconds", 1)
 
+        if self.config["writer"].get("splunk", {}).get("enabled", False):
+            self.config["writer"]["splunk"]["url"] = self.fake_services.splunk_hec_url
+
     @retry_on_ebadf
     def write_config(self):
         with open(self.config_path, "wb+") as fd:
@@ -128,6 +131,10 @@ class Agent:
                     for span in self.fake_services.spans:
                         print(span)
                     print(f"\nDimensions set: {self.fake_services.dims}")
+
+                    print("\nSplunk log entries received:")
+                    for entry in self.fake_services.splunk_entries:
+                        print(entry)
 
     @classmethod
     @contextmanager

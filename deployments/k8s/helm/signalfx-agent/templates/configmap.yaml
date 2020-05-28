@@ -13,11 +13,12 @@ data:
 {{- if .Values.agentConfig }}
 {{ toYaml .Values.agentConfig | indent 4 }}
 {{- else }}
+
+    {{- if or (.Values.signalFxAccessToken) (.Values.signalFxAccessTokenSecretName)}}
     signalFxAccessToken: ${SFX_ACCESS_TOKEN}
+    {{- end }}
 
     signalFxRealm: {{ .Values.signalFxRealm  | default "us0" }}
-
-    disableHostDimensions: {{ toYaml .Values.isServerless }}
 
     {{- if .Values.ingestUrl }}
     ingestUrl: {{ .Values.ingestUrl }}
@@ -31,6 +32,8 @@ data:
     traceEndpointUrl: {{ .Values.traceEndpointUrl }}
     {{- end }}
 
+    disableHostDimensions: {{ toYaml .Values.isServerless }}
+
     etcPath: {{ .Values.etcPath }}
     procPath: {{ .Values.procPath }}
 
@@ -39,6 +42,25 @@ data:
     intervalSeconds: {{ .Values.metricIntervalSeconds }}
 
     cluster: {{ required ".Values.clusterName is required" .Values.clusterName }}
+
+    writer:
+      signalFxEnabled: {{ .Values.signalFxEnabled }}
+    {{- if .Values.splunkUrl }}
+      splunk:
+        enabled: true
+        url: {{ .Values.splunkUrl }}
+        token: ${SPLUNK_TOKEN}
+        {{- if .Values.splunkIndex }}
+        index: {{ .Values.splunkIndex }}
+        {{- end }}
+        {{- if .Values.splunkSource }}
+        source: {{ .Values.splunkSource }}
+        {{- end }}
+        {{- if .Values.splunkSourceType }}
+        sourceType: {{ .Values.splunkSourceType }}
+        {{- end }}
+        skipTLSVerify: {{ .Values.splunkSkipTLSVerify | default "false" }}
+    {{- end }}
 
 {{- $major_version := .Values.agentVersion | default "0.0.0" | splitList "." | first | atoi -}}
 {{- if lt $major_version 5 }}

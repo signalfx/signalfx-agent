@@ -101,12 +101,13 @@ require (
 	github.com/keybase/go-crypto v0.0.0-20190312101036-b475f2ecc1fe // indirect
 	github.com/kr/pretty v0.1.0
 	github.com/leodido/go-urn v1.1.0 // indirect
-	github.com/lib/pq v1.0.0
+	github.com/lib/pq v1.2.0
 	github.com/mailru/easyjson v0.7.0
 	github.com/mattbaird/elastigo v0.0.0-20170123220020-2fe47fd29e4b // indirect
 	github.com/mattn/go-colorable v0.1.4 // indirect
 	github.com/mattn/go-isatty v0.0.10 // indirect
 	github.com/mattn/go-xmlrpc v0.0.3
+	github.com/mauricelam/genny v0.0.0-20190320071652-0800202903e5
 	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
 	github.com/michaelklishin/rabbit-hole v1.5.0 // indirect
 	github.com/mitchellh/go-wordwrap v1.0.0
@@ -115,8 +116,8 @@ require (
 	github.com/morikuni/aec v0.0.0-20170113033406-39771216ff4c // indirect
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.1
-	github.com/onsi/ginkgo v1.10.1
-	github.com/onsi/gomega v1.7.0
+	github.com/onsi/ginkgo v1.11.0
+	github.com/onsi/gomega v1.8.1
 	github.com/openshift/api v3.9.0+incompatible
 	github.com/openshift/client-go v0.0.0-20191216194936-57f413491e9e
 	github.com/opentracing/opentracing-go v1.1.0
@@ -127,7 +128,7 @@ require (
 	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
 	github.com/pquerna/otp v1.1.0 // indirect
 	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90
-	github.com/prometheus/common v0.2.1-0.20190321124555-1ab4d74fc899
+	github.com/prometheus/common v0.4.0
 	github.com/prometheus/procfs v0.0.9-0.20191209220459-fa4d6ce8c078
 	github.com/samuel/go-zookeeper v0.0.0-20190810000440-0ceca61e4d75
 	github.com/shirou/gopsutil v2.18.12+incompatible
@@ -135,8 +136,8 @@ require (
 	github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 	github.com/signalfx/gateway v1.2.19-0.20191125135538-2c417b7ae0bd
 	github.com/signalfx/golib/v3 v3.3.0
-	github.com/signalfx/signalfx-go v1.6.9-0.20191121015807-da8b1dfaab43
-	github.com/sirupsen/logrus v1.4.0
+	github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5
+	github.com/sirupsen/logrus v1.4.2
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect
 	github.com/streadway/amqp v0.0.0-20190312223743-14f78b41ce6d // indirect
@@ -153,16 +154,17 @@ require (
 	go.etcd.io/etcd v0.0.0-20190321122103-41f7142ff986
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	golang.org/x/sys v0.0.0-20200212091648-12a6c2dcc1e4
-	google.golang.org/grpc v1.20.1
+	golang.org/x/tools v0.0.0-20200204192400-7124308813f3
+	google.golang.org/grpc v1.21.0
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/fatih/set.v0 v0.1.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.28.0
 	gopkg.in/gorethink/gorethink.v4 v4.1.0 // indirect
-	gopkg.in/ini.v1 v1.42.0 // indirect
+	gopkg.in/ini.v1 v1.56.0 // indirect
 	gopkg.in/ory-am/dockertest.v2 v2.2.3 // indirect
 	gopkg.in/square/go-jose.v2 v2.3.0 // indirect
-	gopkg.in/yaml.v2 v2.2.5
+	gopkg.in/yaml.v2 v2.2.7
 	k8s.io/api v0.17.0
 	k8s.io/apimachinery v0.17.0
 	k8s.io/client-go v0.17.0

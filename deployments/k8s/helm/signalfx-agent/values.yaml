@@ -2,13 +2,39 @@
 # docker image tag if not overridden with imageTag
 agentVersion: 5.2.1
 
-# The access token for SignalFx. (REQUIRED if signalFxAccessTokenSecretName not set)
+# If false, datapoints, events, and spans will not be emitted to the SignalFx
+# backend.
+signalFxEnabled: true
+
+# The access token for SignalFx.
 signalFxAccessToken: ""
 
 # Use an existing secret for the SFX token (if set does not create a secret)
 # See templates/secrets.yaml for the format of the secret to use
-# If set, signalFxAccessToken is not required
 signalFxAccessTokenSecretName: ""
+
+# URL of a Splunk HEC endpoint to send data to.
+# If empty no data will be sent to Splunk.
+splunkUrl: ""
+
+# Splunk HTTP Event Collector token
+splunkToken: ""
+
+# Use an existing secret for the Splunk token (if set does not create a secret)
+# See templates/secrets.yaml for the format of the secret to use
+splunkTokenSecretName: ""
+
+# Splunk source: https://docs.splunk.com/Splexicon:Source
+splunkSource: ""
+
+# Splunk source type: https://docs.splunk.com/Splexicon:Sourcetype
+splunkSourceType: ""
+
+# Splunk index, optional name of the Splunk index to store the event in
+splunkIndex: ""
+
+# Skip verifying the certificate of the HTTP Event Collector
+splunkSkipTLSVerify: false
 
 # An additional set of global dimension to set on all datapoints coming out of
 # the agent.  The `kubernetes_cluster` dimension will always be set as a global
