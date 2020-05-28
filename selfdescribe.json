@@ -5937,25 +5937,209 @@
             "gauge.bucket.basic.memUsed",
             "gauge.bucket.basic.opsPerSec",
             "gauge.bucket.basic.quotaPercentUsed",
+            "gauge.bucket.hot_keys.0",
+            "gauge.bucket.hot_keys.1",
+            "gauge.bucket.hot_keys.10",
+            "gauge.bucket.hot_keys.2",
+            "gauge.bucket.hot_keys.3",
+            "gauge.bucket.hot_keys.4",
+            "gauge.bucket.hot_keys.5",
+            "gauge.bucket.hot_keys.6",
+            "gauge.bucket.hot_keys.7",
+            "gauge.bucket.hot_keys.8",
+            "gauge.bucket.hot_keys.9",
+            "gauge.bucket.op.avg_bg_wait_time",
+            "gauge.bucket.op.avg_disk_commit_time",
+            "gauge.bucket.op.avg_disk_update_time",
+            "gauge.bucket.op.bg_wait_count",
+            "gauge.bucket.op.bg_wait_total",
+            "gauge.bucket.op.bytes_read",
+            "gauge.bucket.op.bytes_written",
+            "gauge.bucket.op.cas_badval",
+            "gauge.bucket.op.cas_hits",
+            "gauge.bucket.op.cas_misses",
             "gauge.bucket.op.cmd_get",
+            "gauge.bucket.op.cmd_set",
+            "gauge.bucket.op.couch_docs_actual_disk_size",
+            "gauge.bucket.op.couch_docs_data_size",
+            "gauge.bucket.op.couch_docs_disk_size",
             "gauge.bucket.op.couch_docs_fragmentation",
+            "gauge.bucket.op.couch_spatial_data_size",
+            "gauge.bucket.op.couch_spatial_disk_size",
+            "gauge.bucket.op.couch_spatial_ops",
+            "gauge.bucket.op.couch_total_disk_size",
+            "gauge.bucket.op.couch_views_actual_disk_size",
+            "gauge.bucket.op.couch_views_data_size",
+            "gauge.bucket.op.couch_views_disk_size",
+            "gauge.bucket.op.couch_views_fragmentation",
             "gauge.bucket.op.couch_views_ops",
+            "gauge.bucket.op.cpu_idle_ms",
+            "gauge.bucket.op.cpu_utilization_rate",
             "gauge.bucket.op.curr_connections",
             "gauge.bucket.op.curr_items",
+            "gauge.bucket.op.curr_items_tot",
+            "gauge.bucket.op.decr_hits",
+            "gauge.bucket.op.decr_misses",
+            "gauge.bucket.op.delete_hits",
+            "gauge.bucket.op.delete_misses",
+            "gauge.bucket.op.disk_commit_count",
+            "gauge.bucket.op.disk_commit_total",
+            "gauge.bucket.op.disk_update_count",
+            "gauge.bucket.op.disk_update_total",
             "gauge.bucket.op.disk_write_queue",
             "gauge.bucket.op.ep_bg_fetched",
             "gauge.bucket.op.ep_cache_miss_rate",
+            "gauge.bucket.op.ep_dcp_2i_backoff",
+            "gauge.bucket.op.ep_dcp_2i_count",
+            "gauge.bucket.op.ep_dcp_2i_items_remaining",
+            "gauge.bucket.op.ep_dcp_2i_items_sent",
+            "gauge.bucket.op.ep_dcp_2i_producer_count",
+            "gauge.bucket.op.ep_dcp_2i_total_backlog_size",
+            "gauge.bucket.op.ep_dcp_2i_total_bytes",
+            "gauge.bucket.op.ep_dcp_other_backoff",
+            "gauge.bucket.op.ep_dcp_other_count",
+            "gauge.bucket.op.ep_dcp_other_items_remaining",
+            "gauge.bucket.op.ep_dcp_other_items_sent",
+            "gauge.bucket.op.ep_dcp_other_producer_count",
+            "gauge.bucket.op.ep_dcp_other_total_backlog_size",
+            "gauge.bucket.op.ep_dcp_other_total_bytes",
+            "gauge.bucket.op.ep_dcp_replica_backoff",
+            "gauge.bucket.op.ep_dcp_replica_count",
+            "gauge.bucket.op.ep_dcp_replica_items_remaining",
+            "gauge.bucket.op.ep_dcp_replica_items_sent",
+            "gauge.bucket.op.ep_dcp_replica_producer_count",
+            "gauge.bucket.op.ep_dcp_replica_total_backlog_size",
+            "gauge.bucket.op.ep_dcp_replica_total_bytes",
+            "gauge.bucket.op.ep_dcp_views_backoff",
+            "gauge.bucket.op.ep_dcp_views_count",
+            "gauge.bucket.op.ep_dcp_views_items_remaining",
+            "gauge.bucket.op.ep_dcp_views_items_sent",
+            "gauge.bucket.op.ep_dcp_views_producer_count",
+            "gauge.bucket.op.ep_dcp_views_total_bytes",
+            "gauge.bucket.op.ep_dcp_xdcr_backoff",
+            "gauge.bucket.op.ep_dcp_xdcr_count",
+            "gauge.bucket.op.ep_dcp_xdcr_items_remaining",
+            "gauge.bucket.op.ep_dcp_xdcr_items_sent",
+            "gauge.bucket.op.ep_dcp_xdcr_producer_count",
+            "gauge.bucket.op.ep_dcp_xdcr_total_backlog_size",
+            "gauge.bucket.op.ep_dcp_xdcr_total_bytes",
             "gauge.bucket.op.ep_diskqueue_drain",
             "gauge.bucket.op.ep_diskqueue_fill",
+            "gauge.bucket.op.ep_diskqueue_items",
+            "gauge.bucket.op.ep_flusher_todo",
+            "gauge.bucket.op.ep_item_commit_failed",
+            "gauge.bucket.op.ep_kv_size",
+            "gauge.bucket.op.ep_max_size",
             "gauge.bucket.op.ep_mem_high_wat",
             "gauge.bucket.op.ep_mem_low_wat",
+            "gauge.bucket.op.ep_meta_data_memory",
+            "gauge.bucket.op.ep_num_non_resident",
+            "gauge.bucket.op.ep_num_ops_del_meta",
+            "gauge.bucket.op.ep_num_ops_del_ret_meta",
+            "gauge.bucket.op.ep_num_ops_get_meta",
+            "gauge.bucket.op.ep_num_ops_set_meta",
+            "gauge.bucket.op.ep_num_ops_set_ret_meta",
             "gauge.bucket.op.ep_num_value_ejects",
             "gauge.bucket.op.ep_oom_errors",
+            "gauge.bucket.op.ep_ops_create",
+            "gauge.bucket.op.ep_ops_update",
+            "gauge.bucket.op.ep_overhead",
             "gauge.bucket.op.ep_queue_size",
+            "gauge.bucket.op.ep_resident_items_rate",
+            "gauge.bucket.op.ep_tap_rebalance_count",
+            "gauge.bucket.op.ep_tap_rebalance_qlen",
+            "gauge.bucket.op.ep_tap_rebalance_queue_backfillremaining",
+            "gauge.bucket.op.ep_tap_rebalance_queue_backoff",
+            "gauge.bucket.op.ep_tap_rebalance_queue_drain",
+            "gauge.bucket.op.ep_tap_rebalance_queue_itemondisk",
+            "gauge.bucket.op.ep_tap_rebalance_total_backlog_size",
+            "gauge.bucket.op.ep_tap_replica_count",
+            "gauge.bucket.op.ep_tap_replica_qlen",
+            "gauge.bucket.op.ep_tap_replica_queue_backoff",
+            "gauge.bucket.op.ep_tap_replica_queue_drain",
+            "gauge.bucket.op.ep_tap_replica_queue_itemondisk",
+            "gauge.bucket.op.ep_tap_replica_total_backlog_size",
+            "gauge.bucket.op.ep_tap_total_count",
+            "gauge.bucket.op.ep_tap_total_qlen",
+            "gauge.bucket.op.ep_tap_total_queue_backfillremaining",
+            "gauge.bucket.op.ep_tap_total_queue_backoff",
+            "gauge.bucket.op.ep_tap_total_queue_drain",
+            "gauge.bucket.op.ep_tap_total_queue_fill",
+            "gauge.bucket.op.ep_tap_total_queue_itemondisk",
+            "gauge.bucket.op.ep_tap_total_total_backlog_size",
+            "gauge.bucket.op.ep_tap_user_count",
+            "gauge.bucket.op.ep_tap_user_qlen",
+            "gauge.bucket.op.ep_tap_user_queue_backfillremaining",
+            "gauge.bucket.op.ep_tap_user_queue_backoff",
+            "gauge.bucket.op.ep_tap_user_queue_drain",
+            "gauge.bucket.op.ep_tap_user_queue_fill",
+            "gauge.bucket.op.ep_tap_user_queue_itemondisk",
+            "gauge.bucket.op.ep_tap_user_total_backlog_size",
             "gauge.bucket.op.ep_tmp_oom_errors",
+            "gauge.bucket.op.ep_vb_total",
+            "gauge.bucket.op.evictions",
+            "gauge.bucket.op.get_hits",
+            "gauge.bucket.op.get_misses",
+            "gauge.bucket.op.hibernated_requests",
+            "gauge.bucket.op.hibernated_waked",
+            "gauge.bucket.op.hit_ratio",
+            "gauge.bucket.op.incr_hits",
+            "gauge.bucket.op.incr_misses",
+            "gauge.bucket.op.mem_actual_free",
+            "gauge.bucket.op.mem_actual_used",
+            "gauge.bucket.op.mem_free",
+            "gauge.bucket.op.mem_total",
             "gauge.bucket.op.mem_used",
+            "gauge.bucket.op.mem_used_sys",
+            "gauge.bucket.op.misses",
             "gauge.bucket.op.ops",
+            "gauge.bucket.op.rest_requests",
+            "gauge.bucket.op.swap_total",
+            "gauge.bucket.op.swap_used",
+            "gauge.bucket.op.vb_active_eject",
+            "gauge.bucket.op.vb_active_itm_memory",
+            "gauge.bucket.op.vb_active_meta_data_memory",
+            "gauge.bucket.op.vb_active_num",
+            "gauge.bucket.op.vb_active_num_non_resident",
+            "gauge.bucket.op.vb_active_ops_create",
+            "gauge.bucket.op.vb_active_ops_update",
+            "gauge.bucket.op.vb_active_queue_age",
+            "gauge.bucket.op.vb_active_queue_drain",
+            "gauge.bucket.op.vb_active_queue_fill",
+            "gauge.bucket.op.vb_active_queue_size",
             "gauge.bucket.op.vb_active_resident_items_ratio",
+            "gauge.bucket.op.vb_avg_active_queue_age",
+            "gauge.bucket.op.vb_avg_pending_queue_age",
+            "gauge.bucket.op.vb_avg_replica_queue_age",
+            "gauge.bucket.op.vb_avg_total_queue_age",
+            "gauge.bucket.op.vb_pending_curr_items",
+            "gauge.bucket.op.vb_pending_eject",
+            "gauge.bucket.op.vb_pending_itm_memory",
+            "gauge.bucket.op.vb_pending_meta_data_memory",
+            "gauge.bucket.op.vb_pending_num",
+            "gauge.bucket.op.vb_pending_num_non_resident",
+            "gauge.bucket.op.vb_pending_ops_create",
+            "gauge.bucket.op.vb_pending_ops_update",
+            "gauge.bucket.op.vb_pending_queue_age",
+            "gauge.bucket.op.vb_pending_queue_drain",
+            "gauge.bucket.op.vb_pending_queue_fill",
+            "gauge.bucket.op.vb_pending_queue_size",
+            "gauge.bucket.op.vb_pending_resident_items_ratio",
+            "gauge.bucket.op.vb_replica_curr_items",
+            "gauge.bucket.op.vb_replica_eject",
+            "gauge.bucket.op.vb_replica_itm_memory",
+            "gauge.bucket.op.vb_replica_meta_data_memory",
+            "gauge.bucket.op.vb_replica_num",
+            "gauge.bucket.op.vb_replica_num_non_resident",
+            "gauge.bucket.op.vb_replica_ops_create",
+            "gauge.bucket.op.vb_replica_ops_update",
+            "gauge.bucket.op.vb_replica_queue_age",
+            "gauge.bucket.op.vb_replica_queue_drain",
+            "gauge.bucket.op.vb_replica_queue_fill",
+            "gauge.bucket.op.vb_replica_queue_size",
+            "gauge.bucket.op.vb_replica_resident_items_ratio",
+            "gauge.bucket.op.vb_total_queue_age",
+            "gauge.bucket.op.xdc_ops",
             "gauge.bucket.quota.ram",
             "gauge.bucket.quota.rawRAM"
           ]
@@ -6049,23 +6233,233 @@
           "group": "bucket",
           "default": true
         },
+        "gauge.bucket.hot_keys.0": {
+          "type": "gauge",
+          "description": "One of the most used keys in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.hot_keys.1": {
+          "type": "gauge",
+          "description": "One of the most used keys in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.hot_keys.10": {
+          "type": "gauge",
+          "description": "One of the most used keys in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.hot_keys.2": {
+          "type": "gauge",
+          "description": "One of the most used keys in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.hot_keys.3": {
+          "type": "gauge",
+          "description": "One of the most used keys in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.hot_keys.4": {
+          "type": "gauge",
+          "description": "One of the most used keys in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.hot_keys.5": {
+          "type": "gauge",
+          "description": "One of the most used keys in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.hot_keys.6": {
+          "type": "gauge",
+          "description": "One of the most used keys in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.hot_keys.7": {
+          "type": "gauge",
+          "description": "One of the most used keys in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.hot_keys.8": {
+          "type": "gauge",
+          "description": "One of the most used keys in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.hot_keys.9": {
+          "type": "gauge",
+          "description": "One of the most used keys in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.avg_bg_wait_time": {
+          "type": "gauge",
+          "description": "Average background wait time",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.avg_disk_commit_time": {
+          "type": "gauge",
+          "description": "Average disk commit time",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.avg_disk_update_time": {
+          "type": "gauge",
+          "description": "Average disk update time",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.bg_wait_count": {
+          "type": "gauge",
+          "description": "",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.bg_wait_total": {
+          "type": "gauge",
+          "description": "The total background wait time",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.bytes_read": {
+          "type": "gauge",
+          "description": "Number of bytes read",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.bytes_written": {
+          "type": "gauge",
+          "description": "Number of bytes written",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.cas_badval": {
+          "type": "gauge",
+          "description": "Number of CAS operations per second using an incorrect CAS ID for data that this bucket contains",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.cas_hits": {
+          "type": "gauge",
+          "description": "Number of CAS operations per second for data that this bucket contains",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.cas_misses": {
+          "type": "gauge",
+          "description": "Number of CAS operations per second for data that this bucket does not contain",
+          "group": "bucket",
+          "default": false
+        },
         "gauge.bucket.op.cmd_get": {
           "type": "gauge",
           "description": "requested objects",
           "group": "bucket",
           "default": true
         },
+        "gauge.bucket.op.cmd_set": {
+          "type": "gauge",
+          "description": "Number of writes (set operations) per second to this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.couch_docs_actual_disk_size": {
+          "type": "gauge",
+          "description": "The size of the couchbase docs on disk",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.couch_docs_data_size": {
+          "type": "gauge",
+          "description": "The size of active data in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.couch_docs_disk_size": {
+          "type": "gauge",
+          "description": "Couch docs total size in bytes",
+          "group": "bucket",
+          "default": false
+        },
         "gauge.bucket.op.couch_docs_fragmentation": {
           "type": "gauge",
-          "description": "Percent fragmentation of documents in this bucket.",
+          "description": "Percent fragmentation of documents in this bucket",
           "group": "bucket",
           "default": true
+        },
+        "gauge.bucket.op.couch_spatial_data_size": {
+          "type": "gauge",
+          "description": "The size of object data for spatial views",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.couch_spatial_disk_size": {
+          "type": "gauge",
+          "description": "The amount of disk space occupied by spatial views",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.couch_spatial_ops": {
+          "type": "gauge",
+          "description": "Number of spatial operations",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.couch_total_disk_size": {
+          "type": "gauge",
+          "description": "The total size on disk of all data and view files for this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.couch_views_actual_disk_size": {
+          "type": "gauge",
+          "description": "The size of all active items in all the indexes for this bucket on disk",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.couch_views_data_size": {
+          "type": "gauge",
+          "description": "The size of object data for views",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.couch_views_disk_size": {
+          "type": "gauge",
+          "description": "The amount of disk space occupied by views",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.couch_views_fragmentation": {
+          "type": "gauge",
+          "description": "How much fragmented data there is to be compacted compared to real data for the view index files in this bucket",
+          "group": "bucket",
+          "default": false
         },
         "gauge.bucket.op.couch_views_ops": {
           "type": "gauge",
           "description": "view operations per second",
           "group": "bucket",
           "default": true
+        },
+        "gauge.bucket.op.cpu_idle_ms": {
+          "type": "gauge",
+          "description": "CPU Idle milliseconds",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.cpu_utilization_rate": {
+          "type": "gauge",
+          "description": "Percentage of CPU in use across all available cores on this server",
+          "group": "bucket",
+          "default": false
         },
         "gauge.bucket.op.curr_connections": {
           "type": "gauge",
@@ -6076,6 +6470,60 @@
         "gauge.bucket.op.curr_items": {
           "type": "gauge",
           "description": "total number of stored items per bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.curr_items_tot": {
+          "type": "gauge",
+          "description": "Total number of items",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.decr_hits": {
+          "type": "gauge",
+          "description": "Number of decrement hits",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.decr_misses": {
+          "type": "gauge",
+          "description": "Number of decrement misses",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.delete_hits": {
+          "type": "gauge",
+          "description": "Number of delete hits",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.delete_misses": {
+          "type": "gauge",
+          "description": "Number of delete misses",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.disk_commit_count": {
+          "type": "gauge",
+          "description": "Number of disk commits",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.disk_commit_total": {
+          "type": "gauge",
+          "description": "Total number of disk commits",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.disk_update_count": {
+          "type": "gauge",
+          "description": "Number of disk updates",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.disk_update_total": {
+          "type": "gauge",
+          "description": "Total number of disk updates",
           "group": "bucket",
           "default": false
         },
@@ -6097,6 +6545,210 @@
           "group": "bucket",
           "default": true
         },
+        "gauge.bucket.op.ep_dcp_2i_backoff": {
+          "type": "gauge",
+          "description": "Number of backoffs for indexes DCP connections",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_2i_count": {
+          "type": "gauge",
+          "description": "Number of indexes DCP connections",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_2i_items_remaining": {
+          "type": "gauge",
+          "description": "Number of indexes items remaining to be sent",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_2i_items_sent": {
+          "type": "gauge",
+          "description": "Number of indexes items sent",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_2i_producer_count": {
+          "type": "gauge",
+          "description": "Number of indexes producers",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_2i_total_backlog_size": {
+          "type": "gauge",
+          "description": "Number of items in dcp backlog",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_2i_total_bytes": {
+          "type": "gauge",
+          "description": "Number bytes per second being sent for indexes DCP connections",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_other_backoff": {
+          "type": "gauge",
+          "description": "Number of backoffs for other DCP connections",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_other_count": {
+          "type": "gauge",
+          "description": "Number of other DCP connections",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_other_items_remaining": {
+          "type": "gauge",
+          "description": "Number of other items remaining to be sent",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_other_items_sent": {
+          "type": "gauge",
+          "description": "Number of other items sent",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_other_producer_count": {
+          "type": "gauge",
+          "description": "Number of other producers",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_other_total_backlog_size": {
+          "type": "gauge",
+          "description": "Number of remaining items for replication",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_other_total_bytes": {
+          "type": "gauge",
+          "description": "Number bytes per second being sent for other DCP connections",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_replica_backoff": {
+          "type": "gauge",
+          "description": "Number of backoffs for replica DCP connections",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_replica_count": {
+          "type": "gauge",
+          "description": "Number of replica DCP connections",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_replica_items_remaining": {
+          "type": "gauge",
+          "description": "Number of replica items remaining to be sent",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_replica_items_sent": {
+          "type": "gauge",
+          "description": "Number of replica items sent",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_replica_producer_count": {
+          "type": "gauge",
+          "description": "Number of replica producers",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_replica_total_backlog_size": {
+          "type": "gauge",
+          "description": "Number of remaining items for replication",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_replica_total_bytes": {
+          "type": "gauge",
+          "description": "Number bytes per second being sent for replica DCP connections",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_views_backoff": {
+          "type": "gauge",
+          "description": "Number of backoffs for views DCP connections",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_views_count": {
+          "type": "gauge",
+          "description": "Number of views DCP connections",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_views_items_remaining": {
+          "type": "gauge",
+          "description": "Number of views items remaining to be sent",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_views_items_sent": {
+          "type": "gauge",
+          "description": "Number of view items sent",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_views_producer_count": {
+          "type": "gauge",
+          "description": "Number of views producers",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_views_total_bytes": {
+          "type": "gauge",
+          "description": "Number bytes per second being sent for views DCP connections",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_xdcr_backoff": {
+          "type": "gauge",
+          "description": "Number of backoffs for xdcr DCP connections",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_xdcr_count": {
+          "type": "gauge",
+          "description": "Number of xdcr DCP connections",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_xdcr_items_remaining": {
+          "type": "gauge",
+          "description": "Number of xdcr items remaining to be sent",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_xdcr_items_sent": {
+          "type": "gauge",
+          "description": "Number of xdcr items sent",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_xdcr_producer_count": {
+          "type": "gauge",
+          "description": "Number of xdcr producers",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_xdcr_total_backlog_size": {
+          "type": "gauge",
+          "description": "Number of items waiting replication",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_dcp_xdcr_total_bytes": {
+          "type": "gauge",
+          "description": "Number bytes per second being sent for xdcr DCP connections",
+          "group": "bucket",
+          "default": false
+        },
         "gauge.bucket.op.ep_diskqueue_drain": {
           "type": "gauge",
           "description": "items removed from disk queue",
@@ -6109,6 +6761,36 @@
           "group": "bucket",
           "default": true
         },
+        "gauge.bucket.op.ep_diskqueue_items": {
+          "type": "gauge",
+          "description": "The number of items waiting to be written to disk for this bucket for this state",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_flusher_todo": {
+          "type": "gauge",
+          "description": "Number of items currently being written",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_item_commit_failed": {
+          "type": "gauge",
+          "description": "Number of times a transaction failed to commit due to storage errors",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_kv_size": {
+          "type": "gauge",
+          "description": "Total amount of user data cached in RAM in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_max_size": {
+          "type": "gauge",
+          "description": "The maximum amount of memory this bucket can use",
+          "group": "bucket",
+          "default": false
+        },
         "gauge.bucket.op.ep_mem_high_wat": {
           "type": "gauge",
           "description": "memory high water mark - point at which active objects begin to be ejected from bucket",
@@ -6118,6 +6800,48 @@
         "gauge.bucket.op.ep_mem_low_wat": {
           "type": "gauge",
           "description": "memory low water mark",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_meta_data_memory": {
+          "type": "gauge",
+          "description": "Total amount of item  metadata consuming RAM in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_num_non_resident": {
+          "type": "gauge",
+          "description": "Number of non-resident items",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_num_ops_del_meta": {
+          "type": "gauge",
+          "description": "Number of delete operations per second for this bucket as the target for XDCR",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_num_ops_del_ret_meta": {
+          "type": "gauge",
+          "description": "Number of delRetMeta operations per second for this bucket as the target for XDCR",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_num_ops_get_meta": {
+          "type": "gauge",
+          "description": "Number of read operations per second for this bucket as the target for XDCR",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_num_ops_set_meta": {
+          "type": "gauge",
+          "description": "Number of set operations per second for this bucket as the target for XDCR",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_num_ops_set_ret_meta": {
+          "type": "gauge",
+          "description": "Number of setRetMeta operations per second for this bucket as the target for XDCR",
           "group": "bucket",
           "default": false
         },
@@ -6133,11 +6857,209 @@
           "group": "bucket",
           "default": true
         },
+        "gauge.bucket.op.ep_ops_create": {
+          "type": "gauge",
+          "description": "Total number of new items being inserted into this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_ops_update": {
+          "type": "gauge",
+          "description": "Number of update operations",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_overhead": {
+          "type": "gauge",
+          "description": "Extra memory used by transient data like persistence queues or checkpoints",
+          "group": "bucket",
+          "default": false
+        },
         "gauge.bucket.op.ep_queue_size": {
           "type": "gauge",
           "description": "number of items queued for storage",
           "group": "bucket",
           "default": true
+        },
+        "gauge.bucket.op.ep_resident_items_rate": {
+          "type": "gauge",
+          "description": "Number of resident items",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_rebalance_count": {
+          "type": "gauge",
+          "description": "Number of internal rebalancing TAP queues in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_rebalance_qlen": {
+          "type": "gauge",
+          "description": "Number of items in the rebalance TAP queues in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_rebalance_queue_backfillremaining": {
+          "type": "gauge",
+          "description": "Number of items in the backfill queues of rebalancing TAP connections to this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_rebalance_queue_backoff": {
+          "type": "gauge",
+          "description": "Number of back-offs received per second while sending data over rebalancing TAP connections to this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_rebalance_queue_drain": {
+          "type": "gauge",
+          "description": "Number of items per second being sent over rebalancing TAP connections to this bucket, i.e. removed from queue.",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_rebalance_queue_itemondisk": {
+          "type": "gauge",
+          "description": "Number of items still on disk to be loaded for rebalancing TAP connections to this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_rebalance_total_backlog_size": {
+          "type": "gauge",
+          "description": "Number of items remaining for replication",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_replica_count": {
+          "type": "gauge",
+          "description": "Number of internal replication TAP queues in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_replica_qlen": {
+          "type": "gauge",
+          "description": "Number of items in the replication TAP queues in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_replica_queue_backoff": {
+          "type": "gauge",
+          "description": "Number of back-offs received per second while sending data over replication TAP connections to this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_replica_queue_drain": {
+          "type": "gauge",
+          "description": "Number of items per second being sent over replication TAP connections to this bucket, i.e. removed from queue",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_replica_queue_itemondisk": {
+          "type": "gauge",
+          "description": "Number of items still on disk to be loaded for replication TAP connections to this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_replica_total_backlog_size": {
+          "type": "gauge",
+          "description": "Number of remaining items for replication",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_total_count": {
+          "type": "gauge",
+          "description": "Total number of internal TAP queues in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_total_qlen": {
+          "type": "gauge",
+          "description": "Total number of items in TAP queues in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_total_queue_backfillremaining": {
+          "type": "gauge",
+          "description": "Total number of items in the backfill queues of TAP connections to this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_total_queue_backoff": {
+          "type": "gauge",
+          "description": "Total number of back-offs received per second while sending data over TAP connections to this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_total_queue_drain": {
+          "type": "gauge",
+          "description": "Total number of items per second being sent over TAP connections to this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_total_queue_fill": {
+          "type": "gauge",
+          "description": "Total enqueued items in the queue. ",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_total_queue_itemondisk": {
+          "type": "gauge",
+          "description": "The number of items waiting to be written to disk for this bucket for this state.",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_total_total_backlog_size": {
+          "type": "gauge",
+          "description": "Number of remaining items for replication",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_user_count": {
+          "type": "gauge",
+          "description": "Number of internal user TAP queues in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_user_qlen": {
+          "type": "gauge",
+          "description": "Number of items in user TAP queues in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_user_queue_backfillremaining": {
+          "type": "gauge",
+          "description": "Number of items in the backfill queues of user TAP connections to this bucket.",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_user_queue_backoff": {
+          "type": "gauge",
+          "description": "Number of back-offs received per second while sending data over user TAP connections to this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_user_queue_drain": {
+          "type": "gauge",
+          "description": "Number of items per second being sent over user TAP connections to this bucket, i.e. removed from queue",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_user_queue_fill": {
+          "type": "gauge",
+          "description": "Number of items per second being put on the user TAP queues",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_user_queue_itemondisk": {
+          "type": "gauge",
+          "description": "Number of items still on disk to be loaded for client TAP connections to this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.ep_tap_user_total_backlog_size": {
+          "type": "gauge",
+          "description": "Number of remaining items for replication",
+          "group": "bucket",
+          "default": false
         },
         "gauge.bucket.op.ep_tmp_oom_errors": {
           "type": "gauge",
@@ -6145,15 +7067,189 @@
           "group": "bucket",
           "default": true
         },
+        "gauge.bucket.op.ep_vb_total": {
+          "type": "gauge",
+          "description": "Total number of vBuckets for this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.evictions": {
+          "type": "gauge",
+          "description": "Number of evictions",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.get_hits": {
+          "type": "gauge",
+          "description": "Number of get hits",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.get_misses": {
+          "type": "gauge",
+          "description": "Number of get misses",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.hibernated_requests": {
+          "type": "gauge",
+          "description": "Number of streaming requests now idle",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.hibernated_waked": {
+          "type": "gauge",
+          "description": "Rate of streaming request wakeups",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.hit_ratio": {
+          "type": "gauge",
+          "description": "Hit ratio.",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.incr_hits": {
+          "type": "gauge",
+          "description": "Number of increment hits",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.incr_misses": {
+          "type": "gauge",
+          "description": "Number of increment misses",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.mem_actual_free": {
+          "type": "gauge",
+          "description": "Amount of RAM available",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.mem_actual_used": {
+          "type": "gauge",
+          "description": "Used memory",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.mem_free": {
+          "type": "gauge",
+          "description": "Free memory",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.mem_total": {
+          "type": "gauge",
+          "description": "Total available memory",
+          "group": "bucket",
+          "default": false
+        },
         "gauge.bucket.op.mem_used": {
           "type": "gauge",
           "description": "memory used",
           "group": "bucket",
           "default": true
         },
+        "gauge.bucket.op.mem_used_sys": {
+          "type": "gauge",
+          "description": "System memory usage",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.misses": {
+          "type": "gauge",
+          "description": "Total number of misses",
+          "group": "bucket",
+          "default": false
+        },
         "gauge.bucket.op.ops": {
           "type": "gauge",
           "description": "total of gets, sets, increment and decrement",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.rest_requests": {
+          "type": "gauge",
+          "description": "Number of HTTP requests",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.swap_total": {
+          "type": "gauge",
+          "description": "Total amount of swap available",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.swap_used": {
+          "type": "gauge",
+          "description": "Amount of swap used",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_active_eject": {
+          "type": "gauge",
+          "description": "Number of items per second being ejected to disk from active vBuckets",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_active_itm_memory": {
+          "type": "gauge",
+          "description": "Amount of active user data cached in RAM in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_active_meta_data_memory": {
+          "type": "gauge",
+          "description": "Amount of active item metadata consuming RAM in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_active_num": {
+          "type": "gauge",
+          "description": "Number of vBuckets in the active state for this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_active_num_non_resident": {
+          "type": "gauge",
+          "description": "Number of non resident vBuckets in the active state for this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_active_ops_create": {
+          "type": "gauge",
+          "description": "New items per second being inserted into active vBuckets in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_active_ops_update": {
+          "type": "gauge",
+          "description": "Number of items updated on active vBucket per second for this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_active_queue_age": {
+          "type": "gauge",
+          "description": "Sum of disk queue item age in milliseconds",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_active_queue_drain": {
+          "type": "gauge",
+          "description": "Number of active items per second being written to disk in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_active_queue_fill": {
+          "type": "gauge",
+          "description": "Number of active items per second being put on the active item disk queue in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_active_queue_size": {
+          "type": "gauge",
+          "description": "Number of active items waiting to be written to disk in this bucket",
           "group": "bucket",
           "default": false
         },
@@ -6163,15 +7259,207 @@
           "group": "bucket",
           "default": true
         },
+        "gauge.bucket.op.vb_avg_active_queue_age": {
+          "type": "gauge",
+          "description": "Average age in seconds of active items in the active item queue for this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_avg_pending_queue_age": {
+          "type": "gauge",
+          "description": "Average age in seconds of pending items in the pending item queue for this bucket and should be transient during rebalancing",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_avg_replica_queue_age": {
+          "type": "gauge",
+          "description": "Average age in seconds of replica items in the replica item queue for this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_avg_total_queue_age": {
+          "type": "gauge",
+          "description": "Average age of items in the queue",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_pending_curr_items": {
+          "type": "gauge",
+          "description": "Number of items in pending vBuckets in this bucket and should be transient during rebalancing",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_pending_eject": {
+          "type": "gauge",
+          "description": "Number of items per second being ejected to disk from pending vBuckets",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_pending_itm_memory": {
+          "type": "gauge",
+          "description": "Amount of pending user data cached in RAM in this bucket and should be transient during rebalancing",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_pending_meta_data_memory": {
+          "type": "gauge",
+          "description": "Amount of pending item metadata consuming RAM in this bucket and should be transient during rebalancing",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_pending_num": {
+          "type": "gauge",
+          "description": "Number of pending items",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_pending_num_non_resident": {
+          "type": "gauge",
+          "description": "Number of non resident vBuckets in the pending state for this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_pending_ops_create": {
+          "type": "gauge",
+          "description": "New items per second being instead into pending vBuckets in this bucket and should be transient during rebalancing",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_pending_ops_update": {
+          "type": "gauge",
+          "description": "Number of items updated on pending vBucket per second for this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_pending_queue_age": {
+          "type": "gauge",
+          "description": "Sum of disk pending queue item age in milliseconds",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_pending_queue_drain": {
+          "type": "gauge",
+          "description": "Number of pending items per second being written to disk in this bucket and should be transient during rebalancing",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_pending_queue_fill": {
+          "type": "gauge",
+          "description": "Total enqueued pending items on disk queue",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_pending_queue_size": {
+          "type": "gauge",
+          "description": "Number of pending items waiting to be written to disk in this bucket and should be transient during rebalancing",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_pending_resident_items_ratio": {
+          "type": "gauge",
+          "description": "Number of resident pending items",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_replica_curr_items": {
+          "type": "gauge",
+          "description": "Number of in memory items",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_replica_eject": {
+          "type": "gauge",
+          "description": "Number of items per second being ejected to disk from replica vBuckets",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_replica_itm_memory": {
+          "type": "gauge",
+          "description": "Amount of replica user data cached in RAM in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_replica_meta_data_memory": {
+          "type": "gauge",
+          "description": "Amount of replica item metadata consuming in RAM in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_replica_num": {
+          "type": "gauge",
+          "description": "Number of replica vBuckets",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_replica_num_non_resident": {
+          "type": "gauge",
+          "description": "Number of non resident vBuckets in the replica state for this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_replica_ops_create": {
+          "type": "gauge",
+          "description": "Number of replica create operations",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_replica_ops_update": {
+          "type": "gauge",
+          "description": "Number of items updated on replica vBucket per second for this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_replica_queue_age": {
+          "type": "gauge",
+          "description": "Sum of disk replica queue item age in milliseconds",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_replica_queue_drain": {
+          "type": "gauge",
+          "description": "Total drained replica items in the queue",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_replica_queue_fill": {
+          "type": "gauge",
+          "description": "Number of replica items per second being put on the replica item disk queue in this bucket",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_replica_queue_size": {
+          "type": "gauge",
+          "description": "Number of replica items in disk queue",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_replica_resident_items_ratio": {
+          "type": "gauge",
+          "description": "Percentage of replica items cached in RAM in this bucket.",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.vb_total_queue_age": {
+          "type": "gauge",
+          "description": "Sum of disk queue item age in milliseconds",
+          "group": "bucket",
+          "default": false
+        },
+        "gauge.bucket.op.xdc_ops": {
+          "type": "gauge",
+          "description": "Cross datacenter replication operations per second for this bucket",
+          "group": "bucket",
+          "default": false
+        },
         "gauge.bucket.quota.ram": {
           "type": "gauge",
-          "description": "Amount of RAM used by the bucket (bytes).",
+          "description": "Amount of RAM used by the bucket (bytes)",
           "group": "bucket",
           "default": false
         },
         "gauge.bucket.quota.rawRAM": {
           "type": "gauge",
-          "description": "Amount of raw RAM used by the bucket (bytes).",
+          "description": "Amount of raw RAM used by the bucket (bytes)",
           "group": "bucket",
           "default": false
         },
@@ -6183,7 +7471,7 @@
         },
         "gauge.nodes.couch_docs_actual_disk_size": {
           "type": "gauge",
-          "description": "Amount of disk space used by Couch docs.(bytes)",
+          "description": "Amount of disk space used by Couch docs (bytes)",
           "group": "nodes",
           "default": true
         },
@@ -6201,19 +7489,19 @@
         },
         "gauge.nodes.couch_spatial_disk_size": {
           "type": "gauge",
-          "description": "Amount of disk space occupied by spatial views, in bytes.",
+          "description": "Amount of disk space occupied by spatial views, in bytes",
           "group": "nodes",
           "default": false
         },
         "gauge.nodes.couch_views_actual_disk_size": {
           "type": "gauge",
-          "description": "Amount of disk space occupied by Couch views (bytes).",
+          "description": "Amount of disk space occupied by Couch views (bytes)",
           "group": "nodes",
           "default": false
         },
         "gauge.nodes.couch_views_data_size": {
           "type": "gauge",
-          "description": "Size of object data for Couch views (bytes).",
+          "description": "Size of object data for Couch views (bytes)",
           "group": "nodes",
           "default": false
         },
@@ -6243,13 +7531,13 @@
         },
         "gauge.nodes.mcdMemoryAllocated": {
           "type": "gauge",
-          "description": "Amount of memcached memory allocated (bytes).",
+          "description": "Amount of memcached memory allocated (bytes)",
           "group": "nodes",
           "default": false
         },
         "gauge.nodes.mcdMemoryReserved": {
           "type": "gauge",
-          "description": "Amount of memcached memory reserved (bytes).",
+          "description": "Amount of memcached memory reserved (bytes)",
           "group": "nodes",
           "default": false
         },
@@ -6261,13 +7549,13 @@
         },
         "gauge.nodes.memoryFree": {
           "type": "gauge",
-          "description": "Amount of memory free for the node (bytes).",
+          "description": "Amount of memory free for the node (bytes)",
           "group": "nodes",
           "default": false
         },
         "gauge.nodes.memoryTotal": {
           "type": "gauge",
-          "description": "Total memory available to the node (bytes).",
+          "description": "Total memory available to the node (bytes)",
           "group": "nodes",
           "default": false
         },
@@ -6375,7 +7663,7 @@
         },
         "gauge.storage.ram.used": {
           "type": "gauge",
-          "description": "Ram used by the cluster (bytes)",
+          "description": "RAM used by the cluster (bytes)",
           "group": "storage",
           "default": false
         },
