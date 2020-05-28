@@ -90,12 +90,12 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 
 		// Creating metric datapoints from the 1 minute resolution process measurement datapoints
 		for k, v := range processMeasurements {
-			dps = append(dps, newDps(k, v, "", "")...)
+			dps = append(dps, newDps(k, v, "")...)
 		}
 
 		// Creating metric datapoints from the 1 minute resolution disk measurement datapoints
 		for k, v := range diskMeasurements {
-			dps = append(dps, newDps(k, v.Measurements, v.DiskName, "")...)
+			dps = append(dps, newDps(k, v.Measurements, v.PartitionName)...)
 		}
 
 		m.Output.SendDatapoints(dps...)
@@ -124,8 +124,10 @@ func newDigestClient(publicKey, privateKey string) (*mongodbatlas.Client, error)
 	return mongodbatlas.NewClient(client), nil
 }
 
-func newDps(process measurements.Process, measurementsArr []*mongodbatlas.Measurements, partition string, database string) []*datapoint.Datapoint {
+func newDps(process measurements.Process, measurementsArr []*mongodbatlas.Measurements, partitionName string) []*datapoint.Datapoint {
 	var dps = make([]*datapoint.Datapoint, 0)
+
+	var dimensions = newDimensions(&process, partitionName)
 
 	for _, measures := range measurementsArr {
 		metricValue := newFloatValue(measures.DataPoints)
@@ -138,15 +140,7 @@ func newDps(process measurements.Process, measurementsArr []*mongodbatlas.Measur
 			Metric:     metricsMap[measures.Name],
 			MetricType: datapoint.Gauge,
 			Value:      metricValue,
-			Dimensions: map[string]string{"host": process.Host, "port": strconv.Itoa(process.Port)},
-		}
-
-		if partition != "" {
-			dp.Dimensions["partition"] = partition
-		}
-
-		if database != "" {
-			dp.Dimensions["database"] = database
+			Dimensions: dimensions,
 		}
 
 		dps = append(dps, dp)
@@ -177,4 +171,22 @@ func newFloatValue(dataPoints []*mongodbatlas.DataPoints) datapoint.FloatValue {
 	}
 
 	return datapoint.NewFloatValue(float64(*value))
+}
+
+func newDimensions(process *measurements.Process, partitionName string) map[string]string {
+	var dimensions = map[string]string{"project_id": process.ProjectID, "host": process.Host, "port": strconv.Itoa(process.Port), "type_name": process.TypeName}
+
+	if process.ReplicaSetName != "" {
+		dimensions["replicaset_name"] = process.ReplicaSetName
+	}
+
+	if process.ShardName != "" {
+		dimensions["shard_name"] = process.ShardName
+	}
+
+	if partitionName != "" {
+		dimensions["partition_name"] = partitionName
+	}
+
+	return dimensions
 }

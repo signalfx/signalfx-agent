@@ -12,8 +12,8 @@ import (
 
 // DisksMeasurements are the metric measurements of a particular disk partition in a MongoDB process host.
 type DisksMeasurements map[Process]struct {
-	DiskName     string
-	Measurements []*mongodbatlas.Measurements
+	PartitionName string
+	Measurements  []*mongodbatlas.Measurements
 }
 
 // DisksGetter is for fetching metric measurements of disk partitions in the MongoDB processes hosts.
@@ -47,7 +47,7 @@ func NewDisksGetter(projectID string, client *mongodbatlas.Client, enableCache b
 func (getter *disksGetter) GetMeasurements(ctx context.Context, timeout time.Duration, processes []Process) DisksMeasurements {
 	var measurements = make(DisksMeasurements)
 
-	disks := getter.getDisks(ctx, timeout, processes)
+	partitions := getter.getPartitions(ctx, timeout, processes)
 
 	var wg1 sync.WaitGroup
 
@@ -57,18 +57,18 @@ func (getter *disksGetter) GetMeasurements(ctx context.Context, timeout time.Dur
 		defer wg1.Done()
 
 		var wg2 sync.WaitGroup
-		for process, diskNames := range disks {
-			for _, diskName := range diskNames {
+		for process, partitionNames := range partitions {
+			for _, partitionName := range partitionNames {
 				wg2.Add(1)
 
-				go func(process Process, diskName string) {
+				go func(process Process, partitionName string) {
 					defer wg2.Done()
 
 					var ctx, cancel = context.WithTimeout(ctx, timeout)
 					defer cancel()
 
-					getter.setMeasurements(ctx, measurements, process, diskName, 1)
-				}(process, diskName)
+					getter.setMeasurements(ctx, measurements, process, partitionName, 1)
+				}(process, partitionName)
 			}
 		}
 		wg2.Wait()
@@ -87,9 +87,9 @@ func (getter *disksGetter) GetMeasurements(ctx context.Context, timeout time.Dur
 	return measurements
 }
 
-// getDisks is a helper function for fetching the names of disk partitions is the hosts of given MongoDB processes.
-func (getter *disksGetter) getDisks(ctx context.Context, timeout time.Duration, processes []Process) map[Process][]string {
-	var disks = make(map[Process][]string)
+// getPartitions is a helper function for fetching the names of disk partitions is the hosts of given MongoDB processes.
+func (getter *disksGetter) getPartitions(ctx context.Context, timeout time.Duration, processes []Process) map[Process][]string {
+	var partitions = make(map[Process][]string)
 
 	var wg1 sync.WaitGroup
 
@@ -108,17 +108,17 @@ func (getter *disksGetter) getDisks(ctx context.Context, timeout time.Duration, 
 				var ctx, cancel = context.WithTimeout(ctx, timeout)
 				defer cancel()
 
-				diskNames := getter.getDiskNames(ctx, process, 1)
+				partitionNames := getter.getPartitionNames(ctx, process, 1)
 
 				getter.mutex.Lock()
 				defer getter.mutex.Unlock()
-				disks[process] = diskNames
+				partitions[process] = partitionNames
 			}(process)
 		}
 		wg2.Wait()
 
 		if getter.enableCache {
-			getter.disksCache.Store(disks)
+			getter.disksCache.Store(partitions)
 		}
 	}()
 
@@ -128,11 +128,11 @@ func (getter *disksGetter) getDisks(ctx context.Context, timeout time.Duration, 
 
 	wg1.Wait()
 
-	return disks
+	return partitions
 }
 
-// getDiskNames is a helper function of function getDisks.
-func (getter *disksGetter) getDiskNames(ctx context.Context, process Process, page int) (names []string) {
+// getPartitionNames is a helper function of function getPartitions.
+func (getter *disksGetter) getPartitionNames(ctx context.Context, process Process, page int) (names []string) {
 	list, resp, err := getter.client.ProcessDisks.List(ctx, getter.projectID, process.Host, process.Port, &mongodbatlas.ListOptions{PageNum: page})
 
 	if msg, err := errorMsg(err, resp); err != nil {
@@ -141,7 +141,7 @@ func (getter *disksGetter) getDiskNames(ctx context.Context, process Process, pa
 	}
 
 	if ok, next := nextPage(resp); ok {
-		names = append(names, getter.getDiskNames(ctx, process, next)...)
+		names = append(names, getter.getPartitionNames(ctx, process, next)...)
 	}
 
 	for _, r := range list.Results {
@@ -152,8 +152,8 @@ func (getter *disksGetter) getDiskNames(ctx context.Context, process Process, pa
 }
 
 // setMeasurements is a helper function of method GetMeasurements.
-func (getter *disksGetter) setMeasurements(ctx context.Context, disksMeasurements DisksMeasurements, process Process, diskName string, page int) {
-	list, resp, err := getter.client.ProcessDiskMeasurements.List(ctx, getter.projectID, process.Host, process.Port, diskName, optionPT1M(page))
+func (getter *disksGetter) setMeasurements(ctx context.Context, disksMeasurements DisksMeasurements, process Process, partitionName string, page int) {
+	list, resp, err := getter.client.ProcessDiskMeasurements.List(ctx, getter.projectID, process.Host, process.Port, partitionName, optionPT1M(page))
 
 	if msg, err := errorMsg(err, resp); err != nil {
 		log.WithError(err).Errorf(msg, "disk measurements", getter.projectID, process.Host, process.Port)
@@ -161,14 +161,14 @@ func (getter *disksGetter) setMeasurements(ctx context.Context, disksMeasurement
 	}
 
 	if ok, next := nextPage(resp); ok {
-		getter.setMeasurements(ctx, disksMeasurements, process, diskName, next)
+		getter.setMeasurements(ctx, disksMeasurements, process, partitionName, next)
 	}
 
 	getter.mutex.Lock()
 	defer getter.mutex.Unlock()
 
 	disksMeasurements[process] = struct {
-		DiskName     string
-		Measurements []*mongodbatlas.Measurements
-	}{DiskName: diskName, Measurements: list.Measurements}
+		PartitionName string
+		Measurements  []*mongodbatlas.Measurements
+	}{PartitionName: partitionName, Measurements: list.Measurements}
 }
