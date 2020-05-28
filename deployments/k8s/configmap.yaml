@@ -50,6 +50,7 @@ data:
     - type: processlist
     - type: vmem
 
+
     - type: kubelet-stats
       kubeletAPI:
         authType: serviceAccount
