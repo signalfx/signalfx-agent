@@ -5,8 +5,8 @@
 * Linux kernel version 2.6 or higher
 * `CAP_DAC_READ_SEARCH` and `CAP_SYS_PTRACE` capabilities
 * `terminal` or a similar command line interface application
-* Your SignalFx realm. See [Realms](../../../_sidebars-and-includes/realm-note.html).
-* A SignalFx access token. See [Smart Agent Access Token](../../../_sidebars-and-includes/access-token.html).
+* Your SignalFx realm. See [Realms](../../../_sidebars-and-includes/smart-agent-realm-note.html).
+* A SignalFx access token. See [Smart Agent Access Token](../../../_sidebars-and-includes/smart-agent-access-token.html).
 
 ## Configure kubectl for the Smart Agent
 
