@@ -84,7 +84,7 @@ Before you install, configure the Smart Agent Puppet manifest.
      The defaults are `$service_user = signalfx-agent` and `$service_group = signalfx-agent`.
 
 To learn more about the Smart Agent configuration options,
-see the [Agent Configuration Schema](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md).
+see [Agent Configuration](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md).
 
 ### Install with Puppet
 
@@ -297,7 +297,7 @@ Download the formula from the [SignalFx Agent Salt formula site](https://github.
      The default value for both properties is `signalfx-agent`.
 
 To learn more about the Smart Agent configuration options,  
-see the [Agent Configuration Schema](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md).
+see [Agent Configuration](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md).
 
 ### Install with Salt
 
@@ -309,7 +309,7 @@ See the following section entitled [Verify the Smart Agent](#verify-the-smart-ag
 
 ## Install using a Docker image
 
-SignalFx hosts a Smart Agent Docker image at  
+SignalFx hosts a Smart Agent Docker image at
 [https://quay.io/signalfx/signalfx-agent](https://quay.io/signalfx/signalfx-agent).
 This image is tagged with the same values as the Smart Agent itself. For example, to get version 5.1.6 of the Smart Agent,
 download the Docker image with the tag 5.1.6.
@@ -334,7 +334,7 @@ To configure the Docker image for the Smart Agent:
 2. In the agent configuration file `agent.yaml` that's downloaded with the  Docker image,
    update any incorrect property values to match your system.
 3. In `agent.yaml`, add additional properties such as monitors and observers. To learn
-   more about all the available configuration options, see the [Agent Configuration Schema](../config-schema.md).
+   more about all the available configuration options, see [Agent Configuration](../config-schema.md).
 4. In your agent container, copy `agent.yaml` to the directory `/etc/signalfx/`.
 5. If you have the Docker API available through the conventional *nix domain socket, mount it so
    you can use the [docker-container-stats](../monitors/docker-container-stats.md) monitor.
