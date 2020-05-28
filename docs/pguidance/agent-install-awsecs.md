@@ -5,7 +5,7 @@
 * Access to the Amazon Web Services (**AWS**) Elastic Container Services
 (**ECS**) web console or the AWS Command Line Interface (CLI). To learn more,
 refer to the AWS ECS documentation.
-* A SignalFx access token. See [Smart Agent Access Token](https://docs.signalfx.com/en/latest/integrations/agent/access-token.html)
+* A SignalFx access token. See [Smart Agent Access Token](https://docs.signalfx.com/en/latest/integrations/agent/access-token.html).
 
 ## Configure AWS ECS
 
@@ -25,7 +25,7 @@ To create the agent task definition using the web admin console:
 5. At the bottom of the page, click **Configure via JSON**.
 6. Edit `signalfx-agent-task.json`, copy the contents, paste the contents into the text box, and click **Save**.
 7. In the **Container Definitions** section, click the **signalfx-agent** container definition, then find the **environment variables** section.
-8. Replace `ACCESS_TOKEN` with the value you obtained previously. See **Prerequisites**.
+8. Replace `ACCESS_TOKEN` with the value you obtained previously. See [Prerequisites](#prerequisites).
 9. At the bottom of the task definition input form, click **Update** and then **Create**.
 
 ### AWS command-line interface

@@ -6,7 +6,7 @@
 * `CAP_DAC_READ_SEARCH` and `CAP_SYS_PTRACE` capabilities
 * `terminal` or a similar command line interface application
 * Your SignalFx realm. See [Realms](../../../_sidebars-and-includes/realm-note.html).
-* A SignalFx access token. See [Smart Agent Access Token](../../../_sidebars-and-includes/access-token.html)
+* A SignalFx access token. See [Smart Agent Access Token](../../../_sidebars-and-includes/access-token.html).
 
 ## Configure kubectl for the Smart Agent
 
@@ -67,9 +67,9 @@ Kubernetes **secret** for your access token and update settings in the Agent's c
 
 ## Installation
 
-1. Remove collector services such as `collectd`
+1. Remove collector services such as `collectd`.
 
-2. Remove third-party instrumentation and agent software
+2. Remove third-party instrumentation and agent software.
 
     **NOTE:**
 
@@ -93,22 +93,19 @@ To see the services the Smart Agent has discovered, run the following command in
 In addition, you can do the following in the SignalFx UI:
 
 * For infrastructure monitoring:
-  - In SignalFx UI, open the **Infrastructure** built-in dashboard
+  - In SignalFx UI, open the **Infrastructure** built-in dashboard.
   - In the override bar at the top of the back, select **Choose a host**. Select one of your nodes from the dropdown.
   - The charts display metrics from the infrastructure for that node.
   To learn more, see [Built-In Dashboards and Charts](https://docs.signalfx.com/en/latest/getting-started/built-in-content/built-in-dashboards.html).
 
 * For Kubernetes monitoring:
   - In SignalFx UI, from the main menu select **Infrastructure** > **Kubernetes Navigator** > **Cluster map**.
-  - The map displays all the clusters running the Smart Agent
+  - The map displays all the clusters running the Smart Agent.
   - Click the magnification icon to view the nodes in a cluster.
   - The detail pane on the right hand side of the page displays details of that cluster and nodes.
-  To learn more, see [Getting Around the Kubernetes Navigator](https://docs.signalfx.com/en/latest/integrations/kubernetes/get-around-k8s-navigator.html)
+  To learn more, see [Getting Around the Kubernetes Navigator](https://docs.signalfx.com/en/latest/integrations/kubernetes/get-around-k8s-navigator.html).
 
 * For APM monitoring:
 
 To learn how to install, configure, and verify the Smart Agent for Microservices APM (**µAPM**), see
 [Overview of Microservices APM (µAPM)](https://docs.signalfx.com/en/latest/apm2/apm2-overview/apm2-overview.html).
-
-
-
