@@ -39102,7 +39102,7 @@
       "sendAll": false,
       "sendUnknown": false,
       "dimensions": null,
-      "doc": "MongoDB Atlas is a provider of MongoDB as an on-demand fully managed service. Atlas exposes MongoDB cluster\nmonitoring and logging data through [monitoring and logs](https://docs.atlas.mongodb.com/reference/api/monitoring-and-logs/)\nREST API endpoints. These Atlas monitoring API resources are grouped into measurements for MongoDB processes,\nhost disks and MongoDB databases.\n\nThis monitor scrapes process and disk measurements from Atlas into groups of mongodb and hardware metrics with the\noriginal measurement names included in the metric descriptions. The measurements are fetched using the finest\nAtlas supported granularity of 1 minute.\n\nBelow is an excerpt of the agent configuration yaml showing the minimal required fields. Note that\n`disableHostDimensions` is set to true so that the host name in which the agent/monitor is running is not used for\nthe `host` metric dimension value. The names of the MongoDB cluster hosts from which metrics emanate are used\ninstead.\n```\nmonitors:\n- type: mongodb-atlas\n  projectID:  \u003cProject ID\u003e\n  publicKey:  \u003cPublic API Key\u003e\n  privateKey: \u003cPrivate API Key\u003e\n  disableHostDimensions: true\n```\n",
+      "doc": "MongoDB Atlas is a provider of MongoDB as an on-demand fully managed service. Atlas exposes MongoDB cluster\nmonitoring and logging data through its [monitoring and logs](https://docs.atlas.mongodb.com/reference/api/monitoring-and-logs/)\nREST API endpoints. These Atlas monitoring API resources are grouped into measurements for MongoDB processes,\nhost disks and MongoDB databases.\n\nThis monitor repeatedly scrapes MongoDB monitoring data from Atlas at the configured time interval. It scrapes the\nprocess and disk measurements into metric groups called mongodb and hardware. The original measurement names are\nincluded in the metric descriptions. A set of data points are fetched at the configured granularity and period for\neach measurement. Metric values are set to the latest non-empty data point value in the set. The finest granularity\nsupported by Atlas is 1 minute. The configured period for the monitor needs to be wider than the interval at which\nAtlas provides values for measurements. Otherwise some of the sets of fetched data points will contain only empty\nvalues. The default configured period is 10 minutes which works across all measurements and gives a reasonable\nresponse payload size.\n\nBelow is an excerpt of the agent configuration yaml showing the minimal required fields. Note that\n`disableHostDimensions` is set to true so that the host name in which the agent/monitor is running is not used for\nthe `host` metric dimension value. The names of the MongoDB cluster hosts from which metrics emanate are used\ninstead.\n```\nmonitors:\n- type: mongodb-atlas\n  projectID:  \u003cProject ID\u003e\n  publicKey:  \u003cPublic API Key\u003e\n  privateKey: \u003cPrivate API Key\u003e\n  disableHostDimensions: true\n```\n",
       "groups": {
         "hardware": {
           "description": "",
@@ -39721,7 +39721,7 @@
           },
           {
             "yamlName": "publicKey",
-            "doc": "PublicKey is the MongoDB Atlas public API key",
+            "doc": "PublicKey is the Atlas public API key",
             "default": null,
             "required": true,
             "type": "string",
@@ -39729,7 +39729,7 @@
           },
           {
             "yamlName": "privateKey",
-            "doc": "PrivateKey is the MongoDB Atlas private API key",
+            "doc": "PrivateKey is the Atlas private API key",
             "default": null,
             "required": true,
             "type": "string",
@@ -39737,7 +39737,7 @@
           },
           {
             "yamlName": "timeout",
-            "doc": "Timeout for HTTP requests to get MongoDB Atlas process measurements. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "doc": "Timeout for HTTP requests to get MongoDB process measurements from Atlas. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "5s",
             "required": false,
             "type": "int64",
@@ -39749,6 +39749,22 @@
             "default": true,
             "required": false,
             "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "granularity",
+            "doc": "Granularity is the duration in ISO 8601 notation that specifies the interval between measurement data points from Atlas over the configured period. The default is shortest duration supported by Atlas of 1 minute.",
+            "default": "PT1M",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "period",
+            "doc": "Period the duration in ISO 8601 notation that specifies how far back in the past to retrieve measurements from Atlas.",
+            "default": "PT10M",
+            "required": false,
+            "type": "string",
             "elementKind": ""
           }
         ]

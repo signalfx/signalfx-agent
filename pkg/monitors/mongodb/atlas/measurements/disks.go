@@ -24,6 +24,8 @@ type DisksGetter interface {
 // disksGetter implements DisksGetter
 type disksGetter struct {
 	projectID         string
+	granularity       string
+	period            string
 	client            *mongodbatlas.Client
 	enableCache       bool
 	mutex             *sync.Mutex
@@ -32,9 +34,11 @@ type disksGetter struct {
 }
 
 // NewProcessesGetter returns a new ProcessesGetter.
-func NewDisksGetter(projectID string, client *mongodbatlas.Client, enableCache bool) DisksGetter {
+func NewDisksGetter(projectID string, granularity string, period string, client *mongodbatlas.Client, enableCache bool) DisksGetter {
 	return &disksGetter{
 		projectID:         projectID,
+		granularity:       granularity,
+		period:            period,
 		client:            client,
 		enableCache:       enableCache,
 		mutex:             new(sync.Mutex),
@@ -152,8 +156,10 @@ func (getter *disksGetter) getPartitionNames(ctx context.Context, process Proces
 }
 
 // setMeasurements is a helper function of method GetMeasurements.
-func (getter *disksGetter) setMeasurements(ctx context.Context, disksMeasurements DisksMeasurements, process Process, partitionName string, page int) {
-	list, resp, err := getter.client.ProcessDiskMeasurements.List(ctx, getter.projectID, process.Host, process.Port, partitionName, optionPT1M(page))
+func (getter *disksGetter) setMeasurements(ctx context.Context, disksMeasurements DisksMeasurements, process Process, partitionName string, pageNum int) {
+	var opts = &mongodbatlas.ProcessMeasurementListOptions{ListOptions: &mongodbatlas.ListOptions{PageNum: pageNum}, Granularity: getter.granularity, Period: getter.period}
+
+	list, resp, err := getter.client.ProcessDiskMeasurements.List(ctx, getter.projectID, process.Host, process.Port, partitionName, opts)
 
 	if msg, err := errorMsg(err, resp); err != nil {
 		log.WithError(err).Errorf(msg, "disk measurements", getter.projectID, process.Host, process.Port)

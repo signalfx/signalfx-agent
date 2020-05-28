@@ -30,15 +30,21 @@ type Config struct {
 	config.MonitorConfig `yaml:",inline"`
 	// ProjectID is the Atlas project ID.
 	ProjectID string `yaml:"projectID" validate:"required" `
-	// PublicKey is the MongoDB Atlas public API key
+	// PublicKey is the Atlas public API key
 	PublicKey string `yaml:"publicKey" validate:"required" `
-	// PrivateKey is the MongoDB Atlas private API key
+	// PrivateKey is the Atlas private API key
 	PrivateKey string `yaml:"privateKey" validate:"required" neverLog:"true"`
-	// Timeout for HTTP requests to get MongoDB Atlas process measurements. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration
+	// Timeout for HTTP requests to get MongoDB process measurements from Atlas.
+	// This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration
 	Timeout timeutil.Duration `yaml:"timeout" default:"5s"`
 	// EnableCache enables locally cached Atlas metric measurements to be used when true. The metric measurements that
 	// were supposed to be fetched are in fact always fetched asynchronously and cached.
 	EnableCache bool `yaml:"enableCache" default:"true"`
+	// Granularity is the duration in ISO 8601 notation that specifies the interval between measurement data points
+	// from Atlas over the configured period. The default is shortest duration supported by Atlas of 1 minute.
+	Granularity string `yaml:"granularity" default:"PT1M"`
+	// Period the duration in ISO 8601 notation that specifies how far back in the past to retrieve measurements from Atlas.
+	Period string `yaml:"period" default:"PT10M"`
 }
 
 // Monitor for MongoDB Atlas metrics
@@ -64,8 +70,8 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		return fmt.Errorf("error making HTTP digest client: %+v", err)
 	}
 
-	m.processGetter = measurements.NewProcessesGetter(conf.ProjectID, client, conf.EnableCache)
-	m.diskGetter = measurements.NewDisksGetter(conf.ProjectID, client, conf.EnableCache)
+	m.processGetter = measurements.NewProcessesGetter(conf.ProjectID, conf.Granularity, conf.Period, client, conf.EnableCache)
+	m.diskGetter = measurements.NewDisksGetter(conf.ProjectID, conf.Granularity, conf.Period, client, conf.EnableCache)
 
 	utils.RunOnInterval(ctx, func() {
 		processes := m.processGetter.GetProcesses(ctx, timeout)
@@ -177,7 +183,7 @@ func newDimensions(process *measurements.Process, partitionName string) map[stri
 	var dimensions = map[string]string{"project_id": process.ProjectID, "host": process.Host, "port": strconv.Itoa(process.Port), "type_name": process.TypeName}
 
 	if process.ReplicaSetName != "" {
-		dimensions["replicaset_name"] = process.ReplicaSetName
+		dimensions["replica_set_name"] = process.ReplicaSetName
 	}
 
 	if process.ShardName != "" {

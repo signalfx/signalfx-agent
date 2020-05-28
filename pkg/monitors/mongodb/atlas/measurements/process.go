@@ -23,6 +23,8 @@ type ProcessesGetter interface {
 // processesGetter implements ProcessesGetter
 type processesGetter struct {
 	projectID         string
+	granularity       string
+	period            string
 	client            *mongodbatlas.Client
 	enableCache       bool
 	mutex             *sync.Mutex
@@ -31,9 +33,11 @@ type processesGetter struct {
 }
 
 // NewProcessesGetter returns a new ProcessesGetter.
-func NewProcessesGetter(projectID string, client *mongodbatlas.Client, enableCache bool) ProcessesGetter {
+func NewProcessesGetter(projectID string, granularity string, period string, client *mongodbatlas.Client, enableCache bool) ProcessesGetter {
 	return &processesGetter{
 		projectID:         projectID,
+		granularity:       granularity,
+		period:            period,
 		client:            client,
 		enableCache:       enableCache,
 		mutex:             new(sync.Mutex),
@@ -143,7 +147,9 @@ func (getter *processesGetter) GetMeasurements(ctx context.Context, timeout time
 
 // setMeasurements is a helper function of method GetMeasurements.
 func (getter *processesGetter) setMeasurements(ctx context.Context, process Process, processesMeasurements ProcessesMeasurements, pageNum int) {
-	list, resp, err := getter.client.ProcessMeasurements.List(ctx, getter.projectID, process.Host, process.Port, optionPT1M(pageNum))
+	var opts = &mongodbatlas.ProcessMeasurementListOptions{ListOptions: &mongodbatlas.ListOptions{PageNum: pageNum}, Granularity: getter.granularity, Period: getter.period}
+
+	list, resp, err := getter.client.ProcessMeasurements.List(ctx, getter.projectID, process.Host, process.Port, opts)
 
 	if msg, err := errorMsg(err, resp); err != nil {
 		log.WithError(err).Errorf(msg, "process measurements", getter.projectID, process.Host, process.Port)

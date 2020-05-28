@@ -33,16 +33,6 @@ func nextPage(resp *mongodbatlas.Response) (bool, int) {
 	return true, currentPage + 1
 }
 
-// optionPT1M sets the granularity and period options for getting measurement datapoints to PT1M. This corresponds to
-// to 1 minute granularity the highest resolution supported by Atlas.
-func optionPT1M(pageNum int) *mongodbatlas.ProcessMeasurementListOptions {
-	return &mongodbatlas.ProcessMeasurementListOptions{
-		ListOptions: &mongodbatlas.ListOptions{PageNum: pageNum},
-		Granularity: "PT1M", // The interval between measurement datapoints set to 1 minute.
-		Period:      "PT2M", // The period to get measurement datapoints set to the past 2 minutes. Setting the period to 1 minute resulted in a lot of measurement datapoints with empty values.
-	}
-}
-
 func errorMsg(err error, resp *mongodbatlas.Response) (string, error) {
 	if err != nil {
 		return "request for getting %s failed (Atlas project: %s, host: %s, port: %d)", err
