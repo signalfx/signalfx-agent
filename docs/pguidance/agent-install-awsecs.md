@@ -5,7 +5,7 @@
 * Access to the Amazon Web Services (**AWS**) Elastic Container Services
 (**ECS**) web console or the AWS Command Line Interface (CLI). To learn more,
 refer to the AWS ECS documentation.
-* A SignalFx access token. See [Smart Agent Access Token](https://docs.signalfx.com/en/latest/integrations/agent/access-token.html).
+* A SignalFx access token. See [Smart Agent Access Token](https://docs.signalfx.com/en/latest/integrations/agent/smart-agent-access-token.html).
 
 ## Configure AWS ECS
 
