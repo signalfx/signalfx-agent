@@ -127,6 +127,12 @@ nodeSelector: {
 # creates.
 tolerations: []
 
+# Extra environment variables to set on the agent process.  They are in the
+# same form as the 'env' field of the pod spec (name/value/valueFrom).
+extraEnv:
+# - name: MY_ENV
+#   value: my_val
+
 ## Annotations for signalfx-agent pods
 podAnnotations: {}
 

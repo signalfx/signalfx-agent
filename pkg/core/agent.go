@@ -94,8 +94,9 @@ func (a *Agent) configure(conf *config.Config) {
 
 	log.Infof("Using log level %s", log.GetLevel().String())
 
-	hostDims := hostid.Dimensions(conf)
+	hostDims := map[string]string{}
 	if !conf.DisableHostDimensions {
+		hostDims = hostid.Dimensions(conf)
 		log.Infof("Using host id dimensions %v", hostDims)
 		conf.Writer.HostIDDims = hostDims
 	}
