@@ -30,7 +30,9 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `url` | **yes** | `string` | The Supervisor XML-RPC API URL (i.e. `http://localhost:9001/RPC2`). |
+| `host` | no | `string` | The host/ip address of the Supervisor XML-RPC API. This is used to construct the `url` option if not provided. |
+| `port` | no | `integer` | The port of the Supervisor XML-RPC API. This is used to construct the `url` option if not provided. (i.e. `localhost`) (**default:** `9001`) |
+| `url` | no | `string` | URL on which to scrape Supervisor XML-RPC API. If this is not provided, it will be derive from the `host`, and `port` options. (i.e. `http://localhost:9001/RPC2`) |
 
 
 ## Metrics

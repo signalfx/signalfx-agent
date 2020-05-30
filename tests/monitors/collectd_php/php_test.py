@@ -32,7 +32,8 @@ def test_php_default():
         f"""
         monitors:
         - type: collectd/php-fpm
-          url: "http://{host}/status?json"
+          host: {host}
+          port: 80
           name: {INSTANCE}
         """
     ) as agent:

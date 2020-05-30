@@ -2,6 +2,8 @@ package supervisor
 
 import (
 	"context"
+	"fmt"
+	"net/url"
 	"time"
 
 	"github.com/mattn/go-xmlrpc"
@@ -20,8 +22,16 @@ func init() {
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
-	// The Supervisor XML-RPC API URL (i.e. `http://localhost:9001/RPC2`).
-	URL string `yaml:"url" validate:"required"`
+	// The host/ip address of the Supervisor XML-RPC API. This is used to construct
+	// the `url` option if not provided.
+	Host string `yaml:"host"`
+	// The port of the Supervisor XML-RPC API. This is used to construct the `url`
+	// option if not provided. (i.e. `localhost`)
+	Port uint16 `yaml:"port" default:"9001"`
+	// URL on which to scrape Supervisor XML-RPC API. If this is not provided, it
+	// will be derive from the `host`, and `port` options.
+	// (i.e. `http://localhost:9001/RPC2`)
+	URL string `yaml:"url"`
 }
 
 // Monitor that collect metrics
@@ -38,6 +48,14 @@ type Process struct {
 	State int    `xmlrpc:"state"`
 }
 
+// ScrapeURL from config options
+func (c *Config) ScrapeURL() string {
+	if c.URL != "" {
+		return c.URL
+	}
+	return fmt.Sprintf("http://%s:%d/RPC2", c.Host, c.Port)
+}
+
 // Configure and kick off internal metric collection
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
@@ -45,9 +63,12 @@ func (m *Monitor) Configure(conf *Config) error {
 	// Start the metric gathering process here
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
+	url, err := url.Parse(conf.ScrapeURL())
+	if err != nil {
+		return fmt.Errorf("cannot parse url %s status. %v", conf.ScrapeURL(), err)
+	}
 	utils.RunOnInterval(ctx, func() {
-
-		client := xmlrpc.NewClient(conf.URL)
+		client := xmlrpc.NewClient(url.String())
 		res, err := client.Call("supervisor.getAllProcessInfo")
 		if err != nil {
 			m.logger.WithError(err).Error("unable to call supervisor xmlrpc")
