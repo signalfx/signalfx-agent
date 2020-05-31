@@ -98,7 +98,7 @@ func (getter *processesGetter) getProcessesHelper(ctx context.Context, pageNum i
 	}
 
 	for _, p := range list {
-		processes = append(processes, Process{ProjectID: p.GroupID, Host: p.Hostname, Port: p.Port, ShardName: p.ShardName, ReplicaSetName: p.ReplicaSetName, TypeName: p.TypeName})
+		processes = append(processes, Process{ID: p.ID, ProjectID: p.GroupID, Host: p.Hostname, Port: p.Port, ShardName: p.ShardName, ReplicaSetName: p.ReplicaSetName, TypeName: p.TypeName})
 	}
 
 	return processes

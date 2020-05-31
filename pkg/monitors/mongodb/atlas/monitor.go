@@ -44,7 +44,7 @@ type Config struct {
 	// from Atlas over the configured period. The default is shortest duration supported by Atlas of 1 minute.
 	Granularity string `yaml:"granularity" default:"PT1M"`
 	// Period the duration in ISO 8601 notation that specifies how far back in the past to retrieve measurements from Atlas.
-	Period string `yaml:"period" default:"PT10M"`
+	Period string `yaml:"period" default:"PT20M"`
 }
 
 // Monitor for MongoDB Atlas metrics
@@ -180,7 +180,7 @@ func newFloatValue(dataPoints []*mongodbatlas.DataPoints) datapoint.FloatValue {
 }
 
 func newDimensions(process *measurements.Process, partitionName string) map[string]string {
-	var dimensions = map[string]string{"project_id": process.ProjectID, "host": process.Host, "port": strconv.Itoa(process.Port), "type_name": process.TypeName}
+	var dimensions = map[string]string{"process_id": process.ID, "project_id": process.ProjectID, "host": process.Host, "port": strconv.Itoa(process.Port), "type_name": process.TypeName}
 
 	if process.ReplicaSetName != "" {
 		dimensions["replica_set_name"] = process.ReplicaSetName

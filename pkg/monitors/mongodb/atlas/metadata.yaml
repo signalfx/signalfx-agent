@@ -12,7 +12,7 @@ monitors:
     each measurement. Metric values are set to the latest non-empty data point value in the set. The finest granularity
     supported by Atlas is 1 minute. The configured period for the monitor needs to be wider than the interval at which
     Atlas provides values for measurements. Otherwise some of the sets of fetched data points will contain only empty
-    values. The default configured period is 10 minutes which works across all measurements and gives a reasonable
+    values. The default configured period is 20 minutes which works across all measurements and gives a reasonable
     response payload size.
 
     Below is an excerpt of the agent configuration yaml showing the minimal required fields. Note that
@@ -204,14 +204,14 @@ monitors:
       default: false
       type: counter
       group: mongodb
-    memory.mapped:
+    mem.mapped:
       description: "This is Atlas metric measurement MEMORY_MAPPED. As MMAPv1 memory maps all the data files, this
       number is likely similar to your total database(s) size. WiredTiger does not use memory mapped files, so this
       should be 0."
-      default: true
+      default: false
       type: gauge
       group: mongodb
-    memory.resident:
+    mem.resident:
       description: "This is Atlas metric measurement MEMORY_RESIDENT. The number of megabytes resident. MMAPv1: It is
       typical over time, on a dedicated database server, for this number to approach the amount of physical ram on the
       box. WiredTiger: In a standard deployment resident is the amount of memory used by the WiredTiger cache plus the
@@ -222,7 +222,7 @@ monitors:
       default: true
       type: gauge
       group: mongodb
-    memory.virtual:
+    mem.virtual:
       description: "This is Atlas metric measurement MEMORY_VIRTUAL. The virtual megabytes for the mongod process.
       MMAPv1: Generally virtual should be a little larger than mapped (or 2x with --journal), but if virtual is many
       gigabytes larger, it indicates that excessive memory is being used by other aspects than the memory mapping of
@@ -280,14 +280,14 @@ monitors:
     oplog.rate:
       description: "This is Atlas metric measurement OPLOG_RATE_GB_PER_HOUR. The average rate of gigabytes of oplog the
       primary generates per hour."
-      default: false
+      default: true
       type: gauge
       group: mongodb
     oplog.master.lag_time_diff:
       description: "This is Atlas metric measurement OPLOG_MASTER_LAG_TIME_DIFF. The replication headroom which is the
       difference between the primary's replication oplog window (i.e. latest minus oldest oplog entry time) and the
       secondary's replication lag. A secondary can go into RECOVERING if this value goes to zero."
-      default: false
+      default: true
       type: gauge
       group: mongodb
     oplog.slave.lag_master_time:
@@ -304,7 +304,7 @@ monitors:
       default: false
       type: gauge
       group: mongodb
-    pageFaults:
+    extra_info.page_faults:
       description: "This is Atlas metric measurement EXTRA_INFO_PAGE_FAULTS. The average rate of page faults on this
       process per second over the selected sample period. In non-Windows environments this is hard page faults only."
       default: true
@@ -443,7 +443,7 @@ monitors:
     process.cpu.user:
       description: "This is Atlas metric measurement PROCESS_CPU_USER. The percentage of time the CPU spent servicing
       this MongoDB process. For servers with more than 1 CPU core, this value can exceed 100%."
-      default: false
+      default: true
       type: gauge
       group: hardware
     process.normalized.cpu.user:
@@ -580,6 +580,11 @@ monitors:
       description: "This is Atlas metric measurement OPERATIONS_SCAN_AND_ORDER. The average rate per second over the
       selected sample period of queries that return sorted results that cannot perform the sort operation using an
       index."
+      default: false
+      type: counter
+      group: mongodb
+    background_flush_avg:
+      description: "This is Atlas metric measurement BACKGROUND_FLUSH_AVG. Amount of data flushed in the background."
       default: false
       type: counter
       group: mongodb

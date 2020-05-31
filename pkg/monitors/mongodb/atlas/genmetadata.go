@@ -24,6 +24,7 @@ const (
 	assertsRegular                          = "asserts.regular"
 	assertsUser                             = "asserts.user"
 	assertsWarning                          = "asserts.warning"
+	backgroundFlushAvg                      = "background_flush_avg"
 	cacheBytesReadInto                      = "cache.bytes.read_into"
 	cacheBytesWrittenFrom                   = "cache.bytes.written_from"
 	cacheDirtyBytes                         = "cache.dirty_bytes"
@@ -46,13 +47,14 @@ const (
 	documentMetricsInserted                 = "document.metrics.inserted"
 	documentMetricsReturned                 = "document.metrics.returned"
 	documentMetricsUpdated                  = "document.metrics.updated"
+	extraInfoPageFaults                     = "extra_info.page_faults"
 	globalLockCurrentQueueReaders           = "global_lock.current_queue.readers"
 	globalLockCurrentQueueTotal             = "global_lock.current_queue.total"
 	globalLockCurrentQueueWriters           = "global_lock.current_queue.writers"
 	indexSize                               = "index_size"
-	memoryMapped                            = "memory.mapped"
-	memoryResident                          = "memory.resident"
-	memoryVirtual                           = "memory.virtual"
+	memMapped                               = "mem.mapped"
+	memResident                             = "mem.resident"
+	memVirtual                              = "mem.virtual"
 	networkBytesIn                          = "network.bytes_in"
 	networkBytesOut                         = "network.bytes_out"
 	networkNumRequests                      = "network.num_requests"
@@ -74,7 +76,6 @@ const (
 	oplogMasterTime                         = "oplog.master.time"
 	oplogRate                               = "oplog.rate"
 	oplogSlaveLagMasterTime                 = "oplog.slave.lag_master_time"
-	pageFaults                              = "pageFaults"
 	processCPUKernel                        = "process.cpu.kernel"
 	processCPUUser                          = "process.cpu.user"
 	processNormalizedCPUChildrenKernel      = "process.normalized.cpu.children_kernel"
@@ -111,6 +112,7 @@ var metricSet = map[string]monitors.MetricInfo{
 	assertsRegular:                          {Type: datapoint.Count, Group: groupMongodb},
 	assertsUser:                             {Type: datapoint.Count, Group: groupMongodb},
 	assertsWarning:                          {Type: datapoint.Count, Group: groupMongodb},
+	backgroundFlushAvg:                      {Type: datapoint.Count, Group: groupMongodb},
 	cacheBytesReadInto:                      {Type: datapoint.Count, Group: groupMongodb},
 	cacheBytesWrittenFrom:                   {Type: datapoint.Count, Group: groupMongodb},
 	cacheDirtyBytes:                         {Type: datapoint.Gauge, Group: groupMongodb},
@@ -133,13 +135,14 @@ var metricSet = map[string]monitors.MetricInfo{
 	documentMetricsInserted:                 {Type: datapoint.Count, Group: groupMongodb},
 	documentMetricsReturned:                 {Type: datapoint.Count, Group: groupMongodb},
 	documentMetricsUpdated:                  {Type: datapoint.Count, Group: groupMongodb},
+	extraInfoPageFaults:                     {Type: datapoint.Count, Group: groupMongodb},
 	globalLockCurrentQueueReaders:           {Type: datapoint.Gauge, Group: groupMongodb},
 	globalLockCurrentQueueTotal:             {Type: datapoint.Gauge, Group: groupMongodb},
 	globalLockCurrentQueueWriters:           {Type: datapoint.Gauge, Group: groupMongodb},
 	indexSize:                               {Type: datapoint.Gauge, Group: groupMongodb},
-	memoryMapped:                            {Type: datapoint.Gauge, Group: groupMongodb},
-	memoryResident:                          {Type: datapoint.Gauge, Group: groupMongodb},
-	memoryVirtual:                           {Type: datapoint.Gauge, Group: groupMongodb},
+	memMapped:                               {Type: datapoint.Gauge, Group: groupMongodb},
+	memResident:                             {Type: datapoint.Gauge, Group: groupMongodb},
+	memVirtual:                              {Type: datapoint.Gauge, Group: groupMongodb},
 	networkBytesIn:                          {Type: datapoint.Gauge, Group: groupMongodb},
 	networkBytesOut:                         {Type: datapoint.Gauge, Group: groupMongodb},
 	networkNumRequests:                      {Type: datapoint.Count, Group: groupMongodb},
@@ -161,7 +164,6 @@ var metricSet = map[string]monitors.MetricInfo{
 	oplogMasterTime:                         {Type: datapoint.Gauge, Group: groupMongodb},
 	oplogRate:                               {Type: datapoint.Gauge, Group: groupMongodb},
 	oplogSlaveLagMasterTime:                 {Type: datapoint.Gauge, Group: groupMongodb},
-	pageFaults:                              {Type: datapoint.Count, Group: groupMongodb},
 	processCPUKernel:                        {Type: datapoint.Gauge, Group: groupHardware},
 	processCPUUser:                          {Type: datapoint.Gauge, Group: groupHardware},
 	processNormalizedCPUChildrenKernel:      {Type: datapoint.Gauge, Group: groupHardware},
@@ -194,14 +196,15 @@ var metricSet = map[string]monitors.MetricInfo{
 }
 
 var defaultMetrics = map[string]bool{
+	backgroundFlushAvg:            true,
 	connectionsCurrent:            true,
 	dataSize:                      true,
+	extraInfoPageFaults:           true,
 	globalLockCurrentQueueReaders: true,
 	globalLockCurrentQueueWriters: true,
 	indexSize:                     true,
-	memoryMapped:                  true,
-	memoryResident:                true,
-	memoryVirtual:                 true,
+	memResident:                   true,
+	memVirtual:                    true,
 	networkBytesIn:                true,
 	networkBytesOut:               true,
 	networkNumRequests:            true,
@@ -209,7 +212,9 @@ var defaultMetrics = map[string]bool{
 	opcounterInsert:               true,
 	opcounterQuery:                true,
 	opcounterUpdate:               true,
-	pageFaults:                    true,
+	oplogMasterLagTimeDiff:        true,
+	oplogRate:                     true,
+	processCPUUser:                true,
 	storageSize:                   true,
 }
 
@@ -253,6 +258,7 @@ var groupMetricsMap = map[string][]string{
 		assertsRegular,
 		assertsUser,
 		assertsWarning,
+		backgroundFlushAvg,
 		cacheBytesReadInto,
 		cacheBytesWrittenFrom,
 		cacheDirtyBytes,
@@ -265,13 +271,14 @@ var groupMetricsMap = map[string][]string{
 		documentMetricsInserted,
 		documentMetricsReturned,
 		documentMetricsUpdated,
+		extraInfoPageFaults,
 		globalLockCurrentQueueReaders,
 		globalLockCurrentQueueTotal,
 		globalLockCurrentQueueWriters,
 		indexSize,
-		memoryMapped,
-		memoryResident,
-		memoryVirtual,
+		memMapped,
+		memResident,
+		memVirtual,
 		networkBytesIn,
 		networkBytesOut,
 		networkNumRequests,
@@ -293,7 +300,6 @@ var groupMetricsMap = map[string][]string{
 		oplogMasterTime,
 		oplogRate,
 		oplogSlaveLagMasterTime,
-		pageFaults,
 		queryExecutorScanned,
 		queryExecutorScannedObjects,
 		queryTargetingScannedObjectsPerReturned,

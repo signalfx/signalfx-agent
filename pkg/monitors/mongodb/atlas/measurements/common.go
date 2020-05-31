@@ -9,6 +9,7 @@ import (
 
 // Process is the MongoDB Process identified by the host and port on which the Process is running.
 type Process struct {
+	ID             string // The hostname and port of the Atlas MongoDB process in hostname:port format.
 	ProjectID      string // A string value that uniquely identifies a Atlas project.
 	Host           string // Name of the host in which the MongoDB Process is running.
 	Port           int    // Port number on which the MongoDB Process is running.
