@@ -196,9 +196,10 @@ var metricSet = map[string]monitors.MetricInfo{
 }
 
 var defaultMetrics = map[string]bool{
-	backgroundFlushAvg:            true,
 	connectionsCurrent:            true,
 	dataSize:                      true,
+	diskPartitionIopsRead:         true,
+	diskPartitionIopsWrite:        true,
 	extraInfoPageFaults:           true,
 	globalLockCurrentQueueReaders: true,
 	globalLockCurrentQueueWriters: true,
@@ -208,12 +209,13 @@ var defaultMetrics = map[string]bool{
 	networkBytesIn:                true,
 	networkBytesOut:               true,
 	networkNumRequests:            true,
+	opcounterCommand:              true,
 	opcounterDelete:               true,
+	opcounterGetmore:              true,
 	opcounterInsert:               true,
 	opcounterQuery:                true,
 	opcounterUpdate:               true,
 	oplogMasterLagTimeDiff:        true,
-	oplogRate:                     true,
 	processCPUUser:                true,
 	storageSize:                   true,
 }

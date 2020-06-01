@@ -56,7 +56,7 @@ monitors:
       group: mongodb
 #    counter.background_flushing.flushes:
 #      description: Number of times the database has been flushed
-#      default: true
+#      default: false
 #      type: gauge
     cache.bytes.read_into:
       description: "This is Atlas metric measurement CACHE_BYTES_READ_INTO. The average rate of bytes per second read
@@ -85,7 +85,7 @@ monitors:
     opcounter.command:
       description: "This is Atlas metric measurement OPCOUNTER_CMD. The average rate of commands performed per second
       over the selected sample period."
-      default: false
+      default: true
       type: counter
       group: mongodb
     opcounter.delete:
@@ -98,7 +98,7 @@ monitors:
       description: "This is Atlas metric measurement OPCOUNTER_GETMORE. The average rate of getMores performed per
       second on any cursor over the selected sample period. On a primary, this number can be high even if the query
       count is low as the secondaries 'getMore' from the primary often as part of replication."
-      default: false
+      default: true
       type: counter
       group: mongodb
     opcounter.insert:
@@ -280,7 +280,7 @@ monitors:
     oplog.rate:
       description: "This is Atlas metric measurement OPLOG_RATE_GB_PER_HOUR. The average rate of gigabytes of oplog the
       primary generates per hour."
-      default: true
+      default: false
       type: gauge
       group: mongodb
     oplog.master.lag_time_diff:
@@ -375,13 +375,13 @@ monitors:
     disk.partition.iops.read:
       description: "This is Atlas metric measurement DISK_PARTITION_IOPS_READ. The read throughput of I/O operations
       per second for the disk partition used for MongoDB."
-      default: false
+      default: true
       type: counter
       group: hardware
     disk.partition.iops.write:
       description: "This is Atlas metric measurement DISK_PARTITION_IOPS_WRITE. The write throughput of I/O operations
       per second for the disk partition used for MongoDB."
-      default: false
+      default: true
       type: counter
       group: hardware
     disk.partition.iops.total:
