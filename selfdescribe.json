@@ -39102,7 +39102,7 @@
       "sendAll": false,
       "sendUnknown": false,
       "dimensions": null,
-      "doc": "MongoDB Atlas is a provider of MongoDB as an on-demand fully managed service. Atlas exposes MongoDB cluster\nmonitoring and logging data through its [monitoring and logs](https://docs.atlas.mongodb.com/reference/api/monitoring-and-logs/)\nREST API endpoints. These Atlas monitoring API resources are grouped into measurements for MongoDB processes,\nhost disks and MongoDB databases.\n\nThis monitor repeatedly scrapes MongoDB monitoring data from Atlas at the configured time interval. It scrapes the\nprocess and disk measurements into metric groups called mongodb and hardware. The original measurement names are\nincluded in the metric descriptions. A set of data points are fetched at the configured granularity and period for\neach measurement. Metric values are set to the latest non-empty data point value in the set. The finest granularity\nsupported by Atlas is 1 minute. The configured period for the monitor needs to be wider than the interval at which\nAtlas provides values for measurements. Otherwise some of the sets of fetched data points will contain only empty\nvalues. The default configured period is 10 minutes which works across all measurements and gives a reasonable\nresponse payload size.\n\nBelow is an excerpt of the agent configuration yaml showing the minimal required fields. Note that\n`disableHostDimensions` is set to true so that the host name in which the agent/monitor is running is not used for\nthe `host` metric dimension value. The names of the MongoDB cluster hosts from which metrics emanate are used\ninstead.\n```\nmonitors:\n- type: mongodb-atlas\n  projectID:  \u003cProject ID\u003e\n  publicKey:  \u003cPublic API Key\u003e\n  privateKey: \u003cPrivate API Key\u003e\n  disableHostDimensions: true\n```\n",
+      "doc": "MongoDB Atlas is a provider of MongoDB as an on-demand fully managed service. Atlas exposes MongoDB cluster\nmonitoring and logging data through its [monitoring and logs](https://docs.atlas.mongodb.com/reference/api/monitoring-and-logs/)\nREST API endpoints. These Atlas monitoring API resources are grouped into measurements for MongoDB processes,\nhost disks and MongoDB databases.\n\nThis monitor repeatedly scrapes MongoDB monitoring data from Atlas at the configured time interval. It scrapes the\nprocess and disk measurements into metric groups called mongodb and hardware. The original measurement names are\nincluded in the metric descriptions. A set of data points are fetched at the configured granularity and period for\neach measurement. Metric values are set to the latest non-empty data point value in the set. The finest granularity\nsupported by Atlas is 1 minute. The configured period for the monitor needs to be wider than the interval at which\nAtlas provides values for measurements. Otherwise some of the sets of fetched data points will contain only empty\nvalues. The default configured period is 20 minutes which works across all measurements and gives a reasonable\nresponse payload size.\n\nBelow is an excerpt of the agent configuration yaml showing the minimal required fields. Note that\n`disableHostDimensions` is set to true so that the host name in which the agent/monitor is running is not used for\nthe `host` metric dimension value. The names of the MongoDB cluster hosts from which metrics emanate are used\ninstead.\n```\nmonitors:\n- type: mongodb-atlas\n  projectID:  \u003cProject ID\u003e\n  publicKey:  \u003cPublic API Key\u003e\n  privateKey: \u003cPrivate API Key\u003e\n  disableHostDimensions: true\n```\n",
       "groups": {
         "hardware": {
           "description": "",
@@ -39148,6 +39148,7 @@
             "asserts.regular",
             "asserts.user",
             "asserts.warning",
+            "background_flush_avg",
             "cache.bytes.read_into",
             "cache.bytes.written_from",
             "cache.dirty_bytes",
@@ -39160,13 +39161,14 @@
             "document.metrics.inserted",
             "document.metrics.returned",
             "document.metrics.updated",
+            "extra_info.page_faults",
             "global_lock.current_queue.readers",
             "global_lock.current_queue.total",
             "global_lock.current_queue.writers",
             "index_size",
-            "memory.mapped",
-            "memory.resident",
-            "memory.virtual",
+            "mem.mapped",
+            "mem.resident",
+            "mem.virtual",
             "network.bytes_in",
             "network.bytes_out",
             "network.num_requests",
@@ -39188,7 +39190,6 @@
             "oplog.master.time",
             "oplog.rate",
             "oplog.slave.lag_master_time",
-            "pageFaults",
             "query.executor.scanned",
             "query.executor.scanned_objects",
             "query.targeting.scanned_objects_per_returned",
@@ -39221,6 +39222,12 @@
         "asserts.warning": {
           "type": "counter",
           "description": "This is Atlas metric measurement ASSERT_WARNING. The average rate of warnings per second over the a selected sample period.",
+          "group": "mongodb",
+          "default": false
+        },
+        "background_flush_avg": {
+          "type": "counter",
+          "description": "This is Atlas metric measurement BACKGROUND_FLUSH_AVG. Amount of data flushed in the background.",
           "group": "mongodb",
           "default": false
         },
@@ -39276,7 +39283,7 @@
           "type": "counter",
           "description": "This is Atlas metric measurement DISK_PARTITION_IOPS_READ. The read throughput of I/O operations per second for the disk partition used for MongoDB.",
           "group": "hardware",
-          "default": false
+          "default": true
         },
         "disk.partition.iops.total": {
           "type": "counter",
@@ -39288,7 +39295,7 @@
           "type": "counter",
           "description": "This is Atlas metric measurement DISK_PARTITION_IOPS_WRITE. The write throughput of I/O operations per second for the disk partition used for MongoDB.",
           "group": "hardware",
-          "default": false
+          "default": true
         },
         "disk.partition.latency.read": {
           "type": "gauge",
@@ -39356,6 +39363,12 @@
           "group": "mongodb",
           "default": false
         },
+        "extra_info.page_faults": {
+          "type": "counter",
+          "description": "This is Atlas metric measurement EXTRA_INFO_PAGE_FAULTS. The average rate of page faults on this process per second over the selected sample period. In non-Windows environments this is hard page faults only.",
+          "group": "mongodb",
+          "default": true
+        },
         "global_lock.current_queue.readers": {
           "type": "gauge",
           "description": "This is Atlas metric measurement GLOBAL_LOCK_CURRENT_QUEUE_READERS. The number of operations queued waiting for a read lock.",
@@ -39380,19 +39393,19 @@
           "group": "mongodb",
           "default": true
         },
-        "memory.mapped": {
+        "mem.mapped": {
           "type": "gauge",
           "description": "This is Atlas metric measurement MEMORY_MAPPED. As MMAPv1 memory maps all the data files, this number is likely similar to your total database(s) size. WiredTiger does not use memory mapped files, so this should be 0.",
           "group": "mongodb",
-          "default": true
+          "default": false
         },
-        "memory.resident": {
+        "mem.resident": {
           "type": "gauge",
           "description": "This is Atlas metric measurement MEMORY_RESIDENT. The number of megabytes resident. MMAPv1: It is typical over time, on a dedicated database server, for this number to approach the amount of physical ram on the box. WiredTiger: In a standard deployment resident is the amount of memory used by the WiredTiger cache plus the memory dedicated to other in memory structures used by the mongod process. By default, mongod with WiredTiger reserves 50% of the total physical memory on the server for the cache and at steady state, WiredTiger tries to limit cache usage to 80% of that total. For example, if a server has 16GB of memory, WiredTiger will assume it can use 8GB for cache and at steady state should use about 6.5GB.",
           "group": "mongodb",
           "default": true
         },
-        "memory.virtual": {
+        "mem.virtual": {
           "type": "gauge",
           "description": "This is Atlas metric measurement MEMORY_VIRTUAL. The virtual megabytes for the mongod process. MMAPv1: Generally virtual should be a little larger than mapped (or 2x with --journal), but if virtual is many gigabytes larger, it indicates that excessive memory is being used by other aspects than the memory mapping of files -- that would be bad/suboptimal. The most common case of usage of a high amount of memory for non-mapped is that there are very many connections to the database. Each connection has a thread stack and the memory for those stacks can add up to a considerable amount. WiredTiger: Generally virtual should be a little larger than mapped, but if virtual is many gigabytes larger, it indicates that excessive memory is being used by other aspects than the memory mapping of files – that would be bad/suboptimal. The most common case of usage of a high amount of memory for non-mapped is that there are very many connections to the database. Each connection has a thread stack and the memory for those stacks can add up to a considerable amount.",
           "group": "mongodb",
@@ -39438,7 +39451,7 @@
           "type": "counter",
           "description": "This is Atlas metric measurement OPCOUNTER_CMD. The average rate of commands performed per second over the selected sample period.",
           "group": "mongodb",
-          "default": false
+          "default": true
         },
         "opcounter.delete": {
           "type": "counter",
@@ -39450,7 +39463,7 @@
           "type": "counter",
           "description": "This is Atlas metric measurement OPCOUNTER_GETMORE. The average rate of getMores performed per second on any cursor over the selected sample period. On a primary, this number can be high even if the query count is low as the secondaries 'getMore' from the primary often as part of replication.",
           "group": "mongodb",
-          "default": false
+          "default": true
         },
         "opcounter.insert": {
           "type": "counter",
@@ -39504,7 +39517,7 @@
           "type": "gauge",
           "description": "This is Atlas metric measurement OPLOG_MASTER_LAG_TIME_DIFF. The replication headroom which is the difference between the primary's replication oplog window (i.e. latest minus oldest oplog entry time) and the secondary's replication lag. A secondary can go into RECOVERING if this value goes to zero.",
           "group": "mongodb",
-          "default": false
+          "default": true
         },
         "oplog.master.time": {
           "type": "gauge",
@@ -39524,12 +39537,6 @@
           "group": "mongodb",
           "default": false
         },
-        "pageFaults": {
-          "type": "counter",
-          "description": "This is Atlas metric measurement EXTRA_INFO_PAGE_FAULTS. The average rate of page faults on this process per second over the selected sample period. In non-Windows environments this is hard page faults only.",
-          "group": "mongodb",
-          "default": true
-        },
         "process.cpu.kernel": {
           "type": "gauge",
           "description": "This is Atlas metric measurement PROCESS_CPU_KERNEL. The percentage of time the CPU spent servicing operating system calls for this MongoDB process. For servers with more than 1 CPU core, this value can exceed 100%.",
@@ -39540,7 +39547,7 @@
           "type": "gauge",
           "description": "This is Atlas metric measurement PROCESS_CPU_USER. The percentage of time the CPU spent servicing this MongoDB process. For servers with more than 1 CPU core, this value can exceed 100%.",
           "group": "hardware",
-          "default": false
+          "default": true
         },
         "process.normalized.cpu.children_kernel": {
           "type": "gauge",
@@ -39762,7 +39769,7 @@
           {
             "yamlName": "period",
             "doc": "Period the duration in ISO 8601 notation that specifies how far back in the past to retrieve measurements from Atlas.",
-            "default": "PT10M",
+            "default": "PT20M",
             "required": false,
             "type": "string",
             "elementKind": ""
