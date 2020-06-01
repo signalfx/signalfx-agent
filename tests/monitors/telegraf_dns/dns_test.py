@@ -23,8 +23,6 @@ def test_telegraf_dns_metrics():
         - type: telegraf/dns
           servers:
             - {SERVER}
-          domains:
-            - {DOMAIN}
         """
     )
     run_agent_verify_default_metrics(agent_config, METADATA)
@@ -39,17 +37,9 @@ def test_telegraf_resolve():
             - {SERVER}
           domains:
             - {DOMAIN}
+          recordType: A
         """
     ) as agent:
-        assert wait_for(
-            p(
-                has_datapoint,
-                agent.fake_services,
-                "dns.result_code",
-                metric_type=sf_pbuf.GAUGE,
-                #               dimensions={"location": "us-midwest"},
-                value=0,
-            )
-        )
+        assert wait_for(p(has_datapoint, agent.fake_services, "dns.result_code", metric_type=sf_pbuf.GAUGE, value=0))
         assert wait_for(p(has_datapoint_with_dim, agent.fake_services, "server", SERVER))
         assert wait_for(p(has_datapoint_with_dim, agent.fake_services, "domain", DOMAIN))

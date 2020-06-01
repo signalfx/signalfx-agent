@@ -22,7 +22,33 @@ monitors:
        ```
     3. Restart Webserver (i.e. Nginx) and PHP-FPM.
 
+    _Note_: Make sure that the URL you provide to reach fpm status
+    page through your webserver ends in `?json`. This returns the 
+    metrics as `json`, which this plugin requires.
+
     <!--- SETUP --->
+    ## Config Examples
+
+    ```
+    monitors:
+     - type: collectd/php-fpm
+       host: localhost
+       port: 80
+    ```
+
+    If fpm status page is exposed on an endpoint other than `/status`,
+    you can use the `url` config option to specify the path:
+
+    ```
+    monitors:
+     - type: collectd/php-fpm
+       host: localhost
+       port: 80
+       url: "http://{{.host}}:{{.port}}/fpm-status?json"
+    ```
+
+    For a full list of options, see [Configuration](#configuration).
+
 
   metrics:
     phpfpm_requests.accepted:

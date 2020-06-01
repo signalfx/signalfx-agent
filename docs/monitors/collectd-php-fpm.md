@@ -29,7 +29,32 @@ To configure the PHP-FPM service itself to expose status metrics:
    ```
 3. Restart Webserver (i.e. Nginx) and PHP-FPM.
 
+_Note_: Make sure that the URL you provide to reach fpm status
+page through your webserver ends in `?json`. This returns the 
+metrics as `json`, which this plugin requires.
+
 <!--- SETUP --->
+## Config Examples
+
+```
+monitors:
+ - type: collectd/php-fpm
+   host: localhost
+   port: 80
+```
+
+If fpm status page is exposed on an endpoint other than `/status`,
+you can use the `url` config option to specify the path:
+
+```
+monitors:
+ - type: collectd/php-fpm
+   host: localhost
+   port: 80
+   url: "http://{{.host}}:{{.port}}/fpm-status?json"
+```
+
+For a full list of options, see [Configuration](#configuration).
 
 
 ## Configuration
@@ -49,8 +74,10 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `name` | **yes** | `string` | This will be sent as the `plugin_instance` dimension and can be any name you like. |
-| `url` | **yes** | `string` | Final URL ending by `?json` (i.e. http://127.0.0.1/_fpmstatus?json). |
+| `host` | **yes** | `string` | The hostname of the webserver (i.e. `127.0.0.1`) |
+| `port` | **yes** | `integer` | The port number of the webserver (i.e. `80`) |
+| `name` | no | `string` | This will be sent as the `plugin_instance` dimension and can be any name you like. |
+| `url` | no | `string` | The URL, either a final URL or a Go template that will be populated with the `host` and `port` values. (**default:** `http://{{.host}}:{{.port}}/status?json`) |
 
 
 ## Metrics

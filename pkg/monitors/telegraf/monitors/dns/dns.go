@@ -26,17 +26,19 @@ func init() {
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `yaml:",inline" singleInstance:"false" acceptsEndpoints:"true"`
-	// Domains or subdomains to query.
+	// Domains or subdomains to query. If this is not provided it will be
+	// `["."]` and `RecordType` will be forced to `NS`.
 	Domains []string `yaml:"domains"`
 	// Network is the network protocol name.
 	Network string `yaml:"network" default:"udp"`
 	// Dns server port.
 	Port int `yaml:"port" default:"53"`
 	// Servers to query.
-	Servers []string `yaml:"servers"`
+	Servers []string `yaml:"servers" validate:"required"`
 	// Query record type (A, AAAA, CNAME, MX, NS, PTR, TXT, SOA, SPF, SRV).
 	RecordType string `yaml:"recordType" default:"NS"`
-	// Query timeout. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.
+	// Query timeout. This should be a duration string that is accepted
+	// by https://golang.org/pkg/time/#ParseDuration.
 	Timeout timeutil.Duration `yaml:"timeout" default:"2s"`
 }
 
