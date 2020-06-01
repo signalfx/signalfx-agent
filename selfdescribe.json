@@ -33343,6 +33343,228 @@
       "singleInstance": false
     },
     {
+      "monitorType": "kubelet-metrics",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": null,
+      "doc": "This monitor pulls container metrics from a Kubernetes kubelet instance via\nthe `/stats/summary` endpoint.\n\nThis montior is intended to replace the `kubelet-stats` monitor that\nrelied on now deprecated endpoints in the kubelet.  It does not get as\nmany metrics but the important ones are there.\n\nMetrics about container cpu/memory limits and requests come from the\n[kubernetes-cluster](./kubernetes-cluster.md) monitor.\n\nFor the mounted volumes metrics that are also emitted by the\n`/stats/summary` endpoint, see the\n[kubernetes-volumes](./kubernetes-volumes.md) monitor.\n\nTo monitor the kubelet instance itself, via the `/metrics` endpoint, use\nthe [prometheus-exporter](./prometheus-exporter.md) monitor and point it to\nthat endpoint.\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "container_cpu_utilization",
+            "container_fs_available_bytes",
+            "container_fs_capacity_bytes",
+            "container_fs_usage_bytes",
+            "container_memory_available_bytes",
+            "container_memory_major_page_faults",
+            "container_memory_page_faults",
+            "container_memory_rss_bytes",
+            "container_memory_usage_bytes",
+            "container_memory_working_set_bytes",
+            "pod_network_receive_bytes_total",
+            "pod_network_receive_errors_total",
+            "pod_network_transmit_bytes_total",
+            "pod_network_transmit_errors_total"
+          ]
+        },
+        "podEphemeralStats": {
+          "description": "",
+          "metrics": [
+            "pod_ephemeral_storage_capacity_bytes",
+            "pod_ephemeral_storage_used_bytes"
+          ]
+        }
+      },
+      "metrics": {
+        "container_cpu_utilization": {
+          "type": "cumulative",
+          "description": "Cumulative cpu utilization in percentages.  This is equivalent to \"centicores\", or hundreths of CPU cores consumed.  This metric is **NOT** normalized by the total # of cores on the system.",
+          "group": null,
+          "default": true
+        },
+        "container_fs_available_bytes": {
+          "type": "gauge",
+          "description": "The storage space available (bytes) for the container root filesystem",
+          "group": null,
+          "default": true
+        },
+        "container_fs_capacity_bytes": {
+          "type": "gauge",
+          "description": "The total capacity (bytes) of the container root filesystem's underlying storage",
+          "group": null,
+          "default": true
+        },
+        "container_fs_usage_bytes": {
+          "type": "gauge",
+          "description": "This is the bytes used by the container rootfs on the filesystem. This\nmay differ from the total bytes used on the filesystem and may not\nequal container_fs_capacity_bytes - container_fs_available_bytes.\n",
+          "group": null,
+          "default": true
+        },
+        "container_memory_available_bytes": {
+          "type": "gauge",
+          "description": "Available memory for use.  This is defined as the memory limit -\ncontainer_memory_working_set_bytes. If memory limit is undefined, this\nmetric is omitted.\n",
+          "group": null,
+          "default": false
+        },
+        "container_memory_major_page_faults": {
+          "type": "cumulative",
+          "description": "Cumulative number of major page faults.",
+          "group": null,
+          "default": false
+        },
+        "container_memory_page_faults": {
+          "type": "cumulative",
+          "description": "Cumulative number of minor page faults.",
+          "group": null,
+          "default": false
+        },
+        "container_memory_rss_bytes": {
+          "type": "gauge",
+          "description": "The amount of anonymous and swap cache memory (includes transparent hugepages)",
+          "group": null,
+          "default": false
+        },
+        "container_memory_usage_bytes": {
+          "type": "gauge",
+          "description": "Total memory in use -- this includes all memory regardless of when it was accessed.",
+          "group": null,
+          "default": true
+        },
+        "container_memory_working_set_bytes": {
+          "type": "gauge",
+          "description": "The amount of working set memory. This includes recently accessed\nmemory, dirty memory, and kernel memory. container_memory_working_set_bytes is \u003c=\ncontainer_memory_usage_bytes.\n",
+          "group": null,
+          "default": false
+        },
+        "pod_ephemeral_storage_capacity_bytes": {
+          "type": "gauge",
+          "description": "Represents the storage space available (bytes) for the filesystem. This value is a combination of total filesystem usage for the containers and emptyDir-backed volumes in the measured Pod. See more about emptyDir-backed volumes https://kubernetes.io/docs/concepts/storage/volumes/#emptydir",
+          "group": "podEphemeralStats",
+          "default": false
+        },
+        "pod_ephemeral_storage_used_bytes": {
+          "type": "gauge",
+          "description": "Represents the bytes used on the filesystem. This value is a total filesystem usage for the containers and emptyDir-backed volumes in the measured Pod. See more about emptyDir-backed volumes https://kubernetes.io/docs/concepts/storage/volumes/#emptydir",
+          "group": "podEphemeralStats",
+          "default": false
+        },
+        "pod_network_receive_bytes_total": {
+          "type": "cumulative",
+          "description": "Cumulative count of bytes received. **Note that this metric is not emitted when using the cri-o container runtime.**",
+          "group": null,
+          "default": true
+        },
+        "pod_network_receive_errors_total": {
+          "type": "cumulative",
+          "description": "Cumulative count of errors encountered while receiving. **Note that this metric is not emitted when using the cri-o container runtime.**",
+          "group": null,
+          "default": true
+        },
+        "pod_network_transmit_bytes_total": {
+          "type": "cumulative",
+          "description": "Cumulative count of bytes transmitted. **Note that this metric is not emitted when using the cri-o container runtime.**",
+          "group": null,
+          "default": true
+        },
+        "pod_network_transmit_errors_total": {
+          "type": "cumulative",
+          "description": "Cumulative count of errors encountered while transmitting. **Note that this metric is not emitted when using the cri-o container runtime.**",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/kubernetes/kubeletmetrics",
+        "fields": [
+          {
+            "yamlName": "kubeletAPI",
+            "doc": "Kubelet client configuration",
+            "default": null,
+            "required": false,
+            "type": "struct",
+            "elementKind": "",
+            "elementStruct": {
+              "name": "APIConfig",
+              "doc": "APIConfig contains config specific to the KubeletAPI",
+              "package": "pkg/core/common/kubelet",
+              "fields": [
+                {
+                  "yamlName": "url",
+                  "doc": "URL of the Kubelet instance.  This will default to `http://\u003ccurrent node hostname\u003e:10255` if not provided.",
+                  "default": "",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                },
+                {
+                  "yamlName": "authType",
+                  "doc": "Can be `none` for no auth, `tls` for TLS client cert auth, or `serviceAccount` to use the pod's default service account token to authenticate.",
+                  "default": "none",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                },
+                {
+                  "yamlName": "skipVerify",
+                  "doc": "Whether to skip verification of the Kubelet's TLS cert",
+                  "default": true,
+                  "required": false,
+                  "type": "bool",
+                  "elementKind": ""
+                },
+                {
+                  "yamlName": "caCertPath",
+                  "doc": "Path to the CA cert that has signed the Kubelet's TLS cert, unnecessary if `skipVerify` is set to false.",
+                  "default": "",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                },
+                {
+                  "yamlName": "clientCertPath",
+                  "doc": "Path to the client TLS cert to use if `authType` is set to `tls`",
+                  "default": "",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                },
+                {
+                  "yamlName": "clientKeyPath",
+                  "doc": "Path to the client TLS key to use if `authType` is set to `tls`",
+                  "default": "",
+                  "required": false,
+                  "type": "string",
+                  "elementKind": ""
+                },
+                {
+                  "yamlName": "logResponses",
+                  "doc": "Whether to log the raw cadvisor response at the debug level for debugging purposes.",
+                  "default": false,
+                  "required": false,
+                  "type": "bool",
+                  "elementKind": ""
+                }
+              ]
+            }
+          },
+          {
+            "yamlName": "usePodsEndpoint",
+            "doc": "If true, this montior will scrape additional metadata from the `/pods` endpoint on the kubelet to enhance the container metrics with the `container_id` dimension that is not otherwise available from the `/stats/summary` endpoint.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "kubelet-stats",
       "sendAll": false,
       "sendUnknown": false,
@@ -33369,7 +33591,7 @@
           "description": "The UID of the pod instance under which this container runs"
         }
       },
-      "doc": "This monitor pulls cadvisor metrics through a\nKubernetes kubelet instance via the `/stats/container` endpoint.\n\n### Pause Containers\nNetwork stats for a Kubernetes pod are traditionally accounted for on the\n\"pause\" container, which is the container responsible for \"owning\" the\nnetwork namespace that the other containers in the pod will use, among\nother things.  Therefore, the network stats are usually zero for all\nnon-pause containers and accounted for in an aggregated way via the pause\ncontainer.\n\nSince the only generally useful stats of the pause container are network\nstats, this montior will omit non-network metrics for any containers named\n`POD`. This is the standard name for the \"pause\" container in Kubernetes\nwhen using the Docker runtime, but the pause container has no name under\nother runtimes. Therefore, you need to explicitly filter out non-network\nmetrics from pause containers when using non-Docker runtimes.  The following\nconfiguration will do that:\n\n```yaml\nmonitors:\n- type: kubelet-stats\n  datapointsToExclude:\n  - dimensions:\n      container_image:\n       - '*pause-amd64*'\n       - 'k8s.gcr.io/pause*'\n    metricNames:\n      - '*'\n      - '!*network*'\n```\n\nIf your K8s deployment using an image name for the pause container that\ndoes not fit the given patterns, you should tweak it as needed.\n",
+      "doc": "**As of Kubernetes 1.18 the `/spec` and `/stats/containers` endpoint that\nthis monitor uses have been deprecated.  Therefore, this monitor is\ndeprecated in favor of the kubelet-metrics` monitor, which uses the\nnon-deprecated `/stats/summary` endpoint.**\n\nThis monitor pulls cadvisor metrics through a\nKubernetes kubelet instance via the `/stats/container` endpoint.\n\n### Pause Containers\nNetwork stats for a Kubernetes pod are traditionally accounted for on the\n\"pause\" container, which is the container responsible for \"owning\" the\nnetwork namespace that the other containers in the pod will use, among\nother things.  Therefore, the network stats are usually zero for all\nnon-pause containers and accounted for in an aggregated way via the pause\ncontainer.\n\nSince the only generally useful stats of the pause container are network\nstats, this montior will omit non-network metrics for any containers named\n`POD`. This is the standard name for the \"pause\" container in Kubernetes\nwhen using the Docker runtime, but the pause container has no name under\nother runtimes. Therefore, you need to explicitly filter out non-network\nmetrics from pause containers when using non-Docker runtimes.  The following\nconfiguration will do that:\n\n```yaml\nmonitors:\n- type: kubelet-stats\n  datapointsToExclude:\n  - dimensions:\n      container_image:\n       - '*pause-amd64*'\n       - 'k8s.gcr.io/pause*'\n    metricNames:\n      - '*'\n      - '!*network*'\n```\n\nIf your K8s deployment using an image name for the pause container that\ndoes not fit the given patterns, you should tweak it as needed.\n",
       "groups": {
         "": {
           "description": "",

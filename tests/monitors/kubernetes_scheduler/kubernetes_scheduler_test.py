@@ -1,5 +1,5 @@
 import pytest
-from tests.helpers.kubernetes import LATEST
+from tests.helpers.kubernetes import LATEST_ONLY
 from tests.helpers.metadata import Metadata
 from tests.helpers.verify import verify
 
@@ -8,7 +8,7 @@ METADATA = Metadata.from_package("kubernetes/scheduler")
 
 
 @pytest.mark.kubernetes
-@LATEST
+@LATEST_ONLY
 def test_kubernetes_scheduler(k8s_cluster):
     config = """
         observers:

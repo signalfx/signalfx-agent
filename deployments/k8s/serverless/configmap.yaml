@@ -40,6 +40,7 @@ data:
 
     monitors:
 
+
     - type: kubelet-stats
       # Change 'fargate' part to something else if using another serverless K8s
       # platform.  We avoid scraping kubelet stats from the same node as the

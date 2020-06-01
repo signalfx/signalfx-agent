@@ -1,6 +1,6 @@
 from functools import partial as p
-import pytest
 
+import pytest
 from tests.helpers.assertions import has_datapoint, has_no_datapoint
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import ensure_always, wait_for
@@ -13,8 +13,17 @@ CUSTOM_METRIC_POD_METRIC = "pod_ephemeral_storage_capacity_bytes"
 METADATA = Metadata.from_package("cadvisor", mon_type="kubelet-stats")
 
 
+def _skip_if_1_18_or_newer(k8s_cluster):
+    print(k8s_cluster.get_cluster_version())
+    if tuple([int(v) for v in k8s_cluster.get_cluster_version().lstrip("v").split("-")[0].split(".")]) >= (1, 18, 0):
+
+        pytest.skip("skipping since cluster is newer than 1.18")
+
+
 @pytest.mark.kubernetes
 def test_kubelet_stats_defaults(k8s_cluster):
+    _skip_if_1_18_or_newer(k8s_cluster)
+
     config = """
      monitors:
       - type: kubelet-stats
@@ -38,6 +47,8 @@ def test_kubelet_stats_defaults(k8s_cluster):
 
 @pytest.mark.kubernetes
 def test_kubelet_stats_extra(k8s_cluster):
+    _skip_if_1_18_or_newer(k8s_cluster)
+
     config = f"""
      monitors:
       - type: kubelet-stats
@@ -53,6 +64,8 @@ def test_kubelet_stats_extra(k8s_cluster):
 
 @pytest.mark.kubernetes
 def test_kubelet_stats_extra_pod_metric(k8s_cluster):
+    _skip_if_1_18_or_newer(k8s_cluster)
+
     config = f"""
      monitors:
       - type: kubelet-stats
@@ -68,6 +81,8 @@ def test_kubelet_stats_extra_pod_metric(k8s_cluster):
 
 @pytest.mark.kubernetes
 def test_kubelet_stats_extra_pod_metric_group(k8s_cluster):
+    _skip_if_1_18_or_newer(k8s_cluster)
+
     config = f"""
      monitors:
       - type: kubelet-stats

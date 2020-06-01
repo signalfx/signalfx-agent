@@ -10,7 +10,7 @@ from tests.paths import TEST_SERVICES_DIR
 def test_node_uid_host_dim(k8s_cluster):
     config = """
     monitors:
-     - type: kubelet-stats
+     - type: kubelet-metrics
      - type: cpu
     """
     yamls = [TEST_SERVICES_DIR / "nginx/nginx-k8s.yaml"]
@@ -26,7 +26,7 @@ def test_node_uid_host_dim(k8s_cluster):
 def test_node_uid_host_dim_kubernetes_cluster_config(k8s_cluster):
     config = """
     monitors:
-     - type: kubelet-stats
+     - type: kubelet-metrics
      - type: cpu
      - type: kubernetes-cluster
        # This will make it fail
