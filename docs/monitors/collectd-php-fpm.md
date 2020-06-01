@@ -51,7 +51,7 @@ monitors:
  - type: collectd/php-fpm
    host: localhost
    port: 80
-   url: "http://{{.Host}}:{{.Port}}/fpm-status?json"
+   url: "http://{{.host}}:{{.port}}/fpm-status?json"
 ```
 
 For a full list of options, see [Configuration](#configuration).
@@ -77,7 +77,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `host` | **yes** | `string` | The hostname of the webserver (i.e. `127.0.0.1`) |
 | `port` | **yes** | `integer` | The port number of the webserver (i.e. `80`) |
 | `name` | no | `string` | This will be sent as the `plugin_instance` dimension and can be any name you like. |
-| `url` | no | `string` | The URL, either a final URL or a Go template that will be populated with the `host` and `port` values. (**default:** `http://{{.Host}}:{{.Port}}/status?json`) |
+| `url` | no | `string` | The URL, either a final URL or a Go template that will be populated with the `host` and `port` values. (**default:** `http://{{.host}}:{{.port}}/status?json`) |
 
 
 ## Metrics

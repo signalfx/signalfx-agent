@@ -30,7 +30,7 @@ type Config struct {
 	Name string `yaml:"name"`
 	// The URL, either a final URL or a Go template that will be populated with
 	// the `host` and `port` values.
-	URL string `yaml:"url" default:"http://{{.Host}}:{{.Port}}/status?json"`
+	URL string `yaml:"url" default:"http://{{.host}}:{{.port}}/status?json"`
 }
 
 // Monitor is the main type that represents the monitor

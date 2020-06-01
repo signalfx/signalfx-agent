@@ -44,7 +44,7 @@ monitors:
      - type: collectd/php-fpm
        host: localhost
        port: 80
-       url: "http://{{.Host}}:{{.Port}}/fpm-status?json"
+       url: "http://{{.host}}:{{.port}}/fpm-status?json"
     ```
 
     For a full list of options, see [Configuration](#configuration).

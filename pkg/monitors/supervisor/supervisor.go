@@ -28,9 +28,14 @@ type Config struct {
 	// The port of the Supervisor XML-RPC API. This is used to construct the `url`
 	// option if not provided. (i.e. `localhost`)
 	Port uint16 `yaml:"port" default:"9001"`
-	// URL on which to scrape Supervisor XML-RPC API. If this is not provided, it
-	// will be derive from the `host`, and `port` options.
-	// (i.e. `http://localhost:9001/RPC2`)
+	// If true, the monitor will connect to Supervisor via HTTPS instead of
+	// HTTP.
+	UseHTTPS bool `yaml:"useHTTPS" default:"false"`
+	// The URL path to use for the scrape URL for Supervisor.
+	Path string `yaml:"path" default:"/RPC2"`
+	// URL on which to scrape Supervisor XML-RPC API. If this is not provided,
+	// it will be derive from the `host`, `port`, `useHTTPS`, and `path`
+	// options. (i.e. `http://localhost:9001/RPC2`)
 	URL string `yaml:"url"`
 }
 
@@ -48,12 +53,19 @@ type Process struct {
 	State int    `xmlrpc:"state"`
 }
 
+func (c *Config) Scheme() string {
+	if c.UseHTTPS {
+		return "https"
+	}
+	return "http"
+}
+
 // ScrapeURL from config options
 func (c *Config) ScrapeURL() string {
 	if c.URL != "" {
 		return c.URL
 	}
-	return fmt.Sprintf("http://%s:%d/RPC2", c.Host, c.Port)
+	return fmt.Sprintf("%s://%s:%d%s", c.Scheme(), c.Host, c.Port, c.Path)
 }
 
 // Configure and kick off internal metric collection
