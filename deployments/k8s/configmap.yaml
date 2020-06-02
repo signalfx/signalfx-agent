@@ -24,7 +24,6 @@ data:
     cluster: MY-CLUSTER
 
     writer:
-      signalFxEnabled: true
 
     logging:
       level: info
