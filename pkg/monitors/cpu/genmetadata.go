@@ -15,6 +15,7 @@ const (
 	cpuIdle               = "cpu.idle"
 	cpuInterrupt          = "cpu.interrupt"
 	cpuNice               = "cpu.nice"
+	cpuNumProcessors      = "cpu.num_processors"
 	cpuSoftirq            = "cpu.softirq"
 	cpuSteal              = "cpu.steal"
 	cpuSystem             = "cpu.system"
@@ -28,6 +29,7 @@ var metricSet = map[string]monitors.MetricInfo{
 	cpuIdle:               {Type: datapoint.Counter},
 	cpuInterrupt:          {Type: datapoint.Counter},
 	cpuNice:               {Type: datapoint.Counter},
+	cpuNumProcessors:      {Type: datapoint.Gauge},
 	cpuSoftirq:            {Type: datapoint.Counter},
 	cpuSteal:              {Type: datapoint.Counter},
 	cpuSystem:             {Type: datapoint.Counter},
@@ -38,8 +40,9 @@ var metricSet = map[string]monitors.MetricInfo{
 }
 
 var defaultMetrics = map[string]bool{
-	cpuIdle:        true,
-	cpuUtilization: true,
+	cpuIdle:          true,
+	cpuNumProcessors: true,
+	cpuUtilization:   true,
 }
 
 var groupMetricsMap = map[string][]string{}

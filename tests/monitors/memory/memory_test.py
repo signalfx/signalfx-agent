@@ -1,7 +1,6 @@
 import sys
 
 import pytest
-
 from tests.helpers.agent import Agent
 from tests.helpers.metadata import Metadata
 from tests.helpers.verify import verify
@@ -12,7 +11,7 @@ METADATA = Metadata.from_package("memory")
 
 
 def test_memory():
-    expected_metrics = {"memory.used", "memory.utilization"}
+    expected_metrics = {"memory.used", "memory.utilization", "memory.total"}
     if sys.platform == "linux":
         expected_metrics.update(
             {"memory.buffered", "memory.cached", "memory.free", "memory.slab_recl", "memory.slab_unrecl"}

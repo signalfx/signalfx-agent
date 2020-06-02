@@ -143,6 +143,10 @@ func (m *Monitor) generateDatapoints() []*datapoint.Datapoint {
 		))
 	}
 
+	if cpuCount, err := cpu.Counts(true); err == nil {
+		dps = append(dps, sfxclient.Gauge(cpuNumProcessors, nil, int64(cpuCount)))
+	}
+
 	// store current as previous value for next time
 	m.previousTotal = current
 
