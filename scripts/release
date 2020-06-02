@@ -181,7 +181,7 @@ parse_args_and_release() {
       fi
     fi
     # fail immediately if releasing to the release/beta stages and the signing/staging credentials are not set
-    if [[ "$stage" != "test" ]] && [[ "$build_all" == "yes" || "$build_deb_package" == "yes" || "$build_rpm_package" == "yes" || "$push_windows" == "yes" ]]; then
+    if [[ "$stage" != "test" ]] && [[ "$build_all" == "yes" || "$build_deb_package" == "yes" || "$build_rpm_package" == "yes" ]]; then
       signing_credentials_are_set "$staging_username" "$staging_token" "$chaperone_token" >&2 || exit 1
     fi
     # fail immediately if signing packages and not connected to the splunk network
@@ -195,7 +195,7 @@ parse_args_and_release() {
     exit 1
   fi
 
-  if [[ "$stage" == "final" ]] && [[ $(git symbolic-ref HEAD) != "refs/heads/master" ]] && [[ "$force" != "yes" ]]; then
+  if [[ "$stage" != "test" ]] && [[ $(git symbolic-ref HEAD) != "refs/heads/master" ]] && [[ "$force" != "yes" ]]; then
     echo "You are releasing a beta/final release from a branch other than master, which is not allowed." >&2
     exit 1
   fi
@@ -204,7 +204,7 @@ parse_args_and_release() {
   [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Cancelling release" && exit 1
 
   if [[ "$push" == "yes" ]] && [[ "$push_windows" == "yes" ]]; then
-    push_windows_bundle "$new_version" "$stage" "$push" "$github_username" "$github_token" "$staging_username" "$staging_token" "$chaperone_token"
+    push_windows_bundle "$new_version" "$stage" "$push" "$github_username" "$github_token"
     exit 0
   fi
 
@@ -433,29 +433,34 @@ push_windows_bundle() {
   local push="$3"
   local github_username="$4"
   local github_token="$5"
-  local staging_username="$6"
-  local staging_token="$7"
-  local chaperone_token="$8"
   local src_dir="$SCRIPT_DIR/../build"
-  local dest_dir="s3://public-downloads--signalfuse-com/windows/$stage/zip"
+  local signed_dir="$src_dir/signed"
+  local dest_dir="s3://public-downloads--signalfuse-com/windows/$stage"
   local bundle_path="$src_dir/SignalFxAgent-${new_version}-win64.zip"
-  local signed_bundle_path="$src_dir/signed/SignalFxAgent-${new_version}-win64.zip"
+  local signed_bundle_path="$signed_dir/SignalFxAgent-${new_version}-win64.zip"
+  local msi_path="$src_dir/SignalFxAgent-${new_version}-win64.msi"
+  local signed_msi_path="$signed_dir/SignalFxAgent-${new_version}-win64.msi"
   local tag="v$new_version"
+
+  if [[ "$stage" != "test" ]]; then
+    bundle_path="$signed_bundle_path"
+    msi_path="$signed_msi_path"
+  fi
 
   if [[ ! -f "$bundle_path" ]]; then
     echo "$bundle_path not found!"
-    echo "The $new_version Windows agent bundle must be manually built."
+    echo "The $new_version Windows agent bundle must be separately built/signed."
+    exit 1
+  fi
+
+  if [[ ! -f "$msi_path" ]]; then
+    echo "$msi_path not found!"
+    echo "The $new_version Windows agent msi must be separately built/signed."
     exit 1
   fi
 
   # ensure that latest.txt is created and has the same version of the bundle
   echo -n "$new_version" > "$src_dir/latest.txt"
-
-  if signing_credentials_are_set "$staging_username" "$staging_token" "$chaperone_token" >/dev/null; then
-    $SCRIPT_DIR/signing/sign_win_agent.py "$bundle_path" \
-      --chaperone-token=$chaperone_token --staging-user=$staging_username --staging-token=$staging_token
-    bundle_path=$signed_bundle_path
-  fi
 
   if [[ "$push" == "yes" ]]; then
     if [[ "$stage" == "release" ]]; then
@@ -468,13 +473,22 @@ push_windows_bundle() {
 
       upload_asset_to_release "$tag" "$bundle_path" "application/zip" "$github_username" "$github_token"
     fi
-    if aws --profile prod s3 ls "$dest_dir/SignalFxAgent-${new_version}-win64.zip"; then
-      read -p "SignalFxAgent-${new_version}-win64.zip already exists in $dest_dir. Overwrite? [y/N] "
+
+    if aws --profile prod s3 ls "$dest_dir/zip/SignalFxAgent-${new_version}-win64.zip"; then
+      read -p "SignalFxAgent-${new_version}-win64.zip already exists in $dest_dir/zip/. Overwrite? [y/N] "
       [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Not pushing windows bundle" >&2 && return 1
     fi
-    aws --profile prod s3 cp "$bundle_path" "$dest_dir/SignalFxAgent-${new_version}-win64.zip"
-    aws --profile prod s3 cp "$src_dir/latest.txt" "${dest_dir}/latest/latest.txt"
+    aws --profile prod s3 cp "$bundle_path" "$dest_dir/zip/SignalFxAgent-${new_version}-win64.zip"
+    aws --profile prod s3 cp "$src_dir/latest.txt" "${dest_dir}/zip/latest/latest.txt"
     $SCRIPT_DIR/invalidate-cloudfront "/windows/$stage/zip/*"
+
+    if aws --profile prod s3 ls "$dest_dir/msi/SignalFxAgent-${new_version}-win64.msi"; then
+      read -p "SignalFxAgent-${new_version}-win64.msi already exists in $dest_dir/msi/. Overwrite? [y/N] "
+      [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Not pushing windows msi" >&2 && return 1
+    fi
+    aws --profile prod s3 cp "$msi_path" "$dest_dir/msi/SignalFxAgent-${new_version}-win64.msi"
+    aws --profile prod s3 cp "$src_dir/latest.txt" "${dest_dir}/msi/latest/latest.txt"
+    $SCRIPT_DIR/invalidate-cloudfront "/windows/$stage/msi/*"
   else
     echo "Nothing to do"
   fi

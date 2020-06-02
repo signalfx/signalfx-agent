@@ -168,29 +168,73 @@ point but for now the process is manual.
 1. Open a Powershell terminal in the Windows virtual machine and execute:
 
    ```
-   $ cd c:\users\vagrant\signalfx-agent
-   $ scripts/windows/make.ps1 bundle -AGENT_VERSION "<X.Y.Z>"
+   PS> cd c:\users\vagrant\signalfx-agent
+   PS> .\scripts\windows\make.ps1 bundle -AGENT_VERSION "<X.Y.Z>"
    ```
 
    Where `<X.Y.Z>` is the release version.
 
-1. If the build is successful, verify that
-   `c:\users\vagrant\signalfx-agent\build\SignalFxAgent-X.Y.Z-win64.zip` exists.
+1. If the build is successful, verify that `.\build\SignalFxAgent-X.Y.Z-win64.zip` exists.
 
-1. If everything looks good, run the release script from your local workstation (must be
-   on the Splunk network):
+1. Run the signing script from your local workstation to sign the agent executable in
+   the bundle (must be on the Splunk network):
 
    ```
-   $ scripts/release --stage <STAGE> --push --new-version <X.Y.Z> --component windows --staging-token <repo.splunk.com token> --chaperone-token <chaperone token>
+   $ scripts/signing/sign_win_agent.py --staging-token <repo.splunk.com token> --chaperone-token <chaperone token> build/SignalFxAgent-X.Y.Z-win64.zip
    ```
 
-   Where `<STAGE>` is `test`, `beta`, or `release`,`<X.Y.Z>` is the same version from
-   step 1, and `<repo.splunk.com token>` and `<chaperone token>` are the API tokens for
-   the `srv-signalfx-agent` service account.
+   The signed bundle will be saved to `build/signed/SignalFxAgent-X.Y.Z-win64.zip`.
+
+1. Build the msi with the signed bundle in the Windows virtual machine:
+
+   ```
+   PS> cd c:\users\vagrant\signalfx-agent
+   PS> .\scripts\windows\make.ps1 build_msi -version "X.Y.Z" -zipFile build\signed\SignalFxAgent-X.Y.Z-win64.zip
+   ```
+
+   The msi will be saved to `.\build\SignalFxAgent-X.Y.Z-win64.msi`.
+
+1. Run the signing script from your local workstation to sign the msi
+   (must be on the Splunk network):
+
+   ```
+   $ scripts/signing/sign_win_agent.py --staging-token <repo.splunk.com token> --chaperone-token <chaperone token> build/SignalFxAgent-X.Y.Z-win64.msi
+   ```
+
+   The signed msi will be saved to `build/signed/SignalFxAgent-X.Y.Z-win64.msi`.
+
+1. Build the choco package with the signed msi in the Windows virtual machine:
+
+   ```
+   PS> cd c:\users\vagrant\signalfx-agent
+   PS> .\scripts\windows\make.ps1 build_choco -version "X.Y.Z" -msiFile build\signed\SignalFxAgent-X.Y.Z-win64.msi
+   ```
+
+   The choco package will be saved to `.\build\signalfx-agent.X.Y.Z.nupkg`.
+
+1. Release the choco package to chocolatey in the Windows virtual machine:
+
+   ```
+   PS> cd c:\users\vagrant\signalfx-agent
+   PS> choco push -d -k <choco api token> .\build\signalfx-agent.X.Y.Z.nupkg
+   ```
+
+   Re-run the command if it fails with `System.OutOfMemoryException` (known
+   issue with chocolatey).
+
+1. Run the release script from your local workstation to push the msi and
+   bundle to github and S3:
+
+   ```
+   $ scripts/release --stage <STAGE> --push --new-version <X.Y.Z> --component windows --github-username <username> --github-token <token>
+   ```
+
+   Where `<STAGE>` is `test`, `beta`, or `release`, and `<X.Y.Z>` is the same version from
+   step 1.
 
 1. Install/deploy the new release by running the installer script in a Powershell terminal
    (replace `YOUR_SIGNALFX_API_TOKEN` and `STAGE` with the appropriate values):
 
    ```
-   $ & {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"; stage = "STAGE"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
+   PS> & {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"; stage = "STAGE"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
    ```
