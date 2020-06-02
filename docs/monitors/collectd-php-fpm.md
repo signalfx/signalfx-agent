@@ -44,13 +44,25 @@ monitors:
 ```
 
 If fpm status page is exposed on an endpoint other than `/status`,
-you can use the `url` config option to specify the path:
+you can use the `path` config option:
 
 ```
 monitors:
  - type: collectd/php-fpm
    host: localhost
    port: 80
+   path: "/status"
+```
+
+You can also define the entire URL yourself using `url` config
+option but keep in mind `useHTTPS` will be ignored if so:
+
+```
+monitors:
+ - type: collectd/php-fpm
+   host: localhost
+   port: 80
+   useHTTPS: true # will be ignored
    url: "http://{{.host}}:{{.port}}/fpm-status?json"
 ```
 
@@ -74,10 +86,12 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `host` | **yes** | `string` | The hostname of the webserver (i.e. `127.0.0.1`) |
-| `port` | **yes** | `integer` | The port number of the webserver (i.e. `80`) |
+| `host` | no | `string` | The hostname of the webserver (i.e. `127.0.0.1`) |
+| `port` | no | `integer` | The port number of the webserver (i.e. `80`) (**default:** `0`) |
+| `useHTTPS` | no | `bool` | If true, the monitor will connect to Supervisor via HTTPS instead of HTTP. (**default:** `false`) |
+| `path` | no | `string` | The URL path to use for the scrape URL for Supervisor. (**default:** `/status`) |
+| `url` | no | `string` | The URL, either a final URL or a Go template that will be populated with the `host`, `port` and `path` values. |
 | `name` | no | `string` | This will be sent as the `plugin_instance` dimension and can be any name you like. |
-| `url` | no | `string` | The URL, either a final URL or a Go template that will be populated with the `host` and `port` values. (**default:** `http://{{.host}}:{{.port}}/status?json`) |
 
 
 ## Metrics

@@ -37,13 +37,25 @@ monitors:
     ```
 
     If fpm status page is exposed on an endpoint other than `/status`,
-    you can use the `url` config option to specify the path:
+    you can use the `path` config option:
 
     ```
     monitors:
      - type: collectd/php-fpm
        host: localhost
        port: 80
+       path: "/status"
+    ```
+
+    You can also define the entire URL yourself using `url` config
+    option but keep in mind `useHTTPS` will be ignored if so:
+    
+    ```
+    monitors:
+     - type: collectd/php-fpm
+       host: localhost
+       port: 80
+       useHTTPS: true # will be ignored
        url: "http://{{.host}}:{{.port}}/fpm-status?json"
     ```
 
