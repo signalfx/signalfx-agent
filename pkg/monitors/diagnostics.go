@@ -95,9 +95,12 @@ func (mm *MonitorManager) DiagnosticText() string {
 		if am.endpoint != nil {
 			serviceStats = fmt.Sprintf(
 				`Discovery Rule: %s
-Monitored Endpoint ID: %s`,
+Monitored Endpoint ID: %s
+Endpoint Dimensions: %s`,
 				am.config.MonitorConfigCore().DiscoveryRule,
-				am.endpoint.Core().ID)
+				am.endpoint.Core().ID,
+				utils.FormatStringMapCompact(am.endpoint.Dimensions()),
+			)
 		}
 		activeMonText += fmt.Sprintf(
 			`%s. %s
