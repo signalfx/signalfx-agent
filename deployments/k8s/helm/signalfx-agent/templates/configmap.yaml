@@ -45,7 +45,9 @@ data:
     cluster: {{ required ".Values.clusterName is required" .Values.clusterName }}
 
     writer:
+    {{- if semverCompare ">=5.3.0" $agentSemver.Original }}
       signalFxEnabled: {{ .Values.signalFxEnabled }}
+    {{- end }}
     {{- if .Values.splunkUrl }}
       splunk:
         enabled: true
