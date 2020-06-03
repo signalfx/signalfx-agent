@@ -137,6 +137,7 @@ These are all of the monitors included in the agent, along with their possible c
 - [logstash](./monitors/logstash.md)
 - [logstash-tcp](./monitors/logstash-tcp.md)
 - [memory](./monitors/memory.md)
+- [mongodb-atlas](./monitors/mongodb-atlas.md)
 - [net-io](./monitors/net-io.md)
 - [ntp](./monitors/ntp.md)
 - [openshift-cluster](./monitors/openshift-cluster.md)

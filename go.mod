@@ -19,6 +19,7 @@ require (
 	github.com/Microsoft/go-winio v0.4.11
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/SAP/go-hdb v0.14.1 // indirect
+	github.com/Sectorbob/mlab-ns2 v0.0.0-20171030222938-d3aa0c295a8a
 	github.com/ShowMax/go-fqdn v0.0.0-20160909083404-2501cdd51ef4
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d
 	github.com/aliyun/alibaba-cloud-sdk-go v0.0.0-20190315122603-6f9e54af456e // indirect
@@ -113,6 +114,7 @@ require (
 	github.com/mitchellh/go-wordwrap v1.0.0
 	github.com/mitchellh/hashstructure v0.0.0-20170609045927-2bca23e0e452
 	github.com/mitchellh/pointerstructure v0.0.0-20170205204203-f2329fcfa9e2 // indirect
+	github.com/mongodb/go-client-mongodb-atlas v0.2.0
 	github.com/morikuni/aec v0.0.0-20170113033406-39771216ff4c // indirect
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.1
