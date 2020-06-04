@@ -48,5 +48,10 @@ monitors:
         include buffer or cache memory on Linux.
       default: true
       type: gauge
+    memory.total:
+      description: Total bytes of system memory on the system.
+      default: true
+      type: gauge
+
   monitorType: memory
   properties:

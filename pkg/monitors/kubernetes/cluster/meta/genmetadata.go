@@ -162,6 +162,8 @@ var MetricSet = map[string]monitors.MetricInfo{
 }
 
 var DefaultMetrics = map[string]bool{
+	KubernetesContainerCPULimit:                            true,
+	KubernetesContainerMemoryLimit:                         true,
 	KubernetesContainerReady:                               true,
 	KubernetesContainerRestartCount:                        true,
 	KubernetesDaemonSetCurrentScheduled:                    true,
