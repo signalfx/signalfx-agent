@@ -24,6 +24,7 @@ data:
     cluster: MY-CLUSTER
 
     writer:
+      signalFxEnabled: true
 
     logging:
       level: info
@@ -50,17 +51,10 @@ data:
     - type: vmem
 
 
-    - type: kubelet-stats
+    - type: kubelet-metrics
       kubeletAPI:
         authType: serviceAccount
-      datapointsToExclude:
-      - dimensions:
-          container_image:
-           - '*pause-amd64*'
-           - 'k8s.gcr.io/pause*'
-        metricNames:
-          - '*'
-          - '!*network*'
+      usePodsEndpoint: false
 
     # Collects k8s cluster-level metrics
     - type: kubernetes-cluster
