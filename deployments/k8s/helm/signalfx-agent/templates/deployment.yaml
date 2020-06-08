@@ -35,7 +35,10 @@ spec:
         {{ toYaml . | indent 8 | trim }}
         {{- end }}
       annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- if .Values.podAnnotations }}
         {{- toYaml .Values.podAnnotations | trim | nindent 8 }}
+        {{- end }}
     spec:
       dnsPolicy: ClusterFirstWithHostNet
       {{- if .Values.dnsConfig }}
