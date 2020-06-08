@@ -75,6 +75,8 @@ Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
 (*default*) are ***in bold and italics*** in the list below.
 
+This monitor will also emit by default any metrics that are not listed below.
+
 
  - ***`kubernetes.container_cpu_limit`*** (*gauge*)<br>    Maximum CPU limit set for the container. This value is derived from https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#resourcerequirements-v1-core which comes from the pod spec and is reported only if a non null value is available.
  - `kubernetes.container_cpu_request` (*gauge*)<br>    CPU requested for the container. This value is derived from https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.16/#resourcerequirements-v1-core which comes from the pod spec and is reported only if a non null value is available.

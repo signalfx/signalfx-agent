@@ -21,6 +21,7 @@ common:
         of
     resource:
       description: The k8s resource that the quota applies to
+  sendUnknown: true
   metrics:
     kubernetes.container_cpu_limit:
       description: Maximum CPU limit set for the container. This value is derived from

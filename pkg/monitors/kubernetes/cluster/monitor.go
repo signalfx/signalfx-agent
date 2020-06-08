@@ -67,6 +67,14 @@ func (c *Config) Validate() error {
 	return c.KubernetesAPI.Validate()
 }
 
+func (c *Config) GetExtraMetrics() []string {
+	var out []string
+	for _, cond := range c.NodeConditionTypesToReport {
+		out = append(out, "kubernetes.node_"+cond)
+	}
+	return out
+}
+
 // Monitor for K8s Cluster Metrics.  Also handles syncing certain properties
 // about pods.
 type Monitor struct {
