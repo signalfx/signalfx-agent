@@ -9,6 +9,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/signalfx/golib/v3/trace"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -27,14 +28,17 @@ import (
 type Output struct {
 	*processor.Processor
 
-	httpClient    *http.Client
-	url           string
-	token         string
-	source        string
-	sourceType    string
-	index         string
-	skipTLSVerify bool
-	hostIDDims    map[string]string
+	httpClient        *http.Client
+	url               string
+	token             string
+	metricsSource     string
+	metricsSourceType string
+	metricsIndex      string
+	eventsSource      string
+	eventsSourceType  string
+	eventsIndex       string
+	skipTLSVerify     bool
+	hostIDDims        map[string]string
 
 	entryWriter *LogEntryWriter
 
@@ -43,21 +47,26 @@ type Output struct {
 
 	dpChan    chan []*datapoint.Datapoint
 	eventChan chan *event.Event
+	spanChan  chan []*trace.Span
 }
 
 // Build a Splunk Writer.
-func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventChan chan *event.Event) (*Output, error) {
+func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventChan chan *event.Event, spanChan chan []*trace.Span) (*Output, error) {
 	out := &Output{
-		Processor:     processor.New(conf),
-		url:           conf.Splunk.URL,
-		token:         conf.Splunk.Token,
-		source:        conf.Splunk.Source,
-		sourceType:    conf.Splunk.SourceType,
-		index:         conf.Splunk.Index,
-		skipTLSVerify: conf.Splunk.SkipTLSVerify,
-		hostIDDims:    conf.HostIDDims,
-		dpChan:        dpChan,
-		eventChan:     eventChan,
+		Processor:         processor.New(conf),
+		url:               conf.Splunk.URL,
+		token:             conf.Splunk.Token,
+		metricsSource:     conf.Splunk.MetricsSource,
+		metricsSourceType: conf.Splunk.MetricsSourceType,
+		metricsIndex:      conf.Splunk.MetricsIndex,
+		eventsSource:      conf.Splunk.EventsSource,
+		eventsSourceType:  conf.Splunk.EventsSourceType,
+		eventsIndex:       conf.Splunk.EventsIndex,
+		skipTLSVerify:     conf.Splunk.SkipTLSVerify,
+		hostIDDims:        conf.HostIDDims,
+		dpChan:            dpChan,
+		eventChan:         eventChan,
+		spanChan:          spanChan,
 	}
 
 	out.ctx, out.cancel = context.WithCancel(context.Background())
@@ -114,6 +123,13 @@ func (o *Output) Start() {
 					continue
 				}
 				entries = append(entries, o.convertEvent(event))
+			case spans := <-o.spanChan:
+				for _, span := range spans {
+					if !o.PreprocessSpan(span) {
+						continue
+					}
+					entries = append(entries, o.convertSpan(span))
+				}
 			}
 
 			if len(entries) > 0 {
@@ -160,15 +176,15 @@ func (o *Output) convertDatapoint(d *datapoint.Datapoint) *logMetric {
 	return &logMetric{
 		Time:       computeTime(d.Timestamp),
 		Host:       host,
-		Source:     o.source,
-		SourceType: o.sourceType,
-		Index:      o.index,
+		Source:     o.metricsSource,
+		SourceType: o.metricsSourceType,
+		Index:      o.metricsIndex,
 		Event:      "metric",
 		Fields:     fields,
 	}
 }
 
-// LogEvent logs an event as a Splunk metric event
+// convertEvent converts an event as a Splunk event
 func (o *Output) convertEvent(e *event.Event) *logEvent {
 	props := make(map[string]string)
 	for key, v := range e.Properties {
@@ -190,10 +206,43 @@ func (o *Output) convertEvent(e *event.Event) *logEvent {
 	return &logEvent{
 		Time:       computeTime(e.Timestamp),
 		Host:       host,
-		Source:     o.source,
-		SourceType: o.sourceType,
-		Index:      o.index,
+		Source:     o.eventsSource,
+		SourceType: o.eventsSourceType,
+		Index:      o.eventsIndex,
 		Event:      eventdata{Properties: props, Dimensions: e.Dimensions, Meta: meta, EventType: e.EventType, Category: e.Category},
+	}
+}
+
+// convertSpan converts a span as a Splunk event
+func (o *Output) convertSpan(s *trace.Span) *logSpan {
+
+	meta := make(map[string]string)
+	for key, v := range s.Meta {
+		if v != nil {
+			meta[toString(key)] = toString(v)
+		}
+	}
+
+	b, err := json.Marshal(s.LocalEndpoint)
+	var host string
+	if err != nil {
+		host = "unknown"
+	} else {
+		host = string(b)
+	}
+
+	ts := *s.Timestamp
+	if ts == 0 {
+		ts = time.Now().UnixNano() / time.Millisecond.Nanoseconds()
+	}
+
+	return &logSpan{
+		Time:       ts,
+		Host:       host,
+		Source:     o.eventsSource,
+		SourceType: o.eventsSourceType,
+		Index:      o.eventsIndex,
+		Event:      spandata{TraceID: s.TraceID, ID: s.ID, Name: s.Name, LocalEndpoint: s.LocalEndpoint, RemoteEndpoint: s.RemoteEndpoint, Debug: s.Debug, Duration: s.Duration, Kind: s.Kind, ParentID: s.ParentID, Shared: s.Shared, Tags: s.Tags, Meta: meta, Annotations: s.Annotations},
 	}
 }
 

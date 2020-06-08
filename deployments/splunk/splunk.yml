@@ -9,3 +9,9 @@ splunk:
           homePath: $SPLUNK_DB/metrics/db
           maxTotalDataSizeMB: 512000
           thawedPath: $SPLUNK_DB/metrics/thaweddb
+        traces:
+          coldPath: $SPLUNK_DB/traces/colddb
+          datatype: event
+          homePath: $SPLUNK_DB/traces/db
+          maxTotalDataSizeMB: 512000
+          thawedPath: $SPLUNK_DB/traces/thaweddb

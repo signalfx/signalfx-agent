@@ -30,7 +30,13 @@ services:
       - SPLUNK_SKIP_TLS_VERIFY=true
       - SPLUNK_INDEX=metrics
       - SPLUNK_SOURCE=signalfx
+      - SPLUNK_EVENTS_INDEX=traces
+      - SPLUNK_EVENTS_SOURCE=sfx-traces
     volumes:
       - /:/hostfs:ro
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./agent.yaml:/etc/signalfx/agent.yaml:ro
+  tracing:
+    build:
+      context: tracing
+    restart: always
