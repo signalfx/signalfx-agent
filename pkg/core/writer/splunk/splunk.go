@@ -9,12 +9,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/signalfx/golib/v3/trace"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/signalfx/golib/v3/trace"
 
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/event"
@@ -22,6 +23,10 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/processor"
 	"github.com/sirupsen/logrus"
+)
+
+const (
+	unknownHost = "unknown"
 )
 
 // Output posts data to Splunk HTTP Event Collector.
@@ -171,7 +176,7 @@ func (o *Output) convertDatapoint(d *datapoint.Datapoint) *logMetric {
 
 	host := d.Dimensions["host"]
 	if host == "" {
-		host = "unknown"
+		host = unknownHost
 	}
 	return &logMetric{
 		Time:       computeTime(d.Timestamp),
@@ -201,7 +206,7 @@ func (o *Output) convertEvent(e *event.Event) *logEvent {
 	}
 	host := e.Dimensions["host"]
 	if host == "" {
-		host = "unknown"
+		host = unknownHost
 	}
 	return &logEvent{
 		Time:       computeTime(e.Timestamp),
@@ -226,7 +231,7 @@ func (o *Output) convertSpan(s *trace.Span) *logSpan {
 	b, err := json.Marshal(s.LocalEndpoint)
 	var host string
 	if err != nil {
-		host = "unknown"
+		host = unknownHost
 	} else {
 		host = string(b)
 	}

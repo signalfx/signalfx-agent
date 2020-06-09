@@ -2,9 +2,10 @@ package splunk
 
 import (
 	"encoding/json"
-	"github.com/signalfx/golib/v3/trace"
 	"testing"
 	"time"
+
+	"github.com/signalfx/golib/v3/trace"
 
 	"github.com/signalfx/golib/v3/event"
 )

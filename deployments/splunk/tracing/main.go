@@ -1,20 +1,21 @@
 package main
 
 import (
-	"github.com/opentracing/opentracing-go"
 	"os"
 	"os/signal"
 	"strconv"
 	"syscall"
 	"time"
+
+	"github.com/opentracing/opentracing-go"
+	"github.com/signalfx/signalfx-go-tracing/tracing"
 )
-import "github.com/signalfx/signalfx-go-tracing/tracing"
 
 func main() {
 	tracing.Start(tracing.WithEndpointURL("http://signalfx-agent:9080/v1/trace"), tracing.WithServiceName("tracing"))
 	defer tracing.Stop()
 	counter := 0
-	c := make(chan os.Signal)
+	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt, syscall.SIGTERM, syscall.SIGKILL, syscall.SIGQUIT)
 	ticker := time.NewTicker(1 * time.Second)
 	for {
