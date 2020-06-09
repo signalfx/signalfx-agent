@@ -16,7 +16,7 @@ func main() {
 	defer tracing.Stop()
 	counter := 0
 	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM, syscall.SIGKILL, syscall.SIGQUIT)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM, syscall.SIGQUIT)
 	ticker := time.NewTicker(1 * time.Second)
 	for {
 		select {
