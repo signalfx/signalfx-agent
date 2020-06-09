@@ -139,6 +139,7 @@ require (
 	github.com/signalfx/gateway v1.2.19-0.20191125135538-2c417b7ae0bd
 	github.com/signalfx/golib/v3 v3.3.0
 	github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5
+	github.com/signalfx/signalfx-go-tracing v1.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect

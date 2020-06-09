@@ -738,6 +738,7 @@ github.com/pelletier/go-toml v1.2.0 h1:T5zMGML61Wp+FlcbWjRDT7yAxhJNAiPPLOFECq181
 github.com/pelletier/go-toml v1.2.0/go.mod h1:5z9KED0ma1S8pY6P1sdut58dfprrGBbd/94hg7ilaic=
 github.com/peterbourgon/diskv v2.0.1+incompatible h1:UBdAOUP5p4RWqPBg048CAvpKN+vxiaj6gdUUzhl4XmI=
 github.com/peterbourgon/diskv v2.0.1+incompatible/go.mod h1:uqqh8zWWbv1HBMNONnaR/tNboyR3/BZd58JJSHlUSCU=
+github.com/philhofer/fwd v1.0.0 h1:UbZqGr5Y38ApvM/V/jEljVxwocdweyH+vmYvRPBnbqQ=
 github.com/philhofer/fwd v1.0.0/go.mod h1:gk3iGcWd9+svBvR0sR+KPcfE+RNWozjowpeBVG3ZVNU=
 github.com/pierrec/lz4 v2.0.5+incompatible h1:2xWsjqPFWcplujydGg4WmhC/6fZqK42wMM8aXeqhl0I=
 github.com/pierrec/lz4 v2.0.5+incompatible/go.mod h1:pdkljMzZIN41W+lC3N2tnIh5sFi+IEE17M5jbnwPHcY=
@@ -845,6 +846,8 @@ github.com/signalfx/sapm-proto v0.4.0 h1:5lQX++6FeIjUZEIcnSgBqhOpmSjMkRBW3y/4ZiK
 github.com/signalfx/sapm-proto v0.4.0/go.mod h1:x3gtwJ1GRejtkghB4nYpwixh2zqJrLbPU959ZNhM0Fk=
 github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5 h1:+tu30Q5SkbYMBmI3sgDJTB9M1/Ga8z0V0LGDVY1D99g=
 github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5/go.mod h1:CeCGXKT2wqqky0Nz8eV0NH/CpMPE7tzYUcV8eQS1U1s=
+github.com/signalfx/signalfx-go-tracing v1.2.0 h1:wEdlZQ69u3QyEZEEIo+prmGaVieKgiICqBVb2Dtfnvc=
+github.com/signalfx/signalfx-go-tracing v1.2.0/go.mod h1:JoTkkhSBe42ns9/AsvtqX7lLiiS6YwE0Q7J0DZFzt00=
 github.com/signalfx/tdigest v0.0.0-20191031204725-c860c3ff6902 h1:V/uPctkyrXFOwGmWbFFEJP48ntw8ykJN6oxEJBTPARE=
 github.com/signalfx/tdigest v0.0.0-20191031204725-c860c3ff6902/go.mod h1:fbvuJM3o+bwr36+TVjokMUGd4muJVHiCshTmKZ/6eNU=
 github.com/signalfx/telegraf v0.10.2-0.20200415004250-249b98cac6c7 h1:2yl1neQAA7FvggdNsY65PiZnTTzQH/mBQhNEiwUV/fQ=
@@ -920,6 +923,7 @@ github.com/tidwall/match v1.0.1 h1:PnKP62LPNxHKTwvHHZZzdOAOCtsJTjo6dZLCwpKm5xc=
 github.com/tidwall/match v1.0.1/go.mod h1:LujAq0jyVjBy028G1WhWfIzbpQfMO8bBZ6Tyb0+pL9E=
 github.com/tidwall/pretty v0.0.0-20180105212114-65a9db5fad51 h1:BP2bjP495BBPaBcS5rmqviTfrOkN5rO5ceKAMRZCRFc=
 github.com/tidwall/pretty v0.0.0-20180105212114-65a9db5fad51/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
+github.com/tinylib/msgp v1.0.2 h1:DfdQrzQa7Yh2es9SuLkixqxuXS2SxsdYn0KbdrOGWD8=
 github.com/tinylib/msgp v1.0.2/go.mod h1:+d+yLhGm8mzTaHzB+wgMYrodPfmZrzkirds8fDWklFE=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20170815181823-89b8d40f7ca8/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5 h1:LnC5Kc/wtumK+WB441p7ynQJzVuNRJiqddSIE3IlSEQ=
