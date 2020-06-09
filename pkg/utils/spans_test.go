@@ -1,9 +1,10 @@
 package utils
 
 import (
+	"testing"
+
 	"github.com/signalfx/golib/v3/trace"
 	"gotest.tools/assert"
-	"testing"
 )
 
 func TestSpanClone(t *testing.T) {
