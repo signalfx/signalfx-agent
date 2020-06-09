@@ -8,7 +8,7 @@ Splunk is configured to receive data from the SignalFx Agent using the HTTP Even
 
 To deploy the example, open a terminal and in this directory type:
 ```bash
-$> docker-compose up
+$> docker-compose up --build
 ```
 :
 Splunk will become available on port 18000. You can login on [http://localhost:18000] with `admin` and `changeme`.

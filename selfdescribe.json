@@ -55921,6 +55921,30 @@
                     "elementKind": ""
                   },
                   {
+                    "yamlName": "eventsIndex",
+                    "doc": "Splunk index, specifically for traces (must be event type)",
+                    "default": "",
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "eventsSource",
+                    "doc": "Splunk source field value, description of the source of the trace",
+                    "default": "",
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
+                    "yamlName": "eventsSourceType",
+                    "doc": "Splunk trace source type, optional name of a sourcetype field value",
+                    "default": "",
+                    "required": false,
+                    "type": "string",
+                    "elementKind": ""
+                  },
+                  {
                     "yamlName": "skipTLSVerify",
                     "doc": "Skip verifying the certificate of the HTTP Event Collector",
                     "default": false,

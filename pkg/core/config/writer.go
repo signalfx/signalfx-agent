@@ -249,11 +249,17 @@ type SplunkConfig struct {
 	// Splunk HTTP Event Collector token
 	Token string `yaml:"token"`
 	// Splunk source field value, description of the source of the event
-	Source string `yaml:"source"`
+	MetricsSource string `yaml:"source"`
 	// Splunk source type, optional name of a sourcetype field value
-	SourceType string `yaml:"sourceType"`
+	MetricsSourceType string `yaml:"sourceType"`
 	// Splunk index, optional name of the Splunk index to store the event in
-	Index string `yaml:"index"`
+	MetricsIndex string `yaml:"index"`
+	// Splunk index, specifically for traces (must be event type)
+	EventsIndex string `yaml:"eventsIndex"`
+	// Splunk source field value, description of the source of the trace
+	EventsSource string `yaml:"eventsSource"`
+	// Splunk trace source type, optional name of a sourcetype field value
+	EventsSourceType string `yaml:"eventsSourceType"`
 	// Skip verifying the certificate of the HTTP Event Collector
 	SkipTLSVerify bool `yaml:"skipTLSVerify"`
 

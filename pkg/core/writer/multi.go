@@ -37,6 +37,8 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 	splunkDPChan := dpChan
 	signalFxEventChan := eventChan
 	splunkEventChan := eventChan
+	signalFxSpanChan := spanChan
+	splunkSpanChan := spanChan
 
 	// The channel handling is a bit hacky but we have to broadcast the
 	// datapoints to both writers if they are both present given our existing
@@ -47,6 +49,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 		splunkDPChan = make(chan []*datapoint.Datapoint, cap(dpChan))
 		signalFxEventChan = make(chan *event.Event, cap(eventChan))
 		splunkEventChan = make(chan *event.Event, cap(eventChan))
+		splunkSpanChan = make(chan []*trace.Span, cap(spanChan))
 
 		go func() {
 			for {
@@ -59,6 +62,9 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 				case ev := <-eventChan:
 					signalFxEventChan <- utils.CloneEvent(ev)
 					splunkEventChan <- ev
+				case span := <-spanChan:
+					signalFxSpanChan <- utils.CloneSpanSlice(span)
+					splunkSpanChan <- span
 				}
 			}
 		}()
@@ -66,7 +72,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 
 	if conf.IsSignalFxOutputEnabled() {
 		var err error
-		w.signalFxWriter, err = signalfx.New(conf, signalFxDPChan, signalFxEventChan, dimensionChan, spanChan, spanSourceTracker)
+		w.signalFxWriter, err = signalfx.New(conf, signalFxDPChan, signalFxEventChan, dimensionChan, signalFxSpanChan, spanSourceTracker)
 		if err != nil {
 			return nil, err
 		}
@@ -74,7 +80,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 
 	if conf.IsSplunkOutputEnabled() {
 		var err error
-		w.splunkWriter, err = splunk.New(conf, splunkDPChan, splunkEventChan)
+		w.splunkWriter, err = splunk.New(conf, splunkDPChan, splunkEventChan, splunkSpanChan)
 		if err != nil {
 			return nil, err
 		}

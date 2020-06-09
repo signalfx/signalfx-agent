@@ -15,12 +15,15 @@ observers:
   - type: docker
 
 writer:
+  signalFxEnabled: false
   splunk:
     enabled: true
     url: ${SPLUNK_URL}
     token: ${SPLUNK_TOKEN}
     index: ${SPLUNK_INDEX}
     source: ${SPLUNK_SOURCE}
+    eventsIndex: ${SPLUNK_EVENTS_INDEX}
+    eventsSource: ${SPLUNK_EVENTS_SOURCE}
     skipTLSVerify: ${SPLUNK_SKIP_TLS_VERIFY}
 monitors:
   - {"#from": "/etc/signalfx/monitors/*.yaml", flatten: true, optional: true}
@@ -35,3 +38,5 @@ monitors:
   - type: host-metadata
   - type: processlist
   - type: docker-container-stats
+  - type: signalfx-forwarder
+    listenAddress: 0.0.0.0:9080
