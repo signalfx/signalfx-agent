@@ -101,7 +101,7 @@ and use it on your hosts by running:
 
 ```sh
 curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
-sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM -- YOUR_SIGNALFX_API_TOKEN
+sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM -- YOUR_SIGNALFX_ACCESS_TOKEN
 ```
 
 ##### Windows
@@ -110,20 +110,22 @@ The Agent has two dependencies on Windows which must be satisfied before running
 - [.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
 - [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
 
-The installer script is written for Powershell v3.0 and above and will not function correctly on earlier versions.
+The installer script is written for PowerShell v3.0 and above and will not function correctly on earlier versions.
 
 Once the dependencies have been installed, please run the installer script below.
 You can [view the source for the installer script](./deployments/installer/install.ps1)
-and use it on your hosts in powershell by running:
+and use it on your hosts in PowerShell by running:
 
-`& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"; ingest_url = "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"; api_url = "https://api.YOUR_SIGNALFX_REALM.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}`
+`& {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_ACCESS_TOKEN"; ingest_url = "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"; api_url = "https://api.YOUR_SIGNALFX_REALM.signalfx.com"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}`
 
-The agent should be installed to `\Program Files\SignalFx\SignalFxAgent`, and the default configuration file
-should be installed at `\ProgramData\SignalFxAgent`.
+The agent files are installed to `\Program Files\SignalFx\SignalFxAgent`, and the default configuration file
+is installed at `\ProgramData\SignalFxAgent`.
+
+You can also use Chocolatey to install the agent. See the section [Windows Chocolatey Package](#windows-chocolatey-package).
 
 #### Chef
 We offer a Chef cookbook to install and configure the agent.  See [the cookbook
-source](./deployments/chef) and [on the Chef
+source](./deployments/chef) and on the [Chef
 Supermarket](https://supermarket.chef.io/cookbooks/signalfx_agent).
 
 #### Puppet
@@ -237,61 +239,32 @@ the output to a log file or other log management system.  See the
 [signalfx-agent command](./docs/signalfx-agent.1.man) doc for more information on
 supported command flags.
 
-#### Windows Standalone .zip
-If you don't want to use the installer script, we offer a
-.zip that can be deployed to the target host.  This bundle is available for
-download on the [Github Releases
-Page](https://github.com/signalfx/signalfx-agent/releases) for each new
-release.
+#### Windows Chocolatey Package
+_Only available for Smart Agent v5.3.0 and higher._
 
-Before proceeding make sure the following requirements are met.
-- [.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
-- [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
+To install the Smart Agent using [Chocolatey](https://chocolatey.org/), run the following PowerShell command as an administrator:
 
-To use the bundle:
+```sh
+choco install signalfx-agent [choco options] --params="'/access_token:YOUR_SIGNALFX_ACCESS_TOKEN /ingest_url:https://ingest.YOUR_SIGNALFX_REALM.signalfx.com /api_url:https://api.YOUR_SIGNALFX_REALM.signalfx.com'"
+```
 
-1) Unzip it to a directory of your choice on the target system.
+The Smart Agent looks for a configuration file at `\ProgramData\SignalFxAgent\agent.yaml`. If this file does not already exist during installation, a default config file will be copied into place by the installer.
 
-2) Ensure a valid configuration file is available somewhere on the target
-system.  The main thing that the installer script provides -- but that you will
-have to provide manually with the bundle -- is a run directory for the agent to
-use.  Since you aren't installing from a package, there are two config
-options that you will especially want to consider:
+The following package parameters are available:
 
- - `internalStatusHost` - This is the host name that
-	 the agent will listen on so that the `signalfx-agent status` command can
-	 read diagnostic information from a running agent.  This is also the host name the
-	 agent will listen on to serve internal metrics about the agent.  These metrics can
-	 can be scraped by the `internal-metrics` monitor.  This will default to `localhost`
-	 if left blank.
+ * `/access_token` - The access token (org token) used to send metric data to SignalFx. If the parameter is specified, the token will be saved to the `\ProgramData\SignalFxAgent\token` file. If the parameter is not specified and `\ProgramData\SignalFxAgent\token` does not exist or is empty, the Smart Agent service is not started after installation or upgrade. To start the service, add or update `\ProgramData\SignalFxAgent\token` with a valid token, and then either restart Windows or run the following PowerShell command: `& "\Program Files\SignalFx\SignalFxAgent\bin\signalfx-agent.exe" -service "start"`
+ * `/ingest_url` - URL of the SignalFx ingest endpoint (e.g. `https://ingest.YOUR_SIGNALFX_REALM.signalfx.com`). The URL will be saved to the `\ProgramData\SignalFxAgent\ingest_url` file. If the parameter is not specified, the value found in `\ProgramData\SignalFxAgent\ingest_url` (if it exists) will be used. Otherwise, defaults to `https://ingest.us0.signalfx.com`.
+ * `/api_url` - URL of the SignalFx API endpoint (e.g. `https://api.YOUR_SIGNALFX_REALM.signalfx.com`). The URL will be saved to the `\ProgramData\SignalFxAgent\api_url` file. If the parameter is not specified, the value found in `\ProgramData\SignalFxAgent\api_url` (if it exists) will be used. Otherwise, defaults to `https://api.us0.signalfx.com`.
+ * `/install_dir` - Installation directory. Defaults to `\Program Files\SignalFx\SignalFxAgent`.
 
- - `internalStatusPort` - This is the port that the agent will listen on so that
-	 the `signalfx-agent status` command can read diagnostic information from
-	 a running agent.  This is also the host name the agent will listen on to serve
-	 internal metrics about the agent.  These metrics can can be scraped by the
-	 `internal-metrics` monitor.  This will default to `8095`.
+To learn more, see the Chocolatey [SignalFx Smart Agent](https://chocolatey.org/packages/signalfx-agent/) page.
 
-See the section on [Privileges](#privileges) for information on the
-capabilities the agent requires.
+### Windows Standalone .zip
+A `.zip` bundle is also available that can be deployed to the target host.
+To obtain the bundle, go to [Github Releases Page](https://github.com/signalfx/signalfx-agent/releases)
+and download the most recent release.
 
-3) Run the agent by invoking the agent executable
-`SignalFxAgent\bin\signalfx-agent.exe -config <path to config.yaml>`.  By default,
-the agent logs only to stdout/err. If you want to persist logs, you must direct
-the output to a log file or other log management system.  See the
-[signalfx-agent command](./docs/signalfx-agent.1.man) doc for more information on
-supported command flags.
-
-4) You may optionally install the agent as a Windows service by invoking the
-agent executable and specifying a few command line flags.  The examples below
-show how to do install and start the agent as a Windows service.
-
-- Install Service
-
-		PS> SignalFx\SignalFxAgent\bin\signalfx-agent.exe -service "install" -logEvents -config <path to config file>
-
-- Start Service
-
-		PS> SignalFx\SignalFxAgent\bin\signalfx-agent.exe -service "start"
+To learn more, see [Windows Standalone .zip](./docs/advanced-install-options.md#windows-standalone-zip).
 
 ### Privileges
 

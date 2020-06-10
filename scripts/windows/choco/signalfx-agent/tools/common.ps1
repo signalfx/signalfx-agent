@@ -3,40 +3,48 @@ try {
 } catch {
     $drive = ""
 }
-$installation_path = "$drive" + "\Program Files"
+$installation_path = "$drive" + "\Program Files\SignalFx\SignalFxAgent"
 $program_data_path = "$drive" + "\ProgramData\SignalFxAgent"
 $config_path = "$program_data_path\agent.yaml"
-$agent_bin = "$installation_path\SignalFx\SignalFxAgent\bin\signalfx-agent.exe"
 
 function get_value_from_file([string]$path) {
     $value = ""
     if (Test-Path -Path "$path") {
-        $value = (Get-Content -Path "$path").Trim()
+        try {
+            $value = (Get-Content -Path "$path").Trim()
+        } catch {
+            $value = ""
+        }
     }
     return "$value"
 }
 
 # create directories in program data
 function create_program_data() {
-    mkdir "$program_data_path" -ErrorAction Ignore
+    if (!(Test-Path -Path "$program_data_path")) {
+        echo "Creating $program_data_path"
+        (mkdir "$program_data_path" -ErrorAction Ignore) | Out-Null
+    }
 }
 
 # whether the agent executable exists
-function agent_bin_exists([string]$agent_bin=$agent_bin) {
+function agent_bin_exists([string]$agent_bin="$installation_path\bin\signalfx-agent.exe") {
     return (Test-Path -Path "$agent_bin")
 }
 
 # whether the agent service is running
-function service_running() {
-    if (!(agent_bin_exists)) {
+function service_running([string]$installation_path=$installation_path) {
+    $agent_bin = "$installation_path\bin\signalfx-agent.exe"
+    if (!(agent_bin_exists -agent_bin "$agent_bin")) {
         return $false
     }
     return (((Get-CimInstance -ClassName win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).State -Eq "Running") -Or ((Get-CimInstance -ClassName win32_service -Filter "Name = 'signalfx-agent'" | Select Name, State).State -Eq "Running"))
 }
 
 # whether the agent service is installed
-function service_installed() {
-    if (!(agent_bin_exists)) {
+function service_installed([string]$installation_path=$installation_path) {
+    $agent_bin = "$installation_path\bin\signalfx-agent.exe"
+    if (!(agent_bin_exists -agent_bin "$agent_bin")) {
         return $false
     }
     return (((Get-CimInstance -ClassName win32_service -Filter "Name = 'SignalFx Smart Agent'" | Select Name, State).Name -Eq "SignalFx Smart Agent") -Or ((Get-CimInstance -ClassName win32_service -Filter "Name = 'signalfx-agent'" | Select Name, State).Name -Eq "signalfx-agent"))
@@ -44,15 +52,17 @@ function service_installed() {
 
 # start the service if it's stopped
 function start_service([string]$installation_path=$installation_path, [string]$config_path=$config_path) {
-    if ((agent_bin_exists) -And !(service_running)){
-        & $agent_bin -service "start" -config "$config_path"
+    $agent_bin = "$installation_path\bin\signalfx-agent.exe"
+    if ((agent_bin_exists -agent_bin "$agent_bin") -And !(service_running -installation_path "$installation_path")){
+        Start-ChocolateyProcessAsAdmin -ExeToRun "$agent_bin" -Statements "-service `"start`" -config `"$config_path`""
     }
 }
 
 # stop the service if it's running
-function stop_service([string]$installation_path=$installation_path, [string]$config_path=$config_path) {
-    if ((agent_bin_exists) -And (service_running)){
-        & $agent_bin -service "stop"
+function stop_service([string]$installation_path=$installation_path) {
+    $agent_bin = "$installation_path\bin\signalfx-agent.exe"
+    if ((agent_bin_exists -agent_bin "$agent_bin") -And (service_running -installation_path "$installation_path")){
+        Start-ChocolateyProcessAsAdmin -ExeToRun "$agent_bin" -Statements "-service `"stop`""
     }
 }
 
@@ -78,23 +88,25 @@ function remove_agent_registry_entries() {
 
 # install the service if it's not already installed
 function install_service([string]$installation_path=$installation_path, [string]$config_path=$config_path) {
-    if ((agent_bin_exists) -And !(service_installed)){
-        & $agent_bin -service "install" -logEvents -config "$config_path"
+    $agent_bin = "$installation_path\bin\signalfx-agent.exe"
+    if ((agent_bin_exists -agent_bin "$agent_bin") -And !(service_installed -installation_path "$installation_path")){
+        Start-ChocolateyProcessAsAdmin -ExeToRun "$agent_bin" -Statements "-service `"install`" -logEvents -config `"$config_path`""
     }
 }
 
 # uninstall the service
 function uninstall_service([string]$installation_path=$installation_path) {
-    if ((agent_bin_exists) -And (service_installed)){
-        stop_service -installation_path $installation_path -config_path $config_path
-        & $agent_bin -service "uninstall" -logEvents
+    $agent_bin = "$installation_path\bin\signalfx-agent.exe"
+    if ((agent_bin_exists -agent_bin "$agent_bin") -And (service_installed -installation_path "$installation_path")){
+        stop_service -installation_path $installation_path
+        Start-ChocolateyProcessAsAdmin -ExeToRun "$agent_bin" -Statements "-service `"uninstall`""
     }
 }
 
 # wait for the service to start
-function wait_for_service([int]$timeout=60) {
+function wait_for_service([string]$installation_path=$installation_path, [int]$timeout=60) {
     $startTime = Get-Date
-    while (!(service_running)){
+    while (!(service_running -installation_path "$installation_path")){
         if ((New-TimeSpan -Start $startTime -End (Get-Date)).TotalSeconds -gt $timeout){
             throw "Agent service is not running.  Something went wrong durring the installation.  Please rerun the installer"
         }
