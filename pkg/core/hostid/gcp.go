@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 // GoogleComputeID generates a unique id for the compute instance that the
@@ -24,7 +26,7 @@ func GoogleComputeID() string {
 }
 
 func getMetadata(path string) string {
-	url := fmt.Sprintf("http://metadata.google.pkg/computeMetadata/v1/%s", path)
+	url := fmt.Sprintf("http://metadata.google.internal/computeMetadata/v1/%s", path)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		// This would only be due to a programming bug
@@ -39,6 +41,7 @@ func getMetadata(path string) string {
 
 	resp, err := c.Do(req)
 	if err != nil {
+		logrus.WithError(err).Debugf("Failed to query GCP Metadata endpoint at %s", url)
 		return ""
 	}
 	defer resp.Body.Close()
