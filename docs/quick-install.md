@@ -96,11 +96,11 @@ The install script starts the agent as a Windows service that writes messages to
 
 **HINT:** Copy the command and paste it into the application window.
 
-**For Linux:** Use `terminal` or a similar app 
+**For Linux:** Use `terminal` or a similar app and run `sudo signalfx-agent status`
 
-**For Windows:** Use Windows PowerShell
 
-`sudo signalfx-agent status`
+**For Windows:** Use Windows PowerShell and run `& "\Program Files\SignalFx\SignalFxAgent\bin\signalfx-agent" status`
+
 
 The command displays output that is similar to the following:
 
