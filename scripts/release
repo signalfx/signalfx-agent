@@ -448,9 +448,6 @@ push_windows_bundle() {
     exit 1
   fi
 
-  # ensure that latest.txt is created and has the same version of the bundle
-  echo -n "$new_version" > "$src_dir/latest.txt"
-
   if signing_credentials_are_set "$staging_username" "$staging_token" "$chaperone_token" >/dev/null; then
     $SCRIPT_DIR/signing/sign_win_agent.py "$bundle_path" \
       --chaperone-token=$chaperone_token --staging-user=$staging_username --staging-token=$staging_token
@@ -473,7 +470,6 @@ push_windows_bundle() {
       [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Not pushing windows bundle" >&2 && return 1
     fi
     aws --profile prod s3 cp "$bundle_path" "$dest_dir/SignalFxAgent-${new_version}-win64.zip"
-    aws --profile prod s3 cp "$src_dir/latest.txt" "${dest_dir}/latest/latest.txt"
     $SCRIPT_DIR/invalidate-cloudfront "/windows/$stage/zip/*"
   else
     echo "Nothing to do"
