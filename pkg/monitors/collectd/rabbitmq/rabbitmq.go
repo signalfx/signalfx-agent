@@ -1,6 +1,9 @@
 package rabbitmq
 
 import (
+	"errors"
+	"strings"
+
 	"github.com/signalfx/golib/v3/pointer"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 
@@ -22,7 +25,7 @@ func init() {
 	}, &Config{})
 }
 
-// Config is the monitor-specific config with the generic config embedded
+// Config is the monitor-specific config with the generic config embedded.
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 	python.CommonConfig  `yaml:",inline"`
@@ -42,20 +45,32 @@ type Config struct {
 	VerbosityLevel     string `yaml:"verbosityLevel"`
 	Username           string `yaml:"username" validate:"required"`
 	Password           string `yaml:"password" validate:"required" neverLog:"true"`
+	// Whether to enable HTTPS.
+	UseHTTPS bool `yaml:"useHTTPS"`
+	// Path to SSL/TLS certificates file of root Certificate Authorities implicitly trusted by this monitor.
+	SSLCACertFile string `yaml:"sslCACertFile"`
+	// Path to this monitor's own SSL/TLS certificate.
+	SSLCertFile string `yaml:"sslCertFile"`
+	// Path to this monitor's private SSL/TLS key file.
+	SSLKeyFile string `yaml:"sslKeyFile"`
+	// This monitor's private SSL/TLS key file password if any.
+	SSLKeyPassphrase string `yaml:"sslKeyPassphrase"`
+	// Should the monitor verify the RabbitMQ server SSL/TLS certificate.
+	SSLVerify bool `yaml:"sslVerify"`
 }
 
-// PythonConfig returns the embedded python.Config struct from the interface
+// PythonConfig returns the embedded python.Config struct from the interface.
 func (c *Config) PythonConfig() *python.Config {
 	c.pyConf.CommonConfig = c.CommonConfig
 	return c.pyConf
 }
 
-// Monitor is the main type that represents the monitor
+// Monitor is the main type that represents the monitor.
 type Monitor struct {
 	python.PyMonitor
 }
 
-// Configure configures and runs the plugin in python
+// Configure configures and runs the plugin in python.
 func (m *Monitor) Configure(conf *Config) error {
 	sendChannelMetrics := conf.CollectChannels
 	sendConnectionMetrics := conf.CollectConnections
@@ -99,6 +114,12 @@ func (m *Monitor) Configure(conf *Config) error {
 			"CollectQueues":      sendQueueMetrics,
 			"HTTPTimeout":        conf.HTTPTimeout,
 			"VerbosityLevel":     conf.VerbosityLevel,
+			"SSLKeyFile":         conf.SSLKeyFile,
+			"SSLKeyPassphrase":   conf.SSLKeyPassphrase,
+			"SSLCertFile":        conf.SSLCertFile,
+			"SSLCACertFile":      conf.SSLCACertFile,
+			"SSLEnabled":         conf.UseHTTPS,
+			"SSLVerify":          conf.SSLVerify,
 		},
 	}
 
@@ -117,6 +138,19 @@ func (m *Monitor) Configure(conf *Config) error {
 	conf.pyConf.PluginConfig["BrokerName"] = brokerName
 
 	return m.PyMonitor.Configure(conf)
+}
+
+// Validate the config.
+func (c *Config) Validate() error {
+	if c.UseHTTPS {
+		if strings.TrimSpace(c.SSLCertFile) == "" {
+			return errors.New("SSL/TLS certificate file required when HTTPS enabled")
+		}
+		if strings.TrimSpace(c.SSLKeyFile) == "" {
+			return errors.New("SSL/TLS private key file required when HTTPS enabled")
+		}
+	}
+	return nil
 }
 
 // GetExtraMetrics returns additional metrics that should be allowed through.
