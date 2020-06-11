@@ -36,7 +36,7 @@
   win_service:
     name: signalfx-agent
     state: absent
-  when: service_info.exists == true
+  when: service_info.exists
 
 - name: Unzip SignalFX agent
   win_unzip:
