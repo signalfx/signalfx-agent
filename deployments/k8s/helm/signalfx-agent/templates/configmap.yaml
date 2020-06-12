@@ -85,8 +85,10 @@ data:
       kubernetesAPI:
         skipVerify: true
       {{- end }}
+      {{- if semverCompare ">=5.2.0" $agentSemver.Original }}
       discoverAllPods: {{ toYaml .Values.isServerless }}
       discoverNodes: {{ toYaml .Values.isServerless }}
+      {{- end }}
       {{- if .Values.additionalPortAnnotations }}
       additionalPortAnnotations:
       {{ range .Values.additionalPortAnnotations -}}
