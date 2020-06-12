@@ -15,4 +15,4 @@ Splunk will become available on port 18000. You can login on [http://localhost:1
 
 Once logged in, visit the [analytics workspace](http://localhost:18000/en-US/app/search/analytics_workspace) to see which metrics are sent by the SignalFx Agent.
 
-Additionally, you can consult the [http://localhost:9090](Prometheus UI) to see the metric data collected from the sample go program.
+Additionally, you can consult the [Prometheus UI](http://localhost:9090) to see the metric data collected from the sample go program.
