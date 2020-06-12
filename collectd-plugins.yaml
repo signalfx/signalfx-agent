@@ -52,7 +52,7 @@
   repo: signalfx/collectd-openstack
 
 - name: rabbitmq
-  version: v1.1.0
+  version: v1.2.0
   repo: signalfx/collectd-rabbitmq
   can_remove:
     - integration-test

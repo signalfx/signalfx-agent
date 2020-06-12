@@ -19018,7 +19018,7 @@
       "properties": null,
       "config": {
         "name": "Config",
-        "doc": "Config is the monitor-specific config with the generic config embedded",
+        "doc": "Config is the monitor-specific config with the generic config embedded.",
         "package": "pkg/monitors/collectd/rabbitmq",
         "fields": [
           {
@@ -19123,6 +19123,54 @@
             "default": null,
             "required": true,
             "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "Whether to enable HTTPS.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sslCACertFile",
+            "doc": "Path to SSL/TLS certificates file of root Certificate Authorities implicitly trusted by this monitor.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sslCertFile",
+            "doc": "Path to this monitor's own SSL/TLS certificate.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sslKeyFile",
+            "doc": "Path to this monitor's private SSL/TLS key file.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sslKeyPassphrase",
+            "doc": "This monitor's private SSL/TLS key file password if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sslVerify",
+            "doc": "Should the monitor verify the RabbitMQ server SSL/TLS certificate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
             "elementKind": ""
           }
         ]
