@@ -86,6 +86,8 @@ var sfxMetricsMap = map[string]string{
 	"rtime":              haproxyResponseTimeAverage,
 	"Run_queue":          haproxyRunQueue,
 	"scur":               haproxySessionCurrent,
+	"slim":               haproxySessionLimit,
+	"smax":               haproxySessionMax,
 	"rate":               haproxySessionRate,
 	"SessRate":           haproxySessionRateAll,
 	"rate_lim":           haproxySessionRateLimit,
