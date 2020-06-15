@@ -63,7 +63,7 @@ can be used in discovery rules.
 | `container_name` | `string` | The first and primary name of the container as it is known to the container runtime (e.g. Docker). |
 | `has_port` | `string` | Set to `true` if the endpoint has a port assigned to it.  This will be `false` for endpoints that represent a host/container as a whole. |
 | `ip_address` | `string` | The IP address of the endpoint if the `host` is in the from of an IPv4 address |
-| `kubernetes_annotations` | `string` | The set of annotations on the discovered pod or node. |
+| `kubernetes_annotations` | `map of string` | A map that contains pod or node annotation key/value pairs. You can use the `Contains` and `Get` helper functions in discovery rules to make use of this. See [Endpoint Discovery](../auto-discovery.md#additional-functions). |
 | `network_port` | `string` | An alias for `port` |
 | `node_addresses` | `string` | A map of the different Node addresses specified in the Node status object.  The key of the map is the address type and the value is the address string. The address types are `Hostname`, `ExternalIP`, `InternalIP`, `ExternalDNS`, `InternalDNS`.  Most likely not all of these address types will be present for a given Node. |
 | `node_metadata` | `string` | The metadata about the Node, for `k8s-node` targets, with fields in TitleCase.  See [ObjectMeta v1 meta reference](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#objectmeta-v1-meta). |
