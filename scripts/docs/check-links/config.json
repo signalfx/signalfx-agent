@@ -17,6 +17,9 @@
         },
         {
             "pattern": "localhost\\:18000"
+        },
+        {
+            "pattern": "localhost\\:9090"
         }
     ]
 }

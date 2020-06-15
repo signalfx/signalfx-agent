@@ -129,6 +129,7 @@ require (
 	github.com/pkg/errors v0.8.2-0.20190227000051-27936f6d90f9
 	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
 	github.com/pquerna/otp v1.1.0 // indirect
+	github.com/prometheus/client_golang v0.9.3-0.20190313112143-fa4aa9000d28
 	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90
 	github.com/prometheus/common v0.4.0
 	github.com/prometheus/procfs v0.0.9-0.20191209220459-fa4d6ce8c078

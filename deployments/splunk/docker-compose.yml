@@ -1,5 +1,12 @@
 version: "3"
 services:
+  prometheus-node:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
   splunk:
     image: splunk/splunk:latest
     container_name: splunk
@@ -19,7 +26,7 @@ services:
       - /opt/splunk/var
       - /opt/splunk/etc
   signalfx-agent:
-    image: quay.io/signalfx/signalfx-agent:latest
+    image: quay.io/signalfx/signalfx-agent:5.3.1
     container_name: signalfx-agent
     restart: always
     depends_on:
@@ -37,6 +44,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - ./agent.yaml:/etc/signalfx/agent.yaml:ro
   tracing:
+    container_name: tracing
     build:
       context: tracing
     restart: always

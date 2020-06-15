@@ -40,3 +40,12 @@ monitors:
   - type: docker-container-stats
   - type: signalfx-forwarder
     listenAddress: 0.0.0.0:9080
+  - type: prometheus-exporter
+    host: prometheus
+    # Prometheus captures the counter metric on the go program we run independently.
+    # We choose to run a separate Prometheus container to gather the metrics data, and read that data with SignalFx.
+    # the match[] parameter is required. There can be multiple match[] parameters. Each match entry is a query against Prometheus.
+    metricPath: '/federate?match[]=counter'
+    port: 9090
+    extraDimensions:
+      metric_source: prometheus
