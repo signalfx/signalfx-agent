@@ -29776,6 +29776,8 @@
             "haproxy_server_aborts",
             "haproxy_server_selected_total",
             "haproxy_session_current",
+            "haproxy_session_limit",
+            "haproxy_session_max",
             "haproxy_session_rate",
             "haproxy_session_rate_all",
             "haproxy_session_rate_limit",
@@ -30150,6 +30152,18 @@
           "description": "Number current sessions. Values reported for listeners, frontends, backends, and servers.",
           "group": null,
           "default": true
+        },
+        "haproxy_session_limit": {
+          "type": "gauge",
+          "description": "The maximum number of connections allowed, configured with `maxconn`. Values reported for listeners, frontends, backends, and servers.",
+          "group": null,
+          "default": false
+        },
+        "haproxy_session_max": {
+          "type": "gauge",
+          "description": "The max value of scur. Values reported for listeners, frontends, backends, and servers.",
+          "group": null,
+          "default": false
         },
         "haproxy_session_rate": {
           "type": "gauge",
