@@ -48,11 +48,12 @@ func findVolumeInPod(pod *v1.Pod, volName string) *v1.Volume {
 
 func dimsForPersistentVolumeSource(pvs v1.PersistentVolumeSource) map[string]string {
 	// IF YOU ADD A NEW PERSISTENT TYPE HERE, ADD IT IN dimsForVolumeSource BELOW TOO!
-	if pvs.AWSElasticBlockStore != nil {
+	switch {
+	case pvs.AWSElasticBlockStore != nil:
 		return awsElasticBlockStoreDims(*pvs.AWSElasticBlockStore)
-	} else if pvs.GCEPersistentDisk != nil {
+	case pvs.GCEPersistentDisk != nil:
 		return gcePersistentDiskDims(*pvs.GCEPersistentDisk)
-	} else if pvs.Glusterfs != nil {
+	case pvs.Glusterfs != nil:
 		// Special case for pvs.Glusterfs as it is a GlusterfsPersistentVolumeSource instead of GlusterfsVolumeSource
 		return glusterfsDims(v1.GlusterfsVolumeSource{
 			EndpointsName: pvs.Glusterfs.EndpointsName,
