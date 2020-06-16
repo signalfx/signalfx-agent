@@ -47,10 +47,13 @@ func findVolumeInPod(pod *v1.Pod, volName string) *v1.Volume {
 }
 
 func dimsForPersistentVolumeSource(pvs v1.PersistentVolumeSource) map[string]string {
-	// IF YOU ADD A NEW TYPE HERE, ADD IT IN dimsForVolumeSource BELOW TOO!
+	// IF YOU ADD A NEW PERSISTENT TYPE HERE, ADD IT IN dimsForVolumeSource BELOW TOO!
 	if pvs.AWSElasticBlockStore != nil {
 		return awsElasticBlockStoreDims(*pvs.AWSElasticBlockStore)
+	} else if pvs.GCEPersistentDisk != nil {
+		return gcePersistentDiskDims(*pvs.GCEPersistentDisk)
 	} else if pvs.Glusterfs != nil {
+		// Special case for pvs.Glusterfs as it is a GlusterfsPersistentVolumeSource instead of GlusterfsVolumeSource
 		return glusterfsDims(v1.GlusterfsVolumeSource{
 			EndpointsName: pvs.Glusterfs.EndpointsName,
 			Path:          pvs.Glusterfs.Path,
@@ -64,17 +67,32 @@ func dimsForPersistentVolumeSource(pvs v1.PersistentVolumeSource) map[string]str
 // specified volumes and those through PersistentVolumes so we have to
 // accommodate both types even though they have largely the same members.
 func dimsForVolumeSource(vs v1.VolumeSource, namespace string, client *k8s.Clientset) (map[string]string, error) {
-	// IF YOU ADD A NEW TYPE HERE, ADD IT IN dimsForPersistentVolumeSource
+	// IF YOU ADD A NEW PERSISTENT TYPE HERE, ADD IT IN dimsForPersistentVolumeSource
 	// ABOVE TOO!
 	// PersistentVolumeClaim is unique to VolumeSource, PersistentVolumeSource
 	// will not have this.
 	switch {
+	// Special case for PVC as it will invoke dimsForPersistentVolumeSource lower in the chain:
 	case vs.PersistentVolumeClaim != nil:
 		return dimsForPersistentVolumeClaim(vs.PersistentVolumeClaim.ClaimName, namespace, client)
+
+	// PERSISTENT TYPES:
 	case vs.AWSElasticBlockStore != nil:
 		return awsElasticBlockStoreDims(*vs.AWSElasticBlockStore), nil
+	case vs.GCEPersistentDisk != nil:
+		return gcePersistentDiskDims(*vs.GCEPersistentDisk), nil
 	case vs.Glusterfs != nil:
 		return glusterfsDims(*vs.Glusterfs), nil
+
+	// NON PERSISTENT TYPES:
+	case vs.ConfigMap != nil:
+		return map[string]string{"volume_type": "configMap"}, nil
+	case vs.DownwardAPI != nil:
+		return map[string]string{"volume_type": "downwardAPI"}, nil
+	case vs.EmptyDir != nil:
+		return map[string]string{"volume_type": "emptyDir"}, nil
+	case vs.Secret != nil:
+		return map[string]string{"volume_type": "secret"}, nil
 	}
 	return nil, nil
 }
@@ -102,6 +120,16 @@ func awsElasticBlockStoreDims(vs v1.AWSElasticBlockStoreVolumeSource) map[string
 	return map[string]string{
 		"volume_type": "awsElasticBlockStore",
 		"VolumeId":    vs.VolumeID,
+		"fs_type":     vs.FSType,
+		"partition":   strconv.Itoa(int(vs.Partition)),
+	}
+}
+
+func gcePersistentDiskDims(vs v1.GCEPersistentDiskVolumeSource) map[string]string {
+	return map[string]string{
+		"volume_type": "gcePersistentDisk",
+		"pd_name":     vs.PDName,
+		"fs_type":     vs.FSType,
 		"partition":   strconv.Itoa(int(vs.Partition)),
 	}
 }
