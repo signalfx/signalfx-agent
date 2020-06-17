@@ -34,7 +34,7 @@ const (
 // ENDPOINT_VAR(command): The full command used to invoke this process,
 // including the executable itself at the beginning.
 
-// ENDPOINT_VAR(is_ipv6): Will be `true` if the endpoint is IPv6.
+// ENDPOINT_VAR(is_ipv6|bool): Will be `true` if the endpoint is IPv6.
 
 // Observer that watches the current host
 type Observer struct {
