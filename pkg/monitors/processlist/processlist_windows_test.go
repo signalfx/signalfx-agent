@@ -69,6 +69,37 @@ func TestMonitor_Configure(t *testing.T) {
 				},
 			},
 		},
+		{
+			name: "handles nested quotes",
+			m:    &Monitor{Output: neotest.NewTestOutput()},
+			processes: []Win32Process{
+				{
+					Name:           "test-proc",
+					ExecutablePath: pointer.String("C:\\HelloWorld2\"quoted\".exe"),
+					CommandLine:    pointer.String("HelloWorld2.exe"),
+					Priority:       8,
+					ProcessID:      0,
+					Status:         pointer.String(""),
+					ExecutionState: pointer.Uint16(0),
+					KernelModeTime: 1500,
+					PageFileUsage:  1600,
+					UserModeTime:   1700,
+					WorkingSetSize: 1800,
+					VirtualSize:    1900,
+				},
+			},
+			usernames: map[uint32]string{
+				0: "ted\"bud\"Mosby",
+			},
+			want: &event.Event{
+				EventType:  "objects.top-info",
+				Category:   event.AGENT,
+				Dimensions: map[string]string{},
+				Properties: map[string]interface{}{
+					"message": "{\"t\":\"eJyqVjJQsopWKklNUU8qTVH3zS9OqlTSsdBRKs3Lzssvz1PSMdQx1DHQUVLSMdAzMIAQSgYGVgYglpKOkrNVTIxHak5Ofnh+UU6KkXphaT7IML3UilSl2FpAAAAA///fVRrM\",\"v\":\"0.0.30\"}",
+				},
+			},
+		},
 	}
 	for i := range tests {
 		origGetAllProcesses := getAllProcesses
