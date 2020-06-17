@@ -39639,6 +39639,9 @@
         "endpoints_name": {
           "description": "(*GlusterFS volumes only*) The endpoint name used for the GlusterFS volume"
         },
+        "fs_type": {
+          "description": "(*EBS volumes and GCE persistent disks only*) The filesystem type of the underlying EBS volume or GCE persistent disk"
+        },
         "glusterfs_path": {
           "description": "(*GlusterFS volumes only*) The GlusterFS volume path"
         },
@@ -39652,16 +39655,19 @@
           "description": "The UID of the pod that has this volume"
         },
         "partition": {
-          "description": "(*EBS volumes only*) The partition number of the underlying EBS volume (`0` indicates the entire disk)"
+          "description": "(*EBS volumes and GCE persistent disks only*) The partition number of the underlying EBS volume or GCE persistent disk (`0` indicates the entire disk)"
+        },
+        "pd_name": {
+          "description": "(*GCE persistent disks only*) The GCE persistent disk name of the underlying volume source"
         },
         "volume": {
           "description": "The volume name as given in the pod spec under `volumes`"
         },
         "volume_type": {
-          "description": "The type of the underlying volume -- this will be the key used in the k8s volume config spec (e.g. awsElasticBlockStore, etc.)"
+          "description": "The type of the underlying volume -- this will be the key used in the k8s volume config spec (e.g. `awsElasticBlockStore`, `gcePersistentDisk`, `configMap`, `secret`, etc.)"
         }
       },
-      "doc": "This monitor sends usage stats about volumes\nmounted to Kubernetes pods (e.g. free space/inodes).  This information is\ngotten from the Kubelet /stats/summary endpoint.  The normal `filesystems`\nmonitor generally will not report Persistent Volume usage metrics because\nthose volumes are not seen by the agent since they can be mounted\ndynamically and older versions of K8s don't support mount propagation of\nthose mounts to the agent container.\n\nDimensions that identify the underlying volume source will be added for\n`awsElasticBlockStore` and `glusterfs` volumes.  Support for more can be\neasily added as needed.\n",
+      "doc": "This monitor sends usage stats about volumes\nmounted to Kubernetes pods (e.g. free space/inodes).  This information is\ngotten from the Kubelet /stats/summary endpoint.  The normal `filesystems`\nmonitor generally will not report Persistent Volume usage metrics because\nthose volumes are not seen by the agent since they can be mounted\ndynamically and older versions of K8s don't support mount propagation of\nthose mounts to the agent container.\n\nDimensions that identify the underlying volume source will be added for\n`awsElasticBlockStore`, `gcePersistentDisk` and `glusterfs` persistent\nvolumes, and for `configMap`, `downwardAPI`, `emptyDir` and `secret`\nnon-persistent volumes. Support for more can be easily added as needed.\n",
       "groups": {
         "": {
           "description": "",
