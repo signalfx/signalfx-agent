@@ -15374,7 +15374,7 @@
       "sendAll": false,
       "sendUnknown": false,
       "dimensions": null,
-      "doc": "Monitors a MySQL database server using collectd's [MySQL\nplugin](https://collectd.org/wiki/index.php/Plugin:MySQL). It supports\nMySQL versions 5.x or later.\n\nThis monitor connects to a MySQL instance and reports on the values\nreturned by a `SHOW STATUS` command. This includes the following:\n\n  - Number of commands processed\n  - Table and row operations (handlers)\n  - State of the query cache\n  - Status of MySQL threads\n  - Network traffic\n\n\u003c!--- SETUP ---\u003e\n### Note on localhost\nOn Unix, MySQL programs treat the host name `localhost` specially, in a way\nthat is likely different from what is expected compared to other\nnetwork-based programs. For connections to `localhost`, MySQL programs\nattempt to connect to the local server by using a Unix socket file. To ensure\nthat the client makes a TCP/IP connection to the local server specify a host\nname value of `127.0.0.1`, or the IP address or name of the local server.\n\n\u003c!--- SETUP ---\u003e\n### Databases\nYou have to specify each database you want to monitor individually under\nthe `databases` config option.  If you have a common authentication to all\ndatabases being monitored, you can specify that in the top-level\n`username`/`password` options, otherwise they can be specified at the\ndatabase level.\n\n\n\u003c!--- SETUP ---\u003e\n### Example Config\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: collectd/mysql\n   host: 127.0.0.1\n   port: 3306\n   databases:\n     - name: dbname\n     - name: securedb\n       username: admin\n       password: s3cr3t\n   username: dbuser\n   password: passwd\n```\n",
+      "doc": "Monitors a MySQL database server using collectd's [MySQL\nplugin](https://collectd.org/wiki/index.php/Plugin:MySQL). It supports\nMySQL versions 5.x or later.\n\nThis monitor connects to a MySQL instance and reports on the values\nreturned by a `SHOW STATUS` command. This includes the following:\n\n  - Number of commands processed\n  - Table and row operations (handlers)\n  - State of the query cache\n  - Status of MySQL threads\n  - Network traffic\n\n\u003c!--- SETUP ---\u003e\n### Note on localhost\nOn Unix, MySQL programs treat the host name `localhost` specially, in a way\nthat is likely different from what is expected compared to other\nnetwork-based programs. For connections to `localhost`, MySQL programs\nattempt to connect to the local server by using a Unix socket file. To ensure\nthat the client makes a TCP/IP connection to the local server specify a host\nname value of `127.0.0.1`, or the IP address or name of the local server.\n\n\u003c!--- SETUP ---\u003e\n### Databases\nYou have to specify each database you want to monitor individually under\nthe `databases` config option.  If you have a common authentication to all\ndatabases being monitored, you can specify that in the top-level\n`username`/`password` options, otherwise they can be specified at the\ndatabase level.\n\n\u003c!--- SETUP ---\u003e\n### InnoDB metrics\nIf you want to enable InnoDB metrics (`innodbStats` to `true`), be sure that\nyou granted to your user the `PROCESS` privilege.\n\n\u003c!--- SETUP ---\u003e\n### Example Config\n\nSample YAML configuration:\n\n```\nmonitors:\n - type: collectd/mysql\n   host: 127.0.0.1\n   port: 3306\n   databases:\n     - name: dbname\n     - name: securedb\n       username: admin\n       password: s3cr3t\n   username: dbuser\n   password: passwd\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -15385,6 +15385,21 @@
             "cache_result.qcache-not_cached",
             "cache_result.qcache-prunes",
             "cache_size.qcache",
+            "mysql_bpool_bytes.data",
+            "mysql_bpool_bytes.dirty",
+            "mysql_bpool_counters.pages_flushed",
+            "mysql_bpool_counters.read_ahead",
+            "mysql_bpool_counters.read_ahead_evicted",
+            "mysql_bpool_counters.read_ahead_rnd",
+            "mysql_bpool_counters.read_requests",
+            "mysql_bpool_counters.reads",
+            "mysql_bpool_counters.wait_free",
+            "mysql_bpool_counters.write_requests",
+            "mysql_bpool_pages.data",
+            "mysql_bpool_pages.dirty",
+            "mysql_bpool_pages.free",
+            "mysql_bpool_pages.misc",
+            "mysql_bpool_pages.total",
             "mysql_commands.admin_commands",
             "mysql_commands.alter_db",
             "mysql_commands.alter_db_upgrade",
@@ -15534,6 +15549,27 @@
             "mysql_handler.savepoint_rollback",
             "mysql_handler.update",
             "mysql_handler.write",
+            "mysql_innodb_data.fsyncs",
+            "mysql_innodb_data.read",
+            "mysql_innodb_data.reads",
+            "mysql_innodb_data.writes",
+            "mysql_innodb_data.written",
+            "mysql_innodb_dblwr.writes",
+            "mysql_innodb_dblwr.written",
+            "mysql_innodb_log.fsyncs",
+            "mysql_innodb_log.waits",
+            "mysql_innodb_log.write_requests",
+            "mysql_innodb_log.writes",
+            "mysql_innodb_log.written",
+            "mysql_innodb_pages.created",
+            "mysql_innodb_pages.read",
+            "mysql_innodb_pages.written",
+            "mysql_innodb_row_lock.time",
+            "mysql_innodb_row_lock.waits",
+            "mysql_innodb_rows.deleted",
+            "mysql_innodb_rows.inserted",
+            "mysql_innodb_rows.read",
+            "mysql_innodb_rows.updated",
             "mysql_locks.immediate",
             "mysql_locks.waited",
             "mysql_octets.rx",
@@ -15591,6 +15627,96 @@
           "description": "The number of queries in MySQL query cache.",
           "group": null,
           "default": true
+        },
+        "mysql_bpool_bytes.data": {
+          "type": "gauge",
+          "description": "The total number of bytes in the InnoDB buffer pool containing data. The number includes both dirty and clean pages.",
+          "group": null,
+          "default": false
+        },
+        "mysql_bpool_bytes.dirty": {
+          "type": "gauge",
+          "description": "The total current number of bytes held in dirty pages in the InnoDB buffer pool.",
+          "group": null,
+          "default": false
+        },
+        "mysql_bpool_counters.pages_flushed": {
+          "type": "cumulative",
+          "description": "The number of requests to flush pages from the InnoDB buffer pool.",
+          "group": null,
+          "default": false
+        },
+        "mysql_bpool_counters.read_ahead": {
+          "type": "cumulative",
+          "description": "The number of pages read into the InnoDB buffer pool by the read-ahead background thread.",
+          "group": null,
+          "default": false
+        },
+        "mysql_bpool_counters.read_ahead_evicted": {
+          "type": "cumulative",
+          "description": "The number of pages read into the InnoDB buffer pool by the read-ahead background thread that were subsequently evicted without having been accessed by queries.",
+          "group": null,
+          "default": false
+        },
+        "mysql_bpool_counters.read_ahead_rnd": {
+          "type": "cumulative",
+          "description": "The number of “random” read-aheads initiated by InnoDB. This happens when a query scans a large portion of a table but in random order.",
+          "group": null,
+          "default": false
+        },
+        "mysql_bpool_counters.read_requests": {
+          "type": "cumulative",
+          "description": "The number of logical read requests.",
+          "group": null,
+          "default": false
+        },
+        "mysql_bpool_counters.reads": {
+          "type": "cumulative",
+          "description": "The number of logical reads that InnoDB could not satisfy from the buffer pool, and had to read directly from disk.",
+          "group": null,
+          "default": false
+        },
+        "mysql_bpool_counters.wait_free": {
+          "type": "cumulative",
+          "description": "Normally, writes to the InnoDB buffer pool happen in the background. When InnoDB needs to read or create a page and no clean pages are available, InnoDB flushes some dirty pages first and waits for that operation to finish. This counter counts instances of these waits.",
+          "group": null,
+          "default": false
+        },
+        "mysql_bpool_counters.write_requests": {
+          "type": "cumulative",
+          "description": "The number of writes done to the InnoDB buffer pool.",
+          "group": null,
+          "default": false
+        },
+        "mysql_bpool_pages.data": {
+          "type": "gauge",
+          "description": "The number of pages in the InnoDB buffer pool containing data. The number includes both dirty and clean pages.",
+          "group": null,
+          "default": false
+        },
+        "mysql_bpool_pages.dirty": {
+          "type": "gauge",
+          "description": "The current number of dirty pages in the InnoDB buffer pool.",
+          "group": null,
+          "default": false
+        },
+        "mysql_bpool_pages.free": {
+          "type": "gauge",
+          "description": "The number of free pages in the InnoDB buffer pool.",
+          "group": null,
+          "default": false
+        },
+        "mysql_bpool_pages.misc": {
+          "type": "gauge",
+          "description": "The number of pages in the InnoDB buffer pool that are busy because they have been allocated for administrative overhead, such as row locks or the adaptive hash index.",
+          "group": null,
+          "default": false
+        },
+        "mysql_bpool_pages.total": {
+          "type": "gauge",
+          "description": "The total size of the InnoDB buffer pool, in pages.",
+          "group": null,
+          "default": false
         },
         "mysql_commands.admin_commands": {
           "type": "cumulative",
@@ -16486,6 +16612,132 @@
           "group": null,
           "default": false
         },
+        "mysql_innodb_data.fsyncs": {
+          "type": "cumulative",
+          "description": "The number of fsync() operations so far.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_data.read": {
+          "type": "cumulative",
+          "description": "The amount of data read since the server was started (in bytes).",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_data.reads": {
+          "type": "cumulative",
+          "description": "The total number of data reads (OS file reads).",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_data.writes": {
+          "type": "cumulative",
+          "description": "The total number of data writes.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_data.written": {
+          "type": "cumulative",
+          "description": "The amount of data written so far, in bytes.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_dblwr.writes": {
+          "type": "cumulative",
+          "description": "The number of doublewrite operations that have been performed.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_dblwr.written": {
+          "type": "cumulative",
+          "description": "The number of pages that have been written to the doublewrite buffer.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_log.fsyncs": {
+          "type": "cumulative",
+          "description": "The number of fsync() writes done to the InnoDB redo log files.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_log.waits": {
+          "type": "cumulative",
+          "description": "The number of times that the log buffer was too small and a wait was required for it to be flushed before continuing.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_log.write_requests": {
+          "type": "cumulative",
+          "description": "The number of write requests for the InnoDB redo log.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_log.writes": {
+          "type": "cumulative",
+          "description": "The number of physical writes to the InnoDB redo log file.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_log.written": {
+          "type": "cumulative",
+          "description": "The number of bytes written to the InnoDB redo log files.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_pages.created": {
+          "type": "cumulative",
+          "description": "The number of pages created by operations on InnoDB tables.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_pages.read": {
+          "type": "cumulative",
+          "description": "The number of pages read from the InnoDB buffer pool by operations on InnoDB tables.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_pages.written": {
+          "type": "cumulative",
+          "description": "The number of pages written by operations on InnoDB tables.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_row_lock.time": {
+          "type": "cumulative",
+          "description": "The total time spent in acquiring row locks for InnoDB tables, in milliseconds.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_row_lock.waits": {
+          "type": "cumulative",
+          "description": "The number of times operations on InnoDB tables had to wait for a row lock.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_rows.deleted": {
+          "type": "cumulative",
+          "description": "The number of rows deleted from InnoDB tables.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_rows.inserted": {
+          "type": "cumulative",
+          "description": "The number of rows inserted into InnoDB tables.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_rows.read": {
+          "type": "cumulative",
+          "description": "The number of rows read from InnoDB tables.",
+          "group": null,
+          "default": false
+        },
+        "mysql_innodb_rows.updated": {
+          "type": "cumulative",
+          "description": "The number of rows updated in InnoDB tables.",
+          "group": null,
+          "default": false
+        },
         "mysql_locks.immediate": {
           "type": "cumulative",
           "description": "The number of MySQL table locks which were granted immediately.",
@@ -16683,6 +16935,14 @@
           {
             "yamlName": "reportHost",
             "doc": "A SignalFx extension to the plugin that allows us to disable the normal behavior of the MySQL collectd plugin where the `host` dimension is set to the hostname of the MySQL database server.  When `false` (the recommended and default setting), the globally configured `hostname` config is used instead.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "innodbStats",
+            "doc": "",
             "default": false,
             "required": false,
             "type": "bool",

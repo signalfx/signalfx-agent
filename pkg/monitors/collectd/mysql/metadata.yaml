@@ -31,6 +31,10 @@ monitors:
     `username`/`password` options, otherwise they can be specified at the
     database level.
 
+    <!--- SETUP --->
+    ### InnoDB metrics
+    If you want to enable InnoDB metrics (`innodbStats` to `true`), be sure that
+    you granted to your user the `PROCESS` privilege.
 
     <!--- SETUP --->
     ### Example Config
@@ -752,6 +756,150 @@ monitors:
     total_threads.created:
       description: The total number of threads created by MySQL for client connections.  A
         MySQL thread corresponds to a single MySQL connection.
+      default: false
+      type: cumulative
+    mysql_bpool_pages.data:
+      description: The number of pages in the InnoDB buffer pool containing data. The number includes both dirty and clean pages.
+      default: false
+      type: gauge
+    mysql_bpool_pages.dirty:
+      description: The current number of dirty pages in the InnoDB buffer pool.
+      default: false
+      type: gauge
+    mysql_bpool_pages.free:
+      description: The number of free pages in the InnoDB buffer pool.
+      default: false
+      type: gauge
+    mysql_bpool_pages.misc:
+      description: The number of pages in the InnoDB buffer pool that are busy because they have been allocated for administrative overhead, such as row locks or the adaptive hash index.
+      default: false
+      type: gauge
+    mysql_bpool_pages.total:
+      description: The total size of the InnoDB buffer pool, in pages.
+      default: false
+      type: gauge
+    mysql_bpool_counters.pages_flushed:
+      description: The number of requests to flush pages from the InnoDB buffer pool.
+      default: false
+      type: cumulative
+    mysql_bpool_counters.read_ahead_rnd:
+      description: The number of “random” read-aheads initiated by InnoDB. This happens when a query scans a large portion of a table but in random order.
+      default: false
+      type: cumulative
+    mysql_bpool_counters.read_ahead:
+      description: The number of pages read into the InnoDB buffer pool by the read-ahead background thread.
+      default: false
+      type: cumulative
+    mysql_bpool_counters.read_ahead_evicted:
+      description: The number of pages read into the InnoDB buffer pool by the read-ahead background thread that were subsequently evicted without having been accessed by queries.
+      default: false
+      type: cumulative
+    mysql_bpool_counters.read_requests:
+      description: The number of logical read requests.
+      default: false
+      type: cumulative
+    mysql_bpool_counters.reads:
+      description: The number of logical reads that InnoDB could not satisfy from the buffer pool, and had to read directly from disk.
+      default: false
+      type: cumulative
+    mysql_bpool_counters.wait_free:
+      description: Normally, writes to the InnoDB buffer pool happen in the background. When InnoDB needs to read or create a page and no clean pages are available, InnoDB flushes some dirty pages first and waits for that operation to finish. This counter counts instances of these waits.
+      default: false
+      type: cumulative
+    mysql_bpool_counters.write_requests:
+      description: The number of writes done to the InnoDB buffer pool.
+      default: false
+      type: cumulative
+    mysql_bpool_bytes.data:
+      description: The total number of bytes in the InnoDB buffer pool containing data. The number includes both dirty and clean pages.
+      default: false
+      type: gauge
+    mysql_bpool_bytes.dirty:
+      description: The total current number of bytes held in dirty pages in the InnoDB buffer pool.
+      default: false
+      type: gauge
+    mysql_innodb_data.fsyncs:
+      description: The number of fsync() operations so far.
+      default: false
+      type: cumulative
+    mysql_innodb_data.read:
+      description: The amount of data read since the server was started (in bytes).
+      default: false
+      type: cumulative
+    mysql_innodb_data.reads:
+      description: The total number of data reads (OS file reads).
+      default: false
+      type: cumulative
+    mysql_innodb_data.writes:
+      description: The total number of data writes.
+      default: false
+      type: cumulative
+    mysql_innodb_data.written:
+      description: The amount of data written so far, in bytes.
+      default: false
+      type: cumulative
+    mysql_innodb_dblwr.writes:
+      description: The number of doublewrite operations that have been performed.
+      default: false
+      type: cumulative
+    mysql_innodb_dblwr.written:
+      description: The number of pages that have been written to the doublewrite buffer.
+      default: false
+      type: cumulative
+    mysql_innodb_log.waits:
+      description: The number of times that the log buffer was too small and a wait was required for it to be flushed before continuing.
+      default: false
+      type: cumulative
+    mysql_innodb_log.write_requests:
+      description: The number of write requests for the InnoDB redo log.
+      default: false
+      type: cumulative
+    mysql_innodb_log.writes:
+      description: The number of physical writes to the InnoDB redo log file.
+      default: false
+      type: cumulative
+    mysql_innodb_log.fsyncs:
+      description: The number of fsync() writes done to the InnoDB redo log files.
+      default: false
+      type: cumulative
+    mysql_innodb_log.written:
+      description: The number of bytes written to the InnoDB redo log files.
+      default: false
+      type: cumulative
+    mysql_innodb_pages.created:
+      description: The number of pages created by operations on InnoDB tables.
+      default: false
+      type: cumulative
+    mysql_innodb_pages.read:
+      description: The number of pages read from the InnoDB buffer pool by operations on InnoDB tables.
+      default: false
+      type: cumulative
+    mysql_innodb_pages.written:
+      description: The number of pages written by operations on InnoDB tables.
+      default: false
+      type: cumulative
+    mysql_innodb_row_lock.time:
+      description: The total time spent in acquiring row locks for InnoDB tables, in milliseconds.
+      default: false
+      type: cumulative
+    mysql_innodb_row_lock.waits:
+      description: The number of times operations on InnoDB tables had to wait for a row lock.
+      default: false
+      type: cumulative
+    mysql_innodb_rows.deleted:
+      description: The number of rows deleted from InnoDB tables.
+      default: false
+      type: cumulative
+    mysql_innodb_rows.inserted:
+      description: The number of rows inserted into InnoDB tables.
+      default: false
+      type: cumulative
+    mysql_innodb_rows.read:
+      description: The number of rows read from InnoDB tables.
+      default: false
+      type: cumulative
+    mysql_innodb_rows.updated:
+      description: The number of rows updated in InnoDB tables.
       default: false
       type: cumulative
   monitorType: collectd/mysql
