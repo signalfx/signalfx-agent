@@ -263,6 +263,11 @@ hostFSPath: /hostfs
 # monitors will be configured.
 configureStandardMonitors: true
 
+# If true, this will set the `perCPU` config option to `true` on `load`
+# standard monitor so the metric will be the average load per CPU.
+# Has no effect if `configureStandardMonitors: false`
+loadPerCPU: false
+
 # A list of monitor configurations to include in the agent config.  These
 # values correspond exactly to what goes under 'monitors' in the agent config.
 monitors:
