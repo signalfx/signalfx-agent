@@ -35,7 +35,7 @@ require (
 	github.com/cloudfoundry-incubator/uaago v0.0.0-20190307164349-8136b7bbe76e
 	github.com/containerd/continuity v0.0.0-20181203112020-004b46473808 // indirect
 	github.com/coreos/go-oidc v2.0.0+incompatible // indirect
-	github.com/coreos/go-systemd v0.0.0-20190321100706-95778dfbb74e
+	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f
 	github.com/creasty/defaults v1.3.0 // indirect
 	github.com/dancannon/gorethink v4.0.0+incompatible // indirect
 	github.com/davecgh/go-spew v1.1.1
@@ -93,6 +93,7 @@ require (
 	github.com/influxdata/telegraf v0.0.0-00010101000000-000000000000
 	github.com/influxdata/toml v0.0.0-20180607005434-2a2e3012f7cf // indirect
 	github.com/influxdata/wlog v0.0.0-20160411224016-7c63b0a71ef8 // indirect
+	github.com/jackc/pgx/v4 v4.6.0
 	github.com/jaegertracing/jaeger v1.15.1
 	github.com/jeffchao/backoff v0.0.0-20140404060208-9d7fd7aa17f2 // indirect
 	github.com/jefferai/jsonx v1.0.0 // indirect

@@ -5,8 +5,10 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"strings"
 	"time"
 
+	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
@@ -16,6 +18,7 @@ import (
 	// Imports to get sql driver registered
 	_ "github.com/denisenkom/go-mssqldb"
 	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/jackc/pgx/v4/stdlib"
 	_ "github.com/lib/pq"
 )
 
@@ -33,6 +36,11 @@ type Query struct {
 	Params []interface{} `yaml:"params"`
 	// Metrics that should be generated from the query.
 	Metrics []Metric `yaml:"metrics"`
+	// A set of [expr] expressions that will be used to convert each row to a
+	// set of metrics.  Each of these will be run for each row in the query
+	// result set, allowing you to generate multiple datapoints per row.  Each
+	// expression should evaluate to a single datapoint or nil.
+	DatapointExpressions []string `yaml:"datapointExpressions"`
 }
 
 // Metric describes how to derive a metric from the individual rows of a query
@@ -53,6 +61,14 @@ type Metric struct {
 	IsCumulative bool `yaml:"isCumulative"`
 	// The mapping between dimensions and the columns to be used to attach respective properties
 	DimensionPropertyColumns map[string][]string `yaml:"dimensionPropertyColumns"`
+}
+
+func (m *Metric) NewDatapoint() *datapoint.Datapoint {
+	typ := datapoint.Gauge
+	if m.IsCumulative {
+		typ = datapoint.Counter
+	}
+	return datapoint.New(m.MetricName, map[string]string{}, nil, typ, time.Time{})
 }
 
 // Config for this monitor
@@ -91,8 +107,8 @@ func (c *Config) Validate() error {
 	}
 
 	for i := range c.Queries {
-		if len(c.Queries[i].Metrics) == 0 {
-			return errors.New("each SQL query must have at least one metric defined on it")
+		if len(c.Queries[i].Metrics) == 0 && len(c.Queries[i].DatapointExpressions) == 0 {
+			return errors.New("each SQL query must have at least one metric or expression defined on it")
 		}
 		valueCols := map[string]bool{}
 		for _, met := range c.Queries[i].Metrics {
@@ -113,7 +129,12 @@ func (c *Config) renderedDataSource() (string, error) {
 		context[k] = v
 	}
 
-	return utils.RenderSimpleTemplate(c.ConnectionString, context)
+	rendered, err := utils.RenderSimpleTemplate(c.ConnectionString, context)
+	if err != nil {
+		return "", err
+	}
+
+	return strings.TrimSpace(rendered), nil
 }
 
 // Monitor for generic SQL queries -> metrics
@@ -143,7 +164,10 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	for i := range conf.Queries {
-		querier := newQuerier(&conf.Queries[i], conf.LogQueries)
+		querier, err := newQuerier(&conf.Queries[i], conf.LogQueries)
+		if err != nil {
+			return err
+		}
 
 		utils.RunOnInterval(m.ctx, func() {
 			if err := querier.doQuery(m.ctx, m.database, m.Output); err != nil {

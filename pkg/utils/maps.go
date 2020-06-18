@@ -173,3 +173,17 @@ func FormatStringMapCompact(in map[string]string) string {
 
 	return out + "}"
 }
+
+func StringInterfaceMapToStringMap(in map[string]interface{}) map[string]string {
+	out := make(map[string]string, len(in))
+	for k, v := range in {
+		if strVal, ok := v.(string); ok {
+			out[k] = strVal
+		} else if stringer, ok := v.(fmt.Stringer); ok {
+			out[k] = stringer.String()
+		} else {
+			out[k] = fmt.Sprintf("%v", v)
+		}
+	}
+	return out
+}
