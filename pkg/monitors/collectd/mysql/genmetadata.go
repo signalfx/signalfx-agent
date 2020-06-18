@@ -187,7 +187,6 @@ const (
 	mysqlInnodbDataReads               = "mysql_innodb_data.reads"
 	mysqlInnodbDataWrites              = "mysql_innodb_data.writes"
 	mysqlInnodbDataWritten             = "mysql_innodb_data.written"
-	mysqlInnodbDblwrPageSize           = "mysql_innodb_dblwr.page_size"
 	mysqlInnodbDblwrWrites             = "mysql_innodb_dblwr.writes"
 	mysqlInnodbDblwrWritten            = "mysql_innodb_dblwr.written"
 	mysqlInnodbLogFsyncs               = "mysql_innodb_log.fsyncs"
@@ -400,7 +399,6 @@ var metricSet = map[string]monitors.MetricInfo{
 	mysqlInnodbDataReads:               {Type: datapoint.Counter},
 	mysqlInnodbDataWrites:              {Type: datapoint.Counter},
 	mysqlInnodbDataWritten:             {Type: datapoint.Counter},
-	mysqlInnodbDblwrPageSize:           {Type: datapoint.Gauge},
 	mysqlInnodbDblwrWrites:             {Type: datapoint.Counter},
 	mysqlInnodbDblwrWritten:            {Type: datapoint.Counter},
 	mysqlInnodbLogFsyncs:               {Type: datapoint.Counter},
