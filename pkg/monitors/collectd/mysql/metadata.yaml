@@ -902,5 +902,17 @@ monitors:
       description: The number of rows updated in InnoDB tables.
       default: false
       type: cumulative
+    slave-sql-running:
+      description: Whether the SQL thread for executing events in the relay log is running.
+      default: false
+      type: gauge
+    slave-io-running:
+      description: Whether the I/O thread for reading the master's binary log is running.
+      default: false
+      type: gauge
+    time-offset:
+      description: The number of seconds that the slave SQL thread is behind processing the master binary log.
+      default: false
+      type: gauge
   monitorType: collectd/mysql
   properties:

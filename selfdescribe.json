@@ -15584,9 +15584,12 @@
             "mysql_sort.scan",
             "mysql_sort_merge_passes",
             "mysql_sort_rows",
+            "slave-io-running",
+            "slave-sql-running",
             "threads.cached",
             "threads.connected",
             "threads.running",
+            "time-offset",
             "total_threads.created"
           ]
         }
@@ -16822,6 +16825,18 @@
           "group": null,
           "default": false
         },
+        "slave-io-running": {
+          "type": "gauge",
+          "description": "Whether the I/O thread for reading the master's binary log is running.",
+          "group": null,
+          "default": false
+        },
+        "slave-sql-running": {
+          "type": "gauge",
+          "description": "Whether the SQL thread for executing events in the relay log is running.",
+          "group": null,
+          "default": false
+        },
         "threads.cached": {
           "type": "gauge",
           "description": "The number of threads cached by MySQL for re-use on a new client connection.  A MySQL thread corresponds to a single MySQL connection.",
@@ -16837,6 +16852,12 @@
         "threads.running": {
           "type": "gauge",
           "description": "The number of MySQL threads that are processing a query.  A MySQL thread corresponds to a single MySQL connection.",
+          "group": null,
+          "default": false
+        },
+        "time-offset": {
+          "type": "gauge",
+          "description": "The number of seconds that the slave SQL thread is behind processing the master binary log.",
           "group": null,
           "default": false
         },
@@ -16942,6 +16963,14 @@
           },
           {
             "yamlName": "innodbStats",
+            "doc": "",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "slaveStats",
             "doc": "",
             "default": false,
             "required": false,

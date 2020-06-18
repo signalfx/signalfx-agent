@@ -90,6 +90,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `password` | no | `string` |  |
 | `reportHost` | no | `bool` | A SignalFx extension to the plugin that allows us to disable the normal behavior of the MySQL collectd plugin where the `host` dimension is set to the hostname of the MySQL database server.  When `false` (the recommended and default setting), the globally configured `hostname` config is used instead. (**default:** `false`) |
 | `innodbStats` | no | `bool` |  (**default:** `false`) |
+| `slaveStats` | no | `bool` |  (**default:** `false`) |
 
 
 The **nested** `databases` config object has the following fields:
@@ -314,9 +315,12 @@ Metrics that are categorized as
  - `mysql_sort.scan` (*cumulative*)<br>    The number of sorts that were done by scanning the table.
  - `mysql_sort_merge_passes` (*cumulative*)<br>    The number of merge passes done by the sorting algorithm.
  - `mysql_sort_rows` (*cumulative*)<br>    The number of rows that were sorted.
+ - `slave-io-running` (*gauge*)<br>    Whether the I/O thread for reading the master's binary log is running.
+ - `slave-sql-running` (*gauge*)<br>    Whether the SQL thread for executing events in the relay log is running.
  - ***`threads.cached`*** (*gauge*)<br>    The number of threads cached by MySQL for re-use on a new client connection.  A MySQL thread corresponds to a single MySQL connection.
  - ***`threads.connected`*** (*gauge*)<br>    The number of currently open MySQL connections.  A MySQL thread corresponds to a single MySQL connection.
  - `threads.running` (*gauge*)<br>    The number of MySQL threads that are processing a query.  A MySQL thread corresponds to a single MySQL connection.
+ - `time-offset` (*gauge*)<br>    The number of seconds that the slave SQL thread is behind processing the master binary log.
  - `total_threads.created` (*cumulative*)<br>    The total number of threads created by MySQL for client connections.  A MySQL thread corresponds to a single MySQL connection.
 
 ### Non-default metrics (version 4.7.0+)

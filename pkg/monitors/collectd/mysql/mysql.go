@@ -46,6 +46,7 @@ type Config struct {
 	// config is used instead.
 	ReportHost  bool `yaml:"reportHost"`
 	InnodbStats bool `yaml:"innodbStats"`
+	SlaveStats  bool `yaml:"slaveStats"`
 }
 
 // Validate will check the config for correctness.

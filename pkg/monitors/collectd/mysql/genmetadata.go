@@ -217,9 +217,12 @@ const (
 	mysqlSortScan                      = "mysql_sort.scan"
 	mysqlSortMergePasses               = "mysql_sort_merge_passes"
 	mysqlSortRows                      = "mysql_sort_rows"
+	slaveIoRunning                     = "slave-io-running"
+	slaveSQLRunning                    = "slave-sql-running"
 	threadsCached                      = "threads.cached"
 	threadsConnected                   = "threads.connected"
 	threadsRunning                     = "threads.running"
+	timeOffset                         = "time-offset"
 	totalThreadsCreated                = "total_threads.created"
 )
 
@@ -429,9 +432,12 @@ var metricSet = map[string]monitors.MetricInfo{
 	mysqlSortScan:                      {Type: datapoint.Counter},
 	mysqlSortMergePasses:               {Type: datapoint.Counter},
 	mysqlSortRows:                      {Type: datapoint.Counter},
+	slaveIoRunning:                     {Type: datapoint.Gauge},
+	slaveSQLRunning:                    {Type: datapoint.Gauge},
 	threadsCached:                      {Type: datapoint.Gauge},
 	threadsConnected:                   {Type: datapoint.Gauge},
 	threadsRunning:                     {Type: datapoint.Gauge},
+	timeOffset:                         {Type: datapoint.Gauge},
 	totalThreadsCreated:                {Type: datapoint.Counter},
 }
 
