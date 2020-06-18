@@ -106,6 +106,9 @@ data:
     - type: disk-io
     - type: net-io
     - type: load
+      {{- if .Values.loadPerCPU }}
+      perCPU: true
+      {{- end }}
     - type: memory
     - type: host-metadata
     - type: processlist
