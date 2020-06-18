@@ -26,7 +26,7 @@ Below is an overview of {% if has_multiple_monitors %}the monitors{% else %}that
 {% endfor %}
 
 ## Configuration
-{% for monitor, configuration in integration.configuration.items() %}
+{% for monitor, config in integration.config.items() %}
 {% if has_multiple_monitors %}#### {{ monitor }} monitor{% endif %}
 
 To activate this monitor in the Smart Agent, add the following to your
@@ -42,8 +42,8 @@ monitors:  # All monitor config goes under this key
 Configuration](../monitor-config.md#common-configuration).**
 
 
-{% if configuration.values() %}
-{% for table, fields in configuration.items() %}
+{% if config.values() %}
+{% for table, fields in config.items() %}
 {% if table != "Config" %}
 
 

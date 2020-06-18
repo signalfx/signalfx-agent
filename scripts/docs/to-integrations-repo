@@ -8,6 +8,7 @@ from collections import OrderedDict
 
 import yaml
 from jinja2 import Environment, FileSystemLoader
+from nltk.tokenize import sent_tokenize
 
 from integration_doc_helper import (
     AGENT_ROOT,
@@ -16,7 +17,6 @@ from integration_doc_helper import (
     fixup_relative_monitor_paths,
     sync_agent_info,
 )
-from nltk.tokenize import sent_tokenize
 
 try:
     import nltk
@@ -211,7 +211,7 @@ def monitor_docs_per_integrations_repo(monitor_docs):
             out[integrations_dir]["monitor_types"] = []
             out[integrations_dir]["send_all_metrics"] = OrderedDict()
             out[integrations_dir]["description"] = OrderedDict()
-            out[integrations_dir]["configuration"] = OrderedDict()
+            out[integrations_dir]["config"] = OrderedDict()
             out[integrations_dir]["metrics"] = OrderedDict()
             out[integrations_dir]["dimensions"] = OrderedDict()
             out[integrations_dir]["properties"] = OrderedDict()
@@ -220,7 +220,7 @@ def monitor_docs_per_integrations_repo(monitor_docs):
         out[integrations_dir]["monitor_types"].append(monitor_type)
         out[integrations_dir]["send_all_metrics"].update({monitor_type: monitor_doc["sendAll"]})
         out[integrations_dir]["description"].update({monitor_type: monitor_doc["doc"]})
-        out[integrations_dir]["configuration"].update({monitor_type: process_config_fields(monitor_doc["config"])})
+        out[integrations_dir]["config"].update({monitor_type: process_config_fields(monitor_doc["config"])})
         out[integrations_dir]["metrics"].update(
             process_metrics_from_self_describe(monitor_type, monitor_doc["metrics"])
         )
@@ -252,7 +252,7 @@ def sync_docs(integration_dirs):
     template = get_template()
 
     for integrations_dir, monitors_info in integration_dirs.items():
-        if integrations_dir in integrations_dirs_to_skip:
+        if integrations_dir in integrations_dirs_to_skip or uses_new_build(integrations_dir):
             continue
 
         out = template.render(integration=monitors_info)
@@ -260,6 +260,15 @@ def sync_docs(integration_dirs):
         print(f"Syncing docs to {integrations_dir} directory")
         target_path = INTEGRATIONS_REPO / integrations_dir / "SMART_AGENT_MONITOR.md"
         target_path.write_text(fixup_relative_monitor_paths(out), encoding="utf-8")
+
+
+def uses_new_build(integrations_dir):
+    """
+    Returns True if the integration uses the new build process in the
+    integrations repo.
+    """
+    new_template_path = INTEGRATIONS_REPO / integrations_dir / "README.md.jinja"
+    return new_template_path.exists()
 
 
 def generate_metric_yaml(monitor, metrics, send_all):
@@ -309,12 +318,33 @@ def sync_metrics(integration_dirs):
         out_path.write_text(metric_yaml, encoding="utf-8")
 
 
+def generate_config_yaml(mon_config):
+    return yaml.dump({m: dict(config) for m, config in mon_config.items()}, canonical=False, default_flow_style=False)
+
+
+def sync_config(integration_dirs):
+    for integrations_dir, monitors_info in integration_dirs.items():
+        config_yaml = generate_config_yaml(monitors_info.get("config", {}))
+
+        if config_yaml == "":
+            continue
+
+        print(f"Syncing config to {integrations_dir} directory")
+
+        config_yaml = (
+            "# This file was generated in the Smart Agent repo and copied here, DO NOT EDIT HERE.\n" + config_yaml
+        )
+        out_path = INTEGRATIONS_REPO / integrations_dir / "smart_agent_config.yaml"
+        out_path.write_text(config_yaml, encoding="utf-8")
+
+
 def run():
     monitor_docs = load_monitor_docs_from_self_describe_json()
     integration_dirs = monitor_docs_per_integrations_repo(monitor_docs)
 
     sync_docs(integration_dirs)
     sync_metrics(integration_dirs)
+    sync_config(integration_dirs)
 
     sync_agent_info()
 
