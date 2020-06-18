@@ -208,7 +208,7 @@ kubeletAPI:
 
 # If true, the kubelet-metrics monitor will use the /pods endpoint of the
 # kubelet to enhance the emitted metrics with the container_id dimension.
-usePodsEndpoint: false
+usePodsEndpoint: true
 
 # Any values put in this object correspond to the 'collectd' config block of
 # the agent config
