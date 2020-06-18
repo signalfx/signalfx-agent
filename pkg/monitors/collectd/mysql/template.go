@@ -22,6 +22,7 @@ var CollectdTemplate = template.Must(collectd.InjectTemplateFuncs(template.New("
     Host "{{$.Host}}"
     Port {{$.Port}}
     Database "{{$db.Name}}"
+    MasterStats {{toBool $.MasterStats}}
     SlaveStats {{toBool $.SlaveStats}}
     {{if $db.Username -}}User "{{$db.Username}}"{{else if $.Username}}User "{{$.Username}}"{{- end}}
     {{if $db.Password -}}Password "{{$db.Password}}"{{else if $.Password}}Password "{{$.Password}}"{{- end}}

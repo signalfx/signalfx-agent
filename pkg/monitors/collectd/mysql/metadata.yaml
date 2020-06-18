@@ -914,5 +914,9 @@ monitors:
       description: The number of seconds that the slave SQL thread is behind processing the master binary log.
       default: false
       type: gauge
+    mysql_log_position.master-bin:
+      description: Current log file position.
+      default: false
+      type: cumulative
   monitorType: collectd/mysql
   properties:

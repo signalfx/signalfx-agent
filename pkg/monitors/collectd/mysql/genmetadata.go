@@ -205,6 +205,7 @@ const (
 	mysqlInnodbRowsUpdated             = "mysql_innodb_rows.updated"
 	mysqlLocksImmediate                = "mysql_locks.immediate"
 	mysqlLocksWaited                   = "mysql_locks.waited"
+	mysqlLogPositionMasterBin          = "mysql_log_position.master-bin"
 	mysqlOctetsRx                      = "mysql_octets.rx"
 	mysqlOctetsTx                      = "mysql_octets.tx"
 	mysqlSelectFullJoin                = "mysql_select.full_join"
@@ -420,6 +421,7 @@ var metricSet = map[string]monitors.MetricInfo{
 	mysqlInnodbRowsUpdated:             {Type: datapoint.Counter},
 	mysqlLocksImmediate:                {Type: datapoint.Counter},
 	mysqlLocksWaited:                   {Type: datapoint.Counter},
+	mysqlLogPositionMasterBin:          {Type: datapoint.Counter},
 	mysqlOctetsRx:                      {Type: datapoint.Counter},
 	mysqlOctetsTx:                      {Type: datapoint.Counter},
 	mysqlSelectFullJoin:                {Type: datapoint.Counter},

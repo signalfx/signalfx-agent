@@ -90,6 +90,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `password` | no | `string` |  |
 | `reportHost` | no | `bool` | A SignalFx extension to the plugin that allows us to disable the normal behavior of the MySQL collectd plugin where the `host` dimension is set to the hostname of the MySQL database server.  When `false` (the recommended and default setting), the globally configured `hostname` config is used instead. (**default:** `false`) |
 | `innodbStats` | no | `bool` |  (**default:** `false`) |
+| `masterStats` | no | `bool` |  (**default:** `false`) |
 | `slaveStats` | no | `bool` |  (**default:** `false`) |
 
 
@@ -303,6 +304,7 @@ Metrics that are categorized as
  - `mysql_innodb_rows.updated` (*cumulative*)<br>    The number of rows updated in InnoDB tables.
  - ***`mysql_locks.immediate`*** (*cumulative*)<br>    The number of MySQL table locks which were granted immediately.
  - ***`mysql_locks.waited`*** (*cumulative*)<br>    The number of MySQL table locks which had to wait before being granted.
+ - `mysql_log_position.master-bin` (*cumulative*)<br>    Current log file position.
  - ***`mysql_octets.rx`*** (*cumulative*)<br>    The number of bytes received by MySQL server from all clients.
  - ***`mysql_octets.tx`*** (*cumulative*)<br>    The number of bytes sent by MySQL server to all clients.
  - `mysql_select.full_join` (*cumulative*)<br>    The number of joins that perform full table scans.

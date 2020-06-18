@@ -15572,6 +15572,7 @@
             "mysql_innodb_rows.updated",
             "mysql_locks.immediate",
             "mysql_locks.waited",
+            "mysql_log_position.master-bin",
             "mysql_octets.rx",
             "mysql_octets.tx",
             "mysql_select.full_join",
@@ -16753,6 +16754,12 @@
           "group": null,
           "default": true
         },
+        "mysql_log_position.master-bin": {
+          "type": "cumulative",
+          "description": "Current log file position.",
+          "group": null,
+          "default": false
+        },
         "mysql_octets.rx": {
           "type": "cumulative",
           "description": "The number of bytes received by MySQL server from all clients.",
@@ -16963,6 +16970,14 @@
           },
           {
             "yamlName": "innodbStats",
+            "doc": "",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "masterStats",
             "doc": "",
             "default": false,
             "required": false,
