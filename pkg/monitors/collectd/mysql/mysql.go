@@ -44,7 +44,8 @@ type Config struct {
 	// to the hostname of the MySQL database server.  When `false` (the
 	// recommended and default setting), the globally configured `hostname`
 	// config is used instead.
-	ReportHost bool `yaml:"reportHost"`
+	ReportHost  bool `yaml:"reportHost"`
+	InnodbStats bool `yaml:"innodbStats"`
 }
 
 // Validate will check the config for correctness.
