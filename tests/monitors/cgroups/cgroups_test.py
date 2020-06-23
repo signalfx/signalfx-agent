@@ -1,8 +1,11 @@
+from functools import partial as p
+
 import pytest
+
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint
 from tests.helpers.metadata import Metadata
-from tests.helpers.util import run_service
+from tests.helpers.util import run_service, wait_for
 from tests.helpers.verify import verify
 
 pytestmark = [pytest.mark.monitor_without_endpoints]
@@ -26,27 +29,42 @@ def test_cgroup_monitor():
 
             expected_cgroup = "/docker/" + nginx_container.id
 
-            assert has_datapoint(
-                agent.fake_services, metric_name="cgroup.cpu_shares", value=50, dimensions={"cgroup": expected_cgroup}
+            assert wait_for(
+                p(
+                    has_datapoint,
+                    agent.fake_services,
+                    metric_name="cgroup.cpu_shares",
+                    value=50,
+                    dimensions={"cgroup": expected_cgroup},
+                )
             )
 
-            assert has_datapoint(
-                agent.fake_services,
-                metric_name="cgroup.cpu_cfs_period_us",
-                value=100_000,
-                dimensions={"cgroup": expected_cgroup},
+            assert wait_for(
+                p(
+                    has_datapoint,
+                    agent.fake_services,
+                    metric_name="cgroup.cpu_cfs_period_us",
+                    value=100_000,
+                    dimensions={"cgroup": expected_cgroup},
+                )
             )
 
-            assert has_datapoint(
-                agent.fake_services,
-                metric_name="cgroup.cpu_cfs_quota_us",
-                value=10000,
-                dimensions={"cgroup": expected_cgroup},
+            assert wait_for(
+                p(
+                    has_datapoint,
+                    agent.fake_services,
+                    metric_name="cgroup.cpu_cfs_quota_us",
+                    value=10000,
+                    dimensions={"cgroup": expected_cgroup},
+                )
             )
 
-            assert has_datapoint(
-                agent.fake_services,
-                metric_name="cgroup.memory_limit_in_bytes",
-                value=20 * 1024 * 1024,
-                dimensions={"cgroup": expected_cgroup},
+            assert wait_for(
+                p(
+                    has_datapoint,
+                    agent.fake_services,
+                    metric_name="cgroup.memory_limit_in_bytes",
+                    value=20 * 1024 * 1024,
+                    dimensions={"cgroup": expected_cgroup},
+                )
             )
