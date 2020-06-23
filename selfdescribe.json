@@ -920,7 +920,7 @@
           "description": "The UID of the pod instance under which this container runs"
         }
       },
-      "doc": "This monitor pulls metrics directly from cadvisor, which\nconventionally runs on port 4194, but can be configured to anything.  If you\nare running on Kubernetes, consider the [kubelet-stats](./kubelet-stats.md)\nmonitor because many K8s nodes do not expose cAdvisor on a network port,\neven though they are running it within Kubelet.\n\nIf you are running containers with Docker, there is a fair amount of\nduplication with the `docker-container-stats` monitor in terms of the\nmetrics sent (under distinct metric names) so you may want to consider not\nenabling the Docker monitor in a K8s environment, or else use filtering to\nwhitelist only certain metrics.  Note that this will cause the built-in\nDocker dashboards to be blank, but container metrics will be available on\nthe Kubernetes dashboards instead.\n",
+      "doc": "This monitor pulls metrics directly from cadvisor, which\nconventionally runs on port 4194, but can be configured to anything.  If you\nare running on Kubernetes, consider the [kubelet-stats](./kubelet-stats.md)\nmonitor because many K8s nodes do not expose cAdvisor on a network port,\neven though they are running it within Kubelet.\n\nIf you are running containers with Docker, there is a fair amount of\nduplication with the `docker-container-stats` monitor in terms of the\nmetrics sent (under distinct metric names) so you may want to consider not\nenabling the Docker monitor in a K8s environment, or else use filtering to\nallow only certain metrics.  Note that this will cause the built-in\nDocker dashboards to be blank, but container metrics will be available on\nthe Kubernetes dashboards instead.\n",
       "groups": {
         "": {
           "description": "",
@@ -29285,7 +29285,7 @@
       "sendAll": false,
       "sendUnknown": false,
       "dimensions": null,
-      "doc": "This is a monitor for GitLab's Unicorn server.  The Unicorn server comes\nwith a Prometheus exporter that runs by default on port 8080 at the path\n`/-/metrics`.  The IP address of the SignalFx Smart Agent container or\nhost, **needs to be whitelisted** as described\n[here](https://docs.gitlab.com/ee/administration/monitoring/ip_whitelist.html)\nin order for the agent to access the endpoint.\n\nTo monitor GitLab's Unicorn server using its Prometheus exporter, use a\nmonitor configuration similar to:\n\n```yaml\nmonitors:\n  - type: gitlab-unicorn\n    discoveryRule: port == 8080  # \u0026\u0026 \u003cother expressions to avoid false-positives on port alone\u003e\n    metricPath: /-/metrics\n```\n\nThe available metrics are [documented by GitLab](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/doc/administration/monitoring/prometheus/gitlab_metrics.md#unicorn-metrics-available).\n\nSee the [Gitlab monitor](gitlab.md) for more information.\n",
+      "doc": "This is a monitor for GitLab's Unicorn server.  The Unicorn server comes\nwith a Prometheus exporter that runs by default on port 8080 at the path\n`/-/metrics`.  The IP address of the SignalFx Smart Agent container or\nhost, **needs to be allowed** as described\n[here](https://docs.gitlab.com/ee/administration/monitoring/ip_whitelist.html)\nin order for the agent to access the endpoint.\n\nTo monitor GitLab's Unicorn server using its Prometheus exporter, use a\nmonitor configuration similar to:\n\n```yaml\nmonitors:\n  - type: gitlab-unicorn\n    discoveryRule: port == 8080  # \u0026\u0026 \u003cother expressions to avoid false-positives on port alone\u003e\n    metricPath: /-/metrics\n```\n\nThe available metrics are [documented by GitLab](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/doc/administration/monitoring/prometheus/gitlab_metrics.md#unicorn-metrics-available).\n\nSee the [Gitlab monitor](gitlab.md) for more information.\n",
       "groups": {
         "": {
           "description": "",
@@ -56462,7 +56462,7 @@
       },
       {
         "yamlName": "metricsToInclude",
-        "doc": "A list of metric filters that will whitelist/include metrics.  These filters take priority over the filters specified in `metricsToExclude`.",
+        "doc": "A list of metric filters that will include metrics.  These filters take priority over the filters specified in `metricsToExclude`.",
         "default": "",
         "required": false,
         "type": "slice",
