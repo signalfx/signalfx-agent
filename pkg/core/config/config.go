@@ -114,7 +114,7 @@ type Config struct {
 	// default.  This is all inherent to the agent now and the old style of
 	// filtering is no longer available.
 	EnableBuiltInFiltering *bool `yaml:"enableBuiltInFiltering" default:"true"`
-	// A list of metric filters that will whitelist/include metrics.  These
+	// A list of metric filters that will include metrics.  These
 	// filters take priority over the filters specified in `metricsToExclude`.
 	MetricsToInclude []MetricFilter `yaml:"metricsToInclude" default:"[]"`
 	// A list of metric filters

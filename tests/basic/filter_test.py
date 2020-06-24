@@ -89,7 +89,7 @@ metricsToExclude:
 
 def test_overlapping_filter_with_monitor_type():
     """
-    Test overlapping filters with different negation. Blacklist is favored
+    Test overlapping filters with different negation. Deny list is favored
     """
     with Agent.run(
         """
@@ -111,7 +111,7 @@ metricsToExclude:
 
 def test_overlapping_filter_with_monitor_type2():
     """
-    Test overlapping filters with different negation. Blacklist is favored
+    Test overlapping filters with different negation. Deny list is favored
     """
     with Agent.run(
         """
