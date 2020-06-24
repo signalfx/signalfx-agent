@@ -56,7 +56,7 @@ The negation of items in either `metricNames` or a `dimensions` map value list
 item will serve to override (and thus reinclude) only other already excluded
 items from that same list.  Thus, if you want to filter metric
 names or dimension values, you can provide a list like `[ '*',
-'!allowlist1', '!allowlist2' ]` to exclude everything but those two
+'!inclusionList1', '!inclusionList2' ]` to exclude everything but those two
 metrics.  This, along with the regex and glob capabilities, is explained more
 in [Overridable Filters](#overridable-filters).
 
