@@ -75,7 +75,7 @@ monitors:
         report: false
 ```
 
-Sample YAML configuration with custom /signalfx route and allow lists
+Sample YAML configuration with custom /signalfx route and filter lists
 
 ```yaml
 monitors:
