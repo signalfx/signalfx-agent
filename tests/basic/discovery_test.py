@@ -18,9 +18,11 @@ def test_basic_service_discovery():
     with Agent.run(CONFIG) as agent:
         with run_service("nginx", name="nginx-basic-discovery"):
             assert wait_for(
-                p(has_datapoint_with_dim, agent.fake_services, "plugin", "nginx")
+                p(has_datapoint_with_dim, agent.fake_services, "container_name", "nginx-basic-discovery")
             ), "Didn't get nginx datapoints"
         # Let nginx be removed by docker observer and collectd restart
         time.sleep(5)
         agent.fake_services.reset_datapoints()
-        assert ensure_always(lambda: not has_datapoint_with_dim(agent.fake_services, "plugin", "nginx"), 10)
+        assert ensure_always(
+            lambda: not has_datapoint_with_dim(agent.fake_services, "container_name", "nginx-basic-discovery"), 10
+        )
