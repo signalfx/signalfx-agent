@@ -23,7 +23,7 @@ DEFAULT_METRICS = METADATA.default_metrics - {
 
 
 @pytest.mark.flaky(reruns=1)
-def test_openstacki_default(devstack):
+def test_openstack_default(devstack):
     host = container_ip(devstack)
     run_agent_verify(
         f"""
