@@ -150,4 +150,4 @@ For example:
        app: bigapp
 ```
 
-This can be useful for overridding the built-in allow list for metrics.
+This can be useful for overridding the built-in inclusion list for metrics.
