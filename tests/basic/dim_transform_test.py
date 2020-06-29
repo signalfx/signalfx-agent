@@ -20,6 +20,8 @@ def test_endpoint_config_mapping():
               port: 5432
               dimensionTransformations:
                 database: db
+              metricNameTransformations:
+                "(.*)": "maindb.$1"
           """
         ) as agent:
             assert wait_for(
@@ -27,3 +29,5 @@ def test_endpoint_config_mapping():
             ), "Didn't get properly transformed dimension name"
 
             assert not has_datapoint(agent.fake_services, dimensions={"database": "dvdrental"})
+
+            assert wait_for(p(has_datapoint, agent.fake_services, metric_name="maindb.postgres_database_size"))

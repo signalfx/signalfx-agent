@@ -5,6 +5,7 @@ import (
 	"github.com/signalfx/golib/v3/event"
 	"github.com/signalfx/golib/v3/trace"
 	"github.com/signalfx/signalfx-agent/pkg/core/common/dpmeta"
+	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/services"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
@@ -27,6 +28,7 @@ type monitorOutput struct {
 	extraSpanTags             map[string]string
 	defaultSpanTags           map[string]string
 	dimensionTransformations  map[string]string
+	metricNameTransformations []*config.RegexpWithReplace
 }
 
 var _ types.Output = &monitorOutput{}
@@ -82,6 +84,20 @@ func (mo *monitorOutput) preprocessDP(dp *datapoint.Datapoint) bool {
 	// on.
 	if mo.monitorFiltering.filterSet.Matches(dp) {
 		return false
+	}
+
+	for i := range mo.metricNameTransformations {
+		reWithRepl := mo.metricNameTransformations[i]
+		re := reWithRepl.Regexp
+		repl := reWithRepl.Replacement
+
+		// An optimization for simple regexps (i.e. ones with no special
+		// matching syntax)
+		if prefix, complete := re.LiteralPrefix(); complete && prefix == dp.Metric {
+			dp.Metric = repl
+			continue
+		}
+		dp.Metric = re.ReplaceAllString(dp.Metric, repl)
 	}
 
 	for origName, newName := range mo.dimensionTransformations {

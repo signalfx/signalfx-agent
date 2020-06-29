@@ -1,6 +1,7 @@
 package monitors
 
 import (
+	"regexp"
 	"testing"
 	"time"
 
@@ -8,6 +9,7 @@ import (
 	"github.com/signalfx/golib/v3/pointer"
 	"github.com/signalfx/golib/v3/trace"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -80,35 +82,64 @@ func TestSendDatapoint(t *testing.T) {
 	// Make sure it's come through as expected
 	assert.Equal(t, map[string]string{"testDim1": "testValue1", "testDim2": "testValue2"}, resultDps[0].Dimensions)
 
-	// Test using the dimension transformation
-	testMO.dimensionTransformations = map[string]string{"testDim2": "testDim3"}
+	t.Run("dimensionTransformations", func(t *testing.T) {
+		// Test using the dimension transformation
+		testMO.dimensionTransformations = map[string]string{"testDim2": "testDim3"}
 
-	// Send the datapoint with a dimension that matches our transform
-	go func() {
-		testDp.Dimensions = map[string]string{"testDim2": "testValue2"}
-		testMO.SendDatapoints(testDp)
-	}()
+		// Send the datapoint with a dimension that matches our transform
+		go func() {
+			testDp.Dimensions = map[string]string{"testDim2": "testValue2"}
+			testMO.SendDatapoints(testDp)
+		}()
 
-	// Receive the datapoint
-	resultDps = <-dpChan
+		// Receive the datapoint
+		resultDps = <-dpChan
 
-	// Make sure it's come through as expected
-	assert.Equal(t, map[string]string{"testDim1": "testValue1", "testDim3": "testValue2"}, resultDps[0].Dimensions)
+		// Make sure it's come through as expected
+		assert.Equal(t, map[string]string{"testDim1": "testValue1", "testDim3": "testValue2"}, resultDps[0].Dimensions)
 
-	// Test using the dimension transformation to remove an unwanted dimension
-	testMO.dimensionTransformations = map[string]string{"highCardDim": ""}
+		testMO.dimensionTransformations = map[string]string{"highCardDim": ""}
 
-	// Send the datapoint with a matching dimension
-	go func() {
-		testDp.Dimensions = map[string]string{"highCardDim": "highCardValue"}
-		testMO.SendDatapoints(testDp)
-	}()
+		// Send the datapoint with a matching dimension
+		go func() {
+			testDp.Dimensions = map[string]string{"highCardDim": "highCardValue"}
+			testMO.SendDatapoints(testDp)
+		}()
 
-	// Receive the datapoint
-	resultDps = <-dpChan
+		// Receive the datapoint
+		resultDps = <-dpChan
 
-	// Make sure it's come through as expected
-	assert.Equal(t, map[string]string{"testDim1": "testValue1"}, resultDps[0].Dimensions)
+		// Make sure it's come through as expected
+		assert.Equal(t, map[string]string{"testDim1": "testValue1"}, resultDps[0].Dimensions)
+	})
+
+	t.Run("metricNameTransformations", func(t *testing.T) {
+		testMO.metricNameTransformations = []*config.RegexpWithReplace{
+			{Regexp: regexp.MustCompile("^cpu.cores$"), Replacement: "other.cores"},
+			{Regexp: regexp.MustCompile(`^cpu\.(.*)$`), Replacement: "mycpu.$1"},
+			// This is a more specific match after a less specific one that
+			// overlaps so it should have no effect.
+			{Regexp: regexp.MustCompile("^cpu.utilization$"), Replacement: "other.utilization"},
+		}
+
+		dp := utils.CloneDatapoint(testDp)
+
+		cases := map[string]string{
+			"cpu.utilization": "mycpu.utilization",
+			"cpu.cores":       "other.cores",
+			"cpu.user":        "mycpu.user",
+			"memory.total":    "memory.total",
+		}
+
+		for old, newName := range cases {
+			dp.Metric = old
+
+			go testMO.SendDatapoints(dp)
+			outDP := (<-dpChan)[0]
+
+			assert.Equal(t, newName, outDP.Metric)
+		}
+	})
 }
 
 func TestSendSpan(t *testing.T) {
