@@ -13,6 +13,7 @@ func convertContainerMetrics(c *v1alpha1.ContainerStats, status *v1.ContainerSta
 
 	if status != nil {
 		dims["container_id"] = k8sutil.StripContainerID(status.ContainerID)
+		dims["container_image"] = status.Image
 	}
 	dims["container_spec_name"] = c.Name
 
