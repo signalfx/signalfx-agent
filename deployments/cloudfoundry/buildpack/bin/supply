@@ -11,7 +11,7 @@ BUILDPACK_DIR=`dirname $(readlink -f ${BASH_SOURCE%/*})`
 TARGET_DIR="$BUILD_DIR/.signalfx"
 
 # Set a default version of the SignalFx Agent to use if none is specified
-SIGNALFX_AGENT_VERSION="${SIGNALFX_AGENT_VERSION-5.3.2}"
+SIGNALFX_AGENT_VERSION="${SIGNALFX_AGENT_VERSION-5.3.3}"
 
 echo "-----> Installing signalfx-agent ${SIGNALFX_AGENT_VERSION}"
 echo "       BUILD_DIR: $BUILD_DIR"
