@@ -16,6 +16,7 @@
     dest: "{{ sfx_conf_file_path }}"
     owner: "{{ sfx_service_user }}"
     group: "{{ sfx_service_group }}"
+    mode: 0600
 
 - name: Start signalfx-agent
   service:
