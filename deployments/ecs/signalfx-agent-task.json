@@ -20,6 +20,14 @@
                     "value": "MY_ACCESS_TOKEN"
                 },
                 {
+                    "name": "INGEST_URL",
+                    "value": "MY_INGEST_URL"
+                }
+                {
+                    "name": "API_URL",
+                    "value": "MY_API_URL"
+                }
+                {
                     "name": "CONFIG_URL",
                     "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/v5.3.3/deployments/ecs/agent.yaml"
                 }
