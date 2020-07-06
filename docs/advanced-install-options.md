@@ -16,7 +16,7 @@ We offer the agent in the following packages:
 We provide a Debian package repository that you can use with the following commands:
 
 ```sh
-curl -sSL https://splunk.jfrog.io/splunk/signalfx-agent-deb/splunk-B3CD4420.gpg > /etc/apt/trusted.gpg.d/splunk.gpg
+curl -sSL https://splunk.jfrog.io/splunk/signalfx-agent-deb/splunk-B3CD4420.gpg > /etc/apt/trusted.gpg.d/splunk.gpg;
 echo 'deb https://splunk.jfrog.io/splunk/signalfx-agent-deb release main' > /etc/apt/sources.list.d/signalfx-agent.list
 apt-get update
 apt-get install -y signalfx-agent
@@ -63,7 +63,18 @@ To use the bundle:
 
     See [Privileges](#privileges) for information on the capabilities the Smart Agent requires.
 
-4. Run the Smart Agent by invoking the archive path:
+4. (Optional) To override the default user and group names, at a minimum, you must have permission to:
+
+- Execute the extracted files in signalfx-agent/bin/
+
+- Read the agent.yaml and any remote config files referenced in the agent.yaml
+
+Based on how the agent has been configured and started and where the bundle is extracted, you may need additional permissions. For example, if the agent is configured for `collectd` monitors, then you must also have create, read, and write permissions for the `/var/run/signalfx-agent` directory.
+
+Alternatively, the `configDir` option in the agent.yaml can be configured for a collectd run directory that is accessible to non-root users. To learn more, see [Config schema](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md#collectd).
+
+
+5. Run the Smart Agent by invoking the archive path:
 
 ```sh
  signalfx-agent/bin/signalfx-agent -config <path to config.yaml>
@@ -79,7 +90,7 @@ A `.zip` bundle is also available that can be deployed to the target host.
 To obtain the bundle, go to [Github Releases Page](https://github.com/signalfx/signalfx-agent/releases)
 and download the most recent release.
 
-Before proceeding, you should ensure that [.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) or later is installed. 
+Before proceeding, you should ensure that [.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) or later is installed.
 
 As an optional step, if you want to invoke a Python script for non-default monitors, specifically **exec**, then you must have Python installed.
 

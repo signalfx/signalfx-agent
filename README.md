@@ -1,4 +1,4 @@
-# SignalFx Smart Agent 
+# SignalFx Smart Agent
 
 [![GoDoc](https://godoc.org/github.com/signalfx/signalfx-agent?status.svg)](https://godoc.org/github.com/signalfx/signalfx-agent)
 [![CircleCI](https://circleci.com/gh/signalfx/signalfx-agent.svg?style=shield)](https://circleci.com/gh/signalfx/signalfx-agent)
@@ -100,8 +100,8 @@ You can [view the source for the installer script](./deployments/installer/insta
 and use it on your hosts by running:
 
 ```sh
-curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh
-sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM -- YOUR_SIGNALFX_ACCESS_TOKEN
+curl -sSL https://dl.signalfx.com/signalfx-agent.sh > /tmp/signalfx-agent.sh;
+sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM -- YOUR_SIGNALFX_API_TOKEN
 ```
 
 ##### Windows
@@ -204,7 +204,7 @@ compatible.
 2) Ensure a valid configuration file is available somewhere on the target
 system.  The main thing that the distro packages provide -- but that you will
 have to provide manually with the bundle -- is a run directory for the agent to
-use.  Since you aren't installing from a package, there are three config 
+use.  Since you aren't installing from a package, there are three config
 options that you will especially want to consider:
 
  - `internalStatusHost` - This is the host name that
@@ -226,7 +226,7 @@ options that you will especially want to consider:
 	 pick up stale collectd config, so be sure that it is not used for anything
 	 else.  Also note that **these files could have sensitive information in
 	 them** if you have passwords configured for collectd monitors, so you
-	 might want to place this dir on a `tmpfs` mount to avoid credentials 
+	 might want to place this dir on a `tmpfs` mount to avoid credentials
 	 persisting on disk.
 
 See the section on [Privileges](#privileges) for information on the
@@ -332,12 +332,12 @@ SignalFx ingest and API servers both use HTTPS.  If the `NO_PROXY` envvar
 exists, the agent will automatically append the local services to the envvar to
 not use the proxy.
 
-If the agent is running as a local service on the host, refer to the host's 
+If the agent is running as a local service on the host, refer to the host's
 service management documentation for how to pass environment variables to the
-agent service in order to enable proxy support when the agent service is started.  
+agent service in order to enable proxy support when the agent service is started.
 
-For example, if the host services are managed by systemd, create the 
-`/etc/systemd/system/signalfx-agent.service.d/myproxy.conf` file and add the 
+For example, if the host services are managed by systemd, create the
+`/etc/systemd/system/signalfx-agent.service.d/myproxy.conf` file and add the
 following to the file:
 ```
 [Service]
