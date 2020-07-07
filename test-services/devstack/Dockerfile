@@ -48,13 +48,13 @@ RUN systemctl enable rabbitmq-server
 RUN useradd -s /bin/bash -d /opt/stack -m stack && echo "stack ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/stack && \
     usermod -a -G mysql,rabbitmq stack
 
-RUN su - stack -c 'git clone git://git.openstack.org/openstack-dev/devstack -b stable/rocky /opt/stack/devstack'
-RUN su - stack -c 'git clone git://git.openstack.org/openstack/cinder -b stable/rocky /opt/stack/cinder'
-RUN su - stack -c 'git clone git://git.openstack.org/openstack/glance -b stable/rocky /opt/stack/glance'
-RUN su - stack -c 'git clone git://git.openstack.org/openstack/keystone -b stable/rocky /opt/stack/keystone'
-RUN su - stack -c 'git clone git://git.openstack.org/openstack/neutron -b stable/rocky /opt/stack/neutron'
-RUN su - stack -c 'git clone git://git.openstack.org/openstack/nova -b stable/rocky /opt/stack/nova'
-RUN su - stack -c 'git clone git://git.openstack.org/openstack/requirements -b stable/rocky /opt/stack/requirements'
+RUN su - stack -c 'git clone https://opendev.org/openstack/devstack -b stable/stein /opt/stack/devstack'
+RUN su - stack -c 'git clone https://opendev.org/openstack/cinder -b stable/stein /opt/stack/cinder'
+RUN su - stack -c 'git clone https://opendev.org/openstack/glance -b stable/stein /opt/stack/glance'
+RUN su - stack -c 'git clone https://opendev.org/openstack/keystone -b stable/stein /opt/stack/keystone'
+RUN su - stack -c 'git clone https://opendev.org/openstack/neutron -b stable/stein /opt/stack/neutron'
+RUN su - stack -c 'git clone https://opendev.org/openstack/nova -b stable/stein /opt/stack/nova'
+RUN su - stack -c 'git clone https://opendev.org/openstack/requirements -b stable/stein /opt/stack/requirements'
 
 RUN find /opt/stack/ -name "test-requirements.txt" -delete
 RUN find /opt/stack/ -mindepth 3 -name "*requirements.txt" -delete
