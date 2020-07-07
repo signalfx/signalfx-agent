@@ -57,21 +57,26 @@ var getAllProcesses = func() (ps []Win32Process, err error) {
 var getUsername = func(id uint32) (username string, err error) {
 	// open the process handle and collect any information that requires it
 	var h windows.Handle
-	defer func() { _ = windows.CloseHandle(h) }()
 	if h, err = windows.OpenProcess(processQueryLimitedInformation, false, id); err != nil {
 		err = fmt.Errorf("unable to open process handle. %v", err)
 		return username, err
 	}
+	// Deferring CloseHandle(h) before it is set require a reference on the closure, avoid that
+	// by only deferring it only after the handle is successfully opened.
+	defer windows.CloseHandle(h)
+
 
 	// the windows api docs suggest that windows.TOKEN_READ is a super set of windows.TOKEN_QUERY,
 	// but in practice windows.TOKEN_READ seems to be less permissive for the admin user
 	var token windows.Token
-	defer token.Close()
 	err = windows.OpenProcessToken(h, windows.TOKEN_QUERY, &token)
 	if err != nil {
 		err = fmt.Errorf("unable to retrieve process token. %v", err)
 		return username, err
 	}
+	// Do not defer token.Close right after declaration, only after the token is successfully set
+	// since token.Close is a value receiver.
+	defer token.Close()
 
 	// extract the user from the process token
 	user, err := token.GetTokenUser()
