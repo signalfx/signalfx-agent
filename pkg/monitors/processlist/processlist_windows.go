@@ -63,8 +63,7 @@ var getUsername = func(id uint32) (username string, err error) {
 	}
 	// Deferring CloseHandle(h) before it is set require a reference on the closure, avoid that
 	// by only deferring it only after the handle is successfully opened.
-	defer windows.CloseHandle(h)
-
+	defer func(h windows.Handle) { _ = windows.CloseHandle(h) }(h)
 
 	// the windows api docs suggest that windows.TOKEN_READ is a super set of windows.TOKEN_QUERY,
 	// but in practice windows.TOKEN_READ seems to be less permissive for the admin user
