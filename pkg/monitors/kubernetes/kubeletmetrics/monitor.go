@@ -62,6 +62,11 @@ func (m *Monitor) Configure(conf *Config) error {
 		}
 		logger.Debugf("Sending kubelet metrics: %v", dps)
 
+		now := time.Now()
+		for i := range dps {
+			dps[i].Timestamp = now
+		}
+
 		m.Output.SendDatapoints(dps...)
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 
