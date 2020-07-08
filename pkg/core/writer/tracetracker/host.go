@@ -57,7 +57,7 @@ func (st *SpanSourceTracker) AddSourceTagsToSpan(span *trace.Span) {
 			if val := dims[dim]; val != "" {
 				found++
 
-				if span.LocalEndpoint.ServiceName != nil {
+				if span.LocalEndpoint != nil && span.LocalEndpoint.ServiceName != nil {
 					st.emitDimensionPropIfNew(dim, val, *span.LocalEndpoint.ServiceName)
 				}
 
