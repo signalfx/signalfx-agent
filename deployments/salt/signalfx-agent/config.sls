@@ -17,6 +17,7 @@
   file.managed:
     - user: {{ service_user }}
     - group: {{ service_group }}
+    - mode: '0600'
     - makedirs: True
     - template: jinja
     - source: salt://signalfx-agent/agent.yaml
