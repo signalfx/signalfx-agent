@@ -17,6 +17,9 @@ for datapoints (v2) and spans (v1) that our ingest server supports and at
 the same path (`/v2/datapoint`, `/v1/trace`).  By default, the server listens on
 localhost port 9080 but can be configured to anything.
 
+The `defaultSpanTagsFromEndpoint` and `extraSpanTagsFromEndpoint` config
+options are not compatible with the `signalfx-forwarder` monitor.
+
 
 ## Configuration
 
@@ -32,11 +35,13 @@ monitors:  # All monitor config goes under this key
 **For a list of monitor options that are common to all monitors, see [Common
 Configuration](../monitor-config.md#common-configuration).**
 
-The `defaultSpanTagsFromEndpoint` and `extraSpanTagsFromEndpoint` config
-options are not compatible with the `signalfx-forwarder` monitor.
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
 | `listenAddress` | no | `string` | The host:port on which to listen for datapoints.  The listening server accepts datapoints on the same HTTP path that ingest/gateway accepts them (e.g. `/v2/datapoint`, `/v1/trace`).  Requests to other paths will return 404s. (**default:** `127.0.0.1:9080`) |
 | `serverTimeout` | no | `int64` | HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration (**default:** `5s`) |
 | `sendInternalMetrics` | no | `bool` | Whether to emit internal metrics about the HTTP listener (**default:** `false`) |
+
+
+
+

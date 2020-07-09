@@ -46,7 +46,9 @@ type MonitorConfig struct {
 	// that is used to derive the value of the span tag.  For example, to use
 	// a certain container label as a span tag, you could use something like this
 	// in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`.
-	// Not compatible with the `signalfx-forwarder` monitor.
+	// This only applies when the monitor has a `discoveryRule` or was
+	// dynamically instantiated by an endpoint. It does nothing, for example,
+	// in the `signalfx-forwarder` montior.
 	ExtraSpanTagsFromEndpoint map[string]string `yaml:"extraSpanTagsFromEndpoint" json:"extraSpanTagsFromEndpoint"`
 	// A set of default span tags (key:value pairs) to include on spans emitted by the
 	// monitor(s) created from this configuration.
@@ -56,13 +58,18 @@ type MonitorConfig struct {
 	// that is used to derive the default value of the span tag.  For example, to use
 	// a certain container label as a span tag, you could use something like this
 	// in your monitor config block: `defaultSpanTagsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`
+	// This only applies when the monitor has a `discoveryRule` or was
+	// dynamically instantiated by an endpoint. It does nothing, for example,
+	// in the `signalfx-forwarder` montior.
 	DefaultSpanTagsFromEndpoint map[string]string `yaml:"defaultSpanTagsFromEndpoint" json:"defaultSpanTagsFromEndpoint"`
 	// A mapping of extra dimension names to a [discovery rule
 	// expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html)
 	// that is used to derive the value of the dimension.  For example, to use
 	// a certain container label as a dimension, you could use something like this
 	// in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`.
-	// Not compatible with the `signalfx-forwarder` monitor.
+	// This only applies when the monitor has a `discoveryRule` or was
+	// dynamically instantiated by an endpoint. It does nothing, for example,
+	// in the `signalfx-forwarder` montior.
 	ExtraDimensionsFromEndpoint map[string]string `yaml:"extraDimensionsFromEndpoint" json:"extraDimensionsFromEndpoint"`
 	// A set of mappings from a configuration option on this monitor to
 	// attributes of a discovered endpoint.  The keys are the config option on
