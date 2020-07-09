@@ -143,6 +143,7 @@ These are all of the monitors included in the agent, along with their possible c
 - [ntp](./monitors/ntp.md)
 - [openshift-cluster](./monitors/openshift-cluster.md)
 - [postgresql](./monitors/postgresql.md)
+- [process](./monitors/process.md)
 - [processlist](./monitors/processlist.md)
 - [prometheus-exporter](./monitors/prometheus-exporter.md)
 - [prometheus/go](./monitors/prometheus-go.md)
