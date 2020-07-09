@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	log "github.com/sirupsen/logrus"
+	yaml "gopkg.in/yaml.v2"
 )
 
 // Only works if there is an explicit "yaml" struct tag
@@ -73,6 +74,10 @@ func getRequired(f reflect.StructField) bool {
 
 // The kind with any pointer removed
 func indirectKind(t reflect.Type) reflect.Kind {
+	if t == reflect.TypeOf(yaml.MapSlice(nil)) {
+		return reflect.Map
+	}
+
 	kind := t.Kind()
 	if kind == reflect.Ptr {
 		return t.Elem().Kind()

@@ -172,6 +172,14 @@
         "elementKind": ""
       },
       {
+        "yamlName": "metricNameTransformations",
+        "doc": "A map from _original_ metric name to a replacement value.  The keys are intepreted as regular expressions and the values can contain backreferences. This means that you should escape any RE characters in the original metric name with `\\` (the most common escape necessary will be `\\.` as period is interpreted as \"all characters\" if unescaped).  The [Go regexp language](https://github.com/google/re2/wiki/Syntax), and backreferences are of the form `$1`. If there are multiple entries in list of maps, they will each be run in sequence, using the transformation from the previous entry as the input the subsequent transformation. To add a common prefix to all metrics coming out of a monitor, use a mapping like this: `(.*): myprefix.$1`",
+        "default": null,
+        "required": false,
+        "type": "map",
+        "elementKind": ""
+      },
+      {
         "yamlName": "dimensionTransformations",
         "doc": "A map from dimension names emitted by the monitor to the desired dimension name that will be emitted in the datapoint that goes to SignalFx.  This can be useful if you have custom metrics from your applications and want to make the dimensions from a monitor match those. Also can be useful when scraping free-form metrics, say with the `prometheus-exporter` monitor.  Right now, only static key/value transformations are supported.  Note that filtering by dimensions will be done on the *original* dimension name and not the new name. Note that it is possible to remove unwanted dimensions via this configuration, by making the desired dimension name an empty string.",
         "default": null,
@@ -55971,6 +55979,14 @@
               "default": false,
               "required": false,
               "type": "bool",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "metricNameTransformations",
+              "doc": "A map from _original_ metric name to a replacement value.  The keys are intepreted as regular expressions and the values can contain backreferences. This means that you should escape any RE characters in the original metric name with `\\` (the most common escape necessary will be `\\.` as period is interpreted as \"all characters\" if unescaped).  The [Go regexp language](https://github.com/google/re2/wiki/Syntax), and backreferences are of the form `$1`. If there are multiple entries in list of maps, they will each be run in sequence, using the transformation from the previous entry as the input the subsequent transformation. To add a common prefix to all metrics coming out of a monitor, use a mapping like this: `(.*): myprefix.$1`",
+              "default": null,
+              "required": false,
+              "type": "map",
               "elementKind": ""
             },
             {

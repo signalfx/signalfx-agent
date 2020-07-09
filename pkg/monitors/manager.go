@@ -377,6 +377,11 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		return err
 	}
 
+	metricNameTransformations, err := renderedConf.MonitorConfigCore().MetricNameExprs()
+	if err != nil {
+		return err
+	}
+
 	output := &monitorOutput{
 		monitorType:               renderedConf.MonitorConfigCore().Type,
 		monitorID:                 id,
@@ -392,6 +397,7 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		extraSpanTags:             map[string]string{},
 		defaultSpanTags:           map[string]string{},
 		dimensionTransformations:  renderedConf.MonitorConfigCore().DimensionTransformations,
+		metricNameTransformations: metricNameTransformations,
 		monitorFiltering:          monFiltering,
 	}
 
