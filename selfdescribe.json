@@ -46,7 +46,7 @@
       },
       {
         "yamlName": "extraSpanTagsFromEndpoint",
-        "doc": "A mapping of extra span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`",
+        "doc": "A mapping of extra span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`. This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
         "default": null,
         "required": false,
         "type": "map",
@@ -62,7 +62,7 @@
       },
       {
         "yamlName": "defaultSpanTagsFromEndpoint",
-        "doc": "A mapping of default span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the default value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `defaultSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`",
+        "doc": "A mapping of default span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the default value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `defaultSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}` This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
         "default": null,
         "required": false,
         "type": "map",
@@ -70,7 +70,7 @@
       },
       {
         "yamlName": "extraDimensionsFromEndpoint",
-        "doc": "A mapping of extra dimension names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the dimension.  For example, to use a certain container label as a dimension, you could use something like this in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`",
+        "doc": "A mapping of extra dimension names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the dimension.  For example, to use a certain container label as a dimension, you could use something like this in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`. This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
         "default": null,
         "required": false,
         "type": "map",
@@ -48381,7 +48381,7 @@
       "sendAll": false,
       "sendUnknown": false,
       "dimensions": null,
-      "doc": "Runs an HTTP server that listens for SignalFx datapoints and trace spans\nand forwards them to SignalFx (or the configured ingest host in the\n`writer` section of the agent config).  This supports the latest formats\nfor datapoints (v2) and spans (v1) that our ingest server supports and at\nthe same path (`/v2/datapoint`, `/v1/trace`).  By default, the server listens on\nlocalhost port 9080 but can be configured to anything.\n",
+      "doc": "Runs an HTTP server that listens for SignalFx datapoints and trace spans\nand forwards them to SignalFx (or the configured ingest host in the\n`writer` section of the agent config).  This supports the latest formats\nfor datapoints (v2) and spans (v1) that our ingest server supports and at\nthe same path (`/v2/datapoint`, `/v1/trace`).  By default, the server listens on\nlocalhost port 9080 but can be configured to anything.\n\nThe `defaultSpanTagsFromEndpoint` and `extraSpanTagsFromEndpoint` config\noptions are not compatible with the `signalfx-forwarder` monitor.\n",
       "groups": {},
       "metrics": null,
       "properties": null,
@@ -55856,7 +55856,7 @@
             },
             {
               "yamlName": "extraSpanTagsFromEndpoint",
-              "doc": "A mapping of extra span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`",
+              "doc": "A mapping of extra span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`. This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
               "default": null,
               "required": false,
               "type": "map",
@@ -55872,7 +55872,7 @@
             },
             {
               "yamlName": "defaultSpanTagsFromEndpoint",
-              "doc": "A mapping of default span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the default value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `defaultSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`",
+              "doc": "A mapping of default span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the default value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `defaultSpanTagsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}` This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
               "default": null,
               "required": false,
               "type": "map",
@@ -55880,7 +55880,7 @@
             },
             {
               "yamlName": "extraDimensionsFromEndpoint",
-              "doc": "A mapping of extra dimension names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the dimension.  For example, to use a certain container label as a dimension, you could use something like this in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`",
+              "doc": "A mapping of extra dimension names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the dimension.  For example, to use a certain container label as a dimension, you could use something like this in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, \"myapp.com/environment\")'}`. This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior.",
               "default": null,
               "required": false,
               "type": "map",
