@@ -31,14 +31,6 @@ rules:
 - apiGroups:
   - ""
   resources:
-  - configmaps
-  verbs:
-  - get
-  - update
-  - create
-- apiGroups:
-  - ""
-  resources:
   - nodes/stats
   verbs:
   - get

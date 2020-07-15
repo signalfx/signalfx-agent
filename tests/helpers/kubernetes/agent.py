@@ -13,6 +13,10 @@ AGENT_CLUSTERROLE_PATH = Path(os.environ.get("AGENT_CLUSTERROLE_PATH", AGENT_YAM
 AGENT_CLUSTERROLEBINDING_PATH = Path(
     os.environ.get("AGENT_CLUSTERROLEBINDING_PATH", AGENT_YAMLS_DIR / "clusterrolebinding.yaml")
 )
+AGENT_CONFIGMAPROLE_PATH = Path(os.environ.get("AGENT_CONFIGMAPROLE_PATH", AGENT_YAMLS_DIR / "configmap-role.yaml"))
+AGENT_CONFIGMAPROLEBINDING_PATH = Path(
+    os.environ.get("AGENT_CONFIGMAPBINDING_PATH", AGENT_YAMLS_DIR / "configmap-rolebinding.yaml")
+)
 AGENT_CONFIGMAP_PATH = Path(os.environ.get("AGENT_CONFIGMAP_PATH", AGENT_YAMLS_DIR / "configmap.yaml"))
 AGENT_DAEMONSET_PATH = Path(os.environ.get("AGENT_DAEMONSET_PATH", AGENT_YAMLS_DIR / "daemonset.yaml"))
 AGENT_SERVICEACCOUNT_PATH = Path(os.environ.get("AGENT_SERVICEACCOUNT_PATH", AGENT_YAMLS_DIR / "serviceaccount.yaml"))
@@ -78,6 +82,21 @@ class Agent:
         crb_base["subjects"][0]["namespace"] = self.namespace
         crb = rbacv1beta1.create_cluster_role_binding(body=crb_base)
 
+        configmaprole_base = load_resource_yaml(AGENT_CONFIGMAPROLE_PATH)
+        configmaprole_base["metadata"]["name"] = f"signalfx-agent-{self.namespace}"
+        configmaprole_base["metadata"]["namespace"] = self.namespace
+        configmaprole = rbacv1beta1.create_namespaced_role(self.namespace, body=configmaprole_base)
+
+        configmap_rolebinding_base = load_resource_yaml(AGENT_CONFIGMAPROLEBINDING_PATH)
+        # Make the binding refer to our testing namespace's role and service account
+        configmap_rolebinding_base["metadata"]["name"] = f"signalfx-agent-{self.namespace}"
+        configmap_rolebinding_base["metadata"]["namespace"] = self.namespace
+        configmap_rolebinding_base["roleRef"]["name"] = configmaprole.metadata.name
+        configmap_rolebinding_base["subjects"][0]["namespace"] = self.namespace
+        configmap_rolebinding = rbacv1beta1.create_namespaced_role_binding(
+            self.namespace, body=configmap_rolebinding_base
+        )
+
         try:
             yield
         finally:
@@ -85,6 +104,10 @@ class Agent:
 
             rbacv1beta1.delete_cluster_role_binding(crb.metadata.name, body=delete_opts)
             rbacv1beta1.delete_cluster_role(clusterrole.metadata.name, body=delete_opts)
+            rbacv1beta1.delete_namespaced_role(configmaprole.metadata.name, self.namespace, body=delete_opts)
+            rbacv1beta1.delete_namespaced_role_binding(
+                configmap_rolebinding.metadata.name, self.namespace, body=delete_opts
+            )
             corev1.delete_namespaced_service_account(
                 serviceaccount.metadata.name, namespace=self.namespace, body=delete_opts
             )
