@@ -51,6 +51,9 @@ type Config struct {
 	// Defaults to the same as `intervalSeconds` if not set.
 	DatabasePollIntervalSeconds int `yaml:"databasePollIntervalSeconds"`
 
+	// If true, queries will be logged at the info level.
+	LogQueries bool `yaml:"logQueries"`
+
 	// The number of top queries to consider when publishing query-related metrics
 	TopQueryLimit int `default:"10" yaml:"topQueryLimit"`
 }
@@ -201,6 +204,7 @@ func (m *Monitor) startMonitoringDatabase(name string) (*sql.Monitor, error) {
 		ConnectionString: connStr,
 		DBDriver:         "postgres",
 		Queries:          makeDefaultDBQueries(name),
+		LogQueries:       m.conf.LogQueries,
 	})
 }
 
