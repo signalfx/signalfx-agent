@@ -26,6 +26,19 @@ func CloneSpan(span *trace.Span) *trace.Span {
 	} else {
 		parentID = pointer.String(*span.ParentID)
 	}
+	var debug *bool
+	if span.Debug != nil {
+		debug = pointer.Bool(*span.Debug)
+	} else {
+		debug = nil
+	}
+	var shared *bool
+	if span.Shared != nil {
+		shared = pointer.Bool(*span.Shared)
+	} else {
+		shared = nil
+	}
+
 
 	return &trace.Span{
 		TraceID:        span.TraceID,
@@ -34,8 +47,8 @@ func CloneSpan(span *trace.Span) *trace.Span {
 		ID:             span.ID,
 		Timestamp:      pointer.Int64(*span.Timestamp),
 		Duration:       pointer.Int64(*span.Duration),
-		Debug:          pointer.Bool(*span.Debug),
-		Shared:         pointer.Bool(*span.Shared),
+		Debug:          debug,
+		Shared:         shared,
 		LocalEndpoint:  cloneEndpoint(span.LocalEndpoint),
 		RemoteEndpoint: cloneEndpoint(span.RemoteEndpoint),
 		Annotations:    newAnnotations,
