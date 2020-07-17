@@ -39,7 +39,6 @@ func CloneSpan(span *trace.Span) *trace.Span {
 		shared = nil
 	}
 
-
 	return &trace.Span{
 		TraceID:        span.TraceID,
 		Name:           pointer.String(*span.Name),

@@ -86,4 +86,3 @@ func TestSpanIncompleteClone(t *testing.T) {
 	assert.DeepEqual(t, span.Tags, clone.Tags)
 	assert.Equal(t, *span.Shared, *clone.Shared)
 }
-
