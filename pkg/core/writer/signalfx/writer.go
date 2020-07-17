@@ -104,7 +104,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 		return nil, err
 	}
 
-	correlationClient, err := correlations.NewCorrelationClient(ctx, conf)
+	correlationClient, err := correlations.NewCorrelationClient(ctx, 20, conf)
 	if err != nil {
 		cancel()
 		return nil, err

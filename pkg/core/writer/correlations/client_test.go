@@ -23,7 +23,7 @@ var putPathRegexp = regexp.MustCompile(`/v2/apm/correlate/([^/]+)/([^/]+)/([^/]+
 var deletePathRegexp = regexp.MustCompile(`/v2/apm/correlate/([^/]+)/([^/]+)/([^/]+)/([^/]+)`) // /dimName/dimValue/{service,environment}/value
 
 func waitForCors(corCh <-chan *request, count, waitSeconds int) []*request { // nolint: unparam
-	var cors []*request
+	cors := make([]*request, 0, count)
 	timeout := time.After(time.Duration(waitSeconds) * time.Second)
 
 loop:
@@ -131,10 +131,10 @@ func setup() (CorrelationClient, chan *request, *atomic.Value, *atomic.Value, co
 		server.Close()
 	}()
 
-	client, err := NewCorrelationClient(ctx, &config.WriterConfig{
+	client, err := NewCorrelationClient(ctx, 5, &config.WriterConfig{
 		PropertiesMaxBuffered:      10,
 		PropertiesMaxRequests:      10,
-		PropertiesSendDelaySeconds: 1,
+		PropertiesSendDelaySeconds: 0,
 		PropertiesHistorySize:      1000,
 		LogDimensionUpdates:        true,
 		APIURL:                     server.URL,
@@ -207,15 +207,16 @@ func TestCorrelationClient(t *testing.T) {
 	})
 	t.Run("does retry 500 responses", func(t *testing.T) {
 		forcedRespCode.Store(500)
-
+		require.Equal(t, int64(0), atomic.LoadInt64(&client.(*Client).TotalRetriedUpdates), "test cleaned up correctly")
 		testData := &Correlation{Type: Service, DimName: "host", DimValue: "test-box", Value: "test-service"}
 		client.Correlate(testData)
 
-		cors := waitForCors(serverCh, 1, 2)
+		cors := waitForCors(serverCh, 1, 4)
 		require.Len(t, cors, 0)
+		require.Equal(t, int64(5), atomic.LoadInt64(&client.(*Client).TotalRetriedUpdates))
 
 		forcedRespCode.Store(200)
 		cors = waitForCors(serverCh, 1, 2)
-		require.Equal(t, []*request{{Correlation: testData, operation: http.MethodPut}}, cors)
+		require.Equal(t, []*request{}, cors)
 	})
 }

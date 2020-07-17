@@ -15,10 +15,15 @@ import (
 
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/requests"
+	"github.com/signalfx/signalfx-agent/pkg/core/writer/requests/requestcounter"
 	log "github.com/sirupsen/logrus"
 )
 
+const defaultMaxRequests = 20
+
 var errChFull = errors.New("request channel full")
+var errMaxAttempts = errors.New("maximum attempts exceeded")
+var errRequestCancelled = errors.New("request cancelled")
 
 // CorrelationClient is an interface for correlations.Client
 type CorrelationClient interface {
@@ -30,22 +35,28 @@ type CorrelationClient interface {
 
 type request struct {
 	*Correlation
+	ctx       context.Context
 	operation string
 	callback  func(*request, []byte, error)
+	sendAt    time.Time
 }
 
 // Client is a client for making dimensional correlations
 type Client struct {
 	sync.RWMutex
 	ctx           context.Context
+	wg            sync.WaitGroup
 	Token         string
 	APIURL        *url.URL
 	client        *http.Client
 	requestSender *requests.ReqSender
 	requestChan   chan *request
+	retryChan     chan *request
 	// For easier unit testing
-	now        func() time.Time
-	logUpdates bool
+	now         func() time.Time
+	logUpdates  bool
+	sendDelay   time.Duration
+	maxAttempts int64
 
 	TotalClientError4xxResponses int64
 	TotalRetriedUpdates          int64
@@ -53,7 +64,7 @@ type Client struct {
 }
 
 // NewCorrelationClient returns a new Client
-func NewCorrelationClient(ctx context.Context, conf *config.WriterConfig) (CorrelationClient, error) {
+func NewCorrelationClient(ctx context.Context, maxAttempts int64, conf *config.WriterConfig) (CorrelationClient, error) {
 	client := &http.Client{
 		Timeout: 10 * time.Second,
 		Transport: &http.Transport{
@@ -68,9 +79,10 @@ func NewCorrelationClient(ctx context.Context, conf *config.WriterConfig) (Corre
 			TLSHandshakeTimeout: 10 * time.Second,
 		},
 	}
-
+	if maxAttempts == 0 {
+		maxAttempts = defaultMaxRequests
+	}
 	sender := requests.NewReqSender(ctx, client, conf.PropertiesMaxRequests, map[string]string{"client": "correlation"})
-
 	return &Client{
 		ctx:           ctx,
 		Token:         conf.SignalFxAccessToken,
@@ -80,18 +92,54 @@ func NewCorrelationClient(ctx context.Context, conf *config.WriterConfig) (Corre
 		now:           time.Now,
 		logUpdates:    conf.LogDimensionUpdates,
 		requestChan:   make(chan *request, conf.PropertiesMaxBuffered),
+		retryChan:     make(chan *request, conf.PropertiesMaxBuffered),
+		sendDelay:     time.Duration(conf.PropertiesSendDelaySeconds) * time.Second,
+		maxAttempts:   maxAttempts,
 	}, nil
 }
 
 func (cc *Client) putRequestOnChan(r *request) error {
+	requestcounter.IncrementRequestCount(r.ctx)
+	if r.ctx.Err() != nil {
+		return errRequestCancelled
+	}
+
 	var err error
 	select {
+	case <-r.ctx.Done():
+		err = errRequestCancelled
 	case cc.requestChan <- r:
 	case <-cc.ctx.Done():
 		err = context.DeadlineExceeded
 	default:
 		err = errChFull
 	}
+	return err
+}
+
+func (cc *Client) putRequestOnRetryChan(r *request) error {
+	if int64(requestcounter.GetRequestCount(r.ctx)) > cc.maxAttempts {
+		return errMaxAttempts
+	}
+
+	// set the time to retry
+	r.sendAt = time.Now().Add(cc.sendDelay)
+
+	if r.ctx.Err() != nil {
+		return errRequestCancelled
+	}
+
+	var err error
+	select {
+	case <-r.ctx.Done():
+		err = errRequestCancelled
+	case cc.retryChan <- r:
+	case <-cc.ctx.Done():
+		err = context.DeadlineExceeded
+	default:
+		err = errChFull
+	}
+
 	return err
 }
 
@@ -105,7 +153,7 @@ func (cc *Client) correlateCb(r *request, _ []byte, _ error) {
 }
 
 func (cc *Client) Correlate(cor *Correlation) {
-	err := cc.putRequestOnChan(&request{Correlation: cor, operation: http.MethodPut, callback: cc.correlateCb})
+	err := cc.putRequestOnChan(&request{Correlation: cor, ctx: requestcounter.ContextWithRequestCounter(context.Background()), operation: http.MethodPut, callback: cc.correlateCb})
 	if err != nil && err != context.DeadlineExceeded {
 		log.WithError(err).WithFields(log.Fields{
 			"method":      http.MethodPut,
@@ -124,7 +172,7 @@ func (cc *Client) deleteCb(r *request, _ []byte, _ error) {
 }
 
 func (cc *Client) Delete(cor *Correlation) {
-	err := cc.putRequestOnChan(&request{Correlation: cor, operation: http.MethodDelete, callback: cc.deleteCb})
+	err := cc.putRequestOnChan(&request{Correlation: cor, ctx: requestcounter.ContextWithRequestCounter(context.Background()), operation: http.MethodDelete, callback: cc.deleteCb})
 	if err != nil && err != context.DeadlineExceeded {
 		log.WithError(err).WithFields(log.Fields{
 			"method":      http.MethodDelete,
@@ -135,6 +183,7 @@ func (cc *Client) Delete(cor *Correlation) {
 
 func (cc *Client) Get(dimName string, dimValue string, callback func(map[string][]string, error)) {
 	err := cc.putRequestOnChan(&request{
+		ctx: requestcounter.ContextWithRequestCounter(context.Background()),
 		Correlation: &Correlation{
 			DimName:  dimName,
 			DimValue: dimValue,
@@ -192,6 +241,11 @@ func (cc *Client) makeRequest(r *request) error {
 
 	req = req.WithContext(
 		context.WithValue(req.Context(), requests.RequestFailedCallbackKey, requests.RequestFailedCallback(func(statusCode int, err error) {
+			logFields := log.Fields{
+				"method":      req.Method,
+				"url":         req.URL.String(),
+				"correlation": r.Correlation,
+			}
 			if statusCode >= 400 && statusCode < 500 {
 				// Don't retry if it is a 4xx error since these
 				// imply an input/auth error, which is not going to be remedied
@@ -200,19 +254,11 @@ func (cc *Client) makeRequest(r *request) error {
 
 				// don't log a message if we get 404 NotFound on GET
 				if statusCode == 404 && r.operation == http.MethodGet {
-					log.WithError(err).WithFields(log.Fields{
-						"method":      req.Method,
-						"url":         req.URL.String(),
-						"correlation": r.Correlation,
-					}).Debug("Unable to update dimension, not retrying")
+					log.WithError(err).WithFields(logFields).Debug("Unable to update dimension, not retrying")
 					return
 				}
 
-				log.WithError(err).WithFields(log.Fields{
-					"method":      req.Method,
-					"url":         req.URL.String(),
-					"correlation": r.Correlation,
-				}).Error("Unable to update dimension, not retrying")
+				log.WithError(err).WithFields(logFields).Error("Unable to update dimension, not retrying")
 				return
 			}
 
@@ -220,23 +266,16 @@ func (cc *Client) makeRequest(r *request) error {
 			// temporary API failures.  If the API is down for significant
 			// periods of time, correlation updates will probably eventually back
 			// up beyond conf.PropertiesMaxBuffered and start dropping.
-			retryErr := cc.putRequestOnChan(r)
+			retryErr := cc.putRequestOnRetryChan(r)
 			if retryErr != nil {
-				log.WithError(err).WithFields(log.Fields{
-					"method":      req.Method,
-					"url":         req.URL.String(),
-					"correlation": r.Correlation,
-				}).WithError(errChFull).Error("Unable to update dimension, unable to retry")
+				// failed to retry
+				log.WithError(err).WithFields(logFields).WithError(retryErr).Error("Unable to update dimension, unable to retry")
 				return
 			}
 
 			// successfully queued request to retry
-			atomic.AddInt64(&cc.TotalRetriedUpdates, int64(1))
-			log.WithError(err).WithFields(log.Fields{
-				"method":      req.Method,
-				"url":         req.URL.String(),
-				"correlation": r.Correlation,
-			}).Error("Unable to update dimension, retrying")
+			log.WithError(err).WithFields(logFields).Debug("Unable to update dimension, retrying")
+
 		})))
 
 	req = req.WithContext(
@@ -251,6 +290,7 @@ func (cc *Client) makeRequest(r *request) error {
 }
 
 func (cc *Client) processChan() {
+	defer cc.wg.Done()
 	for {
 		select {
 		case <-cc.ctx.Done():
@@ -267,7 +307,34 @@ func (cc *Client) processChan() {
 	}
 }
 
+// processRetryChan is a routine that drains the retry channel and waits until the appropriate time to put the request
+// back on the request channel
+func (cc *Client) processRetryChan() {
+	defer cc.wg.Done()
+	for {
+		select {
+		case <-cc.ctx.Done(): // client is shutdown
+			return
+		case r := <-cc.retryChan:
+			if r.ctx.Err() != nil { // request is cancelled
+				continue
+			}
+			select {
+			case <-time.After(time.Until(r.sendAt)): // wait and resend the request
+				atomic.AddInt64(&cc.TotalRetriedUpdates, int64(1))
+				_ = cc.putRequestOnChan(r)
+			case <-r.ctx.Done(): // request is cancelled
+				continue
+			case <-cc.ctx.Done(): // client is shutdown
+				return
+			}
+		}
+	}
+}
+
 // Start the client's processing queue
 func (cc *Client) Start() {
+	cc.wg.Add(2)
 	go cc.processChan()
+	go cc.processRetryChan()
 }
