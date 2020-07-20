@@ -5,10 +5,12 @@ import (
 	"sync/atomic"
 )
 
+type key int
+
 const (
-	getRequestCountKey = iota
-	incrementRequestCountKey
-	resetRequestCountKey
+	getRequestCountKey       key = 1
+	incrementRequestCountKey key = 2
+	resetRequestCountKey     key = 3
 )
 
 type getRequestCount func() uint32
