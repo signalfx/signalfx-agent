@@ -85,6 +85,9 @@ The [serverless](./serverless) directory contains a set of sample YAML
 resources that you can start from to deploy the agent in a serverless K8s
 environment.
 
+## Windows
+If you are deploying to a mixed Windows/Linux Kubernetes cluster, see [Windows](./helm/signalfx-agent#windows) in the Helm chart README.
+
 ## Development
 
 These resources can be refreshed from the Helm chart by using the

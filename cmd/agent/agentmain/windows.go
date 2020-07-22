@@ -80,6 +80,11 @@ func (p *program) Stop(s service.Service) error {
 func runAgentPlatformSpecific(flags *flags, interruptCh chan os.Signal, exitCh chan struct{}) {
 	initializeWMI()
 
+	if flags.service == "bypass" {
+		runAgent(flags, interruptCh, exitCh)
+		return
+	}
+
 	config := &service.Config{
 		Name:        flags.serviceName,
 		DisplayName: flags.serviceDisplayName,

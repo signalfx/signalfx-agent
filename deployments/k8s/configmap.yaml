@@ -56,6 +56,8 @@ data:
         authType: serviceAccount
       usePodsEndpoint: true
 
+
+
     # Collects k8s cluster-level metrics
     - type: kubernetes-cluster
 
@@ -72,6 +74,7 @@ data:
 
 
     collectd:
+
       readThreads: 5
       writeQueueLimitHigh: 500000
       writeQueueLimitLow: 400000

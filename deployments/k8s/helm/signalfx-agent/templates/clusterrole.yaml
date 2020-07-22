@@ -17,6 +17,7 @@ rules:
   - namespaces/status
   - nodes
   - nodes/spec
+  - nodes/proxy
   - pods
   - pods/status
   - replicationcontrollers
