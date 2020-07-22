@@ -255,7 +255,7 @@ func (cc *Client) makeRequest(r *request) error {
 	req.Header.Add("X-SF-TOKEN", cc.Token)
 
 	req = req.WithContext(
-		context.WithValue(req.Context(), requests.RequestFailedCallbackKey, requests.RequestFailedCallback(func(statusCode int, err error) {
+		context.WithValue(req.Context(), requests.RequestFailedCallbackKey, requests.RequestFailedCallback(func(body []byte, statusCode int, err error) {
 			logFields := log.Fields{
 				"method":      req.Method,
 				"url":         req.URL.String(),

@@ -83,7 +83,7 @@ func (rs *ReqSender) sendRequest(req *http.Request) error {
 		err = fmt.Errorf("unexpected status code %d on response for request to %s: %s", statusCode, req.URL.String(), string(body))
 	}
 
-	onRequestFailed(req, statusCode, err)
+	onRequestFailed(req, body, statusCode, err)
 
 	return err
 }
@@ -93,7 +93,7 @@ type key int
 const RequestFailedCallbackKey key = 1
 const RequestSuccessCallbackKey key = 2
 
-type RequestFailedCallback func(statusCode int, err error)
+type RequestFailedCallback func(body []byte, statusCode int, err error)
 type RequestSuccessCallback func([]byte)
 
 func onRequestSuccess(req *http.Request, body []byte) {
@@ -104,13 +104,13 @@ func onRequestSuccess(req *http.Request, body []byte) {
 	}
 	cb(body)
 }
-func onRequestFailed(req *http.Request, statusCode int, err error) {
+func onRequestFailed(req *http.Request, body []byte, statusCode int, err error) {
 	ctx := req.Context()
 	cb, ok := ctx.Value(RequestFailedCallbackKey).(RequestFailedCallback)
 	if !ok {
 		return
 	}
-	cb(statusCode, err)
+	cb(body, statusCode, err)
 }
 
 func sendRequest(client *http.Client, req *http.Request) ([]byte, int, error) {
