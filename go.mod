@@ -57,6 +57,7 @@ require (
 	github.com/gobwas/glob v0.2.4-0.20181002190808-e7a84e9525fe
 	github.com/gocql/gocql v0.0.0-20190301043612-f6df8288f9b4 // indirect
 	github.com/gogo/protobuf v1.3.1
+	github.com/golang/groupcache v0.0.0-20190702054246-869f871628b6
 	github.com/google/cadvisor v0.26.1
 	github.com/googleapis/gnostic v0.1.0 // indirect
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75 // indirect

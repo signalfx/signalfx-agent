@@ -22,6 +22,7 @@ import (
 const defaultMaxRequests = 20
 
 var errChFull = errors.New("request channel full")
+var errRetryChFull = errors.New("retry channel full")
 var errMaxAttempts = errors.New("maximum attempts exceeded")
 var errRequestCancelled = errors.New("request cancelled")
 
@@ -33,9 +34,14 @@ type CorrelationClient interface {
 	Start()
 }
 
+type contextWithCancel struct {
+	ctx    context.Context
+	cancel context.CancelFunc
+}
+
 type request struct {
 	*Correlation
-	ctx       context.Context
+	*contextWithCancel
 	operation string
 	callback  func(*request, []byte, error)
 	sendAt    time.Time
@@ -52,9 +58,12 @@ type Client struct {
 	requestSender *requests.ReqSender
 	requestChan   chan *request
 	retryChan     chan *request
+	dedup         *deduplicator
+
 	// For easier unit testing
-	now         func() time.Time
-	logUpdates  bool
+	now        func() time.Time
+	logUpdates bool
+
 	sendDelay   time.Duration
 	maxAttempts int64
 
@@ -93,6 +102,7 @@ func NewCorrelationClient(ctx context.Context, maxAttempts int64, conf *config.W
 		logUpdates:    conf.LogDimensionUpdates,
 		requestChan:   make(chan *request, conf.PropertiesMaxBuffered),
 		retryChan:     make(chan *request, conf.PropertiesMaxBuffered),
+		dedup:         newDeduplicator(int(conf.PropertiesMaxBuffered)),
 		sendDelay:     time.Duration(conf.PropertiesSendDelaySeconds) * time.Second,
 		maxAttempts:   maxAttempts,
 	}, nil
@@ -118,12 +128,14 @@ func (cc *Client) putRequestOnChan(r *request) error {
 }
 
 func (cc *Client) putRequestOnRetryChan(r *request) error {
+	// handle request counter
 	if int64(requestcounter.GetRequestCount(r.ctx)) > cc.maxAttempts {
 		return errMaxAttempts
 	}
+	requestcounter.IncrementRequestCount(r.ctx)
 
 	// set the time to retry
-	r.sendAt = time.Now().Add(cc.sendDelay)
+	r.sendAt = cc.now().Add(cc.sendDelay)
 
 	if r.ctx.Err() != nil {
 		return errRequestCancelled
@@ -137,7 +149,7 @@ func (cc *Client) putRequestOnRetryChan(r *request) error {
 	case <-cc.ctx.Done():
 		err = context.DeadlineExceeded
 	default:
-		err = errChFull
+		err = errRetryChFull
 	}
 
 	return err
@@ -153,7 +165,8 @@ func (cc *Client) correlateCb(r *request, _ []byte, _ error) {
 }
 
 func (cc *Client) Correlate(cor *Correlation) {
-	err := cc.putRequestOnChan(&request{Correlation: cor, ctx: requestcounter.ContextWithRequestCounter(context.Background()), operation: http.MethodPut, callback: cc.correlateCb})
+	ctx, cancel := context.WithCancel(requestcounter.ContextWithRequestCounter(context.Background()))
+	err := cc.putRequestOnChan(&request{Correlation: cor, contextWithCancel: &contextWithCancel{ctx: ctx, cancel: cancel}, operation: http.MethodPut, callback: cc.correlateCb})
 	if err != nil && err != context.DeadlineExceeded {
 		log.WithError(err).WithFields(log.Fields{
 			"method":      http.MethodPut,
@@ -172,7 +185,8 @@ func (cc *Client) deleteCb(r *request, _ []byte, _ error) {
 }
 
 func (cc *Client) Delete(cor *Correlation) {
-	err := cc.putRequestOnChan(&request{Correlation: cor, ctx: requestcounter.ContextWithRequestCounter(context.Background()), operation: http.MethodDelete, callback: cc.deleteCb})
+	ctx, cancel := context.WithCancel(requestcounter.ContextWithRequestCounter(context.Background()))
+	err := cc.putRequestOnChan(&request{Correlation: cor, contextWithCancel: &contextWithCancel{ctx: ctx, cancel: cancel}, operation: http.MethodDelete, callback: cc.deleteCb})
 	if err != nil && err != context.DeadlineExceeded {
 		log.WithError(err).WithFields(log.Fields{
 			"method":      http.MethodDelete,
@@ -182,8 +196,9 @@ func (cc *Client) Delete(cor *Correlation) {
 }
 
 func (cc *Client) Get(dimName string, dimValue string, callback func(map[string][]string, error)) {
+	ctx, cancel := context.WithCancel(requestcounter.ContextWithRequestCounter(context.Background()))
 	err := cc.putRequestOnChan(&request{
-		ctx: requestcounter.ContextWithRequestCounter(context.Background()),
+		contextWithCancel: &contextWithCancel{ctx: ctx, cancel: cancel},
 		Correlation: &Correlation{
 			DimName:  dimName,
 			DimValue: dimValue,
@@ -255,10 +270,12 @@ func (cc *Client) makeRequest(r *request) error {
 				// don't log a message if we get 404 NotFound on GET
 				if statusCode == 404 && r.operation == http.MethodGet {
 					log.WithError(err).WithFields(logFields).Debug("Unable to update dimension, not retrying")
-					return
+				} else {
+					log.WithError(err).WithFields(logFields).Error("Unable to update dimension, not retrying")
 				}
 
-				log.WithError(err).WithFields(logFields).Error("Unable to update dimension, not retrying")
+				// cancel the request as context
+				r.cancel()
 				return
 			}
 
@@ -268,7 +285,7 @@ func (cc *Client) makeRequest(r *request) error {
 			// up beyond conf.PropertiesMaxBuffered and start dropping.
 			retryErr := cc.putRequestOnRetryChan(r)
 			if retryErr != nil {
-				// failed to retry
+				r.cancel()
 				log.WithError(err).WithFields(logFields).WithError(retryErr).Error("Unable to update dimension, unable to retry")
 				return
 			}
@@ -281,6 +298,8 @@ func (cc *Client) makeRequest(r *request) error {
 	req = req.WithContext(
 		context.WithValue(req.Context(), requests.RequestSuccessCallbackKey, requests.RequestSuccessCallback(func(body []byte) {
 			r.callback(r, body, nil)
+			// cancel the request context
+			r.cancel()
 		})))
 
 	// This will block if we don't have enough requests
@@ -289,6 +308,8 @@ func (cc *Client) makeRequest(r *request) error {
 	return nil
 }
 
+// routines
+// processChan processes incoming requests, drops duplicates, and cancels conflicting requests
 func (cc *Client) processChan() {
 	defer cc.wg.Done()
 	for {
@@ -296,19 +317,20 @@ func (cc *Client) processChan() {
 		case <-cc.ctx.Done():
 			return
 		case r := <-cc.requestChan:
-			err := cc.makeRequest(r)
-			if err != nil {
-				log.WithError(err).WithFields(log.Fields{
-					"method":      r.operation,
-					"correlation": r.Correlation,
-				}).Error("Unable to make request, not retrying")
+			if !cc.dedup.isDup(r) {
+				err := cc.makeRequest(r)
+				if err != nil {
+					log.WithError(err).WithFields(log.Fields{
+						"method":      r.operation,
+						"correlation": r.Correlation,
+					}).Error("Unable to make request, not retrying")
+				}
 			}
 		}
 	}
 }
 
-// processRetryChan is a routine that drains the retry channel and waits until the appropriate time to put the request
-// back on the request channel
+// processRetryChan is a routine that drains the retry channel and waits until the appropriate time to retry the request
 func (cc *Client) processRetryChan() {
 	defer cc.wg.Done()
 	for {
@@ -322,7 +344,13 @@ func (cc *Client) processRetryChan() {
 			select {
 			case <-time.After(time.Until(r.sendAt)): // wait and resend the request
 				atomic.AddInt64(&cc.TotalRetriedUpdates, int64(1))
-				_ = cc.putRequestOnChan(r)
+				err := cc.makeRequest(r)
+				if err != nil {
+					log.WithError(err).WithFields(log.Fields{
+						"method":      r.operation,
+						"correlation": r.Correlation,
+					}).Error("Unable to make request, not retrying")
+				}
 			case <-r.ctx.Done(): // request is cancelled
 				continue
 			case <-cc.ctx.Done(): // client is shutdown
