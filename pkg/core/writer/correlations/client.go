@@ -19,18 +19,30 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const defaultMaxRequests = 20
+const defaultMaxRequests = 100
 
-var errChFull = errors.New("request channel full")
+var ErrChFull = errors.New("request channel full")
 var errRetryChFull = errors.New("retry channel full")
 var errMaxAttempts = errors.New("maximum attempts exceeded")
 var errRequestCancelled = errors.New("request cancelled")
 
+// ErrMaxEntries is an error returned when the correlation endpoint returns a 418 http status
+// code indicating that the set of services or environments is too large to add another value
+type ErrMaxEntries struct {
+	MaxEntries int64 `json:"max,omitempty"`
+}
+
+func (m *ErrMaxEntries) Error() string {
+	return fmt.Sprintf("max entries %d", m.MaxEntries)
+}
+
+var _ error = (*ErrMaxEntries)(nil)
+
 // CorrelationClient is an interface for correlations.Client
 type CorrelationClient interface {
-	Correlate(correlation *Correlation)
-	Delete(correlation *Correlation)
-	Get(dimName string, dimValue string, callback func(map[string][]string, error))
+	Correlate(*Correlation, CorrelateCB)
+	Delete(*Correlation, SuccessfulDeleteCB)
+	Get(dimName string, dimValue string, cb SuccessfulGetCB)
 	Start()
 }
 
@@ -43,7 +55,7 @@ type request struct {
 	*Correlation
 	*contextWithCancel
 	operation string
-	callback  func(*request, []byte, error)
+	callback  func(body []byte, statuscode int, err error)
 	sendAt    time.Time
 }
 
@@ -109,27 +121,33 @@ func NewCorrelationClient(ctx context.Context, maxAttempts int64, conf *config.W
 }
 
 func (cc *Client) putRequestOnChan(r *request) error {
-	requestcounter.IncrementRequestCount(r.ctx)
-	if r.ctx.Err() != nil {
-		return errRequestCancelled
+	// prevent requests against empty dimension names and values
+	if r.DimName == "" || r.DimValue == "" {
+		// logging this as debug because this means there's no actual dimension to correlate with
+		// and because this isn't being taken off on the request sender and subject to retries, this could
+		// potentially spam the logs
+		atomic.AddInt64(&cc.TotalInvalidDimensions, int64(1))
+		log.WithFields(log.Fields{"method": r.operation, "correlation": r.Correlation}).Debug("No dimension key or value to correlate to")
+		return nil
 	}
+
+	r.contextWithCancel = &contextWithCancel{}
+	r.ctx, r.cancel = context.WithCancel(requestcounter.ContextWithRequestCounter(context.Background()))
 
 	var err error
 	select {
-	case <-r.ctx.Done():
-		err = errRequestCancelled
 	case cc.requestChan <- r:
 	case <-cc.ctx.Done():
 		err = context.DeadlineExceeded
 	default:
-		err = errChFull
+		err = ErrChFull
 	}
 	return err
 }
 
 func (cc *Client) putRequestOnRetryChan(r *request) error {
 	// handle request counter
-	if int64(requestcounter.GetRequestCount(r.ctx)) > cc.maxAttempts {
+	if int64(requestcounter.GetRequestCount(r.ctx)) == cc.maxAttempts {
 		return errMaxAttempts
 	}
 	requestcounter.IncrementRequestCount(r.ctx)
@@ -155,80 +173,102 @@ func (cc *Client) putRequestOnRetryChan(r *request) error {
 	return err
 }
 
-func (cc *Client) correlateCb(r *request, _ []byte, _ error) {
-	if cc.logUpdates {
-		log.WithFields(log.Fields{
-			"method":      http.MethodPut,
-			"correlation": r.Correlation,
-		}).Info("Updated dimension")
-	}
-}
+// CorrelateCB is a call back invoked with Correlate requests
+// it is not invoked if the reqeust is deduplicated, cancelled, or the client context is cancelled
+type CorrelateCB func(cor *Correlation, err error)
 
-func (cc *Client) Correlate(cor *Correlation) {
-	ctx, cancel := context.WithCancel(requestcounter.ContextWithRequestCounter(context.Background()))
-	err := cc.putRequestOnChan(&request{Correlation: cor, contextWithCancel: &contextWithCancel{ctx: ctx, cancel: cancel}, operation: http.MethodPut, callback: cc.correlateCb})
-	if err != nil && err != context.DeadlineExceeded {
-		log.WithError(err).WithFields(log.Fields{
-			"method":      http.MethodPut,
-			"correlation": cor,
-		}).Error("Unable to update dimension, not retrying")
-	}
-}
-
-func (cc *Client) deleteCb(r *request, _ []byte, _ error) {
-	if cc.logUpdates {
-		log.WithFields(log.Fields{
-			"method":      http.MethodDelete,
-			"correlation": r.Correlation,
-		}).Info("Updated dimension")
-	}
-}
-
-func (cc *Client) Delete(cor *Correlation) {
-	ctx, cancel := context.WithCancel(requestcounter.ContextWithRequestCounter(context.Background()))
-	err := cc.putRequestOnChan(&request{Correlation: cor, contextWithCancel: &contextWithCancel{ctx: ctx, cancel: cancel}, operation: http.MethodDelete, callback: cc.deleteCb})
-	if err != nil && err != context.DeadlineExceeded {
-		log.WithError(err).WithFields(log.Fields{
-			"method":      http.MethodDelete,
-			"correlation": cor,
-		}).Error("Unable to update dimension, not retrying")
-	}
-}
-
-func (cc *Client) Get(dimName string, dimValue string, callback func(map[string][]string, error)) {
-	ctx, cancel := context.WithCancel(requestcounter.ContextWithRequestCounter(context.Background()))
+// Correlate
+func (cc *Client) Correlate(cor *Correlation, cb CorrelateCB) {
 	err := cc.putRequestOnChan(&request{
-		contextWithCancel: &contextWithCancel{ctx: ctx, cancel: cancel},
+		Correlation: cor,
+		operation:   http.MethodPut,
+		callback: func(body []byte, statuscode int, err error) {
+			switch statuscode {
+			case http.StatusOK:
+				if cc.logUpdates {
+					log.WithFields(log.Fields{"method": http.MethodPut, "correlation": cor}).Info("Updated dimension")
+				}
+			case http.StatusTeapot:
+				max := &ErrMaxEntries{}
+				err = json.Unmarshal(body, max)
+				if err == nil {
+					err = max
+				}
+			}
+			if err != nil {
+				log.WithError(err).WithFields(log.Fields{"method": http.MethodPut, "correlation": cor}).Error("Unable to update dimension, not retrying")
+			}
+			cb(cor, err)
+		}})
+	if err != nil {
+		log.WithError(err).WithFields(log.Fields{"method": http.MethodPut, "correlation": cor}).Debug("Unable to update dimension, not retrying")
+	}
+}
+
+// SuccessfulDeleteCB is a call back that is only invoked on successful Deletion operations
+type SuccessfulDeleteCB func(cor *Correlation)
+
+// Delete removes a correlation
+func (cc *Client) Delete(cor *Correlation, callback SuccessfulDeleteCB) {
+	err := cc.putRequestOnChan(&request{
+		Correlation: cor,
+		operation:   http.MethodDelete,
+		callback: func(_ []byte, statuscode int, err error) {
+			switch statuscode {
+			case http.StatusOK:
+				callback(cor)
+				if cc.logUpdates {
+					log.WithFields(log.Fields{"method": http.MethodDelete, "correlation": cor}).Info("Updated dimension")
+				}
+			default:
+				log.WithError(err).Error("Unable to update dimension, not retrying")
+			}
+		}})
+	if err != nil {
+		log.WithError(err).WithFields(log.Fields{"method": http.MethodDelete, "correlation": cor}).Debug("Unable to update dimension, not retrying")
+	}
+}
+
+// SuccessfulGetCB
+type SuccessfulGetCB func(map[string][]string)
+
+// Get
+func (cc *Client) Get(dimName string, dimValue string, callback SuccessfulGetCB) {
+	err := cc.putRequestOnChan(&request{
 		Correlation: &Correlation{
 			DimName:  dimName,
 			DimValue: dimValue,
 		},
 		operation: http.MethodGet,
-		callback: func(r *request, body []byte, _ error) {
-			// on success unmarshal the response body and
-			// pass it to the call back
-			var response = map[string][]string{}
-			callback(response, json.Unmarshal(body, &response))
+		callback: func(body []byte, statuscode int, err error) {
+			switch statuscode {
+			case http.StatusOK:
+				var response = map[string][]string{}
+				err = json.Unmarshal(body, &response)
+				if err != nil {
+					log.WithError(err).WithFields(log.Fields{"dim": dimName, "value": dimValue}).Error("Unable to unmarshall correlations for dimension")
+					return
+				}
+				callback(response)
+			case http.StatusNotFound:
+				// only log this as debug because we do a blanket fetch of correlations on the backend
+				// and if the backend fails to find anything this isn't really an error for us
+				log.WithError(err).Debug("Unable to update dimension, not retrying")
+			default:
+				log.WithError(err).Error("Unable to update dimension, not retrying")
+			}
 		},
 	})
-	if err != nil && err != context.DeadlineExceeded {
-		log.WithError(err).WithFields(log.Fields{
-			"dimensionName":  dimName,
-			"dimensionValue": dimValue,
-		}).Error("Unable to retrieve correlations for dimension, not retrying")
+	if err != nil {
+		log.WithError(err).WithFields(log.Fields{"dimensionName": dimName, "dimensionValue": dimValue}).Debug("Unable to retrieve correlations for dimension, not retrying")
 	}
 }
 
-func (cc *Client) makeRequest(r *request) error {
+func (cc *Client) makeRequest(r *request) {
 	var (
 		req *http.Request
 		err error
 	)
-
-	if r.DimName == "" || r.DimValue == "" {
-		atomic.AddInt64(&cc.TotalInvalidDimensions, int64(1))
-		return errors.New("dimension is missing key or value")
-	}
 
 	// build endpoint url
 	endpoint := fmt.Sprintf("%s/v2/apm/correlate/%s/%s", cc.APIURL, url.PathEscape(r.DimName), url.PathEscape(r.DimValue))
@@ -245,67 +285,54 @@ func (cc *Client) makeRequest(r *request) error {
 		endpoint = fmt.Sprintf("%s/%s/%s", endpoint, r.Type, url.PathEscape(r.Value))
 		req, err = http.NewRequest(r.operation, endpoint, nil)
 	default:
-		return fmt.Errorf("unknown operation")
+		err = fmt.Errorf("unknown operation")
 	}
 
 	if err != nil {
-		return err
+		// logging this as debug because this means there's something fundamentally wrong with the request
+		// and because this isn't being taken off on the request sender and subject to retries, this could
+		// potentially spam the logs long term.  This would be a really good candidate for a throttled error logger
+		log.WithError(err).WithFields(log.Fields{"method": r.operation, "correlation": r.Correlation}).Debug("Unable to make request, not retrying")
+		r.cancel()
+		return
 	}
 
 	req.Header.Add("X-SF-TOKEN", cc.Token)
 
 	req = req.WithContext(
 		context.WithValue(req.Context(), requests.RequestFailedCallbackKey, requests.RequestFailedCallback(func(body []byte, statusCode int, err error) {
-			logFields := log.Fields{
-				"method":      req.Method,
-				"url":         req.URL.String(),
-				"correlation": r.Correlation,
-			}
-			if statusCode >= 400 && statusCode < 500 {
-				// Don't retry if it is a 4xx error since these
-				// imply an input/auth error, which is not going to be remedied
-				// by retrying.
-				atomic.AddInt64(&cc.TotalClientError4xxResponses, int64(1))
-
-				// don't log a message if we get 404 NotFound on GET
-				if statusCode == 404 && r.operation == http.MethodGet {
-					log.WithError(err).WithFields(logFields).Debug("Unable to update dimension, not retrying")
-				} else {
-					log.WithError(err).WithFields(logFields).Error("Unable to update dimension, not retrying")
+			// retry if the http status code is not 4XX. A 4xx or http client error implies
+			// an error that is not going to be remedied by retrying.
+			if statusCode < 400 || statusCode >= 500 {
+				// The retry (for non 400 errors) is meant to provide some measure of robustness against
+				// temporary API failures.  If the API is down for significant
+				// periods of time, correlation updates will probably eventually back
+				// up beyond conf.PropertiesMaxBuffered and start dropping.
+				retryErr := cc.putRequestOnRetryChan(r)
+				if retryErr == nil {
+					log.WithError(err).WithFields(log.Fields{"method": req.Method, "correlation": r.Correlation}).Debug("Unable to update dimension, retrying")
+					return
 				}
-
-				// cancel the request as context
-				r.cancel()
-				return
+			} else {
+				atomic.AddInt64(&cc.TotalClientError4xxResponses, int64(1))
 			}
 
-			// The retry (for non 400 errors) is meant to provide some measure of robustness against
-			// temporary API failures.  If the API is down for significant
-			// periods of time, correlation updates will probably eventually back
-			// up beyond conf.PropertiesMaxBuffered and start dropping.
-			retryErr := cc.putRequestOnRetryChan(r)
-			if retryErr != nil {
-				r.cancel()
-				log.WithError(err).WithFields(logFields).WithError(retryErr).Error("Unable to update dimension, unable to retry")
-				return
-			}
+			// invoke the callback
+			r.callback(body, statusCode, err)
 
-			// successfully queued request to retry
-			log.WithError(err).WithFields(logFields).Debug("Unable to update dimension, retrying")
-
+			// cancel the request context
+			r.cancel()
 		})))
 
 	req = req.WithContext(
 		context.WithValue(req.Context(), requests.RequestSuccessCallbackKey, requests.RequestSuccessCallback(func(body []byte) {
-			r.callback(r, body, nil)
-			// cancel the request context
+			r.callback(body, http.StatusOK, nil)
+			// close the request context
 			r.cancel()
 		})))
 
 	// This will block if we don't have enough requests
 	cc.requestSender.Send(req)
-
-	return nil
 }
 
 // routines
@@ -317,15 +344,11 @@ func (cc *Client) processChan() {
 		case <-cc.ctx.Done():
 			return
 		case r := <-cc.requestChan:
-			if !cc.dedup.isDup(r) {
-				err := cc.makeRequest(r)
-				if err != nil {
-					log.WithError(err).WithFields(log.Fields{
-						"method":      r.operation,
-						"correlation": r.Correlation,
-					}).Error("Unable to make request, not retrying")
-				}
+			if cc.dedup.isDup(r) {
+				r.cancel()
+				continue
 			}
+			cc.makeRequest(r)
 		}
 	}
 }
@@ -338,19 +361,13 @@ func (cc *Client) processRetryChan() {
 		case <-cc.ctx.Done(): // client is shutdown
 			return
 		case r := <-cc.retryChan:
-			if r.ctx.Err() != nil { // request is cancelled
+			if r.ctx.Err() != nil {
 				continue
 			}
 			select {
 			case <-time.After(time.Until(r.sendAt)): // wait and resend the request
 				atomic.AddInt64(&cc.TotalRetriedUpdates, int64(1))
-				err := cc.makeRequest(r)
-				if err != nil {
-					log.WithError(err).WithFields(log.Fields{
-						"method":      r.operation,
-						"correlation": r.Correlation,
-					}).Error("Unable to make request, not retrying")
-				}
+				cc.makeRequest(r)
 			case <-r.ctx.Done(): // request is cancelled
 				continue
 			case <-cc.ctx.Done(): // client is shutdown

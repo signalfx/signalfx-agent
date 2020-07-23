@@ -160,9 +160,9 @@ func TestCorrelationClient(t *testing.T) {
 				testData := &Correlation{Type: correlationType, DimName: "host", DimValue: "test-box", Value: "test-service"}
 				switch op {
 				case http.MethodPut:
-					client.Correlate(testData)
+					client.Correlate(testData, CorrelateCB(func(_ *Correlation, _ error) {}))
 				case http.MethodDelete:
-					client.Delete(testData)
+					client.Delete(testData, SuccessfulDeleteCB(func(_ *Correlation) {}))
 				}
 				cors := waitForCors(serverCh, 1, 5)
 				require.Equal(t, []*request{{operation: op, Correlation: testData}}, cors)
@@ -179,14 +179,12 @@ func TestCorrelationClient(t *testing.T) {
 		var wg sync.WaitGroup
 		wg.Add(1)
 		var receivedPayload map[string][]string
-		client.Get("host", "test-box", func(resp map[string][]string, er error) {
+		client.Get("host", "test-box", SuccessfulGetCB(func(resp map[string][]string) {
 			receivedPayload = resp
-			err = er
 			wg.Done()
-		})
+		}))
 		wg.Wait()
 
-		require.Nil(t, err, "client returned error")
 		require.Equal(t, respPayload, receivedPayload)
 
 		cors := waitForCors(serverCh, 1, 3)
@@ -196,7 +194,7 @@ func TestCorrelationClient(t *testing.T) {
 		forcedRespCode.Store(400)
 
 		testData := &Correlation{Type: Service, DimName: "host", DimValue: "test-box", Value: "test-service"}
-		client.Correlate(testData)
+		client.Correlate(testData, CorrelateCB(func(_ *Correlation, _ error) {}))
 
 		cors := waitForCors(serverCh, 1, 3)
 		require.Len(t, cors, 0)
@@ -209,7 +207,11 @@ func TestCorrelationClient(t *testing.T) {
 		forcedRespCode.Store(500)
 		require.Equal(t, int64(0), atomic.LoadInt64(&client.(*Client).TotalRetriedUpdates), "test cleaned up correctly")
 		testData := &Correlation{Type: Service, DimName: "host", DimValue: "test-box", Value: "test-service"}
-		client.Correlate(testData)
+		client.Correlate(testData, CorrelateCB(func(_ *Correlation, _ error) {}))
+		// sending the testData twice tests deduplication, since the 500 status
+		// will trigger retries, and the requests should be deduped and the
+		// TotalRertriedUpdates should still only be 5
+		client.Correlate(testData, CorrelateCB(func(_ *Correlation, _ error) {}))
 
 		cors := waitForCors(serverCh, 1, 4)
 		require.Len(t, cors, 0)
