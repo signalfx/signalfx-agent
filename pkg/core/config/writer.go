@@ -95,6 +95,8 @@ type WriterConfig struct {
 	// https://golang.org/pkg/time/#ParseDuration.  This option is irrelevant if
 	// `sendTraceHostCorrelationMetrics` is false.
 	TraceHostCorrelationMetricsInterval timeutil.Duration `yaml:"traceHostCorrelationMetricsInterval" default:"1m"`
+	// How many times to retry requests related to trace host correlation
+	TraceHostCorrelationMaxRequestsRetries uint `yaml:"traceHostCorrelationMaxRequestRetries" default:"100"`
 	// How many trace spans are allowed to be in the process of sending.  While
 	// this number is exceeded, the oldest spans will be discarded to
 	// accommodate new spans generated to avoid memory exhaustion.  If you see

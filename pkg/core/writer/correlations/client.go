@@ -19,8 +19,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const defaultMaxRequests = 100
-
 var ErrChFull = errors.New("request channel full")
 var errRetryChFull = errors.New("retry channel full")
 var errMaxAttempts = errors.New("maximum attempts exceeded")
@@ -77,7 +75,7 @@ type Client struct {
 	logUpdates bool
 
 	sendDelay   time.Duration
-	maxAttempts int64
+	maxAttempts uint32
 
 	TotalClientError4xxResponses int64
 	TotalRetriedUpdates          int64
@@ -85,7 +83,7 @@ type Client struct {
 }
 
 // NewCorrelationClient returns a new Client
-func NewCorrelationClient(ctx context.Context, maxAttempts int64, conf *config.WriterConfig) (CorrelationClient, error) {
+func NewCorrelationClient(ctx context.Context, conf *config.WriterConfig) (CorrelationClient, error) {
 	client := &http.Client{
 		Timeout: 10 * time.Second,
 		Transport: &http.Transport{
@@ -100,9 +98,6 @@ func NewCorrelationClient(ctx context.Context, maxAttempts int64, conf *config.W
 			TLSHandshakeTimeout: 10 * time.Second,
 		},
 	}
-	if maxAttempts == 0 {
-		maxAttempts = defaultMaxRequests
-	}
 	sender := requests.NewReqSender(ctx, client, conf.PropertiesMaxRequests, map[string]string{"client": "correlation"})
 	return &Client{
 		ctx:           ctx,
@@ -116,7 +111,7 @@ func NewCorrelationClient(ctx context.Context, maxAttempts int64, conf *config.W
 		retryChan:     make(chan *request, conf.PropertiesMaxBuffered),
 		dedup:         newDeduplicator(int(conf.PropertiesMaxBuffered)),
 		sendDelay:     time.Duration(conf.PropertiesSendDelaySeconds) * time.Second,
-		maxAttempts:   maxAttempts,
+		maxAttempts:   uint32(conf.TraceHostCorrelationMaxRequestsRetries) + 1,
 	}, nil
 }
 
@@ -147,7 +142,7 @@ func (cc *Client) putRequestOnChan(r *request) error {
 
 func (cc *Client) putRequestOnRetryChan(r *request) error {
 	// handle request counter
-	if int64(requestcounter.GetRequestCount(r.ctx)) == cc.maxAttempts {
+	if requestcounter.GetRequestCount(r.ctx) == cc.maxAttempts {
 		return errMaxAttempts
 	}
 	requestcounter.IncrementRequestCount(r.ctx)
