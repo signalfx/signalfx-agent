@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/http/httpguts"
+
 	"github.com/mitchellh/hashstructure"
 	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/pkg/core/dpfilters"
@@ -163,6 +165,10 @@ func (wc *WriterConfig) IsSignalFxOutputEnabled() bool {
 func (wc *WriterConfig) Validate() error {
 	if !wc.IsSplunkOutputEnabled() && !wc.IsSignalFxOutputEnabled() {
 		return errors.New("both SignalFx and Splunk output are disabled, at least one must be enabled")
+	}
+
+	if !httpguts.ValidHeaderFieldValue(wc.SignalFxAccessToken) {
+		return errors.New("the SignalFx Access Token does not pass http header validation and is likely malformed")
 	}
 
 	if _, err := wc.DatapointFilters(); err != nil {
