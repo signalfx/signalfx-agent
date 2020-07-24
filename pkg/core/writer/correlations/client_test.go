@@ -132,13 +132,13 @@ func setup() (CorrelationClient, chan *request, *atomic.Value, *atomic.Value, co
 	}()
 
 	client, err := NewCorrelationClient(ctx, &config.WriterConfig{
-		PropertiesMaxBuffered:                  10,
-		PropertiesMaxRequests:                  10,
-		PropertiesSendDelaySeconds:             0,
-		PropertiesHistorySize:                  1000,
-		LogDimensionUpdates:                    true,
-		APIURL:                                 server.URL,
-		TraceHostCorrelationMaxRequestsRetries: 4,
+		PropertiesMaxBuffered:                 10,
+		PropertiesMaxRequests:                 10,
+		PropertiesSendDelaySeconds:            0,
+		PropertiesHistorySize:                 1000,
+		LogDimensionUpdates:                   true,
+		APIURL:                                server.URL,
+		TraceHostCorrelationMaxRequestRetries: 4,
 	})
 	if err != nil {
 		panic("could not make correlation client: " + err.Error())

@@ -111,7 +111,7 @@ func NewCorrelationClient(ctx context.Context, conf *config.WriterConfig) (Corre
 		retryChan:     make(chan *request, conf.PropertiesMaxBuffered),
 		dedup:         newDeduplicator(int(conf.PropertiesMaxBuffered)),
 		sendDelay:     time.Duration(conf.PropertiesSendDelaySeconds) * time.Second,
-		maxAttempts:   uint32(conf.TraceHostCorrelationMaxRequestsRetries) + 1,
+		maxAttempts:   uint32(conf.TraceHostCorrelationMaxRequestRetries) + 1,
 	}, nil
 }
 
