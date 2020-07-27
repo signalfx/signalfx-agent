@@ -13,6 +13,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/signalfx/golib/v3/datapoint"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/requests"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/requests/requestcounter"
@@ -41,17 +43,14 @@ type CorrelationClient interface {
 	Correlate(*Correlation, CorrelateCB)
 	Delete(*Correlation, SuccessfulDeleteCB)
 	Get(dimName string, dimValue string, cb SuccessfulGetCB)
+	InternalMetrics() []*datapoint.Datapoint
 	Start()
-}
-
-type contextWithCancel struct {
-	ctx    context.Context
-	cancel context.CancelFunc
 }
 
 type request struct {
 	*Correlation
-	*contextWithCancel
+	ctx       context.Context
+	cancel    context.CancelFunc
 	operation string
 	callback  func(body []byte, statuscode int, err error)
 	sendAt    time.Time
@@ -80,6 +79,7 @@ type Client struct {
 	TotalClientError4xxResponses int64
 	TotalRetriedUpdates          int64
 	TotalInvalidDimensions       int64
+	dedupPurgeInterval           time.Duration
 }
 
 // NewCorrelationClient returns a new Client
@@ -100,18 +100,19 @@ func NewCorrelationClient(ctx context.Context, conf *config.WriterConfig) (Corre
 	}
 	sender := requests.NewReqSender(ctx, client, conf.PropertiesMaxRequests, map[string]string{"client": "correlation"})
 	return &Client{
-		ctx:           ctx,
-		Token:         conf.SignalFxAccessToken,
-		APIURL:        conf.ParsedAPIURL(),
-		requestSender: sender,
-		client:        client,
-		now:           time.Now,
-		logUpdates:    conf.LogDimensionUpdates,
-		requestChan:   make(chan *request, conf.PropertiesMaxBuffered),
-		retryChan:     make(chan *request, conf.PropertiesMaxBuffered),
-		dedup:         newDeduplicator(int(conf.PropertiesMaxBuffered)),
-		sendDelay:     time.Duration(conf.PropertiesSendDelaySeconds) * time.Second,
-		maxAttempts:   uint32(conf.TraceHostCorrelationMaxRequestRetries) + 1,
+		ctx:                ctx,
+		Token:              conf.SignalFxAccessToken,
+		APIURL:             conf.ParsedAPIURL(),
+		requestSender:      sender,
+		client:             client,
+		now:                time.Now,
+		logUpdates:         conf.LogDimensionUpdates,
+		requestChan:        make(chan *request, conf.PropertiesMaxBuffered),
+		retryChan:          make(chan *request, conf.PropertiesMaxBuffered),
+		dedup:              newDeduplicator(int(conf.PropertiesMaxBuffered)),
+		sendDelay:          time.Duration(conf.PropertiesSendDelaySeconds) * time.Second,
+		maxAttempts:        uint32(conf.TraceHostCorrelationMaxRequestRetries) + 1,
+		dedupPurgeInterval: conf.TraceHostCorrelationPurgeInterval.AsDuration(),
 	}, nil
 }
 
@@ -126,7 +127,6 @@ func (cc *Client) putRequestOnChan(r *request) error {
 		return nil
 	}
 
-	r.contextWithCancel = &contextWithCancel{}
 	r.ctx, r.cancel = context.WithCancel(requestcounter.ContextWithRequestCounter(context.Background()))
 
 	var err error
@@ -334,10 +334,15 @@ func (cc *Client) makeRequest(r *request) {
 // processChan processes incoming requests, drops duplicates, and cancels conflicting requests
 func (cc *Client) processChan() {
 	defer cc.wg.Done()
+	purgeDeduper := time.NewTimer(cc.dedupPurgeInterval)
+	defer purgeDeduper.Stop()
 	for {
 		select {
 		case <-cc.ctx.Done():
 			return
+		case <-purgeDeduper.C:
+			cc.dedup.purge()
+			purgeDeduper.Reset(cc.dedupPurgeInterval)
 		case r := <-cc.requestChan:
 			if cc.dedup.isDup(r) {
 				r.cancel()

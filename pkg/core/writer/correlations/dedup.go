@@ -1,55 +1,136 @@
 package correlations
 
 import (
+	"container/list"
 	"net/http"
-
-	"github.com/golang/groupcache/lru"
 )
 
 // deduplicator deduplicates requests and cancels pending conflicting requests and deduplicates
 // this is not threadsafe
 type deduplicator struct {
 	// maps for deduplicating requests
-	pendingCreates *lru.Cache
-	pendingDeletes *lru.Cache
+	maxSize           int
+	pendingCreates    *list.List
+	pendingCreateKeys map[Correlation]*list.Element
+	pendingDeletes    *list.List
+	pendingDeleteKeys map[Correlation]*list.Element
+}
+
+func (d *deduplicator) purgeCreates() {
+	var elem = d.pendingCreates.Front()
+	for {
+		if elem == nil {
+			return
+		}
+		if elem.Value.(*request).ctx.Err() != nil {
+			toDelete := elem
+			elem = elem.Next()
+			d.pendingCreates.Remove(toDelete)
+			delete(d.pendingCreateKeys, *toDelete.Value.(*request).Correlation)
+		} else {
+			elem = elem.Next()
+		}
+	}
+}
+
+func (d *deduplicator) purgeDeletes() {
+	var elem = d.pendingDeletes.Front()
+	for {
+		if elem == nil {
+			return
+		}
+		if elem.Value.(*request).ctx.Err() != nil {
+			toDelete := elem
+			elem = elem.Next()
+			d.pendingDeletes.Remove(toDelete)
+			delete(d.pendingDeleteKeys, *toDelete.Value.(*request).Correlation)
+		} else {
+			elem = elem.Next()
+		}
+	}
+}
+
+func (d *deduplicator) purge() {
+	d.purgeCreates()
+	d.purgeDeletes()
+}
+
+func (d *deduplicator) evictPendingDelete() {
+	var elem = d.pendingDeletes.Back()
+	if elem != nil {
+		req, ok := elem.Value.(*request)
+		if ok {
+			req.cancel()
+			d.pendingDeletes.Remove(elem)
+			delete(d.pendingDeleteKeys, *req.Correlation)
+		}
+	}
+}
+
+func (d *deduplicator) evictPendingCreate() {
+	var elem = d.pendingCreates.Back()
+	if elem != nil {
+		req, ok := elem.Value.(*request)
+		if ok {
+			req.cancel()
+			d.pendingCreates.Remove(elem)
+			delete(d.pendingCreateKeys, *req.Correlation)
+
+		}
+	}
 }
 
 func (d *deduplicator) dedupCorrelate(r *request) bool {
 	// look for duplicate pending creates
-	pendingCreate, ok := d.pendingCreates.Get(*r.Correlation)
-	if ok && pendingCreate.(*contextWithCancel).ctx.Err() == nil {
+	pendingCreate, ok := d.pendingCreateKeys[*r.Correlation]
+	if ok && pendingCreate.Value.(*request).ctx.Err() == nil {
 		// return true if there is a context for the key and the context has not expired
 		return true
 	}
 
-	// store the new request's context cancellation function
-	d.pendingCreates.Add(*r.Correlation, r.contextWithCancel)
+	// make room if necessary
+	if len(d.pendingCreateKeys) >= d.maxSize {
+		d.evictPendingCreate()
+	}
+
+	// insert the request into the pendingCreates
+	elem := d.pendingCreates.PushFront(r)
+	d.pendingCreateKeys[*r.Correlation] = elem
 
 	// cancel any pending delete operations
-	cancelDelete, deletePending := d.pendingDeletes.Get(*r.Correlation)
-	if deletePending {
-		cancelDelete.(*contextWithCancel).cancel()
-		d.pendingDeletes.Remove(*r.Correlation)
+	deleteElem, pendindgDelete := d.pendingDeleteKeys[*r.Correlation]
+	if pendindgDelete {
+		deleteElem.Value.(*request).cancel()
+		d.pendingDeletes.Remove(deleteElem)
+		delete(d.pendingDeleteKeys, *deleteElem.Value.(*request).Correlation)
 	}
 
 	return false
 }
 
 func (d *deduplicator) dedupDelete(r *request) bool {
-	// look for duplicate deletes
-	pendingCreate, ok := d.pendingDeletes.Get(*r.Correlation)
-	if ok && pendingCreate.(*contextWithCancel).ctx.Err() == nil {
+	// look for duplicate pending creates
+	pendingDelete, ok := d.pendingDeleteKeys[*r.Correlation]
+	if ok && pendingDelete.Value.(*request).ctx.Err() == nil {
+		// return true if there is a context for the key and the context has not expired
 		return true
 	}
 
-	// store the new request's context cancellation function
-	d.pendingDeletes.Add(*r.Correlation, r.contextWithCancel)
+	// make room if necessary
+	if len(d.pendingDeleteKeys) >= d.maxSize {
+		d.evictPendingDelete()
+	}
+
+	// insert the request into the pendingDeletes
+	elem := d.pendingDeletes.PushFront(r)
+	d.pendingDeleteKeys[*r.Correlation] = elem
 
 	// cancel any pending create operations
-	cancelCreate, createPending := d.pendingCreates.Get(*r.Correlation)
-	if createPending {
-		cancelCreate.(*contextWithCancel).cancel()
-		d.pendingCreates.Remove(*r.Correlation)
+	createElem, pendindgCreate := d.pendingCreateKeys[*r.Correlation]
+	if pendindgCreate {
+		createElem.Value.(*request).cancel()
+		d.pendingCreates.Remove(createElem)
+		delete(d.pendingCreateKeys, *createElem.Value.(*request).Correlation)
 	}
 
 	return false
@@ -70,7 +151,10 @@ func (d *deduplicator) isDup(r *request) (isDup bool) {
 // newDeduplicator returns a new instance
 func newDeduplicator(size int) *deduplicator {
 	return &deduplicator{
-		pendingCreates: lru.New(size),
-		pendingDeletes: lru.New(size),
+		maxSize:           size,
+		pendingCreates:    list.New(),
+		pendingCreateKeys: make(map[Correlation]*list.Element),
+		pendingDeletes:    list.New(),
+		pendingDeleteKeys: make(map[Correlation]*list.Element),
 	}
 }
