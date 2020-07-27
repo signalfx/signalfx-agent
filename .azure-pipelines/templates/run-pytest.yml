@@ -13,7 +13,7 @@ steps:
     packages: ${{ parameters.chocoPackages }}
 - powershell: |
     if ((Get-Command "conda.exe" -ErrorAction SilentlyContinue) -eq $null) {
-        choco install -y --no-progress --limitoutput miniconda3
+        choco install -y --no-progress --limitoutput miniconda3 --version=4.8.3
         $env:PATH = "C:\tools\miniconda3\Scripts;C:\tools\miniconda3;C:\tools\miniconda3\Library\bin;$env:PATH"
         echo "##vso[task.setvariable variable=PATH]$env:PATH"
         $env:LIB = "C:\tools\miniconda3\Library\lib;$env:LIB"
@@ -25,10 +25,11 @@ steps:
   displayName: 'Install conda'
   condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
 - powershell: |
-    conda install --yes python=3.8.0 pip=10.0.1
+    conda install --yes python=3.8
     python --version
+    python -m pip install --upgrade pip==20.0.2
     pip --version
-    pip install -q -r tests\requirements.txt
+    pip install -r tests\requirements.txt
   displayName: 'Install pytest'
   condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
 - powershell: |
