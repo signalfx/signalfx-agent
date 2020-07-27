@@ -30935,6 +30935,9 @@
             "sfxagent.active_monitors",
             "sfxagent.active_observers",
             "sfxagent.configured_monitors",
+            "sfxagent.correlation_updates_client_errors",
+            "sfxagent.correlation_updates_invalid",
+            "sfxagent.correlation_updates_retries",
             "sfxagent.datapoint_channel_len",
             "sfxagent.datapoint_requests_active",
             "sfxagent.datapoints_failed",
@@ -30984,6 +30987,24 @@
         "sfxagent.configured_monitors": {
           "type": "gauge",
           "description": "The total number of monitor configurations",
+          "group": null,
+          "default": true
+        },
+        "sfxagent.correlation_updates_client_errors": {
+          "type": "cumulative",
+          "description": "The number of HTTP status code 4xx responses received while updating trace host correlations",
+          "group": null,
+          "default": true
+        },
+        "sfxagent.correlation_updates_invalid": {
+          "type": "cumulative",
+          "description": "The number of trace host correlation updates attempted against invalid dimensions",
+          "group": null,
+          "default": true
+        },
+        "sfxagent.correlation_updates_retries": {
+          "type": "cumulative",
+          "description": "The total number of times a trace host correlation requests have been retried",
           "group": null,
           "default": true
         },

@@ -149,6 +149,9 @@ func (c *correlationTestClient) Delete(cl *correlations.Correlation, cb correlat
 	cb(cl)
 	atomic.AddInt64(&c.deleteCounter, 1)
 }
+func (c *correlationTestClient) InternalMetrics() []*datapoint.Datapoint {
+	return nil
+}
 func (c *correlationTestClient) getCorrelations() []*correlations.Correlation {
 	c.Lock()
 	defer c.Unlock()
