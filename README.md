@@ -79,7 +79,7 @@ relatively modern Linux distribution (kernel version 2.6+).
 The agent is also available on Windows in standalone form.  It
 contains its own Python runtime, but has an external depencency on the
 [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
-in order to operate.  The agent supports Windows Server 2008 and above.
+in order to operate.  The agent supports Windows Server 2012 and above.
 
 To get started deploying the Smart Agent directly on a host, see the
 [Smart Agent Quick Install](./docs/quick-install.md) guide.

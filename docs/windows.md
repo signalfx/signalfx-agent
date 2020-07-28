@@ -1,6 +1,6 @@
 # Windows Setup
 
-The agent supports standalone installations on Windows Server 2008 and above.
+The agent supports standalone installations on Windows Server 2012 and above.
 
 ## Installation
 
