@@ -33,6 +33,10 @@ data:
     traceEndpointUrl: {{ .Values.traceEndpointUrl }}
     {{- end }}
 
+    {{- if.Values.isWindows }}
+    hostname: {"#from": "env:MY_NODE_NAME"}
+    {{- end }}
+
     disableHostDimensions: {{ toYaml .Values.isServerless }}
 
     etcPath: {{ .Values.etcPath }}
@@ -105,10 +109,12 @@ data:
       hostFSPath: {{ .Values.hostFSPath }}
     - type: disk-io
     - type: net-io
+    {{- if not .Values.isWindows }}
     - type: load
       {{- if .Values.loadPerCPU }}
       perCPU: true
       {{- end }}
+    {{- end }}
     - type: memory
     - type: host-metadata
     - type: processlist
@@ -166,6 +172,14 @@ data:
           - '*'
           - '!*network*'
       {{- end }}
+      {{ with .Values.kubeletExtraMetrics -}}
+      extraMetrics:
+        {{ toYaml . | indent 8 | trim }}
+      {{- end }}
+      {{ with .Values.kubeletMetricNameTransformations -}}
+      metricNameTransformations:
+        {{ toYaml . | indent 8 | trim }}
+      {{- end }}
 
     {{ if .Values.gatherClusterMetrics -}}
     # Collects k8s cluster-level metrics
@@ -205,6 +219,9 @@ data:
     {{ end }}
 
     collectd:
+      {{ if or .Values.isWindows .Values.collectd.disableCollectd -}}
+      disableCollectd: true
+      {{- end }}
       readThreads: {{ .Values.readThreads | default 5 }}
       writeQueueLimitHigh: {{ .Values.writeQueueLimitHigh | default 500000 }}
       writeQueueLimitLow: {{ .Values.writeQueueLimitLow | default 400000 }}

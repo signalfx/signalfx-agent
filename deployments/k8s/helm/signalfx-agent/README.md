@@ -63,3 +63,54 @@ If you are using OpenShift set `kubernetesDistro` to `openshift` to get
 OpenShift-specific functionality:
 
 `$ helm install --version <HELM_CHART_VERSION> --set signalFxAccessToken=<YOUR_ACCESS_TOKEN> --set clusterName=<YOUR_CLUSTER_NAME> --set agentVersion=<VERSION_NUMBER> --set signalFxRealm=<YOUR_SIGNALFX_REALM> signalfx/signalfx-agent --set kubernetesDistro=openshift`
+
+### Windows
+
+If you are deploying the agent to a mixed Linux/Windows cluster (as of the time
+of writing, master components had to run on Linux nodes so a mixed cluster was
+inevitable), you can use a beta version of the agent built as a Windows Docker
+container.  You must deploy two separate Helm releases, one for Linux and one
+for Windows.  The Linux release will be normal -- you don't have to do anything
+special in your Helm values to account for the additional Windows nodes. The
+Helm chart has been updated to include a `nodeSelector` on the
+`kubernetes.io/os` node label so that it will only deploy to Linux nodes by
+default.
+
+The Windows Helm release of the agent requires some special config to make work:
+
+```yaml
+# This triggers a set of tweaks to the deployment that make it work better for
+# Windows.
+isWindows: true
+hostPath: C:\\hostfs
+# Let the Linux Helm release do cluster metrics.
+gatherClusterMetrics: false
+# Docker isn't exposed on Windows
+gatherDockerMetrics: false
+
+agentVersion: 5.4.0
+
+# Kubelet on Windows doesn't seem to have the usage_bytes metrics so we'll
+# transform the working set metric to it so that built-in content works.
+kubeletMetricNameTransformations:
+  container_memory_working_set_bytes: container_memory_usage_bytes
+kubeletExtraMetrics:
+  - container_memory_working_set_bytes
+
+kubeletAPI:
+  # We can't use hostNetworking on Windows so we have to connect to the node by
+  # its IP address instead of localhost.
+  url: 'https://${MY_NODE_IP}:10250'
+  authType: serviceAccount
+  skipVerify: true
+
+image:
+  repository: quay.io/signalfx/signalfx-agent-dev
+  # This is a special beta release of the agent for Windows.
+  tag: 5.4.0-windows-beta1
+  pullPolicy: Always
+```
+
+You can deploy two separate Helm releases of the agent into the same namespace
+on Kubernetes if you like, there will be no conflict.  Obviously the releases
+just need to have separate names.
