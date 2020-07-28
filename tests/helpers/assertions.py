@@ -28,51 +28,6 @@ def has_datapoint_with_dim_key(fake_services, dim_key):
     return False
 
 
-def has_datapoint_with_value_greater_than_or_equal_to(
-    fake_services, metric_name=None, dimensions=None, value=None, metric_type=None, count=1
-):
-    """
-    Returns True if there is a datapoint seen in the fake_services backend that
-    has the given attributes.  If a property is not specified it will not be
-    considered.  Dimensions, if provided, will be tested as a subset of total
-    set of dimensions on the datapoint and not the complete set.
-    """
-    found = 0
-    # Try and cull the number of datapoints that have to be searched since we
-    # have to check each datapoint.
-    if dimensions is not None:
-        datapoints = []
-        for k, v in dimensions.items():
-            datapoints += fake_services.datapoints_by_dim[f"{k}:{v}"]
-    elif metric_name is not None:
-        datapoints = fake_services.datapoints_by_metric[metric_name]
-    else:
-        datapoints = fake_services.datapoints
-
-    for dp in fake_services.datapoints:
-        if metric_name and dp.metric != metric_name:
-            continue
-        if dimensions and not has_all_dims(dp, dimensions):
-            continue
-        if metric_type and dp.metricType != metric_type:
-            continue
-        if value is not None:
-            if dp.value.HasField("intValue"):
-                if dp.value.intValue < value:
-                    continue
-            elif dp.value.HasField("doubleValue"):
-                if dp.value.doubleValue < value:
-                    continue
-            else:
-                # Non-numeric values aren't supported, so they always fail to
-                # match
-                continue
-        found += 1
-        if found >= count:
-            return True
-    return False
-
-
 def has_all_dims(dp_or_event, dims):
     """
     Tests if `dims`'s are all in a certain datapoint or event
