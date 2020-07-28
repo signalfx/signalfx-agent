@@ -56292,7 +56292,7 @@
             {
               "yamlName": "traceHostCorrelationMaxRequestRetries",
               "doc": "How many times to retry requests related to trace host correlation",
-              "default": 100,
+              "default": 2,
               "required": false,
               "type": "uint",
               "elementKind": ""
