@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type cacheKey struct {
+type CacheKey struct {
 	dimName  string
 	dimValue string
 	value    string
@@ -14,7 +14,7 @@ type cacheKey struct {
 
 type cacheElem struct {
 	LastSeen time.Time
-	Obj      *cacheKey
+	Obj      *CacheKey
 }
 
 type TimeoutCache struct {
@@ -28,16 +28,36 @@ type TimeoutCache struct {
 	// Which keys are active currently.  The value is an entry in the
 	// keysByTime linked list so that it can be quickly accessed and
 	// moved to the back of the list.
-	keysActive map[cacheKey]*list.Element
+	keysActive map[CacheKey]*list.Element
 
 	// Internal metrics
 	ActiveCount int64
 	PurgedCount int64
+
+	maxSize         int64
+	maxSizeExpiryTS time.Time
+}
+
+// returns whether the cache is full
+func (t *TimeoutCache) IsFull() bool {
+	t.Lock()
+	defer t.Unlock()
+	if time.Now().Before(t.maxSizeExpiryTS) {
+		return int64(len(t.keysActive)) >= t.maxSize
+	}
+	return false
+}
+
+func (t *TimeoutCache) SetMaxSize(max int64, now time.Time) {
+	t.Lock()
+	defer t.Unlock()
+	t.maxSize = max
+	t.maxSizeExpiryTS = now.Add(time.Hour * 1)
 }
 
 // RunIfKeyDoesNotExist locks and runs the supplied function if the key does not exist.
 // Be careful not to perform cache operations inside of this function because they will deadlock
-func (t *TimeoutCache) RunIfKeyDoesNotExist(o *cacheKey, fn func()) {
+func (t *TimeoutCache) RunIfKeyDoesNotExist(o *CacheKey, fn func()) {
 	t.Lock()
 	defer t.Unlock()
 	if _, ok := t.keysActive[*o]; ok {
@@ -47,12 +67,14 @@ func (t *TimeoutCache) RunIfKeyDoesNotExist(o *cacheKey, fn func()) {
 }
 
 // UpdateOrCreate
-func (t *TimeoutCache) UpdateOrCreate(o *cacheKey, now time.Time) (isNew bool) {
+func (t *TimeoutCache) UpdateOrCreate(o *CacheKey, now time.Time) (isNew bool) {
 	t.Lock()
 	defer t.Unlock()
 	if timeElm, ok := t.keysActive[*o]; ok {
-		timeElm.Value.(*cacheElem).LastSeen = now
-		t.keysByTime.MoveToFront(timeElm)
+		if timeElm.Value.(*cacheElem).LastSeen.Before(now) {
+			timeElm.Value.(*cacheElem).LastSeen = now
+			t.keysByTime.MoveToFront(timeElm)
+		}
 	} else {
 		isNew = true
 		elm := t.keysByTime.PushFront(&cacheElem{
@@ -65,8 +87,60 @@ func (t *TimeoutCache) UpdateOrCreate(o *cacheKey, now time.Time) (isNew bool) {
 	return
 }
 
+// UpdateIfExists
+func (t *TimeoutCache) UpdateIfExists(o *CacheKey, now time.Time) bool {
+	t.Lock()
+	defer t.Unlock()
+	var timeElm *list.Element
+	var exists bool
+	if timeElm, exists = t.keysActive[*o]; exists {
+		timeElm.Value.(*cacheElem).LastSeen = now
+		t.keysByTime.MoveToFront(timeElm)
+	}
+	return exists
+}
+
+func (t *TimeoutCache) GetPurgeable(now time.Time) []*CacheKey {
+	t.Lock()
+	defer t.Unlock()
+
+	var candidates []*CacheKey
+	elm := t.keysByTime.Back()
+	for {
+		if elm == nil {
+			break
+		}
+
+		e := elm.Value.(*cacheElem)
+		// If this one isn't timed out, nothing else in the list is either.
+		if now.Sub(e.LastSeen) < t.timeout {
+			break
+		}
+
+		candidates = append(candidates, e.Obj)
+
+		elm = elm.Prev()
+	}
+
+	return candidates
+}
+
+func (t *TimeoutCache) Delete(key *CacheKey) {
+	t.Lock()
+	defer t.Unlock()
+
+	elem, ok := t.keysActive[*key]
+	if ok {
+		t.keysByTime.Remove(elem)
+		delete(t.keysActive, *key)
+
+		t.ActiveCount--
+		t.PurgedCount++
+	}
+}
+
 // PurgeOld
-func (t *TimeoutCache) PurgeOld(now time.Time, onPurge func(*cacheKey)) {
+func (t *TimeoutCache) PurgeOld(now time.Time, onPurge func(*CacheKey)) {
 	t.Lock()
 	defer t.Unlock()
 	for {
@@ -105,6 +179,6 @@ func NewTimeoutCache(timeout time.Duration) *TimeoutCache {
 	return &TimeoutCache{
 		timeout:    timeout,
 		keysByTime: list.New(),
-		keysActive: make(map[cacheKey]*list.Element),
+		keysActive: make(map[CacheKey]*list.Element),
 	}
 }

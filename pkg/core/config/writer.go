@@ -5,6 +5,8 @@ import (
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/http/httpguts"
+
 	"github.com/mitchellh/hashstructure"
 	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/pkg/core/dpfilters"
@@ -95,6 +97,8 @@ type WriterConfig struct {
 	// https://golang.org/pkg/time/#ParseDuration.  This option is irrelevant if
 	// `sendTraceHostCorrelationMetrics` is false.
 	TraceHostCorrelationMetricsInterval timeutil.Duration `yaml:"traceHostCorrelationMetricsInterval" default:"1m"`
+	// How many times to retry requests related to trace host correlation
+	TraceHostCorrelationMaxRequestRetries uint `yaml:"traceHostCorrelationMaxRequestRetries" default:"2"`
 	// How many trace spans are allowed to be in the process of sending.  While
 	// this number is exceeded, the oldest spans will be discarded to
 	// accommodate new spans generated to avoid memory exhaustion.  If you see
@@ -161,6 +165,10 @@ func (wc *WriterConfig) IsSignalFxOutputEnabled() bool {
 func (wc *WriterConfig) Validate() error {
 	if !wc.IsSplunkOutputEnabled() && !wc.IsSignalFxOutputEnabled() {
 		return errors.New("both SignalFx and Splunk output are disabled, at least one must be enabled")
+	}
+
+	if !httpguts.ValidHeaderFieldValue(wc.SignalFxAccessToken) {
+		return errors.New("the SignalFx Access Token does not pass http header validation and is likely malformed")
 	}
 
 	if _, err := wc.DatapointFilters(); err != nil {

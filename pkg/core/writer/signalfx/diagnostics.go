@@ -68,7 +68,7 @@ func (sw *Writer) DiagnosticText() string {
 // InternalMetrics returns a set of metrics showing how the writer is currently
 // doing.
 func (sw *Writer) InternalMetrics() []*datapoint.Datapoint {
-	return append(append(append(append(append([]*datapoint.Datapoint{
+	return append(append(append(append(append(append([]*datapoint.Datapoint{
 		sfxclient.CumulativeP("sfxagent.events_sent", nil, &sw.eventsSent),
 		sfxclient.Gauge("sfxagent.datapoint_channel_len", nil, int64(len(sw.dpChan))),
 		sfxclient.Gauge("sfxagent.events_buffered", nil, int64(len(sw.eventBuffer))),
@@ -77,5 +77,6 @@ func (sw *Writer) InternalMetrics() []*datapoint.Datapoint {
 		sw.spanWriter.InternalMetrics("sfxagent.")...),
 		sw.serviceTracker.InternalMetrics()...),
 		sw.dimensionClient.InternalMetrics()...),
-		sw.spanSourceTracker.InternalMetrics()...)
+		sw.spanSourceTracker.InternalMetrics()...),
+		sw.correlationClient.InternalMetrics()...)
 }

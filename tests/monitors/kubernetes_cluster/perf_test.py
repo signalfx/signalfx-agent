@@ -82,7 +82,10 @@ def test_large_kubernetes_clusters():
             assert wait_for(has_all_pod_properties, interval_seconds=2)
 
             assert (
-                agent.internal_metrics_client.get()["sfxagent.dim_updates_completed"] == 5000
+                agent.internal_metrics_client.get_with_matching_dim("client", "dimension")[
+                    "sfxagent.dim_updates_completed"
+                ]
+                == 5000
             ), "Got wrong number of dimension updates"
 
             for name in pod_names:
@@ -371,7 +374,10 @@ def test_large_k8s_cluster_deployment_prop():
             time.sleep(1)
 
             assert (
-                agent.internal_metrics_client.get()["sfxagent.dim_updates_completed"] == 5050
+                agent.internal_metrics_client.get_with_matching_dim("client", "dimension")[
+                    "sfxagent.dim_updates_completed"
+                ]
+                == 5050
             ), "Got wrong number of dimension updates"
 
             for _, replica_set in replica_sets.items():

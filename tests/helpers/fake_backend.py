@@ -137,7 +137,7 @@ def _add_fake_dimension_api(app, dims):
     return app
 
 
-def _add_fake_correlation_api(app, dims):
+def _add_fake_correlation_api(app, dims, correlation_api_status_code):
     @app.put("/v2/apm/correlate/<key>/<value>/service")
     async def put_service(request, key, value):
         service = request.body.decode("utf-8")
@@ -154,7 +154,7 @@ def _add_fake_correlation_api(app, dims):
             else:
                 dim_services.append(service)
             dims[key][value]["sf_services"] = dim_services
-        return response.json({})
+        return response.json({}, correlation_api_status_code)
 
     @app.put("/v2/apm/correlate/<key>/<value>/environment")
     async def put_environment(request, key, value):
@@ -172,7 +172,7 @@ def _add_fake_correlation_api(app, dims):
             else:
                 dim_environments.append(environment)
             dims[key][value]["sf_environments"] = dim_environments
-        return response.json({})
+        return response.json({}, correlation_api_status_code)
 
     @app.delete("/v2/apm/correlate/<key>/<value>/service/<prop_value>")
     async def delete_service(_, key, value, prop_value):
@@ -183,7 +183,7 @@ def _add_fake_correlation_api(app, dims):
         if prop_value in services:
             services.remove(prop_value)
         dim["sf_services"] = services
-        return response.json({})
+        return response.json({}, correlation_api_status_code)
 
     @app.delete("/v2/apm/correlate/<key>/<value>/environment/<prop_value>")
     async def delete_environment(_, key, value, prop_value):
@@ -194,7 +194,7 @@ def _add_fake_correlation_api(app, dims):
         if prop_value in environments:
             environments.remove(prop_value)
         dim["sf_environments"] = environments
-        return response.json({})
+        return response.json({}, correlation_api_status_code)
 
     @app.get("/v2/apm/correlate/<key>/<value>")
     async def get_correlation(_, key, value):
@@ -208,7 +208,7 @@ def _add_fake_correlation_api(app, dims):
         environments = dim["sf_environments"]
         if environments:
             props["sf_environments"] = environments
-        return response.json(props)
+        return response.json(props, correlation_api_status_code)
 
     return app
 
@@ -239,7 +239,7 @@ def _make_fake_splunk_hec(entries):
 # Starts up a new set of backend services that will run on a random port.  The
 # returned object will have properties on it for datapoints, events, and dims.
 # The fake servers will be stopped once the context manager block is exited.
-# pylint: disable=too-many-locals,too-many-statements
+# pylint: disable=too-many-locals,too-many-statements,too-many-arguments
 @contextmanager
 def start(
     ip_addr="127.0.0.1",
@@ -249,6 +249,7 @@ def start(
     save_datapoints=True,
     save_events=True,
     save_spans=True,
+    correlation_api_status_code=200,
 ):
     # Data structures are thread-safe due to the GIL
     _dp_upload_queue = Queue()
@@ -264,7 +265,7 @@ def start(
 
     api_app = Sanic()
     _add_fake_dimension_api(api_app, _dims)
-    _add_fake_correlation_api(api_app, _dims)
+    _add_fake_correlation_api(api_app, _dims, correlation_api_status_code)
 
     [ingest_sock, _ingest_port] = bind_tcp_socket(ip_addr, ingest_port)
     [api_sock, _api_port] = bind_tcp_socket(ip_addr, api_port)
