@@ -45,9 +45,8 @@ type ActiveServiceTracker struct {
 	// for more information
 	tenantEmptyEnvironmentCache *TimeoutCache
 
-	// Datapoints don't change over time for a given service, so make them once
-	// and stick them in here.
-	dpCache map[string]*datapoint.Datapoint
+	// cache of service names to generate datapoints for
+	dpCache map[string]struct{}
 
 	// A callback that gets called with the correlation datapoint when a
 	// service is first seen
@@ -74,11 +73,10 @@ func (a *ActiveServiceTracker) addServiceToDPCache(service string) {
 	a.dpCacheLock.Lock()
 	defer a.dpCacheLock.Unlock()
 
-	dp := dpForService(service)
-	a.dpCache[service] = dp
+	a.dpCache[service] = struct{}{}
 
 	if a.newServiceCallback != nil {
-		a.newServiceCallback(dp)
+		a.newServiceCallback(dpForService(service))
 	}
 }
 
@@ -96,8 +94,8 @@ func (a *ActiveServiceTracker) CorrelationDatapoints() []*datapoint.Datapoint {
 	defer a.dpCacheLock.Unlock()
 
 	out := make([]*datapoint.Datapoint, 0, len(a.dpCache))
-	for _, dp := range a.dpCache {
-		out = append(out, dp)
+	for service := range a.dpCache {
+		out = append(out, dpForService(service))
 	}
 	return out
 }
@@ -151,7 +149,7 @@ func New(timeout time.Duration, correlationClient correlations.CorrelationClient
 		tenantServiceCache:              NewTimeoutCache(timeout),
 		tenantEnvironmentCache:          NewTimeoutCache(timeout),
 		tenantEmptyEnvironmentCache:     NewTimeoutCache(timeout),
-		dpCache:                         make(map[string]*datapoint.Datapoint),
+		dpCache:                         make(map[string]struct{}),
 		newServiceCallback:              newServiceCallback,
 		correlationClient:               correlationClient,
 		sendTraceHostCorrelationMetrics: sendTraceHostCorrelationMetrics,
