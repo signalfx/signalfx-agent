@@ -184,13 +184,21 @@ def test_service_correlation_api_down():
             )
             assert resp.status_code == 200
 
-        # get the heap now that the agent is loaded
-        heap_base_line = agent.pprof_client.get_heap_profile().total / 1.5
+        # get the peak heap size
+        timeout_seconds = 120
+        start = time.time()
+        peak_heap = agent.pprof_client.get_heap_profile().total
+        while True:
+            time.sleep(10)
+            assert time.time() - start < timeout_seconds
+            new = agent.pprof_client.get_heap_profile().total
+            print("old: {0} new: {1}".format(peak_heap, new))
+            if new < peak_heap:
+                break
+            peak_heap = new
 
-        # wait for some time for the agent to process the backlog
-        time.sleep(expire_sec)
-
+        # ensure our routine count isn't too high
         agent.pprof_client.assert_goroutine_count_under(150)
 
         # ensure the heap profile has come down some
-        agent.pprof_client.assert_heap_alloc_under(heap_base_line)
+        agent.pprof_client.assert_heap_alloc_under(peak_heap / 1.5)
