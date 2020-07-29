@@ -156,7 +156,6 @@ def test_service_correlation_api_down():
         monitors:
           - type: trace-forwarder
             listenAddress: localhost:{port}
-          - type: internal-metrics
         """
         ),
         profiling=True,
