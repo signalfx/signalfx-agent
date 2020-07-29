@@ -11,7 +11,7 @@ import (
 type ReqSender struct {
 	client      *http.Client
 	requests    chan *http.Request
-	workerCount uint
+	workerCount uint32
 	ctx         context.Context
 	clientName  string
 
@@ -27,12 +27,11 @@ func NewReqSender(ctx context.Context, client *http.Client, workerCount uint, cl
 		clientName: clientName,
 		// Unbuffered so that it blocks clients
 		requests:    make(chan *http.Request),
-		workerCount: workerCount,
+		workerCount: uint32(workerCount),
 		ctx:         ctx,
 	}
 }
 
-// Not thread-safe
 func (rs *ReqSender) Send(req *http.Request) {
 	// Slight optimization to avoid spinning up unnecessary workers if there
 	// aren't ever that many dim updates. Once workers start, they remain for the
@@ -41,7 +40,7 @@ func (rs *ReqSender) Send(req *http.Request) {
 	case rs.requests <- req:
 		return
 	default:
-		if atomic.LoadInt64(&rs.RunningWorkers) < int64(rs.workerCount) {
+		if atomic.LoadInt64(&rs.RunningWorkers) < int64(atomic.LoadUint32(&rs.workerCount)) {
 			go rs.processRequests()
 		}
 
