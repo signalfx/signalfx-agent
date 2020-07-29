@@ -9,11 +9,11 @@ import (
 )
 
 type ReqSender struct {
-	client               *http.Client
-	requests             chan *http.Request
-	workerCount          uint
-	ctx                  context.Context
-	additionalDimensions map[string]string
+	client      *http.Client
+	requests    chan *http.Request
+	workerCount uint
+	ctx         context.Context
+	clientName  string
 
 	RunningWorkers         int64
 	TotalRequestsStarted   int64
@@ -21,10 +21,10 @@ type ReqSender struct {
 	TotalRequestsFailed    int64
 }
 
-func NewReqSender(ctx context.Context, client *http.Client, workerCount uint, diagnosticDimensions map[string]string) *ReqSender {
+func NewReqSender(ctx context.Context, client *http.Client, workerCount uint, clientName string) *ReqSender {
 	return &ReqSender{
-		client:               client,
-		additionalDimensions: diagnosticDimensions,
+		client:     client,
+		clientName: clientName,
 		// Unbuffered so that it blocks clients
 		requests:    make(chan *http.Request),
 		workerCount: workerCount,

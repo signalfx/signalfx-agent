@@ -98,7 +98,7 @@ func NewCorrelationClient(ctx context.Context, conf *config.WriterConfig) (Corre
 			TLSHandshakeTimeout: 10 * time.Second,
 		},
 	}
-	sender := requests.NewReqSender(ctx, client, conf.PropertiesMaxRequests, map[string]string{"client": "correlation"})
+	sender := requests.NewReqSender(ctx, client, conf.PropertiesMaxRequests, "correlation")
 	return &Client{
 		ctx:                ctx,
 		Token:              conf.SignalFxAccessToken,

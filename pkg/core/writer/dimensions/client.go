@@ -82,7 +82,7 @@ func NewDimensionClient(ctx context.Context, conf *config.WriterConfig) (*Dimens
 			TLSHandshakeTimeout: 10 * time.Second,
 		},
 	}
-	sender := requests.NewReqSender(ctx, client, conf.PropertiesMaxRequests, map[string]string{"client": "dimension"})
+	sender := requests.NewReqSender(ctx, client, conf.PropertiesMaxRequests, "dimension")
 
 	return &DimensionClient{
 		ctx:               ctx,
