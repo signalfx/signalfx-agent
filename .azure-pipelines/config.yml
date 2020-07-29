@@ -89,6 +89,25 @@ jobs:
       failTaskOnFailedTests: true
     condition: succeededOrFailed()
 
+- job: 'win_go_test_race'
+  pool:
+    vmImage: 'vs2017-win2016'
+  steps:
+  - template: 'templates/install-go.yml'
+    parameters:
+      version: $(GOVERSION)
+      packages: 'gotest.tools/gotestsum'
+  - powershell: |
+      & ./scripts/windows/make.ps1 unit_test -race 1
+    displayName: 'Run go test'
+  - task: PublishTestResults@2
+    inputs:
+      searchFolder: '$(Build.SourcesDirectory)'
+      testResultsFormat: 'JUnit'
+      testResultsFiles: 'unit_results.xml'
+      failTaskOnFailedTests: true
+    condition: succeededOrFailed()
+
 - job: 'win_bundle_build'
   pool:
     vmImage: 'vs2017-win2016'

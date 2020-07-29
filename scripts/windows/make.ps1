@@ -258,7 +258,7 @@ function tidy() {
     if ($lastexitcode -ne 0){ throw }
 }
 
-function unit_test() {
+function unit_test([bool]$race=$false) {
     go generate ./...
     if ($lastexitcode -ne 0){ throw }
     if ((Get-Command "gotestsum.exe" -ErrorAction SilentlyContinue) -eq $null) {
@@ -268,7 +268,13 @@ function unit_test() {
         if ($lastexitcode -gt 0){ throw }
         cd $cwd
     }
-    gotestsum --format short-verbose --junitfile unit_results.xml
+    if ($race) {
+        $env:CGO_ENABLED = 1
+        gotestsum --format short-verbose --junitfile unit_results.xml --raw-command -- go test -race --json ./...
+        $env:CGO_ENABLED = 0
+    } else {
+        gotestsum --format short-verbose --junitfile unit_results.xml
+    }
     if ($lastexitcode -gt 0){ throw }
 }
 
