@@ -22915,6 +22915,7 @@
             "disk_octets.write",
             "disk_ops.avg_read",
             "disk_ops.avg_write",
+            "disk_ops.pending",
             "disk_ops.read",
             "disk_ops.total",
             "disk_ops.write",
@@ -22973,6 +22974,12 @@
           "description": "(Windows Only) The average disk write queue length.",
           "group": null,
           "default": true
+        },
+        "disk_ops.pending": {
+          "type": "gauge",
+          "description": "Number of pending operations",
+          "group": null,
+          "default": false
         },
         "disk_ops.read": {
           "type": "cumulative",

@@ -24,6 +24,7 @@ def test_diskio():
                 "disk_ops.total",
                 "disk_time.read",
                 "disk_time.write",
+                "disk_ops.pending",
             ]
         )
     elif sys.platform == "win32" or sys.platform == "cygwin":
@@ -35,6 +36,7 @@ def test_diskio():
                 "disk_octets.avg_write",
                 "disk_time.avg_read",
                 "disk_time.avg_write",
+                "disk_ops.pending",
             ]
         )
     with Agent.run(

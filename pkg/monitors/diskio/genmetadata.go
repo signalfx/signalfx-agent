@@ -20,6 +20,7 @@ const (
 	diskOctetsWrite    = "disk_octets.write"
 	diskOpsAvgRead     = "disk_ops.avg_read"
 	diskOpsAvgWrite    = "disk_ops.avg_write"
+	diskOpsPending     = "disk_ops.pending"
 	diskOpsRead        = "disk_ops.read"
 	diskOpsTotal       = "disk_ops.total"
 	diskOpsWrite       = "disk_ops.write"
@@ -38,6 +39,7 @@ var metricSet = map[string]monitors.MetricInfo{
 	diskOctetsWrite:    {Type: datapoint.Counter},
 	diskOpsAvgRead:     {Type: datapoint.Gauge},
 	diskOpsAvgWrite:    {Type: datapoint.Gauge},
+	diskOpsPending:     {Type: datapoint.Gauge},
 	diskOpsRead:        {Type: datapoint.Counter},
 	diskOpsTotal:       {Type: datapoint.Gauge},
 	diskOpsWrite:       {Type: datapoint.Counter},
