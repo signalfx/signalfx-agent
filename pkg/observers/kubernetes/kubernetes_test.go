@@ -3,13 +3,16 @@ package kubernetes
 import (
 	"net/url"
 	"os"
+	"sync"
 	"testing"
+	"time"
 
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 
+	"github.com/davecgh/go-spew/spew"
 	"github.com/signalfx/signalfx-agent/pkg/core/common/kubernetes"
 	"github.com/signalfx/signalfx-agent/pkg/core/services"
 	"github.com/signalfx/signalfx-agent/pkg/observers"
@@ -23,6 +26,7 @@ var _ = Describe("Kubernetes Observer", func() {
 	var config *Config
 	var fakeK8s *FakeK8s
 	var observer *Observer
+	var lock sync.Mutex
 	var endpoints map[services.ID]services.Endpoint
 
 	BeforeEach(func() {
@@ -44,12 +48,22 @@ var _ = Describe("Kubernetes Observer", func() {
 	})
 
 	startObserver := func() {
+		lock.Lock()
 		endpoints = make(map[services.ID]services.Endpoint)
+		lock.Unlock()
 
 		observer = &Observer{
 			serviceCallbacks: &observers.ServiceCallbacks{
-				Added:   func(se services.Endpoint) { endpoints[se.Core().ID] = se },
-				Removed: func(se services.Endpoint) { delete(endpoints, se.Core().ID) },
+				Added: func(se services.Endpoint) {
+					lock.Lock()
+					endpoints[se.Core().ID] = se
+					lock.Unlock()
+				},
+				Removed: func(se services.Endpoint) {
+					lock.Lock()
+					delete(endpoints, se.Core().ID)
+					lock.Unlock()
+				},
 			},
 			endpointsByUID: make(map[types.UID][]services.Endpoint),
 		}
@@ -61,8 +75,8 @@ var _ = Describe("Kubernetes Observer", func() {
 	}
 
 	AfterEach(func() {
-		observer.Shutdown()
 		fakeK8s.Close()
+		observer.Shutdown()
 	})
 
 	It("Makes a port-less pod endpoint", func() {
@@ -101,7 +115,9 @@ var _ = Describe("Kubernetes Observer", func() {
 
 		startObserver()
 
-		Eventually(func() int { return len(endpoints) }).Should(Equal(1))
+		Eventually(func() int { lock.Lock(); defer lock.Unlock(); return len(endpoints) }).Should(Equal(1))
+		lock.Lock()
+		defer lock.Unlock()
 		Expect(endpoints["test1-abcdefg-pod"].Core().Host).To(Equal("10.0.4.3"))
 		Expect(endpoints["test1-abcdefg-pod"].Core().Port).To(Equal(uint16(0)))
 		Expect(endpoints["test1-abcdefg-pod"].Core().DerivedFields()["pod_spec"].(*v1.PodSpec).Containers[0].Name).To(Equal("container1"))
@@ -149,7 +165,9 @@ var _ = Describe("Kubernetes Observer", func() {
 
 		startObserver()
 
-		Eventually(func() int { return len(endpoints) }).Should(Equal(2))
+		Eventually(func() int { lock.Lock(); defer lock.Unlock(); return len(endpoints) }).Should(Equal(2))
+		lock.Lock()
+		defer lock.Unlock()
 		Expect(endpoints["test1-abcdefg-pod"].Core().Host).To(Equal("10.0.4.3"))
 		Expect(endpoints["test1-abcdefg-pod"].Core().Port).To(Equal(uint16(0)))
 		Expect(endpoints["test1-abcdefg-80"].Core().Host).To(Equal("10.0.4.3"))
@@ -233,7 +251,9 @@ var _ = Describe("Kubernetes Observer", func() {
 
 		startObserver()
 
-		Eventually(func() int { return len(endpoints) }).Should(Equal(3))
+		Eventually(func() int { lock.Lock(); defer lock.Unlock(); return len(endpoints) }).Should(Equal(3))
+		lock.Lock()
+		defer lock.Unlock()
 		Expect(endpoints["test1-abcdefg-443"].Core().MonitorType).To(Equal(""))
 		Expect(endpoints["test1-abcdefg-443"].Core().Configuration["myVar"]).To(Equal("abcde"))
 		Expect(endpoints["test1-abcdefg-80"].Core().MonitorType).To(Equal("mongo"))
@@ -287,11 +307,13 @@ var _ = Describe("Kubernetes Observer", func() {
 
 		startObserver()
 
-		Eventually(func() int { return len(endpoints) }).Should(Equal(2))
+		Eventually(func() int { lock.Lock(); defer lock.Unlock(); return len(endpoints) }, 3*time.Second).Should(Equal(2))
+		lock.Lock()
 		Expect(endpoints["test1-abcdefg-pod"].Core().Host).To(Equal("10.0.4.3"))
 		Expect(endpoints["test1-abcdefg-pod"].Core().Port).To(Equal(uint16(0)))
 		Expect(endpoints["test1-abcdefg-80"].Core().Host).To(Equal("10.0.4.3"))
 		Expect(endpoints["test1-abcdefg-80"].Core().Port).To(Equal(uint16(80)))
+		lock.Unlock()
 
 		fakeK8s.CreateOrReplaceResource(&v1.Pod{
 			TypeMeta: metav1.TypeMeta{
@@ -335,16 +357,18 @@ var _ = Describe("Kubernetes Observer", func() {
 			},
 		})
 
-		Eventually(func() int { return len(endpoints) }).Should(Equal(3))
+		Eventually(func() int { lock.Lock(); defer lock.Unlock(); spew.Dump(endpoints); return len(endpoints) }, 3*time.Second).Should(Equal(3))
+		lock.Lock()
 		Expect(endpoints["test1-abcdefg-pod"].Core().Host).To(Equal("10.0.4.5"))
 		Expect(endpoints["test1-abcdefg-pod"].Core().Port).To(Equal(uint16(0)))
 		Expect(endpoints["test1-abcdefg-80"].Core().Host).To(Equal("10.0.4.5"))
 		Expect(endpoints["test1-abcdefg-80"].Core().Port).To(Equal(uint16(80)))
 		Expect(endpoints["test1-abcdefg-8080"].Core().Host).To(Equal("10.0.4.5"))
 		Expect(endpoints["test1-abcdefg-8080"].Core().Port).To(Equal(uint16(8080)))
+		lock.Unlock()
 
 		fakeK8s.DeleteResourceByName("Pod", "default", "test1")
-		Eventually(func() int { return len(endpoints) }).Should(Equal(0))
+		Eventually(func() int { lock.Lock(); defer lock.Unlock(); return len(endpoints) }).Should(Equal(0))
 	})
 
 	It("Emits endpoints for nodes", func() {
@@ -380,13 +404,15 @@ var _ = Describe("Kubernetes Observer", func() {
 
 		startObserver()
 
-		Eventually(func() int { return len(endpoints) }).Should(Equal(1))
+		Eventually(func() int { lock.Lock(); defer lock.Unlock(); return len(endpoints) }).Should(Equal(1))
+		lock.Lock()
 		Expect(endpoints["node-node1-node-12"].Core().Host).To(Equal("10.5.4.3"))
 		Expect(endpoints["node-node1-node-12"].Core().DerivedFields()["node_addresses"].(map[v1.NodeAddressType]string)[v1.NodeInternalDNS]).To(Equal("node1.internal"))
 		Expect(endpoints["node-node1-node-12"].Core().Target).To(Equal(services.TargetTypeKubernetesNode))
+		lock.Unlock()
 
 		fakeK8s.DeleteResourceByName("Node", "", "node1")
-		Eventually(func() int { return len(endpoints) }).Should(Equal(0))
+		Eventually(func() int { lock.Lock(); defer lock.Unlock(); return len(endpoints) }, 3*time.Second).Should(Equal(0))
 	})
 
 })

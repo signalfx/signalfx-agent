@@ -37,8 +37,9 @@ type FakeK8s struct {
 	eventInput chan watch.Event
 	// Channels to send new resources to watchers (we only support one watcher
 	// per resource)
-	subs      map[resourceKind]chan watch.Event
-	subsMutex sync.Mutex
+	subs          map[resourceKind]chan watch.Event
+	pendingEvents map[resourceKind][]watch.Event
+	subsMutex     sync.Mutex
 	// Stops the resource accepter goroutine
 	eventStopper chan struct{}
 	// Stops all of the watchers
@@ -48,10 +49,11 @@ type FakeK8s struct {
 // NewFakeK8s makes a new FakeK8s
 func NewFakeK8s() *FakeK8s {
 	f := &FakeK8s{
-		resources:  make(map[resourceKind]map[string]map[resourceName]runtime.Object),
-		eventInput: make(chan watch.Event),
-		subs:       make(map[resourceKind]chan watch.Event),
-		stoppers:   make(map[resourceKind]chan struct{}),
+		resources:     make(map[resourceKind]map[string]map[resourceName]runtime.Object),
+		eventInput:    make(chan watch.Event),
+		subs:          make(map[resourceKind]chan watch.Event),
+		pendingEvents: make(map[resourceKind][]watch.Event),
+		stoppers:      make(map[resourceKind]chan struct{}),
 	}
 
 	r := mux.NewRouter()
@@ -101,6 +103,9 @@ func (f *FakeK8s) Start() {
 
 // Close stops the server and all watchers
 func (f *FakeK8s) Close() {
+	f.subsMutex.Lock()
+	defer f.subsMutex.Unlock()
+
 	close(f.eventStopper)
 	for _, ch := range f.stoppers {
 		close(ch)
@@ -135,14 +140,17 @@ func (f *FakeK8s) acceptEvents(stopper <-chan struct{}) {
 		case e := <-f.eventInput:
 			resKind := resourceKind(e.Object.GetObjectKind().GroupVersionKind().Kind)
 
+			f.subsMutex.Lock()
 			// Send it out to any watchers
 			// TODO: This only supports watchers across all namespaces
 			if f.subs[resKind] != nil {
 				log.Infof("Watch event sent to subscription: %s", spew.Sdump(e))
 				f.subs[resKind] <- e
 			} else {
+				f.pendingEvents[resKind] = append(f.pendingEvents[resKind], e)
 				log.Infof("Watch event ignored because nothing was watching for %s", resKind)
 			}
+			f.subsMutex.Unlock()
 		}
 	}
 }
@@ -284,6 +292,13 @@ func (f *FakeK8s) startWatcher(resKind resourceKind, rw http.ResponseWriter) {
 	// Alias so we only access map inside lock
 	stopper := f.stoppers[resKind]
 	f.subs[resKind] = eventCh
+	if len(f.pendingEvents[resKind]) > 0 {
+		go func() {
+			for _, e := range f.pendingEvents[resKind] {
+				f.subs[resKind] <- e
+			}
+		}()
+	}
 
 	f.subsMutex.Unlock()
 	rw.WriteHeader(200)
@@ -303,6 +318,9 @@ func (f *FakeK8s) startWatcher(resKind resourceKind, rw http.ResponseWriter) {
 			_, _ = rw.Write([]byte("\n"))
 			rw.(http.Flusher).Flush()
 		case <-stopper:
+			f.subsMutex.Lock()
+			delete(f.subs, resKind)
+			f.subsMutex.Unlock()
 			return
 		}
 	}
