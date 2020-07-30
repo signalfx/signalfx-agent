@@ -9,7 +9,7 @@ import requests
 import pytest
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_dim_set_prop, has_no_dim_set_prop, tcp_port_open_locally
-from tests.helpers.util import wait_for
+from tests.helpers.util import retry_on_ebadf, wait_for
 
 # mark all tests in this file as performance tests
 pytestmark = [pytest.mark.perf_test]
@@ -32,6 +32,15 @@ def _test_span(service, environment):
 
 def _random_id():
     return "".join(random.choice("0123456789abcdef") for _ in range(16))
+
+
+@retry_on_ebadf
+def post_span(service_name, environment_name, port):
+    return requests.post(
+        f"http://localhost:{port}/v1/trace",
+        headers={"Content-Type": "application/json"},
+        data=json.dumps(_test_span(service_name, environment_name)),
+    )
 
 
 # pylint: disable=too-many-locals
@@ -74,11 +83,7 @@ def test_service_correlation():
             # rotate through the environment and service names
             environment_name = f"env-{i % environment_count}"
             service_name = f"service-{i % service_count}"
-            resp = requests.post(
-                f"http://localhost:{port}/v1/trace",
-                headers={"Content-Type": "application/json"},
-                data=json.dumps(_test_span(service_name, environment_name)),
-            )
+            resp = post_span(service_name, environment_name, port)
             assert resp.status_code == 200
 
         assert wait_for(
@@ -177,11 +182,7 @@ def test_service_correlation_api_down():
             # rotate through the environment and service names
             environment_name = f"env-{i % environment_count}"
             service_name = f"service-{i % service_count}"
-            resp = requests.post(
-                f"http://localhost:{port}/v1/trace",
-                headers={"Content-Type": "application/json"},
-                data=json.dumps(_test_span(service_name, environment_name)),
-            )
+            resp = post_span(service_name, environment_name, port)
             assert resp.status_code == 200
 
         # get the peak heap size

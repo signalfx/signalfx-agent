@@ -3,6 +3,7 @@ parameters:
   options: ''
   changesInclude: ''
   chocoPackages: ''
+  python_version: '3.8.5'
 
 steps:
 - template: 'changes-include.yml'
@@ -11,25 +12,13 @@ steps:
 - template: 'install-choco.yml'
   parameters:
     packages: ${{ parameters.chocoPackages }}
-- powershell: |
-    if ((Get-Command "conda.exe" -ErrorAction SilentlyContinue) -eq $null) {
-        choco install -y --no-progress --limitoutput miniconda3 --version=4.8.3
-        $env:PATH = "C:\tools\miniconda3\Scripts;C:\tools\miniconda3;C:\tools\miniconda3\Library\bin;$env:PATH"
-        echo "##vso[task.setvariable variable=PATH]$env:PATH"
-        $env:LIB = "C:\tools\miniconda3\Library\lib;$env:LIB"
-        echo "##vso[task.setvariable variable=LIB]$env:LIB"
-    } else {
-        echo "conda already installed"
-    }
-    conda --version
-  displayName: 'Install conda'
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: ${{ parameters.python_version }}
   condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
-- powershell: |
-    conda install --yes python=3.8
-    python --version
+- bash: |
     python -m pip install --upgrade pip==20.0.2
-    pip --version
-    pip install -r tests\requirements.txt
+    pip install -r tests/requirements.txt
   displayName: 'Install pytest'
   condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
 - powershell: |

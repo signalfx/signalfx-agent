@@ -355,16 +355,6 @@ jobs:
           with_sudo: true
           split: true
 
-  perf_tests:
-    executor: machine_image
-    steps:
-      - checkout
-      - import_image
-      - run: .circleci/scripts/setup-perf-tests.sh
-      - run_pytest:
-          markers: perf_test
-          pytest_options: -n1
-
   k8s_integration_tests:
     executor: machine_image
     parameters:
@@ -545,9 +535,6 @@ workflows:
       - modules_and_generate
       - gotests
       - integration_tests:
-          requires:
-            - build
-      - perf_tests:
           requires:
             - build
       - k8s_integration_tests:
