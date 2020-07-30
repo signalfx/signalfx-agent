@@ -129,14 +129,16 @@ func CreateRestConfig(apiConf *APIConfig) (*rest.Config, error) {
 		}
 	}
 
-	authConf.WrapTransport = func(rt http.RoundTripper) http.RoundTripper {
+	authConf.Wrap(func(rt http.RoundTripper) http.RoundTripper {
 		// Don't use system proxy settings since the API is local to the
 		// cluster
 		if t, ok := rt.(*http.Transport); ok {
-			t.Proxy = nil
+			t2 := t.Clone()
+			t2.Proxy = nil
+			return t2
 		}
 		return rt
-	}
+	})
 
 	if apiConf != nil {
 		authConf.Insecure = apiConf.SkipVerify

@@ -499,5 +499,4 @@ func (o *Observer) endpointsInPod(pod *v1.Pod, client *k8s.Clientset, portAnnota
 // Shutdown the service differ routine
 func (o *Observer) Shutdown() {
 	o.stopIfRunning()
-	o.config = nil
 }
