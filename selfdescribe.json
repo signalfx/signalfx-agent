@@ -49389,6 +49389,82 @@
       "singleInstance": false
     },
     {
+      "monitorType": "telegraf/ntpq",
+      "sendAll": false,
+      "sendUnknown": true,
+      "dimensions": null,
+      "doc": "This is an embedded form of the [Telegraf NTPQ\nplugin](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/ntpq).\n\nThis montior requires the `ntpq` executable available on the PATH of the agent.\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "ntpq.delay",
+            "ntpq.jitter",
+            "ntpq.offset",
+            "ntpq.poll",
+            "ntpq.reach",
+            "ntpq.when"
+          ]
+        }
+      },
+      "metrics": {
+        "ntpq.delay": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": true
+        },
+        "ntpq.jitter": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": true
+        },
+        "ntpq.offset": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": true
+        },
+        "ntpq.poll": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": true
+        },
+        "ntpq.reach": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": true
+        },
+        "ntpq.when": {
+          "type": "gauge",
+          "description": "",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/telegraf/monitors/ntpq",
+        "fields": [
+          {
+            "yamlName": "dnsLookup",
+            "doc": "If false, set the -n ntpq flag. Can reduce metric gather time.",
+            "default": true,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "telegraf/procstat",
       "sendAll": true,
       "sendUnknown": false,
