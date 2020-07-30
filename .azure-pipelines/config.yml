@@ -89,16 +89,20 @@ jobs:
       failTaskOnFailedTests: true
     condition: succeededOrFailed()
 
-- job: 'win_go_test_race'
+- job: 'go_test_race'
   pool:
-    vmImage: 'vs2017-win2016'
+    vmImage: 'ubuntu-16.04'
+  container: golang:$(GOVERSION)
   steps:
-  - template: 'templates/install-go.yml'
-    parameters:
-      version: $(GOVERSION)
-      packages: 'gotest.tools/gotestsum'
-  - powershell: |
-      & ./scripts/windows/make.ps1 unit_test -race 1
+  - template: 'templates/restore-go-cache.yml'
+  - script: |
+      cd /tmp
+      go get gotest.tools/gotestsum
+    displayName: 'Install gotestsum'
+  - script: |
+      export PATH=$GOBIN:$PATH
+      go generate ./...
+      CGO_ENABLED=1 gotestsum --format short-verbose --junitfile unit_results.xml --raw-command -- go test -race --json ./...
     displayName: 'Run go test'
   - task: PublishTestResults@2
     inputs:
