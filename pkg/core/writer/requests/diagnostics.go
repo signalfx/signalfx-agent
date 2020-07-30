@@ -11,9 +11,9 @@ import (
 // dimension update client
 func (rs *ReqSender) InternalMetrics() []*datapoint.Datapoint {
 	return []*datapoint.Datapoint{
-		sfxclient.CumulativeP("sfxagent.dim_updates_started", rs.additionalDimensions, &rs.TotalRequestsStarted),
-		sfxclient.CumulativeP("sfxagent.dim_updates_completed", rs.additionalDimensions, &rs.TotalRequestsCompleted),
-		sfxclient.CumulativeP("sfxagent.dim_updates_failed", rs.additionalDimensions, &rs.TotalRequestsFailed),
-		sfxclient.Gauge("sfxagent.dim_request_senders", rs.additionalDimensions, atomic.LoadInt64(&rs.RunningWorkers)),
+		sfxclient.CumulativeP("sfxagent.dim_updates_started", map[string]string{"client": rs.clientName}, &rs.TotalRequestsStarted),
+		sfxclient.CumulativeP("sfxagent.dim_updates_completed", map[string]string{"client": rs.clientName}, &rs.TotalRequestsCompleted),
+		sfxclient.CumulativeP("sfxagent.dim_updates_failed", map[string]string{"client": rs.clientName}, &rs.TotalRequestsFailed),
+		sfxclient.Gauge("sfxagent.dim_request_senders", map[string]string{"client": rs.clientName}, atomic.LoadInt64(&rs.RunningWorkers)),
 	}
 }
