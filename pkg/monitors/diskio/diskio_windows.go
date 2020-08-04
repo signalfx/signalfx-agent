@@ -32,6 +32,7 @@ var metricNameMapping = map[string]string{
 	"logical_disk.Avg._Disk_sec/Read":           "disk_time.avg_read",
 	"logical_disk.Avg._Disk_sec/Write":          "disk_time.avg_write",
 	"logical_disk.Avg._Disk_Read_Queue_Length":  "disk_ops.avg_read",
+	"logical_disk.Current_Disk_Queue_Length":    diskOpsPending,
 }
 
 // applies exhuastive filter to measurements
@@ -96,6 +97,7 @@ func (m *Monitor) Configure(conf *Config) error {
 					"Avg. Disk Bytes/Write",
 					"Avg. Disk sec/Read",
 					"Avg. Disk sec/Write",
+					"Current Disk Queue Length",
 				},
 				// The windows performance counter instances to fetch for the performance counter object
 				Instances: []string{"*"},

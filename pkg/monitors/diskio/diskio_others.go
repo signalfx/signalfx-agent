@@ -36,6 +36,7 @@ func (m *Monitor) makeLinuxDatapoints(disk disk.IOCountersStat, dimensions map[s
 		datapoint.New("disk_merged.write", dimensions, datapoint.NewIntValue(int64(disk.MergedWriteCount)), datapoint.Counter, time.Time{}),
 		datapoint.New("disk_time.read", dimensions, datapoint.NewIntValue(int64(disk.ReadTime)), datapoint.Counter, time.Time{}),
 		datapoint.New("disk_time.write", dimensions, datapoint.NewIntValue(int64(disk.WriteTime)), datapoint.Counter, time.Time{}),
+		datapoint.New(diskOpsPending, dimensions, datapoint.NewIntValue(int64(disk.IopsInProgress)), datapoint.Gauge, time.Time{}),
 	}
 }
 
