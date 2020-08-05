@@ -45,9 +45,8 @@ type ActiveServiceTracker struct {
 	// for more information
 	tenantEmptyEnvironmentCache *TimeoutCache
 
-	// Datapoints don't change over time for a given service, so make them once
-	// and stick them in here.
-	dpCache map[string]*datapoint.Datapoint
+	// cache of service names to generate datapoints for
+	dpCache map[string]struct{}
 
 	// A callback that gets called with the correlation datapoint when a
 	// service is first seen
@@ -74,11 +73,10 @@ func (a *ActiveServiceTracker) addServiceToDPCache(service string) {
 	a.dpCacheLock.Lock()
 	defer a.dpCacheLock.Unlock()
 
-	dp := dpForService(service)
-	a.dpCache[service] = dp
+	a.dpCache[service] = struct{}{}
 
 	if a.newServiceCallback != nil {
-		a.newServiceCallback(dp)
+		a.newServiceCallback(dpForService(service))
 	}
 }
 
@@ -96,8 +94,8 @@ func (a *ActiveServiceTracker) CorrelationDatapoints() []*datapoint.Datapoint {
 	defer a.dpCacheLock.Unlock()
 
 	out := make([]*datapoint.Datapoint, 0, len(a.dpCache))
-	for _, dp := range a.dpCache {
-		out = append(out, dp)
+	for service := range a.dpCache {
+		out = append(out, dpForService(service))
 	}
 	return out
 }
@@ -110,19 +108,12 @@ func (a *ActiveServiceTracker) LoadHostIDDimCorrelations() {
 	for dimName, dimValue := range a.hostIDDims {
 		dimName := dimName
 		dimValue := dimValue
-		a.correlationClient.Get(dimName, dimValue, func(correlations map[string][]string, err error) {
-			if err != nil {
-				log.WithError(err).WithFields(log.Fields{
-					"dim":   dimName,
-					"value": dimValue,
-				}).Error("Unable to unmarshall correlations for dimension")
-				return
-			}
+		a.correlationClient.Get(dimName, dimValue, func(correlations map[string][]string) {
 			if services, ok := correlations["sf_services"]; ok {
 				for _, service := range services {
 					// Note that only the value is set for the host service cache because we only track services for the host
 					// therefore there we don't need to include the dim key and value on the cache key
-					if isNew := a.hostServiceCache.UpdateOrCreate(&cacheKey{value: service}, a.timeNow()); isNew {
+					if isNew := a.hostServiceCache.UpdateOrCreate(&CacheKey{value: service}, a.timeNow()); isNew {
 						if a.sendTraceHostCorrelationMetrics {
 							// create datapoint for service
 							a.addServiceToDPCache(service)
@@ -138,7 +129,7 @@ func (a *ActiveServiceTracker) LoadHostIDDimCorrelations() {
 				// Note that only the value is set for the host environment cache because we only track environments for the host
 				// therefore there we don't need to include the dim key and value on the cache key
 				for _, environment := range environments {
-					if isNew := a.hostEnvironmentCache.UpdateOrCreate(&cacheKey{value: environment}, a.timeNow()); isNew {
+					if isNew := a.hostEnvironmentCache.UpdateOrCreate(&CacheKey{value: environment}, a.timeNow()); isNew {
 						log.WithFields(log.Fields{
 							"environment": environment,
 						}).Debug("Tracking environment name from trace span")
@@ -158,7 +149,7 @@ func New(timeout time.Duration, correlationClient correlations.CorrelationClient
 		tenantServiceCache:              NewTimeoutCache(timeout),
 		tenantEnvironmentCache:          NewTimeoutCache(timeout),
 		tenantEmptyEnvironmentCache:     NewTimeoutCache(timeout),
-		dpCache:                         make(map[string]*datapoint.Datapoint),
+		dpCache:                         make(map[string]struct{}),
 		newServiceCallback:              newServiceCallback,
 		correlationClient:               correlationClient,
 		sendTraceHostCorrelationMetrics: sendTraceHostCorrelationMetrics,
@@ -207,13 +198,13 @@ func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Tim
 				// if it does exist, this means we've already scraped and overwritten what was on the backend
 				// probably from another span. This also implies that some spans for the tenant have an environment
 				// and some do not.
-				a.tenantEnvironmentCache.RunIfKeyDoesNotExist(&cacheKey{dimName: dimName, dimValue: dimValue}, func() {
+				a.tenantEnvironmentCache.RunIfKeyDoesNotExist(&CacheKey{dimName: dimName, dimValue: dimValue}, func() {
 					// create a cache key ensuring that we don't fetch environment values multiple times for spans with
 					// empty environments
-					if isNew := a.tenantEmptyEnvironmentCache.UpdateOrCreate(&cacheKey{dimName: dimName, dimValue: dimValue}, now); isNew {
+					if isNew := a.tenantEmptyEnvironmentCache.UpdateOrCreate(&CacheKey{dimName: dimName, dimValue: dimValue}, now); isNew {
 						// get the existing value from the backend
-						a.correlationClient.Get(dimName, dimValue, func(response map[string][]string, err error) {
-							if err != nil || len(response) == 0 {
+						a.correlationClient.Get(dimName, dimValue, func(response map[string][]string) {
+							if len(response) == 0 {
 								return
 							}
 
@@ -228,13 +219,13 @@ func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Tim
 							// asynchronous callback to the correlation client's Get(). So... by the time the callback
 							// is actually executed, the parent RunIfKeyDoesNotExist will have already released the lock
 							// on the cache
-							a.tenantEnvironmentCache.RunIfKeyDoesNotExist(&cacheKey{dimName: dimName, dimValue: dimValue}, func() {
+							a.tenantEnvironmentCache.RunIfKeyDoesNotExist(&CacheKey{dimName: dimName, dimValue: dimValue}, func() {
 								a.correlationClient.Delete(&correlations.Correlation{
 									Type:     correlations.Environment,
 									DimName:  dimName,
 									DimValue: dimValue,
 									Value:    environments[0], // We already checked for empty, and backend enforces 1 value max.
-								})
+								}, func(_ *correlations.Correlation) {})
 							})
 						})
 					}
@@ -249,14 +240,23 @@ func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Tim
 	// update the environment for the hostIDDims
 	// Note that only the value is set for the host environment cache because we only track environments for the host
 	// therefore there we don't need to include the dim key and value on the cache key
-	if isNew := a.hostEnvironmentCache.UpdateOrCreate(&cacheKey{value: environment}, now); isNew {
-		for dimName, dimValue := range a.hostIDDims {
-			a.correlationClient.Correlate(&correlations.Correlation{
-				Type:     correlations.Environment,
-				DimName:  dimName,
-				DimValue: dimValue,
-				Value:    environment,
-			})
+	if exists := a.hostEnvironmentCache.UpdateIfExists(&CacheKey{value: environment}, now); !exists {
+		if !a.hostEnvironmentCache.IsFull() {
+			for dimName, dimValue := range a.hostIDDims {
+				a.correlationClient.Correlate(&correlations.Correlation{
+					Type:     correlations.Environment,
+					DimName:  dimName,
+					DimValue: dimValue,
+					Value:    environment,
+				}, func(cor *correlations.Correlation, err error) {
+					if err == nil {
+						a.hostEnvironmentCache.UpdateOrCreate(&CacheKey{value: environment}, now)
+					}
+					if max, ok := err.(*correlations.ErrMaxEntries); ok && max.MaxEntries > 0 {
+						a.hostEnvironmentCache.SetMaxSize(max.MaxEntries, now)
+					}
+				})
+			}
 		}
 		log.WithFields(log.Fields{
 			"environment": environment,
@@ -266,16 +266,21 @@ func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Tim
 	// container / pod level stuff
 	// this cache is necessary to identify environments associated with a kubernetes pod or container id
 	for _, dimName := range dimsToSyncSource {
+		dimName := dimName
 		if dimValue, ok := span.Tags[dimName]; ok {
 			// Note that the value is not set on the cache key.  We only send the first environment received for a
 			// given pod/container, and we never delete the values set on the container/pod dimension.
 			// So we only need to cache the dim name and dim value that have been associated with an environment.
-			if isNew := a.tenantEnvironmentCache.UpdateOrCreate(&cacheKey{dimName: dimName, dimValue: dimValue}, now); isNew {
+			if exists := a.tenantEnvironmentCache.UpdateIfExists(&CacheKey{dimName: dimName, dimValue: dimValue}, now); !exists {
 				a.correlationClient.Correlate(&correlations.Correlation{
 					Type:     correlations.Environment,
 					DimName:  dimName,
 					DimValue: dimValue,
 					Value:    environment,
+				}, func(cor *correlations.Correlation, err error) {
+					if err == nil {
+						a.tenantEnvironmentCache.UpdateOrCreate(&CacheKey{dimName: dimName, dimValue: dimValue}, now)
+					}
 				})
 			}
 		}
@@ -292,15 +297,24 @@ func (a *ActiveServiceTracker) processService(span *trace.Span, now time.Time) {
 	// Handle host level service and environment correlation
 	// Note that only the value is set for the host service cache because we only track services for the host
 	// therefore there we don't need to include the dim key and value on the cache key
-	if isNew := a.hostServiceCache.UpdateOrCreate(&cacheKey{value: service}, now); isNew {
+	if exists := a.hostServiceCache.UpdateIfExists(&CacheKey{value: service}, now); !exists {
 		// all of the host id dims need to be correlated with the service
 		for dimName, dimValue := range a.hostIDDims {
-			a.correlationClient.Correlate(&correlations.Correlation{
-				Type:     correlations.Service,
-				DimName:  dimName,
-				DimValue: dimValue,
-				Value:    service,
-			})
+			if !a.hostServiceCache.IsFull() {
+				a.correlationClient.Correlate(&correlations.Correlation{
+					Type:     correlations.Service,
+					DimName:  dimName,
+					DimValue: dimValue,
+					Value:    service,
+				}, func(cor *correlations.Correlation, err error) {
+					if err == nil {
+						a.hostServiceCache.UpdateOrCreate(&CacheKey{value: service}, now)
+					}
+					if max, ok := err.(*correlations.ErrMaxEntries); ok && max.MaxEntries > 0 {
+						a.hostServiceCache.SetMaxSize(max.MaxEntries, now)
+					}
+				})
+			}
 		}
 
 		if a.sendTraceHostCorrelationMetrics {
@@ -316,16 +330,21 @@ func (a *ActiveServiceTracker) processService(span *trace.Span, now time.Time) {
 	// container / pod level stuff (this should not directly affect the active service count)
 	// this cache is necessary to identify services associated with a kubernetes pod or container id
 	for _, dimName := range dimsToSyncSource {
+		dimName := dimName
 		if dimValue, ok := span.Tags[dimName]; ok {
 			// Note that the value is not set on the cache key.  We only send the first service received for a
 			// given pod/container, and we never delete the values set on the container/pod dimension.
 			// So we only need to cache the dim name and dim value that have been associated with a service.
-			if isNew := a.tenantServiceCache.UpdateOrCreate(&cacheKey{dimName: dimName, dimValue: dimValue}, now); isNew {
+			if exists := a.tenantServiceCache.UpdateIfExists(&CacheKey{dimName: dimName, dimValue: dimValue}, now); !exists {
 				a.correlationClient.Correlate(&correlations.Correlation{
 					Type:     correlations.Service,
 					DimName:  dimName,
 					DimValue: dimValue,
 					Value:    service,
+				}, func(cor *correlations.Correlation, err error) {
+					if err == nil {
+						a.tenantServiceCache.UpdateOrCreate(&CacheKey{dimName: dimName, dimValue: dimValue}, now)
+					}
 				})
 			}
 		}
@@ -335,17 +354,20 @@ func (a *ActiveServiceTracker) processService(span *trace.Span, now time.Time) {
 // Purges caches on the ActiveServiceTracker
 func (a *ActiveServiceTracker) Purge() {
 	now := a.timeNow()
-	a.hostServiceCache.PurgeOld(now, func(purged *cacheKey) {
+
+	for _, purged := range a.hostServiceCache.GetPurgeable(now) {
 		// delete the correlation from all host id dims
 		for dimName, dimValue := range a.hostIDDims {
+			purged := purged
 			a.correlationClient.Delete(&correlations.Correlation{
 				Type:     correlations.Service,
 				DimName:  dimName,
 				DimValue: dimValue,
 				Value:    purged.value,
+			}, func(cor *correlations.Correlation) {
+				a.hostServiceCache.Delete(purged)
 			})
 		}
-
 		// remove host/service correlation metric from tracker
 		if a.sendTraceHostCorrelationMetrics {
 			a.removeServiceFromDPCache(purged.value)
@@ -354,28 +376,32 @@ func (a *ActiveServiceTracker) Purge() {
 		log.WithFields(log.Fields{
 			"serviceName": purged.value,
 		}).Debug("No longer tracking service name from trace span")
-	})
-	a.hostEnvironmentCache.PurgeOld(now, func(purged *cacheKey) {
+	}
+
+	for _, purged := range a.hostEnvironmentCache.GetPurgeable(now) {
 		// delete the correlation from all host id dims
 		for dimName, dimValue := range a.hostIDDims {
+			purged := purged
 			a.correlationClient.Delete(&correlations.Correlation{
 				Type:     correlations.Environment,
 				DimName:  dimName,
 				DimValue: dimValue,
 				Value:    purged.value,
+			}, func(cor *correlations.Correlation) {
+				a.hostEnvironmentCache.Delete(purged)
+				log.WithFields(log.Fields{
+					"environmentName": purged.value,
+				}).Debug("No longer tracking environment name from trace span")
 			})
 		}
-		log.WithFields(log.Fields{
-			"environmentName": purged.value,
-		}).Debug("No longer tracking environment name from trace span")
-	})
+	}
 
 	// Purge the caches for containers and pods, but don't do the deletions.
 	// These values aren't expected to change, and can be overwritten.
 	// The onPurge() function doesn't need to do anything
-	a.tenantServiceCache.PurgeOld(now, func(_ *cacheKey) {})
-	a.tenantEnvironmentCache.PurgeOld(now, func(_ *cacheKey) {})
-	a.tenantEmptyEnvironmentCache.PurgeOld(now, func(_ *cacheKey) {})
+	a.tenantServiceCache.PurgeOld(now, func(_ *CacheKey) {})
+	a.tenantEnvironmentCache.PurgeOld(now, func(_ *CacheKey) {})
+	a.tenantEmptyEnvironmentCache.PurgeOld(now, func(_ *CacheKey) {})
 }
 
 // InternalMetrics returns datapoint describing the status of the tracker

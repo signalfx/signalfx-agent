@@ -38,17 +38,17 @@ can make the agent run with its own network namespace by doing the following:
  2. Remove the `dnsPolicy` setting or change it to `dnsPolicy: ClusterFirst`.
  3. Add the item `hostname: ${MY_NODE_NAME}` under `agent.yaml` in the agent
 	ConfigMap.
- 4. Configure the `kubelet-stats` monitor to use the node name as the hostname
+ 4. Configure the `kubelet-metrics` monitor to use the node name as the hostname
 	by using the following config:
 
 	```
-    - type: kubelet-stats
+    - type: kubelet-metrics
       kubeletAPI:
         url: https://${MY_NODE_NAME}:10250
         authType: serviceAccount
     ```
 
-	If you have a non-standard `kubelet-stats` config, alter this accordingly.
+	If you have a non-standard `kubelet-metrics` config, alter this accordingly.
 	Note that this **requires that node names are valid DNS hosts as well** and
 	it will not work if node names are not resolvable.  Of course, cluster
 	firewalls also have to allow for traffic from the pod network to the
@@ -72,7 +72,7 @@ host infrastructure monitors will be disabled if `isServerless: true`.
 Two notable limitations when running the agent as a Deployment in Fargate:
 
  - Due to network configuration set by AWS, the agent pod cannot access its own
-   kubelet, which means container stats (those from `kubelet-stats`) will not
+   kubelet, which means container stats (those from `kubelet-metrics`) will not
    be emitted for the agent container.
 
  - All pod monitoring must be done in a single, centralized agent instance.
@@ -84,6 +84,9 @@ Two notable limitations when running the agent as a Deployment in Fargate:
 The [serverless](./serverless) directory contains a set of sample YAML
 resources that you can start from to deploy the agent in a serverless K8s
 environment.
+
+## Windows
+If you are deploying to a mixed Windows/Linux Kubernetes cluster, see [Windows](./helm/signalfx-agent#windows) in the Helm chart README.
 
 ## Development
 

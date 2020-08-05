@@ -74,31 +74,31 @@ const (
 // DIMENSION(kubernetes_node_uid): For Node (`k8s-node`) targets, the UID of
 // the Node
 
-// ENDPOINT_VAR(kubernetes_annotations): The set of annotations on the
+// ENDPOINT_VAR(kubernetes_annotations|map of strings): The set of annotations on the
 // discovered pod or node.
 
-// ENDPOINT_VAR(pod_spec): The full pod spec object, as represented by the Go
+// ENDPOINT_VAR(pod_spec|pod spec): The full pod spec object, as represented by the Go
 // K8s client library (client-go): https://godoc.org/k8s.io/api/core/v1#PodSpec.
 
-// ENDPOINT_VAR(pod_metadata): The full pod metadata object, as represented by the Go
+// ENDPOINT_VAR(pod_metadata|pod metadata): The full pod metadata object, as represented by the Go
 // K8s client library (client-go): https://godoc.org/k8s.io/apimachinery/pkg/apis/meta/v1#ObjectMeta.
 
-// ENDPOINT_VAR(node_metadata): The metadata about the Node, for `k8s-node`
+// ENDPOINT_VAR(node_metadata|node_metadata): The metadata about the Node, for `k8s-node`
 // targets, with fields in TitleCase.  See [ObjectMeta v1 meta
 // reference](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#objectmeta-v1-meta).
 
-// ENDPOINT_VAR(node_spec): The Node spec object, for `k8s-node` targets.  See
+// ENDPOINT_VAR(node_spec|node_spec): The Node spec object, for `k8s-node` targets.  See
 // [the K8s reference on this
 // resource](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#nodespec-v1-core),
 // but keep in the mind that fields will be in TitleCase due to passing through
 // Go.
 
-// ENDPOINT_VAR(node_status): The Node status object, for `k8s-node` targets.
+// ENDPOINT_VAR(node_status|node_status): The Node status object, for `k8s-node` targets.
 // See [the K8s reference on Node
 // Status](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#nodestatus-v1-core)
 // but keep in mind that fields will be in TitleCase due to passing through Go.
 
-// ENDPOINT_VAR(node_addresses): A map of the different Node addresses
+// ENDPOINT_VAR(node_addresses|map of strings): A map of the different Node addresses
 // specified in the Node status object.  The key of the map is the address type
 // and the value is the address string. The address types are `Hostname`,
 // `ExternalIP`, `InternalIP`, `ExternalDNS`, `InternalDNS`.  Most likely not
@@ -499,5 +499,4 @@ func (o *Observer) endpointsInPod(pod *v1.Pod, client *k8s.Clientset, portAnnota
 // Shutdown the service differ routine
 func (o *Observer) Shutdown() {
 	o.stopIfRunning()
-	o.config = nil
 }

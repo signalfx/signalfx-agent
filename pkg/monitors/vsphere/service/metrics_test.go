@@ -7,10 +7,9 @@ import (
 )
 
 func TestPopulateInvMetrics(t *testing.T) {
-	gateway := newFakeGateway()
-	log := getTestingLog()
-	metricsSvc := NewMetricsService(gateway, log)
-	inventorySvc := NewInventorySvc(gateway, log)
+	gateway := newFakeGateway(1)
+	metricsSvc := NewMetricsService(gateway, testLog)
+	inventorySvc := NewInventorySvc(gateway, testLog)
 	inv, _ := inventorySvc.RetrieveInventory()
 	metricsSvc.PopulateInvMetrics(inv)
 	invObj := inv.Objects[0]
@@ -19,8 +18,8 @@ func TestPopulateInvMetrics(t *testing.T) {
 }
 
 func TestRetrievePerfCounterIndex(t *testing.T) {
-	gateway := newFakeGateway()
-	metricsSvc := NewMetricsService(gateway, getTestingLog())
+	gateway := newFakeGateway(1)
+	metricsSvc := NewMetricsService(gateway, testLog)
 	idx, _ := metricsSvc.RetrievePerfCounterIndex()
 	metric := idx[42]
 	require.Equal(t, "vsphere.cpu_core_utilization_percent", metric.MetricName)

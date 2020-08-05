@@ -1,0 +1,12 @@
+#!/bin/bash
+
+version_text=`gomplate --version`
+
+if [[ "$version_text" != "gomplate version 3.4.0" ]]; then
+    echo "Please install Gomplate version 3.4.0 to proceed"
+    echo "Release on Github: https://github.com/hairyhenderson/gomplate/releases/tag/v3.4.0"
+    exit 1
+fi
+
+echo "Correct gomplate version found, proceeding..."
+exit 0

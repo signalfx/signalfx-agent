@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
+  <metadata>
+    <id>signalfx-agent</id>
+    <version>0.0.0</version>
+    <description>
+The SignalFx Smart Agent is a metric-based agent written in Go that is used to monitor infrastructure and application services from a variety of environments.
+
+The SignalFx Smart Agent looks for a configuration file at `\ProgramData\SignalFxAgent\agent.yaml`.  If this file does not already exist during installation, a default config file will be copied into place by the installer.
+
+#### Package Parameters
+The following package parameters are available:
+
+ * `/access_token` - The access token (org token) used to send metric data to SignalFx. If the parameter is specified, the token will be saved to the `\ProgramData\SignalFxAgent\token` file. If the parameter is not specified and `\ProgramData\SignalFxAgent\token` does not exist or is empty, the Smart Agent service is not started after installation or upgrade. To start the service, add or update `\ProgramData\SignalFxAgent\token` with a valid token, and then either restart Windows or run the following PowerShell command: `&amp; "\Program Files\SignalFx\SignalFxAgent\bin\signalfx-agent.exe" -service "start"`
+ * `/ingest_url` - URL of the SignalFx ingest endpoint (e.g. `https://ingest.YOUR_SIGNALFX_REALM.signalfx.com`). The URL will be saved to the `\ProgramData\SignalFxAgent\ingest_url` file. If the parameter is not specified, the value found in `\ProgramData\SignalFxAgent\ingest_url` (if it exists) will be used. Otherwise, defaults to `https://ingest.us0.signalfx.com`.
+ * `/api_url` - URL of the SignalFx API endpoint (e.g. `https://api.YOUR_SIGNALFX_REALM.signalfx.com`). The URL will be saved to the `\ProgramData\SignalFxAgent\api_url` file. If the parameter is not specified, the value found in `\ProgramData\SignalFxAgent\api_url` (if it exists) will be used. Otherwise, defaults to `https://api.us0.signalfx.com`.
+ * `/install_dir` - Installation directory. Defaults to `\Program Files\SignalFx\SignalFxAgent`.
+
+To pass parameters, use `--params "''"` (e.g. `choco install signalfx-agent [choco options] --params="'/access_token:YOUR_SIGNALFX_ACCESS_TOKEN /ingest_url:https://ingest.YOUR_SIGNALFX_REALM.signalfx.com /api_url:https://api.YOUR_SIGNALFX_REALM.signalfx.com /install_dir:YOUR_INSTALL_DIR'"`).
+
+To have choco remember parameters on upgrade, be sure to set `choco feature enable -n=useRememberedArgumentsForUpgrades`.
+    </description>
+    <summary>SignalFx Smart Agent</summary>
+    <authors>SignalFx</authors>
+    <title>SignalFx Smart Agent</title>
+    <projectUrl>https://www.signalfx.com</projectUrl>
+    <iconUrl>https://cdn.signalfx.com/favicon.ico</iconUrl>
+    <licenseUrl>https://github.com/signalfx/signalfx-agent/blob/master/LICENSE</licenseUrl>
+    <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <projectSourceUrl>https://github.com/signalfx/signalfx-agent</projectSourceUrl>
+    <packageSourceUrl>https://github.com/signalfx/signalfx-agent</packageSourceUrl>
+    <docsUrl>https://docs.signalfx.com/en/latest/integrations/agent/index.html</docsUrl>
+    <tags>signalfx-agent</tags>
+    <releaseNotes>https://github.com/signalfx/signalfx-agent/releases</releaseNotes>
+    <dependencies>
+      <dependency id="chocolatey-core.extension" version="1.1.0" />
+    </dependencies>
+  </metadata>
+  <files>
+    <!-- this section controls what actually gets packaged into the Chocolatey package -->
+    <file src="tools\**" target="tools" />
+    <!--Building from Linux? You may need this instead: <file src="tools/**" target="tools" />-->
+  </files>
+</package>

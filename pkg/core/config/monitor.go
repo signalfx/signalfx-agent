@@ -1,8 +1,10 @@
 package config
 
 import (
+	"fmt"
 	"os"
 	"reflect"
+	"regexp"
 	"strings"
 
 	"github.com/mitchellh/hashstructure"
@@ -10,6 +12,7 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	log "github.com/sirupsen/logrus"
+	yaml "gopkg.in/yaml.v2"
 )
 
 // MonitorConfig is used to configure monitor instances.  One instance of
@@ -42,7 +45,10 @@ type MonitorConfig struct {
 	// expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html)
 	// that is used to derive the value of the span tag.  For example, to use
 	// a certain container label as a span tag, you could use something like this
-	// in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`
+	// in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`.
+	// This only applies when the monitor has a `discoveryRule` or was
+	// dynamically instantiated by an endpoint. It does nothing, for example,
+	// in the `signalfx-forwarder` montior.
 	ExtraSpanTagsFromEndpoint map[string]string `yaml:"extraSpanTagsFromEndpoint" json:"extraSpanTagsFromEndpoint"`
 	// A set of default span tags (key:value pairs) to include on spans emitted by the
 	// monitor(s) created from this configuration.
@@ -52,12 +58,18 @@ type MonitorConfig struct {
 	// that is used to derive the default value of the span tag.  For example, to use
 	// a certain container label as a span tag, you could use something like this
 	// in your monitor config block: `defaultSpanTagsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`
+	// This only applies when the monitor has a `discoveryRule` or was
+	// dynamically instantiated by an endpoint. It does nothing, for example,
+	// in the `signalfx-forwarder` montior.
 	DefaultSpanTagsFromEndpoint map[string]string `yaml:"defaultSpanTagsFromEndpoint" json:"defaultSpanTagsFromEndpoint"`
 	// A mapping of extra dimension names to a [discovery rule
 	// expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html)
 	// that is used to derive the value of the dimension.  For example, to use
 	// a certain container label as a dimension, you could use something like this
-	// in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`
+	// in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`.
+	// This only applies when the monitor has a `discoveryRule` or was
+	// dynamically instantiated by an endpoint. It does nothing, for example,
+	// in the `signalfx-forwarder` montior.
 	ExtraDimensionsFromEndpoint map[string]string `yaml:"extraDimensionsFromEndpoint" json:"extraDimensionsFromEndpoint"`
 	// A set of mappings from a configuration option on this monitor to
 	// attributes of a discovered endpoint.  The keys are the config option on
@@ -89,6 +101,19 @@ type MonitorConfig struct {
 	// is useful when you have an endpoint whose identity is not particularly
 	// important since it acts largely as a proxy or adapter for other metrics.
 	DisableEndpointDimensions bool `yaml:"disableEndpointDimensions" json:"disableEndpointDimensions"`
+	// A map from _original_ metric name to a replacement value.  The keys are
+	// intepreted as regular expressions and the values can contain
+	// backreferences. This means that you should escape any RE characters in
+	// the original metric name with `\` (the most common escape necessary will
+	// be `\.` as period is interpreted as "all characters" if unescaped).  The
+	// [Go regexp language](https://github.com/google/re2/wiki/Syntax), and
+	// backreferences are of the form `$1`.
+	// If there are multiple entries in list of maps, they will each be run in
+	// sequence, using the transformation from the previous entry as the input
+	// the subsequent transformation.
+	// To add a common prefix to all metrics coming out of a monitor, use a
+	// mapping like this: `(.*): myprefix.$1`
+	MetricNameTransformations yaml.MapSlice `yaml:"metricNameTransformations"`
 	// A map from dimension names emitted by the monitor to the desired
 	// dimension name that will be emitted in the datapoint that goes to
 	// SignalFx.  This can be useful if you have custom metrics from your
@@ -126,12 +151,42 @@ func (mc *MonitorConfig) Validate() error {
 	if _, err = mc.FilterSet(); err != nil {
 		return err
 	}
+	if _, err = mc.MetricNameExprs(); err != nil {
+		return err
+	}
 	return nil
 }
 
 // NewFilterSet makes a filter set using the new filter style
 func (mc *MonitorConfig) FilterSet() (*dpfilters.FilterSet, error) {
 	return makeNewFilterSet(mc.DatapointsToExclude)
+}
+
+type RegexpWithReplace struct {
+	Regexp      *regexp.Regexp
+	Replacement string
+}
+
+func (mc *MonitorConfig) MetricNameExprs() ([]*RegexpWithReplace, error) {
+	var out []*RegexpWithReplace
+	for _, pair := range mc.MetricNameTransformations {
+		k, ok := pair.Key.(string)
+		if !ok {
+			return nil, fmt.Errorf("metricNameTransformation key not a string")
+		}
+
+		v, ok := pair.Value.(string)
+		if !ok {
+			return nil, fmt.Errorf("metricNameTransformation value not a string")
+		}
+
+		re, err := regexp.Compile("^" + k + "$")
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, &RegexpWithReplace{re, v})
+	}
+	return out, nil
 }
 
 // Equals tests if two monitor configs are sufficiently equal to each other.

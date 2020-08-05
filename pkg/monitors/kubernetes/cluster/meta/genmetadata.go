@@ -162,6 +162,8 @@ var MetricSet = map[string]monitors.MetricInfo{
 }
 
 var DefaultMetrics = map[string]bool{
+	KubernetesContainerCPULimit:                            true,
+	KubernetesContainerMemoryLimit:                         true,
 	KubernetesContainerReady:                               true,
 	KubernetesContainerRestartCount:                        true,
 	KubernetesDaemonSetCurrentScheduled:                    true,
@@ -232,7 +234,7 @@ var KubernetesClusterMonitorMetadata = monitors.Metadata{
 	MonitorType:     "kubernetes-cluster",
 	DefaultMetrics:  DefaultMetrics,
 	Metrics:         MetricSet,
-	SendUnknown:     false,
+	SendUnknown:     true,
 	Groups:          GroupSet,
 	GroupMetricsMap: GroupMetricsMap,
 	SendAll:         false,
@@ -242,7 +244,7 @@ var OpenshiftClusterMonitorMetadata = monitors.Metadata{
 	MonitorType:     "openshift-cluster",
 	DefaultMetrics:  DefaultMetrics,
 	Metrics:         MetricSet,
-	SendUnknown:     false,
+	SendUnknown:     true,
 	Groups:          GroupSet,
 	GroupMetricsMap: GroupMetricsMap,
 	SendAll:         false,

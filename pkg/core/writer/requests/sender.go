@@ -9,11 +9,11 @@ import (
 )
 
 type ReqSender struct {
-	client               *http.Client
-	requests             chan *http.Request
-	workerCount          uint
-	ctx                  context.Context
-	additionalDimensions map[string]string
+	client      *http.Client
+	requests    chan *http.Request
+	workerCount uint32
+	ctx         context.Context
+	clientName  string
 
 	RunningWorkers         int64
 	TotalRequestsStarted   int64
@@ -21,18 +21,17 @@ type ReqSender struct {
 	TotalRequestsFailed    int64
 }
 
-func NewReqSender(ctx context.Context, client *http.Client, workerCount uint, diagnosticDimensions map[string]string) *ReqSender {
+func NewReqSender(ctx context.Context, client *http.Client, workerCount uint, clientName string) *ReqSender {
 	return &ReqSender{
-		client:               client,
-		additionalDimensions: diagnosticDimensions,
+		client:     client,
+		clientName: clientName,
 		// Unbuffered so that it blocks clients
 		requests:    make(chan *http.Request),
-		workerCount: workerCount,
+		workerCount: uint32(workerCount),
 		ctx:         ctx,
 	}
 }
 
-// Not thread-safe
 func (rs *ReqSender) Send(req *http.Request) {
 	// Slight optimization to avoid spinning up unnecessary workers if there
 	// aren't ever that many dim updates. Once workers start, they remain for the
@@ -41,7 +40,7 @@ func (rs *ReqSender) Send(req *http.Request) {
 	case rs.requests <- req:
 		return
 	default:
-		if atomic.LoadInt64(&rs.RunningWorkers) < int64(rs.workerCount) {
+		if atomic.LoadInt64(&rs.RunningWorkers) < int64(atomic.LoadUint32(&rs.workerCount)) {
 			go rs.processRequests()
 		}
 
@@ -83,7 +82,7 @@ func (rs *ReqSender) sendRequest(req *http.Request) error {
 		err = fmt.Errorf("unexpected status code %d on response for request to %s: %s", statusCode, req.URL.String(), string(body))
 	}
 
-	onRequestFailed(req, statusCode, err)
+	onRequestFailed(req, body, statusCode, err)
 
 	return err
 }
@@ -93,7 +92,7 @@ type key int
 const RequestFailedCallbackKey key = 1
 const RequestSuccessCallbackKey key = 2
 
-type RequestFailedCallback func(statusCode int, err error)
+type RequestFailedCallback func(body []byte, statusCode int, err error)
 type RequestSuccessCallback func([]byte)
 
 func onRequestSuccess(req *http.Request, body []byte) {
@@ -104,13 +103,13 @@ func onRequestSuccess(req *http.Request, body []byte) {
 	}
 	cb(body)
 }
-func onRequestFailed(req *http.Request, statusCode int, err error) {
+func onRequestFailed(req *http.Request, body []byte, statusCode int, err error) {
 	ctx := req.Context()
 	cb, ok := ctx.Value(RequestFailedCallbackKey).(RequestFailedCallback)
 	if !ok {
 		return
 	}
-	cb(statusCode, err)
+	cb(body, statusCode, err)
 }
 
 func sendRequest(client *http.Client, req *http.Request) ([]byte, int, error) {

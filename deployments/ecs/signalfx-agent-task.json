@@ -20,8 +20,16 @@
                     "value": "MY_ACCESS_TOKEN"
                 },
                 {
+                    "name": "INGEST_URL",
+                    "value": "MY_INGEST_URL"
+                }
+                {
+                    "name": "API_URL",
+                    "value": "MY_API_URL"
+                }
+                {
                     "name": "CONFIG_URL",
-                    "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/v5.1.6/deployments/ecs/agent.yaml"
+                    "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/v5.4.0/deployments/ecs/agent.yaml"
                 }
             ],
             "ulimits": null,
@@ -48,7 +56,7 @@
             "memory": null,
             "memoryReservation": null,
             "volumesFrom": [],
-            "image": "quay.io/signalfx/signalfx-agent:5.1.6",
+            "image": "quay.io/signalfx/signalfx-agent:5.4.0",
             "disableNetworking": null,
             "healthCheck": null,
             "essential": true,

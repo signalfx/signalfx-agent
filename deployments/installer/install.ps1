@@ -34,6 +34,16 @@
     (OPTIONAL) Specify a specific version of the agent to install.  Defaults to the latest version available.
     .EXAMPLE
     .\install.ps1 -access_token "ACCESSTOKEN" -agent_version "4.0.0"
+.PARAMETER format
+    (OPTIONAL) Specify the format of the SignalFxAgent package ('msi' or 'zip').  Defaults to 'msi'.
+    Specify 'zip' if the -agent_version parameter is also specified for versions older than TBD.
+    .EXAMPLE
+    .\install.ps1 -access_token "ACCESSTOKEN" -format "zip" -agent_version "4.0.0"
+.PARAMETER msi_path
+    (OPTIONAL) Specify a local path to a SignalFxAgent MSI package to install instead of downloading the package.
+    If specified, the -agent_version, -stage, and -format parameters will be ignored.
+    .EXAMPLE
+    .\install.ps1 -access_token "ACCESSTOKEN" -msi_path "C:\SOME_FOLDER\SignalFxAgent-X.Y.Z-win64.msi"
 #>
 
 param (
@@ -45,11 +55,13 @@ param (
     [string]$api_url = "https://api.signalfx.com",
     [bool]$insecure = $false,
     [string]$agent_version = "",
+    [string]$msi_path = "",
+    [ValidateSet('msi','zip')]
+    [string]$format = "msi",
     [bool]$UNIT_TEST = $false
 )
 
-$format = "zip"
-$arch ="win64"
+$arch = "win64"
 $signalfx_dl = "https://dl.signalfx.com"
 $installation_path = "\Program Files"
 $tempdir = "\tmp\SignalFx"
@@ -74,7 +86,7 @@ For more information execute:
 
 # check if running as administrator
 function check_if_admin(){
-	$identity = [Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
+    $identity = [Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()
     If (-NOT $identity.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)){
         return $false
     }
@@ -85,7 +97,7 @@ function check_if_admin(){
 function get_latest([string]$stage=$stage,[string]$format=$format) {
     try {
         [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-        $latest = (New-Object System.Net.WebClient).DownloadString("$signalfx_dl/windows/$stage/$format/latest/latest.txt")
+        $latest = (New-Object System.Net.WebClient).DownloadString("$signalfx_dl/windows/$stage/$format/latest/latest.txt").Trim()
     }catch {
         $err = $_.Exception.Message
         $message = "
@@ -144,7 +156,7 @@ function unzip_file($zipFile, $outputDir){
 
 # verify a SignalFx access token
 function verify_access_token([string]$access_token="", [string]$ingest_url=$INGEST_URL, [bool]$insecure=$INSECURE) {
-    if ($inscure) {
+    if ($insecure) {
         # turn off certificate validation
         [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true} ;
     }
@@ -285,26 +297,29 @@ function uninstall_agent($installation_path=$installation_path) {
 
 # download agent package from repo
 function download_agent_package([string]$agent_version=$agent_version, [string]$tempdir=$tempdir, [string]$stage=$stage, [string]$arch=$arch, [string]$format=$format){
-    # determine package version to fetch
-    if ($agent_version -Eq ""){
-        echo 'Determining latest release...'
-        $agent_version = get_latest -stage $stage -format $format
-        echo "- Latest release is $agent_version"
-    }
-    
     # get the filename to download
     $filename = get_filename -tag $agent_version -format $format -arch $arch
     echo $filename
-    
+
     # get url for file to download
     $fileurl = get_url -stage $stage -format $format -filename $filename
     echo "Downloading package..."
     download_file -url $fileurl -outputDir $tempdir -filename $filename
     ensure_file_exists "$tempdir\$filename"
     echo "- $fileurl -> '$tempdir'"
-    echo "Extracting package..."
-    unzip_file "$tempdir\$filename" "$tempdir"
+
+    if ($format -Eq "zip") {
+        echo "Extracting package..."
+        unzip_file "$tempdir\$filename" "$tempdir"
+    }
 }
+
+# check registry for the agent msi package
+function msi_installed([string]$name="SignalFx Smart Agent") {
+    return (Get-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\* | Where { $_.DisplayName -eq $name }) -ne $null
+}
+
+$ErrorActionPreference = 'Stop'; # stop on all errors
 
 # check administrator status
 echo 'Checking if running as Administrator...'
@@ -332,8 +347,24 @@ $signalfx_dir = create_signalfx_dir -installation_path $installation_path
 # set up a temporary directory under signalfx directory
 $tempdir = create_temp_dir -tempdir $tempdir
 
-# download the agent package with the specified agent_version or latest
-download_agent_package -agent_version $agent_version -tempdir $tempdir -stage $stage -arch $arch -format $format
+if ($msi_path -Eq "") {
+    # determine package version to fetch
+    if ($agent_version -Eq ""){
+        echo 'Determining latest release...'
+        $agent_version = get_latest -stage $stage -format $format
+        echo "- Latest release is $agent_version"
+    }
+
+    # download the agent package with the specified agent_version or latest
+    download_agent_package -agent_version $agent_version -tempdir $tempdir -stage $stage -arch $arch -format $format
+} else {
+    $msi_path = Resolve-Path "$msi_path"
+    if (!(Test-Path -Path "$msi_path")) {
+        throw "$msi_path not found!"
+    }
+}
+
+mkdir "$tempdir\SignalFxAgent\etc\signalfx" -ErrorAction Ignore
 
 # stage configurations
 if (Test-Path -Path "$program_data_path") {
@@ -352,10 +383,10 @@ if (Test-Path -Path "$program_data_path") {
     [System.IO.File]::WriteAllText("$tempdir\SignalFxAgent\etc\signalfx\api_url"," $api_url",[System.Text.Encoding]::ASCII)
 }
 
-# uninstall existing agent
-uninstall_agent -installation_path $installation_path
-
-echo "Copying agent files into place..."
+# uninstall agent bundle if installed
+if (!(msi_installed)) {
+    uninstall_agent -installation_path $installation_path
+}
 
 # create program data directory
 create_program_data
@@ -367,15 +398,35 @@ Remove-Item "$program_data_path\*" -Recurse -Force
 Copy-Item -Recurse "$tempdir\SignalFxAgent\etc\signalfx\*" "$program_data_path\"
 
 # remove the packaged etc before copying agent dir into place
-Remove-Item "$tempdir\SignalFxAgent\etc\*" -Recurse -Force
+if (Test-Path -Path "$tempdir\SignalFxAgent\etc\*") {
+    Remove-Item "$tempdir\SignalFxAgent\etc\*" -Recurse -Force
+}
 
-# copy agent files into place
-Copy-Item -Recurse "$tempdir\SignalFxAgent" "$installation_path\SignalFx\SignalFxAgent"
+if ($format -Eq "zip") {
+    echo "Copying agent files into place..."
 
-# create symlink in old config location to new config location for backwards compatability
-cmd /c mklink /D "$installation_path\SignalFx\SignalFxAgent\etc\signalfx" "$program_data_path"
+    # copy agent files into place
+    Copy-Item -Recurse "$tempdir\SignalFxAgent" "$installation_path\SignalFx\SignalFxAgent"
+
+    # create symlink in old config location to new config location for backwards compatability
+    cmd /c mklink /D "$installation_path\SignalFx\SignalFxAgent\etc\signalfx" "$program_data_path"
+} else {
+    if ($msi_path -Eq "") {
+        $msi_path = get_filename -tag $agent_version -format $format -arch $arch
+        $msi_path = (Join-Path "$tempdir" "$msi_path")
+    }
+
+    echo "Installing $msi_path ..."
+    Start-Process msiexec.exe -Wait -ArgumentList "/qn /norestart /i $msi_path"
+}
 
 echo "- Done"
+
+if (!(Test-Path -Path "$config_path") -And (Test-Path -Path "$installation_path\SignalFx\SignalFxAgent\etc\signalfx\agent.yaml")) {
+    echo "$config_path not found"
+    echo "Copying default agent.yaml to $config_path"
+    Copy-Item "$installation_path\SignalFx\SignalFxAgent\etc\signalfx\agent.yaml" "$config_path"
+}
 
 echo "Installing agent service..."
 # be doubly sure we don't have previously existing registry entries

@@ -1,4 +1,4 @@
-// Package writer contains the SignalFx writer.  The writer is responsible for
+// Package signalfx contains the SignalFx writer.  The writer is responsible for
 // sending datapoints and events to SignalFx ingest.  Ideally all data would
 // flow through here, but right now a lot of it is written to ingest by
 // collectd.
@@ -6,7 +6,7 @@
 // The writer provides a channel that all monitors can submit datapoints on.
 // All monitors should include the "monitorType" key in the `Meta` map of the
 // datapoint for use in filtering.
-package writer
+package signalfx
 
 import (
 	"context"
@@ -21,11 +21,10 @@ import (
 	"github.com/signalfx/golib/v3/event"
 	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/golib/v3/trace"
-	"github.com/signalfx/signalfx-agent/pkg/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
-	"github.com/signalfx/signalfx-agent/pkg/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/correlations"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/dimensions"
+	"github.com/signalfx/signalfx-agent/pkg/core/writer/processor"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/tap"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/tracetracker"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
@@ -41,10 +40,12 @@ const (
 	eventBufferCapacity = 1000
 )
 
-// SignalFxWriter is what sends events and datapoints to SignalFx ingest.  It
+// Writer is what sends events and datapoints to SignalFx ingest.  It
 // receives events/datapoints on two buffered channels and writes them to
 // SignalFx on a regular interval.
-type SignalFxWriter struct {
+type Writer struct {
+	*processor.Processor
+
 	client            *sfxclient.HTTPSink
 	correlationClient correlations.CorrelationClient
 	dimensionClient   *dimensions.DimensionClient
@@ -62,8 +63,7 @@ type SignalFxWriter struct {
 	dpTap  *tap.DatapointTap
 
 	// map that holds host-specific ids like AWSUniqueID
-	hostIDDims       map[string]string
-	datapointFilters *dpfilters.FilterSet
+	hostIDDims map[string]string
 
 	eventBuffer []*event.Event
 
@@ -92,8 +92,9 @@ type SignalFxWriter struct {
 // New creates a new un-configured writer
 func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventChan chan *event.Event,
 	dimensionChan chan *types.Dimension, spanChan chan []*trace.Span,
-	spanSourceTracker *tracetracker.SpanSourceTracker) (*SignalFxWriter, error) {
-	logger := utils.NewThrottledLogger(logrus.WithFields(log.Fields{"component": "writer"}), 20*time.Second)
+	spanSourceTracker *tracetracker.SpanSourceTracker) (*Writer, error) {
+
+	logger := utils.NewThrottledLogger(logrus.WithFields(logrus.Fields{"component": "writer"}), 20*time.Second)
 
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -103,14 +104,14 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 		return nil, err
 	}
 
-	var correlationClient correlations.CorrelationClient
-	correlationClient, err = correlations.NewCorrelationClient(ctx, conf)
+	correlationClient, err := correlations.NewCorrelationClient(ctx, conf)
 	if err != nil {
 		cancel()
 		return nil, err
 	}
 
-	sw := &SignalFxWriter{
+	sw := &Writer{
+		Processor:         processor.New(conf),
 		ctx:               ctx,
 		cancel:            cancel,
 		conf:              conf,
@@ -135,10 +136,8 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 	default:
 		return nil, fmt.Errorf("trace export format '%s' is not supported", conf.TraceExportFormat)
 	}
+
 	sw.client = sfxclient.NewHTTPSink(sinkOptions...)
-
-	go sw.maintainLastMinuteActivity()
-
 	sw.client.AuthToken = conf.SignalFxAccessToken
 
 	sw.client.Client.Transport = &http.Transport{
@@ -156,7 +155,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 
 	dpEndpointURL, err := conf.ParsedIngestURL().Parse("v2/datapoint")
 	if err != nil {
-		log.WithFields(log.Fields{
+		logger.WithFields(logrus.Fields{
 			"error":     err,
 			"ingestURL": conf.ParsedIngestURL().String(),
 		}).Error("Could not construct datapoint ingest URL")
@@ -169,7 +168,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 		var err error
 		eventEndpointURL, err = conf.ParsedIngestURL().Parse("v2/event")
 		if err != nil {
-			log.WithFields(log.Fields{
+			logger.WithFields(logrus.Fields{
 				"error":     err,
 				"ingestURL": conf.ParsedIngestURL().String(),
 			}).Error("Could not construct event ingest URL")
@@ -183,7 +182,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 		var err error
 		traceEndpointURL, err = conf.ParsedIngestURL().Parse(conf.DefaultTraceEndpointPath())
 		if err != nil {
-			log.WithFields(log.Fields{
+			logger.WithFields(logrus.Fields{
 				"error":     err,
 				"ingestURL": conf.ParsedIngestURL().String(),
 			}).Error("Could not construct trace ingest URL")
@@ -192,18 +191,8 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 	}
 	sw.client.TraceEndpoint = traceEndpointURL.String()
 
-	sw.datapointFilters, err = sw.conf.DatapointFilters()
-	if err != nil {
-		return nil, err
-	}
-
-	sw.dimensionClient.Start()
-	sw.correlationClient.Start()
-
-	go sw.listenForEventsAndDimensionUpdates()
-
 	sw.datapointWriter = &sfxwriter.DatapointWriter{
-		PreprocessFunc: sw.preprocessDatapoint,
+		PreprocessFunc: sw.processDatapoint,
 		SendFunc:       sw.sendDatapoints,
 		OverwriteFunc: func() {
 			sw.logger.ThrottledWarning(fmt.Sprintf("A datapoint was overwritten in the write buffer, please consider increasing the writer.maxDatapointsBuffered config option to something greater than %d", conf.MaxDatapointsBuffered))
@@ -214,44 +203,41 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 		InputChan:    sw.dpChan,
 	}
 
-	sw.datapointWriter.Start(ctx)
-
-	// The only reason this is on the struct and not a local var is so we can
-	// easily get diagnostic metrics from it
-	sw.serviceTracker = sw.startHostCorrelationTracking()
-
 	sw.spanWriter = &sfxwriter.SpanWriter{
-		PreprocessFunc: sw.preprocessSpan,
+		PreprocessFunc: sw.processSpan,
 		SendFunc:       sw.sendSpans,
 		MaxBatchSize:   conf.TraceSpanMaxBatchSize,
 		MaxRequests:    conf.MaxRequests,
 		MaxBuffered:    int(conf.MaxTraceSpansInFlight),
 		InputChan:      sw.spanChan,
 	}
-	sw.spanWriter.Start(ctx)
 
-	log.Infof("Sending datapoints to %s", sw.client.DatapointEndpoint)
-	log.Infof("Sending events to %s", sw.client.EventEndpoint)
-	log.Infof("Sending trace spans to %s", sw.client.TraceEndpoint)
+	logger.Infof("Sending datapoints to %s", sw.client.DatapointEndpoint)
+	logger.Infof("Sending events to %s", sw.client.EventEndpoint)
+	logger.Infof("Sending trace spans to %s", sw.client.TraceEndpoint)
 
 	return sw, nil
 }
 
-func (sw *SignalFxWriter) shouldSendDatapoint(dp *datapoint.Datapoint) bool {
-	return sw.datapointFilters == nil || !sw.datapointFilters.Matches(dp)
+func (sw *Writer) Start() {
+	// The only reason this is on the struct and not a local var is so we can
+	// easily get diagnostic metrics from it
+	sw.serviceTracker = sw.startHostCorrelationTracking()
+
+	go sw.maintainLastMinuteActivity()
+
+	sw.dimensionClient.Start()
+	sw.correlationClient.Start()
+
+	go sw.listenForEventsAndDimensionUpdates()
+
+	sw.datapointWriter.Start(sw.ctx)
+	sw.spanWriter.Start(sw.ctx)
 }
 
-func (sw *SignalFxWriter) preprocessDatapoint(dp *datapoint.Datapoint) bool {
-	if !sw.shouldSendDatapoint(dp) {
+func (sw *Writer) processDatapoint(dp *datapoint.Datapoint) bool {
+	if !sw.PreprocessDatapoint(dp) {
 		return false
-	}
-
-	dp.Dimensions = sw.addGlobalDims(dp.Dimensions)
-
-	// Some metrics aren't really specific to the host they are running
-	// on and shouldn't have any host-specific dims
-	if b, ok := dp.Meta[dpmeta.NotHostSpecificMeta].(bool); !ok || !b {
-		dp.Dimensions = sw.addhostIDFields(dp.Dimensions)
 	}
 
 	utils.TruncateDimensionValuesInPlace(dp.Dimensions)
@@ -263,7 +249,7 @@ func (sw *SignalFxWriter) preprocessDatapoint(dp *datapoint.Datapoint) bool {
 	return true
 }
 
-func (sw *SignalFxWriter) sendDatapoints(ctx context.Context, dps []*datapoint.Datapoint) error {
+func (sw *Writer) sendDatapoints(ctx context.Context, dps []*datapoint.Datapoint) error {
 	// This sends synchonously
 	err := sw.client.AddDatapoints(ctx, dps)
 	if err != nil {
@@ -281,23 +267,9 @@ func (sw *SignalFxWriter) sendDatapoints(ctx context.Context, dps []*datapoint.D
 	return nil
 }
 
-func (sw *SignalFxWriter) sendEvents(events []*event.Event) error {
+func (sw *Writer) sendEvents(events []*event.Event) error {
 	for i := range events {
-		events[i].Dimensions = sw.addGlobalDims(events[i].Dimensions)
-
-		ps := events[i].Properties
-		var notHostSpecific bool
-		if ps != nil {
-			if b, ok := ps[dpmeta.NotHostSpecificMeta].(bool); ok {
-				notHostSpecific = b
-				// Clear this so it doesn't leak through to ingest
-				delete(ps, dpmeta.NotHostSpecificMeta)
-			}
-		}
-		// Only override host dimension for now and omit other host id dims.
-		if !notHostSpecific && sw.hostIDDims != nil && sw.hostIDDims["host"] != "" {
-			events[i].Dimensions["host"] = sw.hostIDDims["host"]
-		}
+		sw.PreprocessEvent(events[i])
 
 		if sw.conf.LogEvents {
 			log.WithFields(log.Fields{
@@ -306,9 +278,11 @@ func (sw *SignalFxWriter) sendEvents(events []*event.Event) error {
 		}
 	}
 
-	err := sw.client.AddEvents(context.Background(), events)
-	if err != nil {
-		return err
+	if sw.client != nil {
+		err := sw.client.AddEvents(context.Background(), events)
+		if err != nil {
+			return err
+		}
 	}
 	sw.eventsSent += int64(len(events))
 	log.Debugf("Sent %d events to SignalFx", len(events))
@@ -316,35 +290,7 @@ func (sw *SignalFxWriter) sendEvents(events []*event.Event) error {
 	return nil
 }
 
-// Mutates datapoint dimensions in place to add global dimensions.  Also
-// returns dims in case they were nil to begin with, so the return value should
-// be assigned back to the dp Dimensions field.
-func (sw *SignalFxWriter) addGlobalDims(dims map[string]string) map[string]string {
-	if dims == nil {
-		dims = make(map[string]string)
-	}
-	for name, value := range sw.conf.GlobalDimensions {
-		// If the dimensions are already set, don't override
-		if _, ok := dims[name]; !ok {
-			dims[name] = value
-		}
-	}
-	return dims
-}
-
-// Adds the host ids to the given map (e.g. dimensions/span tags), forcibly
-// overridding any existing fields of the same name.
-func (sw *SignalFxWriter) addhostIDFields(fields map[string]string) map[string]string {
-	if fields == nil {
-		fields = make(map[string]string)
-	}
-	for k, v := range sw.hostIDDims {
-		fields[k] = v
-	}
-	return fields
-}
-
-func (sw *SignalFxWriter) listenForEventsAndDimensionUpdates() {
+func (sw *Writer) listenForEventsAndDimensionUpdates() {
 	eventTicker := time.NewTicker(time.Duration(sw.conf.EventSendIntervalSeconds) * time.Second)
 	defer eventTicker.Stop()
 
@@ -391,12 +337,12 @@ func (sw *SignalFxWriter) listenForEventsAndDimensionUpdates() {
 
 // SetTap allows you to set one datapoint tap at a time to inspect datapoints
 // going out of the agent.
-func (sw *SignalFxWriter) SetTap(dpTap *tap.DatapointTap) {
+func (sw *Writer) SetTap(dpTap *tap.DatapointTap) {
 	sw.dpTap = dpTap
 }
 
 // Shutdown the writer and stop sending datapoints
-func (sw *SignalFxWriter) Shutdown() {
+func (sw *Writer) Shutdown() {
 	if sw.cancel != nil {
 		sw.cancel()
 	}

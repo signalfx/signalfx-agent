@@ -17,6 +17,7 @@ rules:
   - namespaces/status
   - nodes
   - nodes/spec
+  - nodes/proxy
   - pods
   - pods/status
   - replicationcontrollers
@@ -24,7 +25,7 @@ rules:
   - services
   - resourcequotas
   # Only need to be able to view secrets if using k8s annotation
-  # agent.signalfx.com/configWithSecret.*.  You can also whitelist specific
+  # agent.signalfx.com/configWithSecret.*.  You can also allow specific
   # secrets for finer-grain permission sets.
   {{- if .Values.permitReadingSecrets }}
   - secrets
@@ -33,14 +34,6 @@ rules:
   - get
   - list
   - watch
-- apiGroups:
-  - ""
-  resources:
-  - configmaps
-  verbs:
-  - get
-  - update
-  - create
 - apiGroups:
   - ""
   resources:

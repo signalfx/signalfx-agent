@@ -5,11 +5,11 @@
 # run arbitrary code
 extension-pkg-whitelist=signalfx.generated_protocol_buffers.signal_fx_protocol_buffers_pb2,netifaces,ujson
 
-# Add files or directories to the blacklist. They should be base names, not
+# Add files or directories to the deny list. They should be base names, not
 # paths.
 ignore=CVS,virtualenv,.git,__pycache__,.idea
 
-# Add files or directories matching the regex patterns to the blacklist. The
+# Add files or directories matching the regex patterns to the deny list. The
 # regex matches against base names, not paths.
 ignore-patterns=.*\.egg-info
 

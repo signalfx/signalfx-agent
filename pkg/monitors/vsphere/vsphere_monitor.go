@@ -5,10 +5,11 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
-	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
-	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/service"
 	"github.com/sirupsen/logrus"
 	"github.com/vmware/govmomi"
+
+	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/service"
 )
 
 // Encapsulates services and the current state of the vSphere monitor.
@@ -25,12 +26,18 @@ type vSphereMonitor struct {
 	vSphereInfo            *model.VsphereInfo
 	lastVsphereLoadTime    time.Time
 	lastPointRetrievalTime time.Time
+	ptConsumer             func(...*datapoint.Datapoint)
 }
 
-func newVsphereMonitor(conf *model.Config, log *logrus.Entry) *vSphereMonitor {
+func newVsphereMonitor(
+	conf *model.Config,
+	log *logrus.Entry,
+	ptConsumer func(...*datapoint.Datapoint),
+) *vSphereMonitor {
 	return &vSphereMonitor{
-		conf: conf,
-		log:  log,
+		conf:       conf,
+		log:        log,
+		ptConsumer: ptConsumer,
 	}
 }
 
@@ -62,29 +69,28 @@ func (vsm *vSphereMonitor) firstTimeSetup(ctx context.Context) error {
 // Creates the service objects and assigns them to the vSphereMonitor struct.
 func (vsm *vSphereMonitor) wireUpServices(ctx context.Context, client *govmomi.Client) {
 	gateway := service.NewGateway(ctx, client, vsm.log)
-	vsm.ptsSvc = service.NewPointsSvc(gateway, vsm.log, vsm.conf.PerfBatchSize)
+	vsm.ptsSvc = service.NewPointsSvc(gateway, vsm.log, vsm.conf.PerfBatchSize, vsm.ptConsumer)
 	vsm.invSvc = service.NewInventorySvc(gateway, vsm.log)
 	vsm.metricSvc = service.NewMetricsService(gateway, vsm.log)
 	vsm.timeSvc = service.NewTimeSvc(gateway)
 	vsm.vsInfoSvc = service.NewVSphereInfoService(vsm.invSvc, vsm.metricSvc)
 }
 
-// Retrieves datapoints for all the inventory for the number of 20-second intervals available since the last datapoint
-// retrieval.
-func (vsm *vSphereMonitor) retrieveDatapoints() []*datapoint.Datapoint {
+// Generates datapoints for all inventory objects for the number of 20-second
+// intervals available since the last datapoint retrieval.
+func (vsm *vSphereMonitor) generateDatapoints() {
 	numSamples, err := vsm.getNumSamplesReqd()
 	if err != nil {
 		vsm.log.WithError(err).Error("Failed to load getNumSamplesReqd")
-		return nil
+		return
 	}
 	if numSamples == 0 {
-		return nil
+		return
 	}
-	dps, latestRetrievalTime := vsm.ptsSvc.RetrievePoints(vsm.vSphereInfo, numSamples)
+	latestRetrievalTime := vsm.ptsSvc.FetchPoints(vsm.vSphereInfo, numSamples)
 	if !latestRetrievalTime.IsZero() {
 		vsm.lastPointRetrievalTime = latestRetrievalTime
 	}
-	return dps
 }
 
 // Traverses the vSphere inventory and saves the result in vSphereInfo (hosts, VMs, available metrics, and metric index).

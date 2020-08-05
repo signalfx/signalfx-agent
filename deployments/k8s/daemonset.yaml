@@ -6,7 +6,7 @@ metadata:
   name: signalfx-agent
   labels:
     app: signalfx-agent
-    version: 5.1.6
+    version: 5.4.0
 spec:
   selector:
     matchLabels:
@@ -20,7 +20,7 @@ spec:
     metadata:
       labels:
         app: signalfx-agent
-        version: 5.1.6
+        version: 5.4.0
 
       annotations:
         {}
@@ -31,6 +31,8 @@ spec:
       restartPolicy: Always
       serviceAccountName: signalfx-agent
 
+      nodeSelector:
+        kubernetes.io/os: linux
       tolerations:
       - effect: NoSchedule
         key: node.alpha.kubernetes.io/role
@@ -41,16 +43,13 @@ spec:
 
       containers:
       - name: signalfx-agent
-        image: "quay.io/signalfx/signalfx-agent:5.1.6"
+        image: "quay.io/signalfx/signalfx-agent:5.4.0"
         imagePullPolicy: IfNotPresent
         command:
         - /bin/signalfx-agent
         volumeMounts:
         - mountPath: /etc/signalfx
           name: config
-        - mountPath: /etc/machine-id
-          name: machine-id
-          readOnly: true
         - mountPath: /hostfs
           name: hostfs
           readOnly: true
@@ -78,6 +77,11 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: spec.nodeName
+        - name: MY_NODE_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
         - name: MY_NAMESPACE
           valueFrom:
             fieldRef:
@@ -93,9 +97,6 @@ spec:
       - name: docker
         hostPath:
           path: /var/run/docker.sock
-      - name: machine-id
-        hostPath:
-          path: /etc/machine-id
       - name: etc-passwd
         hostPath:
           path: /etc/passwd

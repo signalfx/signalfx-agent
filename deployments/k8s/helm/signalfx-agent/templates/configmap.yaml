@@ -1,3 +1,4 @@
+{{- $agentSemver := semver (.Values.agentVersion | default "0.0.0") -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -13,11 +14,12 @@ data:
 {{- if .Values.agentConfig }}
 {{ toYaml .Values.agentConfig | indent 4 }}
 {{- else }}
+
+    {{- if or (.Values.signalFxAccessToken) (.Values.signalFxAccessTokenSecretName)}}
     signalFxAccessToken: ${SFX_ACCESS_TOKEN}
+    {{- end }}
 
     signalFxRealm: {{ .Values.signalFxRealm  | default "us0" }}
-
-    disableHostDimensions: {{ toYaml .Values.isServerless }}
 
     {{- if .Values.ingestUrl }}
     ingestUrl: {{ .Values.ingestUrl }}
@@ -31,6 +33,12 @@ data:
     traceEndpointUrl: {{ .Values.traceEndpointUrl }}
     {{- end }}
 
+    {{- if.Values.isWindows }}
+    hostname: {"#from": "env:MY_NODE_NAME"}
+    {{- end }}
+
+    disableHostDimensions: {{ toYaml .Values.isServerless }}
+
     etcPath: {{ .Values.etcPath }}
     procPath: {{ .Values.procPath }}
 
@@ -40,8 +48,28 @@ data:
 
     cluster: {{ required ".Values.clusterName is required" .Values.clusterName }}
 
-{{- $major_version := .Values.agentVersion | default "0.0.0" | splitList "." | first | atoi -}}
-{{- if lt $major_version 5 }}
+    writer:
+    {{- if semverCompare ">=5.3.0" $agentSemver.Original }}
+      signalFxEnabled: {{ .Values.signalFxEnabled }}
+    {{- end }}
+    {{- if .Values.splunkUrl }}
+      splunk:
+        enabled: true
+        url: {{ .Values.splunkUrl }}
+        token: ${SPLUNK_TOKEN}
+        {{- if .Values.splunkIndex }}
+        index: {{ .Values.splunkIndex }}
+        {{- end }}
+        {{- if .Values.splunkSource }}
+        source: {{ .Values.splunkSource }}
+        {{- end }}
+        {{- if .Values.splunkSourceType }}
+        sourceType: {{ .Values.splunkSourceType }}
+        {{- end }}
+        skipTLSVerify: {{ .Values.splunkSkipTLSVerify | default "false" }}
+    {{- end }}
+
+{{- if lt $agentSemver.Major 5 }}
     sendMachineID: false
 {{- end }}
 
@@ -61,8 +89,10 @@ data:
       kubernetesAPI:
         skipVerify: true
       {{- end }}
+      {{- if semverCompare ">=5.2.0" $agentSemver.Original }}
       discoverAllPods: {{ toYaml .Values.isServerless }}
       discoverNodes: {{ toYaml .Values.isServerless }}
+      {{- end }}
       {{- if .Values.additionalPortAnnotations }}
       additionalPortAnnotations:
       {{ range .Values.additionalPortAnnotations -}}
@@ -73,13 +103,18 @@ data:
     monitors:
 {{- if .Values.configureStandardMonitors }}
 {{- if not .Values.isServerless }}
-{{- if ge $major_version 5 }}
+{{- if ge $agentSemver.Major 5 }}
     - type: cpu
     - type: filesystems
       hostFSPath: {{ .Values.hostFSPath }}
     - type: disk-io
     - type: net-io
+    {{- if not .Values.isWindows }}
     - type: load
+      {{- if .Values.loadPerCPU }}
+      perCPU: true
+      {{- end }}
+    {{- end }}
     - type: memory
     - type: host-metadata
     - type: processlist
@@ -103,7 +138,8 @@ data:
 {{- end }}
 {{- end }}
 
-    - type: kubelet-stats
+{{ $hasKubeletMetrics := semverCompare ">=5.3.0" $agentSemver.Original }}
+    - type: kubelet-{{if $hasKubeletMetrics}}metrics{{else}}stats{{end}}
       {{- if .Values.isServerless }}
       # Change 'fargate' part to something else if using another serverless K8s
       # platform.  We avoid scraping kubelet stats from the same node as the
@@ -124,6 +160,9 @@ data:
       kubeletAPI:
         {{ toYaml .Values.kubeletAPI | indent 8 | trim }}
       {{- end }}
+      {{- if $hasKubeletMetrics }}
+      usePodsEndpoint: {{ .Values.usePodsEndpoint }}
+      {{- else }}
       datapointsToExclude:
       - dimensions:
           container_image:
@@ -132,11 +171,20 @@ data:
         metricNames:
           - '*'
           - '!*network*'
+      {{- end }}
+      {{ with .Values.kubeletExtraMetrics -}}
+      extraMetrics:
+        {{ toYaml . | indent 8 | trim }}
+      {{- end }}
+      {{ with .Values.kubeletMetricNameTransformations -}}
+      metricNameTransformations:
+        {{ toYaml . | indent 8 | trim }}
+      {{- end }}
 
     {{ if .Values.gatherClusterMetrics -}}
     # Collects k8s cluster-level metrics
     - type: {{.Values.kubernetesDistro}}-cluster
-{{- if lt $major_version 5 }}
+{{- if lt $agentSemver.Major 5 }}
       useNodeName: true
 {{- end }}
 {{- if .Values.isServerless }}
@@ -171,6 +219,9 @@ data:
     {{ end }}
 
     collectd:
+      {{ if or .Values.isWindows .Values.collectd.disableCollectd -}}
+      disableCollectd: true
+      {{- end }}
       readThreads: {{ .Values.readThreads | default 5 }}
       writeQueueLimitHigh: {{ .Values.writeQueueLimitHigh | default 500000 }}
       writeQueueLimitLow: {{ .Values.writeQueueLimitLow | default 400000 }}

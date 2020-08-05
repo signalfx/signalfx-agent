@@ -23,6 +23,9 @@ data:
 
     cluster: MY-CLUSTER
 
+    writer:
+      signalFxEnabled: true
+
     logging:
       level: info
       format: text
@@ -47,17 +50,13 @@ data:
     - type: processlist
     - type: vmem
 
-    - type: kubelet-stats
+
+    - type: kubelet-metrics
       kubeletAPI:
         authType: serviceAccount
-      datapointsToExclude:
-      - dimensions:
-          container_image:
-           - '*pause-amd64*'
-           - 'k8s.gcr.io/pause*'
-        metricNames:
-          - '*'
-          - '!*network*'
+      usePodsEndpoint: true
+
+
 
     # Collects k8s cluster-level metrics
     - type: kubernetes-cluster
@@ -75,6 +74,7 @@ data:
 
 
     collectd:
+
       readThreads: 5
       writeQueueLimitHigh: 500000
       writeQueueLimitLow: 400000

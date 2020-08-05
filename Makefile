@@ -1,5 +1,5 @@
 COLLECTD_VERSION := 5.8.0-sfx0
-COLLECTD_COMMIT := 4da1c1cbbe83f881945088a41063fe86d1682ecb
+COLLECTD_COMMIT := 4d3327b14cf4359029613baf4f90c4952702105e
 BUILD_TIME ?= $$(date +%FT%T%z)
 NUM_CORES ?= $(shell getconf _NPROCESSORS_ONLN)
 
@@ -19,6 +19,11 @@ check: lint vet test
 test:
 	go generate ./...
 	CGO_ENABLED=0 go test -p $(NUM_CORES) ./...
+
+.PHONY: test-race-detector
+test-race-detector:
+	go generate ./...
+	CGO_ENABLED=1 go test -race -p $(NUM_CORES) ./...
 
 .PHONY: vet
 vet:

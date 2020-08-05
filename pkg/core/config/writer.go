@@ -1,10 +1,14 @@
 package config
 
 import (
+	"fmt"
 	"net/url"
 	"strings"
 
+	"golang.org/x/net/http/httpguts"
+
 	"github.com/mitchellh/hashstructure"
+	"github.com/pkg/errors"
 	"github.com/signalfx/signalfx-agent/pkg/core/dpfilters"
 	"github.com/signalfx/signalfx-agent/pkg/core/propfilters"
 	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
@@ -93,6 +97,8 @@ type WriterConfig struct {
 	// https://golang.org/pkg/time/#ParseDuration.  This option is irrelevant if
 	// `sendTraceHostCorrelationMetrics` is false.
 	TraceHostCorrelationMetricsInterval timeutil.Duration `yaml:"traceHostCorrelationMetricsInterval" default:"1m"`
+	// How many times to retry requests related to trace host correlation
+	TraceHostCorrelationMaxRequestRetries uint `yaml:"traceHostCorrelationMaxRequestRetries" default:"2"`
 	// How many trace spans are allowed to be in the process of sending.  While
 	// this number is exceeded, the oldest spans will be discarded to
 	// accommodate new spans generated to avoid memory exhaustion.  If you see
@@ -110,6 +116,10 @@ type WriterConfig struct {
 	// handle the volume of trace spans and should be upgraded to more powerful
 	// hardware/networking.
 	MaxTraceSpansInFlight uint `yaml:"maxTraceSpansInFlight" default:"100000"`
+	// Configures the writer specifically writing to Splunk.
+	Splunk *SplunkConfig `yaml:"splunk"`
+	// If set to `false`, output to SignalFx will be disabled.
+	SignalFxEnabled *bool `yaml:"signalFxEnabled" default:"true"`
 	// The following are propagated from elsewhere
 	HostIDDims          map[string]string      `yaml:"-"`
 	IngestURL           string                 `yaml:"-"`
@@ -130,6 +140,42 @@ func (wc *WriterConfig) initialize() {
 	} else {
 		wc.DatapointMaxRequests = wc.MaxRequests
 	}
+
+	if wc.Splunk != nil {
+		if wc.Splunk.MaxBuffered == 0 {
+			wc.Splunk.MaxBuffered = wc.MaxDatapointsBuffered
+		}
+		if wc.Splunk.MaxRequests == 0 {
+			wc.Splunk.MaxRequests = wc.MaxRequests
+		}
+		if wc.Splunk.MaxBatchSize == 0 {
+			wc.Splunk.MaxBatchSize = wc.DatapointMaxBatchSize
+		}
+	}
+}
+
+func (wc *WriterConfig) IsSplunkOutputEnabled() bool {
+	return wc.Splunk != nil && wc.Splunk.Enabled
+}
+
+func (wc *WriterConfig) IsSignalFxOutputEnabled() bool {
+	return wc.SignalFxEnabled == nil || *wc.SignalFxEnabled
+}
+
+func (wc *WriterConfig) Validate() error {
+	if !wc.IsSplunkOutputEnabled() && !wc.IsSignalFxOutputEnabled() {
+		return errors.New("both SignalFx and Splunk output are disabled, at least one must be enabled")
+	}
+
+	if !httpguts.ValidHeaderFieldValue(wc.SignalFxAccessToken) {
+		return errors.New("the SignalFx Access Token does not pass http header validation and is likely malformed")
+	}
+
+	if _, err := wc.DatapointFilters(); err != nil {
+		return fmt.Errorf("datapoint filters are invalid: %v", err)
+	}
+
+	return nil
 }
 
 // ParsedIngestURL parses and returns the ingest URL
@@ -200,4 +246,39 @@ func (wc *WriterConfig) DefaultTraceEndpointPath() string {
 		return "/v2/trace"
 	}
 	return "/v1/trace"
+}
+
+// SplunkConfig configures the writer specifically writing to Splunk.
+type SplunkConfig struct {
+	// Enable logging to a Splunk Enterprise instance
+	Enabled bool `yaml:"enabled"`
+	// Full URL (including path) of Splunk HTTP Event Collector (HEC) endpoint
+	URL string `yaml:"url"`
+	// Splunk HTTP Event Collector token
+	Token string `yaml:"token"`
+	// Splunk source field value, description of the source of the event
+	MetricsSource string `yaml:"source"`
+	// Splunk source type, optional name of a sourcetype field value
+	MetricsSourceType string `yaml:"sourceType"`
+	// Splunk index, optional name of the Splunk index to store the event in
+	MetricsIndex string `yaml:"index"`
+	// Splunk index, specifically for traces (must be event type)
+	EventsIndex string `yaml:"eventsIndex"`
+	// Splunk source field value, description of the source of the trace
+	EventsSource string `yaml:"eventsSource"`
+	// Splunk trace source type, optional name of a sourcetype field value
+	EventsSourceType string `yaml:"eventsSourceType"`
+	// Skip verifying the certificate of the HTTP Event Collector
+	SkipTLSVerify bool `yaml:"skipTLSVerify"`
+
+	// The maximum number of Splunk log entries of all types (e.g. metric,
+	// event) to be buffered before old events are dropped.  Defaults to the
+	// writer.maxDatapointsBuffered config if not specified.
+	MaxBuffered int `yaml:"maxBuffered"`
+	// The maximum number of simultaneous requests to the Splunk HEC endpoint.
+	// Defaults to the writer.maxBuffered config if not specified.
+	MaxRequests int `yaml:"maxRequests"`
+	// The maximum number of Splunk log entries to submit in one request to the
+	// HEC
+	MaxBatchSize int `yaml:"maxBatchSize"`
 }

@@ -29,7 +29,8 @@ def test_supervisor_default():
         f"""
         monitors:
         - type: supervisor
-          url: "http://{host}:{PORT}/RPC2"
+          host: {host}
+          port: {PORT}
         """
     ) as agent:
         verify(agent, METADATA.default_metrics)

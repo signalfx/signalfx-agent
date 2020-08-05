@@ -71,6 +71,8 @@ const (
 	haproxyServerAborts             = "haproxy_server_aborts"
 	haproxyServerSelectedTotal      = "haproxy_server_selected_total"
 	haproxySessionCurrent           = "haproxy_session_current"
+	haproxySessionLimit             = "haproxy_session_limit"
+	haproxySessionMax               = "haproxy_session_max"
 	haproxySessionRate              = "haproxy_session_rate"
 	haproxySessionRateAll           = "haproxy_session_rate_all"
 	haproxySessionRateLimit         = "haproxy_session_rate_limit"
@@ -150,6 +152,8 @@ var metricSet = map[string]monitors.MetricInfo{
 	haproxyServerAborts:             {Type: datapoint.Counter},
 	haproxyServerSelectedTotal:      {Type: datapoint.Counter},
 	haproxySessionCurrent:           {Type: datapoint.Gauge},
+	haproxySessionLimit:             {Type: datapoint.Gauge},
+	haproxySessionMax:               {Type: datapoint.Gauge},
 	haproxySessionRate:              {Type: datapoint.Gauge},
 	haproxySessionRateAll:           {Type: datapoint.Gauge},
 	haproxySessionRateLimit:         {Type: datapoint.Gauge},

@@ -49,9 +49,9 @@ This role sources the following variables:
 	pass it in via the `-e @path/to/variable_file` ansible-playbook extra vars
 	option for a "global" configuration.
 
- - `sfx_config_file_path`: The target path for the Smart Agent configuration
+ - `sfx_conf_file_path`: The target path for the Smart Agent configuration
    file generated from `sfx_agent_config` (**default:**
-   '/etc/signalfx/agent.yaml')
+   '/etc/signalfx/agent.yaml'). See `sfx_win_conf_file_path` for Windows platforms.
 
  - `sfx_repo_base_url`: The url provided to yum/apt for obtaining the SignalFx Smart Agent
    (**default:** `https://splunk.jfrog.io/splunk`)
@@ -68,9 +68,19 @@ This role sources the following variables:
 
  - `sfx_service_user` and `sfx_service_group`: Set the user/group ownership for the
    signalfx-agent service. The user/group will be created if they do not exist.
-   Requires agent package version 5.1.0 or newer. (**default:** 'signalfx-agent')
+   Requires agent package version 5.1.0 or newer. (**default:** 'signalfx-agent'). Not used
+   in Windows platforms.
 
-**Note**: After the `signalfx-agent` role is deployed, Ansible will manage the
+ - `sfx_win_install_path`: The Windows installation path. (**default:** 
+   'C:\\Program Files\\SignalFxAgent')
+
+ - `sfx_win_conf_file_path`: The Windows agent configuration file path. (**default:** 
+   '\\ProgramData\\SignalFxAgent\\agent.yaml')
+
+ - `sfx_win_dl_base_url`: The base URL for Windows agent downloading (**default:** 
+   'https://dl.signalfx.com')
+
+**Note**: On Linux, after the `signalfx-agent` role is deployed, Ansible will manage the
 `signalfx-agent` service via the Ansible core `service` module.  This module
 will automatically determine the host's init system for starting/stopping the
 `signalfx-agent` service, with a preference for systemd (`systemctl`).

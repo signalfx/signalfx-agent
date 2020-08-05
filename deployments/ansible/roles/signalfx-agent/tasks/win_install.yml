@@ -1,0 +1,55 @@
+---
+# Fetch the version to install if "latest" is set
+- name: Get SignalFX agent latest version
+  win_uri:
+    url: "{{ sfx_win_dl_base_url }}/windows/{{ sfx_package_stage }}/zip/latest/latest.txt"
+    return_content: yes
+  register: webpage
+  when: sfx_version == "latest"
+
+- name: Set the SignalFX agent version
+  set_fact:
+    sfx_version: "{{ webpage.content }}"
+  when: sfx_version == "latest"
+
+- name: Check directories
+  win_file:
+    path: "{{ item }}"
+    state: directory
+  with_items:
+    - "{{ sfx_win_install_path }}"
+    - "{{ sfx_win_conf_file_path | win_dirname }}"
+
+- name: Download SignalFX agent
+  win_get_url:
+    url: "{{ sfx_win_dl_base_url }}/windows/{{ sfx_package_stage }}/zip/SignalFxAgent-{{ sfx_version }}-win64.zip"
+    dest: "%TEMP%"
+  register: download_zip_result
+
+# If a previous version exist, we don't assume it was installed in the same path or have the `-service "install"` command
+- name: Check if SignalFX service is installed
+  win_service:
+    name: signalfx-agent
+  register: service_info
+
+- name: Delete previous SignalFX service if exist
+  win_service:
+    name: signalfx-agent
+    state: absent
+  when: service_info.exists
+
+- name: Unzip SignalFX agent
+  win_unzip:
+    src: "{{ download_zip_result.dest }}"
+    dest: "{{ sfx_win_install_path }}"
+
+- name: Write signalfx config
+  win_copy:
+    content: "{{ sfx_agent_config | to_nice_yaml }}"
+    dest: "{{ sfx_win_conf_file_path }}"
+
+- name: Create SignalFX service
+  win_command: "\"{{ sfx_win_install_path }}\\SignalFxAgent\\bin\\signalfx-agent.exe\" -service \"install\" -config {{ sfx_win_conf_file_path }} -logEvents"
+
+- name: Start SignalFX service
+  win_command: "\"{{ sfx_win_install_path }}\\SignalFxAgent\\bin\\signalfx-agent.exe\" -service \"start\""

@@ -72,14 +72,18 @@ function bundle_python_runner($buildDir=".\build") {
     if ($lastexitcode -ne 0){ throw }
 }
 
-# retrieves the git tag or revision for the currently checked out agent project
+# retrieves the git tag for the currently checked out agent project
+# if the checked out project is not a tag, append the date to the last tag
+# version since msi/choco packages expect the version to be in dot-decimal form
 function getGitTag(){
     $version = (git -C "$scriptdir\..\..\" describe --exact-match --tags)  # null if no tag found
-    if ($version) {
-        $version = $version.TrimStart("v")
+    if (!$version -or !($version -match '^v\d+\.\d+\.\d+$')) {
+        $last_tag = (git -C "$scriptdir\..\..\" describe --abbrev=0 --match v[0-9]* --exclude *beta*)
+        $date = Get-Date -UFormat '%Y%m%d'
+        $version = "$last_tag" + "." + "$date"
     }
-    if (!$version){ # if the version is null use the revision
-       $version = (git -C "$scriptdir\..\..\" rev-parse HEAD)
+    if (!($version -match '^v\d+\.\d+\.\d+(\.\d+)?$')) {
+        throw "failed to get git tag"
     }
-    return $version
+    return $version.TrimStart("v")
 }

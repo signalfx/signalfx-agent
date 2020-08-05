@@ -129,11 +129,7 @@ def wait_for_signed_artifact(
         status = resp.json().get("status", "").lower()
         node = resp.json().get("node", "").lower()
 
-        assert status not in ("", "exception") and node in (
-            "submit",
-            "begin signing",
-            "signed",
-        ), f"signing request failed:\n{resp.text}"
+        assert status and node and status != "exception", f"signing request failed:\n{resp.text}"
 
         print(resp.text)
 

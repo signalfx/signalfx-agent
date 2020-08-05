@@ -129,3 +129,76 @@ def test_service_correlation():
 
         agent.pprof_client.assert_goroutine_count_under(150)
         agent.pprof_client.assert_heap_alloc_under(200 * 1024 * 1024)
+
+
+# pylint: disable=too-many-locals
+def test_service_correlation_api_down():
+    total_span_count = 25000
+    environment_count = 25
+    service_count = 5000
+    expire_sec = 120
+    send_delay = 0
+    retries = 1
+
+    port = random.randint(5001, 20000)
+    with Agent.run(
+        dedent(
+            f"""
+        hostname: "testhost"
+        writer:
+          maxRequests: 100
+          traceHostCorrelationPurgeInterval: 1s
+          traceHostCorrelationMetricsInterval: 1s
+          sendTraceHostCorrelationMetrics: true
+          staleServiceTimeout: {expire_sec}s
+          traceHostCorrelationMaxRequestRetries: {retries}
+          propertiesSendDelaySeconds: {send_delay}
+        monitors:
+          - type: trace-forwarder
+            listenAddress: localhost:{port}
+        """
+        ),
+        profiling=True,
+        debug=False,
+        # This test generates a lot of spans and datapoints that we never check.
+        # We must disable the storage of this data in the "fake" backend
+        # or this test will consume a lot of (too much) memory.
+        backend_options={
+            "save_datapoints": False,
+            "save_spans": False,
+            "save_events": False,
+            "correlation_api_status_code": 500,
+        },
+    ) as agent:
+        assert wait_for(p(tcp_port_open_locally, port)), "trace forwarder port never opened!"
+
+        # send spans from a mixture of all environments/services
+        for i in range(0, total_span_count):
+            # rotate through the environment and service names
+            environment_name = f"env-{i % environment_count}"
+            service_name = f"service-{i % service_count}"
+            resp = requests.post(
+                f"http://localhost:{port}/v1/trace",
+                headers={"Content-Type": "application/json"},
+                data=json.dumps(_test_span(service_name, environment_name)),
+            )
+            assert resp.status_code == 200
+
+        # get the peak heap size
+        timeout_seconds = 120
+        start = time.time()
+        peak_heap = agent.pprof_client.get_heap_profile().total
+        while True:
+            time.sleep(10)
+            assert time.time() - start < timeout_seconds
+            new = agent.pprof_client.get_heap_profile().total
+            print("old: {0} new: {1}".format(peak_heap, new))
+            if new < peak_heap:
+                break
+            peak_heap = new
+
+        # ensure our routine count isn't too high
+        agent.pprof_client.assert_goroutine_count_under(150)
+
+        # ensure the heap profile has come down some
+        agent.pprof_client.assert_heap_alloc_under(peak_heap / 1.5)

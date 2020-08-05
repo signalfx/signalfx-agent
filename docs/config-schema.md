@@ -59,7 +59,7 @@ if not set.
 | `logging` | no | [object (see below)](#logging) | Log configuration |
 | `collectd` | no | [object (see below)](#collectd) | Configuration of the managed collectd subprocess |
 | `enableBuiltInFiltering` | no | bool | This must be unset or explicitly set to true. In prior versions of the agent, there was a filtering mechanism that relied heavily on an external whitelist.json file to determine which metrics were sent by default.  This is all inherent to the agent now and the old style of filtering is no longer available. (**default:** `true`) |
-| `metricsToInclude` | no | [list of objects (see below)](#metricstoinclude) | A list of metric filters that will whitelist/include metrics.  These filters take priority over the filters specified in `metricsToExclude`. |
+| `metricsToInclude` | no | [list of objects (see below)](#metricstoinclude) | A list of metric filters that will include metrics.  These filters take priority over the filters specified in `metricsToExclude`. |
 | `metricsToExclude` | no | [list of objects (see below)](#metricstoexclude) | A list of metric filters |
 | `propertiesToExclude` | no | [list of objects (see below)](#propertiestoexclude) | A list of properties filters |
 | `internalStatusHost` | no | string | The host on which the internal status server will listen.  The internal status HTTP server serves internal metrics and diagnostic information about the agent and can be scraped by the `internal-metrics` monitor. Can be set to `0.0.0.0` if you want to monitor the agent from another host.  If you set this to blank/null, the internal status server will not be started.  See `internalStatusPort`. (**default:** `"localhost"`) |
@@ -100,16 +100,17 @@ The following are generic options that apply to all monitors.  Each monitor type
 | `validateDiscoveryRule` | no | bool | If true, a warning will be emitted if a discovery rule contains variables that will never possibly match a rule.  If using multiple observers, it is convenient to set this to false to suppress spurious errors.  The top-level setting `validateDiscoveryRules` acts as a default if this isn't set. (**default:** `"false"`) |
 | `extraDimensions` | no | map of strings | A set of extra dimensions (key:value pairs) to include on datapoints emitted by the monitor(s) created from this configuration. To specify metrics from this monitor should be high-resolution, add the dimension `sf_hires: 1` |
 | `extraSpanTags` | no | map of strings | A set of extra span tags (key:value pairs) to include on spans emitted by the monitor(s) created from this configuration. |
-| `extraSpanTagsFromEndpoint` | no | map of strings | A mapping of extra span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}` |
+| `extraSpanTagsFromEndpoint` | no | map of strings | A mapping of extra span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `extraSpanTagsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`. This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior. |
 | `defaultSpanTags` | no | map of strings | A set of default span tags (key:value pairs) to include on spans emitted by the monitor(s) created from this configuration. |
-| `defaultSpanTagsFromEndpoint` | no | map of strings | A mapping of default span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the default value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `defaultSpanTagsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}` |
-| `extraDimensionsFromEndpoint` | no | map of strings | A mapping of extra dimension names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the dimension.  For example, to use a certain container label as a dimension, you could use something like this in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}` |
+| `defaultSpanTagsFromEndpoint` | no | map of strings | A mapping of default span tag names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the default value of the span tag.  For example, to use a certain container label as a span tag, you could use something like this in your monitor config block: `defaultSpanTagsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}` This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior. |
+| `extraDimensionsFromEndpoint` | no | map of strings | A mapping of extra dimension names to a [discovery rule expression](https://docs.signalfx.com/en/latest/integrations/agent/auto-discovery.html) that is used to derive the value of the dimension.  For example, to use a certain container label as a dimension, you could use something like this in your monitor config block: `extraDimensionsFromEndpoint: {env: 'Get(container_labels, "myapp.com/environment")'}`. This only applies when the monitor has a `discoveryRule` or was dynamically instantiated by an endpoint. It does nothing, for example, in the `signalfx-forwarder` montior. |
 | `configEndpointMappings` | no | map of strings | A set of mappings from a configuration option on this monitor to attributes of a discovered endpoint.  The keys are the config option on this monitor and the value can be any valid expression used in discovery rules. |
 | `intervalSeconds` | no | integer | The interval (in seconds) at which to emit datapoints from the monitor(s) created by this configuration.  If not set (or set to 0), the global agent intervalSeconds config option will be used instead. (**default:** `0`) |
 | `solo` | no | bool | If one or more configurations have this set to true, only those configurations will be considered. This setting can be useful for testing. (**default:** `false`) |
 | `datapointsToExclude` | no | [list of objects (see below)](#datapointstoexclude) | A list of datapoint filters.  These filters allow you to comprehensively define which datapoints to exclude by metric name or dimension set, as well as the ability to define overrides to re-include metrics excluded by previous patterns within the same filter item.  See [monitor filtering](./filtering.md#additional-monitor-level-filtering) for examples and more information. |
 | `disableHostDimensions` | no | bool | Some monitors pull metrics from services not running on the same host and should not get the host-specific dimensions set on them (e.g. `host`, `AWSUniqueId`, etc).  Setting this to `true` causes those dimensions to be omitted.  You can disable this globally with the `disableHostDimensions` option on the top level of the config. (**default:** `false`) |
 | `disableEndpointDimensions` | no | bool | This can be set to true if you don't want to include the dimensions that are specific to the endpoint that was discovered by an observer.  This is useful when you have an endpoint whose identity is not particularly important since it acts largely as a proxy or adapter for other metrics. (**default:** `false`) |
+| `metricNameTransformations` | no | map | A map from _original_ metric name to a replacement value.  The keys are intepreted as regular expressions and the values can contain backreferences. This means that you should escape any RE characters in the original metric name with `\` (the most common escape necessary will be `\.` as period is interpreted as "all characters" if unescaped).  The [Go regexp language](https://github.com/google/re2/wiki/Syntax), and backreferences are of the form `$1`. If there are multiple entries in list of maps, they will each be run in sequence, using the transformation from the previous entry as the input the subsequent transformation. To add a common prefix to all metrics coming out of a monitor, use a mapping like this: `(.*): myprefix.$1` |
 | `dimensionTransformations` | no | map of strings | A map from dimension names emitted by the monitor to the desired dimension name that will be emitted in the datapoint that goes to SignalFx.  This can be useful if you have custom metrics from your applications and want to make the dimensions from a monitor match those. Also can be useful when scraping free-form metrics, say with the `prometheus-exporter` monitor.  Right now, only static key/value transformations are supported.  Note that filtering by dimensions will be done on the *original* dimension name and not the new name. Note that it is possible to remove unwanted dimensions via this configuration, by making the desired dimension name an empty string. |
 | `extraMetrics` | no | list of strings | Extra metrics to enable besides the default included ones.  This is an [overridable filter](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filtering). |
 | `extraGroups` | no | list of strings | Extra metric groups to enable in addition to the metrics that are emitted by default.  A metric group is simply a collection of metrics, and they are defined in each monitor's documentation. |
@@ -159,7 +160,33 @@ The **nested** `writer` config object has the following fields:
 | `staleServiceTimeout` | no | int64 | How long to wait after a trace span's service name is last seen to continue sending the correlation datapoints for that service.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.  This option is irrelevant if `sendTraceHostCorrelationMetrics` is false. (**default:** `"5m"`) |
 | `traceHostCorrelationPurgeInterval` | no | int64 | How frequently to purge host correlation caches that are generated from the service and environment names seen in trace spans sent through or by the agent.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration. (**default:** `"1m"`) |
 | `traceHostCorrelationMetricsInterval` | no | int64 | How frequently to send host correlation metrics that are generated from the service name seen in trace spans sent through or by the agent.  This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration.  This option is irrelevant if `sendTraceHostCorrelationMetrics` is false. (**default:** `"1m"`) |
+| `traceHostCorrelationMaxRequestRetries` | no | unsigned integer | How many times to retry requests related to trace host correlation (**default:** `2`) |
 | `maxTraceSpansInFlight` | no | unsigned integer | How many trace spans are allowed to be in the process of sending.  While this number is exceeded, the oldest spans will be discarded to accommodate new spans generated to avoid memory exhaustion.  If you see log messages about "Aborting pending trace requests..." or "Dropping new trace spans..." it means that the downstream target for traces is not able to accept them fast enough. Usually if the downstream is offline you will get connection refused errors and most likely spans will not build up in the agent (there is no retry mechanism). In the case of slow downstreams, you might be able to increase `maxRequests` to increase the concurrent stream of spans downstream (if the target can make efficient use of additional connections) or, less likely, increase `traceSpanMaxBatchSize` if your batches are maxing out (turn on debug logging to see the batch sizes being sent) and being split up too much. If neither of those options helps, your downstream is likely too slow to handle the volume of trace spans and should be upgraded to more powerful hardware/networking. (**default:** `100000`) |
+| `splunk` | no | [object (see below)](#splunk) | Configures the writer specifically writing to Splunk. |
+| `signalFxEnabled` | no | bool | If set to `false`, output to SignalFx will be disabled. (**default:** `true`) |
+
+
+## splunk
+The **nested** `splunk` config object has the following fields:
+
+
+
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `enabled` | no | bool | Enable logging to a Splunk Enterprise instance (**default:** `false`) |
+| `url` | no | string | Full URL (including path) of Splunk HTTP Event Collector (HEC) endpoint |
+| `token` | no | string | Splunk HTTP Event Collector token |
+| `source` | no | string | Splunk source field value, description of the source of the event |
+| `sourceType` | no | string | Splunk source type, optional name of a sourcetype field value |
+| `index` | no | string | Splunk index, optional name of the Splunk index to store the event in |
+| `eventsIndex` | no | string | Splunk index, specifically for traces (must be event type) |
+| `eventsSource` | no | string | Splunk source field value, description of the source of the trace |
+| `eventsSourceType` | no | string | Splunk trace source type, optional name of a sourcetype field value |
+| `skipTLSVerify` | no | bool | Skip verifying the certificate of the HTTP Event Collector (**default:** `false`) |
+| `maxBuffered` | no | integer | The maximum number of Splunk log entries of all types (e.g. metric, event) to be buffered before old events are dropped.  Defaults to the writer.maxDatapointsBuffered config if not specified. (**default:** `0`) |
+| `maxRequests` | no | integer | The maximum number of simultaneous requests to the Splunk HEC endpoint. Defaults to the writer.maxBuffered config if not specified. (**default:** `0`) |
+| `maxBatchSize` | no | integer | The maximum number of Splunk log entries to submit in one request to the HEC (**default:** `0`) |
+
 
 
 
@@ -404,7 +431,23 @@ where applicable:
     staleServiceTimeout: "5m"
     traceHostCorrelationPurgeInterval: "1m"
     traceHostCorrelationMetricsInterval: "1m"
+    traceHostCorrelationMaxRequestRetries: 2
     maxTraceSpansInFlight: 100000
+    splunk: 
+      enabled: false
+      url: 
+      token: 
+      source: 
+      sourceType: 
+      index: 
+      eventsIndex: 
+      eventsSource: 
+      eventsSourceType: 
+      skipTLSVerify: false
+      maxBuffered: 0
+      maxRequests: 0
+      maxBatchSize: 0
+    signalFxEnabled: true
   logging: 
     level: "info"
     format: "text"

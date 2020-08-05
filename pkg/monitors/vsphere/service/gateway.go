@@ -4,17 +4,18 @@ import (
 	"context"
 	"time"
 
-	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
 	log "github.com/sirupsen/logrus"
 	"github.com/vmware/govmomi"
 	"github.com/vmware/govmomi/vim25/methods"
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/types"
+
+	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
 )
 
 // A thin wrapper around the vmomi SDK so that callers don't have to use it directly.
 type IGateway interface {
-	PerfQuerier
+	queryPerf(invObjs []*model.InventoryObject, maxSample int32) (*types.QueryPerfResponse, error)
 	retrievePerformanceManager() (*mo.PerformanceManager, error)
 	topLevelFolderRef() types.ManagedObjectReference
 	retrieveRefProperties(mor types.ManagedObjectReference, dst interface{}) error
@@ -22,10 +23,6 @@ type IGateway interface {
 	queryPerfProviderSummary(mor types.ManagedObjectReference) (*types.QueryPerfProviderSummaryResponse, error)
 	retrieveCurrentTime() (*time.Time, error)
 	vcenterName() string
-}
-
-type PerfQuerier interface {
-	queryPerf(invObjs []*model.InventoryObject, maxSample int32) (*types.QueryPerfResponse, error)
 }
 
 type Gateway struct {

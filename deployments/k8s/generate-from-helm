@@ -27,7 +27,7 @@ render() {
       --output-dir $tmpdir \
       $AGENT_CHART_DIR
 
-  templates="configmap.yaml daemonset.yaml deployment.yaml clusterrole.yaml clusterrolebinding.yaml serviceaccount.yaml"
+  templates="configmap.yaml daemonset.yaml deployment.yaml clusterrole.yaml clusterrolebinding.yaml serviceaccount.yaml configmap-role.yaml configmap-rolebinding.yaml"
   for f in $templates; do
 	fullpath=$tmpdir/signalfx-agent/templates/$f
 	if [[ "$f" == "daemonset.yaml" && $isServerless == "true" ]]; then
@@ -37,6 +37,16 @@ render() {
 	if [[ "$f" == "deployment.yaml" && $isServerless == "false" ]]; then
 	  continue
 	fi
+
+    if [[ "$f" == "configmap-role.yaml" || "$f" == "configmap-rolebinding.yaml" ]]; then
+        cat $fullpath | \
+            sed -e 's/namespace: signalfx-agent/namespace: MY_AGENT_NAMESPACE/' -e 's/[[:space:]]*$//'  | \
+            grep -v 'chart: signalfx-agent' | \
+            grep -v 'heritage: Helm' | \
+            grep -iv 'release: signalfx-agent' \
+          > $outdir/$f
+        continue
+    fi
 
     cat $fullpath | \
         sed -e 's/[[:space:]]*$//' | \

@@ -3,6 +3,8 @@ package selfdescribe
 import (
 	"reflect"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
 
 // Embedded structs to always ignore since they already provided in other
@@ -57,12 +59,14 @@ func getStructMetadata(typ reflect.Type) structMetadata {
 			smd := getStructMetadata(indirectType(f.Type))
 			fm.ElementStruct = &smd
 		} else if f.Type.Kind() == reflect.Map || f.Type.Kind() == reflect.Slice {
-			ikind := indirectKind(f.Type.Elem())
-			fm.ElementKind = ikind.String()
+			if f.Type != reflect.TypeOf(yaml.MapSlice(nil)) {
+				ikind := indirectKind(f.Type.Elem())
+				fm.ElementKind = ikind.String()
 
-			if ikind == reflect.Struct {
-				smd := getStructMetadata(indirectType(f.Type.Elem()))
-				fm.ElementStruct = &smd
+				if ikind == reflect.Struct {
+					smd := getStructMetadata(indirectType(f.Type.Elem()))
+					fm.ElementStruct = &smd
+				}
 			}
 		}
 

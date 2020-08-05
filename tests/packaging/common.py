@@ -26,7 +26,7 @@ INSTALLER_PATH = DEPLOYMENTS_DIR / "installer/install.sh"
 RPM_OUTPUT_DIR = PACKAGING_DIR / "rpm/output/x86_64"
 DEB_OUTPUT_DIR = PACKAGING_DIR / "deb/output"
 DOCKERFILES_DIR = Path(__file__).parent.joinpath("images").resolve()
-WIN_AGENT_LATEST_URL = "https://dl.signalfx.com/windows/{stage}/zip/latest/latest.txt"
+WIN_AGENT_LATEST_URL = "https://dl.signalfx.com/windows/{stage}/{agent_format}/latest/latest.txt"
 WIN_AGENT_PATH = r"C:\Program Files\SignalFx\SignalFxAgent\bin\signalfx-agent.exe"
 WIN_REPO_ROOT_DIR = os.path.realpath(os.path.join(os.path.dirname(os.path.realpath(__file__)), "..", ".."))
 WIN_INSTALLER_PATH = os.path.join(WIN_REPO_ROOT_DIR, "deployments", "installer", "install.ps1")
@@ -250,12 +250,19 @@ def has_choco():
     return run_win_command("choco --version", []).returncode == 0
 
 
-def uninstall_win_agent():
-    run_win_command(f'powershell.exe "{WIN_UNINSTALLER_PATH}"')
+def uninstall_win_agent(msi_path=None, delete_config=True):
+    args = "-delete_config 0"
+    if delete_config:
+        args = "-delete_config 1"
+
+    if msi_path:
+        args = f"{args} -msi_path {msi_path}"
+
+    run_win_command(f'powershell.exe "{WIN_UNINSTALLER_PATH} {args}"')
 
 
-def get_latest_win_agent_version(stage="release"):
-    return requests.get(WIN_AGENT_LATEST_URL.format(stage=stage)).text.strip()
+def get_latest_win_agent_version(stage="release", agent_format="msi"):
+    return requests.get(WIN_AGENT_LATEST_URL.format(stage=stage, agent_format=agent_format)).text.strip()
 
 
 def import_old_key(cont, distro_type):

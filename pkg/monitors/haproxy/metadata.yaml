@@ -78,6 +78,14 @@ monitors:
         default: true
         description: 'Number current sessions. Values reported for listeners, frontends, backends, and servers.'
         type: gauge
+      haproxy_session_limit:
+        default: false
+        description: 'The maximum number of connections allowed, configured with `maxconn`. Values reported for listeners, frontends, backends, and servers.'
+        type: gauge
+      haproxy_session_max:
+        default: false
+        description: 'The max value of scur. Values reported for listeners, frontends, backends, and servers.'
+        type: gauge
       haproxy_session_total:
         default: false
         description: 'The cumulative number of sessions. Values reported for listeners, frontends, backends, and servers.'

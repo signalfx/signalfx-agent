@@ -4,10 +4,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
-	"github.com/sirupsen/logrus"
 	"github.com/vmware/govmomi/vim25/mo"
 	"github.com/vmware/govmomi/vim25/types"
+
+	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
 )
 
 const fakeMetricKey = 42
@@ -15,8 +15,9 @@ const fakeMetricKey = 42
 var perfMetricSeriesValue = int64(111)
 
 type fakeGateway struct {
-	metricIDCounter int32
-	typeCounts      typeCounter
+	metricIDCounter     int32
+	typeCounts          typeCounter
+	numMetricsPerInvObj int
 }
 
 type typeCounter struct {
@@ -26,12 +27,8 @@ type typeCounter struct {
 	vm      int
 }
 
-func getTestingLog() *logrus.Entry {
-	return logrus.WithField("monitorType", "vsphere-test")
-}
-
-func newFakeGateway() *fakeGateway {
-	return &fakeGateway{}
+func newFakeGateway(numMetricsToFake int) *fakeGateway {
+	return &fakeGateway{numMetricsPerInvObj: numMetricsToFake}
 }
 
 func (g *fakeGateway) topLevelFolderRef() types.ManagedObjectReference {
@@ -121,26 +118,32 @@ func (g *fakeGateway) queryPerfProviderSummary(mor types.ManagedObjectReference)
 }
 
 //noinspection GoUnusedParameter
-func (g *fakeGateway) queryPerf(invObjs []*model.InventoryObject, maxSample int32) (*types.QueryPerfResponse, error) {
-	value := perfMetricSeriesValue
-	perfMetricSeriesValue++
-	m := &types.PerfEntityMetric{
-		Value: []types.BasePerfMetricSeries{
-			&types.PerfMetricIntSeries{
-				PerfMetricSeries: types.PerfMetricSeries{
-					Id: types.PerfMetricId{
-						CounterId: fakeMetricKey,
+func (g *fakeGateway) queryPerf(inv []*model.InventoryObject, maxSample int32) (*types.QueryPerfResponse, error) {
+	var ret []types.BasePerfEntityMetricBase
+	counter := 0
+	for range inv {
+		for i := 0; i < g.numMetricsPerInvObj; i++ {
+			m := &types.PerfEntityMetric{
+				Value: []types.BasePerfMetricSeries{
+					&types.PerfMetricIntSeries{
+						PerfMetricSeries: types.PerfMetricSeries{
+							Id: types.PerfMetricId{
+								CounterId: fakeMetricKey,
+							},
+						},
+						Value: []int64{perfMetricSeriesValue},
 					},
 				},
-				Value: []int64{value},
-			},
-		},
-		SampleInfo: []types.PerfSampleInfo{{Timestamp: time.Time{}}},
-		PerfEntityMetricBase: types.PerfEntityMetricBase{
-			Entity: types.ManagedObjectReference{Value: "host-0"},
-		},
+				SampleInfo: []types.PerfSampleInfo{{Timestamp: time.Time{}}},
+				PerfEntityMetricBase: types.PerfEntityMetricBase{
+					Entity: types.ManagedObjectReference{Value: fmt.Sprintf("ref-%d", counter)},
+				},
+			}
+			ret = append(ret, m)
+			counter++
+		}
 	}
-	return &types.QueryPerfResponse{Returnval: []types.BasePerfEntityMetricBase{m}}, nil
+	return &types.QueryPerfResponse{Returnval: ret}, nil
 }
 
 func (g *fakeGateway) createRef(key string, prefix string, counter *int) types.ManagedObjectReference {

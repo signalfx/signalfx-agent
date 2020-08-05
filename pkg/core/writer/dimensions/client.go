@@ -82,7 +82,7 @@ func NewDimensionClient(ctx context.Context, conf *config.WriterConfig) (*Dimens
 			TLSHandshakeTimeout: 10 * time.Second,
 		},
 	}
-	sender := requests.NewReqSender(ctx, client, conf.PropertiesMaxRequests, map[string]string{"client": "dimension"})
+	sender := requests.NewReqSender(ctx, client, conf.PropertiesMaxRequests, "dimension")
 
 	return &DimensionClient{
 		ctx:               ctx,
@@ -209,7 +209,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 	}
 
 	req = req.WithContext(
-		context.WithValue(req.Context(), requests.RequestFailedCallbackKey, requests.RequestFailedCallback(func(statusCode int, err error) {
+		context.WithValue(req.Context(), requests.RequestFailedCallbackKey, requests.RequestFailedCallback(func(_ []byte, statusCode int, err error) {
 			if statusCode >= 400 && statusCode < 500 && statusCode != 404 {
 				atomic.AddInt64(&dc.TotalClientError4xxResponses, int64(1))
 				log.WithError(err).WithFields(log.Fields{

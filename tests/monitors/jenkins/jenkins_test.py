@@ -18,7 +18,7 @@ JENKINS_VERSIONS = [
     ("jenkins", "1.651.3-alpine"),
     # TODO: jenkins doesn't have a latest tag so we'll need to update this
     # periodically
-    ("jenkins/jenkins", "2.196-alpine"),
+    ("jenkins/jenkins", "2.222.4-alpine"),
 ]
 
 METADATA = Metadata.from_package("collectd/jenkins")
@@ -35,7 +35,7 @@ ENHANCED_METRICS = {
         "gauge.jenkins.node.vm.memory.non-heap.used",
         "gauge.jenkins.node.vm.memory.total.used",
     },
-    ("jenkins/jenkins", "2.196-alpine"): METADATA.all_metrics
+    ("jenkins/jenkins", "2.222.4-alpine"): METADATA.all_metrics
     - {"gauge.jenkins.job.duration", "gauge.jenkins.node.slave.online.status"},
 }
 

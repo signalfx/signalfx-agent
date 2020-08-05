@@ -19,7 +19,7 @@ func TestTooManyInvObjects(t *testing.T) {
 }
 
 func TestNumPages(t *testing.T) {
-	p := queryPerfPaginator{
+	p := multiPagePerfFetcher{
 		pageSize: 3,
 	}
 	require.Equal(t, 0, p.numPages(0))
@@ -29,18 +29,27 @@ func TestNumPages(t *testing.T) {
 	require.Equal(t, 2, p.numPages(4))
 }
 
-func TestPagination1(t *testing.T) {
-	p := queryPerfPaginator{pageSize: 2, gateway: &fakePaginatorGateway{}, log: getTestingLog()}
-	n := 100
-	resp, _ := p.queryPerf(invObjs(n), 1)
-	require.Equal(t, n, len(resp.Returnval))
+func TestMultiPage1(t *testing.T) {
+	p := multiPagePerfFetcher{pageSize: 4, gateway: &fakePaginatorGateway{}, log: testLog}
+	it := p.invIterator(invObjs(4), 1)
+	page, hasNext, err := it.nextInvPage()
+	require.Nil(t, err)
+	require.False(t, hasNext)
+	require.Equal(t, 4, len(page))
 }
 
-func TestPagination2(t *testing.T) {
-	p := queryPerfPaginator{pageSize: 4, gateway: &fakePaginatorGateway{}, log: getTestingLog()}
-	numObjs := 5
-	resp, _ := p.queryPerf(invObjs(numObjs), 1)
-	require.Equal(t, numObjs, len(resp.Returnval))
+func TestMultiPage2(t *testing.T) {
+	p := multiPagePerfFetcher{pageSize: 4, gateway: &fakePaginatorGateway{}, log: testLog}
+	it := p.invIterator(invObjs(5), 1)
+	page, hasNext, err := it.nextInvPage()
+	require.Nil(t, err)
+	require.True(t, hasNext)
+	require.Equal(t, 4, len(page))
+
+	page, hasNext, err = it.nextInvPage()
+	require.Nil(t, err)
+	require.False(t, hasNext)
+	require.Equal(t, 1, len(page))
 }
 
 func invObjs(n int) []*model.InventoryObject {
@@ -82,10 +91,7 @@ func (g *fakePaginatorGateway) queryPerfProviderSummary(types.ManagedObjectRefer
 	panic("implement me")
 }
 
-func (g *fakePaginatorGateway) queryPerf(
-	invObjs []*model.InventoryObject,
-	_ int32,
-) (*types.QueryPerfResponse, error) {
+func (g *fakePaginatorGateway) queryPerf(invObjs []*model.InventoryObject, maxSample int32) (*types.QueryPerfResponse, error) {
 	// simulate api failure if too many inv objects are passed in
 	if len(invObjs) > 10 {
 		return nil, errors.New("too many inv objects")

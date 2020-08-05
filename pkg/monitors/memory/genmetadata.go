@@ -18,6 +18,7 @@ const (
 	memoryFree        = "memory.free"
 	memorySlabRecl    = "memory.slab_recl"
 	memorySlabUnrecl  = "memory.slab_unrecl"
+	memoryTotal       = "memory.total"
 	memoryUsed        = "memory.used"
 	memoryUtilization = "memory.utilization"
 )
@@ -29,6 +30,7 @@ var metricSet = map[string]monitors.MetricInfo{
 	memoryFree:        {Type: datapoint.Gauge},
 	memorySlabRecl:    {Type: datapoint.Gauge},
 	memorySlabUnrecl:  {Type: datapoint.Gauge},
+	memoryTotal:       {Type: datapoint.Gauge},
 	memoryUsed:        {Type: datapoint.Gauge},
 	memoryUtilization: {Type: datapoint.Gauge},
 }
@@ -39,6 +41,7 @@ var defaultMetrics = map[string]bool{
 	memoryFree:        true,
 	memorySlabRecl:    true,
 	memorySlabUnrecl:  true,
+	memoryTotal:       true,
 	memoryUsed:        true,
 	memoryUtilization: true,
 }

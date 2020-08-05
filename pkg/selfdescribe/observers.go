@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"reflect"
 	"sort"
+	"strings"
 
 	"github.com/signalfx/signalfx-agent/pkg/core/services"
 	"github.com/signalfx/signalfx-agent/pkg/observers"
@@ -176,9 +177,15 @@ func endpointVarsFromStructMetadataFields(fields []fieldMetadata) []endpointVar 
 func endpointVariablesFromNotes(allDocs []*doc.Package, includeContainerVars bool) []endpointVar {
 	var endpointVars []endpointVar
 	for _, note := range notesFromDocs(allDocs, "ENDPOINT_VAR") {
+		uidSplit := strings.Split(note.UID, "|")
+		typ := "string"
+		if len(uidSplit) > 1 {
+			typ = uidSplit[1]
+		}
+
 		endpointVars = append(endpointVars, endpointVar{
-			Name:        note.UID,
-			Type:        "string",
+			Name:        uidSplit[0],
+			Type:        typ,
 			Description: commentTextToParagraphs(note.Body),
 		})
 	}

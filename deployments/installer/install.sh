@@ -315,9 +315,13 @@ ensure_not_installed() {
 
 configure_access_token() {
   local access_token=$1
+  local service_user=$2
+  local service_group=$3
 
   mkdir -p /etc/signalfx
   printf "%s" "$access_token" > /etc/signalfx/token
+  chmod 600 /etc/signalfx/token
+  chown $service_user:$service_group /etc/signalfx/token
 }
 
 configure_ingest_url() {
@@ -454,17 +458,17 @@ install() {
       ;;
   esac
 
-  configure_access_token "$access_token"
-  configure_ingest_url "$ingest_url"
-  configure_api_url "$api_url"
-  configure_cluster "$cluster"
-
   create_user_group "$service_user" "$service_group"
   if command -v systemctl >/dev/null; then
     override_systemd_service "$service_user" "$service_group"
   else
     override_initd_service "$service_user" "$service_group"
   fi
+
+  configure_access_token "$access_token" "$service_user" "$service_group"
+  configure_ingest_url "$ingest_url"
+  configure_api_url "$api_url"
+  configure_cluster "$cluster"
 
   start_agent
 

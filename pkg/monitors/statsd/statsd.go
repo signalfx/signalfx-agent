@@ -4,10 +4,12 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"sync"
 	"sync/atomic"
 )
 
 type statsDListener struct {
+	sync.Mutex
 	ipAddr         string
 	port           uint16
 	tcp            bool
@@ -55,10 +57,12 @@ func (sl *statsDListener) listenTCP() error {
 }
 
 func (sl *statsDListener) FetchMetrics() []*statsDMetric {
+	sl.Lock()
 	rawMetrics := make([]string, len(sl.metricBuffer))
 
 	copy(rawMetrics, sl.metricBuffer)
 	sl.metricBuffer = nil
+	sl.Unlock()
 
 	parsed := parseMetrics(rawMetrics, sl.converters, sl.prefix)
 
@@ -75,7 +79,9 @@ func (sl *statsDListener) Read() {
 	}
 
 	for data := range chData {
+		sl.Lock()
 		sl.metricBuffer = append(sl.metricBuffer, strings.Split(string(data), "\n")...)
+		sl.Unlock()
 	}
 }
 

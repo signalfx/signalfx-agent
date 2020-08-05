@@ -26,6 +26,8 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
+//go:generate sh -c "test -e `go env GOPATH`/bin/genny > /dev/null || (cd ../.. && go get github.com/mauricelam/genny)"
+
 const (
 	// Items should stay in these channels only very briefly as there should be
 	// goroutines dedicated to pulling them at all times.  Having the capacity
@@ -41,7 +43,7 @@ const (
 type Agent struct {
 	observers           *observers.ObserverManager
 	monitors            *monitors.MonitorManager
-	writer              *writer.SignalFxWriter
+	writer              *writer.MultiWriter
 	meta                *meta.AgentMeta
 	lastConfig          *config.Config
 	dpChan              chan []*datapoint.Datapoint
@@ -92,8 +94,9 @@ func (a *Agent) configure(conf *config.Config) {
 
 	log.Infof("Using log level %s", log.GetLevel().String())
 
-	hostDims := hostid.Dimensions(conf)
+	hostDims := map[string]string{}
 	if !conf.DisableHostDimensions {
+		hostDims = hostid.Dimensions(conf)
 		log.Infof("Using host id dimensions %v", hostDims)
 		conf.Writer.HostIDDims = hostDims
 	}
@@ -122,6 +125,7 @@ func (a *Agent) configure(conf *config.Config) {
 			log.WithError(err).Error("Could not configure SignalFx datapoint writer, unable to start up")
 			os.Exit(4)
 		}
+		a.writer.Start()
 	}
 
 	if conf.Cluster != "" {

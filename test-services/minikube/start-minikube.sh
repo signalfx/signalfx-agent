@@ -36,11 +36,6 @@ MINIKUBE_OPTIONS="--vm-driver=none \
     --extra-config=kubelet.read-only-port=10255 \
     --extra-config=kubeadm.ignore-preflight-errors=SystemVerification,FileContent--proc-sys-net-bridge-bridge-nf-call-iptables,FileExisting-crictl"
 
-if [[ "$K8S_VERSION" =~ ^v1\.18\. ]]; then
-    # enable kubelet cadvisor for K8S_VERSION v1.18
-    MINIKUBE_OPTIONS="$MINIKUBE_OPTIONS --extra-config=kubelet.enable-cadvisor-json-endpoints=true"
-fi
-
 function download_kubectl() {
     [ -f /usr/local/bin/kubectl ] && rm -f /usr/local/bin/kubectl
     curl -sSl -o /usr/local/bin/kubectl $KUBECTL_URL

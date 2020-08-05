@@ -21,6 +21,7 @@ galaxy_info:
       - stretch
       - jessie
   - name: Amazon
+  - name: Windows
   galaxy_tags:
     - signalfx
     - metrics

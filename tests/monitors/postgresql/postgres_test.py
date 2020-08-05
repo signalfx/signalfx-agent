@@ -2,13 +2,12 @@ from functools import partial as p
 from textwrap import dedent
 
 import pytest
-
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, tcp_socket_open
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import container_ip, ensure_always, run_service, wait_for
 
-pytestmark = [pytest.mark.collectd, pytest.mark.postgresql, pytest.mark.monitor_with_endpoints]
+pytestmark = [pytest.mark.postgresql, pytest.mark.monitor_with_endpoints]
 
 
 METADATA = Metadata.from_package("postgresql")
@@ -30,6 +29,7 @@ def test_postgresql(version):
                   - type: postgresql
                     host: {host}
                     port: 5432
+                    logQueries: true
                     params:
                       password: test_pwd
                       username: test_user
@@ -44,7 +44,7 @@ def test_postgresql(version):
                 ), f"Didn't get default postgresql metric {metric} for database dvdrental"
 
             assert wait_for(
-                p(has_datapoint, agent.fake_services, dimensions={"database": "postgres"})
+                p(has_datapoint, agent.fake_services, dimensions={"database": "postgres"}), timeout_seconds=10
             ), f"Didn't get metric for postgres default database"
 
 

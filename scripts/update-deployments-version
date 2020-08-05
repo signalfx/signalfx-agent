@@ -12,6 +12,7 @@ files_to_update=(
   deployments/fargate/example-fargate-task.json
   Dockerfile.rhel
   deployments/cloudfoundry/buildpack/bin/supply
+  deployments/splunk/docker-compose.yml
 )
 
 new_version=$1

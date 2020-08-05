@@ -3,6 +3,9 @@ monitors:
     VolumeId:
       description: (*EBS volumes only*) The EBS volume id of the underlying volume
         source
+    pd_name:
+      description: (*GCE persistent disks only*) The GCE persistent disk name of the
+        underlying volume source
     endpoints_name:
       description: (*GlusterFS volumes only*) The endpoint name used for the GlusterFS
         volume
@@ -14,14 +17,19 @@ monitors:
       description: The name of the pod that has this volume
     kubernetes_pod_uid:
       description: The UID of the pod that has this volume
+    fs_type:
+      description: (*EBS volumes and GCE persistent disks only*) The filesystem type of
+        the underlying EBS volume or GCE persistent disk
     partition:
-      description: (*EBS volumes only*) The partition number of the underlying EBS
-        volume (`0` indicates the entire disk)
+      description: (*EBS volumes and GCE persistent disks only*) The partition number of
+        the underlying EBS volume or GCE persistent disk (`0` indicates the
+        entire disk)
     volume:
       description: The volume name as given in the pod spec under `volumes`
     volume_type:
       description: The type of the underlying volume -- this will be the key used
-        in the k8s volume config spec (e.g. awsElasticBlockStore, etc.)
+        in the k8s volume config spec (e.g. `awsElasticBlockStore`,
+        `gcePersistentDisk`, `configMap`, `secret`, etc.)
   doc: |
     This monitor sends usage stats about volumes
     mounted to Kubernetes pods (e.g. free space/inodes).  This information is
@@ -32,8 +40,9 @@ monitors:
     those mounts to the agent container.
 
     Dimensions that identify the underlying volume source will be added for
-    `awsElasticBlockStore` and `glusterfs` volumes.  Support for more can be
-    easily added as needed.
+    `awsElasticBlockStore`, `gcePersistentDisk` and `glusterfs` persistent
+    volumes, and for `configMap`, `downwardAPI`, `emptyDir` and `secret`
+    non-persistent volumes. Support for more can be easily added as needed.
   sendAll: false
   metrics:
     kubernetes.volume_available_bytes:

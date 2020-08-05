@@ -16,7 +16,7 @@ var CollectdTemplate = template.Must(collectd.InjectTemplateFuncs(template.New("
   Interval {{.IntervalSeconds}}
 </LoadPlugin>
 <Plugin "curl_json">
-  <URL "{{.URL}}">
+  <URL "{{renderValue .URL (toMap $) }}">
     Instance "{{.Name}}[monitorID={{.MonitorID}}]"
     <Key "accepted conn">
       Type "phpfpm_requests"

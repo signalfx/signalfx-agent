@@ -126,26 +126,31 @@ type correlationTestClient struct {
 }
 
 func (c *correlationTestClient) Start() { /*no-op*/ }
-func (c *correlationTestClient) Get(dimName string, dimValue string, cb func(map[string][]string, error)) {
+func (c *correlationTestClient) Get(dimName string, dimValue string, cb correlations.SuccessfulGetCB) {
 	atomic.AddInt64(&c.getCounter, 1)
 	go func() {
-		cb(c.getPayload[dimValue], nil)
+		cb(c.getPayload[dimValue])
 		if c.getCallback != nil {
 			c.getCallback()
 		}
 	}()
 }
-func (c *correlationTestClient) Correlate(cl *correlations.Correlation) {
+func (c *correlationTestClient) Correlate(cl *correlations.Correlation, cb correlations.CorrelateCB) {
 	c.Lock()
 	defer c.Unlock()
 	c.cors = append(c.cors, cl)
+	cb(cl, nil)
 	atomic.AddInt64(&c.correlateCounter, 1)
 }
-func (c *correlationTestClient) Delete(cl *correlations.Correlation) {
+func (c *correlationTestClient) Delete(cl *correlations.Correlation, cb correlations.SuccessfulDeleteCB) {
 	c.Lock()
 	defer c.Unlock()
 	c.cors = append(c.cors, cl)
+	cb(cl)
 	atomic.AddInt64(&c.deleteCounter, 1)
+}
+func (c *correlationTestClient) InternalMetrics() []*datapoint.Datapoint {
+	return nil
 }
 func (c *correlationTestClient) getCorrelations() []*correlations.Correlation {
 	c.Lock()

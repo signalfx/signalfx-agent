@@ -10,11 +10,12 @@ create the agent task definition.  To do this using the web admin console:
 	EC2 mode and not Fargate at this time.
  4. Scroll to the bottom of the page and click on "Configure via JSON".
  5. Paste in the contents of the file [signalfx-agent-task.json](./signalfx-agent-task.json)
-	and click "Save".
+  and click "Save".
  6. Click on the "signalfx-agent" container definition under "Container
 	Definitions" and find the section on environment variables.
- 7. Change the value of the envvar `ACCESS_TOKEN` to the access token of the
-	SignalFx organization to which you wish to send metrics.
+ 7. Change the value of the `ACCESS_TOKEN`, `INGEST_URL`, and `API_URL`
+  environment variables to the access token for your SignalFx organization and
+  endpoints you want to send metrics to.
  8. Click "Update" and finally "Create" at the bottom of the task definition
 	input form to create the task definition.
 

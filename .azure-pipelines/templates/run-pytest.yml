@@ -13,7 +13,7 @@ steps:
     packages: ${{ parameters.chocoPackages }}
 - powershell: |
     if ((Get-Command "conda.exe" -ErrorAction SilentlyContinue) -eq $null) {
-        choco install -y --no-progress --limitoutput miniconda3
+        choco install -y --no-progress --limitoutput miniconda3 --version=4.8.3
         $env:PATH = "C:\tools\miniconda3\Scripts;C:\tools\miniconda3;C:\tools\miniconda3\Library\bin;$env:PATH"
         echo "##vso[task.setvariable variable=PATH]$env:PATH"
         $env:LIB = "C:\tools\miniconda3\Library\lib;$env:LIB"
@@ -25,16 +25,23 @@ steps:
   displayName: 'Install conda'
   condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
 - powershell: |
-    conda install --yes python=3.8.0 pip=10.0.1
+    conda install --yes python=3.8
     python --version
+    python -m pip install --upgrade pip==20.0.2
     pip --version
-    pip install -q -r tests\requirements.txt
+    pip install -r tests\requirements.txt
   displayName: 'Install pytest'
   condition: and(ne(variables.hasChanges, 'false'), ne(variables.hasChanges, False))
 - powershell: |
     mkdir test_output -ea 0
+    $msi_path = ""
+    $nupkg_path = ""
+    if (Test-Path -Path bundle) {
+        $msi_path = (Resolve-Path bundle\SignalFxAgent-*.msi)
+        $nupkg_path = (Resolve-Path bundle\signalfx-agent*.nupkg)
+    }
     echo "Executing '$env:MARKERS' tests"
-    pytest -m "$env:MARKERS" $env:OPTIONS --verbose --junitxml=test_output/test_results.xml --html=test_output/test_results.html --self-contained-html tests
+    pytest -m "$env:MARKERS" $env:OPTIONS --test-msi-path="$msi_path" --test-nupkg-path="$nupkg_path" --verbose --junitxml=test_output/test_results.xml --html=test_output/test_results.html --self-contained-html tests
     if ($lastexitcode -gt 1) { throw }
   env:
     MARKERS: ${{ parameters.markers }}

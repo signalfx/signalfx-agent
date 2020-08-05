@@ -24,6 +24,7 @@ var CollectdTemplate = template.Must(collectd.InjectTemplateFuncs(template.New("
     Database "{{$db.Name}}"
     {{if $db.Username -}}User "{{$db.Username}}"{{else if $.Username}}User "{{$.Username}}"{{- end}}
     {{if $db.Password -}}Password "{{$db.Password}}"{{else if $.Password}}Password "{{$.Password}}"{{- end}}
+    InnodbStats {{toBool $.InnodbStats}}
   </Database>
   {{end}}
 </Plugin>

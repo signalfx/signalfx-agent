@@ -104,5 +104,10 @@ monitors:
       group:
       default: false
       type: cumulative
+
+    cpu.num_processors:
+      description: The number of logical processors on the host.
+      default: true
+      type: gauge
   monitorType: cpu
   properties:

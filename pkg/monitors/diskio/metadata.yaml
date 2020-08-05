@@ -77,5 +77,9 @@ monitors:
       description: (Linux Only) The average amount of time it took to do a write operation.
       default: false
       type: cumulative
+    disk_ops.pending:
+      description: Number of pending operations
+      default: false
+      type: gauge
   monitorType: disk-io
   properties:

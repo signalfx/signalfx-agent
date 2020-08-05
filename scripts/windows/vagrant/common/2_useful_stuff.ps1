@@ -8,3 +8,7 @@ choco install -y --ignorepackagecodes make `
                  python `
                  vcpython27 `
                  vcredist2015
+
+choco install -y checksum
+
+choco install -y wixtoolset --version 3.11.2

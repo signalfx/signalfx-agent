@@ -23,6 +23,9 @@ data:
 
     cluster: MY-CLUSTER
 
+    writer:
+      signalFxEnabled: true
+
     logging:
       level: info
       format: text
@@ -37,7 +40,8 @@ data:
 
     monitors:
 
-    - type: kubelet-stats
+
+    - type: kubelet-metrics
       # Change 'fargate' part to something else if using another serverless K8s
       # platform.  We avoid scraping kubelet stats from the same node as the
       # agent because EKS restricts connections between a pod and its own
@@ -51,14 +55,9 @@ data:
           }
       kubeletAPI:
         authType: serviceAccount
-      datapointsToExclude:
-      - dimensions:
-          container_image:
-           - '*pause-amd64*'
-           - 'k8s.gcr.io/pause*'
-        metricNames:
-          - '*'
-          - '!*network*'
+      usePodsEndpoint: true
+
+
 
     # Collects k8s cluster-level metrics
     - type: kubernetes-cluster
@@ -68,6 +67,7 @@ data:
 
 
     collectd:
+
       readThreads: 5
       writeQueueLimitHigh: 500000
       writeQueueLimitLow: 400000

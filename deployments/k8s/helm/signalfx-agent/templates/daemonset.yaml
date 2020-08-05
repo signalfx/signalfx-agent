@@ -35,18 +35,26 @@ spec:
         {{- toYaml .Values.podAnnotations | trim | nindent 8 }}
     spec:
       # Use host network so we can access kubelet directly
+      {{ if not .Values.isWindows -}}
       hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
+      {{- end }}
+      dnsPolicy: {{ .Values.isWindows | ternary "ClusterFirst" "ClusterFirstWithHostNet" }}
+      {{- if .Values.dnsConfig }}
+      dnsConfig:
+      {{ toYaml .Values.dnsConfig | nindent 8 }}
+      {{- end }}
       restartPolicy: Always
       serviceAccountName: {{ template "signalfx-agent.serviceAccountName" . }}
       {{ with .Values.image.pullSecret -}}
       imagePullSecrets:
       - name: {{ . }}
       {{- end }}
-      {{- with .Values.nodeSelector -}}
       nodeSelector:
-        {{ toYaml . | indent 8 | trim }}
-      {{- end}}
+        {{ if .Values.nodeSelector -}}
+          {{ toYaml .Values.nodeSelector | indent 8 | trim }}
+        {{- else -}}
+          kubernetes.io/os: {{ .Values.isWindows | ternary "windows" "linux" }}
+        {{- end}}
       tolerations:
       {{ if .Values.runOnMaster -}}
       - effect: NoSchedule
@@ -64,23 +72,28 @@ spec:
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Values.agentVersion }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         command:
+        {{ if .Values.isWindows -}}
+        - 'C:\\SignalFxAgent\signalfx-agent.exe'
+        - '-service'
+        - 'bypass'
+        {{ else -}}
         - /bin/signalfx-agent
+        {{- end }}
         volumeMounts:
-        - mountPath: /etc/signalfx
+        - mountPath: {{ .Values.isWindows | ternary "C:\\ProgramData\\SignalFxAgent" "/etc/signalfx" }}
           name: config
-        - mountPath: /etc/machine-id
-          name: machine-id
-          readOnly: true
-        - mountPath: /hostfs
+        - mountPath: {{ .Values.hostFSPath }}
           name: hostfs
           readOnly: true
           mountPropagation: HostToContainer
+        {{ if not .Values.isWindows -}}
         - mountPath: /var/run/docker.sock
           name: docker
           readOnly: true
         - mountPath: /etc/passwd
           name: etc-passwd
           readOnly: true
+        {{- end }}
         resources:
           {{- toYaml .Values.resources | trim | nindent 10 }}
         env:
@@ -89,6 +102,13 @@ spec:
             secretKeyRef:
               name: {{ template "signalfx-agent.secretName" . }}
               key: access-token
+        {{- if .Values.splunkUrl }}
+        - name: SPLUNK_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "signalfx-agent.secretName" . }}
+              key: splunk-token
+        {{- end }}
         - name: MY_POD_NAME
           valueFrom:
             fieldRef:
@@ -98,25 +118,32 @@ spec:
             fieldRef:
               apiVersion: v1
               fieldPath: spec.nodeName
+        - name: MY_NODE_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
         - name: MY_NAMESPACE
           valueFrom:
             fieldRef:
               apiVersion: v1
               fieldPath: metadata.namespace
+      {{- with .Values.extraEnv }}
+        {{- toYaml . | trim | nindent 8 }}
+      {{- end }}
       volumes:
       - name: config
         configMap:
           name: {{ include "configmap-name" . }}
       - name: hostfs
         hostPath:
-          path: /
+          path: {{ .Values.isWindows | ternary "C:\\" "/" }}
+      {{ if not .Values.isWindows -}}
       - name: docker
         hostPath:
           path: /var/run/docker.sock
-      - name: machine-id
-        hostPath:
-          path: /etc/machine-id
       - name: etc-passwd
         hostPath:
           path: /etc/passwd
+      {{- end }}
 {{- end }}

@@ -15,6 +15,7 @@ METADATA = Metadata.from_package(MONITOR)
 HOST = "pool.ntp.org"
 
 
+@pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_default_metrics():
     # Config to get every possible metrics
     agent_config = dedent(
@@ -28,6 +29,7 @@ def test_default_metrics():
     run_agent_verify_default_metrics(agent_config, METADATA)
 
 
+@pytest.mark.flaky(reruns=2, reruns_delay=30)
 def test_min_interval():
     # Config to get every possible dimensions (and metrics so) to OK
     with Agent.run(

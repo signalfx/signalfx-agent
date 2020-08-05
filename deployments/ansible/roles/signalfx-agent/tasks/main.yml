@@ -3,6 +3,7 @@
   set_fact:
     debian_distro: ['Debian', 'Ubuntu']
     rhel_distro: ['CentOS', 'RedHat', 'Red Hat Enterprise Linux', 'Amazon']
+    windows_distro: ['Windows']
     cacheable: true
 
 - name: Confirm agent configuration is provided
@@ -16,32 +17,18 @@
 - name: Acceptable distribution check
   fail:
     msg: >
-         Bailing out. This play is supported on {{ debian_distro }}, {{ rhel_distro }}.
+         Bailing out. This play is supported on {{ debian_distro }}, {{ rhel_distro }} and {{ windows_distro }}.
          Target server runs on {{ ansible_os_family }}.
   when: (ansible_os_family not in debian_distro)
           and
         (ansible_os_family not in rhel_distro)
+          and
+        (ansible_os_family not in windows_distro)
 
-- name: Import signalfx-agent deploy for CentOS or RHEL
-  import_tasks: yum_repo.yml
-  when: ansible_os_family in rhel_distro
+- name: Linux deployment
+  include_tasks: linux_install.yml
+  when: not ansible_os_family in windows_distro
 
-- name: Import signalfx-agent deploy for Debian or Ubuntu
-  import_tasks: debian_repo.yml
-  when: ansible_os_family in debian_distro
-
-- name: Set signalfx-agent service owner
-  import_tasks: service_owner.yml
-
-- name: write signalfx config
-  copy:
-    content: "{{ sfx_agent_config | to_nice_yaml }}"
-    dest: "{{ sfx_conf_file_path }}"
-    owner: "{{ sfx_service_user }}"
-    group: "{{ sfx_service_group }}"
-
-- name: start signalfx-agent
-  service:
-    name: signalfx-agent
-    state: started
-    enabled: yes
+- name: Windows deployment
+  include_tasks: win_install.yml
+  when: ansible_os_family in windows_distro

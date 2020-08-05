@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/signalfx/golib/v3/event"
@@ -160,9 +161,9 @@ func (m *Monitor) encodeProcess(proc *TopProcess, sampleInterval time.Duration) 
 		nice = strconv.Itoa(*proc.Nice)
 	}
 
-	return fmt.Sprintf("\"%d\":[\"%s\",%d,\"%s\",%d,%d,%d,\"%s\",%.2f,%.2f,\"%s\",\"%s\"]",
+	return fmt.Sprintf(`"%d":["%s",%d,"%s",%d,%d,%d,"%s",%.2f,%.2f,"%s","%s"]`,
 		proc.ProcessID,
-		proc.Username,
+		strings.ReplaceAll(proc.Username, `"`, "'"),
 		proc.Priority,
 		nice,
 		proc.VirtualMemoryBytes/1024,
@@ -172,7 +173,7 @@ func (m *Monitor) encodeProcess(proc *TopProcess, sampleInterval time.Duration) 
 		cpuPercent,
 		proc.MemPercent,
 		toTime(proc.TotalCPUTime.Seconds()),
-		proc.Command,
+		strings.ReplaceAll(proc.Command, `"`, `'`),
 	)
 }
 

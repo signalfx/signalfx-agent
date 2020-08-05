@@ -76,7 +76,7 @@ def _make_fake_ingest(datapoint_queue, events, spans, save_datapoints, save_even
 
 # Fake the dimension PUT method to capture dimension property/tag updates.
 # pylint: disable=unused-variable
-def _make_fake_dimension_api(app, dims):
+def _add_fake_dimension_api(app, dims):
     @app.get("/v2/dimension/<key>/<value>")
     async def get_dim(_, key, value):
         dim = dims.get(key, {}).get(value)
@@ -137,7 +137,7 @@ def _make_fake_dimension_api(app, dims):
     return app
 
 
-def _make_fake_correlation_api(app, dims):
+def _add_fake_correlation_api(app, dims, correlation_api_status_code):
     @app.put("/v2/apm/correlate/<key>/<value>/service")
     async def put_service(request, key, value):
         service = request.body.decode("utf-8")
@@ -154,7 +154,7 @@ def _make_fake_correlation_api(app, dims):
             else:
                 dim_services.append(service)
             dims[key][value]["sf_services"] = dim_services
-        return response.json({})
+        return response.json({}, correlation_api_status_code)
 
     @app.put("/v2/apm/correlate/<key>/<value>/environment")
     async def put_environment(request, key, value):
@@ -172,7 +172,7 @@ def _make_fake_correlation_api(app, dims):
             else:
                 dim_environments.append(environment)
             dims[key][value]["sf_environments"] = dim_environments
-        return response.json({})
+        return response.json({}, correlation_api_status_code)
 
     @app.delete("/v2/apm/correlate/<key>/<value>/service/<prop_value>")
     async def delete_service(_, key, value, prop_value):
@@ -183,7 +183,7 @@ def _make_fake_correlation_api(app, dims):
         if prop_value in services:
             services.remove(prop_value)
         dim["sf_services"] = services
-        return response.json({})
+        return response.json({}, correlation_api_status_code)
 
     @app.delete("/v2/apm/correlate/<key>/<value>/environment/<prop_value>")
     async def delete_environment(_, key, value, prop_value):
@@ -194,7 +194,7 @@ def _make_fake_correlation_api(app, dims):
         if prop_value in environments:
             environments.remove(prop_value)
         dim["sf_environments"] = environments
-        return response.json({})
+        return response.json({}, correlation_api_status_code)
 
     @app.get("/v2/apm/correlate/<key>/<value>")
     async def get_correlation(_, key, value):
@@ -208,7 +208,30 @@ def _make_fake_correlation_api(app, dims):
         environments = dim["sf_environments"]
         if environments:
             props["sf_environments"] = environments
-        return response.json(props)
+        return response.json(props, correlation_api_status_code)
+
+    return app
+
+
+def _make_fake_splunk_hec(entries):
+    app = Sanic()
+
+    @app.middleware("request")
+    async def compress_request(request):
+        if "Content-Encoding" in request.headers:
+            if "gzip" in request.headers["Content-Encoding"]:
+                request.body = gzip.decompress(request.body)
+
+    @app.post("/services/collector")
+    async def handle_entries(request):
+        decoder = json.JSONDecoder()
+        buffer = request.body.decode("utf-8")
+        while buffer:
+            result, index = decoder.raw_decode(buffer)
+            entries.append(result)
+            buffer = buffer[index:].lstrip()
+
+        return response.json({})
 
     return app
 
@@ -216,9 +239,18 @@ def _make_fake_correlation_api(app, dims):
 # Starts up a new set of backend services that will run on a random port.  The
 # returned object will have properties on it for datapoints, events, and dims.
 # The fake servers will be stopped once the context manager block is exited.
-# pylint: disable=too-many-locals,too-many-statements
+# pylint: disable=too-many-locals,too-many-statements,too-many-arguments
 @contextmanager
-def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0, save_datapoints=True, save_events=True, save_spans=True):
+def start(
+    ip_addr="127.0.0.1",
+    ingest_port=0,
+    api_port=0,
+    splunk_hec_port=None,
+    save_datapoints=True,
+    save_events=True,
+    save_spans=True,
+    correlation_api_status_code=200,
+):
     # Data structures are thread-safe due to the GIL
     _dp_upload_queue = Queue()
     _datapoints = []
@@ -227,11 +259,13 @@ def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0, save_datapoints=True, 
     _events = []
     _spans = []
     _dims = defaultdict(defaultdict)
+    _splunk_hec_entries = []
 
     ingest_app = _make_fake_ingest(_dp_upload_queue, _events, _spans, save_datapoints, save_events, save_spans)
+
     api_app = Sanic()
-    api_app = _make_fake_dimension_api(api_app, _dims)
-    api_app = _make_fake_correlation_api(api_app, _dims)
+    _add_fake_dimension_api(api_app, _dims)
+    _add_fake_correlation_api(api_app, _dims, correlation_api_status_code)
 
     [ingest_sock, _ingest_port] = bind_tcp_socket(ip_addr, ingest_port)
     [api_sock, _api_port] = bind_tcp_socket(ip_addr, api_port)
@@ -255,6 +289,20 @@ def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0, save_datapoints=True, 
 
     api_loop.create_task(start_api_server())
     threading.Thread(target=api_loop.run_forever).start()
+
+    splunk_hec_loop = asyncio.new_event_loop()
+
+    if splunk_hec_port is not None:
+        splunk_hec_app = _make_fake_splunk_hec(_splunk_hec_entries)
+        [splunk_hec_sock, _splunk_hec_port] = bind_tcp_socket(ip_addr, splunk_hec_port)
+
+        async def start_splunk_hec_server():
+            splunk_hec_app.config.REQUEST_TIMEOUT = splunk_hec_app.config.KEEP_ALIVE_TIMEOUT = 1000
+            splunk_hec_server = splunk_hec_app.create_server(sock=splunk_hec_sock, access_log=False)
+            splunk_hec_loop.create_task(splunk_hec_server)
+
+        splunk_hec_loop.create_task(start_splunk_hec_server())
+        threading.Thread(target=splunk_hec_loop.run_forever).start()
 
     def _add_datapoints():
         """
@@ -281,12 +329,17 @@ def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0, save_datapoints=True, 
         api_port = _api_port
         api_url = f"http://{api_host}:{api_port}"
 
+        if splunk_hec_port is not None:
+            splunk_hec_host = ip_addr
+            splunk_hec_url = f"http://{splunk_hec_host}:{_splunk_hec_port}/services/collector"
+
         datapoints = _datapoints
         datapoints_by_metric = _datapoints_by_metric
         datapoints_by_dim = _datapoints_by_dim
         events = _events
         spans = _spans
         dims = _dims
+        splunk_entries = _splunk_hec_entries
 
         def dump_json(self):
             out = OrderedDict()
@@ -315,4 +368,8 @@ def start(ip_addr="127.0.0.1", ingest_port=0, api_port=0, save_datapoints=True, 
         api_sock.close()
         api_loop.stop()
         ingest_loop.stop()
+
         _dp_upload_queue.put(STOP)
+
+        if splunk_hec_port is not None:
+            splunk_hec_loop.stop()

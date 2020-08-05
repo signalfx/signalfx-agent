@@ -34,7 +34,7 @@ type Config struct {
 	// with the [remote config reference](https://docs.signalfx.com/en/latest/integrations/agent/remote-config.html)
 	// `{"#from": "/path/to/file.groovy", raw: true}`, or you can put it straight in YAML by using the `|` heredoc
 	// syntax.
-	GroovyScript string `yaml:"groovyScript" json:"groovyScript"`
+	GroovyScript string `yaml:"groovyScript" json:"groovyScript" validate:"required"`
 	// Username for JMX authentication, if applicable.
 	Username string `yaml:"username" json:"username"`
 	// Password for JMX authentication, if applicable.
