@@ -5,6 +5,7 @@
 signalFxAccessToken: {"#from": "env:ACCESS_TOKEN"}
 ingestUrl: {"#from": "env:INGEST_URL", optional: true}
 apiUrl: {"#from": "env:API_URL", optional: true}
+traceEndpointUrl: {"#from": "env:TRACE_ENDPOINT_URL", optional: true}
 
 intervalSeconds: {"#from": "env:INTERVAL_SECONDS", default: 10}
 
@@ -55,6 +56,19 @@ monitors:
     # probably use discovery rules so that you don't have to have a specific
     # config for each EC2 instance.
   - {"#from": "env:EXTRA_MONITOR_CONFIG", default: [], flatten: true}
+
+  # Enables the Smart Agent to receive traces.
+  - type: signalfx-forwarder
+    # Specify the URL:port where the Smart Agent listens for traces.
+    listenAddress: "0.0.0.0:9080/v1/trace"
+    # Optionally, add span tags to each span in a trace the Smart Agent receives.
+    defaultSpanTags:
+      SPAN_TAG_KEY: "SPAN_TAG_VALUE"
+
+# Exports traces in the specified format to a SignalFx ingest endpoint or
+# OpenTelemetry Collector according to the traceEndpointUrl you set.
+writer:
+  traceExportFormat: sapm
 
 metricsToExclude:
   - {"#from": "env:METRICS_TO_EXCLUDE", default: [], flatten: true}

@@ -28,6 +28,10 @@
                     "value": "MY_API_URL"
                 }
                 {
+                    "name": "TRACE_ENDPOINT_URL",
+                    "value": "MY_TRACE_ENDPOINT_URL"
+                }
+                {
                     "name": "CONFIG_URL",
                     "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/v5.4.0/deployments/ecs/agent.yaml"
                 }
