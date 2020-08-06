@@ -13,9 +13,9 @@ create the agent task definition.  To do this using the web admin console:
   and click "Save".
  6. Click on the "signalfx-agent" container definition under "Container
 	Definitions" and find the section on environment variables.
- 7. Change the value of the `ACCESS_TOKEN`, `INGEST_URL`, and `API_URL`
-  environment variables to the access token for your SignalFx organization and
-  endpoints you want to send metrics to.
+ 7. Change the value of the `ACCESS_TOKEN`, `INGEST_URL`, `API_URL`, and
+  `TRACE_ENDPOINT_URL` environment variables to the access token for your
+  SignalFx organization and endpoints you want to send metrics to.
  8. Click "Update" and finally "Create" at the bottom of the task definition
 	input form to create the task definition.
 
