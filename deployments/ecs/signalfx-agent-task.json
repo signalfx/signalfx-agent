@@ -26,7 +26,7 @@
                 {
                     "name": "API_URL",
                     "value": "MY_API_URL"
-                }
+                },
                 {
                     "name": "TRACE_ENDPOINT_URL",
                     "value": "MY_TRACE_ENDPOINT_URL"
