@@ -62,8 +62,8 @@ monitors:
     # Specify the URL:port where the Smart Agent listens for traces.
     listenAddress: "0.0.0.0:9080/v1/trace"
     # Optionally, add span tags to each span in a trace the Smart Agent receives.
-    defaultSpanTags:
-      SPAN_TAG_KEY: "SPAN_TAG_VALUE"
+    # defaultSpanTags:
+      # SPAN_TAG_KEY: "SPAN_TAG_VALUE"
 
 # Exports traces in the specified format to a SignalFx ingest endpoint or
 # OpenTelemetry Collector according to the traceEndpointUrl you set.
