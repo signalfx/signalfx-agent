@@ -22,7 +22,7 @@
                 {
                     "name": "INGEST_URL",
                     "value": "MY_INGEST_URL"
-                }
+                },
                 {
                     "name": "API_URL",
                     "value": "MY_API_URL"
