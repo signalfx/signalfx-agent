@@ -59,7 +59,7 @@ monitors:
 
   # Enables the Smart Agent to receive traces.
   - type: signalfx-forwarder
-    # Specify the URL:port where the Smart Agent listens for traces.
+    # Specify the hostname:port where the Smart Agent receives traces.
     listenAddress: "0.0.0.0:9080"
     # Optionally, add span tags to each span in a trace the Smart Agent receives.
     # defaultSpanTags:
