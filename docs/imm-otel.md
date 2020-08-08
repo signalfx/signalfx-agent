@@ -39,13 +39,13 @@ After installing the SignalFx Smart Agent on each host, you can optionally deplo
 
 The OpenTelemetry Collector uses pipelines to receive, process, and export trace data with components conveniently known as receivers, processors, and exporters. Set up pipelines with services. You can also add extensions that provide an OpenTelemetry Collector with additional functionality, such as diagnostics and health checks. The OpenTelemetry Collector has two versions: a [core version](https://github.com/open-telemetry/opentelemetry-collector> "Core Version") and a [contributions version](https://github.com/open-telemetry/opentelemetry-collector-contrib "Contributions"). The core version provides receivers, processors, and exporters for general use. The contributions version provides receivers, processors, and exporters for specific vendors and use cases.
 
-SignalFx uses the contributions versions described in the following table for receivers and exporters to send data to an OpenTelemetry Collector and to receive data from an OpenTelemetry Collector:
+SignalFx uses the contributions versions described in the following table to send data to an OpenTelemetry Collector and to receive data from an OpenTelemetry Collector:
 
  **Component** | **Name**   | **Description**                                                        |  
 ---------------|------------|------------------------------------------------------------------------|
- Receiver      | signal\-fx | A receiver is how data gets into the OpenTelemetry Collector\.         |      
- Processor     | Various    | Processors are run on data between being received and being exported\. |      
- Exporter      | signal\-fx | An exporter is how data gets sent to different systems/back\-ends\.    |      
+ Receiver      | signal\-fx | Component that sets the endpoint for receiving metrics data with the SignalFx metric data format\.         |      
+ Processor     | Various    | Component that pre-processes data before it is exported or helps ensure that data makes it through a pipeline successfully\. |      
+ Exporter      | signal\-fx | Component that forwards data to SignalFx with the metric data format\.    |      
                     
 ### Deploy the OpenTelemetry Collector
 
