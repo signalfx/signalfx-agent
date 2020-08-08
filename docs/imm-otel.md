@@ -41,12 +41,12 @@ The OpenTelemetry Collector uses pipelines to receive, process, and export trace
 
 SignalFx uses the contributions versions described in the following table for receivers and exporters to send data to an OpenTelemetry Collector and to receive data from an OpenTelemetry Collector:
 
-| Component   |     Name      |  Description |
-|----------|:-------------:|------:|
-| Receiver |  [signal-fx](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/master/receiver/signalfxreceiver) | A receiver is how data gets into the OpenTelemetry Collector. One or more receivers must be configured. By default, no receivers are configured. |
-| Processors |    [Various](https://github.com/open-telemetry/opentelemetry-collector/blob/master/processor/README.md)   |   Processors are run on data between being received and being exported.  |
-| Exporters |  [signal-fx](https://github.com/open-telemetry/opentelemetry-collector-contrib/tree/master/receiver/signalfxreceiver) |   An exporter is how data gets sent to different systems/back-ends. Generally, an exporter translates the internal format into another defined format. |
-
+ **Component** | **Name**   | **Description**                                                        |  
+---------------|------------|------------------------------------------------------------------------|
+ Receiver      | signal\-fx | A receiver is how data gets into the OpenTelemetry Collector\.         |      
+ Processor     | Various    | Processors are run on data between being received and being exported\. |      
+ Exporter      | signal\-fx | An exporter is how data gets sent to different systems/back\-ends\.    |      
+                    
 ### Deploy the OpenTelemetry Collector
 
 Procedure and collector.yaml in this section.
