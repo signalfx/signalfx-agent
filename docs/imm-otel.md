@@ -7,7 +7,7 @@ The OpenTelemetry Collector is a stand-alone service that can ingest metrics fro
 This is two-step process:
 
 1. [Deploy the SignalFx Smart Agent](#deploy-the-signalfx-smart-agent)
-2. [Deploy an OpenTelemetry Collector for SignalFx](#deploy-am-opentelemetry-collector-for-signalfx)
+2. [Deploy an OpenTelemetry Collector for SignalFx](#deploy-an-opentelemetry-collector-for-signalfx)
 
 The following sections describe each step in detail.
 
@@ -19,7 +19,7 @@ The SignalFx platform is built to ingest, store, analyze, visualize, and alert o
 * Response time in milliseconds of an API call
 * The number of unique users who logged in over the previous 24-hour period
 
-You can use the SignalFx Smart Agent to collect metrics for SignalFx Infrastructure Monitoring. See [Use the Smart Agent](https://docs.signalfx.com/en/latest/integrations/agent/index.html#smart-agent "Use the Smart Agent") for more information on using the Smart Agent.
+You can use the SignalFx Smart Agent to collect metrics for SignalFx Infrastructure Monitoring. See [Use the Smart Agent](https://docs.signalfx.com/en/latest/integrations/agent/index.html#smart-agent "Use the Smart Agent") for more information.
 
 **Step 1: Install the SignalFx Smart Agent**
 
@@ -41,12 +41,13 @@ The OpenTelemetry Collector uses pipelines to receive, process, and export trace
 
 SignalFx uses the components described in the following table to send data to an OpenTelemetry Collector and to receive data from an OpenTelemetry Collector:
 
- **Component** | **Name**   | **Description**                                                        |  
----------------|------------|------------------------------------------------------------------------|
- Receiver      | signal\-fx  | Component that sets the endpoint for receiving metrics data with the SignalFx metric data format\.         |      
- Processor     | Various    | Component that pre-processes data before it is exported or helps ensure that data makes it through a pipeline successfully\. |      
- Exporter      | signal\-fx  | Component that forwards data to SignalFx with the metric data format\.    |      
+| **Component** | **Name**        | **Description**                                                                                       |  
+|---------------| :---------------:  |-------------------------------------------------------------------------------------------------------|
+| Receiver      | `signal-fx`     | Component that sets the endpoint for receiving metrics data with the SignalFx metric data format.     |      
+| Processor     | Various         | Component that pre-processes data before it is exported.                                              |      
+| Exporter      | `signal-fx`     | Component that forwards data to SignalFx with the metric data format.                                 |
 
+  
 See [Configuration](https://opentelemetry.io/docs/collector/configuration/ "OpenTelemetry Collector Configuration") for more information about the OpenTelemetry Collector components.
 
 ### Deploy an OpenTelemetry Collector
