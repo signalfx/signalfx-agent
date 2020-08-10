@@ -1,11 +1,15 @@
 # Deploy the SignalFx Smart Agent and OpenTelemetry Collector for Infrastructure Monitoring
 
-SignalFx Infrastructure Monitoring helps you gather metrics related to your system's performance. 
+SignalFx Infrastructure Monitoring helps you gather metrics related to your system's performance. Metrics provide information about processes running inside the system, including counters, cumulative counters, and gauges.
 
-Two-step process:
+The OpenTelemetry Collector is a stand-alone service that can ingest metrics from various sources. You can now configure integrations to send data to an OpenTelemetry Collector to centrally manage data sent to SignalFx.
+
+This is two-step process:
 
 1. [Deploy the SignalFx Smart Agent](#deploy-the-signalfx-smart-agent)
 2. [Deploy an OpenTelemetry Collector for SignalFx](#deploy-am-opentelemetry-collector-for-signalfx)
+
+The following sections describe each step in detail.
 
 ## Deploy the SignalFx Smart Agent
 
@@ -31,11 +35,7 @@ See [Agent Configuration](https://docs.signalfx.com/en/latest/integrations/agent
 
 ## Deploy an OpenTelemetry Collector for SignalFx
 
-Introduction here
-
-### How OpenTelemetry Collector works
-
-After installing the SignalFx Smart Agent on each host, you can optionally deploy an OpenTelemetry Collector in each datacenter/region/cluster where traced applications run. In general, an OpenTelemetry Collector should receive data from the SignalFx Smart Agent.
+After installing the SignalFx Smart Agent on each host, you can deploy an OpenTelemetry Collector in each datacenter/region/cluster where traced applications run. In general, an OpenTelemetry Collector should receive data from the SignalFx Smart Agent.
 
 The OpenTelemetry Collector uses pipelines to receive, process, and export trace data with components conveniently known as receivers, processors, and exporters. Set up pipelines with services. You can also add extensions that provide an OpenTelemetry Collector with additional functionality, such as diagnostics and health checks. The OpenTelemetry Collector has two versions: a [core version](https://github.com/open-telemetry/opentelemetry-collector "Core Version") and a [contributions version](https://github.com/open-telemetry/opentelemetry-collector-contrib "Contributions"). The core version provides receivers, processors, and exporters for general use. The contributions version provides receivers, processors, and exporters for specific vendors and use cases.
 
