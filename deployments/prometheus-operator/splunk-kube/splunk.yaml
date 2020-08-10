@@ -1,0 +1,49 @@
+# Default values for splunk.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+splunk:
+  varSize: 92Gi
+
+image:
+  repository: splunk/splunk
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: LoadBalancer
+  webport: 8080
+  hecport: 8088
+  statsdport: 8125
+
+ingress:
+  enabled: false
+  annotations:
+    #kubernetes.io/ingress.class: nginx
+  paths: [/]
+  hosts:
+  tls: []
+
+resources: {}
+ 
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+global:
+  logLevel: info 
+  splunk:
+    password: changeme
+    apps:
+    hec:
+      protocol: https
+      insecureSSL: true
+      # host: splunk-splunk-kube
+      token: 00000000-0000-0000-0000-000000000000
