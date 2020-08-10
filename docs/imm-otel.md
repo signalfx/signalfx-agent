@@ -2,7 +2,7 @@
 
 SignalFx Infrastructure Monitoring helps you gather metrics related to your system's performance. Metrics provide information about processes running inside the system, including counters, cumulative counters, and gauges.
 
-The OpenTelemetry Collector is a stand-alone service that can ingest metrics from various sources. You can now configure integrations to send data to an OpenTelemetry Collector to centrally manage data sent to SignalFx.
+The OpenTelemetry Collector is a stand-alone service that can ingest metrics from various sources. The OpenTelemetry collector provides additional flexibility in configuration options. You can now configure integrations to send data to an OpenTelemetry Collector to centrally manage data sent to SignalFx.
 
 This is two-step process:
 
@@ -57,7 +57,7 @@ To deploy an OpenTelemetry Collector:
 1. Download the [latest release](https://github.com/open-telemetry/opentelemetry-collector-contrib/releases "OpenTelemetry Collector contributions releases") of the OpenTelemetry Collector contributions version from GitHub.
 2. Create a configuration file that defines components for the OpenTelemetry Collector. A sample configuration file is provided below.
 ```
-# Save this file as collector.yaml
+# Save this file as collector.yaml.
 # Extensions are optional and are provided to monitor
 # the health of the OpenTelemetry Collector.  
     extensions:
