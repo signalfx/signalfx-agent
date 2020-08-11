@@ -1,20 +1,8 @@
 .. _install-smart-agent:
 
-.. |sfxagt| replace:: the Smart Agent
-.. |signalfxagent| replace:: the SignalFx Smart Agent
-.. |unix| replace:: *nix
-.. |debian| replace:: Debian
-.. |rpm| replace:: RPM
-.. |linux| replace:: Linux
-.. |helm| replace:: Helm
-.. |kubectl| replace:: kubectl
-.. |win| replace:: Windows
-.. |microapm| replace:: SignalFx Microservices APM
-.. |mapm| replace:: µAPM
-
-*********************************************
-Install and configure |signalfxagent|
-*********************************************
+************************************************
+Install and configure the SignalFx Smart Agent
+************************************************
 
 .. toctree::
    :maxdepth: 1
@@ -29,7 +17,7 @@ Install and configure |signalfxagent|
    /integrations/agent/pguidance/agent-install-awsecs
    /integrations/agent/pguidance/agent-install-config-mgmt
 
-You have several different options for installing |signalfxagent|.
+You have several different options for installing the SignalFx Smart Agent.
 Select the topic that matches your situation or preference. Each
 topic includes these sections:
 
@@ -43,93 +31,105 @@ Evaluate monitoring for a single host
 
 Evaluate monitoring using a quick installation to a single host
 
-`Quick Install <./quick-install.html>`__
+`SignalFx Smart Agent quick installation <./quick-install.html>`__
 
 Evaluate monitoring for a specific OS
 =======================================
 
 .. list-table::
    :header-rows: 1
-   :widths: 60 40
+   :widths: 40 60
 
    * - :strong:`Goal`
      - :strong:`Procedure`
 
-   * - :strong:`Evaluate on |unix| hosts` that support |debian| or |rpm| packages
-     - `Install |signalfxagent| using |unix| packages <./pguidance/agent-install-packages.html>`__
+   * - Evaluate monitoring on \*nix hosts that support Debian or RPM packages
+     - `Install the SignalFx Smart Agent using *nix packages <./pguidance/agent-install-packages.html>`__
 
-   * - :strong:`Evaluate on |linux| hosts` that are behind a firewall
-     - `Install |signalfxagent| to Linux using a GZIP file <./pguidance/agent-install-standalone-linux.html>`__
+   * - Evaluate monitoring on Linux hosts that are behind a firewall
+     - `Install the SignalFx Smart Agent to Linux using a GZIP file <./pguidance/agent-install-standalone-linux.html>`__
 
-   * - :strong:`Evaluate on Windows hosts` that are behind a firewall
-     - `Install |signalfxagent| to |win| using a ZIP file <./pguidance/agent-install-standalone-windows.html>`__
+   * - Evaluate monitoring on Windows hosts that are behind a firewall
+     - `Install the SignalFx Smart Agent to Windows using a ZIP file <./pguidance/agent-install-standalone-windows.html>`__
 
 Evaluate Kubernetes monitoring
 ================================
 
 .. list-table::
    :header-rows: 1
-   :widths: 60 40
+   :widths: 40 60
 
-   * - :strong:`Evaluate Kubernetes monitoring` using |helm| to install |signalfxagent|
-     - `Install |signalfxagent| using |helm| <./pguidance/agent-k8s-install-helm.html>`__
+   * - :strong:`Goal`
+     - :strong:`Procedure`
 
-   * - :strong:`Evaluate Kubernetes monitoring` using |kubectl| to install |signalfxagent|
-     - `Install |signalfxagent| using kubectl <./pguidance/agent-k8s-install-kubectl.html>`__
+   * - Evaluate Kubernetes monitoring using Helm
+     - `Install the SignalFx Smart Agent using Helm <./pguidance/agent-k8s-install-helm.html>`__
+
+   * - Evaluate Kubernetes monitoring using kubectl
+     - `Install the SignalFx Smart Agent using kubectl <./pguidance/agent-k8s-install-kubectl.html>`__
 
 
-Evaluate |microapm| monitoring
-================================
+Evaluate SignalFx Microservices APM monitoring
+================================================
 
 .. list-table::
    :header-rows: 1
-   :widths: 60 40
+   :widths: 40 60
 
-   * - :strong:`Evaluate |microapm| monitoring` for hosts that use Docker outside of Kubernetes
-     - Install |signalfxagent| using the `SignalFx Agent Docker image <https://github.com/signalfx/signalfx-agent/tree/master/deployments/docker>`__
+   * - :strong:`Goal`
+     - :strong:`Procedure`
 
-   * - :strong:`Evaluate |microapm| monitoring` for hosts that use Kubernetes
-     - If you use Helm: `Install |signalfxagent| using |helm| <./pguidance/agent-k8s-install-helm.html>`__
+   * - Evaluate SignalFx Microservices APM monitoring for hosts that use Docker outside of Kubernetes
+     - `Install the SignalFx Smart Agent using the SignalFx Agent Docker image <https://github.com/signalfx/signalfx-agent/tree/master/deployments/docker>`__
 
-       If you use kubectl: `Install |signalfxagent| using kubectl <./pguidance/agent-k8s-install-kubectl.html>`__
+   * - Evaluate SignalFx Microservices APM monitoring for hosts that use Kubernetes
+     - If you use Helm, see `Install the SignalFx Smart Agent using Helm <./pguidance/agent-k8s-install-helm.html>`__.
+
+       If you use kubectl, see `Install the SignalFx Smart Agent using kubectl <./pguidance/agent-k8s-install-kubectl.html>`__.
 
 Monitor production hosts for a specific OS
 ============================================
 
 .. list-table::
    :header-rows: 1
-   :widths: 60 40
+   :widths: 40 60
 
-   * - :strong:`Monitor AWS ECS production hosts`
-     - `Install |signalfxagent| to AWS ECS <./pguidance/agent-install-awsecs.html>`_
+   * - :strong:`Goal`
+     - :strong:`Procedure`
 
-   * - :strong:`Monitor production hosts` that use configuration management tools
-     - `Install |signalfxagent|  using configuration management <./pguidance/agent-install-config-mgmt.html>`__
+   * - Monitor AWS ECS production hosts
+     - `Install the SignalFx Smart Agent to AWS ECS <./pguidance/agent-install-awsecs.html>`_
 
-   * - :strong:`Monitor *nix production hosts` that support |debian| or |rpm|
-     - `Install Using *nix Packages <./pguidance/agent-install-packages.html>`_
+   * - Monitor production hosts that use configuration management tools
+     - `Install the SignalFx Smart Agent using configuration management <./pguidance/agent-install-config-mgmt.html>`__
 
-   * - :strong:`Monitor Linux production hosts` that are behind a firewall
-     - `Install |signalfxagent| to Linux using a GZIP file <./pguidance/agent-install-standalone-linux.html>`__
+   * - Monitor \*nix production hosts that support Debian or RPM
+     - `Install the SignalFx Smart Agent using *nix packages <./pguidance/agent-install-packages.html>`_
 
-   * - :strong:`Monitor Windows production hosts` that are behind a firewall
-     - `Install |signalfxagent| to Windows using a ZIP file <./pguidance/agent-install-standalone-windows.html>`__
+   * - Monitor Linux production hosts that are behind a firewall
+     - `Install the SignalFx Smart Agent to Linux using a GZIP file <./pguidance/agent-install-standalone-linux.html>`__
+
+   * - Monitor Windows production hosts that are behind a firewall
+     - `Install the SignalFx Smart Agent to Windows using a ZIP file <./pguidance/agent-install-standalone-windows.html>`__
 
 Monitor Kubernetes production hosts
 =====================================
 
 .. list-table::
    :header-rows: 1
-   :widths: 60 40
+   :widths: 40 60
 
-   * - :strong:`Monitor Kubernetes production hosts` using |helm|
-     - `Install |signalfxagent| using |helm| <./pguidance/agent-k8s-install-helm.html>`__
+   * - :strong:`Goal`
+     - :strong:`Procedure`
 
-   * - :strong:`Monitor Kubernetes production hosts` using |kubectl|
-     - `Install |signalfxagent| using kubectl <./pguidance/agent-k8s-install-kubectl.html>`__
+   * - Monitor Kubernetes production hosts using Helm
+     - `Install the SignalFx Smart Agent using Helm <./pguidance/agent-k8s-install-helm.html>`__
+
+   * - Monitor Kubernetes production hosts using kubectl
+     - `Install the SignalFx Smart Agent using kubectl <./pguidance/agent-k8s-install-kubectl.html>`__
 
 
-Monitor |microapm|
-====================
+Monitor SignalFx Microservices APM hosts
+==========================================
 
-`Installing |signalfxagent| <https://docs.signalfx.com/en/latest/apm2/apm2-getting-started/apm2-smart-agent.html>`__
+`Deploy a SignalFx Smart Agent for µAPM <https://docs.signalfx.com/en/latest/apm2/apm2-getting-started/apm2-smart-agent.html>`__
