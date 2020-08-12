@@ -1,4 +1,4 @@
-# Install the SignalFx Smart Agent Using Helm
+# Install Using Helm
 
 Use the Helm package manager to install the Smart Agent to Kubernetes
 environments.
@@ -63,16 +63,16 @@ For example, add the `-f myValues.yaml` parameter.
 
 | Name             | Example       | Meaning                                                          |
 |:-----------------|:--------------|:-----------------------------------------------------------------|
-| `<access_token>` | 'abcd1234zzz' | **Required**. Access token. See [Prerequisites](#prerequisites). |
-| `<cluster_name>` | 'myCluster'   | **Required**.Name of the cluster to monitor                      |
-| `<realm>`        | 'us0'         | **Required**. Your realm. See [Prerequisites](#prerequisites).   |
+| `<access_token>` | 'abcd1234zzz' | Required. Access token. See [Prerequisites](#prerequisites). |
+| `<cluster_name>` | 'myCluster'   | Required.Name of the cluster to monitor                      |
+| `<realm>`        | 'us0'         | Required. Your realm. See [Prerequisites](#prerequisites).   |
 
 6. Determine if you want to use the following optional values:
 
 | Name                 | Example         | Meaning                                                                                                                                           |
 |:---------------------|:----------------|:--------------------------------------------------------------------------------------------------------------------------------------------------|
 | `<values_yaml_file>` | `myValues.yaml` | Optional. Custom configuration file. If you don't specify this file, Helm installs the defaults. If you don't use this parameter, don't use `-f`. |
-| `<version>`          | 5.1.6           | Optional. Smart Agent version. See [Smart Agent releases](https://github.com/signalfx/signalfx-agent/releases) for a a list of versions. If you don't use this, Helm installs the latest release. If you don't use this, don't use `--set agentVersion=`. |
+| `<version>`          | `5.1.6`           | Optional. Smart Agent version. See [Smart Agent releases](https://github.com/signalfx/signalfx-agent/releases) for a a list of versions. If you don't use this, Helm installs the latest release. If you don't use this, don't use `--set agentVersion=`. |
 
 7. Determine if you want OpenShift support:
 
@@ -111,9 +111,7 @@ To verify that your installation and config is working:
 
   To learn more, see [Getting Around the Kubernetes Navigator](https://docs.signalfx.com/en/latest/integrations/kubernetes/get-around-k8s-navigator.html).
 
-* For APM monitoring:
-
-Learn how to install, configure, and verify the Smart Agent for Microservices APM (**µAPM**). See
-[Overview of Microservices APM (µAPM)](https://docs.signalfx.com/en/latest/apm2/apm2-overview/apm2-overview.html).
+* For APM monitoring, learn how to install, configure, and verify the Smart Agent for Microservices APM (**µAPM**). See
+  [Overview of Microservices APM (µAPM)](https://docs.signalfx.com/en/latest/apm2/apm2-overview/apm2-overview.html).
 
 

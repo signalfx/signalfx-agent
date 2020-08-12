@@ -1,17 +1,17 @@
-# Install the SignalFx Smart Agent using configuration management
+# Install using configuration management
 
-Install the Smart Agent using one of the following configuration management
+Install the SignalFx Smart Agent using one of the following configuration management
 packages:
 
 
 
-| Package | See this section                                                |
-|:--------|:----------------------------------------------------------------|
-| Puppet  | [Install using a Puppet module](#install-using-a-puppet-module) |
-| Chef    | [Install using a Chef cookbook](#install-using-a-chef-cookbook) |
-| Ansible | [Install using an Ansible role](#install-using-an-ansible-role) |
-| Salt    | [Install using a Salt formula](#install-using-a-salt-formula)   |
-| Docker  | [Install using a Docker image](#install-using-a-docker-image)   |
+| Package | See this section                                                                                |
+|:--------|:------------------------------------------------------------------------------------------------|
+| Puppet  | [Install the Smart Agent using a Puppet module](#install-the-smart-agent-using-a-puppet-module) |
+| Chef    | [Install the Smart Agent using a Chef cookbook](#install-the-smart-agent-using-a-chef-cookbook) |
+| Ansible | [Install the Smart Agent using an Ansible role](#install-the-smart-agent-using-an-ansible-role) |
+| Salt    | [Install the Smart Agent using a Salt formula](#install-the-smart-agent-using-a-salt-formula)   |
+| Docker  | [Install the Smart Agent using a Docker image](#install-the-smart-agent-using-a-docker-image)   |
 
 ## Prerequisites
 
@@ -32,11 +32,11 @@ packages:
 - Windows PowerShell access
 - Microsoft Visual C++ Compiler for Python
 
-## Install using a Puppet module
+## Install the Smart Agent using a Puppet module
 
 Before you install, configure a Smart Agent Puppet manifest.
 
-### Configure for Puppet
+### Configure the Smart Agent for Puppet
 
 1. Download the Puppet module from one of these sites:
 
@@ -111,11 +111,11 @@ see [Agent Configuration](https://github.com/signalfx/signalfx-agent/blob/master
 
 See [Verify the Smart Agent](#verify-the-smart-agent).
 
-## Install using a Chef cookbook
+## Install the Smart Agent using a Chef cookbook
 
 Before you install, configure a Smart Agent Chef cookbook.
 
-### Configure for Chef
+### Configure the Smart Agent for Chef
 
 1. Download the Smart Agent Chef cookbook from one of these sites:
 
@@ -180,7 +180,7 @@ Before you install, configure a Smart Agent Chef cookbook.
 To see all of the Smart Agent configuration options,
 refer to [Agent Configuration](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md).
 
-### Install with Chef
+### Install the Smart Agent with Chef
 
 After you add the Smart Agent recipe, use Chef to install the Smart Agent to your hosts.
 
@@ -188,7 +188,7 @@ After you add the Smart Agent recipe, use Chef to install the Smart Agent to you
 
 See [Verify the Smart Agent](#verify-the-smart-agent).
 
-## Install using an Ansible role
+## Install the Smart Agent using an Ansible role
 
 You can use an Ansible role for installing the Smart Agent:
 
@@ -205,7 +205,7 @@ To install the role from GitHub:
    ansible-galaxy install signalfx.smart_agent
    ```
 
-### Configure for Ansible
+### Configure the Smart Agent for Ansible
 
 The Smart Agent Ansible role uses the following variables:
 
@@ -268,7 +268,7 @@ See [Verify the Smart Agent](#verify-the-smart-agent).
 You can use a Salt formula that installs and configures the Smart Agent on Linux.
 Download the formula from the [SignalFx Agent Salt formula site](https://github.com/signalfx/signalfx-agent/tree/master/deployments/salt).
 
-### Configure for Salt
+### Configure the Smart Agent for Salt
 
 1. Download the Smart Agent formula to the `/srv/salt` directory.
 2. Copy the pillar.example file from the download directory to the `/srv/pillar` directory and rename it to pillar.
@@ -392,7 +392,7 @@ To learn more about configuring monitors and observers for the Smart Agent in Do
 
 ### Install the Smart Agent in Docker
 
-To install and start the Smart Agent in a Docker container, run the following command, replacing `<version>` with  
+To install and start the Smart Agent in a Docker container, run the following command, replacing `<version>` with
 Smart Agent version number you obtained in [Prerequisites for all platforms](#prerequisites-for-all-platforms):
 
 ```

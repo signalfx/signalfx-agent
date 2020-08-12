@@ -1,4 +1,4 @@
-# Install the SignalFx Smart Agent using kubectl
+# Install using kubectl
 
 Use kubectl to install the Smart Agent to Kubernetes environments.
 
@@ -89,7 +89,7 @@ Kubernetes secret for your access token and update settings in the Smart Agent's
 > are unpredictable, but your instrumentation may break and your
 > application may crash.
 
-3. Run the following command to update `kubetctl` with the configuration files you've just modified:
+3. Run the following command to update `kubectl` with the configuration files you've just modified:
 
    ```
    cat *.yaml | kubectl apply -f-
@@ -120,7 +120,7 @@ In addition, you can do the following in SignalFx:
   2. The map displays all the clusters running the Smart Agent.
   3. Click the magnification icon to view the nodes in a cluster.
 
-  The detail panedisplays details of that cluster and nodes.
+  The detail pane displays details of that cluster and nodes.
 
   To learn more, see [Getting Around the Kubernetes Navigator](https://docs.signalfx.com/en/latest/integrations/kubernetes/get-around-k8s-navigator.html).
 
