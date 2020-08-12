@@ -1,11 +1,6 @@
 .. _install-smart-agent:
 
-************************************************
-Install and configure the SignalFx Smart Agent
-************************************************
-
 .. toctree::
-   :maxdepth: 1
    :hidden:
 
    /integrations/agent/quick-install
@@ -17,6 +12,10 @@ Install and configure the SignalFx Smart Agent
    /integrations/agent/pguidance/agent-install-awsecs
    /integrations/agent/pguidance/agent-install-config-mgmt
 
+************************************************
+Install and configure the SignalFx Smart Agent
+************************************************
+
 You have several different options for installing the SignalFx Smart Agent.
 Select the topic that matches your situation or preference. Each
 topic includes these sections:
@@ -26,15 +25,13 @@ topic includes these sections:
 * Installation instructions
 * Instructions for verifying your installation
 
-Evaluate monitoring for a single host
-=======================================
+:strong:`Evaluate monitoring for a single host`
 
 Evaluate monitoring using a quick installation to a single host
 
 `SignalFx Smart Agent quick installation <./quick-install.html>`__
 
-Evaluate monitoring for a specific OS
-=======================================
+:strong:`Evaluate monitoring for a specific OS`
 
 .. list-table::
    :header-rows: 1
@@ -52,8 +49,7 @@ Evaluate monitoring for a specific OS
    * - Evaluate monitoring on Windows hosts that are behind a firewall
      - `Install the SignalFx Smart Agent to Windows using a ZIP file <./pguidance/agent-install-standalone-windows.html>`__
 
-Evaluate Kubernetes monitoring
-================================
+:strong:`Evaluate Kubernetes monitoring`
 
 .. list-table::
    :header-rows: 1
@@ -68,9 +64,7 @@ Evaluate Kubernetes monitoring
    * - Evaluate Kubernetes monitoring using kubectl
      - `Install the SignalFx Smart Agent using kubectl <./pguidance/agent-k8s-install-kubectl.html>`__
 
-
-Evaluate SignalFx Microservices APM monitoring
-================================================
+:strong:`Evaluate SignalFx Microservices APM monitoring`
 
 .. list-table::
    :header-rows: 1
@@ -87,8 +81,7 @@ Evaluate SignalFx Microservices APM monitoring
 
        If you use kubectl, see `Install the SignalFx Smart Agent using kubectl <./pguidance/agent-k8s-install-kubectl.html>`__.
 
-Monitor production hosts for a specific OS
-============================================
+:strong:`Monitor production hosts for a specific OS`
 
 .. list-table::
    :header-rows: 1
@@ -112,8 +105,7 @@ Monitor production hosts for a specific OS
    * - Monitor Windows production hosts that are behind a firewall
      - `Install the SignalFx Smart Agent to Windows using a ZIP file <./pguidance/agent-install-standalone-windows.html>`__
 
-Monitor Kubernetes production hosts
-=====================================
+:strong:`Monitor Kubernetes production hosts`
 
 .. list-table::
    :header-rows: 1
@@ -129,7 +121,6 @@ Monitor Kubernetes production hosts
      - `Install the SignalFx Smart Agent using kubectl <./pguidance/agent-k8s-install-kubectl.html>`__
 
 
-Monitor SignalFx Microservices APM hosts
-==========================================
+:strong:`Monitor SignalFx Microservices APM hosts`
 
 `Deploy a SignalFx Smart Agent for µAPM <https://docs.signalfx.com/en/latest/apm2/apm2-getting-started/apm2-smart-agent.html>`__

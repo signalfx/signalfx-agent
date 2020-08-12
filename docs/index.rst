@@ -43,7 +43,7 @@ To quickly install the SignalFx Smart Agent, see the topic
 `Quick Install <https://docs.signalfx.com/en/latest/integrations/agent/quick-install.html>`__.
 
 To learn about all the available installation methods, see topic
-`Choose a Smart Agent Install Method <agent-choose-install-type.rst>`__.
+`Install and configure the SignalFx Smart Agent </integrations/agent/agent-install-methods.html>`__.
 
 For a guided tour around SignalFx capabilities, try the
 `15-Minute Quick Start <https://docs.signalfx.com/en/latest/getting-started/quick-start.html>`__.
