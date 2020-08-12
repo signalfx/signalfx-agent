@@ -1,4 +1,4 @@
-# Install the SignalFx Smart Agent using *nix packages
+# Install using *nix packages
 
 Install the SignalFx Smart Agent using either a Debian or RPM package,
 and then verify that the SignalFx Smart Agent is working.

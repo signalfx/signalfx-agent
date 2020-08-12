@@ -1,4 +1,4 @@
-# Install the SignalFx Smart Agent to Linux using a GZIP File
+# Install to Linux using a GZIP File
 
 Install the Smart Agent to Linux host using a compressed
 standalone package in a GZIP file.

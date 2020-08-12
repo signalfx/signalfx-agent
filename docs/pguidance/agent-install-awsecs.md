@@ -1,4 +1,4 @@
-# Install the SignalFx Smart Agent to AWS EC2
+# Install to AWS EC2
 
 Deploy the SignalFx Smart Agent to an AWS EC2 instance using a SignalFx
 configuration script, and run the Smart Agent as a Daemon service in an
@@ -105,6 +105,7 @@ To create this service in the EC2 web admin console:
      host**. Select one of your nodes from the dropdown list.
 
   The charts display metrics from the infrastructure for that node.
+
   To learn more, see [Built-In Dashboards and Charts](https://docs.signalfx.com/en/latest/getting-started/built-in-content/built-in-dashboards.html).
 
 * For Kubernetes monitoring, perform these steps:
@@ -113,6 +114,7 @@ To create this service in the EC2 web admin console:
   3. Click the magnification icon to view the nodes in a cluster.
 
   The detail pane on the right hand side of the page displays details of that cluster and nodes.
+
   To learn more, see [Getting Around the Kubernetes Navigator](https://docs.signalfx.com/en/latest/integrations/kubernetes/get-around-k8s-navigator.html).
 
 * For APM monitoring, learn how to install, configure, and verify the Smart Agent for Microservices APM (**µAPM**). See

@@ -1,4 +1,4 @@
-# Install the SignalFx Smart Agent to Windows using a ZIP file
+# Install to Windows using a ZIP file
 
 Install the SignalFx Smart Agent to a Windows host using a standalone package in
 a ZIP file.
@@ -111,6 +111,5 @@ To verify your installation and configuration, perform these steps:
 
   To learn more, see [Getting Around the Kubernetes Navigator](https://docs.signalfx.com/en/latest/integrations/kubernetes/get-around-k8s-navigator.html)
 
-* For APM monitoring:
-  Learn how to install, configure, and verify the Smart Agent for Microservices APM (**µAPM**). See
+* For APM monitoring, learn how to install, configure, and verify the Smart Agent for Microservices APM (**µAPM**). See
   [Overview of Microservices APM (µAPM)](https://docs.signalfx.com/en/latest/apm2/apm2-overview/apm2-overview.html).
