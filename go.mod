@@ -8,6 +8,8 @@ replace code.cloudfoundry.org/go-loggregator => github.com/signalfx/go-loggregat
 
 replace github.com/influxdata/telegraf => github.com/signalfx/telegraf v0.10.2-0.20200415004250-249b98cac6c7
 
+replace github.com/dancannon/gorethink => gopkg.in/gorethink/gorethink.v4 v4.0.0
+
 require (
 	code.cloudfoundry.org/go-diodes v0.0.0-20190809170250-f77fb823c7ee // indirect
 	code.cloudfoundry.org/go-loggregator v7.4.0+incompatible
