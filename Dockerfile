@@ -424,12 +424,6 @@ RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
 RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
     sh /tmp/get-docker.sh
 
-# Get integration test deps in here
-RUN pip3 install ipython ipdb
-COPY tests/requirements.txt /tmp/
-RUN pip3 install -r /tmp/requirements.txt
-RUN ln -s /usr/bin/pip3 /usr/bin/pip
-
 ARG TARGET_ARCH
 
 RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v3.4.0/gomplate_linux-${TARGET_ARCH} &&\
@@ -449,6 +443,12 @@ RUN cd /tmp &&\
     curl -LO https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/${TARGET_ARCH}/kubectl &&\
     chmod +x ./kubectl &&\
     mv ./kubectl /usr/bin/kubectl
+
+# Get integration test deps in here
+RUN pip3 install ipython ipdb
+COPY tests/requirements.txt /tmp/
+RUN pip3 install -r /tmp/requirements.txt
+RUN ln -s /usr/bin/pip3 /usr/bin/pip
 
 WORKDIR /usr/src/signalfx-agent
 
