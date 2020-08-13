@@ -28072,6 +28072,14 @@
             "required": false,
             "type": "slice",
             "elementKind": "string"
+          },
+          {
+            "yamlName": "sendModeDimension",
+            "doc": "Set to true to emit the \"mode\" dimension, which represents whether the mount is \"rw\" or \"ro\".",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
           }
         ]
       },

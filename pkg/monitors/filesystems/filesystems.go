@@ -46,17 +46,22 @@ type Config struct {
 	// `/hostfs/` mount in the filter.  If both this and `fsTypes` is
 	// specified, the two filters combine in an AND relationship.
 	MountPoints []string `yaml:"mountPoints"`
+
+	// Set to true to emit the "mode" dimension, which represents
+	// whether the mount is "rw" or "ro".
+	SendModeDimension bool `yaml:"sendModeDimension" default:"false"`
 }
 
 // Monitor for Utilization
 type Monitor struct {
-	Output      types.FilteringOutput
-	cancel      func()
-	conf        *Config
-	hostFSPath  string
-	fsTypes     *filter.OverridableStringFilter
-	mountPoints *filter.OverridableStringFilter
-	logger      logrus.FieldLogger
+	Output            types.FilteringOutput
+	cancel            func()
+	conf              *Config
+	hostFSPath        string
+	fsTypes           *filter.OverridableStringFilter
+	mountPoints       *filter.OverridableStringFilter
+	sendModeDimension bool
+	logger            logrus.FieldLogger
 }
 
 // returns common dimensions map for every filesystem
@@ -65,6 +70,21 @@ func (m *Monitor) getCommonDimensions(partition *gopsutil.PartitionStat) map[str
 		"mountpoint": strings.Replace(partition.Mountpoint, " ", "_", -1),
 		"device":     strings.Replace(partition.Device, " ", "_", -1),
 		"fs_type":    strings.Replace(partition.Fstype, " ", "_", -1),
+	}
+	if m.sendModeDimension {
+		var mode string
+		opts := strings.Split(partition.Opts, ",")
+		for _, opt := range opts {
+			if opt == "ro" || opt == "rw" {
+				mode = opt
+				break
+			}
+		}
+		if mode == "ro" || mode == "rw" {
+			dims["mode"] = mode
+		} else {
+			m.logger.Infof("Failed to parse filesystem 'mode' for device `%s` - mountpoint `%s`", partition.Device, partition.Mountpoint)
+		}
 	}
 	// sanitize hostfs path in mountpoint
 	if m.hostFSPath != "" {
@@ -226,6 +246,8 @@ func (m *Monitor) Configure(conf *Config) error {
 	if err != nil {
 		return err
 	}
+
+	m.sendModeDimension = m.conf.SendModeDimension
 
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
