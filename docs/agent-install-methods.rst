@@ -1,7 +1,12 @@
 .. _install-smart-agent:
 
+************************************************
+Install and configure the Smart Agent
+************************************************
+
 .. toctree::
    :hidden:
+   :maxdepth: 1
 
    /integrations/agent/quick-install
    /integrations/agent/pguidance/agent-install-packages
@@ -11,10 +16,6 @@
    /integrations/agent/pguidance/agent-k8s-install-kubectl
    /integrations/agent/pguidance/agent-install-awsecs
    /integrations/agent/pguidance/agent-install-config-mgmt
-
-************************************************
-Install and configure the SignalFx Smart Agent
-************************************************
 
 You have several different options for installing the SignalFx Smart Agent.
 Select the topic that matches your situation or preference. Each
