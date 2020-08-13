@@ -1,3 +1,5 @@
+<!--- This content should be updated in the aws-ecs/README.md.jinja file. DO NOT MODIFY HERE. --->
+
 # Fargate Deployment
 
 ## Create Task Definition
