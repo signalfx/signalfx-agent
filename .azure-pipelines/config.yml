@@ -234,3 +234,44 @@ jobs:
     parameters:
       markers: 'installer and windows_only'
       changesInclude: 'deployments/installer tests/packaging scripts/windows .azure-pipelines'
+
+- job: 'perf_tests'
+  pool:
+    vmImage: 'ubuntu-16.04'
+  steps:
+  - task: DockerInstaller@0
+    inputs:
+      dockerVersion: 18.09.0
+      releaseType: stable
+  - task: GoTool@0
+    inputs:
+      version: $(GOVERSION)
+      goPath: $(GOPATH)
+      goBin: $(GOBIN)
+  - template: 'templates/restore-go-cache.yml'
+  - script: |
+      export PATH=$GOBIN:$PATH
+      make signalfx-agent
+    displayName: 'Build agent'
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.8.5'
+  - script: |
+      python -m pip install --upgrade pip==20.0.2
+      pip install -r tests/requirements.txt
+    displayName: 'Install pytest'
+  - script: |
+      mkdir -p test_output
+      AGENT_BIN=$(pwd)/signalfx-agent pytest -v -m perf_test --junitxml=test_output/test_results.xml --html=test_output/test_results.html --self-contained-html tests
+    displayName: 'Run perf tests'
+  - task: PublishBuildArtifacts@1
+    inputs:
+      pathtoPublish: 'test_output'
+      artifactName: $(Agent.JobName)
+  - task: PublishTestResults@2
+    inputs:
+      searchFolder: '$(Build.SourcesDirectory)'
+      testResultsFormat: 'JUnit'
+      testResultsFiles: 'test_output/*.xml'
+      failTaskOnFailedTests: true
+      publishRunAttachments: false
