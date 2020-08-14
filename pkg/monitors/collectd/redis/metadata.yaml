@@ -80,6 +80,14 @@ monitors:
       description: Number of bytes allocated by Redis as seen by the OS
       default: true
       type: gauge
+    bytes.total_system_memory:
+      description: Total memory available on the OS
+      default: false
+      type: gauge
+    bytes.maxmemory:
+      description: Maximum memory configured on Redis server
+      default: false
+      type: gauge
     counter.commands_processed:
       description: Total number of commands processed by the server
       default: true
@@ -214,6 +222,18 @@ monitors:
       type: gauge
     gauge.uptime_in_seconds:
       description: Number of seconds up
+      default: false
+      type: gauge
+    gauge.rdb_last_save_time:
+      description: Unix timestamp for last save to disk, when using persistence
+      default: false
+      type: gauge
+    gauge.master_link_down_since_seconds:
+      description: Number of seconds since the link is down
+      default: false
+      type: gauge
+    gauge.master_link_status:
+      description: Status of the link (up/down)
       default: false
       type: gauge
   monitorType: collectd/redis

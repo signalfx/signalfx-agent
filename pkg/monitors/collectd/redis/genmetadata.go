@@ -12,6 +12,8 @@ const monitorType = "collectd/redis"
 var groupSet = map[string]bool{}
 
 const (
+	bytesMaxmemory                  = "bytes.maxmemory"
+	bytesTotalSystemMemory          = "bytes.total_system_memory"
 	bytesUsedMemory                 = "bytes.used_memory"
 	bytesUsedMemoryLua              = "bytes.used_memory_lua"
 	bytesUsedMemoryPeak             = "bytes.used_memory_peak"
@@ -43,9 +45,12 @@ const (
 	gaugeKeyLlen                    = "gauge.key_llen"
 	gaugeLatestForkUsec             = "gauge.latest_fork_usec"
 	gaugeMasterLastIoSecondsAgo     = "gauge.master_last_io_seconds_ago"
+	gaugeMasterLinkDownSinceSeconds = "gauge.master_link_down_since_seconds"
+	gaugeMasterLinkStatus           = "gauge.master_link_status"
 	gaugeMasterReplOffset           = "gauge.master_repl_offset"
 	gaugeMemFragmentationRatio      = "gauge.mem_fragmentation_ratio"
 	gaugeRdbBgsaveInProgress        = "gauge.rdb_bgsave_in_progress"
+	gaugeRdbLastSaveTime            = "gauge.rdb_last_save_time"
 	gaugeReplBacklogFirstByteOffset = "gauge.repl_backlog_first_byte_offset"
 	gaugeSlaveReplOffset            = "gauge.slave_repl_offset"
 	gaugeUptimeInDays               = "gauge.uptime_in_days"
@@ -53,6 +58,8 @@ const (
 )
 
 var metricSet = map[string]monitors.MetricInfo{
+	bytesMaxmemory:                  {Type: datapoint.Gauge},
+	bytesTotalSystemMemory:          {Type: datapoint.Gauge},
 	bytesUsedMemory:                 {Type: datapoint.Gauge},
 	bytesUsedMemoryLua:              {Type: datapoint.Gauge},
 	bytesUsedMemoryPeak:             {Type: datapoint.Gauge},
@@ -84,9 +91,12 @@ var metricSet = map[string]monitors.MetricInfo{
 	gaugeKeyLlen:                    {Type: datapoint.Gauge},
 	gaugeLatestForkUsec:             {Type: datapoint.Gauge},
 	gaugeMasterLastIoSecondsAgo:     {Type: datapoint.Gauge},
+	gaugeMasterLinkDownSinceSeconds: {Type: datapoint.Gauge},
+	gaugeMasterLinkStatus:           {Type: datapoint.Gauge},
 	gaugeMasterReplOffset:           {Type: datapoint.Gauge},
 	gaugeMemFragmentationRatio:      {Type: datapoint.Gauge},
 	gaugeRdbBgsaveInProgress:        {Type: datapoint.Gauge},
+	gaugeRdbLastSaveTime:            {Type: datapoint.Gauge},
 	gaugeReplBacklogFirstByteOffset: {Type: datapoint.Gauge},
 	gaugeSlaveReplOffset:            {Type: datapoint.Gauge},
 	gaugeUptimeInDays:               {Type: datapoint.Gauge},
