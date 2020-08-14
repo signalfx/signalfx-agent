@@ -1,0 +1,91 @@
+####### Dev Image ########
+# Note: Run `make dev-image` from the root directory of the repo.
+#
+# This is an image to facilitate development of the agent.  It installs all of
+# the build tools for building collectd and the go agent, along with some other
+# useful utilities.  The agent image is copied from the final-image stage to
+# the /bundle dir in here and the SIGNALFX_BUNDLE_DIR is set to point to that.
+FROM ubuntu:18.04
+
+RUN apt update &&\
+    apt install -y \
+      build-essential \
+      curl \
+      git \
+      inotify-tools \
+      iproute2 \
+      jq \
+      net-tools \
+      python3.8 \
+      python3.8-dev \
+      python3.8-distutils \
+      socat \
+      sudo \
+      vim \
+      wget
+
+ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
+ENV SIGNALFX_BUNDLE_DIR=/bundle \
+    TEST_SERVICES_DIR=/usr/src/signalfx-agent/test-services \
+    AGENT_BIN=/usr/src/signalfx-agent/signalfx-agent \
+    PYTHONPATH=/usr/src/signalfx-agent/python \
+    AGENT_VERSION=latest \
+    BUILD_TIME=2017-01-25T13:17:17-0500 \
+    GOOS=linux \
+    LC_ALL=C.UTF-8 \
+    LANG=C.UTF-8
+
+RUN rm -f /usr/bin/python3 && \
+    ln -s /usr/bin/python3.8 /usr/bin/python && \
+    ln -s /usr/bin/python3.8 /usr/bin/python3
+
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+    python get-pip.py pip==20.0.2 && \
+    rm get-pip.py
+
+RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
+    sh /tmp/get-docker.sh
+
+ARG TARGET_ARCH=amd64
+
+RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v3.4.0/gomplate_linux-${TARGET_ARCH} &&\
+    chmod +x /usr/bin/gomplate
+
+# Install helm
+ARG HELM_VERSION=v3.0.0
+WORKDIR /tmp
+RUN wget -O helm.tar.gz https://get.helm.sh/helm-${HELM_VERSION}-linux-${TARGET_ARCH}.tar.gz && \
+    tar -zxvf /tmp/helm.tar.gz && \
+    mv linux-${TARGET_ARCH}/helm /usr/local/bin/helm && \
+    chmod a+x /usr/local/bin/helm
+
+# Install kubectl
+ARG KUBECTL_VERSION=v1.14.1
+RUN cd /tmp &&\
+    curl -LO https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/${TARGET_ARCH}/kubectl &&\
+    chmod +x ./kubectl &&\
+    mv ./kubectl /usr/bin/kubectl
+
+# Get integration test deps in here
+RUN pip3 install ipython ipdb
+COPY tests/requirements.txt /tmp/
+RUN pip3 install -r /tmp/requirements.txt
+RUN ln -s /usr/bin/pip3 /usr/bin/pip
+
+WORKDIR /usr/src/signalfx-agent
+
+COPY --from=signalfx-agent-dev-cache:stage-final-image /bin/signalfx-agent ./signalfx-agent
+COPY --from=signalfx-agent-dev-cache:stage-final-image / /bundle/
+RUN /bundle/bin/patch-interpreter /bundle
+
+COPY --from=signalfx-agent-dev-cache:stage-agent-builder /usr/local/go /usr/local/go
+COPY --from=signalfx-agent-dev-cache:stage-agent-builder /go $GOPATH
+
+RUN go get -u golang.org/x/lint/golint &&\
+    if [ `uname -m` != "aarch64" ]; then go get github.com/derekparker/delve/cmd/dlv; fi &&\
+    go get github.com/tebeka/go2xunit &&\
+    curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.23.8
+
+COPY ./ ./
+
+CMD ["/bin/bash"]
