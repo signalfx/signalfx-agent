@@ -120,6 +120,8 @@ func (rm *Monitor) Configure(conf *Config) error {
 			"Redis_used_memory_rss":                "bytes",
 			"Redis_used_memory_peak":               "bytes",
 			"Redis_used_memory_lua":                "bytes",
+			"Redis_total_system_memory":            "bytes",
+			"Redis_maxmemory":                      "bytes",
 			"Redis_mem_fragmentation_ratio":        "gauge",
 			"Redis_changes_since_last_save":        "gauge",
 			"Redis_instantaneous_ops_per_sec":      "gauge",
@@ -134,6 +136,12 @@ func (rm *Monitor) Configure(conf *Config) error {
 			"Redis_connected_slaves":               "gauge",
 			"Redis_repl_backlog_first_byte_offset": "gauge",
 			"Redis_master_repl_offset":             "gauge",
+			"Redis_db0_avg_ttl":                    "gauge",
+			"Redis_db0_expires":                    "gauge",
+			"Redis_db0_keys":                       "gauge",
+			"Redis_rdb_last_save_time":             "gauge",
+			"Redis_master_link_down_since_seconds": "gauge",
+			"Redis_master_link_status":             "gauge",
 		},
 	}
 

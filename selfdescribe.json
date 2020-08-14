@@ -19460,6 +19460,8 @@
         "": {
           "description": "",
           "metrics": [
+            "bytes.maxmemory",
+            "bytes.total_system_memory",
             "bytes.used_memory",
             "bytes.used_memory_lua",
             "bytes.used_memory_peak",
@@ -19491,9 +19493,12 @@
             "gauge.key_llen",
             "gauge.latest_fork_usec",
             "gauge.master_last_io_seconds_ago",
+            "gauge.master_link_down_since_seconds",
+            "gauge.master_link_status",
             "gauge.master_repl_offset",
             "gauge.mem_fragmentation_ratio",
             "gauge.rdb_bgsave_in_progress",
+            "gauge.rdb_last_save_time",
             "gauge.repl_backlog_first_byte_offset",
             "gauge.slave_repl_offset",
             "gauge.uptime_in_days",
@@ -19502,6 +19507,18 @@
         }
       },
       "metrics": {
+        "bytes.maxmemory": {
+          "type": "gauge",
+          "description": "Maximum memory configured on Redis server",
+          "group": null,
+          "default": false
+        },
+        "bytes.total_system_memory": {
+          "type": "gauge",
+          "description": "Total memory available on the OS",
+          "group": null,
+          "default": false
+        },
         "bytes.used_memory": {
           "type": "gauge",
           "description": "Number of bytes allocated by Redis",
@@ -19688,6 +19705,18 @@
           "group": null,
           "default": false
         },
+        "gauge.master_link_down_since_seconds": {
+          "type": "gauge",
+          "description": "Number of seconds since the link is down",
+          "group": null,
+          "default": false
+        },
+        "gauge.master_link_status": {
+          "type": "gauge",
+          "description": "Status of the link (up/down)",
+          "group": null,
+          "default": false
+        },
         "gauge.master_repl_offset": {
           "type": "gauge",
           "description": "Master replication offset",
@@ -19703,6 +19732,12 @@
         "gauge.rdb_bgsave_in_progress": {
           "type": "gauge",
           "description": "Flag indicating a RDB save is on-going",
+          "group": null,
+          "default": false
+        },
+        "gauge.rdb_last_save_time": {
+          "type": "gauge",
+          "description": "Unix timestamp for last save to disk, when using persistence",
           "group": null,
           "default": false
         },
