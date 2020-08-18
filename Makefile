@@ -86,7 +86,7 @@ rpm-%-package:
 
 .PHONY: dev-image
 dev-image:
-	bash -ec "COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) && source scripts/common.sh && do_docker_build signalfx-agent-dev latest dev-extras"
+	COLLECTD_VERSION=$(COLLECTD_VERSION) COLLECTD_COMMIT=$(COLLECTD_COMMIT) scripts/make-dev-image
 
 .PHONY: debug
 debug:
