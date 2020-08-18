@@ -98,6 +98,9 @@ commands:
       markers:
         type: string
         default: ""
+      workers:
+        type: string
+        default: "2"
       pytest_options:
         type: string
         default: ""
@@ -117,7 +120,8 @@ commands:
           no_output_timeout: 30m
           environment:
             MARKERS: << parameters.markers >>
-            PYTEST_OPTIONS: --verbose --junitxml=~/testresults/results.xml --html=~/testresults/results.html --self-contained-html << parameters.pytest_options >>
+            WORKERS: << parameters.workers >>
+            PYTEST_OPTIONS: << parameters.pytest_options >>
             TESTS_DIR: << parameters.tests_dir >>
             WITH_SUDO: << parameters.with_sudo >>
             SPLIT: << parameters.split >>
@@ -351,7 +355,6 @@ jobs:
       - import_image
       - run: .circleci/scripts/setup-integration-tests.sh
       - run_pytest:
-          pytest_options: -n auto
           with_sudo: true
           split: true
 
@@ -385,7 +388,7 @@ jobs:
                 k8s_version: << parameters.k8s_version >>
       - run_pytest:
           markers: kubernetes
-          pytest_options: -n auto --no-use-minikube --agent-image-name=localhost:5000/signalfx-agent:latest --kubeconfig=/home/circleci/.kube/config
+          pytest_options: --no-use-minikube --agent-image-name=localhost:5000/signalfx-agent:latest --kubeconfig=/home/circleci/.kube/config
 
   installer_tests:
     executor: machine_image
@@ -394,7 +397,6 @@ jobs:
       - run: .circleci/scripts/setup-installer-tests.sh
       - run_pytest:
           markers: installer
-          pytest_options: -n auto
           tests_dir: ./tests/packaging/
 
   package_tests:
@@ -412,7 +414,6 @@ jobs:
             PACKAGE_TYPE: << parameters.package_type >>
           command: .circleci/scripts/setup-package-tests.sh
       - run_pytest:
-          pytest_options: -n auto
           tests_dir: ./tests/packaging
 
   bundle_tests:
@@ -424,7 +425,7 @@ jobs:
       - run: .circleci/scripts/setup-bundle-tests.sh
       - run_pytest:
           markers: bundle
-          pytest_options: -n auto --test-bundle-path=/tmp/workspace/signalfx-agent-latest.tar.gz
+          pytest_options: --test-bundle-path=/tmp/workspace/signalfx-agent-latest.tar.gz
           tests_dir: ./tests/packaging
 
   deployment_tests:
@@ -443,7 +444,6 @@ jobs:
           command: .circleci/scripts/run-deployment-tests.sh
       - save_test_results
       - run_pytest:
-          pytest_options: -n auto
           tests_dir: ./tests/deployments/
 
   pylint_black:
