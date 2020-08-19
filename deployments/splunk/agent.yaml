@@ -15,6 +15,7 @@ observers:
   - type: docker
 
 writer:
+  traceExportFormat: sapm
   signalFxEnabled: false
   splunk:
     enabled: true
@@ -40,6 +41,13 @@ monitors:
   - type: docker-container-stats
   - type: signalfx-forwarder
     listenAddress: 0.0.0.0:9080
+    # Used to add a tag to spans missing it
+    #defaultSpanTags:
+     # Set the environment filter in SignalFx
+     #environment: "YOUR_ENVIRONMENT"
+    # Used to add and override a tag on a span
+    #extraSpanTags:
+     #SPAN_TAG_KEY: "SPAN_TAG_VALUE"
   - type: prometheus-exporter
     host: prometheus
     # Prometheus captures the counter metric on the go program we run independently.

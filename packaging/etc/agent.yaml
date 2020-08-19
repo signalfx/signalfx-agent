@@ -3,7 +3,7 @@
 signalFxAccessToken: {"#from": "/etc/signalfx/token"}
 ingestUrl: {"#from": "/etc/signalfx/ingest_url", default: "https://ingest.signalfx.com"}
 apiUrl: {"#from": "/etc/signalfx/api_url", default: "https://api.signalfx.com"}
-cluster: {"#from": "/etc/signalfx/cluster", optional: true}
+traceEndpointUrl: {"#from": '/etc/signalfx/trace_endpoint_url', default: "https://ingest.signalfx.com/v2/trace"}
 
 intervalSeconds: 10
 
@@ -26,3 +26,17 @@ monitors:
   - type: load
   - type: memory
   - type: vmem
+  # If using SignalFx auto instrumentation with default settings
+  - type: signalfx-forwarder
+    listenAddress: 0.0.0.0:9080
+    # Used to add a tag to spans missing it
+    #defaultSpanTags:
+     # Set the environment filter in SignalFx
+     #environment: "YOUR_ENVIRONMENT"
+    # Used to add and override a tag on a span
+    #extraSpanTags:
+     #SPAN_TAG_KEY: "SPAN_TAG_VALUE"
+
+# Required: What format to send data in
+writer:
+  traceExportFormat: sapm

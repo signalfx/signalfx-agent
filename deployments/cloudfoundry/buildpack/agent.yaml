@@ -4,6 +4,7 @@ signalFxAccessToken: {"#from": "env:SIGNALFX_ACCESS_TOKEN"}
 signalFxRealm: {"#from": "env:SIGNALFX_REALM", optional: true}
 ingestUrl: {"#from": "env:SIGNALFX_INGEST_URL", optional: true}
 apiUrl: {"#from": "env:SIGNALFX_API_URL", optional: true}
+traceEndpointUrl: {"#from": "env:SIGNALFX_TRACE_ENDPOINT_URL", optional: true}
 
 disableHostDimensions: true
 
@@ -33,5 +34,17 @@ collectd:
   configDir: /tmp/collectd
 
 monitors:
-  - type: trace-forwarder
-    listenAddress: 127.0.0.1:9080
+  # If using SignalFx auto instrumentation with default settings
+  - type: signalfx-forwarder
+    listenAddress: 0.0.0.0:9080
+    # Used to add a tag to spans missing it
+    #defaultSpanTags:
+     # Set the environment filter in SignalFx
+     #environment: "YOUR_ENVIRONMENT"
+    # Used to add and override a tag on a span
+    #extraSpanTags:
+     #SPAN_TAG_KEY: "SPAN_TAG_VALUE"
+
+# Required: What format to send data in
+writer:
+  traceExportFormat: sapm
