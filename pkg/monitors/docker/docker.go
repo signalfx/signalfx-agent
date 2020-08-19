@@ -69,12 +69,13 @@ type Config struct {
 
 // Monitor for Docker
 type Monitor struct {
-	Output  types.FilteringOutput
-	cancel  func()
-	ctx     context.Context
-	client  *docker.Client
-	timeout time.Duration
-	logger  logrus.FieldLogger
+	Output     types.FilteringOutput
+	cancel     func()
+	ctx        context.Context
+	client     *docker.Client
+	timeout    time.Duration
+	logger     logrus.FieldLogger
+	containers map[string]dockerContainer
 }
 
 type dockerContainer struct {
@@ -106,7 +107,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	lock := sync.Mutex{}
-	containers := map[string]dockerContainer{}
+	m.containers = map[string]dockerContainer{}
 	isRegistered := false
 
 	changeHandler := func(old *dtypes.ContainerJSON, new *dtypes.ContainerJSON) {
@@ -126,11 +127,11 @@ func (m *Monitor) Configure(conf *Config) error {
 
 		if new == nil || (!new.State.Running || new.State.Paused) {
 			m.logger.Debugf("Container %s is no longer running", id)
-			delete(containers, id)
+			delete(m.containers, id)
 			return
 		}
 		m.logger.Infof("Monitoring docker container %s", id)
-		containers[id] = dockerContainer{
+		m.containers[id] = dockerContainer{
 			ContainerJSON: new,
 			EnvMap:        parseContainerEnvSlice(new.Config.Env),
 		}
@@ -151,8 +152,8 @@ func (m *Monitor) Configure(conf *Config) error {
 		// Individual container objects don't need to be protected by the lock,
 		// only the map that holds them.
 		lock.Lock()
-		for id := range containers {
-			go m.fetchStats(containers[id], conf.LabelsToDimensions, conf.EnvToDimensions, enhancedMetricsConfig)
+		for id := range m.containers {
+			go m.fetchStats(m.containers[id], conf.LabelsToDimensions, conf.EnvToDimensions, enhancedMetricsConfig)
 		}
 		lock.Unlock()
 
@@ -166,6 +167,11 @@ func (m *Monitor) Configure(conf *Config) error {
 // we aren't doing something every second across all containers, but only
 // something once every metric interval.
 func (m *Monitor) fetchStats(container dockerContainer, labelMap map[string]string, envMap map[string]string, enhancedMetricsConfig EnhancedMetricsConfig) {
+	if _, ok := m.containers[container.ID]; !ok {
+		m.logger.Debugf("container %s is not found in cache", container.ID)
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(m.ctx, m.timeout)
 	stats, err := m.client.ContainerStats(ctx, container.ID, false)
 	if err != nil {
