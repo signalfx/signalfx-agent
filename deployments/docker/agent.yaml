@@ -2,6 +2,7 @@
 signalFxAccessToken: ${SFX_ACCESS_TOKEN}
 ingestUrl: ${SFX_INGEST_URL}
 apiUrl: ${SFX_API_URL}
+traceEndpointUrl: ${SFX_TRACE_ENDPOINT_URL}
 
 intervalSeconds: 10
 
@@ -32,3 +33,17 @@ monitors:
   - type: host-metadata
   - type: processlist
   - type: docker-container-stats
+  # If using SignalFx auto instrumentation with default settings
+  - type: signalfx-forwarder
+    listenAddress: 0.0.0.0:9080
+    # Used to add a tag to spans missing it
+    #defaultSpanTags:
+     # Set the environment filter in SignalFx
+     #environment: "YOUR_ENVIRONMENT"
+    # Used to add and override a tag on a span
+    #extraSpanTags:
+     #SPAN_TAG_KEY: "SPAN_TAG_VALUE"
+
+# Required: What format to send data in
+writer:
+  traceExportFormat: sapm
