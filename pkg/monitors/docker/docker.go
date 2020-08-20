@@ -170,6 +170,10 @@ func (m *Monitor) fetchStats(container dockerContainer, labelMap map[string]stri
 	stats, err := m.client.ContainerStats(ctx, container.ID, false)
 	if err != nil {
 		cancel()
+		if isContainerNotFound(err) {
+			m.logger.Debugf("container %s is not found in cache", container.ID)
+			return
+		}
 		m.logger.WithError(err).Errorf("Could not fetch docker stats for container id %s", container.ID)
 		return
 	}
@@ -275,4 +279,13 @@ func (c *Config) GetExtraMetrics() []string {
 	}
 
 	return extraMetrics
+}
+
+func isContainerNotFound(err error) (notfound bool) {
+	// ref: https://github.com/moby/moby/blob/master/container/view.go#L116
+	if err != nil && strings.Contains(err.Error(), "no such container") {
+		notfound = true
+	}
+
+	return
 }
