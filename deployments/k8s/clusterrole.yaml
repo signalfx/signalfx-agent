@@ -30,6 +30,13 @@ rules:
   - list
   - watch
 - apiGroups:
+    - ""
+  resources:
+    - persistentvolumes
+    - persistentvolumeclaims
+  verbs:
+    - get
+- apiGroups:
   - ""
   resources:
   - nodes/stats
