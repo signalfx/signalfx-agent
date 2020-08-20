@@ -7,11 +7,11 @@ packages:
 
 | Package | See this section                                                                                |
 |:--------|:------------------------------------------------------------------------------------------------|
-| Puppet  | [Install the Smart Agent using a Puppet module](#install-the-smart-agent-using-a-puppet-module) |
-| Chef    | [Install the Smart Agent using a Chef cookbook](#install-the-smart-agent-using-a-chef-cookbook) |
 | Ansible | [Install the Smart Agent using an Ansible role](#install-the-smart-agent-using-an-ansible-role) |
-| Salt    | [Install the Smart Agent using a Salt formula](#install-the-smart-agent-using-a-salt-formula)   |
+| Chef    | [Install the Smart Agent using a Chef cookbook](#install-the-smart-agent-using-a-chef-cookbook) |
 | Docker  | [Install the Smart Agent using a Docker image](#install-the-smart-agent-using-a-docker-image)   |
+| Puppet  | [Install the Smart Agent using a Puppet module](#install-the-smart-agent-using-a-puppet-module) |
+| Salt    | [Install the Smart Agent using a Salt formula](#install-the-smart-agent-using-a-salt-formula)   |
 
 ## Prerequisites
 
@@ -31,162 +31,6 @@ packages:
 - Windows 8 or higher
 - Windows PowerShell access
 - Microsoft Visual C++ Compiler for Python
-
-## Install the Smart Agent using a Puppet module
-
-Before you install, configure a Smart Agent Puppet manifest.
-
-### Configure the Smart Agent for Puppet
-
-1. Download the Puppet module from one of these sites:
-
-   * [GitHub Agent Puppet Module](https://github.com/signalfx/signalfx-agent/tree/master/deployments/puppet)
-   * [Puppet Forge Agent Puppet Module](https://forge.puppet.com/signalfx/signalfx_agent)
-
-2. From the downloaded module, add the Smart Agent manifest to your Puppet installation.
-3. Update your Puppet manifest with the `signalfx_agent` class and these parameters:
-   
-   - `$config`: The Smart Agent configuration. Replace `<access_token>` and `<realm>` with the access token and realm
-     values you obtained  in [Prerequisites for all platforms](#prerequisites-for-all-platforms).
-     All other properties are optional. For example, the following parameter represents a basic configuration that monitors
-     host-level components:
-
-     ```
-     $config = {
-       signalFxAccessToken: "<access_token>",
-       signalFxRealm: "<realm>",
-       monitors: [
-         {type: "cpu"},
-         {type: "filesystems"},
-         {type: "disk-io"},
-         {type: "net-io"},
-         {type: "load"},
-         {type: "memory"},
-         {type: "host-metadata"},
-         {type: "processlist"},
-         {type: "vmem"}
-       ]
-     }
-     ```
-
-   - `$package_stage`: The module version to use is `release`, `beta`, or `test`. The default is `release`.
-
-   - `$config_file_path`: The Smart Agent configuration file that the Puppet module uses to install the Agent.
-     The default is /etc/signalfx/agent.yaml
-   - `$agent_version`: The agent release version, in n.n.n format. Use the Smart Agent release version without the "v" prefix.
-     This option is required on Windows. For a list of the Smart Agent versions, see the
-     [SignalFx Smart Agent releases page](https://github.com/signalfx/signalfx-agent/releases).
-   - `$package_version`: The agent package version. The default for Debian and RPM systems is 1 less than the value of `$agent_version`.
-     For Windows, the value is always `$agent_version`, so the Smart Agent ignores overrides. If set,
-     `$package_version` takes precedence over `$agent_version`.
-   - `$installation_directory`: For Windows only. The path to which Puppet downloads the Smart Agent.
-     The default is `C:\Program Files\SignalFx\`.
-   - `$service_user` and `$service_group`: For Linux only. This parameter is valid only for agent package version 5.1.0 or higher.
-     The parameter sets the user and group ownership for the `signalfx-agent` service. The user and group are created if they don't exist.
-     The defaults are `$service_user = signalfx-agent` and `$service_group = signalfx-agent`.
-
-To learn more about the Smart Agent configuration options,
-see [Agent Configuration](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md).
-
-### Install the Smart Agent with Puppet
-
-1. Remove collector services such as `collectd`.
-
-   Remove third-party instrumentation and agent software.
-
-   Don't use automatic instrumentation or instrumentation agents from
-   other vendors when you're using SignalFx instrumentation. The results
-   are unpredictable, and your instrumentation might break and your
-   application might crash.
-
-2. Confirm that you have the correct Puppet tool for your platform:
-
-   - For Linux, use the `puppetlabs/stdlib` module
-   - For Debian systems, use the `puppetlabs/apt` module
-   - For Windows, use the `puppet/archive` and `puppetlabs/powershell`
-
-3. Use Puppet to install the Smart Agent to your hosts.
-
-### Verify your Puppet installation
-
-See [Verify the Smart Agent](#verify-the-smart-agent).
-
-## Install the Smart Agent using a Chef cookbook
-
-Before you install, configure a Smart Agent Chef cookbook.
-
-### Configure the Smart Agent for Chef
-
-1. Download the Smart Agent Chef cookbook from one of these sites:
-
-   - [GitHub Smart Agent Chef Cookbook](https://github.com/signalfx/signalfx-agent/tree/master/deployments/chef#signalfx-agent-cookbook)
-   - [Chef Supermarket Smart Agent Cookbook](https://supermarket.chef.io/cookbooks/signalfx_agent)
-
-   **NOTE:**
-   SignalFx provides Chef support for SLES and openSUSE starting with
-   cookbook versions 0.3.0 and higher and agent versions 4.7.7 and
-   higher.
-
-2. Include the `signalfx_agent::default` recipe. Set the `node['signalfx_agent']['agent_version']`
-   attribute to the latest Smart Agent version listed on the
-   [SignalFx Smart Agent releases page](https://github.com/signalfx/signalfx-agent/releases).
-
-3. In the recipe, update the following attributes to match your system's configuration:
-
-   * Required: `node['signalfx_agent']['conf']`: The Smart Agent configuration.
-     This attribute has the following options:
-
-     - Required: `node['signalfx-agent']['conf'].signalFxAccessToken`: SignalFx API access token. Replace
-       `<access_token>` with the access token value you obtained previously, as described in the section
-       [Prerequisites for all platforms](#prerequisites-for-all-platforms).
-
-     - Optional. `node['signalfx_agent']['conf'].monitors`: Array of monitor specification key-value pairs.
-       The following example shows you a basic `node['signalfx-agent']['conf']`
-       value that requests monitors for host-level components:
-
-       ```
-        node['signalfx_agent']['conf'] = {
-          signalFxAccessToken: "<access_token>",
-          monitors: [
-            {type: "cpu"},
-            {type: "filesystems"},
-            {type: "disk-io"},
-            {type: "net-io"},
-            {type: "load"},
-            {type: "memory"},
-            {type: "vmem"}
-            {type: "host-metadata"},
-            {type: "processlist"},
-          ]
-        }
-       ```
-
-   * Required: `node['signalfx_agent']['conf_file_path']`: File name where Chef should put the agent configuration.
-     - For Linux, the default is /etc/signalfx/agent.yaml.
-     - For Windows, the default is \ProgramData\SignalFxAgent\agent.yaml.
-   * Required: `node['signalfx_agent']['agent_version']`: The agent release version, in n.n.n format. Use the
-     Smart Agent release version without the "v" prefix.
-   * Required: `node['signalfx_agent']['package_stage']`: The recipe type to use: `release`, `beta`, or `test`.
-     Test releases are unsigned.
-   * Required: `node['signalfx_agent']['user'] and node['signalfx_agent']['group']`:
-
-     For Linux and Agent version 5.1.0 or higher: These attributes specify the user and group used to
-     run the `signalfx-agent` service. They're created if they don't already exist.
-     The default value for both is `signalfx-agent`.
-   * Optional: `node['signalfx_agent']['package_version']`: The agent package version.
-     - For systems that use Debian or RPM, the default is 1 less than the value of `$agent_version`.
-     - For Windows, the default is `$agent_version`.
-
-To see all of the Smart Agent configuration options,
-refer to [Agent Configuration](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md).
-
-### Install the Smart Agent with Chef
-
-After you add the Smart Agent recipe, use Chef to install the Smart Agent to your hosts.
-
-### Verify your Chef installation
-
-See [Verify the Smart Agent](#verify-the-smart-agent).
 
 ## Install the Smart Agent using an Ansible role
 
@@ -263,58 +107,81 @@ After you install the Ansible role, use Ansible to install the Smart Agent to yo
 
 See [Verify the Smart Agent](#verify-the-smart-agent).
 
-## Install the Smart Agent using a Salt formula
 
-You can use a Salt formula that installs and configures the Smart Agent on Linux.
-Download the formula from the [SignalFx Agent Salt formula site](https://github.com/signalfx/signalfx-agent/tree/master/deployments/salt).
+## Install the Smart Agent using a Chef cookbook
 
-### Configure the Smart Agent for Salt
+Before you install, configure a Smart Agent Chef cookbook.
 
-1. Download the Smart Agent formula to the `/srv/salt` directory.
-2. Copy the pillar.example file from the download directory to the `/srv/pillar` directory and rename it to pillar.
-3. Update the top.sls file in `/srv/salt` and `/srv/pillar` to point to the Smart Agent formula.
-4. Update the new pillar file with these attributes:
-   - Required: `signalfx-agent.conf`: The agent configuration object. Replace `<access_token>` with the access token value you
-     obtained in [Prerequisites for all platforms](#prerequisites-for-all-platforms).
-     For example, this configuration object monitors basic host-level components:
+### Configure the Smart Agent for Chef
 
-     ```
-     signalfx-agent:
-       conf:
-         signalFxAccessToken: '<access_token>'
-         monitors:
-           - type: cpu
-           - type: filesystems
-           - type: disk-io
-           - type: net-io
-           - type: load
-           - type: memory
-           - type: vmem
-           - type: host-metadata
-           - type: processlist
-     ```
+1. Download the Smart Agent Chef cookbook from one of these sites:
 
-   - Optional: `signalfx-agent.version`: Desired agent version, specified as `<agent version>-<package revision>`. For example,
-     `3.0.1-1` is the first package revision that contains the agent version 3.0.1. Releases with package revision greater than 1
-     contain changes to some aspect of the packaging scripts, such as the `init` scripts, but
-     contain the same agent bundle, which defaults to `latest`.
-   - Optional: `signalfx-agent.package_stage`: Module version to use: `release`, `beta`, or `test`. The default is `release`.
+   - [GitHub Smart Agent Chef Cookbook](https://github.com/signalfx/signalfx-agent/tree/master/deployments/chef#signalfx-agent-cookbook)
+   - [Chef Supermarket Smart Agent Cookbook](https://supermarket.chef.io/cookbooks/signalfx_agent)
+
+   **NOTE:**
+   SignalFx provides Chef support for SLES and openSUSE starting with
+   cookbook versions 0.3.0 and higher and agent versions 4.7.7 and
+   higher.
+
+2. Include the `signalfx_agent::default` recipe. Set the `node['signalfx_agent']['agent_version']`
+   attribute to the latest Smart Agent version listed on the
+   [SignalFx Smart Agent releases page](https://github.com/signalfx/signalfx-agent/releases).
+
+3. In the recipe, update the following attributes to match your system's configuration:
+
+   * Required: `node['signalfx_agent']['conf']`: The Smart Agent configuration.
+     This attribute has the following options:
+
+     - Required: `node['signalfx-agent']['conf'].signalFxAccessToken`: SignalFx API access token. Replace
+       `<access_token>` with the access token value you obtained previously, as described in the section
+       [Prerequisites for all platforms](#prerequisites-for-all-platforms).
+
+     - Optional. `node['signalfx_agent']['conf'].monitors`: Array of monitor specification key-value pairs.
+       The following example shows you a basic `node['signalfx-agent']['conf']`
+       value that requests monitors for host-level components:
+
+       ```
+        node['signalfx_agent']['conf'] = {
+          signalFxAccessToken: "<access_token>",
+          monitors: [
+            {type: "cpu"},
+            {type: "filesystems"},
+            {type: "disk-io"},
+            {type: "net-io"},
+            {type: "load"},
+            {type: "memory"},
+            {type: "vmem"}
+            {type: "host-metadata"},
+            {type: "processlist"},
+          ]
+        }
+       ```
+
+   * Required: `node['signalfx_agent']['conf_file_path']`: File name where Chef should put the agent configuration.
+     - For Linux, the default is /etc/signalfx/agent.yaml.
+     - For Windows, the default is \ProgramData\SignalFxAgent\agent.yaml.
+   * Required: `node['signalfx_agent']['agent_version']`: The agent release version, in n.n.n format. Use the
+     Smart Agent release version without the "v" prefix.
+   * Required: `node['signalfx_agent']['package_stage']`: The recipe type to use: `release`, `beta`, or `test`.
      Test releases are unsigned.
-   - Optional: `signalfx-agent.conf_file_path`: Destination file for the Smart Agent configuration file generated by the installation.
-     The installation overwrites the agent.yaml downloaded in the Salt formula with the values specified by the signalfx-agent.conf
-     attribute in pillar. The default destination is /etc/signalfx/agent.yaml.
-   - Optional: `signalfx-agent.service_user`, `signalfx-agent.service_group`: Set the user and group for the `signalfx-agent` service.
-     They're created if they don't exist. This property is available only in agent package version 5.1.0 or higher.
-     The default value for both properties is `signalfx-agent`.
+   * Required: `node['signalfx_agent']['user'] and node['signalfx_agent']['group']`:
 
-To learn more about the Smart Agent configuration options,  
-see [Agent Configuration](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md).
+     For Linux and Agent version 5.1.0 or higher: These attributes specify the user and group used to
+     run the `signalfx-agent` service. They're created if they don't already exist.
+     The default value for both is `signalfx-agent`.
+   * Optional: `node['signalfx_agent']['package_version']`: The agent package version.
+     - For systems that use Debian or RPM, the default is 1 less than the value of `$agent_version`.
+     - For Windows, the default is `$agent_version`.
 
-### Install the Smart Agent with Salt
+To see all of the Smart Agent configuration options,
+refer to [Agent Configuration](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md).
 
-After you configure the Smart Agent Salt formula, Salt installs the Smart Agent on your hosts.
+### Install the Smart Agent with Chef
 
-### Verify your Salt installation
+After you add the Smart Agent recipe, use Chef to install the Smart Agent to your hosts.
+
+### Verify your Chef installation
 
 See [Verify the Smart Agent](#verify-the-smart-agent).
 
@@ -434,3 +301,140 @@ To verify that your installation and configuration is working:
 
 * For APM monitoring, learn how to install, configure, and verify the Smart Agent for Microservices APM (**µAPM**). See
 [Overview of Microservices APM (µAPM)](https://docs.signalfx.com/en/latest/apm2/apm2-overview/apm2-overview.html).
+
+
+## Install the Smart Agent using a Puppet module
+
+Before you install, configure a Smart Agent Puppet manifest.
+
+### Configure the Smart Agent for Puppet
+
+1. Download the Puppet module from one of these sites:
+
+   * [GitHub Agent Puppet Module](https://github.com/signalfx/signalfx-agent/tree/master/deployments/puppet)
+   * [Puppet Forge Agent Puppet Module](https://forge.puppet.com/signalfx/signalfx_agent)
+
+2. From the downloaded module, add the Smart Agent manifest to your Puppet installation.
+3. Update your Puppet manifest with the `signalfx_agent` class and these parameters:
+   
+   - `$config`: The Smart Agent configuration. Replace `<access_token>` and `<realm>` with the access token and realm
+     values you obtained  in [Prerequisites for all platforms](#prerequisites-for-all-platforms).
+     All other properties are optional. For example, the following parameter represents a basic configuration that monitors
+     host-level components:
+
+     ```
+     $config = {
+       signalFxAccessToken: "<access_token>",
+       signalFxRealm: "<realm>",
+       monitors: [
+         {type: "cpu"},
+         {type: "filesystems"},
+         {type: "disk-io"},
+         {type: "net-io"},
+         {type: "load"},
+         {type: "memory"},
+         {type: "host-metadata"},
+         {type: "processlist"},
+         {type: "vmem"}
+       ]
+     }
+     ```
+
+   - `$package_stage`: The module version to use is `release`, `beta`, or `test`. The default is `release`.
+
+   - `$config_file_path`: The Smart Agent configuration file that the Puppet module uses to install the Agent.
+     The default is /etc/signalfx/agent.yaml
+   - `$agent_version`: The agent release version, in n.n.n format. Use the Smart Agent release version without the "v" prefix.
+     This option is required on Windows. For a list of the Smart Agent versions, see the
+     [SignalFx Smart Agent releases page](https://github.com/signalfx/signalfx-agent/releases).
+   - `$package_version`: The agent package version. The default for Debian and RPM systems is 1 less than the value of `$agent_version`.
+     For Windows, the value is always `$agent_version`, so the Smart Agent ignores overrides. If set,
+     `$package_version` takes precedence over `$agent_version`.
+   - `$installation_directory`: For Windows only. The path to which Puppet downloads the Smart Agent.
+     The default is `C:\Program Files\SignalFx\`.
+   - `$service_user` and `$service_group`: For Linux only. This parameter is valid only for agent package version 5.1.0 or higher.
+     The parameter sets the user and group ownership for the `signalfx-agent` service. The user and group are created if they don't exist.
+     The defaults are `$service_user = signalfx-agent` and `$service_group = signalfx-agent`.
+
+To learn more about the Smart Agent configuration options,
+see [Agent Configuration](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md).
+
+### Install the Smart Agent with Puppet
+
+1. Remove collector services such as `collectd`.
+
+   Remove third-party instrumentation and agent software.
+
+   Don't use automatic instrumentation or instrumentation agents from
+   other vendors when you're using SignalFx instrumentation. The results
+   are unpredictable, and your instrumentation might break and your
+   application might crash.
+
+2. Confirm that you have the correct Puppet tool for your platform:
+
+   - For Linux, use the `puppetlabs/stdlib` module
+   - For Debian systems, use the `puppetlabs/apt` module
+   - For Windows, use the `puppet/archive` and `puppetlabs/powershell`
+
+3. Use Puppet to install the Smart Agent to your hosts.
+
+### Verify your Puppet installation
+
+See [Verify the Smart Agent](#verify-the-smart-agent).
+
+
+## Install the Smart Agent using a Salt formula
+
+You can use a Salt formula that installs and configures the Smart Agent on Linux.
+Download the formula from the [SignalFx Agent Salt formula site](https://github.com/signalfx/signalfx-agent/tree/master/deployments/salt).
+
+### Configure the Smart Agent for Salt
+
+1. Download the Smart Agent formula to the `/srv/salt` directory.
+2. Copy the pillar.example file from the download directory to the `/srv/pillar` directory and rename it to pillar.
+3. Update the top.sls file in `/srv/salt` and `/srv/pillar` to point to the Smart Agent formula.
+4. Update the new pillar file with these attributes:
+   - Required: `signalfx-agent.conf`: The agent configuration object. Replace `<access_token>` with the access token value you
+     obtained in [Prerequisites for all platforms](#prerequisites-for-all-platforms).
+     For example, this configuration object monitors basic host-level components:
+
+     ```
+     signalfx-agent:
+       conf:
+         signalFxAccessToken: '<access_token>'
+         monitors:
+           - type: cpu
+           - type: filesystems
+           - type: disk-io
+           - type: net-io
+           - type: load
+           - type: memory
+           - type: vmem
+           - type: host-metadata
+           - type: processlist
+     ```
+
+   - Optional: `signalfx-agent.version`: Desired agent version, specified as `<agent version>-<package revision>`. For example,
+     `3.0.1-1` is the first package revision that contains the agent version 3.0.1. Releases with package revision greater than 1
+     contain changes to some aspect of the packaging scripts, such as the `init` scripts, but
+     contain the same agent bundle, which defaults to `latest`.
+   - Optional: `signalfx-agent.package_stage`: Module version to use: `release`, `beta`, or `test`. The default is `release`.
+     Test releases are unsigned.
+   - Optional: `signalfx-agent.conf_file_path`: Destination file for the Smart Agent configuration file generated by the installation.
+     The installation overwrites the agent.yaml downloaded in the Salt formula with the values specified by the signalfx-agent.conf
+     attribute in pillar. The default destination is /etc/signalfx/agent.yaml.
+   - Optional: `signalfx-agent.service_user`, `signalfx-agent.service_group`: Set the user and group for the `signalfx-agent` service.
+     They're created if they don't exist. This property is available only in agent package version 5.1.0 or higher.
+     The default value for both properties is `signalfx-agent`.
+
+To learn more about the Smart Agent configuration options,  
+see [Agent Configuration](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md).
+
+### Install the Smart Agent with Salt
+
+After you configure the Smart Agent Salt formula, Salt installs the Smart Agent on your hosts.
+
+### Verify your Salt installation
+
+See [Verify the Smart Agent](#verify-the-smart-agent).
+

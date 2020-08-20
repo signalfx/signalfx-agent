@@ -6,7 +6,7 @@ standalone package in a GZIP file.
 ## Prerequisites
 
 * Kernel version 2.6.32 or higher
-* CAP_DAC_READ_SEARCH and CAP_SYS_PTRACE capabilities
+* cap_dac_read_search and cap_sys_ptrace capabilities
 * Terminal or a similar command-line interface application
 * GZIP application
 
