@@ -230,6 +230,13 @@ kubernetesDistro: kubernetes
 # effect if `configureStandardMonitors: false`.
 gatherClusterMetrics: true
 
+# Enables the kubernetes-volumes monitor to collect metrics about Persistent
+# Volumes usage given that basic "filesystems" monitor will not report them.
+# This will also add "get", "list", "watch" permissions to "persistentvolumes" 
+# and "persistentvolumeclaims" resources. Be careful, it will also enable
+# `kubernetes.volume_inodes_free` and `kubernetes.volume_inodes` extra metrics.
+gatherVolumesMetrics: false
+
 # Enables the docker-container-stats monitor with some specific config that
 # causes it to send container stats from Docker with certain dimensions from
 # container labels that makes it easy to correlate metrics between cadvisor and

@@ -61,6 +61,7 @@ data:
     # Collects k8s cluster-level metrics
     - type: kubernetes-cluster
 
+
     - type: docker-container-stats
       dockerURL: unix:///var/run/docker.sock
       excludedImages:

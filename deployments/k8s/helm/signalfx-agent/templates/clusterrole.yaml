@@ -30,6 +30,10 @@ rules:
   {{- if .Values.permitReadingSecrets }}
   - secrets
   {{- end }}
+  {{- if .Values.gatherVolumesMetrics }}
+  - persistentvolumes
+  - persistentvolumeclaims
+  {{- end }}
   verbs:
   - get
   - list
