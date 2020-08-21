@@ -30,14 +30,11 @@ rules:
   {{- if .Values.permitReadingSecrets }}
   - secrets
   {{- end }}
-  {{- if .Values.gatherVolumesMetrics }}
-  - persistentvolumes
-  - persistentvolumeclaims
-  {{- end }}
   verbs:
   - get
   - list
   - watch
+  {{- if .Values.gatherVolumesMetrics }}
 - apiGroups:
     - ""
   resources:
@@ -45,6 +42,7 @@ rules:
     - persistentvolumeclaims
   verbs:
     - get
+  {{- end }}
 - apiGroups:
   - ""
   resources:
