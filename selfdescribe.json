@@ -42628,18 +42628,25 @@
           "description": "",
           "metrics": [
             "postgres_block_hit_ratio",
+            "postgres_conflicts",
             "postgres_database_size",
             "postgres_deadlocks",
             "postgres_index_scans",
             "postgres_live_rows",
+            "postgres_locks",
+            "postgres_pct_connections",
             "postgres_query_count",
             "postgres_query_time",
+            "postgres_replication_lag",
+            "postgres_replication_state",
             "postgres_rows_deleted",
             "postgres_rows_inserted",
             "postgres_rows_updated",
             "postgres_sequential_scans",
             "postgres_sessions",
-            "postgres_table_size"
+            "postgres_table_size",
+            "postgres_xact_commits",
+            "postgres_xact_rollbacks"
           ]
         },
         "queries": {
@@ -42657,6 +42664,12 @@
           "description": "The proportion (between 0 and 1, inclusive) of block reads that used the cache and did not have to go to the disk.  Is sent for `table`, `index`, and the `database` as a whole.",
           "group": null,
           "default": true
+        },
+        "postgres_conflicts": {
+          "type": "cumulative",
+          "description": "The number of conflicts.",
+          "group": null,
+          "default": false
         },
         "postgres_database_size": {
           "type": "gauge",
@@ -42679,6 +42692,18 @@
         "postgres_live_rows": {
           "type": "gauge",
           "description": "Number of rows live (not deleted) in the `table`.",
+          "group": null,
+          "default": true
+        },
+        "postgres_locks": {
+          "type": "gauge",
+          "description": "The number of locks active.",
+          "group": null,
+          "default": false
+        },
+        "postgres_pct_connections": {
+          "type": "gauge",
+          "description": "The number of connections to this database as a fraction of the maximum number of allowed connections.",
           "group": null,
           "default": true
         },
@@ -42709,6 +42734,18 @@
         "postgres_query_time": {
           "type": "cumulative",
           "description": "Total time taken to execute queries on the `database`, broken down by `user`.",
+          "group": null,
+          "default": true
+        },
+        "postgres_replication_lag": {
+          "type": "gauge",
+          "description": "The current replication delay in seconds.",
+          "group": null,
+          "default": false
+        },
+        "postgres_replication_state": {
+          "type": "gauge",
+          "description": "The current replication state.",
           "group": null,
           "default": true
         },
@@ -42745,6 +42782,18 @@
         "postgres_table_size": {
           "type": "gauge",
           "description": "The size in bytes of the `table` on disk.",
+          "group": null,
+          "default": true
+        },
+        "postgres_xact_commits": {
+          "type": "cumulative",
+          "description": "The number of transactions that have been committed in this database.",
+          "group": null,
+          "default": true
+        },
+        "postgres_xact_rollbacks": {
+          "type": "cumulative",
+          "description": "The number of transactions that have been rolled back in this database.",
           "group": null,
           "default": true
         }

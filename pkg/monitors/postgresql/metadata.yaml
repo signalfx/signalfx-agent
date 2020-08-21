@@ -73,6 +73,8 @@ monitors:
         resides (e.g. `public`).
     index:
       description: For index metrics, the name of the index
+    granted:
+      description: For locks metric, is granted or
     user:
       description: For query metrics, the user name of the user that executed the
         queries.
@@ -157,3 +159,31 @@ monitors:
       default: false
       type: cumulative
       group: queries
+    postgres_pct_connections:
+      description: The number of connections to this database as a fraction of the maximum number of allowed connections.
+      default: true
+      type: gauge
+    postgres_replication_lag:
+      description: The current replication delay in seconds.
+      default: false
+      type: gauge
+    postgres_replication_state:
+      description: The current replication state.
+      default: false
+      type: gauge
+    postgres_locks:
+      description: The number of locks active.
+      default: false
+      type: gauge
+    postgres_conflicts:
+      description: The number of conflicts.
+      default: false
+      type: cumulative
+    postgres_xact_commits:
+      description: The number of transactions that have been committed in this database.
+      default: true
+      type: cumulative
+    postgres_xact_rollbacks:
+      description: The number of transactions that have been rolled back in this database.
+      default: true
+      type: cumulative

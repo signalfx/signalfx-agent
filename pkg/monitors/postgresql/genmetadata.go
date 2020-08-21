@@ -19,40 +19,54 @@ var groupSet = map[string]bool{
 
 const (
 	postgresBlockHitRatio      = "postgres_block_hit_ratio"
+	postgresConflicts          = "postgres_conflicts"
 	postgresDatabaseSize       = "postgres_database_size"
 	postgresDeadlocks          = "postgres_deadlocks"
 	postgresIndexScans         = "postgres_index_scans"
 	postgresLiveRows           = "postgres_live_rows"
+	postgresLocks              = "postgres_locks"
+	postgresPctConnections     = "postgres_pct_connections"
 	postgresQueriesAverageTime = "postgres_queries_average_time"
 	postgresQueriesCalls       = "postgres_queries_calls"
 	postgresQueriesTotalTime   = "postgres_queries_total_time"
 	postgresQueryCount         = "postgres_query_count"
 	postgresQueryTime          = "postgres_query_time"
+	postgresReplicationLag     = "postgres_replication_lag"
+	postgresReplicationState   = "postgres_replication_state"
 	postgresRowsDeleted        = "postgres_rows_deleted"
 	postgresRowsInserted       = "postgres_rows_inserted"
 	postgresRowsUpdated        = "postgres_rows_updated"
 	postgresSequentialScans    = "postgres_sequential_scans"
 	postgresSessions           = "postgres_sessions"
 	postgresTableSize          = "postgres_table_size"
+	postgresXactCommits        = "postgres_xact_commits"
+	postgresXactRollbacks      = "postgres_xact_rollbacks"
 )
 
 var metricSet = map[string]monitors.MetricInfo{
 	postgresBlockHitRatio:      {Type: datapoint.Gauge},
+	postgresConflicts:          {Type: datapoint.Counter},
 	postgresDatabaseSize:       {Type: datapoint.Gauge},
 	postgresDeadlocks:          {Type: datapoint.Counter},
 	postgresIndexScans:         {Type: datapoint.Counter},
 	postgresLiveRows:           {Type: datapoint.Gauge},
+	postgresLocks:              {Type: datapoint.Gauge},
+	postgresPctConnections:     {Type: datapoint.Gauge},
 	postgresQueriesAverageTime: {Type: datapoint.Counter, Group: groupQueries},
 	postgresQueriesCalls:       {Type: datapoint.Counter, Group: groupQueries},
 	postgresQueriesTotalTime:   {Type: datapoint.Counter, Group: groupQueries},
 	postgresQueryCount:         {Type: datapoint.Counter},
 	postgresQueryTime:          {Type: datapoint.Counter},
+	postgresReplicationLag:     {Type: datapoint.Gauge},
+	postgresReplicationState:   {Type: datapoint.Gauge},
 	postgresRowsDeleted:        {Type: datapoint.Counter},
 	postgresRowsInserted:       {Type: datapoint.Counter},
 	postgresRowsUpdated:        {Type: datapoint.Counter},
 	postgresSequentialScans:    {Type: datapoint.Counter},
 	postgresSessions:           {Type: datapoint.Gauge},
 	postgresTableSize:          {Type: datapoint.Gauge},
+	postgresXactCommits:        {Type: datapoint.Counter},
+	postgresXactRollbacks:      {Type: datapoint.Counter},
 }
 
 var defaultMetrics = map[string]bool{
@@ -61,6 +75,7 @@ var defaultMetrics = map[string]bool{
 	postgresDeadlocks:       true,
 	postgresIndexScans:      true,
 	postgresLiveRows:        true,
+	postgresPctConnections:  true,
 	postgresQueryCount:      true,
 	postgresQueryTime:       true,
 	postgresRowsDeleted:     true,
@@ -69,6 +84,8 @@ var defaultMetrics = map[string]bool{
 	postgresSequentialScans: true,
 	postgresSessions:        true,
 	postgresTableSize:       true,
+	postgresXactCommits:     true,
+	postgresXactRollbacks:   true,
 }
 
 var groupMetricsMap = map[string][]string{
