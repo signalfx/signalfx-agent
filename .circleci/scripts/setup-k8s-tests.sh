@@ -14,6 +14,7 @@ CHANGES_INCLUDE="deployments/k8s \
     Dockerfile \
     go.mod \
     go.sum \
+    .circleci/scripts/run-pytest.sh \
     ${BASH_SOURCE[0]} \
     $(find . -iname '*k8s*' -o -iname '*kube*' | sed 's|^\./||' | grep -v '^docs/')"
 
