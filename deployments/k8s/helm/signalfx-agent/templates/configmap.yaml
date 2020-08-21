@@ -193,6 +193,25 @@ data:
     {{- end }}
 
     {{ if not .Values.isServerless -}}
+    {{ if .Values.gatherVolumesMetrics -}}
+    - type: kubernetes-volumes
+      {{- if .Values.isServerless }}
+      discoveryRule: 'target == "k8s-node" && name =~ "fargate" && name != Getenv("MY_NODE_NAME")'
+      configEndpointMappings:
+        kubeletAPI: |
+          {
+            url: Sprintf("https://%s:%d", host, node_status.DaemonEndpoints.KubeletEndpoint.Port),
+            authType: "serviceAccount"
+          }
+      {{- end }}
+      {{- if .Values.kubeletAPI }}
+      kubeletAPI:
+        {{ toYaml .Values.kubeletAPI | indent 8 | trim }}
+      {{- end }}
+      extraMetrics:
+        - kubernetes.volume_inodes
+        - kubernetes.volume_inodes_free
+    {{- end }}
     {{ if .Values.gatherDockerMetrics -}}
     - type: docker-container-stats
       dockerURL: unix:///var/run/docker.sock
