@@ -42606,8 +42606,17 @@
         "index": {
           "description": "For index metrics, the name of the index"
         },
+        "replication_role": {
+          "description": "For \"replication_lag\" metric only, could be \"master\" or \"standby\"."
+        },
         "schemaname": {
           "description": "The name of the schema within which the object being monitored resides (e.g. `public`)."
+        },
+        "slot_name": {
+          "description": "For \"replication_state\" metric only, the name of replication slot."
+        },
+        "slot_type": {
+          "description": "For \"replication_state\" metric only, the type of replication."
         },
         "table": {
           "description": "The name of the table to which the metric pertains."
@@ -42705,7 +42714,7 @@
           "type": "gauge",
           "description": "The number of connections to this database as a fraction of the maximum number of allowed connections.",
           "group": null,
-          "default": true
+          "default": false
         },
         "postgres_queries_average_time": {
           "type": "cumulative",
@@ -42739,7 +42748,7 @@
         },
         "postgres_replication_lag": {
           "type": "gauge",
-          "description": "The current replication delay in seconds.",
+          "description": "The current replication delay in seconds. Always = 0 on master.",
           "group": null,
           "default": false
         },
@@ -42747,7 +42756,7 @@
           "type": "gauge",
           "description": "The current replication state.",
           "group": null,
-          "default": true
+          "default": false
         },
         "postgres_rows_deleted": {
           "type": "cumulative",
@@ -42789,13 +42798,13 @@
           "type": "cumulative",
           "description": "The number of transactions that have been committed in this database.",
           "group": null,
-          "default": true
+          "default": false
         },
         "postgres_xact_rollbacks": {
           "type": "cumulative",
           "description": "The number of transactions that have been rolled back in this database.",
           "group": null,
-          "default": true
+          "default": false
         }
       },
       "properties": null,

@@ -75,7 +75,6 @@ var defaultMetrics = map[string]bool{
 	postgresDeadlocks:       true,
 	postgresIndexScans:      true,
 	postgresLiveRows:        true,
-	postgresPctConnections:  true,
 	postgresQueryCount:      true,
 	postgresQueryTime:       true,
 	postgresRowsDeleted:     true,
@@ -84,8 +83,6 @@ var defaultMetrics = map[string]bool{
 	postgresSequentialScans: true,
 	postgresSessions:        true,
 	postgresTableSize:       true,
-	postgresXactCommits:     true,
-	postgresXactRollbacks:   true,
 }
 
 var groupMetricsMap = map[string][]string{

@@ -79,12 +79,10 @@ var defaultServerQueries = []sql.Query{
 	},
 	{
 		Query: `SELECT COUNT(*) AS locks FROM pg_locks WHERE NOT granted;`,
-		//Query: `SELECT count(*) AS locks, granted AS database FROM pg_locks GROUP BY granted;`,
 		Metrics: []sql.Metric{
 			{
 				MetricName:  "postgres_locks",
 				ValueColumn: "locks",
-				//DimensionColumns: []string{"database"},
 			},
 		},
 	},
