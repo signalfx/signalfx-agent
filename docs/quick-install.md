@@ -3,8 +3,6 @@
 
 SignalFx Smart Agent Integration installs the Smart Agent application on a single host machine from which you want to collect monitoring data. The Smart Agent collects infrastructure monitoring, µAPM, and Kubernetes data.
 
-For other installation options, including bulk deployments, see [Install and configure the Smart Agent](https://docs.signalfx.com/en/latest/integrations/agent-install-methods.html).
-
 ## Installation
 
 ### Prerequisites
