@@ -1,4 +1,4 @@
-# Deploy the SignalFx Smart Agent and OpenTelemetry Collector for Infrastructure Monitoring
+# Deploy the SignalFx Smart Agent and OpenTelemetry Collector for SignalFx Infrastructure Monitoring
 
 SignalFx Infrastructure Monitoring helps you gather metrics related to your system's performance. Metrics provide information about processes running inside the system, including counters, cumulative counters, and gauges.
 
@@ -13,13 +13,7 @@ The following sections describe each step in detail.
 
 ## Deploy the SignalFx Smart Agent
 
-The SignalFx platform is built to ingest, store, analyze, visualize, and alert on metrics at scale. A metric is anything that is measurable (you can assign a numerical value to it) and variable (changes over time). The following are examples of metrics:
-
-* CPU utilization % of a server
-* Response time in milliseconds of an API call
-* The number of unique users who logged in over the previous 24-hour period
-
-You can use the SignalFx Smart Agent to collect metrics for SignalFx Infrastructure Monitoring. See [Use the Smart Agent](https://docs.signalfx.com/en/latest/integrations/agent/index.html#smart-agent "Use the Smart Agent") for more information.
+The SignalFx Smart Agent receives metrics from [integrations](https://docs.signalfx.com/en/latest/integrations/integrations-reference/index.html “Integrations reference guide”) before exporting them to the OpenTelemetry Collector for central management and processing. Monitors are one of the main SignalFX Smart Agent components. Monitors gather metrics from the host and from running applications. See [monitor configuration](https://docs.signalfx.com/en/latest/integrations/agent/monitors/_monitor-config.html “Monitor Configuration”) for configuration options.  
 
 **Step 1: Install the SignalFx Smart Agent**
 
@@ -31,7 +25,7 @@ There are two options for installing the SignalFx Smart Agent:
 
 The SignalFx Smart Agent is configured primarily by a YAML document located at `/etc/signalfx/agent.yaml`. The location of the configuration file can be specified by the `-config` flag to the agent binary (`signalfx-agent`).
 
-See [Agent Configuration](https://docs.signalfx.com/en/latest/integrations/agent/config-schema.html "Agent Configuration") for complete details, including configuration options and an example configuration file.
+See [Agent Configuration](https://docs.signalfx.com/en/latest/integrations/agent/config-schema.html "Agent Configuration") for configuration options and an example configuration file. See [deployments](https://github.com/signalfx/signalfx-agent/tree/master/deployments "Deployments") for more information on the various ways to deploy the SignalFx Smart Agent.
 
 ## Deploy an OpenTelemetry Collector for SignalFx
 
@@ -44,18 +38,16 @@ SignalFx uses the components described in the following table to send data to an
 | **Component** | **Name**        | **Description**                                                                                       |  
 |---------------| :---------------:  |-------------------------------------------------------------------------------------------------------|
 | Receiver      | `signal-fx`     | Component that sets the endpoint for receiving metrics data with the SignalFx metric data format.     |      
-| Processor     | Various         | Component that pre-processes data before it is exported.                                              |      
+| Processor     | `memory_limiter`, `batch`, and `queued_retry` are the recommended processors.         | Component that pre-processes data before it is exported.                                              |      
 | Exporter      | `signal-fx`     | Component that forwards data to SignalFx with the metric data format.                                 |
 
   
 See [Configuration](https://opentelemetry.io/docs/collector/configuration/ "OpenTelemetry Collector Configuration") for more information about the OpenTelemetry Collector components.
 
-### Deploy an OpenTelemetry Collector
-
 To deploy an OpenTelemetry Collector:
 
 1. Download the [latest release](https://github.com/open-telemetry/opentelemetry-collector-contrib/releases "OpenTelemetry Collector contributions releases") of the OpenTelemetry Collector contributions version from GitHub.
-2. Create a configuration file that defines components for the OpenTelemetry Collector. A sample configuration file is provided below.
+2. Create a configuration file that defines components for the OpenTelemetry Collector. A sample configuration file is provided below. See [examples](https://github.com/open-telemetry/opentelemetry-collector/tree/master/examples “OTeL examples”) for an OpenTelemetry Collector demo.
 ```
 # Save this file as collector.yaml.
 # Extensions are optional and are provided to monitor
