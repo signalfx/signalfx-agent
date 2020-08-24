@@ -9,7 +9,7 @@ EC2 cluster.
 * Access to the Amazon Web Services (AWS) Elastic Compute Cloud
   (EC2) web console or the AWS Command Line Interface (CLI). To learn more,
   refer to the AWS EC2 documentation.
-* SignalFx access token. See [Smart Agent Access Token](https://docs.signalfx.com/en/latest/integrations/agent/smart-agent-access-token.html).
+* SignalFx access token. See [Smart Agent Access Token](../../../_sidebars-and-includes/smart-agent-access-token.html).
 * Your SignalFx realm. See [Realms](../../../_sidebars-and-includes/smart-agent-realm-note.html).
 
 ## Configure the Smart Agent for AWS EC2
@@ -118,6 +118,6 @@ To create this service in the EC2 web admin console:
   To learn more, see [Getting Around the Kubernetes Navigator](https://docs.signalfx.com/en/latest/integrations/kubernetes/get-around-k8s-navigator.html).
 
 * For APM monitoring, learn how to install, configure, and verify the Smart Agent for Microservices APM (**µAPM**). See
-[Overview of Microservices APM (µAPM)](https://docs.signalfx.com/en/latest/apm2/apm2-overview/apm2-overview.html).
+[Get started with SignalFx µAPM](https://docs.signalfx.com/en/latest/apm/apm-getting-started/apm-index.html).
 
 

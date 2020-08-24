@@ -18,7 +18,7 @@ packages:
 ### Prerequisites for all platforms
 
 * Your SignalFx realm. See [Realms](../../../_sidebars-and-includes/smart-agent-realm-note.html).
-* A SignalFx access token. See [Smart Agent Access Token](../../../_sidebars-and-includes/smart-agent-access-token.html)
+* A SignalFx access token. See [Smart Agent Access Token](../../../_sidebars-and-includes/smart-agent-access-token.html).
 
 ### *nix prerequisites
 
@@ -215,7 +215,7 @@ To configure the Docker image for the Smart Agent, perform these steps:
    more about all the available configuration options, see [Agent Configuration](https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md).
 4. In your agent container, copy the agent.yaml file to the `/etc/signalfx/` directory.
 5. If you have the Docker API available through the conventional *nix domain socket, mount it so
-   you can use the docker-container-stats monitor. See [docker-container-stats](../monitors/docker-container-stats.md).
+   you can use the docker-container-stats monitor. See [docker-container-stats](monitors/docker-container-stats.md).
 6. To determine the agent version you want to run, see [SignalFx Smart Agent Releases](https://github.com/signalfx/signalfx-agent/releases).
    Unless SignalFx advises you to do otherwise, choose the latest version.
 
@@ -243,7 +243,7 @@ To configure optional monitors, add the following lines to the agent.yaml file:
        hostFSPath: /hostfs
    ```
 
-   To learn more, see the documentation for the [filesystems](../monitors/filesystems.md) monitor.
+   To learn more, see the documentation for the [filesystems](monitors/filesystems.md) monitor.
 
 3. Add the host metadata monitor to agent.yaml:
 
@@ -300,7 +300,7 @@ To verify that your installation and configuration is working:
   To learn more, see [Getting Around the Kubernetes Navigator](https://docs.signalfx.com/en/latest/integrations/kubernetes/get-around-k8s-navigator.html)
 
 * For APM monitoring, learn how to install, configure, and verify the Smart Agent for Microservices APM (**µAPM**). See
-[Overview of Microservices APM (µAPM)](https://docs.signalfx.com/en/latest/apm2/apm2-overview/apm2-overview.html).
+[Get started with SignalFx µAPM](https://docs.signalfx.com/en/latest/apm/apm-getting-started/apm-index.html).
 
 
 ## Install the Smart Agent using a Puppet module

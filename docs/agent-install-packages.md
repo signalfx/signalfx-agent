@@ -58,7 +58,7 @@ run Linux distributions based on Debian.
 ### Configure Debian installation
 
 Set the Smart Agent configuration options in the configuration YAML file. To learn more,
-see [Agent Configuration](../config-schema.md).
+see [Agent Configuration](config-schema.md).
 
 ### Verify Debian installation
 
@@ -110,7 +110,7 @@ run Linux and use the RPM package manager.
 ### Configure RPM installation
 
 Set the Smart Agent configuration options in the configuration YAML file. To learn more,
-see [Agent Configuration](../config-schema.md).
+see [Agent Configuration](config-schema.md).
 
 ### Verify RPM install
 
@@ -139,4 +139,4 @@ For Debian or RPM, verify that your installation and configuration are working.
   To learn more, see [Getting Around the Kubernetes Navigator](https://docs.signalfx.com/en/latest/integrations/kubernetes/get-around-k8s-navigator.html).
 
 * For SignalFx Microservice APM monitoring, learn how to install, configure, and verify the SignalFx Smart Agent for Microservices APM (**µAPM**). See
-  [Deploy a SignalFx Smart Agent for µAPM](https://docs.signalfx.com/en/latest/apm/apm-getting-started/apm-smart-agent.html#deploy-a-signalfx-smart-agent-for-apm).
+  [Get started with SignalFx µAPM](https://docs.signalfx.com/en/latest/apm/apm-getting-started/apm-index.html).

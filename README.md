@@ -264,7 +264,7 @@ A `.zip` bundle is also available that can be deployed to the target host.
 To obtain the bundle, go to [Github Releases Page](https://github.com/signalfx/signalfx-agent/releases)
 and download the most recent release.
 
-To learn more, see [Windows Standalone .zip](./docs/advanced-install-options.md#windows-standalone-zip).
+To learn more, see [Install to Windows using a ZIP file](./docs/agent-install-standalone-windows).
 
 ### Privileges
 
