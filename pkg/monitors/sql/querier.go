@@ -93,6 +93,7 @@ func (q *querier) doQuery(ctx context.Context, database *sql.DB, output types.Ou
 	if err != nil {
 		return fmt.Errorf("error executing statement %s: %v", q.query.Query, err)
 	}
+	defer rows.Close()
 	for rows.Next() {
 		dps, dims, err := q.convertCurrentRowToDatapointAndDimensions(rows)
 		if err != nil {
