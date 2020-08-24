@@ -113,7 +113,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	databaseDatapointFilter, err := dpfilters.NewOverridable(nil, map[string][]string{
-		"database": conf.Databases,
+		"database?": conf.Databases,
 	})
 	if err != nil {
 		m.database.Close()
@@ -249,6 +249,7 @@ func (m *Monitor) monitorServer() (*sql.Monitor, error) {
 		ConnectionString: connStr + " dbname=" + m.conf.MasterDBName,
 		DBDriver:         "postgres",
 		Queries:          defaultServerQueries,
+		LogQueries:       m.conf.LogQueries,
 	})
 }
 
@@ -265,6 +266,7 @@ func (m *Monitor) monitorStatements() (*sql.Monitor, error) {
 		ConnectionString: connStr + " dbname=" + m.conf.MasterDBName,
 		DBDriver:         "postgres",
 		Queries:          makeDefaultStatementsQueries(m.conf.TopQueryLimit),
+		LogQueries:       m.conf.LogQueries,
 	})
 }
 

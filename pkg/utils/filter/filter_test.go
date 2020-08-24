@@ -139,6 +139,22 @@ func TestStringMapFilter(t *testing.T) {
 		},
 		{
 			filter: map[string][]string{
+				"app?": {"test"},
+			},
+			input:       map[string]string{},
+			shouldMatch: true,
+		},
+		{
+			filter: map[string][]string{
+				"app?": {"test"},
+			},
+			input: map[string]string{
+				"version": "latest",
+			},
+			shouldMatch: true,
+		},
+		{
+			filter: map[string][]string{
 				"app":     {"test"},
 				"version": {"*"},
 			},
