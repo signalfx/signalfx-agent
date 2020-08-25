@@ -20,20 +20,20 @@ documentation](https://spark.apache.org/docs/latest/monitoring.html) under
 We currently support the following cluster modes only through HTTP endpoints:
 - Standalone
 - Mesos
-- Hadoop Yarn
+- Hadoop YARN
 
 You must specify distinct monitor configurations and discovery rules for
 master and worker processes.  For the master configuration, set `isMaster`
 to true.
 
-When running Spark on Apache Hadoop / Yarn, this integration is only capable
+When running Spark on Apache Hadoop / YARN, this integration is only capable
 of reporting application metrics from the master node.  Use the
 collectd/hadoop monitor to report on the health of the cluster.
 
 <!--- SETUP --->
-### Example config:
+### Sample configuration
 
-An example configuration for monitoring applications on Yarn
+An example configuration for monitoring applications on Apache Hadoop YARN:
 ```yaml
 monitors:
   - type: collectd/spark
