@@ -163,6 +163,11 @@ point but for now the process is manual.
    Server 2016 vagrant box. See the "Windows" section in
    [development.md](docs/development.md) for details.
 
+1. **Note**: The Windows docker image is automatically built and pushed to quay.io
+   in Azure Pipelines for release tags.  Check [Azure Pipelines](https://dev.azure.com/signalfx/signalfx-agent/_build?definitionId=1)
+   and [quay.io](https://quay.io/repository/signalfx/signalfx-agent?tab=tags) to
+   ensure that the image was built and pushed successfully for the release tag.
+
 ## Release Process
 
 1. Open a Powershell terminal in the Windows virtual machine and execute:
