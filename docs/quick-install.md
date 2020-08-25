@@ -54,7 +54,7 @@ To access this content from the SignalFx UI:
 2. Locate and select **SignalFx SmartAgent**.
 3. Click **Setup**, and continue reading the instructions.
 
-#### Install SignalFx Smart Agent on Linux
+#### Install the Smart Agent on Linux
 
 This section lists the steps for installing the Smart Agent on Linux. If you want to install the Smart Agent on Windows, proceed to the next section, **Install SignalFx Smart Agent on Windows**.
 
@@ -77,7 +77,7 @@ The agent's main configuration file is located at /etc/signalfx/agent.yaml.
 
 If your installation succeeds, proceed to the section **Verify Your Installation**. Otherwise, see the section **Troubleshoot Your Installation**.
 
-#### Install the SignalFx Smart Agent on Windows
+#### Install the Smart Agent on Windows
 
 Copy and paste the following code into your Windows PowerShell terminal:
 
