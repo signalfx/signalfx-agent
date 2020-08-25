@@ -34,6 +34,7 @@ def test_config_from_annotations(k8s_cluster):
                 "agent.signalfx.com/monitorType.http": "collectd/nginx",
                 "agent.signalfx.com/config.80.extraDimensions": "{source: myapp}",
                 "agent.signalfx.com/config.80.disableEndpointDimensions": "true",
+                "agent.signalfx.com/config.80.datapointsToExclude": "[{metricName: nginx_connections.active}]",
             },
         )
     )
@@ -45,6 +46,14 @@ def test_config_from_annotations(k8s_cluster):
         """
         with k8s_cluster.run_agent(config) as agent:
             assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"plugin": "nginx", "source": "myapp"}))
+            assert ensure_always(
+                p(
+                    has_no_datapoint,
+                    agent.fake_services,
+                    metric_name="nginx_connections.active",
+                    dimensions={"source": "myapp"},
+                )
+            )
             for dp in agent.fake_services.datapoints:
                 if not has_all_dims(dp, {"source": "myapp"}):
                     continue
@@ -59,7 +68,7 @@ def test_merges_config_from_annotations_and_agent_yaml(k8s_cluster):
             yaml.safe_load_all(nginx_yaml.read_bytes()),
             {
                 "agent.signalfx.com/monitorType.http": "collectd/nginx",
-                "agent.signalfx.com/config.80.extraDimensions": "{source: myapp}",
+                "agent.signalfx.com/config.80.extraDimensions": "{source: mytestapp}",
                 "agent.signalfx.com/config.80.disableEndpointDimensions": "true",
             },
         )
@@ -76,9 +85,11 @@ def test_merges_config_from_annotations_and_agent_yaml(k8s_cluster):
                 - metricName: nginx_requests
         """
         with k8s_cluster.run_agent(config) as agent:
-            assert wait_for(p(has_datapoint, agent.fake_services, dimensions={"plugin": "nginx", "source": "myapp"}))
+            assert wait_for(
+                p(has_datapoint, agent.fake_services, dimensions={"plugin": "nginx", "source": "mytestapp"})
+            )
             for dp in agent.fake_services.datapoints:
-                if not has_all_dims(dp, {"source": "myapp"}):
+                if not has_all_dims(dp, {"source": "mytestapp"}):
                     continue
                 assert not has_dim_key(dp, "kubernetes_pod_uid")
             ensure_always(p(has_no_datapoint, agent.fake_services, metric_name="nginx_requests"), timeout_seconds=10)
