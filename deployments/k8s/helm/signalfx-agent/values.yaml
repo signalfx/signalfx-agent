@@ -280,3 +280,8 @@ loadPerCPU: false
 # A list of monitor configurations to include in the agent config.  These
 # values correspond exactly to what goes under 'monitors' in the agent config.
 monitors:
+
+# For a complex monitor configurations, split into multiple files that will be
+# included into a configmap. These files are automatically included in the previous
+# monitors section if it used.
+monitorsd:
