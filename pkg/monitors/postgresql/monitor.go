@@ -59,13 +59,11 @@ type Config struct {
 	TopQueryLimit int `default:"10" yaml:"topQueryLimit"`
 }
 
-func (c *Config) connStr() (template string, host string, port string, err error) {
+func (c *Config) connStr() (template string, port string, err error) {
 	connStr := c.ConnectionString
-	host = "localhost"
 	port = "5432"
 	if c.Host != "" {
 		connStr += " host=" + c.Host
-		host = c.Host
 	}
 	if c.Port != 0 {
 		connStr += fmt.Sprintf(" port=%d", c.Port)
@@ -98,11 +96,10 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	queriesGroupEnabled := m.Output.HasEnabledMetricInGroup(groupQueries)
 
-	connStr, host, port, err := conf.connStr()
+	connStr, port, err := conf.connStr()
 	if err != nil {
 		return fmt.Errorf("could not render connectionString template: %v", err)
 	}
-	m.Output.AddExtraDimension("postgres_host", host)
 	m.Output.AddExtraDimension("postgres_port", port)
 
 	m.database, err = dbsql.Open("postgres", connStr+" dbname="+m.conf.MasterDBName)
@@ -196,7 +193,7 @@ func (m *Monitor) Configure(conf *Config) error {
 }
 
 func (m *Monitor) startMonitoringDatabase(name string) (*sql.Monitor, error) {
-	connStr, _, _, err := m.conf.connStr()
+	connStr, _, err := m.conf.connStr()
 	if err != nil {
 		return nil, err
 	}
@@ -246,7 +243,7 @@ func (m *Monitor) determineDatabases() ([]string, error) {
 func (m *Monitor) monitorServer() (*sql.Monitor, error) {
 	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
 
-	connStr, _, _, err := m.conf.connStr()
+	connStr, _, err := m.conf.connStr()
 	if err != nil {
 		return nil, err
 	}
@@ -263,7 +260,7 @@ func (m *Monitor) monitorServer() (*sql.Monitor, error) {
 func (m *Monitor) monitorStatements() (*sql.Monitor, error) {
 	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
 
-	connStr, _, _, err := m.conf.connStr()
+	connStr, _, err := m.conf.connStr()
 	if err != nil {
 		return nil, err
 	}
