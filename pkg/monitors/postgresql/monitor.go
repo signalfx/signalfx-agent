@@ -4,6 +4,7 @@ import (
 	"context"
 	dbsql "database/sql"
 	"fmt"
+	"strconv"
 	"sync"
 	"time"
 
@@ -58,16 +59,18 @@ type Config struct {
 	TopQueryLimit int `default:"10" yaml:"topQueryLimit"`
 }
 
-func (c *Config) connStr() (string, error) {
+func (c *Config) connStr() (template string, port string, err error) {
 	connStr := c.ConnectionString
+	port = "5432"
 	if c.Host != "" {
 		connStr += " host=" + c.Host
 	}
 	if c.Port != 0 {
 		connStr += fmt.Sprintf(" port=%d", c.Port)
+		port = strconv.Itoa(int(c.Port))
 	}
-
-	return utils.RenderSimpleTemplate(connStr, c.Params)
+	template, err = utils.RenderSimpleTemplate(connStr, c.Params)
+	return
 }
 
 // Monitor that collects postgresql stats
@@ -93,10 +96,11 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	queriesGroupEnabled := m.Output.HasEnabledMetricInGroup(groupQueries)
 
-	connStr, err := conf.connStr()
+	connStr, port, err := conf.connStr()
 	if err != nil {
 		return fmt.Errorf("could not render connectionString template: %v", err)
 	}
+	m.Output.AddExtraDimension("postgres_port", port)
 
 	m.database, err = dbsql.Open("postgres", connStr+" dbname="+m.conf.MasterDBName)
 	if err != nil {
@@ -113,7 +117,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	databaseDatapointFilter, err := dpfilters.NewOverridable(nil, map[string][]string{
-		"database": conf.Databases,
+		"database?": conf.Databases,
 	})
 	if err != nil {
 		m.database.Close()
@@ -189,7 +193,7 @@ func (m *Monitor) Configure(conf *Config) error {
 }
 
 func (m *Monitor) startMonitoringDatabase(name string) (*sql.Monitor, error) {
-	connStr, err := m.conf.connStr()
+	connStr, _, err := m.conf.connStr()
 	if err != nil {
 		return nil, err
 	}
@@ -239,7 +243,7 @@ func (m *Monitor) determineDatabases() ([]string, error) {
 func (m *Monitor) monitorServer() (*sql.Monitor, error) {
 	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
 
-	connStr, err := m.conf.connStr()
+	connStr, _, err := m.conf.connStr()
 	if err != nil {
 		return nil, err
 	}
@@ -249,13 +253,14 @@ func (m *Monitor) monitorServer() (*sql.Monitor, error) {
 		ConnectionString: connStr + " dbname=" + m.conf.MasterDBName,
 		DBDriver:         "postgres",
 		Queries:          defaultServerQueries,
+		LogQueries:       m.conf.LogQueries,
 	})
 }
 
 func (m *Monitor) monitorStatements() (*sql.Monitor, error) {
 	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
 
-	connStr, err := m.conf.connStr()
+	connStr, _, err := m.conf.connStr()
 	if err != nil {
 		return nil, err
 	}
@@ -265,6 +270,7 @@ func (m *Monitor) monitorStatements() (*sql.Monitor, error) {
 		ConnectionString: connStr + " dbname=" + m.conf.MasterDBName,
 		DBDriver:         "postgres",
 		Queries:          makeDefaultStatementsQueries(m.conf.TopQueryLimit),
+		LogQueries:       m.conf.LogQueries,
 	})
 }
 

@@ -79,6 +79,12 @@ monitors:
     tablespace:
       description: For table metrics, the tablespace in which the table belongs, if
         not null.
+    replication_role:
+      description: For "replication_lag" metric only, could be "master" or "standby".
+    slot_name:
+      description: For "replication_state" metric only, the name of replication slot.
+    slot_type:
+      description: For "replication_state" metric only, the type of replication.
   metrics:
     postgres_sessions:
       description: >
@@ -157,3 +163,31 @@ monitors:
       default: false
       type: cumulative
       group: queries
+    postgres_pct_connections:
+      description: The number of connections to this database as a fraction of the maximum number of allowed connections.
+      default: false
+      type: gauge
+    postgres_replication_lag:
+      description: The current replication delay in seconds. Always = 0 on master.
+      default: false
+      type: gauge
+    postgres_replication_state:
+      description: The current replication state.
+      default: false
+      type: gauge
+    postgres_locks:
+      description: The number of locks active.
+      default: false
+      type: gauge
+    postgres_conflicts:
+      description: The number of conflicts.
+      default: false
+      type: cumulative
+    postgres_xact_commits:
+      description: The number of transactions that have been committed in this database.
+      default: false
+      type: cumulative
+    postgres_xact_rollbacks:
+      description: The number of transactions that have been rolled back in this database.
+      default: false
+      type: cumulative

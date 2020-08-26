@@ -106,13 +106,18 @@ Metrics that are categorized as
 
 
  - ***`postgres_block_hit_ratio`*** (*gauge*)<br>    The proportion (between 0 and 1, inclusive) of block reads that used the cache and did not have to go to the disk.  Is sent for `table`, `index`, and the `database` as a whole.
+ - `postgres_conflicts` (*cumulative*)<br>    The number of conflicts.
  - ***`postgres_database_size`*** (*gauge*)<br>    Size in bytes of the database on disk
  - ***`postgres_deadlocks`*** (*cumulative*)<br>    Total number of deadlocks detected by the system
  - ***`postgres_index_scans`*** (*cumulative*)<br>    Total number of index scans on the `table`.
  - ***`postgres_live_rows`*** (*gauge*)<br>    Number of rows live (not deleted) in the `table`.
+ - `postgres_locks` (*gauge*)<br>    The number of locks active.
+ - `postgres_pct_connections` (*gauge*)<br>    The number of connections to this database as a fraction of the maximum number of allowed connections.
  - ***`postgres_query_count`*** (*cumulative*)<br>    Total number of queries executed on the `database`, broken down by `user`.  Note that the accuracy of this metric depends on the PostgreSQL [pg_stat_statements.max config option](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631) being large enough to hold all queries.
 
  - ***`postgres_query_time`*** (*cumulative*)<br>    Total time taken to execute queries on the `database`, broken down by `user`.
+ - `postgres_replication_lag` (*gauge*)<br>    The current replication delay in seconds. Always = 0 on master.
+ - `postgres_replication_state` (*gauge*)<br>    The current replication state.
  - ***`postgres_rows_deleted`*** (*cumulative*)<br>    Number of rows deleted from the `table`.
  - ***`postgres_rows_inserted`*** (*cumulative*)<br>    Number of rows inserted into the `table`.
  - ***`postgres_rows_updated`*** (*cumulative*)<br>    Number of rows updated in the `table`.
@@ -120,6 +125,8 @@ Metrics that are categorized as
  - ***`postgres_sessions`*** (*gauge*)<br>    Number of sessions currently on the server instance.  The `state` dimension will specify which which type of session (see `state` row of [pg_stat_activity](https://www.postgresql.org/docs/9.2/monitoring-stats.html#PG-STAT-ACTIVITY-VIEW)).
 
  - ***`postgres_table_size`*** (*gauge*)<br>    The size in bytes of the `table` on disk.
+ - `postgres_xact_commits` (*cumulative*)<br>    The number of transactions that have been committed in this database.
+ - `postgres_xact_rollbacks` (*cumulative*)<br>    The number of transactions that have been rolled back in this database.
 
 #### Group queries
 All of the following metrics are part of the `queries` metric group. All of
@@ -148,7 +155,10 @@ dimensions may be specific to certain metrics.
 | ---  | ---         |
 | `database` | The name of the database within a PostgreSQL server to which the metric pertains. |
 | `index` | For index metrics, the name of the index |
+| `replication_role` | For "replication_lag" metric only, could be "master" or "standby". |
 | `schemaname` | The name of the schema within which the object being monitored resides (e.g. `public`). |
+| `slot_name` | For "replication_state" metric only, the name of replication slot. |
+| `slot_type` | For "replication_state" metric only, the type of replication. |
 | `table` | The name of the table to which the metric pertains. |
 | `tablespace` | For table metrics, the tablespace in which the table belongs, if not null. |
 | `type` | Whether the object (table, index, function, etc.) belongs to the `system` or `user`. |
