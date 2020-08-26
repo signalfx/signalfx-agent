@@ -359,7 +359,12 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 
 	configHash := config.MonitorConfigCore().Hash()
 
-	monFiltering, err := newMonitorFiltering(config, metadata)
+	renderedConf, err := renderConfig(config, endpoint)
+	if err != nil {
+		return err
+	}
+
+	monFiltering, err := newMonitorFiltering(renderedConf, metadata)
 	if err != nil {
 		return err
 	}
@@ -370,11 +375,6 @@ func (mm *MonitorManager) createAndConfigureNewMonitor(config config.MonitorCust
 		instance:   instance,
 		endpoint:   endpoint,
 		agentMeta:  mm.agentMeta,
-	}
-
-	renderedConf, err := renderConfig(config, endpoint)
-	if err != nil {
-		return err
 	}
 
 	metricNameTransformations, err := renderedConf.MonitorConfigCore().MetricNameExprs()
