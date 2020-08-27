@@ -37,7 +37,7 @@ type SourceConfig struct {
 	// main disadvantage of watching is slightly greater network and compute
 	// resource usage. This option is not itself watched for changes. If you
 	// change the value of this option, you must restart the agent.
-	Watch bool `yaml:"watch" default:"true"`
+	Watch *bool `yaml:"watch" default:"true"`
 	// Configuration for other file sources
 	File file.Config `yaml:"file" default:"{}"`
 	// Configuration for a Zookeeper remote config source
@@ -145,7 +145,7 @@ func ReadConfig(configPath string, stop <-chan struct{}) ([]byte, <-chan []byte,
 	// that will be used for the duration of the agent process.
 	fileSource := file.New(time.Duration(sourceConfig.File.PollRateSeconds) * time.Second)
 
-	if sourceConfig.Watch {
+	if *sourceConfig.Watch {
 		log.Info("Watching for config file changes")
 		changes := make(chan []byte)
 		go func() {
@@ -221,7 +221,7 @@ func (dvp *DynamicValueProvider) ReadDynamicValues(configContent []byte, stop <-
 
 	cachers := make(map[string]*configSourceCacher)
 	for name, source := range dvp.sources {
-		cacher := newConfigSourceCacher(source, pathChanges, stop, sourceConfig.Watch)
+		cacher := newConfigSourceCacher(source, pathChanges, stop, *sourceConfig.Watch)
 		cachers[name] = cacher
 	}
 
@@ -233,7 +233,7 @@ func (dvp *DynamicValueProvider) ReadDynamicValues(configContent []byte, stop <-
 	}
 
 	var changes chan []byte
-	if sourceConfig.Watch {
+	if *sourceConfig.Watch {
 		changes = make(chan []byte)
 
 		go func() {
