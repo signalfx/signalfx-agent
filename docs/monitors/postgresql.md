@@ -35,6 +35,16 @@ Tested with PostgreSQL `9.2+`.
 
 If you want to collect additional metrics about PostgreSQL, use the [sql monitor](./sql.md).
 
+## Metrics about Replication
+
+Replication metrics could not be available on some PostgreSQL servers. For now, this monitor 
+automatically disable `replication` metrics group if it detects Aurora to avoid following error:
+  
+> Function pg_last_xlog_receive_location() is currently not supported for Aurora
+
+The metric `postgres_replication_state` will only be reported for `master` and 
+`postgres_replication_lag` only for `standby` role (replica).
+
 <!--- SETUP --->
 ## Example Configuration
 
@@ -116,8 +126,6 @@ Metrics that are categorized as
  - ***`postgres_query_count`*** (*cumulative*)<br>    Total number of queries executed on the `database`, broken down by `user`.  Note that the accuracy of this metric depends on the PostgreSQL [pg_stat_statements.max config option](https://www.postgresql.org/docs/9.3/pgstatstatements.html#AEN160631) being large enough to hold all queries.
 
  - ***`postgres_query_time`*** (*cumulative*)<br>    Total time taken to execute queries on the `database`, broken down by `user`.
- - `postgres_replication_lag` (*gauge*)<br>    The current replication delay in seconds. Always = 0 on master.
- - `postgres_replication_state` (*gauge*)<br>    The current replication state.
  - ***`postgres_rows_deleted`*** (*cumulative*)<br>    Number of rows deleted from the `table`.
  - ***`postgres_rows_inserted`*** (*cumulative*)<br>    Number of rows inserted into the `table`.
  - ***`postgres_rows_updated`*** (*cumulative*)<br>    Number of rows updated in the `table`.
@@ -135,6 +143,13 @@ monitor config option `extraGroups`:
  - `postgres_queries_average_time` (*cumulative*)<br>    Top N queries based on the average execution time broken down by `database`
  - `postgres_queries_calls` (*cumulative*)<br>    Top N most frequently executed queries broken down by `database`
  - `postgres_queries_total_time` (*cumulative*)<br>    Top N queries based on the total execution time broken down by `database`
+
+#### Group replication
+All of the following metrics are part of the `replication` metric group. All of
+the non-default metrics below can be turned on by adding `replication` to the
+monitor config option `extraGroups`:
+ - `postgres_replication_lag` (*gauge*)<br>    The current replication delay in seconds. Always = 0 on master.
+ - `postgres_replication_state` (*gauge*)<br>    The current replication state.
 
 ### Non-default metrics (version 4.7.0+)
 

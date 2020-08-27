@@ -84,9 +84,10 @@ type Monitor struct {
 
 	database *dbsql.DB
 
-	monitoredDBs      map[string]*sql.Monitor
-	serverMonitor     *sql.Monitor
-	statementsMonitor *sql.Monitor
+	monitoredDBs       map[string]*sql.Monitor
+	serverMonitor      *sql.Monitor
+	statementsMonitor  *sql.Monitor
+	replicationMonitor *sql.Monitor
 }
 
 // Configure the monitor and kick off metric collection
@@ -95,6 +96,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 
 	queriesGroupEnabled := m.Output.HasEnabledMetricInGroup(groupQueries)
+	replicationGroupEnabled := m.Output.HasEnabledMetricInGroup(groupReplication)
 
 	connStr, port, err := conf.connStr()
 	if err != nil {
@@ -142,6 +144,19 @@ func (m *Monitor) Configure(conf *Config) error {
 		m.statementsMonitor, err = m.monitorStatements()
 		if err != nil {
 			logger.WithError(err).Errorf("Could not monitor queries: %v", err)
+		}
+	}
+
+	if replicationGroupEnabled {
+		_, err := m.database.QueryContext(m.ctx, `select AURORA_VERSION();`)
+		if err == nil {
+			logger.Info("Aurora server detected, disabling replication monitor")
+		} else {
+			logger.Debug("Replication metrics enabled")
+			m.replicationMonitor, err = m.monitorReplication()
+			if err != nil {
+				logger.WithError(err).Errorf("Could not monitor replication: %v", err)
+			}
 		}
 	}
 
@@ -274,6 +289,23 @@ func (m *Monitor) monitorStatements() (*sql.Monitor, error) {
 	})
 }
 
+func (m *Monitor) monitorReplication() (*sql.Monitor, error) {
+	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
+
+	connStr, _, err := m.conf.connStr()
+	if err != nil {
+		return nil, err
+	}
+
+	return sqlMon, sqlMon.Configure(&sql.Config{
+		MonitorConfig:    m.conf.MonitorConfig,
+		ConnectionString: connStr + " dbname=" + m.conf.MasterDBName,
+		DBDriver:         "postgres",
+		Queries:          defaultReplicationQueries,
+		LogQueries:       m.conf.LogQueries,
+	})
+}
+
 // Shutdown this monitor and the nested sql ones
 func (m *Monitor) Shutdown() {
 	m.Lock()
@@ -297,5 +329,9 @@ func (m *Monitor) Shutdown() {
 
 	if m.statementsMonitor != nil {
 		m.statementsMonitor.Shutdown()
+	}
+
+	if m.replicationMonitor != nil {
+		m.replicationMonitor.Shutdown()
 	}
 }

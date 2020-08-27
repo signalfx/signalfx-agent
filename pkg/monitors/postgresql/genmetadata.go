@@ -10,11 +10,13 @@ import (
 const monitorType = "postgresql"
 
 const (
-	groupQueries = "queries"
+	groupQueries     = "queries"
+	groupReplication = "replication"
 )
 
 var groupSet = map[string]bool{
-	groupQueries: true,
+	groupQueries:     true,
+	groupReplication: true,
 }
 
 const (
@@ -57,8 +59,8 @@ var metricSet = map[string]monitors.MetricInfo{
 	postgresQueriesTotalTime:   {Type: datapoint.Counter, Group: groupQueries},
 	postgresQueryCount:         {Type: datapoint.Counter},
 	postgresQueryTime:          {Type: datapoint.Counter},
-	postgresReplicationLag:     {Type: datapoint.Gauge},
-	postgresReplicationState:   {Type: datapoint.Gauge},
+	postgresReplicationLag:     {Type: datapoint.Gauge, Group: groupReplication},
+	postgresReplicationState:   {Type: datapoint.Gauge, Group: groupReplication},
 	postgresRowsDeleted:        {Type: datapoint.Counter},
 	postgresRowsInserted:       {Type: datapoint.Counter},
 	postgresRowsUpdated:        {Type: datapoint.Counter},
@@ -90,6 +92,10 @@ var groupMetricsMap = map[string][]string{
 		postgresQueriesAverageTime,
 		postgresQueriesCalls,
 		postgresQueriesTotalTime,
+	},
+	groupReplication: []string{
+		postgresReplicationLag,
+		postgresReplicationState,
 	},
 }
 
