@@ -22,34 +22,27 @@ run Linux distributions based on Debian.
 
 1. Remove collector services such as `collectd`.
 
-2. Remove third-party instrumentation and agent software.
-
-> Don't use automatic instrumentation or instrumentation agents from
-> other vendors when you're using SignalFx instrumentation. The results
-> are unpredictable, but your instrumentation may break and your
-> application may crash.
-
-3. Download the GNU Privacy Guard (**GnuPG**) security key for the Debian package
+2. Download the GNU Privacy Guard (**GnuPG**) security key for the Debian package
    by running the following command:
 
    ```
    curl -sSL https://splunk.jfrog.io/splunk/signalfx-agent-deb/splunk-B3CD4420.gpg > /etc/apt/trusted.gpg.d/splunk.gpg
    ```
 
-4. Add an entry for the SignalFx Smart Agent package to Debian by running the following command:
+3. Add an entry for the SignalFx Smart Agent package to Debian by running the following command:
 
    ```
    echo 'deb https://splunk.jfrog.io/splunk/signalfx-agent-deb release main' > /etc/apt/sources.list.d/signalfx-agent.list
    ```
 
-5. Update the Debian package lists with the SignalFx Smart Agent package information
+4. Update the Debian package lists with the SignalFx Smart Agent package information
    by running the following command:
 
    ```
    apt-get update
    ```
 
-6. Install the Agent by running the following command:
+5. Install the Agent by running the following command:
 
    ```
    apt-get install -y signalfx-agent
@@ -82,15 +75,9 @@ run Linux and use the RPM package manager.
 ### Install with RPM
 
 1. Remove collector services such as `collectd`.
-2. Remove third-party instrumentation and agent software.
 
-> Don't use automatic instrumentation or instrumentation agents from
-> other vendors when you're using SignalFx instrumentation. The results
-> are unpredictable, and your instrumentation might break and your
-> application might crash.
-
-3. In the `/etc/yum.repos.d/` directory, edit a new file named signalfx-agent.repo.
-4. Add these lines to the file:
+2. In the `/etc/yum.repos.d/` directory, edit a new file named signalfx-agent.repo.
+3. Add these lines to the file:
 
    ```
    [signalfx-agent]
@@ -101,7 +88,7 @@ run Linux and use the RPM package manager.
    enabled=1
    ```
 
-5. Run the following command:
+4. Run the following command:
 
    ```
    yum install -y signalfx-agent

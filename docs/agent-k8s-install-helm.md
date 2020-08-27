@@ -10,7 +10,6 @@ to install the Smart Agent. To learn more, see
 ## Prerequisites
 
 * Linux kernel version 2.6.32 or higher
-* cap_dac_read_search and cap_sys_ptrace capabilities
 * Terminal or a similar command-line interface application
 * Helm:
 
@@ -39,42 +38,46 @@ For example, add the `-f myValues.yaml` parameter.
 
 ## Install with Helm
 
+### Preliminary tasks
+
 1. Remove collector services such as `collectd`.
-2. Remove third-party instrumentation and agent software.
 
-> Don't use automatic instrumentation or instrumentation agents from
-> other vendors when you're using SignalFx instrumentation. The results
-> are unpredictable, and your instrumentation might break and your
-> application might crash.
-
-3. Add the SignalFx Helm chart repository to Helm by enter the following command:
+2. Add the SignalFx Helm chart repository to Helm by entering the following command:
 
    ```
    helm repo add signalfx https://dl.signalfx.com/helm-repo
    ```
 
-4. Check that the repository is up-to-date by entering the following command:
+3. Check that the repository is up-to-date by entering the following command:
 
    ```
    helm repo update
    ```
 
-5. Get the following required values:
+### Get required values
 
-| Name             | Example       | Meaning                                                          |
-|:-----------------|:--------------|:-----------------------------------------------------------------|
+Get the following required values:
+
+| Name             | Example       | Meaning                                                      |
+|:-----------------|:--------------|:-------------------------------------------------------------|
 | `<access_token>` | 'abcd1234zzz' | Required. Access token. See [Prerequisites](#prerequisites). |
 | `<cluster_name>` | 'myCluster'   | Required.Name of the cluster to monitor                      |
 | `<realm>`        | 'us0'         | Required. Your realm. See [Prerequisites](#prerequisites).   |
 
-6. Determine if you want to use the following optional values:
+
+### Get optional values
+
+Determine if you want to use the following optional values:
 
 | Name                 | Example         | Meaning                                                                                                                                           |
 |:---------------------|:----------------|:--------------------------------------------------------------------------------------------------------------------------------------------------|
 | `<values_yaml_file>` | `myValues.yaml` | Optional. Custom configuration file. If you don't specify this file, Helm installs the defaults. If you don't use this parameter, don't use `-f`. |
 | `<version>`          | `5.1.6`           | Optional. Smart Agent version. See [Smart Agent releases](https://github.com/signalfx/signalfx-agent/releases) for a a list of versions. If you don't use this, Helm installs the latest release. If you don't use this, don't use `--set agentVersion=`. |
 
-7. Determine if you want OpenShift support:
+
+### Configure optional OpenShift support
+
+Determine if you want OpenShift support:
 
    - If you want OpenShift support, substitute the values from the previous steps and run this command:
 

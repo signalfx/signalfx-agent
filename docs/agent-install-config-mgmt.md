@@ -3,8 +3,6 @@
 Install the SignalFx Smart Agent using one of the following configuration management
 packages:
 
-
-
 | Package | See this section                                                                                |
 |:--------|:------------------------------------------------------------------------------------------------|
 | Ansible | [Install the Smart Agent using an Ansible role](#install-the-smart-agent-using-an-ansible-role) |
@@ -362,13 +360,6 @@ see [Agent Configuration](https://github.com/signalfx/signalfx-agent/blob/master
 ### Install the Smart Agent with Puppet
 
 1. Remove collector services such as `collectd`.
-
-   Remove third-party instrumentation and agent software.
-
-   Don't use automatic instrumentation or instrumentation agents from
-   other vendors when you're using SignalFx instrumentation. The results
-   are unpredictable, and your instrumentation might break and your
-   application might crash.
 
 2. Confirm that you have the correct Puppet tool for your platform:
 

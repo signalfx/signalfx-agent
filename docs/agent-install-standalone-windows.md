@@ -7,7 +7,8 @@ a ZIP file.
 
 * Windows Server 2012 or higher
 * Windows PowerShell access
-* Windows decompression application, such as WinZip
+* Windows decompression application, such as WinZip or the native Windows
+  decompression feature.
 * .NET Framework 3.5 or higher
 * Visual C++ compiler for Python
 * TLS 1.0 or 1.2
@@ -21,14 +22,7 @@ runtime.
 
 1. Remove collector services such as `collectd`
 
-2. Remove third-party instrumentation and agent software
-
-> Don't use automatic instrumentation or instrumentation agents from
-> other vendors when you're using SignalFx instrumentation. The results
-> are unpredictable, and your instrumentation might break and your
-> application might crash.
-
-3. To get the latest Windows standalone installation package, navigate to
+2. To get the latest Windows standalone installation package, navigate to
    [Smart Agent releases](https://github.com/signalfx/signalfx-agent/releases)
    and download the following file:
 
@@ -42,7 +36,7 @@ runtime.
    2. In the **Assets** section, click `signalfx-agent-5.1.6-win64.zip`
    3. The ZIP file starts downloading.
 
-4. Uncompress the ZIP file using your decompression application. The
+3. Uncompress the ZIP file. The
    package contents expand into the `signalfx-agent` directory.
 
 ## Configure the ZIP file installation

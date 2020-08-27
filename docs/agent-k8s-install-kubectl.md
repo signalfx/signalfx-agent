@@ -16,6 +16,8 @@ to install the Smart Agent. To learn more, see
 
 ## Configure kubectl for the Smart Agent
 
+### Create a Kubernetes secret
+
 To install the Smart Agent using kubectl, you need to create a
 Kubernetes secret for your access token and update settings in the Smart Agent's configuration files.
 
@@ -27,26 +29,30 @@ Kubernetes secret for your access token and update settings in the Smart Agent's
    kubectl create secret generic --from-literal access-token=<access_token> signalfx-agent
    ```
 
-3. On the same host, download the following configuration files from the
-   [Kubernetes Deployments](https://github.com/signalfx/signalfx-agent/tree/master/deployments/k8s) area in GitHub:
+### Download configuration files
 
-   | File                      | Description                                                                                    |
-   |:--------------------------|:-----------------------------------------------------------------------------------------------|
-   | `clusterrole.yaml`        | Configuration settings for the ClusterRole cluster-admin. This file doesn't require an update. |
-   | `clusterrolebinding.yaml` | Configuration settings for Kubernetes role-based access control (**RBAC**)                     |
-   | `configmap.yaml`          | Cluster configuration settings                                                                 |
-   | `daemonset.yaml`          | Daemonset configuration settings                                                               |
-   | `serviceaccount.yaml`     | Configuration settings for Kubernetes Service Accounts. This file doesn't require an update.   |
+On the same host, download the following configuration files from the
+[Kubernetes Deployments](https://github.com/signalfx/signalfx-agent/tree/master/deployments/k8s) area in GitHub:
 
-4. Update `configmap.yaml`:
+| File                      | Description                                                                                    |
+|:--------------------------|:-----------------------------------------------------------------------------------------------|
+| `clusterrole.yaml`        | Configuration settings for the ClusterRole cluster-admin. This file doesn't require an update. |
+| `clusterrolebinding.yaml` | Configuration settings for Kubernetes role-based access control (**RBAC**)                     |
+| `configmap.yaml`          | Cluster configuration settings                                                                 |
+| `daemonset.yaml`          | Daemonset configuration settings                                                               |
+| `serviceaccount.yaml`     | Configuration settings for Kubernetes Service Accounts. This file doesn't require an update.   |
+
+### Update .yaml files
+
+1. Update `configmap.yaml`:
    - Cluster name: For each of your Kubernetes clusters, replace `MY-CLUSTER` with a unique cluster name.
    - Realm: Update the value of `signalFxRealm` with the name of your SignalFx realm.
    - To avoid sending docker and cadvisor metrics from some containers,
      update the `datapointsToExclude` property. To learn more, see [Filtering](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#filtering).
-5. In the clusterrolebinding.yaml file, update `MY_AGENT_NAMESPACE` or the service account token reference with the Smart
+2. In the clusterrolebinding.yaml file, update `MY_AGENT_NAMESPACE` or the service account token reference with the Smart
    Agent namespace in which you're deploying the agent.
 
-6. Update the daemonset.yaml file:
+3. Update the daemonset.yaml file:
 
    - For RBAC-enabled clusters, add the permissions required for the Smart Agent.
 
@@ -61,7 +67,7 @@ Kubernetes secret for your access token and update settings in the Smart Agent's
        - cadvisorURL: http://localhost:9344
      ```
 
-7. If you're using OpenShift and you can't use the default namespace, modify each
+4. If you're using OpenShift and you can't use the default namespace, modify each
    namespace occurrence and then ask your cluster administrator to run the following commands:
 
    ```
@@ -82,14 +88,7 @@ Kubernetes secret for your access token and update settings in the Smart Agent's
 
 1. Remove collector services such as `collectd`.
 
-2. Remove third-party instrumentation and agent software.
-
-> Do not use automatic instrumentation or instrumentation agents from
-> other vendors when you're using SignalFx instrumentation. The results
-> are unpredictable, but your instrumentation may break and your
-> application may crash.
-
-3. Run the following command to update `kubectl` with the configuration files you've just modified:
+2. Run the following command to update `kubectl` with the configuration files you've just modified:
 
    ```
    cat *.yaml | kubectl apply -f-
@@ -99,7 +98,11 @@ Kubernetes secret for your access token and update settings in the Smart Agent's
 
 After you install the Smart Agent, it starts sending data from your clusters to SignalFx.
 
-To see the services the Smart Agent has discovered, run the following command inside any of your Smart Agent containers:
+To see the services the Smart Agent has discovered, perform the following tasks:
+
+1. Navigate to the directory where you installed `kubectl`.
+
+2. Run the following command:
 
 ```
 while read -r line; do kubectl exec --namespace `echo $line` signalfx-agent status; done <<< `kubectl get pods -l app=signalfx-agent --all-namespaces --no-headers | tr -s " " | cut -d " " -f 1,2`

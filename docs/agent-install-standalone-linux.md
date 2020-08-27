@@ -1,27 +1,20 @@
-# Install to Linux using a GZIP File
+# Install to Linux using a tar.gz File
 
 Install the Smart Agent to Linux host using a compressed
-standalone package in a GZIP file.
+`tar` file.
 
 ## Prerequisites
 
 * Kernel version 2.6.32 or higher
-* cap_dac_read_search and cap_sys_ptrace capabilities
+* cap_dac_read_search and cap_sys_ptrace Linux capabilities
 * Terminal or a similar command-line interface application
-* GZIP application
+* Program that can uncompress and unbundle a `.tar.gz` file.
 
-## Install the Smart Agent using a GZIP file
+## Install the Smart Agent using a tar.gz file
 
 1. Remove collector services such as `collectd`
 
-2. Remove third-party instrumentation and agent software
-
-> Don't use automatic instrumentation or instrumentation agents from
-> other vendors when you're using SignalFx instrumentation. The results
-> are unpredictable, and your instrumentation might break and your
-> application might crash.
-
-3. Get the latest GZIP standalone installation package by navigating to
+2. Get the latest `.tar.gz` standalone installation package by navigating to
    [Smart Agent releases](https://github.com/signalfx/signalfx-agent/releases)
    and downloading the following file:
 
@@ -33,9 +26,9 @@ standalone package in a GZIP file.
 
    1. In the **releases** section, find the section called **v5.1.6**.
    2. In the **Assets** section, click `signalfx-agent-5.1.6.tar.gz`
-   3. The GZIP file starts downloading.
+   3. The file starts downloading.
 
-4. To uncompress the package, run the following command:
+3. To uncompress the package, run the following command:
 
    ```
    tar xzf signalfx-agent-<latest_version>.tar.gz
@@ -43,21 +36,21 @@ standalone package in a GZIP file.
 
    The package expands into the `signalfx-agent` directory.
 
-5. Navigate to the `signalfx-agent` directory:
+4. Navigate to the `signalfx-agent` directory:
 
    ```
    cd signalfx-agent
    ```
 
 
-6. To ensure that the binaries in the install files use the correct loader for your host, run
+5. To ensure that the binaries in the install files use the correct loader for your host, run
 the following command:
 
    ```
    bin/patch-interpreter $(pwd)
    ```
 
-## Configure the GZIP installation
+## Configure the installation
 
 Create a configuration file for the agent:
 
