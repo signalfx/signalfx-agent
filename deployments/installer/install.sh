@@ -17,6 +17,7 @@ parse_args_and_install() {
   local cluster=
   local ingest_url=
   local api_url=
+  local trace_url=
   local access_token=
   local insecure=
   local package_version=
@@ -37,6 +38,10 @@ parse_args_and_install() {
         ;;
       --api-url)
         api_url="$2"
+        shift 1
+        ;;
+      --trace-url)
+        trace_url="$2"
         shift 1
         ;;
       --realm)
@@ -96,10 +101,31 @@ parse_args_and_install() {
     api_url="https://api.$realm.signalfx.com"
   fi
 
+  if [ -z "$trace_url" ]; then
+    trace_url="https://ingest.$realm.signalfx.com/v2/trace"
+  fi
+
   echo "Ingest URL: $ingest_url"
   echo "API URL: $api_url"
+  echo "Trace Endpoint URL: $trace_url"
 
-  install "$stage" "$ingest_url" "$api_url" "$access_token" "$insecure" "$package_version" "$cluster" "$service_user" "$service_group"
+  install "$stage" "$ingest_url" "$access_token" "$insecure" "$package_version" "$service_user" "$service_group"
+
+  configure_access_token "$access_token" "$service_user" "$service_group"
+  configure_ingest_url "$ingest_url"
+  configure_api_url "$api_url"
+  configure_trace_url "$trace_url"
+  configure_cluster "$cluster"
+
+  start_agent
+
+  cat <<EOH
+The SignalFx Agent has been successfully installed.
+
+Make sure that your system's time is relatively accurate or else datapoints may not be accepted.
+
+The agent's main configuration file is located at /etc/signalfx/agent.yaml.
+EOH
   exit 0
 }
 
@@ -118,6 +144,7 @@ Options:
   --cluster <custer name>     The user-defined environment/cluster to use (corresponds to 'cluster' option in agent)
   --ingest-url <ingest url>   Base URL of the SignalFx ingest server
   --api-url <api url>         Base URL of the SignalFx API server
+  --trace-url <trace url>     Trace Endpoint URL of the SignalFx ingest server
   --service-user <user>       Set the user for the signalfx-agent service (default: "signalfx-agent")
                               The user will be created if it does not exist
                               Requires agent package version 5.1.0 or newer
@@ -338,6 +365,13 @@ configure_api_url() {
   printf "%s" "$api_url" > /etc/signalfx/api_url
 }
 
+configure_trace_url() {
+  local trace_url=$1
+
+  mkdir -p /etc/signalfx
+  printf "%s" "$trace_url" > /etc/signalfx/trace_endpoint_url
+}
+
 configure_cluster() {
   local cluster=$1
 
@@ -410,13 +444,11 @@ start_agent() {
 install() {
   local stage="$1"
   local ingest_url="$2"
-  local api_url="$3"
-  local access_token="$4"
-  local insecure="$5"
-  local package_version="$6"
-  local cluster="$7"
-  local service_user="$8"
-  local service_group="$9"
+  local access_token="$3"
+  local insecure="$4"
+  local package_version="$5"
+  local service_user="$6"
+  local service_group="$7"
   local distro="$(get_distro)"
 
   ensure_not_installed
@@ -464,21 +496,6 @@ install() {
   else
     override_initd_service "$service_user" "$service_group"
   fi
-
-  configure_access_token "$access_token" "$service_user" "$service_group"
-  configure_ingest_url "$ingest_url"
-  configure_api_url "$api_url"
-  configure_cluster "$cluster"
-
-  start_agent
-
-  cat <<EOH
-The SignalFx Agent has been successfully installed.
-
-Make sure that your system's time is relatively accurate or else datapoints may not be accepted.
-
-The agent's main configuration file is located at /etc/signalfx/agent.yaml.
-EOH
 }
 
 parse_args_and_install $@
