@@ -18,8 +18,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var logger = logrus.WithFields(logrus.Fields{"monitorType": monitorMetadata.MonitorType})
-
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
@@ -95,6 +93,12 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.conf = conf
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 
+	logger := logrus.WithFields(logrus.Fields{
+		"monitorType": monitorMetadata.MonitorType,
+		"host":        conf.Host,
+		"port":        conf.Port,
+	})
+
 	queriesGroupEnabled := m.Output.HasEnabledMetricInGroup(groupQueries)
 	replicationGroupEnabled := m.Output.HasEnabledMetricInGroup(groupReplication)
 
@@ -104,16 +108,10 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 	m.Output.AddExtraDimension("postgres_port", port)
 
-	m.database, err = dbsql.Open("postgres", connStr+" dbname="+m.conf.MasterDBName)
-	if err != nil {
-		return err
-	}
-
 	var dbFilter filter.StringFilter
 	if len(conf.Databases) > 0 {
 		dbFilter, err = filter.NewOverridableStringFilter(conf.Databases)
 		if err != nil {
-			m.database.Close()
 			return fmt.Errorf("problem with databases filter: %v", err)
 		}
 	}
@@ -122,7 +120,6 @@ func (m *Monitor) Configure(conf *Config) error {
 		"database?": conf.Databases,
 	})
 	if err != nil {
-		m.database.Close()
 		return err
 	}
 	m.Output.AddDatapointExclusionFilter(dpfilters.Negate(databaseDatapointFilter))
@@ -147,18 +144,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		}
 	}
 
-	if replicationGroupEnabled {
-		_, err := m.database.QueryContext(m.ctx, `select AURORA_VERSION();`)
-		if err == nil {
-			logger.Info("Aurora server detected, disabling replication monitor")
-		} else {
-			logger.Debug("Replication metrics enabled")
-			m.replicationMonitor, err = m.monitorReplication()
-			if err != nil {
-				logger.WithError(err).Errorf("Could not monitor replication: %v", err)
-			}
-		}
-	}
+	replicationStarted := false
 
 	utils.RunOnInterval(m.ctx, func() {
 		m.Lock()
@@ -169,7 +155,30 @@ func (m *Monitor) Configure(conf *Config) error {
 			return
 		}
 
-		databases, err := m.determineDatabases()
+		if m.database == nil {
+			m.database, err = dbsql.Open("postgres", connStr+" dbname="+m.conf.MasterDBName)
+			if err != nil {
+				logger.WithError(err).WithField("connStr", connStr).Error("Failed to open database")
+				return
+			}
+		}
+
+		if replicationGroupEnabled && !replicationStarted {
+			rows, err := m.database.QueryContext(m.ctx, `select AURORA_VERSION();`)
+			if err == nil {
+				defer rows.Close()
+				logger.Info("Aurora server detected, disabling replication monitor")
+			} else {
+				logger.Debug("Replication metrics enabled")
+				m.replicationMonitor, err = m.monitorReplication()
+				if err != nil {
+					logger.WithError(err).Errorf("Could not monitor replication: %v", err)
+				}
+			}
+			replicationStarted = true
+		}
+
+		databases, err := determineDatabases(m.ctx, m.database)
 		if err != nil {
 			logger.WithError(err).Error("Could not determine list of PostgreSQL databases")
 		}
@@ -227,17 +236,14 @@ func (m *Monitor) startMonitoringDatabase(name string) (*sql.Monitor, error) {
 	})
 }
 
-func (m *Monitor) determineDatabases() ([]string, error) {
-	rows, err := m.database.QueryContext(m.ctx, `SELECT datname FROM pg_database WHERE datistemplate = false;`)
+func determineDatabases(ctx context.Context, database *dbsql.DB) ([]string, error) {
+	rows, err := database.QueryContext(ctx, `SELECT datname FROM pg_database WHERE datistemplate = false;`)
 	if err != nil {
 		return nil, err
 	}
 	if rows != nil {
 		defer func() {
-			err := rows.Close()
-			if err != nil {
-				logger.WithError(err).Errorf("Error closing rows: %v", err)
-			}
+			_ = rows.Close()
 		}()
 	}
 
@@ -249,10 +255,7 @@ func (m *Monitor) determineDatabases() ([]string, error) {
 		}
 		out = append(out, name)
 	}
-	if err := rows.Err(); err != nil {
-		logger.WithError(err).Errorf("Error iterating and scanning rows: %v", err)
-	}
-	return out, nil
+	return out, rows.Err()
 }
 
 func (m *Monitor) monitorServer() (*sql.Monitor, error) {
