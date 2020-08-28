@@ -67,6 +67,9 @@ spec:
       {{ range .Values.tolerations -}}
       - {{ toYaml . | indent 8 | trim }}
       {{ end }}
+      {{- if .Values.priorityClassName }}
+      priorityClassName: {{ .Values.priorityClassName }}
+      {{- end }}
       containers:
       - name: signalfx-agent
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Values.agentVersion }}"
