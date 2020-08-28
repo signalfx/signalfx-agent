@@ -127,9 +127,9 @@ RUN wget -O /tmp/Python-${PYTHON_VERSION}.tgz https://www.python.org/ftp/python/
 
 # Compile patchelf statically from source
 RUN cd /tmp &&\
-    wget https://nixos.org/releases/patchelf/patchelf-0.10/patchelf-0.10.tar.gz &&\
+    wget https://nixos.org/releases/patchelf/patchelf-0.11/patchelf-0.11.tar.gz &&\
     tar -xf patchelf*.tar.gz &&\
-    cd patchelf-0.10 &&\
+    cd patchelf-0.11* &&\
     ./configure LDFLAGS="-static" &&\
     make &&\
     make install
