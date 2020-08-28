@@ -2,9 +2,15 @@
 
 SignalFx Infrastructure Monitoring helps you gather metrics related to your system's performance. Metrics provide information about processes running inside the system, including counters, cumulative counters, and gauges.
 
+OpenTelemetry provides the libraries, agents, and other components that you need to capture telemetry from your services so that you can better observe, manage, and debug them. The following are just a few scenarios where you can use OpenTelemetry to monitor your solutions:
+
+* Creating custom async libraries 
+* Instrumenting metrics
+* Using multiple context propagation formats (B3, W3C) in parallel
+
 The OpenTelemetry Collector is a stand-alone service that can ingest metrics from various sources. The OpenTelemetry collector provides additional flexibility in configuration options. You can now configure integrations to send data to an OpenTelemetry Collector to centrally manage data sent to SignalFx.
 
-This is two-step process:
+Deploying the SignalFx Smart Agent and OpenTelemetry Collector is a two-step process:
 
 1. [Deploy the SignalFx Smart Agent](#deploy-the-signalfx-smart-agent)
 2. [Deploy an OpenTelemetry Collector for SignalFx](#deploy-an-opentelemetry-collector-for-signalfx)
@@ -74,14 +80,7 @@ To deploy an OpenTelemetry Collector:
       check_interval: 2s
       limit_mib: 1800
       spike_limit_mib: 500
- # Enabling the memory_limiter is strongly recommended for every
- # pipeline. Configuration is based on the amount of memory
- # allocated to the collector. The configuration below assumes 2 GB of
- # memory. In general, the ballast should be set to 1/3 of the collector's
- # memory. The limit should be 90% of the collector's memory up to 2 GB. The
- # spike should be 25% of the collector's memory up to 2 GB. In addition,
- # the "--mem-ballast-size-mib" CLI flag must be set to the same value as
- # the "ballast_size_mib".
+ # Enabling the memory_limiter is strongly recommended for every pipeline. 
     exporters:
 # One or more exporters must be configured.
 # Metrics
