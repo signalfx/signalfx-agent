@@ -129,6 +129,11 @@ nodeSelector: {
 # creates.
 tolerations: []
 
+# You can specify priorityClassName for the pods that the Daemonset creates.
+# It would make sure the agent doesn't get evited if nodes are struggling 
+# for resources.
+priorityClassName: 
+
 # Extra environment variables to set on the agent process.  They are in the
 # same form as the 'env' field of the pod spec (name/value/valueFrom).
 extraEnv:
