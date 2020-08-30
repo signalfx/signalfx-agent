@@ -22,7 +22,8 @@ RUN apt update &&\
       socat \
       sudo \
       vim \
-      wget
+      wget \
+      varnish 
 
 ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
 ENV SIGNALFX_BUNDLE_DIR=/bundle \
