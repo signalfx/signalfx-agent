@@ -79,7 +79,6 @@ import (
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/monitors/telegraflogparser"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/monitors/telegrafsnmp"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/monitors/telegrafstatsd"
-	_ "github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/monitors/varnish"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/monitors/winperfcounters"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/monitors/winservices"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/traceforwarder"
