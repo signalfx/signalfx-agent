@@ -58,26 +58,6 @@ var defaultServerQueries = []sql.Query{
 		},
 	},
 	{
-		Query: `SELECT GREATEST (0, (EXTRACT (EPOCH FROM now() - pg_last_xact_replay_timestamp()))) AS lag, CASE WHEN pg_is_in_recovery() THEN 'standby' ELSE 'master' END AS replication_role;`,
-		Metrics: []sql.Metric{
-			{
-				MetricName:       "postgres_replication_lag",
-				ValueColumn:      "lag",
-				DimensionColumns: []string{"replication_role"},
-			},
-		},
-	},
-	{
-		Query: `SELECT slot_name, slot_type, database, case when active then 1 else 0 end AS active FROM pg_replication_slots;`,
-		Metrics: []sql.Metric{
-			{
-				MetricName:       "postgres_replication_state",
-				ValueColumn:      "active",
-				DimensionColumns: []string{"slot_name", "slot_type", "database"},
-			},
-		},
-	},
-	{
 		Query: `SELECT COUNT(*) AS locks FROM pg_locks WHERE NOT granted;`,
 		Metrics: []sql.Metric{
 			{
@@ -239,4 +219,27 @@ var makeDefaultStatementsQueries = func(limit int) []sql.Query {
 			},
 		},
 	}
+}
+
+var defaultReplicationQueries = []sql.Query{
+	{
+		Query: `SELECT GREATEST (0, (EXTRACT (EPOCH FROM now() - pg_last_xact_replay_timestamp()))) AS lag, CASE WHEN pg_is_in_recovery() THEN 'standby' ELSE 'master' END AS replication_role;`,
+		Metrics: []sql.Metric{
+			{
+				MetricName:       "postgres_replication_lag",
+				ValueColumn:      "lag",
+				DimensionColumns: []string{"replication_role"},
+			},
+		},
+	},
+	{
+		Query: `SELECT slot_name, slot_type, database, case when active then 1 else 0 end AS active FROM pg_replication_slots;`,
+		Metrics: []sql.Metric{
+			{
+				MetricName:       "postgres_replication_state",
+				ValueColumn:      "active",
+				DimensionColumns: []string{"slot_name", "slot_type", "database"},
+			},
+		},
+	},
 }
