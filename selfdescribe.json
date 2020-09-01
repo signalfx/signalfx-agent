@@ -51730,6 +51730,213 @@
       "singleInstance": false
     },
     {
+      "monitorType": "telegraf/varnish",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": {
+        "plugin": {
+          "description": "The plugin name \"telegraf/varnish\"."
+        },
+        "section": {
+          "description": "Varnish section (\"MAIN\", \"MGT\", \"MEMPOOL\", \"SMA\", \"VBE\", \"LCK\")."
+        }
+      },
+      "doc": "This is an embedded form of the [Telegraf Varnish\nplugin](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/varnish).\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "varnish.backend_busy",
+            "varnish.backend_conn",
+            "varnish.backend_fail",
+            "varnish.backend_recycle",
+            "varnish.backend_req",
+            "varnish.backend_reuse",
+            "varnish.backend_toolate",
+            "varnish.backend_unhealthy",
+            "varnish.cache_hit",
+            "varnish.cache_hitpass",
+            "varnish.cache_miss",
+            "varnish.client_req",
+            "varnish.n_lru_nuked",
+            "varnish.sess_dropped",
+            "varnish.sess_queued",
+            "varnish.thread_queue_len",
+            "varnish.threads",
+            "varnish.threads_created",
+            "varnish.threads_failed",
+            "varnish.threads_limited"
+          ]
+        }
+      },
+      "metrics": {
+        "varnish.backend_busy": {
+          "type": "gauge",
+          "description": "Maximum number of connections to a given backend.",
+          "group": null,
+          "default": false
+        },
+        "varnish.backend_conn": {
+          "type": "gauge",
+          "description": "Successful connections to a given backend.",
+          "group": null,
+          "default": false
+        },
+        "varnish.backend_fail": {
+          "type": "gauge",
+          "description": "Failed connections for a given backend.",
+          "group": null,
+          "default": true
+        },
+        "varnish.backend_recycle": {
+          "type": "gauge",
+          "description": "Backend connections with keep-alive that are returned to the pool of connections.",
+          "group": null,
+          "default": false
+        },
+        "varnish.backend_req": {
+          "type": "gauge",
+          "description": "Number of requests to the backend.",
+          "group": null,
+          "default": true
+        },
+        "varnish.backend_reuse": {
+          "type": "gauge",
+          "description": "Recycled connections that has were reused.",
+          "group": null,
+          "default": false
+        },
+        "varnish.backend_toolate": {
+          "type": "gauge",
+          "description": "Backend connections closed because they were idle too long.",
+          "group": null,
+          "default": false
+        },
+        "varnish.backend_unhealthy": {
+          "type": "gauge",
+          "description": "Backend connections not tried because the backend was unhealthy.",
+          "group": null,
+          "default": true
+        },
+        "varnish.cache_hit": {
+          "type": "cumulative",
+          "description": "Requests served from the cache.",
+          "group": null,
+          "default": true
+        },
+        "varnish.cache_hitpass": {
+          "type": "cumulative",
+          "description": "Requests passed to a backend where the decision to pass them found in the cache..",
+          "group": null,
+          "default": false
+        },
+        "varnish.cache_miss": {
+          "type": "cumulative",
+          "description": "Requests fetched from a backend server.",
+          "group": null,
+          "default": true
+        },
+        "varnish.client_req": {
+          "type": "cumulative",
+          "description": "Good client requests.",
+          "group": null,
+          "default": true
+        },
+        "varnish.n_lru_nuked": {
+          "type": "cumulative",
+          "description": "Objects forcefully evicted from the cache because of a lack of space.",
+          "group": null,
+          "default": false
+        },
+        "varnish.sess_dropped": {
+          "type": "gauge",
+          "description": "Sessions dropped due to a full queue.",
+          "group": null,
+          "default": true
+        },
+        "varnish.sess_queued": {
+          "type": "gauge",
+          "description": "Client connections queued to wait for a thread..",
+          "group": null,
+          "default": true
+        },
+        "varnish.thread_queue_len": {
+          "type": "gauge",
+          "description": "Length of session queue waiting for threads.",
+          "group": null,
+          "default": true
+        },
+        "varnish.threads": {
+          "type": "gauge",
+          "description": "Number of threads in all pools.",
+          "group": null,
+          "default": true
+        },
+        "varnish.threads_created": {
+          "type": "gauge",
+          "description": "Number of times a thread has been created.",
+          "group": null,
+          "default": true
+        },
+        "varnish.threads_failed": {
+          "type": "gauge",
+          "description": "Number of times that Varnish unsuccessfully tried to create a thread.",
+          "group": null,
+          "default": true
+        },
+        "varnish.threads_limited": {
+          "type": "gauge",
+          "description": "Threads that were needed but couldn't be created because of a thread pool limit.",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/telegraf/monitors/varnish",
+        "fields": [
+          {
+            "yamlName": "useSudo",
+            "doc": "If running as a restricted user enable this flag to prepend sudo.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "binary",
+            "doc": "The location of the varnishstat binary.",
+            "default": "/usr/bin/varnishstat",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "stats",
+            "doc": "Which stats to gather. Glob matching can be used (i.e. `stats = [\"MAIN.*\"]`). Stats []string `yaml:\"stats\" default:\"[\\\"MAIN.cache_hit\\\", \\\"MAIN.cache_miss\\\", \\\"MAIN.uptime\\\"]\"`",
+            "default": [
+              "MAIN.*"
+            ],
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "instanceName",
+            "doc": "Optional name for the varnish instance to query. It corresponds to `-n` parameter value.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "telegraf/win_perf_counters",
       "sendAll": true,
       "sendUnknown": false,
