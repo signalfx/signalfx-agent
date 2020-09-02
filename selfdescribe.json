@@ -51758,6 +51758,7 @@
             "varnish.cache_hitpass",
             "varnish.cache_miss",
             "varnish.client_req",
+            "varnish.n_backend",
             "varnish.n_lru_nuked",
             "varnish.sess_dropped",
             "varnish.sess_queued",
@@ -51841,6 +51842,12 @@
           "description": "Good client requests.",
           "group": null,
           "default": true
+        },
+        "varnish.n_backend": {
+          "type": "gauge",
+          "description": "Number of backends.",
+          "group": null,
+          "default": false
         },
         "varnish.n_lru_nuked": {
           "type": "cumulative",

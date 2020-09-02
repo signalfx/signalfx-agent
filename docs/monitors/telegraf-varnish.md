@@ -57,6 +57,7 @@ Metrics that are categorized as
  - `varnish.cache_hitpass` (*cumulative*)<br>    Requests passed to a backend where the decision to pass them found in the cache..
  - ***`varnish.cache_miss`*** (*cumulative*)<br>    Requests fetched from a backend server.
  - ***`varnish.client_req`*** (*cumulative*)<br>    Good client requests.
+ - `varnish.n_backend` (*gauge*)<br>    Number of backends.
  - `varnish.n_lru_nuked` (*cumulative*)<br>    Objects forcefully evicted from the cache because of a lack of space.
  - ***`varnish.sess_dropped`*** (*gauge*)<br>    Sessions dropped due to a full queue.
  - ***`varnish.sess_queued`*** (*gauge*)<br>    Client connections queued to wait for a thread..

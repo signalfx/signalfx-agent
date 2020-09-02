@@ -89,7 +89,10 @@ monitors:
       description: Number of requests to the backend.
       default: true
       type: gauge
-
+    varnish.n_backend:
+      description: Number of backends.
+      default: false
+      type: gauge
   monitorType: telegraf/varnish
   sendAll: false
   properties:
