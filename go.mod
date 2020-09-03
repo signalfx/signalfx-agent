@@ -62,7 +62,7 @@ require (
 	github.com/google/cadvisor v0.26.1
 	github.com/googleapis/gnostic v0.1.0 // indirect
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75 // indirect
-	github.com/gorilla/mux v1.6.1
+	github.com/gorilla/mux v1.7.3
 	github.com/guregu/null v3.4.0+incompatible // indirect
 	github.com/hashicorp/consul v1.4.0
 	github.com/hashicorp/go-gcp-common v0.0.0-20180425173946-763e39302965 // indirect
@@ -96,7 +96,7 @@ require (
 	github.com/influxdata/toml v0.0.0-20180607005434-2a2e3012f7cf // indirect
 	github.com/influxdata/wlog v0.0.0-20160411224016-7c63b0a71ef8 // indirect
 	github.com/jackc/pgx/v4 v4.6.0
-	github.com/jaegertracing/jaeger v1.15.1
+	github.com/jaegertracing/jaeger v1.16.0
 	github.com/jeffchao/backoff v0.0.0-20140404060208-9d7fd7aa17f2 // indirect
 	github.com/jefferai/jsonx v1.0.0 // indirect
 	github.com/kardianos/service v1.0.0
@@ -132,23 +132,24 @@ require (
 	github.com/pkg/errors v0.8.2-0.20190227000051-27936f6d90f9
 	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
 	github.com/pquerna/otp v1.1.0 // indirect
-	github.com/prometheus/client_golang v0.9.3-0.20190313112143-fa4aa9000d28
-	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90
-	github.com/prometheus/common v0.4.0
+	github.com/prometheus/client_golang v1.0.0
+	github.com/prometheus/client_model v0.2.0
+	github.com/prometheus/common v0.9.1
 	github.com/prometheus/procfs v0.0.9-0.20191209220459-fa4d6ce8c078
 	github.com/samuel/go-zookeeper v0.0.0-20190810000440-0ceca61e4d75
 	github.com/shirou/gopsutil v2.18.12+incompatible
-	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.0-20190222193949-1fb69526e884
+	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.1
 	github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 	github.com/signalfx/gateway v1.2.19-0.20191125135538-2c417b7ae0bd
-	github.com/signalfx/golib/v3 v3.3.0
+	github.com/signalfx/golib/v3 v3.3.12
+	github.com/signalfx/ingest-protocols v0.0.12
 	github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5
 	github.com/signalfx/signalfx-go-tracing v1.2.0
 	github.com/sirupsen/logrus v1.4.2
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect
 	github.com/streadway/amqp v0.0.0-20190312223743-14f78b41ce6d // indirect
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.1
 	github.com/tidwall/gjson v1.2.1 // indirect
 	github.com/tidwall/match v1.0.1 // indirect
 	github.com/tidwall/pretty v0.0.0-20180105212114-65a9db5fad51 // indirect

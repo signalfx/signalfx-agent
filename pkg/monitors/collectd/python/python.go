@@ -16,10 +16,10 @@ import (
 
 	"github.com/davecgh/go-spew/spew"
 	"github.com/mailru/easyjson"
-	mpCollectd "github.com/signalfx/gateway/protocol/collectd"
-	collectdformat "github.com/signalfx/gateway/protocol/collectd/format"
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/event"
+	mpCollectd "github.com/signalfx/ingest-protocols/protocol/collectd"
+	collectdformat "github.com/signalfx/ingest-protocols/protocol/collectd/format"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/collectd"
