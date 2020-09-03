@@ -12,10 +12,10 @@ import (
 
 	"github.com/gogo/protobuf/proto"
 	"github.com/mailru/easyjson"
-	"github.com/signalfx/com_signalfx_metrics_protobuf"
-	"github.com/signalfx/gateway/protocol/signalfx"
+	sfxmodel "github.com/signalfx/com_signalfx_metrics_protobuf/model"
 	signalfxformat "github.com/signalfx/gateway/protocol/signalfx/format"
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/signalfx/ingest-protocols/protocol/signalfx"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/subproc"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/sirupsen/logrus"
@@ -72,7 +72,7 @@ func (h *JSONHandler) handleMessage(msgType subproc.MessageType, payloadReader i
 		}
 		for metricType, datapoints := range d {
 			if len(datapoints) > 0 {
-				mt, ok := com_signalfx_metrics_protobuf.MetricType_value[strings.ToUpper(metricType)]
+				mt, ok := sfxmodel.MetricType_value[strings.ToUpper(metricType)]
 				if !ok {
 					h.Logger.Error("Unknown metric type")
 					continue
@@ -84,7 +84,7 @@ func (h *JSONHandler) handleMessage(msgType subproc.MessageType, payloadReader i
 						h.Logger.WithError(err).Error("Unable to get value for datapoint")
 						continue
 					}
-					out = append(out, datapoint.New(jsonDatapoint.Metric, jsonDatapoint.Dimensions, v, fromMT(com_signalfx_metrics_protobuf.MetricType(mt)), fromTs(jsonDatapoint.Timestamp)))
+					out = append(out, datapoint.New(jsonDatapoint.Metric, jsonDatapoint.Dimensions, v, fromMT(sfxmodel.MetricType(mt)), fromTs(jsonDatapoint.Timestamp)))
 				}
 				h.Output.SendDatapoints(out...)
 			}
@@ -97,14 +97,14 @@ func (h *JSONHandler) handleMessage(msgType subproc.MessageType, payloadReader i
 		if _, err := jeff.ReadFrom(payloadReader); err != nil {
 			return err
 		}
-		var msg com_signalfx_metrics_protobuf.DataPointUploadMessage
+		var msg sfxmodel.DataPointUploadMessage
 		if err := proto.Unmarshal(jeff.Bytes(), &msg); err != nil {
 			return err
 		}
 		pbufPoints := msg.GetDatapoints()
 		out := make([]*datapoint.Datapoint, 0, len(pbufPoints))
 		for i := range pbufPoints {
-			dp, err := signalfx.NewProtobufDataPointWithType(pbufPoints[i], com_signalfx_metrics_protobuf.MetricType_GAUGE)
+			dp, err := signalfx.NewProtobufDataPointWithType(pbufPoints[i], sfxmodel.MetricType_GAUGE)
 			if err != nil {
 				h.Logger.WithError(err).Error("Unable to convert protobuf datapoint")
 				continue
@@ -130,13 +130,13 @@ func (h *JSONHandler) HandleLogMessage(logReader io.Reader) error {
 }
 
 // Copied from github.com/signalfx/gateway
-var fromMTMap = map[com_signalfx_metrics_protobuf.MetricType]datapoint.MetricType{
-	com_signalfx_metrics_protobuf.MetricType_CUMULATIVE_COUNTER: datapoint.Counter,
-	com_signalfx_metrics_protobuf.MetricType_GAUGE:              datapoint.Gauge,
-	com_signalfx_metrics_protobuf.MetricType_COUNTER:            datapoint.Count,
+var fromMTMap = map[sfxmodel.MetricType]datapoint.MetricType{
+	sfxmodel.MetricType_CUMULATIVE_COUNTER: datapoint.Counter,
+	sfxmodel.MetricType_GAUGE:              datapoint.Gauge,
+	sfxmodel.MetricType_COUNTER:            datapoint.Count,
 }
 
-func fromMT(mt com_signalfx_metrics_protobuf.MetricType) datapoint.MetricType {
+func fromMT(mt sfxmodel.MetricType) datapoint.MetricType {
 	ret, exists := fromMTMap[mt]
 	if exists {
 		return ret
