@@ -12,6 +12,15 @@ monitors:
     ### Filtering
     You can limit the cgroups for which metrics are generated with the
     `cgroups` config option to the monitor.
+
+    For example, the following will only monitor docker generated cgroups:
+
+    ```yaml
+    monitors:
+     - type: cgroups
+       cgroups:
+        - "/docker/*"
+    ```
   metrics:
     cgroup.cpu_shares:
       default: true
