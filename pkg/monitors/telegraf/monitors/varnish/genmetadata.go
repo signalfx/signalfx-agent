@@ -24,7 +24,6 @@ const (
 	varnishCacheHitpass     = "varnish.cache_hitpass"
 	varnishCacheMiss        = "varnish.cache_miss"
 	varnishClientReq        = "varnish.client_req"
-	varnishNBackend         = "varnish.n_backend"
 	varnishNLruNuked        = "varnish.n_lru_nuked"
 	varnishSessDropped      = "varnish.sess_dropped"
 	varnishSessQueued       = "varnish.sess_queued"
@@ -48,7 +47,6 @@ var metricSet = map[string]monitors.MetricInfo{
 	varnishCacheHitpass:     {Type: datapoint.Counter},
 	varnishCacheMiss:        {Type: datapoint.Counter},
 	varnishClientReq:        {Type: datapoint.Counter},
-	varnishNBackend:         {Type: datapoint.Gauge},
 	varnishNLruNuked:        {Type: datapoint.Counter},
 	varnishSessDropped:      {Type: datapoint.Gauge},
 	varnishSessQueued:       {Type: datapoint.Gauge},

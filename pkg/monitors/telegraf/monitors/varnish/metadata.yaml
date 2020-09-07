@@ -3,6 +3,18 @@ monitors:
     This is an embedded form of the [Telegraf Varnish
     plugin](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/varnish).
 
+    Keep in mind this monitor will use `varnishstat` command so the signalfx-agent needs
+    to be run on the same host as the varnish server.
+
+    Also, signalfx-agent should have permission to run this command properly:
+
+    ```bash
+    usermod -a -G varnish signalfx-agent
+    ```
+
+    For more information check [telegraf official documentation](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/varnish#permissions)
+    but do not forget to adapt commands using `signalfx-agent` instead of `telegraf`.
+
   dimensions:
     plugin:
       description: The plugin name "telegraf/varnish".
@@ -88,10 +100,6 @@ monitors:
     varnish.backend_req:
       description: Number of requests to the backend.
       default: true
-      type: gauge
-    varnish.n_backend:
-      description: Number of backends.
-      default: false
       type: gauge
   monitorType: telegraf/varnish
   sendAll: false

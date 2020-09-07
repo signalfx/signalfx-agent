@@ -51741,7 +51741,7 @@
           "description": "Varnish section (\"MAIN\", \"MGT\", \"MEMPOOL\", \"SMA\", \"VBE\", \"LCK\")."
         }
       },
-      "doc": "This is an embedded form of the [Telegraf Varnish\nplugin](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/varnish).\n",
+      "doc": "This is an embedded form of the [Telegraf Varnish\nplugin](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/varnish).\n\nKeep in mind this monitor will use `varnishstat` command so the signalfx-agent needs\nto be run on the same host as the varnish server.\n\nAlso, signalfx-agent should have permission to run this command properly:\n\n```bash\nusermod -a -G varnish signalfx-agent\n```\n\nFor more information check [telegraf official documentation](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/varnish#permissions)\nbut do not forget to adapt commands using `signalfx-agent` instead of `telegraf`.\n",
       "groups": {
         "": {
           "description": "",
@@ -51758,7 +51758,6 @@
             "varnish.cache_hitpass",
             "varnish.cache_miss",
             "varnish.client_req",
-            "varnish.n_backend",
             "varnish.n_lru_nuked",
             "varnish.sess_dropped",
             "varnish.sess_queued",
@@ -51842,12 +51841,6 @@
           "description": "Good client requests.",
           "group": null,
           "default": true
-        },
-        "varnish.n_backend": {
-          "type": "gauge",
-          "description": "Number of backends.",
-          "group": null,
-          "default": false
         },
         "varnish.n_lru_nuked": {
           "type": "cumulative",
