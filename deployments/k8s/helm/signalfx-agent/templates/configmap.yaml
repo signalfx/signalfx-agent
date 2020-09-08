@@ -190,6 +190,10 @@ data:
 {{- if .Values.isServerless }}
       alwaysClusterReporter: true
 {{- end }}
+      {{ with .Values.clusterExtraMetrics -}}
+      extraMetrics:
+        {{ toYaml . | indent 8 | trim }}
+      {{- end }}
     {{- end }}
 
     {{ if not .Values.isServerless -}}
