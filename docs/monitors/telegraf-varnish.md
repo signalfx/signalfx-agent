@@ -13,6 +13,18 @@ Monitor Type: `telegraf/varnish` ([Source](https://github.com/signalfx/signalfx-
 This is an embedded form of the [Telegraf Varnish
 plugin](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/varnish).
 
+Keep in mind this monitor will use `varnishstat` command so the signalfx-agent needs
+to be run on the same host as the varnish server.
+
+Also, signalfx-agent should have permission to run this command properly:
+
+```bash
+usermod -a -G varnish signalfx-agent
+```
+
+For more information check [telegraf official documentation](https://github.com/influxdata/telegraf/tree/master/plugins/inputs/varnish#permissions)
+but do not forget to adapt commands using `signalfx-agent` instead of `telegraf`.
+
 
 ## Configuration
 
@@ -57,7 +69,6 @@ Metrics that are categorized as
  - `varnish.cache_hitpass` (*cumulative*)<br>    Requests passed to a backend where the decision to pass them found in the cache..
  - ***`varnish.cache_miss`*** (*cumulative*)<br>    Requests fetched from a backend server.
  - ***`varnish.client_req`*** (*cumulative*)<br>    Good client requests.
- - `varnish.n_backend` (*gauge*)<br>    Number of backends.
  - `varnish.n_lru_nuked` (*cumulative*)<br>    Objects forcefully evicted from the cache because of a lack of space.
  - ***`varnish.sess_dropped`*** (*gauge*)<br>    Sessions dropped due to a full queue.
  - ***`varnish.sess_queued`*** (*gauge*)<br>    Client connections queued to wait for a thread..
