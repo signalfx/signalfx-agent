@@ -285,3 +285,12 @@ monitors:
 # included into a configmap. These files are automatically included in the previous
 # monitors section if it used.
 monitorsd:
+# All file names in the configmap will create a file in /etc/signalfx/monitors.d repository.
+# They must ended by '.yaml' to be valid.
+#  monitors-cpu.yaml: |-
+#    - type: cpu
+#      # Additional config
+#  monitors-nginx.yaml: |-
+#    - type: collectd/nginx
+#      # Additional config
+#  [...]
