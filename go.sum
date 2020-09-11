@@ -908,6 +908,8 @@ github.com/signalfx/com_signalfx_metrics_protobuf v0.0.0-20190222193949-1fb69526
 github.com/signalfx/com_signalfx_metrics_protobuf v0.0.0-20190222193949-1fb69526e884/go.mod h1:muYA2clvwCdj7nzAJ5vJIXYpJsUumhAl4Uu1wUNpWzA=
 github.com/signalfx/com_signalfx_metrics_protobuf v0.0.1 h1:r5mHbdmAj8EFuVvbe/MxiIyhoV4FVWCO0qPTxqNo1rM=
 github.com/signalfx/com_signalfx_metrics_protobuf v0.0.1/go.mod h1:QkslgLDW0N9qRi9qkxcNDaf812gg0kWcf3ZZORE5/FI=
+github.com/signalfx/com_signalfx_metrics_protobuf v0.0.2 h1:X886QgwZH5qr9HIQkk3mWcNEhUxx6D8rUZumzLV4Wiw=
+github.com/signalfx/com_signalfx_metrics_protobuf v0.0.2/go.mod h1:tCQQqyJAVF1+mxNdqOi18sS/zaSrE6EMyWwRA2QTl70=
 github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657 h1:2B5haF9erda6sSaeHpGKqmgM3irTkjB0bkdjWoV5Qbo=
 github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657/go.mod h1:mUgf0Go14xjLxNZFSGSK9m+GT7jCHyECuCjPh1zadUc=
 github.com/signalfx/embetcd v0.0.9 h1:JMAvW8ZNHstcg8DONl8H/0twi8l58jxSYsvEamzDgo8=
