@@ -10,7 +10,5 @@ metadata:
     release: {{ .Release.Name }}
     chart: {{ template "signalfx-agent.chart" . }}
 data:
-{{- if .Values.monitorsd }}
 {{ tpl (toYaml .Values.monitorsd) . | indent 2 }}
-{{- end }}
 {{- end -}}
