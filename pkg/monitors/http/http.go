@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net"
@@ -30,7 +31,14 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig  `yaml:",inline" singleInstance:"false" acceptsEndpoints:"true"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"false" acceptsEndpoints:"true"`
+	// Host/IP to monitor
+	Host string `yaml:"host"`
+	// Port of the HTTP server to monitor
+	Port uint16 `yaml:"port"`
+	// HTTP path to use in the test request
+	Path string `yaml:"path"`
+
 	httpclient.HTTPConfig `yaml:",inline"`
 	// Optional HTTP request body as string like '{"foo":"bar"}'
 	RequestBody string `yaml:"requestBody"`
@@ -38,8 +46,8 @@ type Config struct {
 	NoRedirects bool `yaml:"noRedirects" default:"false"`
 	// HTTP request method to use.
 	Method string `yaml:"method" default:"GET"`
-	// List of HTTP URLs to monitor.
-	URLs []string `yaml:"urls" validate:"required"`
+	// DEPRECATED: list of HTTP URLs to monitor. Use `host`/`port`/`useHTTPS`/`path` instead.
+	URLs []string `yaml:"urls"`
 	// Optional Regex to match on URL(s) response(s).
 	Regex string `yaml:"regex"`
 	// Desired code to match for URL(s) response(s).
@@ -61,8 +69,6 @@ type Monitor struct {
 func (m *Monitor) Configure(conf *Config) (err error) {
 	m.conf = conf
 	m.logger = logrus.WithFields(logrus.Fields{"monitorType": m.monitorName})
-	// always try https if available
-	m.conf.UseHTTPS = true
 	// Ignore certificate error which will be checked after
 	m.conf.SkipVerify = true
 
@@ -77,6 +83,21 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// Start the metric gathering process here
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
+
+	if m.conf.Host != "" {
+		if m.conf.Port == 0 {
+			m.conf.Port = m.conf.DefaultPort()
+		}
+
+		if m.conf.Path == "" {
+			m.conf.Path = "/"
+		}
+
+		m.conf.URLs = append(m.conf.URLs, fmt.Sprintf("%s://%s:%d%s", m.conf.Scheme(), m.conf.Host, m.conf.Port, m.conf.Path))
+	} else {
+		// always try https if available.  This is for backwards compat.
+		m.conf.UseHTTPS = true
+	}
 
 	utils.RunOnInterval(ctx, func() {
 		// get stats for each website

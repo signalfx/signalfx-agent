@@ -30851,6 +30851,30 @@
         "package": "pkg/monitors/http",
         "fields": [
           {
+            "yamlName": "host",
+            "doc": "Host/IP to monitor",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the HTTP server to monitor",
+            "default": 0,
+            "required": false,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "path",
+            "doc": "HTTP path to use in the test request",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -30948,9 +30972,9 @@
           },
           {
             "yamlName": "urls",
-            "doc": "List of HTTP URLs to monitor.",
+            "doc": "DEPRECATED: list of HTTP URLs to monitor. Use `host`/`port`/`useHTTPS`/`path` instead.",
             "default": null,
-            "required": true,
+            "required": false,
             "type": "slice",
             "elementKind": "string"
           },
