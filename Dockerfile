@@ -42,13 +42,17 @@ ARG PYTHON_VERSION=3.8.0
 
 ENV DEBIAN_FRONTEND noninteractive
 
+RUN apt update &&\
+    apt install -y software-properties-common &&\
+    add-apt-repository ppa:openjdk-r/ppa
+
 RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
     apt-get update &&\
     apt-get install -y \
       curl \
       dpkg \
       net-tools \
-      openjdk-8-jdk \
+      openjdk-10-jdk \
       python-software-properties \
 	  software-properties-common \
       wget \
@@ -155,7 +159,7 @@ ENV CXXFLAGS $CFLAGS
 
 # In the bundle, the java plugin so will live in /lib/collectd and the JVM
 # exists at /jre
-ENV JAVA_LDFLAGS "-Wl,-rpath -Wl,\$\$\ORIGIN/../../jre/lib/${TARGET_ARCH}/server"
+ENV JAVA_LDFLAGS "-Wl,-rpath -Wl,\$\$\ORIGIN/../../jre/lib/server"
 
 RUN autoreconf -vif &&\
     ./configure \
@@ -246,13 +250,18 @@ RUN rm -rf /usr/local/lib/python3.8/config-*-linux-gnu
 FROM ubuntu:16.04 as java
 
 RUN apt update &&\
-    apt install -y openjdk-8-jdk maven
+    apt install -y software-properties-common
+
+RUN add-apt-repository ppa:openjdk-r/ppa &&\
+    apt update &&\
+    apt install -y openjdk-10-jdk maven
 
 ARG TARGET_ARCH
 
 RUN mkdir -p /opt/root &&\
-    cp -rL /usr/lib/jvm/java-8-openjdk-${TARGET_ARCH}/jre /opt/root/jre &&\
-	rm -rf /opt/root/jre/man
+    rm -f /usr/lib/jvm/java-10-openjdk-${TARGET_ARCH}/src.zip &&\
+    cp -rL /usr/lib/jvm/java-10-openjdk-${TARGET_ARCH} /opt/root/jre &&\
+    rm -rf /opt/root/jre/man
 
 COPY java/ /usr/src/agent-java/
 RUN cd /usr/src/agent-java/runner &&\
