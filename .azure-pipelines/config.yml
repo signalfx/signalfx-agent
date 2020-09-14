@@ -145,6 +145,33 @@ jobs:
       pathtoPublish: '$(Build.ArtifactStagingDirectory)'
       artifactName: 'bundle'
 
+- job: 'win_docker_build'
+  pool:
+    vmImage: 'windows-2019'
+  steps:
+  - bash: |
+      set -euxo pipefail
+
+      IS_RELEASE_TAG="false"
+      AGENT_VERSION="latest"
+
+      if [[ "$BUILD_SOURCEBRANCH" =~ ^refs/tags/v\d+\.\d+\.\d+$ ]]; then
+          IS_RELEASE_TAG="true"
+          AGENT_VERSION="${BUILD_SOURCEBRANCHNAME#v}"
+      fi
+
+      docker build -t quay.io/signalfx/signalfx-agent:${AGENT_VERSION}-windows --build-arg AGENT_VERSION=${AGENT_VERSION} -f Dockerfile.windows .
+
+      # push release image
+      if [[ "$IS_RELEASE_TAG" = "true" ]]; then
+          docker login -u="$QUAY_USERNAME" -p="$QUAY_TOKEN" quay.io
+          docker push quay.io/signalfx/signalfx-agent:${AGENT_VERSION}-windows
+      fi
+    displayName: 'Build windows docker image'
+    env:
+      QUAY_USERNAME: $(quayUsername)
+      QUAY_TOKEN: $(quayToken)
+
 - job: 'win_2019_integration_tests'
   pool:
     vmImage: 'windows-2019'
