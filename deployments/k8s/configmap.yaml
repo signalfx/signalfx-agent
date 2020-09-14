@@ -62,6 +62,7 @@ data:
     - type: kubernetes-cluster
 
 
+
     - type: docker-container-stats
       dockerURL: unix:///var/run/docker.sock
       excludedImages:
