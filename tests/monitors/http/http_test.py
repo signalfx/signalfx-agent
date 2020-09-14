@@ -3,7 +3,7 @@ from textwrap import dedent
 
 import pytest
 from tests.helpers.agent import Agent
-from tests.helpers.assertions import all_datapoints_have_dim_key, has_datapoint_with_metric_name
+from tests.helpers.assertions import all_datapoints_have_dim_key, has_all_dims, has_datapoint_with_metric_name
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import wait_for
 from tests.helpers.verify import run_agent_verify_default_metrics, verify_expected_is_subset
@@ -132,3 +132,8 @@ def test_http_tls_stats():
     ) as agent:
         # url should has a bad certificate
         check_values(agent.fake_services.datapoints, 200, cert=0)
+
+        for dp in agent.fake_services.datapoints:
+            assert has_all_dims(dp, {"original_url": URL_HTTPS_SELFSIGNED}) or has_all_dims(
+                dp, {"original_url": URL_HTTPS_EXPIRED}
+            )

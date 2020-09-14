@@ -90,8 +90,9 @@ dimensions may be specific to certain metrics.
 | Name | Description |
 | ---  | ---         |
 | `method` | HTTP method used to do request. Not available on `http.cert_*` metrics. |
+| `original_url` | The original URL used in the configuration of this monitor.  May differ from `url` if the URL responds with a redirect and `noRedirects: false`. |
 | `server_name` | ServerName used for TLS validation. Always and only available on `http.cert_expiry` metric. |
-| `url` | Last URL retrieved from configured one. Always available on every metrics. |
+| `url` | Last URL retrieved (after redirects) from configured one. Always available on every metrics. |
 
 
 

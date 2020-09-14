@@ -13,7 +13,11 @@ monitors:
 
   dimensions:
     url:
-      description: Last URL retrieved from configured one. Always available on every metrics.
+      description: Last URL retrieved (after redirects) from configured one. Always available on every metrics.
+    original_url:
+      description: >
+        The original URL used in the configuration of this monitor.  May differ
+        from `url` if the URL responds with a redirect and `noRedirects: false`.
     server_name:
       description: ServerName used for TLS validation. Always and only available on `http.cert_expiry` metric.
     method:
