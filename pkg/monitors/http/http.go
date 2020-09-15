@@ -106,6 +106,10 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 				logger.WithError(err).Error("Failed gathering HTTP stats, ignore other stats")
 			}
 
+			for i := range dps {
+				dps[i].Dimensions["original_url"] = site
+			}
+
 			m.Output.SendDatapoints(dps...)
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
