@@ -39,11 +39,14 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
+| `host` | no | `string` | Host/IP to monitor |
+| `port` | no | `integer` | Port of the HTTP server to monitor (**default:** `0`) |
+| `path` | no | `string` | HTTP path to use in the test request |
 | `httpTimeout` | no | `int64` | HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration (**default:** `10s`) |
 | `username` | no | `string` | Basic Auth username to use on each request, if any. |
 | `password` | no | `string` | Basic Auth password to use on each request, if any. |
-| `useHTTPS` | no | `bool` | If true, the agent will connect to the exporter using HTTPS instead of plain HTTP. (**default:** `false`) |
-| `httpHeaders` | no | `map of strings` | A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported. |
+| `useHTTPS` | no | `bool` | If true, the agent will connect to the server using HTTPS instead of plain HTTP. (**default:** `false`) |
+| `httpHeaders` | no | `map of strings` | A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported. |
 | `skipVerify` | no | `bool` | If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified. (**default:** `false`) |
 | `caCertPath` | no | `string` | Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false. |
 | `clientCertPath` | no | `string` | Path to the client TLS cert to use for TLS required connections |
@@ -51,7 +54,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `requestBody` | no | `string` | Optional HTTP request body as string like '{"foo":"bar"}' |
 | `noRedirects` | no | `bool` | Do not follow redirect. (**default:** `false`) |
 | `method` | no | `string` | HTTP request method to use. (**default:** `GET`) |
-| `urls` | **yes** | `list of strings` | List of HTTP URLs to monitor. |
+| `urls` | no | `list of strings` | DEPRECATED: list of HTTP URLs to monitor. Use `host`/`port`/`useHTTPS`/`path` instead. |
 | `regex` | no | `string` | Optional Regex to match on URL(s) response(s). |
 | `desiredCode` | no | `integer` | Desired code to match for URL(s) response(s). (**default:** `200`) |
 

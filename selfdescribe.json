@@ -22722,7 +22722,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -22730,7 +22730,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -25639,7 +25639,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -25647,7 +25647,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -25901,7 +25901,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -25909,7 +25909,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -27480,7 +27480,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -27488,7 +27488,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -28532,7 +28532,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -28540,7 +28540,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -28761,7 +28761,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -28769,7 +28769,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -28976,7 +28976,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -28984,7 +28984,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -29247,7 +29247,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -29255,7 +29255,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -29595,7 +29595,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -29603,7 +29603,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -29915,7 +29915,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -29923,7 +29923,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -30851,6 +30851,30 @@
         "package": "pkg/monitors/http",
         "fields": [
           {
+            "yamlName": "host",
+            "doc": "Host/IP to monitor",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the HTTP server to monitor",
+            "default": 0,
+            "required": false,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "path",
+            "doc": "HTTP path to use in the test request",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "httpTimeout",
             "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
             "default": "10s",
@@ -30876,7 +30900,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -30884,7 +30908,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -30948,9 +30972,9 @@
           },
           {
             "yamlName": "urls",
-            "doc": "List of HTTP URLs to monitor.",
+            "doc": "DEPRECATED: list of HTTP URLs to monitor. Use `host`/`port`/`useHTTPS`/`path` instead.",
             "default": null,
-            "required": true,
+            "required": false,
             "type": "slice",
             "elementKind": "string"
           },
@@ -34982,7 +35006,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -34990,7 +35014,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -37694,7 +37718,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -37702,7 +37726,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -38915,7 +38939,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -38923,7 +38947,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -39879,7 +39903,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -39887,7 +39911,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -43014,7 +43038,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -43022,7 +43046,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -43411,7 +43435,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -43419,7 +43443,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -43675,7 +43699,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -43683,7 +43707,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -44919,7 +44943,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -44927,7 +44951,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -46744,7 +46768,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -46752,7 +46776,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -47876,7 +47900,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -47884,7 +47908,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -48427,7 +48451,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -48435,7 +48459,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
@@ -52549,7 +52573,7 @@
           },
           {
             "yamlName": "useHTTPS",
-            "doc": "If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
             "default": false,
             "required": false,
             "type": "bool",
@@ -52557,7 +52581,7 @@
           },
           {
             "yamlName": "httpHeaders",
-            "doc": "A map of key=message-header and value=header-value. Comma separated multiple values for the same message-header is supported.",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
             "default": null,
             "required": false,
             "type": "map",
