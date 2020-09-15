@@ -50,7 +50,7 @@ RUN add-apt-repository \
     $(lsb_release -cs) \
     stable"
 RUN apt-get update && \
-    apt-get -yy -q install docker-ce=17.12.1~ce-0~ubuntu
+    apt-get -yy -q install docker-ce=5:19.03.12~3-0~ubuntu-xenial
 VOLUME /var/lib/docker
 EXPOSE 2375
 

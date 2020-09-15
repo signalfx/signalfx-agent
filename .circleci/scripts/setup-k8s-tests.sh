@@ -4,8 +4,8 @@ set -eo pipefail
 
 [ -n "$K8S_VERSION" ] || (echo "K8S_VERSION not defined!" && exit 1)
 
-K8S_MIN_VERSION="${K8S_MIN_VERSION:-v1.14.0}"
-K8S_MAX_VERSION="${K8S_MAX_VERSION:-v1.18.0}"
+K8S_MIN_VERSION="${K8S_MIN_VERSION:-v1.15.0}"
+K8S_MAX_VERSION="${K8S_MAX_VERSION:-v1.19.0}"
 K8S_SFX_AGENT="${K8S_SFX_AGENT:-quay.io/signalfx/signalfx-agent-dev:latest}"
 WITH_CRIO=${WITH_CRIO:-0}
 
