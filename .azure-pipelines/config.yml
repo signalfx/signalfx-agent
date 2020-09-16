@@ -155,7 +155,7 @@ jobs:
       IS_RELEASE_TAG="false"
       AGENT_VERSION="latest"
 
-      if [[ "$BUILD_SOURCEBRANCH" =~ ^refs/tags/v\d+\.\d+\.\d+$ ]]; then
+      if [[ "$BUILD_SOURCEBRANCH" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
           IS_RELEASE_TAG="true"
           AGENT_VERSION="${BUILD_SOURCEBRANCHNAME#v}"
       fi
