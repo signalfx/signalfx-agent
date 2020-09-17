@@ -474,17 +474,17 @@ jobs:
 
   dependency_check:
     docker:
-      - image: owasp/dependency-check:5.2.2
+      - image: owasp/dependency-check:6.0.1
         user: root
     steps:
       - checkout
       - attach_workspace:
           at: /tmp/workspace
       - restore_cache:
-          key: v1-dependency-check-nvd-{{ checksum ".circleci/scripts/run-dependency-check.sh" }}
+          key: v2-dependency-check-nvd-{{ checksum ".circleci/scripts/run-dependency-check.sh" }}
       - run: .circleci/scripts/run-dependency-check.sh
       - save_cache:
-          key: v1-dependency-check-nvd-{{ checksum ".circleci/scripts/run-dependency-check.sh" }}
+          key: v2-dependency-check-nvd-{{ checksum ".circleci/scripts/run-dependency-check.sh" }}
           paths:
             - /usr/share/dependency-check/data
       - save_test_results:
