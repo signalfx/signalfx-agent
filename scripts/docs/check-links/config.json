@@ -20,6 +20,9 @@
         },
         {
             "pattern": "localhost\\:9090"
+        },
+        {
+            "pattern": ".*/_sidebars-and-includes/.*"
         }
     ]
 }
