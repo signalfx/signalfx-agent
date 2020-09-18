@@ -49,8 +49,14 @@ def fixup_relative_agent_doc_paths(content):
 REQUIRED_AGENT_DOCS = {
     "directories": ["monitors", "observers"],
     "md_files": [
+        "agent-install-awsecs",
+        "agent-install-config-mgmt",
+        "agent-install-packages",
+        "agent-install-standalone-linux",
+        "agent-install-standalone-windows",
+        "agent-k8s-install-helm",
+        "agent-k8s-install-kubectl",
         "quick-install",
-        "advanced-install-options",
         "config-schema",
         "observer-config",
         "monitor-config",
