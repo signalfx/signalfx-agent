@@ -30798,17 +30798,14 @@
       "sendAll": false,
       "sendUnknown": false,
       "dimensions": {
+        "last_url": {
+          "description": "Last URL retrieved (after redirects) from configured one. Only sent if `noRedirects: false` and `addLastURL: true` and if URL responds with a redirect different from the original `url`.\n"
+        },
         "method": {
           "description": "HTTP method used to do request. Not available on `http.cert_*` metrics."
         },
-        "original_url": {
-          "description": "The original URL used in the configuration of this monitor.  May differ from `url` if the URL responds with a redirect and `noRedirects: false`.\n"
-        },
-        "server_name": {
-          "description": "ServerName used for TLS validation. Always and only available on `http.cert_expiry` metric."
-        },
         "url": {
-          "description": "Last URL retrieved (after redirects) from configured one. Always available on every metrics."
+          "description": "The normalized URL (including port and path) from the configuration of this monitor. Always available on every metrics.\n"
         }
       },
       "doc": "This monitor will generate metrics based on whether the HTTP responses from\nthe configured URLs match expectations (e.g. correct body, status code,\netc).\n\nTLS information will automatically be fetched if applicable (from base URL\nor redirection).\n\nThe configuration will be applied to every requests URLs from configured\nlist so you need to instance multiple times this monitor for different\nbehavior on multiple URLs.\n",
@@ -30829,13 +30826,13 @@
       "metrics": {
         "http.cert_expiry": {
           "type": "gauge",
-          "description": "Certificate expiry in seconds. This metric is reported only if HTTPS is available (from last followed URL).",
+          "description": "Certificate expiry in seconds. This metric is reported only if HTTPS  is available (from last followed URL).\n",
           "group": null,
           "default": true
         },
         "http.cert_valid": {
           "type": "gauge",
-          "description": "Value is 1 if certificate is valid (including expiration test) or 0 else. This metric is reported only if HTTPS is available (from last followed URL).",
+          "description": "Value is 1 if certificate is valid (including expiration test) or 0 else. This metric is reported only if HTTPS is available (from last followed URL).\n",
           "group": null,
           "default": true
         },
@@ -31018,6 +31015,14 @@
             "default": 200,
             "required": false,
             "type": "int",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "addLastURL",
+            "doc": "Add `last_url` dimension which could differ from `url` when redirection is followed.",
+            "default": false,
+            "required": false,
+            "type": "bool",
             "elementKind": ""
           }
         ]
