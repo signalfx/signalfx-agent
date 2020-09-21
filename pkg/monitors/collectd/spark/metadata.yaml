@@ -22,14 +22,14 @@ monitors:
     master and worker processes.  For the master configuration, set `isMaster`
     to true.
 
-    When running Spark on Apache Hadoop / Yarn, this integration is only capable
+    When running Spark on Apache Hadoop / YARN, this integration is only capable
     of reporting application metrics from the master node.  Use the
     collectd/hadoop monitor to report on the health of the cluster.
 
     <!--- SETUP --->
     ### Example config:
 
-    An example configuration for monitoring applications on Yarn
+    An example configuration for monitoring applications on YARN
     ```yaml
     monitors:
       - type: collectd/spark
