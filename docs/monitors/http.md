@@ -57,7 +57,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `urls` | no | `list of strings` | DEPRECATED: list of HTTP URLs to monitor. Use `host`/`port`/`useHTTPS`/`path` instead. |
 | `regex` | no | `string` | Optional Regex to match on URL(s) response(s). |
 | `desiredCode` | no | `integer` | Desired code to match for URL(s) response(s). (**default:** `200`) |
-| `addLastURL` | no | `bool` | Add `last_url` dimension which could differ from `url` when redirection is followed. (**default:** `false`) |
+| `addRedirectURL` | no | `bool` | Add `redirect_url` dimension which could differ from `url` when redirection is followed. (**default:** `false`) |
 
 
 ## Metrics
@@ -95,8 +95,8 @@ dimensions may be specific to certain metrics.
 
 | Name | Description |
 | ---  | ---         |
-| `last_url` | Last URL retrieved (after redirects) from configured one. Only sent if `noRedirects: false` and `addLastURL: true` and if URL responds with a redirect different from the original `url`. |
 | `method` | HTTP method used to do request. Not available on `http.cert_*` metrics. |
+| `redirect_url` | Last URL retrieved (after redirects) from configured one. Only sent if `noRedirects: false` and `addLastURL: true` and if URL responds with a redirect different from the original `url`. |
 | `url` | The normalized URL (including port and path) from the configuration of this monitor. Always available on every metrics. |
 
 

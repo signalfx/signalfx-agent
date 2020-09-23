@@ -16,7 +16,7 @@ monitors:
       description: >
         The normalized URL (including port and path) from the configuration of this monitor.
         Always available on every metrics.
-    last_url:
+    redirect_url:
       description: >
         Last URL retrieved (after redirects) from configured one. Only sent if `noRedirects: false`
         and `addLastURL: true` and if URL responds with a redirect different from the original `url`.

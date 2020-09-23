@@ -30798,11 +30798,11 @@
       "sendAll": false,
       "sendUnknown": false,
       "dimensions": {
-        "last_url": {
-          "description": "Last URL retrieved (after redirects) from configured one. Only sent if `noRedirects: false` and `addLastURL: true` and if URL responds with a redirect different from the original `url`.\n"
-        },
         "method": {
           "description": "HTTP method used to do request. Not available on `http.cert_*` metrics."
+        },
+        "redirect_url": {
+          "description": "Last URL retrieved (after redirects) from configured one. Only sent if `noRedirects: false` and `addLastURL: true` and if URL responds with a redirect different from the original `url`.\n"
         },
         "url": {
           "description": "The normalized URL (including port and path) from the configuration of this monitor. Always available on every metrics.\n"
@@ -31018,8 +31018,8 @@
             "elementKind": ""
           },
           {
-            "yamlName": "addLastURL",
-            "doc": "Add `last_url` dimension which could differ from `url` when redirection is followed.",
+            "yamlName": "addRedirectURL",
+            "doc": "Add `redirect_url` dimension which could differ from `url` when redirection is followed.",
             "default": false,
             "required": false,
             "type": "bool",

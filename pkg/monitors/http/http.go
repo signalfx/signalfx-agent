@@ -52,8 +52,8 @@ type Config struct {
 	Regex string `yaml:"regex"`
 	// Desired code to match for URL(s) response(s).
 	DesiredCode int `yaml:"desiredCode" default:"200"`
-	// Add `last_url` dimension which could differ from `url` when redirection is followed.
-	AddLastURL bool `yaml:"addLastURL" default:"false"`
+	// Add `redirect_url` dimension which could differ from `url` when redirection is followed.
+	AddRedirectURL bool `yaml:"addRedirectURL" default:"false"`
 }
 
 // Monitor that collect metrics
@@ -91,7 +91,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		if m.conf.Port == 0 {
 			m.conf.Port = m.conf.DefaultPort()
 		}
-		clientURL, err := m.forgeURL(fmt.Sprintf("%s://%s:%d%s", m.conf.Scheme(), m.conf.Host, m.conf.Port, m.conf.Path))
+		clientURL, err := m.normalizeURL(fmt.Sprintf("%s://%s:%d%s", m.conf.Scheme(), m.conf.Host, m.conf.Port, m.conf.Path))
 		if err != nil {
 			m.logger.WithError(err).Error("error configuring url from http client, ignore it")
 		} else {
@@ -102,7 +102,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		m.conf.UseHTTPS = true
 	}
 	for _, site := range m.conf.URLs {
-		stringURL, err := m.forgeURL(site)
+		stringURL, err := m.normalizeURL(site)
 		if err != nil {
 			m.logger.WithField("url", site).WithError(err).Error("error configuring url from list, ignore it")
 			continue
@@ -115,10 +115,10 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		for _, site := range m.URLs {
 			logger := m.logger.WithFields(logrus.Fields{"url": site.String()})
 
-			dps, lastURL, err := m.getHTTPStats(site, logger)
+			dps, redirectURL, err := m.getHTTPStats(site, logger)
 			if err == nil {
-				if lastURL.Scheme == "https" {
-					tlsDps, err := m.getTLSStats(lastURL, logger)
+				if redirectURL.Scheme == "https" {
+					tlsDps, err := m.getTLSStats(redirectURL, logger)
 					if err == nil {
 						dps = append(dps, tlsDps...)
 					} else {
@@ -133,12 +133,12 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 				dps[i].Dimensions["url"] = site.String()
 			}
 
-			if m.conf.AddLastURL && !m.conf.NoRedirects {
-				normalizedURL, _ := m.forgeURL(fmt.Sprintf("%s://%s:%s%s", lastURL.Scheme, lastURL.Hostname(), lastURL.Port(), lastURL.Path))
+			if m.conf.AddRedirectURL && !m.conf.NoRedirects {
+				normalizedURL, _ := m.normalizeURL(fmt.Sprintf("%s://%s:%s%s", redirectURL.Scheme, redirectURL.Hostname(), redirectURL.Port(), redirectURL.Path))
 				if site.String() != normalizedURL.String() {
-					logger.WithField("last_url", normalizedURL.String()).Debug("URL redirected")
+					logger.WithField("redirect_url", normalizedURL.String()).Debug("URL redirected")
 					for i := range dps {
-						dps[i].Dimensions["last_url"] = normalizedURL.String()
+						dps[i].Dimensions["redirect_url"] = normalizedURL.String()
 					}
 				}
 			}
@@ -158,7 +158,7 @@ func (m *Monitor) Shutdown() {
 	}
 }
 
-func (m *Monitor) forgeURL(site string) (normalizedURL *url.URL, err error) {
+func (m *Monitor) normalizeURL(site string) (normalizedURL *url.URL, err error) {
 	stringURL, err := url.Parse(site)
 	if err != nil {
 		return
@@ -252,7 +252,7 @@ func (m *Monitor) getTLSStats(site *url.URL, logger *logrus.Entry) (dps []*datap
 	return dps, nil
 }
 
-func (m *Monitor) getHTTPStats(site fmt.Stringer, logger *logrus.Entry) (dps []*datapoint.Datapoint, lastURL *url.URL, err error) {
+func (m *Monitor) getHTTPStats(site fmt.Stringer, logger *logrus.Entry) (dps []*datapoint.Datapoint, redirectURL *url.URL, err error) {
 	// do not suggest fmt.Stringer
 	// Init http client
 	client, err := m.conf.HTTPConfig.Build()
@@ -288,7 +288,7 @@ func (m *Monitor) getHTTPStats(site fmt.Stringer, logger *logrus.Entry) (dps []*
 
 	responseTime := time.Since(now).Seconds()
 
-	lastURL = resp.Request.URL
+	redirectURL = resp.Request.URL
 
 	dimensions := map[string]string{
 		"method": m.conf.Method,
@@ -321,5 +321,5 @@ func (m *Monitor) getHTTPStats(site fmt.Stringer, logger *logrus.Entry) (dps []*
 			dps = append(dps, datapoint.New(httpRegexMatched, dimensions, datapoint.NewIntValue(matchRegex), datapoint.Gauge, time.Time{}))
 		}
 	}
-	return dps, lastURL, err
+	return dps, redirectURL, err
 }
