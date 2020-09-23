@@ -182,6 +182,7 @@ packages:
   jobs:
   - name: signalfx-agent
     instances: 1
+    post_deploy: false
     templates:
      - name: signalfx-agent
        release: signalfx-agent
