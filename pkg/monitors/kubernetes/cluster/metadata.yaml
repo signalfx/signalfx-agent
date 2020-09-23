@@ -125,6 +125,22 @@ common:
         state (-1)
       default: true
       type: gauge
+    kubernetes.node_allocatable_cpu:
+      description: How many CPU cores remaining that the node can allocate to pods
+      default: false
+      type: gauge
+    kubernetes.node_allocatable_memory:
+      description: How many bytes of RAM memory remaining that the node can allocate to pods
+      default: false
+      type: gauge
+    kubernetes.node_allocatable_storage:
+      description: How many bytes of storage remaining that the node can allocate to pods
+      default: false
+      type: gauge
+    kubernetes.node_allocatable_ephemeral_storage:
+      description: How many bytes of ephemeral storage remaining that the node can allocate to pods
+      default: false
+      type: gauge
     kubernetes.pod_phase:
       description: Current phase of the pod (1 - Pending, 2 - Running, 3 - Succeeded,
         4 - Failed, 5 - Unknown)

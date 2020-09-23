@@ -46,6 +46,10 @@ const (
 	KubernetesJobParallelism                               = "kubernetes.job.parallelism"
 	KubernetesJobSucceeded                                 = "kubernetes.job.succeeded"
 	KubernetesNamespacePhase                               = "kubernetes.namespace_phase"
+	KubernetesNodeAllocatableCPU                           = "kubernetes.node_allocatable_cpu"
+	KubernetesNodeAllocatableEphemeralStorage              = "kubernetes.node_allocatable_ephemeral_storage"
+	KubernetesNodeAllocatableMemory                        = "kubernetes.node_allocatable_memory"
+	KubernetesNodeAllocatableStorage                       = "kubernetes.node_allocatable_storage"
 	KubernetesNodeReady                                    = "kubernetes.node_ready"
 	KubernetesPodPhase                                     = "kubernetes.pod_phase"
 	KubernetesReplicaSetAvailable                          = "kubernetes.replica_set.available"
@@ -119,6 +123,10 @@ var MetricSet = map[string]monitors.MetricInfo{
 	KubernetesJobParallelism:                               {Type: datapoint.Gauge},
 	KubernetesJobSucceeded:                                 {Type: datapoint.Count},
 	KubernetesNamespacePhase:                               {Type: datapoint.Gauge},
+	KubernetesNodeAllocatableCPU:                           {Type: datapoint.Gauge},
+	KubernetesNodeAllocatableEphemeralStorage:              {Type: datapoint.Gauge},
+	KubernetesNodeAllocatableMemory:                        {Type: datapoint.Gauge},
+	KubernetesNodeAllocatableStorage:                       {Type: datapoint.Gauge},
 	KubernetesNodeReady:                                    {Type: datapoint.Gauge},
 	KubernetesPodPhase:                                     {Type: datapoint.Gauge},
 	KubernetesReplicaSetAvailable:                          {Type: datapoint.Gauge},
