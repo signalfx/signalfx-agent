@@ -37898,6 +37898,10 @@
             "kubernetes.job.parallelism",
             "kubernetes.job.succeeded",
             "kubernetes.namespace_phase",
+            "kubernetes.node_allocatable_cpu",
+            "kubernetes.node_allocatable_ephemeral_storage",
+            "kubernetes.node_allocatable_memory",
+            "kubernetes.node_allocatable_storage",
             "kubernetes.node_ready",
             "kubernetes.pod_phase",
             "kubernetes.replica_set.available",
@@ -38105,6 +38109,30 @@
           "description": "The current phase of namespaces (`1` for _active_ and `0` for _terminating_)",
           "group": null,
           "default": true
+        },
+        "kubernetes.node_allocatable_cpu": {
+          "type": "gauge",
+          "description": "How many CPU cores remaining that the node can allocate to pods",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.node_allocatable_ephemeral_storage": {
+          "type": "gauge",
+          "description": "How many bytes of ephemeral storage remaining that the node can allocate to pods",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.node_allocatable_memory": {
+          "type": "gauge",
+          "description": "How many bytes of RAM memory remaining that the node can allocate to pods",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.node_allocatable_storage": {
+          "type": "gauge",
+          "description": "How many bytes of storage remaining that the node can allocate to pods",
+          "group": null,
+          "default": false
         },
         "kubernetes.node_ready": {
           "type": "gauge",
@@ -42035,6 +42063,10 @@
             "kubernetes.job.parallelism",
             "kubernetes.job.succeeded",
             "kubernetes.namespace_phase",
+            "kubernetes.node_allocatable_cpu",
+            "kubernetes.node_allocatable_ephemeral_storage",
+            "kubernetes.node_allocatable_memory",
+            "kubernetes.node_allocatable_storage",
             "kubernetes.node_ready",
             "kubernetes.pod_phase",
             "kubernetes.replica_set.available",
@@ -42270,6 +42302,30 @@
           "description": "The current phase of namespaces (`1` for _active_ and `0` for _terminating_)",
           "group": null,
           "default": true
+        },
+        "kubernetes.node_allocatable_cpu": {
+          "type": "gauge",
+          "description": "How many CPU cores remaining that the node can allocate to pods",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.node_allocatable_ephemeral_storage": {
+          "type": "gauge",
+          "description": "How many bytes of ephemeral storage remaining that the node can allocate to pods",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.node_allocatable_memory": {
+          "type": "gauge",
+          "description": "How many bytes of RAM memory remaining that the node can allocate to pods",
+          "group": null,
+          "default": false
+        },
+        "kubernetes.node_allocatable_storage": {
+          "type": "gauge",
+          "description": "How many bytes of storage remaining that the node can allocate to pods",
+          "group": null,
+          "default": false
         },
         "kubernetes.node_ready": {
           "type": "gauge",

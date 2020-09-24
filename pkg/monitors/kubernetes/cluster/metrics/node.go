@@ -9,10 +9,18 @@ import (
 
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/kubernetes/cluster/meta"
 	k8sutil "github.com/signalfx/signalfx-agent/pkg/monitors/kubernetes/utils"
 	atypes "github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	v1 "k8s.io/api/core/v1"
 )
+
+var resourceNameToMetric = map[v1.ResourceName]string{
+	v1.ResourceCPU:              meta.KubernetesNodeAllocatableCPU,
+	v1.ResourceMemory:           meta.KubernetesNodeAllocatableMemory,
+	v1.ResourceStorage:          meta.KubernetesNodeAllocatableStorage,
+	v1.ResourceEphemeralStorage: meta.KubernetesNodeAllocatableEphemeralStorage,
+}
 
 func datapointsForNode(
 	node *v1.Node,
@@ -33,6 +41,18 @@ func datapointsForNode(
 				nodeConditionMetric, dims, nodeConditionValue(node, v1NodeConditionTypeValue),
 			),
 		)
+	}
+
+	for _, res := range [4]v1.ResourceName{v1.ResourceCPU, v1.ResourceMemory, v1.ResourceStorage, v1.ResourceEphemeralStorage} {
+		quant, ok := node.Status.Allocatable[res]
+		if ok {
+			metric, ok := resourceNameToMetric[res]
+			if !ok {
+				panic("programmer forgot an entry")
+			}
+
+			datapoints = append(datapoints, sfxclient.GaugeF(metric, dims, float64(quant.MilliValue())/1000.0))
+		}
 	}
 	return datapoints
 }
