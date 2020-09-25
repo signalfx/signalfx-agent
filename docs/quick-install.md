@@ -7,7 +7,7 @@ Use this integration if you want to evaluate monitoring on a single host.
 The Smart Agent collects infrastructure monitoring, APM, and Kubernetes data.
 
 For other installation options, including bulk deployments to production,
-see [Install and Configure the Smart Agent](../../../integrations/agent/agent-install-methods.html).
+see [Install and Configure the Smart Agent](https://docs.signalfx.com/en/latest/integrations/agent/agent-install-methods.html).
 
 ## Installation
 
