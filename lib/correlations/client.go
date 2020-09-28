@@ -14,11 +14,11 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
+	"go.uber.org/zap"
 
 	"github.com/signalfx/signalfx-agent/lib/requests"
 	"github.com/signalfx/signalfx-agent/lib/requests/requestcounter"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
-	log "github.com/sirupsen/logrus"
 )
 
 var ErrChFull = errors.New("request channel full")
@@ -59,6 +59,7 @@ type request struct {
 // Client is a client for making dimensional correlations
 type Client struct {
 	sync.RWMutex
+	log           *zap.Logger
 	ctx           context.Context
 	wg            sync.WaitGroup
 	Token         string
@@ -100,6 +101,8 @@ func NewCorrelationClient(ctx context.Context, conf *config.WriterConfig) (Corre
 	}
 	sender := requests.NewReqSender(ctx, client, conf.PropertiesMaxRequests, "correlation")
 	return &Client{
+		// TODO
+		log:                zap.NewNop(),
 		ctx:                ctx,
 		Token:              conf.SignalFxAccessToken,
 		APIURL:             conf.ParsedAPIURL(),
@@ -123,7 +126,7 @@ func (cc *Client) putRequestOnChan(r *request) error {
 		// and because this isn't being taken off on the request sender and subject to retries, this could
 		// potentially spam the logs
 		atomic.AddInt64(&cc.TotalInvalidDimensions, int64(1))
-		log.WithFields(log.Fields{"method": r.operation, "correlation": r.Correlation}).Debug("No dimension key or value to correlate to")
+		cc.log.Debug("No dimension key or value to correlate to", zap.String("method", r.operation), zap.Any("correlation", r.Correlation))
 		return nil
 	}
 
@@ -181,7 +184,7 @@ func (cc *Client) Correlate(cor *Correlation, cb CorrelateCB) {
 			switch statuscode {
 			case http.StatusOK:
 				if cc.logUpdates {
-					log.WithFields(log.Fields{"method": http.MethodPut, "correlation": cor}).Info("Updated dimension")
+					cc.log.Info("Updated dimension", zap.String("method", http.MethodPut), zap.Any("correlation", cor))
 				}
 			case http.StatusTeapot:
 				max := &ErrMaxEntries{}
@@ -191,12 +194,12 @@ func (cc *Client) Correlate(cor *Correlation, cb CorrelateCB) {
 				}
 			}
 			if err != nil {
-				log.WithError(err).WithFields(log.Fields{"method": http.MethodPut, "correlation": cor}).Error("Unable to update dimension, not retrying")
+				cc.log.Error("Unable to update dimension, not retrying", zap.Error(err), zap.String("method", http.MethodPut), zap.Any("correlation", cor))
 			}
 			cb(cor, err)
 		}})
 	if err != nil {
-		log.WithError(err).WithFields(log.Fields{"method": http.MethodPut, "correlation": cor}).Debug("Unable to update dimension, not retrying")
+		cc.log.Debug("Unable to update dimension, not retrying", zap.Error(err), zap.String("method", http.MethodPut), zap.Any("correlation", cor))
 	}
 }
 
@@ -213,14 +216,14 @@ func (cc *Client) Delete(cor *Correlation, callback SuccessfulDeleteCB) {
 			case http.StatusOK:
 				callback(cor)
 				if cc.logUpdates {
-					log.WithFields(log.Fields{"method": http.MethodDelete, "correlation": cor}).Info("Updated dimension")
+					cc.log.Info("Updated dimension", zap.String("method", http.MethodDelete), zap.Any("correlation", cor))
 				}
 			default:
-				log.WithError(err).Error("Unable to update dimension, not retrying")
+				cc.log.Error("Unable to update dimension, not retrying", zap.Error(err))
 			}
 		}})
 	if err != nil {
-		log.WithError(err).WithFields(log.Fields{"method": http.MethodDelete, "correlation": cor}).Debug("Unable to update dimension, not retrying")
+		cc.log.Debug("Unable to update dimension, not retrying", zap.Error(err), zap.String("method", http.MethodDelete), zap.Any("correlation", cor))
 	}
 }
 
@@ -241,21 +244,21 @@ func (cc *Client) Get(dimName string, dimValue string, callback SuccessfulGetCB)
 				var response = map[string][]string{}
 				err = json.Unmarshal(body, &response)
 				if err != nil {
-					log.WithError(err).WithFields(log.Fields{"dim": dimName, "value": dimValue}).Error("Unable to unmarshall correlations for dimension")
+					cc.log.Error("Unable to unmarshall correlations for dimension", zap.Error(err), zap.String("dim", dimName), zap.String("value", dimValue))
 					return
 				}
 				callback(response)
 			case http.StatusNotFound:
 				// only log this as debug because we do a blanket fetch of correlations on the backend
 				// and if the backend fails to find anything this isn't really an error for us
-				log.WithError(err).Debug("Unable to update dimension, not retrying")
+				cc.log.Debug("Unable to update dimension, not retrying", zap.Error(err))
 			default:
-				log.WithError(err).Error("Unable to update dimension, not retrying")
+				cc.log.Error("Unable to update dimension, not retrying", zap.Error(err))
 			}
 		},
 	})
 	if err != nil {
-		log.WithError(err).WithFields(log.Fields{"dimensionName": dimName, "dimensionValue": dimValue}).Debug("Unable to retrieve correlations for dimension, not retrying")
+		cc.log.Debug("Unable to retrieve correlations for dimension, not retrying", zap.Error(err), zap.String("dimensionName", dimName), zap.String("dimensionValue", dimValue))
 	}
 }
 
@@ -287,7 +290,7 @@ func (cc *Client) makeRequest(r *request) {
 		// logging this as debug because this means there's something fundamentally wrong with the request
 		// and because this isn't being taken off on the request sender and subject to retries, this could
 		// potentially spam the logs long term.  This would be a really good candidate for a throttled error logger
-		log.WithError(err).WithFields(log.Fields{"method": r.operation, "correlation": r.Correlation}).Debug("Unable to make request, not retrying")
+		cc.log.Debug("Unable to make request, not retrying", zap.Error(err), zap.String("method", r.operation), zap.Any("correlation", r.Correlation))
 		r.cancel()
 		return
 	}
@@ -305,7 +308,7 @@ func (cc *Client) makeRequest(r *request) {
 				// up beyond conf.PropertiesMaxBuffered and start dropping.
 				retryErr := cc.putRequestOnRetryChan(r)
 				if retryErr == nil {
-					log.WithError(err).WithFields(log.Fields{"method": req.Method, "correlation": r.Correlation}).Debug("Unable to update dimension, retrying")
+					cc.log.Debug("Unable to update dimension, retrying", zap.Error(err), zap.String("method", req.Method), zap.Any("correlation", r.Correlation))
 					return
 				}
 			} else {
