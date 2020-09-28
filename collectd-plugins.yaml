@@ -34,7 +34,7 @@
   repo: signalfx/collectd-kong
 
 - name: mesos
-  version: v1.2.0
+  version: v1.2.1
   repo: signalfx/collectd-mesos
 
 - name: marathon
