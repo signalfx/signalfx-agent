@@ -166,26 +166,30 @@ func New(timeout time.Duration, correlationClient correlations.CorrelationClient
 	return a
 }
 
+func (a *ActiveServiceTracker) AddSpans(ctx context.Context, spans []*trace.Span) {
+	a.AddSpansGeneric(ctx, spanListWrap{spans: spans})
+}
+
 // AddSpans accepts a list of trace spans and uses them to update the
 // current list of active services.  This is thread-safe.
-func (a *ActiveServiceTracker) AddSpans(ctx context.Context, spans []*trace.Span) {
+func (a *ActiveServiceTracker) AddSpansGeneric(ctx context.Context, spans SpanList) {
 	// Take current time once since this is a system call.
 	now := a.timeNow()
 
-	for i := range spans {
-		a.processEnvironment(spans[i], now)
-		a.processService(spans[i], now)
+	for i := 0; i < spans.Len(); i++ {
+		a.processEnvironment(spans.Get(i), now)
+		a.processService(spans.Get(i), now)
 	}
 
 	// Protected by lock above
-	atomic.AddInt64(&a.spansProcessed, int64(len(spans)))
+	atomic.AddInt64(&a.spansProcessed, int64(spans.Len()))
 }
 
-func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Time) {
-	if span.Tags == nil {
+func (a *ActiveServiceTracker) processEnvironment(span Span, now time.Time) {
+	if span.NumTags() == 0 {
 		return
 	}
-	environment, environmentFound := span.Tags["environment"]
+	environment, environmentFound := span.Environment()
 
 	if !environmentFound || strings.TrimSpace(environment) == "" {
 		// The following is ONLY to mitigate a corner case scenario where the environment for a container/pod is set on
@@ -199,7 +203,7 @@ func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Tim
 		// pod/container that we have not already scraped an environment off of this agent runtime.
 		for i := range DimsToSyncSource {
 			dimName := DimsToSyncSource[i]
-			if dimValue, ok := span.Tags[dimName]; ok {
+			if dimValue, ok := span.Tag(dimName); ok {
 				// look up the dimension / value in the environment cache to ensure it doesn't already exist
 				// if it does exist, this means we've already scraped and overwritten what was on the backend
 				// probably from another span. This also implies that some spans for the tenant have an environment
@@ -271,7 +275,7 @@ func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Tim
 	// this cache is necessary to identify environments associated with a kubernetes pod or container id
 	for _, dimName := range DimsToSyncSource {
 		dimName := dimName
-		if dimValue, ok := span.Tags[dimName]; ok {
+		if dimValue, ok := span.Tag(dimName); ok {
 			// Note that the value is not set on the cache key.  We only send the first environment received for a
 			// given pod/container, and we never delete the values set on the container/pod dimension.
 			// So we only need to cache the dim name and dim value that have been associated with an environment.
@@ -291,12 +295,12 @@ func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Tim
 	}
 }
 
-func (a *ActiveServiceTracker) processService(span *trace.Span, now time.Time) {
+func (a *ActiveServiceTracker) processService(span Span, now time.Time) {
 	// Can't do anything if the spans don't have a local service name
-	if span.LocalEndpoint == nil || span.LocalEndpoint.ServiceName == nil || *span.LocalEndpoint.ServiceName == "" {
+	service, ok := span.ServiceName()
+	if !ok || service == "" {
 		return
 	}
-	service := *span.LocalEndpoint.ServiceName
 
 	// Handle host level service and environment correlation
 	// Note that only the value is set for the host service cache because we only track services for the host
@@ -333,7 +337,7 @@ func (a *ActiveServiceTracker) processService(span *trace.Span, now time.Time) {
 	// this cache is necessary to identify services associated with a kubernetes pod or container id
 	for _, dimName := range DimsToSyncSource {
 		dimName := dimName
-		if dimValue, ok := span.Tags[dimName]; ok {
+		if dimValue, ok := span.Tag(dimName); ok {
 			// Note that the value is not set on the cache key.  We only send the first service received for a
 			// given pod/container, and we never delete the values set on the container/pod dimension.
 			// So we only need to cache the dim name and dim value that have been associated with a service.
