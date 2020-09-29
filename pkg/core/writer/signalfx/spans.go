@@ -6,9 +6,10 @@ import (
 
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/trace"
-	"github.com/signalfx/signalfx-agent/pkg/core/writer/tracetracker"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
 	log "github.com/sirupsen/logrus"
+
+	tracetracker2 "github.com/signalfx/signalfx-agent/lib/tracetracker"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 func (sw *Writer) sendSpans(ctx context.Context, spans []*trace.Span) error {
@@ -46,13 +47,13 @@ func (sw *Writer) processSpan(span *trace.Span) bool {
 	return true
 }
 
-func (sw *Writer) startHostCorrelationTracking() *tracetracker.ActiveServiceTracker {
+func (sw *Writer) startHostCorrelationTracking() *tracetracker2.ActiveServiceTracker {
 	var sendTraceHostCorrelationMetrics bool
 	if sw.conf.SendTraceHostCorrelationMetrics != nil {
 		sendTraceHostCorrelationMetrics = *sw.conf.SendTraceHostCorrelationMetrics
 	}
 
-	tracker := tracetracker.New(sw.conf.StaleServiceTimeout.AsDuration(), sw.correlationClient, sw.hostIDDims, sendTraceHostCorrelationMetrics, func(dp *datapoint.Datapoint) {
+	tracker := tracetracker2.New(sw.conf.StaleServiceTimeout.AsDuration(), sw.correlationClient, sw.hostIDDims, sendTraceHostCorrelationMetrics, func(dp *datapoint.Datapoint) {
 		// Immediately send correlation datapoints when we first see a service
 		sw.dpChan <- []*datapoint.Datapoint{dp}
 	})

@@ -10,10 +10,11 @@ import (
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/pointer"
 	"github.com/signalfx/golib/v3/trace"
-	"github.com/signalfx/signalfx-agent/pkg/core/writer/correlations"
+	"github.com/signalfx/signalfx-agent/lib/correlations"
+	"github.com/stretchr/testify/assert"
+
 	"github.com/signalfx/signalfx-agent/pkg/neotest"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/stretchr/testify/assert"
 )
 
 func setTime(a *ActiveServiceTracker, t time.Time) {

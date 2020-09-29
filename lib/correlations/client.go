@@ -15,9 +15,9 @@ import (
 
 	"github.com/signalfx/golib/v3/datapoint"
 
+	"github.com/signalfx/signalfx-agent/lib/requests"
+	"github.com/signalfx/signalfx-agent/lib/requests/requestcounter"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
-	"github.com/signalfx/signalfx-agent/pkg/core/writer/requests"
-	"github.com/signalfx/signalfx-agent/pkg/core/writer/requests/requestcounter"
 	log "github.com/sirupsen/logrus"
 )
 

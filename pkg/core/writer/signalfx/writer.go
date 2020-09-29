@@ -21,17 +21,19 @@ import (
 	"github.com/signalfx/golib/v3/event"
 	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/golib/v3/trace"
+	"github.com/signalfx/signalfx-agent/lib/correlations"
+	sfxwriter "github.com/signalfx/signalfx-go/writer"
+	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
+
+	tracetracker2 "github.com/signalfx/signalfx-agent/lib/tracetracker"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
-	"github.com/signalfx/signalfx-agent/pkg/core/writer/correlations"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/dimensions"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/processor"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/tap"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/tracetracker"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	sfxwriter "github.com/signalfx/signalfx-go/writer"
-	"github.com/sirupsen/logrus"
-	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -69,7 +71,7 @@ type Writer struct {
 
 	// Keeps track of what service names have been seen in trace spans that are
 	// emitted by the agent
-	serviceTracker    *tracetracker.ActiveServiceTracker
+	serviceTracker    *tracetracker2.ActiveServiceTracker
 	spanSourceTracker *tracetracker.SpanSourceTracker
 
 	// Datapoints sent in the last minute
