@@ -10,11 +10,15 @@ import (
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/golib/v3/trace"
-	"github.com/signalfx/signalfx-agent/lib/correlations"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/signalfx/signalfx-agent/pkg/core/writer/tracetracker"
+	"github.com/signalfx/signalfx-agent/lib/correlations"
 )
+
+var DimsToSyncSource = []string{
+	"container_id",
+	"kubernetes_pod_uid",
+}
 
 const spanCorrelationMetricName = "sf.int.service.heartbeat"
 
@@ -193,8 +197,8 @@ func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Tim
 		//
 		// Under that VERY specific circumstance, we need to fetch and delete the environment values for each
 		// pod/container that we have not already scraped an environment off of this agent runtime.
-		for i := range tracetracker.dimsToSyncSource {
-			dimName := tracetracker.dimsToSyncSource[i]
+		for i := range DimsToSyncSource {
+			dimName := DimsToSyncSource[i]
 			if dimValue, ok := span.Tags[dimName]; ok {
 				// look up the dimension / value in the environment cache to ensure it doesn't already exist
 				// if it does exist, this means we've already scraped and overwritten what was on the backend
@@ -267,7 +271,7 @@ func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Tim
 
 	// container / pod level stuff
 	// this cache is necessary to identify environments associated with a kubernetes pod or container id
-	for _, dimName := range tracetracker.dimsToSyncSource {
+	for _, dimName := range DimsToSyncSource {
 		dimName := dimName
 		if dimValue, ok := span.Tags[dimName]; ok {
 			// Note that the value is not set on the cache key.  We only send the first environment received for a
@@ -331,7 +335,7 @@ func (a *ActiveServiceTracker) processService(span *trace.Span, now time.Time) {
 
 	// container / pod level stuff (this should not directly affect the active service count)
 	// this cache is necessary to identify services associated with a kubernetes pod or container id
-	for _, dimName := range tracetracker.dimsToSyncSource {
+	for _, dimName := range DimsToSyncSource {
 		dimName := dimName
 		if dimValue, ok := span.Tags[dimName]; ok {
 			// Note that the value is not set on the cache key.  We only send the first service received for a
