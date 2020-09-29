@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -18,7 +17,6 @@ import (
 
 	"github.com/signalfx/signalfx-agent/lib/requests"
 	"github.com/signalfx/signalfx-agent/lib/requests/requestcounter"
-	"github.com/signalfx/signalfx-agent/pkg/core/config"
 )
 
 var ErrChFull = errors.New("request channel full")
@@ -83,39 +81,42 @@ type Client struct {
 	dedupPurgeInterval           time.Duration
 }
 
+// Config defines configuration for correlation settings.
+type Config struct {
+	MaxRequests         uint          `mapstructure:"max_requests"`
+	MaxBuffered         uint          `mapstructure:"max_buffered"`
+	MaxRetries          uint          `mapstructure:"max_retries"`
+	LogDimensionUpdates bool          `mapstructure:"log_dimension_updates"`
+	SendDelay           time.Duration `mapstructure:"send_delay"`
+	PurgeInterval       time.Duration `mapstructure:"purge_interval"`
+}
+
+// ClientConfig for correlation client.
+type ClientConfig struct {
+	Config
+	AccessToken string
+	URL         *url.URL
+}
+
 // NewCorrelationClient returns a new Client
-func NewCorrelationClient(ctx context.Context, conf *config.WriterConfig) (CorrelationClient, error) {
-	client := &http.Client{
-		Timeout: 10 * time.Second,
-		Transport: &http.Transport{
-			Proxy: http.ProxyFromEnvironment,
-			DialContext: (&net.Dialer{
-				Timeout:   5 * time.Second,
-				KeepAlive: 30 * time.Second,
-			}).DialContext,
-			MaxIdleConns:        int(conf.PropertiesMaxRequests),
-			MaxIdleConnsPerHost: int(conf.PropertiesMaxRequests),
-			IdleConnTimeout:     30 * time.Second,
-			TLSHandshakeTimeout: 10 * time.Second,
-		},
-	}
-	sender := requests.NewReqSender(ctx, client, conf.PropertiesMaxRequests, "correlation")
+func NewCorrelationClient(ctx context.Context, client *http.Client, conf ClientConfig) (CorrelationClient, error) {
+	sender := requests.NewReqSender(ctx, client, conf.MaxRequests, "correlation")
 	return &Client{
 		// TODO
 		log:                zap.NewNop(),
 		ctx:                ctx,
-		Token:              conf.SignalFxAccessToken,
-		APIURL:             conf.ParsedAPIURL(),
+		Token:              conf.AccessToken,
+		APIURL:             conf.URL,
 		requestSender:      sender,
 		client:             client,
 		now:                time.Now,
 		logUpdates:         conf.LogDimensionUpdates,
-		requestChan:        make(chan *request, conf.PropertiesMaxBuffered),
-		retryChan:          make(chan *request, conf.PropertiesMaxBuffered),
-		dedup:              newDeduplicator(int(conf.PropertiesMaxBuffered)),
-		sendDelay:          time.Duration(conf.PropertiesSendDelaySeconds) * time.Second,
-		maxAttempts:        uint32(conf.TraceHostCorrelationMaxRequestRetries) + 1,
-		dedupPurgeInterval: conf.TraceHostCorrelationPurgeInterval.AsDuration(),
+		requestChan:        make(chan *request, conf.MaxBuffered),
+		retryChan:          make(chan *request, conf.MaxBuffered),
+		dedup:              newDeduplicator(int(conf.MaxBuffered)),
+		sendDelay:          conf.SendDelay,
+		maxAttempts:        uint32(conf.MaxRetries) + 1,
+		dedupPurgeInterval: conf.PurgeInterval,
 	}, nil
 }
 
@@ -305,7 +306,7 @@ func (cc *Client) makeRequest(r *request) {
 				// The retry (for non 400 errors) is meant to provide some measure of robustness against
 				// temporary API failures.  If the API is down for significant
 				// periods of time, correlation updates will probably eventually back
-				// up beyond conf.PropertiesMaxBuffered and start dropping.
+				// up beyond conf.MaxBuffered and start dropping.
 				retryErr := cc.putRequestOnRetryChan(r)
 				if retryErr == nil {
 					cc.log.Debug("Unable to update dimension, retrying", zap.Error(err), zap.String("method", req.Method), zap.Any("correlation", r.Correlation))

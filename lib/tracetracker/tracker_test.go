@@ -10,19 +10,31 @@ import (
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/pointer"
 	"github.com/signalfx/golib/v3/trace"
-	"github.com/signalfx/signalfx-agent/lib/correlations"
 	"github.com/stretchr/testify/assert"
 
-	"github.com/signalfx/signalfx-agent/pkg/neotest"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
+	"github.com/signalfx/signalfx-agent/lib/correlations"
 )
 
 func setTime(a *ActiveServiceTracker, t time.Time) {
-	a.timeNow = neotest.PinnedNow(t)
+	a.timeNow = func() time.Time { return t }
 }
 
 func advanceTime(a *ActiveServiceTracker, minutes int64) {
-	a.timeNow = neotest.AdvancedNow(a.timeNow, time.Duration(minutes)*time.Minute)
+	newNow := a.timeNow().Add(time.Duration(minutes) * time.Minute)
+	a.timeNow = func() time.Time { return newNow }
+}
+
+// mergeStringMaps merges n maps with a later map's keys overriding earlier maps
+func mergeStringMaps(maps ...map[string]string) map[string]string {
+	ret := map[string]string{}
+
+	for _, m := range maps {
+		for k, v := range m {
+			ret[k] = v
+		}
+	}
+
+	return ret
 }
 
 func TestDatapointsAreGenerated(t *testing.T) {
@@ -70,19 +82,19 @@ func TestExpiration(t *testing.T) {
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("one"),
 			},
-			Tags: utils.MergeStringMaps(hostIDDims, map[string]string{"environment": "environment1"}),
+			Tags: mergeStringMaps(hostIDDims, map[string]string{"environment": "environment1"}),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("two"),
 			},
-			Tags: utils.MergeStringMaps(hostIDDims, map[string]string{"environment": "environment2"}),
+			Tags: mergeStringMaps(hostIDDims, map[string]string{"environment": "environment2"}),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("three"),
 			},
-			Tags: utils.MergeStringMaps(hostIDDims, map[string]string{"environment": "environment3"}),
+			Tags: mergeStringMaps(hostIDDims, map[string]string{"environment": "environment3"}),
 		},
 	})
 
@@ -96,7 +108,7 @@ func TestExpiration(t *testing.T) {
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("two"),
 			},
-			Tags: utils.MergeStringMaps(hostIDDims, map[string]string{"environment": "environment2"}),
+			Tags: mergeStringMaps(hostIDDims, map[string]string{"environment": "environment2"}),
 		},
 	})
 
@@ -190,15 +202,15 @@ func TestCorrelationEmptyEnvironment(t *testing.T) {
 	a.AddSpans(context.Background(), []*trace.Span{
 		{
 			LocalEndpoint: &trace.Endpoint{},
-			Tags:          utils.MergeStringMaps(hostIDDims, containerLevelIDDims),
+			Tags:          mergeStringMaps(hostIDDims, containerLevelIDDims),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{},
-			Tags:          utils.MergeStringMaps(hostIDDims, containerLevelIDDims),
+			Tags:          mergeStringMaps(hostIDDims, containerLevelIDDims),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{},
-			Tags:          utils.MergeStringMaps(hostIDDims, containerLevelIDDims),
+			Tags:          mergeStringMaps(hostIDDims, containerLevelIDDims),
 		},
 	})
 
@@ -251,19 +263,19 @@ func TestCorrelationUpdates(t *testing.T) {
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("one"),
 			},
-			Tags: utils.MergeStringMaps(hostIDDims, utils.MergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment1"})),
+			Tags: mergeStringMaps(hostIDDims, mergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment1"})),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("two"),
 			},
-			Tags: utils.MergeStringMaps(hostIDDims, utils.MergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment2"})),
+			Tags: mergeStringMaps(hostIDDims, mergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment2"})),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("three"),
 			},
-			Tags: utils.MergeStringMaps(hostIDDims, utils.MergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment3"})),
+			Tags: mergeStringMaps(hostIDDims, mergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment3"})),
 		},
 	})
 

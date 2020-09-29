@@ -6,15 +6,16 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"regexp"
 	"sync"
 	"sync/atomic"
 	"testing"
 	"time"
 
-	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/stretchr/testify/require"
 )
 
@@ -131,15 +132,40 @@ func setup() (CorrelationClient, chan *request, *atomic.Value, *atomic.Value, co
 		server.Close()
 	}()
 
-	client, err := NewCorrelationClient(ctx, &config.WriterConfig{
-		PropertiesMaxBuffered:                 10,
-		PropertiesMaxRequests:                 10,
-		PropertiesSendDelaySeconds:            0,
-		PropertiesHistorySize:                 1000,
-		LogDimensionUpdates:                   true,
-		APIURL:                                server.URL,
-		TraceHostCorrelationMaxRequestRetries: 4,
-	})
+	serverURL, err := url.Parse(server.URL)
+	if err != nil {
+		panic(err)
+	}
+
+	conf := ClientConfig{
+		Config: Config{
+			MaxRequests:         10,
+			MaxBuffered:         10,
+			MaxRetries:          4,
+			LogDimensionUpdates: true,
+			SendDelay:           0,
+			PurgeInterval:       0,
+		},
+		AccessToken: "",
+		URL:         serverURL,
+	}
+
+	httpClient := &http.Client{
+		Timeout: 10 * time.Second,
+		Transport: &http.Transport{
+			Proxy: http.ProxyFromEnvironment,
+			DialContext: (&net.Dialer{
+				Timeout:   5 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).DialContext,
+			MaxIdleConns:        int(conf.MaxRequests),
+			MaxIdleConnsPerHost: int(conf.MaxRequests),
+			IdleConnTimeout:     30 * time.Second,
+			TLSHandshakeTimeout: 10 * time.Second,
+		},
+	}
+
+	client, err := NewCorrelationClient(ctx, httpClient, conf)
 	if err != nil {
 		panic("could not make correlation client: " + err.Error())
 	}
