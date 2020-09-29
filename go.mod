@@ -10,6 +10,8 @@ replace github.com/influxdata/telegraf => github.com/signalfx/telegraf v0.10.2-0
 
 replace github.com/dancannon/gorethink => gopkg.in/gorethink/gorethink.v4 v4.0.0
 
+replace github.com/signalfx/signalfx-agent/lib => ./lib
+
 require (
 	code.cloudfoundry.org/go-diodes v0.0.0-20190809170250-f77fb823c7ee // indirect
 	code.cloudfoundry.org/go-loggregator v7.4.0+incompatible
@@ -143,6 +145,7 @@ require (
 	github.com/signalfx/gateway v1.2.19-0.20191125135538-2c417b7ae0bd
 	github.com/signalfx/golib/v3 v3.3.13
 	github.com/signalfx/ingest-protocols v0.0.12
+	github.com/signalfx/signalfx-agent/lib v0.0.0-00010101000000-000000000000
 	github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5
 	github.com/signalfx/signalfx-go-tracing v1.2.0
 	github.com/sirupsen/logrus v1.4.2
@@ -160,7 +163,6 @@ require (
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.etcd.io/etcd v0.0.0-20190321122103-41f7142ff986
-	go.uber.org/zap v1.10.0
 	golang.org/x/net v0.0.0-20191004110552-13f9640d40b9
 	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
 	golang.org/x/sys v0.0.0-20200212091648-12a6c2dcc1e4
