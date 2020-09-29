@@ -164,7 +164,7 @@ The primary metrics for container CPU limits are:
 
 The first two metrics are cumulative counters that keep growing, so the easiest
 way to use them is to look at how much they change per second using `rate` rollup
-(default is `delta` when you look at the metrics in SignalFx).  The second two are
+(default is `delta` when you look at the metrics in SignalFx). The second two are
 gauges and generally don't change for the lifetime of the container.
 
 The maximum percentage of time a process can execute in a given second is equal
@@ -207,11 +207,10 @@ exact interval.
 For case #2 you need to factor in the `container_cpu_cfs_throttled_time`
 metric.  The above metric showing usage relative to the limit will be under 100
 in this case but that doesn't mean throttling isn't happening.  You can simply
-look at `container_cpu_cfs_throttled_time` using its default rollup of
-`rate/sec` which will tell you the raw amount of time a container is spending
-throttled.  If you have many processes/threads in a container, this number
-could be very high.  You could compare throttle time to usage time with the
-formula 
+look at `container_cpu_cfs_throttled_time` using the rollup of `rate` which 
+will tell you the raw amount of time a container is spending throttled.
+If you have many processes/threads in a container, this number could be very
+high.  You could compare throttle time to usage time with the formula 
 
 `container_cpu_cfs_throttled_time/container_cpu_usage_seconds_total`
 
