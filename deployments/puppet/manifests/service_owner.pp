@@ -3,11 +3,14 @@
 class signalfx_agent::service_owner ($service_name, $service_user, $service_group) {
 
   if $service_group == 'signalfx-agent' or $service_group in split($::local_groups, ',') {
-    if !defined(Group[$service_group]) {
-      group { $service_group:
-        ensure => present,
-        system => true,
-      }
+    group { $service_group:
+      noop => true,
+    }
+  }
+  else {
+    group { $service_group:
+      ensure => present,
+      system => true,
     }
   }
 
