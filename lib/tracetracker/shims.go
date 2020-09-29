@@ -5,8 +5,8 @@ import (
 )
 
 var (
-	_ SpanList = (spanListWrap)(nil)
-	_ Span     = (spanWrap)(nil)
+	_ SpanList = (*spanListWrap)(nil)
+	_ Span     = (*spanWrap)(nil)
 )
 
 // Span is a generic interface for accessing span metadata.
@@ -20,7 +20,7 @@ type Span interface {
 // SpanList is a generic interface for accessing a list of spans.
 type SpanList interface {
 	Len() int
-	Get(i int) Span
+	At(i int) Span
 }
 
 type spanWrap struct {
@@ -56,6 +56,6 @@ func (s spanListWrap) Len() int {
 	return len(s.spans)
 }
 
-func (s spanListWrap) Get(i int) Span {
+func (s spanListWrap) At(i int) Span {
 	return spanWrap{Span: s.spans[i]}
 }

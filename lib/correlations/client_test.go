@@ -17,6 +17,7 @@ import (
 	"time"
 
 	"github.com/stretchr/testify/require"
+	"go.uber.org/zap"
 )
 
 var getPathRegexp = regexp.MustCompile(`/v2/apm/correlate/([^/]+)/([^/]+)`)                    // /dimName/dimVal
@@ -165,7 +166,7 @@ func setup() (CorrelationClient, chan *request, *atomic.Value, *atomic.Value, co
 		},
 	}
 
-	client, err := NewCorrelationClient(ctx, httpClient, conf)
+	client, err := NewCorrelationClient(zap.NewNop(), ctx, httpClient, conf)
 	if err != nil {
 		panic("could not make correlation client: " + err.Error())
 	}

@@ -145,10 +145,9 @@ func (a *ActiveServiceTracker) LoadHostIDDimCorrelations() {
 }
 
 // New creates a new initialized service tracker
-func New(timeout time.Duration, correlationClient correlations.CorrelationClient, hostIDDims map[string]string, sendTraceHostCorrelationMetrics bool, newServiceCallback func(dp *datapoint.Datapoint)) *ActiveServiceTracker {
+func New(log *zap.Logger, timeout time.Duration, correlationClient correlations.CorrelationClient, hostIDDims map[string]string, sendTraceHostCorrelationMetrics bool, newServiceCallback func(dp *datapoint.Datapoint)) *ActiveServiceTracker {
 	a := &ActiveServiceTracker{
-		// TODO
-		log:                             zap.NewNop(),
+		log:                             log,
 		hostIDDims:                      hostIDDims,
 		hostServiceCache:                NewTimeoutCache(timeout),
 		hostEnvironmentCache:            NewTimeoutCache(timeout),
@@ -166,19 +165,20 @@ func New(timeout time.Duration, correlationClient correlations.CorrelationClient
 	return a
 }
 
+// AddSpans wraps given SignalFx spans for use by AddSpansGeneric.
 func (a *ActiveServiceTracker) AddSpans(ctx context.Context, spans []*trace.Span) {
 	a.AddSpansGeneric(ctx, spanListWrap{spans: spans})
 }
 
-// AddSpans accepts a list of trace spans and uses them to update the
+// AddSpansGeneric accepts a list of trace spans and uses them to update the
 // current list of active services.  This is thread-safe.
 func (a *ActiveServiceTracker) AddSpansGeneric(ctx context.Context, spans SpanList) {
 	// Take current time once since this is a system call.
 	now := a.timeNow()
 
 	for i := 0; i < spans.Len(); i++ {
-		a.processEnvironment(spans.Get(i), now)
-		a.processService(spans.Get(i), now)
+		a.processEnvironment(spans.At(i), now)
+		a.processService(spans.At(i), now)
 	}
 
 	// Protected by lock above

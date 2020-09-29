@@ -99,11 +99,10 @@ type ClientConfig struct {
 }
 
 // NewCorrelationClient returns a new Client
-func NewCorrelationClient(ctx context.Context, client *http.Client, conf ClientConfig) (CorrelationClient, error) {
+func NewCorrelationClient(log *zap.Logger, ctx context.Context, client *http.Client, conf ClientConfig) (CorrelationClient, error) {
 	sender := requests.NewReqSender(ctx, client, conf.MaxRequests, "correlation")
 	return &Client{
-		// TODO
-		log:                zap.NewNop(),
+		log:                log,
 		ctx:                ctx,
 		Token:              conf.AccessToken,
 		APIURL:             conf.URL,

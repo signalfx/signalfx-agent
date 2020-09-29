@@ -24,6 +24,7 @@ import (
 	sfxwriter "github.com/signalfx/signalfx-go/writer"
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
+	"go.uber.org/zap"
 
 	"github.com/signalfx/signalfx-agent/lib/correlations"
 
@@ -122,7 +123,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 		},
 	}
 
-	correlationClient, err := correlations.NewCorrelationClient(ctx, client, config.ClientConfigFromWriterConfig(conf))
+	correlationClient, err := correlations.NewCorrelationClient(zap.NewNop(), ctx, client, config.ClientConfigFromWriterConfig(conf))
 	if err != nil {
 		cancel()
 		return nil, err
