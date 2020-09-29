@@ -163,9 +163,9 @@ The primary metrics for container CPU limits are:
      100,000 microseconds.
 
 The first two metrics are cumulative counters that keep growing, so the easiest
-way to use them is to look at how much they change per second (the default
-rollup when you look at the metrics in SignalFx).  The second two are gauges
-and generally don't change for the lifetime of the container.
+way to use them is to look at how much they change per second using `rate` rollup
+(default is `delta` when you look at the metrics in SignalFx).  The second two are
+gauges and generally don't change for the lifetime of the container.
 
 The maximum percentage of time a process can execute in a given second is equal
 to `container_spec_cpu_quota`/`container_spec_cpu_period`.  For example, a
