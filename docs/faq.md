@@ -198,7 +198,7 @@ time-sensitive its workload is.
 
 To monitor case #1, you can use the formula
 
-`(container_cpu_usage_seconds_total/10000000)/(conatiner_spec_cpu_quota/container_spec_cpu_period)`
+`(container_cpu_usage_seconds_total/10000000)/(container_spec_cpu_quota/container_spec_cpu_period)`
 
 to get the percentage of CPU used compared to the limit (0 - 100+).  This value
 can actually exceed 100 because the sampling by the agent is not on a perfectly
