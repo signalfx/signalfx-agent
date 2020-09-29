@@ -8,9 +8,11 @@ class signalfx_agent::service_owner ($service_name, $service_user, $service_grou
     }
   }
   else {
-    group { $service_group:
-      ensure => present,
-      system => true,
+    if !defined(Group[$service_group]) {
+      group { $service_group:
+        ensure => present,
+        system => true,
+      }
     }
   }
 
@@ -20,15 +22,17 @@ class signalfx_agent::service_owner ($service_name, $service_user, $service_grou
     }
   }
   else {
-    $shell = $::osfamily ? {
-      'debian' => '/usr/sbin/nologin',
-      default  => '/sbin/nologin',
-    }
-    user { $service_user:
-      ensure => present,
-      system => true,
-      shell  => $shell,
-      groups => $service_group,
+    if !defined(User[$service_user]) {
+      $shell = $::osfamily ? {
+        'debian' => '/usr/sbin/nologin',
+        default  => '/sbin/nologin',
+      }
+      user { $service_user:
+        ensure => present,
+        system => true,
+        shell  => $shell,
+        groups => $service_group,
+      }
     }
   }
 
