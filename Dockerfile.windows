@@ -3,6 +3,7 @@ FROM golang:1.14-windowsservercore-1809 as builder
 WORKDIR C:\\SignalFxAgent
 
 COPY go.* ./
+COPY lib/go.mod lib/go.sum ./lib/
 
 RUN go mod download -x
 
@@ -11,6 +12,7 @@ RUN go get github.com/mauricelam/genny
 COPY ./cmd/ ./cmd/
 COPY ./scripts/windows/ ./scripts/windows/
 COPY ./pkg/ ./pkg/
+COPY ./lib/ ./lib/
 
 ARG AGENT_VERSION="latest"
 

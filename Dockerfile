@@ -18,12 +18,14 @@ ENV GOPATH=/go
 WORKDIR /usr/src/signalfx-agent
 
 COPY go.mod go.sum ./
+COPY lib/go.mod lib/go.sum ./lib/
 RUN go mod download
 
 COPY cmd/ ./cmd/
 COPY scripts/collectd-template-to-go scripts/make-versions ./scripts/
 COPY Makefile .
 COPY pkg/ ./pkg/
+COPY lib/ ./lib/
 RUN chmod 644 pkg/monitors/collectd/signalfx_types.db
 
 ARG collectd_version=""
