@@ -3,35 +3,28 @@
 class signalfx_agent::service_owner ($service_name, $service_user, $service_group) {
 
   if $service_group == 'signalfx-agent' or $service_group in split($::local_groups, ',') {
-    group { $service_group:
-      noop => true,
-    }
-  }
-  else {
-    group { $service_group:
-      ensure => present,
-      system => true,
+    if !defined(Group[$service_group]) {
+      group { $service_group:
+        ensure => present,
+        system => true,
+      }
     }
   }
 
   if $service_user == 'signalfx-agent' or $service_user in split($::local_users, ',') {
-    user { $service_user:
-      noop => true,
+    if !defined(User[$service_user]) {
+      $shell = $::osfamily ? {
+        'debian' => '/usr/sbin/nologin',
+        default  => '/sbin/nologin',
+      }
+      user { $service_user:
+        ensure => present,
+        system => true,
+        shell  => $shell,
+        groups => $service_group,
+      }
     }
   }
-  else {
-    $shell = $::osfamily ? {
-      'debian' => '/usr/sbin/nologin',
-      default  => '/sbin/nologin',
-    }
-    user { $service_user:
-      ensure => present,
-      system => true,
-      shell  => $shell,
-      groups => $service_group,
-    }
-  }
-
   case $::service_provider {
     'systemd': {
       $tmpfile_path = "/etc/tmpfiles.d/${service_name}.conf"
