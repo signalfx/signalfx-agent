@@ -9,7 +9,6 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	libtracker "github.com/signalfx/signalfx-agent/pkg/apm/tracetracker"
-	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
@@ -54,7 +53,7 @@ func (sw *Writer) startHostCorrelationTracking() *libtracker.ActiveServiceTracke
 		sendTraceHostCorrelationMetrics = *sw.conf.SendTraceHostCorrelationMetrics
 	}
 
-	tracker := libtracker.New(config.ZapLogger(), sw.conf.StaleServiceTimeout.AsDuration(), sw.correlationClient, sw.hostIDDims, sendTraceHostCorrelationMetrics, func(dp *datapoint.Datapoint) {
+	tracker := libtracker.New(utils.NewAPMShim(log.StandardLogger()), sw.conf.StaleServiceTimeout.AsDuration(), sw.correlationClient, sw.hostIDDims, sendTraceHostCorrelationMetrics, func(dp *datapoint.Datapoint) {
 		// Immediately send correlation datapoints when we first see a service
 		sw.dpChan <- []*datapoint.Datapoint{dp}
 	})

@@ -10,9 +10,9 @@ import (
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/golib/v3/trace"
-	"go.uber.org/zap"
 
 	"github.com/signalfx/signalfx-agent/pkg/apm/correlations"
+	"github.com/signalfx/signalfx-agent/pkg/apm/log"
 )
 
 var DimsToSyncSource = []string{
@@ -28,7 +28,7 @@ const spanCorrelationMetricName = "sf.int.service.heartbeat"
 type ActiveServiceTracker struct {
 	dpCacheLock sync.Mutex
 
-	log *zap.Logger
+	log log.Logger
 
 	// hostIDDims is the map of key/values discovered by the agent that identify the host
 	hostIDDims map[string]string
@@ -127,7 +127,7 @@ func (a *ActiveServiceTracker) LoadHostIDDimCorrelations() {
 							a.addServiceToDPCache(service)
 						}
 
-						a.log.Debug("Tracking service name from trace span", zap.String("service", service))
+						a.log.WithFields(log.Fields{"service": service}).Debug("Tracking service name from trace span")
 					}
 				}
 			}
@@ -136,7 +136,7 @@ func (a *ActiveServiceTracker) LoadHostIDDimCorrelations() {
 				// therefore there we don't need to include the dim key and value on the cache key
 				for _, environment := range environments {
 					if isNew := a.hostEnvironmentCache.UpdateOrCreate(&CacheKey{value: environment}, a.timeNow()); isNew {
-						a.log.Debug("Tracking environment name from trace span", zap.String("environment", environment))
+						a.log.WithFields(log.Fields{"environment": environment}).Debug("Tracking environment name from trace span")
 					}
 				}
 			}
@@ -145,7 +145,7 @@ func (a *ActiveServiceTracker) LoadHostIDDimCorrelations() {
 }
 
 // New creates a new initialized service tracker
-func New(log *zap.Logger, timeout time.Duration, correlationClient correlations.CorrelationClient, hostIDDims map[string]string, sendTraceHostCorrelationMetrics bool, newServiceCallback func(dp *datapoint.Datapoint)) *ActiveServiceTracker {
+func New(log log.Logger, timeout time.Duration, correlationClient correlations.CorrelationClient, hostIDDims map[string]string, sendTraceHostCorrelationMetrics bool, newServiceCallback func(dp *datapoint.Datapoint)) *ActiveServiceTracker {
 	a := &ActiveServiceTracker{
 		log:                             log,
 		hostIDDims:                      hostIDDims,
@@ -268,7 +268,7 @@ func (a *ActiveServiceTracker) processEnvironment(span Span, now time.Time) {
 				})
 			}
 		}
-		a.log.Debug("Tracking environment name from trace span", zap.String("environment", environment))
+		a.log.WithFields(log.Fields{"environment": environment}).Debug("Tracking environment name from trace span")
 	}
 
 	// container / pod level stuff
@@ -330,7 +330,7 @@ func (a *ActiveServiceTracker) processService(span Span, now time.Time) {
 			a.addServiceToDPCache(service)
 		}
 
-		a.log.Debug("Tracking service name from trace span", zap.String("service", service))
+		a.log.WithFields(log.Fields{"service": service}).Debug("Tracking service name from trace span")
 	}
 
 	// container / pod level stuff (this should not directly affect the active service count)
@@ -379,7 +379,7 @@ func (a *ActiveServiceTracker) Purge() {
 			a.removeServiceFromDPCache(purged.value)
 		}
 
-		a.log.Debug("No longer tracking service name from trace span", zap.String("serviceName", purged.value))
+		a.log.WithFields(log.Fields{"serviceName": purged.value}).Debug("No longer tracking service name from trace span")
 	}
 
 	for _, purged := range a.hostEnvironmentCache.GetPurgeable(now) {
@@ -393,7 +393,7 @@ func (a *ActiveServiceTracker) Purge() {
 				Value:    purged.value,
 			}, func(cor *correlations.Correlation) {
 				a.hostEnvironmentCache.Delete(purged)
-				a.log.Debug("No longer tracking environment name from trace span", zap.String("environmentName", purged.value))
+				a.log.WithFields(log.Fields{"environmentName": purged.value}).Debug("No longer tracking environment name from trace span")
 			})
 		}
 	}

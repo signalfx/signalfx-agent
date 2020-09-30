@@ -11,9 +11,9 @@ import (
 	"github.com/signalfx/golib/v3/pointer"
 	"github.com/signalfx/golib/v3/trace"
 	"github.com/stretchr/testify/assert"
-	"go.uber.org/zap"
 
 	"github.com/signalfx/signalfx-agent/pkg/apm/correlations"
+	"github.com/signalfx/signalfx-agent/pkg/apm/log"
 )
 
 func setTime(a *ActiveServiceTracker, t time.Time) {
@@ -41,7 +41,7 @@ func mergeStringMaps(maps ...map[string]string) map[string]string {
 func TestDatapointsAreGenerated(t *testing.T) {
 	correlationClient := &correlationTestClient{}
 
-	a := New(zap.NewNop(), 5*time.Minute, correlationClient, nil, true, nil)
+	a := New(log.Nil, 5*time.Minute, correlationClient, nil, true, nil)
 
 	a.AddSpans(context.Background(), []*trace.Span{
 		{
@@ -75,7 +75,7 @@ func TestExpiration(t *testing.T) {
 	correlationClient := &correlationTestClient{}
 
 	hostIDDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
-	a := New(zap.NewNop(), 5*time.Minute, correlationClient, hostIDDims, true, nil)
+	a := New(log.Nil, 5*time.Minute, correlationClient, hostIDDims, true, nil)
 	setTime(a, time.Unix(100, 0))
 
 	a.AddSpans(context.Background(), []*trace.Span{
@@ -195,7 +195,7 @@ func TestCorrelationEmptyEnvironment(t *testing.T) {
 	hostIDDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
 	wg.Add(len(hostIDDims))
 	containerLevelIDDims := map[string]string{"kubernetes_pod_uid": "testk8sPodUID", "container_id": "testContainerID"}
-	a := New(zap.NewNop(), 5*time.Minute, correlationClient, hostIDDims, true, nil)
+	a := New(log.Nil, 5*time.Minute, correlationClient, hostIDDims, true, nil)
 	wg.Wait() // wait for the initial fetch of hostIDDims to complete
 
 	// for each container level ID we're going to perform a GET to check for an environment
@@ -246,7 +246,7 @@ func TestCorrelationUpdates(t *testing.T) {
 	hostIDDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
 	wg.Add(len(hostIDDims))
 	containerLevelIDDims := map[string]string{"kubernetes_pod_uid": "testk8sPodUID", "container_id": "testContainerID"}
-	a := New(zap.NewNop(), 5*time.Minute, correlationClient, hostIDDims, true, nil)
+	a := New(log.Nil, 5*time.Minute, correlationClient, hostIDDims, true, nil)
 	wg.Wait()
 	assert.Equal(t, int64(1), a.hostServiceCache.ActiveCount, "activeServiceCount is not properly tracked")
 	assert.Equal(t, int64(1), a.hostEnvironmentCache.ActiveCount, "activeEnvironmentCount is not properly tracked")

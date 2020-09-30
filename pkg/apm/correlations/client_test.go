@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -16,8 +15,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/signalfx/signalfx-agent/pkg/apm/log"
 	"github.com/stretchr/testify/require"
-	"go.uber.org/zap"
 )
 
 var getPathRegexp = regexp.MustCompile(`/v2/apm/correlate/([^/]+)/([^/]+)`)                    // /dimName/dimVal
@@ -44,7 +43,7 @@ loop:
 	return cors
 }
 
-func makeHandler(corCh chan<- *request, forcedRespCode *atomic.Value, forcedRespPayload *atomic.Value) http.HandlerFunc {
+func makeHandler(t *testing.T, corCh chan<- *request, forcedRespCode *atomic.Value, forcedRespPayload *atomic.Value) http.HandlerFunc {
 	forcedRespCode.Store(200)
 
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
@@ -54,7 +53,7 @@ func makeHandler(corCh chan<- *request, forcedRespCode *atomic.Value, forcedResp
 			return
 		}
 
-		log.Printf("Test server got %s request: %s", r.Method, r.URL.Path)
+		t.Logf("Test server got %s request: %s", r.Method, r.URL.Path)
 		var cor *request
 		switch r.Method {
 		case http.MethodGet:
@@ -120,12 +119,12 @@ func makeHandler(corCh chan<- *request, forcedRespCode *atomic.Value, forcedResp
 	})
 }
 
-func setup() (CorrelationClient, chan *request, *atomic.Value, *atomic.Value, context.CancelFunc) {
+func setup(t *testing.T) (CorrelationClient, chan *request, *atomic.Value, *atomic.Value, context.CancelFunc) {
 	serverCh := make(chan *request, 100)
 
 	var forcedRespCode atomic.Value
 	var forcedRespPayload atomic.Value
-	server := httptest.NewServer(makeHandler(serverCh, &forcedRespCode, &forcedRespPayload))
+	server := httptest.NewServer(makeHandler(t, serverCh, &forcedRespCode, &forcedRespPayload))
 
 	ctx, cancel := context.WithCancel(context.Background())
 	go func() {
@@ -166,7 +165,7 @@ func setup() (CorrelationClient, chan *request, *atomic.Value, *atomic.Value, co
 		},
 	}
 
-	client, err := NewCorrelationClient(zap.NewNop(), ctx, httpClient, conf)
+	client, err := NewCorrelationClient(log.Nil, ctx, httpClient, conf)
 	if err != nil {
 		panic("could not make correlation client: " + err.Error())
 	}
@@ -176,7 +175,7 @@ func setup() (CorrelationClient, chan *request, *atomic.Value, *atomic.Value, co
 }
 
 func TestCorrelationClient(t *testing.T) {
-	client, serverCh, forcedRespCode, forcedRespPayload, cancel := setup()
+	client, serverCh, forcedRespCode, forcedRespPayload, cancel := setup(t)
 	defer close(serverCh)
 	defer cancel()
 
