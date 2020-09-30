@@ -7,11 +7,12 @@ import (
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/golib/v3/trace"
-	"github.com/signalfx/signalfx-agent/lib/tracetracker"
+	"github.com/sirupsen/logrus"
+
+	"github.com/signalfx/signalfx-agent/pkg/apm/tracetracker"
 	"github.com/signalfx/signalfx-agent/pkg/core/common/constants"
 	"github.com/signalfx/signalfx-agent/pkg/core/services"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
-	"github.com/sirupsen/logrus"
 )
 
 // SpanSourceTracker inserts tags into spans that identify the source of the

@@ -12,7 +12,7 @@ import (
 	"github.com/signalfx/golib/v3/trace"
 	"go.uber.org/zap"
 
-	"github.com/signalfx/signalfx-agent/lib/correlations"
+	"github.com/signalfx/signalfx-agent/pkg/apm/correlations"
 )
 
 var DimsToSyncSource = []string{

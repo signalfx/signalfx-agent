@@ -26,9 +26,9 @@ import (
 	log "github.com/sirupsen/logrus"
 	"go.uber.org/zap"
 
-	"github.com/signalfx/signalfx-agent/lib/correlations"
+	"github.com/signalfx/signalfx-agent/pkg/apm/correlations"
 
-	libtracker "github.com/signalfx/signalfx-agent/lib/tracetracker"
+	libtracker "github.com/signalfx/signalfx-agent/pkg/apm/tracetracker"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/dimensions"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/processor"

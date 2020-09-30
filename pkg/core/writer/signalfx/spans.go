@@ -8,7 +8,7 @@ import (
 	"github.com/signalfx/golib/v3/trace"
 	log "github.com/sirupsen/logrus"
 
-	libtracker "github.com/signalfx/signalfx-agent/lib/tracetracker"
+	libtracker "github.com/signalfx/signalfx-agent/pkg/apm/tracetracker"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 )

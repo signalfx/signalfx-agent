@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 
-	"github.com/signalfx/signalfx-agent/lib/correlations"
+	"github.com/signalfx/signalfx-agent/pkg/apm/correlations"
 )
 
 func setTime(a *ActiveServiceTracker, t time.Time) {

@@ -15,8 +15,8 @@ import (
 	"github.com/signalfx/golib/v3/datapoint"
 	"go.uber.org/zap"
 
-	"github.com/signalfx/signalfx-agent/lib/requests"
-	"github.com/signalfx/signalfx-agent/lib/requests/requestcounter"
+	"github.com/signalfx/signalfx-agent/pkg/apm/requests"
+	"github.com/signalfx/signalfx-agent/pkg/apm/requests/requestcounter"
 )
 
 var ErrChFull = errors.New("request channel full")

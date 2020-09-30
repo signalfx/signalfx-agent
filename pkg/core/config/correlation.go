@@ -3,7 +3,7 @@ package config
 import (
 	"time"
 
-	"github.com/signalfx/signalfx-agent/lib/correlations"
+	"github.com/signalfx/signalfx-agent/pkg/apm/correlations"
 )
 
 func ClientConfigFromWriterConfig(conf *WriterConfig) correlations.ClientConfig {
