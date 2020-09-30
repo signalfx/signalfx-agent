@@ -19,9 +19,9 @@ executors:
     docker:
       - image: python:3.8
 
-  docker1809:
+  docker1903:
     docker:
-      - image: docker:18.09
+      - image: docker:19.03
 
   helm:
     docker:
@@ -281,11 +281,12 @@ commands:
 
 jobs:
   build:
-    executor: docker1809
+    executor: docker1903
     steps:
       - run: apk add git make bash openssh-client
       - checkout
       - setup_remote_docker:
+          version: 19.03.12
           docker_layer_caching: false
       - run: |
           PULL_CACHE=yes AGENT_VERSION=latest make bundle
@@ -513,11 +514,11 @@ jobs:
           path: /tmp/pcf_tile
 
   update_stage_cache:
-    docker:
-      - image: docker:18.09
+    executor: docker1903
     steps:
       - checkout
       - setup_remote_docker:
+          version: 19.03.12
           docker_layer_caching: false
       - run: |
           apk add make bash
