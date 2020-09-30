@@ -39,7 +39,10 @@ splunkSkipTLSVerify: false
 # An additional set of global dimension to set on all datapoints coming out of
 # the agent.  The `kubernetes_cluster` dimension will always be set as a global
 # dimension based on the `clusterName` value.
-globalDimensions:
+globalDimensions: {}
+
+# Additional writer options for the agent
+writer: {}
 
 # Docker image configuration
 image:

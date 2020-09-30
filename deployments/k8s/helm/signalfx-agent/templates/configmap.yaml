@@ -68,7 +68,9 @@ data:
         {{- end }}
         skipTLSVerify: {{ .Values.splunkSkipTLSVerify | default "false" }}
     {{- end }}
-
+    {{- if .Values.writer }}
+      {{ toYaml .Values.writer | indent 6 | trim }}
+    {{- end }}
 {{- if lt $agentSemver.Major 5 }}
     sendMachineID: false
 {{- end }}
