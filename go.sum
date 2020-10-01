@@ -931,12 +931,11 @@ github.com/signalfx/golib v2.4.1+incompatible h1:UZaLOB4i2Dz7/Fkal2+xY9NRtv+adgh
 github.com/signalfx/golib v2.4.1+incompatible/go.mod h1:nWYefOwlUKWm/SpN/LgVSBnyH1T9NpT1ANlmgRIi1Cs=
 github.com/signalfx/golib/v3 v3.0.0 h1:7jU1iitxa4qsLMbOlquaHHaUf0GJ86P8ZFxnE5hTUVA=
 github.com/signalfx/golib/v3 v3.0.0/go.mod h1:p+krygP/cDlWvCBEgdkQp3H16rbP4NW7YQa81TDMRe8=
-github.com/signalfx/golib/v3 v3.3.7/go.mod h1:Hn3u/AANc+mA2o6zWbUQ0yw2c6tLZ6f7hBLauKzNRN8=
-github.com/signalfx/golib/v3 v3.3.13 h1:Q+WDU2CeOGAJ2uZtb3Ov5cIUKS6tyvR2KU87SjVlXg0=
-github.com/signalfx/golib/v3 v3.3.13/go.mod h1:LKKCrEw4rU8ZL/8dVwX5i1+kqm4utB7uaHQpRx587rs=
+github.com/signalfx/golib/v3 v3.3.16 h1:AKcwihBfHJIK3oQyYdpebHSt4btM56a180mrOQrwBdw=
+github.com/signalfx/golib/v3 v3.3.16/go.mod h1:LKKCrEw4rU8ZL/8dVwX5i1+kqm4utB7uaHQpRx587rs=
 github.com/signalfx/gomemcache v0.0.0-20180823214636-4f7ef64c72a9/go.mod h1:Ytb8KfCSyuwy/VILnROdgCvbQLA5ch0nkbG7lKT0BXw=
-github.com/signalfx/ingest-protocols v0.0.12 h1:CjmM09XpeN158qfhbK5v22PVO+fukY3FTLgKaVO+8RM=
-github.com/signalfx/ingest-protocols v0.0.12/go.mod h1:bWIAg7CujGK155PMj2dXrKgwTS2lKTRIb21kLawBjhg=
+github.com/signalfx/ingest-protocols v0.0.15 h1:+NTk2qHl5cguwjnfsKV7ClCa373PogZC/LR2g5vaGkQ=
+github.com/signalfx/ingest-protocols v0.0.15/go.mod h1:qTSB93XktGBQK8Bd3ktrgvti7tUJT3HzUswpX/Yb/2A=
 github.com/signalfx/ondiskencoding v0.0.0-20190715171447-33ec316a03f8/go.mod h1:QnApFvs6JyNrtyeE9dTCtAWYxDqUZv2KzFpuQm853FU=
 github.com/signalfx/ondiskencoding v0.0.0-20191121154813-762ffb677f8e h1:i5+qho6onQ5YgMb9VuWfVCw2OTCb+n9Pw3KN+zASiE0=
 github.com/signalfx/ondiskencoding v0.0.0-20191121154813-762ffb677f8e/go.mod h1:3RBt2qfxrVKp+SW2N19wHlukwLm9f0xqUd4dSeU8ul4=
