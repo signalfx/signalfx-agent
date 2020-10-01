@@ -194,12 +194,12 @@ func (cc *Client) Correlate(cor *Correlation, cb CorrelateCB) {
 				}
 			}
 			if err != nil {
-				cc.log.WithFields(log.Fields{"method": http.MethodPut, "correlation": cor, "err": err}).Error("Unable to update dimension, not retrying")
+				cc.log.WithError(err).WithFields(log.Fields{"method": http.MethodPut, "correlation": cor}).Error("Unable to update dimension, not retrying")
 			}
 			cb(cor, err)
 		}})
 	if err != nil {
-		cc.log.WithFields(log.Fields{"method": http.MethodPut, "correlation": cor, "err": err}).Debug("Unable to update dimension, not retrying")
+		cc.log.WithError(err).WithFields(log.Fields{"method": http.MethodPut, "correlation": cor}).Debug("Unable to update dimension, not retrying")
 	}
 }
 
@@ -219,11 +219,11 @@ func (cc *Client) Delete(cor *Correlation, callback SuccessfulDeleteCB) {
 					cc.log.WithFields(log.Fields{"method": http.MethodDelete, "correlation": cor}).Info("Updated dimension")
 				}
 			default:
-				cc.log.WithFields(log.Fields{"err": err}).Error("Unable to update dimension, not retrying")
+				cc.log.WithError(err).Error("Unable to update dimension, not retrying")
 			}
 		}})
 	if err != nil {
-		cc.log.WithFields(log.Fields{"method": http.MethodDelete, "correlation": cor, "err": err}).Debug("Unable to update dimension, not retrying")
+		cc.log.WithError(err).WithFields(log.Fields{"method": http.MethodDelete, "correlation": cor}).Debug("Unable to update dimension, not retrying")
 	}
 }
 
@@ -244,21 +244,21 @@ func (cc *Client) Get(dimName string, dimValue string, callback SuccessfulGetCB)
 				var response = map[string][]string{}
 				err = json.Unmarshal(body, &response)
 				if err != nil {
-					cc.log.WithFields(log.Fields{"dim": dimName, "value": dimValue, "err": err}).Error("Unable to unmarshall correlations for dimension")
+					cc.log.WithError(err).WithFields(log.Fields{"dim": dimName, "value": dimValue}).Error("Unable to unmarshall correlations for dimension")
 					return
 				}
 				callback(response)
 			case http.StatusNotFound:
 				// only log this as debug because we do a blanket fetch of correlations on the backend
 				// and if the backend fails to find anything this isn't really an error for us
-				cc.log.WithFields(log.Fields{"err": err}).Debug("Unable to update dimension, not retrying")
+				cc.log.WithError(err).Debug("Unable to update dimension, not retrying")
 			default:
-				cc.log.WithFields(log.Fields{"err": err}).Error("Unable to update dimension, not retrying")
+				cc.log.WithError(err).Error("Unable to update dimension, not retrying")
 			}
 		},
 	})
 	if err != nil {
-		cc.log.WithFields(log.Fields{"dimensionName": dimName, "dimensionValue": dimValue, "err": err}).Debug("Unable to retrieve correlations for dimension, not retrying")
+		cc.log.WithError(err).WithFields(log.Fields{"dimensionName": dimName, "dimensionValue": dimValue}).Debug("Unable to retrieve correlations for dimension, not retrying")
 	}
 }
 
@@ -290,7 +290,7 @@ func (cc *Client) makeRequest(r *request) {
 		// logging this as debug because this means there's something fundamentally wrong with the request
 		// and because this isn't being taken off on the request sender and subject to retries, this could
 		// potentially spam the logs long term.  This would be a really good candidate for a throttled error logger
-		cc.log.WithFields(log.Fields{"method": r.operation, "correlation": r.Correlation, "err": err}).Debug("Unable to make request, not retrying")
+		cc.log.WithError(err).WithFields(log.Fields{"method": r.operation, "correlation": r.Correlation}).Debug("Unable to make request, not retrying")
 		r.cancel()
 		return
 	}
@@ -308,7 +308,7 @@ func (cc *Client) makeRequest(r *request) {
 				// up beyond conf.MaxBuffered and start dropping.
 				retryErr := cc.putRequestOnRetryChan(r)
 				if retryErr == nil {
-					cc.log.WithFields(log.Fields{"method": req.Method, "correlation": r.Correlation, "err": err}).Debug("Unable to update dimension, retrying")
+					cc.log.WithError(err).WithFields(log.Fields{"method": req.Method, "correlation": r.Correlation}).Debug("Unable to update dimension, retrying")
 					return
 				}
 			} else {
