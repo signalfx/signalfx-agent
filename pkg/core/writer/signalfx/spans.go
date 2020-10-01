@@ -8,7 +8,7 @@ import (
 	"github.com/signalfx/golib/v3/trace"
 	log "github.com/sirupsen/logrus"
 
-	libtracker "github.com/signalfx/signalfx-agent/pkg/apm/tracetracker"
+	apmtracker "github.com/signalfx/signalfx-agent/pkg/apm/tracetracker"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
@@ -47,13 +47,13 @@ func (sw *Writer) processSpan(span *trace.Span) bool {
 	return true
 }
 
-func (sw *Writer) startHostCorrelationTracking() *libtracker.ActiveServiceTracker {
+func (sw *Writer) startHostCorrelationTracking() *apmtracker.ActiveServiceTracker {
 	var sendTraceHostCorrelationMetrics bool
 	if sw.conf.SendTraceHostCorrelationMetrics != nil {
 		sendTraceHostCorrelationMetrics = *sw.conf.SendTraceHostCorrelationMetrics
 	}
 
-	tracker := libtracker.New(utils.NewAPMShim(log.StandardLogger()), sw.conf.StaleServiceTimeout.AsDuration(), sw.correlationClient, sw.hostIDDims, sendTraceHostCorrelationMetrics, func(dp *datapoint.Datapoint) {
+	tracker := apmtracker.New(utils.NewAPMShim(log.StandardLogger()), sw.conf.StaleServiceTimeout.AsDuration(), sw.correlationClient, sw.hostIDDims, sendTraceHostCorrelationMetrics, func(dp *datapoint.Datapoint) {
 		// Immediately send correlation datapoints when we first see a service
 		sw.dpChan <- []*datapoint.Datapoint{dp}
 	})
