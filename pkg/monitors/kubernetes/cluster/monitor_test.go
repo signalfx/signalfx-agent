@@ -119,7 +119,8 @@ var _ = Describe("Kubernetes plugin", func() {
 					UID:       "abcd",
 					Namespace: "default",
 					Labels: map[string]string{
-						"env": "test",
+						"env":          "test",
+						"custom_label": "label_value",
 					},
 					OwnerReferences: []metav1.OwnerReference{
 						{
@@ -160,6 +161,7 @@ var _ = Describe("Kubernetes plugin", func() {
 
 		Expect(dps[0].Metric).To(Equal("kubernetes.pod_phase"))
 		Expect(intValue(dps[0].Value)).To(Equal(int64(2)))
+		Expect(dps[0].Dimensions["custom_label"]).To(Equal("label_value"))
 		Expect(dps[1].Metric).To(Equal("kubernetes.container_restart_count"))
 		Expect(intValue(dps[1].Value)).To(Equal(int64(5)))
 		Expect(dps[2].Metric).To(Equal("kubernetes.container_ready"))
@@ -178,6 +180,7 @@ var _ = Describe("Kubernetes plugin", func() {
 				"daemonSet":                "MySet",
 				"daemonSet_uid":            "",
 				"env":                      "test",
+				"custom_label":             "label_value",
 			},
 			Tags:              map[string]bool{},
 			MergeIntoExisting: true,

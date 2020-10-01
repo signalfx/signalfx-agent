@@ -23,6 +23,9 @@ func datapointsForPod(pod *v1.Pod) []*datapoint.Datapoint {
 		"kubernetes_node":      pod.Spec.NodeName,
 	}
 
+	props := dimensionForPod(pod).Properties
+	dimensions = datapoint.AddMaps(dimensions, props)
+
 	dps := []*datapoint.Datapoint{
 		datapoint.New(
 			"kubernetes.pod_phase",
