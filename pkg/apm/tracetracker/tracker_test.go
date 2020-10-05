@@ -10,24 +10,38 @@ import (
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/pointer"
 	"github.com/signalfx/golib/v3/trace"
-	"github.com/signalfx/signalfx-agent/pkg/core/writer/correlations"
-	"github.com/signalfx/signalfx-agent/pkg/neotest"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/stretchr/testify/assert"
+
+	"github.com/signalfx/signalfx-agent/pkg/apm/correlations"
+	"github.com/signalfx/signalfx-agent/pkg/apm/log"
 )
 
 func setTime(a *ActiveServiceTracker, t time.Time) {
-	a.timeNow = neotest.PinnedNow(t)
+	a.timeNow = func() time.Time { return t }
 }
 
 func advanceTime(a *ActiveServiceTracker, minutes int64) {
-	a.timeNow = neotest.AdvancedNow(a.timeNow, time.Duration(minutes)*time.Minute)
+	newNow := a.timeNow().Add(time.Duration(minutes) * time.Minute)
+	a.timeNow = func() time.Time { return newNow }
+}
+
+// mergeStringMaps merges n maps with a later map's keys overriding earlier maps
+func mergeStringMaps(maps ...map[string]string) map[string]string {
+	ret := map[string]string{}
+
+	for _, m := range maps {
+		for k, v := range m {
+			ret[k] = v
+		}
+	}
+
+	return ret
 }
 
 func TestDatapointsAreGenerated(t *testing.T) {
 	correlationClient := &correlationTestClient{}
 
-	a := New(5*time.Minute, correlationClient, nil, true, nil)
+	a := New(log.Nil, 5*time.Minute, correlationClient, nil, true, nil)
 
 	a.AddSpans(context.Background(), []*trace.Span{
 		{
@@ -61,7 +75,7 @@ func TestExpiration(t *testing.T) {
 	correlationClient := &correlationTestClient{}
 
 	hostIDDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
-	a := New(5*time.Minute, correlationClient, hostIDDims, true, nil)
+	a := New(log.Nil, 5*time.Minute, correlationClient, hostIDDims, true, nil)
 	setTime(a, time.Unix(100, 0))
 
 	a.AddSpans(context.Background(), []*trace.Span{
@@ -69,19 +83,19 @@ func TestExpiration(t *testing.T) {
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("one"),
 			},
-			Tags: utils.MergeStringMaps(hostIDDims, map[string]string{"environment": "environment1"}),
+			Tags: mergeStringMaps(hostIDDims, map[string]string{"environment": "environment1"}),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("two"),
 			},
-			Tags: utils.MergeStringMaps(hostIDDims, map[string]string{"environment": "environment2"}),
+			Tags: mergeStringMaps(hostIDDims, map[string]string{"environment": "environment2"}),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("three"),
 			},
-			Tags: utils.MergeStringMaps(hostIDDims, map[string]string{"environment": "environment3"}),
+			Tags: mergeStringMaps(hostIDDims, map[string]string{"environment": "environment3"}),
 		},
 	})
 
@@ -95,7 +109,7 @@ func TestExpiration(t *testing.T) {
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("two"),
 			},
-			Tags: utils.MergeStringMaps(hostIDDims, map[string]string{"environment": "environment2"}),
+			Tags: mergeStringMaps(hostIDDims, map[string]string{"environment": "environment2"}),
 		},
 	})
 
@@ -181,7 +195,7 @@ func TestCorrelationEmptyEnvironment(t *testing.T) {
 	hostIDDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
 	wg.Add(len(hostIDDims))
 	containerLevelIDDims := map[string]string{"kubernetes_pod_uid": "testk8sPodUID", "container_id": "testContainerID"}
-	a := New(5*time.Minute, correlationClient, hostIDDims, true, nil)
+	a := New(log.Nil, 5*time.Minute, correlationClient, hostIDDims, true, nil)
 	wg.Wait() // wait for the initial fetch of hostIDDims to complete
 
 	// for each container level ID we're going to perform a GET to check for an environment
@@ -189,15 +203,15 @@ func TestCorrelationEmptyEnvironment(t *testing.T) {
 	a.AddSpans(context.Background(), []*trace.Span{
 		{
 			LocalEndpoint: &trace.Endpoint{},
-			Tags:          utils.MergeStringMaps(hostIDDims, containerLevelIDDims),
+			Tags:          mergeStringMaps(hostIDDims, containerLevelIDDims),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{},
-			Tags:          utils.MergeStringMaps(hostIDDims, containerLevelIDDims),
+			Tags:          mergeStringMaps(hostIDDims, containerLevelIDDims),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{},
-			Tags:          utils.MergeStringMaps(hostIDDims, containerLevelIDDims),
+			Tags:          mergeStringMaps(hostIDDims, containerLevelIDDims),
 		},
 	})
 
@@ -232,7 +246,7 @@ func TestCorrelationUpdates(t *testing.T) {
 	hostIDDims := map[string]string{"host": "test", "AWSUniqueId": "randomAWSUniqueId"}
 	wg.Add(len(hostIDDims))
 	containerLevelIDDims := map[string]string{"kubernetes_pod_uid": "testk8sPodUID", "container_id": "testContainerID"}
-	a := New(5*time.Minute, correlationClient, hostIDDims, true, nil)
+	a := New(log.Nil, 5*time.Minute, correlationClient, hostIDDims, true, nil)
 	wg.Wait()
 	assert.Equal(t, int64(1), a.hostServiceCache.ActiveCount, "activeServiceCount is not properly tracked")
 	assert.Equal(t, int64(1), a.hostEnvironmentCache.ActiveCount, "activeEnvironmentCount is not properly tracked")
@@ -250,19 +264,19 @@ func TestCorrelationUpdates(t *testing.T) {
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("one"),
 			},
-			Tags: utils.MergeStringMaps(hostIDDims, utils.MergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment1"})),
+			Tags: mergeStringMaps(hostIDDims, mergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment1"})),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("two"),
 			},
-			Tags: utils.MergeStringMaps(hostIDDims, utils.MergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment2"})),
+			Tags: mergeStringMaps(hostIDDims, mergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment2"})),
 		},
 		{
 			LocalEndpoint: &trace.Endpoint{
 				ServiceName: pointer.String("three"),
 			},
-			Tags: utils.MergeStringMaps(hostIDDims, utils.MergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment3"})),
+			Tags: mergeStringMaps(hostIDDims, mergeStringMaps(containerLevelIDDims, map[string]string{"environment": "environment3"})),
 		},
 	})
 

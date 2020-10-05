@@ -10,6 +10,8 @@ replace github.com/influxdata/telegraf => github.com/signalfx/telegraf v0.10.2-0
 
 replace github.com/dancannon/gorethink => gopkg.in/gorethink/gorethink.v4 v4.0.0
 
+replace github.com/signalfx/signalfx-agent/pkg/apm => ./pkg/apm
+
 require (
 	code.cloudfoundry.org/go-diodes v0.0.0-20190809170250-f77fb823c7ee // indirect
 	code.cloudfoundry.org/go-loggregator v7.4.0+incompatible
@@ -129,7 +131,7 @@ require (
 	github.com/ory-am/common v0.4.0 // indirect
 	github.com/ory/dockertest v3.3.4+incompatible // indirect
 	github.com/pborman/uuid v1.2.0 // indirect
-	github.com/pkg/errors v0.8.2-0.20190227000051-27936f6d90f9
+	github.com/pkg/errors v0.9.1
 	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
 	github.com/pquerna/otp v1.1.0 // indirect
 	github.com/prometheus/client_golang v1.0.0
@@ -143,6 +145,7 @@ require (
 	github.com/signalfx/gateway v1.2.19-0.20191125135538-2c417b7ae0bd
 	github.com/signalfx/golib/v3 v3.3.16
 	github.com/signalfx/ingest-protocols v0.0.15
+	github.com/signalfx/signalfx-agent/pkg/apm v0.0.0-00010101000000-000000000000
 	github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5
 	github.com/signalfx/signalfx-go-tracing v1.2.0
 	github.com/sirupsen/logrus v1.4.2

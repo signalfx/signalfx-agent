@@ -15,12 +15,13 @@ import (
 	"sync/atomic"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
+	"github.com/signalfx/signalfx-agent/pkg/apm/requests"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/propfilters"
-	"github.com/signalfx/signalfx-agent/pkg/core/writer/requests"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 // DimensionClient sends updates to dimensions to the SignalFx API

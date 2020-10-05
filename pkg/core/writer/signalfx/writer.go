@@ -21,17 +21,20 @@ import (
 	"github.com/signalfx/golib/v3/event"
 	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/golib/v3/trace"
+	sfxwriter "github.com/signalfx/signalfx-go/writer"
+	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
+
+	"github.com/signalfx/signalfx-agent/pkg/apm/correlations"
+
+	libtracker "github.com/signalfx/signalfx-agent/pkg/apm/tracetracker"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
-	"github.com/signalfx/signalfx-agent/pkg/core/writer/correlations"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/dimensions"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/processor"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/tap"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/tracetracker"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	sfxwriter "github.com/signalfx/signalfx-go/writer"
-	"github.com/sirupsen/logrus"
-	log "github.com/sirupsen/logrus"
 )
 
 const (
@@ -69,7 +72,7 @@ type Writer struct {
 
 	// Keeps track of what service names have been seen in trace spans that are
 	// emitted by the agent
-	serviceTracker    *tracetracker.ActiveServiceTracker
+	serviceTracker    *libtracker.ActiveServiceTracker
 	spanSourceTracker *tracetracker.SpanSourceTracker
 
 	// Datapoints sent in the last minute
@@ -104,7 +107,22 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 		return nil, err
 	}
 
-	correlationClient, err := correlations.NewCorrelationClient(ctx, conf)
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+		Transport: &http.Transport{
+			Proxy: http.ProxyFromEnvironment,
+			DialContext: (&net.Dialer{
+				Timeout:   5 * time.Second,
+				KeepAlive: 30 * time.Second,
+			}).DialContext,
+			MaxIdleConns:        conf.MaxRequests,
+			MaxIdleConnsPerHost: conf.MaxRequests,
+			IdleConnTimeout:     30 * time.Second,
+			TLSHandshakeTimeout: 10 * time.Second,
+		},
+	}
+
+	correlationClient, err := correlations.NewCorrelationClient(utils.NewAPMShim(log.StandardLogger()), ctx, client, config.ClientConfigFromWriterConfig(conf))
 	if err != nil {
 		cancel()
 		return nil, err

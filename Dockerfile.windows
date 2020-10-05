@@ -3,6 +3,7 @@ FROM golang:1.14-windowsservercore-1809 as builder
 WORKDIR C:\\SignalFxAgent
 
 COPY go.* ./
+COPY pkg/apm/go.mod pkg/apm/go.sum ./pkg/apm/
 
 RUN go mod download -x
 
