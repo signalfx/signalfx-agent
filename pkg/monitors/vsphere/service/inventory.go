@@ -131,6 +131,12 @@ func (svc *InventorySvc) followHost(
 	if err != nil {
 		return err
 	}
+
+	if host.Runtime.PowerState == types.HostSystemPowerStatePoweredOff {
+		svc.log.Debugf("inventory: host powered off: name=[%s]", host.Name)
+		return nil
+	}
+
 	svc.debug(&host)
 	dims = append(dims, pair{"esx_ip", host.Name})
 	hostDims := map[string]string{}
@@ -156,6 +162,12 @@ func (svc *InventorySvc) followVM(
 	if err != nil {
 		return err
 	}
+
+	if vm.Runtime.PowerState == types.VirtualMachinePowerStatePoweredOff {
+		svc.log.Debugf("inventory: vm powered off: name=[%s]", vm.Name)
+		return nil
+	}
+
 	svc.debug(&vm)
 	vmDims := map[string]string{
 		"vm_name":        vm.Name,           // e.g. "MyDebian10Host"
