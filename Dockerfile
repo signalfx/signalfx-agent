@@ -259,10 +259,10 @@ RUN add-apt-repository ppa:openjdk-r/ppa &&\
 
 ARG TARGET_ARCH
 
-RUN mkdir -p /opt/root &&\
+RUN mkdir -p /opt/root/jre &&\
     rm -f /usr/lib/jvm/java-11-openjdk-${TARGET_ARCH}/lib/src.zip &&\
-    cp -rL /usr/lib/jvm/java-11-openjdk-${TARGET_ARCH} /opt/root/jre &&\
-    rm -rf /opt/root/jre/man
+    cp -rL /usr/lib/jvm/java-11-openjdk-${TARGET_ARCH}/bin /opt/root/jre/ &&\
+    cp -rL /usr/lib/jvm/java-11-openjdk-${TARGET_ARCH}/lib /opt/root/jre/
 
 COPY java/ /usr/src/agent-java/
 RUN cd /usr/src/agent-java/runner &&\
