@@ -53,7 +53,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       curl \
       dpkg \
       net-tools \
-      openjdk-10-jdk \
+      openjdk-11-jdk \
       python-software-properties \
 	  software-properties-common \
       wget \
@@ -255,13 +255,13 @@ RUN apt update &&\
 
 RUN add-apt-repository ppa:openjdk-r/ppa &&\
     apt update &&\
-    apt install -y openjdk-10-jdk maven
+    apt install -y openjdk-11-jdk maven
 
 ARG TARGET_ARCH
 
 RUN mkdir -p /opt/root &&\
-    rm -f /usr/lib/jvm/java-10-openjdk-${TARGET_ARCH}/src.zip &&\
-    cp -rL /usr/lib/jvm/java-10-openjdk-${TARGET_ARCH} /opt/root/jre &&\
+    rm -f /usr/lib/jvm/java-11-openjdk-${TARGET_ARCH}/lib/src.zip &&\
+    cp -rL /usr/lib/jvm/java-11-openjdk-${TARGET_ARCH} /opt/root/jre &&\
     rm -rf /opt/root/jre/man
 
 COPY java/ /usr/src/agent-java/
