@@ -53,10 +53,18 @@ func (sw *Writer) startHostCorrelationTracking() *apmtracker.ActiveServiceTracke
 		sendTraceHostCorrelationMetrics = *sw.conf.SendTraceHostCorrelationMetrics
 	}
 
-	tracker := apmtracker.New(utils.NewAPMShim(log.StandardLogger()), sw.conf.StaleServiceTimeout.AsDuration(), sw.correlationClient, sw.hostIDDims, sendTraceHostCorrelationMetrics, func(dp *datapoint.Datapoint) {
-		// Immediately send correlation datapoints when we first see a service
-		sw.dpChan <- []*datapoint.Datapoint{dp}
-	})
+	tracker := apmtracker.New(
+		utils.NewAPMShim(log.StandardLogger()),
+		sw.conf.StaleServiceTimeout.AsDuration(),
+		sw.correlationClient,
+		sw.hostIDDims,
+		sendTraceHostCorrelationMetrics,
+		func(dp *datapoint.Datapoint) {
+			// Immediately send correlation datapoints when we first see a service
+			sw.dpChan <- []*datapoint.Datapoint{dp}
+		},
+		apmtracker.DefaultDimsToSyncSource,
+	)
 
 	// purge the active service tracker periodically
 	utils.RunOnInterval(sw.ctx, func() {

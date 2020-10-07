@@ -9,7 +9,7 @@ import (
 	"github.com/signalfx/golib/v3/trace"
 	"github.com/sirupsen/logrus"
 
-	"github.com/signalfx/signalfx-agent/pkg/apm/tracetracker"
+	apmtracker "github.com/signalfx/signalfx-agent/pkg/apm/tracetracker"
 	"github.com/signalfx/signalfx-agent/pkg/core/common/constants"
 	"github.com/signalfx/signalfx-agent/pkg/core/services"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
@@ -50,7 +50,7 @@ func (st *SpanSourceTracker) AddSourceTagsToSpan(span *trace.Span) {
 	found := 0
 	for _, endpoint := range endpoints {
 		dims := endpoint.Dimensions()
-		for _, dim := range tracetracker.DimsToSyncSource {
+		for _, dim := range apmtracker.DefaultDimsToSyncSource {
 			if val := dims[dim]; val != "" {
 				found++
 
@@ -72,7 +72,7 @@ func (st *SpanSourceTracker) AddSourceTagsToSpan(span *trace.Span) {
 		}
 		// Short circuit it if we have added all the desired dimensions with
 		// this endpoint.
-		if found == len(tracetracker.DimsToSyncSource) {
+		if found == len(apmtracker.DefaultDimsToSyncSource) {
 			break
 		}
 	}

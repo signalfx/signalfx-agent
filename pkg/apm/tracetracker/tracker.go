@@ -15,12 +15,13 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/apm/log"
 )
 
-var DimsToSyncSource = []string{
+const spanCorrelationMetricName = "sf.int.service.heartbeat"
+
+// DefaultDimsToSyncSource are the default dimensions to sync correlated environment and services onto.
+var DefaultDimsToSyncSource = []string{
 	"container_id",
 	"kubernetes_pod_uid",
 }
-
-const spanCorrelationMetricName = "sf.int.service.heartbeat"
 
 // ActiveServiceTracker keeps track of which services are seen in the trace
 // spans passed through ProcessSpans.  It supports expiry of service names if
@@ -66,6 +67,9 @@ type ActiveServiceTracker struct {
 
 	// Internal metrics
 	spansProcessed int64
+
+	// Dimensions to sync onto.
+	dimsToSyncSource []string
 }
 
 // dpForService actually makes the datapoint that is put into the dp cache
@@ -145,7 +149,15 @@ func (a *ActiveServiceTracker) LoadHostIDDimCorrelations() {
 }
 
 // New creates a new initialized service tracker
-func New(log log.Logger, timeout time.Duration, correlationClient correlations.CorrelationClient, hostIDDims map[string]string, sendTraceHostCorrelationMetrics bool, newServiceCallback func(dp *datapoint.Datapoint)) *ActiveServiceTracker {
+func New(
+	log log.Logger,
+	timeout time.Duration,
+	correlationClient correlations.CorrelationClient,
+	hostIDDims map[string]string,
+	sendTraceHostCorrelationMetrics bool,
+	newServiceCallback func(dp *datapoint.Datapoint),
+	dimsToSyncSource []string,
+) *ActiveServiceTracker {
 	a := &ActiveServiceTracker{
 		log:                             log,
 		hostIDDims:                      hostIDDims,
@@ -159,6 +171,7 @@ func New(log log.Logger, timeout time.Duration, correlationClient correlations.C
 		correlationClient:               correlationClient,
 		sendTraceHostCorrelationMetrics: sendTraceHostCorrelationMetrics,
 		timeNow:                         time.Now,
+		dimsToSyncSource:                dimsToSyncSource,
 	}
 	a.LoadHostIDDimCorrelations()
 
@@ -201,8 +214,8 @@ func (a *ActiveServiceTracker) processEnvironment(span Span, now time.Time) {
 		//
 		// Under that VERY specific circumstance, we need to fetch and delete the environment values for each
 		// pod/container that we have not already scraped an environment off of this agent runtime.
-		for i := range DimsToSyncSource {
-			dimName := DimsToSyncSource[i]
+		for i := range a.dimsToSyncSource {
+			dimName := a.dimsToSyncSource[i]
 			if dimValue, ok := span.Tag(dimName); ok {
 				// look up the dimension / value in the environment cache to ensure it doesn't already exist
 				// if it does exist, this means we've already scraped and overwritten what was on the backend
@@ -273,7 +286,7 @@ func (a *ActiveServiceTracker) processEnvironment(span Span, now time.Time) {
 
 	// container / pod level stuff
 	// this cache is necessary to identify environments associated with a kubernetes pod or container id
-	for _, dimName := range DimsToSyncSource {
+	for _, dimName := range a.dimsToSyncSource {
 		dimName := dimName
 		if dimValue, ok := span.Tag(dimName); ok {
 			// Note that the value is not set on the cache key.  We only send the first environment received for a
@@ -335,7 +348,7 @@ func (a *ActiveServiceTracker) processService(span Span, now time.Time) {
 
 	// container / pod level stuff (this should not directly affect the active service count)
 	// this cache is necessary to identify services associated with a kubernetes pod or container id
-	for _, dimName := range DimsToSyncSource {
+	for _, dimName := range a.dimsToSyncSource {
 		dimName := dimName
 		if dimValue, ok := span.Tag(dimName); ok {
 			// Note that the value is not set on the cache key.  We only send the first service received for a
