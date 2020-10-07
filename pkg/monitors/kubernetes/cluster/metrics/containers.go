@@ -37,7 +37,7 @@ func datapointsForContainerSpec(c v1.Container, contDims map[string]string) []*d
 			datapoint.New(
 				"kubernetes.container_cpu_request",
 				contDims,
-				datapoint.NewIntValue(val.Value()),
+				datapoint.NewFloatValue(float64(val.MilliValue())/1000.0),
 				datapoint.Gauge,
 				time.Time{}))
 	}
@@ -47,7 +47,7 @@ func datapointsForContainerSpec(c v1.Container, contDims map[string]string) []*d
 			datapoint.New(
 				"kubernetes.container_cpu_limit",
 				contDims,
-				datapoint.NewIntValue(val.Value()),
+				datapoint.NewFloatValue(float64(val.MilliValue())/1000.0),
 				datapoint.Gauge,
 				time.Time{}))
 	}
