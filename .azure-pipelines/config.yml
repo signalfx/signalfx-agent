@@ -282,7 +282,7 @@ jobs:
     displayName: 'Build agent'
   - task: UsePythonVersion@0
     inputs:
-      versionSpec: '3.8.5'
+      versionSpec: '3.8'
   - script: |
       python -m pip install --upgrade pip==20.0.2
       pip install -r tests/requirements.txt
