@@ -26,6 +26,7 @@ const version = "0.0.30"
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 var zlibCompressor = zlib.NewWriter(&bytes.Buffer{})
+var now = time.Now
 
 // Config for this monitor
 type Config struct {
@@ -51,6 +52,7 @@ type Monitor struct {
 	Output        types.Output
 	cancel        func()
 	lastCPUCounts map[procKey]time.Duration
+	nextPurge     time.Time
 }
 
 // TopProcess is a platform-independent way of representing a process to be
@@ -87,6 +89,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.lastCPUCounts = make(map[procKey]time.Duration)
 
 	osCache := initOSCache()
+	m.nextPurge = now().Add(3 * time.Minute)
 
 	utils.RunOnInterval(
 		ctx,
@@ -114,6 +117,12 @@ func (m *Monitor) Configure(conf *Config) error {
 					Timestamp: time.Now(),
 				},
 			)
+
+			curTime := now()
+			if curTime.After(m.nextPurge) {
+				m.purgeCPUCache(procs)
+				m.nextPurge = curTime.Add(3 * time.Minute)
+			}
 		},
 		interval,
 	)
@@ -175,6 +184,19 @@ func (m *Monitor) encodeProcess(proc *TopProcess, sampleInterval time.Duration) 
 		toTime(proc.TotalCPUTime.Seconds()),
 		strings.ReplaceAll(proc.Command, `"`, `'`),
 	)
+}
+
+func (m *Monitor) purgeCPUCache(lastProcs []*TopProcess) {
+	lastKeys := make(map[procKey]struct{}, len(lastProcs))
+	for i := range lastProcs {
+		lastKeys[lastProcs[i].key()] = struct{}{}
+	}
+
+	for k := range m.lastCPUCounts {
+		if _, ok := lastKeys[k]; !ok {
+			delete(m.lastCPUCounts, k)
+		}
+	}
 }
 
 // toTime returns the given seconds as a formatted string "min:sec.dec"
