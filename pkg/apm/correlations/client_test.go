@@ -139,12 +139,12 @@ func setup(t *testing.T) (CorrelationClient, chan *request, *atomic.Value, *atom
 
 	conf := ClientConfig{
 		Config: Config{
-			MaxRequests:         10,
-			MaxBuffered:         10,
-			MaxRetries:          4,
-			LogDimensionUpdates: true,
-			SendDelay:           0,
-			PurgeInterval:       0,
+			MaxRequests:     10,
+			MaxBuffered:     10,
+			MaxRetries:      4,
+			LogUpdates:      true,
+			RetryDelay:      0,
+			CleanupInterval: 0,
 		},
 		AccessToken: "",
 		URL:         serverURL,
