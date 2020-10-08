@@ -16,7 +16,7 @@ monitors:
     The following cluster modes are supported only through HTTP endpoints:
     - Standalone
     - Mesos
-    - Hadoop Yarn
+    - Hadoop YARN
 
     You must specify distinct monitor configurations and discovery rules for
     master and worker processes.  For the master configuration, set `isMaster`
