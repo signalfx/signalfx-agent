@@ -72,23 +72,23 @@ type Client struct {
 	now        func() time.Time
 	logUpdates bool
 
-	sendDelay   time.Duration
+	retryDelay  time.Duration
 	maxAttempts uint32
 
 	TotalClientError4xxResponses int64
 	TotalRetriedUpdates          int64
 	TotalInvalidDimensions       int64
-	dedupPurgeInterval           time.Duration
+	dedupCleanupInterval         time.Duration
 }
 
 // Config defines configuration for correlation settings.
 type Config struct {
-	MaxRequests         uint          `mapstructure:"max_requests"`
-	MaxBuffered         uint          `mapstructure:"max_buffered"`
-	MaxRetries          uint          `mapstructure:"max_retries"`
-	LogDimensionUpdates bool          `mapstructure:"log_dimension_updates"`
-	SendDelay           time.Duration `mapstructure:"send_delay"`
-	PurgeInterval       time.Duration `mapstructure:"purge_interval"`
+	MaxRequests     uint          `mapstructure:"max_requests"`
+	MaxBuffered     uint          `mapstructure:"max_buffered"`
+	MaxRetries      uint          `mapstructure:"max_retries"`
+	LogUpdates      bool          `mapstructure:"log_updates"`
+	RetryDelay      time.Duration `mapstructure:"retry_delay"`
+	CleanupInterval time.Duration `mapstructure:"cleanup_interval"`
 }
 
 // ClientConfig for correlation client.
@@ -102,20 +102,20 @@ type ClientConfig struct {
 func NewCorrelationClient(log log.Logger, ctx context.Context, client *http.Client, conf ClientConfig) (CorrelationClient, error) {
 	sender := requests.NewReqSender(ctx, client, conf.MaxRequests, "correlation")
 	return &Client{
-		log:                log,
-		ctx:                ctx,
-		Token:              conf.AccessToken,
-		APIURL:             conf.URL,
-		requestSender:      sender,
-		client:             client,
-		now:                time.Now,
-		logUpdates:         conf.LogDimensionUpdates,
-		requestChan:        make(chan *request, conf.MaxBuffered),
-		retryChan:          make(chan *request, conf.MaxBuffered),
-		dedup:              newDeduplicator(int(conf.MaxBuffered)),
-		sendDelay:          conf.SendDelay,
-		maxAttempts:        uint32(conf.MaxRetries) + 1,
-		dedupPurgeInterval: conf.PurgeInterval,
+		log:                  log,
+		ctx:                  ctx,
+		Token:                conf.AccessToken,
+		APIURL:               conf.URL,
+		requestSender:        sender,
+		client:               client,
+		now:                  time.Now,
+		logUpdates:           conf.LogUpdates,
+		requestChan:          make(chan *request, conf.MaxBuffered),
+		retryChan:            make(chan *request, conf.MaxBuffered),
+		dedup:                newDeduplicator(int(conf.MaxBuffered)),
+		retryDelay:           conf.RetryDelay,
+		maxAttempts:          uint32(conf.MaxRetries) + 1,
+		dedupCleanupInterval: conf.CleanupInterval,
 	}, nil
 }
 
@@ -151,7 +151,7 @@ func (cc *Client) putRequestOnRetryChan(r *request) error {
 	requestcounter.IncrementRequestCount(r.ctx)
 
 	// set the time to retry
-	r.sendAt = cc.now().Add(cc.sendDelay)
+	r.sendAt = cc.now().Add(cc.retryDelay)
 
 	if r.ctx.Err() != nil {
 		return errRequestCancelled
@@ -337,7 +337,7 @@ func (cc *Client) makeRequest(r *request) {
 // processChan processes incoming requests, drops duplicates, and cancels conflicting requests
 func (cc *Client) processChan() {
 	defer cc.wg.Done()
-	purgeDeduper := time.NewTimer(cc.dedupPurgeInterval)
+	purgeDeduper := time.NewTimer(cc.dedupCleanupInterval)
 	defer purgeDeduper.Stop()
 	for {
 		select {
@@ -345,7 +345,7 @@ func (cc *Client) processChan() {
 			return
 		case <-purgeDeduper.C:
 			cc.dedup.purge()
-			purgeDeduper.Reset(cc.dedupPurgeInterval)
+			purgeDeduper.Reset(cc.dedupCleanupInterval)
 		case r := <-cc.requestChan:
 			if cc.dedup.isDup(r) {
 				r.cancel()
