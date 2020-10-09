@@ -126,7 +126,7 @@ func (cc *Client) putRequestOnChan(r *request) error {
 		// and because this isn't being taken off on the request sender and subject to retries, this could
 		// potentially spam the logs
 		atomic.AddInt64(&cc.TotalInvalidDimensions, int64(1))
-		cc.log.WithFields(log.Fields{"method": r.operation, "correlation": r.Correlation}).Debug("No dimension key or value to correlate to")
+		r.Logger(cc.log).WithFields(log.Fields{"method": r.operation}).Debug("No dimension key or value to correlate to")
 		return nil
 	}
 
@@ -184,7 +184,7 @@ func (cc *Client) Correlate(cor *Correlation, cb CorrelateCB) {
 			switch statuscode {
 			case http.StatusOK:
 				if cc.logUpdates {
-					cc.log.WithFields(log.Fields{"method": http.MethodPut, "correlation": cor}).Info("Updated dimension")
+					cor.Logger(cc.log).WithFields(log.Fields{"method": http.MethodPut}).Info("Updated dimension")
 				}
 			case http.StatusTeapot:
 				max := &ErrMaxEntries{}
@@ -194,12 +194,12 @@ func (cc *Client) Correlate(cor *Correlation, cb CorrelateCB) {
 				}
 			}
 			if err != nil {
-				cc.log.WithError(err).WithFields(log.Fields{"method": http.MethodPut, "correlation": cor}).Error("Unable to update dimension, not retrying")
+				cor.Logger(cc.log).WithError(err).WithFields(log.Fields{"method": http.MethodPut}).Error("Unable to update dimension, not retrying")
 			}
 			cb(cor, err)
 		}})
 	if err != nil {
-		cc.log.WithError(err).WithFields(log.Fields{"method": http.MethodPut, "correlation": cor}).Debug("Unable to update dimension, not retrying")
+		cor.Logger(cc.log).WithError(err).WithFields(log.Fields{"method": http.MethodPut}).Debug("Unable to update dimension, not retrying")
 	}
 }
 
@@ -216,14 +216,14 @@ func (cc *Client) Delete(cor *Correlation, callback SuccessfulDeleteCB) {
 			case http.StatusOK:
 				callback(cor)
 				if cc.logUpdates {
-					cc.log.WithFields(log.Fields{"method": http.MethodDelete, "correlation": cor}).Info("Updated dimension")
+					cor.Logger(cc.log).WithFields(log.Fields{"method": http.MethodDelete}).Info("Updated dimension")
 				}
 			default:
 				cc.log.WithError(err).Error("Unable to update dimension, not retrying")
 			}
 		}})
 	if err != nil {
-		cc.log.WithError(err).WithFields(log.Fields{"method": http.MethodDelete, "correlation": cor}).Debug("Unable to update dimension, not retrying")
+		cor.Logger(cc.log).WithError(err).WithFields(log.Fields{"method": http.MethodDelete}).Debug("Unable to update dimension, not retrying")
 	}
 }
 
@@ -290,7 +290,7 @@ func (cc *Client) makeRequest(r *request) {
 		// logging this as debug because this means there's something fundamentally wrong with the request
 		// and because this isn't being taken off on the request sender and subject to retries, this could
 		// potentially spam the logs long term.  This would be a really good candidate for a throttled error logger
-		cc.log.WithError(err).WithFields(log.Fields{"method": r.operation, "correlation": r.Correlation}).Debug("Unable to make request, not retrying")
+		r.Correlation.Logger(cc.log).WithError(err).WithFields(log.Fields{"method": r.operation}).Debug("Unable to make request, not retrying")
 		r.cancel()
 		return
 	}
@@ -308,7 +308,7 @@ func (cc *Client) makeRequest(r *request) {
 				// up beyond conf.MaxBuffered and start dropping.
 				retryErr := cc.putRequestOnRetryChan(r)
 				if retryErr == nil {
-					cc.log.WithError(err).WithFields(log.Fields{"method": req.Method, "correlation": r.Correlation}).Debug("Unable to update dimension, retrying")
+					r.Correlation.Logger(cc.log).WithError(err).WithFields(log.Fields{"method": req.Method}).Debug("Unable to update dimension, retrying")
 					return
 				}
 			} else {
