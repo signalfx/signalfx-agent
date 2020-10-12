@@ -26,8 +26,7 @@ You must specify distinct monitor configurations and discovery rules for
 master and worker processes.  For the master configuration, set `isMaster`
 to true.
 
-When running Spark on Apache Hadoop / YARN, this integration is only capable
-of reporting application metrics from the master node.  Use the
+When running Spark on Apache Hadoop / YARN, this integration can only report application metrics from the master node.  Use the
 collectd/hadoop monitor to report on the health of the cluster.
 
 <!--- SETUP --->
