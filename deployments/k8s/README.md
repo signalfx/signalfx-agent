@@ -22,6 +22,13 @@ A few things to do before deploying these directly (when **not using Helm**):
 
 	`kubectl create secret generic --from-literal access-token=MY_ACCESS_TOKEN signalfx-agent`
 
+ 4. Doublecheck the `daemonset.yaml` included stanza and remove if not consistent with your environment.
+
+```    
+	nodeSelector:
+        kubernetes.io/os: linux
+	```
+
 Then to deploy run the following from the present directory:
 
 `cat *.yaml | kubectl apply -f -`
@@ -84,6 +91,11 @@ Two notable limitations when running the agent as a Deployment in Fargate:
 The [serverless](./serverless) directory contains a set of sample YAML
 resources that you can start from to deploy the agent in a serverless K8s
 environment.
+
+## OpenShift
+
+`configmap.yaml` should have a value at first indent setting `internalHost: ${MY_NODE_IP}`  
+This lets the SignalFx SmartAgent run the `signalfx-agent status` command normally.
 
 ## Windows
 If you are deploying to a mixed Windows/Linux Kubernetes cluster, see [Windows](./helm/signalfx-agent#windows) in the Helm chart README.
