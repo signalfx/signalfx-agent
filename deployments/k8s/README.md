@@ -27,7 +27,7 @@ A few things to do before deploying these directly (when **not using Helm**):
 ```    
 	nodeSelector:
         kubernetes.io/os: linux
-	```
+```
 
 Then to deploy run the following from the present directory:
 
