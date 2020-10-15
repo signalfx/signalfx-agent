@@ -1,5 +1,9 @@
 package correlations
 
+import (
+	"github.com/signalfx/signalfx-agent/pkg/apm/log"
+)
+
 // Type is the type of correlation
 type Type string
 
@@ -20,4 +24,13 @@ type Correlation struct {
 	DimValue string
 	// Value is the value to makeRequest with the DimName and DimValue
 	Value string
+}
+
+func (c *Correlation) Logger(l log.Logger) log.Logger {
+	return l.WithFields(log.Fields{
+		"correlation.type":     c.Type,
+		"correlation.dimName":  c.DimName,
+		"correlation.dimValue": c.DimValue,
+		"correlation.value":    c.Value,
+	})
 }

@@ -18,9 +18,9 @@ import (
 const spanCorrelationMetricName = "sf.int.service.heartbeat"
 
 // DefaultDimsToSyncSource are the default dimensions to sync correlated environment and services onto.
-var DefaultDimsToSyncSource = []string{
-	"container_id",
-	"kubernetes_pod_uid",
+var DefaultDimsToSyncSource = map[string]string{
+	"container_id":       "container_id",
+	"kubernetes_pod_uid": "kubernetes_pod_uid",
 }
 
 // ActiveServiceTracker keeps track of which services are seen in the trace
@@ -68,8 +68,9 @@ type ActiveServiceTracker struct {
 	// Internal metrics
 	spansProcessed int64
 
-	// Dimensions to sync onto.
-	dimsToSyncSource []string
+	// Map of dimensions to sync to with the key being the span attribute to lookup and the value being
+	// the dimension to sync to.
+	dimsToSyncSource map[string]string
 }
 
 // dpForService actually makes the datapoint that is put into the dp cache
@@ -156,7 +157,7 @@ func New(
 	hostIDDims map[string]string,
 	sendTraceHostCorrelationMetrics bool,
 	newServiceCallback func(dp *datapoint.Datapoint),
-	dimsToSyncSource []string,
+	dimsToSyncSource map[string]string,
 ) *ActiveServiceTracker {
 	a := &ActiveServiceTracker{
 		log:                             log,
@@ -214,9 +215,10 @@ func (a *ActiveServiceTracker) processEnvironment(span Span, now time.Time) {
 		//
 		// Under that VERY specific circumstance, we need to fetch and delete the environment values for each
 		// pod/container that we have not already scraped an environment off of this agent runtime.
-		for i := range a.dimsToSyncSource {
-			dimName := a.dimsToSyncSource[i]
-			if dimValue, ok := span.Tag(dimName); ok {
+		for sourceAttr, dimName := range a.dimsToSyncSource {
+			sourceAttr := sourceAttr
+			dimName := dimName
+			if dimValue, ok := span.Tag(sourceAttr); ok {
 				// look up the dimension / value in the environment cache to ensure it doesn't already exist
 				// if it does exist, this means we've already scraped and overwritten what was on the backend
 				// probably from another span. This also implies that some spans for the tenant have an environment
@@ -286,9 +288,10 @@ func (a *ActiveServiceTracker) processEnvironment(span Span, now time.Time) {
 
 	// container / pod level stuff
 	// this cache is necessary to identify environments associated with a kubernetes pod or container id
-	for _, dimName := range a.dimsToSyncSource {
+	for sourceAttr, dimName := range a.dimsToSyncSource {
+		sourceAttr := sourceAttr
 		dimName := dimName
-		if dimValue, ok := span.Tag(dimName); ok {
+		if dimValue, ok := span.Tag(sourceAttr); ok {
 			// Note that the value is not set on the cache key.  We only send the first environment received for a
 			// given pod/container, and we never delete the values set on the container/pod dimension.
 			// So we only need to cache the dim name and dim value that have been associated with an environment.
@@ -348,9 +351,10 @@ func (a *ActiveServiceTracker) processService(span Span, now time.Time) {
 
 	// container / pod level stuff (this should not directly affect the active service count)
 	// this cache is necessary to identify services associated with a kubernetes pod or container id
-	for _, dimName := range a.dimsToSyncSource {
+	for sourceAttr, dimName := range a.dimsToSyncSource {
+		sourceAttr := sourceAttr
 		dimName := dimName
-		if dimValue, ok := span.Tag(dimName); ok {
+		if dimValue, ok := span.Tag(sourceAttr); ok {
 			// Note that the value is not set on the cache key.  We only send the first service received for a
 			// given pod/container, and we never delete the values set on the container/pod dimension.
 			// So we only need to cache the dim name and dim value that have been associated with a service.
