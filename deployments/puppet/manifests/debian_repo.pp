@@ -1,7 +1,5 @@
 # Installs the Debian package repository config
-class signalfx_agent::debian_repo ($repo_base, $package_stage, $apt_gpg_key) {
-
-  Exec['apt_update'] -> Package['signalfx-agent']
+class signalfx_agent::debian_repo ($repo_base, $package_stage, $apt_gpg_key, $manage_repo) {
 
   exec { 'delete old apt key':
     path    => '/bin:/usr/bin',
@@ -14,13 +12,17 @@ class signalfx_agent::debian_repo ($repo_base, $package_stage, $apt_gpg_key) {
     path   => '/etc/apt/trusted.gpg.d/signalfx.gpg',
   }
 
-  apt::source { 'signalfx-agent':
-    location => "https://${repo_base}/signalfx-agent-deb",
-    release  => $package_stage,
-    repos    => 'main',
-    key      => {
-      id     => '58C33310B7A354C1279DB6695EFA01EDB3CD4420',
-      source => $apt_gpg_key,
-    },
+  if $manage_repo {
+    Exec['apt_update'] -> Package['signalfx-agent']
+
+    apt::source { 'signalfx-agent':
+      location => "https://${repo_base}/signalfx-agent-deb",
+      release  => $package_stage,
+      repos    => 'main',
+      key      => {
+        id     => '58C33310B7A354C1279DB6695EFA01EDB3CD4420',
+        source => $apt_gpg_key,
+      },
+    }
   }
 }
