@@ -29,6 +29,9 @@ const (
 	counterCassandraClientRequestWriteUnavailablesCount        = "counter.cassandra.ClientRequest.Write.Unavailables.Count"
 	counterCassandraCompactionTotalCompactionsCompletedCount   = "counter.cassandra.Compaction.TotalCompactionsCompleted.Count"
 	counterCassandraStorageExceptionsCount                     = "counter.cassandra.Storage.Exceptions.Count"
+	counterCassandraStorageLoadCount                           = "counter.cassandra.Storage.Load.Count"
+	counterCassandraStorageTotalHintsCount                     = "counter.cassandra.Storage.TotalHints.Count"
+	counterCassandraStorageTotalHintsInProgressCount           = "counter.cassandra.Storage.TotalHintsInProgress.Count"
 	gaugeCassandraClientRequestRangeSliceLatency50thPercentile = "gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile"
 	gaugeCassandraClientRequestRangeSliceLatency99thPercentile = "gauge.cassandra.ClientRequest.RangeSlice.Latency.99thPercentile"
 	gaugeCassandraClientRequestRangeSliceLatencyMax            = "gauge.cassandra.ClientRequest.RangeSlice.Latency.Max"
@@ -39,9 +42,6 @@ const (
 	gaugeCassandraClientRequestWriteLatency99thPercentile      = "gauge.cassandra.ClientRequest.Write.Latency.99thPercentile"
 	gaugeCassandraClientRequestWriteLatencyMax                 = "gauge.cassandra.ClientRequest.Write.Latency.Max"
 	gaugeCassandraCompactionPendingTasksValue                  = "gauge.cassandra.Compaction.PendingTasks.Value"
-	gaugeCassandraStorageLoadCount                             = "gauge.cassandra.Storage.Load.Count"
-	gaugeCassandraStorageTotalHintsCount                       = "gauge.cassandra.Storage.TotalHints.Count"
-	gaugeCassandraStorageTotalHintsInProgressCount             = "gauge.cassandra.Storage.TotalHintsInProgress.Count"
 	gaugeJvmThreadsCount                                       = "gauge.jvm.threads.count"
 	gaugeLoadedClasses                                         = "gauge.loaded_classes"
 	invocations                                                = "invocations"
@@ -64,6 +64,9 @@ var metricSet = map[string]monitors.MetricInfo{
 	counterCassandraClientRequestWriteUnavailablesCount:        {Type: datapoint.Counter},
 	counterCassandraCompactionTotalCompactionsCompletedCount:   {Type: datapoint.Counter},
 	counterCassandraStorageExceptionsCount:                     {Type: datapoint.Counter},
+	counterCassandraStorageLoadCount:                           {Type: datapoint.Counter},
+	counterCassandraStorageTotalHintsCount:                     {Type: datapoint.Counter},
+	counterCassandraStorageTotalHintsInProgressCount:           {Type: datapoint.Counter},
 	gaugeCassandraClientRequestRangeSliceLatency50thPercentile: {Type: datapoint.Gauge},
 	gaugeCassandraClientRequestRangeSliceLatency99thPercentile: {Type: datapoint.Gauge},
 	gaugeCassandraClientRequestRangeSliceLatencyMax:            {Type: datapoint.Gauge},
@@ -74,9 +77,6 @@ var metricSet = map[string]monitors.MetricInfo{
 	gaugeCassandraClientRequestWriteLatency99thPercentile:      {Type: datapoint.Gauge},
 	gaugeCassandraClientRequestWriteLatencyMax:                 {Type: datapoint.Gauge},
 	gaugeCassandraCompactionPendingTasksValue:                  {Type: datapoint.Gauge},
-	gaugeCassandraStorageLoadCount:                             {Type: datapoint.Gauge},
-	gaugeCassandraStorageTotalHintsCount:                       {Type: datapoint.Gauge},
-	gaugeCassandraStorageTotalHintsInProgressCount:             {Type: datapoint.Gauge},
 	gaugeJvmThreadsCount:                                       {Type: datapoint.Gauge, Group: groupJvm},
 	gaugeLoadedClasses:                                         {Type: datapoint.Gauge, Group: groupJvm},
 	invocations:                                                {Type: datapoint.Counter, Group: groupJvm},
@@ -97,6 +97,8 @@ var defaultMetrics = map[string]bool{
 	counterCassandraClientRequestWriteLatencyCount:             true,
 	counterCassandraClientRequestWriteTimeoutsCount:            true,
 	counterCassandraClientRequestWriteUnavailablesCount:        true,
+	counterCassandraStorageLoadCount:                           true,
+	counterCassandraStorageTotalHintsInProgressCount:           true,
 	gaugeCassandraClientRequestRangeSliceLatency99thPercentile: true,
 	gaugeCassandraClientRequestReadLatency50thPercentile:       true,
 	gaugeCassandraClientRequestReadLatency99thPercentile:       true,
@@ -105,8 +107,6 @@ var defaultMetrics = map[string]bool{
 	gaugeCassandraClientRequestWriteLatency99thPercentile:      true,
 	gaugeCassandraClientRequestWriteLatencyMax:                 true,
 	gaugeCassandraCompactionPendingTasksValue:                  true,
-	gaugeCassandraStorageLoadCount:                             true,
-	gaugeCassandraStorageTotalHintsInProgressCount:             true,
 	gaugeJvmThreadsCount:                                       true,
 	gaugeLoadedClasses:                                         true,
 	invocations:                                                true,

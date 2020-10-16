@@ -224,7 +224,7 @@ monitors:
         Number of internal exceptions caught. Under normal exceptions this should be zero.
       default: false
       type: cumulative
-    gauge.cassandra.Storage.Load.Count:
+    counter.cassandra.Storage.Load.Count:
       description: |
         Storage used for Cassandra data in bytes. Use this metric to see how much storage is being used for data by a Cassandra node.
 
@@ -232,23 +232,23 @@ monitors:
         - Total data stored into the database
         - compaction behavior
       default: true
-      type: gauge
-    gauge.cassandra.Storage.TotalHints.Count:
+      type: cumulative
+    counter.cassandra.Storage.TotalHints.Count:
       description: |
         Total hints since node start. Indicates that write operations cannot be
         delivered to a node, usually because a node is down. If this value is
         increasing and all nodes are up then there may be some connectivity
         issue between nodes in the cluster.
       default: false
-      type: gauge
-    gauge.cassandra.Storage.TotalHintsInProgress.Count:
+      type: cumulative
+    counter.cassandra.Storage.TotalHintsInProgress.Count:
       description: |
         Total pending hints. Indicates that write operations cannot be
         delivered to a node, usually because a node is down. If this value is
         increasing and all nodes are up then there may be some connectivity
         issue between nodes in the cluster.
       default: true
-      type: gauge
+      type: cumulative
   monitorType: collectd/cassandra
   sendUnknown: true
   properties:

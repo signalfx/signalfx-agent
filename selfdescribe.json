@@ -4914,6 +4914,9 @@
             "counter.cassandra.ClientRequest.Write.Unavailables.Count",
             "counter.cassandra.Compaction.TotalCompactionsCompleted.Count",
             "counter.cassandra.Storage.Exceptions.Count",
+            "counter.cassandra.Storage.Load.Count",
+            "counter.cassandra.Storage.TotalHints.Count",
+            "counter.cassandra.Storage.TotalHintsInProgress.Count",
             "gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile",
             "gauge.cassandra.ClientRequest.RangeSlice.Latency.99thPercentile",
             "gauge.cassandra.ClientRequest.RangeSlice.Latency.Max",
@@ -4923,10 +4926,7 @@
             "gauge.cassandra.ClientRequest.Write.Latency.50thPercentile",
             "gauge.cassandra.ClientRequest.Write.Latency.99thPercentile",
             "gauge.cassandra.ClientRequest.Write.Latency.Max",
-            "gauge.cassandra.Compaction.PendingTasks.Value",
-            "gauge.cassandra.Storage.Load.Count",
-            "gauge.cassandra.Storage.TotalHints.Count",
-            "gauge.cassandra.Storage.TotalHintsInProgress.Count"
+            "gauge.cassandra.Compaction.PendingTasks.Value"
           ]
         },
         "jvm": {
@@ -5010,6 +5010,24 @@
           "group": null,
           "default": false
         },
+        "counter.cassandra.Storage.Load.Count": {
+          "type": "cumulative",
+          "description": "Storage used for Cassandra data in bytes. Use this metric to see how much storage is being used for data by a Cassandra node.\n\nThe value of this metric is influenced by:\n- Total data stored into the database\n- compaction behavior\n",
+          "group": null,
+          "default": true
+        },
+        "counter.cassandra.Storage.TotalHints.Count": {
+          "type": "cumulative",
+          "description": "Total hints since node start. Indicates that write operations cannot be\ndelivered to a node, usually because a node is down. If this value is\nincreasing and all nodes are up then there may be some connectivity\nissue between nodes in the cluster.\n",
+          "group": null,
+          "default": false
+        },
+        "counter.cassandra.Storage.TotalHintsInProgress.Count": {
+          "type": "cumulative",
+          "description": "Total pending hints. Indicates that write operations cannot be\ndelivered to a node, usually because a node is down. If this value is\nincreasing and all nodes are up then there may be some connectivity\nissue between nodes in the cluster.\n",
+          "group": null,
+          "default": true
+        },
         "gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile": {
           "type": "gauge",
           "description": "50th percentile (median) of Cassandra range slice latency. This value\nshould be similar across all nodes in the cluster. If some nodes have higher\nvalues than the rest of the cluster then they may have more connected clients\nor may be experiencing heavier than usual compaction load.\n",
@@ -5067,24 +5085,6 @@
         "gauge.cassandra.Compaction.PendingTasks.Value": {
           "type": "gauge",
           "description": "Number of compaction operations waiting to run. If this value is\ncontinually increasing then the node may be experiencing problems\ncompleting compaction operations.\n",
-          "group": null,
-          "default": true
-        },
-        "gauge.cassandra.Storage.Load.Count": {
-          "type": "gauge",
-          "description": "Storage used for Cassandra data in bytes. Use this metric to see how much storage is being used for data by a Cassandra node.\n\nThe value of this metric is influenced by:\n- Total data stored into the database\n- compaction behavior\n",
-          "group": null,
-          "default": true
-        },
-        "gauge.cassandra.Storage.TotalHints.Count": {
-          "type": "gauge",
-          "description": "Total hints since node start. Indicates that write operations cannot be\ndelivered to a node, usually because a node is down. If this value is\nincreasing and all nodes are up then there may be some connectivity\nissue between nodes in the cluster.\n",
-          "group": null,
-          "default": false
-        },
-        "gauge.cassandra.Storage.TotalHintsInProgress.Count": {
-          "type": "gauge",
-          "description": "Total pending hints. Indicates that write operations cannot be\ndelivered to a node, usually because a node is down. If this value is\nincreasing and all nodes are up then there may be some connectivity\nissue between nodes in the cluster.\n",
           "group": null,
           "default": true
         },
