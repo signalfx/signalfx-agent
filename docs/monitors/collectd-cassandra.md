@@ -151,6 +151,24 @@ This monitor will also emit by default any metrics that are not listed below.
     not increase steadily over time then the node may be experiencing
     problems completing compaction operations.
 
+ - `counter.cassandra.Storage.Exceptions.Count` (*cumulative*)<br>    Number of internal exceptions caught. Under normal exceptions this should be zero.
+
+ - ***`counter.cassandra.Storage.Load.Count`*** (*cumulative*)<br>    Storage used for Cassandra data in bytes. Use this metric to see how much storage is being used for data by a Cassandra node.
+
+    The value of this metric is influenced by:
+    - Total data stored into the database
+    - compaction behavior
+
+ - `counter.cassandra.Storage.TotalHints.Count` (*cumulative*)<br>    Total hints since node start. Indicates that write operations cannot be
+    delivered to a node, usually because a node is down. If this value is
+    increasing and all nodes are up then there may be some connectivity
+    issue between nodes in the cluster.
+
+ - ***`counter.cassandra.Storage.TotalHintsInProgress.Count`*** (*cumulative*)<br>    Total pending hints. Indicates that write operations cannot be
+    delivered to a node, usually because a node is down. If this value is
+    increasing and all nodes are up then there may be some connectivity
+    issue between nodes in the cluster.
+
  - `gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile` (*gauge*)<br>    50th percentile (median) of Cassandra range slice latency. This value
     should be similar across all nodes in the cluster. If some nodes have higher
     values than the rest of the cluster then they may have more connected clients
@@ -187,22 +205,6 @@ This monitor will also emit by default any metrics that are not listed below.
  - ***`gauge.cassandra.Compaction.PendingTasks.Value`*** (*gauge*)<br>    Number of compaction operations waiting to run. If this value is
     continually increasing then the node may be experiencing problems
     completing compaction operations.
-
- - ***`gauge.cassandra.Storage.Load.Count`*** (*gauge*)<br>    Storage used for Cassandra data in bytes. Use this metric to see how much storage is being used for data by a Cassandra node.
-
-    The value of this metric is influenced by:
-    - Total data stored into the database
-    - compaction behavior
-
- - `gauge.cassandra.Storage.TotalHints.Count` (*gauge*)<br>    Total hints since node start. Indicates that write operations cannot be
-    delivered to a node, usually because a node is down. If this value is
-    increasing and all nodes are up then there may be some connectivity
-    issue between nodes in the cluster.
-
- - ***`gauge.cassandra.Storage.TotalHintsInProgress.Count`*** (*gauge*)<br>    Total pending hints. Indicates that write operations cannot be
-    delivered to a node, usually because a node is down. If this value is
-    increasing and all nodes are up then there may be some connectivity
-    issue between nodes in the cluster.
 
 
 #### Group jvm

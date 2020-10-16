@@ -102,10 +102,18 @@ cassandra-client-write-unavailables:
     attribute: Count
 
 
+cassandra-storage-exceptions:
+  objectName: org.apache.cassandra.metrics:type=Storage,name=Exceptions
+  values:
+  - type: counter
+    instancePrefix: cassandra.Storage.Exceptions.Count
+    attribute: Count
+
+
 cassandra-storage-load:
   objectName: org.apache.cassandra.metrics:type=Storage,name=Load
   values:
-  - type: gauge
+  - type: counter
     instancePrefix: cassandra.Storage.Load.Count
     attribute: Count
 
@@ -113,7 +121,7 @@ cassandra-storage-load:
 cassandra-storage-hints:
   objectName: org.apache.cassandra.metrics:type=Storage,name=TotalHints
   values:
-  - type: gauge
+  - type: counter
     instancePrefix: cassandra.Storage.TotalHints.Count
     attribute: Count
 
@@ -121,7 +129,7 @@ cassandra-storage-hints:
 cassandra-storage-hints-in-progress:
   objectName: org.apache.cassandra.metrics:type=Storage,name=TotalHintsInProgress
   values:
-  - type: gauge
+  - type: counter
     instancePrefix: cassandra.Storage.TotalHintsInProgress.Count
     attribute: Count
 
