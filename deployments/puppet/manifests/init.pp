@@ -14,6 +14,8 @@ class signalfx_agent (
   $installation_directory = 'C:\\Program Files\\SignalFx',
   $service_user           = 'signalfx-agent',  # linux only
   $service_group          = 'signalfx-agent',  # linux only
+  $apt_gpg_key            = 'https://splunk.jfrog.io/splunk/signalfx-agent-deb/splunk-B3CD4420.gpg',
+  $yum_gpg_key            = 'https://splunk.jfrog.io/splunk/signalfx-agent-rpm/splunk-B3CD4420.pub'
 ) {
 
   $service_name = 'signalfx-agent'
@@ -62,12 +64,14 @@ class signalfx_agent (
       class { 'signalfx_agent::debian_repo':
         repo_base     => $repo_base,
         package_stage => $package_stage,
+        apt_gpg_key   => $apt_gpg_key,
       }
     }
     'redhat': {
       class { 'signalfx_agent::yum_repo':
         repo_base     => $repo_base,
         package_stage => $package_stage,
+        yum_gpg_key   => $yum_gpg_key,
       }
     }
     'windows': {
