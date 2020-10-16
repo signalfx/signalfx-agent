@@ -28,6 +28,7 @@ const (
 	counterCassandraClientRequestWriteTimeoutsCount            = "counter.cassandra.ClientRequest.Write.Timeouts.Count"
 	counterCassandraClientRequestWriteUnavailablesCount        = "counter.cassandra.ClientRequest.Write.Unavailables.Count"
 	counterCassandraCompactionTotalCompactionsCompletedCount   = "counter.cassandra.Compaction.TotalCompactionsCompleted.Count"
+	counterCassandraStorageExceptionsCount                     = "counter.cassandra.Storage.Exceptions.Count"
 	gaugeCassandraClientRequestRangeSliceLatency50thPercentile = "gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile"
 	gaugeCassandraClientRequestRangeSliceLatency99thPercentile = "gauge.cassandra.ClientRequest.RangeSlice.Latency.99thPercentile"
 	gaugeCassandraClientRequestRangeSliceLatencyMax            = "gauge.cassandra.ClientRequest.RangeSlice.Latency.Max"
@@ -62,6 +63,7 @@ var metricSet = map[string]monitors.MetricInfo{
 	counterCassandraClientRequestWriteTimeoutsCount:            {Type: datapoint.Counter},
 	counterCassandraClientRequestWriteUnavailablesCount:        {Type: datapoint.Counter},
 	counterCassandraCompactionTotalCompactionsCompletedCount:   {Type: datapoint.Counter},
+	counterCassandraStorageExceptionsCount:                     {Type: datapoint.Counter},
 	gaugeCassandraClientRequestRangeSliceLatency50thPercentile: {Type: datapoint.Gauge},
 	gaugeCassandraClientRequestRangeSliceLatency99thPercentile: {Type: datapoint.Gauge},
 	gaugeCassandraClientRequestRangeSliceLatencyMax:            {Type: datapoint.Gauge},

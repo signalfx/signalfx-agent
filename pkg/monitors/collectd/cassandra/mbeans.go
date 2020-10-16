@@ -102,6 +102,14 @@ cassandra-client-write-unavailables:
     attribute: Count
 
 
+cassandra-storage-exceptions:
+  objectName: org.apache.cassandra.metrics:type=Storage,name=Exceptions
+  values:
+  - type: counter
+    instancePrefix: cassandra.Storage.Exceptions.Count
+    attribute: Count
+
+
 cassandra-storage-load:
   objectName: org.apache.cassandra.metrics:type=Storage,name=Load
   values:

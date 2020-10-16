@@ -151,6 +151,8 @@ This monitor will also emit by default any metrics that are not listed below.
     not increase steadily over time then the node may be experiencing
     problems completing compaction operations.
 
+ - `counter.cassandra.Storage.Exceptions.Count` (*cumulative*)<br>    Number of internal exceptions caught. Under normal exceptions this should be zero.
+
  - `gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile` (*gauge*)<br>    50th percentile (median) of Cassandra range slice latency. This value
     should be similar across all nodes in the cluster. If some nodes have higher
     values than the rest of the cluster then they may have more connected clients

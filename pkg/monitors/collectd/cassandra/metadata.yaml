@@ -219,6 +219,11 @@ monitors:
         completing compaction operations.
       default: true
       type: gauge
+    counter.cassandra.Storage.Exceptions.Count:
+      description: |
+        Number of internal exceptions caught. Under normal exceptions this should be zero.
+      default: false
+      type: cumulative
     gauge.cassandra.Storage.Load.Count:
       description: |
         Storage used for Cassandra data in bytes. Use this metric to see how much storage is being used for data by a Cassandra node.

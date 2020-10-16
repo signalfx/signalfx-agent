@@ -4913,6 +4913,7 @@
             "counter.cassandra.ClientRequest.Write.Timeouts.Count",
             "counter.cassandra.ClientRequest.Write.Unavailables.Count",
             "counter.cassandra.Compaction.TotalCompactionsCompleted.Count",
+            "counter.cassandra.Storage.Exceptions.Count",
             "gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile",
             "gauge.cassandra.ClientRequest.RangeSlice.Latency.99thPercentile",
             "gauge.cassandra.ClientRequest.RangeSlice.Latency.Max",
@@ -5000,6 +5001,12 @@
         "counter.cassandra.Compaction.TotalCompactionsCompleted.Count": {
           "type": "cumulative",
           "description": "Number of compaction operations since node start. If this value does\nnot increase steadily over time then the node may be experiencing\nproblems completing compaction operations.\n",
+          "group": null,
+          "default": false
+        },
+        "counter.cassandra.Storage.Exceptions.Count": {
+          "type": "cumulative",
+          "description": "Number of internal exceptions caught. Under normal exceptions this should be zero.\n",
           "group": null,
           "default": false
         },
