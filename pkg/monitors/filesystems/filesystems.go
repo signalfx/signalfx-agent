@@ -158,6 +158,9 @@ func (m *Monitor) emitDatapoints() {
 		var mount string
 		if m.hostFSPath != "" {
 			mount = strings.Replace(partition.Mountpoint, m.hostFSPath, "", 1)
+			if mount == "" {
+				mount = "/"
+			}
 		} else {
 			mount = partition.Mountpoint
 		}
