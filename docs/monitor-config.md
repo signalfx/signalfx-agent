@@ -96,6 +96,7 @@ These are all of the monitors included in the agent, along with their possible c
 - [collectd/spark](./monitors/collectd-spark.md)
 - [collectd/statsd](./monitors/collectd-statsd.md)
 - [collectd/systemd](./monitors/collectd-systemd.md)
+- [collectd/tomcat](./monitors/collectd-tomcat.md)
 - [collectd/uptime](./monitors/collectd-uptime.md)
 - [collectd/vmem](./monitors/collectd-vmem.md)
 - [collectd/zookeeper](./monitors/collectd-zookeeper.md)
