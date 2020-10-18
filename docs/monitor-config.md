@@ -152,6 +152,7 @@ These are all of the monitors included in the agent, along with their possible c
 - [prometheus/postgres](./monitors/prometheus-postgres.md)
 - [prometheus/prometheus](./monitors/prometheus-prometheus.md)
 - [prometheus/redis](./monitors/prometheus-redis.md)
+- [prometheus/velero](./monitors/prometheus-velero.md)
 - [python-monitor](./monitors/python-monitor.md)
 - [signalfx-forwarder](./monitors/signalfx-forwarder.md)
 - [sql](./monitors/sql.md)

@@ -64,6 +64,7 @@ import (
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/prometheus/postgres"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/prometheus/prometheus"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/prometheus/redis"
+	_ "github.com/signalfx/signalfx-agent/pkg/monitors/prometheus/velero"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/prometheusexporter"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/sql"
 	_ "github.com/signalfx/signalfx-agent/pkg/monitors/statsd"
