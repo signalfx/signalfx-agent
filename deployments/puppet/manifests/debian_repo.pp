@@ -24,5 +24,9 @@ class signalfx_agent::debian_repo ($repo_base, $package_stage, $apt_gpg_key, $ma
         source => $apt_gpg_key,
       },
     }
+  } else {
+    file { '/etc/apt/sources.list.d/signalfx-agent.list':
+      ensure => absent,
+    }
   }
 }

@@ -18,5 +18,9 @@ class signalfx_agent::yum_repo ($repo_base, $package_stage, $yum_gpg_key, $manag
     ,
     mode      => '0644',
     }
+  } else {
+    file { '/etc/yum.repos.d/signalfx-agent.repo':
+      ensure => absent,
+    }
   }
 }
