@@ -19442,7 +19442,7 @@
           },
           {
             "yamlName": "sslVerify",
-            "doc": "Should the monitor verify the RabbitMQ server SSL/TLS certificate.",
+            "doc": "Should the monitor verify the RabbitMQ Management plugin SSL/TLS certificate.",
             "default": false,
             "required": false,
             "type": "bool",
