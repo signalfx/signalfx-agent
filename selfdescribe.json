@@ -43976,6 +43976,200 @@
       "singleInstance": false
     },
     {
+      "monitorType": "prometheus/nginx-ingress",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": null,
+      "doc": "This monitor gets metrics from [Ingress \nNginx](https://github.com/kubernetes/ingress-nginx).\nIt is a wrapper around the [prometheus-exporter](./prometheus-exporter.md) \nmonitor that provides a restricted but expandable set of metrics.\n\nIt relies on the new prometheus metric implementation replacing VTS \nfrom version `0.16.0` of Ingress Nginx (see [official release \nnotes](https://github.com/kubernetes/ingress-nginx/releases/tag/nginx-0.16.0)).\nIf you use previous version, please use the `prometheus/nginx-vts` \nmonitor instead.\n\n\u003c!--- SETUP ---\u003e\n### Ingress Nginx configuration\n\nEnable the `controller.stats.enabled=true` and `controller.metrics.enabled=true` \nflags in the Nginx Ingress Controller chart.\n\n### Agent configuration\n\nThis is recommended to use service discovery:\n```yaml\nmonitors:\n- type: prometheus/nginx-ingress\n  discoveryRule: container_image =~ \"nginx-ingress-controller\" \u0026\u0026 port == 10254\n  port: 10254\n```\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "nginx_ingress_controller_ingress_upstream_latency_seconds",
+            "nginx_ingress_controller_nginx_process_connections",
+            "nginx_ingress_controller_nginx_process_connections_total",
+            "nginx_ingress_controller_nginx_process_cpu_seconds_total",
+            "nginx_ingress_controller_nginx_process_resident_memory_bytes",
+            "nginx_ingress_controller_nginx_process_virtual_memory_bytes",
+            "nginx_ingress_controller_request_duration_seconds",
+            "nginx_ingress_controller_requests"
+          ]
+        }
+      },
+      "metrics": {
+        "nginx_ingress_controller_ingress_upstream_latency_seconds": {
+          "type": "cumulative",
+          "description": "Upstream service latency per Ingress.",
+          "group": null,
+          "default": true
+        },
+        "nginx_ingress_controller_nginx_process_connections": {
+          "type": "gauge",
+          "description": "Current number of client connections with state {reading, writing, waiting}.",
+          "group": null,
+          "default": false
+        },
+        "nginx_ingress_controller_nginx_process_connections_total": {
+          "type": "cumulative",
+          "description": "Total number of connections with state {active, accepted, handled}.",
+          "group": null,
+          "default": false
+        },
+        "nginx_ingress_controller_nginx_process_cpu_seconds_total": {
+          "type": "cumulative",
+          "description": "Cpu usage in seconds.",
+          "group": null,
+          "default": true
+        },
+        "nginx_ingress_controller_nginx_process_resident_memory_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes of memory in use for RSS.",
+          "group": null,
+          "default": true
+        },
+        "nginx_ingress_controller_nginx_process_virtual_memory_bytes": {
+          "type": "gauge",
+          "description": "Number of bytes of memory in use for VSZ.",
+          "group": null,
+          "default": false
+        },
+        "nginx_ingress_controller_request_duration_seconds": {
+          "type": "cumulative",
+          "description": "The request processing time in milliseconds.",
+          "group": null,
+          "default": true
+        },
+        "nginx_ingress_controller_requests": {
+          "type": "cumulative",
+          "description": "The total number of client requests.",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/prometheus/nginxingress",
+        "fields": [
+          {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "httpHeaders",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "skipVerify",
+            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "metricPath",
+            "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
+            "default": "/metrics",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendAllMetrics",
+            "doc": "Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "prometheus/nginx-vts",
       "sendAll": false,
       "sendUnknown": false,

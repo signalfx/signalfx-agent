@@ -148,6 +148,7 @@ These are all of the monitors included in the agent, along with their possible c
 - [processlist](./monitors/processlist.md)
 - [prometheus-exporter](./monitors/prometheus-exporter.md)
 - [prometheus/go](./monitors/prometheus-go.md)
+- [prometheus/nginx-ingress](./monitors/prometheus-nginx-ingress.md)
 - [prometheus/nginx-vts](./monitors/prometheus-nginx-vts.md)
 - [prometheus/node](./monitors/prometheus-node.md)
 - [prometheus/postgres](./monitors/prometheus-postgres.md)
