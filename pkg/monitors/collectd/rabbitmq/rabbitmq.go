@@ -1,7 +1,6 @@
 package rabbitmq
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/signalfx/golib/v3/pointer"
@@ -13,7 +12,10 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/monitors/collectd"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/collectd/python"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/subproc"
+	log "github.com/sirupsen/logrus"
 )
+
+var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} {
@@ -55,7 +57,7 @@ type Config struct {
 	SSLKeyFile string `yaml:"sslKeyFile"`
 	// This monitor's private SSL/TLS key file password if any.
 	SSLKeyPassphrase string `yaml:"sslKeyPassphrase"`
-	// Should the monitor verify the RabbitMQ server SSL/TLS certificate.
+	// Should the monitor verify the RabbitMQ Management plugin SSL/TLS certificate.
 	SSLVerify bool `yaml:"sslVerify"`
 }
 
@@ -92,6 +94,10 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 	if m.Output.HasEnabledMetricInGroup(groupQueue) {
 		sendQueueMetrics = pointer.Bool(true)
+	}
+
+	if conf.SSLVerify && strings.TrimSpace(conf.SSLCACertFile) == "" {
+		logger.Warn("Potential configuration error because SSLVerify is enabled while SSLCACertFile is empty. Default system root CA certificates will be used in SSL verification and may fail silently.")
 	}
 
 	conf.pyConf = &python.Config{
@@ -138,19 +144,6 @@ func (m *Monitor) Configure(conf *Config) error {
 	conf.pyConf.PluginConfig["BrokerName"] = brokerName
 
 	return m.PyMonitor.Configure(conf)
-}
-
-// Validate the config.
-func (c *Config) Validate() error {
-	if c.UseHTTPS {
-		if strings.TrimSpace(c.SSLCertFile) == "" {
-			return errors.New("SSL/TLS certificate file required when HTTPS enabled")
-		}
-		if strings.TrimSpace(c.SSLKeyFile) == "" {
-			return errors.New("SSL/TLS private key file required when HTTPS enabled")
-		}
-	}
-	return nil
 }
 
 // GetExtraMetrics returns additional metrics that should be allowed through.
