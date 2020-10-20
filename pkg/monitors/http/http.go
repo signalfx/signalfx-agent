@@ -102,7 +102,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		m.conf.UseHTTPS = true
 	}
 	for _, site := range m.conf.URLs {
-		// add http scheme if not explicitely set
+		// add http scheme if not explicitly set
 		if !strings.HasPrefix(site, "http") {
 			site = fmt.Sprintf("http://%s", site)
 		}
@@ -169,7 +169,7 @@ func (m *Monitor) normalizeURL(site string) (normalizedURL *url.URL, err error) 
 	}
 	host := stringURL.Hostname()
 	port := stringURL.Port()
-	// for deprecated URLs only, set default port if not explicitely set
+	// for deprecated URLs only, set default port if not explicitly set
 	if host == stringURL.Host {
 		port = "80"
 	}
