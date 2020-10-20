@@ -18,20 +18,33 @@ var groupSet = map[string]bool{
 }
 
 const (
+	counterCassandraClientRequestCASReadLatencyCount           = "counter.cassandra.ClientRequest.CASRead.Latency.Count"
+	counterCassandraClientRequestCASReadTotalLatencyCount      = "counter.cassandra.ClientRequest.CASRead.TotalLatency.Count"
+	counterCassandraClientRequestCASWriteLatencyCount          = "counter.cassandra.ClientRequest.CASWrite.Latency.Count"
+	counterCassandraClientRequestCASWriteTotalLatencyCount     = "counter.cassandra.ClientRequest.CASWrite.TotalLatency.Count"
 	counterCassandraClientRequestRangeSliceLatencyCount        = "counter.cassandra.ClientRequest.RangeSlice.Latency.Count"
 	counterCassandraClientRequestRangeSliceTimeoutsCount       = "counter.cassandra.ClientRequest.RangeSlice.Timeouts.Count"
+	counterCassandraClientRequestRangeSliceTotalLatencyCount   = "counter.cassandra.ClientRequest.RangeSlice.TotalLatency.Count"
 	counterCassandraClientRequestRangeSliceUnavailablesCount   = "counter.cassandra.ClientRequest.RangeSlice.Unavailables.Count"
 	counterCassandraClientRequestReadLatencyCount              = "counter.cassandra.ClientRequest.Read.Latency.Count"
 	counterCassandraClientRequestReadTimeoutsCount             = "counter.cassandra.ClientRequest.Read.Timeouts.Count"
+	counterCassandraClientRequestReadTotalLatencyCount         = "counter.cassandra.ClientRequest.Read.TotalLatency.Count"
 	counterCassandraClientRequestReadUnavailablesCount         = "counter.cassandra.ClientRequest.Read.Unavailables.Count"
 	counterCassandraClientRequestWriteLatencyCount             = "counter.cassandra.ClientRequest.Write.Latency.Count"
 	counterCassandraClientRequestWriteTimeoutsCount            = "counter.cassandra.ClientRequest.Write.Timeouts.Count"
+	counterCassandraClientRequestWriteTotalLatencyCount        = "counter.cassandra.ClientRequest.Write.TotalLatency.Count"
 	counterCassandraClientRequestWriteUnavailablesCount        = "counter.cassandra.ClientRequest.Write.Unavailables.Count"
 	counterCassandraCompactionTotalCompactionsCompletedCount   = "counter.cassandra.Compaction.TotalCompactionsCompleted.Count"
 	counterCassandraStorageExceptionsCount                     = "counter.cassandra.Storage.Exceptions.Count"
 	counterCassandraStorageLoadCount                           = "counter.cassandra.Storage.Load.Count"
 	counterCassandraStorageTotalHintsCount                     = "counter.cassandra.Storage.TotalHints.Count"
 	counterCassandraStorageTotalHintsInProgressCount           = "counter.cassandra.Storage.TotalHintsInProgress.Count"
+	gaugeCassandraClientRequestCASReadLatency50thPercentile    = "gauge.cassandra.ClientRequest.CASRead.Latency.50thPercentile"
+	gaugeCassandraClientRequestCASReadLatency99thPercentile    = "gauge.cassandra.ClientRequest.CASRead.Latency.99thPercentile"
+	gaugeCassandraClientRequestCASReadLatencyMax               = "gauge.cassandra.ClientRequest.CASRead.Latency.Max"
+	gaugeCassandraClientRequestCASWriteLatency50thPercentile   = "gauge.cassandra.ClientRequest.CASWrite.Latency.50thPercentile"
+	gaugeCassandraClientRequestCASWriteLatency99thPercentile   = "gauge.cassandra.ClientRequest.CASWrite.Latency.99thPercentile"
+	gaugeCassandraClientRequestCASWriteLatencyMax              = "gauge.cassandra.ClientRequest.CASWrite.Latency.Max"
 	gaugeCassandraClientRequestRangeSliceLatency50thPercentile = "gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile"
 	gaugeCassandraClientRequestRangeSliceLatency99thPercentile = "gauge.cassandra.ClientRequest.RangeSlice.Latency.99thPercentile"
 	gaugeCassandraClientRequestRangeSliceLatencyMax            = "gauge.cassandra.ClientRequest.RangeSlice.Latency.Max"
@@ -53,20 +66,33 @@ const (
 )
 
 var metricSet = map[string]monitors.MetricInfo{
+	counterCassandraClientRequestCASReadLatencyCount:           {Type: datapoint.Counter},
+	counterCassandraClientRequestCASReadTotalLatencyCount:      {Type: datapoint.Counter},
+	counterCassandraClientRequestCASWriteLatencyCount:          {Type: datapoint.Counter},
+	counterCassandraClientRequestCASWriteTotalLatencyCount:     {Type: datapoint.Counter},
 	counterCassandraClientRequestRangeSliceLatencyCount:        {Type: datapoint.Counter},
 	counterCassandraClientRequestRangeSliceTimeoutsCount:       {Type: datapoint.Counter},
+	counterCassandraClientRequestRangeSliceTotalLatencyCount:   {Type: datapoint.Counter},
 	counterCassandraClientRequestRangeSliceUnavailablesCount:   {Type: datapoint.Counter},
 	counterCassandraClientRequestReadLatencyCount:              {Type: datapoint.Counter},
 	counterCassandraClientRequestReadTimeoutsCount:             {Type: datapoint.Counter},
+	counterCassandraClientRequestReadTotalLatencyCount:         {Type: datapoint.Counter},
 	counterCassandraClientRequestReadUnavailablesCount:         {Type: datapoint.Counter},
 	counterCassandraClientRequestWriteLatencyCount:             {Type: datapoint.Counter},
 	counterCassandraClientRequestWriteTimeoutsCount:            {Type: datapoint.Counter},
+	counterCassandraClientRequestWriteTotalLatencyCount:        {Type: datapoint.Counter},
 	counterCassandraClientRequestWriteUnavailablesCount:        {Type: datapoint.Counter},
 	counterCassandraCompactionTotalCompactionsCompletedCount:   {Type: datapoint.Counter},
 	counterCassandraStorageExceptionsCount:                     {Type: datapoint.Counter},
 	counterCassandraStorageLoadCount:                           {Type: datapoint.Counter},
 	counterCassandraStorageTotalHintsCount:                     {Type: datapoint.Counter},
 	counterCassandraStorageTotalHintsInProgressCount:           {Type: datapoint.Counter},
+	gaugeCassandraClientRequestCASReadLatency50thPercentile:    {Type: datapoint.Gauge},
+	gaugeCassandraClientRequestCASReadLatency99thPercentile:    {Type: datapoint.Gauge},
+	gaugeCassandraClientRequestCASReadLatencyMax:               {Type: datapoint.Gauge},
+	gaugeCassandraClientRequestCASWriteLatency50thPercentile:   {Type: datapoint.Gauge},
+	gaugeCassandraClientRequestCASWriteLatency99thPercentile:   {Type: datapoint.Gauge},
+	gaugeCassandraClientRequestCASWriteLatencyMax:              {Type: datapoint.Gauge},
 	gaugeCassandraClientRequestRangeSliceLatency50thPercentile: {Type: datapoint.Gauge},
 	gaugeCassandraClientRequestRangeSliceLatency99thPercentile: {Type: datapoint.Gauge},
 	gaugeCassandraClientRequestRangeSliceLatencyMax:            {Type: datapoint.Gauge},
