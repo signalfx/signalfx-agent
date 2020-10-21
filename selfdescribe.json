@@ -49277,6 +49277,179 @@
       "singleInstance": false
     },
     {
+      "monitorType": "prometheus/velero",
+      "sendAll": false,
+      "sendUnknown": false,
+      "dimensions": null,
+      "doc": "This monitor gets metrics from \n[Velero](https://github.com/vmware-tanzu/velero).\nIt is a wrapper around the [prometheus-exporter](./prometheus-exporter.md) \nmonitor that provides a restricted but expandable set of metrics.\n\n\u003c!--- SETUP ---\u003e\n### Velero configuration\n\nThe Helm chart automatically enable prometheus metrics\nfor Velero (see [this PR](https://github.com/helm/charts/pull/19595/files))\nSo there is nothing to do.\n\n### Agent configuration\n\nThis is recommended to use service discovery:\n\n```yaml\nmonitors:\n- type: prometheus/velero\n  discoveryRule: container_image =~ \"velero\" \u0026\u0026 port == 8085\n  port: 8085\n```\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "velero_backup_deletion_failure_total",
+            "velero_backup_failure_total",
+            "velero_backup_partial_failure_total",
+            "velero_backup_success_total",
+            "velero_volume_snapshot_failure_total"
+          ]
+        }
+      },
+      "metrics": {
+        "velero_backup_deletion_failure_total": {
+          "type": "cumulative",
+          "description": "Total number of failed backup deletions.",
+          "group": null,
+          "default": true
+        },
+        "velero_backup_failure_total": {
+          "type": "cumulative",
+          "description": "Total number of failed backups.",
+          "group": null,
+          "default": true
+        },
+        "velero_backup_partial_failure_total": {
+          "type": "cumulative",
+          "description": "Total number of partially failed backups.",
+          "group": null,
+          "default": true
+        },
+        "velero_backup_success_total": {
+          "type": "cumulative",
+          "description": "Total number of successful backups.",
+          "group": null,
+          "default": true
+        },
+        "velero_volume_snapshot_failure_total": {
+          "type": "cumulative",
+          "description": "Total number of failed volume snapshots.",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for this monitor",
+        "package": "pkg/monitors/prometheus/velero",
+        "fields": [
+          {
+            "yamlName": "httpTimeout",
+            "doc": "HTTP timeout duration for both read and writes. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration",
+            "default": "10s",
+            "required": false,
+            "type": "int64",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "username",
+            "doc": "Basic Auth username to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "password",
+            "doc": "Basic Auth password to use on each request, if any.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useHTTPS",
+            "doc": "If true, the agent will connect to the server using HTTPS instead of plain HTTP.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "httpHeaders",
+            "doc": "A map of HTTP header names to values. Comma separated multiple values for the same message-header is supported.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
+          },
+          {
+            "yamlName": "skipVerify",
+            "doc": "If useHTTPS is true and this option is also true, the exporter's TLS cert will not be verified.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "caCertPath",
+            "doc": "Path to the CA cert that has signed the TLS cert, unnecessary if `skipVerify` is set to false.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientCertPath",
+            "doc": "Path to the client TLS cert to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "clientKeyPath",
+            "doc": "Path to the client TLS key to use for TLS required connections",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "host",
+            "doc": "Host of the exporter",
+            "default": null,
+            "required": true,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "port",
+            "doc": "Port of the exporter",
+            "default": null,
+            "required": true,
+            "type": "uint16",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "useServiceAccount",
+            "doc": "Use pod service account to authenticate.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "metricPath",
+            "doc": "Path to the metrics endpoint on the exporter server, usually `/metrics` (the default).",
+            "default": "/metrics",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "sendAllMetrics",
+            "doc": "Send all the metrics that come out of the Prometheus exporter without any filtering.  This option has no effect when using the prometheus exporter monitor directly since there is no built-in filtering, only when embedding it in other monitors.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "python-monitor",
       "sendAll": true,
       "sendUnknown": false,
