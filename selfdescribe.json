@@ -4903,20 +4903,33 @@
         "": {
           "description": "",
           "metrics": [
+            "counter.cassandra.ClientRequest.CASRead.Latency.Count",
+            "counter.cassandra.ClientRequest.CASRead.TotalLatency.Count",
+            "counter.cassandra.ClientRequest.CASWrite.Latency.Count",
+            "counter.cassandra.ClientRequest.CASWrite.TotalLatency.Count",
             "counter.cassandra.ClientRequest.RangeSlice.Latency.Count",
             "counter.cassandra.ClientRequest.RangeSlice.Timeouts.Count",
+            "counter.cassandra.ClientRequest.RangeSlice.TotalLatency.Count",
             "counter.cassandra.ClientRequest.RangeSlice.Unavailables.Count",
             "counter.cassandra.ClientRequest.Read.Latency.Count",
             "counter.cassandra.ClientRequest.Read.Timeouts.Count",
+            "counter.cassandra.ClientRequest.Read.TotalLatency.Count",
             "counter.cassandra.ClientRequest.Read.Unavailables.Count",
             "counter.cassandra.ClientRequest.Write.Latency.Count",
             "counter.cassandra.ClientRequest.Write.Timeouts.Count",
+            "counter.cassandra.ClientRequest.Write.TotalLatency.Count",
             "counter.cassandra.ClientRequest.Write.Unavailables.Count",
             "counter.cassandra.Compaction.TotalCompactionsCompleted.Count",
             "counter.cassandra.Storage.Exceptions.Count",
             "counter.cassandra.Storage.Load.Count",
             "counter.cassandra.Storage.TotalHints.Count",
             "counter.cassandra.Storage.TotalHintsInProgress.Count",
+            "gauge.cassandra.ClientRequest.CASRead.Latency.50thPercentile",
+            "gauge.cassandra.ClientRequest.CASRead.Latency.99thPercentile",
+            "gauge.cassandra.ClientRequest.CASRead.Latency.Max",
+            "gauge.cassandra.ClientRequest.CASWrite.Latency.50thPercentile",
+            "gauge.cassandra.ClientRequest.CASWrite.Latency.99thPercentile",
+            "gauge.cassandra.ClientRequest.CASWrite.Latency.Max",
             "gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile",
             "gauge.cassandra.ClientRequest.RangeSlice.Latency.99thPercentile",
             "gauge.cassandra.ClientRequest.RangeSlice.Latency.Max",
@@ -4944,6 +4957,30 @@
         }
       },
       "metrics": {
+        "counter.cassandra.ClientRequest.CASRead.Latency.Count": {
+          "type": "cumulative",
+          "description": "Count of transactional read operations since server start.",
+          "group": null,
+          "default": false
+        },
+        "counter.cassandra.ClientRequest.CASRead.TotalLatency.Count": {
+          "type": "cumulative",
+          "description": "The total number of microseconds elapsed in servicing client transactional read requests.\n\nIt can be devided by `counter.cassandra.ClientRequest.CASRead.Latency.Count`\nto find the real time transactional read latency.\n",
+          "group": null,
+          "default": false
+        },
+        "counter.cassandra.ClientRequest.CASWrite.Latency.Count": {
+          "type": "cumulative",
+          "description": "Count of transactional write operations since server start.",
+          "group": null,
+          "default": false
+        },
+        "counter.cassandra.ClientRequest.CASWrite.TotalLatency.Count": {
+          "type": "cumulative",
+          "description": "The total number of microseconds elapsed in servicing client transactional write requests.\n\nIt can be devided by `counter.cassandra.ClientRequest.CASWrite.Latency.Count`\nto find the real time transactional write latency.\n",
+          "group": null,
+          "default": false
+        },
         "counter.cassandra.ClientRequest.RangeSlice.Latency.Count": {
           "type": "cumulative",
           "description": "Count of range slice operations since server start. This typically indicates a server overload condition.\n\nIf this value is increasing across the cluster then the cluster is too small for the application range slice load.\n\nIf this value is increasing for a single server in a cluster, then one of the following conditions may be true:\n\n- one or more clients are directing more load to this server than the others\n- the server is experiencing hardware or software issues and may require maintenance.\n",
@@ -4956,6 +4993,12 @@
           "group": null,
           "default": true
         },
+        "counter.cassandra.ClientRequest.RangeSlice.TotalLatency.Count": {
+          "type": "cumulative",
+          "description": "The total number of microseconds elapsed in servicing range slice requests.",
+          "group": null,
+          "default": false
+        },
         "counter.cassandra.ClientRequest.RangeSlice.Unavailables.Count": {
           "type": "cumulative",
           "description": "Count of range slice unavailables since server start. A non-zero value\nmeans that insufficient replicas were available to fulfil a range slice\nrequest at the requested consistency level.\n\nThis typically means that one or more nodes are down. To fix this condition,\nany down nodes must be restarted, or removed from the cluster.\n",
@@ -4964,7 +5007,7 @@
         },
         "counter.cassandra.ClientRequest.Read.Latency.Count": {
           "type": "cumulative",
-          "description": "Count of read operations since server start",
+          "description": "Count of read operations since server start.",
           "group": null,
           "default": true
         },
@@ -4973,6 +5016,12 @@
           "description": "Count of read timeouts since server start. This typically indicates a server overload condition.\n\nIf this value is increasing across the cluster then the cluster is too small for the application read load.\n\nIf this value is increasing for a single server in a cluster, then one of the following conditions may be true:\n- one or more clients are directing more load to this server than the others\n- the server is experiencing hardware or software issues and may require maintenance.\n",
           "group": null,
           "default": true
+        },
+        "counter.cassandra.ClientRequest.Read.TotalLatency.Count": {
+          "type": "cumulative",
+          "description": "The total number of microseconds elapsed in servicing client read requests.\n\nIt can be devided by `counter.cassandra.ClientRequest.Read.Latency.Count`\nto find the real time read latency.\n",
+          "group": null,
+          "default": false
         },
         "counter.cassandra.ClientRequest.Read.Unavailables.Count": {
           "type": "cumulative",
@@ -4991,6 +5040,12 @@
           "description": "Count of write timeouts since server start. This typically indicates a server overload condition.\n\nIf this value is increasing across the cluster then the cluster is too small for the application write load.\n\nIf this value is increasing for a single server in a cluster, then one of the following conditions may be true:\n- one or more clients are directing more load to this server than the others\n- the server is experiencing hardware or software issues and may require maintenance.\n",
           "group": null,
           "default": true
+        },
+        "counter.cassandra.ClientRequest.Write.TotalLatency.Count": {
+          "type": "cumulative",
+          "description": "The total number of microseconds elapsed in servicing client write requests.\n\nIt can be devided by `counter.cassandra.ClientRequest.Write.Latency.Count`\nto find the real time write latency.\n",
+          "group": null,
+          "default": false
         },
         "counter.cassandra.ClientRequest.Write.Unavailables.Count": {
           "type": "cumulative",
@@ -5028,6 +5083,42 @@
           "group": null,
           "default": true
         },
+        "gauge.cassandra.ClientRequest.CASRead.Latency.50thPercentile": {
+          "type": "gauge",
+          "description": "50th percentile (median) of Cassandra transactional read latency.\n",
+          "group": null,
+          "default": false
+        },
+        "gauge.cassandra.ClientRequest.CASRead.Latency.99thPercentile": {
+          "type": "gauge",
+          "description": "99th percentile of Cassandra transactional read latency.\n",
+          "group": null,
+          "default": false
+        },
+        "gauge.cassandra.ClientRequest.CASRead.Latency.Max": {
+          "type": "gauge",
+          "description": "Maximum Cassandra transactional read latency.",
+          "group": null,
+          "default": false
+        },
+        "gauge.cassandra.ClientRequest.CASWrite.Latency.50thPercentile": {
+          "type": "gauge",
+          "description": "50th percentile (median) of Cassandra transactional write latency.\n",
+          "group": null,
+          "default": false
+        },
+        "gauge.cassandra.ClientRequest.CASWrite.Latency.99thPercentile": {
+          "type": "gauge",
+          "description": "99th percentile of Cassandra transactional write latency.\n",
+          "group": null,
+          "default": false
+        },
+        "gauge.cassandra.ClientRequest.CASWrite.Latency.Max": {
+          "type": "gauge",
+          "description": "Maximum Cassandra transactional write latency.",
+          "group": null,
+          "default": false
+        },
         "gauge.cassandra.ClientRequest.RangeSlice.Latency.50thPercentile": {
           "type": "gauge",
           "description": "50th percentile (median) of Cassandra range slice latency. This value\nshould be similar across all nodes in the cluster. If some nodes have higher\nvalues than the rest of the cluster then they may have more connected clients\nor may be experiencing heavier than usual compaction load.\n",
@@ -5042,7 +5133,7 @@
         },
         "gauge.cassandra.ClientRequest.RangeSlice.Latency.Max": {
           "type": "gauge",
-          "description": "Maximum Cassandra range slice latency",
+          "description": "Maximum Cassandra range slice latency.",
           "group": null,
           "default": false
         },
@@ -5060,7 +5151,7 @@
         },
         "gauge.cassandra.ClientRequest.Read.Latency.Max": {
           "type": "gauge",
-          "description": "Maximum Cassandra read latency",
+          "description": "Maximum Cassandra read latency.",
           "group": null,
           "default": true
         },

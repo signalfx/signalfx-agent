@@ -74,6 +74,10 @@ monitors:
         - the server is experiencing hardware or software issues and may require maintenance.
       default: true
       type: cumulative
+    counter.cassandra.ClientRequest.RangeSlice.TotalLatency.Count:
+      description: The total number of microseconds elapsed in servicing range slice requests.
+      default: false
+      type: cumulative
     counter.cassandra.ClientRequest.RangeSlice.Timeouts.Count:
       description: |
         Count of range slice timeouts since server start. This typically indicates a server overload condition.
@@ -96,8 +100,28 @@ monitors:
       default: true
       type: cumulative
     counter.cassandra.ClientRequest.Read.Latency.Count:
-      description: Count of read operations since server start
+      description: Count of read operations since server start.
       default: true
+      type: cumulative
+    counter.cassandra.ClientRequest.Read.TotalLatency.Count:
+      description: |
+        The total number of microseconds elapsed in servicing client read requests.
+
+        It can be devided by `counter.cassandra.ClientRequest.Read.Latency.Count`
+        to find the real time read latency.
+      default: false
+      type: cumulative
+    counter.cassandra.ClientRequest.CASRead.Latency.Count:
+      description: Count of transactional read operations since server start.
+      default: false
+      type: cumulative
+    counter.cassandra.ClientRequest.CASRead.TotalLatency.Count:
+      description: |
+        The total number of microseconds elapsed in servicing client transactional read requests.
+
+        It can be devided by `counter.cassandra.ClientRequest.CASRead.Latency.Count`
+        to find the real time transactional read latency.
+      default: false
       type: cumulative
     counter.cassandra.ClientRequest.Read.Timeouts.Count:
       description: |
@@ -122,6 +146,26 @@ monitors:
     counter.cassandra.ClientRequest.Write.Latency.Count:
       description: Count of write operations since server start.
       default: true
+      type: cumulative
+    counter.cassandra.ClientRequest.Write.TotalLatency.Count:
+      description: |
+        The total number of microseconds elapsed in servicing client write requests.
+
+        It can be devided by `counter.cassandra.ClientRequest.Write.Latency.Count`
+        to find the real time write latency.
+      default: false
+      type: cumulative
+    counter.cassandra.ClientRequest.CASWrite.Latency.Count:
+      description: Count of transactional write operations since server start.
+      default: false
+      type: cumulative
+    counter.cassandra.ClientRequest.CASWrite.TotalLatency.Count:
+      description: |
+        The total number of microseconds elapsed in servicing client transactional write requests.
+
+        It can be devided by `counter.cassandra.ClientRequest.CASWrite.Latency.Count`
+        to find the real time transactional write latency.
+      default: false
       type: cumulative
     counter.cassandra.ClientRequest.Write.Timeouts.Count:
       description: |
@@ -169,7 +213,7 @@ monitors:
       default: true
       type: gauge
     gauge.cassandra.ClientRequest.RangeSlice.Latency.Max:
-      description: Maximum Cassandra range slice latency
+      description: Maximum Cassandra range slice latency.
       default: false
       type: gauge
     gauge.cassandra.ClientRequest.Read.Latency.50thPercentile:
@@ -189,8 +233,22 @@ monitors:
       default: true
       type: gauge
     gauge.cassandra.ClientRequest.Read.Latency.Max:
-      description: Maximum Cassandra read latency
+      description: Maximum Cassandra read latency.
       default: true
+      type: gauge
+    gauge.cassandra.ClientRequest.CASRead.Latency.50thPercentile:
+      description: |
+        50th percentile (median) of Cassandra transactional read latency.
+      default: false
+      type: gauge
+    gauge.cassandra.ClientRequest.CASRead.Latency.99thPercentile:
+      description: |
+        99th percentile of Cassandra transactional read latency.
+      default: false
+      type: gauge
+    gauge.cassandra.ClientRequest.CASRead.Latency.Max:
+      description: Maximum Cassandra transactional read latency.
+      default: false
       type: gauge
     gauge.cassandra.ClientRequest.Write.Latency.50thPercentile:
       description: |
@@ -211,6 +269,20 @@ monitors:
     gauge.cassandra.ClientRequest.Write.Latency.Max:
       description: Maximum Cassandra write latency
       default: true
+      type: gauge
+    gauge.cassandra.ClientRequest.CASWrite.Latency.50thPercentile:
+      description: |
+        50th percentile (median) of Cassandra transactional write latency.
+      default: false
+      type: gauge
+    gauge.cassandra.ClientRequest.CASWrite.Latency.99thPercentile:
+      description: |
+        99th percentile of Cassandra transactional write latency.
+      default: false
+      type: gauge
+    gauge.cassandra.ClientRequest.CASWrite.Latency.Max:
+      description: Maximum Cassandra transactional write latency.
+      default: false
       type: gauge
     gauge.cassandra.Compaction.PendingTasks.Value:
       description: |
