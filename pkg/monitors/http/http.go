@@ -98,10 +98,14 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 			m.URLs = append(m.URLs, clientURL)
 		}
 	} else {
-		// always try https if available. This is for backwards compat.
+		// always try https if available. This is for backwards compat with deprecated URLs.
 		m.conf.UseHTTPS = true
 	}
 	for _, site := range m.conf.URLs {
+		// add http scheme if not explicitly set
+		if !strings.HasPrefix(site, "http") {
+			site = fmt.Sprintf("http://%s", site)
+		}
 		stringURL, err := m.normalizeURL(site)
 		if err != nil {
 			m.logger.WithField("url", site).WithError(err).Error("error configuring url from list, ignore it")
@@ -163,18 +167,21 @@ func (m *Monitor) normalizeURL(site string) (normalizedURL *url.URL, err error) 
 	if err != nil {
 		return
 	}
+	host := stringURL.Hostname()
 	port := stringURL.Port()
-	if port == "" {
+	// for deprecated URLs only, set default port if not explicitly set
+	if host == stringURL.Host {
 		port = "80"
-		if stringURL.Scheme == "https" {
-			port = "443"
-		}
+	}
+	// keep port only if custom, hide default
+	if port != "80" && port != "443" {
+		host = fmt.Sprintf("%s:%s", host, port)
 	}
 	path := stringURL.Path
 	if path == "" {
 		path = "/"
 	}
-	normalizedURL, err = url.Parse(fmt.Sprintf("%s://%s:%s%s", stringURL.Scheme, stringURL.Hostname(), port, path))
+	normalizedURL, err = url.Parse(fmt.Sprintf("%s://%s%s", stringURL.Scheme, host, path))
 	if err != nil {
 		return
 	}
