@@ -158,6 +158,8 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 	sw.client = sfxclient.NewHTTPSink(sinkOptions...)
 	sw.client.AuthToken = conf.SignalFxAccessToken
 
+	sw.client.Client.Timeout = conf.Timeout.AsDuration()
+
 	sw.client.Client.Transport = &http.Transport{
 		Proxy: http.ProxyFromEnvironment,
 		DialContext: (&net.Dialer{

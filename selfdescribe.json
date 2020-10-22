@@ -57500,6 +57500,14 @@
               "elementKind": ""
             },
             {
+              "yamlName": "timeout",
+              "doc": "Timeout specifies a time limit for requests made to the ingest server. The timeout includes connection time, any redirects, and reading the response body. Default is 5 seconds, a Timeout of zero means no timeout.",
+              "default": "5s",
+              "required": false,
+              "type": "int64",
+              "elementKind": ""
+            },
+            {
               "yamlName": "eventSendIntervalSeconds",
               "doc": "The agent does not send events immediately upon a monitor generating them, but buffers them and sends them in batches.  The lower this number, the less delay for events to appear in SignalFx.",
               "default": 1,
