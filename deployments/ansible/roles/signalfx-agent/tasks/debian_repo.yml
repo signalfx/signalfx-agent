@@ -10,10 +10,10 @@
     state: absent
 
 - name: Add an Apt signing key for Signalfx Agent
-  apt_key:
+  get_url:
     url: "{{ sfx_repo_base_url }}/signalfx-agent-deb/splunk-B3CD4420.gpg"
-    keyring: /etc/apt/trusted.gpg.d/splunk.gpg
-    state: present
+    dest: /etc/apt/trusted.gpg.d/splunk.gpg
+    mode: 0644
 
 - name: Add Signalfx Agent repository into sources list
   apt_repository:
