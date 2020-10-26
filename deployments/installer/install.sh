@@ -166,24 +166,18 @@ repo_for_stage() {
 }
 
 get_distro() {
-  local distro="$(. /etc/os-release && echo $ID || true)"
+  local distro="$(. /etc/os-release 2>/dev/null && echo $ID || true)"
 
-  # Centos 6 doesn't have /etc/os-release
-  if [ -z "$distro" ] && [ -e /etc/centos-release ]; then
-    distro="centos"
+  # Centos/RHEL 6 doesn't have /etc/os-release
+  if [ -z "$distro" ]; then
+    if [ -e /etc/centos-release ]; then
+      distro="centos"
+    elif [ -e /etc/redhat-release ]; then
+      distro="rhel"
+    fi
   fi
 
   echo "$distro"
-}
-
-get_distro_version() {
-  local version="$(. /etc/os-release && echo $VERSION_ID || true)"
-
-  if [ -z $version ] && [ -e /etc/centos-release ]; then
-    version=$(cat redhat-release | sed -re 's/CentOS release ([0-9.]+) .*/\1/')
-  fi
-
-  echo "$version"
 }
 
 download_file_to_stdout() {
