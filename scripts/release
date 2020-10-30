@@ -472,6 +472,7 @@ push_windows_bundle() {
       fi
 
       upload_asset_to_release "$tag" "$bundle_path" "application/zip" "$github_username" "$github_token"
+      upload_asset_to_release "$tag" "$msi_path" "application/x-msi" "$github_username" "$github_token"
     fi
 
     if aws --profile prod s3 ls "$dest_dir/zip/SignalFxAgent-${new_version}-win64.zip"; then
