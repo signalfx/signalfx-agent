@@ -246,7 +246,10 @@ monitors:
       default: false
       type: gauge
     gauge.connections.available:
-      description: Number of available incoming connections
+      description: |
+        The number of unused incoming connections available. Consider this value 
+        in combination with the value of `gauge.connections.current` to 
+        understand the connection load on the database.
       default: false
       type: gauge
     gauge.connections.totalCreated:
@@ -254,7 +257,7 @@ monitors:
       default: false
       type: cumulative
     gauge.connections.current:
-      description: Number of current client connections
+      description: The number of incoming connections from clients to the database server.
       default: true
       type: gauge
     gauge.dataSize:
@@ -353,5 +356,20 @@ monitors:
     counter.lock.Database.acquireCount.intentShared:
       default: false
       type: cumulative
+    gauge.repl.max_lag:
+      description: |
+        Replica lag in seconds calculated from the difference between the 
+        timestamp of the last oplog entry of primary and secondary [see mongo 
+        doc](https://docs.mongodb.com/manual/reference/command/replSetGetStatus/#replSetGetStatus.members[n].optimeDate).
+      default: true
+      type: gauge
+    gauge.repl.active_nodes:
+      description: Number of healthy members in a replicaset (reporting 1 for [health](https://docs.mongodb.com/manual/reference/command/replSetGetStatus/#replSetGetStatus.members[n].health)).
+      default: true
+      type: gauge
+    gauge.repl.is_primary_node:
+      description: Report 1 when member [state](https://docs.mongodb.com/manual/reference/command/replSetGetStatus/#replSetGetStatus.members[n].stateStr) of replicaset is `PRIMARY` and 2 else.
+      default: true
+      type: gauge
   monitorType: collectd/mongodb
   properties:

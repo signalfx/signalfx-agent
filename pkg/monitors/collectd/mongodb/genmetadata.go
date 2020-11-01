@@ -93,6 +93,9 @@ const (
 	gaugeMemVirtual                                = "gauge.mem.virtual"
 	gaugeNumExtents                                = "gauge.numExtents"
 	gaugeObjects                                   = "gauge.objects"
+	gaugeReplActiveNodes                           = "gauge.repl.active_nodes"
+	gaugeReplIsPrimaryNode                         = "gauge.repl.is_primary_node"
+	gaugeReplMaxLag                                = "gauge.repl.max_lag"
 	gaugeStorageSize                               = "gauge.storageSize"
 	gaugeUptime                                    = "gauge.uptime"
 )
@@ -171,6 +174,9 @@ var metricSet = map[string]monitors.MetricInfo{
 	gaugeMemVirtual:                                {Type: datapoint.Gauge},
 	gaugeNumExtents:                                {Type: datapoint.Gauge},
 	gaugeObjects:                                   {Type: datapoint.Gauge},
+	gaugeReplActiveNodes:                           {Type: datapoint.Gauge},
+	gaugeReplIsPrimaryNode:                         {Type: datapoint.Gauge},
+	gaugeReplMaxLag:                                {Type: datapoint.Gauge},
 	gaugeStorageSize:                               {Type: datapoint.Gauge},
 	gaugeUptime:                                    {Type: datapoint.Count},
 }
@@ -199,6 +205,9 @@ var defaultMetrics = map[string]bool{
 	gaugeMemResident:                    true,
 	gaugeMemVirtual:                     true,
 	gaugeObjects:                        true,
+	gaugeReplActiveNodes:                true,
+	gaugeReplIsPrimaryNode:              true,
+	gaugeReplMaxLag:                     true,
 	gaugeStorageSize:                    true,
 	gaugeUptime:                         true,
 }
