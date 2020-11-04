@@ -170,6 +170,10 @@ ingestUrl:
 # all trace spans will be sent to the ingestUrl configured above.
 traceEndpointUrl:
 
+# The full URL (including path) to the event ingest server. If this is not set,
+# all events will be sent to the same place as ingestUrl above.
+eventEndpointUrl:
+
 # The SignalFx API base URL. (default: "https://api.signalfx.com")
 apiUrl:
 
