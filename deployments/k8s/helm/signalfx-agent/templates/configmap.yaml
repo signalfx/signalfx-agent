@@ -29,6 +29,10 @@ data:
     apiUrl: {{ .Values.apiUrl }}
     {{- end }}
 
+    {{- if .Values.eventEndpointUrl }}
+    eventEndpointUrl: {{ .Values.eventEndpointUrl }}
+    {{- end }}
+
     {{- if .Values.traceEndpointUrl }}
     traceEndpointUrl: {{ .Values.traceEndpointUrl }}
     {{- end }}
