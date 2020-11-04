@@ -56120,6 +56120,14 @@
       "package": "pkg/observers/host",
       "fields": [
         {
+          "yamlName": "omitPIDDimension",
+          "doc": "If `true`, the `pid` dimension will be omitted from the generated endpoints, which means it will not appear on datapoints emitted by monitors instantiated from discovery rules matching this endpoint.",
+          "default": false,
+          "required": false,
+          "type": "bool",
+          "elementKind": ""
+        },
+        {
           "yamlName": "pollIntervalSeconds",
           "doc": "",
           "default": 10,
