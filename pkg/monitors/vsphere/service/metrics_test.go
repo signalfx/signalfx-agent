@@ -9,7 +9,7 @@ import (
 func TestPopulateInvMetrics(t *testing.T) {
 	gateway := newFakeGateway(1)
 	metricsSvc := NewMetricsService(gateway, testLog)
-	inventorySvc := NewInventorySvc(gateway, testLog)
+	inventorySvc := NewInventorySvc(gateway, testLog, nopFilter{})
 	inv, _ := inventorySvc.RetrieveInventory()
 	metricsSvc.PopulateInvMetrics(inv)
 	invObj := inv.Objects[0]

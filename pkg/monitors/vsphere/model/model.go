@@ -36,6 +36,16 @@ type Config struct {
 	// all inventory objects at a time.
 	PerfBatchSize int `yaml:"perfBatchSize" default:"10"`
 
+	// An 'expr' expression to limit the inventory traversed by the monitor. Leave blank or omit
+	// to traverse and get metrics for the entire vSphere inventory. Otherwise, this expression
+	// is evaluated per cluster. If the expression evaluates to true, metrics are collected for
+	// the objects in the cluster, otherwise it is skipped. Made available to the expr expression
+	// environment are the variables: `Datacenter` and `Cluster`. For example:
+	// filter: "Datacenter == 'MyDatacenter' && Cluster == 'MyCluster'"
+	// The above expr value will cause metrics collection for only the given datacenter + cluster.
+	// See https://github.com/antonmedv/expr for more advanced syntax.
+	Filter string `yaml:"filter"`
+
 	// Path to the ca file
 	TLSCACertPath string `yaml:"tlsCACertPath"`
 
