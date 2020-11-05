@@ -12,7 +12,7 @@
 
 - name: Confirm SignalFx Access Token is defined
   fail: msg='Please specify a signalFxAccessToken in your sfx_agent_config'
-  when: not (sfx_agent_config.signalFxAccessToken | default('') | trim) or not sfx_agent_config.signalFxAccessToken
+  when: sfx_agent_config.signalFxAccessToken is not defined
 
 - name: Acceptable distribution check
   fail:
