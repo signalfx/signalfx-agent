@@ -8,6 +8,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 files_to_update=(
   deployments/k8s/helm/signalfx-agent/Chart.yaml
   deployments/k8s/helm/signalfx-agent/values.yaml
+  deployments/k8s/helm/signalfx-agent/README.md
   deployments/ecs/signalfx-agent-task.json
   deployments/fargate/example-fargate-task.json
   Dockerfile.rhel
