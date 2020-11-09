@@ -12,7 +12,7 @@ var testLog = logrus.WithField("monitorType", "vsphere-test")
 
 func TestRetrievePoints(t *testing.T) {
 	gateway := newFakeGateway(1)
-	inventorySvc := NewInventorySvc(gateway, testLog)
+	inventorySvc := NewInventorySvc(gateway, testLog, nopFilter{})
 	metricsSvc := NewMetricsService(gateway, testLog)
 	infoSvc := NewVSphereInfoService(inventorySvc, metricsSvc)
 	vsphereInfo, _ := infoSvc.RetrieveVSphereInfo()

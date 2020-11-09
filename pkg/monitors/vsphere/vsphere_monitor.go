@@ -70,7 +70,12 @@ func (vsm *vSphereMonitor) firstTimeSetup(ctx context.Context) error {
 func (vsm *vSphereMonitor) wireUpServices(ctx context.Context, client *govmomi.Client) {
 	gateway := service.NewGateway(ctx, client, vsm.log)
 	vsm.ptsSvc = service.NewPointsSvc(gateway, vsm.log, vsm.conf.PerfBatchSize, vsm.ptConsumer)
-	vsm.invSvc = service.NewInventorySvc(gateway, vsm.log)
+	f, err := service.NewFilter(vsm.conf.Filter)
+	if err != nil {
+		vsm.log.WithError(err).Error("Failed to create filter")
+		// can keep going, f == nopFilter
+	}
+	vsm.invSvc = service.NewInventorySvc(gateway, vsm.log, f)
 	vsm.metricSvc = service.NewMetricsService(gateway, vsm.log)
 	vsm.timeSvc = service.NewTimeSvc(gateway)
 	vsm.vsInfoSvc = service.NewVSphereInfoService(vsm.invSvc, vsm.metricSvc)
