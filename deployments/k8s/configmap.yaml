@@ -54,6 +54,7 @@ data:
     - type: kubelet-metrics
       kubeletAPI:
         authType: serviceAccount
+        url: https://${MY_NODE_NAME}:10250
       usePodsEndpoint: true
 
 
