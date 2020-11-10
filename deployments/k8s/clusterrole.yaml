@@ -32,7 +32,7 @@ rules:
 - apiGroups:
   - ""
   resources:
-  - clustermaps
+  - configmaps
   verbs:
   - get
   - list
