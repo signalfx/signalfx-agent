@@ -47,7 +47,11 @@ type Observer struct {
 // Config specific to the host observer
 type Config struct {
 	config.ObserverConfig
-	PollIntervalSeconds int `default:"10" yaml:"pollIntervalSeconds"`
+	// If `true`, the `pid` dimension will be omitted from the generated
+	// endpoints, which means it will not appear on datapoints emitted by
+	// monitors instantiated from discovery rules matching this endpoint.
+	OmitPIDDimension    bool `default:"false" yaml:"omitPIDDimension"`
+	PollIntervalSeconds int  `default:"10" yaml:"pollIntervalSeconds"`
 }
 
 func init() {
@@ -138,8 +142,9 @@ func (o *Observer) discover() []services.Endpoint {
 			continue
 		}
 
-		dims := map[string]string{
-			"pid": strconv.Itoa(int(pid)),
+		dims := map[string]string{}
+		if !o.config.OmitPIDDimension {
+			dims["pid"] = strconv.Itoa(int(pid))
 		}
 
 		for _, c := range conns {
