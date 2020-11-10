@@ -20,7 +20,7 @@ or redirection depending on `useHTTPS` parameter).
 <!--- SETUP --->
 ## Setup
 
-To create a webcheck from URL, you need to split it into different 
+To create a webcheck from a URL, you need to split it into different 
 configuration options. All of these will determine the `url` dimension 
 value from its "normalized" url `{scheme}://{host}:{port}{path}`:
   * `scheme` will be `https` if `useHTTPS:true` or `http` else.
@@ -28,10 +28,10 @@ value from its "normalized" url `{scheme}://{host}:{port}{path}`:
   * `port` should be the port to connect to. If not defined, it will 
   be `443` if `useHTTPS:true` or `80` else.
   * `path` will contain the full query including resource path and 
-  eventually the `GET` method parameters with `?` separator.
+  finally the `GET` method parameters with `?` separator.
 
 __Notice__: `:port` will be removed from `url` if default because 
-implicit and make the behavior similar to what `curl` does.
+it is implicit and makes the behavior similar to what `curl` does.
 
 In addition to information from the URL you can also configure the 
 behavior of the request done on this URL:
@@ -41,18 +41,18 @@ behavior of the request done on this URL:
   * basic authentification could be done from `username` and `password`
   configuration options.
   * request headers could be defined with `httpHeaders`. It could be 
-  usefull to override the `host` header.
+  useful to override the `host` header.
   * it is possible to provide a body to the request through `requestBody`.
-  The form of this body will often depends on the `Content-Type` header.
+  The form of this body will often depend on the `Content-Type` header.
   For example, `{"foo":"bar"}` with `Content-Type: application/json`.
-  * By default, it will follow redirect. Possible to disable it using 
+  * By default, it will follow redirects. It is possible to disable that behavior using 
   `noRedirects:false`.
 
 See [Config Examples](#config-examples) for different request behaviors.
 
-Some configuration options could change the resulted values:
+Some configuration options change the resulting values:
   * the `desiredCode` option will determine the `http.code_matched` value.
-  By default equals to `200` it could be useful to change it if you 
+  By default it is `200` it could be useful to change it if you 
   expect different "normal" value.
   For example, use `desiredCode:301` and `noRedirects:false` to check a 
   redirect (and not the end redirected url) keeping value to `1` (success).
@@ -85,7 +85,7 @@ monitors:
    host: signalfx.com
 ```
 
-* `curl -I http://signalfx.com` (`http.status_code=301` because does not 
+* `curl -I http://signalfx.com` (`http.status_code=301` because it does not 
 follow redirect to splunk)
 
 ```
