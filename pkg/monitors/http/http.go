@@ -11,6 +11,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -283,6 +284,23 @@ func (m *Monitor) getHTTPStats(site fmt.Stringer, logger *logrus.Entry) (dps []*
 	req, err := http.NewRequest(m.conf.Method, site.String(), body)
 	if err != nil {
 		return
+	}
+
+	// override excluded headers, see:
+	// https://github.com/golang/go/blob/cad6d1fef5147d31e94ee83934c8609d3ad150b7/src/net/http/request.go#L92
+	if len(m.conf.HTTPHeaders) > 0 {
+		for key, val := range m.conf.HTTPHeaders {
+			if strings.EqualFold(key, "host") {
+				req.Host = val
+				continue
+			}
+			if strings.EqualFold(key, "content-length") {
+				if contentLenght, err := strconv.Atoi(val); err == nil {
+					req.ContentLength = int64(contentLenght)
+				}
+				continue
+			}
+		}
 	}
 
 	// starts timer
