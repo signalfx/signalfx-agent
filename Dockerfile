@@ -35,6 +35,42 @@ RUN AGENT_VERSION=${agent_version} COLLECTD_VERSION=${collectd_version} make sig
     mv signalfx-agent /usr/bin/signalfx-agent
 
 
+######### Java monitor dependencies and monitor jar compilation
+FROM ubuntu:16.04 as java
+
+RUN apt update &&\
+    apt install -y wget maven
+
+ARG TARGET_ARCH
+
+ENV OPENJDK_BASE_URL="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download"
+RUN if [ "$TARGET_ARCH" = "amd64" ]; then \
+    OPENJDK_URL="${OPENJDK_BASE_URL}/jdk-11.0.9%2B11.1/OpenJDK11U-jdk_x64_linux_hotspot_11.0.9_11.tar.gz"; \
+    else \
+    OPENJDK_URL="${OPENJDK_BASE_URL}/jdk-11.0.9%2B11.1/OpenJDK11U-jdk_aarch64_linux_hotspot_11.0.9_11.tar.gz"; \
+    fi && \
+    wget -O /tmp/openjdk.tar.gz "$OPENJDK_URL"
+
+RUN mkdir -p /opt/root && \
+    tar -C /opt/root -xzf /tmp/openjdk.tar.gz && \
+    mv /opt/root/jdk* /opt/root/jdk && \
+    rm -f /tmp/openjdk.tar.gz
+
+ENV JAVA_HOME=/opt/root/jdk
+
+RUN mkdir -p /opt/root/jre && \
+    rm -f ${JAVA_HOME}/lib/src.zip && \
+    cp -rL ${JAVA_HOME}/bin /opt/root/jre/ && \
+    cp -rL ${JAVA_HOME}/lib /opt/root/jre/
+
+COPY java/ /usr/src/agent-java/
+RUN cd /usr/src/agent-java/runner &&\
+    mvn -V clean install
+
+RUN cd /usr/src/agent-java/jmx &&\
+    mvn -V clean package
+
+
 ###### Collectd builder image ######
 FROM ubuntu:16.04 as collectd
 
@@ -43,19 +79,14 @@ ARG PYTHON_VERSION=3.8.0
 
 ENV DEBIAN_FRONTEND noninteractive
 
-RUN apt update &&\
-    apt install -y software-properties-common &&\
-    add-apt-repository ppa:openjdk-r/ppa
-
 RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
     apt-get update &&\
     apt-get install -y \
       curl \
       dpkg \
       net-tools \
-      openjdk-11-jdk \
       python-software-properties \
-	  software-properties-common \
+      software-properties-common \
       wget \
       autoconf \
       automake \
@@ -152,11 +183,14 @@ RUN cd /tmp &&\
 RUN echo "#!/bin/bash" > /usr/src/collectd/version-gen.sh &&\
     echo "printf \${collectd_version//-/.}" >> /usr/src/collectd/version-gen.sh
 
+COPY --from=java /opt/root/jdk/ /opt/root/jdk/
+
 WORKDIR /usr/src/collectd
 
 ARG extra_cflags="-O2"
 ENV CFLAGS "-Wno-deprecated-declarations -fPIC $extra_cflags"
 ENV CXXFLAGS $CFLAGS
+ENV JAVA_HOME=/opt/root/jdk
 
 # In the bundle, the java plugin so will live in /lib/collectd and the JVM
 # exists at /jre
@@ -201,10 +235,10 @@ RUN autoreconf -vif &&\
         --without-libstatgrab \
         --disable-silent-rules \
         --disable-static \
+        --with-java=${JAVA_HOME} \
         LIBPYTHON_LDFLAGS="$(python3.8-config --ldflags) -lpython3.8" \
         LIBPYTHON_CPPFLAGS="$(python3.8-config --includes)" \
         LIBPYTHON_LIBS="$(python3.8-config --libs) -lpython3.8"
-
 
 # Compile all of collectd first, including plugins
 RUN make -j`nproc` &&\
@@ -245,31 +279,6 @@ RUN python3 -m pip list
 RUN find /usr/local/lib/python3.8 -name "*.pyc" -o -name "*.pyo" | xargs rm
 # We don't support compiling extension modules so don't need this directory
 RUN rm -rf /usr/local/lib/python3.8/config-*-linux-gnu
-
-
-######### Java monitor dependencies and monitor jar compilation
-FROM ubuntu:16.04 as java
-
-RUN apt update &&\
-    apt install -y software-properties-common
-
-RUN add-apt-repository ppa:openjdk-r/ppa &&\
-    apt update &&\
-    apt install -y openjdk-11-jdk maven
-
-ARG TARGET_ARCH
-
-RUN mkdir -p /opt/root/jre &&\
-    rm -f /usr/lib/jvm/java-11-openjdk-${TARGET_ARCH}/lib/src.zip &&\
-    cp -rL /usr/lib/jvm/java-11-openjdk-${TARGET_ARCH}/bin /opt/root/jre/ &&\
-    cp -rL /usr/lib/jvm/java-11-openjdk-${TARGET_ARCH}/lib /opt/root/jre/
-
-COPY java/ /usr/src/agent-java/
-RUN cd /usr/src/agent-java/runner &&\
-    mvn clean install
-
-RUN cd /usr/src/agent-java/jmx &&\
-    mvn clean package
 
 
 ####### Extra packages that don't make sense to pull down in any other stage ########
