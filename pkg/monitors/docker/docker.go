@@ -22,7 +22,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const dockerAPIVersion = "v1.22"
+const dockerAPIVersion = "v1.24"
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
