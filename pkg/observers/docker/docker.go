@@ -22,7 +22,7 @@ import (
 
 const (
 	observerType     = "docker"
-	dockerAPIVersion = "v1.22"
+	dockerAPIVersion = "v1.24"
 )
 
 // OBSERVER(docker): Queries the Docker Engine API for running containers.  If
