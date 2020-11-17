@@ -57,6 +57,11 @@ spec:
         volumeMounts:
         - mountPath: /etc/signalfx
           name: config
+        {{- if (.Values.monitorsd) }}
+        - name: monitorsd
+          mountPath: /etc/signalfx/monitors.d
+          readOnly: true
+        {{- end }}
         resources:
           {{- toYaml .Values.resources | trim | nindent 10 }}
         env:
@@ -94,4 +99,9 @@ spec:
       - name: config
         configMap:
           name: {{ include "configmap-name" . }}
+      {{- if (.Values.monitorsd)}}
+      - name: monitorsd
+        configMap:
+          name: {{ include "configmap-name" . }}-monitorsd
+      {{- end }}
 {{- end }}

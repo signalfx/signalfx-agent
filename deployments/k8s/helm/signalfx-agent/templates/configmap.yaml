@@ -247,6 +247,10 @@ data:
 
     {{ end }}
 
+{{- if (.Values.monitorsd) }}
+    - {"#from": "/etc/signalfx/monitors.d/*.yaml", flatten: true, optional: true}
+{{- end }}
+
     collectd:
       {{ if or .Values.isWindows .Values.collectd.disableCollectd -}}
       disableCollectd: true

@@ -1,0 +1,14 @@
+{{- if (.Values.monitorsd) }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "configmap-name" . }}-monitorsd
+  namespace: {{ template "signalfx-agent.namespace" . }}
+  labels:
+    app: {{ template "signalfx-agent.name" . }}
+    heritage: {{ .Release.Service }}
+    release: {{ .Release.Name }}
+    chart: {{ template "signalfx-agent.chart" . }}
+data:
+{{ tpl (toYaml .Values.monitorsd) . | indent 2 }}
+{{- end -}}
