@@ -88,7 +88,7 @@ gatherClusterMetrics: false
 # Docker isn't exposed on Windows
 gatherDockerMetrics: false
 
-agentVersion: 5.5.6
+agentVersion: 5.6.0
 
 # Kubelet on Windows doesn't seem to have the usage_bytes metrics so we'll
 # transform the working set metric to it so that built-in content works.
@@ -107,7 +107,7 @@ kubeletAPI:
 image:
   repository: quay.io/signalfx/signalfx-agent
   # This is a special windows container release of the agent for Windows.
-  tag: 5.5.6-windows
+  tag: 5.6.0-windows
   pullPolicy: Always
 ```
 
