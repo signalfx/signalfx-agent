@@ -2,7 +2,10 @@
 class signalfx_agent (
   $config                 = lookup('signalfx_agent::config', Hash, 'deep'),
   $package_stage          = 'release',
-  $repo_base              = 'splunk.jfrog.io/splunk',
+  $repo_base              = $::osfamily ? {
+    'windows' => 'dl.signalfx.com',
+    default   => 'splunk.jfrog.io/splunk'
+  },
   $config_file_path       = $::osfamily ? {
     'debian'  => '/etc/signalfx/agent.yaml',
     'redhat'  => '/etc/signalfx/agent.yaml',
