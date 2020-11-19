@@ -78,13 +78,10 @@ class signalfx_agent (
       }
     }
     'windows': {
-      File[$config_file_path]
-
-      -> class { 'signalfx_agent::win_repo':
+      class { 'signalfx_agent::win_repo':
         repo_base              => 'dl.signalfx.com',
         package_stage          => $package_stage,
         version                => $agent_version,
-        config_file_path       => $config_file_path,
         installation_directory => $installation_directory,
         service_name           => $service_name,
       }
