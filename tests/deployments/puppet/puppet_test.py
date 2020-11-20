@@ -71,7 +71,7 @@ PUPPET_MODULE_DEST_DIR = "/etc/puppetlabs/code/environments/production/modules/s
 HIERA_SRC_PATH = PUPPET_MODULE_SRC_DIR / "data" / "default.yaml"
 HIERA_DEST_PATH = os.path.join(PUPPET_MODULE_DEST_DIR, "data", "default.yaml")
 
-LINUX_PUPPET_RELEASES = os.environ.get("PUPPET_RELEASES", "5,latest").split(",")
+LINUX_PUPPET_RELEASES = os.environ.get("PUPPET_RELEASES", "5,6").split(",")
 WIN_PUPPET_VERSIONS = os.environ.get("PUPPET_VERSIONS", "5.0.0,latest").split(",")
 
 STAGE = os.environ.get("STAGE", "release")
@@ -258,6 +258,13 @@ def test_puppet_on_windows(puppet_version):
 
             # change agent config
             monitors = [{"type": "internal-metrics"}]
+            run_win_puppet_agent(backend, monitors, INITIAL_VERSION, STAGE)
+            backend.reset_datapoints()
+            assert wait_for(
+                p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
+            ), "Didn't get internal metric datapoints"
+
+            # re-apply without any changes
             run_win_puppet_agent(backend, monitors, INITIAL_VERSION, STAGE)
             backend.reset_datapoints()
             assert wait_for(
