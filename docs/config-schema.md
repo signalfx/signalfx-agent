@@ -25,7 +25,7 @@ you can set them individually like so:
 ```
 ingestUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com"
 apiUrl: "https://api.YOUR_SIGNALFX_REALM.signalfx.com"
-traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v1/trace"
+traceEndpointUrl: "https://ingest.YOUR_SIGNALFX_REALM.signalfx.com/v2/trace" // Use /v1/trace for APM PG
 ```
 
 They will default to the endpoints for the realm configured in `signalFxRealm`
