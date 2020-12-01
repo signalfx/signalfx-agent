@@ -45,6 +45,8 @@ type Config struct {
 	Prefix string `yaml:"prefix"`
 	// Whether to add PID as a dimension instead of part of the metric name
 	PidTag bool `yaml:"pidTag"`
+	// When true add the full cmdline as a dimension.
+	CmdLineTag bool `yaml:"cmdLineTag"`
 	// The name of the cgroup to monitor.  This cgroup name will be appended to
 	// the configured `sysPath`.  See the agent config schema for more information
 	// about the `sysPath` agent configuration.

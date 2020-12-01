@@ -6,7 +6,7 @@ replace git.apache.org/thrift.git => github.com/apache/thrift v0.0.0-20180902110
 
 replace code.cloudfoundry.org/go-loggregator => github.com/signalfx/go-loggregator v1.0.1-0.20200205155641-5ba5ca92118d
 
-replace github.com/influxdata/telegraf => github.com/signalfx/telegraf v0.10.2-0.20200415004250-249b98cac6c7
+replace github.com/influxdata/telegraf => github.com/signalfx/telegraf v0.10.2-0.20201130223629-3a4c14f6fe12
 
 replace github.com/dancannon/gorethink => gopkg.in/gorethink/gorethink.v4 v4.0.0
 
