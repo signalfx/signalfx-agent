@@ -3,7 +3,7 @@ package hostid
 import (
 	"os"
 
-	fqdn "github.com/ShowMax/go-fqdn"
+	fqdn "github.com/Showmax/go-fqdn"
 	log "github.com/sirupsen/logrus"
 )
 
