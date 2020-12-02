@@ -24,7 +24,7 @@ require (
 	github.com/NYTimes/gziphandler v1.1.1 // indirect
 	github.com/SAP/go-hdb v0.14.1 // indirect
 	github.com/Sectorbob/mlab-ns2 v0.0.0-20171030222938-d3aa0c295a8a
-	github.com/ShowMax/go-fqdn v0.0.0-20160909083404-2501cdd51ef4
+	github.com/Showmax/go-fqdn v0.0.0-20160909083404-2501cdd51ef4
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d
 	github.com/aliyun/alibaba-cloud-sdk-go v0.0.0-20190315122603-6f9e54af456e // indirect
 	github.com/antonmedv/expr v1.8.5
