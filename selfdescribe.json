@@ -14873,6 +14873,7 @@
             "gauge.repl.is_primary_node",
             "gauge.repl.max_lag",
             "gauge.storageSize",
+            "gauge.tcmalloc.generic.heap_size",
             "gauge.uptime"
           ]
         },
@@ -14926,7 +14927,7 @@
         },
         "counter.backgroundFlushing.flushes": {
           "type": "gauge",
-          "description": "Number of times the database has been flushed",
+          "description": "Number of times the database has been flushed. Only available when MMAPv1 is enabled. (MMAPv1 is not supported in MongoDB version \u003e 4.2)",
           "group": null,
           "default": true
         },
@@ -15184,13 +15185,13 @@
         },
         "gauge.backgroundFlushing.average_ms": {
           "type": "gauge",
-          "description": "Average time (ms) to write data to disk",
+          "description": "Average time (ms) to write data to disk. Only available when MMAPv1 is enabled. (MMAPv1 is not supported in MongoDB version \u003e 4.2)",
           "group": null,
           "default": true
         },
         "gauge.backgroundFlushing.last_ms": {
           "type": "gauge",
-          "description": "Most recent time (ms) spent writing data to disk",
+          "description": "Most recent time (ms) spent writing data to disk. Only available when MMAPv1 is enabled. (MMAPv1 is not supported in MongoDB version \u003e 4.2)",
           "group": null,
           "default": true
         },
@@ -15268,7 +15269,7 @@
         },
         "gauge.extra_info.heap_usage_bytes": {
           "type": "gauge",
-          "description": "Heap size used by the mongod process, in bytes",
+          "description": "Heap size used by the mongod process, in bytes. Deprecated in mongo version \u003e 3.3, use gauge.tcmalloc.generic.heap_size instead.",
           "group": null,
           "default": true
         },
@@ -15322,7 +15323,7 @@
         },
         "gauge.mem.mapped": {
           "type": "gauge",
-          "description": "Mongodb mapped memory usage, in MB",
+          "description": "Mongodb mapped memory usage, in MB. Only available when MMAPv1 is enabled. (MMAPv1 is not supported in MongoDB version \u003e 4.2)",
           "group": null,
           "default": true
         },
@@ -15371,6 +15372,12 @@
         "gauge.storageSize": {
           "type": "gauge",
           "description": "Total bytes allocated to collections for document storage",
+          "group": null,
+          "default": true
+        },
+        "gauge.tcmalloc.generic.heap_size": {
+          "type": "gauge",
+          "description": "Heap size used by the mongod process, in bytes. Same as gauge.extra_info.heap_usage_bytes but supports 64-bit values.",
           "group": null,
           "default": true
         },

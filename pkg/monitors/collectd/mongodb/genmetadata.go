@@ -97,6 +97,7 @@ const (
 	gaugeReplIsPrimaryNode                         = "gauge.repl.is_primary_node"
 	gaugeReplMaxLag                                = "gauge.repl.max_lag"
 	gaugeStorageSize                               = "gauge.storageSize"
+	gaugeTcmallocGenericHeapSize                   = "gauge.tcmalloc.generic.heap_size"
 	gaugeUptime                                    = "gauge.uptime"
 )
 
@@ -178,6 +179,7 @@ var metricSet = map[string]monitors.MetricInfo{
 	gaugeReplIsPrimaryNode:                         {Type: datapoint.Gauge},
 	gaugeReplMaxLag:                                {Type: datapoint.Gauge},
 	gaugeStorageSize:                               {Type: datapoint.Gauge},
+	gaugeTcmallocGenericHeapSize:                   {Type: datapoint.Gauge},
 	gaugeUptime:                                    {Type: datapoint.Count},
 }
 
@@ -209,6 +211,7 @@ var defaultMetrics = map[string]bool{
 	gaugeReplIsPrimaryNode:              true,
 	gaugeReplMaxLag:                     true,
 	gaugeStorageSize:                    true,
+	gaugeTcmallocGenericHeapSize:        true,
 	gaugeUptime:                         true,
 }
 
