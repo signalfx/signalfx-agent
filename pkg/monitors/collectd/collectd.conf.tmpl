@@ -45,8 +45,9 @@ LoadPlugin target_set
 </Plugin>
 
 {{if .HasGenericJMXMonitor}}
-LoadPlugin "java"
-
+<LoadPlugin "java">
+    Interval {{ .IntervalSeconds }}
+</LoadPlugin>
 <Plugin java>
   #JVMArg "-verbose:jni"
   JVMArg "-Djava.class.path={{ stripTrailingSlash .BundleDir }}/collectd-java/collectd-api.jar:{{ stripTrailingSlash .BundleDir }}/collectd-java/generic-jmx.jar"
