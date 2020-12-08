@@ -58,7 +58,7 @@ LoadPlugin target_set
 
 {{if .HasGenericJMXMonitor}}
 <LoadPlugin "java">
-    Interval {{ .IntervalSeconds }}
+    Interval {{ .GenericJMXIntervalSeconds }}
 </LoadPlugin>
 <Plugin java>
   #JVMArg "-verbose:jni"
