@@ -274,8 +274,7 @@ func cpuTimeStatTototalUsed(t *cpu.TimesStat) *totalUsed {
 		t.Iowait +
 		t.Irq +
 		t.Softirq +
-		t.Steal +
-		t.Stolen
+		t.Steal
 
 	return &totalUsed{
 		Total: total,
