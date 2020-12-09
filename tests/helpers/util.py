@@ -214,7 +214,10 @@ def run_container(image_name, wait_for_ip=True, print_logs=True, **kwargs):
     client = get_docker_client()
 
     if not image_name.startswith("sha256"):
-        container = client.images.pull(image_name)
+        try:
+            client.images.get(image_name)
+        except docker.errors.APIError:
+            client.images.pull(image_name)
     container = retry_on_ebadf(
         lambda: retry(lambda: client.containers.create(image_name, **kwargs), docker.errors.DockerException)
     )()
