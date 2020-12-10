@@ -149,18 +149,13 @@ func convertMemoryStats(stats *dtypes.MemoryStats, enhancedMetrics bool) []*data
 	// If not present, default value will be 0.
 	bufferCacheUsage := stats.Stats["total_cache"]
 
+	out = append(out, sfxclient.Gauge("memory.usage.limit", nil, int64(stats.Limit)))
 	if stats.PrivateWorkingSet == 0 {
-		out = append(out, []*datapoint.Datapoint{
-			sfxclient.Gauge("memory.usage.limit", nil, int64(stats.Limit)),
-			// See discussion at https://github.com/signalfx/signalfx-agent/issues/1009
-			sfxclient.Gauge("memory.usage.total", nil, int64(stats.Usage-bufferCacheUsage)),
-		}...)
+		// See discussion at https://github.com/signalfx/signalfx-agent/issues/1009
+		out = append(out, sfxclient.Gauge("memory.usage.total", nil, int64(stats.Usage-bufferCacheUsage)))
 	} else {
 		// This is used for Windows containers
-		out = append(out, []*datapoint.Datapoint{
-			sfxclient.Gauge("memory.usage.limit", nil, int64(stats.CommitPeak)),
-			sfxclient.Gauge("memory.usage.total", nil, int64(stats.PrivateWorkingSet)),
-		}...)
+		out = append(out, sfxclient.Gauge("memory.usage.total", nil, int64(stats.PrivateWorkingSet)))
 	}
 
 	// Except two metrics above, everything else will be added only when enhnacedMetrics is enabled
