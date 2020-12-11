@@ -900,8 +900,8 @@ github.com/securego/gosec v0.0.0-20190306071850-2bd007e96860/go.mod h1:m3KbCTwh9
 github.com/segmentio/kafka-go v0.1.0/go.mod h1:X6itGqS9L4jDletMsxZ7Dz+JFWxM6JHfPOCvTvk+EJo=
 github.com/sergi/go-diff v1.0.0/go.mod h1:0CfEIISq7TuYL3j771MWULgwwjU+GofnZX9QAmXWZgo=
 github.com/shirou/gopsutil v2.18.10+incompatible/go.mod h1:5b4v6he4MtMOwMlS0TUMTu2PcXUg8+E1lC7eC3UO/RA=
-github.com/shirou/gopsutil v2.18.12+incompatible h1:1eaJvGomDnH74/5cF4CTmTbLHAriGFsTZppLXDX93OM=
-github.com/shirou/gopsutil v2.18.12+incompatible/go.mod h1:5b4v6he4MtMOwMlS0TUMTu2PcXUg8+E1lC7eC3UO/RA=
+github.com/shirou/gopsutil v3.20.10+incompatible h1:kQuRhh6h6y4luXvnmtu/lJEGtdJ3q8lbu9NQY99GP+o=
+github.com/shirou/gopsutil v3.20.10+incompatible/go.mod h1:5b4v6he4MtMOwMlS0TUMTu2PcXUg8+E1lC7eC3UO/RA=
 github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4 h1:udFKJ0aHUL60LboW/A+DfgoHVedieIzIXE8uylPue0U=
 github.com/shirou/w32 v0.0.0-20160930032740-bb4de0191aa4/go.mod h1:qsXQc7+bwAM3Q1u/4XEfrquwF8Lw7D7y5cD8CuHnfIc=
 github.com/shopspring/decimal v0.0.0-20180709203117-cd690d0c9e24 h1:pntxY8Ary0t43dCZ5dqY4YTJCObLY1kIXl0uzMv+7DE=
@@ -950,8 +950,8 @@ github.com/signalfx/signalfx-go-tracing v1.2.0 h1:wEdlZQ69u3QyEZEEIo+prmGaVieKgi
 github.com/signalfx/signalfx-go-tracing v1.2.0/go.mod h1:JoTkkhSBe42ns9/AsvtqX7lLiiS6YwE0Q7J0DZFzt00=
 github.com/signalfx/tdigest v0.0.0-20191031204725-c860c3ff6902 h1:V/uPctkyrXFOwGmWbFFEJP48ntw8ykJN6oxEJBTPARE=
 github.com/signalfx/tdigest v0.0.0-20191031204725-c860c3ff6902/go.mod h1:fbvuJM3o+bwr36+TVjokMUGd4muJVHiCshTmKZ/6eNU=
-github.com/signalfx/telegraf v0.10.2-0.20201130223629-3a4c14f6fe12 h1:AGaHKs5V2+Q7+qVeyKZfW2r8duthcCr4qSqRriunuNM=
-github.com/signalfx/telegraf v0.10.2-0.20201130223629-3a4c14f6fe12/go.mod h1:1gnMOcwGO3lAxfoMq28M8gjooF2MqVwquPVEvgZ1its=
+github.com/signalfx/telegraf v0.10.2-0.20201211214327-200738592ced h1:MohZA3RBgCI/6tqCPCZ1/gNSIO3mOaVrdUHrRDM0ypI=
+github.com/signalfx/telegraf v0.10.2-0.20201211214327-200738592ced/go.mod h1:1gnMOcwGO3lAxfoMq28M8gjooF2MqVwquPVEvgZ1its=
 github.com/signalfx/thrift v0.0.0-20181211001559-3838fa316492/go.mod h1:Xv29nl9fxdk0hmeqcUHgAZZwvYrOhduNW+9qk4H+6K0=
 github.com/signalfx/xdgbasedir v0.0.0-20160106035722-cd6a71c07e4e h1:QCYFq7iZwqlBTbP5xcJNIaLnAhozjhcrySGiEegRYus=
 github.com/signalfx/xdgbasedir v0.0.0-20160106035722-cd6a71c07e4e/go.mod h1:RnQhO4a62x0VHvh8eSMsqgTgYRso2hfat7ioM8rD1jc=

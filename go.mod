@@ -6,7 +6,7 @@ replace git.apache.org/thrift.git => github.com/apache/thrift v0.0.0-20180902110
 
 replace code.cloudfoundry.org/go-loggregator => github.com/signalfx/go-loggregator v1.0.1-0.20200205155641-5ba5ca92118d
 
-replace github.com/influxdata/telegraf => github.com/signalfx/telegraf v0.10.2-0.20201130223629-3a4c14f6fe12
+replace github.com/influxdata/telegraf => github.com/signalfx/telegraf v0.10.2-0.20201211214327-200738592ced
 
 replace github.com/dancannon/gorethink => gopkg.in/gorethink/gorethink.v4 v4.0.0
 
@@ -139,7 +139,7 @@ require (
 	github.com/prometheus/common v0.9.1
 	github.com/prometheus/procfs v0.0.9-0.20191209220459-fa4d6ce8c078
 	github.com/samuel/go-zookeeper v0.0.0-20190810000440-0ceca61e4d75
-	github.com/shirou/gopsutil v2.18.12+incompatible
+	github.com/shirou/gopsutil v3.20.10+incompatible
 	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.2
 	github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 	github.com/signalfx/gateway v1.2.19-0.20191125135538-2c417b7ae0bd
