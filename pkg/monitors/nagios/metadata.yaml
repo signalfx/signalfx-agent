@@ -28,7 +28,7 @@ monitors:
 
   dimensions:
     plugin:
-      description: "The name of this monitor: \"nagios\"."
+      description: "The name of this monitor: `nagios`."
     command:
       description: The configured command for this monitor.
   metrics:

@@ -54,8 +54,9 @@ Configuration](../monitor-config.md#common-configuration).**
 
 | Config option | Required | Type | Description |
 | --- | --- | --- | --- |
-| `command` | **yes** | `string` | The command to exec with any arguments like "echo OK" |
-| `timeout` | no | `integer` | The max execution time allowed in seconds (**default:** `9`) |
+| `command` | **yes** | `string` | The command to exec with any arguments like: `"LC_ALL=\"en_US.utf8\" /usr/lib/nagios/plugins/check_ntp_time -H pool.ntp.typhon.net -w 0.5 -c 1"` |
+| `service` | **yes** | `string` | Corresponds to the nagios `service` column and allows to aggregate all instances of the same service (when calling the same check script with different arguments) |
+| `timeout` | no | `integer` | The max execution time allowed in seconds be fore to send SIGTERM. In any case, a SIGKILL will be send at `intervalSeconds` value. (**default:** `9`) |
 
 
 ## Metrics
@@ -86,7 +87,7 @@ dimensions may be specific to certain metrics.
 | Name | Description |
 | ---  | ---         |
 | `command` | The configured command for this monitor. |
-| `plugin` | The name of this monitor: "nagios". |
+| `plugin` | The name of this monitor: `nagios`. |
 
 
 

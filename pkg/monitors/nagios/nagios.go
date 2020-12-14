@@ -28,9 +28,15 @@ func init() {
 // Config for this monitor
 type Config struct {
 	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
-	// The command to exec with any arguments like "echo OK"
+	// The command to exec with any arguments like:
+	// `"LC_ALL=\"en_US.utf8\" /usr/lib/nagios/plugins/check_ntp_time -H pool.ntp.typhon.net -w 0.5 -c 1"`
 	Command string `yaml:"command" validate:"required"`
-	// The max execution time allowed in seconds
+	// Corresponds to the nagios `service` column and allows to aggregate all
+	// instances of the same service (when calling the same check script with
+	// different arguments)
+	Service string `yaml:"service" validate:"required"`
+	// The max execution time allowed in seconds be fore to send SIGTERM. In
+	// any case, a SIGKILL will be send at `intervalSeconds` value.
 	Timeout int `yaml:"timeout" default:"9"`
 }
 
@@ -51,7 +57,11 @@ const (
 func (m *Monitor) Configure(conf *Config) error {
 	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
 	// Define global dimensions used for both datapoint and event
-	dimensions := map[string]string{"plugin": "nagios", "command": conf.Command}
+	dimensions := map[string]string{
+		"plugin":  "nagios",
+		"command": conf.Command,
+		"service": conf.Service,
+	}
 	// Enforce interval greater than command timeout
 	if conf.IntervalSeconds < conf.Timeout {
 		return fmt.Errorf("configured timeout must be lower than intervalSeconds")
