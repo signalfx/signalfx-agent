@@ -3,6 +3,7 @@ package nagios
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os/exec"
 	"strings"
@@ -51,6 +52,11 @@ const (
 	unknown          = 3
 	cacheKey         = "lastRun"
 	propertiesLength = 256
+)
+
+var (
+	// ErrorTimeout is returned when command is killed after timeout duration
+	ErrorTimeout = errors.New("command killed after timeout")
 )
 
 // Configure and kick off internal metric collection
@@ -168,7 +174,7 @@ func runCommand(command string, termTimeout int, killTimeout int) (stdout []byte
 	}
 	// Returns timeout error if sigterm was sent
 	if !termTimer.Stop() {
-		err = fmt.Errorf("timeout reached, %s", err)
+		err = ErrorTimeout
 		return
 	}
 	stdout = cmdOut.Bytes()
@@ -208,7 +214,7 @@ func getExitCode(err error, stdout []byte) (int, error) {
 	if !ok {
 		// If the error is not an ExitError so the command could have been
 		// killed because of timeout
-		if strings.HasPrefix(err.Error(), "timeout") {
+		if err == ErrorTimeout {
 			return unknown, err
 		}
 		return unknown, fmt.Errorf("command ended unexpectedly %s", err)
