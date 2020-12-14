@@ -235,10 +235,10 @@ func getExitCode(err error, stdout []byte) (int, error) {
 func makeProperties(state int, err error, stdout []byte, stderr []byte) map[string]interface{} {
 	properties := make(map[string]interface{})
 	if len(stdout) > 0 {
-		properties["stdout"] = string(stdout[:propertiesLength])
+		properties["stdout"] = formatStd(stdout)
 	}
 	if len(stderr) > 0 {
-		properties["stderr"] = string(stderr[:propertiesLength])
+		properties["stderr"] = formatStd(stderr)
 	}
 	if err != nil {
 		properties["exit_reason"] = err.Error()
@@ -247,6 +247,14 @@ func makeProperties(state int, err error, stdout []byte, stderr []byte) map[stri
 	}
 
 	return properties
+}
+
+func formatStd(std []byte) string {
+	rendered := strings.TrimLeft(strings.TrimSuffix(string(std), "\n"), "\n")
+	if len(rendered) > propertiesLength {
+		rendered = rendered[:propertiesLength]
+	}
+	return rendered
 }
 
 func filterProperties(properties map[string]interface{}) map[string]interface{} {
