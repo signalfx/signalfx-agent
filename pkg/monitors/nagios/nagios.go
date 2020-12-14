@@ -87,13 +87,14 @@ func (m *Monitor) Configure(conf *Config) error {
 				time.Time{}),
 		}...)
 
-		properties := makeProperties(state, err, stdout, stderr)
-
+		properties, diffProperties := makeProperties(state, err, stdout, stderr)
+		m.logger.Warn(properties)
+		m.logger.Warn(diffProperties)
 		// Compare with previous event if it exists
 		sendEvent := true
 		if x, found := c.Get(cacheKey); found {
-			cachedProperties := x.(map[string]interface{})
-			if diff := deep.Equal(properties, cachedProperties); diff == nil {
+			lastProperties := x.(map[string]interface{})
+			if diff := deep.Equal(diffProperties, lastProperties); diff == nil {
 				m.logger.Debug("a same avent has already been send, do not send again")
 				sendEvent = false
 			}
@@ -111,7 +112,7 @@ func (m *Monitor) Configure(conf *Config) error {
 					time.Time{}),
 			)
 			// update event properties in cache
-			c.Set(cacheKey, properties, cache.NoExpiration)
+			c.Set(cacheKey, diffProperties, cache.NoExpiration)
 		}
 
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
@@ -224,7 +225,7 @@ func getExitCode(err error, stdout []byte) (int, error) {
 	return ws.ExitStatus(), nil
 }
 
-func makeProperties(state int, err error, stdout []byte, stderr []byte) map[string]interface{} {
+func makeProperties(state int, err error, stdout []byte, stderr []byte) (map[string]interface{}, map[string]interface{}) {
 	properties := make(map[string]interface{})
 	if len(stdout) > 0 {
 		properties["std_out"] = string(stdout[:propertiesLength])
@@ -237,5 +238,16 @@ func makeProperties(state int, err error, stdout []byte, stderr []byte) map[stri
 	} else {
 		properties["exit_code"] = state
 	}
-	return properties
+
+	// Some scripts could produce different output (and stderr) for
+	// each interval "normally", so we do not want to compare them
+	diffProperties := make(map[string]interface{})
+	for k, v := range properties {
+		if !strings.HasPrefix(k, "std_") {
+			diffProperties[k] = v
+		}
+
+	}
+
+	return properties, diffProperties
 }
