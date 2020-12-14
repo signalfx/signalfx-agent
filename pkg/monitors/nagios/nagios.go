@@ -80,7 +80,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	ctx, m.cancel = context.WithCancel(context.Background())
 	utils.RunOnInterval(ctx, func() {
 		// Run command
-		stdout, stderr, err := runCommand(conf.Command, conf.Timeout, conf.IntervalSeconds)
+		stdout, stderr, err := runCommand(conf.Command, conf.Timeout)
 		state, err := getExitCode(err, stdout)
 
 		// Send datapoint with only state
@@ -135,9 +135,8 @@ func (m *Monitor) Shutdown() {
 	}
 }
 
-func runCommand(command string, termTimeout int, killTimeout int) (stdout []byte, stderr []byte, err error) {
+func runCommand(command string, timeout int) (stdout []byte, stderr []byte, err error) {
 	var cmdOut, cmdErr bytes.Buffer
-	var killTimer *time.Timer
 
 	// Parse command string with args
 	splitCmd, err := shellquote.Split(command)
@@ -153,38 +152,25 @@ func runCommand(command string, termTimeout int, killTimeout int) (stdout []byte
 		return
 	}
 
-	// After user timeout, try to gracefully stop the process with sigterm
-	termTimer := time.AfterFunc(time.Duration(termTimeout)*time.Second, func() {
-		err = cmd.Process.Signal(syscall.SIGTERM)
-		if err != nil {
-			return
-		}
-		// Kill the process to respect the monitor intervalSeconds
-		killTimer = time.AfterFunc(time.Duration(killTimeout)*time.Second, func() {
-			err = cmd.Process.Kill()
-			if err != nil {
-				return
-			}
-		})
-	})
-	err = cmd.Wait()
-	// Shutdown timers
-	if killTimer != nil {
-		killTimer.Stop()
+	// Use a channel to signal completion so we can use a select statement
+	done := make(chan error)
+	go func() { done <- cmd.Wait() }()
+
+	// Start a timer
+	killTimeout := time.After(time.Duration(timeout) * time.Second)
+
+	// The select statement allows us to execute based on which channel
+	// we get a message from first.
+	select {
+	case <-killTimeout:
+		// Timeout happened first, kill the process and print a message.
+		cmd.Process.Kill()
+		return nil, nil, ErrorTimeout
+	case err := <-done:
+		// Command completed before timeout. Print output and error if it exists.
+		return cmdOut.Bytes(), cmdErr.Bytes(), err
+
 	}
-	// Returns timeout error if sigterm was sent
-	if !termTimer.Stop() {
-		err = ErrorTimeout
-		return
-	}
-	stdout = cmdOut.Bytes()
-	stderr = cmdErr.Bytes()
-	// Returns exec related error
-	if err != nil {
-		return
-	}
-	// Returns success
-	return stdout, stderr, err
 }
 
 func getExitCode(err error, stdout []byte) (int, error) {
@@ -212,8 +198,7 @@ func getExitCode(err error, stdout []byte) (int, error) {
 	// and we will use the "unknown" state
 	ee, ok := err.(*exec.ExitError)
 	if !ok {
-		// If the error is not an ExitError so the command could have been
-		// killed because of timeout
+		// If killed the error does not make sens
 		if err == ErrorTimeout {
 			return unknown, err
 		}
