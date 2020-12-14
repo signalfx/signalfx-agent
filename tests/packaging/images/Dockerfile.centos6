@@ -1,5 +1,9 @@
 FROM centos:6
 
+# Centos 6 is EOL; update yum repo for vault
+RUN sed -i '/^mirrorlist.*/d' /etc/yum.repos.d/CentOS-Base.repo
+RUN sed -i 's|^#baseurl=http://mirror.centos.org/\(.*\)|baseurl=http://vault.centos.org/\1|' /etc/yum.repos.d/CentOS-Base.repo
+
 RUN yum install -y upstart initscripts
 
 COPY socat /bin/socat
