@@ -1,6 +1,7 @@
 package volumes
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"strconv"
@@ -18,7 +19,7 @@ func (m *Monitor) volumeIDDimsForPod(podName, namespace, uid, volName string) (m
 		return dims, nil
 	}
 
-	pod, err := m.k8sClient.CoreV1().Pods(namespace).Get(podName, metav1.GetOptions{})
+	pod, err := m.k8sClient.CoreV1().Pods(namespace).Get(context.Background(), podName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -99,7 +100,7 @@ func dimsForVolumeSource(vs v1.VolumeSource, namespace string, client *k8s.Clien
 }
 
 func dimsForPersistentVolumeClaim(claimName, namespace string, client *k8s.Clientset) (map[string]string, error) {
-	pvc, err := client.CoreV1().PersistentVolumeClaims(namespace).Get(claimName, metav1.GetOptions{})
+	pvc, err := client.CoreV1().PersistentVolumeClaims(namespace).Get(context.Background(), claimName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +110,7 @@ func dimsForPersistentVolumeClaim(claimName, namespace string, client *k8s.Clien
 		return nil, fmt.Errorf("PersistentVolumeClaim %s does not have a volume name", pvc.Name)
 	}
 
-	pv, err := client.CoreV1().PersistentVolumes().Get(volName, metav1.GetOptions{})
+	pv, err := client.CoreV1().PersistentVolumes().Get(context.Background(), volName, metav1.GetOptions{})
 	if err != nil {
 		return nil, err
 	}
