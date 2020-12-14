@@ -35,8 +35,8 @@ type Config struct {
 	// instances of the same service (when calling the same check script with
 	// different arguments)
 	Service string `yaml:"service" validate:"required"`
-	// The max execution time allowed in seconds be fore to send SIGTERM. In
-	// any case, a SIGKILL will be send at `intervalSeconds` value.
+	// The max execution time allowed in seconds before sending SIGTERM. In
+	// any case, a SIGKILL will be sent at `intervalSeconds` value.
 	Timeout int `yaml:"timeout" default:"9"`
 }
 
