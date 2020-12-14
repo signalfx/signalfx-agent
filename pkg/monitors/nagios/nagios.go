@@ -88,8 +88,6 @@ func (m *Monitor) Configure(conf *Config) error {
 		}...)
 
 		properties, diffProperties := makeProperties(state, err, stdout, stderr)
-		m.logger.Warn(properties)
-		m.logger.Warn(diffProperties)
 		// Compare with previous event if it exists
 		sendEvent := true
 		if x, found := c.Get(cacheKey); found {
@@ -154,7 +152,7 @@ func runCommand(command string, termTimeout int, killTimeout int) (stdout []byte
 		}
 		// Kill the process to respect the monitor intervalSeconds
 		killTimer = time.AfterFunc(time.Duration(killTimeout)*time.Second, func() {
-			err = cmd.Process.Signal(syscall.SIGTERM)
+			err = cmd.Process.Kill()
 			if err != nil {
 				return
 			}
