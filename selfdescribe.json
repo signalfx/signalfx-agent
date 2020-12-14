@@ -42365,7 +42365,7 @@
           },
           {
             "yamlName": "timeout",
-            "doc": "The max execution time allowed in seconds before sending SIGTERM. In any case, a SIGKILL will be sent at `intervalSeconds` value.",
+            "doc": "The max execution time allowed in seconds before sending SIGKILL",
             "default": 9,
             "required": false,
             "type": "int",

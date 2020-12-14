@@ -56,7 +56,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | --- | --- | --- | --- |
 | `command` | **yes** | `string` | The command to exec with any arguments like: `"LC_ALL=\"en_US.utf8\" /usr/lib/nagios/plugins/check_ntp_time -H pool.ntp.typhon.net -w 0.5 -c 1"` |
 | `service` | **yes** | `string` | Corresponds to the nagios `service` column and allows to aggregate all instances of the same service (when calling the same check script with different arguments) |
-| `timeout` | no | `integer` | The max execution time allowed in seconds before sending SIGTERM. In any case, a SIGKILL will be sent at `intervalSeconds` value. (**default:** `9`) |
+| `timeout` | no | `integer` | The max execution time allowed in seconds before sending SIGKILL (**default:** `9`) |
 
 
 ## Metrics
