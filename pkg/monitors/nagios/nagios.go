@@ -163,7 +163,10 @@ func runCommand(command string, timeout int) (stdout []byte, stderr []byte, err 
 	select {
 	case <-killTimeout:
 		// Timeout happened first, kill the process and print a message.
-		cmd.Process.Kill()
+		err = cmd.Process.Kill()
+		if err != nil {
+			return nil, nil, err
+		}
 		return nil, nil, ErrorTimeout
 	case err := <-done:
 		// Command completed before timeout. Print output and error if it exists.
