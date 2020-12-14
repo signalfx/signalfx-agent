@@ -95,7 +95,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		if x, found := c.Get(cacheKey); found {
 			lastProperties := x.(map[string]interface{})
 			if diff := deep.Equal(diffProperties, lastProperties); diff == nil {
-				m.logger.Debug("a same avent has already been send, do not send again")
+				m.logger.Debug("the same event has already been sent, do not send again")
 				sendEvent = false
 			}
 		}
@@ -228,10 +228,10 @@ func getExitCode(err error, stdout []byte) (int, error) {
 func makeProperties(state int, err error, stdout []byte, stderr []byte) (map[string]interface{}, map[string]interface{}) {
 	properties := make(map[string]interface{})
 	if len(stdout) > 0 {
-		properties["std_out"] = string(stdout[:propertiesLength])
+		properties["stdout"] = string(stdout[:propertiesLength])
 	}
 	if len(stderr) > 0 {
-		properties["std_err"] = string(stderr[:propertiesLength])
+		properties["stderr"] = string(stderr[:propertiesLength])
 	}
 	if err != nil {
 		properties["exit_reason"] = err.Error()
@@ -243,7 +243,7 @@ func makeProperties(state int, err error, stdout []byte, stderr []byte) (map[str
 	// each interval "normally", so we do not want to compare them
 	diffProperties := make(map[string]interface{})
 	for k, v := range properties {
-		if !strings.HasPrefix(k, "std_") {
+		if !strings.HasPrefix(k, "std") {
 			diffProperties[k] = v
 		}
 

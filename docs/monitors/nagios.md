@@ -26,11 +26,11 @@ monitor configured with `dataFormat: nagios` but:
 Also the main advantage and purpose of this monitor is to add more context to this status check state 
 thougth SignalFx [events](https://docs.signalfx.com/en/latest/detect-alert/events-intro.html).
 Indeed, in addition to the state metric, it will send an event which includes the output and the error 
-catched from the command execution.
+caught from the command execution.
 
-This should make the troubleshooting more efficient and allow the user to remain in SignalFx withtout 
-to have to connect to the machine in case of anormal state to understand what is happen.
-It will also give the ability to create a dashboard similar to what nagios user are used to have.
+This should make the troubleshooting more efficient and allow the user to remain in SignalFx without 
+to have to connect to the machine in case of anormal state to understand what is happening.
+It will also give the ability to create a dashboard similar to what nagios user are accustomed to.
 
 __Note__: the last sent event is cached into memory to avoid sending the same event for each collection 
 interval over and over but already sent event will be send again when you restart the agent erasing its 
@@ -56,7 +56,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | --- | --- | --- | --- |
 | `command` | **yes** | `string` | The command to exec with any arguments like: `"LC_ALL=\"en_US.utf8\" /usr/lib/nagios/plugins/check_ntp_time -H pool.ntp.typhon.net -w 0.5 -c 1"` |
 | `service` | **yes** | `string` | Corresponds to the nagios `service` column and allows to aggregate all instances of the same service (when calling the same check script with different arguments) |
-| `timeout` | no | `integer` | The max execution time allowed in seconds be fore to send SIGTERM. In any case, a SIGKILL will be send at `intervalSeconds` value. (**default:** `9`) |
+| `timeout` | no | `integer` | The max execution time allowed in seconds before sending SIGTERM. In any case, a SIGKILL will be sent at `intervalSeconds` value. (**default:** `9`) |
 
 
 ## Metrics
@@ -89,6 +89,5 @@ dimensions may be specific to certain metrics.
 | `command` | The configured `command` for this monitor. |
 | `plugin` | The name of this monitor: `nagios`. |
 | `service` | The configured `service` for this monitor. |
-
 
 
