@@ -30,7 +30,9 @@ monitors:
     plugin:
       description: "The name of this monitor: `nagios`."
     command:
-      description: The configured command for this monitor.
+      description: The configured `command` for this monitor.
+    service:
+      description: The configured `service` for this monitor.
   metrics:
     nagios.state:
       description: Nagios status check [state](https://nagios-plugins.org/doc/guidelines.html#AEN78).

@@ -86,8 +86,9 @@ dimensions may be specific to certain metrics.
 
 | Name | Description |
 | ---  | ---         |
-| `command` | The configured command for this monitor. |
+| `command` | The configured `command` for this monitor. |
 | `plugin` | The name of this monitor: `nagios`. |
+| `service` | The configured `service` for this monitor. |
 
 
 
