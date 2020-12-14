@@ -87,7 +87,10 @@ func (m *Monitor) Configure(conf *Config) error {
 				time.Time{}),
 		}...)
 
-		properties, diffProperties := makeProperties(state, err, stdout, stderr)
+		properties := makeProperties(state, err, stdout, stderr)
+		// Some scripts could produce different output (and stderr) for
+		// each interval "normally", so we do not want to compare them
+		diffProperties := filterProperties(properties)
 		// Compare with previous event if it exists
 		sendEvent := true
 		if x, found := c.Get(cacheKey); found {
@@ -223,7 +226,7 @@ func getExitCode(err error, stdout []byte) (int, error) {
 	return ws.ExitStatus(), nil
 }
 
-func makeProperties(state int, err error, stdout []byte, stderr []byte) (map[string]interface{}, map[string]interface{}) {
+func makeProperties(state int, err error, stdout []byte, stderr []byte) map[string]interface{} {
 	properties := make(map[string]interface{})
 	if len(stdout) > 0 {
 		properties["stdout"] = string(stdout[:propertiesLength])
@@ -237,15 +240,16 @@ func makeProperties(state int, err error, stdout []byte, stderr []byte) (map[str
 		properties["exit_code"] = state
 	}
 
-	// Some scripts could produce different output (and stderr) for
-	// each interval "normally", so we do not want to compare them
-	diffProperties := make(map[string]interface{})
+	return properties
+}
+
+func filterProperties(properties map[string]interface{}) map[string]interface{} {
+	filteredProperties := make(map[string]interface{})
 	for k, v := range properties {
 		if !strings.HasPrefix(k, "std") {
-			diffProperties[k] = v
+			filteredProperties[k] = v
 		}
-
 	}
 
-	return properties, diffProperties
+	return filteredProperties
 }
