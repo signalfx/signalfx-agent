@@ -25,13 +25,13 @@ type vaultConfigSource struct {
 	client *api.Client
 	// Secrets that have been read from Vault
 	secretsByVaultPath                map[string]*api.Secret
-	renewersByVaultPath               map[string]*api.Renewer
+	renewersByVaultPath               map[string]*api.LifetimeWatcher
 	customWatchersByVaultPath         map[string]customWatcher
 	nonRenewableVaultPathRefetchTimes map[string]time.Time
 	// Used for unit testing
 	nowProvider  func() time.Time
 	conf         *Config
-	tokenRenewer *api.Renewer
+	tokenRenewer *api.LifetimeWatcher
 	logger       logrus.FieldLogger
 }
 
@@ -138,7 +138,7 @@ func New(conf *Config) (types.ConfigSource, error) {
 	vcs := &vaultConfigSource{
 		client:                            c,
 		secretsByVaultPath:                make(map[string]*api.Secret),
-		renewersByVaultPath:               make(map[string]*api.Renewer),
+		renewersByVaultPath:               make(map[string]*api.LifetimeWatcher),
 		customWatchersByVaultPath:         make(map[string]customWatcher),
 		nonRenewableVaultPathRefetchTimes: make(map[string]time.Time),
 		nowProvider:                       time.Now,
@@ -182,8 +182,9 @@ func (v *vaultConfigSource) Get(path string) (map[string][]byte, uint64, error) 
 
 		switch {
 		case secret.Renewable:
-			renewer, err := v.client.NewRenewer(&api.RenewerInput{
-				Secret: secret,
+			renewer, err := v.client.NewLifetimeWatcher(&api.LifetimeWatcherInput{
+				Secret:        secret,
+				RenewBehavior: api.RenewBehaviorErrorOnErrors,
 			})
 			if err == nil {
 				v.logger.Debugf("Setting up Vault renewer for secret at path %s", vaultPath)
