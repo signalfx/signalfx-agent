@@ -38,6 +38,12 @@ type Config struct {
 	Service string `yaml:"service" validate:"required"`
 	// The max execution time allowed in seconds before sending SIGKILL
 	Timeout int `yaml:"timeout" default:"9"`
+	// If `false` and change is detected on `stdout` compared to the last
+	// event it will send a new one
+	FilterStdOut bool `yaml:"filterStdOut" default:"false"`
+	// If `false` and change is detected on `stderr` compared to the last
+	// event it will send a new one
+	FilterStdErr bool `yaml:"filterStdErr" default:"false"`
 }
 
 // Monitor that collect metrics
@@ -95,7 +101,10 @@ func (m *Monitor) Configure(conf *Config) error {
 		properties := makeProperties(state, err, stdout, stderr)
 		// Some scripts could produce different output (and stderr) for
 		// each interval "normally", so we do not want to compare them
-		diffProperties := filterProperties(properties)
+		m.logger.Warn(conf.FilterStdOut)
+		diffProperties := filterProperties(properties, conf.FilterStdOut, conf.FilterStdErr)
+		m.logger.Warn(diffProperties)
+
 		// Compare with previous event if it exists
 		sendEvent := true
 		if x, found := c.Get(cacheKey); found {
@@ -244,12 +253,16 @@ func formatStd(std []byte) string {
 	return rendered
 }
 
-func filterProperties(properties map[string]interface{}) map[string]interface{} {
+func filterProperties(properties map[string]interface{}, filterStdOut bool, filterStdErr bool) map[string]interface{} {
 	filteredProperties := make(map[string]interface{})
 	for k, v := range properties {
-		if !strings.HasPrefix(k, "std") {
-			filteredProperties[k] = v
+		if k == "stdout" && filterStdOut {
+			continue
 		}
+		if k == "stderr" && filterStdErr {
+			continue
+		}
+		filteredProperties[k] = v
 	}
 
 	return filteredProperties
