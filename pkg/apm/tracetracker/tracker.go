@@ -21,6 +21,7 @@ const spanCorrelationMetricName = "sf.int.service.heartbeat"
 var DefaultDimsToSyncSource = map[string]string{
 	"container_id":       "container_id",
 	"kubernetes_pod_uid": "kubernetes_pod_uid",
+	"kubernetes_pod_name": "kubernetes_pod_name",
 }
 
 // ActiveServiceTracker keeps track of which services are seen in the trace
