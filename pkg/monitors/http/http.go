@@ -139,7 +139,11 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 			}
 
 			if m.conf.AddRedirectURL && !m.conf.NoRedirects {
-				normalizedURL, _ := m.normalizeURL(fmt.Sprintf("%s://%s:%s%s", redirectURL.Scheme, redirectURL.Hostname(), redirectURL.Port(), redirectURL.Path))
+				query := redirectURL.RawQuery
+				if query != "" {
+					query = "?" + query
+				}
+				normalizedURL, _ := m.normalizeURL(fmt.Sprintf("%s://%s:%s%s%s", redirectURL.Scheme, redirectURL.Hostname(), redirectURL.Port(), redirectURL.Path, query))
 				if site.String() != normalizedURL.String() {
 					logger.WithField("redirect_url", normalizedURL.String()).Debug("URL redirected")
 					for i := range dps {
@@ -182,7 +186,11 @@ func (m *Monitor) normalizeURL(site string) (normalizedURL *url.URL, err error) 
 	if path == "" {
 		path = "/"
 	}
-	normalizedURL, err = url.Parse(fmt.Sprintf("%s://%s%s", stringURL.Scheme, host, path))
+	query := stringURL.RawQuery
+	if query != "" {
+		query = "?" + query
+	}
+	normalizedURL, err = url.Parse(fmt.Sprintf("%s://%s%s%s", stringURL.Scheme, host, path, query))
 	if err != nil {
 		return
 	}
