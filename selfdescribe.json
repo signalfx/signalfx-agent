@@ -42324,7 +42324,7 @@
           "description": "The configured `service` for this monitor."
         }
       },
-      "doc": "Wrapper to run existing nagios status check scripts through SignalFx agent which will play the \nrole of NRPE or SNMP exec.\n\nIt will run the script set in `command` parameter and send the \n[state](https://nagios-plugins.org/doc/guidelines.html#AEN78) of the check depending on the \nexit code of the command.\n\nIt is very similar to [telegraf/exec](https://docs.signalfx.com/en/latest/integrations/agent/monitors/telegraf-exec.html) \nmonitor configured with `dataFormat: nagios` but:\n  - it does not retrieve perfdata metrics, only the state of the script for alerting purpose.\n  - it will override the state if exit code == 0 but output string starts with `warn`, `crit` or `unkn` \n  (not case sensitive).\n\nAlso the main advantage and purpose of this monitor is to add more context to this status check state \nthougth SignalFx [events](https://docs.signalfx.com/en/latest/detect-alert/events-intro.html).\nIndeed, in addition to the state metric, it will send an event which includes the output and the error \ncaught from the command execution.\n\nThis should make the troubleshooting more efficient and allow the user to remain in SignalFx without \nto have to connect to the machine in case of anormal state to understand what is happening.\nIt will also give the ability to create a dashboard similar to what nagios user are accustomed to.\n\n__Note__: the last sent event is cached into memory to avoid sending the same event for each collection \ninterval over and over but already sent event will be send again when you restart the agent erasing its \ncache.\n",
+      "doc": "Wrapper to run existing nagios status check scripts through SignalFx agent which will play the \nrole of NRPE or SNMP exec.\n\nIt will run the script set in `command` parameter and send the \n[state](https://nagios-plugins.org/doc/guidelines.html#AEN78) of the check depending on the \nexit code of the command.\n\nIt is very similar to [telegraf/exec](https://docs.signalfx.com/en/latest/integrations/agent/monitors/telegraf-exec.html) \nmonitor configured with `dataFormat: nagios` but:\n  - it does not retrieve perfdata metrics, only the state of the script for alerting purpose.\n  - it will override the state if exit code == 0 but output string starts with `warn`, `crit` or `unkn` \n  (not case sensitive).\n\nAlso the main advantage and purpose of this monitor is to add more context to this status check state \nthougth SignalFx [events](https://docs.signalfx.com/en/latest/detect-alert/events-intro.html).\nIndeed, in addition to the state metric, it will send an event which includes the output and the error \ncaught from the command execution.\n\nThis should make the troubleshooting more efficient and allow the user to remain in SignalFx without \nto have to connect to the machine in case of anormal state to understand what is happening.\nIt will also give the ability to create a dashboard similar to what nagios user are accustomed to.\n\n__Note__: the last sent event is cached into memory to avoid sending the same event for each collection \ninterval over and over but already sent event will be send again when you restart the agent erasing its \ncache. If your check always \"normally\" produces a different output for each run like the uptime check \ndoes so you can use the `FilterStdOut: true` parameter to ignore it in comparison.\n",
       "groups": {
         "": {
           "description": "",
@@ -42369,6 +42369,22 @@
             "default": 9,
             "required": false,
             "type": "int",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "ignoreStdOut",
+            "doc": "If `false` and change is detected on `stdout` compared to the last event it will send a new one",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "ignoreStdErr",
+            "doc": "If `false` and change is detected on `stderr` compared to the last event it will send a new one",
+            "default": false,
+            "required": false,
+            "type": "bool",
             "elementKind": ""
           }
         ]

@@ -24,7 +24,8 @@ monitors:
 
     __Note__: the last sent event is cached into memory to avoid sending the same event for each collection 
     interval over and over but already sent event will be send again when you restart the agent erasing its 
-    cache.
+    cache. If your check always "normally" produces a different output for each run like the uptime check 
+    does so you can use the `FilterStdOut: true` parameter to ignore it in comparison.
 
   dimensions:
     plugin:
