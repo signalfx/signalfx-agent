@@ -42372,7 +42372,7 @@
             "elementKind": ""
           },
           {
-            "yamlName": "filterStdOut",
+            "yamlName": "ignoreStdOut",
             "doc": "If `false` and change is detected on `stdout` compared to the last event it will send a new one",
             "default": false,
             "required": false,
@@ -42380,7 +42380,7 @@
             "elementKind": ""
           },
           {
-            "yamlName": "filterStdErr",
+            "yamlName": "ignoreStdErr",
             "doc": "If `false` and change is detected on `stderr` compared to the last event it will send a new one",
             "default": false,
             "required": false,

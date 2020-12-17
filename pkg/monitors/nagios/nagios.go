@@ -40,10 +40,10 @@ type Config struct {
 	Timeout int `yaml:"timeout" default:"9"`
 	// If `false` and change is detected on `stdout` compared to the last
 	// event it will send a new one
-	FilterStdOut bool `yaml:"filterStdOut" default:"false"`
+	IgnoreStdOut bool `yaml:"ignoreStdOut" default:"false"`
 	// If `false` and change is detected on `stderr` compared to the last
 	// event it will send a new one
-	FilterStdErr bool `yaml:"filterStdErr" default:"false"`
+	IgnoreStdErr bool `yaml:"ignoreStdErr" default:"false"`
 }
 
 // Monitor that collect metrics
@@ -101,9 +101,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		properties := makeProperties(state, err, stdout, stderr)
 		// Some scripts could produce different output (and stderr) for
 		// each interval "normally", so we do not want to compare them
-		m.logger.Warn(conf.FilterStdOut)
-		diffProperties := filterProperties(properties, conf.FilterStdOut, conf.FilterStdErr)
-		m.logger.Warn(diffProperties)
+		diffProperties := filterProperties(properties, conf.IgnoreStdOut, conf.IgnoreStdErr)
 
 		// Compare with previous event if it exists
 		sendEvent := true
@@ -253,13 +251,13 @@ func formatStd(std []byte) string {
 	return rendered
 }
 
-func filterProperties(properties map[string]interface{}, filterStdOut bool, filterStdErr bool) map[string]interface{} {
+func filterProperties(properties map[string]interface{}, ignoreStdOut bool, ignoreStdErr bool) map[string]interface{} {
 	filteredProperties := make(map[string]interface{})
 	for k, v := range properties {
-		if k == "stdout" && filterStdOut {
+		if k == "stdout" && ignoreStdOut {
 			continue
 		}
-		if k == "stderr" && filterStdErr {
+		if k == "stderr" && ignoreStdErr {
 			continue
 		}
 		filteredProperties[k] = v
