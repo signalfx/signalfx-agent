@@ -7,6 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
@@ -170,8 +171,14 @@ func doFetch(fetch fetcher) ([]*dto.MetricFamily, error) {
 		return nil, err
 	}
 	defer body.Close()
+	var decoder expfmt.Decoder
+	// some "text" responses are missing \n from the last line
+	if expformat != expfmt.FmtProtoDelim {
+		decoder = expfmt.NewDecoder(io.MultiReader(body, strings.NewReader("\n")), expformat)
+	} else {
+		decoder = expfmt.NewDecoder(body, expformat)
+	}
 
-	decoder := expfmt.NewDecoder(body, expformat)
 	var mfs []*dto.MetricFamily
 
 	for {
