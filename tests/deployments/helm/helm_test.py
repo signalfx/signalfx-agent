@@ -136,7 +136,11 @@ def release_values_yaml(k8s_cluster, proxy_pod_ip, fake_services):
 
 
 def init_helm(k8s_cluster, cont, helm_major_version):
-    init_command = helm_command_prefix(k8s_cluster, helm_major_version) + " init --service-account tiller"
+    init_command = (
+        helm_command_prefix(k8s_cluster, helm_major_version)
+        + " init --service-account tiller"
+        + " --stable-repo-url https://charts.helm.sh/stable"
+    )
     print(f"Executing helm init: {init_command}")
     output = exec_helm(cont, init_command)
     print(f"Helm init output:\n{output}")
