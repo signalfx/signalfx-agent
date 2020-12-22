@@ -9,7 +9,6 @@ import (
 	"github.com/signalfx/golib/v3/trace"
 	"github.com/sirupsen/logrus"
 
-	apmtracker "github.com/signalfx/signalfx-agent/pkg/apm/tracetracker"
 	"github.com/signalfx/signalfx-agent/pkg/core/common/constants"
 	"github.com/signalfx/signalfx-agent/pkg/core/services"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
@@ -28,6 +27,14 @@ type SpanSourceTracker struct {
 }
 
 const dimHistoryCacheSize = 1000
+
+// DefaultDimsToAddToSpans are the default dimensions to add as span tags for correlated environments
+var DefaultDimsToAddToSpans = map[string]string{
+	"container_id":         "container_id",
+	"kubernetes_pod_uid":   "kubernetes_pod_uid",
+	"kubernetes_pod_name":  "kubernetes_pod_name",
+	"kubernetes_namespace": "kubernetes_namespace",
+}
 
 func NewSpanSourceTracker(hostTracker *services.EndpointHostTracker, dimChan chan<- *types.Dimension, clusterName string) *SpanSourceTracker {
 	dimHistory, _ := lru.New(dimHistoryCacheSize)
@@ -50,7 +57,7 @@ func (st *SpanSourceTracker) AddSourceTagsToSpan(span *trace.Span) {
 	found := 0
 	for _, endpoint := range endpoints {
 		dims := endpoint.Dimensions()
-		for _, dim := range apmtracker.DefaultDimsToSyncSource {
+		for _, dim := range DefaultDimsToAddToSpans {
 			if val := dims[dim]; val != "" {
 				found++
 
@@ -72,7 +79,7 @@ func (st *SpanSourceTracker) AddSourceTagsToSpan(span *trace.Span) {
 		}
 		// Short circuit it if we have added all the desired dimensions with
 		// this endpoint.
-		if found == len(apmtracker.DefaultDimsToSyncSource) {
+		if found == len(DefaultDimsToAddToSpans) {
 			break
 		}
 	}
