@@ -20,14 +20,12 @@ func Debounce0(fn func(), duration time.Duration) (func(), chan<- struct{}) {
 			case <-stop:
 				return
 			case <-timer.C:
+				lock.Lock()
 				if callRequested {
-					lock.Lock()
-
 					fn()
 					callRequested = false
-
-					lock.Unlock()
 				}
+				lock.Unlock()
 			}
 		}
 	}()
