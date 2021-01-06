@@ -128,6 +128,11 @@ nodeSelector: {
   # label2: value
 }
 
+# The affinity field for the DaemonsSet or Deployment of the agent. This will
+# be placed directly into the `affinity` field of the template specs for the
+# agent pod.
+affinity:
+
 # You can specify additional tolerations for the pods that the DaemonSet
 # creates.
 tolerations: []
