@@ -32,6 +32,7 @@ spec:
       restartPolicy: Always
       serviceAccountName: signalfx-agent
 
+
       containers:
       - name: signalfx-agent
         image: "quay.io/signalfx/signalfx-agent:5.7.1"
