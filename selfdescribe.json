@@ -38568,7 +38568,7 @@
           "default": false
         },
         "kubernetes.job.failed": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of pods which reased phase Failed for a job.",
           "group": null,
           "default": false
@@ -38580,7 +38580,7 @@
           "default": false
         },
         "kubernetes.job.succeeded": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of pods which reached phase Succeeded for a job.",
           "group": null,
           "default": false
@@ -42844,7 +42844,7 @@
           "default": false
         },
         "kubernetes.job.failed": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of pods which reased phase Failed for a job.",
           "group": null,
           "default": false
@@ -42856,7 +42856,7 @@
           "default": false
         },
         "kubernetes.job.succeeded": {
-          "type": "counter",
+          "type": "cumulative",
           "description": "The number of pods which reached phase Succeeded for a job.",
           "group": null,
           "default": false

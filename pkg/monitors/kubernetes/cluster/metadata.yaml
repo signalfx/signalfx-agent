@@ -214,11 +214,11 @@ common:
     kubernetes.job.succeeded:
       description: The number of pods which reached phase Succeeded for a job.
       default: false
-      type: counter
+      type: cumulative
     kubernetes.job.failed:
       description: The number of pods which reased phase Failed for a job.
       default: false
-      type: counter
+      type: cumulative
     kubernetes.cronjob.active:
       description: The number of actively running jobs for a cronjob.
       default: false
