@@ -2,7 +2,7 @@ FROM node:8.16.0-alpine
 
 RUN apk add bash
 
-RUN npm install -g markdown-link-check
+RUN npm install -g markdown-link-check@3.8.5
 
 VOLUME /usr/src/signalfx-agent
 WORKDIR /usr/src/signalfx-agent
