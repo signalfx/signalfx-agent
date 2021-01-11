@@ -580,6 +580,7 @@ var metricSet = map[string]monitors.MetricInfo{
 var defaultMetrics = map[string]bool{
 	admissionQuotaControllerAdds: true,
 	apiserverRequestCount:        true,
+	apiserverRequestTotal:        true,
 	workqueueAddsTotal:           true,
 	workqueueDepth:               true,
 }

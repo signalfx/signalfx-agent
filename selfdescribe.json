@@ -37241,7 +37241,7 @@
           "type": "cumulative",
           "description": "Counter of apiserver requests broken out for each verb, dry run value, group, version, resource, scope, component, client, and HTTP response contentType and code.",
           "group": "apiserver_request",
-          "default": false
+          "default": true
         },
         "apiserver_response_sizes": {
           "type": "cumulative",
