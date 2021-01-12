@@ -85,8 +85,8 @@ isWindows: true
 hostPath: C:\\hostfs
 # Let the Linux Helm release do cluster metrics.
 gatherClusterMetrics: false
-# Docker isn't exposed on Windows
-gatherDockerMetrics: false
+# If your kube install is using CRI-O instead of docker, set the below to false.
+gatherDockerMetrics: true
 
 agentVersion: 5.7.1
 

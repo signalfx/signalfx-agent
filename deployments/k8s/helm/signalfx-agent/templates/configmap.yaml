@@ -224,7 +224,7 @@ data:
     {{- end }}
     {{ if .Values.gatherDockerMetrics -}}
     - type: docker-container-stats
-      dockerURL: unix:///var/run/docker.sock
+      dockerURL: {{ .Values.isWindows | ternary "npipe:////./pipe/docker_engine" "unix:///var/run/docker.sock" }}
       excludedImages:
        - '*pause-amd64*'
        - 'k8s.gcr.io/pause*'
