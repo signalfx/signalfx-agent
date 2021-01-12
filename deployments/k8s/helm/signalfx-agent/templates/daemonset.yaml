@@ -93,10 +93,14 @@ spec:
           name: hostfs
           readOnly: true
           mountPropagation: HostToContainer
-        {{ if not .Values.isWindows -}}
-        - mountPath: /var/run/docker.sock
+        {{ if .Values.gatherDockerMetrics -}}
+        - mountPath: {{ .Values.isWindows | ternary "\\\\.\\pipe\\docker_engine" "/var/run/docker.sock" }}
           name: docker
+          {{ if not .Values.isWindows -}}
           readOnly: true
+          {{- end }}
+        {{- end }}
+        {{ if not .Values.isWindows -}}
         - mountPath: /etc/passwd
           name: etc-passwd
           readOnly: true
@@ -156,10 +160,15 @@ spec:
       - name: hostfs
         hostPath:
           path: {{ .Values.isWindows | ternary "C:\\" "/" }}
-      {{ if not .Values.isWindows -}}
+      {{ if .Values.gatherDockerMetrics -}}
       - name: docker
         hostPath:
-          path: /var/run/docker.sock
+          path: {{ .Values.isWindows | ternary "\\\\.\\pipe\\docker_engine" "/var/run/docker.sock" }}
+          {{ if .Values.isWindows -}}
+          type: null
+          {{- end }}
+      {{- end }}
+      {{ if not .Values.isWindows -}}
       - name: etc-passwd
         hostPath:
           path: /etc/passwd

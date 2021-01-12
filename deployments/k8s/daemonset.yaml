@@ -98,6 +98,7 @@ spec:
       - name: docker
         hostPath:
           path: /var/run/docker.sock
+
       - name: etc-passwd
         hostPath:
           path: /etc/passwd
