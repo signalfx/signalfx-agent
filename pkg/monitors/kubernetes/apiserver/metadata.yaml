@@ -566,7 +566,7 @@ monitors:
       type: gauge
       group: apiserver_request
     apiserver_request_total:
-      default: false
+      default: true
       description: Counter of apiserver requests broken out for each verb, dry run
         value, group, version, resource, scope, component, client, and HTTP response
         contentType and code.
