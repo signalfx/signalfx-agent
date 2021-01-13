@@ -206,3 +206,10 @@ func toTime(secs float64) string {
 	dec := math.Mod(seconds, 1.0) * 100
 	return fmt.Sprintf("%02d:%02.f.%02.f", minutes, seconds, dec)
 }
+
+// Shutdown stops the metric sync
+func (m *Monitor) Shutdown() {
+	if m.cancel != nil {
+		m.cancel()
+	}
+}
