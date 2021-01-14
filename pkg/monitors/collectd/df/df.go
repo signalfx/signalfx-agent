@@ -20,7 +20,7 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `singleInstance:"true"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"true"`
 	// Path to the root of the host filesystem.  Useful when running in a
 	// container and the host filesystem is mounted in some subdirectory under
 	// /.

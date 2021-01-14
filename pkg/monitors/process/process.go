@@ -23,7 +23,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"true" acceptsEndpoints:"false"`
 
 	// A list of process command names to match and send metrics about.  This
 	// is the name contained in /proc/<pid>/comm and is limited to just 15

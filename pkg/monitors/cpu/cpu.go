@@ -29,7 +29,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"true" acceptsEndpoints:"false"`
 	// If `true`, stats will be generated for the system as a whole _as well
 	// as_ for each individual CPU/core in the system and will be distinguished
 	// by the `cpu` dimension.  If `false`, stats will only be generated for

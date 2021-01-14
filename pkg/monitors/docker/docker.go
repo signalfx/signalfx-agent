@@ -42,7 +42,7 @@ type EnhancedMetricsConfig struct {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig  `acceptsEndpoints:"false"`
+	config.MonitorConfig  `yaml:",inline" acceptsEndpoints:"false"`
 	EnhancedMetricsConfig `yaml:",inline"`
 
 	// The URL of the docker server

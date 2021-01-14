@@ -19,7 +19,7 @@ import (
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"false" acceptsEndpoints:"false"`
 
 	// The cgroup names to include/exclude, based on the full hierarchy path.
 	// This is an [overridable

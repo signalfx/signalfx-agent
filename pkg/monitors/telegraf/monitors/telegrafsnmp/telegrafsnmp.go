@@ -58,7 +58,7 @@ type Table struct {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"true"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 	// Host and port will be concatenated and appended to the list of SNMP agents to connect to.
 	Host string `yaml:"host"`
 	// Port and Host will be concatenated and appended to the list of SNMP agents to connect to.

@@ -18,7 +18,7 @@ func init() {
 
 // CHTTPConfig is the monitor-specific config for cAdvisor
 type CHTTPConfig struct {
-	config.MonitorConfig
+	config.MonitorConfig `yaml:",inline"`
 	// Where to find cAdvisor
 	CAdvisorURL string `yaml:"cadvisorURL" default:"http://localhost:4194"`
 }

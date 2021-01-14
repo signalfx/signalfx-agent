@@ -23,7 +23,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"false" acceptsEndpoints:"false"`
 	// The host/ip address of the NTP server (i.e. `pool.ntp.org`).
 	Host string `yaml:"host" validate:"required"`
 	// The port of the NTP server.
