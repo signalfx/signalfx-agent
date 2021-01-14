@@ -28,7 +28,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"false" acceptsEndpoints:"false"`
 	// The command to exec with any arguments like:
 	// `"LC_ALL=\"en_US.utf8\" /usr/lib/nagios/plugins/check_ntp_time -H pool.ntp.typhon.net -w 0.5 -c 1"`
 	Command string `yaml:"command" validate:"required"`

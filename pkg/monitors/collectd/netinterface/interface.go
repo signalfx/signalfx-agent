@@ -23,7 +23,7 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `singleInstance:"true"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"true"`
 	// List of interface names to exclude from monitoring
 	ExcludedInterfaces []string `yaml:"excludedInterfaces" default:"[\"/^lo\\\\d*$/\", \"/^docker.*/\", \"/^t(un|ap)\\\\d*$/\", \"/^veth.*$/\"]"`
 	// List of all the interfaces you want to monitor, all others will be

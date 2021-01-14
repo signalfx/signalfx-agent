@@ -20,7 +20,7 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `singleInstance:"true"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"true"`
 }
 
 // Monitor is the main type that represents the monitor

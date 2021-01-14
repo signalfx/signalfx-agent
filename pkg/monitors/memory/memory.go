@@ -19,7 +19,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"true" acceptsEndpoints:"false"`
 }
 
 // Monitor for Utilization

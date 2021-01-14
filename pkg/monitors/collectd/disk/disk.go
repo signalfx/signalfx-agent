@@ -20,7 +20,7 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `singleInstance:"true"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"true"`
 
 	// Which devices to include/exclude
 	Disks []string `yaml:"disks" default:"[\"/^loop[0-9]+$/\", \"/^dm-[0-9]+$/\"]"`

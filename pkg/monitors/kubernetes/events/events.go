@@ -34,7 +34,7 @@ type EventInclusionSpec struct {
 
 // Config for the K8s event monitor
 type Config struct {
-	config.MonitorConfig
+	config.MonitorConfig `yaml:",inline"`
 	// Configuration of the Kubernetes API client
 	KubernetesAPI *kubernetes.APIConfig `yaml:"kubernetesAPI" default:"{}"`
 	// A list of event types to send events for.  Only events matching these

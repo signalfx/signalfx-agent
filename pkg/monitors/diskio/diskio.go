@@ -15,7 +15,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"false" acceptsEndpoints:"false"`
 	// The devices to include/exclude. This is an [overridable
 	// set](https://docs.signalfx.com/en/latest/integrations/agent/filtering.html#overridable-filters).
 	Disks []string `yaml:"disks" default:"[\"*\", \"!/^loop[0-9]+$/\", \"!/^dm-[0-9]+$/\"]"`

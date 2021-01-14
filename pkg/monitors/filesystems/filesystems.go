@@ -25,7 +25,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"false" acceptsEndpoints:"false"`
 
 	// Path to the root of the host filesystem.  Useful when running in a
 	// container and the host filesystem is mounted in some subdirectory under

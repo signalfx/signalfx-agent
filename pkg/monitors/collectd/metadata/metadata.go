@@ -26,7 +26,7 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `singleInstance:"true"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"true"`
 	WriteServerURL       string `yaml:"writeServerURL"`
 	// (Deprecated) Please set the agent configuration `procPath` instead of
 	// this monitor configuration option.

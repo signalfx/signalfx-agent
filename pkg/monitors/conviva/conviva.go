@@ -27,7 +27,7 @@ const (
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig
+	config.MonitorConfig `yaml:",inline"`
 	// Conviva Pulse username required with each API request.
 	Username string `yaml:"pulseUsername" validate:"required"`
 	// Conviva Pulse password required with each API request.

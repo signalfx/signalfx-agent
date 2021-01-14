@@ -26,7 +26,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig
+	config.MonitorConfig `yaml:",inline"`
 	// Kubelet kubeletClient configuration
 	KubeletAPI kubelet.APIConfig `yaml:"kubeletAPI" default:""`
 	// Configuration of the Kubernetes API kubeletClient

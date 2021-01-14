@@ -29,7 +29,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"false"`
 	// The name of an executable to monitor.  (ie: `exe: "signalfx-agent*"`)
 	Exe string `yaml:"exe"`
 	// Pattern to match against.  On Windows the pattern should be in the form of a WMI query.

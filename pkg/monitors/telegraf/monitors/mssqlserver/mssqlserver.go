@@ -28,7 +28,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"true"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
 	Host                 string `yaml:"host" validate:"required" default:"."`
 	Port                 uint16 `yaml:"port" validate:"required" default:"1433"`
 	// UserID used to access the SQL Server instance.

@@ -24,7 +24,7 @@ func init() {
 
 // Config is the monitor-specific config with the generic config embedded
 type Config struct {
-	config.MonitorConfig `singleInstance:"true"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"true"`
 	// A list of process names to match
 	Processes []string `yaml:"processes"`
 	// A map with keys specifying the `plugin_instance` value to be sent for

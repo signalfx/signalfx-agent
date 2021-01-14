@@ -27,7 +27,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"false"`
 	// Paths to files to be tailed
 	Files []string `yaml:"files" validate:"required"`
 	// Method for watching changes to files ("ionotify" or "poll")

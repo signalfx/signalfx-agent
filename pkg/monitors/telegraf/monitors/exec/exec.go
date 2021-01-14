@@ -28,7 +28,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"false"`
 	Commands             []string          `yaml:"commands"`
 	Command              string            `yaml:"command"`
 	Timeout              timeutil.Duration `yaml:"timeout"`
