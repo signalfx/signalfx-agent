@@ -14003,7 +14003,7 @@
           {
             "yamlName": "verifyCerts",
             "doc": "Whether to verify certificates when using ssl/tls",
-            "default": "false",
+            "default": false,
             "required": false,
             "type": "bool",
             "elementKind": ""

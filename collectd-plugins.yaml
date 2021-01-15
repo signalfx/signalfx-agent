@@ -30,7 +30,7 @@
   repo: signalfx/collectd-jenkins
 
 - name: kong
-  version: v0.0.3
+  version: v0.0.4
   repo: signalfx/collectd-kong
 
 - name: mesos
