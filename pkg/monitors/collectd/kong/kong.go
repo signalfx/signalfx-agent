@@ -84,7 +84,7 @@ type Config struct {
 	// Header and its value to use for requests to SFx metric endpoint
 	AuthHeader *Header `yaml:"authHeader"`
 	// Whether to verify certificates when using ssl/tls
-	VerifyCerts *bool `yaml:"verifyCerts"`
+	VerifyCerts bool `yaml:"verifyCerts"`
 	// CA Bundle file or directory
 	CABundle string `yaml:"caBundle"`
 	// Client certificate file (with or without included key)
