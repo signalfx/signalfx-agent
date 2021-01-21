@@ -44,6 +44,7 @@ func AWSUniqueID(cloudMetadataTimeout timeutil.Duration) string {
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
+			"body":  string(body),
 		}).Debug("Failed to unmarshal AWS instance-identity response")
 		return ""
 	}
