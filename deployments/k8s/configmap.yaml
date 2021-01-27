@@ -35,8 +35,6 @@ data:
 
     observers:
     - type: k8s-api
-      discoverAllPods: false
-      discoverNodes: false
 
     monitors:
     - type: cpu
