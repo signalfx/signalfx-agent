@@ -121,6 +121,18 @@ runOnMaster: true
 # sufficiently similar.
 isServerless: false
 
+# If this is set to `true`, the k8s-api observer will be configured to discover 
+# all services in the cluster, regardless of node. This is similar to the
+# `isServerless` setting but only configures the k8s-api observer to discover
+# all services in the cluster and does not configure any additional monitors.
+discoverAllPods: false
+
+# If this is set to `true`, the k8s-api observer will be configured to discover 
+# cluster nodes as a special type of endpoint. This is similar to the
+# `isServerless` setting but only configures the k8s-api observer to discover
+# all nodes in the cluster and does not configure any additional monitors.
+discoverNodes: false
+
 # You can specify a node selector (https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector)
 # that limits what nodes the agent will run on.
 nodeSelector: {

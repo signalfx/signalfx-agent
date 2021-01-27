@@ -96,8 +96,12 @@ data:
         skipVerify: true
       {{- end }}
       {{- if semverCompare ">=5.2.0" $agentSemver.Original }}
-      discoverAllPods: {{ toYaml .Values.isServerless }}
-      discoverNodes: {{ toYaml .Values.isServerless }}
+      {{- if or (.Values.isServerless) (.Values.discoverAllPods) }}
+      discoverAllPods: true
+      {{- end }}
+      {{- if or (.Values.isServerless) (.Values.discoverNodes) }}
+      discoverNodes: true
+      {{- end }}
       {{- end }}
       {{- if .Values.additionalPortAnnotations }}
       additionalPortAnnotations:
