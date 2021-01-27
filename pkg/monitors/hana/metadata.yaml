@@ -1,0 +1,403 @@
+monitors:
+- monitorType: hana
+  doc: |
+    This monitor pulls metrics from all PostgreSQL databases from a specific
+    Postgres server instance.  It pulls basic information that is applicable
+    to any database.  It gathers these metrics via SQL queries.
+
+    ```yaml
+    monitors:
+     - type: hana
+       connectionString: 'hdb://{{.username}}:{{.password}}@20532d6a-ee3a-4f52-90f7-fecaf854806f.hana.trial-eu10.hanacloud.ondemand.com:443?TLSServerName=20532d6a-ee3a-4f52-90f7-fecaf854806f.hana.trial-eu10.hanacloud.ondemand.com&TLSInsecureSkipVerify=false'
+       params: &psqlParams
+         username: {"#from": "vault:secret/my-database[username]"}
+         password: {"#from": "vault:secret/my-database[password]"}
+
+     # This monitor will monitor additional queries from PostgreSQL using the
+     # provided SQL queries.
+     - type: sql
+       dbDriver: postgres
+       connectionString: 'sslmode=disable user={{.username}} password={{.password}}'
+       # This is a YAML reference to avoid duplicating the above config.
+       params: *psqlParams
+       queries:
+         - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'
+           metrics:
+           customers"
+               valueColumn: "count"
+               dimensionColumns: ["country", "status"]
+    ```
+
+  dimensions:
+    hana_host:
+      description: SAP Hana host name
+    usage_type:
+      description: Resource type like LOG, DATA, TRACE, LOG_BACKUP and DATA_BACKUP
+    service_name:
+      description: Service name
+    statement_hash:
+      description: Unique identifier for an SQL string.
+    db_user:
+      description: User name
+    schema_name:
+      description: Schema name
+    app_user:
+      description: Application user name
+    operation:
+      description: Type of operation (prepare, execute, fetch, or close)
+    component_name:
+      description: Logical component
+    connection_status:
+      description: Connection status (RUNNING, IDLE, QUEUING)
+    type:
+      description: Type of contained files
+    table_name:
+      description: Table name
+    table_type:
+      description: Type of the table (ROW, COLUMN, COLLECTION)
+  metrics:
+    # Disk
+    sap.hana.disk.used_size:
+      description: >
+        Size of used disk space
+      default: true
+      type: gauge
+    sap.hana.disk.total_size:
+      description: >
+        Total device size returned by the operating system
+      default: true
+      type: gauge
+    # Service statistics
+    sap.hana.service.cpu.utilization:
+      description: >
+        CPU utilization
+      default: true
+      type: gauge
+    sap.hana.service.file.open:
+      description: >
+        Number of open files
+      default: true
+      type: gauge
+    # Host resource utilization
+    sap.hana.host.memory.physical.free:
+      description: >
+        Free physical memory on the host
+      default: true
+      type: gauge
+    sap.hana.host.memory.physical.used:
+      description: >
+        Used physical memory on the host
+      default: true
+      type: gauge
+    sap.hana.host.memory.swap.free:
+      description: >
+        Free swap memory on the host
+      default: true
+      type: gauge
+    sap.hana.host.memory.swap.used:
+      description: >
+        Used swap memory on the host
+      default: true
+      type: gauge
+    sap.hana.host.memory.allocation_limit:
+      description: >
+        Allocation limit for all processes
+      default: true
+      type: gauge
+    sap.hana.host.memory.total_used:
+      description: >
+        Amount of memory from the memory pool that is currently in actual use by SAP HANA processes
+      default: true
+      type: gauge
+    sap.hana.host.memory.total_allocated:
+      description: >
+        Size of the memory pool for all instance processes
+      default: true
+      type: gauge
+    sap.hana.host.memory.code:
+      description: >
+        Code size, including shared libraries of instance processes
+      default: true
+      type: gauge
+    sap.hana.host.memory.shared:
+      description: >
+        Shared memory size of instance processes
+      default: true
+      type: gauge
+    sap.hana.host.file.open:
+      description: >
+        Number of open files
+      default: true
+      type: gauge
+    sap.hana.host.cpu.user:
+      description: >
+        CPU time spent in user mode
+      default: true
+      type: counter
+    sap.hana.host.cpu.system:
+      description: >
+        CPU time spent in kernel mode
+      default: true
+      type: counter
+    sap.hana.host.cpu.wio:
+      description: >
+        CPU time spent in wait IO (Linux only, Windows always 0)
+      default: true
+      type: counter
+    sap.hana.host.cpu.idle:
+      description: >
+        CPU idle time
+      default: true
+      type: counter
+    # Service memory
+    sap.hana.service.memory.logical:
+      description: >
+        Virtual memory size
+      default: true
+      type: gauge
+    sap.hana.service.memory.physical:
+      description: >
+        Physical memory size 
+      default: true
+      type: gauge
+    sap.hana.service.memory.code:
+      description: >
+        Code size, including shared libraries
+      default: true
+      type: gauge
+    sap.hana.service.memory.stack:
+      description: >
+        Stack size
+      default: true
+      type: gauge
+    sap.hana.service.memory.heap.allocated:
+      description: >
+        Heap part of the memory pool
+      default: true
+      type: gauge
+    sap.hana.service.memory.heap.used:
+      description: >
+        Amount of pool heap memory in use
+      default: true
+      type: gauge
+    sap.hana.service.memory.shared.allocated:
+      description: >
+        Shared memory part of the memory pool
+      default: true
+      type: gauge
+    sap.hana.service.memory.shared.used:
+      description: >
+        Amount of pool shared memory in use
+      default: true
+      type: gauge
+    sap.hana.service.memory.allocation_limit:
+      description: >
+        Maximum configured memory pool size 
+      default: true
+      type: gauge
+    sap.hana.service.memory.allocation_limit_effective:
+      description: >
+        Effective maximum memory pool size, considering the pool sizes of other processes 
+      default: true
+      type: gauge
+    sap.hana.service.memory.total_used:
+      description: >
+        Amount of memory in use from the memory pool.
+      default: true
+      type: gauge
+    # Component memory
+    sap.hana.service.component.memory.used:
+      description: >
+        Amount of memory from the memory pool currently in use by component
+      default: true
+      type: gauge
+    # Active statements
+    sap.hana.statement.active.count:
+      description: >
+        Number of active statements
+      default: true
+      type: gauge
+    sap.hana.statement.active.recompile.count:
+      description: >
+        Recompile count
+      default: true
+      type: gauge
+    sap.hana.statement.active.execution.count:
+      description: >
+        Count of executions
+      default: true
+      type: gauge
+    sap.hana.statement.active.execution.time.mean:
+      description: >
+        Average time of statement execution
+      default: true
+      type: gauge
+    sap.hana.statement.active.execution.time.max:
+      description: >
+        Maximum time of statement execution
+      default: true
+      type: gauge
+    sap.hana.statement.active.execution.sum:
+      description: >
+        Sum of statement execution time
+      default: true
+      type: gauge
+    sap.hana.statement.active.execution.memory.mean:
+      description: >
+        Average memory size used during execution
+      default: true
+      type: gauge
+    sap.hana.statement.active.execution.memory.max:
+      description: >
+        Max memory size used during execution
+      default: true
+      type: gauge
+    sap.hana.statement.active.execution.memory.sum:
+      description: >
+        Sum of memory size used during execution
+      default: true
+      type: gauge
+    # Expensive statements
+    sap.hana.statement.expensive.count:
+      description: >
+        Number of occurances of the statement
+      default: true
+      type: counter
+    sap.hana.statement.expensive.duration:
+      description: >
+        Time elapsed during execution of the statement
+      default: true
+      type: counter
+    sap.hana.statement.expensive.records:
+      description: >
+        Number of records
+      default: true
+      type: counter
+    sap.hana.statement.expensive.cpu_time:
+      description: >
+        CPU time consumed to compute the statement
+      default: true
+      type: counter
+    sap.hana.statement.expensive.lock_wait_duration:
+      description: >
+        Accumulated lock wait duration
+      default: true
+      type: counter
+    sap.hana.statement.expensive.errors:
+      description: >
+        Number of errors
+      default: true
+      type: counter
+    # Connection
+    sap.hana.connection.count:
+      description: >
+        Number of connections
+      default: true
+      type: gauge
+    sap.hana.connection.memory.allocated:
+      description: >
+        Allocated memory size
+      default: true
+      type: gauge
+    sap.hana.connection.record.fetched:
+      description: >
+        Number of records fetched by select statements.
+      default: true
+      type: counter
+    sap.hana.connection.record.affected:
+      description: >
+        The sum of the record count affected by DML/DDL statements.
+      default: true
+      type: counter
+    sap.hana.connection.message.sent.size:
+      description: >
+        Total size of messages sent
+      default: true
+      type: counter
+    sap.hana.connection.message.sent.count:
+      description: >
+        Total count of messages sent
+      default: true
+      type: counter
+    sap.hana.connection.message.received.size:
+      description: >
+        Total size of messages received
+      default: true
+      type: counter
+    sap.hana.connection.message.received.count:
+      description: >
+        Total count of messages received
+      default: true
+      type: counter
+    # IO
+    sap.hana.io.read.count:
+      description: >
+        Number of synchronous reads
+      default: true
+      type: counter
+    sap.hana.io.read.async.count:
+      description: >
+        Number of triggered asynchronous reads
+      default: true
+      type: counter
+    sap.hana.io.read.failed:
+      description: >
+        Number of failed reads
+      default: true
+      type: counter
+    sap.hana.io.read.size:
+      description: >
+        Size of read data
+      default: true
+      type: counter
+    sap.hana.io.read.time:
+      description: >
+        Total read time
+      default: true
+      type: counter
+    sap.hana.io.append.count:
+      description: >
+        Number of appends
+      default: true
+      type: counter
+    sap.hana.io.write.count:
+      description: >
+        Number of synchronous writes
+      default: true
+      type: counter
+    sap.hana.io.write.async.count:
+      description: >
+        Number of triggered asynchronous writes
+      default: true
+      type: counter
+    sap.hana.io.write.failed:
+      description: >
+        Number of failed writes
+      default: true
+      type: counter
+    sap.hana.io.write.size:
+      description: >
+        Size of written data
+      default: true
+      type: counter
+    sap.hana.io.write.time:    
+      description: >
+        Total write time
+      default: true
+      type: counter
+    sap.hana.io.total.time:
+      description: >
+        Total write time
+      default: true
+      type: counter
+    # Tables
+    sap.hana.table.record.count:
+      description: >
+        Number of records in the table
+      default: true
+      type: gauge
+    sap.hana.table.size:
+      description: >
+        Allocated memory size for fixed-size and variable-size part
+      default: true
+      type: gauge
