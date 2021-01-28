@@ -178,6 +178,9 @@ data:
           container_image:
            - '*pause-amd64*'
            - 'k8s.gcr.io/pause*'
+           {{- if .Values.extraExcludedContainerImages }}
+           {{ toYaml .Values.extraExcludedContainerImages | indent 11 | trim }}
+           {{- end }}
         metricNames:
           - '*'
           - '!*network*'
@@ -232,6 +235,9 @@ data:
       excludedImages:
        - '*pause-amd64*'
        - 'k8s.gcr.io/pause*'
+       {{- if .Values.extraExcludedContainerImages }}
+       {{ toYaml .Values.extraExcludedContainerImages | indent 7 | trim }}
+       {{- end }}
       labelsToDimensions:
         io.kubernetes.container.name: container_spec_name
         io.kubernetes.pod.name: kubernetes_pod_name
