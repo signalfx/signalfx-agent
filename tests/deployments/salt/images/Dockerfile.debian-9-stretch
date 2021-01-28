@@ -2,12 +2,10 @@ FROM debian:stretch-slim
 
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update &&\
-    apt-get install -yq ca-certificates procps systemd wget libcap2-bin apt-transport-https curl python gnupg
+    apt-get install -yq ca-certificates procps systemd wget libcap2-bin apt-transport-https curl python3-apt python3-pip python3-dev gnupg
 
-RUN curl https://repo.saltstack.com/apt/debian/9/amd64/2019.2/SALTSTACK-GPG-KEY.pub | apt-key add -
-RUN echo 'deb http://repo.saltstack.com/apt/debian/9/amd64/2019.2 stretch main' > /etc/apt/sources.list.d/saltstack.list && \
-    apt-get update && \
-    apt-get install -y salt-minion
+RUN pip3 install msgpack==0.6.2
+RUN pip3 install salt==2019.2
 
 ENV container docker
 RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i = \   
@@ -24,12 +22,10 @@ RUN rm -f /usr/lib/tmpfiles.d/tmp.conf;
 RUN systemctl set-default multi-user.target
 ENV init /lib/systemd/systemd
 
-RUN sed -i "s|#file_client:.*|file_client: local|" /etc/salt/minion
-
 COPY deployments/salt/signalfx-agent/ /srv/salt/signalfx-agent/
 COPY tests/deployments/salt/images/top.sls /srv/salt/top.sls
 COPY tests/deployments/salt/images/top.sls /srv/pillar/top.sls
-RUN systemctl disable salt-minion
+COPY tests/deployments/salt/images/minion /etc/salt/minion
 
 VOLUME [ "/sys/fs/cgroup" ]
 ENTRYPOINT ["/lib/systemd/systemd"]
