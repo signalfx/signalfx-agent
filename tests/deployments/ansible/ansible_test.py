@@ -29,7 +29,6 @@ DOCKERFILES_DIR = Path(__file__).parent.joinpath("images").resolve()
 DEB_DISTROS = [
     ("debian-8-jessie", INIT_SYSTEMD),
     ("debian-9-stretch", INIT_SYSTEMD),
-    ("ubuntu1404", INIT_UPSTART),
     ("ubuntu1604", INIT_SYSTEMD),
     ("ubuntu1804", INIT_SYSTEMD),
 ]
@@ -62,7 +61,7 @@ CONFIG_DEST_PATH = os.path.join(PLAYBOOK_DEST_DIR, "config.yml")
 PLAYBOOK_DEST_PATH = os.path.join(PLAYBOOK_DEST_DIR, "playbook.yml")
 ANSIBLE_CMD = f"ansible-playbook -vvvv -i {INVENTORY_DEST_PATH} -e @{CONFIG_DEST_PATH} {PLAYBOOK_DEST_PATH}"
 
-ANSIBLE_VERSIONS = os.environ.get("ANSIBLE_VERSIONS", "2.4.1,latest").split(",")
+ANSIBLE_VERSIONS = os.environ.get("ANSIBLE_VERSIONS", "2.8.1,latest").split(",")
 STAGE = os.environ.get("STAGE", "release")
 INITIAL_VERSION = os.environ.get("INITIAL_VERSION", "4.14.0")
 UPGRADE_VERSION = os.environ.get("UPGRADE_VERSION", "5.1.0")
@@ -111,8 +110,6 @@ def test_ansible(base_image, init_system, ansible_version):
         distro_type = "deb"
     else:
         distro_type = "rpm"
-    if base_image == "centos8" and ansible_version != "latest" and tuple(ansible_version.split(".")) < ("2", "8", "1"):
-        pytest.skip(f"ansible {ansible_version} not supported on {base_image}")
     buildargs = {"ANSIBLE_VERSION": ""}
     if ansible_version != "latest":
         buildargs = {"ANSIBLE_VERSION": f"=={ansible_version}"}
