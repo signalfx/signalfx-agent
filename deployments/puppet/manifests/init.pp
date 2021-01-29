@@ -106,8 +106,10 @@ class signalfx_agent (
     }
   }
 
-  file { $config_parent_directory_path:
-    ensure => 'directory',
+  if !defined(File[$config_parent_directory_path]) {
+    file { $config_parent_directory_path:
+      ensure => 'directory',
+    }
   }
 
   file { $config_file_path:

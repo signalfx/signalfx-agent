@@ -10,21 +10,16 @@ class signalfx_agent::win_repo (
   $zipfile_name = "SignalFxAgent-${version}-win64.zip"
   $url = "https://${repo_base}/windows/${package_stage}/zip/${zipfile_name}"
   $zipfile_location = "${installation_directory}\\${zipfile_name}"
-  $version_file = "${installation_directory}\\version.txt"
+  $version_file = "C:\\ProgramData\\SignalFxAgent\\version.txt"
+  $split_version_path = $version_file.split('\\\\')
+  $version_parent_directory = $split_version_path[0, - 2].join('\\')
 
-  file { $installation_directory:
-    ensure => 'directory',
-  }
+  if $::win_agent_version != $version {
+    file { $installation_directory:
+      ensure => 'directory',
+    }
 
-  if find_file($version_file) {
-    $installed_version = file($version_file)
-  }
-  else {
-    $installed_version = ''
-  }
-
-  if $url != $installed_version {
-    exec { 'Stop SignalFx Agent':
+    -> exec { 'Stop SignalFx Agent':
       command  => "Stop-Service -Name \'${service_name}\'",
       onlyif   => "((Get-CimInstance -ClassName win32_service -Filter 'Name = \'${service_name}\'' | Select Name, State).Name)",
       provider => 'powershell',
@@ -41,8 +36,15 @@ class signalfx_agent::win_repo (
       require      => File[$installation_directory],
     }
 
+    if !defined(File[$version_parent_directory]) {
+      file { $version_parent_directory:
+        ensure => 'directory',
+      }
+    }
+
     -> file { $version_file:
-      content => $url,
+      content => $version,
+      require => File[$version_parent_directory],
     }
 
     # ensure zip file is always deleted
