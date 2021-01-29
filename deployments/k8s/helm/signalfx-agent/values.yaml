@@ -306,6 +306,11 @@ configureStandardMonitors: true
 # Has no effect if `configureStandardMonitors: false`
 loadPerCPU: false
 
+# A list of additional container images to exclude from the kubelet-metrics,
+# kubelet-stats and docker-container-stats monitors. These are typically pause
+# containers that are not covered by the default exclusions.
+extraExcludedContainerImages: []
+
 # A list of monitor configurations to include in the agent config.  These
 # values correspond exactly to what goes under 'monitors' in the agent config.
 monitors:
