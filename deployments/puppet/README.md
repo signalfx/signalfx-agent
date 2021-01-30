@@ -85,6 +85,8 @@ On Windows-based systems SignalFx Agent Puppet module has the following dependen
 
 - [puppetlabs/powershell](https://forge.puppet.com/puppetlabs/powershell)
 
+- [puppetlabs/registry](https://forge.puppet.com/modules/puppetlabs/registry)
+
 ## Development
 
 To work on the module in development, you can use the provided dev image to

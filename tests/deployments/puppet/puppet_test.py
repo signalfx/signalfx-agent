@@ -62,6 +62,8 @@ class { signalfx_agent:
     config => lookup('signalfx_agent::config', Hash, 'deep'),
     service_user => '$user',
     service_group => '$group',
+    config_file_path => '$config_path',
+    installation_directory => '$install_dir',
 }
 """
 )
@@ -83,12 +85,16 @@ WIN_PUPPET_MODULE_SRC_DIR = os.path.join(WIN_REPO_ROOT_DIR, "deployments", "pupp
 WIN_PUPPET_MODULE_DEST_DIR = r"C:\ProgramData\PuppetLabs\code\environments\production\modules\signalfx_agent"
 WIN_HIERA_SRC_PATH = os.path.join(WIN_PUPPET_MODULE_SRC_DIR, "data", "default.yaml")
 WIN_HIERA_DEST_PATH = os.path.join(WIN_PUPPET_MODULE_DEST_DIR, "data", "default.yaml")
+WIN_INSTALL_DIR = r"C:\Program Files\SignalFx"
+WIN_CONFIG_PATH = r"C:\ProgramData\SignalFxAgent\agent.yaml"
 
 
-def get_config(version, stage, user="signalfx-agent"):
+def get_config(version, stage, user="signalfx-agent", config_path="/etc/signalfx/agent.yaml", install_dir=""):
     if not version:
         version = ""
-    return CONFIG.substitute(version=version, stage=stage, user=user, group=user)
+    return CONFIG.substitute(
+        version=version, stage=stage, user=user, group=user, config_path=config_path, install_dir=install_dir
+    )
 
 
 def get_hiera(path, backend, monitors):
@@ -192,20 +198,22 @@ def test_puppet(base_image, init_system, puppet_release):
             print_lines(get_agent_logs(cont, init_system))
 
 
-def run_win_puppet_agent(backend, monitors, agent_version, stage):
+def run_win_puppet_agent(
+    backend, monitors, agent_version, stage, config_path=WIN_CONFIG_PATH, install_dir=WIN_INSTALL_DIR
+):
     with open(WIN_HIERA_DEST_PATH, "w+") as fd:
         hiera_yaml = get_hiera(WIN_HIERA_SRC_PATH, backend, monitors)
         print(hiera_yaml)
         fd.write(hiera_yaml)
     with tempfile.TemporaryDirectory() as tmpdir:
         manifest_path = os.path.join(tmpdir, "agent.pp")
-        config = get_config(agent_version, stage)
+        config = get_config(agent_version, stage, config_path=config_path, install_dir=install_dir)
         print(config)
         with open(manifest_path, "w+") as fd:
             fd.write(config)
         cmd = f"puppet apply {manifest_path}"
         run_win_command(cmd, returncodes=[0, 2])
-    installed_version = get_win_agent_version()
+    installed_version = get_win_agent_version(os.path.join(install_dir, "SignalFxAgent", "bin", "signalfx-agent.exe"))
     assert installed_version == agent_version, "installed agent version is '%s', expected '%s'" % (
         installed_version,
         agent_version,
@@ -226,6 +234,7 @@ def run_win_puppet_setup(puppet_version):
     shutil.copytree(WIN_PUPPET_MODULE_SRC_DIR, WIN_PUPPET_MODULE_DEST_DIR)
     run_win_command("puppet module install puppet-archive")
     run_win_command("puppet module install puppetlabs-powershell")
+    run_win_command("puppet module install puppetlabs-registry")
 
 
 @pytest.mark.windows_only
@@ -270,6 +279,32 @@ def test_puppet_on_windows(puppet_version):
             assert wait_for(
                 p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
             ), "Didn't get internal metric datapoints"
+
+            # change agent config path
+            if os.path.isfile(WIN_CONFIG_PATH):
+                os.remove(WIN_CONFIG_PATH)
+            with tempfile.TemporaryDirectory() as tmpdir:
+                new_config_path = os.path.join(tmpdir, "agent.yaml")
+                run_win_puppet_agent(backend, monitors, INITIAL_VERSION, STAGE, config_path=new_config_path)
+                backend.reset_datapoints()
+                assert wait_for(
+                    p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
+                ), "Didn't get internal metric datapoints"
+
+            # change agent installation path
+            with tempfile.TemporaryDirectory() as new_install_dir:
+                new_install_dir = os.path.realpath(new_install_dir)
+                try:
+                    run_win_puppet_agent(backend, monitors, INITIAL_VERSION, STAGE, install_dir=new_install_dir)
+                    backend.reset_datapoints()
+                    assert wait_for(
+                        p(has_datapoint_with_metric_name, backend, "sfxagent.datapoints_sent")
+                    ), "Didn't get internal metric datapoints"
+                finally:
+                    agent_path = os.path.join(new_install_dir, "SignalFxAgent", "bin", "signalfx-agent.exe")
+                    if os.path.isfile(agent_path):
+                        run_win_command(["powershell.exe", "-command", "Stop-Service -Name signalfx-agent"])
+                        run_win_command([agent_path, "-service", "uninstall"])
         finally:
             print("\nDatapoints received:")
             for dp in backend.datapoints:
