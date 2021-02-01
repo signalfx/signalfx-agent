@@ -3,7 +3,6 @@
 set -eo pipefail
 
 if [ "$CIRCLE_BRANCH" != "master" ]; then
-  git checkout -b $CIRCLE_BRANCH
   if ! scripts/changes-include-dir deployments/k8s ${BASH_SOURCE[0]}; then
       echo "No changes in deployments/k8s, skipping check."
       exit 0

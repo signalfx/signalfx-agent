@@ -344,8 +344,8 @@ jobs:
   helm_check:
     executor: helm
     steps:
-      - checkout
       - goexecutor_setup
+      - checkout
       - run: .circleci/scripts/run-helm-check.sh
 
   integration_tests:
