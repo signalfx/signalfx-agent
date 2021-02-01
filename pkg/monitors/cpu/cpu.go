@@ -185,10 +185,10 @@ func getUtilization(prev *totalUsed, current *totalUsed) (utilization float64, e
 		// calculate utilization
 		utilization = usedDiff / totalDiff * 100.0
 		if utilization < 0.0 {
-			err = fmt.Errorf("percent %v < 0 total: %v used: %v", utilization, usedDiff, totalDiff)
+			err = fmt.Errorf("percent %v < 0 total: %v used: %v", utilization, totalDiff, usedDiff)
 		}
 		if utilization > 100.0 {
-			err = fmt.Errorf("percent %v > 100 total: %v used: %v ", utilization, usedDiff, totalDiff)
+			err = fmt.Errorf("percent %v > 100 total: %v used: %v ", utilization, totalDiff, usedDiff)
 		}
 	}
 
