@@ -29,6 +29,7 @@ type Config struct {
 	pyConf               *python.Config
 	Host                 string `yaml:"host" validate:"required"`
 	Port                 uint16 `yaml:"port" validate:"required"`
+	Path                 string `yaml:"path"`
 	// Key required for collecting metrics.  The access key located at
 	// `Manage Jenkins > Configure System > Metrics > ADD.`
 	// If empty, click `Generate`.
@@ -77,6 +78,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		PluginConfig: map[string]interface{}{
 			"Host":                conf.Host,
 			"Port":                conf.Port,
+			"Path":                conf.Path,
 			"Interval":            conf.IntervalSeconds,
 			"MetricsKey":          conf.MetricsKey,
 			"EnhancedMetrics":     conf.EnhancedMetrics,
