@@ -12590,6 +12590,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "path",
+            "doc": "",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "metricsKey",
             "doc": "Key required for collecting metrics.  The access key located at `Manage Jenkins \u003e Configure System \u003e Metrics \u003e ADD.` If empty, click `Generate`.",
             "default": null,
