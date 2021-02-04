@@ -7,6 +7,8 @@ metadata:
   namespace: MY_AGENT_NAMESPACE
   labels:
     app: signalfx-agent
+    heritage: Tiller
+    release: release-name
 rules:
 - apiGroups:
   - ""

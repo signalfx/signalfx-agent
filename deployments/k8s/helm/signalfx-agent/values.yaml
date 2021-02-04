@@ -328,3 +328,8 @@ monitorsd:
 #    - type: collectd/nginx
 #      # Additional config
 #  [...]
+
+# Set pods securityContext.
+# ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
+securityContext: {}
+
