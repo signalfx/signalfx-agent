@@ -17,6 +17,7 @@ render() {
   local isServerless=$2
 
   helm template \
+	  signalfx-agent \
       --namespace signalfx-agent \
       --set signalFxAccessToken=MY_TOKEN \
       --set clusterName=MY-CLUSTER \

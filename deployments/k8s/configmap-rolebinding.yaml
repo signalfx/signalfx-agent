@@ -7,8 +7,6 @@ metadata:
   namespace: MY_AGENT_NAMESPACE
   labels:
     app: signalfx-agent
-    heritage: Tiller
-    release: release-name
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: Role

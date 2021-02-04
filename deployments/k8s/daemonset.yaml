@@ -7,13 +7,10 @@ metadata:
   labels:
     app: signalfx-agent
     version: 5.7.2
-    heritage: Tiller
-    release: release-name
 spec:
   selector:
     matchLabels:
       app: signalfx-agent
-      release: release-name
   updateStrategy:
     rollingUpdate:
       maxUnavailable: 1
@@ -24,7 +21,6 @@ spec:
       labels:
         app: signalfx-agent
         version: 5.7.2
-        release: release-name
 
       annotations:
         {}

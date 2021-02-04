@@ -6,8 +6,6 @@ metadata:
   name: signalfx-agent-v5
   labels:
     app: signalfx-agent
-    heritage: Tiller
-    release: release-name
 data:
   agent.yaml: |
     signalFxAccessToken: ${SFX_ACCESS_TOKEN}
@@ -15,7 +13,6 @@ data:
     signalFxRealm: us0
 
     disableHostDimensions: false
-
 
     etcPath: /hostfs/etc
     procPath: /hostfs/proc

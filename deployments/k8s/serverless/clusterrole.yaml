@@ -6,8 +6,6 @@ metadata:
   name: signalfx-agent
   labels:
     app: signalfx-agent
-    heritage: Tiller
-    release: release-name
 rules:
 - apiGroups:
   - ""

@@ -6,8 +6,6 @@ metadata:
   name: signalfx-agent
   labels:
     app: signalfx-agent
-    heritage: Tiller
-    release: release-name
 roleRef:
   apiGroup: rbac.authorization.k8s.io
   kind: ClusterRole
