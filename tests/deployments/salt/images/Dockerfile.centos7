@@ -2,9 +2,10 @@ FROM centos:7
 
 ENV container docker
 
-RUN yum install -y systemd procps initscripts
-RUN yum install -y https://repo.saltstack.com/yum/redhat/salt-repo-2019.2.el7.noarch.rpm && \
-    yum install -y salt-minion
+RUN yum install -y systemd procps initscripts python3-pip python3-devel gcc
+
+RUN pip3 install msgpack==0.6.2
+RUN pip3 install salt==2019.2
 
 RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i = \
     "systemd-tmpfiles-setup.service" ] || rm -f $i; done); \
@@ -15,12 +16,10 @@ RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i = \
     rm -f /lib/systemd/system/basic.target.wants/*;\
     rm -f /lib/systemd/system/anaconda.target.wants/*;
 
-RUN sed -i "s|#file_client:.*|file_client: local|" /etc/salt/minion
-
 COPY deployments/salt/signalfx-agent/ /srv/salt/signalfx-agent/
 COPY tests/deployments/salt/images/top.sls /srv/salt/top.sls
 COPY tests/deployments/salt/images/top.sls /srv/pillar/top.sls
-RUN systemctl disable salt-minion
+COPY tests/deployments/salt/images/minion /etc/salt/minion
 
 VOLUME [ "/sys/fs/cgroup" ]
 CMD ["/usr/sbin/init"]
