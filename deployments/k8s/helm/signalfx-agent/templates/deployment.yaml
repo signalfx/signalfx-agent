@@ -52,6 +52,10 @@ spec:
       affinity:
         {{ toYaml . | indent 8 | trim }}
       {{- end }}
+      {{ if .Values.securityContext -}}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      {{- end }}
       containers:
       - name: signalfx-agent
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Values.agentVersion }}"

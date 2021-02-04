@@ -42,6 +42,7 @@ spec:
         key: node-role.kubernetes.io/master
         operator: Exists
 
+
       containers:
       - name: signalfx-agent
         image: "quay.io/signalfx/signalfx-agent:5.7.2"
