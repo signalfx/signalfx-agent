@@ -32,16 +32,7 @@ class signalfx_agent (
 
     $split_config_file_path = $config_file_path.split('\\\\')
     $config_parent_directory_path = $split_config_file_path[0, - 2].join('\\')
-
-    package { $service_name:
-      ensure          => 'installed',
-      name            => 'signalfx-agent',
-      provider        => 'windows',
-      source          => "${installation_directory}\\SignalFxAgent\\bin\\signalfx-agent.exe",
-      install_options => [{ '-service' => '"install"' }, '-logEvents', { '-config' => $config_file_path }],
-    }
-  }
-  else {
+  } else {
     $split_config_file_path = $config_file_path.split('/')
     $config_parent_directory_path = $split_config_file_path[0, - 2].join('/')
 
@@ -54,10 +45,6 @@ class signalfx_agent (
     } else {
       $version = $package_version
     }
-
-    package { $service_name:
-      ensure => $version
-    }
   }
 
   case $::osfamily {
@@ -68,6 +55,9 @@ class signalfx_agent (
         apt_gpg_key   => $apt_gpg_key,
         manage_repo   => $manage_repo,
       }
+      -> package { $service_name:
+        ensure => $version,
+      }
     }
     'redhat': {
       class { 'signalfx_agent::yum_repo':
@@ -75,6 +65,9 @@ class signalfx_agent (
         package_stage => $package_stage,
         yum_gpg_key   => $yum_gpg_key,
         manage_repo   => $manage_repo,
+      }
+      -> package { $service_name:
+        ensure => $version,
       }
     }
     'windows': {
@@ -84,14 +77,13 @@ class signalfx_agent (
         version                => $agent_version,
         installation_directory => $installation_directory,
         service_name           => $service_name,
+        config_file_path       => $config_file_path,
       }
     }
     default: {
       fail("Your OS (${::osfamily}) is not supported by the SignalFx Agent")
     }
   }
-
-  -> Package[$service_name]
 
   -> service { $service_name:
     ensure => true,
