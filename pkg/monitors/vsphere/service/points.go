@@ -8,6 +8,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/vmware/govmomi/vim25/types"
 
+	"github.com/signalfx/signalfx-agent/pkg/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
 )
 
@@ -115,6 +116,9 @@ func (svc *PointsSvc) FetchPoints(vsInfo *model.VsphereInfo, numSamplesReqd int3
 						sfxMetricType,
 						perfEntityMetric.SampleInfo[i].Timestamp,
 					)
+					// make sure the agent doesn't overwrite the `host` dimension with the hostname
+					// the agent is running on
+					dp.Meta[dpmeta.NotHostSpecificMeta] = true
 					svc.ptConsumer(dp)
 				}
 			}

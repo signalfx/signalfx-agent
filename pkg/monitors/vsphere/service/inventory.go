@@ -29,6 +29,7 @@ const (
 	dimVM            = "vm_name"
 	dimGuestID       = "guest_id"
 	dimVMip          = "vm_ip"
+	dimHost          = "host"
 	dimGuestFamily   = "guest_family"
 	dimGuestFullname = "guest_fullname"
 )
@@ -193,6 +194,7 @@ func (svc *InventorySvc) followVM(
 		dimVM:            vm.Name,           // e.g. "MyDebian10Host"
 		dimGuestID:       vm.Config.GuestId, // e.g. "debian10_64Guest"
 		dimVMip:          vm.Guest.IpAddress,
+		dimHost:          vm.Guest.IpAddress,
 		dimGuestFamily:   vm.Guest.GuestFamily,   // e.g. "linuxGuest"
 		dimGuestFullname: vm.Guest.GuestFullName, // e.g. "Other 4.x or later Linux (64-bit)"
 	}
