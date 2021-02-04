@@ -38,7 +38,13 @@ func (m *Monitor) emitDatapoints() {
 		return
 	}
 
-	dps := m.makeMemoryDatapoints(memInfo, nil)
+	swapInfo, err := mem.SwapMemory()
+	if err != nil {
+		m.logger.WithError(err).Errorf("Unable to collect swap memory stats")
+		return
+	}
+
+	dps := m.makeMemoryDatapoints(memInfo, swapInfo, nil)
 	m.Output.SendDatapoints(dps...)
 }
 
