@@ -41609,7 +41609,7 @@
         },
         "memory.swap_total": {
           "type": "gauge",
-          "description": "Total bytes of swap memory on the system",
+          "description": "Total bytes of swap memory on the system.",
           "group": null,
           "default": false
         },

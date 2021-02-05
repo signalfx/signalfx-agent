@@ -34,7 +34,7 @@ monitors:
       default: false
       type: gauge
     memory.swap_total:
-      description: Total bytes of swap memory on the system
+      description: Total bytes of swap memory on the system.
       default: false
       type: gauge
     memory.swap_used:
