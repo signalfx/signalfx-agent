@@ -41563,6 +41563,9 @@
             "memory.free",
             "memory.slab_recl",
             "memory.slab_unrecl",
+            "memory.swap_free",
+            "memory.swap_total",
+            "memory.swap_used",
             "memory.total",
             "memory.used",
             "memory.utilization"
@@ -41605,6 +41608,24 @@
           "description": "(Linux Only) Bytes of memory, used for SLAB-allocation of kernel objects, that can't be reclaimed.",
           "group": null,
           "default": true
+        },
+        "memory.swap_free": {
+          "type": "gauge",
+          "description": "Bytes of swap memory available for use.",
+          "group": null,
+          "default": false
+        },
+        "memory.swap_total": {
+          "type": "gauge",
+          "description": "Total bytes of swap memory on the system.",
+          "group": null,
+          "default": false
+        },
+        "memory.swap_used": {
+          "type": "gauge",
+          "description": "Bytes of swap memory in use by the system.",
+          "group": null,
+          "default": false
         },
         "memory.total": {
           "type": "gauge",
