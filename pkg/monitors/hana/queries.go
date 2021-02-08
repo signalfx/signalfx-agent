@@ -336,11 +336,13 @@ var defaultServerQueries = []sql.Query{
 			{
 				MetricName:       "sap.hana.io.read.count",
 				ValueColumn:      "total_reads",
+				IsCumulative:     true,
 				DimensionColumns: []string{"hana_host", "type"},
 			},
 			{
 				MetricName:       "sap.hana.io.read.async.count",
 				ValueColumn:      "total_trigger_async_reads",
+				IsCumulative:     true,
 				DimensionColumns: []string{"hana_host", "type"},
 			},
 			{
