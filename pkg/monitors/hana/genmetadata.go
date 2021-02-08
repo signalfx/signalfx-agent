@@ -13,7 +13,6 @@ var groupSet = map[string]bool{}
 
 const (
 	sapHanaConnectionCount                       = "sap.hana.connection.count"
-	sapHanaConnectionMemoryAllocated             = "sap.hana.connection.memory.allocated"
 	sapHanaConnectionMessageReceivedCount        = "sap.hana.connection.message.received.count"
 	sapHanaConnectionMessageReceivedSize         = "sap.hana.connection.message.received.size"
 	sapHanaConnectionMessageSentCount            = "sap.hana.connection.message.sent.count"
@@ -83,7 +82,6 @@ const (
 
 var metricSet = map[string]monitors.MetricInfo{
 	sapHanaConnectionCount:                       {Type: datapoint.Gauge},
-	sapHanaConnectionMemoryAllocated:             {Type: datapoint.Gauge},
 	sapHanaConnectionMessageReceivedCount:        {Type: datapoint.Count},
 	sapHanaConnectionMessageReceivedSize:         {Type: datapoint.Count},
 	sapHanaConnectionMessageSentCount:            {Type: datapoint.Count},
@@ -153,7 +151,6 @@ var metricSet = map[string]monitors.MetricInfo{
 
 var defaultMetrics = map[string]bool{
 	sapHanaConnectionCount:                       true,
-	sapHanaConnectionMemoryAllocated:             true,
 	sapHanaConnectionMessageReceivedCount:        true,
 	sapHanaConnectionMessageReceivedSize:         true,
 	sapHanaConnectionMessageSentCount:            true,

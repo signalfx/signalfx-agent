@@ -285,16 +285,11 @@ var defaultServerQueries = []sql.Query{
 		},
 	},
 	{
-		Query: `SELECT host AS hana_host, connection_status, COUNT(*) AS count, SUM(memory_size_per_connection) AS memory_size, SUM(fetched_record_count) AS fetched_record_count, SUM(affected_record_count) AS affected_record_count, SUM(sent_message_size) AS sent_message_size, SUM(sent_message_count) AS sent_message_count, SUM(received_message_size) AS received_message_size, SUM(received_message_count) AS received_message_count FROM m_connections GROUP BY host, connection_status HAVING connection_status != '';`,
+		Query: `SELECT host AS hana_host, connection_status, COUNT(*) AS count, SUM(fetched_record_count) AS fetched_record_count, SUM(affected_record_count) AS affected_record_count, SUM(sent_message_size) AS sent_message_size, SUM(sent_message_count) AS sent_message_count, SUM(received_message_size) AS received_message_size, SUM(received_message_count) AS received_message_count FROM m_connections GROUP BY host, connection_status HAVING connection_status != '';`,
 		Metrics: []sql.Metric{
 			{
 				MetricName:       "sap.hana.connection.count",
 				ValueColumn:      "count",
-				DimensionColumns: []string{"hana_host", "connection_status"},
-			},
-			{
-				MetricName:       "sap.hana.connection.memory.allocated",
-				ValueColumn:      "memory_size",
 				DimensionColumns: []string{"hana_host", "connection_status"},
 			},
 			{

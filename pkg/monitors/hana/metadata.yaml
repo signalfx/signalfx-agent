@@ -294,11 +294,6 @@ monitors:
         Number of connections
       default: true
       type: gauge
-    sap.hana.connection.memory.allocated:
-      description: >
-        Allocated memory size
-      default: true
-      type: gauge
     sap.hana.connection.record.fetched:
       description: >
         Number of records fetched by select statements.
