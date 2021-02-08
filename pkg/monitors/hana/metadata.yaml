@@ -298,32 +298,32 @@ monitors:
       description: >
         Number of records fetched by select statements.
       default: true
-      type: counter
+      type: gauge
     sap.hana.connection.record.affected:
       description: >
         The sum of the record count affected by DML/DDL statements.
       default: true
-      type: counter
+      type: gauge
     sap.hana.connection.message.sent.size:
       description: >
         Total size of messages sent
       default: true
-      type: counter
+      type: gauge
     sap.hana.connection.message.sent.count:
       description: >
         Total count of messages sent
       default: true
-      type: counter
+      type: gauge
     sap.hana.connection.message.received.size:
       description: >
         Total size of messages received
       default: true
-      type: counter
+      type: gauge
     sap.hana.connection.message.received.count:
       description: >
         Total count of messages received
       default: true
-      type: counter
+      type: gauge
     # IO
     sap.hana.io.read.count:
       description: >

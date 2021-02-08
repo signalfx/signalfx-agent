@@ -295,37 +295,31 @@ var defaultServerQueries = []sql.Query{
 			{
 				MetricName:       "sap.hana.connection.record.fetched",
 				ValueColumn:      "fetched_record_count",
-				IsCumulative:     true,
 				DimensionColumns: []string{"hana_host", "connection_status"},
 			},
 			{
 				MetricName:       "sap.hana.connection.record.affected",
 				ValueColumn:      "affected_record_count",
-				IsCumulative:     true,
 				DimensionColumns: []string{"hana_host", "connection_status"},
 			},
 			{
 				MetricName:       "sap.hana.connection.message.sent.size",
 				ValueColumn:      "sent_message_size",
-				IsCumulative:     true,
 				DimensionColumns: []string{"hana_host", "connection_status"},
 			},
 			{
 				MetricName:       "sap.hana.connection.message.sent.count",
 				ValueColumn:      "sent_message_count",
-				IsCumulative:     true,
 				DimensionColumns: []string{"hana_host", "connection_status"},
 			},
 			{
 				MetricName:       "sap.hana.connection.message.received.size",
 				ValueColumn:      "received_message_size",
-				IsCumulative:     true,
 				DimensionColumns: []string{"hana_host", "connection_status"},
 			},
 			{
 				MetricName:       "sap.hana.connection.message.received.count",
 				ValueColumn:      "received_message_count",
-				IsCumulative:     true,
 				DimensionColumns: []string{"hana_host", "connection_status"},
 			},
 		},

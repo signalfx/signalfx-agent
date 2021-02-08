@@ -82,12 +82,12 @@ const (
 
 var metricSet = map[string]monitors.MetricInfo{
 	sapHanaConnectionCount:                       {Type: datapoint.Gauge},
-	sapHanaConnectionMessageReceivedCount:        {Type: datapoint.Count},
-	sapHanaConnectionMessageReceivedSize:         {Type: datapoint.Count},
-	sapHanaConnectionMessageSentCount:            {Type: datapoint.Count},
-	sapHanaConnectionMessageSentSize:             {Type: datapoint.Count},
-	sapHanaConnectionRecordAffected:              {Type: datapoint.Count},
-	sapHanaConnectionRecordFetched:               {Type: datapoint.Count},
+	sapHanaConnectionMessageReceivedCount:        {Type: datapoint.Gauge},
+	sapHanaConnectionMessageReceivedSize:         {Type: datapoint.Gauge},
+	sapHanaConnectionMessageSentCount:            {Type: datapoint.Gauge},
+	sapHanaConnectionMessageSentSize:             {Type: datapoint.Gauge},
+	sapHanaConnectionRecordAffected:              {Type: datapoint.Gauge},
+	sapHanaConnectionRecordFetched:               {Type: datapoint.Gauge},
 	sapHanaDiskTotalSize:                         {Type: datapoint.Gauge},
 	sapHanaDiskUsedSize:                          {Type: datapoint.Gauge},
 	sapHanaHostCPUIdle:                           {Type: datapoint.Count},
