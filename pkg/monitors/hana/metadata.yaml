@@ -217,16 +217,6 @@ monitors:
         Number of active statements
       default: true
       type: gauge
-    sap.hana.statement.active.recompile.count:
-      description: >
-        Recompile count
-      default: true
-      type: gauge
-    sap.hana.statement.active.execution.count:
-      description: >
-        Count of executions
-      default: true
-      type: gauge
     sap.hana.statement.active.execution.time.mean:
       description: >
         Average time of statement execution

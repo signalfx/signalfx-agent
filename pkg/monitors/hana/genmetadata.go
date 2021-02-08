@@ -62,14 +62,12 @@ const (
 	sapHanaServiceMemoryStack                    = "sap.hana.service.memory.stack"
 	sapHanaServiceMemoryTotalUsed                = "sap.hana.service.memory.total_used"
 	sapHanaStatementActiveCount                  = "sap.hana.statement.active.count"
-	sapHanaStatementActiveExecutionCount         = "sap.hana.statement.active.execution.count"
 	sapHanaStatementActiveExecutionMemoryMax     = "sap.hana.statement.active.execution.memory.max"
 	sapHanaStatementActiveExecutionMemoryMean    = "sap.hana.statement.active.execution.memory.mean"
 	sapHanaStatementActiveExecutionMemorySum     = "sap.hana.statement.active.execution.memory.sum"
 	sapHanaStatementActiveExecutionSum           = "sap.hana.statement.active.execution.sum"
 	sapHanaStatementActiveExecutionTimeMax       = "sap.hana.statement.active.execution.time.max"
 	sapHanaStatementActiveExecutionTimeMean      = "sap.hana.statement.active.execution.time.mean"
-	sapHanaStatementActiveRecompileCount         = "sap.hana.statement.active.recompile.count"
 	sapHanaStatementExpensiveCount               = "sap.hana.statement.expensive.count"
 	sapHanaStatementExpensiveCPUTime             = "sap.hana.statement.expensive.cpu_time"
 	sapHanaStatementExpensiveDuration            = "sap.hana.statement.expensive.duration"
@@ -131,14 +129,12 @@ var metricSet = map[string]monitors.MetricInfo{
 	sapHanaServiceMemoryStack:                    {Type: datapoint.Gauge},
 	sapHanaServiceMemoryTotalUsed:                {Type: datapoint.Gauge},
 	sapHanaStatementActiveCount:                  {Type: datapoint.Gauge},
-	sapHanaStatementActiveExecutionCount:         {Type: datapoint.Gauge},
 	sapHanaStatementActiveExecutionMemoryMax:     {Type: datapoint.Gauge},
 	sapHanaStatementActiveExecutionMemoryMean:    {Type: datapoint.Gauge},
 	sapHanaStatementActiveExecutionMemorySum:     {Type: datapoint.Gauge},
 	sapHanaStatementActiveExecutionSum:           {Type: datapoint.Gauge},
 	sapHanaStatementActiveExecutionTimeMax:       {Type: datapoint.Gauge},
 	sapHanaStatementActiveExecutionTimeMean:      {Type: datapoint.Gauge},
-	sapHanaStatementActiveRecompileCount:         {Type: datapoint.Gauge},
 	sapHanaStatementExpensiveCount:               {Type: datapoint.Count},
 	sapHanaStatementExpensiveCPUTime:             {Type: datapoint.Count},
 	sapHanaStatementExpensiveDuration:            {Type: datapoint.Count},
@@ -200,14 +196,12 @@ var defaultMetrics = map[string]bool{
 	sapHanaServiceMemoryStack:                    true,
 	sapHanaServiceMemoryTotalUsed:                true,
 	sapHanaStatementActiveCount:                  true,
-	sapHanaStatementActiveExecutionCount:         true,
 	sapHanaStatementActiveExecutionMemoryMax:     true,
 	sapHanaStatementActiveExecutionMemoryMean:    true,
 	sapHanaStatementActiveExecutionMemorySum:     true,
 	sapHanaStatementActiveExecutionSum:           true,
 	sapHanaStatementActiveExecutionTimeMax:       true,
 	sapHanaStatementActiveExecutionTimeMean:      true,
-	sapHanaStatementActiveRecompileCount:         true,
 	sapHanaStatementExpensiveCount:               true,
 	sapHanaStatementExpensiveCPUTime:             true,
 	sapHanaStatementExpensiveDuration:            true,

@@ -190,21 +190,11 @@ var defaultServerQueries = []sql.Query{
 		},
 	},
 	{
-		Query: `SELECT host AS hana_host, COUNT(*) AS statement_count, SUM(recompile_count) AS recompile_count, SUM(execution_count) AS execution_count, TO_DOUBLE(AVG(avg_execution_time)) AS avg_execution_time, MAX(max_execution_time) AS max_execution_time, SUM(total_execution_time) AS total_execution_time, TO_DOUBLE(AVG(avg_execution_memory_size)) AS avg_execution_memory_size, MAX(max_execution_memory_size) AS max_execution_memory_size, SUM(total_execution_memory_size) AS total_execution_memory_size FROM m_active_statements GROUP BY host;`,
+		Query: `SELECT host AS hana_host, COUNT(*) AS statement_count, TO_DOUBLE(AVG(avg_execution_time)) AS avg_execution_time, MAX(max_execution_time) AS max_execution_time, SUM(total_execution_time) AS total_execution_time, TO_DOUBLE(AVG(avg_execution_memory_size)) AS avg_execution_memory_size, MAX(max_execution_memory_size) AS max_execution_memory_size, SUM(total_execution_memory_size) AS total_execution_memory_size FROM m_active_statements GROUP BY host;`,
 		Metrics: []sql.Metric{
 			{
 				MetricName:       "sap.hana.statement.active.count",
 				ValueColumn:      "statement_count",
-				DimensionColumns: []string{"hana_host"},
-			},
-			{
-				MetricName:       "sap.hana.statement.active.recompile.count",
-				ValueColumn:      "recompile_count",
-				DimensionColumns: []string{"hana_host"},
-			},
-			{
-				MetricName:       "sap.hana.statement.active.execution.count",
-				ValueColumn:      "execution_count",
 				DimensionColumns: []string{"hana_host"},
 			},
 			{
