@@ -333,3 +333,12 @@ monitorsd:
 # ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/
 securityContext: {}
 
+# If true, a standard set of observers will be added to config
+#   default for helm chart:  config="{k8s-api map[discoverAllPods:true discoverNodes:true]}
+configureStandardObservers: true
+
+# A list of observer configurations to include in the agent config.  These
+# values correspond exactly to what goes under 'observers' in the agent config.
+# Added to configs regardless of the value of `configureStandardObservers`
+observers: []
+
