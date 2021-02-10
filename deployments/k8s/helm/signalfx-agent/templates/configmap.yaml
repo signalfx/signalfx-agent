@@ -90,6 +90,7 @@ data:
       {{- end }}
 
     observers:
+    {{- if .Values.configureStandardObservers }}
     - type: k8s-api
       {{- if .Values.apiServerSkipVerify }}
       kubernetesAPI:
@@ -109,6 +110,10 @@ data:
       - {{ toYaml . | indent 8 | trim }}
       {{- end }}
       {{- end }}
+    {{- end }}
+    {{- with .Values.observers }}
+    {{ toYaml . }}
+    {{- end }}
 
     monitors:
 {{- if .Values.configureStandardMonitors }}
