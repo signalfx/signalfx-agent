@@ -32,8 +32,7 @@ type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"false"`
 	// The name of an executable to monitor.  (ie: `exe: "signalfx-agent*"`)
 	Exe string `yaml:"exe"`
-	// Pattern to match against.  On Windows the pattern should be in the form of a WMI query.
-	// (ie: `pattern: "%signalfx-agent%"`)
+	// Regular expression pattern to match against.
 	Pattern string `yaml:"pattern"`
 	// Username to match against
 	User string `yaml:"user"`
