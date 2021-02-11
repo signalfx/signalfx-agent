@@ -50969,7 +50969,7 @@
           },
           {
             "yamlName": "pattern",
-            "doc": "Pattern to match against.  On Windows the pattern should be in the form of a WMI query. (ie: `pattern: \"%signalfx-agent%\"`)",
+            "doc": "Regular expression pattern to match against.",
             "default": "",
             "required": false,
             "type": "string",
