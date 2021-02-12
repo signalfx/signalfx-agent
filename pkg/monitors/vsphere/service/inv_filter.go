@@ -6,7 +6,7 @@ import (
 )
 
 type InvFilter interface {
-	shouldFollowCluster(dims pairs) (bool, error)
+	keep(dims pairs) (bool, error)
 }
 
 func NewFilter(expression string) (InvFilter, error) {
@@ -24,7 +24,7 @@ func NewFilter(expression string) (InvFilter, error) {
 
 type nopFilter struct{}
 
-func (n nopFilter) shouldFollowCluster(pairs) (bool, error) {
+func (n nopFilter) keep(pairs) (bool, error) {
 	return true, nil
 }
 
@@ -38,7 +38,7 @@ type env struct {
 	Cluster    string
 }
 
-func (f filter) shouldFollowCluster(dims pairs) (bool, error) {
+func (f filter) keep(dims pairs) (bool, error) {
 	e := env{}
 	for _, dim := range dims {
 		if dim[0] == dimDatacenter {
@@ -49,7 +49,7 @@ func (f filter) shouldFollowCluster(dims pairs) (bool, error) {
 	}
 	result, err := f.v.Run(f.program, e)
 	if err != nil {
-		// default to follow if there's a failure
+		// default to keep if there's a failure
 		return true, err
 	}
 	return result.(bool), nil

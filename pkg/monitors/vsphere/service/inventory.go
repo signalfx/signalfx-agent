@@ -104,11 +104,11 @@ func (svc *InventorySvc) followCluster(
 		return err
 	}
 	dims = append(dims, pair{dimCluster, cluster.Name})
-	follow, err := svc.f.shouldFollowCluster(dims)
+	keep, err := svc.f.keep(dims)
 	if err != nil {
-		svc.log.WithError(err).Error("shouldFollowCluster failed")
+		svc.log.WithError(err).Error("keep failed")
 	}
-	if !follow {
+	if !keep {
 		svc.log.Debugf("cluster filtered: dims=[%s]", dims)
 		return nil
 	}
@@ -155,6 +155,16 @@ func (svc *InventorySvc) followHost(
 
 	if host.Runtime.PowerState == types.HostSystemPowerStatePoweredOff {
 		svc.log.Debugf("inventory: host powered off: name=[%s]", host.Name)
+		return nil
+	}
+
+	// apply filter to hosts here in case we found hosts that aren't in a cluster
+	keep, err := svc.f.keep(dims)
+	if err != nil {
+		svc.log.WithError(err).Error("keep failed")
+	}
+	if !keep {
+		svc.log.Debugf("host filtered: dims=[%s]", dims)
 		return nil
 	}
 

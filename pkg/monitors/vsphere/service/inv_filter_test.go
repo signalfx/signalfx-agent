@@ -6,50 +6,50 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestInvFilterMatch(t *testing.T) {
+func TestInvFilter_Match(t *testing.T) {
 	f, err := NewFilter("Datacenter == 'dc0' && Cluster == 'cluster0'")
 	require.NoError(t, err)
 	dims := pairs{
 		pair{dimDatacenter, "dc0"},
 		pair{dimCluster, "cluster0"},
 	}
-	follow, err := f.shouldFollowCluster(dims)
+	keep, err := f.keep(dims)
 	require.NoError(t, err)
-	require.True(t, follow)
+	require.True(t, keep)
 }
 
-func TestInvFilterNoMatch(t *testing.T) {
+func TestInvFilter_NoMatch(t *testing.T) {
 	f, err := NewFilter("Datacenter == 'dc0' && Cluster == 'xyz'")
 	require.NoError(t, err)
 	dims := pairs{
 		pair{dimDatacenter, "dc0"},
 		pair{dimCluster, "cluster0"},
 	}
-	follow, err := f.shouldFollowCluster(dims)
+	keep, err := f.keep(dims)
 	require.NoError(t, err)
-	require.False(t, follow)
+	require.False(t, keep)
 }
 
-func TestInvFilterDCMatch(t *testing.T) {
+func TestInvFilter_DCMatch(t *testing.T) {
 	f, err := NewFilter("Datacenter == 'dc0'")
 	require.NoError(t, err)
 	dims := pairs{
 		pair{dimDatacenter, "dc0"},
 		pair{dimCluster, "cluster0"},
 	}
-	follow, err := f.shouldFollowCluster(dims)
+	keep, err := f.keep(dims)
 	require.NoError(t, err)
-	require.True(t, follow)
+	require.True(t, keep)
 }
 
-func TestInvFilterClusterMatch(t *testing.T) {
+func TestInvFilter_ClusterMatch(t *testing.T) {
 	f, err := NewFilter("Cluster == 'cluster0'")
 	require.NoError(t, err)
 	dims := pairs{
 		pair{dimDatacenter, "dc0"},
 		pair{dimCluster, "cluster0"},
 	}
-	follow, err := f.shouldFollowCluster(dims)
+	keep, err := f.keep(dims)
 	require.NoError(t, err)
-	require.True(t, follow)
+	require.True(t, keep)
 }
