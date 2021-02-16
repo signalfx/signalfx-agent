@@ -86,6 +86,9 @@ type Monitor struct {
 	serverMonitor      *sql.Monitor
 	statementsMonitor  *sql.Monitor
 	replicationMonitor *sql.Monitor
+
+	// name for execution time column determined by information schema for pg_stat_statement
+	totalTimeColumn string
 }
 
 // Configure the monitor and kick off metric collection
@@ -258,6 +261,32 @@ func determineDatabases(ctx context.Context, database *dbsql.DB) ([]string, erro
 	return out, rows.Err()
 }
 
+func (m *Monitor) determineTotalTimeColumn(connStr string) (string, error) {
+	database, err := dbsql.Open("postgres", connStr)
+	if err != nil {
+		return "", fmt.Errorf("could not handle postgres database config: %w", err)
+	}
+	defer database.Close()
+
+	rows, err := database.QueryContext(m.ctx, `SELECT column_name FROM information_schema.columns WHERE table_name='pg_stat_statements' and column_name SIMILAR TO 'total_(exec_|)time';`)
+	if err != nil {
+		return "", err
+	}
+	if rows != nil {
+		defer func() {
+			_ = rows.Close()
+		}()
+	}
+
+	var totalTimeColumn string
+	for rows.Next() { // there is only one resulting row
+		if err := rows.Scan(&totalTimeColumn); err != nil {
+			return "", err
+		}
+	}
+	return totalTimeColumn, nil
+}
+
 func (m *Monitor) monitorServer() (*sql.Monitor, error) {
 	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
 
@@ -266,11 +295,18 @@ func (m *Monitor) monitorServer() (*sql.Monitor, error) {
 		return nil, err
 	}
 
+	connStr += " dbname=" + m.conf.MasterDBName
+
+	m.totalTimeColumn, err = m.determineTotalTimeColumn(connStr)
+	if err != nil {
+		return nil, err
+	}
+
 	return sqlMon, sqlMon.Configure(&sql.Config{
 		MonitorConfig:    m.conf.MonitorConfig,
-		ConnectionString: connStr + " dbname=" + m.conf.MasterDBName,
+		ConnectionString: connStr,
 		DBDriver:         "postgres",
-		Queries:          defaultServerQueries,
+		Queries:          defaultServerQueries(m.totalTimeColumn),
 		LogQueries:       m.conf.LogQueries,
 	})
 }
@@ -287,7 +323,7 @@ func (m *Monitor) monitorStatements() (*sql.Monitor, error) {
 		MonitorConfig:    m.conf.MonitorConfig,
 		ConnectionString: connStr + " dbname=" + m.conf.MasterDBName,
 		DBDriver:         "postgres",
-		Queries:          makeDefaultStatementsQueries(m.conf.TopQueryLimit),
+		Queries:          makeDefaultStatementsQueries(m.conf.TopQueryLimit, m.totalTimeColumn),
 		LogQueries:       m.conf.LogQueries,
 	})
 }
