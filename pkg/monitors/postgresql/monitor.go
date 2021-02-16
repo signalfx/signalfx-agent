@@ -136,7 +136,6 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	m.serverMonitor, err = m.monitorServer()
 	if err != nil {
-		m.database.Close()
 		return fmt.Errorf("could not monitor postgresql server: %v", err)
 	}
 
