@@ -9,9 +9,28 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
 )
 
+func TestNopFilter(t *testing.T) {
+	gateway := newFakeGateway(1)
+	f := nopFilter{}
+	svc := NewInventorySvc(gateway, testLog, f)
+	inv, err := svc.RetrieveInventory()
+	require.NoError(t, err)
+	require.Equal(t, 4, len(inv.Objects))
+}
+
 func TestExprFilterOutAllInventory(t *testing.T) {
 	gateway := newFakeGateway(1)
 	f, err := NewFilter("Datacenter == 'X'")
+	require.NoError(t, err)
+	svc := NewInventorySvc(gateway, testLog, f)
+	inv, err := svc.RetrieveInventory()
+	assert.NoError(t, err)
+	assert.Equal(t, 0, len(inv.Objects))
+}
+
+func TestExprFilterInAllInventoryInClusters(t *testing.T) {
+	gateway := newFakeGateway(1)
+	f, err := NewFilter("Datacenter == 'foo dc' && Cluster == 'foo cluster'")
 	require.NoError(t, err)
 	svc := NewInventorySvc(gateway, testLog, f)
 	inv, err := svc.RetrieveInventory()
@@ -21,7 +40,8 @@ func TestExprFilterOutAllInventory(t *testing.T) {
 
 func TestExprFilterInAllInventory(t *testing.T) {
 	gateway := newFakeGateway(1)
-	f, err := NewFilter("Datacenter == 'foo dc' && Cluster == 'foo cluster'")
+	// there are two hosts in this DC that aren't in clusters for a total of four
+	f, err := NewFilter("Datacenter == 'foo dc'")
 	require.NoError(t, err)
 	svc := NewInventorySvc(gateway, testLog, f)
 	inv, err := svc.RetrieveInventory()
