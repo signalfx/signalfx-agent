@@ -18,6 +18,7 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/services"
 	"github.com/signalfx/signalfx-agent/pkg/observers"
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 )
 
 const (
@@ -142,6 +143,9 @@ type Docker struct {
 type Config struct {
 	config.ObserverConfig
 	DockerURL string `yaml:"dockerURL" default:"unix:///var/run/docker.sock"`
+	// The time to wait before resyncing the list of containers the monitor maintains
+	// through the docker event listener example: cacheSyncInterval: "20m"
+	CacheSyncInterval timeutil.Duration `yaml:"cacheSyncInterval" default:"60m"`
 	// A mapping of container label names to dimension names that will get
 	// applied to the metrics of all discovered services. The corresponding
 	// label values will become the dimension values for the mapped name.  E.g.
@@ -187,11 +191,8 @@ func (docker *Docker) Configure(config *Config) error {
 	var ctx context.Context
 	ctx, docker.cancel = context.WithCancel(context.Background())
 
-	err = dockercommon.ListAndWatchContainers(ctx, client, docker.changeHandler, nil, logger)
-	if err != nil {
-		logger.WithError(err).Error("Could not list docker containers")
-		return err
-	}
+	dockercommon.ListAndWatchContainers(ctx, client, docker.changeHandler, nil, logger, config.CacheSyncInterval.AsDuration())
+
 	return nil
 }
 
