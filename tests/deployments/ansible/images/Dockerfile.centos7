@@ -3,6 +3,7 @@ FROM centos:7
 ENV container docker
 
 RUN yum install -y systemd procps initscripts python3-pip
+RUN pip3 install -U pip==20.3.4
 
 ARG ANSIBLE_VERSION='==2.4.0'
 RUN pip3 install ansible${ANSIBLE_VERSION}
