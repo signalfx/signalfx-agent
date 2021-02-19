@@ -8,7 +8,6 @@ import (
 	dtypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/filters"
 	docker "github.com/docker/docker/client"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
 	log "github.com/sirupsen/logrus"
 )
@@ -20,7 +19,7 @@ import (
 type ContainerChangeHandler func(old *dtypes.ContainerJSON, new *dtypes.ContainerJSON)
 
 // ListAndWatchContainers accepts a changeHandler that gets called as containers come and go.
-func ListAndWatchContainers(ctx context.Context, client *docker.Client, changeHandler ContainerChangeHandler, imageFilter filter.StringFilter, logger log.FieldLogger) error {
+func ListAndWatchContainers(ctx context.Context, client *docker.Client, changeHandler ContainerChangeHandler, imageFilter filter.StringFilter, logger log.FieldLogger, syncTime time.Duration) {
 	lock := sync.Mutex{}
 	containers := make(map[string]*dtypes.ContainerJSON)
 
@@ -39,10 +38,54 @@ func ListAndWatchContainers(ctx context.Context, client *docker.Client, changeHa
 		return false
 	}
 
-	watchStarted := make(chan struct{})
-	// channel to end goroutines when the initial list of containers fails
-	endRoutine := make(chan struct{})
+	syncContainerList := func() error {
+		f := filters.NewArgs()
+		f.Add("status", "running")
+		options := dtypes.ContainerListOptions{
+			Filters: f,
+		}
+		containerList, err := client.ContainerList(ctx, options)
+		if err != nil {
+			return err
+		}
+
+		type void struct{}
+		containersMap := make(map[string]void, len(containerList))
+
+		wg := sync.WaitGroup{}
+		for i := range containerList {
+			// The Docker API has a different return type for list vs. inspect, and
+			// no way to get the return type of list for individual containers,
+			// which makes this harder than it should be.
+			// Add new entries and skip containers that are already cached
+			if _, ok := containers[containerList[i].ID]; !ok {
+				wg.Add(1)
+				go func(id string) {
+					lock.Lock()
+					updateContainer(id)
+					changeHandler(nil, containers[id])
+					lock.Unlock()
+					wg.Done()
+				}(containerList[i].ID)
+			}
+			// Map will be used to find the delta
+			containersMap[containerList[i].ID] = void{}
+		}
+		wg.Wait()
+		// Find stale entries and delete them
+		for containerID := range containers {
+			if _, ok := containersMap[containerID]; !ok {
+				logger.Debugf("Docker container %s no longer exists, removing from cache", containerID)
+				changeHandler(containers[containerID], nil)
+				delete(containers, containerID)
+			}
+		}
+		return nil
+	}
+
 	go func() {
+		refreshTicker := time.NewTicker(syncTime)
+		defer refreshTicker.Stop()
 		// This pattern is taken from
 		// https://github.com/docker/cli/blob/master/cli/command/container/stats.go
 		f := filters.NewArgs()
@@ -67,12 +110,20 @@ func ListAndWatchContainers(ctx context.Context, client *docker.Client, changeHa
 			logger.Infof("Watching for Docker events since %s", since)
 			eventCh, errCh := client.Events(ctx, options)
 
-			if !utils.IsSignalChanClosed(watchStarted) {
-				close(watchStarted)
+			err := syncContainerList()
+			if err != nil {
+				logger.WithError(err).Error("Error while syncing container cache")
 			}
 
 			for {
 				select {
+				case <-refreshTicker.C:
+					logger.Debugf("sync container cache")
+					err := syncContainerList()
+					if err != nil {
+						logger.WithError(err).Error("Error while periodically syncing container cache")
+					}
+
 				case event := <-eventCh:
 					lock.Lock()
 
@@ -83,8 +134,8 @@ func ListAndWatchContainers(ctx context.Context, client *docker.Client, changeHa
 					case "destroy":
 						logger.Debugf("Docker container was destroyed: %s", event.ID)
 						if _, ok := containers[event.ID]; ok {
-							delete(containers, event.ID)
 							changeHandler(containers[event.ID], nil)
+							delete(containers, event.ID)
 						}
 					default:
 						oldContainer := containers[event.ID]
@@ -102,10 +153,6 @@ func ListAndWatchContainers(ctx context.Context, client *docker.Client, changeHa
 					time.Sleep(3 * time.Second)
 					continue START_STREAM
 
-				case <-endRoutine:
-					logger.Error("Error building the initial container list, ending routine")
-					return
-
 				case <-ctx.Done():
 					// Event stream is tied to the same context and will quit
 					// also.
@@ -114,36 +161,4 @@ func ListAndWatchContainers(ctx context.Context, client *docker.Client, changeHa
 			}
 		}
 	}()
-
-	<-watchStarted
-
-	f := filters.NewArgs()
-	f.Add("status", "running")
-	options := dtypes.ContainerListOptions{
-		Filters: f,
-	}
-	containerList, err := client.ContainerList(ctx, options)
-	if err != nil {
-		close(endRoutine)
-		return err
-	}
-
-	wg := sync.WaitGroup{}
-	for i := range containerList {
-		wg.Add(1)
-		// The Docker API has a different return type for list vs. inspect, and
-		// no way to get the return type of list for individual containers,
-		// which makes this harder than it should be.
-		go func(id string) {
-			lock.Lock()
-			updateContainer(id)
-			changeHandler(nil, containers[id])
-			lock.Unlock()
-			wg.Done()
-		}(containerList[i].ID)
-	}
-
-	wg.Wait()
-
-	return nil
 }
