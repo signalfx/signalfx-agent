@@ -1,4 +1,5 @@
 ARG GO_VERSION=1.14.2
+ARG PIP_VERSION=21.0.1
 
 ###### Agent Build Image ########
 FROM ubuntu:16.04 as agent-builder
@@ -255,7 +256,9 @@ RUN patchelf --add-needed libm-2.23.so /opt/deps/libvarnishapi.so.1.0.4
 ###### Python Plugin Image ######
 FROM collectd as python-plugins
 
-RUN python3 -m pip install yq &&\
+ARG PIP_VERSION
+
+RUN python3 -m pip install --upgrade pip==$PIP_VERSION && python3 -m pip install yq &&\
     wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 &&\
     chmod +x /usr/bin/jq
 
