@@ -10,7 +10,7 @@ Monitor Type: `prometheus/redis` ([Source](https://github.com/signalfx/signalfx-
 
 ## Overview
 
-This monitor scrapes [Prmoetheus Redis
+This monitor scrapes [Prometheus Redis
 Exporter](https://github.com/oliver006/redis_exporter) metrics and sends
 them to SignalFx.  It is a wrapper around the
 [prometheus-exporter](./prometheus-exporter.md) monitor that provides a
@@ -119,5 +119,3 @@ This monitor emits all metrics by default; however, **none are categorized as
  - ***`redis_used_cpu_user_children`*** (*gauge*)<br>    used_cpu_user_children metric
 The agent does not do any built-in filtering of metrics coming out of this
 monitor.
-
-

@@ -10,7 +10,7 @@ Monitor Type: `prometheus/node` ([Source](https://github.com/signalfx/signalfx-a
 
 ## Overview
 
-This monitor scrapes [Prmoetheus Node
+This monitor scrapes [Prometheus Node
 Exporter](https://github.com/prometheus/node_exporter) metrics and sends
 them to SignalFx.  It is a wrapper around the
 [prometheus-exporter](./prometheus-exporter.md) monitor that provides a
@@ -218,5 +218,3 @@ This monitor emits all metrics by default; however, **none are categorized as
  - ***`node_vmstat_pswpout`*** (*gauge*)<br>    /proc/vmstat information field pswpout
 The agent does not do any built-in filtering of metrics coming out of this
 monitor.
-
-

@@ -10,7 +10,7 @@ Monitor Type: `prometheus/nginx-vts` ([Source](https://github.com/signalfx/signa
 
 ## Overview
 
-This monitor scrapes [Prmoetheus Nginx VTS
+This monitor scrapes [Prometheus Nginx VTS
 exporter](https://github.com/hnlq715/nginx-vts-exporter) metrics from a
 Prometheus exporter and sends them to SignalFx.  It is a wrapper around the
 [prometheus-exporter](./prometheus-exporter.md) monitor that provides a
@@ -86,6 +86,3 @@ metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
-

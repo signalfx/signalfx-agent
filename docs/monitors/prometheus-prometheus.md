@@ -10,7 +10,7 @@ Monitor Type: `prometheus/prometheus` ([Source](https://github.com/signalfx/sign
 
 ## Overview
 
-This monitor scrapes [Prmoetheus server's own internal
+This monitor scrapes [Prometheus server's own internal
 collector](https://prometheus.io/docs/prometheus/latest/getting_started/#configuring-prometheus-to-monitor-itself)
 metrics from a Prometheus exporter and sends them to SignalFx.  It is a
 wrapper around the [prometheus-exporter](./prometheus-exporter.md) monitor
@@ -202,5 +202,3 @@ This monitor emits all metrics by default; however, **none are categorized as
  - ***`promhttp_metric_handler_requests_total`*** (*cumulative*)<br>    Total number of scrapes by HTTP status code
 The agent does not do any built-in filtering of metrics coming out of this
 monitor.
-
-

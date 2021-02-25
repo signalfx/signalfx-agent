@@ -10,7 +10,7 @@ Monitor Type: `prometheus/postgres` ([Source](https://github.com/signalfx/signal
 
 ## Overview
 
-This monitor scrapes [Prmoetheus PostgreSQL Server
+This monitor scrapes [Prometheus PostgreSQL Server
 Exporter](https://github.com/wrouesnel/postgres_exporter) metrics and sends
 them to SignalFx.  It is a wrapper around the
 [prometheus-exporter](./prometheus-exporter.md) monitor that provides a
@@ -309,6 +309,3 @@ metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
-

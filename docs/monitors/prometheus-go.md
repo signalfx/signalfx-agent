@@ -10,7 +10,7 @@ Monitor Type: `prometheus/go` ([Source](https://github.com/signalfx/signalfx-age
 
 ## Overview
 
-This monitor scrapes [Prmoetheus Go
+This monitor scrapes [Prometheus Go
 collector](https://godoc.org/github.com/prometheus/client_golang/prometheus#NewGoCollector)
 and [Prometheus process
 collector](https://godoc.org/github.com/prometheus/client_golang/prometheus#NewProcessCollector)
@@ -107,6 +107,3 @@ metrics do not need to be added to `extraMetrics`.
 
 To see a list of metrics that will be emitted you can run `agent-status
 monitors` after configuring this monitor in a running agent instance.
-
-
-
