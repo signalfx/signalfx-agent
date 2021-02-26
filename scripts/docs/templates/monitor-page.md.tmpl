@@ -17,6 +17,7 @@ The **nested** `{{.yamlName}}` config object has the following fields:
 
 {{ with ds "monitor" }}
 {{ $sendAll := .sendAll -}}
+{{ $noneIncluded := .noneIncluded -}}
 {{ $sendUnknown := .sendUnknown -}}
 {{ $doc_types := .doc_types -}}
 
@@ -61,9 +62,15 @@ This monitor has no configuration options.
 
 These are the metrics available for this monitor.
 {{ if not $sendAll -}}
+{{ if $noneIncluded -}}
+**All of the metrics emitted from this monitor are categorized as
+[custom](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)**
+but the ones that are emitted by default from the monitor are ***in bold and italics*** in the list below.
+{{ else -}}
 Metrics that are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
 (*default*) are ***in bold and italics*** in the list below.
+{{- end}}
 {{- else -}}
 This monitor emits all metrics by default; however, **none are categorized as
 [container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)

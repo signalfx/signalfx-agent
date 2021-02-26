@@ -111,4 +111,5 @@ monitors:
     
   monitorType: collectd/tomcat
   sendUnknown: true
+  noneIncluded: true
   properties:

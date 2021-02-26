@@ -34,14 +34,15 @@ type GroupMetadata struct {
 
 // MonitorMetadata contains a monitor's metadata.
 type MonitorMetadata struct {
-	MonitorType string                    `json:"monitorType" yaml:"monitorType"`
-	SendAll     bool                      `json:"sendAll" yaml:"sendAll"`
-	SendUnknown bool                      `json:"sendUnknown" yaml:"sendUnknown"`
-	Dimensions  map[string]DimMetadata    `json:"dimensions"`
-	Doc         string                    `json:"doc"`
-	Groups      map[string]*GroupMetadata `json:"groups"`
-	Metrics     map[string]MetricMetadata `json:"metrics"`
-	Properties  map[string]PropMetadata   `json:"properties"`
+	MonitorType  string                    `json:"monitorType" yaml:"monitorType"`
+	SendAll      bool                      `json:"sendAll" yaml:"sendAll"`
+	SendUnknown  bool                      `json:"sendUnknown" yaml:"sendUnknown"`
+	NoneIncluded bool                      `json:"noneIncluded" yaml:"noneIncluded"`
+	Dimensions   map[string]DimMetadata    `json:"dimensions"`
+	Doc          string                    `json:"doc"`
+	Groups       map[string]*GroupMetadata `json:"groups"`
+	Metrics      map[string]MetricMetadata `json:"metrics"`
+	Properties   map[string]PropMetadata   `json:"properties"`
 }
 
 // PackageMetadata describes a package directory that may have one or more monitors.

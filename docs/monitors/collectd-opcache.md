@@ -122,9 +122,10 @@ Configuration](../monitor-config.md#common-configuration).**
 ## Metrics
 
 These are the metrics available for this monitor.
-Metrics that are categorized as
-[container/host](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)
-(*default*) are ***in bold and italics*** in the list below.
+**All of the metrics emitted from this monitor are categorized as
+[custom](https://docs.signalfx.com/en/latest/admin-guide/usage.html#about-custom-bundled-and-high-resolution-metrics)**
+but the ones that are emitted by default from the monitor are ***in bold and italics*** in the list below.
+
 
 
  - ***`cache_ratio.opcache_statistics-opcache_hit_rate`*** (*gauge*)<br>    Hits / (Hits + Miss).

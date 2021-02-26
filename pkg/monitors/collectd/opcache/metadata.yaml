@@ -121,5 +121,6 @@ monitors:
       default: true
       type: gauge
   monitorType: collectd/opcache
+  noneIncluded: true
   properties:
 
