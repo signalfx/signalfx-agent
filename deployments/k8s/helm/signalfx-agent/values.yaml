@@ -344,4 +344,4 @@ observers: []
 
 # optional poddisruptionbudget object
 podDisruptionBudget:
-  minAvailable: 1
+  maxUnavailable: 1
