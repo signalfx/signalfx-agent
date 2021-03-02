@@ -342,3 +342,6 @@ configureStandardObservers: true
 # Added to configs regardless of the value of `configureStandardObservers`
 observers: []
 
+# optional poddisruptionbudget object
+podDisruptionBudget:
+  minAvailable: 1
