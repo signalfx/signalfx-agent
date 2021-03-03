@@ -27,7 +27,7 @@ render() {
       --output-dir $tmpdir \
       $AGENT_CHART_DIR
 
-  templates="configmap.yaml daemonset.yaml deployment.yaml clusterrole.yaml clusterrolebinding.yaml serviceaccount.yaml configmap-role.yaml configmap-rolebinding.yaml"
+  templates="configmap.yaml daemonset.yaml deployment.yaml clusterrole.yaml clusterrolebinding.yaml serviceaccount.yaml configmap-role.yaml configmap-rolebinding.yaml pdb.yaml"
   for f in $templates; do
 	fullpath=$tmpdir/signalfx-agent/templates/$f
 	if [[ "$f" == "daemonset.yaml" && $isServerless == "true" ]]; then
@@ -35,6 +35,10 @@ render() {
 	fi
 
 	if [[ "$f" == "deployment.yaml" && $isServerless == "false" ]]; then
+	  continue
+	fi
+
+	if [[ "$f" == "pdb.yaml" && $isServerless == "false" ]]; then
 	  continue
 	fi
 

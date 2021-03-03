@@ -1,0 +1,13 @@
+---
+# Source: signalfx-agent/templates/pdb.yaml
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: signalfx-agent
+  labels:
+    app: signalfx-agent
+spec:
+  selector:
+    matchLabels:
+      app: signalfx-agent
+  maxUnavailable: 1
