@@ -20,8 +20,8 @@ func AWSUniqueID(cloudMetadataTimeout timeutil.Duration) string {
 	resp, err := c.Get("http://169.254.169.254/2014-11-05/dynamic/instance-identity/document")
 	if err != nil {
 		log.WithFields(log.Fields{
-			"error": err,
-		}).Debug("Failed to get AWS instance-identity")
+			"detail": err,
+		}).Info("No AWS metadata server detected, assuming not on EC2")
 		return ""
 	}
 	defer resp.Body.Close()
@@ -30,7 +30,7 @@ func AWSUniqueID(cloudMetadataTimeout timeutil.Duration) string {
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
-		}).Debug("Failed to read AWS instance-identity response")
+		}).Info("Failed to read AWS instance-identity response")
 		return ""
 	}
 
@@ -45,12 +45,12 @@ func AWSUniqueID(cloudMetadataTimeout timeutil.Duration) string {
 		log.WithFields(log.Fields{
 			"error": err,
 			"body":  string(body),
-		}).Debug("Failed to unmarshal AWS instance-identity response")
+		}).Info("Failed to unmarshal AWS instance-identity response")
 		return ""
 	}
 
 	if doc.AccountID == "" || doc.InstanceID == "" || doc.Region == "" {
-		log.Debugf("One (or more) required field is empty. AccountID: %s ; InstanceID: %s ; Region: %s", doc.AccountID, doc.InstanceID, doc.Region)
+		log.Errorf("One (or more) required field is empty. AccountID: %s ; InstanceID: %s ; Region: %s", doc.AccountID, doc.InstanceID, doc.Region)
 		return ""
 	}
 

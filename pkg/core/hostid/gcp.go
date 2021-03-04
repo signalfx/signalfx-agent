@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
-	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 // GoogleComputeID generates a unique id for the compute instance that the
@@ -41,7 +41,9 @@ func getMetadata(path string, cloudMetadataTimeout timeutil.Duration) string {
 
 	resp, err := c.Do(req)
 	if err != nil {
-		logrus.WithError(err).Debugf("Failed to query GCP Metadata endpoint at %s", url)
+		log.WithFields(log.Fields{
+			"detail": err,
+		}).Infof("No GCP metadata server detected at %s , assuming not on GCP", url)
 		return ""
 	}
 	defer resp.Body.Close()
