@@ -42577,7 +42577,7 @@
       "monitorType": "nagios",
       "sendAll": false,
       "sendUnknown": false,
-      "noneIncluded": false,
+      "noneIncluded": true,
       "dimensions": {
         "command": {
           "description": "The configured `command` for this monitor."

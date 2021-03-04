@@ -40,4 +40,5 @@ monitors:
       default: true
       type: gauge
   monitorType: nagios
+  noneIncluded: true
   properties:
