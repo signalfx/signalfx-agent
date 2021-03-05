@@ -80,19 +80,19 @@ func (m *Monitor) Configure(conf *Config) error {
 	sendNodeMetrics := conf.CollectNodes
 	sendQueueMetrics := conf.CollectQueues
 
-	if m.Output.HasEnabledMetricInGroup(groupChannel) {
+	if m.Output.HasEnabledMetricInGroup(groupChannel) && sendChannelMetrics == nil {
 		sendChannelMetrics = pointer.Bool(true)
 	}
-	if m.Output.HasEnabledMetricInGroup(groupConnection) {
+	if m.Output.HasEnabledMetricInGroup(groupConnection) && sendConnectionMetrics == nil {
 		sendConnectionMetrics = pointer.Bool(true)
 	}
-	if m.Output.HasEnabledMetricInGroup(groupExchange) {
+	if m.Output.HasEnabledMetricInGroup(groupExchange) && sendExchangeMetrics == nil {
 		sendExchangeMetrics = pointer.Bool(true)
 	}
-	if m.Output.HasEnabledMetricInGroup(groupNode) {
+	if m.Output.HasEnabledMetricInGroup(groupNode) && sendNodeMetrics == nil {
 		sendNodeMetrics = pointer.Bool(true)
 	}
-	if m.Output.HasEnabledMetricInGroup(groupQueue) {
+	if m.Output.HasEnabledMetricInGroup(groupQueue) && sendQueueMetrics == nil {
 		sendQueueMetrics = pointer.Bool(true)
 	}
 
