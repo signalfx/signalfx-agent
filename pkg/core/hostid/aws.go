@@ -25,6 +25,10 @@ func AWSUniqueID(cloudMetadataTimeout timeutil.Duration) string {
 		return ""
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode == http.StatusNotFound {
+		log.Debug("HTTP status 404, assuming not on EC2")
+		return ""
+	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
