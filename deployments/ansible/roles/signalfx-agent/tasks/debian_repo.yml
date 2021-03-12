@@ -21,6 +21,7 @@
     filename: 'signalfx-agent'
     mode: 644
     state: present
+  when: not (sfx_skip_repo | bool)
 
 - name: Install signalfx-agent via apt package manager
   apt:

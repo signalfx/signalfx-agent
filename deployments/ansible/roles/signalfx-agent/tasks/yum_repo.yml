@@ -12,6 +12,7 @@
     gpgkey: "{{ sfx_repo_base_url }}/signalfx-agent-rpm/splunk-B3CD4420.pub"
     gpgcheck: yes
     enabled: yes
+  when: not (sfx_skip_repo | bool)
 
 - name: Install signalfx-agent via yum package manager
   yum:
