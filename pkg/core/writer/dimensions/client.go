@@ -30,6 +30,7 @@ type DimensionClient struct {
 	ctx           context.Context
 	Token         string
 	APIURL        *url.URL
+	extraHeaders  map[string]string
 	client        *http.Client
 	requestSender *requests.ReqSender
 	deduplicator  *deduplicator
@@ -89,6 +90,7 @@ func NewDimensionClient(ctx context.Context, conf *config.WriterConfig) (*Dimens
 		ctx:               ctx,
 		Token:             conf.SignalFxAccessToken,
 		APIURL:            conf.ParsedAPIURL(),
+		extraHeaders:      conf.ExtraHeaders,
 		sendDelay:         time.Duration(conf.PropertiesSendDelaySeconds) * time.Second,
 		delayedSet:        make(map[types.DimensionKey]*types.Dimension),
 		delayedQueue:      make(chan *queuedDimension, conf.PropertiesMaxBuffered),
@@ -203,6 +205,10 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 		req, err = dc.makePatchRequest(dim.Name, dim.Value, dim.Properties, dim.Tags)
 	} else {
 		req, err = dc.makeReplaceRequest(dim.Name, dim.Value, dim.Properties, dim.Tags)
+	}
+
+	for header, val := range dc.extraHeaders {
+		req.Header.Set(header, val)
 	}
 
 	if err != nil {

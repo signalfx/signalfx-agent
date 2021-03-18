@@ -58215,6 +58215,14 @@
               "required": false,
               "type": "bool",
               "elementKind": ""
+            },
+            {
+              "yamlName": "extraHeaders",
+              "doc": "Additional headers to add to any outgoing HTTP requests from the agent.",
+              "default": null,
+              "required": false,
+              "type": "map",
+              "elementKind": "string"
             }
           ]
         }
