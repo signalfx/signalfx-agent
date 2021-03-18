@@ -157,6 +157,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 
 	sw.client = sfxclient.NewHTTPSink(sinkOptions...)
 	sw.client.AuthToken = conf.SignalFxAccessToken
+	sw.client.AdditionalHeaders = conf.ExtraHeaders
 
 	sw.client.Client.Timeout = conf.Timeout.AsDuration()
 

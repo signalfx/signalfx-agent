@@ -124,6 +124,8 @@ type WriterConfig struct {
 	Splunk *SplunkConfig `yaml:"splunk"`
 	// If set to `false`, output to SignalFx will be disabled.
 	SignalFxEnabled *bool `yaml:"signalFxEnabled" default:"true"`
+	// Additional headers to add to any outgoing HTTP requests from the agent.
+	ExtraHeaders map[string]string `yaml:"extraHeaders"`
 	// The following are propagated from elsewhere
 	HostIDDims          map[string]string      `yaml:"-"`
 	IngestURL           string                 `yaml:"-"`
