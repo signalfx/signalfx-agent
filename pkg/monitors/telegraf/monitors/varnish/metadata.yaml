@@ -72,35 +72,35 @@ monitors:
     varnish.backend_conn:
       description: Successful connections to a given backend.
       default: false
-      type: gauge
+      type: cumulative
     varnish.backend_recycle:
       description: Backend connections with keep-alive that are returned to the pool of connections.
       default: false
-      type: gauge
+      type: cumulative
     varnish.backend_reuse:
       description: Recycled connections that has were reused.
       default: false
-      type: gauge
+      type: cumulative
     varnish.backend_toolate:
       description: Backend connections closed because they were idle too long.
       default: false
-      type: gauge
+      type: cumulative
     varnish.backend_fail:
       description: Failed connections for a given backend.
       default: true
-      type: gauge
+      type: cumulative
     varnish.backend_unhealthy:
       description: Backend connections not tried because the backend was unhealthy.
       default: true
-      type: gauge
+      type: cumulative
     varnish.backend_busy:
       description: Maximum number of connections to a given backend.
       default: false
-      type: gauge
+      type: cumulative
     varnish.backend_req:
       description: Number of requests to the backend.
       default: true
-      type: gauge
+      type: cumulative
   monitorType: telegraf/varnish
   sendAll: false
   properties:

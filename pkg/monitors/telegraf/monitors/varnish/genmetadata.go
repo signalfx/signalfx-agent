@@ -35,14 +35,14 @@ const (
 )
 
 var metricSet = map[string]monitors.MetricInfo{
-	varnishBackendBusy:      {Type: datapoint.Gauge},
-	varnishBackendConn:      {Type: datapoint.Gauge},
-	varnishBackendFail:      {Type: datapoint.Gauge},
-	varnishBackendRecycle:   {Type: datapoint.Gauge},
-	varnishBackendReq:       {Type: datapoint.Gauge},
-	varnishBackendReuse:     {Type: datapoint.Gauge},
-	varnishBackendToolate:   {Type: datapoint.Gauge},
-	varnishBackendUnhealthy: {Type: datapoint.Gauge},
+	varnishBackendBusy:      {Type: datapoint.Counter},
+	varnishBackendConn:      {Type: datapoint.Counter},
+	varnishBackendFail:      {Type: datapoint.Counter},
+	varnishBackendRecycle:   {Type: datapoint.Counter},
+	varnishBackendReq:       {Type: datapoint.Counter},
+	varnishBackendReuse:     {Type: datapoint.Counter},
+	varnishBackendToolate:   {Type: datapoint.Counter},
+	varnishBackendUnhealthy: {Type: datapoint.Counter},
 	varnishCacheHit:         {Type: datapoint.Counter},
 	varnishCacheHitpass:     {Type: datapoint.Counter},
 	varnishCacheMiss:        {Type: datapoint.Counter},

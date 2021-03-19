@@ -53119,49 +53119,49 @@
       },
       "metrics": {
         "varnish.backend_busy": {
-          "type": "gauge",
+          "type": "cumulative",
           "description": "Maximum number of connections to a given backend.",
           "group": null,
           "default": false
         },
         "varnish.backend_conn": {
-          "type": "gauge",
+          "type": "cumulative",
           "description": "Successful connections to a given backend.",
           "group": null,
           "default": false
         },
         "varnish.backend_fail": {
-          "type": "gauge",
+          "type": "cumulative",
           "description": "Failed connections for a given backend.",
           "group": null,
           "default": true
         },
         "varnish.backend_recycle": {
-          "type": "gauge",
+          "type": "cumulative",
           "description": "Backend connections with keep-alive that are returned to the pool of connections.",
           "group": null,
           "default": false
         },
         "varnish.backend_req": {
-          "type": "gauge",
+          "type": "cumulative",
           "description": "Number of requests to the backend.",
           "group": null,
           "default": true
         },
         "varnish.backend_reuse": {
-          "type": "gauge",
+          "type": "cumulative",
           "description": "Recycled connections that has were reused.",
           "group": null,
           "default": false
         },
         "varnish.backend_toolate": {
-          "type": "gauge",
+          "type": "cumulative",
           "description": "Backend connections closed because they were idle too long.",
           "group": null,
           "default": false
         },
         "varnish.backend_unhealthy": {
-          "type": "gauge",
+          "type": "cumulative",
           "description": "Backend connections not tried because the backend was unhealthy.",
           "group": null,
           "default": true
