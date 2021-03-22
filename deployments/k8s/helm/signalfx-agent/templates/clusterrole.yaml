@@ -18,6 +18,9 @@ rules:
   - nodes
   - nodes/spec
   - nodes/proxy
+  {{- if and .Values.podDisruptionBudget .Values.isServerless }}
+  - poddisruptionbudgets
+  {{- end }}
   - pods
   - pods/status
   - replicationcontrollers
