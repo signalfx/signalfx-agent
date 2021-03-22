@@ -13,3 +13,5 @@ sfx_service_group: signalfx-agent
 sfx_win_install_path: "C:\\Program Files\\SignalFx"
 sfx_win_conf_file_path: "\\ProgramData\\SignalFxAgent\\agent.yaml"
 sfx_win_dl_base_url: https://dl.signalfx.com
+
+sfx_skip_repo: false
