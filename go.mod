@@ -74,7 +74,7 @@ require (
 	github.com/prometheus/client_golang v1.8.0
 	github.com/prometheus/client_model v0.2.0
 	github.com/prometheus/common v0.15.0
-	github.com/prometheus/procfs v0.2.0
+	github.com/prometheus/procfs v0.6.0
 	github.com/samuel/go-zookeeper v0.0.0-20200724154423-2164a8ac840e
 	github.com/shirou/gopsutil v3.20.10+incompatible
 	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.2
@@ -98,8 +98,8 @@ require (
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200425165423-262c93980547
 	golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb
-	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
-	golang.org/x/sys v0.0.0-20201015000850-e3ed0017c211
+	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
+	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c
 	golang.org/x/tools v0.0.0-20201022035929-9cf592e881e9
 	google.golang.org/grpc v1.29.1
 	gopkg.in/fatih/set.v0 v0.1.0
