@@ -45,17 +45,17 @@ RUN apt update &&\
 
 ARG TARGET_ARCH
 
-ENV OPENJDK_BASE_URL="https://github.com/AdoptOpenJDK/openjdk11-binaries/releases/download"
+ENV OPENJDK_BASE_URL="https://github.com/AdoptOpenJDK/openjdk11-upstream-binaries/releases/download"
 RUN if [ "$TARGET_ARCH" = "amd64" ]; then \
-    OPENJDK_URL="${OPENJDK_BASE_URL}/jdk-11.0.9%2B11.1/OpenJDK11U-jdk_x64_linux_hotspot_11.0.9_11.tar.gz"; \
+    OPENJDK_URL="${OPENJDK_BASE_URL}/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_linux_11.0.10_9.tar.gz"; \
     else \
-    OPENJDK_URL="${OPENJDK_BASE_URL}/jdk-11.0.9%2B11.1/OpenJDK11U-jdk_aarch64_linux_hotspot_11.0.9_11.tar.gz"; \
+    OPENJDK_URL="${OPENJDK_BASE_URL}/jdk-11.0.10%2B9/OpenJDK11U-jdk_aarch64_linux_11.0.10_9.tar.gz"; \
     fi && \
     wget -O /tmp/openjdk.tar.gz "$OPENJDK_URL"
 
 RUN mkdir -p /opt/root && \
     tar -C /opt/root -xzf /tmp/openjdk.tar.gz && \
-    mv /opt/root/jdk* /opt/root/jdk && \
+    mv /opt/root/openjdk* /opt/root/jdk && \
     rm -f /tmp/openjdk.tar.gz
 
 ENV JAVA_HOME=/opt/root/jdk
