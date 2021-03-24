@@ -4,5 +4,5 @@ go 1.15
 
 require (
 	github.com/signalfx/golib/v3 v3.3.13
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 )

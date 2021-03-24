@@ -88,7 +88,7 @@ require (
 	github.com/sirupsen/logrus v1.6.0
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect; required; first version with go modules
-	github.com/stretchr/testify v1.6.1
+	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.6.4 // indirect
 	github.com/tinylib/msgp v1.1.5 // indirect
 	github.com/ulule/deepcopier v0.0.0-20171107155558-ca99b135e50f
