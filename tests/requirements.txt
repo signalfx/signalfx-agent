@@ -1,4 +1,4 @@
-PyYAML==5.1
+PyYAML==5.4
 black==18.9b0
 docker==4.1.0
 hvac==0.7.2
