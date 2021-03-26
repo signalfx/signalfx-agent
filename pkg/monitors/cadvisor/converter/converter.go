@@ -11,7 +11,7 @@ import (
 	info "github.com/google/cadvisor/info/v1"
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	stats "k8s.io/kubernetes/pkg/kubelet/apis/stats/v1alpha1"
+	stats "k8s.io/kubelet/pkg/apis/stats/v1alpha1"
 )
 
 // InfoProvider provides a swappable interface to actually get the cAdvisor

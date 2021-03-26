@@ -1,13 +1,13 @@
 package etcd2
 
 import (
-	//"github.com/coreos/etcd/client"
 	"context"
 
 	"github.com/gobwas/glob"
-	"github.com/signalfx/signalfx-agent/pkg/core/config/types"
 	log "github.com/sirupsen/logrus"
-	"go.etcd.io/etcd/client"
+	"go.etcd.io/etcd/client/v2"
+
+	"github.com/signalfx/signalfx-agent/pkg/core/config/types"
 )
 
 type etcd2ConfigSource struct {
