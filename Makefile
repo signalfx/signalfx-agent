@@ -19,7 +19,7 @@ gendependabot:
 	@echo "  - package-ecosystem: \"gomod\"\n    directory: \"/\"\n    schedule:\n      interval: \"daily\"" >> ${DEPENDABOT_PATH}
 	@set -e; for dir in $(ALL_JAVA_PKGS); do \
 		(echo "Add entry for \"$${dir:1}\"" && \
-		echo "  - package-ecosystem: \"java:maven\"\n    directory: \"$${dir:1}\"\n    schedule:\n      interval: \"daily\"" >> ${DEPENDABOT_PATH} ); \
+		echo "  - package-ecosystem: \"maven\"\n    directory: \"$${dir:1}\"\n    schedule:\n      interval: \"daily\"" >> ${DEPENDABOT_PATH} ); \
 	done
 	@set -e; for dir in $(ALL_JS_PKGS); do \
 		(echo "Add entry for \"$${dir:1}\"" && \

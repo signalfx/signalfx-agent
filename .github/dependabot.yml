@@ -6,15 +6,15 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
-  - package-ecosystem: "java:maven"
+  - package-ecosystem: "maven"
     directory: "/java/jmx"
     schedule:
       interval: "daily"
-  - package-ecosystem: "java:maven"
+  - package-ecosystem: "maven"
     directory: "/java/runner"
     schedule:
       interval: "daily"
-  - package-ecosystem: "java:maven"
+  - package-ecosystem: "maven"
     directory: "/tests/monitors/java_monitor/test_app"
     schedule:
       interval: "daily"
