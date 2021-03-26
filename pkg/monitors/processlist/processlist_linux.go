@@ -81,6 +81,11 @@ func ProcessList(conf *Config, cache *osCache) ([]*TopProcess, error) {
 			}
 		}
 
+		var memPercent float64
+		if hostMem.MemTotal != nil {
+			memPercent = 100.0 * float64(stat.RSS*cache.pageSize) / float64(*hostMem.MemTotal*1024)
+		}
+
 		out = append(out, &TopProcess{
 			ProcessID:           p.PID,
 			CreatedTime:         time.Unix(int64(st), 0),
@@ -91,7 +96,7 @@ func ProcessList(conf *Config, cache *osCache) ([]*TopProcess, error) {
 			WorkingSetSizeBytes: uint64(stat.RSS * cache.pageSize),
 			SharedMemBytes:      status.RssShmem + status.RssFile,
 			Status:              stat.State,
-			MemPercent:          100.0 * float64(stat.RSS*cache.pageSize) / float64(hostMem.MemTotal*1024),
+			MemPercent:          memPercent,
 			// gopsutil scales the times to seconds already
 			TotalCPUTime: time.Duration(stat.CPUTime() * float64(time.Second)),
 			Command:      strings.Join(cmdLine, " "),

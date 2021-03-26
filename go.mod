@@ -74,13 +74,13 @@ require (
 	github.com/prometheus/client_golang v1.8.0
 	github.com/prometheus/client_model v0.2.0
 	github.com/prometheus/common v0.15.0
-	github.com/prometheus/procfs v0.2.0
+	github.com/prometheus/procfs v0.6.0
 	github.com/samuel/go-zookeeper v0.0.0-20200724154423-2164a8ac840e
 	github.com/shirou/gopsutil v3.20.10+incompatible
 	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.2
 	github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 	github.com/signalfx/gateway v1.2.19-0.20191125135538-2c417b7ae0bd
-	github.com/signalfx/golib/v3 v3.3.16
+	github.com/signalfx/golib/v3 v3.3.33
 	github.com/signalfx/ingest-protocols v0.0.16
 	github.com/signalfx/signalfx-agent/pkg/apm v0.0.0-00010101000000-000000000000
 	github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5
@@ -98,8 +98,8 @@ require (
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.etcd.io/etcd v0.5.0-alpha.5.0.20200425165423-262c93980547
 	golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb
-	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
-	golang.org/x/sys v0.0.0-20201015000850-e3ed0017c211
+	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
+	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c
 	golang.org/x/tools v0.0.0-20201022035929-9cf592e881e9
 	google.golang.org/grpc v1.29.1
 	gopkg.in/fatih/set.v0 v0.1.0
