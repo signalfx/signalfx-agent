@@ -5,16 +5,52 @@ updates:
   - package-ecosystem: "gomod"
     directory: "/"
     schedule:
-      interval: "weekly"
+      interval: "daily"
+  - package-ecosystem: "java:maven"
+    directory: "/java/jmx"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "java:maven"
+    directory: "/java/runner"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "java:maven"
+    directory: "/tests/monitors/java_monitor/test_app"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "npm"
+    directory: "/test-services/ecsmeta/app"
+    schedule:
+      interval: "daily"
   - package-ecosystem: "gomod"
     directory: "/pkg/apm"
     schedule:
-      interval: "weekly"
+      interval: "daily"
   - package-ecosystem: "gomod"
     directory: "/thirdparty/cmux"
     schedule:
-      interval: "weekly"
+      interval: "daily"
   - package-ecosystem: "gomod"
     directory: "/thirdparty/cmux/example"
     schedule:
-      interval: "weekly"
+      interval: "daily"
+  - package-ecosystem: "pip"
+    directory: "/python"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pip"
+    directory: "/scripts/docs"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pip"
+    directory: "/test-services/awsapi"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "pip"
+    directory: "/tests"
+    schedule:
+      interval: "daily"
+  - package-ecosystem: "bundler"
+    directory: "/deployments/puppet"
+    schedule:
+      interval: "daily"
