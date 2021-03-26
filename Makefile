@@ -3,7 +3,11 @@ COLLECTD_COMMIT := 4d3327b14cf4359029613baf4f90c4952702105e
 BUILD_TIME ?= $$(date +%FT%T%z)
 NUM_CORES ?= $(shell getconf _NPROCESSORS_ONLN)
 
-ALL_MODULES := $(shell find . -type f -name "go.mod" -exec dirname {} \; | sort | egrep  '^./' )
+ALL_GO_MODULES := $(shell find . -type f -name "go.mod" -exec dirname {} \; | sort | egrep  '^./' )
+ALL_JAVA_PKGS := $(shell find . -type f -name "pom.xml" -exec dirname {} \; | sort | egrep  '^./' )
+ALL_JS_PKGS := $(shell find . -type f -name "package.json" -exec dirname {} \; | sort | egrep  '^./' )
+ALL_PYTHON_DEPS := $(shell find . -type f \( -name "setup.py" -o -name "requirements.txt" \) -exec dirname {} \; | sort | egrep  '^./')
+ALL_RUBY_GEMS := $(shell find . -type f -name "Gemfile.lock" -exec dirname {} \; | sort | egrep  '^./' )
 DEPENDABOT_PATH=./.github/dependabot.yml
 .PHONY: gendependabot
 gendependabot:
@@ -12,10 +16,26 @@ gendependabot:
 	@echo "version: 2" >> ${DEPENDABOT_PATH}
 	@echo "updates:" >> ${DEPENDABOT_PATH}
 	@echo "Add entry for \"/\""
-	@echo "  - package-ecosystem: \"gomod\"\n    directory: \"/\"\n    schedule:\n      interval: \"weekly\"" >> ${DEPENDABOT_PATH}
-	@set -e; for dir in $(ALL_MODULES); do \
+	@echo "  - package-ecosystem: \"gomod\"\n    directory: \"/\"\n    schedule:\n      interval: \"daily\"" >> ${DEPENDABOT_PATH}
+	@set -e; for dir in $(ALL_JAVA_PKGS); do \
 		(echo "Add entry for \"$${dir:1}\"" && \
-		  echo "  - package-ecosystem: \"gomod\"\n    directory: \"$${dir:1}\"\n    schedule:\n      interval: \"weekly\"" >> ${DEPENDABOT_PATH} ); \
+		echo "  - package-ecosystem: \"java:maven\"\n    directory: \"$${dir:1}\"\n    schedule:\n      interval: \"daily\"" >> ${DEPENDABOT_PATH} ); \
+	done
+	@set -e; for dir in $(ALL_JS_PKGS); do \
+		(echo "Add entry for \"$${dir:1}\"" && \
+		  echo "  - package-ecosystem: \"npm\"\n    directory: \"$${dir:1}\"\n    schedule:\n      interval: \"daily\"" >> ${DEPENDABOT_PATH} ); \
+	done
+	@set -e; for dir in $(ALL_GO_MODULES); do \
+		(echo "Add entry for \"$${dir:1}\"" && \
+		  echo "  - package-ecosystem: \"gomod\"\n    directory: \"$${dir:1}\"\n    schedule:\n      interval: \"daily\"" >> ${DEPENDABOT_PATH} ); \
+	done
+	@set -e; for dir in $(ALL_PYTHON_DEPS); do \
+		(echo "Add entry for \"$${dir:1}\"" && \
+		  echo "  - package-ecosystem: \"pip\"\n    directory: \"$${dir:1}\"\n    schedule:\n      interval: \"daily\"" >> ${DEPENDABOT_PATH} ); \
+	done
+	@set -e; for dir in $(ALL_RUBY_GEMS); do \
+		(echo "Add entry for \"$${dir:1}\"" && \
+		  echo "  - package-ecosystem: \"bundler\"\n    directory: \"$${dir:1}\"\n    schedule:\n      interval: \"daily\"" >> ${DEPENDABOT_PATH} ); \
 	done
 .PHONY: clean
 clean:
