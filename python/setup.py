@@ -10,7 +10,7 @@ setup(
     packages=find_packages(),
     install_requires=[
         'ujson==1.35',
-        'typing==3.6.4',
+        'typing==3.7.4.3',
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
