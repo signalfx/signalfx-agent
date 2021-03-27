@@ -5,7 +5,7 @@ hvac==0.7.2
 kubernetes==9.0.0
 mysql-connector-python==8.0.16
 netifaces==0.10.9
-protobuf==3.5.1
+protobuf==3.15.6
 psutil==5.6.6
 pylint==2.4.4
 pytest-html==1.22
