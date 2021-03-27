@@ -102,7 +102,7 @@ class PipeMessageWriter(_PipeMessageBase):
     """
 
     def __init__(self, *args):
-        super(PipeMessageWriter, self).__init__(*args)
+        super().__init__(*args)
         self.lock = threading.Lock()
 
     def open(self):

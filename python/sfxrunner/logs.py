@@ -24,7 +24,7 @@ class PipeLogHandler(logging.Handler):
         """
         self.writer = writer
 
-        super(PipeLogHandler, self).__init__()
+        super().__init__()
 
     def emit(self, record):
         self.writer.send_msg(
