@@ -8,7 +8,7 @@ netifaces==0.10.9
 protobuf==3.15.6
 psutil==5.6.6
 pylint==2.4.4
-pytest-html==1.22
+pytest-html==3.1.1
 pytest-rerunfailures==4.1
 pytest-xdist==2.0.0
 pytest==6.0.1
