@@ -94,7 +94,7 @@ def test_splunk_event_output():
     """
     with Agent.run(
         dedent(
-            f"""
+            """
          signalFxRealm: null
 
          writer:

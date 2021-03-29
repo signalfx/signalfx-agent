@@ -136,6 +136,7 @@ disable=print-statement,
         comprehension-escape,
         missing-docstring,
         fixme,
+        duplicate-code,
         bad-continuation,  # We use black so this shouldn't ever be relevant
         useless-object-inheritance  # This project still uses py2 so this isn't useful
 

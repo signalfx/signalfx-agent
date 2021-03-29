@@ -441,7 +441,7 @@ def pod_is_ready(name, namespace="default"):
     api = kube_client.CoreV1Api()
     pod = api.read_namespaced_pod(name, namespace=namespace)
     return pod.status.phase.lower() == "running" and all(
-        [container.ready for container in pod.status.container_statuses]
+        container.ready for container in pod.status.container_statuses
     )
 
 

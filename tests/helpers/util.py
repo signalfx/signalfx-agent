@@ -347,6 +347,7 @@ def retry(function, exception, max_attempts=5, interval_seconds=5):
         except exception as e:
             assert attempt < (max_attempts - 1), "%s failed after %d attempts!\n%s" % (function, max_attempts, str(e))
         time.sleep(interval_seconds)
+    return None
 
 
 def get_statsd_port(agent):
