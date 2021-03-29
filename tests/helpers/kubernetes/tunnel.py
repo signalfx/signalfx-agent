@@ -8,7 +8,7 @@ import yaml
 from kubernetes import client as kube_client
 from tests.helpers.util import pull_from_reader_in_background, wait_for
 
-from .utils import get_pod_logs, pod_is_ready, K8S_CREATE_TIMEOUT
+from tests.helpers.kubernetes.utils import get_pod_logs, pod_is_ready, K8S_CREATE_TIMEOUT
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
 

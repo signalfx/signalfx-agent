@@ -13,7 +13,7 @@ from tests.helpers.util import (
     wait_for,
 )
 
-from .common import is_agent_running_as_non_root, run_init_system_image
+from tests.packaging.common import is_agent_running_as_non_root, run_init_system_image
 
 pytestmark = pytest.mark.bundle
 

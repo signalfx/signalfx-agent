@@ -1,8 +1,8 @@
 from functools import partial as p
 from textwrap import dedent
 import pytest
-from tests.helpers.metadata import Metadata
 from signalfx.generated_protocol_buffers import signal_fx_protocol_buffers_pb2 as sf_pbuf
+from tests.helpers.metadata import Metadata
 from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint, has_datapoint_with_dim
 from tests.helpers.verify import run_agent_verify_default_metrics
