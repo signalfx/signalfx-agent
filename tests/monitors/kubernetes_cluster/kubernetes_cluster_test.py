@@ -540,13 +540,11 @@ def test_node_metrics_and_props(k8s_cluster):
             expected_props["kubernetes_node"] = node.metadata.name
 
             def has_props(node, props):
-                assert (
-                    {k.replace("/", "_").replace(".", "_"): v for k, v in props.items()}.items()
-                    <= agent.fake_services.dims["kubernetes_node_uid"]
-                    .get(node.metadata.uid, {})
-                    .get("customProperties", {})
-                    .items()
-                )
+                assert {
+                    k.replace("/", "_").replace(".", "_"): v for k, v in props.items()
+                }.items() <= agent.fake_services.dims["kubernetes_node_uid"].get(node.metadata.uid, {}).get(
+                    "customProperties", {}
+                ).items()
 
             wait_for_assertion(p(has_props, node, expected_props))
 
