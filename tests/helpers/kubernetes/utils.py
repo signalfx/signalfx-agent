@@ -440,9 +440,7 @@ def all_pods_have_ips(namespace="default"):
 def pod_is_ready(name, namespace="default"):
     api = kube_client.CoreV1Api()
     pod = api.read_namespaced_pod(name, namespace=namespace)
-    return pod.status.phase.lower() == "running" and all(
-        container.ready for container in pod.status.container_statuses
-    )
+    return pod.status.phase.lower() == "running" and all(container.ready for container in pod.status.container_statuses)
 
 
 def get_discovery_rule(yaml_file, observer, namespace="", container_index=0):

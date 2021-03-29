@@ -13,7 +13,7 @@ from tests.helpers.util import (
     wait_for,
 )
 
-from .common import (
+from tests.packaging.common import (
     AGENT_YAML_PATH,
     INIT_SYSTEMD,
     INIT_SYSV,

@@ -7,11 +7,11 @@ from contextlib import contextmanager
 import yaml
 from tests.paths import AGENT_BIN
 
-from . import fake_backend
-from .formatting import print_dp_or_event
-from .internalmetrics import InternalMetricsClient
-from .profiling import PProfClient
-from .util import get_unique_localhost, print_lines, retry_on_ebadf, run_subprocess
+import tests.helpers.fake_backend as fake_backend
+from tests.helpers.formatting import print_dp_or_event
+from tests.helpers.internalmetrics import InternalMetricsClient
+from tests.helpers.profiling import PProfClient
+from tests.helpers.util import get_unique_localhost, print_lines, retry_on_ebadf, run_subprocess
 
 
 # pylint: disable=too-many-arguments,too-many-instance-attributes

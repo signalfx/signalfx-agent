@@ -12,7 +12,7 @@ from tests.helpers.assertions import has_datapoint_with_dim
 from tests.helpers.formatting import print_dp_or_event
 from tests.helpers.util import copy_file_into_container, print_lines, wait_for, wait_for_assertion
 
-from .common import (
+from tests.packaging.common import (
     INIT_SYSTEMD,
     INIT_UPSTART,
     INSTALLER_PATH,
