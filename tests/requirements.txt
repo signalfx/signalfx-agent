@@ -11,7 +11,7 @@ pylint==2.4.4
 pytest-html==3.1.1
 pytest-rerunfailures==9.1.1
 pytest-xdist==2.0.0
-pytest==6.0.1
+pytest==6.2.2
 redis==2.10.6
 requests==2.22.0
 sanic==18.12.0
