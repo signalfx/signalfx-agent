@@ -9,7 +9,7 @@ setup(
     url="https://github.com/signalfx/signalfx-agent",
     packages=find_packages(),
     install_requires=[
-        'ujson==1.35',
+        'ujson==4.0.2',
     ],
     classifiers=[
         "Programming Language :: Python :: 3",
