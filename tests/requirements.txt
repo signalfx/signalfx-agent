@@ -16,6 +16,6 @@ redis==3.5.3
 requests==2.25.1
 sanic==18.12.0
 semver==2.13.0
-signalfx==1.0.19
+signalfx==1.1.13
 pika==1.0.1
 elasticsearch==7.12.0
