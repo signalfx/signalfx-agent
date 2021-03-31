@@ -3,7 +3,7 @@ import re
 from sanic import Sanic
 from sanic.response import text
 
-app = Sanic()
+app = Sanic(name=__name__)
 
 
 def parse_access_key_id(request):
