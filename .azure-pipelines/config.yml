@@ -289,7 +289,7 @@ jobs:
     displayName: 'Install pytest'
   - script: |
       mkdir -p test_output
-      AGENT_BIN=$(pwd)/signalfx-agent pytest -v -m perf_test --junitxml=test_output/test_results.xml --html=test_output/test_results.html --self-contained-html tests
+      AGENT_BIN=$(pwd)/signalfx-agent pytest -n1 -v -m perf_test --junitxml=test_output/test_results.xml --html=test_output/test_results.html --self-contained-html tests
     displayName: 'Run perf tests'
   - task: PublishBuildArtifacts@1
     inputs:
