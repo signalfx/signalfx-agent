@@ -447,7 +447,7 @@ def run_simple_sanic_app(app):
     loop = asyncio.new_event_loop()
 
     async def start_server():
-        server = app.create_server(sock=app_sock, access_log=False)
+        server = app.create_server(sock=app_sock, access_log=False, return_asyncio_server=True)
         loop.create_task(server)
 
     loop.create_task(start_server())
