@@ -34,7 +34,7 @@ require (
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/go-test/deep v1.0.7
 	github.com/gobwas/glob v0.2.4-0.20181002190808-e7a84e9525fe
-	github.com/gogo/protobuf v1.3.1
+	github.com/gogo/protobuf v1.3.2
 	github.com/google/cadvisor v0.26.1
 	github.com/gorilla/mux v1.8.0
 	github.com/guregu/null v4.0.0+incompatible // indirect
@@ -49,13 +49,13 @@ require (
 	github.com/influxdata/toml v0.0.0-20180607005434-2a2e3012f7cf // indirect
 	github.com/influxdata/wlog v0.0.0-20160411224016-7c63b0a71ef8 // indirect
 	github.com/jackc/pgx/v4 v4.6.0
-	github.com/jaegertracing/jaeger v1.21.0
+	github.com/jaegertracing/jaeger v1.22.0
 	github.com/kardianos/service v1.0.0
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/kr/pretty v0.2.1
 	github.com/leodido/go-urn v1.2.1 // indirect
-	github.com/lib/pq v1.8.0
-	github.com/mailru/easyjson v0.7.1
+	github.com/lib/pq v1.9.0
+	github.com/mailru/easyjson v0.7.6
 	github.com/mattn/go-xmlrpc v0.0.3
 	github.com/mauricelam/genny v0.0.0-20190320071652-0800202903e5
 	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
@@ -63,9 +63,9 @@ require (
 	github.com/mitchellh/hashstructure v1.0.0
 	github.com/mongodb/go-client-mongodb-atlas v0.2.0
 	github.com/naoina/go-stringutil v0.1.0 // indirect
-	github.com/olekukonko/tablewriter v0.0.1
-	github.com/onsi/ginkgo v1.14.1
-	github.com/onsi/gomega v1.10.2
+	github.com/olekukonko/tablewriter v0.0.4
+	github.com/onsi/ginkgo v1.14.2
+	github.com/onsi/gomega v1.10.4
 	github.com/openshift/api v3.9.0+incompatible
 	github.com/openshift/client-go v0.0.0-20201020071134-e303d21b3e32 // to make compatible w/ k8s.io/client-go v0.19.4
 	github.com/opentracing/opentracing-go v1.2.0
@@ -81,11 +81,11 @@ require (
 	github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 	github.com/signalfx/gateway v1.2.19-0.20191125135538-2c417b7ae0bd
 	github.com/signalfx/golib/v3 v3.3.33
-	github.com/signalfx/ingest-protocols v0.0.16
+	github.com/signalfx/ingest-protocols v0.1.2
 	github.com/signalfx/signalfx-agent/pkg/apm v0.0.0-00010101000000-000000000000
 	github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5
 	github.com/signalfx/signalfx-go-tracing v1.2.0
-	github.com/sirupsen/logrus v1.6.0
+	github.com/sirupsen/logrus v1.8.0
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect; required; first version with go modules
 	github.com/stretchr/testify v1.7.0
@@ -97,15 +97,15 @@ require (
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.etcd.io/etcd/client/v2 v2.305.0-alpha.0
-	golang.org/x/net v0.0.0-20201202161906-c7110b5ffcbb
+	golang.org/x/net v0.0.0-20210119194325-5f4716e94777
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c
-	golang.org/x/tools v0.0.0-20201022035929-9cf592e881e9
-	google.golang.org/grpc v1.32.0
+	golang.org/x/tools v0.1.0
+	google.golang.org/grpc v1.33.2
 	gopkg.in/fatih/set.v0 v0.1.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.28.0
-	gopkg.in/yaml.v2 v2.3.0
+	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools v2.2.0+incompatible
 	k8s.io/api v0.20.5
 	k8s.io/apimachinery v0.20.5
