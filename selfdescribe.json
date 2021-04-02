@@ -12471,7 +12471,7 @@
     },
     {
       "monitorType": "collectd/jenkins",
-      "sendAll": false,
+      "sendAll": true,
       "sendUnknown": false,
       "noneIncluded": false,
       "dimensions": null,

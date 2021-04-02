@@ -111,5 +111,6 @@ monitors:
       description: Total Memory used by instance
       default: true
       type: gauge
+  sendAll: true
   monitorType: collectd/jenkins
   properties:
