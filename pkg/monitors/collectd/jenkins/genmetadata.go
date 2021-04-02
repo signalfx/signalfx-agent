@@ -71,5 +71,5 @@ var monitorMetadata = monitors.Metadata{
 	SendUnknown:     false,
 	Groups:          groupSet,
 	GroupMetricsMap: groupMetricsMap,
-	SendAll:         false,
+	SendAll:         true,
 }
