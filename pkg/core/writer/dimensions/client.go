@@ -182,7 +182,7 @@ func (dc *DimensionClient) processQueue() {
 			dc.Unlock()
 
 			if err := dc.setPropertiesOnDimension(delayedDim.Dimension); err != nil {
-				log.WithError(err).WithField("dim", delayedDim.Key()).Error("Could not send dimension update")
+				log.WithError(utils.SanitizeHTTPError(err)).WithField("dim", delayedDim.Key()).Error("Could not send dimension update")
 			}
 		}
 	}
@@ -219,7 +219,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 		context.WithValue(req.Context(), requests.RequestFailedCallbackKey, requests.RequestFailedCallback(func(_ []byte, statusCode int, err error) {
 			if statusCode >= 400 && statusCode < 500 && statusCode != 404 {
 				atomic.AddInt64(&dc.TotalClientError4xxResponses, int64(1))
-				log.WithError(err).WithFields(log.Fields{
+				log.WithError(utils.SanitizeHTTPError(err)).WithFields(log.Fields{
 					"url": req.URL.String(),
 					"dim": dim,
 				}).Error("Unable to update dimension, not retrying")
@@ -232,7 +232,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 				return
 			}
 
-			log.WithError(err).WithFields(log.Fields{
+			log.WithError(utils.SanitizeHTTPError(err)).WithFields(log.Fields{
 				"url": req.URL.String(),
 				"dim": dim,
 			}).Error("Unable to update dimension, retrying")
@@ -243,7 +243,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 			// up beyond conf.PropertiesMaxBuffered and start dropping.
 			if err := dc.AcceptDimension(dim); err != nil {
 				log.WithFields(log.Fields{
-					"error": err,
+					"error": utils.SanitizeHTTPError(err),
 					"dim":   dim.Key().String(),
 				}).Errorf("Failed to retry dimension update")
 			}

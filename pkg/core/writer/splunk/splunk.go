@@ -22,6 +22,7 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/processor"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/sirupsen/logrus"
 )
 
@@ -91,7 +92,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 		SendFunc: func(ctx context.Context, entries []logEntry) error {
 			err := out.sendToSplunk(ctx, entries)
 			if err != nil {
-				logrus.WithError(err).Error("Failed to send to Splunk HEC")
+				logrus.WithError(utils.SanitizeHTTPError(err)).Error("Failed to send to Splunk HEC")
 			}
 			return err
 		},

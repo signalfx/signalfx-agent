@@ -275,7 +275,7 @@ func (sw *Writer) sendDatapoints(ctx context.Context, dps []*datapoint.Datapoint
 	err := sw.client.AddDatapoints(ctx, dps)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"error": err,
+			"error": utils.SanitizeHTTPError(err),
 		}).Error("Error shipping datapoints to SignalFx")
 		// If there is an error sending datapoints then just forget about them.
 		return err
@@ -340,7 +340,7 @@ func (sw *Writer) listenForEventsAndDimensionUpdates() {
 				go func(buf []*event.Event) {
 					if err := sw.sendEvents(buf); err != nil {
 
-						log.WithError(err).Error("Error shipping events to SignalFx")
+						log.WithError(utils.SanitizeHTTPError(err)).Error("Error shipping events to SignalFx")
 					}
 				}(sw.eventBuffer)
 				initEventBuffer()
@@ -350,7 +350,7 @@ func (sw *Writer) listenForEventsAndDimensionUpdates() {
 				log.WithFields(log.Fields{
 					"dimName":  dim.Name,
 					"dimValue": dim.Value,
-				}).WithError(err).Warn("Dropping dimension update")
+				}).WithError(utils.SanitizeHTTPError(err)).Warn("Dropping dimension update")
 			}
 		}
 	}
