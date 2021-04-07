@@ -38,6 +38,8 @@ type Config struct {
 	EnhancedMetrics *bool `yaml:"enhancedMetrics"`
 	// Used to enable individual enhanced metrics when `enhancedMetrics` is
 	// false
+	ExlcudeJobMetrics *bool `yaml:"exlcudeJobMetrics"`
+	// Used to exclude Jenkins job metrics when `exlcudeJobMetrics` is false
 	IncludeMetrics []string `yaml:"includeMetrics"`
 	// User with security access to jenkins
 	Username string `yaml:"username"`
@@ -82,6 +84,7 @@ func (m *Monitor) Configure(conf *Config) error {
 			"Interval":            conf.IntervalSeconds,
 			"MetricsKey":          conf.MetricsKey,
 			"EnhancedMetrics":     conf.EnhancedMetrics,
+			"ExlcudeJobMetrics":   conf.ExlcudeJobMetrics,
 			"Username":            conf.Username,
 			"APIToken":            conf.APIToken,
 			"ssl_keyfile":         conf.SSLKeyFile,

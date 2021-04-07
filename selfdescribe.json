@@ -6000,6 +6000,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "exlcudeJobMetrics",
+            "doc": "Set to *true* to to exclude job metrics retrieved from `/api/json` endpoint.",
+            "default": "false",
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
             "yamlName": "caCertificate",
             "doc": "If Consul server has HTTPS enabled for the API, specifies the path to the CA's Certificate.",
             "default": "",
