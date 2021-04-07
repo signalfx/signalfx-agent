@@ -36,10 +36,10 @@ type Config struct {
 	MetricsKey string `yaml:"metricsKey" validate:"required"`
 	// Whether to enable enhanced metrics
 	EnhancedMetrics *bool `yaml:"enhancedMetrics"`
+	// Used to exclude Jenkins job metrics when `exlcudeJobMetrics` is false
+	ExlcudeJobMetrics *bool `yaml:"exlcudeJobMetrics"`
 	// Used to enable individual enhanced metrics when `enhancedMetrics` is
 	// false
-	ExlcudeJobMetrics *bool `yaml:"exlcudeJobMetrics"`
-	// Used to exclude Jenkins job metrics when `exlcudeJobMetrics` is false
 	IncludeMetrics []string `yaml:"includeMetrics"`
 	// User with security access to jenkins
 	Username string `yaml:"username"`
