@@ -36,6 +36,8 @@ type Config struct {
 	MetricsKey string `yaml:"metricsKey" validate:"required"`
 	// Whether to enable enhanced metrics
 	EnhancedMetrics *bool `yaml:"enhancedMetrics"`
+	// Set to *true* to to exclude job metrics retrieved from `/api/json` endpoint
+	ExcludeJobMetrics *bool `yaml:"excludeJobMetrics"`
 	// Used to enable individual enhanced metrics when `enhancedMetrics` is
 	// false
 	IncludeMetrics []string `yaml:"includeMetrics"`
@@ -82,6 +84,7 @@ func (m *Monitor) Configure(conf *Config) error {
 			"Interval":            conf.IntervalSeconds,
 			"MetricsKey":          conf.MetricsKey,
 			"EnhancedMetrics":     conf.EnhancedMetrics,
+			"ExcludeJobMetrics":   conf.ExcludeJobMetrics,
 			"Username":            conf.Username,
 			"APIToken":            conf.APIToken,
 			"ssl_keyfile":         conf.SSLKeyFile,
