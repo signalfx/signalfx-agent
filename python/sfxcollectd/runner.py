@@ -67,4 +67,4 @@ class Runner(object):
         # output_writer is thread-safe, which is necessary since plugins can
         # register multiple read callbacks which could emit value lists
         # simultaneously.
-        self.output_writer.send_msg(MSG_TYPE_VALUE_LIST, value_list)
+        self.output_writer.send_msg(MSG_TYPE_VALUE_LIST, {x: getattr(value_list, x) for x in value_list.__slots__})
