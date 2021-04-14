@@ -34,7 +34,7 @@
                 },
                 {
                     "name": "CONFIG_URL",
-                    "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/v5.9.2/deployments/fargate/agent.yaml"
+                    "value": "https://raw.githubusercontent.com/signalfx/signalfx-agent/ecs-test/deployments/fargate/agent.yaml"
                 }
             ],
             "dockerLabels": {

@@ -15,20 +15,20 @@ observers:
     # Enable the ecs observer to discover other ECS containers running on the
     # same ECS task.
   - type: ecs
-    labelsToDimensions: &labelMap
-      com.amazonaws.ecs.container-name: container_spec_name
+#    labelsToDimensions: &labelMap
+#      com.amazonaws.ecs.container-name: container_spec_name
 
 monitors:
-  - type: cpu
-  - type: disk-io
-  - type: net-io
-  - type: load
-  - type: memory
-  - type: collectd/protocols
-  - type: vmem
+#  - type: cpu
+#  - type: disk-io
+#  - type: net-io
+#  - type: load
+#  - type: memory
+#  - type: collectd/protocols
+#  - type: vmem
   # If using SignalFx auto instrumentation with default settings
-  - type: signalfx-forwarder
-    listenAddress: 0.0.0.0:9080
+#  - type: signalfx-forwarder
+#    listenAddress: 0.0.0.0:9080
     # Used to add a tag to spans missing it
     #defaultSpanTags:
      # Set the environment filter in SignalFx
@@ -38,10 +38,14 @@ monitors:
      #SPAN_TAG_KEY: "SPAN_TAG_VALUE"
 
   - type: ecs-metadata
+    enableExtraBlockIOMetrics: true
+    enableExtraCPUMetrics: true
+    enableExtraMemoryMetrics: true
+    enableExtraNetworkMetrics: true
     excludedImages:
       - signalfx-agent
-    labelsToDimensions:
-      <<: *labelMap
+#    labelsToDimensions:
+#      <<: *labelMap
 
     # You can set this envvar in your task definition to provide extra monitor
     # configuration to monitor applications running as ECS tasks.  You should
@@ -58,6 +62,6 @@ metricsToExclude:
 _: {"#from": "env:CONFIG_OVERRIDE", optional: true, flatten: true}
 
 # Required: What format to send data in
-writer:
-  traceExportFormat: sapm
+#writer:
+#  traceExportFormat: sapm
 
