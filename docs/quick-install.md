@@ -1,6 +1,8 @@
 <!--- OVERVIEW --->
 # Quick Install
 
+SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](/docs/smartagent-deprecation-notice).
+
 SignalFx Smart Agent Integration installs the Smart Agent application on a single host machine from which you want to collect monitoring data. Smart Agent collects infrastructure monitoring, µAPM, and Kubernetes data.
 
 For other installation options, including bulk deployments, see [Advanced Installation Options](./advanced-install-options.md).
@@ -167,4 +169,3 @@ journalctl -u signalfx-agent -f
 
 #### Windows troubleshooting
 Open **Administrative Tools > Event Viewer > Windows Logs > Application** to view the `signalfx-agent` error logs.
-
