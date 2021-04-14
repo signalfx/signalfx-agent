@@ -22,7 +22,7 @@ docker run --rm \
     -v $BUNDLE_DIR:/bundle \
     -v $HOME/.cache/dependency-check:/usr/share/dependency-check/data \
     -v $REPO_DIR:/src \
-    owasp/dependency-check:5.2.2 \
+    owasp/dependency-check:6.0.1 \
         --scan /bundle \
         --project "$BUNDLE_PATH" \
         --suppression /src/scripts/dependency-check/suppression.xml \

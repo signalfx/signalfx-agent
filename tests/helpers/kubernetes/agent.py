@@ -65,7 +65,7 @@ class Agent:
         the resource names.
         """
         corev1 = kube_client.CoreV1Api()
-        rbacv1beta1 = kube_client.RbacAuthorizationV1beta1Api()
+        rbacv1 = kube_client.RbacAuthorizationV1Api()
 
         serviceaccount = corev1.create_namespaced_service_account(
             body=load_resource_yaml(AGENT_SERVICEACCOUNT_PATH), namespace=self.namespace
@@ -73,19 +73,19 @@ class Agent:
 
         clusterrole_base = load_resource_yaml(AGENT_CLUSTERROLE_PATH)
         clusterrole_base["metadata"]["name"] = f"signalfx-agent-{self.namespace}"
-        clusterrole = rbacv1beta1.create_cluster_role(body=clusterrole_base)
+        clusterrole = rbacv1.create_cluster_role(body=clusterrole_base)
 
         crb_base = load_resource_yaml(AGENT_CLUSTERROLEBINDING_PATH)
         # Make the binding refer to our testing namespace's role and service account
         crb_base["metadata"]["name"] = f"signalfx-agent-{self.namespace}"
         crb_base["roleRef"]["name"] = clusterrole.metadata.name
         crb_base["subjects"][0]["namespace"] = self.namespace
-        crb = rbacv1beta1.create_cluster_role_binding(body=crb_base)
+        crb = rbacv1.create_cluster_role_binding(body=crb_base)
 
         configmaprole_base = load_resource_yaml(AGENT_CONFIGMAPROLE_PATH)
         configmaprole_base["metadata"]["name"] = f"signalfx-agent-{self.namespace}"
         configmaprole_base["metadata"]["namespace"] = self.namespace
-        configmaprole = rbacv1beta1.create_namespaced_role(self.namespace, body=configmaprole_base)
+        configmaprole = rbacv1.create_namespaced_role(self.namespace, body=configmaprole_base)
 
         configmap_rolebinding_base = load_resource_yaml(AGENT_CONFIGMAPROLEBINDING_PATH)
         # Make the binding refer to our testing namespace's role and service account
@@ -93,21 +93,17 @@ class Agent:
         configmap_rolebinding_base["metadata"]["namespace"] = self.namespace
         configmap_rolebinding_base["roleRef"]["name"] = configmaprole.metadata.name
         configmap_rolebinding_base["subjects"][0]["namespace"] = self.namespace
-        configmap_rolebinding = rbacv1beta1.create_namespaced_role_binding(
-            self.namespace, body=configmap_rolebinding_base
-        )
+        configmap_rolebinding = rbacv1.create_namespaced_role_binding(self.namespace, body=configmap_rolebinding_base)
 
         try:
             yield
         finally:
             delete_opts = kube_client.V1DeleteOptions(grace_period_seconds=0, propagation_policy="Background")
 
-            rbacv1beta1.delete_cluster_role_binding(crb.metadata.name, body=delete_opts)
-            rbacv1beta1.delete_cluster_role(clusterrole.metadata.name, body=delete_opts)
-            rbacv1beta1.delete_namespaced_role(configmaprole.metadata.name, self.namespace, body=delete_opts)
-            rbacv1beta1.delete_namespaced_role_binding(
-                configmap_rolebinding.metadata.name, self.namespace, body=delete_opts
-            )
+            rbacv1.delete_cluster_role_binding(crb.metadata.name, body=delete_opts)
+            rbacv1.delete_cluster_role(clusterrole.metadata.name, body=delete_opts)
+            rbacv1.delete_namespaced_role(configmaprole.metadata.name, self.namespace, body=delete_opts)
+            rbacv1.delete_namespaced_role_binding(configmap_rolebinding.metadata.name, self.namespace, body=delete_opts)
             corev1.delete_namespaced_service_account(
                 serviceaccount.metadata.name, namespace=self.namespace, body=delete_opts
             )

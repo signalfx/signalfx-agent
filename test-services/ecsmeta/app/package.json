@@ -11,9 +11,9 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^4.16.4",
-    "n": "^2.1.12",
-    "request": "^2.88.0",
-    "request-promise": "^4.2.2"
+    "express": "^4.17.1",
+    "n": "^7.1.0",
+    "request": "^2.88.2",
+    "request-promise": "^4.2.6"
   }
 }

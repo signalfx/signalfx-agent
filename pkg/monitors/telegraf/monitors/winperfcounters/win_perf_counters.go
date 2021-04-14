@@ -54,7 +54,7 @@ type PerfCounterObj struct {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"false" deepcopier:"skip"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"false" deepcopier:"skip"`
 	Object               []PerfCounterObj `yaml:"objects" default:"[]"`
 	// The frequency that counter paths should be expanded
 	// and how often to refresh counters from configuration.

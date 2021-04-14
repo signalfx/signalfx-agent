@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
+	log "github.com/sirupsen/logrus"
 )
 
 // AzureUniqueID constructs the unique ID of the underlying Azure VM.  If
@@ -26,6 +27,9 @@ func AzureUniqueID(cloudMetadataTimeout timeutil.Duration) string {
 	req.Header.Set("Metadata", "true")
 	resp, err := c.Do(req)
 	if err != nil {
+		log.WithFields(log.Fields{
+			"detail": err,
+		}).Infof("No Azure metadata server detected, assuming not on Azure")
 		return ""
 	}
 	defer resp.Body.Close()

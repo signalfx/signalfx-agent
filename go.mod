@@ -2,179 +2,113 @@ module github.com/signalfx/signalfx-agent
 
 go 1.14
 
-replace git.apache.org/thrift.git => github.com/apache/thrift v0.0.0-20180902110319-2566ecd5d999
-
-replace code.cloudfoundry.org/go-loggregator => github.com/signalfx/go-loggregator v1.0.1-0.20200205155641-5ba5ca92118d
-
-replace github.com/influxdata/telegraf => github.com/signalfx/telegraf v0.10.2-0.20200415004250-249b98cac6c7
+replace (
+	code.cloudfoundry.org/go-loggregator => github.com/signalfx/go-loggregator v1.0.1-0.20200205155641-5ba5ca92118d
+	github.com/dancannon/gorethink => gopkg.in/gorethink/gorethink.v4 v4.0.0
+	github.com/influxdata/telegraf => github.com/signalfx/telegraf v0.10.2-0.20210126144230-e303a54ab07d
+	github.com/signalfx/signalfx-agent/pkg/apm => ./pkg/apm
+	github.com/soheilhy/cmux => ./thirdparty/cmux // required to drop google.golang.org/grpc/examples/helloworld/helloworld test dep
+	google.golang.org/grpc => google.golang.org/grpc v1.29.1 // required to provide google.golang.org/grpc/naming to satisfy go.etcd.io/etcd test dep
+)
 
 require (
-	code.cloudfoundry.org/go-diodes v0.0.0-20190809170250-f77fb823c7ee // indirect
 	code.cloudfoundry.org/go-loggregator v7.4.0+incompatible
-	collectd.org v0.3.0 // indirect
-	github.com/Azure/azure-sdk-for-go v26.4.0+incompatible // indirect
-	github.com/Azure/go-autorest/autorest/azure/auth v0.4.2 // indirect
-	github.com/Azure/go-autorest/autorest/to v0.3.0 // indirect
-	github.com/Azure/go-autorest/autorest/validation v0.2.0 // indirect
-	github.com/Microsoft/go-winio v0.4.11
-	github.com/NYTimes/gziphandler v1.1.1 // indirect
-	github.com/SAP/go-hdb v0.14.1 // indirect
+	collectd.org v0.5.0 // indirect
+	github.com/Microsoft/go-winio v0.4.15-0.20190919025122-fc70bd9a86b5
 	github.com/Sectorbob/mlab-ns2 v0.0.0-20171030222938-d3aa0c295a8a
-	github.com/ShowMax/go-fqdn v0.0.0-20160909083404-2501cdd51ef4
+	github.com/Showmax/go-fqdn v1.0.0
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d
-	github.com/aliyun/alibaba-cloud-sdk-go v0.0.0-20190315122603-6f9e54af456e // indirect
-	github.com/antonmedv/expr v1.8.5
-	github.com/araddon/gou v0.0.0-20190110011759-c797efecbb61 // indirect
-	github.com/aws/aws-sdk-go v1.18.4 // indirect
+	github.com/antonmedv/expr v1.8.9
+	github.com/aws/aws-sdk-go v1.38.0
 	github.com/beevik/ntp v0.3.0
-	github.com/boombuler/barcode v1.0.0 // indirect
-	github.com/briankassouf/jose v0.9.1 // indirect
-	github.com/cenkalti/backoff v2.1.1+incompatible // indirect
-	github.com/centrify/cloud-golang-sdk v0.0.0-20190214225812-119110094d0f // indirect
-	github.com/chrismalek/oktasdk-go v0.0.0-20181212195951-3430665dfaa0 // indirect
 	github.com/cloudfoundry-incubator/uaago v0.0.0-20190307164349-8136b7bbe76e
-	github.com/containerd/continuity v0.0.0-20181203112020-004b46473808 // indirect
-	github.com/coreos/go-oidc v2.0.0+incompatible // indirect
 	github.com/coreos/go-systemd v0.0.0-20190719114852-fd7a80b32e1f
-	github.com/creasty/defaults v1.3.0 // indirect
-	github.com/dancannon/gorethink v4.0.0+incompatible // indirect
+	github.com/creasty/defaults v1.5.1 // indirect
 	github.com/davecgh/go-spew v1.1.1
-	github.com/denisenkom/go-mssqldb v0.0.0-20190121005146-b04fd42d9952
-	github.com/docker/distribution v2.7.1-0.20190205005809-0d3efadf0154+incompatible // indirect
-	github.com/docker/docker v0.7.3-0.20190316220345-38005cfc12fb
+	github.com/denisenkom/go-mssqldb v0.0.0-20200428022330-06a60b6afbbc
+	github.com/docker/docker v17.12.0-ce-rc1.0.20200706150819-a40b877fbb9e+incompatible
 	github.com/docker/go-connections v0.4.0
-	github.com/duosecurity/duo_api_golang v0.0.0-20190308151101-6c680f768e74 // indirect
-	github.com/fullsailor/pkcs7 v0.0.0-20180613152042-8306686428a5 // indirect
-	github.com/gammazero/deque v0.0.0-20190130191400-2afb3858e9c7 // indirect
-	github.com/gammazero/workerpool v0.0.0-20181230203049-86a96b5d5d92 // indirect
-	github.com/garyburd/redigo v1.6.0 // indirect
 	github.com/go-errors/errors v1.0.1
-	github.com/go-ldap/ldap v3.0.2+incompatible // indirect
 	github.com/go-playground/locales v0.11.2
 	github.com/go-playground/universal-translator v0.16.0
-	github.com/go-sql-driver/mysql v1.4.1
-	github.com/go-stomp/stomp v2.0.2+incompatible // indirect
+	github.com/go-sql-driver/mysql v1.5.0
+	github.com/go-test/deep v1.0.7
 	github.com/gobwas/glob v0.2.4-0.20181002190808-e7a84e9525fe
-	github.com/gocql/gocql v0.0.0-20190301043612-f6df8288f9b4 // indirect
-	github.com/gogo/protobuf v1.3.1
+	github.com/gogo/protobuf v1.3.2
 	github.com/google/cadvisor v0.26.1
-	github.com/googleapis/gnostic v0.1.0 // indirect
-	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75 // indirect
-	github.com/gorilla/mux v1.6.1
-	github.com/guregu/null v3.4.0+incompatible // indirect
-	github.com/hashicorp/consul v1.4.0
-	github.com/hashicorp/go-gcp-common v0.0.0-20180425173946-763e39302965 // indirect
-	github.com/hashicorp/go-hclog v0.8.0 // indirect
-	github.com/hashicorp/go-memdb v0.0.0-20190306140544-eea0b16292ad // indirect
-	github.com/hashicorp/go-plugin v0.0.0-20190220160451-3f118e8ee104 // indirect
-	github.com/hashicorp/go-retryablehttp v0.5.2 // indirect
-	github.com/hashicorp/go-uuid v1.0.1 // indirect
-	github.com/hashicorp/go-version v1.1.0 // indirect
-	github.com/hashicorp/golang-lru v0.5.1
-	github.com/hashicorp/memberlist v0.1.3 // indirect
-	github.com/hashicorp/nomad v0.8.7 // indirect
-	github.com/hashicorp/vault v1.1.1-0.20190321125746-66ef59957aaf
-	github.com/hashicorp/vault-plugin-auth-alicloud v0.0.0-20190311155555-98628998247d // indirect
-	github.com/hashicorp/vault-plugin-auth-azure v0.0.0-20190201222632-0af1d040b5b3 // indirect
-	github.com/hashicorp/vault-plugin-auth-centrify v0.0.0-20180816201131-66b0a34a58bf // indirect
-	github.com/hashicorp/vault-plugin-auth-gcp v0.0.0-20190320214413-e8308b5e41c9
-	github.com/hashicorp/vault-plugin-auth-jwt v0.0.0-20190314211503-86b44673ce1e // indirect
-	github.com/hashicorp/vault-plugin-auth-kubernetes v0.0.0-20190201222209-db96aa4ab438 // indirect
-	github.com/hashicorp/vault-plugin-secrets-ad v0.0.0-20190131222416-4796d9980125 // indirect
-	github.com/hashicorp/vault-plugin-secrets-alicloud v0.0.0-20190131211812-b0abe36195cb // indirect
-	github.com/hashicorp/vault-plugin-secrets-azure v0.0.0-20181207232500-0087bdef705a // indirect
-	github.com/hashicorp/vault-plugin-secrets-gcp v0.0.0-20190311200649-621231cb86fe // indirect
-	github.com/hashicorp/vault-plugin-secrets-gcpkms v0.0.0-20190116164938-d6b25b0b4a39 // indirect
-	github.com/hashicorp/vault-plugin-secrets-kv v0.0.0-20190315192709-dccffee64925 // indirect
+	github.com/gorilla/mux v1.8.0
+	github.com/guregu/null v4.0.0+incompatible // indirect
+	github.com/hashicorp/consul/api v1.7.0
+	github.com/hashicorp/golang-lru v0.5.4
+	github.com/hashicorp/vault v1.6.0 // required for newer google.golang.org/api compatibility
+	github.com/hashicorp/vault-plugin-auth-gcp v0.8.0
+	github.com/hashicorp/vault/api v1.0.5-0.20201001211907-38d91b749c77
 	github.com/iancoleman/strcase v0.0.0-20171129010253-3de563c3dc08
-	github.com/influxdata/influxdb v1.7.4 // indirect
-	github.com/influxdata/platform v0.0.0-20190117200541-d500d3cf5589 // indirect
 	github.com/influxdata/tail v1.0.0 // indirect
 	github.com/influxdata/telegraf v0.0.0-00010101000000-000000000000
 	github.com/influxdata/toml v0.0.0-20180607005434-2a2e3012f7cf // indirect
 	github.com/influxdata/wlog v0.0.0-20160411224016-7c63b0a71ef8 // indirect
 	github.com/jackc/pgx/v4 v4.6.0
-	github.com/jaegertracing/jaeger v1.15.1
-	github.com/jeffchao/backoff v0.0.0-20140404060208-9d7fd7aa17f2 // indirect
-	github.com/jefferai/jsonx v1.0.0 // indirect
+	github.com/jaegertracing/jaeger v1.22.0
 	github.com/kardianos/service v1.0.0
-	github.com/karrick/godirwalk v1.8.0 // indirect
-	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51 // indirect
-	github.com/keybase/go-crypto v0.0.0-20190312101036-b475f2ecc1fe // indirect
-	github.com/kr/pretty v0.1.0
-	github.com/leodido/go-urn v1.1.0 // indirect
-	github.com/lib/pq v1.2.0
-	github.com/mailru/easyjson v0.7.0
-	github.com/mattbaird/elastigo v0.0.0-20170123220020-2fe47fd29e4b // indirect
-	github.com/mattn/go-colorable v0.1.4 // indirect
-	github.com/mattn/go-isatty v0.0.10 // indirect
+	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
+	github.com/kr/pretty v0.2.1
+	github.com/leodido/go-urn v1.2.1 // indirect
+	github.com/lib/pq v1.9.0
+	github.com/mailru/easyjson v0.7.6
 	github.com/mattn/go-xmlrpc v0.0.3
 	github.com/mauricelam/genny v0.0.0-20190320071652-0800202903e5
-	github.com/mgutz/ansi v0.0.0-20170206155736-9520e82c474b // indirect
-	github.com/michaelklishin/rabbit-hole v1.5.0 // indirect
+	github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d // indirect
 	github.com/mitchellh/go-wordwrap v1.0.0
-	github.com/mitchellh/hashstructure v0.0.0-20170609045927-2bca23e0e452
-	github.com/mitchellh/pointerstructure v0.0.0-20170205204203-f2329fcfa9e2 // indirect
+	github.com/mitchellh/hashstructure v1.0.0
 	github.com/mongodb/go-client-mongodb-atlas v0.2.0
-	github.com/morikuni/aec v0.0.0-20170113033406-39771216ff4c // indirect
 	github.com/naoina/go-stringutil v0.1.0 // indirect
-	github.com/olekukonko/tablewriter v0.0.1
-	github.com/onsi/ginkgo v1.11.0
-	github.com/onsi/gomega v1.8.1
+	github.com/olekukonko/tablewriter v0.0.4
+	github.com/onsi/ginkgo v1.14.2
+	github.com/onsi/gomega v1.10.4
 	github.com/openshift/api v3.9.0+incompatible
-	github.com/openshift/client-go v0.0.0-20191216194936-57f413491e9e
-	github.com/opentracing/opentracing-go v1.1.0
-	github.com/ory-am/common v0.4.0 // indirect
-	github.com/ory/dockertest v3.3.4+incompatible // indirect
-	github.com/pborman/uuid v1.2.0 // indirect
-	github.com/pkg/errors v0.8.2-0.20190227000051-27936f6d90f9
-	github.com/pquerna/cachecontrol v0.0.0-20180517163645-1555304b9b35 // indirect
-	github.com/pquerna/otp v1.1.0 // indirect
-	github.com/prometheus/client_golang v0.9.3-0.20190313112143-fa4aa9000d28
-	github.com/prometheus/client_model v0.0.0-20190129233127-fd36f4220a90
-	github.com/prometheus/common v0.4.0
-	github.com/prometheus/procfs v0.0.9-0.20191209220459-fa4d6ce8c078
-	github.com/samuel/go-zookeeper v0.0.0-20190810000440-0ceca61e4d75
-	github.com/shirou/gopsutil v2.18.12+incompatible
-	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.0-20190222193949-1fb69526e884
+	github.com/openshift/client-go v0.0.0-20201020071134-e303d21b3e32 // to make compatible w/ k8s.io/client-go v0.19.4
+	github.com/opentracing/opentracing-go v1.2.0
+	github.com/patrickmn/go-cache v2.1.0+incompatible
+	github.com/pkg/errors v0.9.1
+	github.com/prometheus/client_golang v1.8.0
+	github.com/prometheus/client_model v0.2.0
+	github.com/prometheus/common v0.15.0
+	github.com/prometheus/procfs v0.6.0
+	github.com/samuel/go-zookeeper v0.0.0-20200724154423-2164a8ac840e
+	github.com/shirou/gopsutil v3.20.10+incompatible
+	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.2
 	github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 	github.com/signalfx/gateway v1.2.19-0.20191125135538-2c417b7ae0bd
-	github.com/signalfx/golib/v3 v3.3.0
+	github.com/signalfx/golib/v3 v3.3.33
+	github.com/signalfx/ingest-protocols v0.1.2
+	github.com/signalfx/signalfx-agent/pkg/apm v0.0.0-00010101000000-000000000000
 	github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5
 	github.com/signalfx/signalfx-go-tracing v1.2.0
-	github.com/sirupsen/logrus v1.4.2
+	github.com/sirupsen/logrus v1.8.0
 	github.com/smartystreets/goconvey v1.6.4
-	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect
-	github.com/streadway/amqp v0.0.0-20190312223743-14f78b41ce6d // indirect
-	github.com/stretchr/testify v1.5.1
-	github.com/tidwall/gjson v1.2.1 // indirect
-	github.com/tidwall/match v1.0.1 // indirect
-	github.com/tidwall/pretty v0.0.0-20180105212114-65a9db5fad51 // indirect
-	github.com/ugorji/go/codec v0.0.0-20190320090025-2dc34c0b8780 // indirect
+	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect; required; first version with go modules
+	github.com/stretchr/testify v1.7.0
+	github.com/tidwall/gjson v1.6.4 // indirect
+	github.com/tinylib/msgp v1.1.5 // indirect
 	github.com/ulule/deepcopier v0.0.0-20171107155558-ca99b135e50f
 	github.com/vjeantet/grok v1.0.0 // indirect
-	github.com/vmware/govmomi v0.21.0
+	github.com/vmware/govmomi v0.23.0
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
-	go.etcd.io/etcd v0.0.0-20190321122103-41f7142ff986
-	golang.org/x/net v0.0.0-20191004110552-13f9640d40b9
-	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
-	golang.org/x/sys v0.0.0-20200212091648-12a6c2dcc1e4
-	golang.org/x/tools v0.0.0-20200204192400-7124308813f3
-	google.golang.org/grpc v1.21.0
-	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
+	go.etcd.io/etcd/client/v2 v2.305.0-alpha.0
+	golang.org/x/net v0.0.0-20210119194325-5f4716e94777
+	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
+	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c
+	golang.org/x/tools v0.1.0
+	google.golang.org/grpc v1.33.2
 	gopkg.in/fatih/set.v0 v0.1.0
 	gopkg.in/go-playground/assert.v1 v1.2.1 // indirect
 	gopkg.in/go-playground/validator.v9 v9.28.0
-	gopkg.in/gorethink/gorethink.v4 v4.1.0 // indirect
-	gopkg.in/ini.v1 v1.56.0 // indirect
-	gopkg.in/ory-am/dockertest.v2 v2.2.3 // indirect
-	gopkg.in/square/go-jose.v2 v2.3.0 // indirect
-	gopkg.in/yaml.v2 v2.2.7
+	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools v2.2.0+incompatible
-	k8s.io/api v0.17.0
-	k8s.io/apimachinery v0.17.0
-	k8s.io/client-go v0.17.0
-	k8s.io/kubernetes v1.12.0
-	layeh.com/radius v0.0.0-20190118135028-0f678f039617 // indirect
+	k8s.io/api v0.20.5
+	k8s.io/apimachinery v0.20.5
+	k8s.io/client-go v0.20.5
+	k8s.io/kubelet v0.20.5
 )

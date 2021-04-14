@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: splunk-defaults
+data:
+  default.yml: |-
+    retry_num: 50
+    splunk:
+      app_paths:
+        default: /opt/splunk/etc/apps
+        httpinput: /opt/splunk/etc/apps/splunk_httpinput
+        idxc: /opt/splunk/etc/master-apps
+        shc: /opt/splunk/etc/shcluster/apps
+      enable_service: false
+      exec: /opt/splunk/bin/splunk
+      group: splunk
+      hec_disabled: 0
+      hec_enableSSL: 1
+      hec_port: {{ .Values.service.hecport }}
+      hec_token: {{ .Values.global.splunk.hec.token }}
+      home: /opt/splunk
+      http_port: {{ .Values.service.webport }}
+      idxc:
+        enable: false
+      opt: /opt
+      password: {{ .Values.global.splunk.password }}
+      pid: /opt/splunk/var/run/splunk/splunkd.pid
+      s2s_port: 9997
+      secret: null
+      shc:
+        enable: false
+        label: shc_label
+        replication_factor: 3
+        replication_port: 4001
+        secret: lS5aoPDHdganlLBWJP/1DwK0wcHpaJaD
+      smartstore: null
+      svc_port: 8089
+      user: splunk
+      conf:
+        inputs:
+          directory: /opt/splunk/etc/apps/search/local
+          content:
+            http://signalfx-agent:
+              disabled: 0
+              index: sfx
+              token: 12345678-ABCD-EFGH-IJKL-123456789012
+        indexes:
+          directory: /opt/splunk/etc/apps/search/local
+          content:
+            sfx:
+              datatype: metric
+              coldPath: $SPLUNK_DB/sfx/colddb
+              homePath: $SPLUNK_DB/sfx/db
+              thawedPath: $SPLUNK_DB/sfx/thaweddb

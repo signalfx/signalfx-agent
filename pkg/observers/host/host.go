@@ -47,7 +47,15 @@ type Observer struct {
 // Config specific to the host observer
 type Config struct {
 	config.ObserverConfig
-	PollIntervalSeconds int `default:"10" yaml:"pollIntervalSeconds"`
+	// If `true`, the `pid` dimension will be omitted from the generated
+	// endpoints, which means it will not appear on datapoints emitted by
+	// monitors instantiated from discovery rules matching this endpoint.
+	OmitPIDDimension    bool `default:"false" yaml:"omitPIDDimension"`
+	PollIntervalSeconds int  `default:"10" yaml:"pollIntervalSeconds"`
+}
+
+type processName struct {
+	pidNameMap map[int32]string
 }
 
 func init() {
@@ -95,6 +103,16 @@ func (o *Observer) discover() []services.Endpoint {
 		return nil
 	}
 
+	pidName := &processName{
+		pidNameMap: make(map[int32]string),
+	}
+
+	err = pidName.setPidNameMap()
+	if err != nil {
+		o.logger.WithError(err).Error("Could not create Pid - Name Map")
+		return nil
+	}
+
 	endpoints := make([]services.Endpoint, 0, len(conns))
 	connsByPID := make(map[int32][]*net.ConnectionStat)
 	for i := range conns {
@@ -126,9 +144,12 @@ func (o *Observer) discover() []services.Endpoint {
 			continue
 		}
 
-		name, err := proc.Name()
+		name, err := pidName.getName(proc)
 		if err != nil {
-			o.logger.WithField("pid", pid).Error("Could not get process name")
+			o.logger.WithFields(log.Fields{
+				"pid": pid,
+				"err": err,
+			}).Error("Could not get process name")
 			continue
 		}
 
@@ -138,8 +159,9 @@ func (o *Observer) discover() []services.Endpoint {
 			continue
 		}
 
-		dims := map[string]string{
-			"pid": strconv.Itoa(int(pid)),
+		dims := map[string]string{}
+		if !o.config.OmitPIDDimension {
+			dims["pid"] = strconv.Itoa(int(pid))
 		}
 
 		for _, c := range conns {

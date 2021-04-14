@@ -6,7 +6,7 @@ metadata:
   name: signalfx-agent
   labels:
     app: signalfx-agent
-    version: 5.4.1
+    version: 5.9.2
 spec:
   selector:
     matchLabels:
@@ -20,7 +20,7 @@ spec:
     metadata:
       labels:
         app: signalfx-agent
-        version: 5.4.1
+        version: 5.9.2
 
       annotations:
         {}
@@ -30,6 +30,7 @@ spec:
       dnsPolicy: ClusterFirstWithHostNet
       restartPolicy: Always
       serviceAccountName: signalfx-agent
+
 
       nodeSelector:
         kubernetes.io/os: linux
@@ -41,9 +42,10 @@ spec:
         key: node-role.kubernetes.io/master
         operator: Exists
 
+
       containers:
       - name: signalfx-agent
-        image: "quay.io/signalfx/signalfx-agent:5.4.1"
+        image: "quay.io/signalfx/signalfx-agent:5.9.2"
         imagePullPolicy: IfNotPresent
         command:
         - /bin/signalfx-agent
@@ -97,6 +99,7 @@ spec:
       - name: docker
         hostPath:
           path: /var/run/docker.sock
+
       - name: etc-passwd
         hostPath:
           path: /etc/passwd

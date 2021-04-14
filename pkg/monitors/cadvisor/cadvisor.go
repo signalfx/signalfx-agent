@@ -9,7 +9,7 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
-	stats "k8s.io/kubernetes/pkg/kubelet/apis/stats/v1alpha1"
+	stats "k8s.io/kubelet/pkg/apis/stats/v1alpha1"
 )
 
 func init() {
@@ -18,7 +18,7 @@ func init() {
 
 // CHTTPConfig is the monitor-specific config for cAdvisor
 type CHTTPConfig struct {
-	config.MonitorConfig
+	config.MonitorConfig `yaml:",inline"`
 	// Where to find cAdvisor
 	CAdvisorURL string `yaml:"cadvisorURL" default:"http://localhost:4194"`
 }

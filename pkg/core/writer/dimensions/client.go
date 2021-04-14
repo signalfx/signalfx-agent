@@ -15,12 +15,13 @@ import (
 	"sync/atomic"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
+	"github.com/signalfx/signalfx-agent/pkg/apm/requests"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/propfilters"
-	"github.com/signalfx/signalfx-agent/pkg/core/writer/requests"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 // DimensionClient sends updates to dimensions to the SignalFx API
@@ -29,6 +30,7 @@ type DimensionClient struct {
 	ctx           context.Context
 	Token         string
 	APIURL        *url.URL
+	extraHeaders  map[string]string
 	client        *http.Client
 	requestSender *requests.ReqSender
 	deduplicator  *deduplicator
@@ -88,6 +90,7 @@ func NewDimensionClient(ctx context.Context, conf *config.WriterConfig) (*Dimens
 		ctx:               ctx,
 		Token:             conf.SignalFxAccessToken,
 		APIURL:            conf.ParsedAPIURL(),
+		extraHeaders:      conf.ExtraHeaders,
 		sendDelay:         time.Duration(conf.PropertiesSendDelaySeconds) * time.Second,
 		delayedSet:        make(map[types.DimensionKey]*types.Dimension),
 		delayedQueue:      make(chan *queuedDimension, conf.PropertiesMaxBuffered),
@@ -179,7 +182,7 @@ func (dc *DimensionClient) processQueue() {
 			dc.Unlock()
 
 			if err := dc.setPropertiesOnDimension(delayedDim.Dimension); err != nil {
-				log.WithError(err).WithField("dim", delayedDim.Key()).Error("Could not send dimension update")
+				log.WithError(utils.SanitizeHTTPError(err)).WithField("dim", delayedDim.Key()).Error("Could not send dimension update")
 			}
 		}
 	}
@@ -204,6 +207,10 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 		req, err = dc.makeReplaceRequest(dim.Name, dim.Value, dim.Properties, dim.Tags)
 	}
 
+	for header, val := range dc.extraHeaders {
+		req.Header.Set(header, val)
+	}
+
 	if err != nil {
 		return err
 	}
@@ -212,7 +219,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 		context.WithValue(req.Context(), requests.RequestFailedCallbackKey, requests.RequestFailedCallback(func(_ []byte, statusCode int, err error) {
 			if statusCode >= 400 && statusCode < 500 && statusCode != 404 {
 				atomic.AddInt64(&dc.TotalClientError4xxResponses, int64(1))
-				log.WithError(err).WithFields(log.Fields{
+				log.WithError(utils.SanitizeHTTPError(err)).WithFields(log.Fields{
 					"url": req.URL.String(),
 					"dim": dim,
 				}).Error("Unable to update dimension, not retrying")
@@ -225,7 +232,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 				return
 			}
 
-			log.WithError(err).WithFields(log.Fields{
+			log.WithError(utils.SanitizeHTTPError(err)).WithFields(log.Fields{
 				"url": req.URL.String(),
 				"dim": dim,
 			}).Error("Unable to update dimension, retrying")
@@ -236,7 +243,7 @@ func (dc *DimensionClient) setPropertiesOnDimension(dim *types.Dimension) error 
 			// up beyond conf.PropertiesMaxBuffered and start dropping.
 			if err := dc.AcceptDimension(dim); err != nil {
 				log.WithFields(log.Fields{
-					"error": err,
+					"error": utils.SanitizeHTTPError(err),
 					"dim":   dim.Key().String(),
 				}).Errorf("Failed to retry dimension update")
 			}

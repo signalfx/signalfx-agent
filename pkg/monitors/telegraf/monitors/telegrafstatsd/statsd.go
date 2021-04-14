@@ -25,7 +25,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"false"`
 	// Protocol to use with the listener: `tcp`, `udp4`, `udp6`, or `udp`.
 	Protocol string `yaml:"protocol" default:"udp"`
 	// The address and port to serve from

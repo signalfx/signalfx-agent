@@ -9,10 +9,10 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
-	"github.com/signalfx/gateway/protocol/signalfx"
 	"github.com/signalfx/golib/v3/datapoint/dpsink"
 	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/golib/v3/web"
+	"github.com/signalfx/ingest-protocols/protocol/signalfx"
 )
 
 type pathSetupFunc = func(*mux.Router, http.Handler)

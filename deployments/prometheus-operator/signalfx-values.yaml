@@ -1,0 +1,111 @@
+# An arbitrary value that identifies this K8s cluster in SignalFx.  This value
+# must match the configured cluster name in the SignalFx Smart Gateway if it is
+# being used. This will be the value of the 'kubernetes_cluster' dimension on
+# every metric sent by the agent (unless overriden by `kubernetesClusterName`).
+# It will also be the value of the `cluster` config option that is used to set a
+# `cluster` property on the `host` dimension. (REQUIRED)
+clusterName: dev-cluster
+
+kubeletAPI:
+  # Our minikube sample uses a self-signed certificate.
+  skipVerify: true
+
+agentConfig:
+  signalFxAccessToken: ${SFX_ACCESS_TOKEN}
+
+  signalFxRealm: us0
+
+  disableHostDimensions: false
+
+  etcPath: /hostfs/etc
+  procPath: /hostfs/proc
+
+  enableBuiltInFiltering: true
+
+  intervalSeconds: 10
+
+  cluster: dev-cluster
+
+  writer:
+    traceExportFormat: sapm
+    signalFxEnabled: true
+    splunk:
+      enabled: true
+      url: https://splunk-splunk-kube:8088/services/collector
+      token: 12345678-ABCD-EFGH-IJKL-123456789012
+      index: sfx
+      source: sfx
+      eventsIndex: traces
+      eventsSource: traces
+      skipTLSVerify: true
+
+  logging:
+    level: info
+    format: text
+
+  globalDimensions:
+    kubernetes_cluster: dev-cluster
+
+  observers:
+    - type: k8s-api
+      discoverAllPods: false
+      discoverNodes: false
+
+  monitors:
+    - type: cpu
+    - type: filesystems
+      hostFSPath: /hostfs
+    - type: disk-io
+    - type: net-io
+    - type: load
+    - type: memory
+    - type: host-metadata
+    - type: processlist
+    - type: vmem
+
+
+    - type: kubelet-metrics
+      kubeletAPI:
+        authType: serviceAccount
+        skipVerify: true
+      usePodsEndpoint: true
+
+    # Collects k8s cluster-level metrics
+    - type: kubernetes-cluster
+
+    - type: docker-container-stats
+      dockerURL: unix:///var/run/docker.sock
+      excludedImages:
+        - '*pause-amd64*'
+        - 'k8s.gcr.io/pause*'
+      labelsToDimensions:
+        io.kubernetes.container.name: container_spec_name
+        io.kubernetes.pod.name: kubernetes_pod_name
+        io.kubernetes.pod.uid: kubernetes_pod_uid
+        io.kubernetes.pod.namespace: kubernetes_namespace
+    - type: kube-controller-manager
+      discoveryRule: kubernetes_pod_name =~ "kube-controller-manager" && target == "pod"
+      extraDimensions:
+        metric_source: kube-controller-manager
+      port: 10252
+
+    - type: prometheus-exporter
+      discoveryRule: kubernetes_pod_name =~ "prometheus-prometheus" && target == "pod"
+      extraDimensions:
+        metric_source: prometheus
+      host: prometheus
+      metricPath: /federate?match[]=up # change this as needed
+      port: 9090
+
+  collectd:
+    readThreads: 5
+    writeQueueLimitHigh: 500000
+    writeQueueLimitLow: 400000
+    timeout: 40
+    logLevel: info
+
+  metricsToExclude:
+    # The StackDriver metadata-agent pod on GKE restarts every few minutes so
+    # ignore its containers
+    - dimensions:
+        container_spec_name: metadata-agent

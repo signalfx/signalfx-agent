@@ -49,6 +49,10 @@ spec:
       imagePullSecrets:
       - name: {{ . }}
       {{- end }}
+      {{ with .Values.affinity -}}
+      affinity:
+        {{ toYaml . | indent 8 | trim }}
+      {{- end }}
       nodeSelector:
         {{ if .Values.nodeSelector -}}
           {{ toYaml .Values.nodeSelector | indent 8 | trim }}
@@ -67,6 +71,13 @@ spec:
       {{ range .Values.tolerations -}}
       - {{ toYaml . | indent 8 | trim }}
       {{ end }}
+      {{- if .Values.priorityClassName }}
+      priorityClassName: {{ .Values.priorityClassName }}
+      {{- end }}
+      {{ if .Values.securityContext -}}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      {{- end }}
       containers:
       - name: signalfx-agent
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Values.agentVersion }}"
@@ -86,12 +97,21 @@ spec:
           name: hostfs
           readOnly: true
           mountPropagation: HostToContainer
-        {{ if not .Values.isWindows -}}
-        - mountPath: /var/run/docker.sock
+        {{ if .Values.gatherDockerMetrics -}}
+        - mountPath: {{ .Values.isWindows | ternary "\\\\.\\pipe\\docker_engine" "/var/run/docker.sock" }}
           name: docker
+          {{ if not .Values.isWindows -}}
           readOnly: true
+          {{- end }}
+        {{- end }}
+        {{ if not .Values.isWindows -}}
         - mountPath: /etc/passwd
           name: etc-passwd
+          readOnly: true
+        {{- end }}
+        {{- if (.Values.monitorsd) }}
+        - name: monitorsd
+          mountPath: /etc/signalfx/monitors.d
           readOnly: true
         {{- end }}
         resources:
@@ -131,6 +151,12 @@ spec:
       {{- with .Values.extraEnv }}
         {{- toYaml . | trim | nindent 8 }}
       {{- end }}
+      {{- if .Values.envFrom }}
+        envFrom:
+        {{- with .Values.envFrom }}
+          {{- toYaml . | trim | nindent 8 }}
+        {{- end }}
+      {{- end }}
       volumes:
       - name: config
         configMap:
@@ -138,12 +164,22 @@ spec:
       - name: hostfs
         hostPath:
           path: {{ .Values.isWindows | ternary "C:\\" "/" }}
-      {{ if not .Values.isWindows -}}
+      {{ if .Values.gatherDockerMetrics -}}
       - name: docker
         hostPath:
-          path: /var/run/docker.sock
+          path: {{ .Values.isWindows | ternary "\\\\.\\pipe\\docker_engine" "/var/run/docker.sock" }}
+          {{ if .Values.isWindows -}}
+          type: null
+          {{- end }}
+      {{- end }}
+      {{ if not .Values.isWindows -}}
       - name: etc-passwd
         hostPath:
           path: /etc/passwd
+      {{- end }}
+      {{- if (.Values.monitorsd)}}
+      - name: monitorsd
+        configMap:
+          name: {{ include "configmap-name" . }}-monitorsd
       {{- end }}
 {{- end }}

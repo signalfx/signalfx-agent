@@ -4,6 +4,7 @@ import (
 	"context"
 	dbsql "database/sql"
 	"fmt"
+	"strconv"
 	"sync"
 	"time"
 
@@ -16,8 +17,6 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
 	"github.com/sirupsen/logrus"
 )
-
-var logger = logrus.WithFields(logrus.Fields{"monitorType": monitorMetadata.MonitorType})
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
@@ -58,16 +57,18 @@ type Config struct {
 	TopQueryLimit int `default:"10" yaml:"topQueryLimit"`
 }
 
-func (c *Config) connStr() (string, error) {
+func (c *Config) connStr() (template string, port string, err error) {
 	connStr := c.ConnectionString
+	port = "5432"
 	if c.Host != "" {
 		connStr += " host=" + c.Host
 	}
 	if c.Port != 0 {
 		connStr += fmt.Sprintf(" port=%d", c.Port)
+		port = strconv.Itoa(int(c.Port))
 	}
-
-	return utils.RenderSimpleTemplate(connStr, c.Params)
+	template, err = utils.RenderSimpleTemplate(connStr, c.Params)
+	return
 }
 
 // Monitor that collects postgresql stats
@@ -81,9 +82,15 @@ type Monitor struct {
 
 	database *dbsql.DB
 
-	monitoredDBs      map[string]*sql.Monitor
-	serverMonitor     *sql.Monitor
-	statementsMonitor *sql.Monitor
+	monitoredDBs       map[string]*sql.Monitor
+	serverMonitor      *sql.Monitor
+	statementsMonitor  *sql.Monitor
+	replicationMonitor *sql.Monitor
+
+	// server connection string, without db name
+	connectionString string
+	// name for execution time column determined by information schema for pg_stat_statement
+	totalTimeColumn string
 }
 
 // Configure the monitor and kick off metric collection
@@ -91,32 +98,36 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.conf = conf
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 
-	queriesGroupEnabled := m.Output.HasEnabledMetricInGroup(groupQueries)
+	logger := logrus.WithFields(logrus.Fields{
+		"monitorType": monitorMetadata.MonitorType,
+		"host":        conf.Host,
+		"port":        conf.Port,
+	})
 
-	connStr, err := conf.connStr()
+	queriesGroupEnabled := m.Output.HasEnabledMetricInGroup(groupQueries)
+	replicationGroupEnabled := m.Output.HasEnabledMetricInGroup(groupReplication)
+
+	connStr, port, err := conf.connStr()
 	if err != nil {
 		return fmt.Errorf("could not render connectionString template: %v", err)
 	}
+	m.connectionString = connStr
+	m.Output.AddExtraDimension("postgres_port", port)
 
-	m.database, err = dbsql.Open("postgres", connStr+" dbname="+m.conf.MasterDBName)
-	if err != nil {
-		return err
-	}
+	connectionStringWithMasterDB := m.connectionString + " dbname=" + m.conf.MasterDBName
 
 	var dbFilter filter.StringFilter
 	if len(conf.Databases) > 0 {
 		dbFilter, err = filter.NewOverridableStringFilter(conf.Databases)
 		if err != nil {
-			m.database.Close()
 			return fmt.Errorf("problem with databases filter: %v", err)
 		}
 	}
 
 	databaseDatapointFilter, err := dpfilters.NewOverridable(nil, map[string][]string{
-		"database": conf.Databases,
+		"database?": conf.Databases,
 	})
 	if err != nil {
-		m.database.Close()
 		return err
 	}
 	m.Output.AddDatapointExclusionFilter(dpfilters.Negate(databaseDatapointFilter))
@@ -128,18 +139,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	m.monitoredDBs = map[string]*sql.Monitor{}
 
-	m.serverMonitor, err = m.monitorServer()
-	if err != nil {
-		m.database.Close()
-		return fmt.Errorf("could not monitor postgresql server: %v", err)
-	}
-
-	if queriesGroupEnabled {
-		m.statementsMonitor, err = m.monitorStatements()
-		if err != nil {
-			logger.WithError(err).Errorf("Could not monitor queries: %v", err)
-		}
-	}
+	startedMonitoringReplication := false
 
 	utils.RunOnInterval(m.ctx, func() {
 		m.Lock()
@@ -150,7 +150,44 @@ func (m *Monitor) Configure(conf *Config) error {
 			return
 		}
 
-		databases, err := m.determineDatabases()
+		if m.database == nil {
+			m.database, err = dbsql.Open("postgres", connectionStringWithMasterDB)
+			if err != nil {
+				logger.WithError(err).WithField("connStr", connStr).Error("Failed to open database")
+				return
+			}
+		}
+
+		if m.serverMonitor == nil {
+			m.serverMonitor, err = m.monitorServer(connectionStringWithMasterDB)
+			if err != nil {
+				logger.WithError(err).Errorf("could not monitor postgresql server: %v", err)
+			}
+		}
+
+		if queriesGroupEnabled && m.statementsMonitor == nil {
+			m.statementsMonitor, err = m.monitorStatements(connectionStringWithMasterDB)
+			if err != nil {
+				logger.WithError(err).Errorf("Could not monitor queries: %v", err)
+			}
+		}
+
+		if replicationGroupEnabled && !startedMonitoringReplication {
+			rows, err := m.database.QueryContext(m.ctx, `select AURORA_VERSION();`)
+			if err == nil {
+				defer rows.Close()
+				logger.Info("Aurora server detected, disabling replication monitor")
+			} else {
+				logger.Debug("Replication metrics enabled")
+				m.replicationMonitor, err = m.monitorReplication()
+				if err != nil {
+					logger.WithError(err).Errorf("Could not monitor replication: %v", err)
+				}
+			}
+			startedMonitoringReplication = true
+		}
+
+		databases, err := determineDatabases(m.ctx, m.database)
 		if err != nil {
 			logger.WithError(err).Error("Could not determine list of PostgreSQL databases")
 		}
@@ -189,36 +226,26 @@ func (m *Monitor) Configure(conf *Config) error {
 }
 
 func (m *Monitor) startMonitoringDatabase(name string) (*sql.Monitor, error) {
-	connStr, err := m.conf.connStr()
-	if err != nil {
-		return nil, err
-	}
-
-	connStr += " dbname=" + name
-
 	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
 	sqlMon.Output.AddExtraDimension("database", name)
 
 	return sqlMon, sqlMon.Configure(&sql.Config{
 		MonitorConfig:    m.conf.MonitorConfig,
-		ConnectionString: connStr,
+		ConnectionString: m.connectionString + " dbname=" + name,
 		DBDriver:         "postgres",
 		Queries:          makeDefaultDBQueries(name),
 		LogQueries:       m.conf.LogQueries,
 	})
 }
 
-func (m *Monitor) determineDatabases() ([]string, error) {
-	rows, err := m.database.QueryContext(m.ctx, `SELECT datname FROM pg_database WHERE datistemplate = false;`)
+func determineDatabases(ctx context.Context, database *dbsql.DB) ([]string, error) {
+	rows, err := database.QueryContext(ctx, `SELECT datname FROM pg_database WHERE datistemplate = false;`)
 	if err != nil {
 		return nil, err
 	}
 	if rows != nil {
 		defer func() {
-			err := rows.Close()
-			if err != nil {
-				logger.WithError(err).Errorf("Error closing rows: %v", err)
-			}
+			_ = rows.Close()
 		}()
 	}
 
@@ -230,32 +257,77 @@ func (m *Monitor) determineDatabases() ([]string, error) {
 		}
 		out = append(out, name)
 	}
-	if err := rows.Err(); err != nil {
-		logger.WithError(err).Errorf("Error iterating and scanning rows: %v", err)
-	}
-	return out, nil
+	return out, rows.Err()
 }
 
-func (m *Monitor) monitorServer() (*sql.Monitor, error) {
-	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
-
-	connStr, err := m.conf.connStr()
-	if err != nil {
-		return nil, err
+func (m *Monitor) determineTotalTimeColumn(connStr string) (string, error) {
+	if m.totalTimeColumn != "" {
+		return m.totalTimeColumn, nil
 	}
 
+	database, err := dbsql.Open("postgres", connStr)
+	if err != nil {
+		return "", fmt.Errorf("could not handle postgres database config: %w", err)
+	}
+	defer database.Close()
+
+	rows, err := database.QueryContext(m.ctx, `SELECT column_name FROM information_schema.columns WHERE table_name='pg_stat_statements' and column_name SIMILAR TO 'total_(exec_|)time';`)
+	if err != nil {
+		return "", err
+	}
+	if rows != nil {
+		defer func() {
+			_ = rows.Close()
+		}()
+	}
+
+	var totalTimeColumn string
+	for rows.Next() { // there is only one resulting row
+		if err := rows.Scan(&totalTimeColumn); err != nil {
+			return "", err
+		}
+	}
+	return totalTimeColumn, nil
+}
+
+func (m *Monitor) monitorServer(connStr string) (*sql.Monitor, error) {
+	var err error
+	m.totalTimeColumn, err = m.determineTotalTimeColumn(connStr)
+	if err != nil || m.totalTimeColumn == "" {
+		return nil, fmt.Errorf("failed to determine total_time column name: %w", err)
+	}
+
+	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
 	return sqlMon, sqlMon.Configure(&sql.Config{
 		MonitorConfig:    m.conf.MonitorConfig,
-		ConnectionString: connStr + " dbname=" + m.conf.MasterDBName,
+		ConnectionString: connStr,
 		DBDriver:         "postgres",
-		Queries:          defaultServerQueries,
+		Queries:          defaultServerQueries(m.totalTimeColumn),
+		LogQueries:       m.conf.LogQueries,
 	})
 }
 
-func (m *Monitor) monitorStatements() (*sql.Monitor, error) {
+func (m *Monitor) monitorStatements(connStr string) (*sql.Monitor, error) {
+	var err error
+	m.totalTimeColumn, err = m.determineTotalTimeColumn(connStr)
+	if err != nil || m.totalTimeColumn == "" {
+		return nil, fmt.Errorf("failed to determine total_time column name: %w", err)
+	}
+
+	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
+	return sqlMon, sqlMon.Configure(&sql.Config{
+		MonitorConfig:    m.conf.MonitorConfig,
+		ConnectionString: connStr,
+		DBDriver:         "postgres",
+		Queries:          makeDefaultStatementsQueries(m.conf.TopQueryLimit, m.totalTimeColumn),
+		LogQueries:       m.conf.LogQueries,
+	})
+}
+
+func (m *Monitor) monitorReplication() (*sql.Monitor, error) {
 	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
 
-	connStr, err := m.conf.connStr()
+	connStr, _, err := m.conf.connStr()
 	if err != nil {
 		return nil, err
 	}
@@ -264,7 +336,8 @@ func (m *Monitor) monitorStatements() (*sql.Monitor, error) {
 		MonitorConfig:    m.conf.MonitorConfig,
 		ConnectionString: connStr + " dbname=" + m.conf.MasterDBName,
 		DBDriver:         "postgres",
-		Queries:          makeDefaultStatementsQueries(m.conf.TopQueryLimit),
+		Queries:          defaultReplicationQueries,
+		LogQueries:       m.conf.LogQueries,
 	})
 }
 
@@ -291,5 +364,9 @@ func (m *Monitor) Shutdown() {
 
 	if m.statementsMonitor != nil {
 		m.statementsMonitor.Shutdown()
+	}
+
+	if m.replicationMonitor != nil {
+		m.replicationMonitor.Shutdown()
 	}
 }

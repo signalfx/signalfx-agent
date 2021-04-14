@@ -4,12 +4,14 @@ import (
 	"context"
 	"crypto/tls"
 	"crypto/x509"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"net"
 	"net/http"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -30,7 +32,14 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig  `yaml:",inline" singleInstance:"false" acceptsEndpoints:"true"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"false" acceptsEndpoints:"true"`
+	// Host/IP to monitor
+	Host string `yaml:"host"`
+	// Port of the HTTP server to monitor
+	Port uint16 `yaml:"port"`
+	// HTTP path to use in the test request
+	Path string `yaml:"path"`
+
 	httpclient.HTTPConfig `yaml:",inline"`
 	// Optional HTTP request body as string like '{"foo":"bar"}'
 	RequestBody string `yaml:"requestBody"`
@@ -38,12 +47,14 @@ type Config struct {
 	NoRedirects bool `yaml:"noRedirects" default:"false"`
 	// HTTP request method to use.
 	Method string `yaml:"method" default:"GET"`
-	// List of HTTP URLs to monitor.
-	URLs []string `yaml:"urls" validate:"required"`
+	// DEPRECATED: list of HTTP URLs to monitor. Use `host`/`port`/`useHTTPS`/`path` instead.
+	URLs []string `yaml:"urls"`
 	// Optional Regex to match on URL(s) response(s).
 	Regex string `yaml:"regex"`
 	// Desired code to match for URL(s) response(s).
 	DesiredCode int `yaml:"desiredCode" default:"200"`
+	// Add `redirect_url` dimension which could differ from `url` when redirection is followed.
+	AddRedirectURL bool `yaml:"addRedirectURL" default:"false"`
 }
 
 // Monitor that collect metrics
@@ -55,14 +66,13 @@ type Monitor struct {
 	conf        *Config
 	monitorName string
 	regex       *regexp.Regexp
+	URLs        []*url.URL
 }
 
 // Configure and kick off internal metric collection
 func (m *Monitor) Configure(conf *Config) (err error) {
 	m.conf = conf
 	m.logger = logrus.WithFields(logrus.Fields{"monitorType": m.monitorName})
-	// always try https if available
-	m.conf.UseHTTPS = true
 	// Ignore certificate error which will be checked after
 	m.conf.SkipVerify = true
 
@@ -78,24 +88,42 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 
+	if m.conf.Host != "" {
+		if m.conf.Port == 0 {
+			m.conf.Port = m.conf.DefaultPort()
+		}
+		clientURL, err := m.normalizeURL(fmt.Sprintf("%s://%s:%d%s", m.conf.Scheme(), m.conf.Host, m.conf.Port, m.conf.Path))
+		if err != nil {
+			m.logger.WithError(err).Error("error configuring url from http client, ignore it")
+		} else {
+			m.URLs = append(m.URLs, clientURL)
+		}
+	} else {
+		// always try https if available. This is for backwards compat with deprecated URLs.
+		m.conf.UseHTTPS = true
+	}
+	for _, site := range m.conf.URLs {
+		// add http scheme if not explicitly set
+		if !strings.HasPrefix(site, "http") {
+			site = fmt.Sprintf("http://%s", site)
+		}
+		stringURL, err := m.normalizeURL(site)
+		if err != nil {
+			m.logger.WithField("url", site).WithError(err).Error("error configuring url from list, ignore it")
+			continue
+		}
+		m.URLs = append(m.URLs, stringURL)
+	}
+
 	utils.RunOnInterval(ctx, func() {
 		// get stats for each website
-		for _, site := range m.conf.URLs {
-			logger := m.logger.WithFields(logrus.Fields{"url": site})
+		for _, site := range m.URLs {
+			logger := m.logger.WithFields(logrus.Fields{"url": site.String()})
 
-			_, err := url.Parse(site)
-			if err != nil {
-				logger.WithError(err).Error("could not parse url, ignore this url")
-				continue
-			}
-
-			dps, lastURL, err := m.getHTTPStats(site, logger)
-
+			dps, redirectURL, err := m.getHTTPStats(site, logger)
 			if err == nil {
-				parsedURL, _ := url.Parse(lastURL)
-
-				if parsedURL.Scheme == "https" {
-					tlsDps, err := m.getTLSStats(parsedURL, logger)
+				if redirectURL.Scheme == "https" {
+					tlsDps, err := m.getTLSStats(redirectURL, logger)
 					if err == nil {
 						dps = append(dps, tlsDps...)
 					} else {
@@ -104,6 +132,24 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 				}
 			} else {
 				logger.WithError(err).Error("Failed gathering HTTP stats, ignore other stats")
+			}
+
+			for i := range dps {
+				dps[i].Dimensions["url"] = site.String()
+			}
+
+			if m.conf.AddRedirectURL && !m.conf.NoRedirects {
+				query := redirectURL.RawQuery
+				if query != "" {
+					query = "?" + query
+				}
+				normalizedURL, _ := m.normalizeURL(fmt.Sprintf("%s://%s:%s%s%s", redirectURL.Scheme, redirectURL.Hostname(), redirectURL.Port(), redirectURL.Path, query))
+				if site.String() != normalizedURL.String() {
+					logger.WithField("redirect_url", normalizedURL.String()).Debug("URL redirected")
+					for i := range dps {
+						dps[i].Dimensions["redirect_url"] = normalizedURL.String()
+					}
+				}
 			}
 
 			m.Output.SendDatapoints(dps...)
@@ -119,6 +165,36 @@ func (m *Monitor) Shutdown() {
 	if m.cancel != nil {
 		m.cancel()
 	}
+}
+
+func (m *Monitor) normalizeURL(site string) (normalizedURL *url.URL, err error) {
+	stringURL, err := url.Parse(site)
+	if err != nil {
+		return
+	}
+	host := stringURL.Hostname()
+	port := stringURL.Port()
+	// for deprecated URLs only, set default port if not explicitly set
+	if host == stringURL.Host {
+		port = "80"
+	}
+	// keep port only if custom, hide default
+	if port != "80" && port != "443" {
+		host = fmt.Sprintf("%s:%s", host, port)
+	}
+	path := stringURL.Path
+	if path == "" {
+		path = "/"
+	}
+	query := stringURL.RawQuery
+	if query != "" {
+		query = "?" + query
+	}
+	normalizedURL, err = url.Parse(fmt.Sprintf("%s://%s%s%s", stringURL.Scheme, host, path, query))
+	if err != nil {
+		return
+	}
+	return
 }
 
 func (m *Monitor) getTLSStats(site *url.URL, logger *logrus.Entry) (dps []*datapoint.Datapoint, err error) {
@@ -182,7 +258,6 @@ func (m *Monitor) getTLSStats(site *url.URL, logger *logrus.Entry) (dps []*datap
 	}
 
 	dimensions := map[string]string{
-		"url":         site.String(),
 		"server_name": host,
 	}
 
@@ -193,7 +268,8 @@ func (m *Monitor) getTLSStats(site *url.URL, logger *logrus.Entry) (dps []*datap
 	return dps, nil
 }
 
-func (m *Monitor) getHTTPStats(site string, logger *logrus.Entry) (dps []*datapoint.Datapoint, lastURL string, err error) {
+func (m *Monitor) getHTTPStats(site fmt.Stringer, logger *logrus.Entry) (dps []*datapoint.Datapoint, redirectURL *url.URL, err error) {
+	// do not suggest fmt.Stringer
 	// Init http client
 	client, err := m.conf.HTTPConfig.Build()
 	if err != nil {
@@ -213,9 +289,26 @@ func (m *Monitor) getHTTPStats(site string, logger *logrus.Entry) (dps []*datapo
 		}
 	}
 
-	req, err := http.NewRequest(m.conf.Method, site, body)
+	req, err := http.NewRequest(m.conf.Method, site.String(), body)
 	if err != nil {
 		return
+	}
+
+	// override excluded headers, see:
+	// https://github.com/golang/go/blob/cad6d1fef5147d31e94ee83934c8609d3ad150b7/src/net/http/request.go#L92
+	if len(m.conf.HTTPHeaders) > 0 {
+		for key, val := range m.conf.HTTPHeaders {
+			if strings.EqualFold(key, "host") {
+				req.Host = val
+				continue
+			}
+			if strings.EqualFold(key, "content-length") {
+				if contentLenght, err := strconv.Atoi(val); err == nil {
+					req.ContentLength = int64(contentLenght)
+				}
+				continue
+			}
+		}
 	}
 
 	// starts timer
@@ -228,9 +321,9 @@ func (m *Monitor) getHTTPStats(site string, logger *logrus.Entry) (dps []*datapo
 
 	responseTime := time.Since(now).Seconds()
 
-	lastURL = resp.Request.URL.String()
+	redirectURL = resp.Request.URL
+
 	dimensions := map[string]string{
-		"url":    lastURL,
 		"method": m.conf.Method,
 	}
 
@@ -261,5 +354,5 @@ func (m *Monitor) getHTTPStats(site string, logger *logrus.Entry) (dps []*datapo
 			dps = append(dps, datapoint.New(httpRegexMatched, dimensions, datapoint.NewIntValue(matchRegex), datapoint.Gauge, time.Time{}))
 		}
 	}
-	return dps, lastURL, nil
+	return dps, redirectURL, err
 }

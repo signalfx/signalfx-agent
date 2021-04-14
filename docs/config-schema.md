@@ -145,6 +145,7 @@ The **nested** `writer` config object has the following fields:
 | `traceExportFormat` | no | string | Format to export traces in. Choices are "zipkin" and "sapm" (**default:** `"zipkin"`) |
 | `datapointMaxRequests` | no | integer | Deprecated: use `maxRequests` instead. (**default:** `0`) |
 | `maxRequests` | no | integer | The maximum number of concurrent requests to make to a single ingest server with datapoints/events/trace spans.  This number multiplied by `datapointMaxBatchSize` is more or less the maximum number of datapoints that can be "in-flight" at any given time.  Same thing for the `traceSpanMaxBatchSize` option and trace spans. (**default:** `10`) |
+| `timeout` | no | int64 | Timeout specifies a time limit for requests made to the ingest server. The timeout includes connection time, any redirects, and reading the response body. Default is 5 seconds, a Timeout of zero means no timeout. (**default:** `"5s"`) |
 | `eventSendIntervalSeconds` | no | integer | The agent does not send events immediately upon a monitor generating them, but buffers them and sends them in batches.  The lower this number, the less delay for events to appear in SignalFx. (**default:** `1`) |
 | `propertiesMaxRequests` | no | unsigned integer | The analogue of `maxRequests` for dimension property requests. (**default:** `20`) |
 | `propertiesMaxBuffered` | no | unsigned integer | How many dimension property updates to hold pending being sent before dropping subsequent property updates.  Property updates will be resent eventually and they are slow to change so dropping them (esp on agent start up) usually isn't a big deal. (**default:** `10000`) |
@@ -164,6 +165,7 @@ The **nested** `writer` config object has the following fields:
 | `maxTraceSpansInFlight` | no | unsigned integer | How many trace spans are allowed to be in the process of sending.  While this number is exceeded, the oldest spans will be discarded to accommodate new spans generated to avoid memory exhaustion.  If you see log messages about "Aborting pending trace requests..." or "Dropping new trace spans..." it means that the downstream target for traces is not able to accept them fast enough. Usually if the downstream is offline you will get connection refused errors and most likely spans will not build up in the agent (there is no retry mechanism). In the case of slow downstreams, you might be able to increase `maxRequests` to increase the concurrent stream of spans downstream (if the target can make efficient use of additional connections) or, less likely, increase `traceSpanMaxBatchSize` if your batches are maxing out (turn on debug logging to see the batch sizes being sent) and being split up too much. If neither of those options helps, your downstream is likely too slow to handle the volume of trace spans and should be upgraded to more powerful hardware/networking. (**default:** `100000`) |
 | `splunk` | no | [object (see below)](#splunk) | Configures the writer specifically writing to Splunk. |
 | `signalFxEnabled` | no | bool | If set to `false`, output to SignalFx will be disabled. (**default:** `true`) |
+| `extraHeaders` | no | map of strings | Additional headers to add to any outgoing HTTP requests from the agent. |
 
 
 ## splunk
@@ -416,6 +418,7 @@ where applicable:
     traceExportFormat: "zipkin"
     datapointMaxRequests: 0
     maxRequests: 10
+    timeout: "5s"
     eventSendIntervalSeconds: 1
     propertiesMaxRequests: 20
     propertiesMaxBuffered: 10000
@@ -448,6 +451,7 @@ where applicable:
       maxRequests: 0
       maxBatchSize: 0
     signalFxEnabled: true
+    extraHeaders: 
   logging: 
     level: "info"
     format: "text"

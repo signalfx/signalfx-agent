@@ -39,7 +39,7 @@ MONITORS_CONFIG = string.Template(
 
 CLUSTER_ROLEBINDING_YAML = """
 ---
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
   name: tiller-binding
@@ -89,16 +89,16 @@ def tiller_rbac_resources(k8s_cluster, helm_major_version):
             body=yaml.safe_load(SERVICE_ACCOUNT_YAML), namespace=k8s_cluster.test_namespace
         )
 
-        rbacv1beta1 = kube_client.RbacAuthorizationV1beta1Api()
+        rbacv1 = kube_client.RbacAuthorizationV1Api()
 
         clusterrolebinding_yaml = yaml.safe_load(CLUSTER_ROLEBINDING_YAML)
         clusterrolebinding_yaml["subjects"][0]["namespace"] = k8s_cluster.test_namespace
         clusterrolebinding_yaml["metadata"]["name"] += f"-{k8s_cluster.test_namespace}"
-        clusterrolebinding = rbacv1beta1.create_cluster_role_binding(body=clusterrolebinding_yaml)
+        clusterrolebinding = rbacv1.create_cluster_role_binding(body=clusterrolebinding_yaml)
         try:
             yield
         finally:
-            rbacv1beta1.delete_cluster_role_binding(
+            rbacv1.delete_cluster_role_binding(
                 name=clusterrolebinding.metadata.name, body=kube_client.V1DeleteOptions()
             )
             corev1.delete_namespaced_service_account(
@@ -136,7 +136,11 @@ def release_values_yaml(k8s_cluster, proxy_pod_ip, fake_services):
 
 
 def init_helm(k8s_cluster, cont, helm_major_version):
-    init_command = helm_command_prefix(k8s_cluster, helm_major_version) + " init --service-account tiller"
+    init_command = (
+        helm_command_prefix(k8s_cluster, helm_major_version)
+        + " init --service-account tiller"
+        + " --stable-repo-url https://charts.helm.sh/stable"
+    )
     print(f"Executing helm init: {init_command}")
     output = exec_helm(cont, init_command)
     print(f"Helm init output:\n{output}")

@@ -15,7 +15,7 @@ METADATA = Metadata.from_package("cadvisor", mon_type="kubelet-stats")
 
 def _skip_if_1_18_or_newer(k8s_cluster):
     print(k8s_cluster.get_cluster_version())
-    if tuple([int(v) for v in k8s_cluster.get_cluster_version().lstrip("v").split("-")[0].split(".")]) >= (1, 18, 0):
+    if tuple(int(v) for v in k8s_cluster.get_cluster_version().lstrip("v").split("-")[0].split(".")) >= (1, 18, 0):
 
         pytest.skip("skipping since cluster is newer than 1.18")
 

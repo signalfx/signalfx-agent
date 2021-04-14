@@ -7,6 +7,7 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 
 	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
+	"github.com/signalfx/signalfx-agent/pkg/core/common/constants"
 )
 
 // HTTPConfig can be embedded inside a monitor config.
@@ -20,11 +21,11 @@ type HTTPConfig struct {
 	// Basic Auth password to use on each request, if any.
 	Password string `yaml:"password" neverLog:"true"`
 
-	// If true, the agent will connect to the exporter using HTTPS instead of plain HTTP.
+	// If true, the agent will connect to the server using HTTPS instead of plain HTTP.
 	UseHTTPS bool `yaml:"useHTTPS"`
 
-	// A map of key=message-header and value=header-value.
-	// Comma separated multiple values for the same message-header is supported.
+	// A map of HTTP header names to values. Comma separated multiple values
+	// for the same message-header is supported.
 	HTTPHeaders map[string]string `yaml:"httpHeaders,omitempty"`
 
 	// If useHTTPS is true and this option is also true, the exporter's TLS
@@ -46,6 +47,13 @@ func (h *HTTPConfig) Scheme() string {
 		return "https"
 	}
 	return "http"
+}
+
+func (h *HTTPConfig) DefaultPort() uint16 {
+	if h.UseHTTPS {
+		return 443
+	}
+	return 80
 }
 
 // Build returns a configured http.Client
@@ -77,11 +85,13 @@ func (h *HTTPConfig) Build() (*http.Client, error) {
 		}
 	}
 
-	if len(h.HTTPHeaders) > 0 {
-		roundTripper = &addHeader{
-			rt:      roundTripper,
-			headers: h.HTTPHeaders,
-		}
+	if h.HTTPHeaders == nil {
+		h.HTTPHeaders = map[string]string{}
+	}
+
+	roundTripper = &addHeader{
+		rt:      roundTripper,
+		headers: h.HTTPHeaders,
 	}
 
 	return &http.Client{
@@ -99,5 +109,10 @@ func (h *addHeader) RoundTrip(req *http.Request) (*http.Response, error) {
 	for k, v := range h.headers {
 		req.Header.Add(k, v)
 	}
+
+	if req.Header.Get("User-Agent") == "" {
+		req.Header.Set("User-Agent", "SignalFx Smart Agent/"+constants.Version)
+	}
+
 	return h.rt.RoundTrip(req)
 }

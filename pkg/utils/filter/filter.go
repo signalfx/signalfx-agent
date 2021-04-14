@@ -8,6 +8,7 @@ package filter
 import (
 	"errors"
 	"regexp"
+	"strings"
 
 	"github.com/gobwas/glob"
 )
@@ -108,31 +109,40 @@ func NewBasicStringFilter(items []string) (*BasicStringFilter, error) {
 // considered a match.
 func NewStringMapFilter(m map[string][]string) (StringMapFilter, error) {
 	filterMap := map[string]*OverridableStringFilter{}
+	okMissing := map[string]bool{}
 	for k := range m {
 		if len(m[k]) == 0 {
 			return nil, errors.New("string map value in filter cannot be empty")
 		}
 
+		realKey := strings.TrimSuffix(k, "?")
+
 		var err error
-		filterMap[k], err = NewOverridableStringFilter(m[k])
+		filterMap[realKey], err = NewOverridableStringFilter(m[k])
 		if err != nil {
 			return nil, err
+		}
+
+		if len(realKey) != len(k) {
+			okMissing[realKey] = true
 		}
 	}
 
 	return &fullStringMapFilter{
 		filterMap: filterMap,
+		okMissing: okMissing,
 	}, nil
 }
 
 // Each key/value pair must match the filter for the whole map to match.
 type fullStringMapFilter struct {
 	filterMap map[string]*OverridableStringFilter
+	okMissing map[string]bool
 }
 
 func (f *fullStringMapFilter) Matches(m map[string]string) bool {
 	// Empty map input never matches
-	if len(m) == 0 {
+	if len(m) == 0 && len(f.okMissing) == 0 {
 		return false
 	}
 
@@ -142,8 +152,7 @@ func (f *fullStringMapFilter) Matches(m map[string]string) bool {
 				return false
 			}
 		} else {
-			// filter's key isn't in input, so cannot match
-			return false
+			return f.okMissing[k]
 		}
 	}
 	return true

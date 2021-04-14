@@ -14,7 +14,7 @@ METADATA = Metadata.from_package("postgresql")
 ENV = ["POSTGRES_USER=test_user", "POSTGRES_PASSWORD=test_pwd", "POSTGRES_DB=postgres"]
 
 
-@pytest.mark.parametrize("version", ["9.2-alpine", "9-alpine", "10-alpine", "11-alpine"])
+@pytest.mark.parametrize("version", ["9.2-alpine", "9-alpine", "10-alpine", "11-alpine", "12-alpine", "13-alpine"])
 def test_postgresql(version):
     with run_service(
         "postgres", buildargs={"POSTGRES_VERSION": version}, environment=ENV, print_logs=False

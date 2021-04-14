@@ -80,6 +80,10 @@ This role sources the following variables:
  - `sfx_win_dl_base_url`: The base URL for Windows agent downloading (**default:** 
    'https://dl.signalfx.com')
 
+ - `sfx_skip_repo` (Linux only): If installing the agent from a custom or self-hosted
+   apt/yum repo, set to `true` to skip the installation of the default repo
+   (**default:** `false`)
+
 **Note**: On Linux, after the `signalfx-agent` role is deployed, Ansible will manage the
 `signalfx-agent` service via the Ansible core `service` module.  This module
 will automatically determine the host's init system for starting/stopping the

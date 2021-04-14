@@ -10,17 +10,26 @@ import (
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/golib/v3/trace"
-	"github.com/signalfx/signalfx-agent/pkg/core/writer/correlations"
-	log "github.com/sirupsen/logrus"
+
+	"github.com/signalfx/signalfx-agent/pkg/apm/correlations"
+	"github.com/signalfx/signalfx-agent/pkg/apm/log"
 )
 
 const spanCorrelationMetricName = "sf.int.service.heartbeat"
+
+// DefaultDimsToSyncSource are the default dimensions to sync correlated environment and services onto.
+var DefaultDimsToSyncSource = map[string]string{
+	"container_id":       "container_id",
+	"kubernetes_pod_uid": "kubernetes_pod_uid",
+}
 
 // ActiveServiceTracker keeps track of which services are seen in the trace
 // spans passed through ProcessSpans.  It supports expiry of service names if
 // they are not seen for a certain amount of time.
 type ActiveServiceTracker struct {
 	dpCacheLock sync.Mutex
+
+	log log.Logger
 
 	// hostIDDims is the map of key/values discovered by the agent that identify the host
 	hostIDDims map[string]string
@@ -58,6 +67,10 @@ type ActiveServiceTracker struct {
 
 	// Internal metrics
 	spansProcessed int64
+
+	// Map of dimensions to sync to with the key being the span attribute to lookup and the value being
+	// the dimension to sync to.
+	dimsToSyncSource map[string]string
 }
 
 // dpForService actually makes the datapoint that is put into the dp cache
@@ -119,9 +132,7 @@ func (a *ActiveServiceTracker) LoadHostIDDimCorrelations() {
 							a.addServiceToDPCache(service)
 						}
 
-						log.WithFields(log.Fields{
-							"service": service,
-						}).Debug("Tracking service name from trace span")
+						a.log.WithFields(log.Fields{"service": service}).Debug("Tracking service name from trace span")
 					}
 				}
 			}
@@ -130,9 +141,7 @@ func (a *ActiveServiceTracker) LoadHostIDDimCorrelations() {
 				// therefore there we don't need to include the dim key and value on the cache key
 				for _, environment := range environments {
 					if isNew := a.hostEnvironmentCache.UpdateOrCreate(&CacheKey{value: environment}, a.timeNow()); isNew {
-						log.WithFields(log.Fields{
-							"environment": environment,
-						}).Debug("Tracking environment name from trace span")
+						a.log.WithFields(log.Fields{"environment": environment}).Debug("Tracking environment name from trace span")
 					}
 				}
 			}
@@ -141,8 +150,17 @@ func (a *ActiveServiceTracker) LoadHostIDDimCorrelations() {
 }
 
 // New creates a new initialized service tracker
-func New(timeout time.Duration, correlationClient correlations.CorrelationClient, hostIDDims map[string]string, sendTraceHostCorrelationMetrics bool, newServiceCallback func(dp *datapoint.Datapoint)) *ActiveServiceTracker {
+func New(
+	log log.Logger,
+	timeout time.Duration,
+	correlationClient correlations.CorrelationClient,
+	hostIDDims map[string]string,
+	sendTraceHostCorrelationMetrics bool,
+	newServiceCallback func(dp *datapoint.Datapoint),
+	dimsToSyncSource map[string]string,
+) *ActiveServiceTracker {
 	a := &ActiveServiceTracker{
+		log:                             log,
 		hostIDDims:                      hostIDDims,
 		hostServiceCache:                NewTimeoutCache(timeout),
 		hostEnvironmentCache:            NewTimeoutCache(timeout),
@@ -154,32 +172,38 @@ func New(timeout time.Duration, correlationClient correlations.CorrelationClient
 		correlationClient:               correlationClient,
 		sendTraceHostCorrelationMetrics: sendTraceHostCorrelationMetrics,
 		timeNow:                         time.Now,
+		dimsToSyncSource:                dimsToSyncSource,
 	}
 	a.LoadHostIDDimCorrelations()
 
 	return a
 }
 
-// AddSpans accepts a list of trace spans and uses them to update the
-// current list of active services.  This is thread-safe.
+// AddSpans wraps given SignalFx spans for use by AddSpansGeneric.
 func (a *ActiveServiceTracker) AddSpans(ctx context.Context, spans []*trace.Span) {
+	a.AddSpansGeneric(ctx, spanListWrap{spans: spans})
+}
+
+// AddSpansGeneric accepts a list of trace spans and uses them to update the
+// current list of active services.  This is thread-safe.
+func (a *ActiveServiceTracker) AddSpansGeneric(ctx context.Context, spans SpanList) {
 	// Take current time once since this is a system call.
 	now := a.timeNow()
 
-	for i := range spans {
-		a.processEnvironment(spans[i], now)
-		a.processService(spans[i], now)
+	for i := 0; i < spans.Len(); i++ {
+		a.processEnvironment(spans.At(i), now)
+		a.processService(spans.At(i), now)
 	}
 
 	// Protected by lock above
-	atomic.AddInt64(&a.spansProcessed, int64(len(spans)))
+	atomic.AddInt64(&a.spansProcessed, int64(spans.Len()))
 }
 
-func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Time) {
-	if span.Tags == nil {
+func (a *ActiveServiceTracker) processEnvironment(span Span, now time.Time) {
+	if span.NumTags() == 0 {
 		return
 	}
-	environment, environmentFound := span.Tags["environment"]
+	environment, environmentFound := span.Environment()
 
 	if !environmentFound || strings.TrimSpace(environment) == "" {
 		// The following is ONLY to mitigate a corner case scenario where the environment for a container/pod is set on
@@ -191,9 +215,10 @@ func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Tim
 		//
 		// Under that VERY specific circumstance, we need to fetch and delete the environment values for each
 		// pod/container that we have not already scraped an environment off of this agent runtime.
-		for i := range dimsToSyncSource {
-			dimName := dimsToSyncSource[i]
-			if dimValue, ok := span.Tags[dimName]; ok {
+		for sourceAttr, dimName := range a.dimsToSyncSource {
+			sourceAttr := sourceAttr
+			dimName := dimName
+			if dimValue, ok := span.Tag(sourceAttr); ok {
 				// look up the dimension / value in the environment cache to ensure it doesn't already exist
 				// if it does exist, this means we've already scraped and overwritten what was on the backend
 				// probably from another span. This also implies that some spans for the tenant have an environment
@@ -258,16 +283,15 @@ func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Tim
 				})
 			}
 		}
-		log.WithFields(log.Fields{
-			"environment": environment,
-		}).Debug("Tracking environment name from trace span")
+		a.log.WithFields(log.Fields{"environment": environment}).Debug("Tracking environment name from trace span")
 	}
 
 	// container / pod level stuff
 	// this cache is necessary to identify environments associated with a kubernetes pod or container id
-	for _, dimName := range dimsToSyncSource {
+	for sourceAttr, dimName := range a.dimsToSyncSource {
+		sourceAttr := sourceAttr
 		dimName := dimName
-		if dimValue, ok := span.Tags[dimName]; ok {
+		if dimValue, ok := span.Tag(sourceAttr); ok {
 			// Note that the value is not set on the cache key.  We only send the first environment received for a
 			// given pod/container, and we never delete the values set on the container/pod dimension.
 			// So we only need to cache the dim name and dim value that have been associated with an environment.
@@ -287,12 +311,12 @@ func (a *ActiveServiceTracker) processEnvironment(span *trace.Span, now time.Tim
 	}
 }
 
-func (a *ActiveServiceTracker) processService(span *trace.Span, now time.Time) {
+func (a *ActiveServiceTracker) processService(span Span, now time.Time) {
 	// Can't do anything if the spans don't have a local service name
-	if span.LocalEndpoint == nil || span.LocalEndpoint.ServiceName == nil || *span.LocalEndpoint.ServiceName == "" {
+	service, ok := span.ServiceName()
+	if !ok || service == "" {
 		return
 	}
-	service := *span.LocalEndpoint.ServiceName
 
 	// Handle host level service and environment correlation
 	// Note that only the value is set for the host service cache because we only track services for the host
@@ -322,16 +346,15 @@ func (a *ActiveServiceTracker) processService(span *trace.Span, now time.Time) {
 			a.addServiceToDPCache(service)
 		}
 
-		log.WithFields(log.Fields{
-			"service": service,
-		}).Debug("Tracking service name from trace span")
+		a.log.WithFields(log.Fields{"service": service}).Debug("Tracking service name from trace span")
 	}
 
 	// container / pod level stuff (this should not directly affect the active service count)
 	// this cache is necessary to identify services associated with a kubernetes pod or container id
-	for _, dimName := range dimsToSyncSource {
+	for sourceAttr, dimName := range a.dimsToSyncSource {
+		sourceAttr := sourceAttr
 		dimName := dimName
-		if dimValue, ok := span.Tags[dimName]; ok {
+		if dimValue, ok := span.Tag(sourceAttr); ok {
 			// Note that the value is not set on the cache key.  We only send the first service received for a
 			// given pod/container, and we never delete the values set on the container/pod dimension.
 			// So we only need to cache the dim name and dim value that have been associated with a service.
@@ -373,9 +396,7 @@ func (a *ActiveServiceTracker) Purge() {
 			a.removeServiceFromDPCache(purged.value)
 		}
 
-		log.WithFields(log.Fields{
-			"serviceName": purged.value,
-		}).Debug("No longer tracking service name from trace span")
+		a.log.WithFields(log.Fields{"serviceName": purged.value}).Debug("No longer tracking service name from trace span")
 	}
 
 	for _, purged := range a.hostEnvironmentCache.GetPurgeable(now) {
@@ -389,9 +410,7 @@ func (a *ActiveServiceTracker) Purge() {
 				Value:    purged.value,
 			}, func(cor *correlations.Correlation) {
 				a.hostEnvironmentCache.Delete(purged)
-				log.WithFields(log.Fields{
-					"environmentName": purged.value,
-				}).Debug("No longer tracking environment name from trace span")
+				a.log.WithFields(log.Fields{"environmentName": purged.value}).Debug("No longer tracking environment name from trace span")
 			})
 		}
 	}

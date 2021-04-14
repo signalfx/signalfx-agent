@@ -21,7 +21,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"false" acceptsEndpoints:"false"`
 	// The host/ip address of the Supervisor XML-RPC API. This is used to construct
 	// the `url` option if not provided.
 	Host string `yaml:"host"`

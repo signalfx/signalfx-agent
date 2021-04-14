@@ -14,6 +14,9 @@ class signalfx_agent (
   $installation_directory = 'C:\\Program Files\\SignalFx',
   $service_user           = 'signalfx-agent',  # linux only
   $service_group          = 'signalfx-agent',  # linux only
+  $apt_gpg_key            = 'https://splunk.jfrog.io/splunk/signalfx-agent-deb/splunk-B3CD4420.gpg',
+  $yum_gpg_key            = 'https://splunk.jfrog.io/splunk/signalfx-agent-rpm/splunk-B3CD4420.pub',
+  $manage_repo            = true  # linux only
 ) {
 
   $service_name = 'signalfx-agent'
@@ -29,16 +32,7 @@ class signalfx_agent (
 
     $split_config_file_path = $config_file_path.split('\\\\')
     $config_parent_directory_path = $split_config_file_path[0, - 2].join('\\')
-
-    package { $service_name:
-      ensure          => 'installed',
-      name            => 'signalfx-agent',
-      provider        => 'windows',
-      source          => "${installation_directory}\\SignalFxAgent\\bin\\signalfx-agent.exe",
-      install_options => [{ '-service' => '"install"' }, '-logEvents', { '-config' => $config_file_path }],
-    }
-  }
-  else {
+  } else {
     $split_config_file_path = $config_file_path.split('/')
     $config_parent_directory_path = $split_config_file_path[0, - 2].join('/')
 
@@ -51,10 +45,6 @@ class signalfx_agent (
     } else {
       $version = $package_version
     }
-
-    package { $service_name:
-      ensure => $version
-    }
   }
 
   case $::osfamily {
@@ -62,32 +52,38 @@ class signalfx_agent (
       class { 'signalfx_agent::debian_repo':
         repo_base     => $repo_base,
         package_stage => $package_stage,
+        apt_gpg_key   => $apt_gpg_key,
+        manage_repo   => $manage_repo,
+      }
+      -> package { $service_name:
+        ensure => $version,
       }
     }
     'redhat': {
       class { 'signalfx_agent::yum_repo':
         repo_base     => $repo_base,
         package_stage => $package_stage,
+        yum_gpg_key   => $yum_gpg_key,
+        manage_repo   => $manage_repo,
+      }
+      -> package { $service_name:
+        ensure => $version,
       }
     }
     'windows': {
-      File[$config_file_path]
-
-      -> class { 'signalfx_agent::win_repo':
+      class { 'signalfx_agent::win_repo':
         repo_base              => 'dl.signalfx.com',
         package_stage          => $package_stage,
         version                => $agent_version,
-        config_file_path       => $config_file_path,
         installation_directory => $installation_directory,
         service_name           => $service_name,
+        config_file_path       => $config_file_path,
       }
     }
     default: {
       fail("Your OS (${::osfamily}) is not supported by the SignalFx Agent")
     }
   }
-
-  -> Package[$service_name]
 
   -> service { $service_name:
     ensure => true,

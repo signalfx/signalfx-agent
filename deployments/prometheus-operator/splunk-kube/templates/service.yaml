@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "splunk.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "splunk.name" . }}
+    helm.sh/chart: {{ include "splunk.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.webport }}
+      targetPort: {{ .Values.service.webport }}
+      protocol: TCP
+      name: http
+    - port: {{ .Values.service.hecport }}
+      targetPort: {{ .Values.service.hecport }}
+      protocol: TCP
+      name: hec
+    - port: {{ .Values.service.statsdport }}
+      targetPort: {{ .Values.service.statsdport }}
+      protocol: TCP
+      name: statsd
+  selector:
+    app.kubernetes.io/name: {{ include "splunk.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

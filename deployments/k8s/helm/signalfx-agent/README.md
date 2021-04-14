@@ -68,8 +68,8 @@ OpenShift-specific functionality:
 
 If you are deploying the agent to a mixed Linux/Windows cluster (as of the time
 of writing, master components had to run on Linux nodes so a mixed cluster was
-inevitable), you can use a beta version of the agent built as a Windows Docker
-container.  You must deploy two separate Helm releases, one for Linux and one
+inevitable), you can use a Windows Docker container release of the agent.  
+You must deploy two separate Helm releases, one for Linux and one
 for Windows.  The Linux release will be normal -- you don't have to do anything
 special in your Helm values to account for the additional Windows nodes. The
 Helm chart has been updated to include a `nodeSelector` on the
@@ -85,10 +85,10 @@ isWindows: true
 hostPath: C:\\hostfs
 # Let the Linux Helm release do cluster metrics.
 gatherClusterMetrics: false
-# Docker isn't exposed on Windows
-gatherDockerMetrics: false
+# If your kube install is using CRI-O instead of docker, set the below to false.
+gatherDockerMetrics: true
 
-agentVersion: 5.4.0
+agentVersion: 5.9.2
 
 # Kubelet on Windows doesn't seem to have the usage_bytes metrics so we'll
 # transform the working set metric to it so that built-in content works.
@@ -105,9 +105,9 @@ kubeletAPI:
   skipVerify: true
 
 image:
-  repository: quay.io/signalfx/signalfx-agent-dev
-  # This is a special beta release of the agent for Windows.
-  tag: 5.4.0-windows-beta1
+  repository: quay.io/signalfx/signalfx-agent
+  # This is a special windows container release of the agent for Windows.
+  tag: 5.9.2-windows
   pullPolicy: Always
 ```
 

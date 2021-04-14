@@ -1,6 +1,6 @@
 ---
 - name: consul
-  version: v1.1.0
+  version: v1.1.1
   repo: signalfx/collectd-consul
 
 - name: couchbase
@@ -26,15 +26,15 @@
   repo: signalfx/collectd-health_checker
 
 - name: jenkins
-  version: v2.1.0
+  version: v2.4.0
   repo: signalfx/collectd-jenkins
 
 - name: kong
-  version: v0.0.3
+  version: v0.0.4
   repo: signalfx/collectd-kong
 
 - name: mesos
-  version: v1.1.1
+  version: v1.2.1
   repo: signalfx/collectd-mesos
 
 - name: marathon
@@ -42,7 +42,7 @@
   repo: signalfx/collectd-marathon
 
 - name: mongodb
-  version: v1.3.2
+  version: v1.3.4
   repo: signalfx/collectd-mongodb
   pip_packages:
     - pymongo[tls]==3.3.1
@@ -52,13 +52,13 @@
   repo: signalfx/collectd-openstack
 
 - name: rabbitmq
-  version: v1.2.0
+  version: v1.2.1
   repo: signalfx/collectd-rabbitmq
   can_remove:
     - integration-test
 
 - name: redis
-  version: v1.2.0
+  version: v1.2.1
   repo: signalfx/redis-collectd-plugin
 
 - name: signalfx

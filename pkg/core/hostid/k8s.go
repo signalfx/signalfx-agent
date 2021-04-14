@@ -1,6 +1,7 @@
 package hostid
 
 import (
+	"context"
 	"os"
 
 	"github.com/signalfx/signalfx-agent/pkg/core/common/kubernetes"
@@ -45,7 +46,7 @@ func KubernetesNodeUID(monitorConf []config.MonitorConfig) string {
 		logrus.Errorf("Could not create Kubernetes client to get node UID: %s", err)
 		os.Exit(10)
 	}
-	node, err := client.CoreV1().Nodes().Get(nodeName, metav1.GetOptions{})
+	node, err := client.CoreV1().Nodes().Get(context.Background(), nodeName, metav1.GetOptions{})
 	if err != nil {
 		logrus.Errorf("Could not fetch node with name %s from K8s API: %v", nodeName, err)
 		os.Exit(11)

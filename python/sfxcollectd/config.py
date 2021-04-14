@@ -62,7 +62,7 @@ class Config(object):  # pylint: disable=too-few-public-methods
                     continue
                 if "#flatten" in val and "values" in val:
                     conf.children += [
-                        cls(root=conf, key=key, values=item, children=[])
+                        cls(root=conf, key=key, values=item if isinstance(item, (list, tuple)) else [item], children=[])
                         for item in val.get("values") or []
                         if item is not None
                     ]

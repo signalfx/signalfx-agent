@@ -19,10 +19,11 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 	"github.com/sirupsen/logrus"
 )
 
-const dockerAPIVersion = "v1.22"
+const dockerAPIVersion = "v1.24"
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
@@ -42,13 +43,16 @@ type EnhancedMetricsConfig struct {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig  `acceptsEndpoints:"false"`
+	config.MonitorConfig  `yaml:",inline" acceptsEndpoints:"false"`
 	EnhancedMetricsConfig `yaml:",inline"`
 
 	// The URL of the docker server
 	DockerURL string `yaml:"dockerURL" default:"unix:///var/run/docker.sock"`
 	// The maximum amount of time to wait for docker API requests
 	TimeoutSeconds int `yaml:"timeoutSeconds" default:"5"`
+	// The time to wait before resyncing the list of containers the monitor maintains
+	// through the docker event listener example: cacheSyncInterval: "20m"
+	CacheSyncInterval timeutil.Duration `yaml:"cacheSyncInterval" default:"60m"`
 	// A mapping of container label names to dimension names. The corresponding
 	// label values will become the dimension value for the mapped name.  E.g.
 	// `io.kubernetes.container.name: container_spec_name` would result in a
@@ -140,11 +144,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		// Repeat the watch setup in the face of errors in case the docker
 		// engine is non-responsive when the monitor starts.
 		if !isRegistered {
-			err := dockercommon.ListAndWatchContainers(m.ctx, m.client, changeHandler, imageFilter, m.logger)
-			if err != nil {
-				m.logger.WithError(err).Error("Could not list docker containers")
-				return
-			}
+			dockercommon.ListAndWatchContainers(m.ctx, m.client, changeHandler, imageFilter, m.logger, conf.CacheSyncInterval.AsDuration())
 			isRegistered = true
 		}
 
@@ -170,6 +170,10 @@ func (m *Monitor) fetchStats(container dockerContainer, labelMap map[string]stri
 	stats, err := m.client.ContainerStats(ctx, container.ID, false)
 	if err != nil {
 		cancel()
+		if isContainerNotFound(err) {
+			m.logger.Debugf("container %s is not found in cache", container.ID)
+			return
+		}
 		m.logger.WithError(err).Errorf("Could not fetch docker stats for container id %s", container.ID)
 		return
 	}
@@ -275,4 +279,13 @@ func (c *Config) GetExtraMetrics() []string {
 	}
 
 	return extraMetrics
+}
+
+func isContainerNotFound(err error) (notfound bool) {
+	// ref: https://github.com/moby/moby/blob/master/container/view.go#L116
+	if err != nil && strings.Contains(err.Error(), "no such container") {
+		notfound = true
+	}
+
+	return
 }

@@ -230,14 +230,14 @@ def any_metric_found(fake_services, metrics):
     """
     Check if any metric in `metrics` exist
     """
-    return any([has_datapoint_with_metric_name(fake_services, m) for m in metrics])
+    return any(has_datapoint_with_metric_name(fake_services, m) for m in metrics)
 
 
 def any_dim_key_found(fake_services, dim_keys):
     """
     Check if any dimension key in `dim_keys` exist
     """
-    return any([has_datapoint_with_dim_key(fake_services, k) for k in dim_keys])
+    return any(has_datapoint_with_dim_key(fake_services, k) for k in dim_keys)
 
 
 def any_metric_has_any_dim_key(fake_services, metrics, dim_keys):

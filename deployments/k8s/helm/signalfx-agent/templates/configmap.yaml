@@ -29,6 +29,10 @@ data:
     apiUrl: {{ .Values.apiUrl }}
     {{- end }}
 
+    {{- if .Values.eventEndpointUrl }}
+    eventEndpointUrl: {{ .Values.eventEndpointUrl }}
+    {{- end }}
+
     {{- if .Values.traceEndpointUrl }}
     traceEndpointUrl: {{ .Values.traceEndpointUrl }}
     {{- end }}
@@ -68,7 +72,9 @@ data:
         {{- end }}
         skipTLSVerify: {{ .Values.splunkSkipTLSVerify | default "false" }}
     {{- end }}
-
+    {{- if .Values.writer }}
+      {{ toYaml .Values.writer | indent 6 | trim }}
+    {{- end }}
 {{- if lt $agentSemver.Major 5 }}
     sendMachineID: false
 {{- end }}
@@ -84,14 +90,19 @@ data:
       {{- end }}
 
     observers:
+    {{- if .Values.configureStandardObservers }}
     - type: k8s-api
       {{- if .Values.apiServerSkipVerify }}
       kubernetesAPI:
         skipVerify: true
       {{- end }}
       {{- if semverCompare ">=5.2.0" $agentSemver.Original }}
-      discoverAllPods: {{ toYaml .Values.isServerless }}
-      discoverNodes: {{ toYaml .Values.isServerless }}
+      {{- if or (.Values.isServerless) (.Values.discoverAllPods) }}
+      discoverAllPods: true
+      {{- end }}
+      {{- if or (.Values.isServerless) (.Values.discoverNodes) }}
+      discoverNodes: true
+      {{- end }}
       {{- end }}
       {{- if .Values.additionalPortAnnotations }}
       additionalPortAnnotations:
@@ -99,6 +110,10 @@ data:
       - {{ toYaml . | indent 8 | trim }}
       {{- end }}
       {{- end }}
+    {{- end }}
+    {{- with .Values.observers }}
+    {{ toYaml . }}
+    {{- end }}
 
     monitors:
 {{- if .Values.configureStandardMonitors }}
@@ -168,6 +183,9 @@ data:
           container_image:
            - '*pause-amd64*'
            - 'k8s.gcr.io/pause*'
+           {{- if .Values.extraExcludedContainerImages }}
+           {{ toYaml .Values.extraExcludedContainerImages | indent 11 | trim }}
+           {{- end }}
         metricNames:
           - '*'
           - '!*network*'
@@ -190,15 +208,41 @@ data:
 {{- if .Values.isServerless }}
       alwaysClusterReporter: true
 {{- end }}
+      {{ with .Values.clusterExtraMetrics -}}
+      extraMetrics:
+        {{ toYaml . | indent 8 | trim }}
+      {{- end }}
     {{- end }}
 
     {{ if not .Values.isServerless -}}
+    {{ if .Values.gatherVolumesMetrics -}}
+    - type: kubernetes-volumes
+      {{- if .Values.isServerless }}
+      discoveryRule: 'target == "k8s-node" && name =~ "fargate" && name != Getenv("MY_NODE_NAME")'
+      configEndpointMappings:
+        kubeletAPI: |
+          {
+            url: Sprintf("https://%s:%d", host, node_status.DaemonEndpoints.KubeletEndpoint.Port),
+            authType: "serviceAccount"
+          }
+      {{- end }}
+      {{- if .Values.kubeletAPI }}
+      kubeletAPI:
+        {{ toYaml .Values.kubeletAPI | indent 8 | trim }}
+      {{- end }}
+      extraMetrics:
+        - kubernetes.volume_inodes
+        - kubernetes.volume_inodes_free
+    {{- end }}
     {{ if .Values.gatherDockerMetrics -}}
     - type: docker-container-stats
-      dockerURL: unix:///var/run/docker.sock
+      dockerURL: {{ .Values.isWindows | ternary "npipe:////./pipe/docker_engine" "unix:///var/run/docker.sock" }}
       excludedImages:
        - '*pause-amd64*'
        - 'k8s.gcr.io/pause*'
+       {{- if .Values.extraExcludedContainerImages }}
+       {{ toYaml .Values.extraExcludedContainerImages | indent 7 | trim }}
+       {{- end }}
       labelsToDimensions:
         io.kubernetes.container.name: container_spec_name
         io.kubernetes.pod.name: kubernetes_pod_name
@@ -217,6 +261,10 @@ data:
       {{- end }}
 
     {{ end }}
+
+{{- if (.Values.monitorsd) }}
+    - {"#from": "/etc/signalfx/monitors.d/*.yaml", flatten: true, optional: true}
+{{- end }}
 
     collectd:
       {{ if or .Values.isWindows .Values.collectd.disableCollectd -}}

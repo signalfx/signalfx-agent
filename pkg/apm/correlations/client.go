@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net"
 	"net/http"
 	"net/url"
 	"strings"
@@ -15,10 +14,9 @@ import (
 
 	"github.com/signalfx/golib/v3/datapoint"
 
-	"github.com/signalfx/signalfx-agent/pkg/core/config"
-	"github.com/signalfx/signalfx-agent/pkg/core/writer/requests"
-	"github.com/signalfx/signalfx-agent/pkg/core/writer/requests/requestcounter"
-	log "github.com/sirupsen/logrus"
+	"github.com/signalfx/signalfx-agent/pkg/apm/log"
+	"github.com/signalfx/signalfx-agent/pkg/apm/requests"
+	"github.com/signalfx/signalfx-agent/pkg/apm/requests/requestcounter"
 )
 
 var ErrChFull = errors.New("request channel full")
@@ -59,6 +57,7 @@ type request struct {
 // Client is a client for making dimensional correlations
 type Client struct {
 	sync.RWMutex
+	log           log.Logger
 	ctx           context.Context
 	wg            sync.WaitGroup
 	Token         string
@@ -73,46 +72,50 @@ type Client struct {
 	now        func() time.Time
 	logUpdates bool
 
-	sendDelay   time.Duration
+	retryDelay  time.Duration
 	maxAttempts uint32
 
 	TotalClientError4xxResponses int64
 	TotalRetriedUpdates          int64
 	TotalInvalidDimensions       int64
-	dedupPurgeInterval           time.Duration
+	dedupCleanupInterval         time.Duration
+}
+
+// Config defines configuration for correlation settings.
+type Config struct {
+	MaxRequests     uint          `mapstructure:"max_requests"`
+	MaxBuffered     uint          `mapstructure:"max_buffered"`
+	MaxRetries      uint          `mapstructure:"max_retries"`
+	LogUpdates      bool          `mapstructure:"log_updates"`
+	RetryDelay      time.Duration `mapstructure:"retry_delay"`
+	CleanupInterval time.Duration `mapstructure:"cleanup_interval"`
+}
+
+// ClientConfig for correlation client.
+type ClientConfig struct {
+	Config
+	AccessToken string
+	URL         *url.URL
 }
 
 // NewCorrelationClient returns a new Client
-func NewCorrelationClient(ctx context.Context, conf *config.WriterConfig) (CorrelationClient, error) {
-	client := &http.Client{
-		Timeout: 10 * time.Second,
-		Transport: &http.Transport{
-			Proxy: http.ProxyFromEnvironment,
-			DialContext: (&net.Dialer{
-				Timeout:   5 * time.Second,
-				KeepAlive: 30 * time.Second,
-			}).DialContext,
-			MaxIdleConns:        int(conf.PropertiesMaxRequests),
-			MaxIdleConnsPerHost: int(conf.PropertiesMaxRequests),
-			IdleConnTimeout:     30 * time.Second,
-			TLSHandshakeTimeout: 10 * time.Second,
-		},
-	}
-	sender := requests.NewReqSender(ctx, client, conf.PropertiesMaxRequests, "correlation")
+func NewCorrelationClient(log log.Logger, ctx context.Context, client *http.Client, conf ClientConfig) (CorrelationClient, error) {
+	sender := requests.NewReqSender(ctx, client, conf.MaxRequests, "correlation")
 	return &Client{
-		ctx:                ctx,
-		Token:              conf.SignalFxAccessToken,
-		APIURL:             conf.ParsedAPIURL(),
-		requestSender:      sender,
-		client:             client,
-		now:                time.Now,
-		logUpdates:         conf.LogDimensionUpdates,
-		requestChan:        make(chan *request, conf.PropertiesMaxBuffered),
-		retryChan:          make(chan *request, conf.PropertiesMaxBuffered),
-		dedup:              newDeduplicator(int(conf.PropertiesMaxBuffered)),
-		sendDelay:          time.Duration(conf.PropertiesSendDelaySeconds) * time.Second,
-		maxAttempts:        uint32(conf.TraceHostCorrelationMaxRequestRetries) + 1,
-		dedupPurgeInterval: conf.TraceHostCorrelationPurgeInterval.AsDuration(),
+		log:                  log,
+		ctx:                  ctx,
+		Token:                conf.AccessToken,
+		APIURL:               conf.URL,
+		requestSender:        sender,
+		client:               client,
+		now:                  time.Now,
+		logUpdates:           conf.LogUpdates,
+		requestChan:          make(chan *request, conf.MaxBuffered),
+		retryChan:            make(chan *request, conf.MaxBuffered),
+		dedup:                newDeduplicator(int(conf.MaxBuffered)),
+		retryDelay:           conf.RetryDelay,
+		maxAttempts:          uint32(conf.MaxRetries) + 1,
+		dedupCleanupInterval: conf.CleanupInterval,
 	}, nil
 }
 
@@ -123,7 +126,7 @@ func (cc *Client) putRequestOnChan(r *request) error {
 		// and because this isn't being taken off on the request sender and subject to retries, this could
 		// potentially spam the logs
 		atomic.AddInt64(&cc.TotalInvalidDimensions, int64(1))
-		log.WithFields(log.Fields{"method": r.operation, "correlation": r.Correlation}).Debug("No dimension key or value to correlate to")
+		r.Logger(cc.log).WithFields(log.Fields{"method": r.operation}).Debug("No dimension key or value to correlate to")
 		return nil
 	}
 
@@ -148,7 +151,7 @@ func (cc *Client) putRequestOnRetryChan(r *request) error {
 	requestcounter.IncrementRequestCount(r.ctx)
 
 	// set the time to retry
-	r.sendAt = cc.now().Add(cc.sendDelay)
+	r.sendAt = cc.now().Add(cc.retryDelay)
 
 	if r.ctx.Err() != nil {
 		return errRequestCancelled
@@ -181,7 +184,7 @@ func (cc *Client) Correlate(cor *Correlation, cb CorrelateCB) {
 			switch statuscode {
 			case http.StatusOK:
 				if cc.logUpdates {
-					log.WithFields(log.Fields{"method": http.MethodPut, "correlation": cor}).Info("Updated dimension")
+					cor.Logger(cc.log).WithFields(log.Fields{"method": http.MethodPut}).Info("Updated dimension")
 				}
 			case http.StatusTeapot:
 				max := &ErrMaxEntries{}
@@ -191,12 +194,12 @@ func (cc *Client) Correlate(cor *Correlation, cb CorrelateCB) {
 				}
 			}
 			if err != nil {
-				log.WithError(err).WithFields(log.Fields{"method": http.MethodPut, "correlation": cor}).Error("Unable to update dimension, not retrying")
+				cor.Logger(cc.log).WithError(err).WithFields(log.Fields{"method": http.MethodPut}).Error("Unable to update dimension, not retrying")
 			}
 			cb(cor, err)
 		}})
 	if err != nil {
-		log.WithError(err).WithFields(log.Fields{"method": http.MethodPut, "correlation": cor}).Debug("Unable to update dimension, not retrying")
+		cor.Logger(cc.log).WithError(err).WithFields(log.Fields{"method": http.MethodPut}).Debug("Unable to update dimension, not retrying")
 	}
 }
 
@@ -213,14 +216,14 @@ func (cc *Client) Delete(cor *Correlation, callback SuccessfulDeleteCB) {
 			case http.StatusOK:
 				callback(cor)
 				if cc.logUpdates {
-					log.WithFields(log.Fields{"method": http.MethodDelete, "correlation": cor}).Info("Updated dimension")
+					cor.Logger(cc.log).WithFields(log.Fields{"method": http.MethodDelete}).Info("Updated dimension")
 				}
 			default:
-				log.WithError(err).Error("Unable to update dimension, not retrying")
+				cc.log.WithError(err).Error("Unable to update dimension, not retrying")
 			}
 		}})
 	if err != nil {
-		log.WithError(err).WithFields(log.Fields{"method": http.MethodDelete, "correlation": cor}).Debug("Unable to update dimension, not retrying")
+		cor.Logger(cc.log).WithError(err).WithFields(log.Fields{"method": http.MethodDelete}).Debug("Unable to update dimension, not retrying")
 	}
 }
 
@@ -241,21 +244,21 @@ func (cc *Client) Get(dimName string, dimValue string, callback SuccessfulGetCB)
 				var response = map[string][]string{}
 				err = json.Unmarshal(body, &response)
 				if err != nil {
-					log.WithError(err).WithFields(log.Fields{"dim": dimName, "value": dimValue}).Error("Unable to unmarshall correlations for dimension")
+					cc.log.WithError(err).WithFields(log.Fields{"dim": dimName, "value": dimValue}).Error("Unable to unmarshall correlations for dimension")
 					return
 				}
 				callback(response)
 			case http.StatusNotFound:
 				// only log this as debug because we do a blanket fetch of correlations on the backend
 				// and if the backend fails to find anything this isn't really an error for us
-				log.WithError(err).Debug("Unable to update dimension, not retrying")
+				cc.log.WithError(err).Debug("Unable to update dimension, not retrying")
 			default:
-				log.WithError(err).Error("Unable to update dimension, not retrying")
+				cc.log.WithError(err).Error("Unable to update dimension, not retrying")
 			}
 		},
 	})
 	if err != nil {
-		log.WithError(err).WithFields(log.Fields{"dimensionName": dimName, "dimensionValue": dimValue}).Debug("Unable to retrieve correlations for dimension, not retrying")
+		cc.log.WithError(err).WithFields(log.Fields{"dimensionName": dimName, "dimensionValue": dimValue}).Debug("Unable to retrieve correlations for dimension, not retrying")
 	}
 }
 
@@ -287,7 +290,7 @@ func (cc *Client) makeRequest(r *request) {
 		// logging this as debug because this means there's something fundamentally wrong with the request
 		// and because this isn't being taken off on the request sender and subject to retries, this could
 		// potentially spam the logs long term.  This would be a really good candidate for a throttled error logger
-		log.WithError(err).WithFields(log.Fields{"method": r.operation, "correlation": r.Correlation}).Debug("Unable to make request, not retrying")
+		r.Correlation.Logger(cc.log).WithError(err).WithFields(log.Fields{"method": r.operation}).Debug("Unable to make request, not retrying")
 		r.cancel()
 		return
 	}
@@ -302,10 +305,10 @@ func (cc *Client) makeRequest(r *request) {
 				// The retry (for non 400 errors) is meant to provide some measure of robustness against
 				// temporary API failures.  If the API is down for significant
 				// periods of time, correlation updates will probably eventually back
-				// up beyond conf.PropertiesMaxBuffered and start dropping.
+				// up beyond conf.MaxBuffered and start dropping.
 				retryErr := cc.putRequestOnRetryChan(r)
 				if retryErr == nil {
-					log.WithError(err).WithFields(log.Fields{"method": req.Method, "correlation": r.Correlation}).Debug("Unable to update dimension, retrying")
+					r.Correlation.Logger(cc.log).WithError(err).WithFields(log.Fields{"method": req.Method}).Debug("Unable to update dimension, retrying")
 					return
 				}
 			} else {
@@ -334,7 +337,7 @@ func (cc *Client) makeRequest(r *request) {
 // processChan processes incoming requests, drops duplicates, and cancels conflicting requests
 func (cc *Client) processChan() {
 	defer cc.wg.Done()
-	purgeDeduper := time.NewTimer(cc.dedupPurgeInterval)
+	purgeDeduper := time.NewTimer(cc.dedupCleanupInterval)
 	defer purgeDeduper.Stop()
 	for {
 		select {
@@ -342,7 +345,7 @@ func (cc *Client) processChan() {
 			return
 		case <-purgeDeduper.C:
 			cc.dedup.purge()
-			purgeDeduper.Reset(cc.dedupPurgeInterval)
+			purgeDeduper.Reset(cc.dedupCleanupInterval)
 		case r := <-cc.requestChan:
 			if cc.dedup.isDup(r) {
 				r.cancel()

@@ -105,6 +105,23 @@ func Test_HostObserver(t *testing.T) {
 		}
 	}
 
+	t.Run("Omit PID", func(t *testing.T) {
+		config.OmitPIDDimension = true
+		defer func() { config.OmitPIDDimension = false }()
+		tcpConns := openTestTCPPorts(t)
+		startObserver()
+		lock.Lock()
+		require.True(t, len(endpoints) >= len(tcpConns))
+
+		for _, e := range endpoints {
+			_, ok := e.Dimensions()["pid"]
+			require.False(t, ok)
+		}
+
+		lock.Unlock()
+		o.Shutdown()
+	})
+
 	t.Run("Basic connections", func(t *testing.T) {
 		tcpConns := openTestTCPPorts(t)
 		udpConns := openTestUDPPorts(t)
@@ -130,6 +147,9 @@ func Test_HostObserver(t *testing.T) {
 				} else {
 					require.Equal(t, e.DerivedFields()["is_ipv6"], false)
 				}
+
+				_, ok := e.Dimensions()["pid"]
+				require.True(t, ok)
 			}
 		})
 
@@ -151,6 +171,9 @@ func Test_HostObserver(t *testing.T) {
 				} else {
 					require.Equal(t, e.DerivedFields()["is_ipv6"], false)
 				}
+
+				_, ok := e.Dimensions()["pid"]
+				require.True(t, ok)
 			}
 		})
 

@@ -1,14 +1,14 @@
 #!/bin/bash
 
-<% if_p("http_proxy") do |url| %>
+<% if_p("env.http_proxy") do |url| %>
 export http_proxy=<%= url %>
 export HTTP_PROXY=<%= url %>
 <% end %>
-<% if_p("https_proxy") do |url| %>
+<% if_p("env.https_proxy") do |url| %>
 export https_proxy=<%= url %>
 export HTTPS_PROXY=<%= url %>
 <% end %>
-<% if_p("no_proxy") do |url| %>
+<% if_p("env.no_proxy") do |url| %>
 export no_proxy=<%= url %>
 export NO_PROXY=<%= url %>
 <% end %>

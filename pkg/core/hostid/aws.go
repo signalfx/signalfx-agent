@@ -1,55 +1,52 @@
 package hostid
 
 import (
-	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"net/http"
 
-	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/ec2metadata"
+	"github.com/aws/aws-sdk-go/aws/session"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 )
 
 // AWSUniqueID constructs the unique EC2 instance of the underlying host.  If
 // not running on EC2, returns the empty string.
 func AWSUniqueID(cloudMetadataTimeout timeutil.Duration) string {
-	c := http.Client{
+	// Pass in the HTTP client so cloudMetadataTimeout from the config
+	// is respected.
+	c := &http.Client{
 		Timeout: cloudMetadataTimeout.AsDuration(),
 	}
 
-	resp, err := c.Get("http://169.254.169.254/2014-11-05/dynamic/instance-identity/document")
+	sess, err := session.NewSession(aws.NewConfig().WithHTTPClient(c))
 	if err != nil {
 		log.WithFields(log.Fields{
-			"error": err,
-		}).Debug("Failed to get AWS instance-identity")
-		return ""
-	}
-	defer resp.Body.Close()
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Debug("Failed to read AWS instance-identity response")
+			"detail": err,
+		}).Info("Failed to create new session for AWS metadata collection")
 		return ""
 	}
 
-	var doc struct {
-		AccountID  string `json:"accountId"`
-		InstanceID string `json:"instanceId"`
-		Region     string `json:"region"`
+	client := ec2metadata.New(sess)
+
+	// Checks whether it's an EC2 instance and Metadata service is available.
+	if !client.Available() {
+		log.Debug("No EC2 metadata server detected, assuming not on AWS EC2")
+		return ""
 	}
 
-	err = json.Unmarshal(body, &doc)
+	doc, err := client.GetInstanceIdentityDocument()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
-		}).Debug("Failed to unmarshal AWS instance-identity response")
+		}).Error("Failed to get AWS instance-identity")
 		return ""
 	}
 
 	if doc.AccountID == "" || doc.InstanceID == "" || doc.Region == "" {
-		log.Debugf("One (or more) required field is empty. AccountID: %s ; InstanceID: %s ; Region: %s", doc.AccountID, doc.InstanceID, doc.Region)
+		log.Errorf("One (or more) required field is empty. AccountID: %s ; InstanceID: %s ; Region: %s", doc.AccountID, doc.InstanceID, doc.Region)
 		return ""
 	}
 

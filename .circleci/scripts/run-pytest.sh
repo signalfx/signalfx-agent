@@ -31,9 +31,18 @@ fi
 
 sudo sysctl -w vm.max_map_count=262144
 
+REPORT_OPTIONS="--verbose --junitxml=~/testresults/results.xml --html=~/testresults/results.html --self-contained-html"
+
 set -x
-if [ -n "$MARKERS" ]; then
-  $PYTEST_PATH -m "$MARKERS" $PYTEST_OPTIONS $TESTS
-else
-    $PYTEST_PATH $PYTEST_OPTIONS $TESTS
+set +e
+
+$PYTEST_PATH -m "$MARKERS" -n "$WORKERS" $PYTEST_OPTIONS $REPORT_OPTIONS $TESTS
+RC=$?
+
+# re-run failed tests if xdist workers crashed
+if [ $RC -ne 0 ] && grep -q 'worker.*crashed' ~/testresults/results.html; then
+    $PYTEST_PATH -m "$MARKERS" $PYTEST_OPTIONS $REPORT_OPTIONS $TESTS
+    RC=$?
 fi
+
+exit $RC

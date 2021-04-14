@@ -1,5 +1,5 @@
 {{- if .Values.rbac.create -}}
-apiVersion: rbac.authorization.k8s.io/v1beta1
+apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: {{ template "signalfx-agent.fullname" . }}
@@ -18,6 +18,9 @@ rules:
   - nodes
   - nodes/spec
   - nodes/proxy
+  {{- if and .Values.podDisruptionBudget .Values.isServerless }}
+  - poddisruptionbudgets
+  {{- end }}
   - pods
   - pods/status
   - replicationcontrollers
@@ -34,6 +37,15 @@ rules:
   - get
   - list
   - watch
+  {{- if .Values.gatherVolumesMetrics }}
+- apiGroups:
+    - ""
+  resources:
+    - persistentvolumes
+    - persistentvolumeclaims
+  verbs:
+    - get
+  {{- end }}
 - apiGroups:
   - ""
   resources:

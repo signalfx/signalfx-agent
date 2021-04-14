@@ -15,9 +15,9 @@
 
     <repositories>
         <repository>
-            <id>Spring Plugins</id>
-            <name>Spring Plugins</name>
-            <url>https://repo.spring.io/plugins-release/</url>
+            <id>JCenter Bintray</id>
+            <name>JCenter Bintray</name>
+            <url>https://jcenter.bintray.com</url>
         </repository>
     </repositories>
 
@@ -30,17 +30,17 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy</artifactId>
-            <version>2.5.7</version>
+            <version>3.0.7</version>
         </dependency>
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-jmx</artifactId>
-            <version>2.5.7</version>
+            <version>3.0.7</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
-            <version>3.9</version>
+            <version>3.12.0</version>
         </dependency>
         <dependency>
             <groupId>org.terracotta</groupId>
@@ -74,7 +74,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.1</version>
+                <version>3.2.4</version>
                 <configuration>
                 </configuration>
                 <executions>

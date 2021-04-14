@@ -15,7 +15,7 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	log "github.com/sirupsen/logrus"
 	k8s "k8s.io/client-go/kubernetes"
-	stats "k8s.io/kubernetes/pkg/kubelet/apis/stats/v1alpha1"
+	stats "k8s.io/kubelet/pkg/apis/stats/v1alpha1"
 )
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
@@ -26,7 +26,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig
+	config.MonitorConfig `yaml:",inline"`
 	// Kubelet kubeletClient configuration
 	KubeletAPI kubelet.APIConfig `yaml:"kubeletAPI" default:""`
 	// Configuration of the Kubernetes API kubeletClient

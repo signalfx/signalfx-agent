@@ -5,7 +5,7 @@ import (
 	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/signalfx-agent/pkg/utils/k8sutil"
 	v1 "k8s.io/api/core/v1"
-	"k8s.io/kubernetes/pkg/kubelet/apis/stats/v1alpha1"
+	"k8s.io/kubelet/pkg/apis/stats/v1alpha1"
 )
 
 func convertContainerMetrics(c *v1alpha1.ContainerStats, status *v1.ContainerStatus, dims map[string]string) []*datapoint.Datapoint {

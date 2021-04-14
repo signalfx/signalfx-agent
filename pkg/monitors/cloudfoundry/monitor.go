@@ -18,7 +18,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"false" acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"false" acceptsEndpoints:"false"`
 
 	// The base URL to the RLP Gateway server. This is quite often of the form
 	// https://log-stream.<CLOUD CONTROLLER SYSTEM DOMAIN> if using PCF 2.4+.

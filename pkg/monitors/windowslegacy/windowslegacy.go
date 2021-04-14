@@ -13,7 +13,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"true" acceptsEndpoints:"false"`
 	// (Windows Only) Number of seconds that wildcards in counter paths should
 	// be expanded and how often to refresh counters from configuration.
 	CountersRefreshInterval timeutil.Duration `yaml:"counterRefreshInterval" default:"60s"`

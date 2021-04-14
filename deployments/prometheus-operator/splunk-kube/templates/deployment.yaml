@@ -1,0 +1,77 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "splunk.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "splunk.name" . }}
+    helm.sh/chart: {{ include "splunk.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "splunk.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "splunk.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          volumeMounts:
+            - name: splunkvar
+              mountPath: /opt/splunk/var
+            - name: splunk-defaults
+              mountPath: /tmp/defaults/
+          env:
+            - name: SPLUNK_START_ARGS
+              value: --accept-license
+            - name: SPLUNK_APPS_URL
+              value: {{ join "," .Values.global.splunk.apps }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.webport }}
+              protocol: TCP
+            - name: hec
+              containerPort: {{ .Values.service.hecport }}
+              protocol: TCP
+            - name: statsd
+              containerPort: {{ .Values.service.statsdport }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 120
+            timeoutSeconds: 60
+            periodSeconds: 60
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 120
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+      - name: splunkvar
+        persistentVolumeClaim:
+          claimName: splunkvar
+      - name: splunk-defaults
+        configMap:
+            name: splunk-defaults
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

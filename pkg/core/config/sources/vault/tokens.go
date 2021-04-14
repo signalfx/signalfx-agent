@@ -36,8 +36,9 @@ func (v *vaultConfigSource) initTokenRenewalIfNeeded() error {
 
 	authSec.Auth.ClientToken = v.client.Token()
 
-	renewer, err := v.client.NewRenewer(&api.RenewerInput{
-		Secret: authSec,
+	renewer, err := v.client.NewLifetimeWatcher(&api.LifetimeWatcherInput{
+		Secret:        authSec,
+		RenewBehavior: api.RenewBehaviorErrorOnErrors,
 	})
 	if err != nil {
 		return err

@@ -29,11 +29,10 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"false"`
 	// The name of an executable to monitor.  (ie: `exe: "signalfx-agent*"`)
 	Exe string `yaml:"exe"`
-	// Pattern to match against.  On Windows the pattern should be in the form of a WMI query.
-	// (ie: `pattern: "%signalfx-agent%"`)
+	// Regular expression pattern to match against.
 	Pattern string `yaml:"pattern"`
 	// Username to match against
 	User string `yaml:"user"`
@@ -45,6 +44,8 @@ type Config struct {
 	Prefix string `yaml:"prefix"`
 	// Whether to add PID as a dimension instead of part of the metric name
 	PidTag bool `yaml:"pidTag"`
+	// When true add the full cmdline as a dimension.
+	CmdLineTag bool `yaml:"cmdLineTag"`
 	// The name of the cgroup to monitor.  This cgroup name will be appended to
 	// the configured `sysPath`.  See the agent config schema for more information
 	// about the `sysPath` agent configuration.

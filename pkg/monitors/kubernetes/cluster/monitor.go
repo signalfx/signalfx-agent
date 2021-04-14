@@ -46,7 +46,7 @@ var distributionToMonitorType = map[KubernetesDistribution]string{
 
 // Config for the K8s monitor
 type Config struct {
-	config.MonitorConfig
+	config.MonitorConfig `yaml:",inline"`
 	// If `true`, leader election is skipped and metrics are always reported.
 	AlwaysClusterReporter bool `yaml:"alwaysClusterReporter"`
 	// If specified, only resources within the given namespace will be

@@ -29,7 +29,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"true" acceptsEndpoints:"false"`
 	// If `true`, stats will be generated for the system as a whole _as well
 	// as_ for each individual CPU/core in the system and will be distinguished
 	// by the `cpu` dimension.  If `false`, stats will only be generated for
@@ -185,10 +185,10 @@ func getUtilization(prev *totalUsed, current *totalUsed) (utilization float64, e
 		// calculate utilization
 		utilization = usedDiff / totalDiff * 100.0
 		if utilization < 0.0 {
-			err = fmt.Errorf("percent %v < 0 total: %v used: %v", utilization, usedDiff, totalDiff)
+			err = fmt.Errorf("percent %v < 0 total: %v used: %v", utilization, totalDiff, usedDiff)
 		}
 		if utilization > 100.0 {
-			err = fmt.Errorf("percent %v > 100 total: %v used: %v ", utilization, usedDiff, totalDiff)
+			utilization = 100
 		}
 	}
 
@@ -274,8 +274,7 @@ func cpuTimeStatTototalUsed(t *cpu.TimesStat) *totalUsed {
 		t.Iowait +
 		t.Irq +
 		t.Softirq +
-		t.Steal +
-		t.Stolen
+		t.Steal
 
 	return &totalUsed{
 		Total: total,

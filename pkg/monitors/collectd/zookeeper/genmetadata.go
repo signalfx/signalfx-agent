@@ -9,7 +9,13 @@ import (
 
 const monitorType = "collectd/zookeeper"
 
-var groupSet = map[string]bool{}
+const (
+	groupLeader = "leader"
+)
+
+var groupSet = map[string]bool{
+	groupLeader: true,
+}
 
 const (
 	counterZkFsyncThresholdExceedCount = "counter.zk_fsync_threshold_exceed_count"
@@ -18,6 +24,7 @@ const (
 	gaugeZkApproximateDataSize         = "gauge.zk_approximate_data_size"
 	gaugeZkAvgLatency                  = "gauge.zk_avg_latency"
 	gaugeZkEphemeralsCount             = "gauge.zk_ephemerals_count"
+	gaugeZkFollowers                   = "gauge.zk_followers"
 	gaugeZkIsLeader                    = "gauge.zk_is_leader"
 	gaugeZkMaxFileDescriptorCount      = "gauge.zk_max_file_descriptor_count"
 	gaugeZkMaxLatency                  = "gauge.zk_max_latency"
@@ -25,7 +32,9 @@ const (
 	gaugeZkNumAliveConnections         = "gauge.zk_num_alive_connections"
 	gaugeZkOpenFileDescriptorCount     = "gauge.zk_open_file_descriptor_count"
 	gaugeZkOutstandingRequests         = "gauge.zk_outstanding_requests"
+	gaugeZkPendingSyncs                = "gauge.zk_pending_syncs"
 	gaugeZkServiceHealth               = "gauge.zk_service_health"
+	gaugeZkSyncedFollowers             = "gauge.zk_synced_followers"
 	gaugeZkWatchCount                  = "gauge.zk_watch_count"
 	gaugeZkZnodeCount                  = "gauge.zk_znode_count"
 )
@@ -37,6 +46,7 @@ var metricSet = map[string]monitors.MetricInfo{
 	gaugeZkApproximateDataSize:         {Type: datapoint.Gauge},
 	gaugeZkAvgLatency:                  {Type: datapoint.Gauge},
 	gaugeZkEphemeralsCount:             {Type: datapoint.Gauge},
+	gaugeZkFollowers:                   {Type: datapoint.Gauge, Group: groupLeader},
 	gaugeZkIsLeader:                    {Type: datapoint.Gauge},
 	gaugeZkMaxFileDescriptorCount:      {Type: datapoint.Gauge},
 	gaugeZkMaxLatency:                  {Type: datapoint.Gauge},
@@ -44,7 +54,9 @@ var metricSet = map[string]monitors.MetricInfo{
 	gaugeZkNumAliveConnections:         {Type: datapoint.Gauge},
 	gaugeZkOpenFileDescriptorCount:     {Type: datapoint.Gauge},
 	gaugeZkOutstandingRequests:         {Type: datapoint.Gauge},
+	gaugeZkPendingSyncs:                {Type: datapoint.Gauge, Group: groupLeader},
 	gaugeZkServiceHealth:               {Type: datapoint.Gauge},
+	gaugeZkSyncedFollowers:             {Type: datapoint.Gauge, Group: groupLeader},
 	gaugeZkWatchCount:                  {Type: datapoint.Gauge},
 	gaugeZkZnodeCount:                  {Type: datapoint.Gauge},
 }
@@ -62,7 +74,13 @@ var defaultMetrics = map[string]bool{
 	gaugeZkZnodeCount:              true,
 }
 
-var groupMetricsMap = map[string][]string{}
+var groupMetricsMap = map[string][]string{
+	groupLeader: []string{
+		gaugeZkFollowers,
+		gaugeZkPendingSyncs,
+		gaugeZkSyncedFollowers,
+	},
+}
 
 var monitorMetadata = monitors.Metadata{
 	MonitorType:     "collectd/zookeeper",

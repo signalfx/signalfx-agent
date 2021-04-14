@@ -214,7 +214,10 @@ def run_container(image_name, wait_for_ip=True, print_logs=True, **kwargs):
     client = get_docker_client()
 
     if not image_name.startswith("sha256"):
-        container = client.images.pull(image_name)
+        try:
+            client.images.get(image_name)
+        except docker.errors.APIError:
+            client.images.pull(image_name)
     container = retry_on_ebadf(
         lambda: retry(lambda: client.containers.create(image_name, **kwargs), docker.errors.DockerException)
     )()
@@ -344,6 +347,7 @@ def retry(function, exception, max_attempts=5, interval_seconds=5):
         except exception as e:
             assert attempt < (max_attempts - 1), "%s failed after %d attempts!\n%s" % (function, max_attempts, str(e))
         time.sleep(interval_seconds)
+    return None
 
 
 def get_statsd_port(agent):
@@ -443,7 +447,7 @@ def run_simple_sanic_app(app):
     loop = asyncio.new_event_loop()
 
     async def start_server():
-        server = app.create_server(sock=app_sock, access_log=False)
+        server = app.create_server(sock=app_sock, access_log=False, return_asyncio_server=True)
         loop.create_task(server)
 
     loop.create_task(start_server())

@@ -11,15 +11,28 @@ import (
 type InventorySvc struct {
 	log     *logrus.Entry
 	gateway IGateway
+	f       InvFilter
 }
 
-func NewInventorySvc(gateway IGateway, log *logrus.Entry) *InventorySvc {
-	return &InventorySvc{gateway: gateway, log: log}
+func NewInventorySvc(gateway IGateway, log *logrus.Entry, f InvFilter) *InventorySvc {
+	return &InventorySvc{gateway: gateway, f: f, log: log}
 }
 
 // use slice semantics to build parent dimensions while traversing the inv tree
 type pair [2]string
 type pairs []pair
+
+const (
+	dimDatacenter    = "datacenter"
+	dimCluster       = "cluster"
+	dimESXip         = "esx_ip"
+	dimVM            = "vm_name"
+	dimGuestID       = "guest_id"
+	dimVMip          = "vm_ip"
+	dimHost          = "host"
+	dimGuestFamily   = "guest_family"
+	dimGuestFullname = "guest_fullname"
+)
 
 func (svc *InventorySvc) RetrieveInventory() (*model.Inventory, error) {
 	inv := model.NewInventory()
@@ -70,7 +83,7 @@ func (svc *InventorySvc) followDatacenter(
 		return err
 	}
 	svc.debug(&dc)
-	dims = append(dims, pair{"datacenter", dc.Name})
+	dims = append(dims, pair{dimDatacenter, dc.Name})
 	// There is also a `dc.VmFolder` but it appears to only receive copies of VMs
 	// that live under hosts. Omitting that folder to prevent double counting.
 	err = svc.followFolder(inv, dc.HostFolder, dims)
@@ -90,8 +103,16 @@ func (svc *InventorySvc) followCluster(
 	if err != nil {
 		return err
 	}
+	dims = append(dims, pair{dimCluster, cluster.Name})
+	keep, err := svc.f.keep(dims)
+	if err != nil {
+		svc.log.WithError(err).Error("keep failed")
+	}
+	if !keep {
+		svc.log.Debugf("cluster filtered: dims=[%s]", dims)
+		return nil
+	}
 	svc.debug(&cluster)
-	dims = append(dims, pair{"cluster", cluster.Name})
 	for _, hostRef := range cluster.ComputeResource.Host {
 		err = svc.followHost(inv, hostRef, dims)
 		if err != nil {
@@ -131,8 +152,24 @@ func (svc *InventorySvc) followHost(
 	if err != nil {
 		return err
 	}
+
+	if host.Runtime.PowerState == types.HostSystemPowerStatePoweredOff {
+		svc.log.Debugf("inventory: host powered off: name=[%s]", host.Name)
+		return nil
+	}
+
+	// apply filter to hosts here in case we found hosts that aren't in a cluster
+	keep, err := svc.f.keep(dims)
+	if err != nil {
+		svc.log.WithError(err).Error("keep failed")
+	}
+	if !keep {
+		svc.log.Debugf("host filtered: dims=[%s]", dims)
+		return nil
+	}
+
 	svc.debug(&host)
-	dims = append(dims, pair{"esx_ip", host.Name})
+	dims = append(dims, pair{dimESXip, host.Name})
 	hostDims := map[string]string{}
 	amendDims(hostDims, dims)
 	hostInvObj := model.NewInventoryObject(host.Self, hostDims)
@@ -156,13 +193,20 @@ func (svc *InventorySvc) followVM(
 	if err != nil {
 		return err
 	}
+
+	if vm.Runtime.PowerState == types.VirtualMachinePowerStatePoweredOff {
+		svc.log.Debugf("inventory: vm powered off: name=[%s]", vm.Name)
+		return nil
+	}
+
 	svc.debug(&vm)
 	vmDims := map[string]string{
-		"vm_name":        vm.Name,           // e.g. "MyDebian10Host"
-		"guest_id":       vm.Config.GuestId, // e.g. "debian10_64Guest"
-		"vm_ip":          vm.Guest.IpAddress,
-		"guest_family":   vm.Guest.GuestFamily,   // e.g. "linuxGuest"
-		"guest_fullname": vm.Guest.GuestFullName, // e.g. "Other 4.x or later Linux (64-bit)"
+		dimVM:            vm.Name,           // e.g. "MyDebian10Host"
+		dimGuestID:       vm.Config.GuestId, // e.g. "debian10_64Guest"
+		dimVMip:          vm.Guest.IpAddress,
+		dimHost:          vm.Guest.IpAddress,
+		dimGuestFamily:   vm.Guest.GuestFamily,   // e.g. "linuxGuest"
+		dimGuestFullname: vm.Guest.GuestFullName, // e.g. "Other 4.x or later Linux (64-bit)"
 	}
 	amendDims(vmDims, dims)
 	vmInvObj := model.NewInventoryObject(vm.Self, vmDims)

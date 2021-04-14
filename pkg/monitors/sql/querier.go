@@ -96,6 +96,7 @@ func (q *querier) doQuery(ctx context.Context, database *sql.DB, output types.Ou
 	for rows.Next() {
 		dps, dims, err := q.convertCurrentRowToDatapointAndDimensions(rows)
 		if err != nil {
+			rows.Close()
 			return err
 		}
 

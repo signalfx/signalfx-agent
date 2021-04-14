@@ -2,16 +2,15 @@ FROM amazonlinux:1
 
 ENV container docker
 
-RUN yum install -y upstart procps initscripts
-RUN yum install -y https://repo.saltstack.com/yum/amazon/salt-amzn-repo-latest.amzn1.noarch.rpm && \
-    yum install -y salt-minion
+RUN yum install -y upstart procps initscripts python36-pip python36-devel gcc
 
-RUN sed -i "s|#file_client:.*|file_client: local|" /etc/salt/minion
+RUN pip-3.6 install msgpack==0.6.2
+RUN pip-3.6 install salt==2019.2
 
 COPY deployments/salt/signalfx-agent/ /srv/salt/signalfx-agent/
 COPY tests/deployments/salt/images/top.sls /srv/salt/top.sls
 COPY tests/deployments/salt/images/top.sls /srv/pillar/top.sls
-RUN chkconfig salt-minion off
+COPY tests/deployments/salt/images/minion /etc/salt/minion
 
 VOLUME [ "/sys/fs/cgroup" ]
 CMD ["/sbin/init"]

@@ -26,10 +26,11 @@ const version = "0.0.30"
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 var zlibCompressor = zlib.NewWriter(&bytes.Buffer{})
+var now = time.Now
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig `singleInstance:"true" acceptsEndpoints:"false"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"true" acceptsEndpoints:"false"`
 }
 
 func init() {
@@ -51,6 +52,7 @@ type Monitor struct {
 	Output        types.Output
 	cancel        func()
 	lastCPUCounts map[procKey]time.Duration
+	nextPurge     time.Time
 }
 
 // TopProcess is a platform-independent way of representing a process to be
@@ -87,6 +89,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	m.lastCPUCounts = make(map[procKey]time.Duration)
 
 	osCache := initOSCache()
+	m.nextPurge = now().Add(3 * time.Minute)
 
 	utils.RunOnInterval(
 		ctx,
@@ -114,6 +117,12 @@ func (m *Monitor) Configure(conf *Config) error {
 					Timestamp: time.Now(),
 				},
 			)
+
+			curTime := now()
+			if curTime.After(m.nextPurge) {
+				m.purgeCPUCache(procs)
+				m.nextPurge = curTime.Add(3 * time.Minute)
+			}
 		},
 		interval,
 	)
@@ -177,10 +186,30 @@ func (m *Monitor) encodeProcess(proc *TopProcess, sampleInterval time.Duration) 
 	)
 }
 
+func (m *Monitor) purgeCPUCache(lastProcs []*TopProcess) {
+	lastKeys := make(map[procKey]struct{}, len(lastProcs))
+	for i := range lastProcs {
+		lastKeys[lastProcs[i].key()] = struct{}{}
+	}
+
+	for k := range m.lastCPUCounts {
+		if _, ok := lastKeys[k]; !ok {
+			delete(m.lastCPUCounts, k)
+		}
+	}
+}
+
 // toTime returns the given seconds as a formatted string "min:sec.dec"
 func toTime(secs float64) string {
 	minutes := int(secs) / 60
 	seconds := math.Mod(secs, 60.0)
 	dec := math.Mod(seconds, 1.0) * 100
 	return fmt.Sprintf("%02d:%02.f.%02.f", minutes, seconds, dec)
+}
+
+// Shutdown stops the metric sync
+func (m *Monitor) Shutdown() {
+	if m.cancel != nil {
+		m.cancel()
+	}
 }

@@ -48,6 +48,14 @@ spec:
       imagePullSecrets:
       - name: {{ . }}
       {{- end }}
+      {{ with .Values.affinity -}}
+      affinity:
+        {{ toYaml . | indent 8 | trim }}
+      {{- end }}
+      {{ if .Values.securityContext -}}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      {{- end }}
       containers:
       - name: signalfx-agent
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Values.agentVersion }}"
@@ -57,6 +65,11 @@ spec:
         volumeMounts:
         - mountPath: /etc/signalfx
           name: config
+        {{- if (.Values.monitorsd) }}
+        - name: monitorsd
+          mountPath: /etc/signalfx/monitors.d
+          readOnly: true
+        {{- end }}
         resources:
           {{- toYaml .Values.resources | trim | nindent 10 }}
         env:
@@ -84,8 +97,19 @@ spec:
       {{- with .Values.extraEnv }}
         {{- toYaml . | trim | nindent 8 }}
       {{- end }}
+      {{- if .Values.envFrom }}
+        envFrom:
+        {{- with .Values.envFrom }}
+          {{- toYaml . | trim | nindent 8 }}
+        {{- end }}
+      {{- end }}
       volumes:
       - name: config
         configMap:
           name: {{ include "configmap-name" . }}
+      {{- if (.Values.monitorsd)}}
+      - name: monitorsd
+        configMap:
+          name: {{ include "configmap-name" . }}-monitorsd
+      {{- end }}
 {{- end }}

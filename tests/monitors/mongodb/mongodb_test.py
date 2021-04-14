@@ -22,6 +22,10 @@ EXPECTED_DEFAULTS = METADATA.default_metrics - {
     "counter.backgroundFlushing.flushes",
     # This one seems to be missing on newer mongo versions
     "gauge.extra_info.heap_usage_bytes",
+    # Test env is not a full replicaset setup
+    "gauge.repl.max_lag",
+    "gauge.repl.active_nodes",
+    "gauge.repl.is_primary_node",
 }
 
 

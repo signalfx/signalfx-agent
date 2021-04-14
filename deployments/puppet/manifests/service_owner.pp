@@ -2,33 +2,36 @@
 # If the user or group does not exist, they will be created.
 class signalfx_agent::service_owner ($service_name, $service_user, $service_group) {
 
-  if $service_group == 'signalfx-agent' or $service_group in split($::local_groups, ',') {
-    group { $service_group:
-      noop => true,
+  if !defined(Group[$service_group]) {
+    if $service_group == 'signalfx-agent' or $service_group in split($::local_groups, ',') {
+      group { $service_group:
+        noop => true,
+      }
     }
-  }
-  else {
-    group { $service_group:
-      ensure => present,
-      system => true,
+    else {
+      group { $service_group:
+        ensure => present,
+        system => true,
+      }
     }
   }
 
-  if $service_user == 'signalfx-agent' or $service_user in split($::local_users, ',') {
-    user { $service_user:
-      noop => true,
+  if !defined(User[$service_user]) {
+    if $service_user == 'signalfx-agent' or $service_user in split($::local_users, ',') {
+      user { $service_user:
+        noop => true, }
     }
-  }
-  else {
-    $shell = $::osfamily ? {
-      'debian' => '/usr/sbin/nologin',
-      default  => '/sbin/nologin',
-    }
-    user { $service_user:
-      ensure => present,
-      system => true,
-      shell  => $shell,
-      groups => $service_group,
+    else {
+      $shell = $::osfamily ? {
+        'debian' => '/usr/sbin/nologin',
+        default  => '/sbin/nologin',
+      }
+      user { $service_user:
+        ensure => present,
+        system => true,
+        shell  => $shell,
+        groups => $service_group,
+      }
     }
   }
 

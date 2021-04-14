@@ -34,7 +34,7 @@ func init() {
 
 // Config for this monitor
 type Config struct {
-	config.MonitorConfig           `acceptsEndpoints:"false"`
+	config.MonitorConfig           `yaml:",inline" acceptsEndpoints:"false"`
 	dmonitor.EnhancedMetricsConfig `yaml:",inline"`
 
 	// The URL of the ECS task metadata. Default is http://169.254.170.2/v2/metadata, which is hardcoded by AWS for version 2.

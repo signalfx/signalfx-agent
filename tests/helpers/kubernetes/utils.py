@@ -83,7 +83,7 @@ def create_serviceaccount(body, namespace=None, timeout=K8S_CREATE_TIMEOUT):
 
 
 def has_clusterrole(name):
-    api = kube_client.RbacAuthorizationV1beta1Api()
+    api = kube_client.RbacAuthorizationV1Api()
     try:
         api.read_cluster_role(name)
         return True
@@ -104,7 +104,7 @@ def create_clusterrole(body, timeout=K8S_CREATE_TIMEOUT):
 
 
 def has_clusterrolebinding(name):
-    api = kube_client.RbacAuthorizationV1beta1Api()
+    api = kube_client.RbacAuthorizationV1Api()
     try:
         api.read_cluster_role_binding(name)
         return True
@@ -131,7 +131,6 @@ def api_client_from_version(api_version):
         "batch/v1": kube_client.BatchV1Api(),
         "batch/v1beta1": kube_client.BatchV1beta1Api(),
         "extensions/v1beta1": kube_client.ExtensionsV1beta1Api(),
-        "rbac.authorization.k8s.io/v1beta1": kube_client.RbacAuthorizationV1beta1Api(),
         "rbac.authorization.k8s.io/v1": kube_client.RbacAuthorizationV1Api(),
     }[api_version]
 
@@ -441,9 +440,7 @@ def all_pods_have_ips(namespace="default"):
 def pod_is_ready(name, namespace="default"):
     api = kube_client.CoreV1Api()
     pod = api.read_namespaced_pod(name, namespace=namespace)
-    return pod.status.phase.lower() == "running" and all(
-        [container.ready for container in pod.status.container_statuses]
-    )
+    return pod.status.phase.lower() == "running" and all(container.ready for container in pod.status.container_statuses)
 
 
 def get_discovery_rule(yaml_file, observer, namespace="", container_index=0):

@@ -63,6 +63,13 @@ class accepts the following parameters:
    signalfx-agent service. The user/group will be created if they do not exist.
    (**default:** 'signalfx-agent')
 
+ - `$manage_repo`: Valid only on Linux. In cases where the agent apt/yum repository
+   is managed externally, set this to `false` to disable management of the agent
+   repository by this module. **Note:** If set to `false`, the repository definition
+   files, i.e. `/etc/apt/sources.list.d/signalfx-agent.list` for apt and
+   `/etc/yum.repos.d/signalfx-agent.repo` for yum, will be deleted if they exist to
+   avoid any conflicts. (**default:** `true`)
+
 ## Dependencies
 On Linux-based systems, the
 [puppetlabs/stdlib](https://forge.puppet.com/puppetlabs/stdlib) module is
@@ -77,6 +84,8 @@ On Windows-based systems SignalFx Agent Puppet module has the following dependen
 - [puppet/archive](https://forge.puppet.com/puppet/archive)
 
 - [puppetlabs/powershell](https://forge.puppet.com/puppetlabs/powershell)
+
+- [puppetlabs/registry](https://forge.puppet.com/modules/puppetlabs/registry)
 
 ## Development
 

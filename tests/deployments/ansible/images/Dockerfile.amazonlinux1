@@ -2,13 +2,11 @@ FROM amazonlinux:1
 
 ENV container docker
 
-RUN yum install -y upstart procps initscripts
-
-RUN curl https://bootstrap.pypa.io/get-pip.py -o /tmp/get-pip.py && \
-    python /tmp/get-pip.py
+RUN yum install -y upstart procps initscripts python36-pip
+RUN pip-3.6 install -U pip==20.3.4
 
 ARG ANSIBLE_VERSION='==2.4.0'
-RUN pip install ansible${ANSIBLE_VERSION}
+RUN pip3 install ansible${ANSIBLE_VERSION}
 
 VOLUME [ "/sys/fs/cgroup" ]
 

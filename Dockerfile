@@ -1,4 +1,5 @@
 ARG GO_VERSION=1.14.2
+ARG PIP_VERSION=21.0.1
 
 ###### Agent Build Image ########
 FROM ubuntu:16.04 as agent-builder
@@ -18,6 +19,8 @@ ENV GOPATH=/go
 WORKDIR /usr/src/signalfx-agent
 
 COPY go.mod go.sum ./
+COPY pkg/apm/go.mod pkg/apm/go.sum ./pkg/apm/
+COPY thirdparty/ ./thirdparty/
 RUN go mod download
 
 COPY cmd/ ./cmd/
@@ -34,6 +37,42 @@ RUN AGENT_VERSION=${agent_version} COLLECTD_VERSION=${collectd_version} make sig
     mv signalfx-agent /usr/bin/signalfx-agent
 
 
+######### Java monitor dependencies and monitor jar compilation
+FROM ubuntu:16.04 as java
+
+RUN apt update &&\
+    apt install -y wget maven
+
+ARG TARGET_ARCH
+
+ENV OPENJDK_BASE_URL="https://github.com/AdoptOpenJDK/openjdk11-upstream-binaries/releases/download"
+RUN if [ "$TARGET_ARCH" = "amd64" ]; then \
+    OPENJDK_URL="${OPENJDK_BASE_URL}/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_linux_11.0.10_9.tar.gz"; \
+    else \
+    OPENJDK_URL="${OPENJDK_BASE_URL}/jdk-11.0.10%2B9/OpenJDK11U-jdk_aarch64_linux_11.0.10_9.tar.gz"; \
+    fi && \
+    wget -O /tmp/openjdk.tar.gz "$OPENJDK_URL"
+
+RUN mkdir -p /opt/root && \
+    tar -C /opt/root -xzf /tmp/openjdk.tar.gz && \
+    mv /opt/root/openjdk* /opt/root/jdk && \
+    rm -f /tmp/openjdk.tar.gz
+
+ENV JAVA_HOME=/opt/root/jdk
+
+RUN mkdir -p /opt/root/jre && \
+    rm -f ${JAVA_HOME}/lib/src.zip && \
+    cp -rL ${JAVA_HOME}/bin /opt/root/jre/ && \
+    cp -rL ${JAVA_HOME}/lib /opt/root/jre/
+
+COPY java/ /usr/src/agent-java/
+RUN cd /usr/src/agent-java/runner &&\
+    mvn -V clean install
+
+RUN cd /usr/src/agent-java/jmx &&\
+    mvn -V clean package
+
+
 ###### Collectd builder image ######
 FROM ubuntu:16.04 as collectd
 
@@ -48,9 +87,8 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       curl \
       dpkg \
       net-tools \
-      openjdk-8-jdk \
       python-software-properties \
-	  software-properties-common \
+      software-properties-common \
       wget \
       autoconf \
       automake \
@@ -127,9 +165,9 @@ RUN wget -O /tmp/Python-${PYTHON_VERSION}.tgz https://www.python.org/ftp/python/
 
 # Compile patchelf statically from source
 RUN cd /tmp &&\
-    wget https://nixos.org/releases/patchelf/patchelf-0.10/patchelf-0.10.tar.gz &&\
+    wget https://nixos.org/releases/patchelf/patchelf-0.11/patchelf-0.11.tar.gz &&\
     tar -xf patchelf*.tar.gz &&\
-    cd patchelf-0.10 &&\
+    cd patchelf-0.11* &&\
     ./configure LDFLAGS="-static" &&\
     make &&\
     make install
@@ -147,15 +185,18 @@ RUN cd /tmp &&\
 RUN echo "#!/bin/bash" > /usr/src/collectd/version-gen.sh &&\
     echo "printf \${collectd_version//-/.}" >> /usr/src/collectd/version-gen.sh
 
+COPY --from=java /opt/root/jdk/ /opt/root/jdk/
+
 WORKDIR /usr/src/collectd
 
 ARG extra_cflags="-O2"
 ENV CFLAGS "-Wno-deprecated-declarations -fPIC $extra_cflags"
 ENV CXXFLAGS $CFLAGS
+ENV JAVA_HOME=/opt/root/jdk
 
 # In the bundle, the java plugin so will live in /lib/collectd and the JVM
 # exists at /jre
-ENV JAVA_LDFLAGS "-Wl,-rpath -Wl,\$\$\ORIGIN/../../jre/lib/${TARGET_ARCH}/server"
+ENV JAVA_LDFLAGS "-Wl,-rpath -Wl,\$\$\ORIGIN/../../jre/lib/server"
 
 RUN autoreconf -vif &&\
     ./configure \
@@ -196,10 +237,10 @@ RUN autoreconf -vif &&\
         --without-libstatgrab \
         --disable-silent-rules \
         --disable-static \
+        --with-java=${JAVA_HOME} \
         LIBPYTHON_LDFLAGS="$(python3.8-config --ldflags) -lpython3.8" \
         LIBPYTHON_CPPFLAGS="$(python3.8-config --includes)" \
         LIBPYTHON_LIBS="$(python3.8-config --libs) -lpython3.8"
-
 
 # Compile all of collectd first, including plugins
 RUN make -j`nproc` &&\
@@ -215,7 +256,9 @@ RUN patchelf --add-needed libm-2.23.so /opt/deps/libvarnishapi.so.1.0.4
 ###### Python Plugin Image ######
 FROM collectd as python-plugins
 
-RUN python3 -m pip install yq &&\
+ARG PIP_VERSION
+
+RUN python3 -m pip install --upgrade pip==$PIP_VERSION && python3 -m pip install yq &&\
     wget -O /usr/bin/jq https://github.com/stedolan/jq/releases/download/jq-1.5/jq-linux64 &&\
     chmod +x /usr/bin/jq
 
@@ -240,25 +283,6 @@ RUN python3 -m pip list
 RUN find /usr/local/lib/python3.8 -name "*.pyc" -o -name "*.pyo" | xargs rm
 # We don't support compiling extension modules so don't need this directory
 RUN rm -rf /usr/local/lib/python3.8/config-*-linux-gnu
-
-######### Java monitor dependencies and monitor jar compilation
-FROM ubuntu:16.04 as java
-
-RUN apt update &&\
-    apt install -y openjdk-8-jdk maven
-
-ARG TARGET_ARCH
-
-RUN mkdir -p /opt/root &&\
-    cp -rL /usr/lib/jvm/java-8-openjdk-${TARGET_ARCH}/jre /opt/root/jre &&\
-	rm -rf /opt/root/jre/man
-
-COPY java/ /usr/src/agent-java/
-RUN cd /usr/src/agent-java/runner &&\
-    mvn clean install
-
-RUN cd /usr/src/agent-java/jmx &&\
-    mvn clean package
 
 
 ####### Extra packages that don't make sense to pull down in any other stage ########
@@ -378,97 +402,6 @@ COPY --from=agent-builder /usr/bin/signalfx-agent /bin/signalfx-agent
 WORKDIR /
 
 
-####### Dev Image ########
-# This is an image to facilitate development of the agent.  It installs all of
-# the build tools for building collectd and the go agent, along with some other
-# useful utilities.  The agent image is copied from the final-image stage to
-# the /bundle dir in here and the SIGNALFX_BUNDLE_DIR is set to point to that.
-FROM ubuntu:18.04 as dev-extras
-
-RUN apt update &&\
-    apt install -y \
-      build-essential \
-      curl \
-      git \
-      inotify-tools \
-      iproute2 \
-      jq \
-      net-tools \
-      python3.8 \
-      python3.8-dev \
-      python3.8-distutils \
-      socat \
-      sudo \
-      vim \
-      wget
-
-ENV PATH=$PATH:/usr/local/go/bin:/go/bin GOPATH=/go
-ENV SIGNALFX_BUNDLE_DIR=/bundle \
-    TEST_SERVICES_DIR=/usr/src/signalfx-agent/test-services \
-    AGENT_BIN=/usr/src/signalfx-agent/signalfx-agent \
-    PYTHONPATH=/usr/src/signalfx-agent/python \
-    AGENT_VERSION=latest \
-    BUILD_TIME=2017-01-25T13:17:17-0500 \
-    GOOS=linux \
-    LC_ALL=C.UTF-8 \
-    LANG=C.UTF-8
-
-RUN rm -f /usr/bin/python3 && \
-    ln -s /usr/bin/python3.8 /usr/bin/python && \
-    ln -s /usr/bin/python3.8 /usr/bin/python3
-
-RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
-    python get-pip.py pip==20.0.2 && \
-    rm get-pip.py
-
-RUN curl -fsSL get.docker.com -o /tmp/get-docker.sh &&\
-    sh /tmp/get-docker.sh
-
-# Get integration test deps in here
-RUN pip3 install ipython ipdb
-COPY tests/requirements.txt /tmp/
-RUN pip3 install -r /tmp/requirements.txt
-RUN ln -s /usr/bin/pip3 /usr/bin/pip
-
-ARG TARGET_ARCH
-
-RUN wget -O /usr/bin/gomplate https://github.com/hairyhenderson/gomplate/releases/download/v3.4.0/gomplate_linux-${TARGET_ARCH} &&\
-    chmod +x /usr/bin/gomplate
-
-# Install helm
-ARG HELM_VERSION=v3.0.0
-WORKDIR /tmp
-RUN wget -O helm.tar.gz https://get.helm.sh/helm-${HELM_VERSION}-linux-${TARGET_ARCH}.tar.gz && \
-    tar -zxvf /tmp/helm.tar.gz && \
-    mv linux-${TARGET_ARCH}/helm /usr/local/bin/helm && \
-    chmod a+x /usr/local/bin/helm
-
-# Install kubectl
-ARG KUBECTL_VERSION=v1.14.1
-RUN cd /tmp &&\
-    curl -LO https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/${TARGET_ARCH}/kubectl &&\
-    chmod +x ./kubectl &&\
-    mv ./kubectl /usr/bin/kubectl
-
-WORKDIR /usr/src/signalfx-agent
-
-COPY --from=final-image /bin/signalfx-agent ./signalfx-agent
-COPY --from=final-image / /bundle/
-RUN /bundle/bin/patch-interpreter /bundle
-
-COPY --from=agent-builder /usr/local/go /usr/local/go
-COPY --from=agent-builder /go $GOPATH
-
-RUN go get -u golang.org/x/lint/golint &&\
-    if [ `uname -m` != "aarch64" ]; then go get github.com/derekparker/delve/cmd/dlv; fi &&\
-    go get github.com/tebeka/go2xunit &&\
-    curl -sfL https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh -s -- -b $(go env GOPATH)/bin v1.23.8
-
-COPY ./ ./
-
-CMD ["/bin/bash"]
-
-
 ####### Pandoc Converter ########
 FROM ubuntu:16.04 as pandoc-converter
 
@@ -512,6 +445,7 @@ RUN rm -f /usr/lib/signalfx-agent/bin/agent-status
 
 RUN /usr/lib/signalfx-agent/bin/patch-interpreter /usr/lib/signalfx-agent
 RUN mv /usr/lib/signalfx-agent ./signalfx-agent
+
 
 ###### RPM Packager #######
 FROM fedora:27 as rpm-packager
