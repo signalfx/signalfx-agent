@@ -44066,7 +44066,7 @@
       "sendUnknown": false,
       "noneIncluded": false,
       "dimensions": null,
-      "doc": "This monitor scrapes [Prmoetheus Go\ncollector](https://godoc.org/github.com/prometheus/client_golang/prometheus#NewGoCollector)\nand [Prometheus process\ncollector](https://godoc.org/github.com/prometheus/client_golang/prometheus#NewProcessCollector)\nmetrics from a Prometheus exporter and sends them to SignalFx.  It is a\nwrapper around the [prometheus-exporter](./prometheus-exporter.md) monitor\nthat provides a restricted but expandable set of metrics.\n",
+      "doc": "This monitor scrapes [Prometheus Go\ncollector](https://godoc.org/github.com/prometheus/client_golang/prometheus#NewGoCollector)\nand [Prometheus process\ncollector](https://godoc.org/github.com/prometheus/client_golang/prometheus#NewProcessCollector)\nmetrics from a Prometheus exporter and sends them to SignalFx.  It is a\nwrapper around the [prometheus-exporter](./prometheus-exporter.md) monitor\nthat provides a restricted but expandable set of metrics.\n",
       "groups": {
         "": {
           "description": "",
@@ -44659,7 +44659,7 @@
       "sendUnknown": false,
       "noneIncluded": false,
       "dimensions": null,
-      "doc": "This monitor scrapes [Prmoetheus Nginx VTS\nexporter](https://github.com/hnlq715/nginx-vts-exporter) metrics from a\nPrometheus exporter and sends them to SignalFx.  It is a wrapper around the\n[prometheus-exporter](./prometheus-exporter.md) monitor that provides a\nrestricted but expandable set of metrics.\n",
+      "doc": "This monitor scrapes [Prometheus Nginx VTS\nexporter](https://github.com/hnlq715/nginx-vts-exporter) metrics from a\nPrometheus exporter and sends them to SignalFx.  It is a wrapper around the\n[prometheus-exporter](./prometheus-exporter.md) monitor that provides a\nrestricted but expandable set of metrics.\n",
       "groups": {
         "": {
           "description": "",
@@ -44924,7 +44924,7 @@
       "sendUnknown": false,
       "noneIncluded": false,
       "dimensions": null,
-      "doc": "This monitor scrapes [Prmoetheus Node\nExporter](https://github.com/prometheus/node_exporter) metrics and sends\nthem to SignalFx.  It is a wrapper around the\n[prometheus-exporter](./prometheus-exporter.md) monitor that provides a\nrestricted but expandable set of metrics.\n",
+      "doc": "This monitor scrapes [Prometheus Node\nExporter](https://github.com/prometheus/node_exporter) metrics and sends\nthem to SignalFx.  It is a wrapper around the\n[prometheus-exporter](./prometheus-exporter.md) monitor that provides a\nrestricted but expandable set of metrics.\n",
       "groups": {
         "": {
           "description": "",
@@ -46169,7 +46169,7 @@
       "sendUnknown": false,
       "noneIncluded": false,
       "dimensions": null,
-      "doc": "This monitor scrapes [Prmoetheus PostgreSQL Server\nExporter](https://github.com/wrouesnel/postgres_exporter) metrics and sends\nthem to SignalFx.  It is a wrapper around the\n[prometheus-exporter](./prometheus-exporter.md) monitor that provides a\nrestricted but expandable set of metrics.\n",
+      "doc": "This monitor scrapes [Prometheus PostgreSQL Server\nExporter](https://github.com/wrouesnel/postgres_exporter) metrics and sends\nthem to SignalFx.  It is a wrapper around the\n[prometheus-exporter](./prometheus-exporter.md) monitor that provides a\nrestricted but expandable set of metrics.\n",
       "groups": {
         "": {
           "description": "",
@@ -47995,7 +47995,7 @@
       "sendUnknown": false,
       "noneIncluded": false,
       "dimensions": null,
-      "doc": "This monitor scrapes [Prmoetheus server's own internal\ncollector](https://prometheus.io/docs/prometheus/latest/getting_started/#configuring-prometheus-to-monitor-itself)\nmetrics from a Prometheus exporter and sends them to SignalFx.  It is a\nwrapper around the [prometheus-exporter](./prometheus-exporter.md) monitor\nthat provides a restricted but expandable set of metrics.\n",
+      "doc": "This monitor scrapes [Prometheus server's own internal\ncollector](https://prometheus.io/docs/prometheus/latest/getting_started/#configuring-prometheus-to-monitor-itself)\nmetrics from a Prometheus exporter and sends them to SignalFx.  It is a\nwrapper around the [prometheus-exporter](./prometheus-exporter.md) monitor\nthat provides a restricted but expandable set of metrics.\n",
       "groups": {
         "": {
           "description": "",
@@ -49128,7 +49128,7 @@
       "sendUnknown": false,
       "noneIncluded": false,
       "dimensions": null,
-      "doc": "This monitor scrapes [Prmoetheus Redis\nExporter](https://github.com/oliver006/redis_exporter) metrics and sends\nthem to SignalFx.  It is a wrapper around the\n[prometheus-exporter](./prometheus-exporter.md) monitor that provides a\nrestricted but expandable set of metrics.\n",
+      "doc": "This monitor scrapes [Prometheus Redis\nExporter](https://github.com/oliver006/redis_exporter) metrics and sends\nthem to SignalFx.  It is a wrapper around the\n[prometheus-exporter](./prometheus-exporter.md) monitor that provides a\nrestricted but expandable set of metrics.\n",
       "groups": {
         "": {
           "description": "",

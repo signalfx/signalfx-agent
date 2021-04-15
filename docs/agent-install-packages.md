@@ -1,6 +1,6 @@
 # Install using *nix packages
 
-:warning: **SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](/docs/smartagent-deprecation-notice)** :warning:
+:warning: **SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](./docs/smartagent-deprecation-notice.md)** :warning:
 
 Install the SignalFx Smart Agent using either a Debian or RPM package,
 and then verify that the SignalFx Smart Agent is working.
