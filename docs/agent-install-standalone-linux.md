@@ -1,6 +1,6 @@
 # Install to Linux using a tar.gz File
 
-:warning: **SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](./docs/smartagent-deprecation-notice.md)** :warning:
+:warning: **SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](./smartagent-deprecation-notice.md)** :warning:
 
 Install the Smart Agent to Linux host using a compressed
 `tar` file.

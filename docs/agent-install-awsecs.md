@@ -1,6 +1,6 @@
 # Install to AWS ECS
 
-:warning: **SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](./docs/smartagent-deprecation-notice.md)** :warning:
+:warning: **SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](./smartagent-deprecation-notice.md)** :warning:
 
 Deploy the SignalFx Smart Agent to an AWS ECS instance using a SignalFx
 configuration script, and run the Smart Agent as a Daemon service in an

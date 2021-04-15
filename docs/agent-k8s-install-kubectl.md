@@ -1,6 +1,6 @@
 # Install using kubectl
 
-:warning: **SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](./docs/smartagent-deprecation-notice.md)** :warning:
+:warning: **SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](./smartagent-deprecation-notice.md)** :warning:
 
 Use kubectl to install the Smart Agent to Kubernetes environments.
 
