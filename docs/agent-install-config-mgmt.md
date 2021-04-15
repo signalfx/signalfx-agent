@@ -1,6 +1,6 @@
 # Install using configuration management
 
-SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](/docs/smartagent-deprecation-notice).
+:warning: **SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](/docs/smartagent-deprecation-notice)** :warning:
 
 Install the SignalFx Smart Agent using one of the following configuration management
 packages:

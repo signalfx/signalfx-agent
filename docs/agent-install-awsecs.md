@@ -1,5 +1,7 @@
 # Install to AWS ECS
 
+:warning: **SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](/docs/smartagent-deprecation-notice)** :warning:
+
 Deploy the SignalFx Smart Agent to an AWS ECS instance using a SignalFx
 configuration script, and run the Smart Agent as a Daemon service in an
 EC2 ECS cluster.
@@ -119,5 +121,3 @@ To create this service in the ECS web admin console:
 
 * For APM monitoring, learn how to install, configure, and verify the Smart Agent for Microservices APM (**µAPM**). See
 [Get started with SignalFx µAPM](https://docs.signalfx.com/en/latest/apm/apm-getting-started/apm-index.html).
-
-

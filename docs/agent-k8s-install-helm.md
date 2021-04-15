@@ -1,6 +1,6 @@
 # Install Using Helm
 
-SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](/docs/smartagent-deprecation-notice)
+:warning: **SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](/docs/smartagent-deprecation-notice)** :warning:
 
 Use the Helm package manager to install the Smart Agent to Kubernetes
 environments.
