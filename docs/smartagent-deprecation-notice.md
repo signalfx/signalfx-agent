@@ -1,4 +1,4 @@
-# Deprecaton Notice for SignalFx Smart Agent
+# Deprecation Notice for SignalFx Smart Agent
 
 Smart Agent is deprecated in conjunction with the release of Splunk Observability Cloud:
 

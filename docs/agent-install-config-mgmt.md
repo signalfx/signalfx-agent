@@ -1,5 +1,7 @@
 # Install using configuration management
 
+SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](/docs/smartagent-deprecation-notice).
+
 Install the SignalFx Smart Agent using one of the following configuration management
 packages:
 
@@ -314,7 +316,7 @@ Before you install, configure a Smart Agent Puppet manifest.
 
 2. From the downloaded module, add the Smart Agent manifest to your Puppet installation.
 3. Update your Puppet manifest with the `signalfx_agent` class and these parameters:
-   
+
    - `$config`: The Smart Agent configuration. Replace `<access_token>` and `<realm>` with the access token and realm
      values you obtained  in [Prerequisites for all platforms](#prerequisites-for-all-platforms).
      All other properties are optional. For example, the following parameter represents a basic configuration that monitors
@@ -428,4 +430,3 @@ After you configure the Smart Agent Salt formula, Salt installs the Smart Agent 
 ### Verify your Salt installation
 
 See [Verify the Smart Agent](#verify-the-smart-agent).
-
