@@ -67,7 +67,7 @@ REQUIRED_AGENT_DOCS = {
         "faq",
         "legacy-filtering",
         "deb-rpm-repo-migration",
-
+        "smartagent-deprecation-notice",
     ],
 }
 
