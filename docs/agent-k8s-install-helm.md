@@ -1,5 +1,7 @@
 # Install Using Helm
 
+:warning: **SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](./smartagent-deprecation-notice.md)** :warning:
+
 Use the Helm package manager to install the Smart Agent to Kubernetes
 environments.
 
@@ -116,5 +118,3 @@ To verify that your installation and config is working:
 
 * For APM monitoring, learn how to install, configure, and verify the Smart Agent for Microservices APM (**µAPM**). See
   [Get started with SignalFx µAPM](https://docs.signalfx.com/en/latest/apm/apm-getting-started/apm-index.html).
-
-

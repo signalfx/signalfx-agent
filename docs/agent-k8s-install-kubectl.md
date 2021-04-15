@@ -1,5 +1,7 @@
 # Install using kubectl
 
+:warning: **SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](./smartagent-deprecation-notice.md)** :warning:
+
 Use kubectl to install the Smart Agent to Kubernetes environments.
 
 If you have Helm installed already, you can also use Helm

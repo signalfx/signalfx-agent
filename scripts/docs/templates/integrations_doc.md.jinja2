@@ -13,8 +13,8 @@ configuration instructions below.
 
 ## Description
 
-**This integration primarily consists of the Smart Agent monitor{% if has_multiple_monitors %}s{% endif %} {{ integration.monitor_types|surround_by_tick|join(', ') }}.
-Below is an overview of {% if has_multiple_monitors %}the monitors{% else %}that monitor{% endif %}.**
+This integration primarily consists of the Smart Agent monitor{% if has_multiple_monitors %}s{% endif %} {{ integration.monitor_types|surround_by_tick|join(', ') }}.
+Below is an overview of {% if has_multiple_monitors %}the monitors{% else %}that monitor{% endif %}.
 
 ### Smart Agent Monitor{% if has_multiple_monitors %}s{% endif %}
 
@@ -115,7 +115,7 @@ monitors` after configuring this monitor in a running agent instance.
 
 ### Legacy non-default metrics (version < 4.7.0)
 
-**The following information only applies to agent version older than 4.7.0. If
+**The following information only applies to agent versions prior to 4.7.0. If
 you have a newer agent and have set `enableBuiltInFiltering: true` at the top
 level of your agent config, see the section above. See upgrade instructions in
 [Old-style inclusion list filtering](../legacy-filtering.md#old-style-inclusion-list-filtering).**
@@ -174,6 +174,3 @@ are set on the dimension values of the dimension specified.
 {%- endif -%}
 {%- endfor %}
 {%- endif -%}
-
-
-

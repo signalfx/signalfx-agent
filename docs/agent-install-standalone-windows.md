@@ -1,5 +1,7 @@
 # Install to Windows using a ZIP file
 
+:warning: **SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](./smartagent-deprecation-notice.md)** :warning:
+
 Install the SignalFx Smart Agent to a Windows host using a standalone package in
 a ZIP file.
 
