@@ -3,7 +3,7 @@
 [![GoDoc](https://godoc.org/github.com/signalfx/signalfx-agent?status.svg)](https://godoc.org/github.com/signalfx/signalfx-agent)
 [![CircleCI](https://circleci.com/gh/signalfx/signalfx-agent.svg?style=shield)](https://circleci.com/gh/signalfx/signalfx-agent)
 
-SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](/docs/smartagent-deprecation-notice).
+:warning: **SignalFx Smart Agent is deprecated. For details, see the [Deprecation Notice](/docs/smartagent-deprecation-notice)** :warning:
 
 The SignalFx Smart Agent is a metric agent written in Go for monitoring
 infrastructure and application services in a variety of different environments.
