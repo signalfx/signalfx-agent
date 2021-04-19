@@ -2,7 +2,7 @@
 
 set -eo pipefail
 
-if [ "$CIRCLE_BRANCH" != "master" ]; then
+if [ "$CIRCLE_BRANCH" != "main" ]; then
   if ! scripts/changes-include-dir deployments/k8s ${BASH_SOURCE[0]}; then
       echo "No changes in deployments/k8s, skipping check."
       exit 0

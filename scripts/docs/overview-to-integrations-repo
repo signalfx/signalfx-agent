@@ -21,7 +21,7 @@ to_upper_case() {
 
 # Convert all relative links to be absolute to the Github repo url.
 convert_relative_links() {
-  sed -E -e 's@\]\(\./([a-zA-Z].*)\)@](https://github.com/signalfx/signalfx-agent/tree/master/\1)@'
+  sed -E -e 's@\]\(\./([a-zA-Z].*)\)@](https://github.com/signalfx/signalfx-agent/tree/main/\1)@'
 }
 
 uppercase_l2_headers() {

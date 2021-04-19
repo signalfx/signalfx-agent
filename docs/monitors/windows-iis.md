@@ -2,7 +2,7 @@
 
 # windows-iis
 
-Monitor Type: `windows-iis` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/windowsiis))
+Monitor Type: `windows-iis` ([Source](https://github.com/signalfx/signalfx-agent/tree/main/pkg/monitors/windowsiis))
 
 **Accepts Endpoints**: No
 

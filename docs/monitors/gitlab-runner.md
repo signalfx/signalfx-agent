@@ -2,7 +2,7 @@
 
 # gitlab-runner
 
-Monitor Type: `gitlab-runner` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/gitlab))
+Monitor Type: `gitlab-runner` ([Source](https://github.com/signalfx/signalfx-agent/tree/main/pkg/monitors/gitlab))
 
 **Accepts Endpoints**: **Yes**
 

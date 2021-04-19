@@ -21,7 +21,7 @@ inject_notice() {
   cat <<EOH
 
 **If you are using the new SmartAgent, see the docs for [the ${monitor_type}
-monitor](https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/${monitor_type//\//-}.md)
+monitor](https://github.com/signalfx/signalfx-agent/tree/main/docs/monitors/${monitor_type//\//-}.md)
 for more information.  The configuration documentation below may be helpful as
 well, but consult the SmartAgent repo's docs for the exact schema.**
 

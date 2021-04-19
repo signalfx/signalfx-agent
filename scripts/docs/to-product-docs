@@ -34,7 +34,7 @@ convert_overview_links() {
 # Convert all relative links that aren't already html links to be absolute to
 # the github repo url.
 convert_relative_links() {
-  sed -E -e '/\.html(#.*)?$/! s@(\.\. _[a-zA-Z].*:) \.\/(.*)@\1 https://github.com/signalfx/signalfx-agent/tree/master/\2@'
+  sed -E -e '/\.html(#.*)?$/! s@(\.\. _[a-zA-Z].*:) \.\/(.*)@\1 https://github.com/signalfx/signalfx-agent/tree/main/\2@'
 }
 
 # Changes .md extensions to .html

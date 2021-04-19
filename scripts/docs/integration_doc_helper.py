@@ -29,7 +29,7 @@ def fixup_relative_monitor_paths(content):
     Replaces relative links within the scope of monitor
     docs with respective github links
     """
-    return fixup_relative_paths(r"\1(https://github.com/signalfx/signalfx-agent/tree/master/docs/monitors/\2)", content)
+    return fixup_relative_paths(r"\1(https://github.com/signalfx/signalfx-agent/tree/main/docs/monitors/\2)", content)
 
 
 def fixup_relative_agent_doc_paths(content):
@@ -45,7 +45,7 @@ def fixup_relative_agent_doc_paths(content):
 # and sync only required docs to the integrations repo. Note
 # that all files from directories specified will be synced to
 # the integrations repo. The below dictionary is populated from
-# https://github.com/signalfx/signalfx-agent/tree/master/docs/
+# https://github.com/signalfx/signalfx-agent/tree/main/docs/
 REQUIRED_AGENT_DOCS = {
     "directories": ["monitors", "observers"],
     "md_files": [
@@ -118,7 +118,7 @@ def fixup_moved_links(content):
 def sync_agent_quick_install():
     """
     Construct README for SignalFx Agent from quick-install.md file here:
-    https://github.com/signalfx/signalfx-agent/tree/master/docs
+    https://github.com/signalfx/signalfx-agent/tree/main/docs
     """
 
     target_path = INTEGRATIONS_REPO_SMART_AGENT_DIR / "README.md"
@@ -148,7 +148,7 @@ PRODUCT_DOCS_REPO = "agent_docs"
 def sync_agent_docs():
     """
     Sync Agent docs from here:
-    https://github.com/signalfx/signalfx-agent/tree/master/docs
+    https://github.com/signalfx/signalfx-agent/tree/main/docs
     """
     target_dir_parent_path = INTEGRATIONS_REPO_SMART_AGENT_DIR / PRODUCT_DOCS_REPO
     target_dir_parent_path.mkdir(parents=True, exist_ok=True)

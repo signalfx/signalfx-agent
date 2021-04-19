@@ -46,14 +46,14 @@ point but for now the process is manual.
 
 ## Release Process
 
-1. Make sure everything that go out in the release is in the `master` branch.
-   If so, checkout the master branch locally and ensure you are up to date
+1. Make sure everything that go out in the release is in the `main` branch.
+   If so, checkout the main branch locally and ensure you are up to date
    with Github.
 
 1. Examine the differences since the last release.  The simplest way to do
    this is to go to the [releases
    page](https://github.com/signalfx/signalfx-agent/releases) and click on the
-   link for "<N> commits to master since this release" for the last release.
+   link for "<N> commits to main since this release" for the last release.
    This will give you a commit list and diff in the browser.
 
    You can also do `git cherry -v <last release tag>` to see the commit

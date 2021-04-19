@@ -25,7 +25,7 @@ To have choco remember parameters on upgrade, be sure to set `choco feature enab
     <title>SignalFx Smart Agent</title>
     <projectUrl>https://www.signalfx.com</projectUrl>
     <iconUrl>https://cdn.signalfx.com/favicon.ico</iconUrl>
-    <licenseUrl>https://github.com/signalfx/signalfx-agent/blob/master/LICENSE</licenseUrl>
+    <licenseUrl>https://github.com/signalfx/signalfx-agent/blob/main/LICENSE</licenseUrl>
     <requireLicenseAcceptance>true</requireLicenseAcceptance>
     <projectSourceUrl>https://github.com/signalfx/signalfx-agent</projectSourceUrl>
     <packageSourceUrl>https://github.com/signalfx/signalfx-agent</packageSourceUrl>

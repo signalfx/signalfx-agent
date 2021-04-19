@@ -2,7 +2,7 @@
 
 # collectd/consul
 
-Monitor Type: `collectd/consul` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/consul))
+Monitor Type: `collectd/consul` ([Source](https://github.com/signalfx/signalfx-agent/tree/main/pkg/monitors/collectd/consul))
 
 **Accepts Endpoints**: **Yes**
 

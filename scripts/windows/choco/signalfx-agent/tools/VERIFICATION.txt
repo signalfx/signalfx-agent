@@ -6,7 +6,7 @@ This package is built and published by SignalFx, Inc.
 
 Company: https://www.signalfx.com/
 Repository: https://github.com/signalfx/signalfx-agent
-License: https://github.com/signalfx/signalfx-agent/blob/master/LICENSE
+License: https://github.com/signalfx/signalfx-agent/blob/main/LICENSE
 
 MSI_NAME checksum:
 * SHA256: MSI_HASH

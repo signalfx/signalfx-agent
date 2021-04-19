@@ -2,7 +2,7 @@
 
 # collectd/mongodb
 
-Monitor Type: `collectd/mongodb` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/collectd/mongodb))
+Monitor Type: `collectd/mongodb` ([Source](https://github.com/signalfx/signalfx-agent/tree/main/pkg/monitors/collectd/mongodb))
 
 **Accepts Endpoints**: **Yes**
 

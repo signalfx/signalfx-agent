@@ -2,7 +2,7 @@
 
 # cgroups
 
-Monitor Type: `cgroups` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/cgroups))
+Monitor Type: `cgroups` ([Source](https://github.com/signalfx/signalfx-agent/tree/main/pkg/monitors/cgroups))
 
 **Accepts Endpoints**: No
 
