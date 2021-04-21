@@ -2,7 +2,7 @@
 
 # mongodb-atlas
 
-Monitor Type: `mongodb-atlas` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/mongodb/atlas))
+Monitor Type: `mongodb-atlas` ([Source](https://github.com/signalfx/signalfx-agent/tree/main/pkg/monitors/mongodb/atlas))
 
 **Accepts Endpoints**: No
 

@@ -124,8 +124,8 @@ version will be automatically inferred from the git repo.
 ## Contributing
 If you are a SignalFx employee, you should make commits to a branch off of the
 main code repository at https://github.com/signalfx/signalfx-agent and make a
-pull request back to the master branch.  If you are not an employee, simply
-fork that repository and make pull requests back to our repo's master branch.
+pull request back to the main branch.  If you are not an employee, simply
+fork that repository and make pull requests back to our repo's main branch.
 We welcome any enhancements you might have, and will try to respond to all
 issues and pull requests quickly.
 
@@ -199,7 +199,7 @@ collectd:
 
 The agent comes with a suite of unit and integration tests that exercise
 various components within the agent.  All of these tests must pass for a branch
-to be merged into the mainline `master` branch.  Our CircleCI configuration
+to be merged into the mainline `main` branch.  Our CircleCI configuration
 will automatically run them when a pull request is made, but you can run them
 manually as follows:
 
@@ -210,7 +210,7 @@ test.
 
 ### Integration Tests
 These are all written using Python's pytest and are located in the [tests
-directory](https://github.com/signalfx/signalfx-agent/tree/master/tests).  See
+directory](https://github.com/signalfx/signalfx-agent/tree/main/tests).  See
 there for more information.
 
 ### Lint

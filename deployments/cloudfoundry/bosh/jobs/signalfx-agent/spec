@@ -73,13 +73,13 @@ properties:
       A YAML list of additional metrics that will go into the `extraMetrics`
       block of the `cloudfoundry-firehose-nozzle` monitor in the Smart Agent.
       See "extraMetrics" under
-      https://github.com/signalfx/signalfx-agent/blob/master/docs/monitor-config.md#common-configuration.
+      https://github.com/signalfx/signalfx-agent/blob/main/docs/monitor-config.md#common-configuration.
 
   nozzle.datapoints_to_exclude:
     description: |
       A YAML list of filters that will go in the `datapointsToExclude` filter
       in the Smart Agent firehose monitor.  See
-      https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#additional-monitor-level-filtering.
+      https://github.com/signalfx/signalfx-agent/blob/main/docs/filtering.md#additional-monitor-level-filtering.
 
   nozzle.uaa_url:
     description: "UAA server URL to use when `use_nozzle_config` is true."

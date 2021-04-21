@@ -2,7 +2,7 @@
 
 # vsphere
 
-Monitor Type: `vsphere` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/vsphere))
+Monitor Type: `vsphere` ([Source](https://github.com/signalfx/signalfx-agent/tree/main/pkg/monitors/vsphere))
 
 **Accepts Endpoints**: **Yes**
 

@@ -8,7 +8,7 @@ TARGET_DIR=$TARGET
 if [ "$TARGET" = "pytest" ]; then
     TARGET_DIR="tests"
 fi
-if [ "$CIRCLE_BRANCH" != "master" ]; then
+if [ "$CIRCLE_BRANCH" != "main" ]; then
     if ! scripts/changes-include-dir $TARGET_DIR ${BASH_SOURCE[0]}; then
         echo "$TARGET code has not changed, skipping pylint/black!"
         exit 0

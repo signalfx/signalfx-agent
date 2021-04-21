@@ -49,9 +49,9 @@ Also, by default, the file containing your SignalFx API token should be located 
 In the referenced example agent.yaml configuration files below, the default
 location for the token file is used.
 
-- [Linux Default Configuration File](https://github.com/signalfx/signalfx-agent/blob/master/packaging/etc/agent.yaml)
+- [Linux Default Configuration File](https://github.com/signalfx/signalfx-agent/blob/main/packaging/etc/agent.yaml)
 
-- [Windows Default Configuration File](https://github.com/signalfx/signalfx-agent/blob/master/packaging/win/agent.yaml)
+- [Windows Default Configuration File](https://github.com/signalfx/signalfx-agent/blob/main/packaging/win/agent.yaml)
 
 ##### Configure your endpoints
 

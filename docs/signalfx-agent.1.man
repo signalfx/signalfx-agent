@@ -47,7 +47,7 @@ configuration documentation, as well as to file bug reports or ask questions.
 */etc/signalfx/agent.yaml*
 
 :	The default config file path, can be overriden by the **-config** option.
-	See https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md
+	See https://github.com/signalfx/signalfx-agent/blob/main/docs/config-schema.md
 	for a full schema of the config file.
 
 */etc/signalfx/token*

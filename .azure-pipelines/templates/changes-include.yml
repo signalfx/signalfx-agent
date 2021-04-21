@@ -1,7 +1,7 @@
 # Creates/sets global variable 'hasChanges' that can be used in subsequent task conditions based on
-# whether 'paths' (space-separated string of files/directories) have changes compared to master.
+# whether 'paths' (space-separated string of files/directories) have changes compared to main.
 
-# If 'paths' is empty or if the building branch is master or a tag, 'hasChanges' will be set to 'true'.
+# If 'paths' is empty or if the building branch is main or a tag, 'hasChanges' will be set to 'true'.
 
 # Usage example:
 # steps:
@@ -19,7 +19,7 @@ parameters:
 steps:
 - bash: |
     echo '##vso[task.setvariable variable=hasChanges]true'
-    if [[ -z "$PATHS" || "$(Build.SourceBranchName)" = "master" || "$(Build.SourceBranch)" =~ ^refs/tags/ ]]; then
+    if [[ -z "$PATHS" || "$(Build.SourceBranchName)" = "main" || "$(Build.SourceBranch)" =~ ^refs/tags/ ]]; then
         exit 0
     fi
     if [[ "$(Build.SourceBranchName)" = "merge" ]]; then

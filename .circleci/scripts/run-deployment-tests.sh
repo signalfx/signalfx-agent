@@ -5,7 +5,7 @@ set -eo pipefail
 [ -n "$DEPLOYMENT_TYPE" ] || (echo "DEPLOYMENT_TYPE not defined!" && exit 1)
 
 mkdir -p ~/testresults
-if [ "$CIRCLE_BRANCH" != "master" ]; then
+if [ "$CIRCLE_BRANCH" != "main" ]; then
     if ! scripts/changes-include-dir deployments/${DEPLOYMENT_TYPE} tests/deployments/${DEPLOYMENT_TYPE} tests/packaging/common.py .circleci/scripts/run-pytest.sh ${BASH_SOURCE[0]}; then
         echo "${DEPLOYMENT_TYPE} code has not changed, skipping tests!"
         touch ~/.skip

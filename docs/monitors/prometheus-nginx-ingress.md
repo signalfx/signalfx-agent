@@ -2,7 +2,7 @@
 
 # prometheus/nginx-ingress
 
-Monitor Type: `prometheus/nginx-ingress` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/prometheus/nginxingress))
+Monitor Type: `prometheus/nginx-ingress` ([Source](https://github.com/signalfx/signalfx-agent/tree/main/pkg/monitors/prometheus/nginxingress))
 
 **Accepts Endpoints**: **Yes**
 

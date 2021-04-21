@@ -195,8 +195,8 @@ parse_args_and_release() {
     exit 1
   fi
 
-  if [[ "$stage" != "test" ]] && [[ $(git symbolic-ref HEAD) != "refs/heads/master" ]] && [[ "$force" != "yes" ]]; then
-    echo "You are releasing a beta/final release from a branch other than master, which is not allowed." >&2
+  if [[ "$stage" != "test" ]] && [[ $(git symbolic-ref HEAD) != "refs/heads/main" ]] && [[ "$force" != "yes" ]]; then
+    echo "You are releasing a beta/final release from a branch other than main, which is not allowed." >&2
     exit 1
   fi
 
@@ -251,7 +251,7 @@ parse_args_and_release() {
   fi
 
   # Do these updates after everything has been pushed so that nobody ever sees
-  # versions in the master branch that haven't been released.
+  # versions in the main branch that haven't been released.
   if [[ "$stage" == "release" ]] && ([[ "$build_deployments" == "yes" ]] || [[ "$build_all" == "yes" ]]); then
     update_deployment_files "$new_version" "$force"
   fi

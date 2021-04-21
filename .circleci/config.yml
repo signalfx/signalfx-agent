@@ -465,7 +465,7 @@ jobs:
     steps:
       - checkout
       - run: |
-          if [ "$CIRCLE_BRANCH" != "master" ]; then
+          if [ "$CIRCLE_BRANCH" != "main" ]; then
               if ! scripts/changes-include-dir $(find . -iname "*.md" -not -path "./vendor/*" | sed 's|^\./||'); then
                   echo "No markdown doc changes, skipping test."
                   exit 0
@@ -503,7 +503,7 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace
       - run: |
-          if [[ "$CIRCLE_BRANCH" != "master" && -z "$CIRCLE_TAG" ]] && ! scripts/changes-include-dir deployments/cloudfoundry; then
+          if [[ "$CIRCLE_BRANCH" != "main" && -z "$CIRCLE_TAG" ]] && ! scripts/changes-include-dir deployments/cloudfoundry; then
               echo "No changes in deployments/cloudfoundry, skipping build."
               exit 0
           fi
@@ -627,4 +627,4 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main

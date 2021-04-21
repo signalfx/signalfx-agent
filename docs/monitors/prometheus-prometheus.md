@@ -2,7 +2,7 @@
 
 # prometheus/prometheus
 
-Monitor Type: `prometheus/prometheus` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/prometheus/prometheus))
+Monitor Type: `prometheus/prometheus` ([Source](https://github.com/signalfx/signalfx-agent/tree/main/pkg/monitors/prometheus/prometheus))
 
 **Accepts Endpoints**: **Yes**
 

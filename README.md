@@ -137,11 +137,11 @@ Forge](https://forge.puppet.com/signalfx/signalfx_agent/readme).
 
 #### Ansible
 We also offer an Ansible Role to install and configure the Smart Agent on Linux.  See [the
-role source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/ansible).
+role source](https://github.com/signalfx/signalfx-agent/tree/main/deployments/ansible).
 
 #### Salt
 We also offer a Salt Formula to install and configure the Smart Agent on Linux.  See [the
-formula source](https://github.com/signalfx/signalfx-agent/tree/master/deployments/salt).
+formula source](https://github.com/signalfx/signalfx-agent/tree/main/deployments/salt).
 
 #### Docker Image
 See [Docker Deployment](./deployments/docker) for more information.

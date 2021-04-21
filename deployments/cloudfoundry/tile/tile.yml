@@ -75,14 +75,14 @@ forms:
     type: text
     label: Extra Firehose Metrics
     description: |
-      A YAML list of additional metrics that will go into the `extraMetrics` block of the `cloudfoundry-firehose-nozzle` monitor in the Smart Agent. See 'extraMetrics' at https://github.com/signalfx/signalfx-agent/blob/master/docs/monitor-config.md#common-configuration. By default, only metrics that are marked as default in the Smart Agent for the `cloudfoundry-firehose-nozzle` monitor will be sent.  The list is at https://github.com/signalfx/signalfx-agent/blob/master/docs/monitors/cloudfoundry-firehose-nozzle.md#metrics.
+      A YAML list of additional metrics that will go into the `extraMetrics` block of the `cloudfoundry-firehose-nozzle` monitor in the Smart Agent. See 'extraMetrics' at https://github.com/signalfx/signalfx-agent/blob/main/docs/monitor-config.md#common-configuration. By default, only metrics that are marked as default in the Smart Agent for the `cloudfoundry-firehose-nozzle` monitor will be sent.  The list is at https://github.com/signalfx/signalfx-agent/blob/main/docs/monitors/cloudfoundry-firehose-nozzle.md#metrics.
     optional: true
 
   - name: datapoints_to_exclude
     type: text
     label: Datapoint To Exclude
     description: |
-      YAML list that will be put in the datapointsToExclude config option for the firehose nozzle agent monitor (see Additional Monitor Level Filtering at https://github.com/signalfx/signalfx-agent/blob/master/docs/filtering.md#additional-monitor-level-filtering).
+      YAML list that will be put in the datapointsToExclude config option for the firehose nozzle agent monitor (see Additional Monitor Level Filtering at https://github.com/signalfx/signalfx-agent/blob/main/docs/filtering.md#additional-monitor-level-filtering).
     optional: true
 
   - name: http_proxy
@@ -113,7 +113,7 @@ forms:
 #     optional: false
 #     description: |
 #       This is the agent config file
-#       (https://github.com/signalfx/signalfx-agent/blob/master/docs/config-schema.md)
+#       (https://github.com/signalfx/signalfx-agent/blob/main/docs/config-schema.md)
 #       to use.  This gives you maximum flexibility in configuring the agent.
 #     default: |
 #       signalFxAccessToken: {"#from": "/var/vcap/jobs/signalfx-agent/config/token"}

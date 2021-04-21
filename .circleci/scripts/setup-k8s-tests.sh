@@ -18,7 +18,7 @@ CHANGES_INCLUDE="deployments/k8s \
     ${BASH_SOURCE[0]} \
     $(find . -iname '*k8s*' -o -iname '*kube*' | sed 's|^\./||' | grep -v '^docs/')"
 
-if [ "$CIRCLE_BRANCH" != "master" ] && ! scripts/changes-include-dir $CHANGES_INCLUDE; then
+if [ "$CIRCLE_BRANCH" != "main" ] && ! scripts/changes-include-dir $CHANGES_INCLUDE; then
     # Only run k8s tests for crio, K8S_MIN_VERSION, and K8S_MAX_VERSION if there are no relevant changes.
     if [[ $WITH_CRIO -ne 1 && "$K8S_VERSION" != "$K8S_MIN_VERSION" && "$K8S_VERSION" != "$K8S_MAX_VERSION" ]]; then
         echo "Skipping kubernetes $K8S_VERSION integration tests."

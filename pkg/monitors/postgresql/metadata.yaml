@@ -40,7 +40,7 @@ monitors:
     ## Example Configuration
 
     This example uses the [Vault remote config
-    source](https://github.com/signalfx/signalfx-agent/blob/master/docs/remote-config.md#nested-values-vault-only)
+    source](https://github.com/signalfx/signalfx-agent/blob/main/docs/remote-config.md#nested-values-vault-only)
     to connect to PostgreSQL using the `params` map that allows you to pull
     out the username and password individually from Vault and interpolate
     them into the `connectionString` config option.

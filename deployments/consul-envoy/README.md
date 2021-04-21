@@ -76,4 +76,4 @@ monitors:
       metricName: "{action}"
 ```
 
-For more information about StatsD monitor configuration, see the documentation on [StatsD monitor](https://github.com/signalfx/signalfx-agent/blob/master/docs/monitors/statsd.md).
+For more information about StatsD monitor configuration, see the documentation on [StatsD monitor](https://github.com/signalfx/signalfx-agent/blob/main/docs/monitors/statsd.md).
