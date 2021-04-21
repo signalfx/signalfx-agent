@@ -48,7 +48,7 @@ func LoadConfig(ctx context.Context, configPath string) (<-chan *Config, error) 
 
 	loads <- config
 
-	if configFileChanges != nil {
+	if configFileChanges != nil || dynamicChanges != nil {
 		go func() {
 			for {
 				// We can have changes either in the dynamic values or the
