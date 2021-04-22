@@ -83,8 +83,14 @@ func setupHandler(ctx context.Context, router *mux.Router, chainType string, sin
 }
 
 func notFoundHandler(w http.ResponseWriter, r *http.Request) {
-	errMsg := fmt.Sprintf("Datapoint or span request received on invalid path '%s'. "+
-		"You should send to the same path that you would on the Smart Gateway.", r.URL.Path)
-	logger.ThrottledError(errMsg)
-	_, _ = w.Write([]byte(errMsg + "\n"))
+	errMsg := "Datapoint or span request received on invalid path"
+	logger.ThrottledError(fmt.Sprintf("%s: %s", errMsg, r.URL.Path))
+
+	errMsg = fmt.Sprintf(
+		"%s. Supported paths: /v2/datapoint, %s, %s, and %s.\n", errMsg,
+		signalfx.DefaultTracePathV1, signalfx.ZipkinTracePathV1, signalfx.ZipkinTracePathV2,
+	)
+
+	w.WriteHeader(404)
+	_, _ = w.Write([]byte(errMsg))
 }
