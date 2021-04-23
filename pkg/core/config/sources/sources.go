@@ -29,15 +29,24 @@ import (
 // SourceConfig represents configuration for various config sources that we
 // support.
 type SourceConfig struct {
-	// Whether to watch config sources for changes.  If this is `true` and any
-	// of the config changes (either the main agent.yaml, or remote config
-	// values), the agent will dynamically reconfigure itself with minimal
-	// disruption.  This is generally better than restarting the agent on
+	// Whether to watch config sources for changes.  If this is `true` and
+	// the main agent.yaml changes, the agent will dynamically reconfigure
+	// itself with minimal disruption.
+	// This is generally better than restarting the agent on
 	// config changes since that can result in larger gaps in metric data.  The
 	// main disadvantage of watching is slightly greater network and compute
 	// resource usage. This option is not itself watched for changes. If you
 	// change the value of this option, you must restart the agent.
 	Watch *bool `yaml:"watch" default:"true"`
+	// Whether to watch remote config sources for changes.  If this is `true`
+	// and the remote configs changes, the agent will dynamically reconfigure
+	// itself with minimal disruption.
+	// This is generally better than restarting the agent on
+	// config changes since that can result in larger gaps in metric data.  The
+	// main disadvantage of watching is slightly greater network and compute
+	// resource usage. This option is not itself watched for changes. If you
+	// change the value of this option, you must restart the agent.
+	RemoteWatch *bool `yaml:"remoteWatch" default:"true"`
 	// Configuration for other file sources
 	File file.Config `yaml:"file" default:"{}"`
 	// Configuration for a Zookeeper remote config source
@@ -221,7 +230,7 @@ func (dvp *DynamicValueProvider) ReadDynamicValues(configContent []byte, stop <-
 
 	cachers := make(map[string]*configSourceCacher)
 	for name, source := range dvp.sources {
-		cacher := newConfigSourceCacher(source, pathChanges, stop, *sourceConfig.Watch)
+		cacher := newConfigSourceCacher(source, pathChanges, stop, *sourceConfig.RemoteWatch)
 		cachers[name] = cacher
 	}
 
@@ -233,7 +242,7 @@ func (dvp *DynamicValueProvider) ReadDynamicValues(configContent []byte, stop <-
 	}
 
 	var changes chan []byte
-	if *sourceConfig.Watch {
+	if *sourceConfig.RemoteWatch {
 		changes = make(chan []byte)
 
 		go func() {

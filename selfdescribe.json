@@ -57194,7 +57194,15 @@
     "fields": [
       {
         "yamlName": "watch",
-        "doc": "Whether to watch config sources for changes.  If this is `true` and any of the config changes (either the main agent.yaml, or remote config values), the agent will dynamically reconfigure itself with minimal disruption.  This is generally better than restarting the agent on config changes since that can result in larger gaps in metric data.  The main disadvantage of watching is slightly greater network and compute resource usage. This option is not itself watched for changes. If you change the value of this option, you must restart the agent.",
+        "doc": "Whether to watch config sources for changes.  If this is `true` and the main agent.yaml changes, the agent will dynamically reconfigure itself with minimal disruption. This is generally better than restarting the agent on config changes since that can result in larger gaps in metric data.  The main disadvantage of watching is slightly greater network and compute resource usage. This option is not itself watched for changes. If you change the value of this option, you must restart the agent.",
+        "default": true,
+        "required": false,
+        "type": "bool",
+        "elementKind": ""
+      },
+      {
+        "yamlName": "remoteWatch",
+        "doc": "Whether to watch remote config sources for changes.  If this is `true` and the remote configs changes, the agent will dynamically reconfigure itself with minimal disruption. This is generally better than restarting the agent on config changes since that can result in larger gaps in metric data.  The main disadvantage of watching is slightly greater network and compute resource usage. This option is not itself watched for changes. If you change the value of this option, you must restart the agent.",
         "default": true,
         "required": false,
         "type": "bool",
@@ -58604,7 +58612,15 @@
           "fields": [
             {
               "yamlName": "watch",
-              "doc": "Whether to watch config sources for changes.  If this is `true` and any of the config changes (either the main agent.yaml, or remote config values), the agent will dynamically reconfigure itself with minimal disruption.  This is generally better than restarting the agent on config changes since that can result in larger gaps in metric data.  The main disadvantage of watching is slightly greater network and compute resource usage. This option is not itself watched for changes. If you change the value of this option, you must restart the agent.",
+              "doc": "Whether to watch config sources for changes.  If this is `true` and the main agent.yaml changes, the agent will dynamically reconfigure itself with minimal disruption. This is generally better than restarting the agent on config changes since that can result in larger gaps in metric data.  The main disadvantage of watching is slightly greater network and compute resource usage. This option is not itself watched for changes. If you change the value of this option, you must restart the agent.",
+              "default": true,
+              "required": false,
+              "type": "bool",
+              "elementKind": ""
+            },
+            {
+              "yamlName": "remoteWatch",
+              "doc": "Whether to watch remote config sources for changes.  If this is `true` and the remote configs changes, the agent will dynamically reconfigure itself with minimal disruption. This is generally better than restarting the agent on config changes since that can result in larger gaps in metric data.  The main disadvantage of watching is slightly greater network and compute resource usage. This option is not itself watched for changes. If you change the value of this option, you must restart the agent.",
               "default": true,
               "required": false,
               "type": "bool",
