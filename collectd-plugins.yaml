@@ -68,7 +68,7 @@
   repo: signalfx/signalfx-collectd-plugin
 
 - name: solr
-  version: v1.2.0
+  version: v1.2.1
   repo: signalfx/collectd-solr
 
 - name: spark
