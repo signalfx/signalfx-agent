@@ -137,9 +137,13 @@ func (m *Monitor) emitDatapoints() {
 	}
 
 	partitions, err := gopsutil.Partitions(all)
-	if err != nil {
-		m.logger.WithError(err).Errorf("failed to collect list of mountpoints")
+	if err != nil && len(partitions) == 0 {
+		m.logger.WithError(err).Errorf("failed to collect any mountpoints")
 		return
+	}
+
+	if err != nil {
+		m.logger.Debugf("failed to collect all mountpoints: %v", err)
 	}
 
 	dps := make([]*datapoint.Datapoint, 0)
