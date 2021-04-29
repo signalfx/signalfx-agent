@@ -49,6 +49,11 @@ function install_python([string]$buildDir=$BUILD_DIR, [string]$pythonVersion=$PY
     Remove-Item -Recurse -Force $targetPath -ErrorAction Ignore
 
     & $nugetPath locals all -clear
+
+    if (((& $nugetPath sources list 2> $null) | Select-String "nuget.org") -Eq $null) {
+        & $nugetPath sources add -name "nuget.org" -source "https://api.nuget.org/v3/index.json"
+    }
+
     & $nugetPath install python -Version $pythonVersion -OutputDirectory $buildDir
     mv "$installPath\tools" $targetPath
 
