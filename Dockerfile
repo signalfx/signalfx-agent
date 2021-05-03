@@ -44,12 +44,15 @@ RUN apt update &&\
     apt install -y wget maven
 
 ARG TARGET_ARCH
+ARG JDK_VERSION=11.0.11_9
 
 ENV OPENJDK_BASE_URL="https://github.com/AdoptOpenJDK/openjdk11-upstream-binaries/releases/download"
-RUN if [ "$TARGET_ARCH" = "amd64" ]; then \
-    OPENJDK_URL="${OPENJDK_BASE_URL}/jdk-11.0.10%2B9/OpenJDK11U-jdk_x64_linux_11.0.10_9.tar.gz"; \
+
+RUN ENCODED_VER=$(echo $JDK_VERSION | sed 's/_/%2B/g') && \
+    if [ "$TARGET_ARCH" = "amd64" ]; then \
+    OPENJDK_URL="${OPENJDK_BASE_URL}/jdk-${ENCODED_VER}/OpenJDK11U-jdk_x64_linux_${JDK_VERSION}.tar.gz"; \
     else \
-    OPENJDK_URL="${OPENJDK_BASE_URL}/jdk-11.0.10%2B9/OpenJDK11U-jdk_aarch64_linux_11.0.10_9.tar.gz"; \
+    OPENJDK_URL="${OPENJDK_BASE_URL}/jdk-${ENCODED_VER}/OpenJDK11U-jdk_aarch64_linux_${JDK_VERSION}.tar.gz"; \
     fi && \
     wget -O /tmp/openjdk.tar.gz "$OPENJDK_URL"
 
