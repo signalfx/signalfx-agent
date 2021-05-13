@@ -174,7 +174,7 @@ The **nested** `metrics` config object has the following fields:
 | `dimensionPropertyColumns` | no | `map of lists` | The mapping between dimensions and the columns to be used to attach respective properties |
 
 
-# Snowflake Performance and Usage Metrics
+## Snowflake Performance and Usage Metrics
 
 To configure the agent to collect Snowflake performance and usage metrics:
 - Copy pkg/sql/snowflake-metrics.yaml from this repo into the same location as your agent.yaml file (for example, /etc/signalfx).
