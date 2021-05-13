@@ -87,6 +87,7 @@ require (
 	github.com/signalfx/signalfx-go-tracing v1.2.0
 	github.com/sirupsen/logrus v1.8.0
 	github.com/smartystreets/goconvey v1.6.4
+	github.com/snowflakedb/gosnowflake v1.4.3
 	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect; required; first version with go modules
 	github.com/stretchr/testify v1.7.0
 	github.com/tidwall/gjson v1.6.4 // indirect
@@ -99,7 +100,7 @@ require (
 	go.etcd.io/etcd/client/v2 v2.305.0-alpha.0
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
-	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c
+	golang.org/x/sys v0.0.0-20210303074136-134d130e1a04
 	golang.org/x/tools v0.1.0
 	google.golang.org/grpc v1.33.2
 	gopkg.in/fatih/set.v0 v0.1.0

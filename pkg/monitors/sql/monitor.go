@@ -20,6 +20,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	_ "github.com/jackc/pgx/v4/stdlib"
 	_ "github.com/lib/pq"
+	_ "github.com/snowflakedb/gosnowflake"
 )
 
 var logger = logrus.WithFields(logrus.Fields{"monitorType": monitorMetadata.MonitorType})
@@ -82,7 +83,8 @@ type Config struct {
 	// Go template syntax (e.g. `{{.key}}`).
 	Params map[string]string `yaml:"params"`
 
-	// The database driver to use, valid values are `postgres`, `mysql` and `sqlserver`.
+	// The database driver to use, valid values are `postgres`, `mysql`, `sqlserver`, 
+	// and `snowflake`.
 	DBDriver string `yaml:"dbDriver"`
 	// A URL or simple option string used to connect to the database.
 	// If using PostgreSQL, [see the list of connection string
@@ -98,7 +100,7 @@ type Config struct {
 
 // Validate that the config is right
 func (c *Config) Validate() error {
-	if c.DBDriver != "postgres" && c.DBDriver != "mysql" && c.DBDriver != "sqlserver" {
+	if c.DBDriver != "postgres" && c.DBDriver != "mysql" && c.DBDriver != "sqlserver" && c.DBDriver != "snowflake" {
 		return fmt.Errorf("database driver %s is not supported", c.DBDriver)
 	}
 

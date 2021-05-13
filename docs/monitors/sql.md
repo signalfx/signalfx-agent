@@ -2,7 +2,7 @@
 
 # sql
 
-Monitor Type: `sql` ([Source](https://github.com/signalfx/signalfx-agent/tree/main/pkg/monitors/sql))
+Monitor Type: `sql` ([Source](https://github.com/signalfx/signalfx-agent/tree/master/pkg/monitors/sql))
 
 **Accepts Endpoints**: **Yes**
 
@@ -116,6 +116,7 @@ currently support and documentation on the connection string:
   - `postgres`: https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters
   - `mysql`: https://github.com/go-sql-driver/mysql#dsn-data-source-name
   - `sqlserver`: https://github.com/denisenkom/go-mssqldb#connection-parameters-and-dsn
+  - `snowflake`: https://pkg.go.dev/github.com/snowflakedb/gosnowflake#hdr-Connection_Parameters
 
 ## Parameterized Connection String
 
@@ -146,8 +147,8 @@ Configuration](../monitor-config.md#common-configuration).**
 | `host` | no | `string` |  |
 | `port` | no | `integer` |  (**default:** `0`) |
 | `params` | no | `map of strings` | Parameters to the connectionString that can be templated into that option using Go template syntax (e.g. `{{.key}}`). |
-| `dbDriver` | no | `string` | The database driver to use, valid values are `postgres`, `mysql` and `sqlserver`. |
-| `connectionString` | no | `string` | A URL or simple option string used to connect to the database. If using PostgreSQL, [see the list of connection string params](https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters). |
+| `dbDriver` | no | `string` | The database driver to use, valid values are `postgres`, `mysql`, `sqlserver`, and `snowflake`. |
+| `connectionString` | no | `string` | A URL or simple option string used to connect to the database. For example, if using PostgreSQL, [see the list of connection string params](https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters). |
 | `queries` | **yes** | `list of objects (see below)` | A list of queries to make against the database that are used to generate datapoints. |
 | `logQueries` | no | `bool` | If true, query results will be logged at the info level. (**default:** `false`) |
 
@@ -172,6 +173,30 @@ The **nested** `metrics` config object has the following fields:
 | `isCumulative` | no | `bool` | Whether the value is a cumulative counters (true) or gauge (false).  If you set this to the wrong value and send in your first datapoint for the metric name with the wrong type, you will have to manually change the type in SignalFx, as it is set in the system based on the first type seen. (**default:** `false`) |
 | `dimensionPropertyColumns` | no | `map of lists` | The mapping between dimensions and the columns to be used to attach respective properties |
 
+
+# Snowflake Performance and Usage Metrics
+
+To configure the agent to collect Snowflake performance and usage metrics:
+- Copy pkg/sql/snowflake-metrics.yaml from this repo into the same location as your agent.yaml file (for example, /etc/signalfx).
+- Configure the sql monitor as follows:
+```
+monitors:
+  - type: sql
+    intervalSeconds: 3600
+    dbDriver: snowflake
+    params:
+      account: "account.region"
+      database: "SNOWFLAKE"
+      schema: "ACCOUNT_USAGE"
+      role: "ACCOUNTADMIN"
+      user: "user"
+      password: "password"
+    connectionString: "{{.user}}:{{.password}}@{{.account}}/{{.database}}/{{.schema}}?role={{.role}}"
+    queries: 
+      {"#from": "/etc/signalfx/snowflake-metrics.yaml"}
+```
+
+You can also cut/paste the contents of snowflake-metrics.yaml into agent.yaml under "queries" if needed or preferred.  And you can edit snowflake-metrics.yaml to only include metrics you care about.
 
 
 The agent does not do any built-in filtering of metrics coming out of this
