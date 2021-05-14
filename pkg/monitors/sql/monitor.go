@@ -87,7 +87,7 @@ type Config struct {
 	// and `snowflake`.
 	DBDriver string `yaml:"dbDriver"`
 	// A URL or simple option string used to connect to the database.
-	// If using PostgreSQL, [see the list of connection string
+	// For example, if using PostgreSQL, [see the list of connection string
 	// params](https://godoc.org/github.com/lib/pq#hdr-Connection_String_Parameters).
 	ConnectionString string `yaml:"connectionString"`
 
