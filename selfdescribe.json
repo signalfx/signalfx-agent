@@ -49993,7 +49993,7 @@
           },
           {
             "yamlName": "dbDriver",
-            "doc": "The database driver to use, valid values are `postgres`, `mysql` and `sqlserver`.",
+            "doc": "The database driver to use, valid values are `postgres`, `mysql`, `sqlserver`, and `snowflake`.",
             "default": "",
             "required": false,
             "type": "string",
