@@ -399,7 +399,7 @@ def copy_file_content_into_container(content, container, target_path):
 @retry_on_ebadf
 def copy_file_object_into_container(fd, container, target_path, size=None):
     tario = BytesIO()
-    tar = tarfile.TarFile(fileobj=tario, mode="w")
+    tar = tarfile.TarFile(fileobj=tario, mode="w")  # pylint: disable=consider-using-with
 
     info = tarfile.TarInfo(name=target_path)
     if size is None:

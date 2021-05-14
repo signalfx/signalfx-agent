@@ -7,7 +7,7 @@ mysql-connector-python==8.0.24
 netifaces==0.10.9
 protobuf==3.15.8
 psutil==5.8.0
-pylint==2.7.4
+pylint==2.8.2
 pytest-html==3.1.1
 pytest-rerunfailures==9.1.1
 pytest-xdist==2.2.1
