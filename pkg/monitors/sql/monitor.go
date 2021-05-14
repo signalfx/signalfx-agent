@@ -83,7 +83,7 @@ type Config struct {
 	// Go template syntax (e.g. `{{.key}}`).
 	Params map[string]string `yaml:"params"`
 
-	// The database driver to use, valid values are `postgres`, `mysql`, `sqlserver`, 
+	// The database driver to use, valid values are `postgres`, `mysql`, `sqlserver`,
 	// and `snowflake`.
 	DBDriver string `yaml:"dbDriver"`
 	// A URL or simple option string used to connect to the database.
