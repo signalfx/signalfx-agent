@@ -79,7 +79,7 @@ class PipeMessageReader(_PipeMessageBase):
     """
 
     def open(self):
-        self.file = io.open(self.fd, "rb", buffering=0)
+        self.file = io.open(self.fd, "rb", buffering=0)  # pylint: disable=consider-using-with
 
     def recv_msg(self):
         """
@@ -106,7 +106,7 @@ class PipeMessageWriter(_PipeMessageBase):
         self.lock = threading.Lock()
 
     def open(self):
-        self.file = io.open(self.fd, "wb", buffering=0)
+        self.file = io.open(self.fd, "wb", buffering=0)  # pylint: disable=consider-using-with
 
     def send_msg(self, msg_type, msg_obj):
         """
