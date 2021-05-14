@@ -30,3 +30,5 @@ integration_results.*
 local-etc/
 test_output/
 tmp/
+snowenv.sh
+snowsql*
