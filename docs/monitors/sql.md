@@ -173,6 +173,33 @@ The **nested** `metrics` config object has the following fields:
 | `dimensionPropertyColumns` | no | `map of lists` | The mapping between dimensions and the columns to be used to attach respective properties |
 
 
+<<<<<<< HEAD
+=======
+## Snowflake Performance and Usage Metrics
+
+To configure the agent to collect Snowflake performance and usage metrics:
+- Copy pkg/sql/snowflake-metrics.yaml from this repo into the same location as your agent.yaml file (for example, /etc/signalfx).
+- Configure the sql monitor as follows:
+```
+monitors:
+  - type: sql
+    intervalSeconds: 3600
+    dbDriver: snowflake
+    params:
+      account: "account.region"
+      database: "SNOWFLAKE"
+      schema: "ACCOUNT_USAGE"
+      role: "ACCOUNTADMIN"
+      user: "user"
+      password: "password"
+    connectionString: "{{.user}}:{{.password}}@{{.account}}/{{.database}}/{{.schema}}?role={{.role}}"
+    queries: 
+      {"#from": "/etc/signalfx/snowflake-metrics.yaml"}
+```
+
+You can also cut/paste the contents of snowflake-metrics.yaml into agent.yaml under "queries" if needed or preferred.  And you can edit snowflake-metrics.yaml to only include metrics you care about.
+
+>>>>>>> 75653eff45fefd2a3b7a1e75ed192cccc5df3a80
 
 The agent does not do any built-in filtering of metrics coming out of this
 monitor.
