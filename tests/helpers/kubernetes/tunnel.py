@@ -52,6 +52,7 @@ def start_tunneling_fake_service(local_host, local_port, namespace, kube_config_
         }
     )
 
+    # pylint: disable=consider-using-with
     proc = subprocess.Popen(
         ["/bin/bash", f"{SCRIPT_DIR}/tunnel/client.sh"],
         env=env,
