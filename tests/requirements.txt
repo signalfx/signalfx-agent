@@ -2,7 +2,7 @@ PyYAML==5.4.1
 black==21.5b1
 docker==5.0.0
 hvac==0.10.11
-kubernetes==12.0.1
+kubernetes==17.17.0
 mysql-connector-python==8.0.25
 netifaces==0.10.9
 protobuf==3.17.0
