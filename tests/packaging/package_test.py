@@ -397,7 +397,6 @@ def _test_package_upgrade(base_image, package_path, init_system):
     [
         ("amazonlinux1", INIT_UPSTART),
         ("amazonlinux2", INIT_SYSTEMD),
-        ("centos6", INIT_UPSTART),
         ("centos7", INIT_SYSTEMD),
         ("centos8", INIT_SYSTEMD),
         ("opensuse15", INIT_SYSTEMD),
@@ -429,7 +428,6 @@ def test_deb_package(base_image, init_system):
     [
         ("amazonlinux1", INIT_UPSTART),
         ("amazonlinux2", INIT_SYSTEMD),
-        ("centos6", INIT_UPSTART),
         ("centos7", INIT_SYSTEMD),
         ("centos8", INIT_SYSTEMD),
         ("opensuse15", INIT_SYSTEMD),
