@@ -29,3 +29,4 @@
     state: "{% if sfx_version is defined and sfx_version != 'latest' %}present{% else %}{{ sfx_version }}{% endif %}"
     force: yes
     update_cache: yes
+    policy_rc_d: 101
