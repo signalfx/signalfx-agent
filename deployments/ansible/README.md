@@ -71,6 +71,8 @@ This role sources the following variables:
    Requires agent package version 5.1.0 or newer. (**default:** 'signalfx-agent'). Not used
    in Windows platforms.
 
+ - `sfx_service_state`: Set the state of signalfx-agent service. (**default:** 'started')
+
  - `sfx_win_install_path`: The Windows installation path. (**default:** 
    'C:\\Program Files\\SignalFxAgent')
 
