@@ -29,7 +29,7 @@ variables:
 jobs:
 - job: 'go_lint'
   pool:
-    vmImage: 'ubuntu-16.04'
+    vmImage: 'ubuntu-18.04'
   container: golang:$(GOVERSION)
   steps:
   - template: 'templates/restore-go-cache.yml'
@@ -91,7 +91,7 @@ jobs:
 
 - job: 'go_test_race'
   pool:
-    vmImage: 'ubuntu-16.04'
+    vmImage: 'ubuntu-18.04'
   container: golang:$(GOVERSION)
   steps:
   - template: 'templates/restore-go-cache.yml'
@@ -264,7 +264,7 @@ jobs:
 
 - job: 'perf_tests'
   pool:
-    vmImage: 'ubuntu-16.04'
+    vmImage: 'ubuntu-18.04'
   steps:
   - task: DockerInstaller@0
     inputs:
