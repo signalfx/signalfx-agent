@@ -1,4 +1,4 @@
-FROM ubuntu:16.04
+FROM ubuntu:18.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -6,7 +6,7 @@ RUN apt-get update  && \
     apt-get install -y apt-transport-https ca-certificates python3 python3-pip sshpass openssh-client
 
 RUN pip3 install --upgrade pip==20.3.1
-RUN pip3 install --upgrade ansible==2.9.12 ansible-lint==4.2.0
+RUN pip3 install --upgrade ansible==3.0.0 ansible-lint==5.0.0
 
 RUN mkdir -p /etc/ansible && \
     echo 'localhost' > /etc/ansible/hosts
@@ -18,4 +18,3 @@ WORKDIR /opt/ansible
 COPY . /opt/ansible
 RUN echo "[signalfx-host-group]" > inventory && \
     echo localhost >> inventory
-
