@@ -100,5 +100,3 @@ writer:
 ```
 
 More: [docs/monitors/cloudfoundry-firehose-nozzle.md](../../../docs/monitors/cloudfoundry-firehose-nozzle.md)
-
-
