@@ -1,10 +1,11 @@
 import asyncio
 import gzip
 import json
+import random
 import socket
+import string
 import sys
 import threading
-import uuid
 from collections import OrderedDict, defaultdict
 from contextlib import contextmanager
 from queue import Queue
@@ -32,7 +33,7 @@ def bind_tcp_socket(host="127.0.0.1", port=0):
 # list
 # pylint: disable=unused-variable
 def _make_fake_ingest(datapoint_queue, events, spans, save_datapoints, save_events, save_spans):
-    app = Sanic(name=str(uuid.uuid4()))
+    app = Sanic(name="".join(random.choices(string.ascii_lowercase, k=16)))
 
     @app.middleware("request")
     async def compress_request(request):
@@ -215,7 +216,7 @@ def _add_fake_correlation_api(app, dims, correlation_api_status_code):
 
 
 def _make_fake_splunk_hec(entries):
-    app = Sanic(name=str(uuid.uuid4()))
+    app = Sanic(name="".join(random.choices(string.ascii_lowercase, k=16)))
 
     @app.middleware("request")
     async def compress_request(request):
@@ -264,7 +265,7 @@ def start(
 
     ingest_app = _make_fake_ingest(_dp_upload_queue, _events, _spans, save_datapoints, save_events, save_spans)
 
-    api_app = Sanic(name=str(uuid.uuid4()))
+    api_app = Sanic(name="".join(random.choices(string.ascii_lowercase, k=16)))
     _add_fake_dimension_api(api_app, _dims)
     _add_fake_correlation_api(api_app, _dims, correlation_api_status_code)
 

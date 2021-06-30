@@ -1,7 +1,8 @@
 import asyncio
 import json
+import random
+import string
 import time
-import uuid
 from base64 import b64encode
 from contextlib import contextmanager
 from functools import partial as p
@@ -15,7 +16,7 @@ from tests.helpers.util import ensure_always, run_simple_sanic_app, wait_for
 
 @contextmanager
 def run_fake_uaa():
-    app = Sanic(name=str(uuid.uuid4()))
+    app = Sanic(name="".join(random.choices(string.ascii_lowercase, k=16)))
 
     token = "good-token"
 
@@ -44,7 +45,7 @@ def run_fake_uaa():
 
 @contextmanager
 def run_fake_rlp_gateway(envelopes):
-    app = Sanic(name=str(uuid.uuid4()))
+    app = Sanic(name="".join(random.choices(string.ascii_lowercase, k=16)))
 
     expected_token = "good-token"
 
