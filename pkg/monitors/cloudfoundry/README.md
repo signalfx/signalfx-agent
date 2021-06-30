@@ -82,7 +82,7 @@ Example config:
 
 ```yaml
 ---
-signalFxAccessToken: <signafx token>
+signalFxAccessToken: <signalfx token>
 intervalSeconds: 10
 logging:
   level: debug
