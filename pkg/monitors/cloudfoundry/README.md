@@ -8,15 +8,15 @@
 
 ## Tanzu Application Service Setup
 
-### Creating new TAS environment
+### Create a new TAS environment
 
 1. Get access to [Pivotal Partners Slack](https://pivotalpartners.slack.com/archives/C42PWTRR9)
 1. Create a new TAS environment via: https://self-service.isv.ci/
 
 
-### Configuring TAS for monitoring
+### Configure TAS for monitoring
 
-#### Tools
+Required tools:
 
 - https://github.com/pivotal/hammer
 - https://github.com/cloudfoundry/bosh-cli
@@ -24,11 +24,9 @@
 - https://github.com/cloudfoundry-community/firehose-plugin
 - https://github.com/cloudfoundry/cf-uaac
 
-### Connecting
-
 > :warning: The example assumes that the environement is named `wildblueyonder`.
 
-1. Download the hammer config from https://self-service.isv.ci/
+1. Download the hammer config from https://self-service.isv.ci
 
 2. Login in CF CLI
 
@@ -56,7 +54,7 @@
 
 6. Get the UAA credentials:
     
-    1. Login to the `Tanzu Ops Manager` UI (URL and credentials in from https://self-service.isv.ci/)
+    1. Login to the `Tanzu Ops Manager` UI (URL and credentials in from https://self-service.isv.ci)
     2. Navigate: `Small Footprint Pivotal Application Service` > `Credentials` > `UAA` > `Identity Client Credentials`
     3. Export the credentials:
         
