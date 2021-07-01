@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# This script is meant to be run when releasing the agent bosh release.  It
+# This script is meant to be run when releasing the agent bosh release. It
 # does not use the formal "final" BOSH release process as the Ops Manager tiles
 # don't really require them and we are dumping everything to a tarball anyway.
 # This script is mostly intended to be invoked by the tile
-# `make-latest-version` script and not run standalone, although that is
-# entirely possible.
+# `make-latest-tile` script and not run standalone, although that is entirely
+# possible.
 
 set -euo pipefail
 set -x
