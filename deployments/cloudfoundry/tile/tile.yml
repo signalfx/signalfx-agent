@@ -85,6 +85,13 @@ forms:
       YAML list that will be put in the datapointsToExclude config option for the firehose nozzle agent monitor (see Additional Monitor Level Filtering at https://github.com/signalfx/signalfx-agent/blob/main/docs/filtering.md#additional-monitor-level-filtering).
     optional: true
 
+  - name: extra_config
+    type: text
+    label: Extra Configuration
+    description: |
+      A YAML appended at the end of the Smart Agent configuration file. It is suggested to only use the options with `extra` prefix. See more at https://github.com/signalfx/signalfx-agent/blob/main/docs/config-schema.md.
+    optional: true
+
   - name: http_proxy
     type: string
     label: HTTP Proxy URL
@@ -205,6 +212,7 @@ packages:
         realm: (( .properties.signalfx_realm.value ))
         ingest_url: (( .properties.ingest_url.value ))
         max_datapoints_buffered: (( .properties.max_buffered.value ))
+        extra_config: (( .properties.extra_config.value ))
 
 # TODO: including this majorly bogs down the Ops Manager "apply changes"
 # operation and breaks it badly.
