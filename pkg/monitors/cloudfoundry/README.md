@@ -23,15 +23,18 @@ Required tools:
 - https://github.com/cloudfoundry/cli (most probably v6)
 - https://github.com/cloudfoundry-community/firehose-plugin
 - https://github.com/cloudfoundry/cf-uaac
+- https://github.com/pivotal-cf/om
 
-> :warning: The example assumes that the environement is named `wildblueyonder`.
+1. Download the hammer config from https://self-service.isv.ci and name it like your env so that you can have a variable:
 
-1. Download the hammer config from https://self-service.isv.ci
+    ```sh
+    export TAS_ENV=<TAS environement name>
+    ```
 
 2. Login in CF CLI
 
     ```sh
-    hammer -t wildblueyonder.json cf-login
+    hammer -t $TAS_ENV.json cf-login
     ```
 
 3. Create a new space and configure it as a default target space
@@ -53,28 +56,23 @@ Required tools:
     ```
 
 6. Get the UAA credentials:
-    
-    1. Login to the `Tanzu Ops Manager` UI (URL and credentials in from https://self-service.isv.ci)
-    2. Navigate: `Small Footprint Pivotal Application Service` > `Credentials` > `UAA` > `Identity Client Credentials`
-    3. Export the credentials:
-        
-        ```sh
-        export UAA_CREDS=<creds>
-        ```
-
-6. Login in UAA CLI:
 
     ```sh
-    uaac target https://uaa.sys.wildblueyonder.cf-app.com
+    eval "$(hammer -t $TAS_ENV.json om)"
+    export UAA_CREDS=$(om credentials -p cf -c .uaa.identity_client_credentials -t json | jq '.password' -r)
+    ```
+   
+
+6. Create a UAA user with the proper permissions to access the RLP Gateway:
+
+    ```sh
+    uaac target https://uaa.sys.$TAS_ENV.cf-app.com
     uaac token client get identity -s $UAA_CREDS
-    ```
-
-7. Create a UAA user with the proper permissions to access the RLP Gateway (replace `<signalfx-nozzle client secret>` with something else):
-
-    ```sh
-    export NOZZLE_SECRET=<signalfx-nozzle client secret>
+    export NOZZLE_SECRET=$(openssl rand -base64 12)
     uaac client add my-v2-nozzle --name signalfx-nozzle --secret $NOZZLE_SECRET --authorized_grant_types client_credentials,refresh_token --authorities logs.admin
+    echo "signalfx-nozzle client secret: $NOZZLE_SECRET"
     ```
+
 
 ### Configure SignalFx Smart Agent monitor
 
@@ -88,11 +86,11 @@ logging:
   level: debug
 monitors:
   - type: cloudfoundry-firehose-nozzle
-    rlpGatewayUrl: https://log-stream.sys.wildblueyonder.cf-app.com
+    rlpGatewayUrl: https://log-stream.sys.<TAS environement name>.cf-app.com
     rlpGatewaySkipVerify: true
     uaaUser: my-v2-nozzle
     uaaPassword: <signalfx-nozzle client secret>
-    uaaUrl: https://uaa.sys.wildblueyonder.cf-app.com
+    uaaUrl: https://uaa.sys.<TAS environement name>.cf-app.com
     uaaSkipVerify: true
 # Required: What format to send data in
 writer:
