@@ -57,7 +57,6 @@ Required tools:
     echo "signalfx-nozzle client secret: $NOZZLE_SECRET"
     ```
 
-
 ### Configure SignalFx Smart Agent monitor
 
 Example config:
