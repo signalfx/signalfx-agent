@@ -97,14 +97,15 @@ def get_config(version, stage, user="signalfx-agent", config_path="/etc/signalfx
 
 
 def get_hiera(path, backend, monitors):
-    hiera_yaml = yaml.safe_load(open(path).read())
-    hiera_yaml["signalfx_agent::config"]["signalFxAccessToken"] = "testing123"
-    hiera_yaml["signalfx_agent::config"]["ingestUrl"] = backend.ingest_url
-    hiera_yaml["signalfx_agent::config"]["apiUrl"] = backend.api_url
-    hiera_yaml["signalfx_agent::config"]["intervalSeconds"] = 1
-    hiera_yaml["signalfx_agent::config"]["observers"] = [{"type": "host"}]
-    hiera_yaml["signalfx_agent::config"]["monitors"] = monitors
-    return yaml.dump(hiera_yaml)
+    with open(path, "r") as fd:
+        hiera_yaml = yaml.safe_load(fd.read())
+        hiera_yaml["signalfx_agent::config"]["signalFxAccessToken"] = "testing123"
+        hiera_yaml["signalfx_agent::config"]["ingestUrl"] = backend.ingest_url
+        hiera_yaml["signalfx_agent::config"]["apiUrl"] = backend.api_url
+        hiera_yaml["signalfx_agent::config"]["intervalSeconds"] = 1
+        hiera_yaml["signalfx_agent::config"]["observers"] = [{"type": "host"}]
+        hiera_yaml["signalfx_agent::config"]["monitors"] = monitors
+        return yaml.dump(hiera_yaml)
 
 
 def run_puppet_agent(cont, init_system, backend, monitors, agent_version, stage, user="signalfx-agent"):
