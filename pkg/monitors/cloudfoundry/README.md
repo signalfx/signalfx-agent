@@ -25,47 +25,31 @@ Required tools:
 - https://github.com/cloudfoundry/cf-uaac
 - https://github.com/pivotal-cf/om
 
-1. Download the hammer config from https://self-service.isv.ci and name it like your env so that you can have a variable:
+1. Download the hammer config from https://self-service.isv.ci and name it like your environement and export a variable
 
     ```sh
     export TAS_ENV=<TAS environement name>
     ```
 
-2. Login in CF CLI
+2. Create a new space and configure it as a default target space
 
     ```sh
     hammer -t $TAS_ENV.json cf-login
-    ```
-
-3. Create a new space and configure it as a default target space
-
-    ```sh
     cf create-space test-space && cf target -s test-space
     ```
 
-4. Deploy a sample application:
+3. Deploy a sample application:
 
     ```sh
-    git clone https://github.com/cloudfoundry-samples/test-app && cd test-app && cf push && cd .. && rm -rf test-app
+    hammer -t $TAS_ENV.json cf-login
+    git clone https://github.com/cloudfoundry-samples/test-app && cd test-app && cf push && cd .. && rm -rf test-app && cf apps
     ```
 
-5. Test if the sample application is working:
-
-    ```sh
-    cf apps
-    ```
-
-6. Get the UAA credentials:
+4. Create a UAA user with the proper permissions to access the RLP Gateway:
 
     ```sh
     eval "$(hammer -t $TAS_ENV.json om)"
     export UAA_CREDS=$(om credentials -p cf -c .uaa.identity_client_credentials -t json | jq '.password' -r)
-    ```
-   
-
-6. Create a UAA user with the proper permissions to access the RLP Gateway:
-
-    ```sh
     uaac target https://uaa.sys.$TAS_ENV.cf-app.com
     uaac token client get identity -s $UAA_CREDS
     export NOZZLE_SECRET=$(openssl rand -base64 12)
