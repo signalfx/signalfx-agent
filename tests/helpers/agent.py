@@ -7,7 +7,7 @@ from contextlib import contextmanager
 import yaml
 from tests.paths import AGENT_BIN
 
-import tests.helpers.fake_backend as fake_backend
+from tests.helpers import fake_backend
 from tests.helpers.formatting import print_dp_or_event
 from tests.helpers.internalmetrics import InternalMetricsClient
 from tests.helpers.profiling import PProfClient

@@ -194,6 +194,7 @@ def get_unique_localhost():
 @contextmanager
 def run_subprocess(command: List[str], env: Dict[Any, Any] = None, **kwargs):
     # subprocess on Windows has a bug where it doesn't like Path.
+    # pylint: disable=consider-using-with
     proc = retry_on_ebadf(
         lambda: subprocess.Popen(
             [str(c) for c in command], env=env, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, **kwargs
