@@ -1,5 +1,6 @@
 import logging
 import time
+import types
 from functools import partial as p
 from threading import Event, Thread
 
@@ -45,7 +46,13 @@ class SimpleScheduler(object):
             if self.shutdown_event.is_set():
                 return
 
-            logger.debug("Running func %s", func)
+            func_name = "<unknown>"
+            if isinstance(func, types.FunctionType):
+                func_name = f"{func.__module__}.{func.__name__}"
+            elif isinstance(func, p):
+                func_name = f"{func.func.__module__}.{func.func.__name__}"
+
+            logger.debug("Running func %s", func_name)
             try:
                 func()
             except Exception:  # pylint: disable=broad-except
