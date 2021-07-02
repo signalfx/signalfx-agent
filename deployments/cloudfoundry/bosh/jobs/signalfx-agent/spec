@@ -7,6 +7,7 @@ templates:
   logrotate.conf.erb: config/logrotate.conf
   logrotate.cron.erb: config/logrotate.cron
   envvars.erb: config/envvars
+  global-dimensions.yaml.erb: config/global-dimensions.yaml
   nozzle-filtering.yaml.erb: config/nozzle-filtering.yaml
   extra-nozzle-metrics.yaml.erb: config/extra-nozzle-metrics.yaml
   token.erb: config/token
