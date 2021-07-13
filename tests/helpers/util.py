@@ -375,7 +375,7 @@ def pull_from_reader_in_background(reader):
                 byt = byt.encode("utf-8")
             output.write(byt)
 
-    threading.Thread(target=pull_output).start()
+    threading.Thread(target=pull_output, daemon=True).start()
 
     def get_output():
         return output.getvalue().decode("utf-8")
@@ -451,7 +451,7 @@ def run_simple_sanic_app(app):
         loop.create_task(server)
 
     loop.create_task(start_server())
-    threading.Thread(target=loop.run_forever).start()
+    threading.Thread(target=loop.run_forever, daemon=True).start()
 
     try:
         yield f"http://127.0.0.1:{port}"

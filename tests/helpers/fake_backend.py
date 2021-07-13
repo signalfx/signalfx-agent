@@ -280,7 +280,7 @@ def start(
         ingest_loop.create_task(ingest_server)
 
     ingest_loop.create_task(start_ingest_server())
-    threading.Thread(target=ingest_loop.run_forever).start()
+    threading.Thread(target=ingest_loop.run_forever, daemon=True).start()
 
     api_loop = asyncio.new_event_loop()
 
@@ -290,7 +290,7 @@ def start(
         api_loop.create_task(api_server)
 
     api_loop.create_task(start_api_server())
-    threading.Thread(target=api_loop.run_forever).start()
+    threading.Thread(target=api_loop.run_forever, daemon=True).start()
 
     splunk_hec_loop = asyncio.new_event_loop()
 
@@ -306,7 +306,7 @@ def start(
             splunk_hec_loop.create_task(splunk_hec_server)
 
         splunk_hec_loop.create_task(start_splunk_hec_server())
-        threading.Thread(target=splunk_hec_loop.run_forever).start()
+        threading.Thread(target=splunk_hec_loop.run_forever, daemon=True).start()
 
     def _add_datapoints():
         """
@@ -322,7 +322,7 @@ def start(
                 for dim in dp.dimensions:
                     _datapoints_by_dim[f"{dim.key}:{dim.value}"].append(dp)
 
-    threading.Thread(target=_add_datapoints).start()
+    threading.Thread(target=_add_datapoints, daemon=True).start()
 
     class FakeBackend:  # pylint: disable=too-few-public-methods
         ingest_host = ip_addr
