@@ -70,7 +70,7 @@ func (m *messageReadWriter) RecvMessage() (MessageType, io.Reader, error) {
 func (m *messageReadWriter) SendMessage(msgType MessageType, payload []byte) error {
 	var buf [4]byte
 
-	logrus.Debugf("Sending message to subproc (type %d): %s", msgType, payload)
+	logrus.Debugf("Sending message to subproc (type %d) with length %d", msgType, len(payload))
 
 	binary.BigEndian.PutUint32(buf[:], uint32(msgType))
 	if _, err := m.Writer.Write(buf[:]); err != nil {

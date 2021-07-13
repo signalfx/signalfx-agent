@@ -89,7 +89,7 @@ class PipeMessageReader(_PipeMessageBase):
         size = struct.unpack(">i", self.file.read(4))[0]
         msg = self.file.read(size)
 
-        logger.debug("Received control message: %s", msg)
+        logger.debug("Received control message with length %d", len(msg))
         return Message(type=msg_type, size=size, payload=ujson.loads(msg))
 
 
