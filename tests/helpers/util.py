@@ -38,7 +38,8 @@ def retry_on_ebadf(func: T) -> T:
             try:
                 return func(*args, **kwargs)
             except requests.exceptions.ConnectionError as e:
-                if "bad file descriptor" in str(e).lower():
+                msg = str(e).lower()
+                if "bad file descriptor" in msg or "operation on non-socket" in msg:
                     tries += 1
                     if tries >= max_tries:
                         raise
