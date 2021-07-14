@@ -360,6 +360,7 @@ jobs:
       - run_pytest:
           with_sudo: true
           split: true
+          pytest_options: --reruns 2
 
   k8s_integration_tests:
     executor: machine_image
