@@ -79,9 +79,7 @@ additional dependencies required.  This means that the agent should work on any
 relatively modern Linux distribution (kernel version 2.6+).
 
 The agent is also available on Windows in standalone form.  It
-contains its own Python runtime, but has an external depencency on the
-[Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
-in order to operate.  The agent supports Windows Server 2012 and above.
+contains its own Python runtime.  The agent supports Windows Server 2012 and above.
 
 To get started deploying the Smart Agent directly on a host, see the
 [Smart Agent Quick Install](./docs/quick-install.md) guide.
@@ -107,10 +105,9 @@ sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM -- YOUR_SIGNALFX_API_
 ```
 
 ##### Windows
-The Agent has two dependencies on Windows which must be satisfied before running the installer script.
+The Agent has one dependency on Windows which must be satisfied before running the installer script.
 
-- [.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
-- [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
+- [.Net Framework 3.5+](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
 
 The installer script is written for PowerShell v3.0 and above and will not function correctly on earlier versions.
 

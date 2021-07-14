@@ -23,11 +23,10 @@ sudo sh /tmp/signalfx-agent.sh --realm YOUR_SIGNALFX_REALM YOUR_SIGNALFX_API_TOK
 
 ##### Windows
 
-Ensure that the folowing dependencies are installed:
-- [.Net Framework 3.5](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
-- [Visual C++ Compiler for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266)
+Ensure that the following dependency is installed:
+- [.Net Framework 3.5+](https://docs.microsoft.com/en-us/dotnet/framework/install/dotnet-35-windows-10) (Windows 8+)
 
-Once the dependencies have been installed, use the following powershell script
+Once the dependency has been installed, use the following powershell script
 to install the agent.  The agent will be installed as a Windows service and will
 log to the Windows Event Log.
 
