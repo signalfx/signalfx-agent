@@ -4,6 +4,7 @@ executors:
   machine_image:
     machine:
       image: ubuntu-1604:202007-01
+      resource_class: large
 
   goexecutor:
     working_directory: /code
@@ -22,6 +23,7 @@ executors:
   docker1903:
     docker:
       - image: docker:19.03
+    resource_class: large
 
   helm:
     docker:
@@ -358,6 +360,7 @@ jobs:
       - run_pytest:
           with_sudo: true
           split: true
+          pytest_options: --reruns 2
 
   k8s_integration_tests:
     executor: machine_image

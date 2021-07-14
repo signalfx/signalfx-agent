@@ -127,7 +127,7 @@ def socat_https_proxy(container, target_host, target_port, source_host, bind_add
                 print("socat died, restarting...")
                 time.sleep(0.1)
 
-    threading.Thread(target=keep_running_in_container, args=(container, socket_path)).start()
+    threading.Thread(target=keep_running_in_container, args=(container, socket_path), daemon=True).start()
 
     proc = retry_on_ebadf(
         lambda: subprocess.Popen(
