@@ -139,7 +139,7 @@ func TestExtendedStatsAggregationsFromFiltersAggregation(t *testing.T) {
 									"max":            100.0,
 									"avg":            50.14530580444098,
 									"sum":            257446.0,
-									"sum_of_squares": 1.7184548E7,
+									"sum_of_squares": 1.7184548e7,
 									"variance":       832.6528246727477,
 									"std_deviation":  28.855724296450223,
 									"std_deviation_bounds": map[string]interface{}{
@@ -162,7 +162,7 @@ func TestExtendedStatsAggregationsFromFiltersAggregation(t *testing.T) {
 									"max":            100.0,
 									"avg":            50.03486560186989,
 									"sum":            256879.0,
-									"sum_of_squares": 1.7288541E7,
+									"sum_of_squares": 1.7288541e7,
 									"variance":       863.9724891034797,
 									"std_deviation":  29.39340893981982,
 									"std_deviation_bounds": map[string]interface{}{
@@ -232,7 +232,7 @@ func TestExtendedStatsAggregationsFromFiltersAggregation(t *testing.T) {
 		{
 			Metric:     "metric_agg_1.sum_of_squares",
 			Dimensions: dims["madrid"],
-			Value:      datapoint.NewFloatValue(1.7288541E7),
+			Value:      datapoint.NewFloatValue(1.7288541e7),
 			MetricType: datapoint.Gauge,
 		},
 		{
@@ -292,7 +292,7 @@ func TestExtendedStatsAggregationsFromFiltersAggregation(t *testing.T) {
 		{
 			Metric:     "metric_agg_1.sum_of_squares",
 			Dimensions: dims["nairobi"],
-			Value:      datapoint.NewFloatValue(1.7184548E7),
+			Value:      datapoint.NewFloatValue(1.7184548e7),
 			MetricType: datapoint.Gauge,
 		},
 		{
@@ -455,7 +455,7 @@ func TestMultipleMetricAggregationWithTermsAggregation(t *testing.T) {
 									"max":            100.0,
 									"avg":            50.14530580444098,
 									"sum":            257446.0,
-									"sum_of_squares": 1.7184548E7,
+									"sum_of_squares": 1.7184548e7,
 									"variance":       832.6528246727477,
 									"std_deviation":  28.855724296450223,
 									"std_deviation_bounds": map[string]interface{}{
@@ -559,7 +559,7 @@ func TestMultipleMetricAggregationWithTermsAggregation(t *testing.T) {
 		{
 			Metric:     "metric_agg_3.sum_of_squares",
 			Dimensions: dims["metric_agg_3"],
-			Value:      datapoint.NewFloatValue(1.7184548E7),
+			Value:      datapoint.NewFloatValue(1.7184548e7),
 			MetricType: datapoint.Gauge,
 		},
 		{
