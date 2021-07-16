@@ -1,6 +1,9 @@
 package signalfx
 
 import (
+	"fmt"
+	"io"
+	"syscall"
 	"testing"
 	"time"
 
@@ -40,4 +43,37 @@ func TestWriterSetup(t *testing.T) {
 		require.Nil(t, err)
 		require.Equal(t, "http://example.com/v2/event", writer.client.EventEndpoint)
 	})
+}
+
+type tempError struct {
+	temporary func() bool
+}
+
+func (t tempError) Error() string   { return fmt.Sprintf("%v", t.temporary()) }
+func (t tempError) Temporary() bool { return t.temporary() }
+
+func TestIsTransientError(t *testing.T) {
+	tests := []struct {
+		name     string
+		err      error
+		expected bool
+	}{
+		{"not a transient error", fmt.Errorf("not_transient"), false},
+		{"eof error", io.EOF, true},
+		{"econnreset error", syscall.ECONNRESET, true},
+		{"temporary error", tempError{func() bool { return true }}, true},
+		{"not temporary error", tempError{func() bool { return false }}, false},
+	}
+	for i := range tests {
+		test := tests[i]
+		t.Run(test.name, func(tt *testing.T) {
+			require.Equal(tt, test.expected, isTransientError(test.err))
+
+			wrapped := fmt.Errorf("%w", test.err)
+			require.Equal(tt, test.expected, isTransientError(wrapped))
+
+			doublyWrapped := fmt.Errorf("%w", wrapped)
+			require.Equal(tt, test.expected, isTransientError(doublyWrapped))
+		})
+	}
 }

@@ -10,10 +10,13 @@ package signalfx
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/davecgh/go-spew/spew"
@@ -271,21 +274,58 @@ func (sw *Writer) processDatapoint(dp *datapoint.Datapoint) bool {
 }
 
 func (sw *Writer) sendDatapoints(ctx context.Context, dps []*datapoint.Datapoint) error {
-	// This sends synchonously
+	// This sends synchronously and retries on transient connection errors
 	err := sw.client.AddDatapoints(ctx, dps)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"error": utils.SanitizeHTTPError(err),
-		}).Error("Error shipping datapoints to SignalFx")
-		// If there is an error sending datapoints then just forget about them.
-		return err
+		if isTransientError(err) {
+			log.Debugf("retrying datapoint submission after receiving temporary network error: %v\n", err)
+			err = sw.client.AddDatapoints(ctx, dps)
+		}
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": utils.SanitizeHTTPError(err),
+			}).Error("Error shipping datapoints to SignalFx")
+			// If there is an error sending datapoints then just forget about them.
+			return err
+		}
+
 	}
+
 	log.Debugf("Sent %d datapoints out of the agent", len(dps))
 
 	// dpTap.Accept handles the receiver being nil
 	sw.dpTap.Accept(dps)
 
 	return nil
+}
+
+// isTransientError will walk through errors wrapped by candidate
+// and return true if any is temporary, ECONNRESET, or EOF.
+func isTransientError(candidate error) bool {
+	var isTemporary, isReset, isEOF bool
+	for candidate != nil {
+		if temp, ok := candidate.(interface{ Temporary() bool }); ok {
+			if temp.Temporary() {
+				isTemporary = true
+				break
+			}
+		}
+
+		if se, ok := candidate.(syscall.Errno); ok {
+			if se == syscall.ECONNRESET {
+				isReset = true
+				break
+			}
+		}
+
+		if candidate == io.EOF {
+			isEOF = true
+			break
+		}
+		candidate = errors.Unwrap(candidate)
+	}
+
+	return isTemporary || isReset || isEOF
 }
 
 func (sw *Writer) sendEvents(events []*event.Event) error {
