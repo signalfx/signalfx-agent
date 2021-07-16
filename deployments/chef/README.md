@@ -68,9 +68,7 @@ node['signalfx_agent']['conf'] = {
 
 ## Windows
 This cookbook should work on Windows as well.  Note that we have come across
-some issues with Python having a side-by-side manifest issue at times.  If this
-is the case, make sure you have installed the [Microsoft Visual C++ Compiler
-for Python 2.7](https://www.microsoft.com/EN-US/DOWNLOAD/DETAILS.ASPX?ID=44266) first.
+some issues with Python having a side-by-side manifest issue at times.
 
 ## Development
 

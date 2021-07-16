@@ -1,6 +1,6 @@
 # SignalFx Smart Agent CloudFoundry Buildpack
 
-A [CloudFoundry buildpack](https://docs.run.pivotal.io/buildpacks/) to install
+A [CloudFoundry buildpack](https://docs.pivotal.io/application-service/2-11/buildpacks/) to install
 and run the SignalFx Smart Agent in PWS (Diego managed) apps.  This will
 probably work for generic CloudFoundry apps as well, but it is only tested and
 supported on Pivotal Platform.
