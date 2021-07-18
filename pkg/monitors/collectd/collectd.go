@@ -49,6 +49,11 @@ type Manager struct {
 	// Map of each active monitor to its output instance
 	activeMonitors  map[types.MonitorID]types.Output
 	genericJMXUsers map[types.MonitorID]bool
+	// The read interval of the GenericJMX plugin configured in the GenericJMX monitor.
+	// We load the Java and GenericJMX plugins in the top-level config file instead of
+	// the plugin config file and that forces us to unconventionally propagating plugin
+	// specific configuration to the top-level collectd config file.
+	genericJMXIntervalSeconds int
 	// The port of the active write server, will be 0 if write server isn't
 	// started yet.
 	writeServerPort int
@@ -121,7 +126,7 @@ func ConfigureMainCollectd(conf *config.CollectdConfig) error {
 // true so that collectd can know to load the java plugin in the collectd.conf
 // file so that any JVM config doesn't get set multiple times and cause
 // spurious log output.
-func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, output types.Output, usesGenericJMX bool) error {
+func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, output types.Output, usesGenericJMX bool, genericJMXIntervalSeconds int) error {
 	cm.configMutex.Lock()
 	defer cm.configMutex.Unlock()
 
@@ -133,6 +138,7 @@ func (cm *Manager) ConfigureFromMonitor(monitorID types.MonitorID, output types.
 	// about reinitializing GenericJMX and causing errors to be thrown.
 	if usesGenericJMX {
 		cm.genericJMXUsers[monitorID] = true
+		cm.genericJMXIntervalSeconds = utils.FirstNonZero(genericJMXIntervalSeconds, cm.conf.IntervalSeconds)
 	}
 
 	cm.RequestRestart()
@@ -453,8 +459,13 @@ func (cm *Manager) rerenderConf(writeHTTPPort int) error {
 		"context": cm.conf,
 	}).Debug("Rendering main collectd.conf template")
 
-	// Copy so that hash of config struct is consistent
-	conf := *cm.conf
+	conf := struct {
+		config.CollectdConfig
+		GenericJMXIntervalSeconds int
+	}{
+		*cm.conf,
+		cm.genericJMXIntervalSeconds,
+	}
 	conf.HasGenericJMXMonitor = len(cm.genericJMXUsers) > 0
 	conf.WriteServerPort = uint16(writeHTTPPort)
 

@@ -80,7 +80,7 @@ func (bm *MonitorCore) SetConfigurationAndRun(conf config.MonitorCustomConfig) e
 // SetConfiguration adds various fields from the config to the template context
 // but does not render the config.
 func (bm *MonitorCore) SetConfiguration(conf config.MonitorCustomConfig) error {
-	return bm.collectdInstance().ConfigureFromMonitor(bm.monitorID, bm.Output, bm.UsesGenericJMX)
+	return bm.collectdInstance().ConfigureFromMonitor(bm.monitorID, bm.Output, bm.UsesGenericJMX, conf.MonitorConfigCore().IntervalSeconds)
 }
 
 // WriteConfigForPlugin will render the config template to the filesystem and
