@@ -12,7 +12,7 @@ Monitor Type: `collectd/redis` ([Source](https://github.com/signalfx/signalfx-ag
 
 Monitors a redis instance using the [collectd Python Redis
 plugin](https://github.com/signalfx/redis-collectd-plugin).  Supports Redis
-2.8 and later.
+3.2 and later.
 
 You can capture any kind of Redis metrics like:
 
