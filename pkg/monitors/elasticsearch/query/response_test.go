@@ -601,7 +601,7 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 										"max":            100.0,
 										"avg":            49.27212287941311,
 										"sum":            214925.0,
-										"sum_of_squares": 1.4335299E7,
+										"sum_of_squares": 1.4335299e7,
 										"variance":       858.662996364543,
 										"std_deviation":  29.302952007682485,
 										"std_deviation_bounds": map[string]interface{}{
@@ -624,7 +624,7 @@ func getSimpleMultiValueAggregationTestContexts() ([]*testContext, *errors.Error
 										"max":            100.0,
 										"avg":            50.197615772581386,
 										"sum":            218962.0,
-										"sum_of_squares": 1.4644106E7,
+										"sum_of_squares": 1.4644106e7,
 										"variance":       837.3992790472341,
 										"std_deviation":  28.93785201163407,
 										"std_deviation_bounds": map[string]interface{}{
@@ -820,7 +820,7 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 										"max":            100.0,
 										"avg":            50.14530580444098,
 										"sum":            257446.0,
-										"sum_of_squares": 1.7184548E7,
+										"sum_of_squares": 1.7184548e7,
 										"variance":       832.6528246727477,
 										"std_deviation":  28.855724296450223,
 										"std_deviation_bounds": map[string]interface{}{
@@ -861,7 +861,7 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 										"max":            100.0,
 										"avg":            50.03486560186989,
 										"sum":            256879.0,
-										"sum_of_squares": 1.7288541E7,
+										"sum_of_squares": 1.7288541e7,
 										"variance":       863.9724891034797,
 										"std_deviation":  29.39340893981982,
 										"std_deviation_bounds": map[string]interface{}{
@@ -902,7 +902,7 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 										"max":            100.0,
 										"avg":            49.577522399688355,
 										"sum":            254531.0,
-										"sum_of_squares": 1.7057901E7,
+										"sum_of_squares": 1.7057901e7,
 										"variance":       864.6055017695604,
 										"std_deviation":  29.40417490373706,
 										"std_deviation_bounds": map[string]interface{}{
@@ -943,7 +943,7 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 										"max":            100.0,
 										"avg":            49.273081417997666,
 										"sum":            252968.0,
-										"sum_of_squares": 1.6862378E7,
+										"sum_of_squares": 1.6862378e7,
 										"variance":       856.6157265001883,
 										"std_deviation":  29.267998334361515,
 										"std_deviation_bounds": map[string]interface{}{
@@ -994,7 +994,7 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 										"max":            100.0,
 										"avg":            50.084047707789786,
 										"sum":            268751.0,
-										"sum_of_squares": 1.7938575E7,
+										"sum_of_squares": 1.7938575e7,
 										"variance":       834.5950604703294,
 										"std_deviation":  28.889358948760517,
 										"std_deviation_bounds": map[string]interface{}{
@@ -1035,7 +1035,7 @@ func getMultipleMetricAggregationTestContexts() ([]*testContext, *errors.Error) 
 										"max":            100.0,
 										"avg":            49.27953783078643,
 										"sum":            264434.0,
-										"sum_of_squares": 1.7629144E7,
+										"sum_of_squares": 1.7629144e7,
 										"variance":       856.8689327718637,
 										"std_deviation":  29.27232366539875,
 										"std_deviation_bounds": map[string]interface{}{
