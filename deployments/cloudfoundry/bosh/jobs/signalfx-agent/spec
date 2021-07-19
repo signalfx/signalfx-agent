@@ -7,6 +7,7 @@ templates:
   logrotate.conf.erb: config/logrotate.conf
   logrotate.cron.erb: config/logrotate.cron
   envvars.erb: config/envvars
+  global-dimensions.yaml.erb: config/global-dimensions.yaml
   nozzle-filtering.yaml.erb: config/nozzle-filtering.yaml
   extra-nozzle-metrics.yaml.erb: config/extra-nozzle-metrics.yaml
   token.erb: config/token
@@ -21,6 +22,9 @@ properties:
 
   signalfx.agent_config_yaml:
     description: "A full agent.yaml config file for the Smart Agent to use.  If not provided, the options below will be used to construct an agent config file."
+
+  signalfx.global_dimensions:
+    description: A YAML that will be inserted at the end of the agent.yaml's `globalDimensions` map.
 
   signalfx.extra_monitors:
     description: |

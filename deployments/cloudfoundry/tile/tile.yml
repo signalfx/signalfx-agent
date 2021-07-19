@@ -82,7 +82,14 @@ forms:
     type: text
     label: Datapoint To Exclude
     description: |
-      YAML list that will be put in the datapointsToExclude config option for the firehose nozzle agent monitor (see Additional Monitor Level Filtering at https://github.com/signalfx/signalfx-agent/blob/main/docs/filtering.md#additional-monitor-level-filtering).
+      A YAML list that will be put in the `datapointsToExclude` config option for the firehose nozzle agent monitor (see Additional Monitor Level Filtering at https://github.com/signalfx/signalfx-agent/blob/main/docs/filtering.md#additional-monitor-level-filtering).
+    optional: true
+
+  - name: global_dimensions
+    type: text
+    label: Global Dimensions
+    description: |
+      A YAML map that will go into the `globalDimensions` config option. See `globalDimensions` at https://github.com/signalfx/signalfx-agent/blob/main/docs/config-schema.md#config-schema.
     optional: true
 
   - name: http_proxy
@@ -205,6 +212,7 @@ packages:
         realm: (( .properties.signalfx_realm.value ))
         ingest_url: (( .properties.ingest_url.value ))
         max_datapoints_buffered: (( .properties.max_buffered.value ))
+        global_dimensions: (( .properties.global_dimensions.value ))
 
 # TODO: including this majorly bogs down the Ops Manager "apply changes"
 # operation and breaks it badly.
