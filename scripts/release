@@ -31,9 +31,6 @@ parse_args_and_release() {
   local push_windows=no
   local force=no
   local allow_uncommitted=no
-  local github_username="${GITHUB_USERNAME-}"
-  local github_token="${GITHUB_TOKEN-}"
-  local github_release=no
   local new_image=
   local image_base=
   local image_digest=
@@ -63,14 +60,6 @@ parse_args_and_release() {
           exit 1
         fi
 
-        shift 1
-        ;;
-      --github-user)
-        github_username="$2"
-        shift 1
-        ;;
-      --github-token)
-        github_token="$2"
         shift 1
         ;;
       --artifactory-user)
@@ -114,7 +103,6 @@ parse_args_and_release() {
           deployments) build_deployments=yes build_all=no ;;
           windows) push_windows=yes build_all=no ;;
           pypi) build_pypi=yes build_all=no ;;
-          github) github_release=yes build_all=no ;;
           *) echo "component "$1" not recognized, quitting" >&2 && exit 1 ;;
         esac
         shift 1
@@ -134,36 +122,6 @@ parse_args_and_release() {
 
   image_base="$(docker_repo_from_stage $stage)"
   new_image="$image_base:$new_version"
-
-  # fail immediately if releasing to Github and either the username or token is not set
-  if [[ "$push" == "yes" ]] && [[ "$stage" == "release" ]] && [[ "$build_all" == "yes" || "$github_release" == "yes" || "$build_bundle" == "yes" || "$push_windows" == "yes" ]]; then
-    if [[ -z "$github_username" ]]; then
-      echo "Github username is required when releasing to Github." >&2
-      echo "Set the GITHUB_USERNAME env var or use the '--github-user <username>' option." >&2
-      exit 1
-    fi
-    if [[ -z "$github_token" ]]; then
-      echo "Github token is required when releasing to Github." >&2
-      echo "Set the GITHUB_TOKEN env var or use the '--github-token <token>' option." >&2
-      exit 1
-    fi
-  fi
-
-  # exit/fail immediately if only creating a Github release and the requirements are not met
-  if [[ "$github_release" == "yes" ]]; then
-    if [[ "$push" == "no" ]]; then
-      echo "Nothing to do"
-      exit 0
-    fi
-    if [[ "$stage" != "release" ]]; then
-      echo "Release stage must be 'release' in order to create a Github release." >&2
-      exit 1
-    fi
-    if ! docker pull $new_image; then
-      echo "$new_image must already be built and pushed in order to create a Github release." >&2
-      exit 1
-    fi
-  fi
 
   # fail immediately if releasing packages and the requirements are not met
   if [[ "$push" == "yes" ]]; then
@@ -186,7 +144,7 @@ parse_args_and_release() {
     fi
     # fail immediately if signing packages and not connected to the splunk network
     if signing_credentials_are_set "$staging_username" "$staging_token" "$chaperone_token" >/dev/null; then
-      curl -sSf repo.splunk.com >/dev/null || (echo "Signing packages require that you are connected to the splunk network." >&2 && exit 1)
+      curl -sSf https://repo.splunk.com >/dev/null || (echo "Signing packages require that you are connected to the splunk network." >&2 && exit 1)
     fi
   fi
 
@@ -204,7 +162,7 @@ parse_args_and_release() {
   [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Cancelling release" && exit 1
 
   if [[ "$push" == "yes" ]] && [[ "$push_windows" == "yes" ]]; then
-    push_windows_bundle "$new_version" "$stage" "$push" "$github_username" "$github_token"
+    push_windows_bundle "$new_version" "$stage" "$push"
     exit 0
   fi
 
@@ -234,20 +192,9 @@ parse_args_and_release() {
     create_and_push_tag $new_version
   fi
 
-  if [[ "$stage" == "release" ]] && [[ "$build_all" == "yes" || "$github_release" == "yes" ]]; then
-    image_digest=$(get_image_digest $new_image)
-    ensure_github_release "v$new_version" "$github_username" "$github_token"
-    add_digest_to_release "v$new_version" "$new_image" "$image_digest" "$github_username" "$github_token"
-  fi
-
   if [[ "$build_all" == "yes" ]] || [[ "$build_bundle" == "yes" ]]; then
     echo "Making bundle tar.gz"
     make_bundle "$new_version"
-
-    if [[ "$push" == "yes" ]] && [[ "$stage" == "release" ]]; then
-      echo "Pushing bundle to Github"
-      push_bundle_to_github "$new_version" "$github_username" "$github_token"
-    fi
   fi
 
   # Do these updates after everything has been pushed so that nobody ever sees
@@ -278,15 +225,12 @@ Options:
 
   --new-version <version>                    The new version to release.  If not specified, will be inferred from the latest git tag
                                              Note that the version should not include a leading 'v'!
-  --component <component>                    <component> can be docker, deb, rpm, bundle, github, or windows
+  --component <component>                    <component> can be docker, deb, rpm, bundle, or windows
                                              Releases only the selected component if specified, otherwise does everything except windows
-                                             If "github" is selected, the release stage must be "release", and the agent docker image must already be built and pushed
   --[no-]push                                Whether to push the components to remote sources or not (default, yes)
   --force                                    Ignore checks for uncommited local changes and package repo confirmation
   --allow-uncommitted-files                  Whether to ignore uncommitted files in the current directory
   --stage test|beta|release                  What kind of release this is.  If not specified, will be inferred from the version
-  --github-user <username>                   Github username of a user that has permisssions to manage releases
-  --github-token <token>                     Github API token for the given user
   --artifactory-user <username>              Artifactory username (https://splunk.jfrog.io)
   --artifactory-token <token>                Artifactory token (https://splunk.jfrog.io)
   --chaperone-token <token>                  Chaperone token (https://chaperone.re.splunkdev.com)
@@ -332,21 +276,6 @@ create_and_push_tag() {
   git push --tags
 
   echo "Tag pushed"
-}
-
-ensure_github_release() {
-  local tag=$1
-  local username=$2
-  local token=$3
-
-  . $SCRIPT_DIR/github-releases.sh
-
-  if ! get_github_release "$tag" "$username" "$token"; then
-    echo "Creating Github release..."
-    new_github_release $tag $username $token
-  else
-    echo "Github release already exists"
-  fi
 }
 
 ## Docker image build and push
@@ -409,30 +338,10 @@ make_bundle() {
   echo "Bundle is built at $expected_output"
 }
 
-push_bundle_to_github() {
-  local new_version="$1"
-  local username="$2"
-  local token="$3"
-  local tag="v$new_version"
-
-  local bundle_path="$SCRIPT_DIR/../signalfx-agent-${new_version}.tar.gz"
-
-  . $SCRIPT_DIR/github-releases.sh
-
-  if ! get_github_release "$tag" "$username" "$token"; then
-    echo "Github release $tag not found!"
-    exit 1
-  fi
-
-  upload_asset_to_release v$new_version $bundle_path application/gzip $username $token
-}
-
 push_windows_bundle() {
   local new_version="$1"
   local stage="$2"
   local push="$3"
-  local github_username="$4"
-  local github_token="$5"
   local src_dir="$SCRIPT_DIR/../build"
   local signed_dir="$src_dir/signed"
   local dest_dir="s3://public-downloads--signalfuse-com/windows/$stage"
@@ -463,32 +372,20 @@ push_windows_bundle() {
   echo -n "$new_version" > "$src_dir/latest.txt"
 
   if [[ "$push" == "yes" ]]; then
-    if [[ "$stage" == "release" ]]; then
-      . $SCRIPT_DIR/github-releases.sh
-      if ! get_github_release "$tag" "$github_username" "$github_token"; then
-        echo "Github release $tag not found!"
-        echo "You must release the other components before releasing the Windows bundle."
-        exit 1
-      fi
-
-      upload_asset_to_release "$tag" "$bundle_path" "application/zip" "$github_username" "$github_token"
-      upload_asset_to_release "$tag" "$msi_path" "application/x-msi" "$github_username" "$github_token"
-    fi
-
-    if aws --profile prod s3 ls "$dest_dir/zip/SignalFxAgent-${new_version}-win64.zip"; then
+    if aws s3 ls "$dest_dir/zip/SignalFxAgent-${new_version}-win64.zip"; then
       read -p "SignalFxAgent-${new_version}-win64.zip already exists in $dest_dir/zip/. Overwrite? [y/N] "
       [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Not pushing windows bundle" >&2 && return 1
     fi
-    aws --profile prod s3 cp "$bundle_path" "$dest_dir/zip/SignalFxAgent-${new_version}-win64.zip"
-    aws --profile prod s3 cp "$src_dir/latest.txt" "${dest_dir}/zip/latest/latest.txt"
+    aws s3 cp "$bundle_path" "$dest_dir/zip/SignalFxAgent-${new_version}-win64.zip"
+    aws s3 cp "$src_dir/latest.txt" "${dest_dir}/zip/latest/latest.txt"
     $SCRIPT_DIR/invalidate-cloudfront "/windows/$stage/zip/*"
 
-    if aws --profile prod s3 ls "$dest_dir/msi/SignalFxAgent-${new_version}-win64.msi"; then
+    if aws s3 ls "$dest_dir/msi/SignalFxAgent-${new_version}-win64.msi"; then
       read -p "SignalFxAgent-${new_version}-win64.msi already exists in $dest_dir/msi/. Overwrite? [y/N] "
       [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Not pushing windows msi" >&2 && return 1
     fi
-    aws --profile prod s3 cp "$msi_path" "$dest_dir/msi/SignalFxAgent-${new_version}-win64.msi"
-    aws --profile prod s3 cp "$src_dir/latest.txt" "${dest_dir}/msi/latest/latest.txt"
+    aws s3 cp "$msi_path" "$dest_dir/msi/SignalFxAgent-${new_version}-win64.msi"
+    aws s3 cp "$src_dir/latest.txt" "${dest_dir}/msi/latest/latest.txt"
     $SCRIPT_DIR/invalidate-cloudfront "/windows/$stage/msi/*"
   else
     echo "Nothing to do"
@@ -502,7 +399,7 @@ latest_pypi_release() {
 python_code_has_changed() {
   local new_version=$1
 
-  if ! git diff --exit-code v$(scripts/latest-final-release v${new_version}~) -- $SCRIPT_DIR/../python; then
+  if ! git diff --exit-code v$(scripts/latest-final-release v${new_version}~) -- $SCRIPT_DIR/../python ':!python/test-requirements.txt'; then
     echo "Python code changed since last release"
 
     last_release=$(latest_pypi_release)
@@ -540,46 +437,6 @@ get_image_digest() {
   fi
 
   echo $digest
-}
-
-add_digest_to_release() {
-  local tag=$1
-  local image=$2
-  local digest=$3
-  local username=$4
-  local token=$5
-  local release_id=
-  local body=
-
-  . $SCRIPT_DIR/github-releases.sh
-
-  release_id=$(github_request "$username" "$token" "GET" "releases" | jq --arg tag "$tag" '.[] | select(.tag_name==$tag) | .id')
-  if [[ ! "$release_id" =~ ^[0-9]+$ ]]; then
-    echo "Failed to get release id for $tag!" >&2
-    exit 1
-  fi
-
-  # get original release message and append the agent image digest
-  body=$(github_request "$username" "$token" "GET" "releases" | jq --argjson id $release_id '.[] | select(.id==$id) | .body' | sed 's/^"\(.*\)"$/\1/')
-  if [[ -z "$body" ]]; then
-    echo "Failed to get release message for $tag!" >&2
-    exit 1
-  fi
-
-  body="""$(echo -en $body)
-
-> Docker Image: \`$image\` (digest: \`$digest\`)
-"""
-
-  local tmpfile=$(mktemp)
-  echo "$tmpfile"
-  cat <<EOH > $tmpfile
-    {
-      "body": $(jq -n --arg body "$body" '$body')
-    }
-EOH
-
-  github_request "$username" "$token" "PATCH" "releases/$release_id" $tmpfile
 }
 
 signing_credentials_are_set() {
