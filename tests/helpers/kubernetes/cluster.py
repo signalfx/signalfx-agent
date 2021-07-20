@@ -15,8 +15,8 @@ from tests.helpers.fake_backend import start as start_fake_backend
 from tests.helpers.formatting import print_dp_or_event
 from tests.helpers.util import retry_on_ebadf, wait_for
 
-import tests.helpers.kubernetes.tunnel as tunnel
-import tests.helpers.kubernetes.utils as utils
+from tests.helpers.kubernetes import tunnel
+from tests.helpers.kubernetes import utils
 from tests.helpers.kubernetes.agent import Agent
 
 
