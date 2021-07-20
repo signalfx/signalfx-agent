@@ -296,6 +296,7 @@ def http_status(url=None, status=None, username=None, password=None, timeout=1, 
             auth = b64encode("{0}:{1}".format(username, password).encode("ascii")).decode("utf-8")
             req.add_header("Authorization", "Basic {0}".format(auth))
 
+        # pylint: disable=consider-using-with
         return urllib.request.urlopen(req, timeout=timeout, **kwargs).getcode() in status
     except urllib.error.HTTPError as err:
         # urllib raises exceptions for some http error statuses

@@ -129,6 +129,7 @@ def socat_https_proxy(container, target_host, target_port, source_host, bind_add
 
     threading.Thread(target=keep_running_in_container, args=(container, socket_path), daemon=True).start()
 
+    # pylint: disable=consider-using-with
     proc = retry_on_ebadf(
         lambda: subprocess.Popen(
             [socat_bin, "-v", "UNIX-LISTEN:%s,fork" % socket_path, "TCP4:%s:%d" % (target_host, target_port)],

@@ -315,11 +315,11 @@ def _test_package_install(base_image, package_path, init_system):
 
 
 OLD_RPM_URL = "https://dl.signalfx.com/rpms/signalfx-agent/archive/release/signalfx-agent-3.0.1-1.x86_64.rpm"
-OLD_RPM_NAME = OLD_RPM_URL.split("/")[-1]
+OLD_RPM_NAME = OLD_RPM_URL.rsplit("/", maxsplit=1)[-1]
 OLD_SUSE_RPM_URL = "https://splunk.jfrog.io/splunk/signalfx-agent-rpm/release/signalfx-agent-4.7.7-1.x86_64.rpm"
-OLD_SUSE_RPM_NAME = OLD_SUSE_RPM_URL.split("/")[-1]
+OLD_SUSE_RPM_NAME = OLD_SUSE_RPM_URL.rsplit("/", maxsplit=1)[-1]
 OLD_DEB_URL = "https://dl.signalfx.com/debs/signalfx-agent/archive/release/signalfx-agent_3.0.1-1_amd64.deb"
-OLD_DEB_NAME = OLD_DEB_URL.split("/")[-1]
+OLD_DEB_NAME = OLD_DEB_URL.rsplit("/", maxsplit=1)[-1]
 
 OLD_INSTALL_COMMAND = {
     ".rpm": f"yum install -y {OLD_RPM_URL}",
