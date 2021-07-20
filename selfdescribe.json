@@ -19775,7 +19775,7 @@
           "description": "Identifies the Redis instance -- will be of the form `\u003chost\u003e_\u003cport\u003e`."
         }
       },
-      "doc": "Monitors a redis instance using the [collectd Python Redis\nplugin](https://github.com/signalfx/redis-collectd-plugin).  Supports Redis\n2.8 and later.\n\nYou can capture any kind of Redis metrics like:\n\n * Memory used\n * Commands processed per second\n * Number of connected clients and slaves\n * Number of blocked clients\n * Number of keys stored (per database)\n * Uptime\n * Changes since last save\n * Replication delay (per slave)\n\n\n\u003c!--- OVERVIEW ---\u003e\n### Monitoring length of Redis lists\n\nTo monitor the length of list keys, the key and database index must be\nspecified in the config. Specify keys in the config file in the form\n`sendListLengths: [{databaseIndex: $db_index, keyPattern: \"$key_name\"}]`.\n`$key_name` can be a globbed pattern (only `*` is supported), in which case\nall keys matching that glob will be processed.  Don't forget to surround\nthe pattern with double quotes or else the asterisks might be\nmisinterpreted.  If any keys match the glob that are not lists, an error\nwill be sent to the collectd logs.\n\nLengths will be reported to SignalFx under the metric `gauge.key_llen`, a\nseparate time series for each list.\n\n**Warning**: The `KEYS` command is used to match the globs so don't try and\nmatch something that is very big, as this command is not highly optimized and\ncan block other commands from executing.\n\nNote: To avoid duplication reporting, this should only be reported in one node.\nKeys can be defined in either the master or slave config.\n\nSample YAML configuration with list lengths:\n\n```yaml\nmonitors:\n- type: collectd/redis\n  host: 127.0.0.1\n  port: 9100\n  sendListLengths:\n  - databaseIndex: 0\n    keyPattern: 'mylist*'\n```\n\n\u003c!--- SETUP ---\u003e\n### Example Config\n\n```yaml\nmonitors:\n- type: collectd/redis\n  host: 127.0.0.1\n  port: 9100\n```\n",
+      "doc": "Monitors a redis instance using the [collectd Python Redis\nplugin](https://github.com/signalfx/redis-collectd-plugin).  Supports Redis\n2.8 and later.\n\nYou can capture any kind of Redis metrics like:\n\n * Memory used\n * Commands processed per second\n * Number of connected clients and followers\n * Number of blocked clients\n * Number of keys stored (per database)\n * Uptime\n * Changes since last save\n * Replication delay (per follower)\n\n\n\u003c!--- OVERVIEW ---\u003e\n### Monitoring length of Redis lists\n\nTo monitor the length of list keys, the key and database index must be\nspecified in the config. Specify keys in the config file in the form\n`sendListLengths: [{databaseIndex: $db_index, keyPattern: \"$key_name\"}]`.\n`$key_name` can be a globbed pattern (only `*` is supported), in which case\nall keys matching that glob will be processed.  Don't forget to surround\nthe pattern with double quotes or else the asterisks might be\nmisinterpreted.  If any keys match the glob that are not lists, an error\nwill be sent to the collectd logs.\n\nLengths will be reported to SignalFx under the metric `gauge.key_llen`, a\nseparate time series for each list.\n\n**Warning**: The `KEYS` command is used to match the globs so don't try and\nmatch something that is very big, as this command is not highly optimized and\ncan block other commands from executing.\n\nNote: To avoid duplication reporting, this should only be reported in one node.\nKeys can be defined in either the leader or follower config.\n\nSample YAML configuration with list lengths:\n\n```yaml\nmonitors:\n- type: collectd/redis\n  host: 127.0.0.1\n  port: 9100\n  sendListLengths:\n  - databaseIndex: 0\n    keyPattern: 'mylist*'\n```\n\n\u003c!--- SETUP ---\u003e\n### Example Config\n\n```yaml\nmonitors:\n- type: collectd/redis\n  host: 127.0.0.1\n  port: 9100\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -19973,13 +19973,13 @@
         },
         "gauge.connected_clients": {
           "type": "gauge",
-          "description": "Number of client connections (excluding connections from slaves)",
+          "description": "Number of client connections (excluding connections from followers)",
           "group": null,
           "default": true
         },
         "gauge.connected_slaves": {
           "type": "gauge",
-          "description": "Number of connected slaves",
+          "description": "Number of connected followers",
           "group": null,
           "default": false
         },
@@ -20021,7 +20021,7 @@
         },
         "gauge.master_last_io_seconds_ago": {
           "type": "gauge",
-          "description": "Number of seconds since the last interaction with master",
+          "description": "Number of seconds since the last interaction with leader",
           "group": null,
           "default": false
         },
