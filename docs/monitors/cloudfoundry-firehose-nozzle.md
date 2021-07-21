@@ -450,13 +450,41 @@ monitors` after configuring this monitor in a running agent instance.
 
 ## Dimensions
 
-The following dimensions may occur on metrics emitted by this monitor.  Some
-dimensions may be specific to certain metrics.
+The following dimensions are present on all metrics emitted by this monitor:
 
 | Name | Description |
 | ---  | ---         |
-| `instance_id` | The BOSH instance id that pertains to the metric, if any. |
-| `source_id` | The source of the metric |
+| `origin` | Origin name of the metric. Equal to the prefix of the metric name. |
+| `source_id` | For application container metrics, this is the GUID of the application (equal to `app_id`), for system metrics, this is the origin name (equal to `origin`). |
+| `deployment` | Name of the BOSH deployment. |
+| `job` | Name of the BOSH job. |
+| `index` | ID of the BOSH instance. |
+| `ip` | IP address of the BOSH instance. |
 
+### Application-specific dimensions
 
+The following dimensions are available for application metrics (`rep.`):
 
+| Name | Description |
+| ---  | ---         |
+| `process_id` | Process ID. For a process of type "web" (main process of an application), this is equal to `source_id` and `app_id`. |
+| `process_type` | Type of the process (each application has one process with type "web") |
+| `instance_id` | Numerical index of the application instance. Also present for `bbs.` metrics, where it is the BOSH instance ID (equal to `index`) |
+| `process_instance_id` | Unique ID for the application process instance |
+
+The following additional dimensions were added in version 2.8.0 for Pivotal 
+Cloud Foundry (PCF) / Tanzu Application Service (TAS), and in version v11.1.0
+for cf-deployment:
+
+| Name | Description |
+| ---  | ---         |
+| `app_id` | Application ID (GUID). This is equal to the value of `source_id` dimension. |
+| `app_name` | Application name |
+| `organization_id` | Organization ID (GUID) |
+| `organization_name` | Organization name |
+| `space_id` | Space ID (GUID) |
+| `space_name` | Space name |
+
+Note that for TAS 2.8, the documentation states that it is a known issue that
+if the name of an application/space/organization is changed, that change will
+not be reflected in dimension values until the application process is restarted.
