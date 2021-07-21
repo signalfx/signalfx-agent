@@ -11,12 +11,12 @@ monitors:
 
      * Memory used
      * Commands processed per second
-     * Number of connected clients and slaves
+     * Number of connected clients and followers
      * Number of blocked clients
      * Number of keys stored (per database)
      * Uptime
      * Changes since last save
-     * Replication delay (per slave)
+     * Replication delay (per follower)
 
 
     <!--- OVERVIEW --->
@@ -39,7 +39,7 @@ monitors:
     can block other commands from executing.
 
     Note: To avoid duplication reporting, this should only be reported in one node.
-    Keys can be defined in either the master or slave config.
+    Keys can be defined in either the leader or follower config.
 
     Sample YAML configuration with list lengths:
 
@@ -161,11 +161,11 @@ monitors:
       default: false
       type: gauge
     gauge.connected_clients:
-      description: Number of client connections (excluding connections from slaves)
+      description: Number of client connections (excluding connections from followers)
       default: true
       type: gauge
     gauge.connected_slaves:
-      description: Number of connected slaves
+      description: Number of connected followers
       default: false
       type: gauge
     gauge.db0_avg_ttl:
@@ -193,7 +193,7 @@ monitors:
       default: false
       type: gauge
     gauge.master_last_io_seconds_ago:
-      description: Number of seconds since the last interaction with master
+      description: Number of seconds since the last interaction with leader
       default: false
       type: gauge
     gauge.master_repl_offset:
