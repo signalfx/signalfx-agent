@@ -1,9 +1,37 @@
 monitors:
 - dimensions:
+    origin:
+      description: Origin name of the metric. Equal to the prefix of the metric name.
     source_id:
-      description: The source of the metric
+      description: For application container metrics, this is the GUID of the application (equal to `app_id`), for system metrics, this is the origin name (equal to `origin`).
+    deployment:
+      description: Name of the BOSH deployment.
+    job:
+      description: Name of the BOSH job.
+    index:
+      description: ID of the BOSH instance.
+    ip:
+      description: IP address of the BOSH instance.
+    process_id:
+      description: Process ID. Only present for applications (`rep.` metrics). For a process of type "web" (main process of an application), this is equal to `source_id` and `app_id`.
+    process_type:
+      description: Type of the process (each application has one process with type "web"). Only present for applications (`rep.` metrics).
     instance_id:
-      description: The BOSH instance id that pertains to the metric, if any.
+      description: Numerical index of the application instance for applications (`rep.` metrics). Also present for `bbs.` metrics, where it is the BOSH instance ID (equal to `index`).
+    process_instance_id:
+      description: Unique ID for the application process instance. Only present for applications (`rep.` metrics).
+    app_id:
+      description: Application ID (GUID). This is equal to the value of `source_id` dimension. Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+).
+    app_name:
+      description: Application name. Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+). Name change does not take effect until process is restarted on TAS 2.8.
+    organization_id:
+      description: Organization ID (GUID). Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+).
+    organization_name:
+      description: Organization name. Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+). Name change does not take effect until process is restarted on TAS 2.8.
+    space_id:
+      description: Space ID (GUID). Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+).
+    space_name:
+      description: Space name. Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+). Name change does not take effect until process is restarted on TAS 2.8.
   monitorType: cloudfoundry-firehose-nozzle
   doc: |
     This is a CloudFoundry [firehose

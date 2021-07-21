@@ -1681,11 +1681,53 @@
       "sendUnknown": false,
       "noneIncluded": false,
       "dimensions": {
+        "app_id": {
+          "description": "Application ID (GUID). This is equal to the value of `source_id` dimension. Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+)."
+        },
+        "app_name": {
+          "description": "Application name. Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+). Name change does not take effect until process is restarted on TAS 2.8."
+        },
+        "deployment": {
+          "description": "Name of the BOSH deployment."
+        },
+        "index": {
+          "description": "ID of the BOSH instance."
+        },
         "instance_id": {
-          "description": "The BOSH instance id that pertains to the metric, if any."
+          "description": "Numerical index of the application instance for applications (`rep.` metrics). Also present for `bbs.` metrics, where it is the BOSH instance ID (equal to `index`)."
+        },
+        "ip": {
+          "description": "IP address of the BOSH instance."
+        },
+        "job": {
+          "description": "Name of the BOSH job."
+        },
+        "organization_id": {
+          "description": "Organization ID (GUID). Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+)."
+        },
+        "organization_name": {
+          "description": "Organization name. Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+). Name change does not take effect until process is restarted on TAS 2.8."
+        },
+        "origin": {
+          "description": "Origin name of the metric. Equal to the prefix of the metric name."
+        },
+        "process_id": {
+          "description": "Process ID. Only present for applications (`rep.` metrics). For a process of type \"web\" (main process of an application), this is equal to `source_id` and `app_id`."
+        },
+        "process_instance_id": {
+          "description": "Unique ID for the application process instance. Only present for applications (`rep.` metrics)."
+        },
+        "process_type": {
+          "description": "Type of the process (each application has one process with type \"web\"). Only present for applications (`rep.` metrics)."
         },
         "source_id": {
-          "description": "The source of the metric"
+          "description": "For application container metrics, this is the GUID of the application (equal to `app_id`), for system metrics, this is the origin name (equal to `origin`)."
+        },
+        "space_id": {
+          "description": "Space ID (GUID). Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+)."
+        },
+        "space_name": {
+          "description": "Space name. Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+). Name change does not take effect until process is restarted on TAS 2.8."
         }
       },
       "doc": "This is a CloudFoundry [firehose\nnozzle](https://docs.pivotal.io/tiledev/2-8/nozzle.html) by connecting to\nthe Cloud Foundry Reverse Log Proxy (RLP) Gateway that feeds metrics from\nthe Loggregator. This uses the new RLP Gateway model that was [introduced\nin Pivotal Cloud Foundry (PCF)\n2.4](https://docs.pivotal.io/tiledev/2-4/release-notes.html#log-api), so it\nwill not work with older releases.\n\nPivotal has a helpful guide for [Key Performance Indicators\n(KPIs)](https://docs.pivotal.io/platform/2-8/monitoring/kpi.html) to\nmonitor.  Most of these metrics come through the firehose.  They also have\na guide for [Key Capacity Scaling\nIndicators](https://docs.pivotal.io/platform/2-8/monitoring/key-cap-scaling.html)\nthat will help determine when to scale up or down your cluster.\n\nThis supports `gauge` and `counter` metrics at this time.  Firehose `gauge`\nmetrics gets converted to SignalFx gauges, an firehose `counter` metrics\nget converted to SignalFx cumulative counters metrics.  All of the `tags`\nin the firehose envelopes will be converted to dimensions when sending to\nSignalFx.\n\nTo create a UAA user with the proper permissions to access the RLP Gateway,\nrun the following:\n\n```sh\n$ uaac client add my-v2-nozzle \\\n    --name signalfx-nozzle \\\n    --secret \u003csignalfx-nozzle client secret\u003e \\\n    --authorized_grant_types client_credentials,refresh_token \\\n    --authorities logs.admin\n```\n\nThen set the `uaaUsername` config value to `signalfx-nozzle` and the\n`uaaPassword` field to the `\u003csignalfx-nozzle client secret\u003e` that you\nselect.\n",

@@ -450,41 +450,27 @@ monitors` after configuring this monitor in a running agent instance.
 
 ## Dimensions
 
-The following dimensions are present on all metrics emitted by this monitor:
+The following dimensions may occur on metrics emitted by this monitor.  Some
+dimensions may be specific to certain metrics.
 
 | Name | Description |
 | ---  | ---         |
-| `origin` | Origin name of the metric. Equal to the prefix of the metric name. |
-| `source_id` | For application container metrics, this is the GUID of the application (equal to `app_id`), for system metrics, this is the origin name (equal to `origin`). |
+| `app_id` | Application ID (GUID). This is equal to the value of `source_id` dimension. Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+). |
+| `app_name` | Application name. Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+). Name change does not take effect until process is restarted on TAS 2.8. |
 | `deployment` | Name of the BOSH deployment. |
-| `job` | Name of the BOSH job. |
 | `index` | ID of the BOSH instance. |
+| `instance_id` | Numerical index of the application instance for applications (`rep.` metrics). Also present for `bbs.` metrics, where it is the BOSH instance ID (equal to `index`). |
 | `ip` | IP address of the BOSH instance. |
+| `job` | Name of the BOSH job. |
+| `organization_id` | Organization ID (GUID). Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+). |
+| `organization_name` | Organization name. Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+). Name change does not take effect until process is restarted on TAS 2.8. |
+| `origin` | Origin name of the metric. Equal to the prefix of the metric name. |
+| `process_id` | Process ID. Only present for applications (`rep.` metrics). For a process of type "web" (main process of an application), this is equal to `source_id` and `app_id`. |
+| `process_instance_id` | Unique ID for the application process instance. Only present for applications (`rep.` metrics). |
+| `process_type` | Type of the process (each application has one process with type "web"). Only present for applications (`rep.` metrics). |
+| `source_id` | For application container metrics, this is the GUID of the application (equal to `app_id`), for system metrics, this is the origin name (equal to `origin`). |
+| `space_id` | Space ID (GUID). Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+). |
+| `space_name` | Space name. Only available for applications on TAS/PCF 2.8.0+ (cf-deployment v11.1.0+). Name change does not take effect until process is restarted on TAS 2.8. |
 
-### Application-specific dimensions
 
-The following dimensions are available for application metrics (`rep.`):
 
-| Name | Description |
-| ---  | ---         |
-| `process_id` | Process ID. For a process of type "web" (main process of an application), this is equal to `source_id` and `app_id`. |
-| `process_type` | Type of the process (each application has one process with type "web") |
-| `instance_id` | Numerical index of the application instance. Also present for `bbs.` metrics, where it is the BOSH instance ID (equal to `index`) |
-| `process_instance_id` | Unique ID for the application process instance |
-
-The following additional dimensions were added in version 2.8.0 for Pivotal 
-Cloud Foundry (PCF) / Tanzu Application Service (TAS), and in version v11.1.0
-for cf-deployment:
-
-| Name | Description |
-| ---  | ---         |
-| `app_id` | Application ID (GUID). This is equal to the value of `source_id` dimension. |
-| `app_name` | Application name |
-| `organization_id` | Organization ID (GUID) |
-| `organization_name` | Organization name |
-| `space_id` | Space ID (GUID) |
-| `space_name` | Space name |
-
-Note that for TAS 2.8, the documentation states that it is a known issue that
-if the name of an application/space/organization is changed, that change will
-not be reflected in dimension values until the application process is restarted.
