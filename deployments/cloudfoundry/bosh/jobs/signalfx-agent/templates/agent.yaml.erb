@@ -14,7 +14,7 @@ globalDimensions:
   bosh_id: {"#from": "/var/vcap/instance/id", optional: true}
   deployment: {"#from": "/var/vcap/instance/deployment", optional: true}
 <% end %>
-  {"#from": "/var/vcap/jobs/signalfx-agent/config/global-dimensions.yaml", optional: true}
+  _: {"#from": "/var/vcap/jobs/signalfx-agent/config/global-dimensions.yaml", optional: true, flatten: true}
 
 <% if_p("signalfx.interval_seconds") do |interval_seconds| %>
 intervalSeconds: <%= interval_seconds %>
