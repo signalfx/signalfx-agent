@@ -198,6 +198,11 @@ func (o *Observer) Configure(config *Config) error {
 	return nil
 }
 
+func castPod(obj interface{}) *v1.Pod {
+	pod, _ := obj.(*v1.Pod)
+	return pod
+}
+
 func (o *Observer) watchPods() {
 	o.stopper = make(chan struct{})
 
@@ -215,17 +220,22 @@ func (o *Observer) watchPods() {
 		0,
 		cache.ResourceEventHandlerFuncs{
 			AddFunc: func(obj interface{}) {
-				o.changeHandler(nil, obj.(*v1.Pod))
+				o.changeHandler(nil, castPod(obj))
 			},
 			UpdateFunc: func(oldObj, newObj interface{}) {
-				o.changeHandler(oldObj.(*v1.Pod), newObj.(*v1.Pod))
+				o.changeHandler(castPod(oldObj), castPod(newObj))
 			},
 			DeleteFunc: func(obj interface{}) {
-				o.changeHandler(obj.(*v1.Pod), nil)
+				o.changeHandler(castPod(obj), nil)
 			},
 		})
 
 	go controller.Run(o.stopper)
+}
+
+func castNode(obj interface{}) *v1.Node {
+	node, _ := obj.(*v1.Node)
+	return node
 }
 
 func (o *Observer) watchNodes() {
@@ -242,13 +252,13 @@ func (o *Observer) watchNodes() {
 		0,
 		cache.ResourceEventHandlerFuncs{
 			AddFunc: func(obj interface{}) {
-				o.changeHandler(nil, obj.(*v1.Node))
+				o.changeHandler(nil, castNode(obj))
 			},
 			UpdateFunc: func(oldObj, newObj interface{}) {
-				o.changeHandler(oldObj.(*v1.Node), newObj.(*v1.Node))
+				o.changeHandler(castNode(oldObj), castNode(newObj))
 			},
 			DeleteFunc: func(obj interface{}) {
-				o.changeHandler(obj.(*v1.Node), nil)
+				o.changeHandler(castNode(obj), nil)
 			},
 		})
 
