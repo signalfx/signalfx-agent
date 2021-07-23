@@ -57643,6 +57643,14 @@
         "elementKind": ""
       },
       {
+        "yamlName": "useNewFQDNFunction",
+        "doc": "If true, the agent will use the newly improved FQDN function, otherwise, use the legacy function. (**default**: `false`)",
+        "default": false,
+        "required": false,
+        "type": "bool",
+        "elementKind": ""
+      },
+      {
         "yamlName": "disableHostDimensions",
         "doc": "Our standard agent model is to collect metrics for services running on the same host as the agent.  Therefore, host-specific dimensions (e.g. `host`, `AWSUniqueId`, etc) are automatically added to every datapoint that is emitted from the agent by default.  Set this to true if you are using the agent primarily to monitor things on other hosts.  You can set this option at the monitor level as well.",
         "default": false,

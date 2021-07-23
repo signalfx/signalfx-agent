@@ -7,13 +7,20 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-func getHostname(useFullyQualifiedHost bool) string {
+func getHostname(useFullyQualifiedHost bool, useNewFQDNFunction bool) string {
 	var host string
 	if useFullyQualifiedHost {
 		log.Info("Trying to get fully qualified hostname")
-		host = fqdn.Get()
-		if host == "unknown" || host == "localhost" {
-			log.Info("Error getting fully qualified hostname, using plain hostname")
+		var err error
+		if useNewFQDNFunction {
+			host, err = fqdn.FqdnHostname()
+		} else {
+			host = fqdn.Get()
+		}
+		if host == "unknown" || host == "localhost" || err != nil {
+			log.WithFields(log.Fields{
+				"detail": err,
+			}).Info("Error getting fully qualified hostname, using plain hostname")
 			host = ""
 		}
 	}

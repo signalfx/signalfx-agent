@@ -65,6 +65,9 @@ type Config struct {
 	// useful in cases where the hostname reported by the kernel is a short
 	// name. (**default**: `true`)
 	UseFullyQualifiedHost *bool `yaml:"useFullyQualifiedHost" noDefault:"true"`
+	// If true, the agent will use the newly improved FQDN function, otherwise,
+	// use the legacy function. (**default**: `false`)
+	UseNewFQDNFunction bool `yaml:"useNewFQDNFunction" default:"false"`
 	// Our standard agent model is to collect metrics for services running on
 	// the same host as the agent.  Therefore, host-specific dimensions (e.g.
 	// `host`, `AWSUniqueId`, etc) are automatically added to every datapoint

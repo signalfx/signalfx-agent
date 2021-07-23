@@ -45,6 +45,7 @@ if not set.
 | `signalFxRealm` | no | string | The SignalFx Realm that the organization you want to send to is a part of.  This defaults to the original realm (`us0`) but if you are setting up the agent for the first time, you quite likely need to change this. (**default:** `"us0"`) |
 | `hostname` | no | string | The hostname that will be reported as the `host` dimension. If blank, this will be auto-determined by the agent based on a reverse lookup of the machine's IP address. |
 | `useFullyQualifiedHost` | no | bool | If true (the default), and the `hostname` option is not set, the hostname will be determined by doing a reverse DNS query on the IP address that is returned by querying for the bare hostname.  This is useful in cases where the hostname reported by the kernel is a short name. (**default**: `true`) |
+| `useNewFQDNFunction` | no | bool | If true, the agent will use the newly improved FQDN function, otherwise, use the legacy function. (**default**: `false`) (**default:** `false`) |
 | `disableHostDimensions` | no | bool | Our standard agent model is to collect metrics for services running on the same host as the agent.  Therefore, host-specific dimensions (e.g. `host`, `AWSUniqueId`, etc) are automatically added to every datapoint that is emitted from the agent by default.  Set this to true if you are using the agent primarily to monitor things on other hosts.  You can set this option at the monitor level as well. (**default:** `false`) |
 | `intervalSeconds` | no | integer | How often to send metrics to SignalFx.  Monitors can override this individually. (**default:** `10`) |
 | `cloudMetadataTimeout` | no | int64 | This flag sets the HTTP timeout duration for metadata queries from AWS, Azure and GCP. This should be a duration string that is accepted by https://golang.org/pkg/time/#ParseDuration (**default:** `"2s"`) |
@@ -402,6 +403,7 @@ where applicable:
   signalFxRealm: "us0"
   hostname: 
   useFullyQualifiedHost: 
+  useNewFQDNFunction: false
   disableHostDimensions: false
   intervalSeconds: 10
   cloudMetadataTimeout: "2s"

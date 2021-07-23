@@ -22,7 +22,7 @@ func Dimensions(conf *config.Config) map[string]string {
 		// Using the FQDN needs to default to true but the defaults lib that we
 		// use can't distinguish between false and unspecified, so figure out
 		// if the user specified it explicitly as false with this logic.
-		return getHostname(conf.UseFullyQualifiedHost == nil || *conf.UseFullyQualifiedHost)
+		return getHostname(conf.UseFullyQualifiedHost == nil || *conf.UseFullyQualifiedHost, conf.UseNewFQDNFunction)
 	})
 
 	// The envvar exists primarily for testing but could be useful otherwise.
