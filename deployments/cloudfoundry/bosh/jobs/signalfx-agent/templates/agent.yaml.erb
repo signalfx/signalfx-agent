@@ -9,11 +9,12 @@ ingestUrl: {"#from": "/var/vcap/jobs/signalfx-agent/config/ingest_url"}
 apiUrl: {"#from": "/var/vcap/jobs/signalfx-agent/config/api_url"}
 cluster: <%= p("signalfx.cluster", "") %>
 
-<% if not p("nozzle.enabled") %>
 globalDimensions:
+<% if not p("nozzle.enabled") %>
   bosh_id: {"#from": "/var/vcap/instance/id", optional: true}
   deployment: {"#from": "/var/vcap/instance/deployment", optional: true}
 <% end %>
+  _: {"#from": "/var/vcap/jobs/signalfx-agent/config/global-dimensions.yaml", optional: true, flatten: true}
 
 <% if_p("signalfx.interval_seconds") do |interval_seconds| %>
 intervalSeconds: <%= interval_seconds %>
