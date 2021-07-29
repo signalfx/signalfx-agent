@@ -40,8 +40,8 @@ require (
 	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/hashicorp/consul/api v1.7.0
 	github.com/hashicorp/golang-lru v0.5.4
-	github.com/hashicorp/vault v1.6.0 // required for newer google.golang.org/api compatibility
-	github.com/hashicorp/vault-plugin-auth-gcp v0.8.0
+	github.com/hashicorp/vault v1.6.5 // required for newer google.golang.org/api compatibility
+	github.com/hashicorp/vault-plugin-auth-gcp v0.8.1
 	github.com/hashicorp/vault/api v1.0.5-0.20201001211907-38d91b749c77
 	github.com/iancoleman/strcase v0.0.0-20171129010253-3de563c3dc08
 	github.com/influxdata/tail v1.0.0 // indirect
@@ -90,7 +90,7 @@ require (
 	github.com/snowflakedb/gosnowflake v1.4.3
 	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect; required; first version with go modules
 	github.com/stretchr/testify v1.7.0
-	github.com/tidwall/gjson v1.6.4 // indirect
+	github.com/tidwall/gjson v1.6.5 // indirect
 	github.com/tinylib/msgp v1.1.5 // indirect
 	github.com/ulule/deepcopier v0.0.0-20171107155558-ca99b135e50f
 	github.com/vjeantet/grok v1.0.0 // indirect
