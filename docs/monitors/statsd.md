@@ -11,19 +11,19 @@ Monitor Type: `statsd` ([Source](https://github.com/signalfx/signalfx-agent/tree
 ## Overview
 
 This monitor will receive and aggergate Statsd metrics and convert them to
-datapoints.  It listens on a configured address and port in order to
+data points.  It listens on a configured address and port in order to
 receive the statsd metrics.  Note that this monitor does not support statsd
 extensions such as tags.
 
-The monitor supports the `Counter`, `Timer`, `Gauge` and `Set` types which
+The monitor supports the `Counter`, `Timer`, `Gauge` and `Set` types, which
 are dispatched as the SignalFx types `counter`, `gauge`, `gauge` and
 `gauge` respectively.
 
-**Note that datapoints will get a `host` dimension of the current host that
+**Note:** Data points get a `host` dimension of the current host that
 the agent is running on, not the host from which the statsd metric was sent.
 For this reason, it is recommended to send statsd metrics to a local agent
 instance. If you don't want the `host` dimension, you can set
-`disableHostDimensions: true` on the monitor configuration**
+`disableHostDimensions: true` on the monitor configuration. 
 
 <!--- SETUP --->
 #### Verifying installation
@@ -34,6 +34,8 @@ in SignalFx that the metric arrived (assuming the default config).
 ```
 $ echo "statsd.test:1|g" | nc -w 1 -u 127.0.0.1 8125
 ```
+
+For Kubernetes environments, use the `status.hostIP` environment variable to verify the installation. This environment variable is the IP address of the node where the pod is running. See [Expose Pod Information to Containers Through Files](hhttps://kubernetes.io/docs/tasks/inject-data-application/downward-api-volume-expose-pod-information/). 
 
 <!--- SETUP --->
 #### Adding dimensions to StatsD metrics
@@ -47,11 +49,11 @@ converters:
     ...
 ```
 
-This converter will parse `traffic`, `mesh`, `service` and `action` as dimensions
-from a metric name `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success`.
-If a section has only a pair of brackets without a name, it will not capture a dimension.
+This converter parses `traffic`, `mesh`, `service`, and `action` as dimensions
+from the `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success` metric.
+If a section has only a pair of brackets without a name, it does not capture a dimension.
 
-When multiple converters were provided, a metric will be converted by the first converter with a
+If multiple converters are provided, a metric is converted by the first converter with a
 matching pattern to the metric name.
 
 <!--- SETUP --->
@@ -65,12 +67,11 @@ converters:
     metricName: "{traffic}.{action}"
 ```
 
-The metrics which match to the given pattern will be reported to SignalFx as `{traffic}.{action}`.
+The metrics which match to the given pattern arereported to SignalFx as `{traffic}.{action}`.
 For instance, metric `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success`
-will be reported as `egress.update_success`.
+is reported as `egress.update_success`.
 
-`metricName` is required for a converter configuration. A converter will be
-disabled if `metricName` is not provided.
+`metricName` is required for a converter configuration. A converter is disabled if `metricName` is not provided.
 
 
 ## Configuration
