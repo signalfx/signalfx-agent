@@ -67,7 +67,7 @@ converters:
     metricName: "{traffic}.{action}"
 ```
 
-The metrics which match to the given pattern arereported to SignalFx as `{traffic}.{action}`.
+The metrics which match to the given pattern are reported to SignalFx as `{traffic}.{action}`.
 For instance, metric `cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success`
 is reported as `egress.update_success`.
 
@@ -108,5 +108,4 @@ The **nested** `converters` config object has the following fields:
 
 The agent does not do any built-in filtering of metrics coming out of this
 monitor.
-
 
