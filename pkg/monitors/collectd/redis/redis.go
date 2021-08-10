@@ -136,6 +136,7 @@ func (rm *Monitor) Configure(conf *Config) error {
 			"Redis_connected_slaves":               "gauge",
 			"Redis_repl_backlog_first_byte_offset": "gauge",
 			"Redis_master_repl_offset":             "gauge",
+			"Redis_slave_repl_offset":              "gauge",
 			"Redis_db0_avg_ttl":                    "gauge",
 			"Redis_db0_expires":                    "gauge",
 			"Redis_db0_keys":                       "gauge",
