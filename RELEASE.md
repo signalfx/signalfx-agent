@@ -9,11 +9,8 @@ point but for now the process is manual.
 
 # Setup
 
-1. Add a profile called `prod` to your AWS CLI tool config that contains your
-   IAM credentials to our production AWS account.  The default region does not
-   matter because we only deal with S3 and CloudFront, which are regionless.
-   This is genrally done by adding a section with the header `[prod]` in the
-   file `~/.aws/credentials`.
+1. Request prod access via slack and the `splunkcloud_account_power` role with
+   `okta-aws-setup us0`.
 
 1. Ensure you are authorized to push images to the Quay.io Docker repository
    `quay.io/signalfx/signalfx-agent`.
@@ -21,15 +18,6 @@ point but for now the process is manual.
 1. Ensure you are on the Splunk network and have access to the required
    credentials for artifactory and signing (check with an Integrations team
    member for details).
-
-1. Create a Github access token by going to [Personal Access tokens](
-   https://github.com/settings/tokens) on Github.  Create a new token that can
-   write to the SignalFx Agent repo.  Save the token somewhere where you can
-   access it later.
-
-   We need a Github token to create the Github release and upload the
-   standalone bundle to it as an asset.  The release script will do both of
-   those things automatically.
 
 1. Install Python tools to update the Python package in the `python/`
    directory if it has changed since the last release:
@@ -76,6 +64,20 @@ point but for now the process is manual.
    configuration, this is considered a breaking change since it would result
    in new MTSs in the backend.
 
+1. Update the deployment versions with the new version determined from the
+   previous step (without the `v`) and commit/push the changes:
+
+   ```sh
+   $ ./scripts/update-deployments-version <version>
+   ```
+
+1. If the Helm assets have changed bump the chart version number in
+   [Chart.yaml](deployments/k8s/helm/signalfx-agent/Chart.yaml) and commit/push
+   the changes.
+
+1. If there are relevant changes in the [python](./python) directory, bump the
+   version in [setup.py](./python/setup.py) and commit/push the changes.
+
 1. Once you know the next release version, create an annotation tag of the
    form `v<version>` where `<version>` is that version.  E.g. a release of
    2.5.2 would need a tag `v2.5.2`.  Annotated tags are created by passing the
@@ -107,15 +109,15 @@ point but for now the process is manual.
 1. Run the release script:
 
    ```sh
-   $ scripts/release --github-user <github username> --github-token <github token> --artifactory-token <splunk.jfrog.io token> --chaperone-token <chaperone token> --staging-token <repo.splunk.com token>
+   $ scripts/release --artifactory-token <splunk.jfrog.io token> --chaperone-token <chaperone token> --staging-token <repo.splunk.com token>
    ```
 
-   Using the service account tokens and your personal Github token created
-   earlier in the Setup section.
-
-   This will run for several minutes.  If there is an error, it will output on
-   the command line.  Otherwise, the output should say "Successfully released
-   <version>", at which point you are done.
+   This will run for several minutes and will build/sign/push the docker image,
+   deb, and rpm.  The linux bundle will be saved to
+   `./signalfx-agent-<version>.tar.gz` and will need to be manually uploaded to
+   the [Github Release](#github-release).  If there is an error, it will output
+   on the command line.  Otherwise, the output should say "Successfully released
+   <version>".
 
 1. Build and release the certified RedHat container by running:
 
@@ -125,8 +127,8 @@ point but for now the process is manual.
 
 1. Wait for the RedHat build to complete and then publish it.
 
-1. If the Helm assets have changed bump the chart version number in [Chart.yaml](deployments/k8s/helm/signalfx-agent/Chart.yaml)
-   then update the repo from `dtools/helm_repo` by running:
+1. If the Helm assets have changed then update the repo from `dtools/helm_repo`
+   by running (requires S3 access):
 
    ```sh
     AGENT_CHART_DIR=<agent dir>/deployments/k8s/helm/signalfx-agent ./update agent
@@ -153,10 +155,8 @@ point but for now the process is manual.
 1. You must be on the Splunk network and have access to the required credentials
    for signing (check with an Integrations team member for details).
 
-1. You must have a Github access token to publish the agent bundle to Github Releases.
-
-1. You must have your AWS CLI set up on your local workstation and have access to our
-   S3 bucket.
+1. Request prod access via slack and the `splunkcloud_account_power` role with
+   `okta-aws-setup us0`.
 
 1. You must have access to a Windows machine that is provisioned with the required
    build tools.  Alternatively, you can build, provision, and start the Windows
@@ -228,10 +228,10 @@ point but for now the process is manual.
    issue with chocolatey).
 
 1. Run the release script from your local workstation to push the msi and
-   bundle to github and S3:
+   bundle to S3:
 
    ```
-   $ scripts/release --stage <STAGE> --push --new-version <X.Y.Z> --component windows --github-username <username> --github-token <token>
+   $ scripts/release --stage <STAGE> --push --new-version <X.Y.Z> --component windows
    ```
 
    Where `<STAGE>` is `test`, `beta`, or `release`, and `<X.Y.Z>` is the same version from
@@ -243,3 +243,22 @@ point but for now the process is manual.
    ```
    PS> & {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"; stage = "STAGE"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
    ```
+
+## Github Release
+
+1. After completing the previous steps, create a [Github release](
+   https://github.com/signalfx/signalfx-agent/releases) for the tag.
+
+1. Get the `sha256` docker image digest by running:
+
+   ```sh
+   $ docker inspect --format='{{.RepoDigests}}' quay.io/signalfx/signalfx-agent:<version>
+   ```
+
+1. Add the release notes including the deprecation notice and the docker image
+   digest from the previous step (see previous releases for reference).
+
+1. Upload the `./signalfx-agent-<version>.tar.gz` bundle, and the
+   zip bundle and MSI from the `./build/signed` directory to the release.
+
+1. Publish the release.
