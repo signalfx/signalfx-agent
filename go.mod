@@ -90,7 +90,7 @@ require (
 	github.com/snowflakedb/gosnowflake v1.4.3
 	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect; required; first version with go modules
 	github.com/stretchr/testify v1.7.0
-	github.com/tidwall/gjson v1.6.5 // indirect
+	github.com/tidwall/gjson v1.6.6 // indirect
 	github.com/tinylib/msgp v1.1.5 // indirect
 	github.com/ulule/deepcopier v0.0.0-20171107155558-ca99b135e50f
 	github.com/vjeantet/grok v1.0.0 // indirect
