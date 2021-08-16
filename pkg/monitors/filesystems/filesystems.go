@@ -136,7 +136,7 @@ func (m *Monitor) emitDatapoints() {
 		all = true
 	}
 
-	partitions, err := gopsutil.Partitions(all)
+	partitions, err := m.getPartitions(all)
 	if err != nil && len(partitions) == 0 {
 		m.logger.WithError(err).Errorf("failed to collect any mountpoints")
 		return
