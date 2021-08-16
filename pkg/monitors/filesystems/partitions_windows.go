@@ -14,7 +14,7 @@ func (m *Monitor) getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
 		return drivePartitionStats, err
 	}
 
-	allMountPoints := getMountPoints()
+	allMountPoints := getAllMountPoints()
 	folderMountPoints := make([]string, 0)
 
 	found := false
@@ -32,7 +32,7 @@ func (m *Monitor) getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
 		folderMountPoints = append(folderMountPoints, mountPoint)
 	}
 
-	drivePartitionStats = append(drivePartitionStats, statsFromMountPoints(folderMountPoints)...)
+	drivePartitionStats = append(drivePartitionStats, newPartitionStats(folderMountPoints)...)
 
 	return drivePartitionStats, err
 
@@ -78,7 +78,7 @@ func (m *Monitor) getAllMountPoints() []string {
 	return mountPoints
 }
 
-func (m *Monitor) partitionStatsFromMountPoints(mountPoints []string) []gopsutil.PartitionStat {
+func (m *Monitor) newPartitionStats(mountPoints []string) []gopsutil.PartitionStat {
 	stats := make([]gopsutil.PartitionStat, 0)
 
 	for _, mountPoint := range mountPoints {
