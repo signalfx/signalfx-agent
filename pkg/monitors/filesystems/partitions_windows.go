@@ -17,19 +17,17 @@ func (m *Monitor) getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
 	allMountPoints := getAllMountPoints()
 	folderMountPoints := make([]string, 0)
 
-	found := false
 	for _, mountPoint := range allMountPoints {
+		found := false
 		for _, drivePartitionStat := range drivePartitionStats {
 			if mountPoint == drivePartitionStat.Mountpoint {
 				found = true
 				break
 			}
 		}
-		if found {
-			found = false
-			continue
+		if !found {
+			folderMountPoints = append(folderMountPoints, mountPoint)
 		}
-		folderMountPoints = append(folderMountPoints, mountPoint)
 	}
 
 	drivePartitionStats = append(drivePartitionStats, newPartitionStats(folderMountPoints)...)
