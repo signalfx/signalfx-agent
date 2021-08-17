@@ -89,7 +89,7 @@ func init() {
 // Configure is called by the plugin framework when configuration changes
 func (m *Monitor) Configure(config *Config) error {
 	var err error
-	m.logger = logrus.WithFields(logrus.Fields{"monitorType": meta.MonitorType})
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": meta.KubernetesClusterMonitorMetadata.MonitorType})
 
 	m.config = config
 

@@ -1,6 +1,6 @@
 module github.com/signalfx/signalfx-agent
 
-go 1.13
+go 1.14
 
 replace git.apache.org/thrift.git => github.com/apache/thrift v0.0.0-20180902110319-2566ecd5d999
 
