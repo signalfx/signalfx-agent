@@ -78,6 +78,9 @@ agent, including a Java JRE runtime and a Python runtime, so there are no
 additional dependencies required.  This means that the agent should work on any
 relatively modern Linux distribution (kernel version 2.6+).
 
+> **Note:** The agent is incompatible on Linux systems with SELinux enabled.
+> Check the documentation for your distribution to learn how to disable SELinux.
+
 The agent is also available on Windows in standalone form.  It
 contains its own Python runtime.  The agent supports Windows Server 2012 and above.
 
