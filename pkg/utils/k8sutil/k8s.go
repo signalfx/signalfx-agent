@@ -1,6 +1,7 @@
 package k8sutil
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 
@@ -42,7 +43,7 @@ func ContainerInPod(pod *v1.Pod, containerName string) *v1.Container {
 // FetchSecretValue fetches a specific secret value from the "data" object in a
 // secret and returns the decoded value.
 func FetchSecretValue(client *k8s.Clientset, secretName, dataKey, namespace string) (string, error) {
-	secret, err := client.CoreV1().Secrets(namespace).Get(secretName, metav1.GetOptions{})
+	secret, err := client.CoreV1().Secrets(namespace).Get(context.Background(), secretName, metav1.GetOptions{})
 	if err != nil {
 		return "", err
 	}
