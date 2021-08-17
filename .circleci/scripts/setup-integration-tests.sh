@@ -14,7 +14,7 @@ $BUNDLE_DIR/bin/patch-interpreter $BUNDLE_DIR
 docker rm -fv $cid
 [ -f "$AGENT_BIN" ] || (echo "$AGENT_BIN not found!" && exit 1)
 
-if [ "$CIRCLE_BRANCH" != "master" ] && ! scripts/changes-include-dir ${BASH_SOURCE[0]}; then
+if [ "$CIRCLE_BRANCH" != "main" ] && ! scripts/changes-include-dir ${BASH_SOURCE[0]}; then
     if ! scripts/changes-include-dir $(find . -iname "*devstack*" -o -iname "*openstack*" | sed 's|^\./||' | grep -v '^docs/'); then
         MARKERS="$MARKERS and not openstack"
     fi

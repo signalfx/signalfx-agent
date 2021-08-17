@@ -5,8 +5,8 @@ set -eo pipefail
 [ -n "$DEPLOYMENT_TYPE" ] || (echo "DEPLOYMENT_TYPE not defined!" && exit 1)
 
 mkdir -p ~/testresults
-if [ "$CIRCLE_BRANCH" != "master" ]; then
-    if ! scripts/changes-include-dir deployments/${DEPLOYMENT_TYPE} tests/deployments/${DEPLOYMENT_TYPE} ${BASH_SOURCE[0]}; then
+if [ "$CIRCLE_BRANCH" != "main" ]; then
+    if ! scripts/changes-include-dir deployments/${DEPLOYMENT_TYPE} tests/deployments/${DEPLOYMENT_TYPE} tests/packaging/common.py .circleci/scripts/run-pytest.sh ${BASH_SOURCE[0]}; then
         echo "${DEPLOYMENT_TYPE} code has not changed, skipping tests!"
         touch ~/.skip
         exit 0
@@ -71,7 +71,7 @@ ansible)
         -e '{"sfx_agent_config": {"signalFxAccessToken": "MyToken"}}' | tee ~/testresults/ansible.out
     docker run --rm \
         signalfx-agent-ansible-dev \
-        ansible-lint .
+        ansible-lint -x experimental roles/signalfx-agent
     if [ $CIRCLE_NODE_INDEX -eq 0 ]; then
         echo "export MARKERS='ansible and rpm'" >> $BASH_ENV
     else
