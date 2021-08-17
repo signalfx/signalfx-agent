@@ -132,7 +132,7 @@ RUN echo "$PYTHONHOME/lib" > /etc/ld.so.conf.d/python.conf && \
     ldconfig $PYTHONHOME/lib
 ENV PATH=$PYTHONHOME/bin:$PATH
 
-RUN wget -O /tmp/get-pip.py https://bootstrap.pypa.io/get-pip.py && \
+RUN wget -O /tmp/get-pip.py https://bootstrap.pypa.io/pip/2.7/get-pip.py && \
     python /tmp/get-pip.py 'pip==18.0'
 
 # Compile patchelf statically from source
