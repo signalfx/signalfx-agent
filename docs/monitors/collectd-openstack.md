@@ -78,6 +78,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | `password` | **yes** | `string` | Password to authenticate with keystone identity |
 | `projectName` | no | `string` | Specify the name of Project to be monitored (**default**:"demo") |
 | `projectDomainID` | no | `string` | The project domain (**default**:"default") |
+| `regionName` | no | `string` | The region name for URL discovery, defaults to the first region if multiple regions are available. |
 | `userDomainID` | no | `string` | The user domain id (**default**:"default") |
 | `skipVerify` | no | `bool` | Skip SSL certificate validation (**default:** `false`) |
 

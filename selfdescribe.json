@@ -17916,6 +17916,14 @@
             "elementKind": ""
           },
           {
+            "yamlName": "regionName",
+            "doc": "The region name for URL discovery, defaults to the first region if multiple regions are available.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
             "yamlName": "userDomainID",
             "doc": "The user domain id (**default**:\"default\")",
             "default": "",

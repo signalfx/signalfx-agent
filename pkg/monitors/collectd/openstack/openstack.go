@@ -34,6 +34,8 @@ type Config struct {
 	ProjectName string `yaml:"projectName"`
 	// The project domain (**default**:"default")
 	ProjectDomainID string `yaml:"projectDomainID"`
+	// The region name for URL discovery, defaults to the first region if multiple regions are available.
+	RegionName string `yaml:"regionName"`
 	// The user domain id (**default**:"default")
 	UserDomainID string `yaml:"userDomainID"`
 	// Skip SSL certificate validation
@@ -64,6 +66,7 @@ func (m *Monitor) Configure(conf *Config) error {
 			"Password":        conf.Password,
 			"ProjectName":     conf.ProjectName,
 			"ProjectDomainId": conf.ProjectDomainID,
+			"RegionName":      conf.RegionName,
 			"UserDomainId":    conf.UserDomainID,
 			"SSLVerify":       !conf.SkipVerify,
 		},
