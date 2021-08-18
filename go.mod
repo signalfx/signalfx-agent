@@ -57,7 +57,6 @@ require (
 	github.com/gocql/gocql v0.0.0-20190301043612-f6df8288f9b4 // indirect
 	github.com/gogo/protobuf v1.3.1
 	github.com/google/cadvisor v0.26.1
-	github.com/googleapis/gnostic v0.1.0 // indirect
 	github.com/gorhill/cronexpr v0.0.0-20180427100037-88b0669f7d75 // indirect
 	github.com/gorilla/mux v1.6.1
 	github.com/guregu/null v3.4.0+incompatible // indirect
@@ -114,10 +113,10 @@ require (
 	github.com/morikuni/aec v0.0.0-20170113033406-39771216ff4c // indirect
 	github.com/naoina/go-stringutil v0.1.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.1
-	github.com/onsi/ginkgo v1.10.1
+	github.com/onsi/ginkgo v1.11.0
 	github.com/onsi/gomega v1.7.0
 	github.com/openshift/api v3.9.0+incompatible
-	github.com/openshift/client-go v0.0.0-20191216194936-57f413491e9e
+	github.com/openshift/client-go v0.0.0-20200521150516-05eb9880269c
 	github.com/opentracing/opentracing-go v1.1.0
 	github.com/ory-am/common v0.4.0 // indirect
 	github.com/ory/dockertest v3.3.4+incompatible // indirect
@@ -150,8 +149,13 @@ require (
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.etcd.io/etcd v0.0.0-20190321122103-41f7142ff986
-	golang.org/x/sync v0.0.0-20190911185100-cd5d95a43a6e
+	golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9 // indirect
+	golang.org/x/mod v0.3.0 // indirect
+	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
 	golang.org/x/sys v0.0.0-20191105231009-c1f44814a5cd
+	golang.org/x/text v0.3.3 // indirect
+	golang.org/x/tools v0.0.0-20200619180055-7c47624df98f // indirect
+	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/grpc v1.20.1
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/fatih/set.v0 v0.1.0
@@ -161,10 +165,11 @@ require (
 	gopkg.in/ini.v1 v1.42.0 // indirect
 	gopkg.in/ory-am/dockertest.v2 v2.2.3 // indirect
 	gopkg.in/square/go-jose.v2 v2.3.0 // indirect
-	gopkg.in/yaml.v2 v2.2.5
-	k8s.io/api v0.17.0
-	k8s.io/apimachinery v0.17.0
-	k8s.io/client-go v0.17.0
+	gopkg.in/yaml.v2 v2.2.8
+	k8s.io/api v0.18.18-rc.0
+	k8s.io/apimachinery v0.18.18-rc.0
+	k8s.io/client-go v0.18.18-rc.0
 	k8s.io/kubernetes v1.12.0
 	layeh.com/radius v0.0.0-20190118135028-0f678f039617 // indirect
+	sigs.k8s.io/structured-merge-diff/v3 v3.0.1 // indirect
 )
