@@ -10,6 +10,9 @@ import (
 	"golang.org/x/sys/windows"
 )
 
+// getPartitions returns partition stats of drive and folder mounted volumes by
+// adding partition stats of folder mounted volumes to partition stats of drive
+// mounted volumes returned by github.com/shirou/gopsutil/disk.Partitions(true).
 func (m *Monitor) getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
 	drivePartitionStats, err := gopsutil.Partitions(all)
 	if err != nil {
@@ -39,6 +42,7 @@ func (m *Monitor) getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
 }
 
 // getAllMountPoints gets mount points for all volumes (letter drive (C: etc.) and folder mounted volumes).
+// Similar to https://github.com/shirou/gopsutil/blob/7e4dab436b94d671021647dc5dc12c94f490e46e/disk/disk_windows.go#L71
 func (m *Monitor) getAllMountPoints() []string {
 	mountPoints := make([]string, 0)
 	bufLen := uint32(syscall.MAX_PATH + 1)
@@ -72,12 +76,16 @@ func (m *Monitor) getAllMountPoints() []string {
 		mountPoints = append(mountPoints, volPaths...)
 	}
 
+	_ = windows.FindVolumeClose(handle)
+
 	for i := range mountPoints {
 		mountPoints[i] = strings.TrimRight(mountPoints[i], "\\")
 	}
 	return mountPoints
 }
 
+// newPartitionStats returns partition stats for the given mount points.
+// Similar to https://github.com/shirou/gopsutil/blob/master/disk/disk_windows.go#L72
 func (m *Monitor) newPartitionStats(mountPoints []string) []gopsutil.PartitionStat {
 	stats := make([]gopsutil.PartitionStat, 0)
 
