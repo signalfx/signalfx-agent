@@ -44,7 +44,7 @@ RUN apt update &&\
     apt install -y wget maven
 
 ARG TARGET_ARCH
-ARG JDK_VERSION=11.0.11_9
+ARG JDK_VERSION=11.0.12_7
 
 ENV OPENJDK_BASE_URL="https://github.com/AdoptOpenJDK/openjdk11-upstream-binaries/releases/download"
 
