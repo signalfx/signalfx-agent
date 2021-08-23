@@ -1,4 +1,4 @@
-ARG GO_VERSION=1.14.2
+ARG GO_VERSION=1.17
 ARG PIP_VERSION=21.0.1
 
 ###### Agent Build Image ########
