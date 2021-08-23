@@ -1,3 +1,4 @@
+//go:build linux
 // +build linux
 
 // Package netinterface wraps the "interface" collectd plugin for gather
