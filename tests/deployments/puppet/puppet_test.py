@@ -97,7 +97,7 @@ def get_config(version, stage, user="signalfx-agent", config_path="/etc/signalfx
 
 
 def get_hiera(path, backend, monitors):
-    with open(path, "r") as fd:
+    with open(path, "r", encoding="utf-8") as fd:
         hiera_yaml = yaml.safe_load(fd.read())
         hiera_yaml["signalfx_agent::config"]["signalFxAccessToken"] = "testing123"
         hiera_yaml["signalfx_agent::config"]["ingestUrl"] = backend.ingest_url
@@ -201,7 +201,7 @@ def test_puppet(base_image, init_system, puppet_release):
 def run_win_puppet_agent(
     backend, monitors, agent_version, stage, config_path=WIN_CONFIG_PATH, install_dir=WIN_INSTALL_DIR
 ):
-    with open(WIN_HIERA_DEST_PATH, "w+") as fd:
+    with open(WIN_HIERA_DEST_PATH, "w+", encoding="utf-8") as fd:
         hiera_yaml = get_hiera(WIN_HIERA_SRC_PATH, backend, monitors)
         print(hiera_yaml)
         fd.write(hiera_yaml)
@@ -209,7 +209,7 @@ def run_win_puppet_agent(
         manifest_path = os.path.join(tmpdir, "agent.pp")
         config = get_config(agent_version, stage, config_path=config_path, install_dir=install_dir)
         print(config)
-        with open(manifest_path, "w+") as fd:
+        with open(manifest_path, "w+", encoding="utf-8") as fd:
             fd.write(config)
         cmd = f"puppet apply {manifest_path}"
         run_win_command(cmd, returncodes=[0, 2])

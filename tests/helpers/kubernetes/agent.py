@@ -24,7 +24,7 @@ AGENT_STATUS_COMMAND = ["/bin/sh", "-c", "agent-status all"]
 
 
 def load_resource_yaml(path):
-    with open(path, "r") as fd:
+    with open(path, "r", encoding="utf-8") as fd:
         return yaml.safe_load(fd.read())
 
 

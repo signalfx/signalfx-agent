@@ -191,7 +191,7 @@ def run_win_chef_client(backend, agent_version, stage, chef_version, monitors):
         attributes["signalfx_agent"]["group"] = os.environ.get("USERNAME")
     print(attributes)
     attributes_path = r"C:\chef\cookbooks\attributes.json"
-    with open(attributes_path, "w+") as fd:
+    with open(attributes_path, "w+", encoding="utf-8") as fd:
         fd.write(json.dumps(attributes))
         fd.flush()
         if chef_version == "latest" or int(chef_version.split(".")[0]) >= 15:
