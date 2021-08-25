@@ -73,7 +73,7 @@ func (m *Monitor) getAllMounts() []string {
 		volNameBuf = make([]uint16, bufLen)
 		err = windows.FindNextVolume(handle, &volNameBuf[0], bufLen)
 		if err != nil {
-			if err.(syscall.Errno) == syscall.EALREADY.ERROR_NO_MORE_FILES {
+			if err.(syscall.Errno) == syscall.ERROR_NO_MORE_FILES {
 				break
 			}
 			m.logger.WithError(err).Errorf("failed to find mount points for volume %s", windows.UTF16ToString(volNameBuf))
