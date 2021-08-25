@@ -155,7 +155,7 @@ def get_chart_name_version():
     chart_path = os.path.join(LOCAL_CHART_DIR, "Chart.yaml")
     chart_name = None
     chart_version = None
-    with open(chart_path) as fd:
+    with open(chart_path, encoding="utf-8") as fd:
         chart_yaml = yaml.safe_load(fd.read())
         chart_name = chart_yaml.get("name")
         chart_version = chart_yaml.get("version")

@@ -71,7 +71,7 @@ def test_python_monitor_restarts_when_killed():
 
 def test_python_monitor_respects_python_path():
     with tempfile.TemporaryDirectory() as tmpdir:
-        with open(os.path.join(tmpdir, "randommodule.py"), "w") as fd:
+        with open(os.path.join(tmpdir, "randommodule.py"), "w", encoding="utf-8") as fd:
             fd.write("print('hello')")
 
         config = dedent(
