@@ -50988,6 +50988,7 @@
             "procstat.memory_rss",
             "procstat.memory_stack",
             "procstat.memory_swap",
+            "procstat.memory_usage",
             "procstat.memory_vms",
             "procstat.nice_priority",
             "procstat.num_fds",
@@ -51033,7 +51034,7 @@
         },
         "procstat.cpu_usage": {
           "type": "gauge",
-          "description": "CPU used by the process.",
+          "description": "CPU percentage used by the process.",
           "group": null,
           "default": false
         },
@@ -51070,6 +51071,12 @@
         "procstat.memory_swap": {
           "type": "gauge",
           "description": "VMSwap memory used by the process.",
+          "group": null,
+          "default": false
+        },
+        "procstat.memory_usage": {
+          "type": "gauge",
+          "description": "Memory percentage used by the process.",
           "group": null,
           "default": false
         },

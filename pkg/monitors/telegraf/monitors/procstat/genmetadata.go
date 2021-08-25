@@ -20,6 +20,7 @@ const (
 	procstatMemoryRss                  = "procstat.memory_rss"
 	procstatMemoryStack                = "procstat.memory_stack"
 	procstatMemorySwap                 = "procstat.memory_swap"
+	procstatMemoryUsage                = "procstat.memory_usage"
 	procstatMemoryVms                  = "procstat.memory_vms"
 	procstatNicePriority               = "procstat.nice_priority"
 	procstatNumFds                     = "procstat.num_fds"
@@ -64,6 +65,7 @@ var metricSet = map[string]monitors.MetricInfo{
 	procstatMemoryRss:                  {Type: datapoint.Gauge},
 	procstatMemoryStack:                {Type: datapoint.Gauge},
 	procstatMemorySwap:                 {Type: datapoint.Gauge},
+	procstatMemoryUsage:                {Type: datapoint.Gauge},
 	procstatMemoryVms:                  {Type: datapoint.Gauge},
 	procstatNicePriority:               {Type: datapoint.Gauge},
 	procstatNumFds:                     {Type: datapoint.Gauge},

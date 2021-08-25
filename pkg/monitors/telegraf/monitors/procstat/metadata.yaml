@@ -27,7 +27,7 @@ monitors:
       default: false
       type: gauge
     procstat.cpu_usage:
-      description: CPU used by the process.
+      description: CPU percentage used by the process.
       default: false
       type: gauge
     procstat.involuntary_context_switches:
@@ -52,6 +52,10 @@ monitors:
       type: gauge
     procstat.memory_swap:
       description: VMSwap memory used by the process.
+      default: false
+      type: gauge
+    procstat.memory_usage:
+      description: Memory percentage used by the process.
       default: false
       type: gauge
     procstat.memory_vms:
