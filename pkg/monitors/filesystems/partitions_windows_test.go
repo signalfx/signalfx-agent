@@ -11,7 +11,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetAllMountsIncludesGoPsUtilMounts(t *testing.T)  {
+func TestGetAllMountsIncludesGoPsUtilMounts(t *testing.T) {
 	logger := logrus.WithFields(logrus.Fields{"monitorType": monitorType})
 
 	// Drive and folder mounts.
@@ -27,7 +27,7 @@ func TestGetAllMountsIncludesGoPsUtilMounts(t *testing.T)  {
 	assert.Subset(t, allMounts, goPsUtilMounts)
 }
 
-func TestNewPartitionStatsSameAsGoPsUtil(t *testing.T)  {
+func TestNewPartitionStatsSameAsGoPsUtil(t *testing.T) {
 	// Partition stats from gopsutil are for drive mounts only.
 	goPsUtilStatsSlice, err := gopsutil.Partitions(true)
 	require.NoError(t, err)
@@ -51,7 +51,7 @@ func TestNewPartitionStatsSameAsGoPsUtil(t *testing.T)  {
 	}
 }
 
-func TestGetPartitionsIncludesGoPsUtilPartitionStats(t *testing.T)  {
+func TestGetPartitionsIncludesGoPsUtilPartitionStats(t *testing.T) {
 	// Partition stats from gopsutil are for drive mounts only.
 	goPsUtilStats, err := gopsutil.Partitions(true)
 	require.NoError(t, err)
