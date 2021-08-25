@@ -37,7 +37,7 @@ func (m *Monitor) getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
 	for _, mnt := range folderMounts {
 		stats, err = newPartitionStats(mnt)
 		if err != nil {
-			m.logger.WithError(err).Errorf("failed to find volume information for mountpoint `%s`", mnt)
+			m.logger.WithError(err).Errorf("failed to find partition stats for mount %s", mnt)
 			continue
 		}
 		// Adding partition stats of folder mounts.
@@ -45,7 +45,6 @@ func (m *Monitor) getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
 	}
 
 	return partStats, err
-
 }
 
 // getAllMounts gets the mount points for drive (C: etc.) and folder mounts.
@@ -58,13 +57,13 @@ func (m *Monitor) getAllMounts() []string {
 
 	handle, err := windows.FindFirstVolume(&volNameBuf[0], bufLen)
 	if err != nil {
-		m.logger.WithError(err).Errorf("failed to find mount points")
+		m.logger.WithError(err).Errorf("failed to find first volume")
 		return mounts
 	}
 
 	var volMounts []string
 	if volMounts, err = volumeMounts(volNameBuf, bufLen); err != nil {
-		m.logger.WithError(err).Errorf("failed to find mount points for volume %s", windows.UTF16ToString(volNameBuf))
+		m.logger.WithError(err).Errorf("failed to find mounts for first volume %s", windows.UTF16ToString(volNameBuf))
 		return mounts
 	}
 	mounts = append(mounts, volMounts...)
@@ -76,12 +75,12 @@ func (m *Monitor) getAllMounts() []string {
 			if err.(syscall.Errno) == syscall.ERROR_NO_MORE_FILES {
 				break
 			}
-			m.logger.WithError(err).Errorf("failed to find mount points for volume %s", windows.UTF16ToString(volNameBuf))
+			m.logger.WithError(err).Error("failed to find next volume")
 			continue
 		}
 
 		if volMounts, err = volumeMounts(volNameBuf, bufLen); err != nil {
-			m.logger.WithError(err).Errorf("failed to find mount points for volume %s", windows.UTF16ToString(volNameBuf))
+			m.logger.WithError(err).Errorf("failed to find mounts for volume %s", windows.UTF16ToString(volNameBuf))
 			continue
 		}
 
@@ -93,6 +92,7 @@ func (m *Monitor) getAllMounts() []string {
 	for i := range mounts {
 		mounts[i] = strings.TrimRight(mounts[i], "\\")
 	}
+
 	return mounts
 }
 
@@ -102,6 +102,7 @@ func volumeMounts(volNameBuf []uint16, bufLen uint32) ([]string, error) {
 	if err := windows.GetVolumePathNamesForVolumeName(&volNameBuf[0], &volPathsBuf[0], bufLen, &returnLen); err != nil {
 		return nil, err
 	}
+
 	return strings.Split(strings.TrimRight(windows.UTF16ToString(volPathsBuf), "\x00"), "\x00"), nil
 }
 
