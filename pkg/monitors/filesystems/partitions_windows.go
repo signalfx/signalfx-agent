@@ -16,7 +16,7 @@ func (m *Monitor) getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
 	// These partition stats from gopsutil are for drive mounts only.
 	partStats, err := gopsutil.Partitions(all)
 	if err != nil {
-		return partStats, err
+		return nil, err
 	}
 
 	allMounts, folderMounts := m.getAllMounts(), make([]string, 0)
@@ -44,7 +44,7 @@ func (m *Monitor) getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
 		partStats = append(partStats, stats)
 	}
 
-	return partStats, err
+	return partStats, nil
 }
 
 // getAllMounts gets the mount points for drive (C: etc.) and folder mounts.
