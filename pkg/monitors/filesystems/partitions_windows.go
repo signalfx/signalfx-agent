@@ -60,6 +60,7 @@ func (m *Monitor) getAllMounts() []string {
 		m.logger.WithError(err).Errorf("failed to find first volume")
 		return mounts
 	}
+	defer windows.FindVolumeClose(handle)
 
 	var volMounts []string
 	if volMounts, err = volumeMounts(volNameBuf, bufLen); err != nil {
@@ -86,8 +87,6 @@ func (m *Monitor) getAllMounts() []string {
 
 		mounts = append(mounts, volMounts...)
 	}
-
-	_ = windows.FindVolumeClose(handle)
 
 	for i := range mounts {
 		mounts[i] = strings.TrimRight(mounts[i], "\\")
