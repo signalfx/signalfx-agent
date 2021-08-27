@@ -3,6 +3,7 @@
 package filesystems
 
 import (
+	"fmt"
 	"strings"
 	"syscall"
 
@@ -10,69 +11,61 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-// getPartitions returns partition stats of drive and folder mounts by adding the partition stats
-// of folder mounts to partition stats of drive mounts returned gopsutil's Partitions(true).
-func (m *Monitor) getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
-	// These partition stats from gopsutil are for drive mounts only.
-	partStats, err := gopsutil.Partitions(all)
-	if err != nil {
-		return nil, err
-	}
+var _ winPartitions = &Monitor{}
 
-	allMounts, folderMounts := m.getAllMounts(), make([]string, 0)
-	for _, mnt := range allMounts {
-		found := false
-		for _, stats := range partStats {
-			if mnt == stats.Mountpoint {
-				found = true
-				break
-			}
-		}
-		if !found {
-			folderMounts = append(folderMounts, mnt)
-		}
-	}
-
-	var stats gopsutil.PartitionStat
-	for _, mnt := range folderMounts {
-		stats, err = newPartitionStats(mnt)
-		if err != nil {
-			m.logger.WithError(err).Errorf("failed to find partition stats for mount %s", mnt)
-			continue
-		}
-		// Adding partition stats of folder mounts.
-		partStats = append(partStats, stats)
-	}
-
-	return partStats, nil
+type winPartitions interface {
+	partitionsWrapper
+	getStatsDrive(all bool) ([]gopsutil.PartitionStat, error)
+	getStatsFolder() ([]gopsutil.PartitionStat, error)
+	findFirstVolume(volumeName *uint16, bufferLength uint32) (handle  windows.Handle, err error)
+	findNextVolume(findVolume  windows.Handle, volumeName *uint16, bufferLength uint32) (err error)
+	findVolumeClose(findVolume  windows.Handle) (err error)
+	getVolumePathNamesForVolumeName(volumeName *uint16, volumePathNames *uint16, bufferLength uint32, returnLength *uint32) (err error)
+	getVolumeInformation(rootPathName *uint16, volumeNameBuffer *uint16, volumeNameSize uint32, volumeNameSerialNumber *uint32, maximumComponentLength *uint32, fileSystemFlags *uint32, fileSystemNameBuffer *uint16, fileSystemNameSize uint32) (err error)
 }
 
-// getAllMounts gets the mount points for drive (C: etc.) and folder mounts.
+// partitions returns partition stats of drive and folder mounts.
+func (m *Monitor) getStats(all bool) (stats []gopsutil.PartitionStat, err error) {
+	if stats, err = m.getStatsDrive(all); err != nil {
+		return stats, err
+	}
+	var statsFolder []gopsutil.PartitionStat
+	statsFolder, err = m.getStatsFolder()
+	return append(stats, statsFolder...), err
+}
+
+func (m *Monitor) getStatsDrive(all bool) ([]gopsutil.PartitionStat, error) {
+	return gopsutil.Partitions(all)
+}
+
+// getStatsFolder returns partition stats of folder mounts.
 // Similar to https://github.com/shirou/gopsutil/blob/7e4dab436b94d671021647dc5dc12c94f490e46e/disk/disk_windows.go#L71
-func (m *Monitor) getAllMounts() []string {
-	mounts := make([]string, 0)
+func (m *Monitor) getStatsFolder() ([]gopsutil.PartitionStat, error) {
+	statsFolders := make([]gopsutil.PartitionStat, 0)
 	bufLen := uint32(syscall.MAX_PATH + 1)
-	// Volume name buffer
 	volNameBuf := make([]uint16, bufLen)
 
 	handle, err := windows.FindFirstVolume(&volNameBuf[0], bufLen)
 	if err != nil {
-		m.logger.WithError(err).Errorf("failed to find first volume")
-		return mounts
+		return statsFolders, fmt.Errorf("failed to find first volume: %v", err)
 	}
 	defer windows.FindVolumeClose(handle)
 
-	var volMounts []string
-	if volMounts, err = volumeMounts(volNameBuf, bufLen); err != nil {
-		m.logger.WithError(err).Errorf("failed to find mounts for first volume %s", windows.UTF16ToString(volNameBuf))
-		return mounts
+	var volPathNames []uint16
+	if volPathNames, err = volumePathNames(volNameBuf, bufLen); err != nil {
+		return statsFolders, fmt.Errorf("failed to find paths for first volume %s: %v", windows.UTF16ToString(volNameBuf), err)
 	}
-	mounts = append(mounts, volMounts...)
+
+	var statsFolder []gopsutil.PartitionStat
+	statsFolder, err = newStats(volPathNames)
+	if err != nil {
+		return statsFolders, fmt.Errorf("failed to find partition stats for first volume %s: %v", windows.UTF16ToString(volNameBuf), err)
+	}
+	statsFolders = append(statsFolders, statsFolder...)
 
 	for {
 		volNameBuf = make([]uint16, bufLen)
-		err = windows.FindNextVolume(handle, &volNameBuf[0], bufLen)
-		if err != nil {
+		if err = windows.FindNextVolume(handle, &volNameBuf[0], bufLen); err != nil {
 			if err.(syscall.Errno) == syscall.ERROR_NO_MORE_FILES {
 				break
 			}
@@ -80,66 +73,99 @@ func (m *Monitor) getAllMounts() []string {
 			continue
 		}
 
-		if volMounts, err = volumeMounts(volNameBuf, bufLen); err != nil {
-			m.logger.WithError(err).Errorf("failed to find mounts for volume %s", windows.UTF16ToString(volNameBuf))
+		driveType := windows.GetDriveType(&volNameBuf[0])
+		if driveType != windows.DRIVE_NO_ROOT_DIR {
 			continue
 		}
 
-		mounts = append(mounts, volMounts...)
+		volPathNames, err = volumePathNames(volNameBuf, bufLen)
+		if err != nil {
+			m.logger.WithError(err).Errorf("failed to find paths for volume %s", windows.UTF16ToString(volNameBuf))
+			continue
+		}
+
+		statsFolder, err = newStats(volPathNames)
+		if err != nil {
+			m.logger.WithError(err).Errorf("failed to find partition stats for volume %s", windows.UTF16ToString(volNameBuf))
+			continue
+		}
+		statsFolders = append(statsFolders, statsFolder...)
 	}
 
-	for i := range mounts {
-		mounts[i] = strings.TrimRight(mounts[i], "\\")
-	}
-
-	return mounts
+	return statsFolders, nil
 }
 
-// volumeMounts returns the mount points for the given volume.
-func volumeMounts(volNameBuf []uint16, bufLen uint32) ([]string, error) {
+func (m *Monitor) findFirstVolume(volumeName *uint16, bufferLength uint32) (handle windows.Handle, err error) {
+	return windows.FindFirstVolume(volumeName, bufferLength)
+}
+
+func (m *Monitor) findNextVolume(findVolume windows.Handle, volumeName *uint16, bufferLength uint32) (err error) {
+	return windows.FindNextVolume(findVolume, volumeName, bufferLength)
+}
+
+func (m *Monitor) findVolumeClose(findVolume windows.Handle) (err error) {
+	return windows.FindVolumeClose(findVolume)
+}
+
+func (m *Monitor) getVolumePathNamesForVolumeName(volumeName *uint16, volumePathNames *uint16, bufferLength uint32, returnLength *uint32) (err error) {
+	return windows.GetVolumePathNamesForVolumeName(volumeName, volumePathNames, bufferLength, returnLength)
+}
+
+func (m *Monitor) getVolumeInformation(rootPathName *uint16, volumeNameBuffer *uint16, volumeNameSize uint32, volumeNameSerialNumber *uint32, maximumComponentLength *uint32, fileSystemFlags *uint32, fileSystemNameBuffer *uint16, fileSystemNameSize uint32) (err error) {
+	return windows.GetVolumeInformation(rootPathName, volumeNameBuffer, volumeNameSize, volumeNameSerialNumber, maximumComponentLength, fileSystemFlags, fileSystemNameBuffer, fileSystemNameSize)
+}
+
+// volumePaths returns the path for the given volume.
+func volumePathNames(volNameBuf []uint16, bufLen uint32) ([]uint16, error) {
 	volPathsBuf, returnLen := make([]uint16, bufLen), uint32(0)
 	if err := windows.GetVolumePathNamesForVolumeName(&volNameBuf[0], &volPathsBuf[0], bufLen, &returnLen); err != nil {
 		return nil, err
 	}
-
-	return strings.Split(strings.TrimRight(windows.UTF16ToString(volPathsBuf), "\x00"), "\x00"), nil
+	return volPathsBuf, nil
 }
 
-// newPartitionStats returns partition stats for the given mount.
+// newStats returns partition stats for the given volume path names (e.g. C:).
 // Similar to https://github.com/shirou/gopsutil/blob/master/disk/disk_windows.go#L72
-func newPartitionStats(mount string) (gopsutil.PartitionStat, error) {
-	lpVolumeNameBuffer := make([]uint16, 256)
-	lpVolumeSerialNumber := uint32(0)
-	lpMaximumComponentLength := uint32(0)
-	lpFileSystemFlags := uint32(0)
-	lpFileSystemNameBuffer := make([]uint16, 256)
-	volPath, _ := windows.UTF16PtrFromString(mount + "\\")
+func newStats(volPathNames []uint16) ([]gopsutil.PartitionStat, error) {
+	stats := make([]gopsutil.PartitionStat, 0)
+	pathNames := strings.Split(strings.TrimRight(windows.UTF16ToString(volPathNames), "\x00"), "\x00")
 
-	if err := windows.GetVolumeInformation(
-		volPath,
-		&lpVolumeNameBuffer[0],
-		uint32(len(lpVolumeNameBuffer)),
-		&lpVolumeSerialNumber,
-		&lpMaximumComponentLength,
-		&lpFileSystemFlags,
-		&lpFileSystemNameBuffer[0],
-		uint32(len(lpFileSystemNameBuffer)),
-	); err != nil {
-		return gopsutil.PartitionStat{}, err
+	for _, pathName := range pathNames {
+		lpVolumeNameBuffer := make([]uint16, 256)
+		lpVolumeSerialNumber := uint32(0)
+		lpMaximumComponentLength := uint32(0)
+		lpFileSystemFlags := uint32(0)
+		lpFileSystemNameBuffer := make([]uint16, 256)
+		path, _ := windows.UTF16PtrFromString(pathName + "\\")
+
+		if err := windows.GetVolumeInformation(
+			path,
+			&lpVolumeNameBuffer[0],
+			uint32(len(lpVolumeNameBuffer)),
+			&lpVolumeSerialNumber,
+			&lpMaximumComponentLength,
+			&lpFileSystemFlags,
+			&lpFileSystemNameBuffer[0],
+			uint32(len(lpFileSystemNameBuffer)),
+		); err != nil {
+			return stats, err
+		}
+
+		opts := "rw"
+		if int64(lpFileSystemFlags)&gopsutil.FileReadOnlyVolume != 0 {
+			opts = "ro"
+		}
+		if int64(lpFileSystemFlags)&gopsutil.FileFileCompression != 0 {
+			opts += ".compress"
+		}
+
+		stats = append(stats, gopsutil.PartitionStat{
+			Device:     pathName,
+			Mountpoint: pathName,
+			Fstype:     windows.UTF16PtrToString(&lpFileSystemNameBuffer[0]),
+			Opts:       opts,
+		})
 	}
 
-	opts := "rw"
-	if int64(lpFileSystemFlags)&gopsutil.FileReadOnlyVolume != 0 {
-		opts = "ro"
-	}
-	if int64(lpFileSystemFlags)&gopsutil.FileFileCompression != 0 {
-		opts += ".compress"
-	}
-
-	return gopsutil.PartitionStat{
-		Device:     mount,
-		Mountpoint: mount,
-		Fstype:     windows.UTF16PtrToString(&lpFileSystemNameBuffer[0]),
-		Opts:       opts,
-	}, nil
+	return stats, nil
 }

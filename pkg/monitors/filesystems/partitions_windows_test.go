@@ -11,24 +11,24 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetAllMounts_ShouldInclude_gopsutil_Mounts(t *testing.T) {
-	logger := logrus.WithFields(logrus.Fields{"monitorType": monitorType})
+//func TestGetAllMounts_ShouldInclude_gopsutil_Mounts(t *testing.T) {
+//	logger := logrus.WithFields(logrus.Fields{"monitorType": monitorType})
+//
+//	// Drive and folder mounts.
+//	got := (&Monitor{logger: logger}).getAllMounts()
+//	require.NotEmpty(t, got, "failed to find any mount points")
+//
+//	// Mounts from gopsutil are for drives only.
+//	want, err := getGopsutilMounts()
+//	require.NoError(t, err)
+//
+//	require.NotEmpty(t, want, "failed to find any mount points using gopsutil")
+//
+//	// Asserting `got` getAllMounts() mounts superset of `want` gopsutil mounts.
+//	assert.Subset(t, got, want)
+//}
 
-	// Drive and folder mounts.
-	got := (&Monitor{logger: logger}).getAllMounts()
-	require.NotEmpty(t, got, "failed to find any mount points")
-
-	// Mounts from gopsutil are for drives only.
-	want, err := getGopsutilMounts()
-	require.NoError(t, err)
-
-	require.NotEmpty(t, want, "failed to find any mount points using gopsutil")
-
-	// Asserting `got` getAllMounts() mounts superset of `want` gopsutil mounts.
-	assert.Subset(t, got, want)
-}
-
-func TestNewPartitionStats_SameAs_gopsutil_PartitionStats(t *testing.T) {
+func TestNewStats_SameAs_gopsutil_PartitionStats(t *testing.T) {
 	// Partition stats from gopsutil are for drive mounts only.
 	gopsutilStats, err := gopsutil.Partitions(true)
 	require.NoError(t, err)
@@ -38,17 +38,13 @@ func TestNewPartitionStats_SameAs_gopsutil_PartitionStats(t *testing.T) {
 	logger := logrus.WithFields(logrus.Fields{"monitorType": monitorType})
 	monitor := Monitor{logger: logger}
 
-	// All drive and folder mounts.
-	allMounts := monitor.getAllMounts()
-
-	require.NotEmpty(t, allMounts, "failed to find any mount points")
-
 	var got gopsutil.PartitionStat
 	for _, want := range gopsutilStats {
-		got, err = newPartitionStats(want.Mountpoint)
+		volPathName, _ := windows.UTF16FromString(want.Mountpoint)
+		got, err = monitor.newStats(volPathName)
 		require.NoError(t, err)
 
-		// Asserting `got` newPartitionStats() stats equal `want` gopsutil stats.
+		// Asserting `got` newStats() stats equal `want` gopsutil stats.
 		assert.Equal(t, got, want)
 	}
 }
@@ -65,7 +61,7 @@ func TestGetPartitions_ShouldInclude_gopsutil_PartitionStats(t *testing.T) {
 
 	var got []gopsutil.PartitionStat
 	// Partition stats for drive and folder mounts.
-	got, err = monitor.getPartitions(true)
+	got, err = monitor.getStats(true)
 	require.NoError(t, err)
 
 	require.NotEmpty(t, got, "failed to find any partition stats")
@@ -74,16 +70,16 @@ func TestGetPartitions_ShouldInclude_gopsutil_PartitionStats(t *testing.T) {
 	assert.Subset(t, got, want)
 }
 
-func getGopsutilMounts() ([]string, error) {
-	partitionsStats, err := gopsutil.Partitions(true)
-	if err != nil {
-		return nil, err
-	}
-
-	mounts := make([]string, 0)
-	for _, stats := range partitionsStats {
-		mounts = append(mounts, stats.Mountpoint)
-	}
-
-	return mounts, nil
-}
+//func getGopsutilMounts() ([]string, error) {
+//	partitionsStats, err := gopsutil.Partitions(true)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	mounts := make([]string, 0)
+//	for _, stats := range partitionsStats {
+//		mounts = append(mounts, stats.Mountpoint)
+//	}
+//
+//	return mounts, nil
+//}
