@@ -42,7 +42,7 @@ func TestNewStats_SameAs_gopsutil_PartitionStats(t *testing.T) {
 	var got []gopsutil.PartitionStat
 	for _, want := range gopsutilStats {
 		volPathName, _ := windows.UTF16FromString(want.Mountpoint)
-		got, err = newStats(volPathName)
+		got, err = monitor.newStats(volPathName)
 		require.NoError(t, err)
 
 		// Asserting `got` newStats() stats equal `want` gopsutil stats.
