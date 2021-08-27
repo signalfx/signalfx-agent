@@ -39,14 +39,14 @@ func TestNewStats_SameAs_gopsutil_PartitionStats(t *testing.T) {
 	logger := logrus.WithFields(logrus.Fields{"monitorType": monitorType})
 	monitor := Monitor{logger: logger}
 
-	var got gopsutil.PartitionStat
+	var got []gopsutil.PartitionStat
 	for _, want := range gopsutilStats {
 		volPathName, _ := windows.UTF16FromString(want.Mountpoint)
 		got, err = newStats(volPathName)
 		require.NoError(t, err)
 
 		// Asserting `got` newStats() stats equal `want` gopsutil stats.
-		assert.Equal(t, got, want)
+		assert.Equal(t, got[0], want)
 	}
 }
 
