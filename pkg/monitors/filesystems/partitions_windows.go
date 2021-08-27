@@ -75,6 +75,7 @@ func (m *Monitor) getStatsFolder() ([]gopsutil.PartitionStat, error) {
 		}
 
 		driveType := m.getDriveType(&volNameBuf[0])
+		fmt.Printf("VOLUME: %s, DRIVE_TYPE: %d\n", windows.UTF16ToString(volNameBuf), driveType)
 		if driveType != windows.DRIVE_NO_ROOT_DIR {
 			continue
 		}
@@ -136,6 +137,7 @@ func (m *Monitor) newStats(volPathNames []uint16) ([]gopsutil.PartitionStat, err
 	pathNames := strings.Split(strings.TrimRight(windows.UTF16ToString(volPathNames), "\x00"), "\x00")
 
 	for _, pathName := range pathNames {
+		fmt.Printf("PathName: %s\n", pathName)
 		lpVolumeNameBuffer := make([]uint16, 256)
 		lpVolumeSerialNumber := uint32(0)
 		lpMaximumComponentLength := uint32(0)
