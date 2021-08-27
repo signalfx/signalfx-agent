@@ -9,6 +9,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"golang.org/x/sys/windows"
 )
 
 //func TestGetAllMounts_ShouldInclude_gopsutil_Mounts(t *testing.T) {
@@ -41,7 +42,7 @@ func TestNewStats_SameAs_gopsutil_PartitionStats(t *testing.T) {
 	var got gopsutil.PartitionStat
 	for _, want := range gopsutilStats {
 		volPathName, _ := windows.UTF16FromString(want.Mountpoint)
-		got, err = monitor.newStats(volPathName)
+		got, err = newStats(volPathName)
 		require.NoError(t, err)
 
 		// Asserting `got` newStats() stats equal `want` gopsutil stats.
