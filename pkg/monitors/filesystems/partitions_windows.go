@@ -30,8 +30,10 @@ func (m *Monitor) getStats(all bool) (stats []gopsutil.PartitionStat, err error)
 	if stats, err = m.getStatsDrive(all); err != nil {
 		return stats, err
 	}
+	fmt.Printf("STATS_DRIVE: %v\n", stats)
 	var statsFolder []gopsutil.PartitionStat
 	statsFolder, err = m.getStatsFolder()
+	fmt.Printf("STATS_FOLDER: %v\n", statsFolder)
 	return append(stats, statsFolder...), err
 }
 
