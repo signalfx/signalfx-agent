@@ -9,7 +9,6 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"golang.org/x/sys/windows"
 )
 
 //func TestGetAllMounts_ShouldInclude_gopsutil_Mounts(t *testing.T) {
@@ -29,26 +28,26 @@ import (
 //	assert.Subset(t, got, want)
 //}
 
-func TestNewStats_SameAs_gopsutil_PartitionStats(t *testing.T) {
-	// Partition stats from gopsutil are for drive mounts only.
-	gopsutilStats, err := gopsutil.Partitions(true)
-	require.NoError(t, err)
-
-	require.NotEmpty(t, gopsutilStats, "failed to find any partition stats using gopsutil")
-
-	logger := logrus.WithFields(logrus.Fields{"monitorType": monitorType})
-	monitor := Monitor{logger: logger}
-
-	var got []gopsutil.PartitionStat
-	for _, want := range gopsutilStats {
-		volPathName, _ := windows.UTF16FromString(want.Mountpoint)
-		got, err = monitor.newStats(volPathName)
-		require.NoError(t, err)
-
-		// Asserting `got` newStats() stats equal `want` gopsutil stats.
-		assert.Equal(t, got[0], want)
-	}
-}
+//func TestNewStats_SameAs_gopsutil_PartitionStats(t *testing.T) {
+//	// Partition stats from gopsutil are for drive mounts only.
+//	gopsutilStats, err := gopsutil.Partitions(true)
+//	require.NoError(t, err)
+//
+//	require.NotEmpty(t, gopsutilStats, "failed to find any partition stats using gopsutil")
+//
+//	logger := logrus.WithFields(logrus.Fields{"monitorType": monitorType})
+//	monitor := Monitor{logger: logger}
+//
+//	var got []gopsutil.PartitionStat
+//	for _, want := range gopsutilStats {
+//		volPathName, _ := windows.UTF16FromString(want.Mountpoint)
+//		got, err = monitor.newStats(volPathName)
+//		require.NoError(t, err)
+//
+//		// Asserting `got` newStats() stats equal `want` gopsutil stats.
+//		assert.Equal(t, got[0], want)
+//	}
+//}
 
 func TestGetPartitions_ShouldInclude_gopsutil_PartitionStats(t *testing.T) {
 	// Partition stats from gopsutil are for drive mounts only.
