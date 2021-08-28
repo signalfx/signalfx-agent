@@ -76,6 +76,8 @@ func (m *Monitor) getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
 		stats = append(stats, partitionStats...)
 	}
 
+	fmt.Printf("PARTITION_STATS: %v\n", stats)
+
 	return stats, nil
 }
 
