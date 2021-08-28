@@ -25,7 +25,7 @@ type winPartitions interface {
 
 // getPartitions returns partition stats of folder mounts.
 // Similar to https://github.com/shirou/gopsutil/blob/7e4dab436b94d671021647dc5dc12c94f490e46e/disk/disk_windows.go#L71
-func (m *Monitor) getPartitions() ([]gopsutil.PartitionStat, error) {
+func (m *Monitor) getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
 	stats := make([]gopsutil.PartitionStat, 0)
 	bufLen := uint32(syscall.MAX_PATH + 1)
 	volNameBuf := make([]uint16, bufLen)
