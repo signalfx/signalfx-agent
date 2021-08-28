@@ -153,7 +153,7 @@ func (m *Monitor) newStats(driveType uint32, volPaths []string) ([]gopsutil.Part
 		lpFileSystemFlags := uint32(0)
 		lpFileSystemNameBuffer := make([]uint16, 256)
 		volPathPtr, _ := windows.UTF16PtrFromString(volPath)
-		fmt.Printf("VOL_PATH_PTR: %s\n",  windows.UTF16PtrToString(volPath))
+		fmt.Printf("VOL_PATH_PTR: %s\n",  windows.UTF16PtrToString(volPathPtr))
 
 		if err := m.getVolumeInformation(
 			volPathPtr,
