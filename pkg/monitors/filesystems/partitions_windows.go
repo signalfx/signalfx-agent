@@ -78,15 +78,16 @@ func (m *Monitor) getStatsFolder() ([]gopsutil.PartitionStat, error) {
 
 		driveType := m.getDriveType(&volNameBuf[0])
 		fmt.Printf("VOLUME: %s, DRIVE_TYPE: %d\n", windows.UTF16ToString(volNameBuf), driveType)
-		if driveType != windows.DRIVE_NO_ROOT_DIR {
-			continue
-		}
+		//if driveType != windows.DRIVE_NO_ROOT_DIR {
+		//	continue
+		//}
 
 		volPathNames, err = m.getVolumePathNames(volNameBuf, bufLen)
 		if err != nil {
 			m.logger.WithError(err).Errorf("failed to find paths for volume %s", windows.UTF16ToString(volNameBuf))
 			continue
 		}
+		fmt.Printf("VOLUME_PATH_NAMES: %s\n", windows.UTF16ToString(volPathNames))
 
 		statsFolder, err = m.newStats(volPathNames)
 		if err != nil {
