@@ -140,13 +140,14 @@ func (m *Monitor) newStats(volPathNames []uint16) ([]gopsutil.PartitionStat, err
 	pathNames := strings.Split(strings.TrimRight(windows.UTF16ToString(volPathNames), "\x00"), "\x00")
 
 	for _, pathName := range pathNames {
-		fmt.Printf("PathName: %s\n", pathName)
+		fmt.Printf("PATH_NAME: %s\n", pathName)
 		lpVolumeNameBuffer := make([]uint16, 256)
 		lpVolumeSerialNumber := uint32(0)
 		lpMaximumComponentLength := uint32(0)
 		lpFileSystemFlags := uint32(0)
 		lpFileSystemNameBuffer := make([]uint16, 256)
-		path, _ := windows.UTF16PtrFromString(pathName + "\\")
+		path, _ := windows.UTF16PtrFromString(pathName)
+		fmt.Printf("PATH: %s\n",  windows.UTF16PtrToString(path))
 
 		if err := m.getVolumeInformation(
 			path,
