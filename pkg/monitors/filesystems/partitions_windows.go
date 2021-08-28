@@ -132,8 +132,8 @@ func (m *Monitor) getVolumePaths(volNameBuf []uint16, bufLen uint32) ([]string, 
 	}
 
 	volPaths := make([]string, 0)
-	for _, path := range strings.Split(strings.TrimRight(windows.UTF16ToString(volPathsBuf), "\x00"), "\x00") {
-		volPaths = append(volPaths, strings.TrimRight(path, "\\"))
+	for _, volPath := range strings.Split(strings.TrimRight(windows.UTF16ToString(volPathsBuf), "\x00"), "\x00") {
+		volPaths = append(volPaths, volPath)
 	}
 
 	return volPaths, nil
@@ -186,9 +186,10 @@ func (m *Monitor) newStats(driveType uint32, volPaths []string) ([]gopsutil.Part
 			opts += ".compress"
 		}
 
+		p := strings.TrimRight(volPath, "\\")
 		stats = append(stats, gopsutil.PartitionStat{
-			Device:     volPath,
-			Mountpoint: volPath,
+			Device:     p,
+			Mountpoint: p,
 			Fstype:     windows.UTF16PtrToString(&lpFileSystemNameBuffer[0]),
 			Opts:       opts,
 		})
