@@ -41,10 +41,10 @@ import (
 //	var got []gopsutil.PartitionStat
 //	for _, want := range gopsutilStats {
 //		volPathName, _ := windows.UTF16FromString(want.Mountpoint)
-//		got, err = monitor.newStats(volPathName)
+//		got, err = monitor.getStats(volPathName)
 //		require.NoError(t, err)
 //
-//		// Asserting `got` newStats() stats equal `want` gopsutil stats.
+//		// Asserting `got` getStats() stats equal `want` gopsutil stats.
 //		assert.Equal(t, got[0], want)
 //	}
 //}
@@ -61,7 +61,7 @@ func TestGetPartitions_ShouldInclude_gopsutil_PartitionStats(t *testing.T) {
 
 	var got []gopsutil.PartitionStat
 	// Partition stats for drive and folder mounts.
-	got, err = monitor.getStats(true)
+	got, err = monitor.getPartitions(true)
 	require.NoError(t, err)
 
 	require.NotEmpty(t, got, "failed to find any partition stats")

@@ -68,7 +68,7 @@ var _ partitionsWrapper = &Monitor{}
 
 // For testable custom implementation gopsutil partition stats functionality.
 type partitionsWrapper interface {
-	getStats(all bool) ([]gopsutil.PartitionStat, error)
+	getPartitions(all bool) ([]gopsutil.PartitionStat, error)
 }
 
 // returns common dimensions map for every filesystem
@@ -143,7 +143,7 @@ func (m *Monitor) emitDatapoints() {
 		all = true
 	}
 
-	partitions, err := m.getStats(all)
+	partitions, err := m.getPartitions(all)
 	if err != nil && len(partitions) == 0 {
 		m.logger.WithError(err).Errorf("failed to collect any mountpoints")
 		return

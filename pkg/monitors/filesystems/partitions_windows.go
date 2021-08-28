@@ -15,8 +15,6 @@ var _ winPartitions = &Monitor{}
 
 type winPartitions interface {
 	partitionsWrapper
-	getStatsDrive(all bool) ([]gopsutil.PartitionStat, error)
-	getStatsFolder() ([]gopsutil.PartitionStat, error)
 	getDriveType(rootPathName *uint16) (driveType uint32)
 	findFirstVolume(volumeName *uint16, bufferLength uint32) (handle windows.Handle, err error)
 	findNextVolume(findVolume windows.Handle, volumeName *uint16, bufferLength uint32) (err error)
@@ -25,46 +23,30 @@ type winPartitions interface {
 	getVolumeInformation(rootPathName *uint16, volumeNameBuffer *uint16, volumeNameSize uint32, volumeNameSerialNumber *uint32, maximumComponentLength *uint32, fileSystemFlags *uint32, fileSystemNameBuffer *uint16, fileSystemNameSize uint32) (err error)
 }
 
-// partitions returns partition stats of drive and folder mounts.
-func (m *Monitor) getStats(all bool) (stats []gopsutil.PartitionStat, err error) {
-	if stats, err = m.getStatsDrive(all); err != nil {
-		return stats, err
-	}
-	fmt.Printf("STATS_DRIVE: %v\n", stats)
-	var statsFolder []gopsutil.PartitionStat
-	statsFolder, err = m.getStatsFolder()
-	fmt.Printf("STATS_FOLDER: %v\n", statsFolder)
-	return append(stats, statsFolder...), err
-}
-
-func (m *Monitor) getStatsDrive(all bool) ([]gopsutil.PartitionStat, error) {
-	return gopsutil.Partitions(all)
-}
-
-// getStatsFolder returns partition stats of folder mounts.
+// getPartitions returns partition stats of folder mounts.
 // Similar to https://github.com/shirou/gopsutil/blob/7e4dab436b94d671021647dc5dc12c94f490e46e/disk/disk_windows.go#L71
-func (m *Monitor) getStatsFolder() ([]gopsutil.PartitionStat, error) {
-	statsFolders := make([]gopsutil.PartitionStat, 0)
+func (m *Monitor) getPartitions() ([]gopsutil.PartitionStat, error) {
+	stats := make([]gopsutil.PartitionStat, 0)
 	bufLen := uint32(syscall.MAX_PATH + 1)
 	volNameBuf := make([]uint16, bufLen)
 
 	handle, err := m.findFirstVolume(&volNameBuf[0], bufLen)
 	if err != nil {
-		return statsFolders, fmt.Errorf("failed to find first volume: %v", err)
+		return stats, fmt.Errorf("failed to find first volume: %v", err)
 	}
 	defer m.findVolumeClose(handle)
 
 	var volPaths []string
 	if volPaths, err = m.getVolumePaths(volNameBuf, bufLen); err != nil {
-		return statsFolders, fmt.Errorf("failed to find paths for first volume %s: %v", windows.UTF16ToString(volNameBuf), err)
+		return stats, fmt.Errorf("failed to find paths for first volume %s: %v", windows.UTF16ToString(volNameBuf), err)
 	}
 
-	var statsFolder []gopsutil.PartitionStat
-	statsFolder, err = m.newStats(m.getDriveType(&volNameBuf[0]), volPaths)
+	var partitionStats []gopsutil.PartitionStat
+	partitionStats, err = m.getPartitionStats(m.getDriveType(&volNameBuf[0]), volPaths)
 	if err != nil {
-		return statsFolders, fmt.Errorf("failed to find partition stats for first volume %s: %v", windows.UTF16ToString(volNameBuf), err)
+		return stats, fmt.Errorf("failed to find partition stats for first volume %s: %v", windows.UTF16ToString(volNameBuf), err)
 	}
-	statsFolders = append(statsFolders, statsFolder...)
+	stats = append(stats, partitionStats...)
 
 	for {
 		volNameBuf = make([]uint16, bufLen)
@@ -78,9 +60,6 @@ func (m *Monitor) getStatsFolder() ([]gopsutil.PartitionStat, error) {
 
 		driveType := m.getDriveType(&volNameBuf[0])
 		fmt.Printf("VOLUME: %s, DRIVE_TYPE: %d\n", windows.UTF16ToString(volNameBuf), driveType)
-		//if driveType != windows.DRIVE_NO_ROOT_DIR {
-		//	continue
-		//}
 
 		volPaths, err = m.getVolumePaths(volNameBuf, bufLen)
 		if err != nil {
@@ -89,15 +68,15 @@ func (m *Monitor) getStatsFolder() ([]gopsutil.PartitionStat, error) {
 		}
 		fmt.Printf("VOLUME_PATH_NAMES: %v\n", volPaths)
 
-		statsFolder, err = m.newStats(m.getDriveType(&volNameBuf[0]), volPaths)
+		partitionStats, err = m.getPartitionStats(m.getDriveType(&volNameBuf[0]), volPaths)
 		if err != nil {
 			m.logger.WithError(err).Errorf("failed to find partition stats for volume %s", windows.UTF16ToString(volNameBuf))
 			continue
 		}
-		statsFolders = append(statsFolders, statsFolder...)
+		stats = append(stats, partitionStats...)
 	}
 
-	return statsFolders, nil
+	return stats, nil
 }
 
 func (m *Monitor) getDriveType(rootPathName *uint16) (driveType uint32) {
@@ -139,11 +118,10 @@ func (m *Monitor) getVolumePaths(volNameBuf []uint16, bufLen uint32) ([]string, 
 	return volPaths, nil
 }
 
-// newStats returns partition stats for the given volume path names (e.g. C:).
+// getPartitionStats returns partition stats for the given volume path.
 // Similar to https://github.com/shirou/gopsutil/blob/master/disk/disk_windows.go#L72
-func (m *Monitor) newStats(driveType uint32, volPaths []string) ([]gopsutil.PartitionStat, error) {
+func (m *Monitor) getPartitionStats(driveType uint32, volPaths []string) ([]gopsutil.PartitionStat, error) {
 	stats := make([]gopsutil.PartitionStat, 0)
-	//pathNames := strings.Split(strings.TrimRight(windows.UTF16ToString(volPaths), "\x00"), "\x00")
 
 	for _, volPath := range volPaths {
 		fmt.Printf("VOL_PATH: %s\n", volPath)
@@ -165,13 +143,6 @@ func (m *Monitor) newStats(driveType uint32, volPaths []string) ([]gopsutil.Part
 			&lpFileSystemNameBuffer[0],
 			uint32(len(lpFileSystemNameBuffer)),
 		); err != nil {
-			//DRIVE_UNKNOWN     = 0
-			//DRIVE_NO_ROOT_DIR = 1
-			//DRIVE_REMOVABLE   = 2
-			//DRIVE_FIXED       = 3
-			//DRIVE_REMOTE      = 4
-			//DRIVE_CDROM       = 5
-			//DRIVE_RAMDISK     = 6
 			if driveType == windows.DRIVE_CDROM || driveType == windows.DRIVE_REMOVABLE {
 				continue //device is not ready will happen if there is no disk in the drive
 			}

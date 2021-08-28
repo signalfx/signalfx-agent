@@ -10,6 +10,6 @@ type nixPartitions interface {
 	partitionsWrapper
 }
 
-func (m *Monitor) getStats(all bool) ([]gopsutil.PartitionStat, error) {
+func (m *Monitor) getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
 	return gopsutil.Partitions(all)
 }
