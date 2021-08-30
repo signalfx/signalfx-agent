@@ -71,21 +71,27 @@ func (v *volsMock) getDriveTypeMock(rootPath *uint16) (driveType uint32) {
 	return windows.DRIVE_UNKNOWN
 }
 
-func (v *volsMock) findFirstVolumeMock(volName *uint16) (windows.Handle, error) {
+func (v *volsMock) findFirstVolumeMock(volNamePtr *uint16) (windows.Handle, error) {
 	findVol := uint(0)
 	fmt.Printf("HANDLE: %d, FIRST_VOLUME_NAME: %s\n", findVol, v.vols[findVol].name)
 	fmt.Printf("VOLUMES: %v\n", v)
-	volName, err := windows.UTF16PtrFromString(v.vols[findVol].name)
-	return windows.Handle(findVol), err
+	volName, err := windows.UTF16FromString(v.vols[findVol].name)
+	if err != nil {
+		return findVol, err
+	}
+	for i := range volName {
+		(*volNamePtr + i) = volName[i]
+	}
+	return windows.Handle(findVol), nil
 }
 
-func (v *volsMock) findNextVolumeMock(findVol windows.Handle, volName *uint16) error {
+func (v *volsMock) findNextVolumeMock(findVol windows.Handle, volNamePtr *uint16) error {
 	if findVol == windows.Handle(uninitialized) {
 		return fmt.Errorf("find next volume handle uninitialized")
 	}
 
 	findVol = findVol + 1
-	volName, err := windows.UTF16PtrFromString(v.vols[findVol].name)
+	volNamePtr, err := windows.UTF16PtrFromString(v.vols[findVol].name)
 	return err
 }
 
@@ -98,9 +104,9 @@ func (v *volsMock) findVolumeCloseMock(findVol windows.Handle) error {
 
 func (v *volsMock) getVolumePathsMock(volNameBuf []uint16) ([]string, error) {
 	volName := windows.UTF16ToString(volNameBuf)
-	for _, info := range v.vols {
-		if info.name == volName {
-			return info.paths, nil
+	for _, vol := range v.vols {
+		if vol.name == volName {
+			return vol.paths, nil
 		}
 	}
 	return nil, fmt.Errorf("path not found for volume: %s", volName)
