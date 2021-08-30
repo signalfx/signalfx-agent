@@ -3,6 +3,7 @@
 package filesystems
 
 import (
+	"fmt"
 	"testing"
 
 	gopsutil "github.com/shirou/gopsutil/disk"
@@ -10,6 +11,113 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
+
+const uninitialized uint = uint(999)
+const closed uint = uint(998)
+const volumeA = "\\\\?\\Volume{11111111-0000-0000-0000-010000000000}\\"
+const volumeC = "\\\\?\\Volume{22222222-0000-0000-0000-010000000000}\\"
+const volumeD = "\\\\?\\Volume{33333333-0000-0000-0000-010000000000}\\"
+const compressFlag = uint32(16)     // 0x00000010
+const readOnlyFlag = uint32(524288) // 0x00080000
+//type handle *uint
+
+type volMock struct {
+	name string
+	paths []string
+	driveType uint32
+	fsType string
+	fsFlags uint32
+}
+
+type volsMock struct {
+	handle windows.Handle
+	vols   []volMock
+}
+
+func newVolsMock() *volsMock {
+	val := uninitialized
+	vols := make([]volMock, 0)
+	vols = append(vols,
+		volMock{name: volumeA, paths: []string{"A:\\"}, driveType: windows.DRIVE_REMOVABLE, fsType: "FAT16", fsFlags: compressFlag},
+		volMock{name: volumeC, paths: []string{"C:\\"}, driveType: windows.DRIVE_FIXED, fsType: "NTFS", fsFlags: compressFlag},
+		volMock{name: volumeC, paths: []string{"C:\\testHD\\"}, driveType: windows.DRIVE_FIXED, fsType: "NTFS", fsFlags: compressFlag},
+		volMock{name: volumeD, paths: []string{"D:\\"}, driveType: windows.DRIVE_FIXED, fsType: "NTFS", fsFlags: compressFlag | readOnlyFlag},
+	)
+
+	return &volsMock{handle: &val, vols: vols}
+}
+
+func TestGetPartitionsWin_GetsAllPartitions(t *testing.T) {
+	vols := newVolsMock()
+	stats, err := getPartitionsWin(
+		vols.getDriveTypeMock,
+		vols.findFirstVolumeMock,
+		vols.findNextVolumeMock,
+		vols.findVolumeCloseMock,
+		vols.getVolumePathsMock,
+		vols.getVolumeInformationMock)
+	fmt.Printf("PARTITION_STATS: %v\nERROR: %v\n", stats, err)
+}
+
+func (v *volsMock) getDriveTypeMock(rootPath *uint16) (driveType uint32) {
+	path := windows.UTF16PtrToString(rootPath)
+	for _, info := range v.vols {
+		for _, p := range info.paths {
+			if path == p {
+				return info.driveType
+			}
+		}
+	}
+	return windows.DRIVE_UNKNOWN
+}
+
+func (v *volsMock) findFirstVolumeMock(volName *uint16) (windows.Handle, error) {
+	findVol := uint(0)
+	volName, err := windows.UTF16PtrFromString(v.vols[findVol].name)
+	return &findVol, err
+}
+
+func (v *volsMock) findNextVolumeMock(findVol windows.Handle, volName *uint16) error {
+	if *findVol == uninitialized {
+		return fmt.Errorf("find next volume handle uninitialized")
+	}
+
+	*findVol = *findVol + 1
+	volName, err := windows.UTF16PtrFromString(v.vols[*findVol].name)
+	return err
+}
+
+func (v *volsMock) findVolumeCloseMock(findVol windows.Handle) error {
+	if *findVol != uninitialized {
+		*findVol = closed
+	}
+	return nil
+}
+
+// volumePaths returns the path for the given volume.
+func (v *volsMock) getVolumePathsMock(volNameBuf []uint16) ([]string, error) {
+	volName := windows.UTF16ToString(volNameBuf)
+	for _, info := range v.vols {
+		if info.name == volName {
+			return info.paths, nil
+		}
+	}
+	return nil, fmt.Errorf("path not found for volume: %s", volName)
+}
+
+func (v *volsMock) getVolumeInformationMock(rootPath string, fsFlags *uint32, fsNameBuf []uint16) (err error) {
+	path := windows.UTF16PtrToString(rootPath)
+	for _, vol := range v.vols {
+		for _, p := range vol.paths {
+			if path == p {
+				*fsFlags = vol.fsFlags
+				fsNameBuf, err = windows.UTF16FromString(vol.name)
+				return err
+			}
+		}
+	}
+	return fmt.Errorf("cannot find volume information for volume path %s", path)
+}
 
 //func TestGetAllMounts_ShouldInclude_gopsutil_Mounts(t *testing.T) {
 //	logger := logrus.WithFields(logrus.Fields{"monitorType": monitorType})
@@ -61,7 +169,7 @@ func TestGetPartitions_ShouldInclude_gopsutil_PartitionStats(t *testing.T) {
 
 	var got []gopsutil.PartitionStat
 	// Partition stats for drive and folder mounts.
-	got, err = monitor.getPartitions(true)
+	got, err = getPartitions(true)
 	require.NoError(t, err)
 
 	require.NotEmpty(t, got, "failed to find any partition stats")
