@@ -20,7 +20,7 @@ const volumeC = "\\\\?\\Volume{22222222-0000-0000-0000-010000000000}\\"
 const volumeD = "\\\\?\\Volume{33333333-0000-0000-0000-010000000000}\\"
 const compressFlag = uint32(16)     // 0x00000010
 const readOnlyFlag = uint32(524288) // 0x00080000
-//type handle *uint
+//type handle uintptr
 
 type volMock struct {
 	name string
@@ -75,27 +75,26 @@ func (v *volsMock) getDriveTypeMock(rootPath *uint16) (driveType uint32) {
 func (v *volsMock) findFirstVolumeMock(volName *uint16) (windows.Handle, error) {
 	findVol := uint(0)
 	volName, err := windows.UTF16PtrFromString(v.vols[findVol].name)
-	return &findVol, err
+	return windows.Handle(findVol), err
 }
 
 func (v *volsMock) findNextVolumeMock(findVol windows.Handle, volName *uint16) error {
-	if *findVol == uninitialized {
+	if findVol == windows.Handle(uninitialized) {
 		return fmt.Errorf("find next volume handle uninitialized")
 	}
 
-	*findVol = *findVol + 1
-	volName, err := windows.UTF16PtrFromString(v.vols[*findVol].name)
+	findVol = findVol + 1
+	volName, err := windows.UTF16PtrFromString(v.vols[findVol].name)
 	return err
 }
 
 func (v *volsMock) findVolumeCloseMock(findVol windows.Handle) error {
-	if *findVol != uninitialized {
-		*findVol = closed
+	if findVol != windows.Handle(uninitialized) {
+		findVol = windows.Handle(closed)
 	}
 	return nil
 }
 
-// volumePaths returns the path for the given volume.
 func (v *volsMock) getVolumePathsMock(volNameBuf []uint16) ([]string, error) {
 	volName := windows.UTF16ToString(volNameBuf)
 	for _, info := range v.vols {
