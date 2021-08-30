@@ -36,7 +36,7 @@ type volsMock struct {
 }
 
 func newVolsMock() *volsMock {
-	val := uninitialized
+
 	vols := make([]volMock, 0)
 	vols = append(vols,
 		volMock{name: volumeA, paths: []string{"A:\\"}, driveType: windows.DRIVE_REMOVABLE, fsType: "FAT16", fsFlags: compressFlag},
@@ -45,7 +45,7 @@ func newVolsMock() *volsMock {
 		volMock{name: volumeD, paths: []string{"D:\\"}, driveType: windows.DRIVE_FIXED, fsType: "NTFS", fsFlags: compressFlag | readOnlyFlag},
 	)
 
-	return &volsMock{handle: &val, vols: vols}
+	return &volsMock{handle: windows.Handle(uninitialized), vols: vols}
 }
 
 func TestGetPartitionsWin_GetsAllPartitions(t *testing.T) {
@@ -106,17 +106,16 @@ func (v *volsMock) getVolumePathsMock(volNameBuf []uint16) ([]string, error) {
 }
 
 func (v *volsMock) getVolumeInformationMock(rootPath string, fsFlags *uint32, fsNameBuf []uint16) (err error) {
-	path := windows.UTF16PtrToString(rootPath)
 	for _, vol := range v.vols {
-		for _, p := range vol.paths {
-			if path == p {
+		for _, path := range vol.paths {
+			if rootPath == path {
 				*fsFlags = vol.fsFlags
 				fsNameBuf, err = windows.UTF16FromString(vol.name)
 				return err
 			}
 		}
 	}
-	return fmt.Errorf("cannot find volume information for volume path %s", path)
+	return fmt.Errorf("cannot find volume information for volume path %s", rootPath)
 }
 
 //func TestGetAllMounts_ShouldInclude_gopsutil_Mounts(t *testing.T) {
