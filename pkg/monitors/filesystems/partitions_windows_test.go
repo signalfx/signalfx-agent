@@ -89,7 +89,7 @@ func (v *volsMock) findFirstVolumeMock(volNamePtr *uint16) (windows.Handle, erro
 	return windows.Handle(findVol), nil
 }
 
-func (v *volsMock) findNextVolumeMock(findVol windows.Handle, volNamePtr *uint16) error {
+func (v *volsMock) findNextVolumeMock(currentVolIndex windows.Handle, volNamePtr *uint16) error {
 	if currentVolIndex == windows.Handle(uninitialized) {
 		return fmt.Errorf("find next volume handle uninitialized")
 	}
@@ -99,7 +99,7 @@ func (v *volsMock) findNextVolumeMock(findVol windows.Handle, volNamePtr *uint16
 		return syscall.Errno(18) // windows.ERROR_NO_MORE_FILES
 	}
 
-	volName, err := windows.UTF16PtrFromString(v.vols[nextVolIndex].name)
+	volName, err := windows.UTF16FromString(v.vols[nextVolIndex].name)
 	if err != nil {
 		return err
 	}
