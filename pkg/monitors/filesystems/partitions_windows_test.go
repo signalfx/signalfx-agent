@@ -4,6 +4,7 @@ package filesystems
 
 import (
 	"fmt"
+	"syscall"
 	"testing"
 	"unsafe"
 
@@ -89,12 +90,28 @@ func (v *volsMock) findFirstVolumeMock(volNamePtr *uint16) (windows.Handle, erro
 }
 
 func (v *volsMock) findNextVolumeMock(findVol windows.Handle, volNamePtr *uint16) error {
-	if findVol == windows.Handle(uninitialized) {
+	if currentVolIndex == windows.Handle(uninitialized) {
 		return fmt.Errorf("find next volume handle uninitialized")
 	}
 
-	findVol = findVol + 1
-	volNamePtr, err := windows.UTF16PtrFromString(v.vols[findVol].name)
+	nextVolIndex := *(*int)(unsafe.Pointer(currentVolIndex)) + 1
+	if nextVolIndex >= len(v.vols) {
+		return syscall.Errno(18) // windows.ERROR_NO_MORE_FILES
+	}
+
+	volName, err := windows.UTF16PtrFromString(v.vols[nextVolIndex].name)
+	if err != nil {
+		return err
+	}
+
+	start := uintptr(unsafe.Pointer(volNamePtr))
+	size := unsafe.Sizeof(*volNamePtr)
+	for i := range volName {
+		*(*uint16)(unsafe.Pointer(start + size * uintptr(i))) = volName[i]
+	}
+
+	*(*int)(unsafe.Pointer(currentVolIndex)) = nextVolIndex
+
 	return err
 }
 
