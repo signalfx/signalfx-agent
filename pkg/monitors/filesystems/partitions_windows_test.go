@@ -80,9 +80,10 @@ func (v *volsMock) findFirstVolumeMock(volNamePtr *uint16) (windows.Handle, erro
 	if err != nil {
 		return windows.Handle(findVol), err
 	}
+	start := uintptr(unsafe.Pointer(volNamePtr))
 	size := unsafe.Sizeof(*volNamePtr)
 	for i := range volName {
-		*(*uint16)(unsafe.Add(unsafe.Pointer(volNamePtr), uintptr(i)*size)) = volName[i]
+		*(*uint16)(unsafe.Pointer(start + size * uintptr(i))) = volName[i]
 	}
 	return windows.Handle(findVol), nil
 }
