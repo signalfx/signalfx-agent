@@ -7,7 +7,6 @@ import (
 	"testing"
 
 	gopsutil "github.com/shirou/gopsutil/disk"
-	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"golang.org/x/sys/windows"
@@ -163,8 +162,8 @@ func TestGetPartitions_ShouldInclude_gopsutil_PartitionStats(t *testing.T) {
 
 	require.NotEmpty(t, want, "failed to find any partition stats using gopsutil")
 
-	logger := logrus.WithFields(logrus.Fields{"monitorType": monitorType})
-	monitor := Monitor{logger: logger}
+	//logger := logrus.WithFields(logrus.Fields{"monitorType": monitorType})
+	//monitor := Monitor{logger: logger}
 
 	var got []gopsutil.PartitionStat
 	// Partition stats for drive and folder mounts.
