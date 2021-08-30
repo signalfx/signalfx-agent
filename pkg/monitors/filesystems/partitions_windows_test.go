@@ -73,6 +73,8 @@ func (v *volsMock) getDriveTypeMock(rootPath *uint16) (driveType uint32) {
 
 func (v *volsMock) findFirstVolumeMock(volName *uint16) (windows.Handle, error) {
 	findVol := uint(0)
+	fmt.Printf("HANDLE: %d, FIRST_VOLUME_NAME: %s\n", findVol, v.vols[findVol].name)
+	fmt.Printf("VOLUMES: %v\n", v)
 	volName, err := windows.UTF16PtrFromString(v.vols[findVol].name)
 	return windows.Handle(findVol), err
 }
