@@ -5,6 +5,7 @@ package filesystems
 import (
 	"fmt"
 	"testing"
+	"unsafe"
 
 	gopsutil "github.com/shirou/gopsutil/disk"
 	"github.com/stretchr/testify/assert"
