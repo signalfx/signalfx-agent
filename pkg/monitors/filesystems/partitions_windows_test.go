@@ -77,10 +77,10 @@ func (v *volsMock) findFirstVolumeMock(volNamePtr *uint16) (windows.Handle, erro
 	fmt.Printf("VOLUMES: %v\n", v)
 	volName, err := windows.UTF16FromString(v.vols[findVol].name)
 	if err != nil {
-		return findVol, err
+		return windows.Handle(findVol), err
 	}
 	for i := range volName {
-		(*volNamePtr + i) = volName[i]
+		(*volNamePtr + uint16(i)) = volName[i]
 	}
 	return windows.Handle(findVol), nil
 }
