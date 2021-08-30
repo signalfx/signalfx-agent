@@ -11,104 +11,94 @@ import (
 	"golang.org/x/sys/windows"
 )
 
-var _ winPartitions = &Monitor{}
+const volumeNameBufferLength = uint32(syscall.MAX_PATH + 1)
+const volumePathBufferLength = volumeNameBufferLength
 
-type winPartitions interface {
-	partitionsWrapper
-	getDriveType(rootPathName *uint16) (driveType uint32)
-	findFirstVolume(volumeName *uint16, bufferLength uint32) (handle windows.Handle, err error)
-	findNextVolume(findVolume windows.Handle, volumeName *uint16, bufferLength uint32) (err error)
-	findVolumeClose(findVolume windows.Handle) (err error)
-	getVolumePathNamesForVolumeName(volumeName *uint16, volumePathNames *uint16, bufferLength uint32, returnLength *uint32) (err error)
-	getVolumeInformation(rootPathName *uint16, volumeNameBuffer *uint16, volumeNameSize uint32, volumeNameSerialNumber *uint32, maximumComponentLength *uint32, fileSystemFlags *uint32, fileSystemNameBuffer *uint16, fileSystemNameSize uint32) (err error)
+func getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
+	return getPartitionsWin(getDriveType, findFirstVolume, findNextVolume, findVolumeClose, getVolumePaths, getVolumeInformation)
 }
 
-// getPartitions returns partition stats of folder mounts.
+// getPartitions returns partition stats.
 // Similar to https://github.com/shirou/gopsutil/blob/7e4dab436b94d671021647dc5dc12c94f490e46e/disk/disk_windows.go#L71
-func (m *Monitor) getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
-	stats := make([]gopsutil.PartitionStat, 0)
-	bufLen := uint32(syscall.MAX_PATH + 1)
-	volNameBuf := make([]uint16, bufLen)
+func getPartitionsWin(
+	getDriveType func(rootPath *uint16) (driveType uint32),
+	findFirstVolume func(volName *uint16) (findVol windows.Handle, err error),
+	findNextVolume func(findVol windows.Handle, volName *uint16) (err error),
+	findVolumeClose func(findVol windows.Handle) (err error),
+	getVolumePaths func(volNameBuf []uint16) ([]string, error),
+	getVolumeInformation func(rootPath string, fsFlags *uint32, fsNameBuf []uint16) (err error),
+) ([]gopsutil.PartitionStat, error) {
 
-	handle, err := m.findFirstVolume(&volNameBuf[0], bufLen)
+	stats := make([]gopsutil.PartitionStat, 0)
+	volNameBuf := make([]uint16, volumeNameBufferLength)
+
+	handle, err := findFirstVolume(&volNameBuf[0])
 	if err != nil {
 		return stats, fmt.Errorf("failed to find first volume: %v", err)
 	}
-	defer m.findVolumeClose(handle)
+	defer findVolumeClose(handle)
 
 	var volPaths []string
-	if volPaths, err = m.getVolumePaths(volNameBuf, bufLen); err != nil {
+	if volPaths, err = getVolumePaths(volNameBuf); err != nil {
 		return stats, fmt.Errorf("failed to find paths for first volume %s: %v", windows.UTF16ToString(volNameBuf), err)
 	}
 
 	var partitionStats []gopsutil.PartitionStat
-	partitionStats, err = m.getPartitionStats(m.getDriveType(&volNameBuf[0]), volPaths)
+	partitionStats, err = getPartitionStats(getDriveType(&volNameBuf[0]), volPaths, getVolumeInformation)
 	if err != nil {
 		return stats, fmt.Errorf("failed to find partition stats for first volume %s: %v", windows.UTF16ToString(volNameBuf), err)
 	}
 	stats = append(stats, partitionStats...)
 
+	var lastError error
 	for {
-		volNameBuf = make([]uint16, bufLen)
-		if err = m.findNextVolume(handle, &volNameBuf[0], bufLen); err != nil {
+		volNameBuf = make([]uint16, volumeNameBufferLength)
+		if err = findNextVolume(handle, &volNameBuf[0]); err != nil {
 			if err.(syscall.Errno) == syscall.ERROR_NO_MORE_FILES {
 				break
 			}
-			m.logger.WithError(err).Error("failed to find next volume")
+			lastError = fmt.Errorf("last error: failed to find next volume: %v", err)
 			continue
 		}
 
-		driveType := m.getDriveType(&volNameBuf[0])
-		fmt.Printf("VOLUME: %s, DRIVE_TYPE: %d\n", windows.UTF16ToString(volNameBuf), driveType)
-
-		volPaths, err = m.getVolumePaths(volNameBuf, bufLen)
+		volPaths, err = getVolumePaths(volNameBuf)
 		if err != nil {
-			m.logger.WithError(err).Errorf("failed to find paths for volume %s", windows.UTF16ToString(volNameBuf))
+			lastError = fmt.Errorf("last error: failed to find paths for volume %s: %v", windows.UTF16ToString(volNameBuf), err)
 			continue
 		}
-		fmt.Printf("VOLUME_PATH_NAMES: %v\n", volPaths)
 
-		partitionStats, err = m.getPartitionStats(m.getDriveType(&volNameBuf[0]), volPaths)
+		partitionStats, err = getPartitionStats(getDriveType(&volNameBuf[0]), volPaths, getVolumeInformation)
 		if err != nil {
-			m.logger.WithError(err).Errorf("failed to find partition stats for volume %s", windows.UTF16ToString(volNameBuf))
+			lastError = fmt.Errorf("last error: failed to find partition stats for volume %s: %v", windows.UTF16ToString(volNameBuf), err)
 			continue
 		}
 		stats = append(stats, partitionStats...)
 	}
 
-	fmt.Printf("PARTITION_STATS: %v\n", stats)
-
-	return stats, nil
+	return stats, lastError
 }
 
-func (m *Monitor) getDriveType(rootPathName *uint16) (driveType uint32) {
-	return windows.GetDriveType(rootPathName)
+func getDriveType(rootPath *uint16) (driveType uint32) {
+	return windows.GetDriveType(rootPath)
 }
 
-func (m *Monitor) findFirstVolume(volumeName *uint16, bufferLength uint32) (handle windows.Handle, err error) {
-	return windows.FindFirstVolume(volumeName, bufferLength)
+func findFirstVolume(volName *uint16) (findVol windows.Handle, err error) {
+	return windows.FindFirstVolume(volName, volumeNameBufferLength)
 }
 
-func (m *Monitor) findNextVolume(findVolume windows.Handle, volumeName *uint16, bufferLength uint32) (err error) {
-	return windows.FindNextVolume(findVolume, volumeName, bufferLength)
+func findNextVolume(findVol windows.Handle, volName *uint16) (err error) {
+	return windows.FindNextVolume(findVol, volName, volumeNameBufferLength)
 }
 
-func (m *Monitor) findVolumeClose(findVolume windows.Handle) (err error) {
-	return windows.FindVolumeClose(findVolume)
-}
-
-func (m *Monitor) getVolumePathNamesForVolumeName(volumeName *uint16, volumePathNames *uint16, bufferLength uint32, returnLength *uint32) (err error) {
-	return windows.GetVolumePathNamesForVolumeName(volumeName, volumePathNames, bufferLength, returnLength)
-}
-
-func (m *Monitor) getVolumeInformation(rootPathName *uint16, volumeNameBuffer *uint16, volumeNameSize uint32, volumeNameSerialNumber *uint32, maximumComponentLength *uint32, fileSystemFlags *uint32, fileSystemNameBuffer *uint16, fileSystemNameSize uint32) (err error) {
-	return windows.GetVolumeInformation(rootPathName, volumeNameBuffer, volumeNameSize, volumeNameSerialNumber, maximumComponentLength, fileSystemFlags, fileSystemNameBuffer, fileSystemNameSize)
+func findVolumeClose(findVol windows.Handle) (err error) {
+	return windows.FindVolumeClose(findVol)
 }
 
 // volumePaths returns the path for the given volume.
-func (m *Monitor) getVolumePaths(volNameBuf []uint16, bufLen uint32) ([]string, error) {
-	volPathsBuf, returnLen := make([]uint16, bufLen), uint32(0)
-	if err := m.getVolumePathNamesForVolumeName(&volNameBuf[0], &volPathsBuf[0], bufLen, &returnLen); err != nil {
+func getVolumePaths(volNameBuf []uint16) ([]string, error) {
+	volPathsBuf := make([]uint16, volumePathBufferLength)
+	returnLen := uint32(0)
+	if err := windows.GetVolumePathNamesForVolumeName(&volNameBuf[0], &volPathsBuf[0], volumePathBufferLength, &returnLen); err != nil {
 		return nil, err
 	}
 
@@ -120,42 +110,51 @@ func (m *Monitor) getVolumePaths(volNameBuf []uint16, bufLen uint32) ([]string, 
 	return volPaths, nil
 }
 
+func getVolumeInformation(rootPath string, fsFlags *uint32, fsNameBuf []uint16) (err error) {
+	volNameBuf := make([]uint16, 256)
+	volSerialNum := uint32(0)
+	maxComponentLen := uint32(0)
+	rootPathPtr, _ := windows.UTF16PtrFromString(rootPath)
+
+	return windows.GetVolumeInformation(
+		rootPathPtr,
+		&volNameBuf[0],
+		uint32(len(volNameBuf)),
+		&volSerialNum,
+		&maxComponentLen,
+		fsFlags,
+		&fsNameBuf[0],
+		uint32(len(fsNameBuf)))
+}
+
 // getPartitionStats returns partition stats for the given volume path.
 // Similar to https://github.com/shirou/gopsutil/blob/master/disk/disk_windows.go#L72
-func (m *Monitor) getPartitionStats(driveType uint32, volPaths []string) ([]gopsutil.PartitionStat, error) {
+func getPartitionStats(
+	driveType uint32,
+	volPaths []string,
+	getVolumeInformation func(rootPath string, fsFlags *uint32, fsNameBuf []uint16) (err error),
+) ([]gopsutil.PartitionStat, error) {
+
 	stats := make([]gopsutil.PartitionStat, 0)
 
+	var lastError error
 	for _, volPath := range volPaths {
-		fmt.Printf("VOL_PATH: %s\n", volPath)
-		lpVolumeNameBuffer := make([]uint16, 256)
-		lpVolumeSerialNumber := uint32(0)
-		lpMaximumComponentLength := uint32(0)
-		lpFileSystemFlags := uint32(0)
-		lpFileSystemNameBuffer := make([]uint16, 256)
-		volPathPtr, _ := windows.UTF16PtrFromString(volPath)
-		fmt.Printf("VOL_PATH_PTR: %s\n",  windows.UTF16PtrToString(volPathPtr))
+		fsFlags := uint32(0)
+		fsNameBuf := make([]uint16, 256)
 
-		if err := m.getVolumeInformation(
-			volPathPtr,
-			&lpVolumeNameBuffer[0],
-			uint32(len(lpVolumeNameBuffer)),
-			&lpVolumeSerialNumber,
-			&lpMaximumComponentLength,
-			&lpFileSystemFlags,
-			&lpFileSystemNameBuffer[0],
-			uint32(len(lpFileSystemNameBuffer)),
-		); err != nil {
+		if err := getVolumeInformation(volPath, &fsFlags, fsNameBuf); err != nil {
+			lastError = fmt.Errorf("last error: failed to get volume informaton: %v", err)
 			if driveType == windows.DRIVE_CDROM || driveType == windows.DRIVE_REMOVABLE {
 				continue //device is not ready will happen if there is no disk in the drive
 			}
-			return stats, err
+			return stats, lastError
 		}
 
 		opts := "rw"
-		if int64(lpFileSystemFlags)&gopsutil.FileReadOnlyVolume != 0 {
+		if int64(fsFlags)&gopsutil.FileReadOnlyVolume != 0 {
 			opts = "ro"
 		}
-		if int64(lpFileSystemFlags)&gopsutil.FileFileCompression != 0 {
+		if int64(fsFlags)&gopsutil.FileFileCompression != 0 {
 			opts += ".compress"
 		}
 
@@ -163,10 +162,10 @@ func (m *Monitor) getPartitionStats(driveType uint32, volPaths []string) ([]gops
 		stats = append(stats, gopsutil.PartitionStat{
 			Device:     p,
 			Mountpoint: p,
-			Fstype:     windows.UTF16PtrToString(&lpFileSystemNameBuffer[0]),
+			Fstype:     windows.UTF16PtrToString(&fsNameBuf[0]),
 			Opts:       opts,
 		})
 	}
 
-	return stats, nil
+	return stats, lastError
 }

@@ -64,13 +64,6 @@ type Monitor struct {
 	logger            logrus.FieldLogger
 }
 
-var _ partitionsWrapper = &Monitor{}
-
-// For testable custom implementation gopsutil partition stats functionality.
-type partitionsWrapper interface {
-	getPartitions(all bool) ([]gopsutil.PartitionStat, error)
-}
-
 // returns common dimensions map for every filesystem
 func (m *Monitor) getCommonDimensions(partition *gopsutil.PartitionStat) map[string]string {
 	dims := map[string]string{
@@ -143,7 +136,7 @@ func (m *Monitor) emitDatapoints() {
 		all = true
 	}
 
-	partitions, err := m.getPartitions(all)
+	partitions, err := getPartitions(all)
 	if err != nil && len(partitions) == 0 {
 		m.logger.WithError(err).Errorf("failed to collect any mountpoints")
 		return
