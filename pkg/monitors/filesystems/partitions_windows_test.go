@@ -91,12 +91,14 @@ func (v *volumesMock) findFirstVolumeMock(volumeNamePtr *uint16) (windows.Handle
 	return windows.Handle(uintptr(unsafe.Pointer(&volumeIndex))), nil
 }
 
-func (v *volumesMock) findNextVolumeMock(volumeIndex windows.Handle, volumeNamePtr *uint16) error {
-	if volumeIndex == windows.Handle(uninitialized) {
+func (v *volumesMock) findNextVolumeMock(volumeIndexHandle windows.Handle, volumeNamePtr *uint16) error {
+	volumeIndex := *(*int)(unsafe.Pointer(volumeIndexHandle))
+	fmt.Printf("VOLUMES_INDEX: %v\n", volumeIndex)
+	if volumeIndex == uninitialized {
 		return fmt.Errorf("find next volume handle uninitialized")
 	}
 
-	nextVolumeIndex := *(*int)(unsafe.Pointer(volumeIndex)) + 1
+	nextVolumeIndex := volumeIndex + 1
 	if nextVolumeIndex >= len(v.volumes) {
 		return syscall.Errno(18) // windows.ERROR_NO_MORE_FILES
 	}
@@ -112,7 +114,7 @@ func (v *volumesMock) findNextVolumeMock(volumeIndex windows.Handle, volumeNameP
 		*(*uint16)(unsafe.Pointer(start + size * uintptr(i))) = volName[i]
 	}
 
-	*(*int)(unsafe.Pointer(volumeIndex)) = nextVolumeIndex
+	*(*int)(unsafe.Pointer(volumeIndexHandle)) = nextVolumeIndex
 
 	return err
 }
@@ -126,21 +128,21 @@ func (v *volumesMock) findVolumeCloseMock(volumeIndexHandle windows.Handle) erro
 }
 
 func (v *volumesMock) getVolumePathsMock(volNameBuf []uint16) ([]string, error) {
-	volName := windows.UTF16ToString(volNameBuf)
-	for _, vol := range v.volumes {
-		if vol.name == volName {
-			return vol.paths, nil
+	volumeName := windows.UTF16ToString(volNameBuf)
+	for _, volume := range v.volumes {
+		if volume.name == volumeName {
+			return volume.paths, nil
 		}
 	}
-	return nil, fmt.Errorf("path not found for volume: %s", volName)
+	return nil, fmt.Errorf("path not found for volume: %s", volumeName)
 }
 
 func (v *volumesMock) getVolumeInformationMock(rootPath string, fsFlags *uint32, fsNameBuf []uint16) (err error) {
-	for _, vol := range v.volumes {
-		for _, path := range vol.paths {
+	for _, volume := range v.volumes {
+		for _, path := range volume.paths {
 			if rootPath == path {
-				*fsFlags = vol.fsFlags
-				fsNameBuf, err = windows.UTF16FromString(vol.name)
+				*fsFlags = volume.fsFlags
+				fsNameBuf, err = windows.UTF16FromString(volume.name)
 				return err
 			}
 		}
