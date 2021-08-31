@@ -73,12 +73,12 @@ func (v *volumesMock) getDriveTypeMock(rootPath *uint16) (driveType uint32) {
 }
 
 func (v *volumesMock) findFirstVolumeMock(volumeNamePtr *uint16) (windows.Handle, error) {
-	volIndex := 0
-	fmt.Printf("HANDLE: %d, FIRST_VOLUME_NAME: %s\n", volIndex, v.vols[volIndex].name)
+	volumeIndex := 0
+	fmt.Printf("HANDLE: %d, FIRST_VOLUME_NAME: %s\n", volumeIndex, v.vols[volumeIndex].name)
 	fmt.Printf("VOLUMES: %v\n", v)
-	volName, err := windows.UTF16FromString(v.vols[volIndex].name)
+	volName, err := windows.UTF16FromString(v.vols[volumeIndex].name)
 	if err != nil {
-		return windows.Handle(volIndex), err
+		return windows.Handle(volumeIndex), err
 	}
 
 	start := uintptr(unsafe.Pointer(volumeNamePtr))
@@ -87,7 +87,7 @@ func (v *volumesMock) findFirstVolumeMock(volumeNamePtr *uint16) (windows.Handle
 		*(*uint16)(unsafe.Pointer(start + size * uintptr(i))) = volName[i]
 	}
 
-	return windows.Handle(&volIndex), nil
+	return windows.Handle(uintptr(unsafe.Pointer(&volumeIndex))), nil
 }
 
 func (v *volumesMock) findNextVolumeMock(volumeIndex windows.Handle, volumeNamePtr *uint16) error {
