@@ -23,7 +23,7 @@ const compressFlag = uint32(16)     // 0x00000010
 const readOnlyFlag = uint32(524288) // 0x00080000
 //type handle uintptr
 
-type volMock struct {
+type volumeMock struct {
 	name string
 	paths []string
 	driveType uint32
@@ -31,26 +31,25 @@ type volMock struct {
 	fsFlags uint32
 }
 
-type volsMock struct {
+type volumesMock struct {
 	handle windows.Handle
-	vols   []volMock
+	vols   []volumeMock
 }
 
-func newVolsMock() *volsMock {
-
-	vols := make([]volMock, 0)
+func newVolumesMock() *volumesMock {
+	vols := make([]volumeMock, 0)
 	vols = append(vols,
-		volMock{name: volumeA, paths: []string{"A:\\"}, driveType: windows.DRIVE_REMOVABLE, fsType: "FAT16", fsFlags: compressFlag},
-		volMock{name: volumeC, paths: []string{"C:\\"}, driveType: windows.DRIVE_FIXED, fsType: "NTFS", fsFlags: compressFlag},
-		volMock{name: volumeC, paths: []string{"C:\\testHD\\"}, driveType: windows.DRIVE_FIXED, fsType: "NTFS", fsFlags: compressFlag},
-		volMock{name: volumeD, paths: []string{"D:\\"}, driveType: windows.DRIVE_FIXED, fsType: "NTFS", fsFlags: compressFlag | readOnlyFlag},
+		volumeMock{name: volumeA, paths: []string{"A:\\"}, driveType: windows.DRIVE_REMOVABLE, fsType: "FAT16", fsFlags: compressFlag},
+		volumeMock{name: volumeC, paths: []string{"C:\\"}, driveType: windows.DRIVE_FIXED, fsType: "NTFS", fsFlags: compressFlag},
+		volumeMock{name: volumeC, paths: []string{"C:\\testHD\\"}, driveType: windows.DRIVE_FIXED, fsType: "NTFS", fsFlags: compressFlag},
+		volumeMock{name: volumeD, paths: []string{"D:\\"}, driveType: windows.DRIVE_FIXED, fsType: "NTFS", fsFlags: compressFlag | readOnlyFlag},
 	)
 
-	return &volsMock{handle: windows.Handle(uninitialized), vols: vols}
+	return &volumesMock{handle: windows.Handle(uninitialized), vols: vols}
 }
 
 func TestGetPartitionsWin_GetsAllPartitions(t *testing.T) {
-	vols := newVolsMock()
+	vols := newVolumesMock()
 	stats, err := getPartitionsWin(
 		vols.getDriveTypeMock,
 		vols.findFirstVolumeMock,
@@ -61,7 +60,7 @@ func TestGetPartitionsWin_GetsAllPartitions(t *testing.T) {
 	fmt.Printf("PARTITION_STATS: %v\nERROR: %v\n", stats, err)
 }
 
-func (v *volsMock) getDriveTypeMock(rootPath *uint16) (driveType uint32) {
+func (v *volumesMock) getDriveTypeMock(rootPath *uint16) (driveType uint32) {
 	path := windows.UTF16PtrToString(rootPath)
 	for _, info := range v.vols {
 		for _, p := range info.paths {
@@ -73,56 +72,58 @@ func (v *volsMock) getDriveTypeMock(rootPath *uint16) (driveType uint32) {
 	return windows.DRIVE_UNKNOWN
 }
 
-func (v *volsMock) findFirstVolumeMock(volNamePtr *uint16) (windows.Handle, error) {
-	findVol := uint(0)
-	fmt.Printf("HANDLE: %d, FIRST_VOLUME_NAME: %s\n", findVol, v.vols[findVol].name)
+func (v *volumesMock) findFirstVolumeMock(volumeNamePtr *uint16) (windows.Handle, error) {
+	volIndex := 0
+	fmt.Printf("HANDLE: %d, FIRST_VOLUME_NAME: %s\n", volIndex, v.vols[volIndex].name)
 	fmt.Printf("VOLUMES: %v\n", v)
-	volName, err := windows.UTF16FromString(v.vols[findVol].name)
+	volName, err := windows.UTF16FromString(v.vols[volIndex].name)
 	if err != nil {
-		return windows.Handle(findVol), err
+		return windows.Handle(volIndex), err
 	}
-	start := uintptr(unsafe.Pointer(volNamePtr))
-	size := unsafe.Sizeof(*volNamePtr)
+
+	start := uintptr(unsafe.Pointer(volumeNamePtr))
+	size := unsafe.Sizeof(*volumeNamePtr)
 	for i := range volName {
 		*(*uint16)(unsafe.Pointer(start + size * uintptr(i))) = volName[i]
 	}
-	return windows.Handle(findVol), nil
+
+	return windows.Handle(&volIndex), nil
 }
 
-func (v *volsMock) findNextVolumeMock(currentVolIndex windows.Handle, volNamePtr *uint16) error {
-	if currentVolIndex == windows.Handle(uninitialized) {
+func (v *volumesMock) findNextVolumeMock(volumeIndex windows.Handle, volumeNamePtr *uint16) error {
+	if volumeIndex == windows.Handle(uninitialized) {
 		return fmt.Errorf("find next volume handle uninitialized")
 	}
 
-	nextVolIndex := *(*int)(unsafe.Pointer(currentVolIndex)) + 1
-	if nextVolIndex >= len(v.vols) {
+	nextVolumeIndex := *(*int)(unsafe.Pointer(volumeIndex)) + 1
+	if nextVolumeIndex >= len(v.vols) {
 		return syscall.Errno(18) // windows.ERROR_NO_MORE_FILES
 	}
 
-	volName, err := windows.UTF16FromString(v.vols[nextVolIndex].name)
+	volName, err := windows.UTF16FromString(v.vols[nextVolumeIndex].name)
 	if err != nil {
 		return err
 	}
 
-	start := uintptr(unsafe.Pointer(volNamePtr))
-	size := unsafe.Sizeof(*volNamePtr)
+	start := uintptr(unsafe.Pointer(volumeNamePtr))
+	size := unsafe.Sizeof(*volumeNamePtr)
 	for i := range volName {
 		*(*uint16)(unsafe.Pointer(start + size * uintptr(i))) = volName[i]
 	}
 
-	*(*int)(unsafe.Pointer(currentVolIndex)) = nextVolIndex
+	*(*int)(unsafe.Pointer(volumeIndex)) = nextVolumeIndex
 
 	return err
 }
 
-func (v *volsMock) findVolumeCloseMock(findVol windows.Handle) error {
+func (v *volumesMock) findVolumeCloseMock(findVol windows.Handle) error {
 	if findVol != windows.Handle(uninitialized) {
 		findVol = windows.Handle(closed)
 	}
 	return nil
 }
 
-func (v *volsMock) getVolumePathsMock(volNameBuf []uint16) ([]string, error) {
+func (v *volumesMock) getVolumePathsMock(volNameBuf []uint16) ([]string, error) {
 	volName := windows.UTF16ToString(volNameBuf)
 	for _, vol := range v.vols {
 		if vol.name == volName {
@@ -132,7 +133,7 @@ func (v *volsMock) getVolumePathsMock(volNameBuf []uint16) ([]string, error) {
 	return nil, fmt.Errorf("path not found for volume: %s", volName)
 }
 
-func (v *volsMock) getVolumeInformationMock(rootPath string, fsFlags *uint32, fsNameBuf []uint16) (err error) {
+func (v *volumesMock) getVolumeInformationMock(rootPath string, fsFlags *uint32, fsNameBuf []uint16) (err error) {
 	for _, vol := range v.vols {
 		for _, path := range vol.paths {
 			if rootPath == path {
