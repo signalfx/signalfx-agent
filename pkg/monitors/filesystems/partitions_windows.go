@@ -39,7 +39,7 @@ func getPartitionsWin(
 	}
 	defer findVolumeClose(handle)
 
-	fmt.Printf("HANDLE_AFTER_FINDFIRSTVOLUME: %v\n", *(*int)(unsafe.Pointer(handle)))
+	fmt.Printf("HANDLE_AFTER_findFirstVolume: %v\n", *(*int)(unsafe.Pointer(handle)))
 
 	var volPaths []string
 	if volPaths, err = getVolumePaths(volNameBuf); err != nil {
@@ -53,6 +53,7 @@ func getPartitionsWin(
 	}
 	stats = append(stats, partitionStats...)
 
+	fmt.Printf("HANDLE_AFTER_getPartitionStats: %v\n", *(*int)(unsafe.Pointer(handle)))
 	var lastError error
 	for {
 		volNameBuf = make([]uint16, volumeNameBufferLength)
