@@ -60,6 +60,7 @@ func getPartitionsWin(
 				break
 			}
 			lastError = fmt.Errorf("last error: failed to find next volume: %v", err)
+			fmt.Printf("ERROR: %v\n", lastError)
 			continue
 		}
 		fmt.Printf("HANDLE_AFTER_NEXT: %v\n", *(*int)(unsafe.Pointer(handle)))

@@ -32,7 +32,6 @@ type volumeMock struct {
 }
 
 type volumesMock struct {
-	handle windows.Handle
 	volumes   []volumeMock
 }
 
@@ -46,7 +45,7 @@ func newVolumesMock() *volumesMock {
 	)
 
 	u := uninitialized
-	return &volumesMock{handle: windows.Handle(uintptr(unsafe.Pointer(&u))), volumes: volumes}
+	return &volumesMock{volumes: volumes}
 }
 
 func TestGetPartitionsWin_GetsAllPartitions(t *testing.T) {
