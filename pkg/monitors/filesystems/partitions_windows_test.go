@@ -93,7 +93,7 @@ func (v *volumesMock) findFirstVolumeMock(volumeNamePtr *uint16) (windows.Handle
 
 func (v *volumesMock) findNextVolumeMock(volumeIndexHandle windows.Handle, volumeNamePtr *uint16) error {
 	volumeIndex := *(*int)(unsafe.Pointer(volumeIndexHandle))
-	fmt.Printf("VOLUMES_INDEX: %v\n", volumeIndex)
+	fmt.Printf("VOLUMES_INDEX_START: %v\n", volumeIndex)
 	if volumeIndex == uninitialized {
 		return fmt.Errorf("find next volume handle uninitialized")
 	}
@@ -103,18 +103,19 @@ func (v *volumesMock) findNextVolumeMock(volumeIndexHandle windows.Handle, volum
 		return syscall.Errno(18) // windows.ERROR_NO_MORE_FILES
 	}
 
-	volName, err := windows.UTF16FromString(v.volumes[nextVolumeIndex].name)
+	volumeName, err := windows.UTF16FromString(v.volumes[nextVolumeIndex].name)
 	if err != nil {
 		return err
 	}
 
 	start := uintptr(unsafe.Pointer(volumeNamePtr))
 	size := unsafe.Sizeof(*volumeNamePtr)
-	for i := range volName {
-		*(*uint16)(unsafe.Pointer(start + size * uintptr(i))) = volName[i]
+	for i := range volumeName {
+		*(*uint16)(unsafe.Pointer(start + size * uintptr(i))) = volumeName[i]
 	}
 
 	*(*int)(unsafe.Pointer(volumeIndexHandle)) = nextVolumeIndex
+	fmt.Printf("VOLUMES_INDEX_END: %v\n", *(*int)(unsafe.Pointer(volumeIndexHandle)))
 
 	return err
 }
