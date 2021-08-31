@@ -59,12 +59,11 @@ func TestGetPartitionsWin_GetsAllPartitions(t *testing.T) {
 	fmt.Printf("PARTITION_STATS: %v\nERROR: %v\n", stats, err)
 }
 
-func (v *volumesMock) getDriveTypeMock(rootPath *uint16) (driveType uint32) {
-	path := windows.UTF16PtrToString(rootPath)
-	for _, info := range v.volumes {
-		for _, p := range info.paths {
-			if path == p {
-				return info.driveType
+func (v *volumesMock) getDriveTypeMock(rootPath string) (driveType uint32) {
+	for _, volume := range v.volumes {
+		for _, path := range volume.paths {
+			if path == rootPath {
+				return volume.driveType
 			}
 		}
 	}
