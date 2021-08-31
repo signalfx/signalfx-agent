@@ -75,8 +75,8 @@ func (v *volumesMock) getDriveTypeMock(rootPath *uint16) (driveType uint32) {
 
 func (v *volumesMock) findFirstVolumeMock(volumeNamePtr *uint16) (windows.Handle, error) {
 	volumeIndex := 0
-	fmt.Printf("HANDLE: %d, FIRST_VOLUME_NAME: %s\n", volumeIndex, v.volumes[volumeIndex].name)
-	fmt.Printf("VOLUMES: %v\n", v)
+	//fmt.Printf("HANDLE: %d, FIRST_VOLUME_NAME: %s\n", volumeIndex, v.volumes[volumeIndex].name)
+	//fmt.Printf("VOLUMES: %v\n", v)
 	volumeName, err := windows.UTF16FromString(v.volumes[volumeIndex].name)
 	if err != nil {
 		return windows.Handle(volumeIndex), err
@@ -93,7 +93,7 @@ func (v *volumesMock) findFirstVolumeMock(volumeNamePtr *uint16) (windows.Handle
 
 func (v *volumesMock) findNextVolumeMock(volumeIndexHandle windows.Handle, volumeNamePtr *uint16) error {
 	volumeIndex := *(*int)(unsafe.Pointer(volumeIndexHandle))
-	fmt.Printf("VOLUMES_INDEX_START: %v\n", volumeIndex)
+	//fmt.Printf("VOLUMES_INDEX_START: %v\n", volumeIndex)
 	if volumeIndex == uninitialized {
 		return fmt.Errorf("find next volume handle uninitialized")
 	}
@@ -115,7 +115,7 @@ func (v *volumesMock) findNextVolumeMock(volumeIndexHandle windows.Handle, volum
 	}
 
 	*(*int)(unsafe.Pointer(volumeIndexHandle)) = nextVolumeIndex
-	fmt.Printf("VOLUMES_INDEX_END: %v\n", *(*int)(unsafe.Pointer(volumeIndexHandle)))
+	//fmt.Printf("VOLUMES_INDEX_END: %v\n", *(*int)(unsafe.Pointer(volumeIndexHandle)))
 
 	return err
 }

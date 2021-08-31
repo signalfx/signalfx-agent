@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"syscall"
+	"unsafe"
 
 	gopsutil "github.com/shirou/gopsutil/disk"
 	"golang.org/x/sys/windows"
@@ -53,13 +54,15 @@ func getPartitionsWin(
 	var lastError error
 	for {
 		volNameBuf = make([]uint16, volumeNameBufferLength)
+		fmt.Printf("HANDLE_BEFORE_NEXT: %v\n", *(*int)(unsafe.Pointer(handle)))
 		if err = findNextVolume(handle, &volNameBuf[0]); err != nil {
-			if err.(syscall.Errno) == syscall.ERROR_NO_MORE_FILES {
+			if err.(syscall.Errno) == windows.ERROR_NO_MORE_FILES {
 				break
 			}
 			lastError = fmt.Errorf("last error: failed to find next volume: %v", err)
 			continue
 		}
+		fmt.Printf("HANDLE_AFTER_NEXT: %v\n", *(*int)(unsafe.Pointer(handle)))
 
 		volPaths, err = getVolumePaths(volNameBuf)
 		if err != nil {
