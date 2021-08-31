@@ -22,7 +22,7 @@ func getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
 // getPartitions returns partition stats.
 // Similar to https://github.com/shirou/gopsutil/blob/7e4dab436b94d671021647dc5dc12c94f490e46e/disk/disk_windows.go#L71
 func getPartitionsWin(
-	getDriveType func(rootPath *uint16) (driveType uint32),
+	getDriveType func(rootPath string) (driveType uint32),
 	findFirstVolume func(volName *uint16) (findVol windows.Handle, err error),
 	findNextVolume func(findVol windows.Handle, volName *uint16) (err error),
 	findVolumeClose func(findVol windows.Handle) (err error),
@@ -45,9 +45,9 @@ func getPartitionsWin(
 	if volPaths, err = getVolumePaths(volNameBuf); err != nil {
 		return stats, fmt.Errorf("failed to find paths for first volume %s: %v", windows.UTF16ToString(volNameBuf), err)
 	}
-
+	fmt.Printf("HANDLE_AFTER_getVolumePaths: %v\n", *(*int)(unsafe.Pointer(handle)))
 	var partitionStats []gopsutil.PartitionStat
-	partitionStats, err = getPartitionStats(getDriveType(&volNameBuf[0]), volPaths, getVolumeInformation)
+	partitionStats, err = getPartitionStats(getDriveType(volPaths[0]), volPaths, getVolumeInformation)
 	if err != nil {
 		return stats, fmt.Errorf("failed to find partition stats for first volume %s: %v", windows.UTF16ToString(volNameBuf), err)
 	}
@@ -72,7 +72,7 @@ func getPartitionsWin(
 			continue
 		}
 
-		partitionStats, err = getPartitionStats(getDriveType(&volNameBuf[0]), volPaths, getVolumeInformation)
+		partitionStats, err = getPartitionStats(getDriveType(volPaths[0]), volPaths, getVolumeInformation)
 		if err != nil {
 			lastError = fmt.Errorf("last error: failed to find partition stats for volume %s: %v", windows.UTF16ToString(volNameBuf), err)
 			continue
@@ -83,8 +83,9 @@ func getPartitionsWin(
 	return stats, lastError
 }
 
-func getDriveType(rootPath *uint16) (driveType uint32) {
-	return windows.GetDriveType(rootPath)
+func getDriveType(rootPath string) (driveType uint32) {
+	rootPathPtr, _ := windows.winUTF16PtrFromString(rootPath)
+	return windows.GetDriveType(rootPathPtr)
 }
 
 func findFirstVolume(volName *uint16) (findVol windows.Handle, err error) {
