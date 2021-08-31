@@ -147,6 +147,7 @@ func (v *volumesMock) getVolumeInformationMock(rootPath string, fsFlags *uint32,
 				for i := range fsName {
 					fsNameBuf[i] = fsName[i]
 				}
+				return nil
 			}
 		}
 	}
