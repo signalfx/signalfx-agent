@@ -190,6 +190,11 @@ func (v *volumesMock) getVolumeInformationMock(rootPath string, fsFlags *uint32,
 //	}
 //}
 
+//VOLUME: \\?\Volume{692d8a75-0000-0000-0000-100000000000}\, PATHS: [C:\]
+//VOLUME: \\?\Volume{bf5d138f-0000-0000-0000-010000000000}\, PATHS: [C:\mnt\testHD\]
+//        \\?\Volume{bf5d138f-0000-0000-0000-010000000000}\
+//VOLUME: \\?\Volume{bf5d0775-0000-0000-0000-010000000000}\, PATHS: [D:\]
+
 func TestGetPartitions_ShouldInclude_gopsutil_PartitionStats(t *testing.T) {
 	// Partition stats from gopsutil are for drive mounts only.
 	want, err := gopsutil.Partitions(true)

@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"strings"
 	"syscall"
-	"unsafe"
 
 	gopsutil "github.com/shirou/gopsutil/disk"
 	"golang.org/x/sys/windows"
@@ -43,8 +42,7 @@ func getPartitionsWin(
 	if volPaths, err = getVolumePaths(volNameBuf); err != nil {
 		return stats, fmt.Errorf("failed to find paths for first volume %s: %v", windows.UTF16ToString(volNameBuf), err)
 	}
-	fmt.Printf("volNameBuf_AFTER_getVolumePaths: %s\n", windows.UTF16ToString(volNameBuf))
-	fmt.Printf("HANDLE_AFTER_getVolumePaths: %v\n", *(*int)(unsafe.Pointer(handle)))
+
 	var partitionStats []gopsutil.PartitionStat
 	partitionStats, err = getPartitionStats(getDriveType(volPaths[0]), volPaths, getVolumeInformation)
 	if err != nil {
@@ -52,7 +50,6 @@ func getPartitionsWin(
 	}
 	stats = append(stats, partitionStats...)
 
-	fmt.Printf("HANDLE_AFTER_getPartitionStats: %v\n", *(*int)(unsafe.Pointer(handle)))
 	var lastError error
 	for {
 		volNameBuf = make([]uint16, volumeNameBufferLength)
@@ -63,7 +60,6 @@ func getPartitionsWin(
 			lastError = fmt.Errorf("last error: failed to find next volume: %v", err)
 			continue
 		}
-		fmt.Printf("HANDLE_AFTER_NEXT: %v\n", *(*int)(unsafe.Pointer(handle)))
 
 		volPaths, err = getVolumePaths(volNameBuf)
 		if err != nil {
@@ -107,12 +103,13 @@ func getVolumePaths(volNameBuf []uint16) ([]string, error) {
 		return nil, err
 	}
 
+	fmt.Printf("VOLUME: %s, PATHS: %v\n", windows.UTF16ToString(volNameBuf), windows.UTF16ToString(volPathsBuf))
+
 	volPaths := make([]string, 0)
 	for _, volPath := range strings.Split(strings.TrimRight(windows.UTF16ToString(volPathsBuf), "\x00"), "\x00") {
 		volPaths = append(volPaths, volPath)
 	}
 
-	fmt.Printf("VOLUME: %s, PATHS: %v\n", windows.UTF16ToString(volNameBuf), volPaths)
 	return volPaths, nil
 }
 
