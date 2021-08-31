@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"strings"
 	"syscall"
+	"unicode/utf16"
 
 	gopsutil "github.com/shirou/gopsutil/disk"
 	"golang.org/x/sys/windows"
@@ -95,7 +96,7 @@ func findVolumeClose(findVol windows.Handle) (err error) {
 	return windows.FindVolumeClose(findVol)
 }
 
-// volumePaths returns the path for the given volume.
+// getVolumePaths returns the path for the given volume.
 func getVolumePaths(volNameBuf []uint16) ([]string, error) {
 	volPathsBuf := make([]uint16, volumePathBufferLength)
 	returnLen := uint32(0)
@@ -103,14 +104,27 @@ func getVolumePaths(volNameBuf []uint16) ([]string, error) {
 		return nil, err
 	}
 
-	fmt.Printf("VOLUME: %s, PATHS: %v, PATH_LEN: %d,RETURN_LEN: %d, SIZE: %d\n", windows.UTF16ToString(volNameBuf), windows.UTF16ToString(volPathsBuf), len(volPathsBuf), returnLen, volumePathBufferLength)
-
-	volPaths := make([]string, 0)
-	for _, volPath := range strings.Split(strings.TrimRight(windows.UTF16ToString(volPathsBuf), "\x00"), "\x00") {
-		volPaths = append(volPaths, volPath)
-	}
+	volPaths := findStrings(volPathsBuf, int(returnLen))
+	fmt.Printf("VOLUME: %s, PATHS: %v, PATH_LEN: %d,RETURN_LEN: %d, SIZE: %d\n", windows.UTF16ToString(volNameBuf), volPaths, len(volPathsBuf), returnLen, volumePathBufferLength)
 
 	return volPaths, nil
+}
+
+func findStrings(ss16 []uint16, size int) []string {
+	if len(ss16) < size {
+		return nil
+	}
+	ss := make([]string, 0)
+	from := 0
+	for to := 0; to < size; to++ {
+		if ss16[to] == 0 {
+			if from < to && ss16[from] != 0 {
+				ss = append(ss, string(utf16.Decode(ss16[from:to])))
+			}
+			from = to + 1
+		}
+	}
+	return ss
 }
 
 func getVolumeInformation(rootPath string, fsFlags *uint32, fsNameBuf []uint16) (err error) {
