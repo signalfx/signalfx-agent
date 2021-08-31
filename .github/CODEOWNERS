@@ -2,8 +2,8 @@
 * @keitwb @jcheng-splunk @mstumpfx @asuresh4 @rmfitzpatrick @signalfx/gdi-data-collection-maintainers
 
 # Docs reviewers
-*.md @signalfx/docs @signalfx/gdi-data-collection-approvers
-*.rst @signalfx/docs @signalfx/gdi-data-collection-approvers
-docs/ @signalfx/docs @signalfx/gdi-data-collection-approvers
-README* @signalfx/docs @signalfx/gdi-data-collection-approvers
+*.md @signalfx/docs @signalfx/gdi-data-collection-approvers @signalfx/docs
+*.rst @signalfx/docs @signalfx/gdi-data-collection-approvers @signalfx/docs
+docs/ @signalfx/docs @signalfx/gdi-data-collection-approvers @signalfx/docs
+README* @signalfx/docs @signalfx/gdi-data-collection-approvers @signalfx/docs
 
