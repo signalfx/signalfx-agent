@@ -32,7 +32,7 @@ type volumeMock struct {
 }
 
 type volumesMock struct {
-	handle windows.Handle
+	index int
 	volumes []volumeMock
 }
 
@@ -45,7 +45,7 @@ func newVolumesMock() *volumesMock {
 		volumeMock{name: volumeD, paths: []string{"D:\\"}, driveType: windows.DRIVE_FIXED, fsType: "NTFS", fsFlags: compressFlag | readOnlyFlag},
 	)
 
-	return &volumesMock{handle: windows.Handle(0), volumes: volumes}
+	return &volumesMock{index: 0, volumes: volumes}
 }
 
 func TestGetPartitionsWin_GetsAllPartitions(t *testing.T) {
@@ -75,9 +75,9 @@ func (v *volumesMock) findFirstVolumeMock(volumeNamePtr *uint16) (windows.Handle
 	//volumeIndex := 0
 	//fmt.Printf("HANDLE: %d, FIRST_VOLUME_NAME: %s\n", volumeIndex, v.volumes[volumeIndex].name)
 	//fmt.Printf("VOLUMES: %v\n", v)
-	volumeName, err := windows.UTF16FromString(v.volumes[v.handle].name)
+	volumeName, err := windows.UTF16FromString(v.volumes[v.index].name)
 	if err != nil {
-		return v.handle, err
+		return windows.Handle(unsafe.Pointer(&v.index)), err
 	}
 
 	start := uintptr(unsafe.Pointer(volumeNamePtr))
@@ -86,7 +86,7 @@ func (v *volumesMock) findFirstVolumeMock(volumeNamePtr *uint16) (windows.Handle
 		*(*uint16)(unsafe.Pointer(start + size * uintptr(i))) = volumeName[i]
 	}
 
-	return v.handle, nil
+	return windows.Handle(unsafe.Pointer(&v.index)), nil
 }
 
 func (v *volumesMock) findNextVolumeMock(volumeIndexHandle windows.Handle, volumeNamePtr *uint16) error {
