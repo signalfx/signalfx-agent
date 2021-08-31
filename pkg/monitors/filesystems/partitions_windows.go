@@ -39,12 +39,14 @@ func getPartitionsWin(
 	}
 	defer findVolumeClose(handle)
 
+	fmt.Printf("volNameBuf_AFTER_findFirstVolume: %s\n", windows.UTF16ToString(volNameBuf))
 	fmt.Printf("HANDLE_AFTER_findFirstVolume: %v\n", *(*int)(unsafe.Pointer(handle)))
 
 	var volPaths []string
 	if volPaths, err = getVolumePaths(volNameBuf); err != nil {
 		return stats, fmt.Errorf("failed to find paths for first volume %s: %v", windows.UTF16ToString(volNameBuf), err)
 	}
+	fmt.Printf("volNameBuf_AFTER_getVolumePaths: %s\n", windows.UTF16ToString(volNameBuf))
 	fmt.Printf("HANDLE_AFTER_getVolumePaths: %v\n", *(*int)(unsafe.Pointer(handle)))
 	var partitionStats []gopsutil.PartitionStat
 	partitionStats, err = getPartitionStats(getDriveType(volPaths[0]), volPaths, getVolumeInformation)
