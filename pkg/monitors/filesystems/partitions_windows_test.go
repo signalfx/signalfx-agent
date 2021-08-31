@@ -126,14 +126,17 @@ func (v *volumesMock) findVolumeCloseMock(volumeIndexHandle windows.Handle) erro
 	return nil
 }
 
-func (v *volumesMock) getVolumePathsMock(volNameBuf []uint16) ([]string, error) {
+func (v *volumesMock) getVolumePathsMock(volNameBuf []uint16) (volumePaths []string, err error) {
 	volumeName := windows.UTF16ToString(volNameBuf)
 	for _, volume := range v.volumes {
 		if volume.name == volumeName {
-			return volume.paths, nil
+			volumePaths = append(volumePaths, volume.paths...)
 		}
 	}
-	return nil, fmt.Errorf("path not found for volume: %s", volumeName)
+	if len(volumePaths) == 0 {
+		err = fmt.Errorf("path not found for volume: %s", volumeName)
+	}
+	return volumePaths, err
 }
 
 func (v *volumesMock) getVolumeInformationMock(rootPath string, fsFlags *uint32, fsNameBuf []uint16) (err error) {
