@@ -39,6 +39,7 @@ func getPartitionsWin(
 	}
 	defer findVolumeClose(handle)
 
+	fmt.Printf("HANDLE_AFTER_findFirstVolume: %v\n", *(*int)(unsafe.Pointer(handle)))
 	fmt.Printf("volNameBuf_AFTER_findFirstVolume: %s\n", windows.UTF16ToString(volNameBuf))
 	fmt.Printf("HANDLE_AFTER_findFirstVolume: %v\n", *(*int)(unsafe.Pointer(handle)))
 
