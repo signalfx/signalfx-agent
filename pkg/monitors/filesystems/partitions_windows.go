@@ -104,10 +104,7 @@ func getVolumePaths(volNameBuf []uint16) ([]string, error) {
 		return nil, err
 	}
 
-	volPaths := findStrings(volPathsBuf, int(returnLen))
-	fmt.Printf("VOLUME: %s, PATHS: %v, PATH_LEN: %d,RETURN_LEN: %d, SIZE: %d\n", windows.UTF16ToString(volNameBuf), volPaths, len(volPathsBuf), returnLen, volumePathBufferLength)
-
-	return volPaths, nil
+	return findStrings(volPathsBuf, int(returnLen)), nil
 }
 
 func findStrings(ss16 []uint16, size int) []string {
@@ -127,7 +124,7 @@ func findStrings(ss16 []uint16, size int) []string {
 	return ss
 }
 
-func getVolumeInformation(rootPath string, fsFlags *uint32, fsNameBuf []uint16) (err error) {
+func getVolumeInformation(rootPath string, fsFlags *uint32, fsNameBuf []uint16) error {
 	volNameBuf := make([]uint16, 256)
 	volSerialNum := uint32(0)
 	maxComponentLen := uint32(0)

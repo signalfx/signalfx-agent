@@ -41,8 +41,7 @@ func newVolumesMock() *volumesMock {
 	volumes = append(volumes,
 		volumeMock{name: volumeA, paths: []string{"A:\\"}, driveType: windows.DRIVE_REMOVABLE, fsType: "FAT16", fsFlags: compressFlag},
 		volumeMock{name: volumeC, paths: []string{"C:\\"}, driveType: windows.DRIVE_FIXED, fsType: "NTFS", fsFlags: compressFlag},
-		volumeMock{name: volumeC, paths: []string{"C:\\testHD\\"}, driveType: windows.DRIVE_FIXED, fsType: "NTFS", fsFlags: compressFlag},
-		volumeMock{name: volumeD, paths: []string{"D:\\"}, driveType: windows.DRIVE_FIXED, fsType: "NTFS", fsFlags: compressFlag | readOnlyFlag},
+		volumeMock{name: volumeD, paths: []string{"D:\\", "C:\\mount\\D\\"}, driveType: windows.DRIVE_FIXED, fsType: "NTFS", fsFlags: compressFlag},
 	)
 
 	return &volumesMock{index: 0, volumes: volumes}
@@ -72,9 +71,6 @@ func (v *volumesMock) getDriveTypeMock(rootPath string) (driveType uint32) {
 }
 
 func (v *volumesMock) findFirstVolumeMock(volumeNamePtr *uint16) (windows.Handle, error) {
-	//volumeIndex := 0
-	//fmt.Printf("HANDLE: %d, FIRST_VOLUME_NAME: %s\n", volumeIndex, v.volumes[volumeIndex].name)
-	//fmt.Printf("VOLUMES: %v\n", v)
 	volumeName, err := windows.UTF16FromString(v.volumes[v.index].name)
 	if err != nil {
 		return windows.Handle(unsafe.Pointer(&v.index)), err
@@ -139,13 +135,18 @@ func (v *volumesMock) getVolumePathsMock(volNameBuf []uint16) (volumePaths []str
 	return volumePaths, err
 }
 
-func (v *volumesMock) getVolumeInformationMock(rootPath string, fsFlags *uint32, fsNameBuf []uint16) (err error) {
+func (v *volumesMock) getVolumeInformationMock(rootPath string, fsFlags *uint32, fsNameBuf []uint16) error {
 	for _, volume := range v.volumes {
 		for _, path := range volume.paths {
 			if rootPath == path {
 				*fsFlags = volume.fsFlags
-				fsNameBuf, err = windows.UTF16FromString(volume.name)
-				return err
+				fsName, err := windows.UTF16FromString(volume.fsType)
+				if err != nil {
+					return err
+				}
+				for i := range fsName {
+					fsNameBuf[i] = fsName[i]
+				}
 			}
 		}
 	}
