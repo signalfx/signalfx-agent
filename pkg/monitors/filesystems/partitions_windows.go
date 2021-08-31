@@ -39,14 +39,6 @@ func getPartitionsWin(
 	}
 	defer findVolumeClose(handle)
 
-	fmt.Printf("HANDLE_AFTER_findFirstVolume: %v\n", *(*int)(unsafe.Pointer(handle)))
-	//fmt.Printf("volNameBuf_AFTER_findFirstVolume: %s\n", windows.UTF16ToString(volNameBuf))
-	fmt.Printf("HANDLE_AFTER_findFirstVolume: %v\n", *(*int)(unsafe.Pointer(handle)))
-	//fmt.Printf("volNameBuf_AFTER_findFirstVolume: %s\n", windows.UTF16ToString(volNameBuf))
-	fmt.Printf("HANDLE_AFTER_findFirstVolume: %v\n", *(*int)(unsafe.Pointer(handle)))
-	//fmt.Printf("volNameBuf_AFTER_findFirstVolume: %s\n", windows.UTF16ToString(volNameBuf))
-	fmt.Printf("HANDLE_AFTER_findFirstVolume: %v\n", *(*int)(unsafe.Pointer(handle)))
-
 	var volPaths []string
 	if volPaths, err = getVolumePaths(volNameBuf); err != nil {
 		return stats, fmt.Errorf("failed to find paths for first volume %s: %v", windows.UTF16ToString(volNameBuf), err)
@@ -120,6 +112,7 @@ func getVolumePaths(volNameBuf []uint16) ([]string, error) {
 		volPaths = append(volPaths, volPath)
 	}
 
+	fmt.Printf("VOLUME: %s, PATHS: %v\n", windows.UTF16ToString(volNameBuf), volPaths)
 	return volPaths, nil
 }
 
