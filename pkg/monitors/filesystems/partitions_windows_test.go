@@ -44,7 +44,6 @@ func newVolumesMock() *volumesMock {
 		volumeMock{name: volumeD, paths: []string{"D:\\"}, driveType: windows.DRIVE_FIXED, fsType: "NTFS", fsFlags: compressFlag | readOnlyFlag},
 	)
 
-	u := uninitialized
 	return &volumesMock{volumes: volumes}
 }
 
