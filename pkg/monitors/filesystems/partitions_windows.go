@@ -84,7 +84,7 @@ func getPartitionsWin(
 }
 
 func getDriveType(rootPath string) (driveType uint32) {
-	rootPathPtr, _ := windows.winUTF16PtrFromString(rootPath)
+	rootPathPtr, _ := windows.UTF16PtrFromString(rootPath)
 	return windows.GetDriveType(rootPathPtr)
 }
 
