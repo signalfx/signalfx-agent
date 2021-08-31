@@ -39,6 +39,8 @@ func getPartitionsWin(
 	}
 	defer findVolumeClose(handle)
 
+	fmt.Printf("HANDLE_AFTER_FINDFIRSTVOLUME: %v\n", *(*int)(unsafe.Pointer(handle)))
+
 	var volPaths []string
 	if volPaths, err = getVolumePaths(volNameBuf); err != nil {
 		return stats, fmt.Errorf("failed to find paths for first volume %s: %v", windows.UTF16ToString(volNameBuf), err)
@@ -54,13 +56,11 @@ func getPartitionsWin(
 	var lastError error
 	for {
 		volNameBuf = make([]uint16, volumeNameBufferLength)
-		fmt.Printf("HANDLE_BEFORE_NEXT: %v\n", *(*int)(unsafe.Pointer(handle)))
 		if err = findNextVolume(handle, &volNameBuf[0]); err != nil {
 			if err.(syscall.Errno) == windows.ERROR_NO_MORE_FILES {
 				break
 			}
 			lastError = fmt.Errorf("last error: failed to find next volume: %v", err)
-			fmt.Printf("ERROR: %v\n", lastError)
 			continue
 		}
 		fmt.Printf("HANDLE_AFTER_NEXT: %v\n", *(*int)(unsafe.Pointer(handle)))
