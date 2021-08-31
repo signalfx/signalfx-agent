@@ -103,7 +103,7 @@ func getVolumePaths(volNameBuf []uint16) ([]string, error) {
 		return nil, err
 	}
 
-	fmt.Printf("VOLUME: %s, PATHS: %v\n", windows.UTF16ToString(volNameBuf), windows.UTF16ToString(volPathsBuf))
+	fmt.Printf("VOLUME: %s, PATHS: %v, PATH_LEN: %d,RETURN_LEN: %d, SIZE: %d\n", windows.UTF16ToString(volNameBuf), windows.UTF16ToString(volPathsBuf), len(volPathsBuf), returnLen, volumePathBufferLength)
 
 	volPaths := make([]string, 0)
 	for _, volPath := range strings.Split(strings.TrimRight(windows.UTF16ToString(volPathsBuf), "\x00"), "\x00") {
