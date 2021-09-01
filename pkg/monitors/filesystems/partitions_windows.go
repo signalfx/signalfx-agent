@@ -3,16 +3,16 @@
 package filesystems
 
 import (
-	"fmt"
 	"strings"
 	"syscall"
 	"unicode/utf16"
 
+	"github.com/pkg/errors"
 	gopsutil "github.com/shirou/gopsutil/disk"
 	"golang.org/x/sys/windows"
 )
 
-const volumeNameBufferLength = uint32(syscall.MAX_PATH + 1)
+const volumeNameBufferLength = uint32(windows.MAX_PATH + 1)
 const volumePathBufferLength = volumeNameBufferLength
 
 func getPartitions(all bool) ([]gopsutil.PartitionStat, error) {
@@ -35,19 +35,19 @@ func getPartitionsWin(
 
 	handle, err := findFirstVolume(&volNameBuf[0])
 	if err != nil {
-		return stats, fmt.Errorf("failed to find first volume: %v", err)
+		return stats, errors.Wrapf(err, "Failed to find first volume")
 	}
 	defer findVolumeClose(handle)
 
 	var volPaths []string
 	if volPaths, err = getVolumePaths(volNameBuf); err != nil {
-		return stats, fmt.Errorf("failed to find paths for first volume %s: %v", windows.UTF16ToString(volNameBuf), err)
+		return stats, errors.Wrapf(err, "Failed to find paths for first volume %s", windows.UTF16ToString(volNameBuf))
 	}
 
 	var partitionStats []gopsutil.PartitionStat
 	partitionStats, err = getPartitionStats(getDriveType(volPaths[0]), volPaths, getVolumeInformation)
 	if err != nil {
-		return stats, fmt.Errorf("failed to find partition stats for first volume %s: %v", windows.UTF16ToString(volNameBuf), err)
+		return stats, errors.Wrapf(err, "Failed to find partition stats for first volume %s", windows.UTF16ToString(volNameBuf))
 	}
 	stats = append(stats, partitionStats...)
 
@@ -58,19 +58,19 @@ func getPartitionsWin(
 			if err.(syscall.Errno) == windows.ERROR_NO_MORE_FILES {
 				break
 			}
-			lastError = fmt.Errorf("last error: failed to find next volume: %v", err)
+			lastError = errors.Wrapf(err, "Last error of error(s) in finding next volume")
 			continue
 		}
 
 		volPaths, err = getVolumePaths(volNameBuf)
 		if err != nil {
-			lastError = fmt.Errorf("last error: failed to find paths for volume %s: %v", windows.UTF16ToString(volNameBuf), err)
+			lastError = errors.Wrapf(err, "Last error of error(s) in finding paths for volume %s", windows.UTF16ToString(volNameBuf))
 			continue
 		}
 
 		partitionStats, err = getPartitionStats(getDriveType(volPaths[0]), volPaths, getVolumeInformation)
 		if err != nil {
-			lastError = fmt.Errorf("last error: failed to find partition stats for volume %s: %v", windows.UTF16ToString(volNameBuf), err)
+			lastError = errors.Wrapf(err, "Last error of error(s) in finding partition stats for volume %s", windows.UTF16ToString(volNameBuf))
 			continue
 		}
 		stats = append(stats, partitionStats...)
@@ -153,32 +153,33 @@ func getPartitionStats(
 
 	var lastError error
 	for _, volPath := range volPaths {
-		fsFlags := uint32(0)
-		fsNameBuf := make([]uint16, 256)
+		if driveType == windows.DRIVE_REMOVABLE || driveType == windows.DRIVE_FIXED || driveType == windows.DRIVE_REMOTE || driveType == windows.DRIVE_CDROM {
+			fsFlags, fsNameBuf := uint32(0), make([]uint16, 256)
 
-		if err := getVolumeInformation(volPath, &fsFlags, fsNameBuf); err != nil {
-			lastError = fmt.Errorf("last error: failed to get volume informaton: %v", err)
-			if driveType == windows.DRIVE_CDROM || driveType == windows.DRIVE_REMOVABLE {
-				continue //device is not ready will happen if there is no disk in the drive
+			if err := getVolumeInformation(volPath, &fsFlags, fsNameBuf); err != nil {
+				lastError = errors.Wrapf(err, "Last error of error(s) in getting volume informaton")
+				if driveType == windows.DRIVE_CDROM || driveType == windows.DRIVE_REMOVABLE {
+					continue //device is not ready will happen if there is no disk in the drive
+				}
+				return stats, lastError
 			}
-			return stats, lastError
-		}
 
-		opts := "rw"
-		if int64(fsFlags)&gopsutil.FileReadOnlyVolume != 0 {
-			opts = "ro"
-		}
-		if int64(fsFlags)&gopsutil.FileFileCompression != 0 {
-			opts += ".compress"
-		}
+			opts := "rw"
+			if int64(fsFlags)&gopsutil.FileReadOnlyVolume != 0 {
+				opts = "ro"
+			}
+			if int64(fsFlags)&gopsutil.FileFileCompression != 0 {
+				opts += ".compress"
+			}
 
-		p := strings.TrimRight(volPath, "\\")
-		stats = append(stats, gopsutil.PartitionStat{
-			Device:     p,
-			Mountpoint: p,
-			Fstype:     windows.UTF16PtrToString(&fsNameBuf[0]),
-			Opts:       opts,
-		})
+			p := strings.TrimRight(volPath, "\\")
+			stats = append(stats, gopsutil.PartitionStat{
+				Device:     p,
+				Mountpoint: p,
+				Fstype:     windows.UTF16PtrToString(&fsNameBuf[0]),
+				Opts:       opts,
+			})
+		}
 	}
 
 	return stats, lastError
