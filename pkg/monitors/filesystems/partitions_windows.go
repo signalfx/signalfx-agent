@@ -35,19 +35,19 @@ func getPartitionsWin(
 
 	handle, err := findFirstVolume(&volNameBuf[0])
 	if err != nil {
-		return stats, errors.Wrapf(err, "Failed to find first volume")
+		return stats, errors.WithMessage(err, "cannot find first volume")
 	}
 	defer findVolumeClose(handle)
 
 	var volPaths []string
 	if volPaths, err = getVolumePaths(volNameBuf); err != nil {
-		return stats, errors.Wrapf(err, "Failed to find paths for first volume %s", windows.UTF16ToString(volNameBuf))
+		return stats, errors.WithMessage(err, "cannot find paths for first volume %s", windows.UTF16ToString(volNameBuf))
 	}
 
 	var partitionStats []gopsutil.PartitionStat
 	partitionStats, err = getPartitionStats(getDriveType(volPaths[0]), volPaths, getVolumeInformation)
 	if err != nil {
-		return stats, errors.Wrapf(err, "Failed to find partition stats for first volume %s", windows.UTF16ToString(volNameBuf))
+		return stats, errors.WithMessage(err, "cannot find partition stats for first volume %s", windows.UTF16ToString(volNameBuf))
 	}
 	stats = append(stats, partitionStats...)
 
@@ -55,22 +55,22 @@ func getPartitionsWin(
 	for {
 		volNameBuf = make([]uint16, volumeNameBufferLength)
 		if err = findNextVolume(handle, &volNameBuf[0]); err != nil {
-			if err.(syscall.Errno) == windows.ERROR_NO_MORE_FILES {
+			if errno, ok := err.(syscall.Errno); ok && errno == windows.ERROR_NO_MORE_FILES {
 				break
 			}
-			lastError = errors.Wrapf(err, "Last error of error(s) in finding next volume")
+			lastError = errors.WithMessage(err, "last error of error(s) in finding next volume")
 			continue
 		}
 
 		volPaths, err = getVolumePaths(volNameBuf)
 		if err != nil {
-			lastError = errors.Wrapf(err, "Last error of error(s) in finding paths for volume %s", windows.UTF16ToString(volNameBuf))
+			lastError = errors.WithMessage(err, "last error of error(s) in finding paths for volume %s", windows.UTF16ToString(volNameBuf))
 			continue
 		}
 
 		partitionStats, err = getPartitionStats(getDriveType(volPaths[0]), volPaths, getVolumeInformation)
 		if err != nil {
-			lastError = errors.Wrapf(err, "Last error of error(s) in finding partition stats for volume %s", windows.UTF16ToString(volNameBuf))
+			lastError = errors.WithMessage(err, "last error of error(s) in finding partition stats for volume %s", windows.UTF16ToString(volNameBuf))
 			continue
 		}
 		stats = append(stats, partitionStats...)
@@ -157,7 +157,7 @@ func getPartitionStats(
 			fsFlags, fsNameBuf := uint32(0), make([]uint16, 256)
 
 			if err := getVolumeInformation(volPath, &fsFlags, fsNameBuf); err != nil {
-				lastError = errors.Wrapf(err, "Last error of error(s) in getting volume informaton")
+				lastError = errors.WithMessage(err, "last error of error(s) in getting volume informaton")
 				if driveType == windows.DRIVE_CDROM || driveType == windows.DRIVE_REMOVABLE {
 					continue //device is not ready will happen if there is no disk in the drive
 				}
