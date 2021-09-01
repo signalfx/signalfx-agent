@@ -73,7 +73,7 @@ func TestGetPartitionsWin(t *testing.T) {
 				{Device: "C:", Mountpoint: "C:", Fstype: "NTFS", Opts: "rw.compress"},
 				{Device: "D:", Mountpoint: "D:", Fstype: "NTFS", Opts: "ro.compress"},
 				{Device: "C:\\mnt\\driveD", Mountpoint: "C:\\mnt\\driveD", Fstype: "NTFS", Opts: "ro.compress"},
-				{Device: "A:", Mountpoint: "A:", Fstype: "FAT16", Opts: "ro.compress"}},
+				{Device: "A:", Mountpoint: "A:", Fstype: "FAT16", Opts: "rw.compress"}},
 		},
 	}
 
