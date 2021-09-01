@@ -106,22 +106,22 @@ func TestGetPartitionsWin(t *testing.T) {
 				stats: []gopsutil.PartitionStat{},
 			},
 		},
-		{
-			name: "no partition stats for next volume partitions not found",
-			volumes: func() *volumesMock {
-				firstVolume, nextVolume1, nextVolume2 := driveVolume(), driveAndFolderVolume(), removableDriveVolume()
-				nextVolume1.err = fmt.Errorf("volume not found")
-				vols := append(make([]*volumeMock, 0), firstVolume, nextVolume1, nextVolume2)
-				return &volumesMock{handle: 0, volumes: vols}
-			}(),
-			want: wantType{
-				numStats: 2,
-				hasError: true,
-				stats: []gopsutil.PartitionStat{
-					{Device: "C:", Mountpoint: "C:", Fstype: "NTFS", Opts: "rw.compress"},
-					{Device: "A:", Mountpoint: "A:", Fstype: "FAT16", Opts: "rw.compress"}},
-			},
-		},
+		//{
+		//	name: "no partition stats for next volume partitions not found",
+		//	volumes: func() *volumesMock {
+		//		firstVolume, nextVolume1, nextVolume2 := driveVolume(), driveAndFolderVolume(), removableDriveVolume()
+		//		nextVolume1.err = fmt.Errorf("volume not found")
+		//		vols := append(make([]*volumeMock, 0), firstVolume, nextVolume1, nextVolume2)
+		//		return &volumesMock{handle: 0, volumes: vols}
+		//	}(),
+		//	want: wantType{
+		//		numStats: 2,
+		//		hasError: true,
+		//		stats: []gopsutil.PartitionStat{
+		//			{Device: "C:", Mountpoint: "C:", Fstype: "NTFS", Opts: "rw.compress"},
+		//			{Device: "A:", Mountpoint: "A:", Fstype: "FAT16", Opts: "rw.compress"}},
+		//	},
+		//},
 
 	}
 
@@ -138,7 +138,7 @@ func TestGetPartitionsWin(t *testing.T) {
 			if !test.want.hasError {
 				require.NoError(t, err)
 			} else {
-				require.NoError(t, err)
+				require.Error(t, err)
 			}
 			require.Equal(t, test.want.numStats, len(stats), "Number of partition stats not equal to expected")
 
