@@ -149,8 +149,8 @@ See [Docker Deployment](./deployments/docker) for more information.
 #### Kubernetes
 See our [Kubernetes setup instructions](./docs/kubernetes-setup.md) and the
 documentation on [Monitoring
-Kubernetes](https://docs.signalfx.com/en/latest/integrations/kubernetes-quickstart.html)
-for more information.
+Kubernetes](https://docs.splunk.com/Observability/infrastructure/navigators/k8s.html)
+for more information. Helm 3+ is the supported version.
 
 #### AWS Elastic Container Service (ECS)
 See the [ECS directory](./deployments/ecs), which includes a sample
