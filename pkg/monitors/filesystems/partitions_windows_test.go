@@ -161,7 +161,12 @@ func (v *volumesMock) getDriveTypeMock(rootPath string) (driveType uint32) {
 }
 
 func (v *volumesMock) findFirstVolumeMock(volumeNamePtr *uint16) (windows.Handle, error) {
-	volumeName, err := windows.UTF16FromString(v.volumes[v.handle].name)
+	firstVolume := v.volumes[v.handle]
+	if firstVolume.err != nil {
+		return windows.Handle(unsafe.Pointer(&v.handle)), firstVolume.err
+	}
+
+	volumeName, err := windows.UTF16FromString(firstVolume.name)
 	if err != nil {
 		return windows.Handle(unsafe.Pointer(&v.handle)), err
 	}
@@ -186,7 +191,12 @@ func (v *volumesMock) findNextVolumeMock(volumeIndexHandle windows.Handle, volum
 		return windows.ERROR_NO_MORE_FILES
 	}
 
-	volumeName, err := windows.UTF16FromString(v.volumes[nextVolumeIndex].name)
+	nextVolume := v.volumes[nextVolumeIndex]
+	if nextVolume.err != nil {
+		return nextVolume.err
+	}
+
+	volumeName, err := windows.UTF16FromString(nextVolume.name)
 	if err != nil {
 		return err
 	}
