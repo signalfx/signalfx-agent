@@ -106,23 +106,22 @@ func TestGetPartitionsWin(t *testing.T) {
 				stats: []gopsutil.PartitionStat{},
 			},
 		},
-		//{
-		//	name: "no partition stats for next volume partitions not found",
-		//	volumes: func() *volumesMock {
-		//		firstVolume, nextVolume1, nextVolume2 := driveVolume(), driveAndFolderVolume(), removableDriveVolume()
-		//		nextVolume1.err = fmt.Errorf("volume not found")
-		//		vols := append(make([]*volumeMock, 0), firstVolume, nextVolume1, nextVolume2)
-		//		return &volumesMock{handle: 0, volumes: vols}
-		//	}(),
-		//	want: wantType{
-		//		numStats: 2,
-		//		hasError: true,
-		//		stats: []gopsutil.PartitionStat{
-		//			{Device: "C:", Mountpoint: "C:", Fstype: "NTFS", Opts: "rw.compress"},
-		//			{Device: "A:", Mountpoint: "A:", Fstype: "FAT16", Opts: "rw.compress"}},
-		//	},
-		//},
-
+		{
+			name: "no partition stats for next volume partitions not found",
+			volumes: func() *volumesMock {
+				firstVolume, nextVolume1, nextVolume2 := driveVolume(), driveAndFolderVolume(), removableDriveVolume()
+				nextVolume1.err = fmt.Errorf("volume not found")
+				vols := append(make([]*volumeMock, 0), firstVolume, nextVolume1, nextVolume2)
+				return &volumesMock{handle: 0, volumes: vols}
+			}(),
+			want: wantType{
+				numStats: 2,
+				hasError: true,
+				stats: []gopsutil.PartitionStat{
+					{Device: "C:", Mountpoint: "C:", Fstype: "NTFS", Opts: "rw.compress"},
+					{Device: "A:", Mountpoint: "A:", Fstype: "FAT16", Opts: "rw.compress"}},
+			},
+		},
 	}
 
 	for _, test := range tests {
@@ -183,13 +182,14 @@ func (v *volumesMock) findFirstVolumeMock(volumeNamePtr *uint16) (windows.Handle
 func (v *volumesMock) findNextVolumeMock(volumeIndexHandle windows.Handle, volumeNamePtr *uint16) error {
 	volumeIndex := *(*int)(unsafe.Pointer(volumeIndexHandle))
 	if volumeIndex == uninitialized {
-		return fmt.Errorf("find next volume handle uninitialized")
+		return windows.ERROR_NO_MORE_FILES
 	}
 
 	nextVolumeIndex := volumeIndex + 1
 	if nextVolumeIndex >= len(v.volumes) {
 		return windows.ERROR_NO_MORE_FILES
 	}
+	*(*int)(unsafe.Pointer(volumeIndexHandle)) = nextVolumeIndex
 
 	nextVolume := v.volumes[nextVolumeIndex]
 	if nextVolume.err != nil {
@@ -206,8 +206,6 @@ func (v *volumesMock) findNextVolumeMock(volumeIndexHandle windows.Handle, volum
 	for i := range volumeName {
 		*(*uint16)(unsafe.Pointer(start + size * uintptr(i))) = volumeName[i]
 	}
-
-	*(*int)(unsafe.Pointer(volumeIndexHandle)) = nextVolumeIndex
 
 	return err
 }

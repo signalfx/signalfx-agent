@@ -58,19 +58,19 @@ func getPartitionsWin(
 			if errno, ok := err.(syscall.Errno); ok && errno == windows.ERROR_NO_MORE_FILES {
 				break
 			}
-			lastError = errors.WithMessagef(err, "last error of error(s) in finding next volume")
+			lastError = errors.WithMessagef(err, "last error of find next volume error(s)")
 			continue
 		}
 
 		volPaths, err = getVolumePaths(volNameBuf)
 		if err != nil {
-			lastError = errors.WithMessagef(err, "last error of error(s) in finding paths for volume %s", windows.UTF16ToString(volNameBuf))
+			lastError = errors.WithMessagef(err, "last error of find paths error(s) for volume %s", windows.UTF16ToString(volNameBuf))
 			continue
 		}
 
 		partitionStats, err = getPartitionStats(getDriveType(volPaths[0]), volPaths, getVolumeInformation)
 		if err != nil {
-			lastError = errors.WithMessagef(err, "last error of error(s) in finding partition stats for volume %s", windows.UTF16ToString(volNameBuf))
+			lastError = errors.WithMessagef(err, "last error of find partition stats error(s) for volume %s", windows.UTF16ToString(volNameBuf))
 			continue
 		}
 		stats = append(stats, partitionStats...)
