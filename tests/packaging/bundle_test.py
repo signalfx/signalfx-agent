@@ -18,14 +18,15 @@ from tests.packaging.common import is_agent_running_as_non_root, run_init_system
 pytestmark = pytest.mark.bundle
 
 
-def write_agent_config(cont, activemq_container):
+def write_agent_config(cont, activemq_container, backend):
     agent = Agent(
         host="127.0.0.1",
         fake_services=None,
         run_dir="/tmp/signalfx",
         config=dedent(
             f"""
-        signalFxRealm: us0
+        ingestUrl: http://{backend.ingest_host}:{backend.ingest_port}
+        apiUrl: http://{backend.api_host}:{backend.api_port}
         observers:
           - type: host
 
@@ -58,7 +59,10 @@ def test_bundle(request, base_image):
         raise ValueError("You must specify the --test-bundle-path flag to run bundle tests")
 
     with run_service("activemq") as activemq_container:
-        with run_init_system_image(base_image, command="/usr/bin/tail -f /dev/null") as [cont, backend]:
+        with run_init_system_image(base_image, command="/usr/bin/tail -f /dev/null", with_socat=False) as [
+            cont,
+            backend,
+        ]:
             copy_file_into_container(bundle_path, cont, "/opt/bundle.tar.gz")
 
             code, output = cont.exec_run(f"tar -xf /opt/bundle.tar.gz -C /opt")
@@ -67,7 +71,7 @@ def test_bundle(request, base_image):
             code, output = cont.exec_run(f"/opt/signalfx-agent/bin/patch-interpreter /opt/signalfx-agent")
             assert code == 0, f"Could not patch interpreter: {output}"
 
-            write_agent_config(cont, activemq_container)
+            write_agent_config(cont, activemq_container, backend)
 
             _, output = cont.exec_run(
                 ["/bin/sh", "-c", "exec /opt/signalfx-agent/bin/signalfx-agent > /var/log/signalfx-agent.log"],
@@ -98,7 +102,10 @@ def test_bundle_non_root_user(request, base_image):
         raise ValueError("You must specify the --test-bundle-path flag to run bundle tests")
 
     with run_service("activemq") as activemq_container:
-        with run_init_system_image(base_image, command="/usr/bin/tail -f /dev/null") as [cont, backend]:
+        with run_init_system_image(base_image, command="/usr/bin/tail -f /dev/null", with_socat=False) as [
+            cont,
+            backend,
+        ]:
             code, output = cont.exec_run(
                 "useradd --system --user-group --no-create-home --shell /sbin/nologin test-user"
             )
@@ -116,7 +123,7 @@ def test_bundle_non_root_user(request, base_image):
             )
             assert code == 0, f"Could not patch interpreter: {output}"
 
-            write_agent_config(cont, activemq_container)
+            write_agent_config(cont, activemq_container, backend)
 
             cont.exec_run("chown test-user:test-user /etc/signalfx/agent.yaml")
 
