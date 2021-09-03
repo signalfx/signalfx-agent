@@ -40,7 +40,7 @@ require (
 	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/hashicorp/consul/api v1.7.0
 	github.com/hashicorp/golang-lru v0.5.4
-	github.com/hashicorp/vault v1.6.5 // required for newer google.golang.org/api compatibility
+	github.com/hashicorp/vault v1.6.6 // required for newer google.golang.org/api compatibility
 	github.com/hashicorp/vault-plugin-auth-gcp v0.8.1
 	github.com/hashicorp/vault/api v1.0.5-0.20201001211907-38d91b749c77
 	github.com/iancoleman/strcase v0.0.0-20171129010253-3de563c3dc08
