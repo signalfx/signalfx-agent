@@ -149,7 +149,7 @@ See [Docker Deployment](./deployments/docker) for more information.
 #### Kubernetes
 See our [Kubernetes setup instructions](./docs/kubernetes-setup.md) and [Monitor
 Kubernetes](https://docs.splunk.com/Observability/infrastructure/navigators/k8s.html)
-for more information. Helm 3+ is the supported version.
+for more information. Helm version 3 or higher is supported.
 
 #### AWS Elastic Container Service (ECS)
 See the [ECS directory](./deployments/ecs), which includes a sample
