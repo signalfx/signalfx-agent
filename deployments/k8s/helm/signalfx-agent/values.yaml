@@ -67,6 +67,9 @@ minReadySeconds:
 # Namespace to deploy agent in (Optional: Will default to release namespace)
 namespace:
 
+# For Troubleshooting if you do not want to bind to host change
+dnsPolicy: ClusterFirstWithHostNet
+
 # Optional field that allows more control on the DNS settings for the pod.
 # Ref: https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/#pod-dns-config
 dnsConfig: {}
