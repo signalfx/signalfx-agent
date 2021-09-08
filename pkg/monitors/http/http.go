@@ -201,12 +201,17 @@ func (m *Monitor) getTLSStats(site *url.URL, logger *logrus.Entry) (dps []*datap
 	// use as an fmt.Stringer
 	host := site.Hostname()
 	port := site.Port()
+	serverName := m.conf.ServerName
 
 	var valid int64 = 1
 	var secondsLeft float64
 
 	if port == "" {
 		port = "443"
+	}
+
+	if serverName == "" {
+		serverName = host
 	}
 
 	ipConn, err := net.Dial("tcp", host+":"+port)
@@ -217,7 +222,7 @@ func (m *Monitor) getTLSStats(site *url.URL, logger *logrus.Entry) (dps []*datap
 
 	tlsCfg := &tls.Config{
 		InsecureSkipVerify: m.conf.SkipVerify,
-		ServerName:         host,
+		ServerName:         serverName,
 	}
 
 	if _, err := auth.TLSConfig(tlsCfg, m.conf.CACertPath, m.conf.ClientCertPath, m.conf.ClientKeyPath); err != nil {
