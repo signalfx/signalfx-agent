@@ -69,6 +69,7 @@ func (m *Monitor) Configure(conf *Config) error {
 			"RegionName":      conf.RegionName,
 			"UserDomainId":    conf.UserDomainID,
 			"SSLVerify":       !conf.SkipVerify,
+			"Interval":        conf.IntervalSeconds,
 		},
 	}
 
