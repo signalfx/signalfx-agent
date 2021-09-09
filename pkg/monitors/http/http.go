@@ -201,7 +201,7 @@ func (m *Monitor) getTLSStats(site *url.URL, logger *logrus.Entry) (dps []*datap
 	// use as an fmt.Stringer
 	host := site.Hostname()
 	port := site.Port()
-	serverName := m.conf.ServerName
+	serverName := m.conf.SNIServerName
 
 	var valid int64 = 1
 	var secondsLeft float64

@@ -32,11 +32,11 @@ type HTTPConfig struct {
 	// cert will not be verified.
 	SkipVerify bool `yaml:"skipVerify"`
 
-	// If useHTTPS is true and skipVerify is true, the serverName is used
+	// If useHTTPS is true and skipVerify is true, the sniServerName is used
 	// to verify the hostname on the returned certificates.
 	// It is also included in the client's handshake to support virtual hosting
 	// unless it is an IP address.
-	ServerName string `yaml:"serverName"`
+	SNIServerName string `yaml:"sniServerName"`
 
 	// Path to the CA cert that has signed the TLS cert, unnecessary
 	// if `skipVerify` is set to false.
@@ -70,7 +70,7 @@ func (h *HTTPConfig) Build() (*http.Client, error) {
 		if h.UseHTTPS {
 			transport.TLSClientConfig = &tls.Config{
 				InsecureSkipVerify: h.SkipVerify,
-				ServerName:         h.ServerName,
+				ServerName:         h.SNIServerName,
 			}
 			if _, err := auth.TLSConfig(transport.TLSClientConfig, h.CACertPath, h.ClientCertPath, h.ClientKeyPath); err != nil {
 				return nil, err
