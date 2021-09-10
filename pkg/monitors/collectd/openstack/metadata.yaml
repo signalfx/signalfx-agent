@@ -38,8 +38,12 @@ monitors:
       authURL: "http://192.168.11.111/identity/v3"
       username: "admin"
       password: "secret"
+      requestBatchSize: 10
+      novaListServersSearchOpts:
+        all_tenants: "TRUE"
+        status: "ACTIVE"
     ```
-    ### Example config using skipVerify
+    ### Example config using skipVerify and disabling querying server metrics
     ```yaml
     monitors:
     - type: collectd/openstack
@@ -47,6 +51,7 @@ monitors:
       username: "admin"
       password: "secret"
       skipVerify: true
+      queryServerMetrics: false
     ```
   metrics:
     counter.openstack.nova.server.cpu_time:

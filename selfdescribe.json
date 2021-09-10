@@ -17466,7 +17466,7 @@
           "description": "This will contain the project id and name of the project given in the configuration."
         }
       },
-      "doc": "Monitors [Openstack](https://www.openstack.org/) by using the [Openstack\ncollectd Python plugin](https://github.com/signalfx/collectd-openstack),\nwhich collects metrics from Openstack instances.  This plugin is installed\nwith the Smart Agent, so no additional installation is required to use this\nmontior.\n\nThis monitor covers the following Openstack components:\n\n* Nova (Compute)\n* Cinder (BlockStorge)\n* Neutron (Network)\n\nPlease see the reference for OpenStack [Monitoring](https://wiki.openstack.org/wiki/Operations/Monitoring).\n\n\u003c!--- SETUP ---\u003e\n### Deployment Host\n\nIdentify a host on which the SignalFx agent will run. This integration\ncollects data from OpenStack remotely via APIs, and so those API endpoints\nmust be visible to the host on which the agent runs.  We do not recommend\ninstalling the agent directly on a compute instance because a compute\ninstance/resource under one project cannot get stats about the resources\nunder other projects. Also, a compute instance may go down due to lack of\nresources in the project.\n\n\u003c!--- SETUP ---\u003e\n### Example config\n```yaml\nmonitors:\n- type: collectd/openstack\n  authURL: \"http://192.168.11.111/identity/v3\"\n  username: \"admin\"\n  password: \"secret\"\n```\n### Example config using skipVerify\n```yaml\nmonitors:\n- type: collectd/openstack\n  authURL: \"https://192.168.11.111/identity/v3\"\n  username: \"admin\"\n  password: \"secret\"\n  skipVerify: true\n```\n",
+      "doc": "Monitors [Openstack](https://www.openstack.org/) by using the [Openstack\ncollectd Python plugin](https://github.com/signalfx/collectd-openstack),\nwhich collects metrics from Openstack instances.  This plugin is installed\nwith the Smart Agent, so no additional installation is required to use this\nmontior.\n\nThis monitor covers the following Openstack components:\n\n* Nova (Compute)\n* Cinder (BlockStorge)\n* Neutron (Network)\n\nPlease see the reference for OpenStack [Monitoring](https://wiki.openstack.org/wiki/Operations/Monitoring).\n\n\u003c!--- SETUP ---\u003e\n### Deployment Host\n\nIdentify a host on which the SignalFx agent will run. This integration\ncollects data from OpenStack remotely via APIs, and so those API endpoints\nmust be visible to the host on which the agent runs.  We do not recommend\ninstalling the agent directly on a compute instance because a compute\ninstance/resource under one project cannot get stats about the resources\nunder other projects. Also, a compute instance may go down due to lack of\nresources in the project.\n\n\u003c!--- SETUP ---\u003e\n### Example config\n```yaml\nmonitors:\n- type: collectd/openstack\n  authURL: \"http://192.168.11.111/identity/v3\"\n  username: \"admin\"\n  password: \"secret\"\n  requestBatchSize: 10\n  novaListServersSearchOpts:\n    all_tenants: \"TRUE\"\n    status: \"ACTIVE\"\n```\n### Example config using skipVerify and disabling querying server metrics\n```yaml\nmonitors:\n- type: collectd/openstack\n  authURL: \"https://192.168.11.111/identity/v3\"\n  username: \"admin\"\n  password: \"secret\"\n  skipVerify: true\n  queryServerMetrics: false\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -17938,6 +17938,38 @@
             "required": false,
             "type": "bool",
             "elementKind": ""
+          },
+          {
+            "yamlName": "httpTimeout",
+            "doc": "The HTTP client timeout in seconds for all requests",
+            "default": 0,
+            "required": false,
+            "type": "float64",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "requestBatchSize",
+            "doc": "The maximum number of concurrent requests for each metric class",
+            "default": 5,
+            "required": false,
+            "type": "int",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "queryServerMetrics",
+            "doc": "Whether to query server metrics (useful to disable for TripleO Undercloud)",
+            "default": true,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "novaListServersSearchOpts",
+            "doc": "Optional search_opts mapping for collectd-openstack Nova client servers.list(search_opts=novaListServerSearchOpts). For more information see https://docs.openstack.org/api-ref/compute/#list-servers.",
+            "default": null,
+            "required": false,
+            "type": "map",
+            "elementKind": "string"
           }
         ]
       },
