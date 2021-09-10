@@ -32,6 +32,12 @@ def test_openstack_default(devstack):
               authURL: http://{host}/identity/v3
               username: admin
               password: testing123
+              httpTimeout: 10.001
+              requestBatchSize: 10
+              queryServerMetrics: true
+              novaListServersSearchOpts:
+                all_tenants: "TRUE"
+                status: "ACTIVE"
         """,
         DEFAULT_METRICS,
     )

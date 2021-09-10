@@ -59,7 +59,7 @@ RUN su - stack -c 'git clone https://opendev.org/openstack/requirements -b stabl
 RUN find /opt/stack/ -name "test-requirements.txt" -delete
 RUN find /opt/stack/ -mindepth 3 -name "*requirements.txt" -delete
 
-RUN grep -rl 'https://bootstrap.pypa.io/2.7/get-pip.py' /opt/stack | xargs sed -i 's|https://bootstrap.pypa.io/2.7/get-pip.py|https://bootstrap.pypa.io/pip/2.7/get-pip.py|g'
+RUN grep -rl 'https://bootstrap.pypa.io/2.7/get-pip.py' /opt/stack | xargs sed -i 's|https://bootstrap.pypa.io/2.7/get-pip.py|https://bootstrap.pypa.io/pip/2.7/get-pip.py|g' || true
 
 COPY local.conf /opt/stack/devstack/local.conf
 RUN chown stack:stack /opt/stack/devstack/local.conf

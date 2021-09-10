@@ -54,7 +54,7 @@ class Config(object):  # pylint: disable=too-few-public-methods
                     logging.debug("dropping configuration %s because its value is an empty string", key)
                     continue
                 values = (val.decode("utf-8"),)
-            elif isinstance(val, (int, bool)):
+            elif isinstance(val, (int, float, bool)):
                 values = (val,)
             elif isinstance(val, dict):
                 if not val:
