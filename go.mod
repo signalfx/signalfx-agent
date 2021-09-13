@@ -5,6 +5,7 @@ go 1.14
 replace (
 	code.cloudfoundry.org/go-loggregator => github.com/signalfx/go-loggregator v1.0.1-0.20200205155641-5ba5ca92118d
 	github.com/dancannon/gorethink => gopkg.in/gorethink/gorethink.v4 v4.0.0
+	github.com/go-delve/delve => github.com/derekparker/delve v1.4.0
 	github.com/influxdata/telegraf => github.com/signalfx/telegraf v0.10.2-0.20210820123244-82265917ca87
 	github.com/signalfx/signalfx-agent/pkg/apm => ./pkg/apm
 	github.com/soheilhy/cmux => ./thirdparty/cmux // required to drop google.golang.org/grpc/examples/helloworld/helloworld test dep
