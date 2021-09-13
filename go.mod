@@ -9,6 +9,7 @@ replace (
 	github.com/signalfx/signalfx-agent/pkg/apm => ./pkg/apm
 	github.com/soheilhy/cmux => ./thirdparty/cmux // required to drop google.golang.org/grpc/examples/helloworld/helloworld test dep
 	google.golang.org/grpc => google.golang.org/grpc v1.29.1 // required to provide google.golang.org/grpc/naming to satisfy go.etcd.io/etcd test dep
+	github.com/go-delve/delve => github.com/derekparker/delve v1.4.0
 )
 
 require (
