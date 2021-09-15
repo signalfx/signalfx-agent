@@ -101,7 +101,7 @@ class CollectdMonitorProxy(object):
         logger.info("Loading types.db files: %s", paths)
 
         for types_db_path in paths:
-            with open(types_db_path, "r") as fd:
+            with open(types_db_path, "r", encoding="utf-8") as fd:
                 for dataset in parse_types_db(fd.read()):
                     self.datasets[dataset.name] = DataSetCache(
                         sources=dataset.sources,
