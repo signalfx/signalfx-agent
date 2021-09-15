@@ -330,7 +330,8 @@ func (m *Monitor) getHTTPStats(site fmt.Stringer, logger *logrus.Entry) (dps []*
 	redirectURL = resp.Request.URL
 
 	dimensions := map[string]string{
-		"method": m.conf.Method,
+		"method":   m.conf.Method,
+		"req_host": req.Host,
 	}
 
 	statusCode := int64(resp.StatusCode)
