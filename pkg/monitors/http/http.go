@@ -247,7 +247,7 @@ func (m *Monitor) getTLSStats(site *url.URL, logger *logrus.Entry) (dps []*datap
 			Intermediates: x509.NewCertPool(),
 		}
 		if i == 0 {
-			opts.DNSName = host
+			opts.DNSName = serverName
 			for j, cert := range certs {
 				if j != 0 {
 					opts.Intermediates.AddCert(cert)
@@ -263,7 +263,8 @@ func (m *Monitor) getTLSStats(site *url.URL, logger *logrus.Entry) (dps []*datap
 	}
 
 	dimensions := map[string]string{
-		"server_name": host,
+		"server_name":     host,
+		"sni_server_name": serverName,
 	}
 
 	dps = append(dps,
@@ -329,7 +330,8 @@ func (m *Monitor) getHTTPStats(site fmt.Stringer, logger *logrus.Entry) (dps []*
 	redirectURL = resp.Request.URL
 
 	dimensions := map[string]string{
-		"method": m.conf.Method,
+		"method":   m.conf.Method,
+		"req_host": req.Host,
 	}
 
 	statusCode := int64(resp.StatusCode)
