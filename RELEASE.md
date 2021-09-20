@@ -4,9 +4,6 @@ To release the agent make sure you have the following configured on your
 workstation.  We will ideally make this released by CircleCI or Jenkins at some
 point but for now the process is manual.
 
-*Note:* The Windows release process is currently separate from everything else
-(see the "Windows Release Process" section below).
-
 # Setup
 
 1. Request prod access via slack and the `splunkcloud_account_power` role with
@@ -31,6 +28,9 @@ point but for now the process is manual.
    ```sh
    $ keyring set https://upload.pypi.org/legacy/ your-username
    ```
+
+1. Ensure you have access to the `o11y-gdi/signalfx-agent-releaser` gitlab
+   repo and CI/CD pipeline.
 
 ## Release Process
 
@@ -106,6 +106,18 @@ point but for now the process is manual.
 
    Then push that tag with `git push --tags`.
 
+1. Wait for the `o11y-gdi/signalfx-agent-releaser` gitlab repo to be synced
+   with the new tag (may take up to 30 minutes; if you have permissions, you
+   can trigger the sync immediately from the repo settings in gitlab).  The
+   CI/CD pipeline will then trigger automatically for the new tag.
+
+1. Ensure that the build and release jobs in gitlab for the tag are successful
+   (may take over 30 minutes to complete).
+   1. Ensure that the `quay.io/signalfx/signalfx-agent:<version>-windows`
+      image was built and pushed.
+   1. Ensure that the choco package was pushed to [chocolatey](
+      https://community.chocolatey.org/packages/signalfx-agent).
+
 1. Run the release script:
 
    ```sh
@@ -118,6 +130,19 @@ point but for now the process is manual.
    the [Github Release](#github-release).  If there is an error, it will output
    on the command line.  Otherwise, the output should say "Successfully released
    <version>".
+
+1. Create the `./build/signed` directory in your local repo root.
+
+1. Download the artifacts from the `win-bundle-sign` and `win-msi-sign` gitlab
+   jobs to `./build/signed`.
+
+1. Run the release script to push the msi and bundle to S3:
+
+   ```
+   $ scripts/release --stage <STAGE> --push --component windows
+   ```
+
+   Where `<STAGE>` is `test`, `beta`, or `release`.
 
 1. Build and release the certified RedHat container by running:
 
@@ -147,102 +172,6 @@ point but for now the process is manual.
    Mac you can do `brew install pandoc`).  Next checkout the git repo
    github.com/signalfx/product-docs to your local workstation and run
    `PRODUCT_DOCS_REPO=<path to product docs> scripts/docs/to-product-docs`.
-
-# Windows Release Process
-
-## Setup
-
-1. You must be on the Splunk network and have access to the required credentials
-   for signing (check with an Integrations team member for details).
-
-1. Request prod access via slack and the `splunkcloud_account_power` role with
-   `okta-aws-setup us0`.
-
-1. You must have access to a Windows machine that is provisioned with the required
-   build tools.  Alternatively, you can build, provision, and start the Windows
-   Server 2016 vagrant box. See the "Windows" section in
-   [development.md](docs/development.md) for details.
-
-1. **Note**: The Windows docker image is automatically built and pushed to quay.io
-   in Azure Pipelines for release tags.  Check [Azure Pipelines](https://dev.azure.com/signalfx/signalfx-agent/_build?definitionId=1)
-   and [quay.io](https://quay.io/repository/signalfx/signalfx-agent?tab=tags) to
-   ensure that the image was built and pushed successfully for the release tag.
-
-## Release Process
-
-1. Open a Powershell terminal in the Windows virtual machine and execute:
-
-   ```
-   PS> cd c:\users\vagrant\signalfx-agent
-   PS> .\scripts\windows\make.ps1 bundle -AGENT_VERSION "<X.Y.Z>"
-   ```
-
-   Where `<X.Y.Z>` is the release version.
-
-1. If the build is successful, verify that `.\build\SignalFxAgent-X.Y.Z-win64.zip` exists.
-
-1. Run the signing script from your local workstation to sign the agent executable in
-   the bundle (must be on the Splunk network):
-
-   ```
-   $ scripts/signing/sign_win_agent.py --staging-token <repo.splunk.com token> --chaperone-token <chaperone token> build/SignalFxAgent-X.Y.Z-win64.zip
-   ```
-
-   The signed bundle will be saved to `build/signed/SignalFxAgent-X.Y.Z-win64.zip`.
-
-1. Build the msi with the signed bundle in the Windows virtual machine:
-
-   ```
-   PS> cd c:\users\vagrant\signalfx-agent
-   PS> .\scripts\windows\make.ps1 build_msi -version "X.Y.Z" -zipFile build\signed\SignalFxAgent-X.Y.Z-win64.zip
-   ```
-
-   The msi will be saved to `.\build\SignalFxAgent-X.Y.Z-win64.msi`.
-
-1. Run the signing script from your local workstation to sign the msi
-   (must be on the Splunk network):
-
-   ```
-   $ scripts/signing/sign_win_agent.py --staging-token <repo.splunk.com token> --chaperone-token <chaperone token> build/SignalFxAgent-X.Y.Z-win64.msi
-   ```
-
-   The signed msi will be saved to `build/signed/SignalFxAgent-X.Y.Z-win64.msi`.
-
-1. Build the choco package with the signed msi in the Windows virtual machine:
-
-   ```
-   PS> cd c:\users\vagrant\signalfx-agent
-   PS> .\scripts\windows\make.ps1 build_choco -version "X.Y.Z" -msiFile build\signed\SignalFxAgent-X.Y.Z-win64.msi
-   ```
-
-   The choco package will be saved to `.\build\signalfx-agent.X.Y.Z.nupkg`.
-
-1. Release the choco package to chocolatey in the Windows virtual machine:
-
-   ```
-   PS> cd c:\users\vagrant\signalfx-agent
-   PS> choco push -d -k <choco api token> .\build\signalfx-agent.X.Y.Z.nupkg
-   ```
-
-   Re-run the command if it fails with `System.OutOfMemoryException` (known
-   issue with chocolatey).
-
-1. Run the release script from your local workstation to push the msi and
-   bundle to S3:
-
-   ```
-   $ scripts/release --stage <STAGE> --push --new-version <X.Y.Z> --component windows
-   ```
-
-   Where `<STAGE>` is `test`, `beta`, or `release`, and `<X.Y.Z>` is the same version from
-   step 1.
-
-1. Install/deploy the new release by running the installer script in a Powershell terminal
-   (replace `YOUR_SIGNALFX_API_TOKEN` and `STAGE` with the appropriate values):
-
-   ```
-   PS> & {Set-ExecutionPolicy Bypass -Scope Process -Force; $script = ((New-Object System.Net.WebClient).DownloadString('https://dl.signalfx.com/signalfx-agent.ps1')); $params = @{access_token = "YOUR_SIGNALFX_API_TOKEN"; stage = "STAGE"}; Invoke-Command -ScriptBlock ([scriptblock]::Create(". {$script} $(&{$args} @params)"))}
-   ```
 
 ## Github Release
 

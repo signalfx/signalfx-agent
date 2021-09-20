@@ -158,8 +158,10 @@ parse_args_and_release() {
     exit 1
   fi
 
-  read -p "This is a $stage release of version $new_version, please confirm: [y/N] "
-  [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Cancelling release" && exit 1
+  if [[ "$CI" != "true" ]]; then
+    read -p "This is a $stage release of version $new_version, please confirm: [y/N] "
+    [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Cancelling release" && exit 1
+  fi
 
   if [[ "$push" == "yes" ]] && [[ "$push_windows" == "yes" ]]; then
     push_windows_bundle "$new_version" "$stage" "$push"
