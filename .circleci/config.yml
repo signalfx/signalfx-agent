@@ -516,18 +516,6 @@ jobs:
       - store_artifacts:
           path: /tmp/pcf_tile
 
-  update_stage_cache:
-    executor: docker1903
-    steps:
-      - checkout
-      - setup_remote_docker:
-          version: 19.03.12
-          docker_layer_caching: false
-      - run: |
-          apk add make bash
-          docker login -u="signalfx+circleci" -p="$CIRCLECI_QUAY_TOKEN" quay.io
-          PULL_CACHE=yes make stage-cache
-
 workflows:
   build_test:
     jobs:
@@ -619,15 +607,3 @@ workflows:
                 - /^v\d+\.\d+\.\d+.*/
           requires:
             - build
-
-  stage_cache_job:
-    jobs:
-      - update_stage_cache
-    triggers:
-      - schedule:
-          # Run every two hours during US workdays
-          cron: "0 10,12,14,16,18,20,22,0 * * 1-5"
-          filters:
-            branches:
-              only:
-                - main

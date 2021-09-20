@@ -158,8 +158,10 @@ parse_args_and_release() {
     exit 1
   fi
 
-  read -p "This is a $stage release of version $new_version, please confirm: [y/N] "
-  [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Cancelling release" && exit 1
+  if [[ "${CI:-}" != "true" ]]; then
+    read -p "This is a $stage release of version $new_version, please confirm: [y/N] "
+    [[ ! "$REPLY" =~ ^[Yy]$ ]] && echo "Cancelling release" && exit 1
+  fi
 
   if [[ "$push" == "yes" ]] && [[ "$push_windows" == "yes" ]]; then
     push_windows_bundle "$new_version" "$stage" "$push"
@@ -194,7 +196,12 @@ parse_args_and_release() {
 
   if [[ "$build_all" == "yes" ]] || [[ "$build_bundle" == "yes" ]]; then
     echo "Making bundle tar.gz"
-    make_bundle "$new_version"
+    build_image="yes"
+    if [[ "$build_all" == "yes" ]] || [[ "$build_docker_image" == "yes" ]]; then
+      # no need to rebuild the agent image
+      build_image="no"
+    fi
+    make_bundle "$new_version" "$image_base" "$build_image"
   fi
 
   # Do these updates after everything has been pushed so that nobody ever sees
@@ -330,9 +337,11 @@ build_and_push_package() {
 
 make_bundle() {
   local new_version="$1"
+  local image_base="$2"
+  local build_image="$3"
   local expected_output="$SCRIPT_DIR/../signalfx-agent-${new_version}.tar.gz"
 
-  make bundle
+  BUILD_IMAGE=$build_image AGENT_IMAGE_NAME=$image_base AGENT_VERSION=$new_version make bundle
 
   test -f "$expected_output"
   echo "Bundle is built at $expected_output"
