@@ -329,7 +329,10 @@ def sync_metrics(integration_dirs):
 
 
 def sync_dimensions(integration_dirs):
+    integrations_dirs_to_skip = set(["signalfx-agent-metrics"])
     for integrations_dir, monitors_info in integration_dirs.items():
+        if integrations_dir in integrations_dirs_to_skip:
+            continue
         dim_yaml = ""
         for monitor, monitor_dims in monitors_info.get("dimensions", {}).items():
             if not monitor_dims:
