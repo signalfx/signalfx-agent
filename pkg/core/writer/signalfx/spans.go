@@ -21,9 +21,21 @@ func (sw *Writer) sendSpans(ctx context.Context, spans []*trace.Span) error {
 		// This sends synchonously
 		err := sw.client.AddSpans(context.Background(), spans)
 		if err != nil {
-			log.WithFields(log.Fields{
-				"error": err,
-			}).Error("Error shipping spans to SignalFx")
+			var meta log.Fields
+			if sw.conf.LogTraceSpansFailedToShip {
+				jsonEncodedSpans, _ := json.Marshal(spans)
+				meta = log.Fields{
+					"error":   err,
+					"payload": jsonEncodedSpans,
+				}
+			} else {
+				meta = log.Fields{
+					"error": err,
+				}
+			}
+
+			log.WithFields(meta).Error("Error shipping spans to SignalFx")
+
 			// If there is an error sending spans then just forget about them.
 			return err
 		}
