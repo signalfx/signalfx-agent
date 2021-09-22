@@ -26,7 +26,7 @@ func (sw *Writer) sendSpans(ctx context.Context, spans []*trace.Span) error {
 				jsonEncodedSpans, _ := json.Marshal(spans)
 				meta = log.Fields{
 					"error":   err,
-					"payload": jsonEncodedSpans,
+					"payload": string(jsonEncodedSpans),
 				}
 			} else {
 				meta = log.Fields{
