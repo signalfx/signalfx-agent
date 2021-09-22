@@ -58323,6 +58323,14 @@
               "elementKind": ""
             },
             {
+              "yamlName": "logTraceSpansFailedToShip",
+              "doc": "If `true`, traces and spans which weren't successfully received by the backend, will be logged as json",
+              "default": false,
+              "required": false,
+              "type": "bool",
+              "elementKind": ""
+            },
+            {
               "yamlName": "logDimensionUpdates",
               "doc": "If `true`, dimension updates will be logged at the INFO level.",
               "default": false,
