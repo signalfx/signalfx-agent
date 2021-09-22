@@ -349,7 +349,7 @@ def sync_dimensions(integration_dirs):
             "# This file was generated in the Smart Agent repo and copied here, DO NOT EDIT HERE.\n" + dim_yaml
         )
         out_path = INTEGRATIONS_REPO / integrations_dir / "dimensions.yaml"
-        out_path.write_text(dimensions, encoding="utf-8")
+        out_path.write_text(dim_yaml, encoding="utf-8")
 
 
 def generate_config_yaml(mon_config):
