@@ -3,7 +3,7 @@ version: 2.1
 executors:
   machine_image:
     machine:
-      image: ubuntu-1604:202007-01
+      image: ubuntu-2004:202107-02
       resource_class: large
 
   goexecutor:
@@ -57,7 +57,7 @@ commands:
         default: "3.8.0"
     steps:
       - restore_cache:
-          key: v1-pytest-<< parameters.python_version >>-{{ checksum "tests/requirements.txt" }}
+          key: v2-pytest-<< parameters.python_version >>-{{ checksum "tests/requirements.txt" }}
       - run:
           name: Install pytest and dependencies
           command: |
@@ -65,12 +65,12 @@ commands:
             pyenv install --skip-existing << parameters.python_version >>
             pyenv global << parameters.python_version >>
             if which pip; then
-                pip install --upgrade 'pip==10.0.1'
+                pip install --upgrade 'pip==21.0.1'
             else
                 curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-                python get-pip.py 'pip==10.0.1'
+                python get-pip.py 'pip==21.0.1'
             fi
-            pip install -r tests/requirements.txt
+            pip install -r ${HOME}/project/tests/requirements.txt
             pyenv rehash
 
             # Machine image only has Go 1.9 installed
@@ -78,7 +78,7 @@ commands:
             wget https://dl.google.com/go/go1.14.2.linux-amd64.tar.gz
             sudo tar -C /usr/local -xzf go1.14.2.linux-amd64.tar.gz
       - save_cache:
-          key: v1-pytest-<< parameters.python_version >>-{{ checksum "tests/requirements.txt" }}
+          key: v2-pytest-<< parameters.python_version >>-{{ checksum "tests/requirements.txt" }}
           paths:
             - /opt/circleci/.pyenv
 
@@ -426,7 +426,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: /tmp/workspace
-      - run: .circleci/scripts/setup-bundle-tests.sh
       - run_pytest:
           markers: bundle
           pytest_options: --test-bundle-path=/tmp/workspace/signalfx-agent-latest.tar.gz

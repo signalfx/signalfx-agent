@@ -2,8 +2,17 @@
 
 set -eo pipefail
 
+CHANGES_INCLUDE="Dockerfile \
+    packaging \
+    tests/packaging \
+    scripts/patch-interpreter \
+    scripts/patch-rpath \
+    .circleci/scripts/run-pytest.sh \
+    .circleci/config.yml \
+    ${BASH_SOURCE[0]}"
+
 if [ "$CIRCLE_BRANCH" != "main" ]; then
-    if ! scripts/changes-include-dir Dockerfile packaging tests/packaging scripts/patch-interpreter scripts/patch-rpath .circleci/scripts/run-pytest.sh ${BASH_SOURCE[0]}; then
+    if ! scripts/changes-include-dir $CHANGES_INCLUDE; then
         echo "packaging code has not changed, skipping tests!"
         touch ~/.skip
         exit 0

@@ -4,9 +4,16 @@ set -eo pipefail
 
 [ -n "$DEPLOYMENT_TYPE" ] || (echo "DEPLOYMENT_TYPE not defined!" && exit 1)
 
+CHANGES_INCLUDE="deployments/${DEPLOYMENT_TYPE} \
+    tests/deployments/${DEPLOYMENT_TYPE} \
+    tests/packaging/common.py \
+    .circleci/scripts/run-pytest.sh \
+    .circleci/config.yml \
+    ${BASH_SOURCE[0]}"
+
 mkdir -p ~/testresults
 if [ "$CIRCLE_BRANCH" != "main" ]; then
-    if ! scripts/changes-include-dir deployments/${DEPLOYMENT_TYPE} tests/deployments/${DEPLOYMENT_TYPE} tests/packaging/common.py .circleci/scripts/run-pytest.sh ${BASH_SOURCE[0]}; then
+    if ! scripts/changes-include-dir $CHANGES_INCLUDE; then
         echo "${DEPLOYMENT_TYPE} code has not changed, skipping tests!"
         touch ~/.skip
         exit 0
