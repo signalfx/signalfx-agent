@@ -1,6 +1,6 @@
 # Version of the signalfx-agent to deploy.  This will be the default for the
 # docker image tag if not overridden with imageTag
-agentVersion: 5.13.0
+agentVersion: 5.14.0
 
 # If false, datapoints, events, and spans will not be emitted to the SignalFx
 # backend.
