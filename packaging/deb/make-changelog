@@ -21,8 +21,13 @@ if (( $deb_revision > 1 )); then
   tag=$tag-deb${deb_revision}
 fi
 
-message="$($git tag -l --format='%(contents)' $tag)"
-if [[ -z $message ]]; then
+# exclude GPG signature from the changelog
+fmt='''
+%(contents:subject)
+%(contents:body)
+'''
+message="$($git tag -l --format="$fmt" $tag)"
+if [[ -z "$message" ]]; then
   message="Release of $tag"
 fi
 

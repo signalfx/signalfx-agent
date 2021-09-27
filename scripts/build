@@ -10,7 +10,9 @@ AGENT_IMAGE_NAME=${AGENT_IMAGE_NAME:-"quay.io/signalfx/signalfx-agent-dev"}
 
 AGENT_VERSION=${AGENT_VERSION:-$($SCRIPT_DIR/current-version)}
 
-do_docker_build ${AGENT_IMAGE_NAME} ${AGENT_VERSION} final-image
+if [[ "${BUILD_IMAGE:-yes}" = "yes" ]]; then
+  do_docker_build ${AGENT_IMAGE_NAME} ${AGENT_VERSION} final-image
+fi
 
 if [[ -n ${BUILD_BUNDLE-} ]]
 then

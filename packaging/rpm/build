@@ -43,18 +43,22 @@ COLLECTD_VERSION=${COLLECTD_VERSION} COLLECTD_COMMIT=${COLLECTD_COMMIT} do_docke
 
 OUTPUT_DIR=${OUTPUT_DIR:-$SCRIPT_DIR/output}
 
+trap "docker rm -fv $image_name || true" EXIT
+
 create_rpm() {
   find ${OUTPUT_DIR}/x86_64 -name "*.rpm" | xargs rm || true
 
-  docker run --rm \
-    -v ${OUTPUT_DIR}:/output \
-    $image_name:$image_tag \
+  docker rm -fv $image_name || true
+  docker run -d --name $image_name $image_name:$image_tag sleep inf
+  docker exec $image_name mkdir -p /output
+  docker exec $image_name \
       rpmbuild -bb \
         --nodeps \
         --define "_version $clean_agent_version" \
         --define "_release $rpm_revision" \
         --define "_rpmdir /output" \
         SPECS/signalfx-agent.spec
+  docker cp $image_name:/output $(dirname $OUTPUT_DIR)
 
   if ! test -e ${OUTPUT_DIR}/${cpu_arch}/signalfx-agent-${clean_agent_version}-${rpm_revision}.${cpu_arch}.rpm
   then
@@ -80,8 +84,13 @@ if [[ "${PUSH_TO_REPO-}" == "yes" ]]; then
     exit 3
   fi
 
+  force=""
+  if [[ "${CI:-}" = "true" && "$REPO_STAGE" = "test" ]]; then
+    force="--force"
+  fi
+
   ${SCRIPT_DIR}/../../scripts/signing/add_output_to_repo.py $OUTPUT_DIR "rpm" $REPO_STAGE \
     --artifactory-user=$ARTIFACTORY_USERNAME --artifactory-token=$ARTIFACTORY_TOKEN \
     --staging-user=$STAGING_USERNAME --staging-token=$STAGING_TOKEN \
-    --chaperone-token=$CHAPERONE_TOKEN
+    --chaperone-token=$CHAPERONE_TOKEN $force
 fi

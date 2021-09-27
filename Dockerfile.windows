@@ -1,26 +1,5 @@
-FROM golang:1.14-windowsservercore-1809 as builder
-
-WORKDIR C:\\SignalFxAgent
-
-COPY go.* ./
-COPY pkg/apm/go.mod pkg/apm/go.sum ./pkg/apm/
-COPY ./thirdparty/ ./thirdparty/
-
-RUN go mod download -x
-
-RUN go get github.com/mauricelam/genny
-
-COPY ./cmd/ ./cmd/
-COPY ./scripts/windows/ ./scripts/windows/
-COPY ./pkg/ ./pkg/
-
-ARG AGENT_VERSION="latest"
-
-RUN powershell .\scripts\windows\make.ps1 signalfx-agent
-
 FROM mcr.microsoft.com/windows/servercore:1809
 
 WORKDIR C:\\SignalFxAgent
-COPY --from=builder C:\\SignalFxAgent\\signalfx-agent.exe .
+COPY dist/signalfx-agent.exe .
 CMD ["signalfx-agent.exe", "-service", "bypass"]
-

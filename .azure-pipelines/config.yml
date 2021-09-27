@@ -5,9 +5,6 @@ trigger:
   branches:
     include:
     - main
-  tags:
-    include:
-    - v*
 
 pr:
   autoCancel: true
@@ -58,11 +55,7 @@ jobs:
     parameters:
       version: $(GOVERSION)
   - powershell: |
-      if ("$(Build.SourceBranch)" -match "^refs/tags/v\d+\.\d+\.\d+$") {
-          $env:AGENT_VERSION = ("$(Build.SourceBranchName)").Replace("v", "")
-      } else {
-          $env:AGENT_VERSION = "$(Build.SourceVersion)"
-      }
+      $env:AGENT_VERSION = "$(Build.SourceVersion)"
       & ./scripts/windows/make.ps1 signalfx-agent -AGENT_VERSION "$env:AGENT_VERSION"
     displayName: 'Run go build'
   - task: PublishBuildArtifacts@1
@@ -148,29 +141,17 @@ jobs:
 - job: 'win_docker_build'
   pool:
     vmImage: 'windows-2019'
+  dependsOn: 'win_go_build'
   steps:
-  - bash: |
-      set -euxo pipefail
-
-      IS_RELEASE_TAG="false"
-      AGENT_VERSION="latest"
-
-      if [[ "$BUILD_SOURCEBRANCH" =~ ^refs/tags/v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-          IS_RELEASE_TAG="true"
-          AGENT_VERSION="${BUILD_SOURCEBRANCHNAME#v}"
-      fi
-
-      docker build -t quay.io/signalfx/signalfx-agent:${AGENT_VERSION}-windows --build-arg AGENT_VERSION=${AGENT_VERSION} -f Dockerfile.windows .
-
-      # push release image
-      if [[ "$IS_RELEASE_TAG" = "true" ]]; then
-          docker login -u="$QUAY_USERNAME" -p="$QUAY_TOKEN" quay.io
-          docker push quay.io/signalfx/signalfx-agent:${AGENT_VERSION}-windows
-      fi
+  - task: DownloadBuildArtifacts@0
+    inputs:
+      artifactName: 'exe'
+      downloadPath: '$(Build.SourcesDirectory)'
+  - powershell: |
+      mkdir dist
+      mv exe/signalfx-agent.exe dist/signalfx-agent.exe
+      docker build -t signalfx-agent:latest-windows -f Dockerfile.windows .
     displayName: 'Build windows docker image'
-    env:
-      QUAY_USERNAME: $(quayUsername)
-      QUAY_TOKEN: $(quayToken)
 
 - job: 'win_2019_integration_tests'
   pool:

@@ -43,17 +43,20 @@ COLLECTD_VERSION=${COLLECTD_VERSION} COLLECTD_COMMIT=${COLLECTD_COMMIT} do_docke
 
 OUTPUT_DIR=${OUTPUT_DIR:-$SCRIPT_DIR/output}
 
+trap "docker rm -fv $image_name || true" EXIT
+
 create_deb() {
   output_prefix="$OUTPUT_DIR/signalfx-agent_${package_version}_${TARGET_ARCH}"
 
   find $OUTPUT_DIR -type f | xargs rm || true 
 
-  docker run --rm \
-    -v ${SCRIPT_DIR}/../../.git:/git-repo:ro \
-    -v ${OUTPUT_DIR}:/output \
-    $image_name:$image_tag \
+  docker rm -fv $image_name || true
+  docker run -d --name $image_name $image_name:$image_tag sleep inf
+  docker cp ${SCRIPT_DIR}/../../.git $image_name:/git-repo
+  docker exec $image_name \
     bash -e -c \
-      "./make-changelog $agent_version $deb_revision && debuild -us -uc && cp -f ../*.{changes,build,buildinfo,deb} /output"
+      "./make-changelog $agent_version $deb_revision && debuild -us -uc && mkdir -p /output && cp -f ../*.{changes,build,buildinfo,deb} /output"
+  docker cp $image_name:/output $(dirname $OUTPUT_DIR)
 
   if ! test -e $output_prefix.deb
   then
@@ -79,8 +82,13 @@ if [[ "${PUSH_TO_REPO-}" == "yes" ]]; then
     exit 3
   fi
 
+  force=""
+  if [[ "${CI:-}" = "true" && "$REPO_STAGE" = "test" ]]; then
+    force="--force"
+  fi
+
   ${SCRIPT_DIR}/../../scripts/signing/add_output_to_repo.py $OUTPUT_DIR "deb" $REPO_STAGE \
     --artifactory-user=$ARTIFACTORY_USERNAME --artifactory-token=$ARTIFACTORY_TOKEN \
     --staging-user=$STAGING_USERNAME --staging-token=$STAGING_TOKEN \
-    --chaperone-token=$CHAPERONE_TOKEN
+    --chaperone-token=$CHAPERONE_TOKEN $force
 fi
