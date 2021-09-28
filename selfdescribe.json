@@ -50687,7 +50687,7 @@
           {
             "yamlName": "timeout",
             "doc": "",
-            "default": 0,
+            "default": "5s",
             "required": false,
             "type": "int64",
             "elementKind": ""
