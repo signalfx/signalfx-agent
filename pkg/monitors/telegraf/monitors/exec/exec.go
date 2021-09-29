@@ -31,7 +31,7 @@ type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"false"`
 	Commands             []string          `yaml:"commands"`
 	Command              string            `yaml:"command"`
-	Timeout              timeutil.Duration `yaml:"timeout"`
+	Timeout              timeutil.Duration `yaml:"timeout" default:"5s"`
 
 	// telegrafParser is a nested object that defines configurations for a Telegraf parser.
 	// Please refer to the Telegraf documentation for more information on Telegraf parsers.
@@ -64,6 +64,10 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 		logger.Error("unable to copy configurations to plugin")
 		return err
 	}
+
+	// the plugin Timeout is an internal struct in the telegraf package,
+	// it does not get set with deep object copy
+	m.plugin.Timeout.Duration = conf.Timeout.AsDuration()
 
 	parser, err := conf.TelegrafParser.GetTelegrafParser()
 	if err != nil {
