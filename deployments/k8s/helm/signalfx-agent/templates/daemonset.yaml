@@ -38,7 +38,7 @@ spec:
       {{ if not .Values.isWindows -}}
       hostNetwork: true
       {{- end }}
-      dnsPolicy: {{ .Values.isWindows | ternary "ClusterFirst" "ClusterFirstWithHostNet" }}
+      dnsPolicy: {{ .Values.dnsPolicy }}
       {{- if .Values.dnsConfig }}
       dnsConfig:
       {{ toYaml .Values.dnsConfig | nindent 8 }}
