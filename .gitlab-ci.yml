@@ -27,6 +27,7 @@ update-stage-cache:
     - schedules
   variables:
     PULL_CACHE: "yes"
+  retry: 2
   before_script:
     - docker login -u $CIRCLECI_QUAY_USERNAME -p $CIRCLECI_QUAY_PASSWORD quay.io
   script:
@@ -223,5 +224,6 @@ github-release:
     - mv build/signed/SignalFxAgent-*.msi dist/assets/
     - ./scripts/create-github-release.sh "$CI_COMMIT_TAG" "$( cat dist/digest.txt )" ./dist/assets
   artifacts:
+    when: always
     paths:
       - dist/assets
