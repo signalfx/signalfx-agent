@@ -212,9 +212,9 @@ func (m *Monitor) emitDatapoints() {
 	diskSummary, err := calculateUtil(float64(used), float64(total))
 	if err != nil {
 		m.logger.WithError(err).Errorf("failed to calculate utilization data")
-		return
+	} else {
+		dps = append(dps, datapoint.New(diskSummaryUtilization, nil, datapoint.NewFloatValue(diskSummary), datapoint.Gauge, time.Time{}))
 	}
-	dps = append(dps, datapoint.New(diskSummaryUtilization, nil, datapoint.NewFloatValue(diskSummary), datapoint.Gauge, time.Time{}))
 
 	m.Output.SendDatapoints(dps...)
 }
