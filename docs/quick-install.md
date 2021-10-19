@@ -165,7 +165,7 @@ tail -f /var/log/signalfx-agent.log
 - For systemd hosts, run:
 
 ```sh
-journalctl -u signalfx-agent -f
+sudo journalctl -u signalfx-agent -f
 ```
 
 #### Windows troubleshooting
