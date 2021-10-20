@@ -28,7 +28,7 @@ type Config struct {
 	LogQueries           bool              `yaml:"logQueries"`
 }
 
-func (c *Config) connStr() (template string, port string, err error) {
+func (c *Config) connStr() (rendered string, port string, err error) {
 	var host = "localhost"
 	if c.Host != "" {
 		host = c.Host
@@ -41,8 +41,7 @@ func (c *Config) connStr() (template string, port string, err error) {
 	if c.ConnectionString != "" {
 		connStr = c.ConnectionString
 	}
-	template, err = utils.RenderSimpleTemplate(connStr, c.Params)
-	fmt.Println(template)
+	rendered, err = utils.RenderSimpleTemplate(connStr, c.Params)
 	return
 }
 
@@ -71,12 +70,12 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 	m.database, err = dbsql.Open("hdb", connStr)
 	if err != nil {
-		return fmt.Errorf("Failed to open database: %v", err)
+		return fmt.Errorf("failed to open database: %v", err)
 	}
 
 	m.serverMonitor, err = m.monitorServer()
 	if err != nil {
-		m.database.Close()
+		_ = m.database.Close()
 		return fmt.Errorf("could not monitor Hana server: %v", err)
 	}
 
