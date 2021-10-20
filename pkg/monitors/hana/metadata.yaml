@@ -1,31 +1,16 @@
 monitors:
 - monitorType: hana
   doc: |
-    This monitor pulls metrics from all PostgreSQL databases from a specific
-    Postgres server instance.  It pulls basic information that is applicable
-    to any database.  It gathers these metrics via SQL queries.
+    This monitor pulls metrics from an SAP Hana database, gathering them via SQL queries.
 
     ```yaml
     monitors:
-     - type: hana
-       connectionString: 'hdb://{{.username}}:{{.password}}@20532d6a-ee3a-4f52-90f7-fecaf854806f.hana.trial-eu10.hanacloud.ondemand.com:443?TLSServerName=20532d6a-ee3a-4f52-90f7-fecaf854806f.hana.trial-eu10.hanacloud.ondemand.com&TLSInsecureSkipVerify=false'
-       params: &psqlParams
-         username: {"#from": "vault:secret/my-database[username]"}
-         password: {"#from": "vault:secret/my-database[password]"}
-
-     # This monitor will monitor additional queries from PostgreSQL using the
-     # provided SQL queries.
-     - type: sql
-       dbDriver: postgres
-       connectionString: 'sslmode=disable user={{.username}} password={{.password}}'
-       # This is a YAML reference to avoid duplicating the above config.
-       params: *psqlParams
-       queries:
-         - query: 'SELECT COUNT(*) as count, country, status FROM customers GROUP BY country, status;'
-           metrics:
-           customers"
-               valueColumn: "count"
-               dimensionColumns: ["country", "status"]
+      - type: hana
+        host: myhost.hana.us10.hanacloud.ondemand.com
+        port: 443
+        params:
+          username: DBADMIN
+          password: s3cr3t
     ```
 
   dimensions:
