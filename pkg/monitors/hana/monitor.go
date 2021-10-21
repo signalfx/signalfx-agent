@@ -1,119 +1,71 @@
 package hana
 
 import (
-	"context"
-	dbsql "database/sql"
 	"fmt"
-	"strconv"
-	"sync"
-
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/sql"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
 }
 
-// Config for the postgresql monitor
+// Config for the SAP Hana monitor
 type Config struct {
 	config.MonitorConfig `yaml:",inline" acceptsEndpoints:"true"`
-	Host                 string            `yaml:"host"`
-	Port                 uint16            `yaml:"port"`
-	ConnectionString     string            `yaml:"connectionString"`
-	Params               map[string]string `yaml:"params"`
-	LogQueries           bool              `yaml:"logQueries"`
-}
-
-func (c *Config) connStr() (rendered string, port string, err error) {
-	var host = "localhost"
-	if c.Host != "" {
-		host = c.Host
-	}
-	port = "443"
-	if c.Port != 0 {
-		port = strconv.Itoa(int(c.Port))
-	}
-	connStr := "hdb://{{.username}}:{{.password}}@" + host + ":" + port + "?TLSInsecureSkipVerify=false&TLSServerName=" + host
-	if c.ConnectionString != "" {
-		connStr = c.ConnectionString
-	}
-	rendered, err = utils.RenderSimpleTemplate(connStr, c.Params)
-	return
+	ConnectionString     string
+	Host                 string
+	Username             string
+	Password             string
+	Port                 int
+	LogQueries           bool
 }
 
 // Monitor that collects SAP Hana stats
 type Monitor struct {
-	sync.Mutex
-
-	Output types.FilteringOutput
-	ctx    context.Context
-	cancel context.CancelFunc
-	conf   *Config
-
-	database *dbsql.DB
-
-	serverMonitor *sql.Monitor
+	Output     types.FilteringOutput
+	sqlMonitor *sql.Monitor
 }
 
 // Configure the monitor and kick off metric collection
 func (m *Monitor) Configure(conf *Config) error {
-	m.conf = conf
-	m.ctx, m.cancel = context.WithCancel(context.Background())
-
-	connStr, _, err := conf.connStr()
+	var err error
+	m.sqlMonitor, err = configureSqlMonitor(m.Output.Copy(), conf.MonitorConfig, connStr(conf), conf.LogQueries)
 	if err != nil {
-		return fmt.Errorf("could not render connectionString template: %v", err)
+		return fmt.Errorf("could not configure Hana SQL monitor: %v", err)
 	}
-	m.database, err = dbsql.Open("hdb", connStr)
-	if err != nil {
-		return fmt.Errorf("failed to open database: %v", err)
-	}
-
-	m.serverMonitor, err = m.monitorServer()
-	if err != nil {
-		_ = m.database.Close()
-		return fmt.Errorf("could not monitor Hana server: %v", err)
-	}
-
 	return nil
 }
 
-func (m *Monitor) monitorServer() (*sql.Monitor, error) {
-	sqlMon := &sql.Monitor{Output: m.Output.Copy()}
-
-	connStr, _, err := m.conf.connStr()
-	if err != nil {
-		return nil, err
+func connStr(c *Config) string {
+	if c.ConnectionString != "" {
+		return c.ConnectionString
 	}
+	var host = "localhost"
+	if c.Host != "" {
+		host = c.Host
+	}
+	port := 443
+	if c.Port != 0 {
+		port = c.Port
+	}
+	const format = "hdb://%s:%s@%s:%d?TLSInsecureSkipVerify=false&TLSServerName=%s"
+	return fmt.Sprintf(format, c.Username, c.Password, host, port, host)
+}
 
+func configureSqlMonitor(output types.Output, monCfg config.MonitorConfig, connStr string, logQueries bool) (*sql.Monitor, error) {
+	sqlMon := &sql.Monitor{Output: output}
 	return sqlMon, sqlMon.Configure(&sql.Config{
-		MonitorConfig:    m.conf.MonitorConfig,
+		MonitorConfig:    monCfg,
 		ConnectionString: connStr,
 		DBDriver:         "hdb",
 		Queries:          defaultServerQueries,
-		LogQueries:       m.conf.LogQueries,
+		LogQueries:       logQueries,
 	})
 }
 
-// Shutdown this monitor and the nested sql ones
 func (m *Monitor) Shutdown() {
-	m.Lock()
-	defer m.Unlock()
-
-	if m.cancel != nil {
-		m.cancel()
-	}
-
-	if m.database != nil {
-		_ = m.database.Close()
-	}
-
-	if m.serverMonitor != nil {
-		m.serverMonitor.Shutdown()
-	}
-
+	m.sqlMonitor.Shutdown()
 }

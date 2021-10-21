@@ -2,8 +2,6 @@ package hana
 
 import "github.com/signalfx/signalfx-agent/pkg/monitors/sql"
 
-// Queries that get metrics about the entire server instance and do not need to
-// be run on a per-database basis.
 var defaultServerQueries = []sql.Query{
 	{
 		Query: `SELECT host AS hana_host, usage_type, used_size FROM m_disk_usage WHERE used_size >= 0;`,
