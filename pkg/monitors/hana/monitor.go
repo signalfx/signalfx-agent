@@ -32,7 +32,7 @@ type Monitor struct {
 // Configure the monitor and kick off metric collection
 func (m *Monitor) Configure(conf *Config) error {
 	var err error
-	m.sqlMonitor, err = configureSqlMonitor(m.Output.Copy(), conf.MonitorConfig, connStr(conf), conf.LogQueries)
+	m.sqlMonitor, err = configureSQLMonitor(m.Output.Copy(), conf.MonitorConfig, connStr(conf), conf.LogQueries)
 	if err != nil {
 		return fmt.Errorf("could not configure Hana SQL monitor: %v", err)
 	}
@@ -55,7 +55,7 @@ func connStr(c *Config) string {
 	return fmt.Sprintf(format, c.Username, c.Password, host, port, host)
 }
 
-func configureSqlMonitor(output types.Output, monCfg config.MonitorConfig, connStr string, logQueries bool) (*sql.Monitor, error) {
+func configureSQLMonitor(output types.Output, monCfg config.MonitorConfig, connStr string, logQueries bool) (*sql.Monitor, error) {
 	sqlMon := &sql.Monitor{Output: output}
 	return sqlMon, sqlMon.Configure(&sql.Config{
 		MonitorConfig:    monCfg,

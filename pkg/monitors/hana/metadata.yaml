@@ -1,16 +1,15 @@
 monitors:
 - monitorType: hana
   doc: |
-    This monitor pulls metrics from an SAP Hana database, gathering them via SQL queries.
+    This monitor sends SQL queries to an SAP Hana database, emitting the results as metrics.
 
     ```yaml
     monitors:
       - type: hana
         host: myhost.hana.us10.hanacloud.ondemand.com
         port: 443
-        params:
-          username: DBADMIN
-          password: s3cr3t
+        username: DBADMIN
+        password: s3cr3t
     ```
 
   dimensions:
