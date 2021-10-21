@@ -43,6 +43,12 @@ spec:
       dnsConfig:
       {{ toYaml .Values.dnsConfig | nindent 8 }}
       {{- end }}
+      {{- if .Values.hostAliases }}
+      hostAliases:
+        {{- with .Values.hostAliases }}
+      {{- toYaml . | trim | nindent 6 }}
+        {{- end }}
+      {{- end }}
       restartPolicy: Always
       serviceAccountName: {{ template "signalfx-agent.serviceAccountName" . }}
       {{ with .Values.image.pullSecret -}}
