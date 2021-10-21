@@ -121,13 +121,13 @@ runOnMaster: true
 # sufficiently similar.
 isServerless: false
 
-# If this is set to `true`, the k8s-api observer will be configured to discover 
+# If this is set to `true`, the k8s-api observer will be configured to discover
 # all services in the cluster, regardless of node. This is similar to the
 # `isServerless` setting but only configures the k8s-api observer to discover
 # all services in the cluster and does not configure any additional monitors.
 discoverAllPods: false
 
-# If this is set to `true`, the k8s-api observer will be configured to discover 
+# If this is set to `true`, the k8s-api observer will be configured to discover
 # cluster nodes as a special type of endpoint. This is similar to the
 # `isServerless` setting but only configures the k8s-api observer to discover
 # all nodes in the cluster and does not configure any additional monitors.
@@ -150,9 +150,9 @@ affinity:
 tolerations: []
 
 # You can specify priorityClassName for the pods that the Daemonset creates.
-# It would make sure the agent doesn't get evited if nodes are struggling 
+# It would make sure the agent doesn't get evited if nodes are struggling
 # for resources.
-priorityClassName: 
+priorityClassName:
 
 # Extra environment variables to set on the agent process.  They are in the
 # same form as the 'env' field of the pod spec (name/value/valueFrom).
@@ -261,7 +261,7 @@ gatherClusterMetrics: true
 
 # Enables the kubernetes-volumes monitor to collect metrics about Persistent
 # Volumes usage given that basic "filesystems" monitor will not report them.
-# This will also add "get", "list", "watch" permissions to "persistentvolumes" 
+# This will also add "get", "list", "watch" permissions to "persistentvolumes"
 # and "persistentvolumeclaims" resources. Be careful, it will also enable
 # `kubernetes.volume_inodes_free` and `kubernetes.volume_inodes` extra metrics.
 gatherVolumesMetrics: false
@@ -345,3 +345,7 @@ observers: []
 # optional poddisruptionbudget object
 podDisruptionBudget:
   maxUnavailable: 1
+
+# Optionall add entries to /etc/host of pods
+# ref: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/
+hostAliases: []
