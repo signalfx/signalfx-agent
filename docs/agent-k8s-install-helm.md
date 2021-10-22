@@ -122,7 +122,7 @@ To verify that your installation and config is working:
 
 ### Uninstall the Smart Agent
 
-- To uninstall the Smart Agent helm release, see [Helm Uninstall](https://helm.sh/docs/helm/helm_uninstall/).
+- To uninstall the Smart Agent Helm release, see [Helm Uninstall](https://helm.sh/docs/helm/helm_uninstall/).
   See [Helm List](https://helm.sh/docs/helm/helm_list/) to get the release name.
 
-- To remove the SignalFx helm repo, see [Helm Repo Remove](https://helm.sh/docs/helm/helm_repo_remove/).
+- To remove the SignalFx Helm repo, see [Helm Repo Remove](https://helm.sh/docs/helm/helm_repo_remove/).
