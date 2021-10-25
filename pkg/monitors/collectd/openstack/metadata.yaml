@@ -52,6 +52,7 @@ monitors:
       password: "secret"
       skipVerify: true
       queryServerMetrics: false
+      queryHypervisorMetrics: false
     ```
   metrics:
     counter.openstack.nova.server.cpu_time:
