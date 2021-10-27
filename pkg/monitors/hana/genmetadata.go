@@ -19,22 +19,12 @@ const (
 	sapHanaConnectionMessageSentSize             = "sap.hana.connection.message.sent.size"
 	sapHanaConnectionRecordAffected              = "sap.hana.connection.record.affected"
 	sapHanaConnectionRecordFetched               = "sap.hana.connection.record.fetched"
-	sapHanaDiskTotalSize                         = "sap.hana.disk.total_size"
-	sapHanaDiskUsedSize                          = "sap.hana.disk.used_size"
 	sapHanaHostCPUIdle                           = "sap.hana.host.cpu.idle"
 	sapHanaHostCPUSystem                         = "sap.hana.host.cpu.system"
 	sapHanaHostCPUUser                           = "sap.hana.host.cpu.user"
 	sapHanaHostCPUWio                            = "sap.hana.host.cpu.wio"
 	sapHanaHostFileOpen                          = "sap.hana.host.file.open"
-	sapHanaHostMemoryAllocationLimit             = "sap.hana.host.memory.allocation_limit"
-	sapHanaHostMemoryCode                        = "sap.hana.host.memory.code"
-	sapHanaHostMemoryPhysicalFree                = "sap.hana.host.memory.physical.free"
-	sapHanaHostMemoryPhysicalUsed                = "sap.hana.host.memory.physical.used"
 	sapHanaHostMemoryShared                      = "sap.hana.host.memory.shared"
-	sapHanaHostMemorySwapFree                    = "sap.hana.host.memory.swap.free"
-	sapHanaHostMemorySwapUsed                    = "sap.hana.host.memory.swap.used"
-	sapHanaHostMemoryTotalAllocated              = "sap.hana.host.memory.total_allocated"
-	sapHanaHostMemoryTotalUsed                   = "sap.hana.host.memory.total_used"
 	sapHanaIoAppendCount                         = "sap.hana.io.append.count"
 	sapHanaIoReadAsyncCount                      = "sap.hana.io.read.async.count"
 	sapHanaIoReadCount                           = "sap.hana.io.read.count"
@@ -48,8 +38,6 @@ const (
 	sapHanaIoWriteSize                           = "sap.hana.io.write.size"
 	sapHanaIoWriteTime                           = "sap.hana.io.write.time"
 	sapHanaServiceComponentMemoryUsed            = "sap.hana.service.component.memory.used"
-	sapHanaServiceCPUUtilization                 = "sap.hana.service.cpu.utilization"
-	sapHanaServiceFileOpen                       = "sap.hana.service.file.open"
 	sapHanaServiceMemoryAllocationLimit          = "sap.hana.service.memory.allocation_limit"
 	sapHanaServiceMemoryAllocationLimitEffective = "sap.hana.service.memory.allocation_limit_effective"
 	sapHanaServiceMemoryCode                     = "sap.hana.service.memory.code"
@@ -86,22 +74,12 @@ var metricSet = map[string]monitors.MetricInfo{
 	sapHanaConnectionMessageSentSize:             {Type: datapoint.Gauge},
 	sapHanaConnectionRecordAffected:              {Type: datapoint.Gauge},
 	sapHanaConnectionRecordFetched:               {Type: datapoint.Gauge},
-	sapHanaDiskTotalSize:                         {Type: datapoint.Gauge},
-	sapHanaDiskUsedSize:                          {Type: datapoint.Gauge},
 	sapHanaHostCPUIdle:                           {Type: datapoint.Count},
 	sapHanaHostCPUSystem:                         {Type: datapoint.Count},
 	sapHanaHostCPUUser:                           {Type: datapoint.Count},
 	sapHanaHostCPUWio:                            {Type: datapoint.Count},
 	sapHanaHostFileOpen:                          {Type: datapoint.Gauge},
-	sapHanaHostMemoryAllocationLimit:             {Type: datapoint.Gauge},
-	sapHanaHostMemoryCode:                        {Type: datapoint.Gauge},
-	sapHanaHostMemoryPhysicalFree:                {Type: datapoint.Gauge},
-	sapHanaHostMemoryPhysicalUsed:                {Type: datapoint.Gauge},
 	sapHanaHostMemoryShared:                      {Type: datapoint.Gauge},
-	sapHanaHostMemorySwapFree:                    {Type: datapoint.Gauge},
-	sapHanaHostMemorySwapUsed:                    {Type: datapoint.Gauge},
-	sapHanaHostMemoryTotalAllocated:              {Type: datapoint.Gauge},
-	sapHanaHostMemoryTotalUsed:                   {Type: datapoint.Gauge},
 	sapHanaIoAppendCount:                         {Type: datapoint.Count},
 	sapHanaIoReadAsyncCount:                      {Type: datapoint.Count},
 	sapHanaIoReadCount:                           {Type: datapoint.Count},
@@ -115,8 +93,6 @@ var metricSet = map[string]monitors.MetricInfo{
 	sapHanaIoWriteSize:                           {Type: datapoint.Count},
 	sapHanaIoWriteTime:                           {Type: datapoint.Count},
 	sapHanaServiceComponentMemoryUsed:            {Type: datapoint.Gauge},
-	sapHanaServiceCPUUtilization:                 {Type: datapoint.Gauge},
-	sapHanaServiceFileOpen:                       {Type: datapoint.Gauge},
 	sapHanaServiceMemoryAllocationLimit:          {Type: datapoint.Gauge},
 	sapHanaServiceMemoryAllocationLimitEffective: {Type: datapoint.Gauge},
 	sapHanaServiceMemoryCode:                     {Type: datapoint.Gauge},
@@ -146,70 +122,46 @@ var metricSet = map[string]monitors.MetricInfo{
 }
 
 var defaultMetrics = map[string]bool{
-	sapHanaConnectionCount:                       true,
-	sapHanaConnectionMessageReceivedCount:        true,
-	sapHanaConnectionMessageReceivedSize:         true,
-	sapHanaConnectionMessageSentCount:            true,
-	sapHanaConnectionMessageSentSize:             true,
-	sapHanaConnectionRecordAffected:              true,
-	sapHanaConnectionRecordFetched:               true,
-	sapHanaDiskTotalSize:                         true,
-	sapHanaDiskUsedSize:                          true,
-	sapHanaHostCPUIdle:                           true,
-	sapHanaHostCPUSystem:                         true,
-	sapHanaHostCPUUser:                           true,
-	sapHanaHostCPUWio:                            true,
-	sapHanaHostFileOpen:                          true,
-	sapHanaHostMemoryAllocationLimit:             true,
-	sapHanaHostMemoryCode:                        true,
-	sapHanaHostMemoryPhysicalFree:                true,
-	sapHanaHostMemoryPhysicalUsed:                true,
-	sapHanaHostMemoryShared:                      true,
-	sapHanaHostMemorySwapFree:                    true,
-	sapHanaHostMemorySwapUsed:                    true,
-	sapHanaHostMemoryTotalAllocated:              true,
-	sapHanaHostMemoryTotalUsed:                   true,
-	sapHanaIoAppendCount:                         true,
-	sapHanaIoReadAsyncCount:                      true,
-	sapHanaIoReadCount:                           true,
-	sapHanaIoReadFailed:                          true,
-	sapHanaIoReadSize:                            true,
-	sapHanaIoReadTime:                            true,
-	sapHanaIoTotalTime:                           true,
-	sapHanaIoWriteAsyncCount:                     true,
-	sapHanaIoWriteCount:                          true,
-	sapHanaIoWriteFailed:                         true,
-	sapHanaIoWriteSize:                           true,
-	sapHanaIoWriteTime:                           true,
-	sapHanaServiceComponentMemoryUsed:            true,
-	sapHanaServiceCPUUtilization:                 true,
-	sapHanaServiceFileOpen:                       true,
-	sapHanaServiceMemoryAllocationLimit:          true,
-	sapHanaServiceMemoryAllocationLimitEffective: true,
-	sapHanaServiceMemoryCode:                     true,
-	sapHanaServiceMemoryHeapAllocated:            true,
-	sapHanaServiceMemoryHeapUsed:                 true,
-	sapHanaServiceMemoryLogical:                  true,
-	sapHanaServiceMemoryPhysical:                 true,
-	sapHanaServiceMemorySharedAllocated:          true,
-	sapHanaServiceMemorySharedUsed:               true,
-	sapHanaServiceMemoryStack:                    true,
-	sapHanaServiceMemoryTotalUsed:                true,
-	sapHanaStatementActiveCount:                  true,
-	sapHanaStatementActiveExecutionMemoryMax:     true,
-	sapHanaStatementActiveExecutionMemoryMean:    true,
-	sapHanaStatementActiveExecutionMemorySum:     true,
-	sapHanaStatementActiveExecutionSum:           true,
-	sapHanaStatementActiveExecutionTimeMax:       true,
-	sapHanaStatementActiveExecutionTimeMean:      true,
-	sapHanaStatementExpensiveCount:               true,
-	sapHanaStatementExpensiveCPUTime:             true,
-	sapHanaStatementExpensiveDuration:            true,
-	sapHanaStatementExpensiveErrors:              true,
-	sapHanaStatementExpensiveLockWaitDuration:    true,
-	sapHanaStatementExpensiveRecords:             true,
-	sapHanaTableRecordCount:                      true,
-	sapHanaTableSize:                             true,
+	sapHanaConnectionCount:                    true,
+	sapHanaConnectionMessageReceivedCount:     true,
+	sapHanaConnectionMessageSentCount:         true,
+	sapHanaConnectionMessageSentSize:          true,
+	sapHanaConnectionRecordAffected:           true,
+	sapHanaConnectionRecordFetched:            true,
+	sapHanaHostCPUUser:                        true,
+	sapHanaHostFileOpen:                       true,
+	sapHanaHostMemoryShared:                   true,
+	sapHanaIoReadAsyncCount:                   true,
+	sapHanaIoReadCount:                        true,
+	sapHanaIoReadFailed:                       true,
+	sapHanaIoReadTime:                         true,
+	sapHanaIoTotalTime:                        true,
+	sapHanaIoWriteAsyncCount:                  true,
+	sapHanaIoWriteCount:                       true,
+	sapHanaIoWriteFailed:                      true,
+	sapHanaIoWriteTime:                        true,
+	sapHanaServiceComponentMemoryUsed:         true,
+	sapHanaServiceMemoryAllocationLimit:       true,
+	sapHanaServiceMemoryCode:                  true,
+	sapHanaServiceMemoryHeapAllocated:         true,
+	sapHanaServiceMemoryHeapUsed:              true,
+	sapHanaServiceMemoryLogical:               true,
+	sapHanaServiceMemoryPhysical:              true,
+	sapHanaServiceMemorySharedAllocated:       true,
+	sapHanaServiceMemorySharedUsed:            true,
+	sapHanaServiceMemoryStack:                 true,
+	sapHanaServiceMemoryTotalUsed:             true,
+	sapHanaStatementActiveCount:               true,
+	sapHanaStatementActiveExecutionMemoryMean: true,
+	sapHanaStatementActiveExecutionTimeMean:   true,
+	sapHanaStatementExpensiveCount:            true,
+	sapHanaStatementExpensiveCPUTime:          true,
+	sapHanaStatementExpensiveDuration:         true,
+	sapHanaStatementExpensiveErrors:           true,
+	sapHanaStatementExpensiveLockWaitDuration: true,
+	sapHanaStatementExpensiveRecords:          true,
+	sapHanaTableRecordCount:                   true,
+	sapHanaTableSize:                          true,
 }
 
 var groupMetricsMap = map[string][]string{}
