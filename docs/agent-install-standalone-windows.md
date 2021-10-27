@@ -61,10 +61,12 @@ properties specify the host and port number of the host that's running the Smart
 
 ### Configure user privileges
 
-To run Smart Agent under non-Administrator users you need to give specific permissions because, By default, only members of the Administrators group can start, stop, pause, resume, or restart a service. In this case to use some monitors/observers you need to give some required permissions mentioned below.
+To run the Smart Agent in non-Administrator mode, grant specific permissions to user. 
 
-- Full access of `signalfx-agent` and `Winmgmt` (Windows Management Instrumentation) to User. See [Microsoft's Guide](https://docs.microsoft.com/en-us/troubleshoot/windows-server/windows-security/grant-users-rights-manage-services#method-3-use-subinaclexe) to grant users rights.
-- Full access rights `SC_MANAGER_ALL_ACCESS (0xF003F)` for the SCM. You can use the following command for giving rights to the user
+By default, only members of the Administrators group can start, stop, pause, resume, or restart a service. In this case, to use some monitors and observers, you need to grant the following required permissions:
+
+- Full access of `signalfx-agent` and Windows Management Instrumentation (`Winmgmt`) for the user. See [Method 3: Use Subinacl.exe](https://docs.microsoft.com/en-us/troubleshoot/windows-server/windows-security/grant-users-rights-manage-services#method-3-use-subinaclexe) on the Microsoft documentation site for information on granting users rights.
+- Full access rights `SC_MANAGER_ALL_ACCESS (0xF003F)` for the Security Compliance Manager (SCM). Use use the following command to grant rights to the user:
 ```bash
 sc.exe sdset SCMANAGER "D:(A;;0xF003F;;;<SID of user>)(all other existing rights)"
 ```
