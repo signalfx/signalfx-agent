@@ -257,7 +257,7 @@ func (m *Monitor) getTLSStats(site *url.URL, logger *logrus.Entry) (dps []*datap
 		}
 		_, err := cert.Verify(opts)
 		if err != nil {
-			logger.WithError(err).Info("failed verify certificate")
+			logger.WithError(err).Debug("failed verify certificate")
 			valid = 0
 		}
 	}
