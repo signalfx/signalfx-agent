@@ -285,7 +285,13 @@ You should generally not run the agent as `root` unless you can't use
 capabilities for some reason.
 
 #### Windows
-On Windows the agent must be installed and run under an administrator account.
+On Windows the agent can be installed and run under an administrator account. but the agent can be made to run as a non-Administrator user some monitors/observers will require specific permissions. Required permissions are mentioned below.
+
+- Full access of `signalfx-agent` and `Winmgmt` (Windows Management Instrumentation) to User. See [Microsoft's Guide](https://docs.microsoft.com/en-us/troubleshoot/windows-server/windows-security/grant-users-rights-manage-services#method-3-use-subinaclexe) to grant users rights.
+- Full access rights `SC_MANAGER_ALL_ACCESS (0xF003F)` for the SCM. You can use the following command for giving rights to the user
+```bash
+sc.exe sdset SCMANAGER "D:(A;;0xF003F;;;<SID of user>)(all other existing rights)"
+```
 
 ## Configuration
 

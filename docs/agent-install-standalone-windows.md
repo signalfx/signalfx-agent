@@ -59,6 +59,16 @@ The Smart Agent collects metrics based on the settings in
 `agent-config.yml`. The `internalStatusHost` and `internalStatusPort`
 properties specify the host and port number of the host that's running the Smart Agent.
 
+### Configure user privileges
+
+To run Smart Agent under non-Administrator users you need to give specific permissions because, By default, only members of the Administrators group can start, stop, pause, resume, or restart a service. In this case to use some monitors/observers you need to give some required permissions mentioned below.
+
+- Full access of `signalfx-agent` and `Winmgmt` (Windows Management Instrumentation) to User. See [Microsoft's Guide](https://docs.microsoft.com/en-us/troubleshoot/windows-server/windows-security/grant-users-rights-manage-services#method-3-use-subinaclexe) to grant users rights.
+- Full access rights `SC_MANAGER_ALL_ACCESS (0xF003F)` for the SCM. You can use the following command for giving rights to the user
+```bash
+sc.exe sdset SCMANAGER "D:(A;;0xF003F;;;<SID of user>)(all other existing rights)"
+```
+
 ### Start the Smart Agent
 
 To run the Smart Agent as a Windows program, run the following command in a console window:
