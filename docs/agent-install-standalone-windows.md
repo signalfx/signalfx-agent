@@ -61,7 +61,7 @@ properties specify the host and port number of the host that's running the Smart
 
 ### Configure user privileges
 
-To run the Smart Agent in non-Administrator mode, grant specific permissions to user. 
+To run the Smart Agent in non-Administrator mode, grant specific permissions to the user. 
 
 By default, only members of the Administrators group can start, stop, pause, resume, or restart a service. In this case, to use some monitors and observers, you need to grant the following required permissions:
 
