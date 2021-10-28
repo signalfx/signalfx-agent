@@ -37,7 +37,13 @@ monitors:  # All monitor config goes under this key
 Configuration](../monitor-config.md#common-configuration).**
 
 
-This monitor has no configuration options.
+| Config option | Required | Type | Description |
+| --- | --- | --- | --- |
+| `tlsServerName` | no | `string` | ServerName to verify the hostname. Defaults to Host if not specified. |
+| `insecureSkipVerify` | no | `bool` | Controls whether a client verifies the server's certificate chain and host name. Defaults to false. (**default:** `false`) |
+| `rootCAFiles` | no | `list of strings` | Path to root certificate(s) (optional) |
+
+
 ## Metrics
 
 These are the metrics available for this monitor.
@@ -56,21 +62,21 @@ Metrics that are categorized as
 
  - ***`sap.hana.connection.message.sent.size`*** (*gauge*)<br>    Total size of messages sent
 
- - ***`sap.hana.connection.record.affected`*** (*gauge*)<br>    The sum of the record count affected by DML/DDL statements.
+ - ***`sap.hana.connection.record.affected`*** (*gauge*)<br>    The sum of the record count affected by DML/DDL statements
 
- - ***`sap.hana.connection.record.fetched`*** (*gauge*)<br>    Number of records fetched by select statements.
+ - ***`sap.hana.connection.record.fetched`*** (*gauge*)<br>    Number of records fetched by select statements
 
- - `sap.hana.host.cpu.idle` (*counter*)<br>    CPU idle time
+ - `sap.hana.host.cpu.idle` (*counter*)<br>    CPU idle time in milliseconds
 
  - `sap.hana.host.cpu.system` (*counter*)<br>    CPU time spent in kernel mode
 
- - ***`sap.hana.host.cpu.user`*** (*counter*)<br>    CPU time spent in user mode
+ - ***`sap.hana.host.cpu.user`*** (*counter*)<br>    CPU time spent in user mode in milliseconds
 
- - `sap.hana.host.cpu.wio` (*counter*)<br>    CPU time spent in wait IO (Linux only, Windows always 0)
+ - `sap.hana.host.cpu.wio` (*counter*)<br>    CPU time spent in wait IO (Linux only, Windows always 0) in milliseconds
 
  - ***`sap.hana.host.file.open`*** (*gauge*)<br>    Number of open files
 
- - ***`sap.hana.host.memory.shared`*** (*gauge*)<br>    Shared memory size of instance processes
+ - ***`sap.hana.host.memory.shared`*** (*gauge*)<br>    Shared memory size of instance processes in bytes
 
  - `sap.hana.io.append.count` (*counter*)<br>    Number of appends
 
@@ -80,11 +86,11 @@ Metrics that are categorized as
 
  - ***`sap.hana.io.read.failed`*** (*counter*)<br>    Number of failed reads
 
- - `sap.hana.io.read.size` (*counter*)<br>    Size of read data
+ - `sap.hana.io.read.size` (*counter*)<br>    Size of read data in bytes
 
- - ***`sap.hana.io.read.time`*** (*counter*)<br>    Total read time
+ - ***`sap.hana.io.read.time`*** (*counter*)<br>    Total read time in microseconds
 
- - ***`sap.hana.io.total.time`*** (*counter*)<br>    Total write time
+ - ***`sap.hana.io.total.time`*** (*counter*)<br>    Total write time in microseconds
 
  - ***`sap.hana.io.write.async.count`*** (*counter*)<br>    Number of triggered asynchronous writes
 
@@ -92,33 +98,33 @@ Metrics that are categorized as
 
  - ***`sap.hana.io.write.failed`*** (*counter*)<br>    Number of failed writes
 
- - `sap.hana.io.write.size` (*counter*)<br>    Size of written data
+ - `sap.hana.io.write.size` (*counter*)<br>    Size of written data in bytes
 
- - ***`sap.hana.io.write.time`*** (*counter*)<br>    Total write time
+ - ***`sap.hana.io.write.time`*** (*counter*)<br>    Total write time in microseconds
 
  - ***`sap.hana.service.component.memory.used`*** (*gauge*)<br>    Amount of memory from the memory pool currently in use by component
 
- - ***`sap.hana.service.memory.allocation_limit`*** (*gauge*)<br>    Maximum configured memory pool size
+ - ***`sap.hana.service.memory.allocation_limit`*** (*gauge*)<br>    Maximum configured memory pool size in bytes
 
- - `sap.hana.service.memory.allocation_limit_effective` (*gauge*)<br>    Effective maximum memory pool size, considering the pool sizes of other processes
+ - `sap.hana.service.memory.allocation_limit_effective` (*gauge*)<br>    Effective maximum memory pool size in bytes, considering the pool sizes of other processes
 
- - ***`sap.hana.service.memory.code`*** (*gauge*)<br>    Code size, including shared libraries
+ - ***`sap.hana.service.memory.code`*** (*gauge*)<br>    Code size, including shared libraries in bytes
 
- - ***`sap.hana.service.memory.heap.allocated`*** (*gauge*)<br>    Heap part of the memory pool
+ - ***`sap.hana.service.memory.heap.allocated`*** (*gauge*)<br>    Heap part of the memory pool in bytes
 
- - ***`sap.hana.service.memory.heap.used`*** (*gauge*)<br>    Amount of pool heap memory in use
+ - ***`sap.hana.service.memory.heap.used`*** (*gauge*)<br>    Amount of pool heap memory in use in bytes
 
- - ***`sap.hana.service.memory.logical`*** (*gauge*)<br>    Virtual memory size
+ - ***`sap.hana.service.memory.logical`*** (*gauge*)<br>    Virtual memory size in bytes
 
- - ***`sap.hana.service.memory.physical`*** (*gauge*)<br>    Physical memory size
+ - ***`sap.hana.service.memory.physical`*** (*gauge*)<br>    Physical memory size in bytes
 
- - ***`sap.hana.service.memory.shared.allocated`*** (*gauge*)<br>    Shared memory part of the memory pool
+ - ***`sap.hana.service.memory.shared.allocated`*** (*gauge*)<br>    Shared memory part of the memory pool in bytes
 
- - ***`sap.hana.service.memory.shared.used`*** (*gauge*)<br>    Amount of pool shared memory in use
+ - ***`sap.hana.service.memory.shared.used`*** (*gauge*)<br>    Amount of shared memory pool in use in bytes
 
  - ***`sap.hana.service.memory.stack`*** (*gauge*)<br>    Stack size
 
- - ***`sap.hana.service.memory.total_used`*** (*gauge*)<br>    Amount of memory in use from the memory pool.
+ - ***`sap.hana.service.memory.total_used`*** (*gauge*)<br>    Amount of memory in use from the memory pool
 
  - ***`sap.hana.statement.active.count`*** (*gauge*)<br>    Number of active statements
 
@@ -136,9 +142,9 @@ Metrics that are categorized as
 
  - ***`sap.hana.statement.expensive.count`*** (*counter*)<br>    Number of occurances of the statement
 
- - ***`sap.hana.statement.expensive.cpu_time`*** (*counter*)<br>    CPU time consumed to compute the statement
+ - ***`sap.hana.statement.expensive.cpu_time`*** (*counter*)<br>    CPU time consumed to compute the statement in microseconds
 
- - ***`sap.hana.statement.expensive.duration`*** (*counter*)<br>    Time elapsed during execution of the statement
+ - ***`sap.hana.statement.expensive.duration`*** (*counter*)<br>    Time elapsed during execution of the statement in microseconds
 
  - ***`sap.hana.statement.expensive.errors`*** (*counter*)<br>    Number of errors
 

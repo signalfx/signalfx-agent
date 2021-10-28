@@ -31043,19 +31043,19 @@
         },
         "sap.hana.connection.record.affected": {
           "type": "gauge",
-          "description": "The sum of the record count affected by DML/DDL statements.\n",
+          "description": "The sum of the record count affected by DML/DDL statements\n",
           "group": null,
           "default": true
         },
         "sap.hana.connection.record.fetched": {
           "type": "gauge",
-          "description": "Number of records fetched by select statements.\n",
+          "description": "Number of records fetched by select statements\n",
           "group": null,
           "default": true
         },
         "sap.hana.host.cpu.idle": {
           "type": "counter",
-          "description": "CPU idle time\n",
+          "description": "CPU idle time in milliseconds\n",
           "group": null,
           "default": false
         },
@@ -31067,13 +31067,13 @@
         },
         "sap.hana.host.cpu.user": {
           "type": "counter",
-          "description": "CPU time spent in user mode\n",
+          "description": "CPU time spent in user mode in milliseconds\n",
           "group": null,
           "default": true
         },
         "sap.hana.host.cpu.wio": {
           "type": "counter",
-          "description": "CPU time spent in wait IO (Linux only, Windows always 0)\n",
+          "description": "CPU time spent in wait IO (Linux only, Windows always 0) in milliseconds\n",
           "group": null,
           "default": false
         },
@@ -31085,7 +31085,7 @@
         },
         "sap.hana.host.memory.shared": {
           "type": "gauge",
-          "description": "Shared memory size of instance processes\n",
+          "description": "Shared memory size of instance processes in bytes\n",
           "group": null,
           "default": true
         },
@@ -31115,19 +31115,19 @@
         },
         "sap.hana.io.read.size": {
           "type": "counter",
-          "description": "Size of read data\n",
+          "description": "Size of read data in bytes\n",
           "group": null,
           "default": false
         },
         "sap.hana.io.read.time": {
           "type": "counter",
-          "description": "Total read time\n",
+          "description": "Total read time in microseconds\n",
           "group": null,
           "default": true
         },
         "sap.hana.io.total.time": {
           "type": "counter",
-          "description": "Total write time\n",
+          "description": "Total write time in microseconds\n",
           "group": null,
           "default": true
         },
@@ -31151,13 +31151,13 @@
         },
         "sap.hana.io.write.size": {
           "type": "counter",
-          "description": "Size of written data\n",
+          "description": "Size of written data in bytes\n",
           "group": null,
           "default": false
         },
         "sap.hana.io.write.time": {
           "type": "counter",
-          "description": "Total write time\n",
+          "description": "Total write time in microseconds\n",
           "group": null,
           "default": true
         },
@@ -31169,55 +31169,55 @@
         },
         "sap.hana.service.memory.allocation_limit": {
           "type": "gauge",
-          "description": "Maximum configured memory pool size\n",
+          "description": "Maximum configured memory pool size in bytes\n",
           "group": null,
           "default": true
         },
         "sap.hana.service.memory.allocation_limit_effective": {
           "type": "gauge",
-          "description": "Effective maximum memory pool size, considering the pool sizes of other processes\n",
+          "description": "Effective maximum memory pool size in bytes, considering the pool sizes of other processes\n",
           "group": null,
           "default": false
         },
         "sap.hana.service.memory.code": {
           "type": "gauge",
-          "description": "Code size, including shared libraries\n",
+          "description": "Code size, including shared libraries in bytes\n",
           "group": null,
           "default": true
         },
         "sap.hana.service.memory.heap.allocated": {
           "type": "gauge",
-          "description": "Heap part of the memory pool\n",
+          "description": "Heap part of the memory pool in bytes\n",
           "group": null,
           "default": true
         },
         "sap.hana.service.memory.heap.used": {
           "type": "gauge",
-          "description": "Amount of pool heap memory in use\n",
+          "description": "Amount of pool heap memory in use in bytes\n",
           "group": null,
           "default": true
         },
         "sap.hana.service.memory.logical": {
           "type": "gauge",
-          "description": "Virtual memory size\n",
+          "description": "Virtual memory size in bytes\n",
           "group": null,
           "default": true
         },
         "sap.hana.service.memory.physical": {
           "type": "gauge",
-          "description": "Physical memory size\n",
+          "description": "Physical memory size in bytes\n",
           "group": null,
           "default": true
         },
         "sap.hana.service.memory.shared.allocated": {
           "type": "gauge",
-          "description": "Shared memory part of the memory pool\n",
+          "description": "Shared memory part of the memory pool in bytes\n",
           "group": null,
           "default": true
         },
         "sap.hana.service.memory.shared.used": {
           "type": "gauge",
-          "description": "Amount of pool shared memory in use\n",
+          "description": "Amount of shared memory pool in use in bytes\n",
           "group": null,
           "default": true
         },
@@ -31229,7 +31229,7 @@
         },
         "sap.hana.service.memory.total_used": {
           "type": "gauge",
-          "description": "Amount of memory in use from the memory pool.\n",
+          "description": "Amount of memory in use from the memory pool\n",
           "group": null,
           "default": true
         },
@@ -31283,13 +31283,13 @@
         },
         "sap.hana.statement.expensive.cpu_time": {
           "type": "counter",
-          "description": "CPU time consumed to compute the statement\n",
+          "description": "CPU time consumed to compute the statement in microseconds\n",
           "group": null,
           "default": true
         },
         "sap.hana.statement.expensive.duration": {
           "type": "counter",
-          "description": "Time elapsed during execution of the statement\n",
+          "description": "Time elapsed during execution of the statement in microseconds\n",
           "group": null,
           "default": true
         },
@@ -31329,7 +31329,32 @@
         "name": "Config",
         "doc": "Config for the SAP Hana monitor",
         "package": "pkg/monitors/hana",
-        "fields": []
+        "fields": [
+          {
+            "yamlName": "tlsServerName",
+            "doc": "ServerName to verify the hostname. Defaults to Host if not specified.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "insecureSkipVerify",
+            "doc": "Controls whether a client verifies the server's certificate chain and host name. Defaults to false.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "rootCAFiles",
+            "doc": "Path to root certificate(s) (optional)",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          }
+        ]
       },
       "acceptsEndpoints": true,
       "singleInstance": false

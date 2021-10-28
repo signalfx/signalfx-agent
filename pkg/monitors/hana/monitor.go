@@ -2,7 +2,10 @@ package hana
 
 import (
 	"fmt"
+	"net/url"
+	"strconv"
 
+	"github.com/SAP/go-hdb/driver"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/sql"
@@ -20,9 +23,17 @@ type Config struct {
 	Host                 string
 	Username             string
 	Password             string
-	Port                 int
-	LogQueries           bool
-	MaxExpensiveQueries  int
+
+	// ServerName to verify the hostname. Defaults to Host if not specified.
+	TLSServerName string `yaml:"tlsServerName"`
+	// Controls whether a client verifies the server's certificate chain and host name. Defaults to false.
+	TLSInsecureSkipVerify bool `yaml:"insecureSkipVerify"`
+	// Path to root certificate(s) (optional)
+	TLSRootCAFiles []string `yaml:"rootCAFiles"`
+
+	Port                int
+	LogQueries          bool
+	MaxExpensiveQueries int
 }
 
 // Monitor that collects SAP Hana stats
@@ -51,18 +62,35 @@ func cfgToConnString(c *Config) string {
 	if c.ConnectionString != "" {
 		return c.ConnectionString
 	}
-	return connString(c.Host, c.Port, c.Username, c.Password)
-}
-
-func connString(host string, port int, username string, password string) string {
+	host := c.Host
 	if host == "" {
 		host = "localhost"
 	}
+	port := c.Port
 	if port == 0 {
 		port = 443
 	}
-	const format = "hdb://%s:%s@%s:%d?TLSInsecureSkipVerify=false&TLSServerName=%s"
-	return fmt.Sprintf(format, username, password, host, port, host)
+	tlsServerName := c.TLSServerName
+	if tlsServerName == "" {
+		tlsServerName = host
+	}
+	return createDSN(host, c.Username, c.Password, tlsServerName, port, c.TLSInsecureSkipVerify, c.TLSRootCAFiles)
+}
+
+func createDSN(host, username, password, tlsServerName string, port int, tlsInsecureSkipVerify bool, rootCAFiles []string) string {
+	query := url.Values{}
+	query.Add(driver.DSNTLSServerName, tlsServerName)
+	query.Add(driver.DSNTLSInsecureSkipVerify, strconv.FormatBool(tlsInsecureSkipVerify))
+	for _, f := range rootCAFiles {
+		query.Add(driver.DSNTLSRootCAFile, f)
+	}
+	u := &url.URL{
+		Scheme:   "hdb",
+		User:     url.UserPassword(username, password),
+		Host:     fmt.Sprintf("%s:%d", host, port),
+		RawQuery: query.Encode(),
+	}
+	return u.String()
 }
 
 func configureSQLMonitor(output types.Output, monCfg config.MonitorConfig, connStr string, logQueries bool, maxExpensiveQueries int) (*sql.Monitor, error) {
