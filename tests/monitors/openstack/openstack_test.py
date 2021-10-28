@@ -35,6 +35,7 @@ def test_openstack_default(devstack):
               httpTimeout: 10.001
               requestBatchSize: 10
               queryServerMetrics: true
+              queryHypervisorMetrics: true
               novaListServersSearchOpts:
                 all_tenants: "TRUE"
                 status: "ACTIVE"

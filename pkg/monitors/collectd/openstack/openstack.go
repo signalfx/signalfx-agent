@@ -49,6 +49,8 @@ type Config struct {
 	RequestBatchSize int `yaml:"requestBatchSize" default:"5"`
 	// Whether to query server metrics (useful to disable for TripleO Undercloud)
 	QueryServerMetrics *bool `yaml:"queryServerMetrics" default:"true"`
+	// Whether to query hypervisor metrics (useful to disable for TripleO Undercloud)
+	QueryHypervisorMetrics *bool `yaml:"queryHypervisorMetrics" default:"true"`
 	// Optional search_opts mapping for collectd-openstack Nova client servers.list(search_opts=novaListServerSearchOpts).
 	// For more information see https://docs.openstack.org/api-ref/compute/#list-servers.
 	NovaListServersSearchOpts map[string]string `yaml:"novaListServersSearchOpts"`
@@ -93,6 +95,7 @@ func (m *Monitor) Configure(conf *Config) error {
 			"HTTPTimeout":               conf.HTTPTimeout,
 			"RequestBatchSize":          conf.RequestBatchSize,
 			"QueryServerMetrics":        conf.QueryServerMetrics,
+			"QueryHypervisorMetrics":    conf.QueryHypervisorMetrics,
 			"NovaListServersSearchOpts": novaListServersSearchOpts,
 		},
 	}
