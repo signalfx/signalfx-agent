@@ -42,7 +42,12 @@ We have an [example task definition](./example-fargate-task.json) that shows
 launching the agent alongside a Redis cache instance.  The example uses
 auto-discovery, but you could also just hard code the monitor configuration in
 the agent.yaml (or reference config from envvars using remote config, as shown
-in [agent.yaml](./agent.yaml)).
+in [agent.yaml](./agent.yaml)). 
+
+By default, this task will not collect any underlying host metrics, nor send
+a `host` dimension. This is disabled to prevent unwanted monitoring of additional
+hosts. To re-enable monitoring of underlying hosts, set the `disableHostDimension`
+config option to `true` and uncomment the host metric monitors in the example [agent.yaml](./agent.yaml).
 
 
 ## Configuration
