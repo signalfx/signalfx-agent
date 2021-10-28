@@ -66,7 +66,7 @@ To run the Smart Agent in non-Administrator mode, grant specific permissions to 
 By default, only members of the Administrators group can start, stop, pause, resume, or restart a service. In this case, to use some monitors and observers, you need to grant the following required permissions:
 
 - Full access of `signalfx-agent` and Windows Management Instrumentation (`Winmgmt`) for the user. See [Method 3: Use Subinacl.exe](https://docs.microsoft.com/en-us/troubleshoot/windows-server/windows-security/grant-users-rights-manage-services#method-3-use-subinaclexe) on the Microsoft documentation site for information on granting user rights.
-- Full access rights `SC_MANAGER_ALL_ACCESS (0xF003F)` for the Security Compliance Manager (SCM). Use use the following command to grant rights to the user:
+- Full access rights `SC_MANAGER_ALL_ACCESS (0xF003F)` for the Security Compliance Manager (SCM). Use the following command to grant rights to the user:
 ```bash
 sc.exe sdset SCMANAGER "D:(A;;0xF003F;;;<SID of user>)(all other existing rights)"
 ```
