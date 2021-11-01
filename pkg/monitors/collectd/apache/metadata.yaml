@@ -59,7 +59,7 @@ monitors:
      - type: collectd/apache
        host: localhost
        port: 80
-       url: "http://{{.Host}}:{{.Port}}/server-status?auto"
+       url: "http://host:port/server-status?auto"
     ```
 
     For a full list of options, see [Configuration](#configuration).
