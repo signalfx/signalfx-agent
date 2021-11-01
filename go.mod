@@ -15,6 +15,7 @@ require (
 	code.cloudfoundry.org/go-loggregator v7.4.0+incompatible
 	collectd.org v0.5.0 // indirect
 	github.com/Microsoft/go-winio v0.4.15-0.20190919025122-fc70bd9a86b5
+	github.com/SAP/go-hdb v0.105.2
 	github.com/Sectorbob/mlab-ns2 v0.0.0-20171030222938-d3aa0c295a8a
 	github.com/Showmax/go-fqdn v1.0.0
 	github.com/StackExchange/wmi v0.0.0-20190523213315-cbe66965904d

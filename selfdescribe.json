@@ -30913,6 +30913,461 @@
       "singleInstance": false
     },
     {
+      "monitorType": "hana",
+      "sendAll": false,
+      "sendUnknown": false,
+      "noneIncluded": false,
+      "dimensions": {
+        "app_user": {
+          "description": "Application user name"
+        },
+        "component_name": {
+          "description": "Logical component"
+        },
+        "connection_status": {
+          "description": "Connection status (RUNNING, IDLE, QUEUING)"
+        },
+        "db_user": {
+          "description": "User name"
+        },
+        "hana_host": {
+          "description": "SAP Hana host name"
+        },
+        "operation": {
+          "description": "Type of operation (prepare, execute, fetch, or close)"
+        },
+        "schema_name": {
+          "description": "Schema name"
+        },
+        "service_name": {
+          "description": "Service name"
+        },
+        "statement_hash": {
+          "description": "Unique identifier for an SQL string."
+        },
+        "table_name": {
+          "description": "Table name"
+        },
+        "table_type": {
+          "description": "Type of the table (ROW, COLUMN, COLLECTION)"
+        },
+        "type": {
+          "description": "Type of contained files"
+        },
+        "usage_type": {
+          "description": "Resource type like LOG, DATA, TRACE, LOG_BACKUP and DATA_BACKUP"
+        }
+      },
+      "doc": "This monitor sends SQL queries to an SAP Hana database, emitting the results as metrics.\n\n```yaml\nmonitors:\n  - type: hana\n    host: myhost.hana.us.hanacloud.ondemand.com\n    port: 443\n    username: SOMEUSER\n    password: s3cr3t\n```\n",
+      "groups": {
+        "": {
+          "description": "",
+          "metrics": [
+            "sap.hana.connection.count",
+            "sap.hana.connection.message.received.count",
+            "sap.hana.connection.message.received.size",
+            "sap.hana.connection.message.sent.count",
+            "sap.hana.connection.message.sent.size",
+            "sap.hana.connection.record.affected",
+            "sap.hana.connection.record.fetched",
+            "sap.hana.host.cpu.idle",
+            "sap.hana.host.cpu.system",
+            "sap.hana.host.cpu.user",
+            "sap.hana.host.cpu.wio",
+            "sap.hana.host.file.open",
+            "sap.hana.host.memory.shared",
+            "sap.hana.io.append.count",
+            "sap.hana.io.read.async.count",
+            "sap.hana.io.read.count",
+            "sap.hana.io.read.failed",
+            "sap.hana.io.read.size",
+            "sap.hana.io.read.time",
+            "sap.hana.io.total.time",
+            "sap.hana.io.write.async.count",
+            "sap.hana.io.write.count",
+            "sap.hana.io.write.failed",
+            "sap.hana.io.write.size",
+            "sap.hana.io.write.time",
+            "sap.hana.service.component.memory.used",
+            "sap.hana.service.memory.allocation_limit",
+            "sap.hana.service.memory.allocation_limit_effective",
+            "sap.hana.service.memory.code",
+            "sap.hana.service.memory.heap.allocated",
+            "sap.hana.service.memory.heap.used",
+            "sap.hana.service.memory.logical",
+            "sap.hana.service.memory.physical",
+            "sap.hana.service.memory.shared.allocated",
+            "sap.hana.service.memory.shared.used",
+            "sap.hana.service.memory.stack",
+            "sap.hana.service.memory.total_used",
+            "sap.hana.statement.active.count",
+            "sap.hana.statement.active.execution.memory.max",
+            "sap.hana.statement.active.execution.memory.mean",
+            "sap.hana.statement.active.execution.memory.sum",
+            "sap.hana.statement.active.execution.sum",
+            "sap.hana.statement.active.execution.time.max",
+            "sap.hana.statement.active.execution.time.mean",
+            "sap.hana.statement.expensive.count",
+            "sap.hana.statement.expensive.cpu_time",
+            "sap.hana.statement.expensive.duration",
+            "sap.hana.statement.expensive.errors",
+            "sap.hana.statement.expensive.lock_wait_duration",
+            "sap.hana.statement.expensive.records",
+            "sap.hana.table.record.count",
+            "sap.hana.table.size"
+          ]
+        }
+      },
+      "metrics": {
+        "sap.hana.connection.count": {
+          "type": "gauge",
+          "description": "Number of connections\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.connection.message.received.count": {
+          "type": "gauge",
+          "description": "Total count of messages received\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.connection.message.received.size": {
+          "type": "gauge",
+          "description": "Total size of messages received\n",
+          "group": null,
+          "default": false
+        },
+        "sap.hana.connection.message.sent.count": {
+          "type": "gauge",
+          "description": "Total count of messages sent\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.connection.message.sent.size": {
+          "type": "gauge",
+          "description": "Total size of messages sent\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.connection.record.affected": {
+          "type": "gauge",
+          "description": "The sum of the record count affected by DML/DDL statements\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.connection.record.fetched": {
+          "type": "gauge",
+          "description": "Number of records fetched by select statements\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.host.cpu.idle": {
+          "type": "counter",
+          "description": "CPU idle time in milliseconds\n",
+          "group": null,
+          "default": false
+        },
+        "sap.hana.host.cpu.system": {
+          "type": "counter",
+          "description": "CPU time spent in kernel mode\n",
+          "group": null,
+          "default": false
+        },
+        "sap.hana.host.cpu.user": {
+          "type": "counter",
+          "description": "CPU time spent in user mode in milliseconds\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.host.cpu.wio": {
+          "type": "counter",
+          "description": "CPU time spent in wait IO (Linux only, Windows always 0) in milliseconds\n",
+          "group": null,
+          "default": false
+        },
+        "sap.hana.host.file.open": {
+          "type": "gauge",
+          "description": "Number of open files\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.host.memory.shared": {
+          "type": "gauge",
+          "description": "Shared memory size of instance processes in bytes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.io.append.count": {
+          "type": "counter",
+          "description": "Number of appends\n",
+          "group": null,
+          "default": false
+        },
+        "sap.hana.io.read.async.count": {
+          "type": "counter",
+          "description": "Number of triggered asynchronous reads\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.io.read.count": {
+          "type": "counter",
+          "description": "Number of synchronous reads\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.io.read.failed": {
+          "type": "counter",
+          "description": "Number of failed reads\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.io.read.size": {
+          "type": "counter",
+          "description": "Size of read data in bytes\n",
+          "group": null,
+          "default": false
+        },
+        "sap.hana.io.read.time": {
+          "type": "counter",
+          "description": "Total read time in microseconds\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.io.total.time": {
+          "type": "counter",
+          "description": "Total write time in microseconds\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.io.write.async.count": {
+          "type": "counter",
+          "description": "Number of triggered asynchronous writes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.io.write.count": {
+          "type": "counter",
+          "description": "Number of synchronous writes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.io.write.failed": {
+          "type": "counter",
+          "description": "Number of failed writes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.io.write.size": {
+          "type": "counter",
+          "description": "Size of written data in bytes\n",
+          "group": null,
+          "default": false
+        },
+        "sap.hana.io.write.time": {
+          "type": "counter",
+          "description": "Total write time in microseconds\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.service.component.memory.used": {
+          "type": "gauge",
+          "description": "Amount of memory from the memory pool currently in use by component\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.service.memory.allocation_limit": {
+          "type": "gauge",
+          "description": "Maximum configured memory pool size in bytes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.service.memory.allocation_limit_effective": {
+          "type": "gauge",
+          "description": "Effective maximum memory pool size in bytes, considering the pool sizes of other processes\n",
+          "group": null,
+          "default": false
+        },
+        "sap.hana.service.memory.code": {
+          "type": "gauge",
+          "description": "Code size, including shared libraries in bytes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.service.memory.heap.allocated": {
+          "type": "gauge",
+          "description": "Heap part of the memory pool in bytes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.service.memory.heap.used": {
+          "type": "gauge",
+          "description": "Amount of pool heap memory in use in bytes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.service.memory.logical": {
+          "type": "gauge",
+          "description": "Virtual memory size in bytes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.service.memory.physical": {
+          "type": "gauge",
+          "description": "Physical memory size in bytes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.service.memory.shared.allocated": {
+          "type": "gauge",
+          "description": "Shared memory part of the memory pool in bytes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.service.memory.shared.used": {
+          "type": "gauge",
+          "description": "Amount of shared memory pool in use in bytes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.service.memory.stack": {
+          "type": "gauge",
+          "description": "Stack size\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.service.memory.total_used": {
+          "type": "gauge",
+          "description": "Amount of memory in use from the memory pool\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.statement.active.count": {
+          "type": "gauge",
+          "description": "Number of active statements\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.statement.active.execution.memory.max": {
+          "type": "gauge",
+          "description": "Max memory size used during execution\n",
+          "group": null,
+          "default": false
+        },
+        "sap.hana.statement.active.execution.memory.mean": {
+          "type": "gauge",
+          "description": "Average memory size used during execution\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.statement.active.execution.memory.sum": {
+          "type": "gauge",
+          "description": "Sum of memory size used during execution\n",
+          "group": null,
+          "default": false
+        },
+        "sap.hana.statement.active.execution.sum": {
+          "type": "gauge",
+          "description": "Sum of statement execution time\n",
+          "group": null,
+          "default": false
+        },
+        "sap.hana.statement.active.execution.time.max": {
+          "type": "gauge",
+          "description": "Maximum time of statement execution\n",
+          "group": null,
+          "default": false
+        },
+        "sap.hana.statement.active.execution.time.mean": {
+          "type": "gauge",
+          "description": "Average time of statement execution\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.statement.expensive.count": {
+          "type": "counter",
+          "description": "Number of occurances of the statement\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.statement.expensive.cpu_time": {
+          "type": "counter",
+          "description": "CPU time consumed to compute the statement in microseconds\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.statement.expensive.duration": {
+          "type": "counter",
+          "description": "Time elapsed during execution of the statement in microseconds\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.statement.expensive.errors": {
+          "type": "counter",
+          "description": "Number of errors\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.statement.expensive.lock_wait_duration": {
+          "type": "counter",
+          "description": "Accumulated lock wait duration\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.statement.expensive.records": {
+          "type": "counter",
+          "description": "Number of records\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.table.record.count": {
+          "type": "gauge",
+          "description": "Number of records in the table\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.table.size": {
+          "type": "gauge",
+          "description": "Allocated memory size for fixed-size and variable-size part\n",
+          "group": null,
+          "default": true
+        }
+      },
+      "properties": null,
+      "config": {
+        "name": "Config",
+        "doc": "Config for the SAP Hana monitor",
+        "package": "pkg/monitors/hana",
+        "fields": [
+          {
+            "yamlName": "tlsServerName",
+            "doc": "ServerName to verify the hostname. Defaults to Host if not specified.",
+            "default": "",
+            "required": false,
+            "type": "string",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "insecureSkipVerify",
+            "doc": "Controls whether a client verifies the server's certificate chain and host name. Defaults to false.",
+            "default": false,
+            "required": false,
+            "type": "bool",
+            "elementKind": ""
+          },
+          {
+            "yamlName": "rootCAFiles",
+            "doc": "Path to root certificate(s) (optional)",
+            "default": null,
+            "required": false,
+            "type": "slice",
+            "elementKind": "string"
+          }
+        ]
+      },
+      "acceptsEndpoints": true,
+      "singleInstance": false
+    },
+    {
       "monitorType": "haproxy",
       "sendAll": false,
       "sendUnknown": false,
