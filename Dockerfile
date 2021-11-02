@@ -281,6 +281,9 @@ RUN cd /opt/sfxpython && python3 -m pip install .
 
 RUN python3 -m pip list
 
+# Remove pip to avoid usage in python monitor and in exec'd container
+RUN python3 -m pip uninstall pip -y
+
 # Delete all compiled python to save space
 RUN find /usr/local/lib/python3.8 -name "*.pyc" -o -name "*.pyo" | xargs rm
 # We don't support compiling extension modules so don't need this directory
