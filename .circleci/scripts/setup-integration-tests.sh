@@ -31,3 +31,6 @@ echo "export AGENT_BIN='$AGENT_BIN'" >> $BASH_ENV
 echo "export TEST_SERVICES_DIR='$TEST_SERVICES_DIR'" >> $BASH_ENV
 echo "export MARKERS='$MARKERS'" >> $BASH_ENV
 echo "export SPLIT=1" >> $BASH_ENV
+
+sudo apt-get update
+sudo apt-get install -y --only-upgrade ca-certificates

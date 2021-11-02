@@ -13,9 +13,6 @@ pytestmark = [pytest.mark.collectd, pytest.mark.jenkins, pytest.mark.monitor_wit
 METRICS_KEY = "33DD8B2F1FD645B814993275703F_EE1FD4D4E204446D5F3200E0F6-C55AC14E"
 
 JENKINS_VERSIONS = [
-    # technically we support 1.580.3, but the scripts needed to programmatically
-    # setup jenkins do not work prior to 1.651.3
-    ("jenkins", "1.651.3-alpine"),
     # TODO: jenkins doesn't have a latest tag so we'll need to update this
     # periodically
     ("jenkins/jenkins", "lts-alpine"),
