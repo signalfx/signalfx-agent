@@ -47,7 +47,7 @@ in [agent.yaml](./agent.yaml)).
 By default, this task will not collect any underlying host metrics, nor send
 a `host` dimension. This is disabled to prevent unwanted monitoring of additional
 hosts. To re-enable monitoring of underlying hosts, set the `disableHostDimension`
-config option to `true` and uncomment the host metric monitors in the example [agent.yaml](./agent.yaml).
+config option to `true` and enable host metric monitors in your configuration.
 
 
 ## Configuration
