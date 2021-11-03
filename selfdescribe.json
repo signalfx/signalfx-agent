@@ -30970,12 +30970,22 @@
             "sap.hana.connection.message.sent.size",
             "sap.hana.connection.record.affected",
             "sap.hana.connection.record.fetched",
+            "sap.hana.disk.total_size",
+            "sap.hana.disk.used_size",
             "sap.hana.host.cpu.idle",
             "sap.hana.host.cpu.system",
             "sap.hana.host.cpu.user",
             "sap.hana.host.cpu.wio",
             "sap.hana.host.file.open",
+            "sap.hana.host.memory.allocation_limit",
+            "sap.hana.host.memory.code",
+            "sap.hana.host.memory.physical.free",
+            "sap.hana.host.memory.physical.used",
             "sap.hana.host.memory.shared",
+            "sap.hana.host.memory.swap.free",
+            "sap.hana.host.memory.swap.used",
+            "sap.hana.host.memory.total_allocated",
+            "sap.hana.host.memory.total_used",
             "sap.hana.io.append.count",
             "sap.hana.io.read.async.count",
             "sap.hana.io.read.count",
@@ -30989,6 +30999,8 @@
             "sap.hana.io.write.size",
             "sap.hana.io.write.time",
             "sap.hana.service.component.memory.used",
+            "sap.hana.service.cpu.utilization",
+            "sap.hana.service.file.open",
             "sap.hana.service.memory.allocation_limit",
             "sap.hana.service.memory.allocation_limit_effective",
             "sap.hana.service.memory.code",
@@ -31035,7 +31047,7 @@
           "type": "gauge",
           "description": "Total size of messages received\n",
           "group": null,
-          "default": false
+          "default": true
         },
         "sap.hana.connection.message.sent.count": {
           "type": "gauge",
@@ -31061,17 +31073,29 @@
           "group": null,
           "default": true
         },
+        "sap.hana.disk.total_size": {
+          "type": "gauge",
+          "description": "Total device size returned by the operating system in bytes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.disk.used_size": {
+          "type": "gauge",
+          "description": "Size of used disk space in bytes\n",
+          "group": null,
+          "default": true
+        },
         "sap.hana.host.cpu.idle": {
           "type": "counter",
           "description": "CPU idle time in milliseconds\n",
           "group": null,
-          "default": false
+          "default": true
         },
         "sap.hana.host.cpu.system": {
           "type": "counter",
           "description": "CPU time spent in kernel mode\n",
           "group": null,
-          "default": false
+          "default": true
         },
         "sap.hana.host.cpu.user": {
           "type": "counter",
@@ -31083,11 +31107,35 @@
           "type": "counter",
           "description": "CPU time spent in wait IO (Linux only, Windows always 0) in milliseconds\n",
           "group": null,
-          "default": false
+          "default": true
         },
         "sap.hana.host.file.open": {
           "type": "gauge",
           "description": "Number of open files\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.host.memory.allocation_limit": {
+          "type": "gauge",
+          "description": "Allocation limit for all processes in bytes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.host.memory.code": {
+          "type": "gauge",
+          "description": "Code size, including shared libraries of instance processes in bytes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.host.memory.physical.free": {
+          "type": "gauge",
+          "description": "Free physical memory on the host in bytes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.host.memory.physical.used": {
+          "type": "gauge",
+          "description": "Used physical memory on the host in bytes\n",
           "group": null,
           "default": true
         },
@@ -31097,11 +31145,35 @@
           "group": null,
           "default": true
         },
+        "sap.hana.host.memory.swap.free": {
+          "type": "gauge",
+          "description": "Free swap memory on the host in bytes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.host.memory.swap.used": {
+          "type": "gauge",
+          "description": "Used swap memory on the host in bytes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.host.memory.total_allocated": {
+          "type": "gauge",
+          "description": "Size of the memory pool for all instance processes in bytes\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.host.memory.total_used": {
+          "type": "gauge",
+          "description": "Amount of memory from the memory pool that is currently being used by SAP HANA processes in bytes\n",
+          "group": null,
+          "default": true
+        },
         "sap.hana.io.append.count": {
           "type": "counter",
           "description": "Number of appends\n",
           "group": null,
-          "default": false
+          "default": true
         },
         "sap.hana.io.read.async.count": {
           "type": "counter",
@@ -31125,7 +31197,7 @@
           "type": "counter",
           "description": "Size of read data in bytes\n",
           "group": null,
-          "default": false
+          "default": true
         },
         "sap.hana.io.read.time": {
           "type": "counter",
@@ -31161,7 +31233,7 @@
           "type": "counter",
           "description": "Size of written data in bytes\n",
           "group": null,
-          "default": false
+          "default": true
         },
         "sap.hana.io.write.time": {
           "type": "counter",
@@ -31175,6 +31247,18 @@
           "group": null,
           "default": true
         },
+        "sap.hana.service.cpu.utilization": {
+          "type": "gauge",
+          "description": "CPU utilization in percent\n",
+          "group": null,
+          "default": true
+        },
+        "sap.hana.service.file.open": {
+          "type": "gauge",
+          "description": "Number of open files\n",
+          "group": null,
+          "default": true
+        },
         "sap.hana.service.memory.allocation_limit": {
           "type": "gauge",
           "description": "Maximum configured memory pool size in bytes\n",
@@ -31185,7 +31269,7 @@
           "type": "gauge",
           "description": "Effective maximum memory pool size in bytes, considering the pool sizes of other processes\n",
           "group": null,
-          "default": false
+          "default": true
         },
         "sap.hana.service.memory.code": {
           "type": "gauge",
@@ -31251,7 +31335,7 @@
           "type": "gauge",
           "description": "Max memory size used during execution\n",
           "group": null,
-          "default": false
+          "default": true
         },
         "sap.hana.statement.active.execution.memory.mean": {
           "type": "gauge",
@@ -31275,7 +31359,7 @@
           "type": "gauge",
           "description": "Maximum time of statement execution\n",
           "group": null,
-          "default": false
+          "default": true
         },
         "sap.hana.statement.active.execution.time.mean": {
           "type": "gauge",

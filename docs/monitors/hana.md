@@ -56,7 +56,7 @@ Metrics that are categorized as
 
  - ***`sap.hana.connection.message.received.count`*** (*gauge*)<br>    Total count of messages received
 
- - `sap.hana.connection.message.received.size` (*gauge*)<br>    Total size of messages received
+ - ***`sap.hana.connection.message.received.size`*** (*gauge*)<br>    Total size of messages received
 
  - ***`sap.hana.connection.message.sent.count`*** (*gauge*)<br>    Total count of messages sent
 
@@ -66,19 +66,39 @@ Metrics that are categorized as
 
  - ***`sap.hana.connection.record.fetched`*** (*gauge*)<br>    Number of records fetched by select statements
 
- - `sap.hana.host.cpu.idle` (*counter*)<br>    CPU idle time in milliseconds
+ - ***`sap.hana.disk.total_size`*** (*gauge*)<br>    Total device size returned by the operating system in bytes
 
- - `sap.hana.host.cpu.system` (*counter*)<br>    CPU time spent in kernel mode
+ - ***`sap.hana.disk.used_size`*** (*gauge*)<br>    Size of used disk space in bytes
+
+ - ***`sap.hana.host.cpu.idle`*** (*counter*)<br>    CPU idle time in milliseconds
+
+ - ***`sap.hana.host.cpu.system`*** (*counter*)<br>    CPU time spent in kernel mode
 
  - ***`sap.hana.host.cpu.user`*** (*counter*)<br>    CPU time spent in user mode in milliseconds
 
- - `sap.hana.host.cpu.wio` (*counter*)<br>    CPU time spent in wait IO (Linux only, Windows always 0) in milliseconds
+ - ***`sap.hana.host.cpu.wio`*** (*counter*)<br>    CPU time spent in wait IO (Linux only, Windows always 0) in milliseconds
 
  - ***`sap.hana.host.file.open`*** (*gauge*)<br>    Number of open files
 
+ - ***`sap.hana.host.memory.allocation_limit`*** (*gauge*)<br>    Allocation limit for all processes in bytes
+
+ - ***`sap.hana.host.memory.code`*** (*gauge*)<br>    Code size, including shared libraries of instance processes in bytes
+
+ - ***`sap.hana.host.memory.physical.free`*** (*gauge*)<br>    Free physical memory on the host in bytes
+
+ - ***`sap.hana.host.memory.physical.used`*** (*gauge*)<br>    Used physical memory on the host in bytes
+
  - ***`sap.hana.host.memory.shared`*** (*gauge*)<br>    Shared memory size of instance processes in bytes
 
- - `sap.hana.io.append.count` (*counter*)<br>    Number of appends
+ - ***`sap.hana.host.memory.swap.free`*** (*gauge*)<br>    Free swap memory on the host in bytes
+
+ - ***`sap.hana.host.memory.swap.used`*** (*gauge*)<br>    Used swap memory on the host in bytes
+
+ - ***`sap.hana.host.memory.total_allocated`*** (*gauge*)<br>    Size of the memory pool for all instance processes in bytes
+
+ - ***`sap.hana.host.memory.total_used`*** (*gauge*)<br>    Amount of memory from the memory pool that is currently being used by SAP HANA processes in bytes
+
+ - ***`sap.hana.io.append.count`*** (*counter*)<br>    Number of appends
 
  - ***`sap.hana.io.read.async.count`*** (*counter*)<br>    Number of triggered asynchronous reads
 
@@ -86,7 +106,7 @@ Metrics that are categorized as
 
  - ***`sap.hana.io.read.failed`*** (*counter*)<br>    Number of failed reads
 
- - `sap.hana.io.read.size` (*counter*)<br>    Size of read data in bytes
+ - ***`sap.hana.io.read.size`*** (*counter*)<br>    Size of read data in bytes
 
  - ***`sap.hana.io.read.time`*** (*counter*)<br>    Total read time in microseconds
 
@@ -98,15 +118,19 @@ Metrics that are categorized as
 
  - ***`sap.hana.io.write.failed`*** (*counter*)<br>    Number of failed writes
 
- - `sap.hana.io.write.size` (*counter*)<br>    Size of written data in bytes
+ - ***`sap.hana.io.write.size`*** (*counter*)<br>    Size of written data in bytes
 
  - ***`sap.hana.io.write.time`*** (*counter*)<br>    Total write time in microseconds
 
  - ***`sap.hana.service.component.memory.used`*** (*gauge*)<br>    Amount of memory from the memory pool currently in use by component
 
+ - ***`sap.hana.service.cpu.utilization`*** (*gauge*)<br>    CPU utilization in percent
+
+ - ***`sap.hana.service.file.open`*** (*gauge*)<br>    Number of open files
+
  - ***`sap.hana.service.memory.allocation_limit`*** (*gauge*)<br>    Maximum configured memory pool size in bytes
 
- - `sap.hana.service.memory.allocation_limit_effective` (*gauge*)<br>    Effective maximum memory pool size in bytes, considering the pool sizes of other processes
+ - ***`sap.hana.service.memory.allocation_limit_effective`*** (*gauge*)<br>    Effective maximum memory pool size in bytes, considering the pool sizes of other processes
 
  - ***`sap.hana.service.memory.code`*** (*gauge*)<br>    Code size, including shared libraries in bytes
 
@@ -128,7 +152,7 @@ Metrics that are categorized as
 
  - ***`sap.hana.statement.active.count`*** (*gauge*)<br>    Number of active statements
 
- - `sap.hana.statement.active.execution.memory.max` (*gauge*)<br>    Max memory size used during execution
+ - ***`sap.hana.statement.active.execution.memory.max`*** (*gauge*)<br>    Max memory size used during execution
 
  - ***`sap.hana.statement.active.execution.memory.mean`*** (*gauge*)<br>    Average memory size used during execution
 
@@ -136,7 +160,7 @@ Metrics that are categorized as
 
  - `sap.hana.statement.active.execution.sum` (*gauge*)<br>    Sum of statement execution time
 
- - `sap.hana.statement.active.execution.time.max` (*gauge*)<br>    Maximum time of statement execution
+ - ***`sap.hana.statement.active.execution.time.max`*** (*gauge*)<br>    Maximum time of statement execution
 
  - ***`sap.hana.statement.active.execution.time.mean`*** (*gauge*)<br>    Average time of statement execution
 

@@ -50,7 +50,7 @@ monitors:
           Total count of messages received
         type: gauge
       sap.hana.connection.message.received.size:
-        default: false
+        default: true
         description: |
           Total size of messages received
         type: gauge
@@ -74,13 +74,23 @@ monitors:
         description: |
           Number of records fetched by select statements
         type: gauge
+      sap.hana.disk.total_size:
+        default: true
+        description: |
+          Total device size returned by the operating system in bytes
+        type: gauge
+      sap.hana.disk.used_size:
+        default: true
+        description: |
+          Size of used disk space in bytes
+        type: gauge
       sap.hana.host.cpu.idle:
-        default: false
+        default: true
         description: |
           CPU idle time in milliseconds
         type: counter
       sap.hana.host.cpu.system:
-        default: false
+        default: true
         description: |
           CPU time spent in kernel mode
         type: counter
@@ -90,7 +100,7 @@ monitors:
           CPU time spent in user mode in milliseconds
         type: counter
       sap.hana.host.cpu.wio:
-        default: false
+        default: true
         description: |
           CPU time spent in wait IO (Linux only, Windows always 0) in milliseconds
         type: counter
@@ -99,13 +109,53 @@ monitors:
         description: |
           Number of open files
         type: gauge
+      sap.hana.host.memory.allocation_limit:
+        default: true
+        description: |
+          Allocation limit for all processes in bytes
+        type: gauge
+      sap.hana.host.memory.code:
+        default: true
+        description: |
+          Code size, including shared libraries of instance processes in bytes
+        type: gauge
+      sap.hana.host.memory.physical.free:
+        default: true
+        description: |
+          Free physical memory on the host in bytes
+        type: gauge
+      sap.hana.host.memory.physical.used:
+        default: true
+        description: |
+          Used physical memory on the host in bytes
+        type: gauge
       sap.hana.host.memory.shared:
         default: true
         description: |
           Shared memory size of instance processes in bytes
         type: gauge
+      sap.hana.host.memory.swap.free:
+        default: true
+        description: |
+          Free swap memory on the host in bytes
+        type: gauge
+      sap.hana.host.memory.swap.used:
+        default: true
+        description: |
+          Used swap memory on the host in bytes
+        type: gauge
+      sap.hana.host.memory.total_allocated:
+        default: true
+        description: |
+          Size of the memory pool for all instance processes in bytes
+        type: gauge
+      sap.hana.host.memory.total_used:
+        default: true
+        description: |
+          Amount of memory from the memory pool that is currently being used by SAP HANA processes in bytes
+        type: gauge
       sap.hana.io.append.count:
-        default: false
+        default: true
         description: |
           Number of appends
         type: counter
@@ -125,7 +175,7 @@ monitors:
           Number of failed reads
         type: counter
       sap.hana.io.read.size:
-        default: false
+        default: true
         description: |
           Size of read data in bytes
         type: counter
@@ -155,7 +205,7 @@ monitors:
           Number of failed writes
         type: counter
       sap.hana.io.write.size:
-        default: false
+        default: true
         description: |
           Size of written data in bytes
         type: counter
@@ -169,13 +219,23 @@ monitors:
         description: |
           Amount of memory from the memory pool currently in use by component
         type: gauge
+      sap.hana.service.cpu.utilization:
+        default: true
+        description: |
+          CPU utilization in percent
+        type: gauge
+      sap.hana.service.file.open:
+        default: true
+        description: |
+          Number of open files
+        type: gauge
       sap.hana.service.memory.allocation_limit:
         default: true
         description: |
           Maximum configured memory pool size in bytes
         type: gauge
       sap.hana.service.memory.allocation_limit_effective:
-        default: false
+        default: true
         description: |
           Effective maximum memory pool size in bytes, considering the pool sizes of other processes
         type: gauge
@@ -230,7 +290,7 @@ monitors:
           Number of active statements
         type: gauge
       sap.hana.statement.active.execution.memory.max:
-        default: false
+        default: true
         description: |
           Max memory size used during execution
         type: gauge
@@ -250,7 +310,7 @@ monitors:
           Sum of statement execution time
         type: gauge
       sap.hana.statement.active.execution.time.max:
-        default: false
+        default: true
         description: |
           Maximum time of statement execution
         type: gauge
