@@ -11,10 +11,17 @@ replace (
 	google.golang.org/grpc => google.golang.org/grpc v1.29.1 // required to provide google.golang.org/grpc/naming to satisfy go.etcd.io/etcd test dep
 )
 
+// security updates
+replace (
+	github.com/containerd/containerd => github.com/containerd/containerd v1.4.11
+	github.com/opencontainers/runc => github.com/opencontainers/runc v1.0.0-rc95
+	go.mongodb.org/mongo-driver => go.mongodb.org/mongo-driver v1.5.1
+)
+
 require (
 	code.cloudfoundry.org/go-loggregator v7.4.0+incompatible
 	collectd.org v0.5.0 // indirect
-	github.com/Microsoft/go-winio v0.4.15-0.20190919025122-fc70bd9a86b5
+	github.com/Microsoft/go-winio v0.4.16-0.20201130162521-d1ffc52c7331
 	github.com/SAP/go-hdb v0.105.2
 	github.com/Sectorbob/mlab-ns2 v0.0.0-20171030222938-d3aa0c295a8a
 	github.com/Showmax/go-fqdn v1.0.0
@@ -41,9 +48,9 @@ require (
 	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/hashicorp/consul/api v1.7.0
 	github.com/hashicorp/golang-lru v0.5.4
-	github.com/hashicorp/vault v1.6.6 // required for newer google.golang.org/api compatibility
-	github.com/hashicorp/vault-plugin-auth-gcp v0.8.1
-	github.com/hashicorp/vault/api v1.0.5-0.20201001211907-38d91b749c77
+	github.com/hashicorp/vault v1.7.5 // required for newer google.golang.org/api compatibility
+	github.com/hashicorp/vault-plugin-auth-gcp v0.9.1
+	github.com/hashicorp/vault/api v1.0.5-0.20210210214158-405eced08457
 	github.com/iancoleman/strcase v0.0.0-20171129010253-3de563c3dc08
 	github.com/influxdata/tail v1.0.0 // indirect
 	github.com/influxdata/telegraf v0.0.0-00010101000000-000000000000
@@ -77,7 +84,7 @@ require (
 	github.com/prometheus/common v0.15.0
 	github.com/prometheus/procfs v0.6.0
 	github.com/samuel/go-zookeeper v0.0.0-20200724154423-2164a8ac840e
-	github.com/shirou/gopsutil v3.20.10+incompatible
+	github.com/shirou/gopsutil v3.21.1+incompatible
 	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.2
 	github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 	github.com/signalfx/gateway v1.2.19-0.20191125135538-2c417b7ae0bd
@@ -91,7 +98,7 @@ require (
 	github.com/snowflakedb/gosnowflake v1.4.3
 	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect; required; first version with go modules
 	github.com/stretchr/testify v1.7.0
-	github.com/tidwall/gjson v1.6.6 // indirect
+	github.com/tidwall/gjson v1.9.3 // indirect
 	github.com/tinylib/msgp v1.1.5 // indirect
 	github.com/ulule/deepcopier v0.0.0-20171107155558-ca99b135e50f
 	github.com/vjeantet/grok v1.0.0 // indirect
@@ -99,9 +106,9 @@ require (
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.etcd.io/etcd/client/v2 v2.305.0-alpha.0
-	golang.org/x/net v0.0.0-20210119194325-5f4716e94777
-	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
-	golang.org/x/sys v0.0.0-20210303074136-134d130e1a04
+	golang.org/x/net v0.0.0-20210510120150-4163338589ed
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+	golang.org/x/sys v0.0.0-20210514084401-e8d321eab015
 	golang.org/x/tools v0.1.0
 	google.golang.org/grpc v1.33.2
 	gopkg.in/fatih/set.v0 v0.1.0
