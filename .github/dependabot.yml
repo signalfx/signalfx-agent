@@ -26,14 +26,6 @@ updates:
     directory: "/pkg/apm"
     schedule:
       interval: "daily"
-  - package-ecosystem: "gomod"
-    directory: "/thirdparty/cmux"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "gomod"
-    directory: "/thirdparty/cmux/example"
-    schedule:
-      interval: "daily"
   - package-ecosystem: "pip"
     directory: "/python"
     schedule:

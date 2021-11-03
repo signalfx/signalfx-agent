@@ -1636,6 +1636,7 @@ github.com/snowflakedb/gosnowflake v1.4.3 h1:I+Ro+NAjusFWjamEB9cxJ1TLUd/nNyl15Ao
 github.com/snowflakedb/gosnowflake v1.4.3/go.mod h1:1kyg2XEduwti88V11PKRHImhXLK5WpGiayY6lFNYb98=
 github.com/softlayer/softlayer-go v0.0.0-20180806151055-260589d94c7d h1:bVQRCxQvfjNUeRqaY/uT0tFuvuFY0ulgnczuR684Xic=
 github.com/softlayer/softlayer-go v0.0.0-20180806151055-260589d94c7d/go.mod h1:Cw4GTlQccdRGSEf6KiMju767x0NEHE0YIVPJSaXjlsw=
+github.com/soheilhy/cmux v0.1.5-0.20210205191134-5ec6847320e5/go.mod h1:T7TcVDs9LWfQgPlPsdngu6I6QIoyIFZDDC6sNE1GqG0=
 github.com/sonatard/noctx v0.0.1/go.mod h1:9D2D/EoULe8Yy2joDHJj7bv3sZoq9AaSb8B4lqBjiZI=
 github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 h1:O4jq14rgUwG9Ssn0wZiRPl8Ya6q3a1h3xJzTAsBaRgo=
 github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9/go.mod h1:DuEpAS0az51+DyVBQwITDsoq4++e3LTNckp2GoasF2I=
