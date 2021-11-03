@@ -74,9 +74,9 @@ vetall:
 lint:
 	go generate ./...
 	@echo 'Linting LINUX code'
-	CGO_ENABLED=0 GOGC=40 golangci-lint run --deadline 5m
+	CGO_ENABLED=0 GOGC=40 golangci-lint run --timeout 10m
 	@echo 'Linting WINDOWS code'
-	GOOS=windows CGO_ENABLED=0 GOGC=40 golangci-lint run --deadline 5m
+	GOOS=windows CGO_ENABLED=0 GOGC=40 golangci-lint run --timeout 10m
 
 .PHONY: gofmt
 gofmt:
