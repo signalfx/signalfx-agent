@@ -1,6 +1,8 @@
 FROM centos:7
 
 ENV container docker
+ENV LANG en_US.UTF-8
+ENV LC_ALL en_US.UTF-8
 
 RUN yum install -y systemd procps initscripts python3-pip
 RUN pip3 install -U pip==20.3.4
