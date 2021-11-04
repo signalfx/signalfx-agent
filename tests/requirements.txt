@@ -1,5 +1,5 @@
 PyYAML==6.0
-black==21.9b0
+black==21.10b0
 docker==5.0.2
 hvac==0.11.2
 kubernetes==19.15.0
