@@ -4,7 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update &&\
     apt-get install -yq ca-certificates procps wget apt-transport-https init-system-helpers curl python-apt python-pip python-dev python-zmq gnupg
 
-RUN pip install msgpack==0.6.2 Jinja2==2.11.3 MarkupSafe==1.1.1
+RUN pip install msgpack==0.6.2 Jinja2==2.11.3 MarkupSafe==1.1.1 pathlib==1.0.1
 RUN pip install salt==2019.2
 
 ENV container docker
