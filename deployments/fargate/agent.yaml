@@ -18,14 +18,10 @@ observers:
     labelsToDimensions: &labelMap
       com.amazonaws.ecs.container-name: container_spec_name
 
+# disable sending host dimension for serverless environment
+disableHostDimensions: true
+
 monitors:
-  - type: cpu
-  - type: disk-io
-  - type: net-io
-  - type: load
-  - type: memory
-  - type: collectd/protocols
-  - type: vmem
   # If using SignalFx auto instrumentation with default settings
   - type: signalfx-forwarder
     listenAddress: 0.0.0.0:9080
@@ -36,7 +32,6 @@ monitors:
     # Used to add and override a tag on a span
     #extraSpanTags:
      #SPAN_TAG_KEY: "SPAN_TAG_VALUE"
-
   - type: ecs-metadata
     excludedImages:
       - signalfx-agent
