@@ -31,17 +31,11 @@ func AWSUniqueID(cloudMetadataTimeout timeutil.Duration) string {
 
 	client := ec2metadata.New(sess)
 
-	// Checks whether it's an EC2 instance and Metadata service is available.
-	if !client.Available() {
-		log.Debug("No EC2 metadata server detected, assuming not on AWS EC2")
-		return ""
-	}
-
 	doc, err := client.GetInstanceIdentityDocument()
 	if err != nil {
 		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Failed to get AWS instance-identity")
+			"detail": err,
+		}).Info("No AWS metadata server detected, assuming not on EC2")
 		return ""
 	}
 
