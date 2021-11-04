@@ -1,11 +1,14 @@
 FROM ubuntu:16.04
 
 ENV DEBIAN_FRONTEND=noninteractive
-RUN apt-get update &&\
-    apt-get install -yq ca-certificates procps wget apt-transport-https init-system-helpers curl python-apt python-pip python-dev python-zmq gnupg
+ENV LANG C.UTF-8
+ENV LC_ALL C.UTF-8
 
-RUN pip install msgpack==0.6.2 Jinja2==2.11.3 MarkupSafe==1.1.1
-RUN pip install salt==2019.2
+RUN apt-get update &&\
+    apt-get install -yq ca-certificates procps wget apt-transport-https init-system-helpers curl python3-apt python3-pip python3-dev python3-zmq gnupg
+
+RUN pip3 install msgpack==0.6.2 Jinja2==2.11.3 MarkupSafe==1.1.1
+RUN pip3 install salt==2019.2
 
 ENV container docker
 RUN rm -f /lib/systemd/system/multi-user.target.wants/* \
