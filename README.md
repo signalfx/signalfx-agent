@@ -285,15 +285,7 @@ You should generally not run the agent as `root` unless you can't use
 capabilities for some reason.
 
 #### Windows
-On Windows, the Smart Agent can be installed and run using an Administrator account. You can also run the Smart Agent in non-Administrator mode.
-
-There are some monitors and observers that require special permissions, as noted below.
-
-- Full access of `signalfx-agent` and Windows Management Instrumentation (`Winmgmt`) for the user. See [Method 3: Use Subinacl.exe](https://docs.microsoft.com/en-us/troubleshoot/windows-server/windows-security/grant-users-rights-manage-services#method-3-use-subinaclexe) on the Microsoft documentation site for information on granting user rights.
-- Full access rights `SC_MANAGER_ALL_ACCESS (0xF003F)` for the Security Compliance Manager (SCM). Use the following command to grant rights to the user:
-```bash
-sc.exe sdset SCMANAGER "D:(A;;0xF003F;;;<SID of user>)(all other existing rights)"
-```
+On Windows, the Smart Agent can be installed and run using an Administrator account. You can also run the Smart Agent in non-Administrator mode, See [Configure user privileges](./docs/agent-install-standalone-windows.md#configure-user-privileges).
 
 ## Configuration
 
