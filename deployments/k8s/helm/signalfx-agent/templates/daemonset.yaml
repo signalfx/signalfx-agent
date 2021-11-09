@@ -35,8 +35,9 @@ spec:
         {{- toYaml .Values.podAnnotations | trim | nindent 8 }}
     spec:
       # Use host network so we can access kubelet directly
-      {{ if not .Values.isWindows -}}
-      hostNetwork: true
+      {{- if not .Values.isWindows }}
+      {{/* # using ternary to work around https://github.com/helm/helm/issues/3308 */ -}}
+      hostNetwork: {{ hasKey .Values "hostNetwork" | ternary .Values.hostNetwork true }}
       {{- end }}
       dnsPolicy: {{ .Values.isWindows | ternary "ClusterFirst" "ClusterFirstWithHostNet" }}
       {{- if .Values.dnsConfig }}
@@ -132,7 +133,7 @@ spec:
         - name: SPLUNK_TOKEN
           valueFrom:
             secretKeyRef:
-              name: {{ template "signalfx-agent.secretName" . }}
+              name: {{ template "signalfx-agent.secretNameSplunk" . }}
               key: splunk-token
         {{- end }}
         - name: MY_POD_NAME

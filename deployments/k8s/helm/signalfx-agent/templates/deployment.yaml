@@ -48,6 +48,14 @@ spec:
       {{- toYaml . | trim | nindent 6 }}
         {{- end }}
       {{- end }}
+      {{- if not .Values.isWindows }}
+      {{- /* deployment controller defaults to omitting hostNetwork if not set
+             using ternary to work around https://github.com/helm/helm/issues/3308
+      */ -}}
+      {{- if (hasKey .Values "hostNetwork" | ternary .Values.hostNetwork false) }}
+      hostNetwork: true
+      {{- end }}
+      {{- end }}
       restartPolicy: Always
       serviceAccountName: {{ template "signalfx-agent.serviceAccountName" . }}
       {{ with .Values.image.pullSecret -}}
@@ -84,6 +92,13 @@ spec:
             secretKeyRef:
               name: {{ template "signalfx-agent.secretName" . }}
               key: access-token
+        {{- if .Values.splunkUrl }}
+        - name: SPLUNK_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "signalfx-agent.secretNameSplunk" . }}
+              key: splunk-token
+        {{- end }}
         - name: MY_POD_NAME
           valueFrom:
             fieldRef:

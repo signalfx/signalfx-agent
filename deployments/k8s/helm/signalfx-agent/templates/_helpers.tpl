@@ -55,6 +55,13 @@ Create the name of the secret holding the token
 {{- define "signalfx-agent.secretName" -}}
     {{ default (include "signalfx-agent.fullname" .) .Values.signalFxAccessTokenSecretName }}
 {{- end -}}
+{{/*
+Name of secret holding splunk hec token
+*/}}
+{{- define "signalfx-agent.secretNameSplunk" -}}
+    {{ default (include "signalfx-agent.secretName" .) .Values.splunkTokenSecretName }}
+{{- end -}}
+
 
 {{/*
 Create the configmap name. It will have -v<major version> appended to it from v5 and onward.
