@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/rhel7-atomic
+FROM registry.access.redhat.com/ubi7/ubi-minimal:latest
 
 ARG AGENT_VERSION="5.15.0"
 LABEL name="SignalFx Smart Agent" \
@@ -22,7 +22,7 @@ CMD ["/usr/bin/signalfx-agent"]
 COPY packaging/rpm/signalfx-agent.repo /etc/yum.repos.d/signalfx-agent.repo
 RUN rpm --import https://splunk.jfrog.io/splunk/signalfx-agent-rpm/splunk-B3CD4420.pub
 
-RUN microdnf install --enablerepo=rhel-7-server-rpms signalfx-agent-${AGENT_VERSION}-1 &&\
+RUN microdnf install signalfx-agent-${AGENT_VERSION}-1 &&\
     microdnf clean all
 
 RUN setcap -r /usr/lib/signalfx-agent/bin/signalfx-agent &&\
