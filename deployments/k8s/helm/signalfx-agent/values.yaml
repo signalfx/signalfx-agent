@@ -104,6 +104,9 @@ serviceAccount:
   # The name of the ServiceAccount to use.
   # If not set and create is true, a name is generated using the fullname template
   name:
+  # optional annotation(s) to apply to serviceaccount object
+  #annotations:
+  #  iam.gke.io/gcp-service-account: "gcp-sa@gcp-project.iam.gserviceaccount.com"
 
 # This adds some tolerations to the pods that the DaemonSet creates that
 # should allow the agent to run on the master nodes of newer versions of K8s
@@ -349,3 +352,7 @@ podDisruptionBudget:
 # Optionall add entries to /etc/host of pods
 # ref: https://kubernetes.io/docs/tasks/network/customize-hosts-file-for-pods/
 hostAliases: []
+
+# optionally configure hostNetwork
+# defaults to true for daemonset
+# hostNetwork: true
