@@ -285,7 +285,7 @@ You should generally not run the agent as `root` unless you can't use
 capabilities for some reason.
 
 #### Windows
-On Windows the agent must be installed and run under an administrator account.
+On Windows, the Smart Agent can be installed and run using an Administrator account. You can also run the Smart Agent in non-Administrator mode, See [Configure user privileges](./docs/agent-install-standalone-windows.md#configure-user-privileges).
 
 ## Configuration
 
