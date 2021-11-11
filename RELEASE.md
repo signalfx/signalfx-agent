@@ -28,6 +28,11 @@ point but for now the process is manual.
 1. Ensure you have access to the `o11y-gdi/signalfx-agent-releaser` gitlab
    repo and CI/CD pipeline.
 
+1. Ensure you have access to the Red Hat Container Certification Project, the
+   project ID, and a personal API key.  See [here](
+   https://redhat-connect.gitbook.io/partner-guide-for-red-hat-openshift-and-container/appendix/connect-portal-api/project-creation#api-key)
+   for details on how to create a personal API key.
+
 ## Release Process
 
 1. Make sure everything that go out in the release is in the `main` branch.
@@ -136,10 +141,11 @@ point but for now the process is manual.
 1. Build and release the certified RedHat container by running:
 
    ```sh
-   $ scripts/release-redhat <X.Y.Z> <OSPID>
+   $ scripts/release-redhat <X.Y.Z> <PROJECT_ID> <API_KEY>
    ```
 
-1. Wait for the RedHat build to complete and then publish it.
+1. Log into the Red Hat project portal, wait for the image build and scan to
+   complete, publish it, and add the `latest` tag.
 
 1. If the Helm assets have changed then update the repo from `dtools/helm_repo`
    by running (requires S3 access):

@@ -11,17 +11,18 @@ set -x
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 usage() {
-  echo "$0 <version> <project_id> [redhat_tag]"
+  echo "$0 <version> <project_id> <api_token> [redhat_tag]"
 }
 
-if [[ "$#" -lt 2 ]]; then
+if [[ "$#" -lt 3 ]]; then
   usage
   exit 1
 fi
 
 version=${1-$(scripts/latest-final-release)}
 project_id=$2
-redhat_tag=${3-$version}
+api_token=$3
+redhat_tag=${4-$version}
 build_branch="redhat-project"
 
 update_dockerfile() {
@@ -39,15 +40,17 @@ update_branch() {
   update_dockerfile
   read -n1 -p "Press key"
 
-  git add Dockerfile.rhel
-  git commit -m "Update RHEL Dockerfile version to $version"
+  if ! git diff --exit-code; then
+    git add Dockerfile.rhel
+    git commit -m "Update RHEL Dockerfile version to $version"
+  fi
   git push -f origin ${build_branch}
 
   popd
 }
 
 trigger_build() {
-  curl -H "Content-Type: application/json" -X POST -d "{\"tag\":\"${redhat_tag}\"}" https://connect.redhat.com/api/v2/projects/${project_id}/build
+  curl -H "Content-Type: application/json" -X POST -d "{\"tag\":\"${redhat_tag}\"}" https://catalog.redhat.com/api/containers/v1/projects/certification/id/${project_id}/requests/builds -H "X-API-KEY: ${api_token}"
 }
 
 update_branch
