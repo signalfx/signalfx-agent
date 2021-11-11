@@ -18,4 +18,4 @@ sanic==21.6.2
 semver==2.13.0
 signalfx==1.1.14
 pika==1.2.0
-elasticsearch==7.13.4
+elasticsearch==7.15.2
