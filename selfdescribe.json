@@ -44819,7 +44819,7 @@
     },
     {
       "monitorType": "prometheus/go",
-      "sendAll": false,
+      "sendAll": true,
       "sendUnknown": false,
       "noneIncluded": false,
       "dimensions": null,
@@ -45077,7 +45077,7 @@
           "type": "gauge",
           "description": "Start time of the process since unix epoch in seconds",
           "group": null,
-          "default": true
+          "default": false
         },
         "process_virtual_memory_bytes": {
           "type": "gauge",
@@ -54603,7 +54603,7 @@
           "type": "gauge",
           "description": "Start time of the process since unix epoch in seconds.",
           "group": null,
-          "default": true
+          "default": false
         },
         "process_virtual_memory_bytes": {
           "type": "gauge",

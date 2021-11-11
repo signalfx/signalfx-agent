@@ -91,9 +91,7 @@ var metricSet = map[string]monitors.MetricInfo{
 	processVirtualMemoryMaxBytes: {Type: datapoint.Gauge},
 }
 
-var defaultMetrics = map[string]bool{
-	processStartTimeSeconds: true,
-}
+var defaultMetrics = map[string]bool{}
 
 var groupMetricsMap = map[string][]string{}
 
@@ -104,5 +102,5 @@ var monitorMetadata = monitors.Metadata{
 	SendUnknown:     false,
 	Groups:          groupSet,
 	GroupMetricsMap: groupMetricsMap,
-	SendAll:         false,
+	SendAll:         true,
 }
