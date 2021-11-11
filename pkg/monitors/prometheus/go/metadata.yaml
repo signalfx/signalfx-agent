@@ -9,6 +9,7 @@ monitors:
     metrics from a Prometheus exporter and sends them to SignalFx.  It is a
     wrapper around the [prometheus-exporter](./prometheus-exporter.md) monitor
     that provides a restricted but expandable set of metrics.
+  sendAll: true
   metrics:
     go_gc_duration_seconds:
       description: A summary of the GC invocation durations
@@ -149,7 +150,7 @@ monitors:
       type: gauge
     process_start_time_seconds:
       description: Start time of the process since unix epoch in seconds
-      default: true
+      default: false
       type: gauge
     process_virtual_memory_bytes:
       description: Virtual memory size in bytes

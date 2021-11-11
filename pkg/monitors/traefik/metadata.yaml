@@ -230,7 +230,7 @@ monitors:
       type: gauge
     process_start_time_seconds:
       description: Start time of the process since unix epoch in seconds.
-      default: true
+      default: false
       type: gauge
     process_virtual_memory_bytes:
       description: Virtual memory size in bytes.

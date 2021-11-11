@@ -118,7 +118,6 @@ var metricSet = map[string]monitors.MetricInfo{
 }
 
 var defaultMetrics = map[string]bool{
-	processStartTimeSeconds:                      true,
 	traefikBackendOpenConnections:                true,
 	traefikBackendRequestDurationSecondsSum:      true,
 	traefikBackendRequestsTotal:                  true,
