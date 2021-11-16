@@ -20,7 +20,6 @@ WORKDIR /usr/src/signalfx-agent
 
 COPY go.mod go.sum ./
 COPY pkg/apm/go.mod pkg/apm/go.sum ./pkg/apm/
-COPY thirdparty/ ./thirdparty/
 RUN go mod download
 
 COPY cmd/ ./cmd/
