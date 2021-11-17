@@ -9,6 +9,7 @@ import tempfile
 from common import (
     ARTIFACTORY_URL,
     ARTIFACTORY_API_URL,
+    STAGING_URL,
     add_artifactory_args,
     add_signing_args,
     artifactory_file_exists,
@@ -89,6 +90,7 @@ def add_debs_to_repo(paths, args):
         deb_url = f"{ARTIFACTORY_DEB_REPO_URL}/pool/{base}"
         dest_opts = f"deb.distribution={args.stage};deb.component=main;deb.architecture=amd64;deb.architecture=arm64"
         dest_url = f"{deb_url};{dest_opts}"
+        staging_url = f"{STAGING_URL}/signalfx-agent-deb-local/pool/{base};{dest_opts}"
 
         if not args.force and artifactory_file_exists(deb_url, args.artifactory_user, args.artifactory_token):
             overwrite = input(f"package {deb_url} already exists. Overwrite? [y/N] ")
@@ -98,6 +100,7 @@ def add_debs_to_repo(paths, args):
         orig_metadata_md5 = get_md5_from_artifactory(metadata_api_url, args.artifactory_user, args.artifactory_token)
 
         upload_file_to_artifactory(path, dest_url, args.artifactory_user, args.artifactory_token)
+        upload_file_to_artifactory(path, staging_url, args.staging_user, args.staging_token)
 
         wait_for_artifactory_metadata(
             metadata_api_url, orig_metadata_md5, args.artifactory_user, args.artifactory_token, args.timeout
@@ -113,6 +116,7 @@ def add_rpms_to_repo(paths, args):
     for path in paths:
         base = os.path.basename(path)
         dest_url = f"{ARTIFACTORY_RPM_REPO_URL}/{args.stage}/{base}"
+        staging_url = f"{STAGING_URL}/signalfx-agent-rpm-local/{args.stage}/{base}"
 
         if not args.force and artifactory_file_exists(dest_url, args.artifactory_user, args.artifactory_token):
             overwrite = input(f"package {dest_url} already exists. Overwrite? [y/N] ")
@@ -135,8 +139,10 @@ def add_rpms_to_repo(paths, args):
                     args.timeout,
                 )
                 upload_file_to_artifactory(signed_rpm_path, dest_url, args.artifactory_user, args.artifactory_token)
+                upload_file_to_artifactory(signed_rpm_path, staging_url, args.staging_user, args.staging_token)
         else:
             upload_file_to_artifactory(path, dest_url, args.artifactory_user, args.artifactory_token)
+            upload_file_to_artifactory(path, staging_url, args.staging_user, args.staging_token)
 
         wait_for_artifactory_metadata(
             metadata_api_url, orig_metadata_md5, args.artifactory_user, args.artifactory_token, args.timeout
