@@ -478,7 +478,7 @@ jobs:
 
   dependency_check:
     docker:
-      - image: owasp/dependency-check:6.0.1
+      - image: owasp/dependency-check:6.5.0
         user: root
     steps:
       - checkout
