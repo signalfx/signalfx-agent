@@ -3,7 +3,7 @@ $scriptDir = split-path -parent $MyInvocation.MyCommand.Definition
 . $scriptDir\common.ps1
 
 $BUILD_DIR="$scriptDir\..\..\bundle\signalfx-agent"
-$PYTHON_VERSION="3.8.0"
+$PYTHON_VERSION="3.8.10"
 $PIP_VERSION="21.0.1"
 $NUGET_URL="https://aka.ms/nugetclidl"
 $NUGET_EXE="nuget.exe"
@@ -27,6 +27,7 @@ function get_collectd_plugins ([string]$buildDir=$BUILD_DIR) {
     & $python -m pip list
     & $python -m pip uninstall pip -y
     if ($lastexitcode -ne 0){ throw }
+    Get-ChildItem -Recurse -Path "$buildDir\python\Lib\ensurepip\*" -Include "pip-*.whl" | Remove-Item
 }
 
 function download_nuget([string]$url=$NUGET_URL, [string]$outputDir=$BUILD_DIR) {

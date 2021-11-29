@@ -79,7 +79,7 @@ RUN cd /usr/src/agent-java/jmx &&\
 FROM ubuntu:18.04 as collectd
 
 ARG TARGET_ARCH
-ARG PYTHON_VERSION=3.8.0
+ARG PYTHON_VERSION=3.8.10
 
 ENV DEBIAN_FRONTEND noninteractive
 
@@ -282,6 +282,8 @@ RUN python3 -m pip list
 
 # Remove pip to avoid usage in python monitor and in exec'd container
 RUN python3 -m pip uninstall pip -y
+# Delete the bundled pip wheel
+RUN find /usr/local/lib/python3.8/ensurepip -name "pip-*.whl" -delete
 
 # Delete all compiled python to save space
 RUN find /usr/local/lib/python3.8 -name "*.pyc" -o -name "*.pyo" | xargs rm
