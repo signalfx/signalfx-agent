@@ -14,7 +14,7 @@ pytest-xdist==2.4.0
 pytest==6.2.5
 redis==4.0.2
 requests==2.26.0
-sanic==21.6.2
+sanic==21.9.3
 semver==2.13.0
 signalfx==1.1.14
 pika==1.2.0
