@@ -1,0 +1,59 @@
+name: gotests
+
+on:
+  push:
+  pull_request:
+
+concurrency:
+  group: gotests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  RESULT_PATH: "~/testresults"
+  GO_VERSION: 1.14.2
+
+jobs:
+  gotests:
+    name: gotests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Caching dependency
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+            ~/go/bin
+          key: ${{ runner.os }}-v1-go-mod-${{ hashFiles('**/go.mod') }}-${{ hashFiles('**/go.sum') }}
+
+      - name: go mod download
+        run: |
+          [[ -d /go/pkg/mod/cache ]] && exit 0
+          # retry up to 3 times in case of network issues
+          for i in $(seq 1 3); do
+              go mod download && exit 0
+              sleep 10
+          done
+          exit 1
+
+      - name: go test
+        run: |
+          mkdir ${{ env.RESULT_PATH }}
+          export NUM_CORES=$(getconf _NPROCESSORS_ONLN)
+          (cd /tmp; GO111MODULE=on go get gotest.tools/gotestsum)
+          go generate ./...
+          CGO_ENABLED=0 gotestsum --format short-verbose --junitfile ${{ env.RESULT_PATH }}/unit.xml --raw-command -- go test --json -p $NUM_CORES ./...
+
+      - name: Uploading test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: go-test-results
+          path: ${{ env.RESULT_PATH }}
