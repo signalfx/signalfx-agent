@@ -300,8 +300,7 @@ RUN apt update &&\
 	  host \
 	  iproute2 \
 	  netcat \
-	  netcat.openbsd \
-	  vim
+	  netcat.openbsd
 
 COPY scripts/collect-libs /opt/collect-libs
 
@@ -330,7 +329,6 @@ ENV useful_bins=" \
   /usr/bin/host \
   /usr/bin/realpath \
   /usr/bin/tail \
-  /usr/bin/vim \
   "
 RUN mkdir -p /opt/root/lib &&\
     /opt/collect-libs /opt/root/lib ${useful_bins}
