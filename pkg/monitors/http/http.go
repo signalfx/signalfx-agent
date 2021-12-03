@@ -3,6 +3,7 @@ package http
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -130,7 +131,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 					}
 				}
 			} else {
-				logger.WithError(err).Error("Failed gathering all HTTP stats, ignore TLS stats and push what we've successfully collected")
+				logger.WithError(err).Error("Failed gathering HTTP stats, ignore other stats")
 			}
 
 			for i := range dps {
@@ -213,20 +214,15 @@ func (m *Monitor) getTLSStats(site *url.URL, logger *logrus.Entry) (dps []*datap
 		serverName = host
 	}
 
-	dimensions := map[string]string{
-		"server_name":     host,
-		"sni_server_name": serverName,
-	}
-
 	ipConn, err := net.Dial("tcp", host+":"+port)
 	if err != nil {
-		logger.WithError(err).Error("connection failed to host during TLS stat collection")
 		return
 	}
 	defer ipConn.Close()
 
 	tlsCfg := &tls.Config{
-		ServerName: serverName,
+		InsecureSkipVerify: m.conf.SkipVerify,
+		ServerName:         serverName,
 	}
 
 	if _, err := auth.TLSConfig(tlsCfg, m.conf.CACertPath, m.conf.ClientCertPath, m.conf.ClientKeyPath); err != nil {
@@ -241,11 +237,34 @@ func (m *Monitor) getTLSStats(site *url.URL, logger *logrus.Entry) (dps []*datap
 
 	err = conn.Handshake()
 	if err != nil {
-		logger.WithError(err).Debug("cert verification failed during handshake")
+		logger.WithError(err).Error("failed during handshake")
 		valid = 0
-	} else {
-		cert := conn.ConnectionState().PeerCertificates[0]
-		secondsLeft = time.Until(cert.NotAfter).Seconds()
+	}
+
+	certs := conn.ConnectionState().PeerCertificates
+	for i, cert := range certs {
+		opts := x509.VerifyOptions{
+			Intermediates: x509.NewCertPool(),
+		}
+		if i == 0 {
+			opts.DNSName = serverName
+			for j, cert := range certs {
+				if j != 0 {
+					opts.Intermediates.AddCert(cert)
+				}
+			}
+			secondsLeft = time.Until(cert.NotAfter).Seconds()
+		}
+		_, err := cert.Verify(opts)
+		if err != nil {
+			logger.WithError(err).Debug("failed verify certificate")
+			valid = 0
+		}
+	}
+
+	dimensions := map[string]string{
+		"server_name":     host,
+		"sni_server_name": serverName,
 	}
 
 	dps = append(dps,
