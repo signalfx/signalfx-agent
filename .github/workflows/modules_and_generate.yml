@@ -37,7 +37,7 @@ jobs:
 
       - name: go mod download
         run: |
-          [[ -d /go/pkg/mod/cache ]] && exit 0
+          [[ -d ~/go/pkg/mod ]] && exit 0
           # retry up to 3 times in case of network issues
           for i in $(seq 1 3); do
               go mod download && exit 0
@@ -45,7 +45,7 @@ jobs:
           done
           exit 1
 
-      - name: Docs test
+      - name: go mod tidy
         run: |
           go generate ./...
           go mod tidy
