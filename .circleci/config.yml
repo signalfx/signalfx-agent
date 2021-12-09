@@ -393,24 +393,6 @@ jobs:
           pytest_options: --test-bundle-path=/tmp/workspace/signalfx-agent-latest.tar.gz
           tests_dir: ./tests/packaging
 
-  deployment_tests:
-    executor: machine_image
-    parallelism: 2
-    parameters:
-      deployment_type:
-        default: "chef"
-        type: enum
-        enum: ["chef", "puppet", "salt", "ansible"]
-    steps:
-      - checkout
-      - run:
-          environment:
-            DEPLOYMENT_TYPE: << parameters.deployment_type >>
-          command: .circleci/scripts/run-deployment-tests.sh
-      - save_test_results
-      - run_pytest:
-          tests_dir: ./tests/deployments/
-
   pylint_black:
     executor: python38
     parameters:
@@ -535,18 +517,6 @@ workflows:
       - bundle_tests:
           requires:
             - build
-      - deployment_tests:
-          name: chef_tests
-          deployment_type: chef
-      - deployment_tests:
-          name: puppet_tests
-          deployment_type: puppet
-      - deployment_tests:
-          name: salt_tests
-          deployment_type: salt
-      - deployment_tests:
-          name: ansible_tests
-          deployment_type: ansible
       - pylint_black:
           name: pytest_lint
           target: pytest

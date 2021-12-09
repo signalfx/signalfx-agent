@@ -1,0 +1,85 @@
+name: salt_deployment_test
+
+# Only run tests for main branch or if the PR has relevant changes
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - '.github/workflows/salt_deployment_test.yml'
+      - 'deployments/salt/**'
+      - 'tests/deployments/salt/**'
+      - 'tests/packaging/common.py'
+      - '.github/scripts/run-pytest.sh'
+
+concurrency:
+  group: salt_deployment_test-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  RESULT_PATH: testresults
+  PYTHON_VERSION: 3.8.0
+  REQUIREMENTS_PATH: "tests/requirements.txt"
+  GO_VERSION: 1.14.2
+  PIP_VERSION: 10.0.1
+
+jobs:
+  salt_deployment_test:
+    name: salt_deployment_test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        SYS_PACKAGE: [ "deb", "rpm" ]
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Test salt deployment
+        env:
+          SYS_PACKAGE: ${{ matrix.SYS_PACKAGE }}
+          DEPLOYMENT_TYPE: salt
+        run: .github/scripts/run-deployment-tests.sh
+
+      - name: Uploading test result artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.SYS_PACKAGE }}-salt-deployment-test-result
+          path: ~/${{ env.RESULT_PATH }}
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Caching dependency
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pip
+          key: v1-pytest-${{ env.PYTHON_VERSION }}-${{ hashFiles(env.REQUIREMENTS_PATH) }}
+
+      - name: Install pytest
+        run: |
+          if which pip; then
+              pip install --upgrade 'pip==${{ env.PIP_VERSION }}'
+          else
+              curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+              python get-pip.py 'pip==${{ env.PIP_VERSION }}'
+          fi
+          pip install -r "${{ env.REQUIREMENTS_PATH }}"
+
+      - name: Run pytest
+        env:
+          WORKERS: 2
+          PYTEST_OPTIONS: ""
+          TESTS_DIR: ./tests/deployments
+        run: .github/scripts/run-pytest.sh
+
+      - name: Uploading pytest result artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.SYS_PACKAGE }}-salt-pytest-result
+          path: |
+            ~/${{ env.RESULT_PATH }}/results.html
+            ~/${{ env.RESULT_PATH }}/results.xml
