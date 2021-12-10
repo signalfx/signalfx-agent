@@ -1,0 +1,76 @@
+name: puppet_deployment_test
+
+# Only run tests for main branch or if the PR has relevant changes
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - '.github/workflows/puppet_deployment_test.yml'
+      - 'deployments/puppet/**'
+      - 'tests/deployments/puppet/**'
+      - 'tests/packaging/common.py'
+      - '.github/scripts/run-pytest.sh'
+
+concurrency:
+  group: puppet_deployment_test-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  RESULT_PATH: testresults
+  PYTHON_VERSION: 3.8.10
+  REQUIREMENTS_PATH: "tests/requirements.txt"
+
+jobs:
+  puppet_deployment_test:
+    name: puppet_deployment_test
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        SYS_PACKAGE: [ "deb", "rpm" ]
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Test puppet deployment
+        env:
+          SYS_PACKAGE: ${{ matrix.SYS_PACKAGE }}
+          DEPLOYMENT_TYPE: puppet
+        run: .github/scripts/run-deployment-tests.sh
+
+      - name: Uploading test result artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.SYS_PACKAGE }}-puppet-deployment-test-result
+          path: ~/${{ env.RESULT_PATH }}
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Caching dependency
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pip
+          key: v1-pytest-${{ env.PYTHON_VERSION }}-${{ hashFiles(env.REQUIREMENTS_PATH) }}
+
+      - name: Install pytest
+        run: pip install -r "${{ env.REQUIREMENTS_PATH }}"
+
+      - name: Run pytest
+        env:
+          WORKERS: 2
+          PYTEST_OPTIONS: ""
+          TESTS_DIR: ./tests/deployments
+        run: .github/scripts/run-pytest.sh
+
+      - name: Uploading pytest result artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.SYS_PACKAGE }}-puppet-pytest-result
+          path: |
+            ~/${{ env.RESULT_PATH }}/results.html
+            ~/${{ env.RESULT_PATH }}/results.xml
