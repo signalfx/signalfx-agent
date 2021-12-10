@@ -19,10 +19,8 @@ concurrency:
 
 env:
   RESULT_PATH: testresults
-  PYTHON_VERSION: 3.8.0
+  PYTHON_VERSION: 3.8.10
   REQUIREMENTS_PATH: "tests/requirements.txt"
-  GO_VERSION: 1.14.2
-  PIP_VERSION: 10.0.1
 
 jobs:
   salt_deployment_test:
@@ -60,14 +58,7 @@ jobs:
           key: v1-pytest-${{ env.PYTHON_VERSION }}-${{ hashFiles(env.REQUIREMENTS_PATH) }}
 
       - name: Install pytest
-        run: |
-          if which pip; then
-              pip install --upgrade 'pip==${{ env.PIP_VERSION }}'
-          else
-              curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
-              python get-pip.py 'pip==${{ env.PIP_VERSION }}'
-          fi
-          pip install -r "${{ env.REQUIREMENTS_PATH }}"
+        run: pip install -r "${{ env.REQUIREMENTS_PATH }}"
 
       - name: Run pytest
         env:
