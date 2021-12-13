@@ -393,19 +393,6 @@ jobs:
           pytest_options: --test-bundle-path=/tmp/workspace/signalfx-agent-latest.tar.gz
           tests_dir: ./tests/packaging
 
-  pylint_black:
-    executor: python38
-    parameters:
-      target:
-        default: "python"
-        type: enum
-        enum: ["python", "pytest"]
-    environment:
-      TARGET: << parameters.target >>
-    steps:
-      - checkout
-      - run: .circleci/scripts/run-pylint-black.sh
-
   check_links:
     executor: machine_image
     steps:
@@ -517,12 +504,6 @@ workflows:
       - bundle_tests:
           requires:
             - build
-      - pylint_black:
-          name: pytest_lint
-          target: pytest
-      - pylint_black:
-          name: python_lint
-          target: python
       - helm_check
       - check_links
       - dependency_check:
