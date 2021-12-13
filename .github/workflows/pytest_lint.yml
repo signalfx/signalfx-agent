@@ -1,0 +1,46 @@
+name: pytest_lint
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - '.github/workflows/pytest_lint.yml'
+      - 'tests/**'
+
+concurrency:
+  group: pytest_lint-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  PYTHON_VERSION: 3.8.10
+  REQUIREMENTS_PATH: "tests/requirements.txt"
+
+jobs:
+  pytest_lint:
+    name: pytest_lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Caching dependency
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pip
+          key: v1-pytest-${{ env.PYTHON_VERSION }}-${{ hashFiles(env.REQUIREMENTS_PATH) }}
+
+      - name: Install requirements
+        run: pip install -r "${{ env.REQUIREMENTS_PATH }}"
+
+      - name: Run lint
+        run: |
+          (make lint-pytest && git diff --exit-code tests ) || \
+          (echo "Pylint/black issue(s) found in tests directory. Run \`make lint-pytest\` in the dev image, resolve the issues, and commit the changes." && exit 1)
