@@ -39,7 +39,7 @@ def test_logstash_tcp_client(version):
     ) as logstash_cont:
         copy_file_content_into_container(SAMPLE_EVENTS, logstash_cont, "tmp/events.log")
         copy_file_content_into_container(
-            PIPELINE_CONF.read_text(), logstash_cont, "/usr/share/logstash/pipeline/test.conf"
+            PIPELINE_CONF.read_text(encoding="utf-8"), logstash_cont, "/usr/share/logstash/pipeline/test.conf"
         )
         host = container_ip(logstash_cont)
 
