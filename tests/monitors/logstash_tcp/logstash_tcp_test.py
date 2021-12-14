@@ -43,7 +43,7 @@ def test_logstash_tcp_client(version):
     ) as logstash_cont:
         copy_file_content_into_container(SAMPLE_EVENTS, logstash_cont, "tmp/events.log")
         copy_file_content_into_container(
-            PIPELINE_CONF.read_text(), logstash_cont, "/usr/share/logstash/pipeline/test.conf"
+            PIPELINE_CONF.read_text(encoding="utf-8"), logstash_cont, "/usr/share/logstash/pipeline/test.conf"
         )
         host = container_ip(logstash_cont)
 
@@ -95,7 +95,7 @@ def test_logstash_tcp_server(version):
             copy_file_content_into_container(
                 # The pipeline conf is written for server mode so patch it to
                 # act as a client.
-                PIPELINE_CONF.read_text()
+                PIPELINE_CONF.read_text(encoding="utf-8")
                 .replace('mode => "server"', 'mode => "client"')
                 .replace('host => "0.0.0.0"', f'host => "{agent_host}"')
                 .replace("port => 8900", f"port => {listen_port}"),

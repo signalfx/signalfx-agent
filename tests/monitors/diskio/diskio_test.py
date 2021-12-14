@@ -27,7 +27,7 @@ def test_diskio():
                 "disk_ops.pending",
             ]
         )
-    elif sys.platform == "win32" or sys.platform == "cygwin":
+    elif sys.platform in ("win32", "cygwin"):
         expected_metrics.extend(
             [
                 "disk_ops.avg_read",

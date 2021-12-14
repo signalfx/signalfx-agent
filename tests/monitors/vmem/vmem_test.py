@@ -25,7 +25,7 @@ if sys.platform == "linux":
             "vmpage_number.shmem_pmdmapped",
         }
     )
-elif sys.platform == "win32" or sys.platform == "cygwin":
+elif sys.platform in ("win32", "cygwin"):
     METRICS.update({"vmpage.swap.in_per_second", "vmpage.swap.out_per_second", "vmpage.swap.total_per_second"})
 
 

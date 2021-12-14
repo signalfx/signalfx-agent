@@ -45,7 +45,7 @@ def check_values(dps, status_code, code=1, regex=1, cert=1):
             assert dp.value.intValue == regex
         if dp.metric == METRIC_CODE_MATCH:
             assert dp.value.intValue > 0 or code
-        if dp.metric == METRIC_TIME or dp.metric == METRIC_CERT_EXPIRY:
+        if dp.metric in (METRIC_TIME, METRIC_CERT_EXPIRY):
             assert dp.value.doubleValue > 0
 
 
