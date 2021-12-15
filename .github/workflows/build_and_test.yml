@@ -1,0 +1,102 @@
+name: build_and_test
+
+# Only run tests for main branch or if the PR has relevant changes
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: build_and_test-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  RESULT_PATH: testresults
+  PYTHON_VERSION: 3.8.10
+  REQUIREMENTS_PATH: "tests/requirements.txt"
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Setup bundle
+        env:
+          PULL_CACHE: yes
+          AGENT_VERSION: latest
+        run: |
+          make bundle
+          mkdir -p /tmp/workspace
+          docker save -o /tmp/workspace/image.tar quay.io/signalfx/signalfx-agent-dev:latest
+          mv signalfx-agent-latest.tar.gz /tmp/workspace/
+
+      - name: Uploading artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: bundle
+          path: /tmp/workspace/*
+
+  bundle_tests:
+    name: bundle_tests
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: test
+        id: verify-changed-files
+        run: .github/scripts/changes-include-dir.sh .github/workflows/build_and_test.yml Dockerfile packaging tests/packaging scripts/patch-interpreter scripts/patch-rpath scripts/build .circleci/scripts/run-pytest.sh
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_REF: ${{ github.event.pull_request.base.sha }}
+          HEAD_REF: ${{ github.sha }}
+
+      - name: Downloading bundle
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        uses: actions/download-artifact@v2
+        with:
+          name: bundle
+          path: /tmp/workspace
+
+      - name: Setup python
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Caching dependency
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pip
+          key: v1-pytest-${{ env.PYTHON_VERSION }}-${{ hashFiles(env.REQUIREMENTS_PATH) }}
+
+      - name: Install pytest
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        run: pip install -r "${{ env.REQUIREMENTS_PATH }}"
+
+      - name: Run pytest
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        env:
+          WORKERS: 2
+          PYTEST_OPTIONS: --test-bundle-path=/tmp/workspace/signalfx-agent-latest.tar.gz
+          TESTS_DIR: ./tests/packaging
+          MARKERS: bundle
+        run: .github/scripts/run-pytest.sh
+
+      - name: Uploading pytest result artifacts
+        if: steps.verify-changed-files.outputs.files_changed == 'true'
+        uses: actions/upload-artifact@v2
+        with:
+          name: bundle-package-pytest-result
+          path: |
+            ~/${{ env.RESULT_PATH }}/results.html
+            ~/${{ env.RESULT_PATH }}/results.xml
