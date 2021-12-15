@@ -50,7 +50,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: test
+      - name: Verify Changed files
         id: verify-changed-files
         run: .github/scripts/changes-include-dir.sh .github/workflows/build_and_test.yml Dockerfile packaging tests/packaging scripts/patch-interpreter scripts/patch-rpath scripts/build .circleci/scripts/run-pytest.sh
         env:

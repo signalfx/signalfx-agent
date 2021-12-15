@@ -364,35 +364,6 @@ jobs:
           markers: installer
           tests_dir: ./tests/packaging/
 
-  package_tests:
-    executor: machine_image
-    parallelism: 2
-    parameters:
-      package_type:
-        default: "rpm"
-        type: enum
-        enum: ["rpm", "deb"]
-    steps:
-      - checkout
-      - run:
-          environment:
-            PACKAGE_TYPE: << parameters.package_type >>
-          command: .circleci/scripts/setup-package-tests.sh
-      - run_pytest:
-          tests_dir: ./tests/packaging
-
-  bundle_tests:
-    executor: machine_image
-    steps:
-      - checkout
-      - attach_workspace:
-          at: /tmp/workspace
-      - run: .circleci/scripts/setup-bundle-tests.sh
-      - run_pytest:
-          markers: bundle
-          pytest_options: --test-bundle-path=/tmp/workspace/signalfx-agent-latest.tar.gz
-          tests_dir: ./tests/packaging
-
   check_links:
     executor: machine_image
     steps:
@@ -495,15 +466,6 @@ workflows:
             - build
             - helm_check
       - installer_tests
-      - package_tests:
-          name: rpm_package_tests
-          package_type: rpm
-      - package_tests:
-          name: deb_package_tests
-          package_type: deb
-      - bundle_tests:
-          requires:
-            - build
       - helm_check
       - check_links
       - dependency_check:
