@@ -1,6 +1,5 @@
 name: build_and_test
 
-# Only run tests for main branch or if the PR has relevant changes
 on: 
   push:
     branches:
@@ -24,21 +23,27 @@ jobs:
       - name: Check out the codebase.
         uses: actions/checkout@v2
 
-      - name: Setup bundle
+      - name: Build image and bundle
         env:
           PULL_CACHE: yes
           AGENT_VERSION: latest
         run: |
           make bundle
-          mkdir -p /tmp/workspace
-          docker save -o /tmp/workspace/image.tar quay.io/signalfx/signalfx-agent-dev:latest
-          mv signalfx-agent-latest.tar.gz /tmp/workspace/
+          mkdir -p ./dist
+          docker save -o ./dist/image.tar quay.io/signalfx/signalfx-agent-dev:latest
+          mv signalfx-agent-latest.tar.gz ./dist/
 
-      - name: Uploading artifacts
+      - name: Uploading image artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: image
+          path: ./dist/image.tar
+
+      - name: Uploading bundle artifacts
         uses: actions/upload-artifact@v2
         with:
           name: bundle
-          path: /tmp/workspace/*
+          path: ./dist/signalfx-agent-latest.tar.gz
 
   bundle_tests:
     name: bundle_tests
@@ -63,7 +68,7 @@ jobs:
         uses: actions/download-artifact@v2
         with:
           name: bundle
-          path: /tmp/workspace
+          path: ./dist
 
       - name: Setup python
         if: steps.verify-changed-files.outputs.files_changed == 'true'
@@ -87,7 +92,7 @@ jobs:
         if: steps.verify-changed-files.outputs.files_changed == 'true'
         env:
           WORKERS: 2
-          PYTEST_OPTIONS: --test-bundle-path=/tmp/workspace/signalfx-agent-latest.tar.gz
+          PYTEST_OPTIONS: --test-bundle-path=./dist/signalfx-agent-latest.tar.gz
           TESTS_DIR: ./tests/packaging
           MARKERS: bundle
         run: .github/scripts/run-pytest.sh
