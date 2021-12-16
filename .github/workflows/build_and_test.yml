@@ -55,29 +55,18 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Verify Changed files
-        id: verify-changed-files
-        run: .github/scripts/changes-include-dir.sh .github/workflows/build_and_test.yml Dockerfile packaging tests/packaging scripts/patch-interpreter scripts/patch-rpath scripts/build .circleci/scripts/run-pytest.sh
-        env:
-          EVENT_NAME: ${{ github.event_name }}
-          BASE_REF: ${{ github.event.pull_request.base.sha }}
-          HEAD_REF: ${{ github.sha }}
-
       - name: Downloading bundle
-        if: steps.verify-changed-files.outputs.files_changed == 'true'
         uses: actions/download-artifact@v2
         with:
           name: bundle
           path: ./dist
 
       - name: Setup python
-        if: steps.verify-changed-files.outputs.files_changed == 'true'
         uses: actions/setup-python@v2
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Caching dependency
-        if: steps.verify-changed-files.outputs.files_changed == 'true'
         uses: actions/cache@v2
         with:
           path: |
@@ -85,11 +74,9 @@ jobs:
           key: v1-pytest-${{ env.PYTHON_VERSION }}-${{ hashFiles(env.REQUIREMENTS_PATH) }}
 
       - name: Install pytest
-        if: steps.verify-changed-files.outputs.files_changed == 'true'
         run: pip install -r "${{ env.REQUIREMENTS_PATH }}"
 
       - name: Run pytest
-        if: steps.verify-changed-files.outputs.files_changed == 'true'
         env:
           WORKERS: 2
           PYTEST_OPTIONS: --test-bundle-path=./dist/signalfx-agent-latest.tar.gz
@@ -98,7 +85,6 @@ jobs:
         run: .github/scripts/run-pytest.sh
 
       - name: Uploading pytest result artifacts
-        if: steps.verify-changed-files.outputs.files_changed == 'true'
         uses: actions/upload-artifact@v2
         with:
           name: bundle-package-pytest-result
