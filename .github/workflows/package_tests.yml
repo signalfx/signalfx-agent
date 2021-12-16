@@ -1,0 +1,106 @@
+name: package_tests
+
+# Only run tests for main branch or if the PR has relevant changes
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - '.github/workflows/package_tests.yml'
+      - 'Dockerfile'
+      - 'scripts/patch-interpreter'
+      - 'scripts/patch-rpath'
+      - 'packaging/**'
+      - 'tests/packaging/**'
+      - '.github/scripts/run-pytest.sh'
+
+concurrency:
+  group: package_tests-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  RESULT_PATH: testresults
+  PYTHON_VERSION: 3.8.10
+  REQUIREMENTS_PATH: "tests/requirements.txt"
+
+jobs:
+  package_build:
+    name: package_build
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        SYS_PACKAGE: [ "deb", "rpm" ]
+    steps:      
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Setup package tests
+        env:
+          PULL_CACHE: yes
+        run: |
+          make ${{ matrix.SYS_PACKAGE }}-test-package
+
+      - name: Uploading ${{ matrix.SYS_PACKAGE }} test package artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.SYS_PACKAGE }}-test-package
+          path: ./packaging/${{ matrix.SYS_PACKAGE }}/output
+
+  package_test:
+    name: package_test
+    runs-on: ubuntu-latest
+    needs: [package_build]
+    strategy:
+      matrix:
+        SYS_PACKAGE: [ "deb", "rpm" ]
+        UPGRADE: [ "yes", "no" ]
+    steps:      
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Downloading bundle
+        uses: actions/download-artifact@v2
+        with:
+          name: ${{ matrix.SYS_PACKAGE }}-test-package
+          path: ./packaging/${{ matrix.SYS_PACKAGE }}/output
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Caching dependency
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pip
+          key: v1-pytest-${{ env.PYTHON_VERSION }}-${{ hashFiles(env.REQUIREMENTS_PATH) }}
+
+      - name: Install pytest
+        run: |
+          pip install -r "${{ env.REQUIREMENTS_PATH }}"
+          if [ ${{ matrix.UPGRADE }} = "no" ]; then
+              echo "MARKERS=${{ matrix.SYS_PACKAGE }} and not upgrade" >> $GITHUB_ENV
+          else
+              echo "MARKERS=${{ matrix.SYS_PACKAGE }} and upgrade" >> $GITHUB_ENV
+          fi
+
+      - name: Run pytest
+        env:
+          WORKERS: 2
+          PYTEST_OPTIONS: ""
+          TESTS_DIR: ./tests/packaging
+        run: .github/scripts/run-pytest.sh
+
+      - name: Uploading pytest result artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.SYS_PACKAGE }}-package-pytest-result-with-upgrade-${{ matrix.UPGRADE }}
+          path: |
+            ~/${{ env.RESULT_PATH }}/results.html
+            ~/${{ env.RESULT_PATH }}/results.xml

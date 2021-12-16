@@ -1,0 +1,93 @@
+name: build_and_test
+
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: build_and_test-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  RESULT_PATH: testresults
+  PYTHON_VERSION: 3.8.10
+  REQUIREMENTS_PATH: "tests/requirements.txt"
+
+jobs:
+  build:
+    name: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Build image and bundle
+        env:
+          PULL_CACHE: yes
+          AGENT_VERSION: latest
+        run: |
+          make bundle
+          mkdir -p ./dist
+          docker save -o ./dist/image.tar quay.io/signalfx/signalfx-agent-dev:latest
+          mv signalfx-agent-latest.tar.gz ./dist/
+
+      - name: Uploading image artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: image
+          path: ./dist/image.tar
+
+      - name: Uploading bundle artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: bundle
+          path: ./dist/signalfx-agent-latest.tar.gz
+
+  bundle_tests:
+    name: bundle_tests
+    runs-on: ubuntu-latest
+    needs: [build]
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Downloading bundle
+        uses: actions/download-artifact@v2
+        with:
+          name: bundle
+          path: ./dist
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Caching dependency
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pip
+          key: v1-pytest-${{ env.PYTHON_VERSION }}-${{ hashFiles(env.REQUIREMENTS_PATH) }}
+
+      - name: Install pytest
+        run: pip install -r "${{ env.REQUIREMENTS_PATH }}"
+
+      - name: Run pytest
+        env:
+          WORKERS: 2
+          PYTEST_OPTIONS: --test-bundle-path=./dist/signalfx-agent-latest.tar.gz
+          TESTS_DIR: ./tests/packaging
+          MARKERS: bundle
+        run: .github/scripts/run-pytest.sh
+
+      - name: Uploading pytest result artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: bundle-package-pytest-result
+          path: |
+            ~/${{ env.RESULT_PATH }}/results.html
+            ~/${{ env.RESULT_PATH }}/results.xml
