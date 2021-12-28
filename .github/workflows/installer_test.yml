@@ -1,0 +1,63 @@
+name: installer_test
+
+# Only run tests for main branch or if the PR has relevant changes
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - '.github/workflows/installer_test.yml'
+      - 'deployments/installer/**'
+      - 'tests/packaging/installer_test.py'
+      - 'tests/packaging/common.py'
+      - 'tests/packaging/images/**'
+      - '.circleci/scripts/run-pytest.sh'
+
+concurrency:
+  group: installer_test-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  RESULT_PATH: testresults
+  PYTHON_VERSION: 3.8.10
+  REQUIREMENTS_PATH: "tests/requirements.txt"
+
+jobs:
+  installer_test:
+    name: installer_test
+    runs-on: ubuntu-latest
+    steps:      
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Caching dependency
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/pip
+          key: v1-pytest-${{ env.PYTHON_VERSION }}-${{ hashFiles(env.REQUIREMENTS_PATH) }}
+
+      - name: Install pytest
+        run: pip install -r "${{ env.REQUIREMENTS_PATH }}"
+
+      - name: Run pytest
+        env:
+          WORKERS: 2
+          PYTEST_OPTIONS: ""
+          TESTS_DIR: ./tests/packaging
+          MARKERS: installer
+        run: .github/scripts/run-pytest.sh
+
+      - name: Uploading pytest result artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: installer-tests-result
+          path: |
+            ~/${{ env.RESULT_PATH }}/results.html
+            ~/${{ env.RESULT_PATH }}/results.xml

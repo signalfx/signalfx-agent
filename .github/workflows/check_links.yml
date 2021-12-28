@@ -1,0 +1,26 @@
+name: check_links
+
+# Only run tests for main branch or if the PR has relevant changes
+on: 
+  push:
+    branches:
+      - main
+  pull_request:
+    paths:
+      - '.github/workflows/check_links.yml'
+      - '**.md'
+
+concurrency:
+  group: check_links-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check_links:
+    name: check_links
+    runs-on: ubuntu-latest
+    steps:      
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Checking links
+        run: make check-links
