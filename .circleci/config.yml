@@ -377,46 +377,6 @@ jobs:
           fi
           make check-links
 
-  dependency_check:
-    docker:
-      - image: owasp/dependency-check:6.5.0
-        user: root
-    steps:
-      - checkout
-      - attach_workspace:
-          at: /tmp/workspace
-      - restore_cache:
-          key: v2-dependency-check-nvd-{{ checksum ".circleci/scripts/run-dependency-check.sh" }}
-      - run: .circleci/scripts/run-dependency-check.sh
-      - save_cache:
-          key: v2-dependency-check-nvd-{{ checksum ".circleci/scripts/run-dependency-check.sh" }}
-          paths:
-            - /usr/share/dependency-check/data
-      - save_test_results:
-          dir: /root/project/reports
-
-  pcf_tile_build:
-    executor: tile_generator
-    steps:
-      - run: |
-          if ! command -v git; then
-            apt-get update
-            apt-get install -y git
-          fi
-      - checkout
-      - attach_workspace:
-          at: /tmp/workspace
-      - run: |
-          if [[ "$CIRCLE_BRANCH" != "main" && -z "$CIRCLE_TAG" ]] && ! scripts/changes-include-dir deployments/cloudfoundry; then
-              echo "No changes in deployments/cloudfoundry, skipping build."
-              exit 0
-          fi
-          AGENT_VERSION=$(./scripts/current-version) AGENT_BUNDLE=/tmp/workspace/signalfx-agent-latest.tar.gz deployments/cloudfoundry/tile/make-latest-tile
-          mkdir -p /tmp/pcf_tile
-          mv deployments/cloudfoundry/tile/product/signalfx-monitoring-*.pivotal /tmp/pcf_tile
-      - store_artifacts:
-          path: /tmp/pcf_tile
-
 workflows:
   build_test:
     jobs:
@@ -468,13 +428,3 @@ workflows:
       - installer_tests
       - helm_check
       - check_links
-      - dependency_check:
-          requires:
-            - build
-      - pcf_tile_build:
-          filters:
-            tags:
-              only:
-                - /^v\d+\.\d+\.\d+.*/
-          requires:
-            - build

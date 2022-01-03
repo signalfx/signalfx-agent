@@ -91,3 +91,86 @@ jobs:
           path: |
             ~/${{ env.RESULT_PATH }}/results.html
             ~/${{ env.RESULT_PATH }}/results.xml
+
+  dependency_check:
+    name: dependency_check
+    runs-on: ubuntu-latest
+    needs: [build]
+    container:
+      image: owasp/dependency-check:6.5.0
+      options: --user root
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Downloading bundle
+        uses: actions/download-artifact@v2
+        with:
+          name: bundle
+          path: ./dist
+
+      - name: Setup dependency check
+        run: |
+          mkdir -p ./bundle
+          mkdir -p ./reports
+          apk --no-cache add tar
+          tar -C ./bundle -xf ./dist/signalfx-agent-latest.tar.gz
+
+      - name: Caching dependency
+        uses: actions/cache@v2
+        with:
+          path: |
+            /usr/share/dependency-check/data
+          key: v2-dependency-check-nvd-${{ hashFiles('./.github/workflows/build_and_test.yml') }}
+
+      - name: Run Dependency Check
+        run: |
+          /usr/share/dependency-check/bin/dependency-check.sh \
+            --scan ./bundle \
+            --project "signalfx-agent-latest.tar.gz" \
+            --suppression ./scripts/dependency-check/suppression.xml \
+            --out ./reports/ \
+            --format HTML \
+            --format JUNIT \
+            --junitFailOnCVSS 9 \
+            --failOnCVSS 9 || \
+            (echo -e "\nOne or more critical vulnerabilities were found in the agent bundle.\nCheck the report artifact, fix the issues, run 'make bundle && make dependency-check', and commit the changes when the issues are resolved." && exit 1)
+      
+      - name: Uploading test result artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dependency-check-result
+          path: reports
+
+  pcf_tile_build:
+    name: pcf_tile_build
+    runs-on: ubuntu-latest
+    needs: [build]
+    container:
+      image: cfplatformeng/tile-generator:v14.0.3
+    steps:
+      - name: Installing git
+        run: |
+          apt-get update
+          apt-get install -y git
+      
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Downloading bundle
+        uses: actions/download-artifact@v2
+        with:
+          name: bundle
+          path: ./dist
+
+      - name: Run pcf_tile_build
+        run: |
+          AGENT_VERSION=$(./scripts/current-version) AGENT_BUNDLE=$(pwd)/dist/signalfx-agent-latest.tar.gz deployments/cloudfoundry/tile/make-latest-tile
+      
+      - name: Uploading test result artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: dependency-check-result
+          path: deployments/cloudfoundry/tile/product/signalfx-monitoring-*.pivotal
