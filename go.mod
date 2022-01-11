@@ -108,17 +108,17 @@ require (
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.etcd.io/etcd/client/v2 v2.305.0
-	golang.org/x/net v0.0.0-20210614182718-04defd469f4e
+	golang.org/x/net v0.0.0-20211209124913-491a49abca63
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/sys v0.0.0-20210816074244-15123e1e1f71
-	golang.org/x/tools v0.1.2
+	golang.org/x/sys v0.0.0-20210831042530-f4d43177bf5e
+	golang.org/x/tools v0.1.5
 	google.golang.org/grpc v1.40.0
 	gopkg.in/fatih/set.v0 v0.1.0
 	gopkg.in/go-playground/validator.v9 v9.29.1
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools v2.2.0+incompatible
-	k8s.io/api v0.21.0
-	k8s.io/apimachinery v0.21.0
-	k8s.io/client-go v0.21.0
+	k8s.io/api v0.23.1
+	k8s.io/apimachinery v0.23.1
+	k8s.io/client-go v0.23.1
 	k8s.io/kubelet v0.20.5
 )
