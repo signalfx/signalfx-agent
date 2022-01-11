@@ -85,17 +85,17 @@ const (
 
 // ENDPOINT_VAR(node_metadata|node_metadata): The metadata about the Node, for `k8s-node`
 // targets, with fields in TitleCase.  See [ObjectMeta v1 meta
-// reference](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#objectmeta-v1-meta).
+// reference](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#objectmeta-v1-meta).
 
 // ENDPOINT_VAR(node_spec|node_spec): The Node spec object, for `k8s-node` targets.  See
 // [the K8s reference on this
-// resource](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#nodespec-v1-core),
+// resource](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#nodespec-v1-core),
 // but keep in the mind that fields will be in TitleCase due to passing through
 // Go.
 
 // ENDPOINT_VAR(node_status|node_status): The Node status object, for `k8s-node` targets.
 // See [the K8s reference on Node
-// Status](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#nodestatus-v1-core)
+// Status](https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#nodestatus-v1-core)
 // but keep in mind that fields will be in TitleCase due to passing through Go.
 
 // ENDPOINT_VAR(node_addresses|map of strings): A map of the different Node addresses
