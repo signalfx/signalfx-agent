@@ -126,7 +126,7 @@ jobs:
         with:
           path: |
             /usr/share/dependency-check/data
-          key: v2-dependency-check-nvd-${{ hashFiles('./.github/workflows/build_and_test.yml') }}
+          key: v2-dependency-check-nvd-${{ steps.get-date.outputs.date }}-${{ hashFiles('./.github/workflows/build_and_test.yml') }}
 
       - name: Run Dependency Check
         run: |
