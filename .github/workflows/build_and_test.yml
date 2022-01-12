@@ -116,6 +116,11 @@ jobs:
           apk --no-cache add tar
           tar -C ./bundle -xf ./dist/signalfx-agent-latest.tar.gz
 
+      - name: Get Date
+        id: get-date
+        run: |
+          echo "::set-output name=date::$(/bin/date -u "+%Y%m%d")"
+
       - name: Caching dependency
         uses: actions/cache@v2
         with:
@@ -165,12 +170,12 @@ jobs:
           name: bundle
           path: ./dist
 
-      - name: Run pcf_tile_build
+      - name: Run PCF tile build
         run: |
           AGENT_VERSION=$(./scripts/current-version) AGENT_BUNDLE=$(pwd)/dist/signalfx-agent-latest.tar.gz deployments/cloudfoundry/tile/make-latest-tile
       
-      - name: Uploading test result artifacts
+      - name: Uploading PCF tile build result artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: dependency-check-result
+          name: pcf-tile-build-result
           path: deployments/cloudfoundry/tile/product/signalfx-monitoring-*.pivotal
