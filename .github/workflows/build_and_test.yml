@@ -103,14 +103,11 @@ jobs:
       - name: Check out the codebase.
         uses: actions/checkout@v2
 
-      - name: Downloading image
+      - name: Downloading bundle
         uses: actions/download-artifact@v2
         with:
-          name: image
-          path: ./dist
-
-      - name: Load agent image
-        run: docker load -i ./dist/image.tar
+          name: bundle
+          path: ./
 
       - name: Setup python
         uses: actions/setup-python@v2
@@ -147,11 +144,11 @@ jobs:
           export TEST_SERVICES_DIR="$(pwd)/test-services"
           export AGENT_BIN="$BUNDLE_DIR/bin/signalfx-agent"
           
-          mkdir -p "$BUNDLE_DIR"
-          cid=$(docker create quay.io/signalfx/signalfx-agent-dev:latest true)
-          docker export $cid | tar -C "$BUNDLE_DIR" -xf -
+          tar -xf signalfx-agent-latest.tar.gz
+          mv signalfx-agent $BUNDLE_DIR
+
           $BUNDLE_DIR/bin/patch-interpreter $BUNDLE_DIR
-          docker rm -fv $cid
+
           [ -f "$AGENT_BIN" ] || (echo "$AGENT_BIN not found!" && exit 1)
 
           MARKERS="integration";
