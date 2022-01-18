@@ -153,6 +153,7 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       libdbus-1-dev
 
 RUN wget https://dev.mysql.com/get/mysql-apt-config_0.8.12-1_all.deb && \
+    apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 467B942D3A79BD29 && \
     dpkg -i mysql-apt-config_0.8.12-1_all.deb && \
     apt-get update && apt-get install -y libmysqlclient-dev libcurl4-gnutls-dev
 
