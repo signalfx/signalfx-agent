@@ -15,6 +15,11 @@ executors:
           AGENT_BIN: /code/signalfx-agent
           GOPATH: /go
 
+  python38:
+    working_directory: /opt/signalfx-agent
+    docker:
+      - image: python:3.8
+
   docker1903:
     docker:
       - image: docker:19.03
@@ -306,6 +311,18 @@ jobs:
       - checkout
       - run: .circleci/scripts/run-helm-check.sh
 
+  integration_tests:
+    executor: machine_image
+    parallelism: 4
+    steps:
+      - checkout
+      - import_image
+      - run: .circleci/scripts/setup-integration-tests.sh
+      - run_pytest:
+          with_sudo: true
+          split: true
+          pytest_options: --reruns 2
+
   k8s_integration_tests:
     executor: machine_image
     parameters:
@@ -337,6 +354,28 @@ jobs:
       - run_pytest:
           markers: kubernetes
           pytest_options: --no-use-minikube --agent-image-name=localhost:5000/signalfx-agent:latest --kubeconfig=/home/circleci/.kube/config
+
+  installer_tests:
+    executor: machine_image
+    steps:
+      - checkout
+      - run: .circleci/scripts/setup-installer-tests.sh
+      - run_pytest:
+          markers: installer
+          tests_dir: ./tests/packaging/
+
+  check_links:
+    executor: machine_image
+    steps:
+      - checkout
+      - run: |
+          if [ "$CIRCLE_BRANCH" != "main" ]; then
+              if ! scripts/changes-include-dir $(find . -iname "*.md" -not -path "./vendor/*" | sed 's|^\./||'); then
+                  echo "No markdown doc changes, skipping test."
+                  exit 0
+              fi
+          fi
+          make check-links
 
   dependency_check:
     docker:
@@ -386,6 +425,9 @@ workflows:
             tags:
               only:
                 - /^v\d+\.\d+\.\d+.*/
+      - integration_tests:
+          requires:
+            - build
       - k8s_integration_tests:
           name: k8s_v1.19.0_integration_tests
           k8s_version: v1.19.0
@@ -423,7 +465,9 @@ workflows:
           requires:
             - build
             - helm_check
+      - installer_tests
       - helm_check
+      - check_links
       - dependency_check:
           requires:
             - build

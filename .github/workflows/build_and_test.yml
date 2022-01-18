@@ -52,6 +52,8 @@ jobs:
     steps:
       - name: Check out the codebase.
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
 
       - name: Downloading bundle
         uses: actions/download-artifact@v2
@@ -86,106 +88,6 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: bundle-package-pytest-result
-          path: |
-            ~/${{ env.RESULT_PATH }}/results.html
-            ~/${{ env.RESULT_PATH }}/results.xml
-
-  integration_test:
-    name: integration_test
-    # Running on Ubuntu 18.04 as Collectd python plugin required version GLIBC_2.29 which is not available on ubuntu-latest (20.04)
-    runs-on: ubuntu-18.04
-    needs: [build]
-    strategy:
-      matrix:
-        group: [1, 2, 3, 4]
-      fail-fast: false
-    steps:
-      - name: Check out the codebase.
-        uses: actions/checkout@v2
-
-      - name: Downloading bundle
-        uses: actions/download-artifact@v2
-        with:
-          name: bundle
-          path: ./
-
-      - name: Setup python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ env.PYTHON_VERSION }}
-
-      - name: Caching dependency
-        uses: actions/cache@v2
-        with:
-          path: |
-            ~/.cache/pip
-          key: v1-pytest-${{ env.PYTHON_VERSION }}-${{ hashFiles(env.REQUIREMENTS_PATH) }}
-
-      - name: Install pytest
-        run: pip install -r "${{ env.REQUIREMENTS_PATH }}"
-
-      - uses: dorny/paths-filter@v2
-        id: filter
-        with:
-          filters: |
-            openstack:
-              - '**/openstack/**'
-              - '**/make-devstack-image'
-              - '**/run-devstack-image'
-              - '**/devstack/**'
-            conviva:
-              - '**/conviva/**'
-            jenkins:
-              - '**/jenkins/**'
-
-      - name: Setup integration test
-        run: |
-          export BUNDLE_DIR="$(pwd)/bundle"
-          export TEST_SERVICES_DIR="$(pwd)/test-services"
-          export AGENT_BIN="$BUNDLE_DIR/bin/signalfx-agent"
-          
-          tar -xf signalfx-agent-latest.tar.gz
-          mv signalfx-agent $BUNDLE_DIR
-
-          $BUNDLE_DIR/bin/patch-interpreter $BUNDLE_DIR
-
-          [ -f "$AGENT_BIN" ] || (echo "$AGENT_BIN not found!" && exit 1)
-
-          MARKERS="integration";
-          if [ ${GITHUB_EVENT_NAME} != 'push' ] || [ ${GITHUB_REF##*/} != 'main' ]; then
-            if [ ${{ steps.filter.outputs.openstack }} = 'false' ]; then
-              MARKERS="$MARKERS and not openstack"
-            fi
-            if [ ${{ steps.filter.outputs.conviva }} = 'false' ]; then
-              MARKERS="$MARKERS and not conviva"
-            fi
-            if [ ${{ steps.filter.outputs.jenkins }} = 'false' ]; then
-              MARKERS="$MARKERS and not jenkins"
-            fi
-          fi
-
-          echo "BUNDLE_DIR=$BUNDLE_DIR" >> $GITHUB_ENV
-          echo "AGENT_BIN=$AGENT_BIN" >> $GITHUB_ENV
-          echo "TEST_SERVICES_DIR=$TEST_SERVICES_DIR" >> $GITHUB_ENV
-          echo "MARKERS=$MARKERS" >> $GITHUB_ENV
-          echo "DEFAULT_TIMEOUT=120" >> $GITHUB_ENV
-
-          sudo apt-get update
-          sudo apt-get install -y --only-upgrade ca-certificates
-
-      - name: Run pytest
-        env:
-          WORKERS: 2
-          PYTEST_OPTIONS: --reruns 2
-          TESTS_DIR: ./tests
-          GITHUB_NODE_TOTAL: 4
-          GITHUB_NODE_GROUP: ${{ matrix.group }}
-        run: .github/scripts/run-pytest.sh
-
-      - name: Uploading pytest result artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: integration-test-result-${{ matrix.group }}
           path: |
             ~/${{ env.RESULT_PATH }}/results.html
             ~/${{ env.RESULT_PATH }}/results.xml
