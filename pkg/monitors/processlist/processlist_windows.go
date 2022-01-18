@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package processlist
@@ -12,6 +13,9 @@ import (
 )
 
 const (
+	// represents the thread is in waiting state
+	// ref: https://docs.microsoft.com/en-us/windows/win32/cimwin32prov/win32-thread
+	threadWaitingState             = 5
 	processQueryLimitedInformation = 0x00001000
 )
 
@@ -33,6 +37,13 @@ type Win32Process struct {
 	VirtualSize    uint64
 }
 
+// Win32Thread is a WMI struct used for WMI calls
+// https://docs.microsoft.com/en-us/windows/win32/cimwin32prov/win32-thread
+type Win32Thread struct {
+	ThreadState   uint32
+	ProcessHandle string
+}
+
 // PerfProcProcess is a performance process struct used for wmi calls
 // https://msdn.microsoft.com/en-us/library/aa394323(v=vs.85).aspx
 type PerfProcProcess struct {
@@ -51,6 +62,12 @@ func initOSCache() *osCache {
 var getAllProcesses = func() (ps []Win32Process, err error) {
 	err = wmi.Query("select Name, ExecutablePath, CommandLine, CreationDate, Priority, ProcessID, Status, ExecutionState, KernelModeTime, PageFileUsage, UserModeTime, WorkingSetSize, VirtualSize from Win32_Process", &ps)
 	return ps, err
+}
+
+// getAllThreads retrieves all the threads.  It is set as a package variable so we can mock it during testing
+var getAllThreads = func() (threads []Win32Thread, err error) {
+	err = wmi.Query("select ThreadState, ProcessHandle from Win32_Thread", &threads)
+	return threads, err
 }
 
 // getUsername - retrieves a username from an open process handle it is set as a package variable so we can mock it during testing
@@ -104,6 +121,13 @@ func ProcessList(conf *Config, cache *osCache) ([]*TopProcess, error) {
 		return nil, err
 	}
 
+	// Get all threads
+	threads, err := getAllThreads()
+	if err != nil {
+		return nil, err
+	}
+
+	processMap := mapThreadsToProcess(threads)
 	// iterate over each process and build an entry for the process list
 	for _, p := range ps {
 		username, err := getUsername(p.ProcessID)
@@ -126,7 +150,7 @@ func ProcessList(conf *Config, cache *osCache) ([]*TopProcess, error) {
 		if command == "" {
 			command = p.Name
 		}
-
+		status := statusMapping(processMap[fmt.Sprint(p.ProcessID)])
 		//example process "3":["root",20,"0",0,0,0,"S",0.0,0.0,"01:28.31","[ksoftirqd/0]"]
 		procs = append(procs, &TopProcess{
 			ProcessID:           int(p.ProcessID),
@@ -137,11 +161,39 @@ func ProcessList(conf *Config, cache *osCache) ([]*TopProcess, error) {
 			VirtualMemoryBytes:  p.VirtualSize,
 			WorkingSetSizeBytes: p.WorkingSetSize,
 			SharedMemBytes:      0,
-			Status:              *p.Status,
+			Status:              status,
 			MemPercent:          memPercent,
 			TotalCPUTime:        totalTime,
 			Command:             command,
 		})
 	}
 	return procs, nil
+}
+
+// Mapping each thread's state to its respective process.
+// for example, threadList = []Win32Thread{{ProcessHandle: "1", ThreadState: 3},
+// {ProcessHandle: "2", ThreadState: 3},{ProcessHandle: "1", ThreadState: 5},{ProcessHandle: "1", ThreadState: 5},}
+// it returns map[string][]uint32{"1": []uint32{3, 5, 5}, "2": []uint32{3},},
+func mapThreadsToProcess(threadList []Win32Thread) map[string][]uint32 {
+	var processes = make(map[string][]uint32)
+	for _, thread := range threadList {
+		processes[thread.ProcessHandle] = append(processes[thread.ProcessHandle], thread.ThreadState)
+	}
+	return processes
+}
+
+// Returns the process status depending upon all thread's state.
+// if all the threads of a process are in waiting state then it returns "S"(sleeping)
+// else it returns "R"(running)
+func statusMapping(threadStates []uint32) string {
+	if len(threadStates) == 0 {
+		return ""
+	}
+
+	for _, state := range threadStates {
+		if state != threadWaitingState {
+			return "R"
+		}
+	}
+	return "S"
 }
