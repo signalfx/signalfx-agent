@@ -16,7 +16,7 @@ METADATA = Metadata.from_package("cgroups")
 
 def test_cgroup_monitor():
     with run_service(
-        "nginx", cpu_period=100_000, cpu_quota=10000, cpu_shares=50, mem_limit=20 * 1024 * 1024
+        "nginx", cpu_period=100_000, cpu_quota=10000, cpu_shares=50, mem_limit=20 * 1024 * 1024, cgroup_parent="/docker"
     ) as nginx_container:
         with Agent.run(
             """

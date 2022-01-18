@@ -17,8 +17,11 @@ TESTS=$TESTS_DIR
 PYTEST_PATH="pytest"
 
 sudo sysctl -w vm.max_map_count=262144
-
-REPORT_OPTIONS="--verbose --junitxml=$HOME/$RESULT_PATH/results.xml --html=$HOME/$RESULT_PATH/results.html --self-contained-html"
+REPORT_OPTIONS=""
+if [ $GITHUB_NODE_TOTAL -gt 0 ] && [ $GITHUB_NODE_GROUP -gt 0 ]; then
+    REPORT_OPTIONS="--cov --splits $GITHUB_NODE_TOTAL --group $GITHUB_NODE_GROUP"
+fi
+REPORT_OPTIONS="$REPORT_OPTIONS --verbose --junitxml=$HOME/$RESULT_PATH/results.xml --html=$HOME/$RESULT_PATH/results.html --self-contained-html"
 
 set -x
 set +e

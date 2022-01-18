@@ -163,10 +163,7 @@ def test_docker_default():
     with run_service(
         "elasticsearch/6.6.1"
     ):  # just get a container that does some block io running so we have some stats
-        metrics = METADATA.default_metrics - {
-            "blkio.io_service_bytes_recursive.read",
-            "blkio.io_service_bytes_recursive.write",
-        }
+        metrics = METADATA.default_metrics
         run_agent_verify(
             f"""
             monitors:
