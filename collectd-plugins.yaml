@@ -76,7 +76,7 @@
   repo: signalfx/collectd-spark
 
 - name: zookeeper
-  version: v0.1.1
+  version: v0.1.2
   repo: signalfx/collectd-zookeeper
 
 - name: vmstat
