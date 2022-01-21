@@ -12,6 +12,7 @@ on:
       - 'tests/deployments/puppet/**'
       - 'tests/packaging/common.py'
       - '.github/scripts/run-pytest.sh'
+      - 'tests/helpers/**'
 
 concurrency:
   group: puppet_deployment_test-${{ github.event.pull_request.number || github.ref }}

@@ -14,6 +14,7 @@ on:
       - 'packaging/**'
       - 'tests/packaging/**'
       - '.github/scripts/run-pytest.sh'
+      - 'tests/helpers/**'
 
 concurrency:
   group: package_tests-${{ github.event.pull_request.number || github.ref }}
