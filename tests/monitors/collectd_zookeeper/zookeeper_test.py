@@ -59,3 +59,16 @@ def test_zookeeper_leader_metrics():
             """
         ) as agent:
             verify_expected_is_subset(agent, METADATA.metrics_by_group["leader"])
+
+
+def test_zookeeper_latest():
+    with run_zookeeper(version="zookeeper:latest", env=ENV) as host:
+        run_agent_verify_default_metrics(
+            f"""
+            monitors:
+            - type: collectd/zookeeper
+              host: {host}
+              port: 2181
+            """,
+            METADATA,
+        )
