@@ -12,7 +12,7 @@ on:
       - 'tests/packaging/installer_test.py'
       - 'tests/packaging/common.py'
       - 'tests/packaging/images/**'
-      - '.circleci/scripts/run-pytest.sh'
+      - '.github/scripts/run-pytest.sh'
 
 concurrency:
   group: installer_test-${{ github.event.pull_request.number || github.ref }}
