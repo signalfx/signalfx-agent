@@ -12,6 +12,7 @@ on:
       - 'tests/deployments/salt/**'
       - 'tests/packaging/common.py'
       - '.github/scripts/run-pytest.sh'
+      - 'tests/helpers/**'
 
 concurrency:
   group: salt_deployment_test-${{ github.event.pull_request.number || github.ref }}
