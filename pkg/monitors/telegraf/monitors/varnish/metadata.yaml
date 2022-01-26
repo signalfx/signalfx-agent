@@ -101,6 +101,14 @@ monitors:
       description: Number of requests to the backend.
       default: true
       type: cumulative
+    varnish.s0.g_bytes:
+      description: Space allocated from the storage.
+      default: true
+      type: gauge
+    varnish.s0.g_space:
+      description: Space left in the storage.
+      default: true
+      type: gauge
   monitorType: telegraf/varnish
   sendAll: false
   properties:

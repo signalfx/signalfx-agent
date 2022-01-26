@@ -30,9 +30,9 @@ type Config struct {
 	UseSudo bool `yaml:"useSudo" default:"false"`
 	// The location of the varnishstat binary.
 	Binary string `yaml:"binary" default:"/usr/bin/varnishstat"`
-	// Which stats to gather. Glob matching can be used (i.e. `stats = ["MAIN.*"]`).
-	//Stats []string `yaml:"stats" default:"[\"MAIN.cache_hit\", \"MAIN.cache_miss\", \"MAIN.uptime\"]"`
-	Stats []string `yaml:"stats" default:"[\"MAIN.*\"]"`
+	// Which stats to gather. Glob matching can be used (i.e. `stats = ["MAIN.*", "SMA.*"]`).
+	// Be careful, if you extend collected stats you will have to set `extraMetrics: ["*"]` too.
+	Stats []string `yaml:"stats" default:"[\"MAIN.*\", \"SMA.s0.g_bytes.*\", \"SMA.s0.g_space.*\"]"`
 	// Optional name for the varnish instance to query. It corresponds to `-n` parameter value.
 	InstanceName string `yaml:"instanceName"`
 }

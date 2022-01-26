@@ -53943,6 +53943,8 @@
             "varnish.cache_miss",
             "varnish.client_req",
             "varnish.n_lru_nuked",
+            "varnish.s0.g_bytes",
+            "varnish.s0.g_space",
             "varnish.sess_dropped",
             "varnish.sess_queued",
             "varnish.thread_queue_len",
@@ -54032,6 +54034,18 @@
           "group": null,
           "default": false
         },
+        "varnish.s0.g_bytes": {
+          "type": "gauge",
+          "description": "Space allocated from the storage.",
+          "group": null,
+          "default": true
+        },
+        "varnish.s0.g_space": {
+          "type": "gauge",
+          "description": "Space left in the storage.",
+          "group": null,
+          "default": true
+        },
         "varnish.sess_dropped": {
           "type": "gauge",
           "description": "Sessions dropped due to a full queue.",
@@ -54099,9 +54113,11 @@
           },
           {
             "yamlName": "stats",
-            "doc": "Which stats to gather. Glob matching can be used (i.e. `stats = [\"MAIN.*\"]`). Stats []string `yaml:\"stats\" default:\"[\\\"MAIN.cache_hit\\\", \\\"MAIN.cache_miss\\\", \\\"MAIN.uptime\\\"]\"`",
+            "doc": "Which stats to gather. Glob matching can be used (i.e. `stats = [\"MAIN.*\", \"SMA.*\"]`). Be careful, if you extend collected stats you will have to set `extraMetrics: [\"*\"]` too.",
             "default": [
-              "MAIN.*"
+              "MAIN.*",
+              "SMA.s0.g_bytes.*",
+              "SMA.s0.g_space.*"
             ],
             "required": false,
             "type": "slice",

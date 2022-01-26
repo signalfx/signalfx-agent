@@ -25,6 +25,8 @@ const (
 	varnishCacheMiss        = "varnish.cache_miss"
 	varnishClientReq        = "varnish.client_req"
 	varnishNLruNuked        = "varnish.n_lru_nuked"
+	varnishS0GBytes         = "varnish.s0.g_bytes"
+	varnishS0GSpace         = "varnish.s0.g_space"
 	varnishSessDropped      = "varnish.sess_dropped"
 	varnishSessQueued       = "varnish.sess_queued"
 	varnishThreadQueueLen   = "varnish.thread_queue_len"
@@ -48,6 +50,8 @@ var metricSet = map[string]monitors.MetricInfo{
 	varnishCacheMiss:        {Type: datapoint.Counter},
 	varnishClientReq:        {Type: datapoint.Counter},
 	varnishNLruNuked:        {Type: datapoint.Counter},
+	varnishS0GBytes:         {Type: datapoint.Gauge},
+	varnishS0GSpace:         {Type: datapoint.Gauge},
 	varnishSessDropped:      {Type: datapoint.Gauge},
 	varnishSessQueued:       {Type: datapoint.Gauge},
 	varnishThreadQueueLen:   {Type: datapoint.Gauge},
@@ -64,6 +68,8 @@ var defaultMetrics = map[string]bool{
 	varnishCacheHit:         true,
 	varnishCacheMiss:        true,
 	varnishClientReq:        true,
+	varnishS0GBytes:         true,
+	varnishS0GSpace:         true,
 	varnishSessDropped:      true,
 	varnishSessQueued:       true,
 	varnishThreadQueueLen:   true,

@@ -45,7 +45,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | --- | --- | --- | --- |
 | `useSudo` | no | `bool` | If running as a restricted user enable this flag to prepend sudo. (**default:** `false`) |
 | `binary` | no | `string` | The location of the varnishstat binary. (**default:** `/usr/bin/varnishstat`) |
-| `stats` | no | `list of strings` | Which stats to gather. Glob matching can be used (i.e. `stats = ["MAIN.*"]`). Stats []string `yaml:"stats" default:"[\"MAIN.cache_hit\", \"MAIN.cache_miss\", \"MAIN.uptime\"]"` (**default:** `[MAIN.*]`) |
+| `stats` | no | `list of strings` | Which stats to gather. Glob matching can be used (i.e. `stats = ["MAIN.*", "SMA.*"]`). Be careful, if you extend collected stats you will have to set `extraMetrics: ["*"]` too. (**default:** `[MAIN.* SMA.s0.g_bytes.* SMA.s0.g_space.*]`) |
 | `instanceName` | no | `string` | Optional name for the varnish instance to query. It corresponds to `-n` parameter value. |
 
 
@@ -70,6 +70,8 @@ Metrics that are categorized as
  - ***`varnish.cache_miss`*** (*cumulative*)<br>    Requests fetched from a backend server.
  - ***`varnish.client_req`*** (*cumulative*)<br>    Good client requests.
  - `varnish.n_lru_nuked` (*cumulative*)<br>    Objects forcefully evicted from the cache because of a lack of space.
+ - ***`varnish.s0.g_bytes`*** (*gauge*)<br>    Space allocated from the storage.
+ - ***`varnish.s0.g_space`*** (*gauge*)<br>    Space left in the storage.
  - ***`varnish.sess_dropped`*** (*gauge*)<br>    Sessions dropped due to a full queue.
  - ***`varnish.sess_queued`*** (*gauge*)<br>    Client connections queued to wait for a thread..
  - ***`varnish.thread_queue_len`*** (*gauge*)<br>    Length of session queue waiting for threads.
