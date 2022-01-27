@@ -9,10 +9,9 @@ export CHANGE_MINIKUBE_NONE_USER="true"
 export K8S_VERSION=${K8S_VERSION:-}
 export OPTIONS=${OPTIONS:-}
 
-[ -f ~/.skip ] && exit 0
-
 sudo apt-get update
 sudo apt-get -y install conntrack
+sudo apt-get -y install socat
 
 # enable kubelet port 10255 for cadvisor and stats
 OPTIONS="$OPTIONS --extra-config=kubelet.read-only-port=10255"

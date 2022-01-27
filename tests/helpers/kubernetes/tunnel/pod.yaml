@@ -11,3 +11,7 @@ spec:
     resources:
       requests:
         cpu: 100m
+    securityContext:
+      capabilities:
+        add:
+        - SYS_CHROOT
