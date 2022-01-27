@@ -323,8 +323,7 @@ jobs:
     needs: [helm_check, build]
     strategy:
       matrix:
-        # In K8S_VERSION, vX.XX.X is k8s version and after '-' X is CRI-O flag
-        K8S_VERSION: ["v1.15.0-0", "v1.16.0-0", "v1.17.0-0", "v1.18.0-0", "v1.19.0-0", "v1.19.0-1"]
+        K8S_VERSION: ["v1.15.0", "v1.16.0", "v1.17.0", "v1.18.0", "v1.19.0", "crio"]
       fail-fast: false
     steps:
       - name: Check out the codebase.
@@ -335,33 +334,29 @@ jobs:
         with:
           filters: |
             k8s:
-              - '.github/scripts/install-crio.sh'
               - '.github/scripts/run-pytest.sh'
-              - '.github/scripts/setup-k8s-tests.sh'
-              - '.github/scripts/start-minikube.sh'
               - '.github/workflows/build_and_test.yml'
-              - 'deployments/k8s/**'
-              - 'tests/deployments/helm'
               - 'Dockerfile'
               - 'go.mod'
               - 'go.sum'
-              - '**/kubernetes_events/**'
-              - '**/kubelet_stats/**'
-              - '**/kubernetes_volumes/**'
-              - '**/kubernetes_cluster/**'
-              - '**/kubelet_metrics/**'
-              - '**/kubernetes_scheduler/**'
-              - 'tests/basic/k8s_node_uid_dim_test.py'
-              - 'tests/observers/k8s_api_test.py'
-              - 'tests/observers/k8s_kubelet_test.py'
-              - 'tests/helpers/kubernetes'
+              - '**/*crio*'
+              - '**/*crio*/**'
+              - '**/*helm*'
+              - '**/*helm*/**'
+              - '**/*k8s*'
+              - '**/*k8s*/**'
+              - '**/*kube*'
+              - '**/*kube*/**'
 
       - name: Get K8s version and check crio value
         run: |
-          IFS='-'
-          read -ra STARR <<< ${{ matrix.K8S_VERSION }}
-          echo "K8S_VERSION=${STARR[0]}" >> "${GITHUB_ENV}"
-          echo "WITH_CRIO=${STARR[1]}" >> "${GITHUB_ENV}"
+          if [ ${{ matrix.K8S_VERSION }} != 'crio' ]; then
+            echo "K8S_VERSION=${{ matrix.K8S_VERSION }}" >> "$GITHUB_ENV"
+            echo "WITH_CRIO=0" >> "$GITHUB_ENV"
+          else
+            echo "K8S_VERSION=v1.19.0" >> "$GITHUB_ENV"
+            echo "WITH_CRIO=1" >> "$GITHUB_ENV"
+          fi
 
       - name: Check file changes
         run: |
