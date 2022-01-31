@@ -5,6 +5,9 @@ FROM centos:8
 
 ENV container docker
 
+RUN sed -i 's|\$releasever|8-stream|g' /etc/yum.repos.d/CentOS*.repo
+RUN dnf install -y --allowerasing centos-stream-release
+
 WORKDIR /opt/cookbooks
 RUN curl -Lo windows.tar.gz https://supermarket.chef.io/cookbooks/windows/versions/4.3.4/download && \
     tar -xzf windows.tar.gz
