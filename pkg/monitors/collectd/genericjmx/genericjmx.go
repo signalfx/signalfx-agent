@@ -1,3 +1,4 @@
+//go:build linux
 // +build linux
 
 // Package genericjmx coordinates the various monitors that rely on the

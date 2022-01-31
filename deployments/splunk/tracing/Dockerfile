@@ -1,10 +1,10 @@
-FROM golang:1.13-stretch
+FROM golang:1.17.6-stretch
 
 WORKDIR /go/src/app
 
 COPY main.go .
 
-RUN go get
+RUN go install
 
 RUN go build
 

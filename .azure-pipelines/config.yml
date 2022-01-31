@@ -19,7 +19,7 @@ variables:
   GOBIN: '$(GOPATH)/bin'
   SANIC_NO_UVLOOP: 'true'
   TEST_SERVICES_DIR: '$(Build.SourcesDirectory)\test-services'
-  GOVERSION: "1.14.2"
+  GOVERSION: "1.17.6"
   GOMOD_HASH: ""
   GOSUM_HASH: ""
 
@@ -84,7 +84,7 @@ jobs:
   - template: 'templates/restore-go-cache.yml'
   - script: |
       cd /tmp
-      go get gotest.tools/gotestsum
+      go install gotest.tools/gotestsum@latest
     displayName: 'Install gotestsum'
   - script: |
       export PATH=$GOBIN:$PATH

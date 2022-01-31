@@ -1,3 +1,4 @@
+//go:build linux
 // +build linux
 
 // Package custom contains a custom collectd plugin monitor, for which you can

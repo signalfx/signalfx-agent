@@ -264,7 +264,7 @@ function unit_test([bool]$race=$false) {
     if ((Get-Command "gotestsum.exe" -ErrorAction SilentlyContinue) -eq $null) {
         $cwd = get-location
         cd $env:TEMP
-        go get gotest.tools/gotestsum
+        go install gotest.tools/gotestsum@latest
         if ($lastexitcode -gt 0){ throw }
         cd $cwd
     }

@@ -12,7 +12,7 @@ concurrency:
 
 env:
   RESULT_PATH: "~/testresults"
-  GO_VERSION: 1.14.2
+  GO_VERSION: 1.17.6
 
 jobs:
   gotests:
@@ -50,7 +50,7 @@ jobs:
         run: |
           mkdir ${{ env.RESULT_PATH }}
           export NUM_CORES=$(getconf _NPROCESSORS_ONLN)
-          (cd /tmp; GO111MODULE=on go get gotest.tools/gotestsum)
+          (cd /tmp; GO111MODULE=on go install gotest.tools/gotestsum@latest)
           go generate ./...
           CGO_ENABLED=0 gotestsum --format short-verbose --junitfile ${{ env.RESULT_PATH }}/unit.xml --raw-command -- go test --json -p $NUM_CORES ./...
 
