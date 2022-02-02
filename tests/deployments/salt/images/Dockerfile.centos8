@@ -7,8 +7,7 @@ RUN dnf install -y --allowerasing centos-stream-release
 
 RUN dnf install -y systemd procps initscripts python3-pip python3-devel gcc
 
-RUN pip3 install msgpack==0.6.2
-RUN pip3 install salt==2019.2
+RUN pip3 install salt==3004
 
 RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i = \
     "systemd-tmpfiles-setup.service" ] || rm -f $i; done); \
