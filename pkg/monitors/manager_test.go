@@ -1,6 +1,7 @@
 package monitors
 
 import (
+	"strconv"
 	"testing"
 
 	. "github.com/onsi/ginkgo"
@@ -20,7 +21,7 @@ var serviceID = 0
 func newService(imageName string, publicPort int) services.Endpoint {
 	serviceID++
 
-	endpoint := services.NewEndpointCore(string(serviceID), "", "test", nil)
+	endpoint := services.NewEndpointCore(strconv.Itoa(serviceID), "", "test", nil)
 	endpoint.Host = "example.com"
 	endpoint.Port = uint16(publicPort)
 

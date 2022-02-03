@@ -48,7 +48,7 @@ win-bundle-build:
     GOOS: "windows"
     GO111MODULE: "on"
   before_script:
-    - choco upgrade -y golang --version 1.14.2
+    - choco upgrade -y golang --version 1.17.6
     - choco upgrade -y git --version 2.33.0.2
     - refreshenv
   script:

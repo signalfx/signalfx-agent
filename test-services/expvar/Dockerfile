@@ -1,4 +1,4 @@
-FROM golang:1.12.1-alpine
+FROM golang:1.17.6-alpine
 
 CMD ["./expvar"]
 EXPOSE 8080

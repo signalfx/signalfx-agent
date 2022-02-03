@@ -1,3 +1,4 @@
+//go:build !windows
 // +build !windows
 
 // Package codegen exists purely to manipulate the go:generate build order so

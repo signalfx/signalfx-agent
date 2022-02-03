@@ -198,8 +198,14 @@ def test_service_correlation_api_down():
                 break
             peak_heap = new
 
-        # ensure our routine count isn't too high
-        agent.pprof_client.assert_goroutine_count_under(150)
+        # Ensure our routine count isn't too high.
+        # When adopting go 1.17.6 there appeared to be 2 per persistent connection:
+        # 120 @ 0x437f76 0x430893 0x463029 0x4d8472 <...>
+        # 0x463028 internal/poll.runtime_pollWait+0x88 /usr/local/go/src/runtime/netpoll.go:234
+        # 120 @ 0x437f76 0x447d12 0x6ef19b 0x468b41
+        # 0x6ef19a net/http.(*persistConn).writeLoop+0xfa /usr/local/go/src/net/http/transport.go:2386
+
+        agent.pprof_client.assert_goroutine_count_under(300)
 
         # ensure the heap profile has come down some
         agent.pprof_client.assert_heap_alloc_under(peak_heap / 1.5)
