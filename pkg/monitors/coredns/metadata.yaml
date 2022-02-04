@@ -22,6 +22,10 @@ monitors:
       description: A metric with a constant '1' value labeled by version, revision,
         and goversion from which CoreDNS was built.
       type: gauge
+    coredns_cache_entries:
+      default: true
+      description: Size of DNS cache.
+      type: cumulative
     coredns_cache_hits_total:
       default: false
       description: The count of cache misses.
@@ -32,9 +36,13 @@ monitors:
       type: cumulative
     coredns_cache_size:
       default: true
-      description: Size of DNS cache.
+      description: Deprecated in coredns version 1.7.0. Size of DNS cache.
       type: cumulative
     coredns_dns_request_count_total:
+      default: true
+      description: Deprecated in coredns version 1.7.0. Counter of DNS requests made per zone, protocol and family.
+      type: cumulative
+    coredns_dns_requests_total:
       default: true
       description: Counter of DNS requests made per zone, protocol and family.
       type: cumulative
@@ -68,6 +76,10 @@ monitors:
       type: cumulative
     coredns_dns_response_rcode_count_total:
       default: true
+      description: Deprecated in coredns version 1.7.0. Counter of response status codes.
+      type: cumulative
+    coredns_dns_responses_total:
+      default: true
       description: Counter of response status codes.
       type: cumulative
     coredns_dns_response_size_bytes_count:
@@ -95,6 +107,10 @@ monitors:
       description: Histogram of the time (in seconds) each request took. (bucket)
       type: cumulative
     coredns_panic_count_total:
+      default: false
+      description: Deprecated in coredns version 1.7.0. A metrics that counts the number of panics.
+      type: cumulative
+    coredns_panics_total:
       default: false
       description: A metrics that counts the number of panics.
       type: cumulative

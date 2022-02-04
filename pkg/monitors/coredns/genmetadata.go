@@ -13,6 +13,7 @@ var groupSet = map[string]bool{}
 
 const (
 	corednsBuildInfo                          = "coredns_build_info"
+	corednsCacheEntries                       = "coredns_cache_entries"
 	corednsCacheHitsTotal                     = "coredns_cache_hits_total"
 	corednsCacheMissesTotal                   = "coredns_cache_misses_total"
 	corednsCacheSize                          = "coredns_cache_size"
@@ -24,14 +25,17 @@ const (
 	corednsDNSRequestSizeBytesBucket          = "coredns_dns_request_size_bytes_bucket"
 	corednsDNSRequestSizeBytesCount           = "coredns_dns_request_size_bytes_count"
 	corednsDNSRequestTypeCountTotal           = "coredns_dns_request_type_count_total"
+	corednsDNSRequestsTotal                   = "coredns_dns_requests_total"
 	corednsDNSResponseRcodeCountTotal         = "coredns_dns_response_rcode_count_total"
 	corednsDNSResponseSizeBytes               = "coredns_dns_response_size_bytes"
 	corednsDNSResponseSizeBytesBucket         = "coredns_dns_response_size_bytes_bucket"
 	corednsDNSResponseSizeBytesCount          = "coredns_dns_response_size_bytes_count"
+	corednsDNSResponsesTotal                  = "coredns_dns_responses_total"
 	corednsHealthRequestDurationSeconds       = "coredns_health_request_duration_seconds"
 	corednsHealthRequestDurationSecondsBucket = "coredns_health_request_duration_seconds_bucket"
 	corednsHealthRequestDurationSecondsCount  = "coredns_health_request_duration_seconds_count"
 	corednsPanicCountTotal                    = "coredns_panic_count_total"
+	corednsPanicsTotal                        = "coredns_panics_total"
 	corednsProxyRequestCountTotal             = "coredns_proxy_request_count_total"
 	corednsProxyRequestDurationSeconds        = "coredns_proxy_request_duration_seconds"
 	corednsProxyRequestDurationSecondsBucket  = "coredns_proxy_request_duration_seconds_bucket"
@@ -73,6 +77,7 @@ const (
 
 var metricSet = map[string]monitors.MetricInfo{
 	corednsBuildInfo:                          {Type: datapoint.Gauge},
+	corednsCacheEntries:                       {Type: datapoint.Counter},
 	corednsCacheHitsTotal:                     {Type: datapoint.Counter},
 	corednsCacheMissesTotal:                   {Type: datapoint.Counter},
 	corednsCacheSize:                          {Type: datapoint.Counter},
@@ -84,14 +89,17 @@ var metricSet = map[string]monitors.MetricInfo{
 	corednsDNSRequestSizeBytesBucket:          {Type: datapoint.Counter},
 	corednsDNSRequestSizeBytesCount:           {Type: datapoint.Counter},
 	corednsDNSRequestTypeCountTotal:           {Type: datapoint.Counter},
+	corednsDNSRequestsTotal:                   {Type: datapoint.Counter},
 	corednsDNSResponseRcodeCountTotal:         {Type: datapoint.Counter},
 	corednsDNSResponseSizeBytes:               {Type: datapoint.Counter},
 	corednsDNSResponseSizeBytesBucket:         {Type: datapoint.Counter},
 	corednsDNSResponseSizeBytesCount:          {Type: datapoint.Counter},
+	corednsDNSResponsesTotal:                  {Type: datapoint.Counter},
 	corednsHealthRequestDurationSeconds:       {Type: datapoint.Counter},
 	corednsHealthRequestDurationSecondsBucket: {Type: datapoint.Counter},
 	corednsHealthRequestDurationSecondsCount:  {Type: datapoint.Counter},
 	corednsPanicCountTotal:                    {Type: datapoint.Counter},
+	corednsPanicsTotal:                        {Type: datapoint.Counter},
 	corednsProxyRequestCountTotal:             {Type: datapoint.Counter},
 	corednsProxyRequestDurationSeconds:        {Type: datapoint.Counter},
 	corednsProxyRequestDurationSecondsBucket:  {Type: datapoint.Counter},
@@ -132,11 +140,14 @@ var metricSet = map[string]monitors.MetricInfo{
 }
 
 var defaultMetrics = map[string]bool{
+	corednsCacheEntries:               true,
 	corednsCacheSize:                  true,
 	corednsDNSRequestCountTotal:       true,
 	corednsDNSRequestSizeBytes:        true,
 	corednsDNSRequestTypeCountTotal:   true,
+	corednsDNSRequestsTotal:           true,
 	corednsDNSResponseRcodeCountTotal: true,
+	corednsDNSResponsesTotal:          true,
 }
 
 var groupMetricsMap = map[string][]string{}
