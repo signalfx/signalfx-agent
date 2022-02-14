@@ -9,6 +9,8 @@ set -eo pipefail
 
 [ -f $GITHUB_ENV ] && source $GITHUB_ENV
 
+unset LD_LIBRARY_PATH
+
 mkdir -p /tmp/scratch
 mkdir -p "$HOME/$RESULT_PATH"
 
