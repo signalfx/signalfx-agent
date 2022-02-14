@@ -39,13 +39,29 @@ find_deps() {
     sort | uniq
 }
 
-all_links() {
+copy_file_and_links() {
   local file=$(basename $1)
   local dir=$(dirname $1)
-  echo "${dir}/$file"
-  while file=$(readlink "${dir}/$file"); do
-    echo -n " ${dir}/$file"
-  done
+  local target_path=$2
+  local ref=$(readlink "${dir}/${file}")
+  if [[ -z "$ref" ]]; then
+    # file is not a link
+    if [[ ! -f "${target_path}/${file}" ]]; then
+      cp -a "${dir}/${file}" "$target_path"
+      echo "Pulled in ${dir}/${file}"
+    fi
+  else
+    if [[ ! "$ref" =~ ^\/ ]]; then
+      # file is a relative link
+      ref="${dir}/${ref}"
+    fi
+    # traverse the links for the source file
+    copy_file_and_links "$ref" "$target_path"
+    if [[ ! -e "${target_path}/${file}" ]]; then
+      # create a relative link in target_path
+      (cd "$target_path" && ln -s "$(basename $ref)" "$file" && echo "Created link: $file -> $(readlink ${file})")
+    fi
+  fi
 }
 
 libs=$(find_deps $binary_paths)
@@ -53,8 +69,7 @@ libs=$(find_deps $binary_paths)
 transitive_deps=$(find_deps $libs)
 for lib in /lib/`uname -m`-linux-gnu/libnss_* /lib/`uname -m`-linux-gnu/libnsl* $libs $transitive_deps
 do
-  cp -a $(all_links $lib) $target_path 
-  echo "Pulled in $lib" # to $new_path"
+  copy_file_and_links $lib $target_path
 done
 
 echo "Processed $(wc -w <<< $libs) libraries"
