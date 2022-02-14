@@ -2,10 +2,12 @@ ARG GO_VERSION=1.18.8
 ARG PIP_VERSION=21.0.1
 
 ###### Agent Build Image ########
-FROM ubuntu:18.04 as agent-builder
+FROM ubuntu:20.04 as agent-builder
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update &&\
-    apt install -y curl wget pkg-config parallel git
+    apt install -y curl wget pkg-config parallel git make
 
 ARG GO_VERSION
 ARG TARGET_ARCH
@@ -37,7 +39,9 @@ RUN AGENT_VERSION=${agent_version} COLLECTD_VERSION=${collectd_version} make sig
 
 
 ######### Java monitor dependencies and monitor jar compilation
-FROM ubuntu:18.04 as java
+FROM ubuntu:20.04 as java
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update &&\
     apt install -y wget maven
@@ -77,12 +81,12 @@ RUN cd /usr/src/agent-java/jmx &&\
 
 
 ###### Collectd builder image ######
-FROM ubuntu:18.04 as collectd
+FROM ubuntu:20.04 as collectd
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 ARG TARGET_ARCH
 ARG PYTHON_VERSION=3.8.10
-
-ENV DEBIAN_FRONTEND noninteractive
 
 RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
     apt-get update &&\
@@ -107,7 +111,6 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       flex \
       gcc \
       git-core \
-      iptables-dev \
       libatasmart-dev \
       libcurl4-openssl-dev \
       libdbi0-dev \
@@ -116,8 +119,9 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       libexpat1-dev \
       libffi-dev \
       libganglia1-dev \
-      libgcrypt11-dev \
+      libgcrypt20-dev \
       libglib2.0-dev \
+      libiptc-dev \
       libldap2-dev \
       libltdl-dev \
       libmemcached-dev \
@@ -130,11 +134,10 @@ RUN sed -i -e '/^deb-src/d' /etc/apt/sources.list &&\
       libpcap-dev \
       libperl-dev \
       libpq-dev \
-      libprotobuf-c0-dev \
+      libprotobuf-c-dev \
       librabbitmq-dev \
       librdkafka-dev \
       librrd-dev \
-      libsensors4-dev \
       libsnmp-dev \
       libssl-dev \
       libtool \
@@ -175,6 +178,13 @@ RUN cd /tmp &&\
     make &&\
     make install
 
+# Ubuntu 20.04 only provides lm-sensors 3.6, but collectd 5.8 needs lm-sensors 3.4.
+RUN cd /tmp &&\
+    wget https://github.com/lm-sensors/lm-sensors/archive/refs/tags/V3-4-0.tar.gz &&\
+    tar -xf V3-4-0.tar.gz &&\
+    cd lm-sensors-3-4-0 &&\
+    make install PREFIX=/usr
+
 ARG collectd_version=""
 ARG collectd_commit=""
 
@@ -193,7 +203,7 @@ COPY --from=java /opt/root/jdk/ /opt/root/jdk/
 WORKDIR /usr/src/collectd
 
 ARG extra_cflags="-O2"
-ENV CFLAGS "-Wno-deprecated-declarations -Wno-format-truncation -fPIC $extra_cflags"
+ENV CFLAGS "-Wno-deprecated-declarations -Wno-format-truncation -Wno-cpp -Wno-stringop-truncation -Wno-format-overflow -Wno-stringop-overflow -fPIC $extra_cflags"
 ENV CXXFLAGS $CFLAGS
 ENV JAVA_HOME=/opt/root/jdk
 
@@ -251,9 +261,10 @@ RUN make -j`nproc` &&\
 
 COPY scripts/collect-libs /opt/collect-libs
 RUN /opt/collect-libs /opt/deps /usr/sbin/collectd /usr/lib/collectd/
+
 # For some reason libvarnishapi doesn't properly depend on libm, so make it
 # right.
-RUN patchelf --add-needed libm-2.23.so /opt/deps/libvarnishapi.so.1.0.6
+RUN patchelf --add-needed libm-2.31.so /opt/deps/libvarnishapi.so.2.0.0
 
 
 ###### Python Plugin Image ######
@@ -294,7 +305,9 @@ RUN rm -rf /usr/local/lib/python3.8/config-*-linux-gnu
 
 
 ####### Extra packages that don't make sense to pull down in any other stage ########
-FROM ubuntu:18.04 as extra-packages
+FROM ubuntu:20.04 as extra-packages
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update &&\
     apt install -y \
@@ -302,7 +315,7 @@ RUN apt update &&\
 	  host \
 	  iproute2 \
 	  netcat \
-	  netcat.openbsd
+	  netcat-openbsd
 
 COPY scripts/collect-libs /opt/collect-libs
 
@@ -357,6 +370,11 @@ COPY --from=java /opt/root/jre/ /opt/root/jre/
 COPY scripts/patch-rpath /usr/bin/
 RUN patch-rpath /opt/root
 
+# Pull in the Linux dynamic link loader at a fixed path across all
+# architectures.  Binaries will later be patched to use this interpreter
+# natively.
+RUN cp /lib/*-linux-gnu/ld-*.so /opt/root/bin/ld-linux.so
+
 
 ###### Final Agent Image #######
 # This build stage is meant as the final target when running the agent in a
@@ -371,11 +389,6 @@ ENV SSL_CERT_FILE /etc/ssl/certs/ca-certificates.crt
 
 COPY --from=collectd /etc/nsswitch.conf /etc/nsswitch.conf
 COPY --from=collectd /usr/local/bin/patchelf /bin/
-
-# Pull in the Linux dynamic link loader at a fixed path across all
-# architectures.  Binaries will later be patched to use this interpreter
-# natively.
-COPY --from=extra-packages /lib/*-linux-gnu/ld-2.27.so /bin/ld-linux.so
 
 # Java dependencies
 COPY --from=extra-packages /opt/root/jre/ /jre
@@ -408,7 +421,9 @@ WORKDIR /
 
 
 ####### Pandoc Converter ########
-FROM ubuntu:18.04 as pandoc-converter
+FROM ubuntu:20.04 as pandoc-converter
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update &&\
     apt install -y pandoc
@@ -421,6 +436,8 @@ RUN mkdir /docs &&\
 
 ####### Debian Packager #######
 FROM debian:9 as debian-packager
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update &&\
     apt install -y dh-make devscripts dh-systemd apt-utils
