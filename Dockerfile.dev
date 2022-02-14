@@ -5,7 +5,9 @@
 # the build tools for building collectd and the go agent, along with some other
 # useful utilities.  The agent image is copied from the final-image stage to
 # the /bundle dir in here and the SIGNALFX_BUNDLE_DIR is set to point to that.
-FROM ubuntu:18.04
+FROM ubuntu:20.04
+
+ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update &&\
     apt install -y \
