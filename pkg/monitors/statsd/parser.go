@@ -37,13 +37,13 @@ func parseDogstatsdTags(s string) (string, map[string]string) {
 		s = s[:tagsIdx]
 		dims = make(map[string]string)
 		for _, t := range strings.Split(tagsRaw, ",") {
-			parts := strings.SplitAfterN(t, ":", 2)
+			parts := strings.SplitN(t, ":", 2)
 			if len(parts) != 2 {
 				logger.Warnf("Invalid StatsD metric tag : %s", t)
 				continue
 			}
 
-			k := strings.TrimSuffix(parts[0], ":")
+			k := parts[0]
 			v := parts[1]
 			dims[k] = v
 		}
