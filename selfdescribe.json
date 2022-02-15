@@ -23089,6 +23089,7 @@
           "description": "",
           "metrics": [
             "coredns_build_info",
+            "coredns_cache_entries",
             "coredns_cache_hits_total",
             "coredns_cache_misses_total",
             "coredns_cache_size",
@@ -23100,14 +23101,17 @@
             "coredns_dns_request_size_bytes_bucket",
             "coredns_dns_request_size_bytes_count",
             "coredns_dns_request_type_count_total",
+            "coredns_dns_requests_total",
             "coredns_dns_response_rcode_count_total",
             "coredns_dns_response_size_bytes",
             "coredns_dns_response_size_bytes_bucket",
             "coredns_dns_response_size_bytes_count",
+            "coredns_dns_responses_total",
             "coredns_health_request_duration_seconds",
             "coredns_health_request_duration_seconds_bucket",
             "coredns_health_request_duration_seconds_count",
             "coredns_panic_count_total",
+            "coredns_panics_total",
             "coredns_proxy_request_count_total",
             "coredns_proxy_request_duration_seconds",
             "coredns_proxy_request_duration_seconds_bucket",
@@ -23155,6 +23159,12 @@
           "group": null,
           "default": false
         },
+        "coredns_cache_entries": {
+          "type": "cumulative",
+          "description": "Size of DNS cache.",
+          "group": null,
+          "default": true
+        },
         "coredns_cache_hits_total": {
           "type": "cumulative",
           "description": "The count of cache misses.",
@@ -23169,13 +23179,13 @@
         },
         "coredns_cache_size": {
           "type": "cumulative",
-          "description": "Size of DNS cache.",
+          "description": "Deprecated in coredns version 1.7.0. Size of DNS cache.",
           "group": null,
           "default": true
         },
         "coredns_dns_request_count_total": {
           "type": "cumulative",
-          "description": "Counter of DNS requests made per zone, protocol and family.",
+          "description": "Deprecated in coredns version 1.7.0. Counter of DNS requests made per zone, protocol and family.",
           "group": null,
           "default": true
         },
@@ -23221,9 +23231,15 @@
           "group": null,
           "default": true
         },
+        "coredns_dns_requests_total": {
+          "type": "cumulative",
+          "description": "Counter of DNS requests made per zone, protocol and family.",
+          "group": null,
+          "default": true
+        },
         "coredns_dns_response_rcode_count_total": {
           "type": "cumulative",
-          "description": "Counter of response status codes.",
+          "description": "Deprecated in coredns version 1.7.0. Counter of response status codes.",
           "group": null,
           "default": true
         },
@@ -23245,6 +23261,12 @@
           "group": null,
           "default": false
         },
+        "coredns_dns_responses_total": {
+          "type": "cumulative",
+          "description": "Counter of response status codes.",
+          "group": null,
+          "default": true
+        },
         "coredns_health_request_duration_seconds": {
           "type": "cumulative",
           "description": "Histogram of the time (in seconds) each request took. (sum)",
@@ -23264,6 +23286,12 @@
           "default": false
         },
         "coredns_panic_count_total": {
+          "type": "cumulative",
+          "description": "Deprecated in coredns version 1.7.0. A metrics that counts the number of panics.",
+          "group": null,
+          "default": false
+        },
+        "coredns_panics_total": {
           "type": "cumulative",
           "description": "A metrics that counts the number of panics.",
           "group": null,
