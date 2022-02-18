@@ -1,5 +1,5 @@
 default:
-  image: 'docker.repo.splunkdev.net/ci-cd/ci-container:python-3.9'
+  image: '${DOCKER_CICD_REPO}/ci-container:python-3.9'
 
 stages:
   - update-stage-cache
