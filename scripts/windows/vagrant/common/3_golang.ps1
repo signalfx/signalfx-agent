@@ -1,5 +1,5 @@
 # TODO: centralize these
-$goVersion = "1.17.6"
+$goVersion = "1.17.7"
 
 # ensure choco in path
 $env:Path = [Environment]::GetEnvironmentVariable('Path',[System.EnvironmentVariableTarget]::Machine);
