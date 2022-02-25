@@ -19,7 +19,7 @@ variables:
   GOBIN: '$(GOPATH)/bin'
   SANIC_NO_UVLOOP: 'true'
   TEST_SERVICES_DIR: '$(Build.SourcesDirectory)\test-services'
-  GOVERSION: "1.17.6"
+  GOVERSION: "1.17.7"
   GOMOD_HASH: ""
   GOSUM_HASH: ""
 
