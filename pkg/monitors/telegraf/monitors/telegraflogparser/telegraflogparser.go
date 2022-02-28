@@ -44,7 +44,7 @@ type Config struct {
 	CustomPatternFiles []string `yaml:"customPatternFiles"`
 	// Specifies the timezone.  The default is UTC time.  Other options are `Local` for the
 	// local time on the machine, `UTC`, and `Canada/Eastern` (unix style timezones).
-	TimeZone string `yaml:"timezone"`
+	Timezone string `yaml:"timezone"`
 }
 
 // Monitor for Utilization
