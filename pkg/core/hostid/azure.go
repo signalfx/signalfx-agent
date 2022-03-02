@@ -63,7 +63,7 @@ func AzureUniqueID(cloudMetadataTimeout timeutil.Duration) string {
 		return strings.ToLower(fmt.Sprintf("%s/%s/microsoft.compute/virtualmachines/%s", compute.Doc.SubscriptionID, compute.Doc.ResourceGroupName, compute.Doc.Name))
 	}
 
-	instanceID := strings.TrimLeft(compute.Doc.Name, compute.Doc.VMScaleSetName+"_")
+	instanceID := strings.TrimPrefix(compute.Doc.Name, compute.Doc.VMScaleSetName+"_")
 
 	// names of VM's in VMScalesets seem to follow the of `<scale-set-name>_<instance-id>`
 	// where scale-set-name is alphanumeric (and is the same as compute.vmScaleSetName
