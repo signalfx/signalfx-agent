@@ -1,0 +1,63 @@
+name: go-test-race
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: go-test-race-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  RESULT_PATH: "unit_results.xml"
+  GO_VERSION: 1.17.7
+
+jobs:
+  go-test-race:
+    name: go-test-race
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Caching dependency
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+            ~/go/bin
+          key: ${{ runner.os }}-v1-go-mod-${{ hashFiles('**/go.mod') }}-${{ hashFiles('**/go.sum') }}
+
+      - name: go mod download
+        run: |
+          [[ -d ~/go/pkg/mod ]] && exit 0
+          # retry up to 3 times in case of network issues
+          for i in $(seq 1 3); do
+              go mod download && exit 0
+              sleep 10
+          done
+          exit 1
+
+      - name: Install gotestsum
+        run: |
+          cd /tmp
+          go install gotest.tools/gotestsum@latest
+
+      - name: go test race
+        run: |
+          go generate ./...
+          CGO_ENABLED=1 gotestsum --format short-verbose --junitfile ${{ env.RESULT_PATH }} --raw-command -- go test -race --json ./...
+
+      - name: Uploading test results
+        uses: actions/upload-artifact@v2
+        with:
+          name: go-test-race-results
+          path: ${{ env.RESULT_PATH }}
