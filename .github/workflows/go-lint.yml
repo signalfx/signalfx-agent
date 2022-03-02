@@ -1,0 +1,67 @@
+name: go-lint
+
+on:
+  push:
+    tags: ['v[0-9]+.[0-9]+.[0-9]+']
+    branches:
+      - main
+  pull_request:
+
+concurrency:
+  group: go-lint-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  GO_VERSION: 1.17.7
+  LINT_VERSION: 1.23.8
+
+jobs:
+  go-lint:
+    name: go-lint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.GO_VERSION }}
+
+      - name: Caching dependency
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+            ~/go/bin
+          key: ${{ runner.os }}-v1-go-mod-${{ hashFiles('**/go.mod') }}-${{ hashFiles('**/go.sum') }}
+
+      - name: go mod download
+        run: |
+          [[ -d ~/go/pkg/mod ]] && exit 0
+          # retry up to 3 times in case of network issues
+          for i in $(seq 1 3); do
+              go mod download && exit 0
+              sleep 10
+          done
+          exit 1
+
+      - name: Cache golang-lint
+        uses: actions/cache@v2
+        with:
+          path: /tmp/golangci-lint-${{ env.LINT_VERSION }}-linux-amd64/golangci-lint
+          key: ${{ runner.os }}-v1-golang-lint-${{ env.LINT_VERSION }}
+
+      - name: Download golang-lint
+        run: |
+          if [[ ! -f /tmp/golangci-lint-${{ env.LINT_VERSION }}-linux-amd64/golangci-lint ]]; then
+            curl -sfL https://github.com/golangci/golangci-lint/releases/download/v${{ env.LINT_VERSION }}/golangci-lint-${{ env.LINT_VERSION }}-linux-amd64.tar.gz > /tmp/golangci-lint.tar.gz
+            tar -xf /tmp/golangci-lint.tar.gz -C /tmp
+          fi
+          chmod +x /tmp/golangci-lint-${{ env.LINT_VERSION }}-linux-amd64/golangci-lint
+
+      - name: make lint
+        run: |
+          export PATH=/tmp/golangci-lint-${{ env.LINT_VERSION }}-linux-amd64:$PATH
+          make lint

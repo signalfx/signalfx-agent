@@ -24,23 +24,6 @@ variables:
   GOSUM_HASH: ""
 
 jobs:
-- job: 'go_lint'
-  pool:
-    vmImage: 'ubuntu-18.04'
-  container: golang:$(GOVERSION)
-  steps:
-  - template: 'templates/restore-go-cache.yml'
-  - script: |
-      set -euo pipefail
-
-      lintver="1.23.8"
-      curl -sfL https://github.com/golangci/golangci-lint/releases/download/v${lintver}/golangci-lint-${lintver}-linux-amd64.tar.gz > /tmp/golangci-lint.tar.gz
-      tar -xf /tmp/golangci-lint.tar.gz -C /tmp
-      chmod +x /tmp/golangci-lint-${lintver}-linux-amd64/golangci-lint
-      export PATH=/tmp/golangci-lint-${lintver}-linux-amd64:$PATH
-
-      make lint
-
 - job: 'win_go_build'
   pool:
     vmImage: 'windows-2019'
