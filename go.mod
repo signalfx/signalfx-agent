@@ -13,7 +13,7 @@ replace (
 
 // security updates
 replace (
-	github.com/containerd/containerd => github.com/containerd/containerd v1.4.12
+	github.com/containerd/containerd => github.com/containerd/containerd v1.4.13
 	github.com/opencontainers/image-spec => github.com/opencontainers/image-spec v1.0.2
 	github.com/opencontainers/runc => github.com/opencontainers/runc v1.0.3
 	go.mongodb.org/mongo-driver => go.mongodb.org/mongo-driver v1.5.1
@@ -132,7 +132,7 @@ require (
 	github.com/beorn7/perks v1.0.1 // indirect
 	github.com/cenkalti/backoff/v3 v3.0.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.1 // indirect
-	github.com/containerd/containerd v1.4.3 // indirect
+	github.com/containerd/containerd v1.4.13 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/pkg v0.0.0-20180928190104-399ea9e2e55f // indirect
 	github.com/creasty/defaults v1.5.1 // indirect
