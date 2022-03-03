@@ -74,3 +74,34 @@ jobs:
           path: |
             ~/${{ env.RESULT_PATH }}/results.html
             ~/${{ env.RESULT_PATH }}/results.xml
+
+  win_chef_deployment_test:
+    name: win_chef_deployment_test
+    runs-on: ${{ matrix.OS }}
+    strategy:
+      matrix:
+        OS: ["windows-2019", "windows-2022"]
+    env:
+      SANIC_NO_UVLOOP: 'true'
+    steps:
+      - name: Check out the codebase.
+        uses: actions/checkout@v2
+
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: pip
+          cache-dependency-path: ${{ env.REQUIREMENTS_PATH }}
+
+      - name: Install pytest
+        run: pip install -r "${{ env.REQUIREMENTS_PATH }}"
+
+      - name: Run tests
+        run: pytest -m "windows_only" --verbose --junitxml=${{ env.RESULT_PATH }}/test_results.xml --html=${{ env.RESULT_PATH }}/test_results.html --self-contained-html tests/deployments/chef/
+
+      - name: Uploading pytest result artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: ${{ matrix.os }}-chef-pytest-result
+          path: ${{ env.RESULT_PATH }}

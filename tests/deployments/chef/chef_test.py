@@ -28,7 +28,6 @@ from tests.packaging.common import (
     is_agent_running_as_non_root,
     run_init_system_image,
     run_win_command,
-    running_in_azure_pipelines,
     uninstall_win_agent,
     verify_override_files,
 )
@@ -186,7 +185,7 @@ def run_win_chef_client(backend, agent_version, stage, chef_version, monitors):
     attributes["signalfx_agent"]["conf"]["ingestUrl"] = backend.ingest_url
     attributes["signalfx_agent"]["conf"]["apiUrl"] = backend.api_url
     attributes["signalfx_agent"]["conf"]["monitors"] = monitors
-    if running_in_azure_pipelines():
+    if os.environ.get("CI"):
         attributes["signalfx_agent"]["user"] = os.environ.get("USERNAME")
         attributes["signalfx_agent"]["group"] = os.environ.get("USERNAME")
     print(attributes)
