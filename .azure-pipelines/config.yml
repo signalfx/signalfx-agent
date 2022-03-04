@@ -133,24 +133,6 @@ jobs:
       # Install IIS for windows-iis integration test.
       chocoPackages: '--source windowsfeatures IIS-WebServerRole'
 
-- job: 'win_2019_puppet_tests'
-  pool:
-    vmImage: 'windows-2019'
-  steps:
-  - template: 'templates/run-pytest.yml'
-    parameters:
-      markers: 'puppet and windows_only'
-      changesInclude: 'deployments/puppet tests/deployments/puppet tests/packaging/common.py .azure-pipelines'
-
-- job: 'win_2022_puppet_tests'
-  pool:
-    vmImage: 'windows-2022'
-  steps:
-  - template: 'templates/run-pytest.yml'
-    parameters:
-      markers: 'puppet and windows_only'
-      changesInclude: 'deployments/puppet tests/deployments/puppet tests/packaging/common.py .azure-pipelines'
-
 - job: 'win_2019_installer_tests'
   pool:
     vmImage: 'windows-2019'
