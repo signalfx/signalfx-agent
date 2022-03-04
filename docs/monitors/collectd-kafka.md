@@ -49,6 +49,7 @@ Configuration](../monitor-config.md#common-configuration).**
 | --- | --- | --- | --- |
 | `host` | **yes** | `string` | Host to connect to -- JMX must be configured for remote access and accessible from the agent |
 | `port` | **yes** | `integer` | JMX connection port (NOT the RMI port) on the application.  This correponds to the `com.sun.management.jmxremote.port` Java property that should be set on the JVM when running the application. |
+| `clusterName` | **yes** | `string` | Cluster name to which the broker belongs |
 | `name` | no | `string` |  |
 | `serviceName` | no | `string` | This is how the service type is identified in the SignalFx UI so that you can get built-in content for it.  For custom JMX integrations, it can be set to whatever you like and metrics will get the special property `sf_hostHasService` set to this value. |
 | `serviceURL` | no | `string` | The JMX connection string.  This is rendered as a Go template and has access to the other values in this config. NOTE: under normal circumstances it is not advised to set this string directly - setting the host and port as specified above is preferred. (**default:** `service:jmx:rmi:///jndi/rmi://{{.Host}}:{{.Port}}/jmxrmi`) |
@@ -59,7 +60,6 @@ Configuration](../monitor-config.md#common-configuration).**
 | `mBeansToCollect` | no | `list of strings` | A list of the MBeans defined in `mBeanDefinitions` to actually collect. If not provided, then all defined MBeans will be collected. |
 | `mBeansToOmit` | no | `list of strings` | A list of the MBeans to omit. This will come handy in cases where only a few MBeans need to omitted from the default list |
 | `mBeanDefinitions` | no | `map of objects (see below)` | Specifies how to map JMX MBean values to metrics.  If using a specific service monitor such as cassandra, kafka, or activemq, they come pre-loaded with a set of mappings, and any that you add in this option will be merged with those.  See [collectd GenericJMX](https://collectd.org/documentation/manpages/collectd-java.5.shtml#genericjmx_plugin) for more details. |
-| `clusterName` | **yes** | `string` | Cluster name to which the broker belongs |
 
 
 The **nested** `mBeanDefinitions` config object has the following fields:
