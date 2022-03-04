@@ -47,7 +47,7 @@ RPM_DISTROS = [
     ("opensuse15", INIT_SYSTEMD),
 ]
 
-AGENT_VERSIONS = os.environ.get("AGENT_VERSIONS", "4.7.7,latest").split(",")
+AGENT_VERSIONS = os.environ.get("AGENT_VERSIONS", "5.7.0,latest").split(",")
 STAGE = os.environ.get("STAGE", "release")
 
 
@@ -97,6 +97,16 @@ def test_installer_on_all_distros(base_image, init_system, agent_version):
             assert (
                 installed_version == agent_version
             ), f"Installed agent version is {installed_version} but should be {agent_version}"
+            upgrade_cmd = None
+            if "amazonlinux" in base_image or "centos" in base_image:
+                upgrade_cmd = "yum upgrade -y signalfx-agent"
+            elif "debian" in base_image or "ubuntu" in base_image:
+                upgrade_cmd = "apt-get --only-upgrade -y install signalfx-agent"
+            if upgrade_cmd:
+                code, output = cont.exec_run(upgrade_cmd)
+                assert code == 0, output.decode("utf-8")
+                print_lines(output)
+                assert is_agent_running_as_non_root(cont, user), f"Agent is not running as {user} user"
         try:
             assert wait_for(
                 p(has_datapoint_with_dim, backend, "plugin", "host-metadata")
