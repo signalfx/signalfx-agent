@@ -12,7 +12,7 @@ concurrency:
 
 env:
   RESULT_PATH: "unit_results.xml"
-  GO_VERSION: 1.17.7
+  GO_VERSION: 1.18
 
 jobs:
   go-test-race:

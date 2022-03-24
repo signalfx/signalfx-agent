@@ -12,7 +12,7 @@ concurrency:
 
 env:
   RESULT_PATH: testresults
-  GO_VERSION: 1.17.7
+  GO_VERSION: 1.18
   PYTHON_VERSION: 3.8.10
   REQUIREMENTS_PATH: "tests/requirements.txt"
 
