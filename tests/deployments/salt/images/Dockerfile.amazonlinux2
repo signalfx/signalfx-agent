@@ -4,7 +4,7 @@ ENV container docker
 
 RUN yum install -y systemd procps initscripts python3-pip python3-devel gcc
 
-RUN pip3 install msgpack==0.6.2
+RUN pip3 install msgpack==0.6.2 jinja2==3.0.3
 RUN pip3 install salt==2019.2
 
 RUN (cd /lib/systemd/system/sysinit.target.wants/; for i in *; do [ $i = \
