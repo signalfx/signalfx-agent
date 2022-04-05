@@ -276,7 +276,8 @@ def start(
 
     async def start_ingest_server():
         ingest_app.config.REQUEST_TIMEOUT = ingest_app.config.KEEP_ALIVE_TIMEOUT = 1000
-        ingest_server = ingest_app.create_server(sock=ingest_sock, access_log=False, return_asyncio_server=True)
+        ingest_server = await ingest_app.create_server(sock=ingest_sock, access_log=False, return_asyncio_server=True)
+        await ingest_server.startup()
         ingest_loop.create_task(ingest_server)
 
     ingest_loop.create_task(start_ingest_server())
@@ -286,7 +287,8 @@ def start(
 
     async def start_api_server():
         api_app.config.REQUEST_TIMEOUT = api_app.config.KEEP_ALIVE_TIMEOUT = 1000
-        api_server = api_app.create_server(sock=api_sock, access_log=False, return_asyncio_server=True)
+        api_server = await api_app.create_server(sock=api_sock, access_log=False, return_asyncio_server=True)
+        await api_server.startup()
         api_loop.create_task(api_server)
 
     api_loop.create_task(start_api_server())
@@ -300,9 +302,10 @@ def start(
 
         async def start_splunk_hec_server():
             splunk_hec_app.config.REQUEST_TIMEOUT = splunk_hec_app.config.KEEP_ALIVE_TIMEOUT = 1000
-            splunk_hec_server = splunk_hec_app.create_server(
+            splunk_hec_server = await splunk_hec_app.create_server(
                 sock=splunk_hec_sock, access_log=False, return_asyncio_server=True
             )
+            await splunk_hec_server.startup()
             splunk_hec_loop.create_task(splunk_hec_server)
 
         splunk_hec_loop.create_task(start_splunk_hec_server())
