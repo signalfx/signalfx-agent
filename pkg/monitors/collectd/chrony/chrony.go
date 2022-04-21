@@ -23,7 +23,7 @@ func init() {
 type Config struct {
 	// This cannot be multi instance until there is a way to differentiate them
 	// in collectd
-	config.MonitorConfig `singleInstance:"true"`
+	config.MonitorConfig `yaml:",inline" singleInstance:"true"`
 
 	// The hostname of the chronyd instance
 	Host string `yaml:"host" validate:"required" default:"localhost"`
