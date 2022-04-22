@@ -1,5 +1,5 @@
 # Legacy project ownership
-* @keitwb @jcheng-splunk @mstumpfx @asuresh4 @rmfitzpatrick @signalfx/gdi-data-collection-maintainers
+* @keitwb @jcheng-splunk @asuresh4 @rmfitzpatrick @signalfx/gdi-data-collection-maintainers
 
 # Docs reviewers
 *.md @signalfx/docs @signalfx/gdi-data-collection-approvers
