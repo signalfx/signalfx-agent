@@ -1,4 +1,5 @@
-FROM ubuntu
+FROM ubuntu:20.04
+ENV DEBIAN_FRONTEND=noninteractive
 RUN apt update && \
     apt install -y supervisor
 COPY conf.d /etc/supervisor/conf.d
