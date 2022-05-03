@@ -17,6 +17,7 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/neotest"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 var (
@@ -467,7 +468,7 @@ func TestMonitor_Configure(t *testing.T) {
 				}
 				conn, err = grpc.Dial(address, grpc.WithTransportCredentials(creds))
 			} else {
-				conn, err = grpc.Dial(address, grpc.WithInsecure())
+				conn, err = grpc.Dial(address, grpc.WithTransportCredentials(insecure.NewCredentials()))
 			}
 
 			// handle to the grpc client connection error
