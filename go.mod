@@ -14,6 +14,7 @@ replace (
 replace (
 	github.com/containerd/containerd => github.com/containerd/containerd v1.4.13
 	github.com/go-kit/kit => github.com/go-kit/kit v0.12.0
+	github.com/nats-io/jwt/v2 => github.com/nats-io/jwt/v2 v2.2.0
 	github.com/opencontainers/image-spec => github.com/opencontainers/image-spec v1.0.2
 	github.com/opencontainers/runc => github.com/opencontainers/runc v1.0.3
 	github.com/spf13/viper => github.com/spf13/viper v1.11.0 // required to drop dependency on deprecated github.com/coreos/etcd and github.com/coreos/go-etcd
