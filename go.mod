@@ -81,7 +81,7 @@ require (
 	github.com/shirou/gopsutil v3.21.5+incompatible
 	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.2
 	github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
-	github.com/signalfx/gateway v1.2.19-0.20191125135538-2c417b7ae0bd
+	github.com/signalfx/gateway v1.2.23
 	github.com/signalfx/golib/v3 v3.3.44
 	github.com/signalfx/ingest-protocols v0.1.3
 	github.com/signalfx/signalfx-agent/pkg/apm v0.0.0-00010101000000-000000000000
