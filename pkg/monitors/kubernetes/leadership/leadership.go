@@ -81,7 +81,7 @@ func startLeaderElection(v1Client corev1.CoreV1Interface) error {
 	}
 
 	resLock, err := resourcelock.New(
-		resourcelock.ConfigMapsResourceLock,
+		resourcelock.ConfigMapsLeasesResourceLock,
 		ns,
 		"signalfx-agent-leader",
 		v1Client,
