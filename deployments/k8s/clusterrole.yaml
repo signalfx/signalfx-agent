@@ -76,6 +76,15 @@ rules:
     - get
     - list
     - watch
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - get
+  - list
+  - update
 - nonResourceURLs:
   - '/metrics'
   verbs:
