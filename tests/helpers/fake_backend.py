@@ -204,10 +204,10 @@ def _add_fake_correlation_api(app, dims, correlation_api_status_code):
         if not dim:
             return response.json({})
         props = {}
-        services = dim["sf_services"]
+        services = dim.get("sf_services")
         if services:
             props["sf_services"] = services
-        environments = dim["sf_environments"]
+        environments = dim.get("sf_environments")
         if environments:
             props["sf_environments"] = environments
         return response.json(props, correlation_api_status_code)
