@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/event"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/pkg/core/common/kubernetes"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
@@ -98,7 +99,7 @@ func (m *Monitor) start(k8sClient *k8s.Clientset, alwaysReport bool) error {
 		runSync()
 	} else {
 		var err error
-		leaderCh, unregister, err = leadership.RequestLeaderNotification(k8sClient.CoreV1())
+		leaderCh, unregister, err = leadership.RequestLeaderNotification(k8sClient.CoreV1(), k8sClient.CoordinationV1())
 		if err != nil {
 			return err
 		}

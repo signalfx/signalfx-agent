@@ -8,6 +8,7 @@ import (
 	"time"
 
 	log "github.com/sirupsen/logrus"
+	coordinationv1 "k8s.io/client-go/kubernetes/typed/coordination/v1"
 	corev1 "k8s.io/client-go/kubernetes/typed/core/v1"
 	"k8s.io/client-go/tools/leaderelection"
 	"k8s.io/client-go/tools/leaderelection/resourcelock"
@@ -34,12 +35,12 @@ var leaderIdentity string
 // at which point the channel could send true again and so on. All monitors
 // that need leader election will share the same election process.  There is no
 // way to stop the leader election process once it starts.
-func RequestLeaderNotification(v1Client corev1.CoreV1Interface) (<-chan bool, func(), error) {
+func RequestLeaderNotification(v1Client corev1.CoreV1Interface, coordinationClient coordinationv1.CoordinationV1Interface) (<-chan bool, func(), error) {
 	lock.Lock()
 	defer lock.Unlock()
 
 	if !started {
-		if err := startLeaderElection(v1Client); err != nil {
+		if err := startLeaderElection(v1Client, coordinationClient); err != nil {
 			return nil, nil, err
 		}
 		started = true
@@ -69,7 +70,7 @@ func RequestLeaderNotification(v1Client corev1.CoreV1Interface) (<-chan bool, fu
 	}, nil
 }
 
-func startLeaderElection(v1Client corev1.CoreV1Interface) error {
+func startLeaderElection(v1Client corev1.CoreV1Interface, coordinationClient coordinationv1.CoordinationV1Interface) error {
 	ns := os.Getenv("MY_NAMESPACE")
 	if ns == "" {
 		return errors.New("MY_NAMESPACE envvar is not defined")
@@ -85,7 +86,7 @@ func startLeaderElection(v1Client corev1.CoreV1Interface) error {
 		ns,
 		"signalfx-agent-leader",
 		v1Client,
-		nil,
+		coordinationClient,
 		resourcelock.ResourceLockConfig{
 			Identity: nodeName,
 			// client-go can't make anything simple
