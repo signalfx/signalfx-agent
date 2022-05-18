@@ -86,7 +86,7 @@ require (
 	github.com/signalfx/ingest-protocols v0.1.3
 	github.com/signalfx/signalfx-agent/pkg/apm v0.0.0-00010101000000-000000000000
 	github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5
-	github.com/signalfx/signalfx-go-tracing v1.2.0
+	github.com/signalfx/signalfx-go-tracing v1.12.0
 	github.com/sirupsen/logrus v1.8.1
 	github.com/smartystreets/goconvey v1.6.4
 	github.com/snowflakedb/gosnowflake v1.6.3
@@ -224,7 +224,7 @@ require (
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/shirou/gopsutil/v3 v3.21.9 // indirect
 	github.com/signalfx/gohistogram v0.0.0-20160107210732-1ccfd2ff5083 // indirect
-	github.com/signalfx/golib v2.4.1+incompatible // indirect
+	github.com/signalfx/golib v2.5.1+incompatible // indirect
 	github.com/signalfx/sapm-proto v0.7.2 // indirect
 	github.com/smartystreets/assertions v1.0.1 // indirect
 	github.com/soniah/gosnmp v0.0.0-20190220004421-68e8beac0db9 // indirect; required; first version with go modules
@@ -233,7 +233,7 @@ require (
 	github.com/tidwall/gjson v1.9.3 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
 	github.com/tidwall/pretty v1.2.0 // indirect
-	github.com/tinylib/msgp v1.1.5 // indirect
+	github.com/tinylib/msgp v1.1.6 // indirect
 	github.com/tklauser/go-sysconf v0.3.9 // indirect
 	github.com/tklauser/numcpus v0.3.0 // indirect
 	github.com/vjeantet/grok v1.0.0 // indirect
