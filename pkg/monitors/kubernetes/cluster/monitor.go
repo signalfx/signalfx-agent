@@ -130,7 +130,7 @@ func (m *Monitor) Start() error {
 		clusterState.Start()
 	} else {
 		var err error
-		leaderCh, unregister, err = leadership.RequestLeaderNotification(clusterState.clientset.CoreV1())
+		leaderCh, unregister, err = leadership.RequestLeaderNotification(clusterState.clientset.CoreV1(), clusterState.clientset.CoordinationV1())
 		if err != nil {
 			return err
 		}
