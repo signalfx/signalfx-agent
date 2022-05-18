@@ -55,7 +55,7 @@ require (
 	github.com/influxdata/telegraf v0.0.0-00010101000000-000000000000
 	github.com/jackc/pgx/v4 v4.6.0
 	github.com/jaegertracing/jaeger v1.26.0
-	github.com/kardianos/service v1.0.0
+	github.com/kardianos/service v1.2.1
 	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
 	github.com/kr/pretty v0.3.0
 	github.com/lib/pq v1.10.3
