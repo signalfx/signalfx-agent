@@ -233,7 +233,7 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        group: [1, 2, 3, 4]
+        group: [1, 2, 3, 4, 5, 6, 7, 8]
       fail-fast: false
     steps:
       - name: Check out the codebase.
@@ -307,7 +307,7 @@ jobs:
           WORKERS: 2
           PYTEST_OPTIONS: --reruns 2
           TESTS_DIR: ./tests
-          GITHUB_NODE_TOTAL: 4
+          GITHUB_NODE_TOTAL: 8
           GITHUB_NODE_GROUP: ${{ matrix.group }}
         run: .github/scripts/run-pytest.sh
 
