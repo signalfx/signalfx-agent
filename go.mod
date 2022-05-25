@@ -39,7 +39,7 @@ require (
 	github.com/docker/go-connections v0.4.0
 	github.com/go-errors/errors v1.4.1
 	github.com/go-playground/locales v0.14.0
-	github.com/go-playground/universal-translator v0.16.0
+	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/go-test/deep v1.0.8
 	github.com/gobwas/glob v0.2.4-0.20181002190808-e7a84e9525fe
