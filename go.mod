@@ -49,7 +49,7 @@ require (
 	github.com/hashicorp/consul/api v1.12.0
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/hashicorp/vault v1.10.3 // required for newer google.golang.org/api compatibility
-	github.com/hashicorp/vault-plugin-auth-gcp v0.12.1
+	github.com/hashicorp/vault-plugin-auth-gcp v0.13.0
 	github.com/hashicorp/vault/api v1.5.0
 	github.com/iancoleman/strcase v0.0.0-20171129010253-3de563c3dc08
 	github.com/influxdata/telegraf v0.0.0-00010101000000-000000000000
@@ -189,7 +189,7 @@ require (
 	github.com/gopherjs/gopherjs v0.0.0-20181103185306-d547d1d9531e // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-gcp-common v0.7.0 // indirect
+	github.com/hashicorp/go-gcp-common v0.7.1-0.20220519220342-94aabf4c4c87 // indirect
 	github.com/hashicorp/go-hclog v1.2.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-kms-wrapping/entropy v0.1.0 // indirect
