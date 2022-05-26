@@ -38,7 +38,7 @@ require (
 	github.com/denisenkom/go-mssqldb v0.12.2
 	github.com/docker/docker v20.10.10+incompatible
 	github.com/docker/go-connections v0.4.0
-	github.com/go-errors/errors v1.4.1
+	github.com/go-errors/errors v1.4.2
 	github.com/go-playground/locales v0.14.0
 	github.com/go-playground/universal-translator v0.18.0
 	github.com/go-sql-driver/mysql v1.5.0
