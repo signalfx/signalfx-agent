@@ -88,7 +88,7 @@ require (
 	github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5
 	github.com/signalfx/signalfx-go-tracing v1.12.0
 	github.com/sirupsen/logrus v1.8.1
-	github.com/smartystreets/goconvey v1.6.4
+	github.com/smartystreets/goconvey v1.7.2
 	github.com/snowflakedb/gosnowflake v1.6.3
 	github.com/stretchr/testify v1.7.1
 	github.com/ulule/deepcopier v0.0.0-20171107155558-ca99b135e50f
@@ -254,7 +254,7 @@ require (
 	github.com/signalfx/gohistogram v0.0.0-20160107210732-1ccfd2ff5083 // indirect
 	github.com/signalfx/golib v2.5.1+incompatible // indirect
 	github.com/signalfx/sapm-proto v0.7.2 // indirect
-	github.com/smartystreets/assertions v1.0.1 // indirect
+	github.com/smartystreets/assertions v1.2.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/objx v0.2.0 // indirect
 	github.com/tidwall/match v1.1.1 // indirect
