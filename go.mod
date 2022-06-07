@@ -12,7 +12,7 @@ replace (
 
 // security updates
 replace (
-	github.com/containerd/containerd => github.com/containerd/containerd v1.4.13
+	github.com/containerd/containerd => github.com/containerd/containerd v1.5.13
 	github.com/go-kit/kit => github.com/go-kit/kit v0.12.0
 	github.com/nats-io/jwt/v2 => github.com/nats-io/jwt/v2 v2.2.0
 	github.com/opencontainers/image-spec => github.com/opencontainers/image-spec v1.0.2
@@ -243,7 +243,7 @@ require (
 	github.com/nxadm/tail v1.4.8 // indirect
 	github.com/oklog/run v1.1.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
-	github.com/opencontainers/image-spec v1.0.1 // indirect
+	github.com/opencontainers/image-spec v1.0.2 // indirect
 	github.com/philhofer/fwd v1.1.1 // indirect
 	github.com/pierrec/lz4 v2.6.1+incompatible // indirect
 	github.com/pierrec/lz4/v4 v4.1.8 // indirect
