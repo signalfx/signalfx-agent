@@ -63,7 +63,7 @@ require (
 	github.com/mailru/easyjson v0.7.7
 	github.com/mattn/go-xmlrpc v0.0.3
 	github.com/mauricelam/genny v0.0.0-20190320071652-0800202903e5
-	github.com/mitchellh/go-wordwrap v1.0.0
+	github.com/mitchellh/go-wordwrap v1.0.1
 	github.com/mitchellh/hashstructure v1.1.0
 	github.com/mongodb/go-client-mongodb-atlas v0.2.0
 	github.com/olekukonko/tablewriter v0.0.5
