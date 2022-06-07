@@ -65,7 +65,8 @@ ENV JAVA_HOME=/opt/root/jdk
 RUN mkdir -p /opt/root/jre && \
     rm -f ${JAVA_HOME}/lib/src.zip && \
     cp -rL ${JAVA_HOME}/bin /opt/root/jre/ && \
-    cp -rL ${JAVA_HOME}/lib /opt/root/jre/
+    cp -rL ${JAVA_HOME}/lib /opt/root/jre/ && \
+    cp -rL ${JAVA_HOME}/conf /opt/root/jre/
 
 COPY java/ /usr/src/agent-java/
 RUN cd /usr/src/agent-java/runner &&\
