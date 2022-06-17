@@ -177,7 +177,6 @@ func k8sEventToSignalFxEvent(ev *v1.Event) *event.Event {
 		dims["kubernetes_name"] = ev.InvolvedObject.Name
 		dims["kubernetes_uid"] = string(ev.InvolvedObject.UID)
 	}
-
 	properties := utils.RemoveEmptyMapValues(map[string]string{
 		"message":                     ev.Message,
 		"source_component":            ev.Source.Component,
@@ -186,8 +185,14 @@ func k8sEventToSignalFxEvent(ev *v1.Event) *event.Event {
 		"kubernetes_resource_version": ev.InvolvedObject.ResourceVersion,
 	})
 
+	eventType := ev.Reason
+	if eventType == "" {
+		logger.Debug("ev.Reason is not set; setting event type to unknown_reason")
+		eventType = "unknown_reason"
+	}
+
 	return event.NewWithProperties(
-		ev.Reason,
+		eventType,
 		event.AGENT,
 		utils.RemoveEmptyMapValues(dims),
 		utils.StringMapToInterfaceMap(properties),
