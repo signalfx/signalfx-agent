@@ -11,7 +11,7 @@ from tests.helpers.util import wait_for
 pytestmark = [pytest.mark.telegraf]
 
 METADATA = Metadata.from_package("telegraf/monitors/dns")
-SERVER = "1.1.1.1"
+SERVER = "8.8.8.8"
 DOMAIN = "signalfx.com"
 
 
