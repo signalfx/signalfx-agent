@@ -103,7 +103,7 @@ require (
 	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad
 	golang.org/x/tools v0.1.11
 	google.golang.org/grpc v1.47.0
-	gopkg.in/fatih/set.v0 v0.1.0
+	gopkg.in/fatih/set.v0 v0.2.1
 	gopkg.in/go-playground/validator.v9 v9.31.0
 	gopkg.in/yaml.v2 v2.4.0
 	gotest.tools v2.2.0+incompatible
