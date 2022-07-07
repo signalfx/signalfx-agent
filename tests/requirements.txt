@@ -15,7 +15,7 @@ pytest-rerunfailures==10.2
 pytest-timeout==2.1.0
 pytest-xdist==2.5.0
 pytest==7.1.2
-redis==4.3.3
+redis==4.3.4
 requests==2.28.1
 sanic==21.6.2
 semver==2.13.0
