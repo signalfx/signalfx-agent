@@ -31,7 +31,7 @@ require (
 	github.com/Showmax/go-fqdn v1.0.0
 	github.com/StackExchange/wmi v1.2.1
 	github.com/antonmedv/expr v1.9.0
-	github.com/aws/aws-sdk-go v1.40.45
+	github.com/aws/aws-sdk-go v1.44.55
 	github.com/beevik/ntp v0.3.0
 	github.com/cloudfoundry-incubator/uaago v0.0.0-20190307164349-8136b7bbe76e
 	github.com/coreos/go-systemd v0.0.0-20191104093116-d3cd4ed1dbcf
@@ -81,7 +81,7 @@ require (
 	github.com/prometheus/procfs v0.7.3
 	github.com/samuel/go-zookeeper v0.0.0-20200724154423-2164a8ac840e
 	github.com/shirou/gopsutil v3.21.11+incompatible
-	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.2
+	github.com/signalfx/com_signalfx_metrics_protobuf v0.0.3
 	github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 	github.com/signalfx/gateway v1.2.23
 	github.com/signalfx/golib/v3 v3.3.45
