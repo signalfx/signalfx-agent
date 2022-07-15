@@ -2073,8 +2073,9 @@ github.com/shurcooL/sanitized_anchor_name v1.0.0/go.mod h1:1NzhyTcUVG4SuEtjjoZeV
 github.com/shurcooL/vfsgen v0.0.0-20181202132449-6a9ea43bcacd/go.mod h1:TrYk7fJVaAttu97ZZKrO9UbRa8izdowaMIZcxYMbVaw=
 github.com/shurcooL/vfsgen v0.0.0-20200824052919-0d455de96546/go.mod h1:TrYk7fJVaAttu97ZZKrO9UbRa8izdowaMIZcxYMbVaw=
 github.com/signalfx/com_signalfx_metrics_protobuf v0.0.0-20190222193949-1fb69526e884/go.mod h1:muYA2clvwCdj7nzAJ5vJIXYpJsUumhAl4Uu1wUNpWzA=
-github.com/signalfx/com_signalfx_metrics_protobuf v0.0.2 h1:X886QgwZH5qr9HIQkk3mWcNEhUxx6D8rUZumzLV4Wiw=
 github.com/signalfx/com_signalfx_metrics_protobuf v0.0.2/go.mod h1:tCQQqyJAVF1+mxNdqOi18sS/zaSrE6EMyWwRA2QTl70=
+github.com/signalfx/com_signalfx_metrics_protobuf v0.0.3 h1:32k2QLgsKhcEs55q4REPKyIadvid5FPy2+VMgvbmKJ0=
+github.com/signalfx/com_signalfx_metrics_protobuf v0.0.3/go.mod h1:gJrXWi7wSGXfiC7+VheQaz+ypdCt5SmZNL+BRxUe7y4=
 github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657 h1:2B5haF9erda6sSaeHpGKqmgM3irTkjB0bkdjWoV5Qbo=
 github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657/go.mod h1:mUgf0Go14xjLxNZFSGSK9m+GT7jCHyECuCjPh1zadUc=
 github.com/signalfx/gateway v1.2.23 h1:+yDgpU7qp3Ypha6naV6Uflk9u8R3LrqRjZ/ha3+1OrY=
