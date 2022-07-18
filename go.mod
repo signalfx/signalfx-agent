@@ -85,7 +85,7 @@ require (
 	github.com/signalfx/defaults v1.2.2-0.20180531161417-70562fe60657
 	github.com/signalfx/gateway v1.2.23
 	github.com/signalfx/golib/v3 v3.3.45
-	github.com/signalfx/ingest-protocols v0.1.10
+	github.com/signalfx/ingest-protocols v0.1.13
 	github.com/signalfx/signalfx-agent/pkg/apm v0.0.0-00010101000000-000000000000
 	github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5
 	github.com/signalfx/signalfx-go-tracing v1.12.0
