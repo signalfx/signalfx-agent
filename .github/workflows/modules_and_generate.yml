@@ -48,5 +48,5 @@ jobs:
       - name: go mod tidy
         run: |
           go generate ./...
-          go mod tidy
+          make tidy
           git diff --exit-code || (echo 'Go modules are not tidied and/or generated code is not properly committed. Run `go generate ./... && go mod tidy` and commit the changes.' && exit 1)
