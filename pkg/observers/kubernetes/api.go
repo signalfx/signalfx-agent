@@ -13,18 +13,19 @@ import (
 	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/signalfx/signalfx-agent/pkg/core/common/kubernetes"
-	"github.com/signalfx/signalfx-agent/pkg/core/config"
-	"github.com/signalfx/signalfx-agent/pkg/core/services"
-	"github.com/signalfx/signalfx-agent/pkg/observers"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/signalfx/signalfx-agent/pkg/utils/k8sutil"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/types"
 	k8s "k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/tools/cache"
+
+	"github.com/signalfx/signalfx-agent/pkg/core/common/kubernetes"
+	"github.com/signalfx/signalfx-agent/pkg/core/config"
+	"github.com/signalfx/signalfx-agent/pkg/core/services"
+	"github.com/signalfx/signalfx-agent/pkg/observers"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
+	"github.com/signalfx/signalfx-agent/pkg/utils/k8sutil"
 )
 
 const (
@@ -124,10 +125,7 @@ type Config struct {
 	KubernetesAPI *kubernetes.APIConfig `yaml:"kubernetesAPI" default:"{}"`
 	// A list of annotation names that should be used to infer additional ports
 	// to be discovered on a particular pod.  The pod's annotation value should
-	// be a port number.  This is useful for annotations like
-	// `prometheus.io/port: 9230`.  If you don't already have preexisting
-	// annotations like this, we recommend using the [SignalFx-specific
-	// annotations](https://docs.signalfx.com/en/latest/kubernetes/k8s-monitors-observers.html#config-via-k8s-annotations).
+	// be a port number.  This is useful for annotations like `prometheus.io/port: 9230`.
 	AdditionalPortAnnotations []string `yaml:"additionalPortAnnotations"`
 	// If true, this observer will watch all Kubernetes pods and discover
 	// endpoints/services from each of them.  The default behavior (when

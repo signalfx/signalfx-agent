@@ -212,6 +212,18 @@ monitors:
       type: gauge
       description: Bytes of memory limit with regard to hierarchy under which the memory cgroup is
 
+    cgroup.memory_stat_hierarchical_memsw_limit:
+      default: false
+      group: memory
+      type: gauge
+      description: The memory+swap limit in place by the hierarchy cgroup
+
+    cgroup.memory_stat_swap:
+      default: false
+      group: memory
+      type: gauge
+      description: Bytes of swap memory used by the cgroup
+
     cgroup.memory_stat_total_cache:
       default: false
       group: memory
@@ -235,6 +247,12 @@ monitors:
       group: memory
       type: gauge
       description: The equivalent of `cgroup.memory_stat_shmem` that also includes the sum total of that metric for all descendant cgroups
+
+    cgroup.memory_stat_total_swap:
+      default: false
+      group: memory
+      type: gauge
+      description: Total amount of swap memory available to this cgroup
 
     cgroup.memory_stat_total_mapped_file:
       default: false

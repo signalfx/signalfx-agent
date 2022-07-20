@@ -227,7 +227,7 @@
       "sendUnknown": false,
       "noneIncluded": false,
       "dimensions": null,
-      "doc": "This monitor starts a StatsD monitor to listen to StatsD metrics emitted\nby AWS AppMesh Envoy Proxy.\n\nTo report AppMesh Envoy metrics, you need to enable Envoy StatsD sink on AppMesh\nand deploy the agent as a sidecar in the services that need to be monitored.\n\n\nSample Envoy StatsD configuration:\n\n```yaml\nstats_sinks:\n -\n  name: \"envoy.statsd\"\n  config:\n   address:\n    socket_address:\n     address: \"127.0.0.1\"\n     port_value: 8125\n     protocol: \"UDP\"\n   prefix: statsd.appmesh\n```\nPlease remember to provide the prefix to the agent monitor configuration.\n\nSee [Envoy API reference](https://www.envoyproxy.io/docs/envoy/latest/api-v2/config/metrics/v2/stats.proto#envoy-api-msg-config-metrics-v2-statsdsink) for more info\n\nSample SignalFx SmartAgent configuration:\n\n```yaml\nmonitors:\n - type: appmesh\n   listenAddress: 0.0.0.0\n   listenPort: 8125\n   metricPrefix: statsd.appmesh\n```\n",
+      "doc": "This monitor starts a StatsD monitor to listen to StatsD metrics emitted\nby AWS AppMesh Envoy Proxy.\n\nTo report AppMesh Envoy metrics, you need to enable Envoy StatsD sink on AppMesh\nand deploy the agent as a sidecar in the services that need to be monitored.\n\n\nSample Envoy StatsD configuration:\n\n```yaml\nstats_sinks:\n -\n  name: \"envoy.statsd\"\n  config:\n   address:\n    socket_address:\n     address: \"127.0.0.1\"\n     port_value: 8125\n     protocol: \"UDP\"\n   prefix: statsd.appmesh\n```\nPlease remember to provide the prefix to the agent monitor configuration.\n\nSee [Envoy API reference](https://www.envoyproxy.io/docs/envoy/v1.6.0/api-v2/config/metrics/v2/stats.proto#envoy-api-msg-config-metrics-v2-statsdsink) for more info\n\nSample SignalFx SmartAgent configuration:\n\n```yaml\nmonitors:\n - type: appmesh\n   listenAddress: 0.0.0.0\n   listenPort: 8125\n   metricPrefix: statsd.appmesh\n```\n",
       "groups": {
         "": {
           "description": "",
@@ -1335,6 +1335,7 @@
             "cgroup.memory_stat_cache",
             "cgroup.memory_stat_dirty",
             "cgroup.memory_stat_hierarchical_memory_limit",
+            "cgroup.memory_stat_hierarchical_memsw_limit",
             "cgroup.memory_stat_inactive_anon",
             "cgroup.memory_stat_inactive_file",
             "cgroup.memory_stat_mapped_file",
@@ -1345,6 +1346,7 @@
             "cgroup.memory_stat_rss",
             "cgroup.memory_stat_rss_huge",
             "cgroup.memory_stat_shmem",
+            "cgroup.memory_stat_swap",
             "cgroup.memory_stat_total_active_anon",
             "cgroup.memory_stat_total_active_file",
             "cgroup.memory_stat_total_cache",
@@ -1359,6 +1361,7 @@
             "cgroup.memory_stat_total_rss",
             "cgroup.memory_stat_total_rss_huge",
             "cgroup.memory_stat_total_shmem",
+            "cgroup.memory_stat_total_swap",
             "cgroup.memory_stat_total_unevictable",
             "cgroup.memory_stat_total_writeback",
             "cgroup.memory_stat_unevictable",
@@ -1487,6 +1490,12 @@
           "group": "memory",
           "default": false
         },
+        "cgroup.memory_stat_hierarchical_memsw_limit": {
+          "type": "gauge",
+          "description": "The memory+swap limit in place by the hierarchy cgroup",
+          "group": "memory",
+          "default": false
+        },
         "cgroup.memory_stat_inactive_anon": {
           "type": "gauge",
           "description": "Bytes of anonymous and swap cache memory on inactive LRU list",
@@ -1544,6 +1553,12 @@
         "cgroup.memory_stat_shmem": {
           "type": "gauge",
           "description": "Bytes of shared memory",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_swap": {
+          "type": "gauge",
+          "description": "Bytes of swap memory used by the cgroup",
           "group": "memory",
           "default": false
         },
@@ -1628,6 +1643,12 @@
         "cgroup.memory_stat_total_shmem": {
           "type": "gauge",
           "description": "The equivalent of `cgroup.memory_stat_shmem` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_swap": {
+          "type": "gauge",
+          "description": "Total amount of swap memory available to this cgroup",
           "group": "memory",
           "default": false
         },
@@ -57576,7 +57597,7 @@
         },
         {
           "yamlName": "additionalPortAnnotations",
-          "doc": "A list of annotation names that should be used to infer additional ports to be discovered on a particular pod.  The pod's annotation value should be a port number.  This is useful for annotations like `prometheus.io/port: 9230`.  If you don't already have preexisting annotations like this, we recommend using the [SignalFx-specific annotations](https://docs.signalfx.com/en/latest/kubernetes/k8s-monitors-observers.html#config-via-k8s-annotations).",
+          "doc": "A list of annotation names that should be used to infer additional ports to be discovered on a particular pod.  The pod's annotation value should be a port number.  This is useful for annotations like `prometheus.io/port: 9230`.",
           "default": null,
           "required": false,
           "type": "slice",
