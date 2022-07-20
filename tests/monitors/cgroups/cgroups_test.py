@@ -6,7 +6,7 @@ from tests.helpers.agent import Agent
 from tests.helpers.assertions import has_datapoint
 from tests.helpers.metadata import Metadata
 from tests.helpers.util import run_service, wait_for
-from tests.helpers.verify import verify
+from tests.helpers.verify import verify_expected_is_subset
 
 pytestmark = [pytest.mark.monitor_without_endpoints]
 
@@ -25,7 +25,13 @@ def test_cgroup_monitor():
         extraMetrics: ['*']
     """
         ) as agent:
-            verify(agent, METADATA.all_metrics)
+            expected = METADATA.all_metrics - {
+                # these aren't reliably reported by all docker runtimes
+                "cgroup.memory_stat_hierarchical_memsw_limit",
+                "cgroup.memory_stat_swap",
+                "cgroup.memory_stat_total_swap",
+            }
+            verify_expected_is_subset(agent, expected)
 
             expected_cgroup = "/docker/" + nginx_container.id
 

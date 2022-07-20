@@ -1335,6 +1335,7 @@
             "cgroup.memory_stat_cache",
             "cgroup.memory_stat_dirty",
             "cgroup.memory_stat_hierarchical_memory_limit",
+            "cgroup.memory_stat_hierarchical_memsw_limit",
             "cgroup.memory_stat_inactive_anon",
             "cgroup.memory_stat_inactive_file",
             "cgroup.memory_stat_mapped_file",
@@ -1345,6 +1346,7 @@
             "cgroup.memory_stat_rss",
             "cgroup.memory_stat_rss_huge",
             "cgroup.memory_stat_shmem",
+            "cgroup.memory_stat_swap",
             "cgroup.memory_stat_total_active_anon",
             "cgroup.memory_stat_total_active_file",
             "cgroup.memory_stat_total_cache",
@@ -1359,6 +1361,7 @@
             "cgroup.memory_stat_total_rss",
             "cgroup.memory_stat_total_rss_huge",
             "cgroup.memory_stat_total_shmem",
+            "cgroup.memory_stat_total_swap",
             "cgroup.memory_stat_total_unevictable",
             "cgroup.memory_stat_total_writeback",
             "cgroup.memory_stat_unevictable",
@@ -1487,6 +1490,12 @@
           "group": "memory",
           "default": false
         },
+        "cgroup.memory_stat_hierarchical_memsw_limit": {
+          "type": "gauge",
+          "description": "The memory+swap limit in place by the hierarchy cgroup",
+          "group": "memory",
+          "default": false
+        },
         "cgroup.memory_stat_inactive_anon": {
           "type": "gauge",
           "description": "Bytes of anonymous and swap cache memory on inactive LRU list",
@@ -1544,6 +1553,12 @@
         "cgroup.memory_stat_shmem": {
           "type": "gauge",
           "description": "Bytes of shared memory",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_swap": {
+          "type": "gauge",
+          "description": "Bytes of swap memory used by the cgroup",
           "group": "memory",
           "default": false
         },
@@ -1628,6 +1643,12 @@
         "cgroup.memory_stat_total_shmem": {
           "type": "gauge",
           "description": "The equivalent of `cgroup.memory_stat_shmem` that also includes the sum total of that metric for all descendant cgroups",
+          "group": "memory",
+          "default": false
+        },
+        "cgroup.memory_stat_total_swap": {
+          "type": "gauge",
+          "description": "Total amount of swap memory available to this cgroup",
           "group": "memory",
           "default": false
         },

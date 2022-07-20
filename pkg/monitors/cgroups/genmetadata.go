@@ -44,6 +44,7 @@ const (
 	cgroupMemoryStatCache                   = "cgroup.memory_stat_cache"
 	cgroupMemoryStatDirty                   = "cgroup.memory_stat_dirty"
 	cgroupMemoryStatHierarchicalMemoryLimit = "cgroup.memory_stat_hierarchical_memory_limit"
+	cgroupMemoryStatHierarchicalMemswLimit  = "cgroup.memory_stat_hierarchical_memsw_limit"
 	cgroupMemoryStatInactiveAnon            = "cgroup.memory_stat_inactive_anon"
 	cgroupMemoryStatInactiveFile            = "cgroup.memory_stat_inactive_file"
 	cgroupMemoryStatMappedFile              = "cgroup.memory_stat_mapped_file"
@@ -54,6 +55,7 @@ const (
 	cgroupMemoryStatRss                     = "cgroup.memory_stat_rss"
 	cgroupMemoryStatRssHuge                 = "cgroup.memory_stat_rss_huge"
 	cgroupMemoryStatShmem                   = "cgroup.memory_stat_shmem"
+	cgroupMemoryStatSwap                    = "cgroup.memory_stat_swap"
 	cgroupMemoryStatTotalActiveAnon         = "cgroup.memory_stat_total_active_anon"
 	cgroupMemoryStatTotalActiveFile         = "cgroup.memory_stat_total_active_file"
 	cgroupMemoryStatTotalCache              = "cgroup.memory_stat_total_cache"
@@ -68,6 +70,7 @@ const (
 	cgroupMemoryStatTotalRss                = "cgroup.memory_stat_total_rss"
 	cgroupMemoryStatTotalRssHuge            = "cgroup.memory_stat_total_rss_huge"
 	cgroupMemoryStatTotalShmem              = "cgroup.memory_stat_total_shmem"
+	cgroupMemoryStatTotalSwap               = "cgroup.memory_stat_total_swap"
 	cgroupMemoryStatTotalUnevictable        = "cgroup.memory_stat_total_unevictable"
 	cgroupMemoryStatTotalWriteback          = "cgroup.memory_stat_total_writeback"
 	cgroupMemoryStatUnevictable             = "cgroup.memory_stat_unevictable"
@@ -95,6 +98,7 @@ var metricSet = map[string]monitors.MetricInfo{
 	cgroupMemoryStatCache:                   {Type: datapoint.Gauge, Group: groupMemory},
 	cgroupMemoryStatDirty:                   {Type: datapoint.Gauge, Group: groupMemory},
 	cgroupMemoryStatHierarchicalMemoryLimit: {Type: datapoint.Gauge, Group: groupMemory},
+	cgroupMemoryStatHierarchicalMemswLimit:  {Type: datapoint.Gauge, Group: groupMemory},
 	cgroupMemoryStatInactiveAnon:            {Type: datapoint.Gauge, Group: groupMemory},
 	cgroupMemoryStatInactiveFile:            {Type: datapoint.Gauge, Group: groupMemory},
 	cgroupMemoryStatMappedFile:              {Type: datapoint.Gauge, Group: groupMemory},
@@ -105,6 +109,7 @@ var metricSet = map[string]monitors.MetricInfo{
 	cgroupMemoryStatRss:                     {Type: datapoint.Gauge, Group: groupMemory},
 	cgroupMemoryStatRssHuge:                 {Type: datapoint.Gauge, Group: groupMemory},
 	cgroupMemoryStatShmem:                   {Type: datapoint.Gauge, Group: groupMemory},
+	cgroupMemoryStatSwap:                    {Type: datapoint.Gauge, Group: groupMemory},
 	cgroupMemoryStatTotalActiveAnon:         {Type: datapoint.Gauge, Group: groupMemory},
 	cgroupMemoryStatTotalActiveFile:         {Type: datapoint.Gauge, Group: groupMemory},
 	cgroupMemoryStatTotalCache:              {Type: datapoint.Gauge, Group: groupMemory},
@@ -119,6 +124,7 @@ var metricSet = map[string]monitors.MetricInfo{
 	cgroupMemoryStatTotalRss:                {Type: datapoint.Gauge, Group: groupMemory},
 	cgroupMemoryStatTotalRssHuge:            {Type: datapoint.Gauge, Group: groupMemory},
 	cgroupMemoryStatTotalShmem:              {Type: datapoint.Gauge, Group: groupMemory},
+	cgroupMemoryStatTotalSwap:               {Type: datapoint.Gauge, Group: groupMemory},
 	cgroupMemoryStatTotalUnevictable:        {Type: datapoint.Gauge, Group: groupMemory},
 	cgroupMemoryStatTotalWriteback:          {Type: datapoint.Gauge, Group: groupMemory},
 	cgroupMemoryStatUnevictable:             {Type: datapoint.Gauge, Group: groupMemory},
@@ -165,6 +171,7 @@ var groupMetricsMap = map[string][]string{
 		cgroupMemoryStatCache,
 		cgroupMemoryStatDirty,
 		cgroupMemoryStatHierarchicalMemoryLimit,
+		cgroupMemoryStatHierarchicalMemswLimit,
 		cgroupMemoryStatInactiveAnon,
 		cgroupMemoryStatInactiveFile,
 		cgroupMemoryStatMappedFile,
@@ -175,6 +182,7 @@ var groupMetricsMap = map[string][]string{
 		cgroupMemoryStatRss,
 		cgroupMemoryStatRssHuge,
 		cgroupMemoryStatShmem,
+		cgroupMemoryStatSwap,
 		cgroupMemoryStatTotalActiveAnon,
 		cgroupMemoryStatTotalActiveFile,
 		cgroupMemoryStatTotalCache,
@@ -189,6 +197,7 @@ var groupMetricsMap = map[string][]string{
 		cgroupMemoryStatTotalRss,
 		cgroupMemoryStatTotalRssHuge,
 		cgroupMemoryStatTotalShmem,
+		cgroupMemoryStatTotalSwap,
 		cgroupMemoryStatTotalUnevictable,
 		cgroupMemoryStatTotalWriteback,
 		cgroupMemoryStatUnevictable,
