@@ -108,7 +108,7 @@ To create this service in the ECS web admin console:
 
   The charts display metrics from the infrastructure for that node.
 
-  To learn more, see [Built-In Dashboards and Charts](https://docs.signalfx.com/en/latest/getting-started/built-in-content/built-in-dashboards.html).
+  To learn more, see [Built-In Dashboards and Charts](https://docs.splunk.com/Observability/data-visualization/dashboards/built-in-dashboards.html#built-in-dashboards).
 
 * For Kubernetes monitoring, perform these steps:
   1. In SignalFx, from the main menu select **Infrastructure** > **Kubernetes Navigator** > **Cluster map**.
