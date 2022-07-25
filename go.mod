@@ -116,7 +116,6 @@ require (
 require (
 	collectd.org v0.5.0 // indirect
 	github.com/creasty/defaults v1.5.1 // indirect
-	github.com/docker/distribution v2.8.0+incompatible // indirect
 	github.com/guregu/null v4.0.0+incompatible // indirect
 	github.com/influxdata/tail v1.0.0 // indirect
 	github.com/influxdata/toml v0.0.0-20180607005434-2a2e3012f7cf // indirect
@@ -161,6 +160,7 @@ require (
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/containerd/containerd v1.5.7 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
+	github.com/docker/distribution v2.8.0+incompatible // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/emicklei/go-restful v2.9.5+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
