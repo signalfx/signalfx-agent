@@ -51,7 +51,7 @@ require (
 	github.com/hashicorp/consul/api v1.13.0
 	github.com/hashicorp/golang-lru v0.5.4
 	github.com/hashicorp/vault v1.10.3 // required for newer google.golang.org/api compatibility
-	github.com/hashicorp/vault-plugin-auth-gcp v0.13.0
+	github.com/hashicorp/vault-plugin-auth-gcp v0.13.1
 	github.com/hashicorp/vault/api v1.7.2
 	github.com/iancoleman/strcase v0.0.0-20171129010253-3de563c3dc08
 	github.com/influxdata/telegraf v0.0.0-00010101000000-000000000000
@@ -98,9 +98,9 @@ require (
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
 	go.etcd.io/etcd/client/v2 v2.305.2
-	golang.org/x/net v0.0.0-20220412020605-290c469a71a5
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/sys v0.0.0-20220412211240-33da011f77ad
+	golang.org/x/net v0.0.0-20220607020251-c690dde0001d
+	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
+	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a
 	golang.org/x/tools v0.1.11
 	google.golang.org/grpc v1.47.0
 	gopkg.in/fatih/set.v0 v0.1.0
@@ -131,7 +131,7 @@ require (
 )
 
 require (
-	cloud.google.com/go/compute v1.5.0 // indirect
+	cloud.google.com/go/compute v1.6.1 // indirect
 	cloud.google.com/go/kms v1.4.0 // indirect
 	cloud.google.com/go/monitoring v1.5.0 // indirect
 	code.cloudfoundry.org/go-diodes v0.0.0-20180905200951-72629b5276e3 // indirect
@@ -189,11 +189,11 @@ require (
 	github.com/google/go-querystring v1.1.0 // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/google/uuid v1.3.0 // indirect
-	github.com/googleapis/gax-go/v2 v2.3.0 // indirect
+	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20181103185306-d547d1d9531e // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-gcp-common v0.7.1-0.20220519220342-94aabf4c4c87 // indirect
+	github.com/hashicorp/go-gcp-common v0.8.0 // indirect
 	github.com/hashicorp/go-hclog v1.2.0 // indirect
 	github.com/hashicorp/go-immutable-radix v1.3.1 // indirect
 	github.com/hashicorp/go-kms-wrapping/entropy v0.1.0 // indirect
@@ -210,7 +210,7 @@ require (
 	github.com/hashicorp/go-version v1.4.0 // indirect
 	github.com/hashicorp/hcl v1.0.1-vault-3 // indirect
 	github.com/hashicorp/serf v0.9.7 // indirect
-	github.com/hashicorp/vault/sdk v0.5.1 // indirect
+	github.com/hashicorp/vault/sdk v0.5.3 // indirect
 	github.com/hashicorp/yamux v0.0.0-20211028200310-0bc27b27de87 // indirect
 	github.com/hpcloud/tail v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
@@ -277,14 +277,14 @@ require (
 	go.uber.org/zap v1.21.0 // indirect
 	golang.org/x/crypto v0.0.0-20220411220226-7b82a4e95df4 // indirect
 	golang.org/x/mod v0.6.0-dev.0.20220419223038-86c51ed26bb4 // indirect
-	golang.org/x/oauth2 v0.0.0-20220411215720-9780585627b5 // indirect
+	golang.org/x/oauth2 v0.0.0-20220524215830-622c5d57e401 // indirect
 	golang.org/x/term v0.0.0-20210927222741-03fcf44c2211 // indirect
 	golang.org/x/text v0.3.7 // indirect
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
-	golang.org/x/xerrors v0.0.0-20220411194840-2f41105eb62f // indirect
-	google.golang.org/api v0.74.0 // indirect
+	golang.org/x/xerrors v0.0.0-20220517211312-f3a8303e98df // indirect
+	google.golang.org/api v0.83.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
-	google.golang.org/genproto v0.0.0-20220413183235-5e96e2839df9 // indirect
+	google.golang.org/genproto v0.0.0-20220602131408-e326c6e8e9c8 // indirect
 	google.golang.org/protobuf v1.28.0 // indirect
 	gopkg.in/fsnotify.v1 v1.4.7 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
