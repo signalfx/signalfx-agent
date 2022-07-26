@@ -3,7 +3,7 @@ black==22.6.0
 docker==5.0.3
 hvac==0.11.2
 kubernetes==21.7.0
-mysql-connector-python==8.0.29
+mysql-connector-python==8.0.30
 netifaces==0.11.0
 protobuf==3.20.1
 psutil==5.9.1
