@@ -97,7 +97,7 @@ require (
 	github.com/vmware/govmomi v0.29.0
 	github.com/x-cray/logrus-prefixed-formatter v0.5.2
 	github.com/yalp/jsonpath v0.0.0-20180802001716-5cc68e5049a0
-	go.etcd.io/etcd/client/v2 v2.305.2
+	go.etcd.io/etcd/client/v2 v2.305.4
 	golang.org/x/net v0.0.0-20220607020251-c690dde0001d
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
 	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8
