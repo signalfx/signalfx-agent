@@ -89,7 +89,7 @@ require (
 	github.com/signalfx/signalfx-agent/pkg/apm v0.0.0-00010101000000-000000000000
 	github.com/signalfx/signalfx-go v1.6.38-0.20200518153434-ceee8d2570d5
 	github.com/signalfx/signalfx-go-tracing v1.12.0
-	github.com/sirupsen/logrus v1.8.1
+	github.com/sirupsen/logrus v1.9.0
 	github.com/smartystreets/goconvey v1.7.2
 	github.com/snowflakedb/gosnowflake v1.6.11
 	github.com/stretchr/testify v1.8.0
@@ -100,7 +100,7 @@ require (
 	go.etcd.io/etcd/client/v2 v2.305.2
 	golang.org/x/net v0.0.0-20220607020251-c690dde0001d
 	golang.org/x/sync v0.0.0-20220601150217-0de741cfad7f
-	golang.org/x/sys v0.0.0-20220520151302-bc2c85ada10a
+	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8
 	golang.org/x/tools v0.1.11
 	google.golang.org/grpc v1.48.0
 	gopkg.in/fatih/set.v0 v0.1.0
