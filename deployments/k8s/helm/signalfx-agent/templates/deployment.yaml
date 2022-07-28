@@ -1,6 +1,6 @@
+{{ if .Values.isServerless -}}
 # This is only used for the serverless deployment model where we can't use
 # DaemonSets.
-{{ if .Values.isServerless -}}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
