@@ -91,7 +91,7 @@ require (
 	github.com/signalfx/signalfx-go-tracing v1.12.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/smartystreets/goconvey v1.7.2
-	github.com/snowflakedb/gosnowflake v1.6.11
+	github.com/snowflakedb/gosnowflake v1.6.12
 	github.com/stretchr/testify v1.8.0
 	github.com/ulule/deepcopier v0.0.0-20171107155558-ca99b135e50f
 	github.com/vmware/govmomi v0.29.0
