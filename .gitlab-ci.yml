@@ -8,7 +8,13 @@ stages:
   - win-msi-build
   - win-msi-sign
   - release
+  - sign-metadata
+  - upload-signature
   - github-release
+
+include:
+  - project: 'core-ee/signing/api-integration'
+    file: '/templates/.sign-client.yml'
 
 .sign-release-cache:
   variables:
@@ -182,9 +188,18 @@ linux-release:
     - mkdir -p dist
     - |
       set -exo pipefail
-      STAGE="release"
+      STAGE="test"
+      if [[ "${CI_COMMIT_TAG:-}" =~ beta ]]; then
+        STAGE="beta"
+      elif [[ "${CI_COMMIT_TAG:-}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        STAGE="release"
+      fi
       AGENT_IMAGE_NAME="quay.io/signalfx/signalfx-agent"
       AGENT_VERSION="${CI_COMMIT_TAG#v}"
+      if [[ "$STAGE" = "test" ]]; then
+        AGENT_IMAGE_NAME="quay.io/signalfx/signalfx-agent-dev"
+        AGENT_VERSION=$( ./scripts/current-version )
+      fi
       IMAGE="${AGENT_IMAGE_NAME}:${AGENT_VERSION}"
       ./scripts/docker-cache-from  # pre-pull stage cache images
       ./scripts/release --stage $STAGE --component docker --component deb --component rpm --component bundle
@@ -201,6 +216,92 @@ linux-release:
   artifacts:
     paths:
       - dist
+      - Release
+      - repomd.xml
+
+sign-apt-metadata:
+  extends: .submit-request
+  stage: sign-metadata
+  only:
+    variables:
+      - $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/
+  needs:
+    - linux-release
+  dependencies:
+    - linux-release
+  variables:
+    ARTIFACT: Release
+    SIGN_TYPE: GPG
+  before_script:
+    - set -ex
+  after_script:
+    - mv Release signed/Release
+  artifacts:
+    paths:
+      - signed/Release
+      - signed/Release.asc
+
+sign-yum-metadata:
+  extends: .submit-request
+  stage: sign-metadata
+  only:
+    variables:
+      - $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/
+  needs:
+    - linux-release
+  dependencies:
+    - linux-release
+  variables:
+    ARTIFACT: repomd.xml
+    SIGN_TYPE: GPG
+  before_script:
+    - set -ex
+  after_script:
+    - mv repomd.xml signed/repomd.xml
+  artifacts:
+    paths:
+      - signed/repomd.xml
+      - signed/repomd.xml.asc
+
+upload-apt-signature:
+  stage: upload-signature
+  only:
+    variables:
+      - $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/
+  needs:
+    - sign-apt-metadata
+  dependencies:
+    - sign-apt-metadata
+  script:
+    - |
+      set -ex
+      STAGE="test"
+      if [[ "${CI_COMMIT_TAG:-}" =~ beta ]]; then
+        STAGE="beta"
+      elif [[ "${CI_COMMIT_TAG:-}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        STAGE="release"
+      fi
+      curl -u ${ARTIFACTORY_USERNAME}:${ARTIFACTORY_TOKEN} -X PUT "https://splunk.jfrog.io/artifactory/signalfx-agent-deb/dists/${STAGE}/Release.gpg" -T signed/Release.asc
+
+upload-yum-signature:
+  stage: upload-signature
+  only:
+    variables:
+      - $CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+$/
+  needs:
+    - sign-yum-metadata
+  dependencies:
+    - sign-yum-metadata
+  script:
+    - |
+      set -ex
+      STAGE="test"
+      if [[ "${CI_COMMIT_TAG:-}" =~ beta ]]; then
+        STAGE="beta"
+      elif [[ "${CI_COMMIT_TAG:-}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        STAGE="release"
+      fi
+      curl -u ${ARTIFACTORY_USERNAME}:${ARTIFACTORY_TOKEN} -X PUT "https://splunk.jfrog.io/artifactory/signalfx-agent-rpm-local/${STAGE}/repodata/repomd.xml.asc" -T signed/repomd.xml.asc
 
 github-release:
   stage: github-release
