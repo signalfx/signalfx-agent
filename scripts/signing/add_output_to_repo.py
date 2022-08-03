@@ -6,6 +6,8 @@ import os
 import sys
 import tempfile
 
+from pathlib import Path
+
 from common import (
     ARTIFACTORY_URL,
     ARTIFACTORY_API_URL,
@@ -15,8 +17,8 @@ from common import (
     artifactory_file_exists,
     check_artifactory_args,
     check_signing_args,
+    download_artifactory_file,
     get_md5_from_artifactory,
-    sign_artifactory_metadata,
     sign_file,
     upload_file_to_artifactory,
     wait_for_artifactory_metadata,
@@ -28,6 +30,7 @@ ARTIFACTORY_RPM_REPO = "signalfx-agent-rpm-local"
 ARTIFACTORY_RPM_REPO_URL = f"{ARTIFACTORY_URL}/{ARTIFACTORY_RPM_REPO}"
 DEFAULT_TIMEOUT = 900
 PACKAGE_TYPES = ("deb", "rpm")
+REPO_DIR = Path(__file__).parent.parent.parent.resolve()
 STAGES = ("test", "beta", "release")
 
 
@@ -164,16 +167,9 @@ def main():
     else:
         metadata_url = add_rpms_to_repo(paths, args)
 
-    if args.chaperone_token and args.staging_user and args.staging_token:
-        sign_artifactory_metadata(
-            metadata_url,
-            args.artifactory_user,
-            args.artifactory_token,
-            args.chaperone_token,
-            args.staging_user,
-            args.staging_token,
-            args.timeout,
-        )
+    # download the metadata file to be signed externally
+    dest = os.path.join(REPO_DIR, os.path.basename(metadata_url))
+    download_artifactory_file(metadata_url, dest, args.artifactory_user, args.artifactory_token)
 
 
 if __name__ == "__main__":
