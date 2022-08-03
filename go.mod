@@ -46,7 +46,7 @@ require (
 	github.com/go-test/deep v1.0.8
 	github.com/gobwas/glob v0.2.4-0.20181002190808-e7a84e9525fe
 	github.com/gogo/protobuf v1.3.2
-	github.com/google/cadvisor v0.44.1
+	github.com/google/cadvisor v0.45.0
 	github.com/gorilla/mux v1.8.0
 	github.com/hashicorp/consul/api v1.13.1
 	github.com/hashicorp/golang-lru v0.5.4
@@ -157,7 +157,7 @@ require (
 	github.com/cenkalti/backoff/v3 v3.2.2 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
-	github.com/docker/distribution v2.8.0+incompatible // indirect
+	github.com/docker/distribution v2.8.1+incompatible // indirect
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/emicklei/go-restful v2.9.5+incompatible // indirect
 	github.com/evanphx/json-patch/v5 v5.6.0 // indirect
