@@ -29,13 +29,15 @@ type DatapointCache struct {
 	sync.Mutex
 	dpCache                    map[types.UID][]*datapoint.Datapoint
 	nodeConditionTypesToReport []string
+	logger                     log.FieldLogger
 }
 
 // NewDatapointCache creates a new clean cache
-func NewDatapointCache(nodeConditionTypesToReport []string) *DatapointCache {
+func NewDatapointCache(nodeConditionTypesToReport []string, logger log.FieldLogger) *DatapointCache {
 	return &DatapointCache{
 		dpCache:                    make(map[types.UID][]*datapoint.Datapoint),
 		nodeConditionTypesToReport: nodeConditionTypesToReport,
+		logger:                     logger,
 	}
 }
 
@@ -61,7 +63,7 @@ func (dc *DatapointCache) DeleteByKey(key interface{}) {
 func (dc *DatapointCache) HandleDelete(oldObj runtime.Object) interface{} {
 	key, err := keyForObject(oldObj)
 	if err != nil {
-		log.WithFields(log.Fields{
+		dc.logger.WithFields(log.Fields{
 			"error": err,
 			"obj":   spew.Sdump(oldObj),
 		}).Error("Could not get cache key")
@@ -104,9 +106,9 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 	case *batchv1beta1.CronJob:
 		dps = datapointsForCronJob(o)
 	case *v2beta1.HorizontalPodAutoscaler:
-		dps = datapointsForHpa(o)
+		dps = datapointsForHpa(o, dc.logger)
 	default:
-		log.WithFields(log.Fields{
+		dc.logger.WithFields(log.Fields{
 			"obj": spew.Sdump(newObj),
 		}).Error("Unknown object type in HandleAdd")
 		return nil
@@ -114,7 +116,7 @@ func (dc *DatapointCache) HandleAdd(newObj runtime.Object) interface{} {
 
 	key, err := keyForObject(newObj)
 	if err != nil {
-		log.WithFields(log.Fields{
+		dc.logger.WithFields(log.Fields{
 			"error": err,
 			"obj":   spew.Sdump(newObj),
 		}).Error("Could not get cache key")

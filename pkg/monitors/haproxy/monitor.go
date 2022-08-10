@@ -9,11 +9,11 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
-	logger "github.com/sirupsen/logrus"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
 func init() {
@@ -25,6 +25,7 @@ type Monitor struct {
 	Output types.Output
 	cancel context.CancelFunc
 	ctx    context.Context
+	logger log.FieldLogger
 }
 
 // Map of proxies to monitor
@@ -32,6 +33,7 @@ type proxies map[string]bool
 
 // Config for this monitor
 func (m *Monitor) Configure(conf *Config) (err error) {
+	m.logger = log.WithFields(log.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 	url, err := url.Parse(conf.ScrapeURL())
 	if err != nil {
@@ -52,9 +54,9 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	var fetchFuncs funcs
 	switch url.Scheme {
 	case "http", "https", "file":
-		fetchFuncs = funcs{statsHTTP}
+		fetchFuncs = funcs{m.statsHTTP}
 	case "unix":
-		fetchFuncs = funcs{statsSocket, infoSocket}
+		fetchFuncs = funcs{m.statsSocket, m.infoSocket}
 	default:
 		return fmt.Errorf("unsupported url scheme:%q", url.Scheme)
 	}
@@ -73,7 +75,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 				defer wg.Done()
 				select {
 				case <-ctx.Done():
-					logger.Error(ctx.Err())
+					m.logger.Error(ctx.Err())
 					return
 				case ch <- fn(conf, pxs):
 					return

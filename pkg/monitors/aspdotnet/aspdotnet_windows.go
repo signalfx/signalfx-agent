@@ -8,17 +8,19 @@ import (
 	"strings"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/monitors/winperfcounters"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/sirupsen/logrus"
 )
 
 var logger = logrus.WithField("monitorType", monitorType)
 
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = logger.WithField("monitorID", conf.MonitorID)
 	perfcounterConf := &winperfcounters.Config{
 		CountersRefreshInterval: conf.CountersRefreshInterval,
 		PrintValid:              conf.PrintValid,
@@ -65,7 +67,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	// create batch emitter
-	emitter := baseemitter.NewEmitter(m.Output, logger)
+	emitter := baseemitter.NewEmitter(m.Output, m.logger)
 
 	// Hard code the plugin name because the emitter will parse out the
 	// configured measurement name as plugin and that is confusing.
@@ -93,7 +95,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		if err := plugin.Gather(ac); err != nil {
-			logger.WithError(err).Errorf("an error occurred while gathering metrics from the plugin")
+			m.logger.WithError(err).Errorf("an error occurred while gathering metrics from the plugin")
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 

@@ -9,12 +9,13 @@ import (
 
 	"github.com/prometheus/procfs"
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
-	"github.com/sirupsen/logrus"
 )
 
 // Config for this monitor
@@ -44,11 +45,12 @@ func init() {
 type Monitor struct {
 	Output types.FilteringOutput
 	cancel context.CancelFunc
+	logger logrus.FieldLogger
 }
 
 // Configure the monitor and start collection
 func (m *Monitor) Configure(conf *Config) error {
-	logger := logrus.WithField("monitorType", monitorType)
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 
@@ -65,7 +67,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	utils.RunOnInterval(ctx, func() {
 		controllerPaths, err := getCgroupControllerPaths(conf.ProcPath)
 		if err != nil {
-			logger.WithError(err).Error("Failed to get cgroup controller roots")
+			m.logger.WithError(err).Error("Failed to get cgroup controller roots")
 			return
 		}
 

@@ -10,16 +10,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
-	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
-
-	"k8s.io/client-go/rest"
-
-	"github.com/sirupsen/logrus"
-
 	dto "github.com/prometheus/client_model/go"
 	"github.com/prometheus/common/expfmt"
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/sirupsen/logrus"
+	"k8s.io/client-go/rest"
+
+	"github.com/signalfx/signalfx-agent/pkg/core/common/auth"
+	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
@@ -85,7 +83,7 @@ type fetcher func() (io.ReadCloser, expfmt.Format, error)
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
-	m.logger = logrus.WithFields(logrus.Fields{"monitorType": m.monitorName})
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": m.monitorName, "monitorID": conf.MonitorID})
 
 	var bearerToken string
 

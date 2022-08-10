@@ -7,11 +7,12 @@ import (
 	"context"
 	"time"
 
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/accumulator"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/emitter/baseemitter"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/monitors/winperfcounters"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/sirupsen/logrus"
 )
 
 var metricNameMapping = map[string]string{
@@ -22,7 +23,7 @@ var metricNameMapping = map[string]string{
 
 // Configure and run the monitor on windows
 func (m *Monitor) Configure(conf *Config) (err error) {
-	m.logger = logrus.WithField("monitorType", monitorType)
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context

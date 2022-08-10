@@ -16,6 +16,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/common/ecs"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
@@ -23,7 +25,6 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
-	log "github.com/sirupsen/logrus"
 )
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
@@ -69,10 +70,12 @@ type Monitor struct {
 	// or container metadata is not received.
 	shouldIgnore map[string]bool
 	imageFilter  filter.StringFilter
+	logger       log.FieldLogger
 }
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = logger.WithField("monitorID", conf.MonitorID)
 	var err error
 	m.imageFilter, err = filter.NewOverridableStringFilter(conf.ExcludedImages)
 	if err != nil {
@@ -94,7 +97,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		if !isRegistered {
 			task, err := fetchTaskMetadata(m.client, m.conf.MetadataEndpoint)
 			if err != nil {
-				logger.WithFields(log.Fields{
+				m.logger.WithFields(log.Fields{
 					"error": err,
 				}).Error("Could not receive ECS Task Metadata")
 				return
@@ -137,14 +140,14 @@ func (m *Monitor) fetchStatsForAll(enhancedMetricsConfig dmonitor.EnhancedMetric
 	body, err := getMetadata(m.client, m.conf.StatsEndpoint)
 
 	if err != nil {
-		logger.WithError(err).Error("Failed to read ECS stats")
+		m.logger.WithError(err).Error("Failed to read ECS stats")
 		return
 	}
 
 	var stats map[string]dtypes.StatsJSON
 
 	if err := json.Unmarshal(body, &stats); err != nil {
-		logger.WithFields(log.Fields{
+		m.logger.WithFields(log.Fields{
 			"error": err,
 		}).Error("Could not parse stats json")
 		return
@@ -157,7 +160,7 @@ func (m *Monitor) fetchStatsForAll(enhancedMetricsConfig dmonitor.EnhancedMetric
 
 		container, ok := m.containers[dockerID]
 		if !ok {
-			logger.Debugf("Container not found for id %s. Fetching...", dockerID)
+			m.logger.Debugf("Container not found for id %s. Fetching...", dockerID)
 			if container, err = m.fetchContainer(dockerID); err != nil {
 				m.shouldIgnore[dockerID] = true
 				continue
@@ -179,7 +182,7 @@ func (m *Monitor) fetchStatsForAll(enhancedMetricsConfig dmonitor.EnhancedMetric
 		dps, err := dmonitor.ConvertStatsToMetrics(containerJSON, &containerStat, enhancedMetricsConfig)
 
 		if err != nil {
-			logger.WithError(err).Errorf("Could not convert docker stats for container id %s", dockerID)
+			m.logger.WithError(err).Errorf("Could not convert docker stats for container id %s", dockerID)
 			return
 		}
 

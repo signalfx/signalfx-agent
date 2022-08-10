@@ -10,9 +10,7 @@ import (
 	"os"
 	"reflect"
 
-	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
-
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
@@ -162,12 +160,12 @@ type Observer struct {
 	// removed.
 	endpointsByUID map[types.UID][]services.Endpoint
 	stopper        chan struct{}
-	logger         logrus.FieldLogger
+	logger         log.FieldLogger
 }
 
 // Configure configures and starts watching for endpoints
 func (o *Observer) Configure(config *Config) error {
-	o.logger = logrus.WithFields(log.Fields{"observerType": observerType})
+	o.logger = log.WithFields(log.Fields{"observerType": observerType})
 
 	// There is a bug/limitation in the k8s go client's Controller where
 	// goroutines are leaked even when using the stop channel properly.  So we

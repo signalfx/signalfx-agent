@@ -4,7 +4,6 @@ import (
 	"context"
 	"crypto/tls"
 	"errors"
-	"log"
 	"net"
 	"net/http"
 	"strings"
@@ -13,9 +12,10 @@ import (
 	"code.cloudfoundry.org/go-loggregator"
 	"code.cloudfoundry.org/go-loggregator/rpc/loggregator_v2"
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/sirupsen/logrus"
 )
 
 const defaultShardID = "signalfx-nozzle"
@@ -111,7 +111,7 @@ func (c *SignalFxGatewayClient) processEnvelopes(ctx context.Context, streamer l
 
 			envDPs, err := envelopeToDatapoints(env)
 			if err != nil {
-				log.Printf("Error converting envelope to SignalFx datapoint: %v", err)
+				c.logger.Printf("Error converting envelope to SignalFx datapoint: %v", err)
 				continue
 			}
 

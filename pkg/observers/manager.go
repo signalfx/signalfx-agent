@@ -4,8 +4,9 @@ import (
 	"reflect"
 	"sync"
 
-	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/signalfx/signalfx-agent/pkg/core/config"
 )
 
 // ObserverWrapper represents an active observer

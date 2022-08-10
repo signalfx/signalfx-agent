@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	gopsutil "github.com/shirou/gopsutil/disk"
-	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
 )
@@ -61,7 +60,7 @@ func TestCommonDimensions(t *testing.T) {
 		},
 	}
 
-	logger := logrus.WithFields(log.Fields{"monitorType": monitorType})
+	logger := log.WithFields(log.Fields{"monitorType": monitorType})
 	for _, tt := range cases {
 		m := Monitor{
 			hostFSPath:        tt.hostFSPath,

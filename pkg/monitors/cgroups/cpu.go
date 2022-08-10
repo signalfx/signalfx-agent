@@ -11,8 +11,8 @@ import (
 
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
+
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
-	"github.com/sirupsen/logrus"
 )
 
 func (m *Monitor) getCPUMetrics(controllerPath string, pathFilter filter.StringFilter) []*datapoint.Datapoint {
@@ -51,7 +51,7 @@ func (m *Monitor) getCPUMetrics(controllerPath string, pathFilter filter.StringF
 			})
 
 			if err != nil {
-				logrus.WithError(err).Errorf("Failed to process %s", f)
+				m.logger.WithError(err).Errorf("Failed to process %s", f)
 				continue
 			}
 

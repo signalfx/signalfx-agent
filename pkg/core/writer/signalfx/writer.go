@@ -25,11 +25,9 @@ import (
 	"github.com/signalfx/golib/v3/sfxclient"
 	"github.com/signalfx/golib/v3/trace"
 	sfxwriter "github.com/signalfx/signalfx-go/writer"
-	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/pkg/apm/correlations"
-
 	libtracker "github.com/signalfx/signalfx-agent/pkg/apm/tracetracker"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/writer/dimensions"
@@ -100,7 +98,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 	dimensionChan chan *types.Dimension, spanChan chan []*trace.Span,
 	spanSourceTracker *tracetracker.SpanSourceTracker) (*Writer, error) {
 
-	logger := utils.NewThrottledLogger(logrus.WithFields(logrus.Fields{"component": "writer"}), 20*time.Second)
+	logger := utils.NewThrottledLogger(log.WithFields(log.Fields{"component": "writer"}), 20*time.Second)
 
 	ctx, cancel := context.WithCancel(context.Background())
 
@@ -179,7 +177,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 
 	dpEndpointURL, err := conf.ParsedIngestURL().Parse("v2/datapoint")
 	if err != nil {
-		logger.WithFields(logrus.Fields{
+		logger.WithFields(log.Fields{
 			"error":     err,
 			"ingestURL": conf.ParsedIngestURL().String(),
 		}).Error("Could not construct datapoint ingest URL")
@@ -192,7 +190,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 		var err error
 		eventEndpointURL, err = conf.ParsedIngestURL().Parse("v2/event")
 		if err != nil {
-			logger.WithFields(logrus.Fields{
+			logger.WithFields(log.Fields{
 				"error":     err,
 				"ingestURL": conf.ParsedIngestURL().String(),
 			}).Error("Could not construct event ingest URL")
@@ -206,7 +204,7 @@ func New(conf *config.WriterConfig, dpChan chan []*datapoint.Datapoint, eventCha
 		var err error
 		traceEndpointURL, err = conf.ParsedIngestURL().Parse(conf.DefaultTraceEndpointPath())
 		if err != nil {
-			logger.WithFields(logrus.Fields{
+			logger.WithFields(log.Fields{
 				"error":     err,
 				"ingestURL": conf.ParsedIngestURL().String(),
 			}).Error("Could not construct trace ingest URL")
@@ -267,7 +265,7 @@ func (sw *Writer) processDatapoint(dp *datapoint.Datapoint) bool {
 	utils.TruncateDimensionValuesInPlace(dp.Dimensions)
 
 	if sw.conf.LogDatapoints {
-		log.Debugf("Sending datapoint:\n%s", utils.DatapointToString(dp))
+		sw.logger.Debugf("Sending datapoint:\n%s", utils.DatapointToString(dp))
 	}
 
 	return true
@@ -278,11 +276,11 @@ func (sw *Writer) sendDatapoints(ctx context.Context, dps []*datapoint.Datapoint
 	err := sw.client.AddDatapoints(ctx, dps)
 	if err != nil {
 		if isTransientError(err) {
-			log.Debugf("retrying datapoint submission after receiving temporary network error: %v\n", err)
+			sw.logger.Debugf("retrying datapoint submission after receiving temporary network error: %v\n", err)
 			err = sw.client.AddDatapoints(ctx, dps)
 		}
 		if err != nil {
-			log.WithFields(log.Fields{
+			sw.logger.WithFields(log.Fields{
 				"error": utils.SanitizeHTTPError(err),
 			}).Error("Error shipping datapoints to SignalFx")
 			// If there is an error sending datapoints then just forget about them.
@@ -291,7 +289,7 @@ func (sw *Writer) sendDatapoints(ctx context.Context, dps []*datapoint.Datapoint
 
 	}
 
-	log.Debugf("Sent %d datapoints out of the agent", len(dps))
+	sw.logger.Debugf("Sent %d datapoints out of the agent", len(dps))
 
 	// dpTap.Accept handles the receiver being nil
 	sw.dpTap.Accept(dps)
@@ -333,7 +331,7 @@ func (sw *Writer) sendEvents(events []*event.Event) error {
 		sw.PreprocessEvent(events[i])
 
 		if sw.conf.LogEvents {
-			log.WithFields(log.Fields{
+			sw.logger.WithFields(log.Fields{
 				"event": spew.Sdump(events[i]),
 			}).Debug("Sending event")
 		}
@@ -346,7 +344,7 @@ func (sw *Writer) sendEvents(events []*event.Event) error {
 		}
 	}
 	sw.eventsSent += int64(len(events))
-	log.Debugf("Sent %d events to SignalFx", len(events))
+	sw.logger.Debugf("Sent %d events to SignalFx", len(events))
 
 	return nil
 }
@@ -367,7 +365,7 @@ func (sw *Writer) listenForEventsAndDimensionUpdates() {
 
 		case event := <-sw.eventChan:
 			if len(sw.eventBuffer) > eventBufferCapacity {
-				log.WithFields(log.Fields{
+				sw.logger.WithFields(log.Fields{
 					"eventType":         event.EventType,
 					"eventBufferLength": len(sw.eventBuffer),
 				}).Error("Dropping event due to overfull buffer")
@@ -380,14 +378,14 @@ func (sw *Writer) listenForEventsAndDimensionUpdates() {
 				go func(buf []*event.Event) {
 					if err := sw.sendEvents(buf); err != nil {
 
-						log.WithError(utils.SanitizeHTTPError(err)).Error("Error shipping events to SignalFx")
+						sw.logger.WithError(utils.SanitizeHTTPError(err)).Error("Error shipping events to SignalFx")
 					}
 				}(sw.eventBuffer)
 				initEventBuffer()
 			}
 		case dim := <-sw.dimensionChan:
 			if err := sw.dimensionClient.AcceptDimension(dim); err != nil {
-				log.WithFields(log.Fields{
+				sw.logger.WithFields(log.Fields{
 					"dimName":  dim.Name,
 					"dimValue": dim.Value,
 				}).WithError(utils.SanitizeHTTPError(err)).Warn("Dropping dimension update")
@@ -407,5 +405,5 @@ func (sw *Writer) Shutdown() {
 	if sw.cancel != nil {
 		sw.cancel()
 	}
-	log.Debug("Stopped datapoint writer")
+	sw.logger.Debug("Stopped datapoint writer")
 }

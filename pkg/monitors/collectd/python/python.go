@@ -20,6 +20,8 @@ import (
 	"github.com/signalfx/golib/v3/event"
 	mpCollectd "github.com/signalfx/ingest-protocols/protocol/collectd"
 	collectdformat "github.com/signalfx/ingest-protocols/protocol/collectd/format"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/collectd"
@@ -27,7 +29,6 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/monitors/subproc/signalfx"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils/collectdutil"
-	log "github.com/sirupsen/logrus"
 )
 
 const messageTypeValueList subproc.MessageType = 100

@@ -7,10 +7,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ulule/deepcopier"
-
 	telegrafInputs "github.com/influxdata/telegraf/plugins/inputs"
 	telegrafPlugin "github.com/influxdata/telegraf/plugins/inputs/procstat"
+	log "github.com/sirupsen/logrus"
+	"github.com/ulule/deepcopier"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/telegraf/common/accumulator"
@@ -18,7 +19,6 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/gopsutilhelper"
-	log "github.com/sirupsen/logrus"
 )
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
@@ -58,6 +58,7 @@ type Config struct {
 type Monitor struct {
 	Output types.Output
 	cancel func()
+	logger log.FieldLogger
 }
 
 // fetch the factory used to generate the perf counter plugin
@@ -65,10 +66,11 @@ var factory = telegrafInputs.Inputs["procstat"]
 
 // Configure the monitor and kick off metric syncing
 func (m *Monitor) Configure(conf *Config) (err error) {
+	m.logger = logger.WithField("monitorID", conf.MonitorID)
 	plugin := factory().(*telegrafPlugin.Procstat)
 
 	// create the emitter
-	em := baseemitter.NewEmitter(m.Output, logger)
+	em := baseemitter.NewEmitter(m.Output, m.logger)
 
 	// use the agent's configured host sys to get cgroup information
 	if conf.CGroup != "" {
@@ -84,7 +86,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 
 	// copy configurations to the plugin
 	if err = deepcopier.Copy(conf).To(plugin); err != nil {
-		logger.Error("unable to copy configurations to plugin")
+		m.logger.Error("unable to copy configurations to plugin")
 		return err
 	}
 
@@ -99,7 +101,7 @@ func (m *Monitor) Configure(conf *Config) (err error) {
 	// gather metrics on the specified interval
 	utils.RunOnInterval(ctx, func() {
 		if err := plugin.Gather(ac); err != nil {
-			logger.WithError(err).Errorf("an error occurred while gathering metrics")
+			m.logger.WithError(err).Errorf("an error occurred while gathering metrics")
 		}
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
 

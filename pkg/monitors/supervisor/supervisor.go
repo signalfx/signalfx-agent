@@ -8,11 +8,12 @@ import (
 
 	"github.com/mattn/go-xmlrpc"
 	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -70,7 +71,7 @@ func (c *Config) ScrapeURL() string {
 
 // Configure and kick off internal metric collection
 func (m *Monitor) Configure(conf *Config) error {
-	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 
 	// Start the metric gathering process here
 	var ctx context.Context

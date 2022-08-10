@@ -11,12 +11,11 @@ import (
 	"sync"
 	"time"
 
-	"github.com/signalfx/signalfx-agent/pkg/core/config/sources/vault/auth"
-	"github.com/signalfx/signalfx-agent/pkg/core/config/types"
-	"github.com/sirupsen/logrus"
+	"github.com/hashicorp/vault/api"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/hashicorp/vault/api"
+	"github.com/signalfx/signalfx-agent/pkg/core/config/sources/vault/auth"
+	"github.com/signalfx/signalfx-agent/pkg/core/config/types"
 )
 
 type vaultConfigSource struct {
@@ -32,7 +31,7 @@ type vaultConfigSource struct {
 	nowProvider  func() time.Time
 	conf         *Config
 	tokenRenewer *api.LifetimeWatcher
-	logger       logrus.FieldLogger
+	logger       log.FieldLogger
 }
 
 var _ types.Stoppable = &vaultConfigSource{}
@@ -110,7 +109,7 @@ func (c *Config) New() (types.ConfigSource, error) {
 
 // New creates a new vault ConfigSource
 func New(conf *Config) (types.ConfigSource, error) {
-	logger := logrus.WithFields(log.Fields{"remoteConfigSource": "vault"})
+	logger := log.WithFields(log.Fields{"remoteConfigSource": "vault"})
 
 	logger.Info("Initializing new Vault remote config instance")
 

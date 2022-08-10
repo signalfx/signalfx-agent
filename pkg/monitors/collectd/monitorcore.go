@@ -12,9 +12,10 @@ import (
 	"text/template"
 
 	"github.com/pkg/errors"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
-	log "github.com/sirupsen/logrus"
 )
 
 // MonitorCore contains common data/logic for collectd monitors, mainly

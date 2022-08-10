@@ -13,18 +13,18 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/event"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 const version = "0.0.30"
 
 // EVENT(objects.top-info): Process list event.
 
-var logger = log.WithFields(log.Fields{"monitorType": monitorType})
 var zlibCompressor = zlib.NewWriter(&bytes.Buffer{})
 var now = time.Now
 
@@ -53,6 +53,7 @@ type Monitor struct {
 	cancel        func()
 	lastCPUCounts map[procKey]time.Duration
 	nextPurge     time.Time
+	logger        log.FieldLogger
 }
 
 // TopProcess is a platform-independent way of representing a process to be
@@ -81,7 +82,8 @@ func (tp *TopProcess) key() procKey {
 
 // Configure configures the monitor and starts collecting on the configured interval
 func (m *Monitor) Configure(conf *Config) error {
-	// create contexts for managing the the plugin loop
+	m.logger = log.WithFields(log.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
+	// create contexts for managing the plugin loop
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 	interval := time.Duration(conf.IntervalSeconds) * time.Second
@@ -95,15 +97,15 @@ func (m *Monitor) Configure(conf *Config) error {
 		ctx,
 		func() {
 			// get the process list
-			procs, err := ProcessList(conf, osCache)
+			procs, err := ProcessList(conf, osCache, m.logger)
 			if err != nil {
-				logger.WithError(err).Error("Couldn't get process list")
+				m.logger.WithError(err).Error("Couldn't get process list")
 				return
 			}
 
 			message, err := m.encodeEventMessage(procs, interval)
 			if err != nil {
-				logger.WithError(err).Error("Failed to encode process list")
+				m.logger.WithError(err).Error("Failed to encode process list")
 			}
 
 			m.Output.SendEvent(

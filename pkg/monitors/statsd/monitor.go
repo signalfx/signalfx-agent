@@ -7,11 +7,12 @@ import (
 
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 var metricTypeMap = map[string]datapoint.MetricType{
@@ -20,8 +21,6 @@ var metricTypeMap = map[string]datapoint.MetricType{
 	"ms": datapoint.Gauge,
 	"s":  datapoint.Gauge,
 }
-
-var logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorMetadata.MonitorType}), 30*time.Second)
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
@@ -69,10 +68,13 @@ type Monitor struct {
 	cancel   context.CancelFunc
 	conf     *Config
 	listener *statsDListener
+	logger   *utils.ThrottledLogger
 }
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorMetadata.MonitorType, "monitorID": conf.MonitorID}), 30*time.Second)
+
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 
@@ -87,10 +89,10 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	var converters []*converter
 	for _, ci := range conf.Converters {
-		converter := initConverter(&ConverterInput{
+		converter := newConverter(&ConverterInput{
 			Pattern:    ci.Pattern,
 			MetricName: ci.MetricName,
-		})
+		}, m.logger)
 		if converter != nil {
 			converters = append(converters, converter)
 		}
@@ -102,6 +104,7 @@ func (m *Monitor) Configure(conf *Config) error {
 		tcp:        false, // Will be added to Config when TCP is supported
 		prefix:     conf.MetricPrefix,
 		converters: converters,
+		logger:     m.logger,
 	}
 
 	err := m.listener.Listen()
@@ -113,7 +116,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 	utils.RunOnInterval(ctx, func() {
 		metrics := m.listener.FetchMetrics()
-		dps := convertMetricsToDatapoints(aggregateMetrics(metrics))
+		dps := m.convertMetricsToDatapoints(aggregateMetrics(metrics))
 
 		m.Output.SendDatapoints(dps...)
 	}, time.Duration(conf.IntervalSeconds)*time.Second)
@@ -147,7 +150,7 @@ func aggregateMetrics(metrics []*statsDMetric) map[string]*statsDMetric {
 	return metricsMap
 }
 
-func convertMetricsToDatapoints(metrics map[string]*statsDMetric) []*datapoint.Datapoint {
+func (m *Monitor) convertMetricsToDatapoints(metrics map[string]*statsDMetric) []*datapoint.Datapoint {
 	var dps []*datapoint.Datapoint
 
 	for _, metric := range metrics {
@@ -160,7 +163,7 @@ func convertMetricsToDatapoints(metrics map[string]*statsDMetric) []*datapoint.D
 		case datapoint.Count:
 			dp = sfxclient.Counter(metric.metricName, nil, int64(metric.value))
 		default:
-			logger.Errorf("Unsupported StatsD metric type: %s", metric.metricType)
+			m.logger.Errorf("Unsupported StatsD metric type: %s", metric.metricType)
 			continue
 		}
 

@@ -15,11 +15,12 @@ import (
 	"github.com/patrickmn/go-cache"
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/event"
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -66,7 +67,7 @@ var (
 
 // Configure and kick off internal metric collection
 func (m *Monitor) Configure(conf *Config) error {
-	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 	// Define global dimensions used for both datapoint and event
 	dimensions := map[string]string{
 		"plugin":  "nagios",

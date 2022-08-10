@@ -46,8 +46,8 @@ func TestParseMetrics(t *testing.T) {
 			"cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success:100|g|#svc:svc2",
 			[]*converter{
 				{
-					pattern: parseFields("cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}"),
-					metric:  parseFields("{traffic}.{action}"),
+					pattern: parseFields("cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}", nil),
+					metric:  parseFields("{traffic}.{action}", nil),
 				},
 			},
 			statsDMetric{
@@ -69,8 +69,8 @@ func TestParseMetrics(t *testing.T) {
 			"cluster.cds_egress_ecommerce-demo-mesh_gateway-vn_tcp_8080.update_success:100|g",
 			[]*converter{
 				{
-					pattern: parseFields("cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}"),
-					metric:  parseFields("{traffic}.{action}"),
+					pattern: parseFields("cluster.cds_{traffic}_{mesh}_{service}-vn_{}.{action}", nil),
+					metric:  parseFields("{traffic}.{action}", nil),
 				},
 			},
 			statsDMetric{
@@ -91,7 +91,11 @@ func TestParseMetrics(t *testing.T) {
 	for i := range cases {
 		tt := cases[i]
 		t.Run(tt.name, func(t *testing.T) {
-			sm := parseMetrics([]string{tt.raw}, tt.converters, "")
+			sl := &statsDListener{
+				converters: tt.converters,
+				prefix:     "",
+			}
+			sm := sl.parseMetrics([]string{tt.raw})
 			require.Equal(t, 1, len(sm))
 			require.Equal(t, tt.parsed, *sm[0])
 		})
@@ -176,7 +180,7 @@ func TestParseFields(t *testing.T) {
 	for i := range cases {
 		tt := cases[i]
 		t.Run(tt.pattern, func(t *testing.T) {
-			fp := parseFields(tt.pattern)
+			fp := parseFields(tt.pattern, nil)
 			if tt.expectNil {
 				require.Nil(t, fp)
 				return

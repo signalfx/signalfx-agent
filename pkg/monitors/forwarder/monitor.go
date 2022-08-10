@@ -4,18 +4,16 @@ import (
 	"context"
 	"time"
 
-	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
-
 	"github.com/pkg/errors"
+	goliblog "github.com/signalfx/golib/v3/log"
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	log "github.com/sirupsen/logrus"
+	"github.com/signalfx/signalfx-agent/pkg/utils/timeutil"
 )
-
-var logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": monitorType}), 30*time.Second)
-var golibLogger = &utils.LogrusGolibShim{FieldLogger: logger.FieldLogger}
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
@@ -38,17 +36,22 @@ type Config struct {
 
 // Monitor that accepts and forwards SignalFx data
 type Monitor struct {
-	Output types.Output
-	cancel context.CancelFunc
+	Output      types.Output
+	cancel      context.CancelFunc
+	logger      *utils.ThrottledLogger
+	golibLogger goliblog.Logger
 }
 
 // Configure the monitor and kick off volume metric syncing
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = utils.NewThrottledLogger(logrus.WithFields(logrus.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID}), 30*time.Second)
+	m.golibLogger = &utils.LogrusGolibShim{FieldLogger: m.logger.FieldLogger}
+
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
 
 	sink := &outputSink{Output: m.Output}
-	listenerMetrics, err := startListening(ctx, conf.ListenAddress, conf.ServerTimeout.AsDuration(), sink)
+	listenerMetrics, err := m.startListening(ctx, conf.ListenAddress, conf.ServerTimeout.AsDuration(), sink)
 	if err != nil {
 		return errors.WithMessage(err, "could not start forwarder listener")
 	}

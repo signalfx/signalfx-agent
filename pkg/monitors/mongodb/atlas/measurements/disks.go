@@ -31,10 +31,11 @@ type disksGetter struct {
 	mutex             *sync.Mutex
 	measurementsCache *atomic.Value
 	disksCache        *atomic.Value
+	logger            log.FieldLogger
 }
 
-// NewProcessesGetter returns a new ProcessesGetter.
-func NewDisksGetter(projectID string, granularity string, period string, client *mongodbatlas.Client, enableCache bool) DisksGetter {
+// NewDisksGetter returns a new DisksGetter.
+func NewDisksGetter(projectID string, granularity string, period string, client *mongodbatlas.Client, enableCache bool, logger log.FieldLogger) DisksGetter {
 	return &disksGetter{
 		projectID:         projectID,
 		granularity:       granularity,
@@ -44,6 +45,7 @@ func NewDisksGetter(projectID string, granularity string, period string, client 
 		mutex:             new(sync.Mutex),
 		measurementsCache: new(atomic.Value),
 		disksCache:        new(atomic.Value),
+		logger:            logger,
 	}
 }
 
@@ -140,11 +142,11 @@ func (getter *disksGetter) getPartitionNames(ctx context.Context, process Proces
 	list, resp, err := getter.client.ProcessDisks.List(ctx, getter.projectID, process.Host, process.Port, &mongodbatlas.ListOptions{PageNum: page})
 
 	if msg, err := errorMsg(err, resp); err != nil {
-		log.WithError(err).Errorf(msg, "disk partition names", getter.projectID, process.Host, process.Port)
+		getter.logger.WithError(err).Errorf(msg, "disk partition names", getter.projectID, process.Host, process.Port)
 		return names
 	}
 
-	if ok, next := nextPage(resp); ok {
+	if ok, next := nextPage(resp, getter.logger); ok {
 		names = append(names, getter.getPartitionNames(ctx, process, next)...)
 	}
 
@@ -162,11 +164,11 @@ func (getter *disksGetter) setMeasurements(ctx context.Context, disksMeasurement
 	list, resp, err := getter.client.ProcessDiskMeasurements.List(ctx, getter.projectID, process.Host, process.Port, partitionName, opts)
 
 	if msg, err := errorMsg(err, resp); err != nil {
-		log.WithError(err).Errorf(msg, "disk measurements", getter.projectID, process.Host, process.Port)
+		getter.logger.WithError(err).Errorf(msg, "disk measurements", getter.projectID, process.Host, process.Port)
 		return
 	}
 
-	if ok, next := nextPage(resp); ok {
+	if ok, next := nextPage(resp, getter.logger); ok {
 		getter.setMeasurements(ctx, disksMeasurements, process, partitionName, next)
 	}
 

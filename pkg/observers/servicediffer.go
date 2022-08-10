@@ -3,8 +3,9 @@ package observers
 import (
 	"time"
 
-	"github.com/signalfx/signalfx-agent/pkg/core/services"
 	log "github.com/sirupsen/logrus"
+
+	"github.com/signalfx/signalfx-agent/pkg/core/services"
 )
 
 // ServiceDiffer will run the DiscoveryFn every IntervalSeconds and report

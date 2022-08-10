@@ -8,13 +8,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/signalfx/golib/v3/datapoint"
-	"github.com/signalfx/signalfx-agent/pkg/core/config"
-	"github.com/signalfx/signalfx-agent/pkg/monitors"
-	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
-	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/sirupsen/logrus"
-
 	// Imports to get sql driver registered
 	_ "github.com/SAP/go-hdb/driver"
 	_ "github.com/denisenkom/go-mssqldb"
@@ -22,9 +15,17 @@ import (
 	_ "github.com/jackc/pgx/v4/stdlib"
 	_ "github.com/lib/pq"
 	_ "github.com/snowflakedb/gosnowflake"
+
+	"github.com/signalfx/golib/v3/datapoint"
+	"github.com/sirupsen/logrus"
+
+	"github.com/signalfx/signalfx-agent/pkg/core/config"
+	"github.com/signalfx/signalfx-agent/pkg/monitors"
+	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
+	"github.com/signalfx/signalfx-agent/pkg/utils"
 )
 
-var logger = logrus.WithFields(logrus.Fields{"monitorType": monitorMetadata.MonitorType})
+var logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType})
 
 func init() {
 	monitors.Register(&monitorMetadata, func() interface{} { return &Monitor{} }, &Config{})
@@ -146,10 +147,12 @@ type Monitor struct {
 	database *sql.DB
 	cancel   context.CancelFunc
 	ctx      context.Context
+	logger   logrus.FieldLogger
 }
 
 // Configure the monitor and kick off metric gathering
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = logger.WithField("monitorID", conf.MonitorID)
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 
 	// This will "open" a database by verifying that the config is sane but
@@ -167,7 +170,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	}
 
 	for i := range conf.Queries {
-		querier, err := newQuerier(&conf.Queries[i], conf.LogQueries)
+		querier, err := newQuerier(&conf.Queries[i], conf.LogQueries, m.logger)
 		if err != nil {
 			return err
 		}

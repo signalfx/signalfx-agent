@@ -12,7 +12,7 @@ type perfFetcher interface {
 
 // Creates a perfFetcher implementation, either a singlePage or multiPage,
 // depending on pageSize (pageSize==0 turns off pagination).
-func newPerfFetcher(gateway IGateway, pageSize int, log *log.Entry) perfFetcher {
+func newPerfFetcher(gateway IGateway, pageSize int, log log.FieldLogger) perfFetcher {
 	if pageSize == 0 {
 		return &singlePagePerfFetcher{
 			gateway: gateway,

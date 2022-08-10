@@ -9,12 +9,13 @@ import (
 	"github.com/prometheus/procfs"
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
-	"github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -56,12 +57,13 @@ func (c *Config) Validate() error {
 type Monitor struct {
 	Output types.FilteringOutput
 	cancel func()
+	logger logrus.FieldLogger
 }
 
 // Configure is the main function of the monitor, it will report host metadata
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
-	logger := logrus.WithField("monitorType", monitorType)
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context
@@ -97,7 +99,7 @@ func (m *Monitor) Configure(conf *Config) error {
 	utils.RunOnInterval(ctx, func() {
 		dps, err := gatherProcessMetrics(&fs, processNameFilter, executablesFilter)
 		if err != nil {
-			logger.WithError(err).Error("Failed to gather process metrics")
+			m.logger.WithError(err).Error("Failed to gather process metrics")
 			return
 		}
 

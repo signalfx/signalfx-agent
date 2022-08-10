@@ -9,12 +9,12 @@ import (
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	"github.com/sirupsen/logrus"
-	log "github.com/sirupsen/logrus"
 )
 
 const cpuUtilName = "cpu.utilization"
@@ -53,7 +53,7 @@ type Monitor struct {
 }
 
 func (m *Monitor) generatePerCoreDatapoints() []*datapoint.Datapoint {
-	totals, err := times(true)
+	totals, err := m.times(true)
 	if err != nil {
 		if err == context.DeadlineExceeded {
 			m.logger.WithField("debug", err).Debugf("unable to get per core cpu times will try again in the next reporting cycle")
@@ -105,7 +105,7 @@ func (m *Monitor) generatePerCoreDatapoints() []*datapoint.Datapoint {
 }
 
 func (m *Monitor) generateDatapoints() []*datapoint.Datapoint {
-	total, err := times(false)
+	total, err := m.times(false)
 	if err != nil || len(total) == 0 {
 		if err == context.DeadlineExceeded {
 			m.logger.WithField("debug", err).Debugf("unable to get cpu times will try again in the next reporting cycle")
@@ -199,7 +199,7 @@ func (m *Monitor) initializeCPUTimes() {
 	// initialize previous values
 	var total []cpu.TimesStat
 	var err error
-	if total, err = times(false); err != nil {
+	if total, err = m.times(false); err != nil {
 		m.logger.WithField("debug", err).Debugf("unable to initialize cpu times will try again in the next reporting cycle")
 	}
 	if len(total) > 0 {
@@ -211,7 +211,7 @@ func (m *Monitor) initializePerCoreCPUTimes() {
 	// initialize per core cpu times
 	var totals []cpu.TimesStat
 	var err error
-	if totals, err = times(true); err != nil {
+	if totals, err = m.times(true); err != nil {
 		m.logger.WithField("debug", err).Debugf("unable to initialize per core cpu times will try again in the next reporting cycle")
 	}
 	m.previousPerCore = make(map[string]*totalUsed, len(totals))
@@ -223,7 +223,7 @@ func (m *Monitor) initializePerCoreCPUTimes() {
 // Configure is the main function of the monitor, it will report host metadata
 // on a varied interval
 func (m *Monitor) Configure(conf *Config) error {
-	m.logger = logrus.WithFields(log.Fields{"monitorType": monitorType})
+	m.logger = logrus.WithFields(logrus.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 
 	// create contexts for managing the the plugin loop
 	var ctx context.Context

@@ -55,7 +55,7 @@ type LogrusGolibShim struct {
 	logrus.FieldLogger
 }
 
-var _ log.Logger = &LogrusGolibShim{}
+var _ log.Logger = (*LogrusGolibShim)(nil)
 
 // Log conforms to the golib Log interface
 func (l *LogrusGolibShim) Log(keyvals ...interface{}) {

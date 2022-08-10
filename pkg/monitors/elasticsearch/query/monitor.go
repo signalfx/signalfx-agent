@@ -5,13 +5,16 @@ import (
 	"encoding/json"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/common/httpclient"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	log "github.com/sirupsen/logrus"
 )
+
+var logger = log.WithField("monitorType", monitorType)
 
 // Config for this monitor
 type Config struct {
@@ -35,6 +38,7 @@ type Monitor struct {
 	Output types.FilteringOutput
 	cancel context.CancelFunc
 	ctx    context.Context
+	logger log.FieldLogger
 }
 
 func init() {
@@ -43,6 +47,7 @@ func init() {
 
 // Configure monitor
 func (m *Monitor) Configure(config *Config) error {
+	m.logger = logger.WithField("monitorID", config.MonitorID)
 	httpClient, err := config.HTTPConfig.Build()
 	if err != nil {
 		return err
@@ -65,19 +70,19 @@ func (m *Monitor) Configure(config *Config) error {
 		body, err := esClient.makeHTTPRequestFromConfig(config.Index, config.ElasticsearchRequest)
 
 		if err != nil {
-			log.Errorf("Failed to make HTTP request: %s", err)
+			m.logger.Errorf("Failed to make HTTP request: %s", err)
 			return
 		}
 
 		var resBody HTTPResponse
 		if err := json.Unmarshal(body, &resBody); err != nil {
-			log.Errorf("Error processing HTTP response: %s", err)
+			m.logger.Errorf("Error processing HTTP response: %s", err)
 			return
 		}
 
 		dps := collectDatapoints(resBody, aggsMeta, map[string]string{
 			"index": config.Index,
-		})
+		}, log.Fields{"monitorID": config.MonitorID})
 
 		m.Output.SendDatapoints(dps...)
 	}, time.Duration(config.IntervalSeconds)*time.Second)

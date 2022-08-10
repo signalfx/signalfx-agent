@@ -7,7 +7,6 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/pkg/core/common/kubelet"
@@ -78,7 +77,7 @@ type Observer struct {
 	client           *kubelet.Client
 	serviceDiffer    *observers.ServiceDiffer
 	serviceCallbacks *observers.ServiceCallbacks
-	logger           logrus.FieldLogger
+	logger           log.FieldLogger
 }
 
 // pod structure from kubelet
@@ -124,10 +123,10 @@ func init() {
 
 // Configure the kubernetes observer/client
 func (k *Observer) Configure(config *Config) error {
-	k.logger = logrus.WithFields(logrus.Fields{"observerType": observerType})
+	k.logger = log.WithFields(log.Fields{"observerType": observerType})
 
 	var err error
-	k.client, err = kubelet.NewClient(&config.KubeletAPI)
+	k.client, err = kubelet.NewClient(&config.KubeletAPI, k.logger)
 	if err != nil {
 		return err
 	}

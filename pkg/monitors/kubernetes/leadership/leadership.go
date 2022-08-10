@@ -35,12 +35,12 @@ var leaderIdentity string
 // at which point the channel could send true again and so on. All monitors
 // that need leader election will share the same election process.  There is no
 // way to stop the leader election process once it starts.
-func RequestLeaderNotification(v1Client corev1.CoreV1Interface, coordinationClient coordinationv1.CoordinationV1Interface) (<-chan bool, func(), error) {
+func RequestLeaderNotification(v1Client corev1.CoreV1Interface, coordinationClient coordinationv1.CoordinationV1Interface, logger log.FieldLogger) (<-chan bool, func(), error) {
 	lock.Lock()
 	defer lock.Unlock()
 
 	if !started {
-		if err := startLeaderElection(v1Client, coordinationClient); err != nil {
+		if err := startLeaderElection(v1Client, coordinationClient, logger); err != nil {
 			return nil, nil, err
 		}
 		started = true
@@ -59,18 +59,18 @@ func RequestLeaderNotification(v1Client corev1.CoreV1Interface, coordinationClie
 		lock.Lock()
 		defer lock.Unlock()
 
-		log.Info("Unsubscribing leader notice channel")
+		logger.Info("Unsubscribing leader notice channel")
 		for i := range noticeChans {
 			if noticeChans[i] == ch {
 				noticeChans = append(noticeChans[:i], noticeChans[i+1:]...)
 				return
 			}
 		}
-		log.Error("Could not find leader notice channel to unsubscribe")
+		logger.Error("Could not find leader notice channel to unsubscribe")
 	}, nil
 }
 
-func startLeaderElection(v1Client corev1.CoreV1Interface, coordinationClient coordinationv1.CoordinationV1Interface) error {
+func startLeaderElection(v1Client corev1.CoreV1Interface, coordinationClient coordinationv1.CoordinationV1Interface, logger log.FieldLogger) error {
 	ns := os.Getenv("MY_NAMESPACE")
 	if ns == "" {
 		return errors.New("MY_NAMESPACE envvar is not defined")
@@ -109,7 +109,7 @@ func startLeaderElection(v1Client corev1.CoreV1Interface, coordinationClient coo
 				lock.Lock()
 				defer lock.Unlock()
 
-				log.Infof("K8s leader is now node %s", identity)
+				logger.Infof("K8s leader is now node %s", identity)
 				leaderIdentity = identity
 				if identity == nodeName && !isLeader {
 					for i := range noticeChans {

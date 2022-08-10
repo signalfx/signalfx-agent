@@ -13,12 +13,13 @@ import (
 	"time"
 
 	info "github.com/google/cadvisor/info/v1"
+	"github.com/sirupsen/logrus"
+	stats "k8s.io/kubelet/pkg/apis/stats/v1alpha1"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/common/kubelet"
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
-	log "github.com/sirupsen/logrus"
-	stats "k8s.io/kubelet/pkg/apis/stats/v1alpha1"
 )
 
 func init() {
@@ -45,13 +46,14 @@ type KubeletStatsMonitor struct {
 
 // Configure the Kubelet Stats monitor
 func (ks *KubeletStatsMonitor) Configure(conf *KubeletStatsConfig) error {
-	client, err := kubelet.NewClient(&conf.KubeletAPI)
+	ks.logger = logrus.WithFields(logrus.Fields{"monitorType": conf.MonitorConfig.Type, "monitorID": conf.MonitorID})
+	client, err := kubelet.NewClient(&conf.KubeletAPI, ks.logger)
 	if err != nil {
 		return err
 	}
 
 	return ks.Monitor.Configure(&conf.MonitorConfig, ks.Output.SendDatapoints,
-		newKubeletInfoProvider(client), ks.Output.HasEnabledMetricInGroup(groupPodEphemeralStats))
+		newKubeletInfoProvider(client, ks.logger), ks.Output.HasEnabledMetricInGroup(groupPodEphemeralStats))
 }
 
 type statsRequest struct {
@@ -79,11 +81,13 @@ type statsRequest struct {
 
 type kubeletInfoProvider struct {
 	client *kubelet.Client
+	logger logrus.FieldLogger
 }
 
-func newKubeletInfoProvider(client *kubelet.Client) *kubeletInfoProvider {
+func newKubeletInfoProvider(client *kubelet.Client, logger logrus.FieldLogger) *kubeletInfoProvider {
 	return &kubeletInfoProvider{
 		client: client,
+		logger: logger,
 	}
 }
 
@@ -135,7 +139,7 @@ func (kip *kubeletInfoProvider) getAllContainersLatestStats() ([]info.ContainerI
 		return nil, err
 	}
 
-	log.Debugf("Sending body to kubelet stats endpoint: %s", body)
+	kip.logger.Debugf("Sending body to kubelet stats endpoint: %s", body)
 	req, err := kip.client.NewRequest("POST", "/stats/container/", bytes.NewBuffer(body))
 	if err != nil {
 		return nil, err

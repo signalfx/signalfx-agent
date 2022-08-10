@@ -8,12 +8,13 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/datapoint"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/core/meta"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 // Config for internal metric monitoring
@@ -34,6 +35,7 @@ type Monitor struct {
 	Output    types.Output
 	AgentMeta *meta.AgentMeta
 	cancel    func()
+	logger    log.FieldLogger
 }
 
 func init() {
@@ -42,6 +44,7 @@ func init() {
 
 // Configure and kick off internal metric collection
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = log.WithFields(log.Fields{"monitorType": monitorType, "monitorID": conf.MonitorID})
 
 	var ctx context.Context
 	ctx, m.cancel = context.WithCancel(context.Background())
@@ -72,10 +75,7 @@ func (m *Monitor) Configure(conf *Config) error {
 
 		url := fmt.Sprintf("http://%s:%d%s", host, port, conf.Path)
 
-		logger := log.WithFields(log.Fields{
-			"monitorType": monitorType,
-			"url":         url,
-		})
+		logger := m.logger.WithField("url", url)
 
 		resp, err := client.Get(url)
 		if err != nil {

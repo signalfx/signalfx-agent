@@ -1,6 +1,8 @@
 package aspdotnet
 
 import (
+	"github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
@@ -26,6 +28,7 @@ type Config struct {
 type Monitor struct {
 	Output types.Output
 	cancel func()
+	logger logrus.FieldLogger // nolint: structcheck,unused
 }
 
 // Shutdown stops the metric sync

@@ -5,6 +5,11 @@ import (
 	"time"
 
 	"github.com/signalfx/golib/v3/event"
+	log "github.com/sirupsen/logrus"
+	v1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/fields"
+	k8s "k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/tools/cache"
 
 	"github.com/signalfx/signalfx-agent/pkg/core/common/dpmeta"
 	"github.com/signalfx/signalfx-agent/pkg/core/common/kubernetes"
@@ -13,12 +18,6 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/monitors/kubernetes/leadership"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-
-	log "github.com/sirupsen/logrus"
-	v1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/fields"
-	k8s "k8s.io/client-go/kubernetes"
-	"k8s.io/client-go/tools/cache"
 )
 
 var logger = log.WithFields(log.Fields{"monitorType": monitorType})
@@ -56,10 +55,12 @@ type Monitor struct {
 	stopper       chan struct{}
 	sendAllEvents bool
 	whitelistSet  map[EventInclusionSpec]bool
+	logger        log.FieldLogger
 }
 
 // Configure the monitor and kick off event syncing
 func (m *Monitor) Configure(conf *Config) error {
+	m.logger = logger.WithField("monitorID", conf.MonitorID)
 	k8sClient, err := kubernetes.MakeClient(conf.KubernetesAPI)
 	if err != nil {
 		return err
@@ -95,11 +96,11 @@ func (m *Monitor) start(k8sClient *k8s.Clientset, alwaysReport bool) error {
 	var leaderCh <-chan bool
 	var unregister func()
 	if alwaysReport {
-		logger.Info("This instance will send K8s events")
+		m.logger.Info("This instance will send K8s events")
 		runSync()
 	} else {
 		var err error
-		leaderCh, unregister, err = leadership.RequestLeaderNotification(k8sClient.CoreV1(), k8sClient.CoordinationV1())
+		leaderCh, unregister, err = leadership.RequestLeaderNotification(k8sClient.CoreV1(), k8sClient.CoordinationV1(), m.logger)
 		if err != nil {
 			return err
 		}
@@ -110,15 +111,15 @@ func (m *Monitor) start(k8sClient *k8s.Clientset, alwaysReport bool) error {
 			select {
 			case isLeader := <-leaderCh:
 				if isLeader {
-					logger.Info("This instance is now the leader and will send events")
+					m.logger.Info("This instance is now the leader and will send events")
 					runSync()
 				} else {
-					logger.Info("No longer leader")
+					m.logger.Info("No longer leader")
 					close(syncStopper)
 					syncStopper = nil
 				}
 			case <-m.stopper:
-				logger.Info("Stopping k8s event syncing")
+				m.logger.Info("Stopping k8s event syncing")
 				if unregister != nil {
 					unregister()
 				}
@@ -152,13 +153,13 @@ func (m *Monitor) shouldSendEvent(ev *v1.Event) bool {
 
 func (m *Monitor) handleNewEvent(ev *v1.Event) {
 	if m.shouldSendEvent(ev) {
-		sfxEvent := k8sEventToSignalFxEvent(ev)
+		sfxEvent := m.k8sEventToSignalFxEvent(ev)
 		sfxEvent.Properties[dpmeta.NotHostSpecificMeta] = true
 		m.Output.SendEvent(sfxEvent)
 	}
 }
 
-func k8sEventToSignalFxEvent(ev *v1.Event) *event.Event {
+func (m *Monitor) k8sEventToSignalFxEvent(ev *v1.Event) *event.Event {
 	dims := map[string]string{
 		"kubernetes_kind":      ev.InvolvedObject.Kind,
 		"kubernetes_namespace": ev.InvolvedObject.Namespace,
@@ -187,7 +188,7 @@ func k8sEventToSignalFxEvent(ev *v1.Event) *event.Event {
 
 	eventType := ev.Reason
 	if eventType == "" {
-		logger.Debug("ev.Reason is not set; setting event type to unknown_reason")
+		m.logger.Debug("ev.Reason is not set; setting event type to unknown_reason")
 		eventType = "unknown_reason"
 	}
 

@@ -10,7 +10,6 @@ import (
 
 	"github.com/shirou/gopsutil/net"
 	"github.com/shirou/gopsutil/process"
-	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
@@ -41,7 +40,7 @@ type Observer struct {
 	serviceCallbacks *observers.ServiceCallbacks
 	serviceDiffer    *observers.ServiceDiffer
 	config           *Config
-	logger           logrus.FieldLogger
+	logger           log.FieldLogger
 }
 
 // Config specific to the host observer

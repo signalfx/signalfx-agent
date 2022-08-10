@@ -15,7 +15,7 @@ import (
 // Encapsulates services and the current state of the vSphere monitor.
 type vSphereMonitor struct {
 	conf *model.Config
-	log  *logrus.Entry
+	log  logrus.FieldLogger
 
 	invSvc    *service.InventorySvc
 	metricSvc *service.MetricsSvc
@@ -31,7 +31,7 @@ type vSphereMonitor struct {
 
 func newVsphereMonitor(
 	conf *model.Config,
-	log *logrus.Entry,
+	log logrus.FieldLogger,
 	ptConsumer func(...*datapoint.Datapoint),
 ) *vSphereMonitor {
 	return &vSphereMonitor{

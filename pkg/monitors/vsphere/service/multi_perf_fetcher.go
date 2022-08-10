@@ -13,7 +13,7 @@ import (
 type multiPagePerfFetcher struct {
 	gateway  IGateway
 	pageSize int
-	log      *log.Entry
+	log      log.FieldLogger
 }
 
 func (f *multiPagePerfFetcher) invIterator(inv []*model.InventoryObject, maxSample int32) *invIterator {

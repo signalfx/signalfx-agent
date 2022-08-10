@@ -5,11 +5,12 @@ import (
 	"os"
 	"time"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/signalfx/signalfx-agent/pkg/core/config"
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/utils"
-	log "github.com/sirupsen/logrus"
 )
 
 // Config for this monitor
@@ -31,7 +32,7 @@ func init() {
 
 // Configure monitor
 func (m *Monitor) Configure(c *Config) error {
-	m.logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": "heroku-metadata"}), 20*time.Second)
+	m.logger = utils.NewThrottledLogger(log.WithFields(log.Fields{"monitorType": "heroku-metadata", "monitorID": c.MonitorID}), 20*time.Second)
 	m.ctx, m.cancel = context.WithCancel(context.Background())
 
 	go func() {

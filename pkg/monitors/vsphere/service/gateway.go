@@ -28,11 +28,11 @@ type IGateway interface {
 type Gateway struct {
 	ctx    context.Context
 	client *govmomi.Client
-	log    *log.Entry
+	log    log.FieldLogger
 	vcName string
 }
 
-func NewGateway(ctx context.Context, client *govmomi.Client, log *log.Entry) *Gateway {
+func NewGateway(ctx context.Context, client *govmomi.Client, log log.FieldLogger) *Gateway {
 	return &Gateway{
 		ctx:    ctx,
 		client: client,

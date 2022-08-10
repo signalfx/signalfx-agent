@@ -9,7 +9,6 @@ import (
 	"github.com/signalfx/signalfx-agent/pkg/monitors"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/collectd/python"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/subproc"
-	log "github.com/sirupsen/logrus"
 )
 
 func init() {
@@ -75,7 +74,7 @@ type Monitor struct {
 
 // Configure configures and runs the plugin in collectd
 func (m *Monitor) Configure(conf *Config) error {
-	log.Warn("The collectd/elasticsearch monitor is deprecated in favor of the elasticsearch monitor.")
+	m.Logger().Warn("The collectd/elasticsearch monitor is deprecated in favor of the elasticsearch monitor.")
 	conf.pyConf = &python.Config{
 		MonitorConfig: conf.MonitorConfig,
 		Host:          conf.Host,

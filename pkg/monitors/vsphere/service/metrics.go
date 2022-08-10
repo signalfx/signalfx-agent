@@ -4,17 +4,18 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
 	"github.com/sirupsen/logrus"
 	"github.com/vmware/govmomi/vim25/types"
+
+	"github.com/signalfx/signalfx-agent/pkg/monitors/vsphere/model"
 )
 
 type MetricsSvc struct {
-	log     *logrus.Entry
+	log     logrus.FieldLogger
 	gateway IGateway
 }
 
-func NewMetricsService(gateway IGateway, log *logrus.Entry) *MetricsSvc {
+func NewMetricsService(gateway IGateway, log logrus.FieldLogger) *MetricsSvc {
 	return &MetricsSvc{log: log, gateway: gateway}
 }
 

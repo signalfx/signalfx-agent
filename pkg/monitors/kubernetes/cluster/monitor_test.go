@@ -6,21 +6,18 @@ import (
 	"os"
 	"testing"
 
-	//"github.com/davecgh/go-spew/spew"
-
+	. "github.com/onsi/ginkgo"
+	. "github.com/onsi/gomega"
+	"github.com/signalfx/golib/v3/datapoint"
+	log "github.com/sirupsen/logrus"
 	appsv1 "k8s.io/api/apps/v1"
 	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 
-	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/signalfx-agent/pkg/core/common/kubernetes"
 	"github.com/signalfx/signalfx-agent/pkg/monitors/types"
 	"github.com/signalfx/signalfx-agent/pkg/neotest"
-	log "github.com/sirupsen/logrus"
-
-	. "github.com/onsi/ginkgo"
-	. "github.com/onsi/gomega"
 	. "github.com/signalfx/signalfx-agent/pkg/neotest/k8s/testhelpers/fakek8s"
 )
 

@@ -12,8 +12,8 @@ import (
 
 	"github.com/signalfx/golib/v3/datapoint"
 	"github.com/signalfx/golib/v3/sfxclient"
+
 	"github.com/signalfx/signalfx-agent/pkg/utils/filter"
-	"github.com/sirupsen/logrus"
 )
 
 func (m *Monitor) getCPUAcctMetrics(controllerPath string, pathFilter filter.StringFilter) []*datapoint.Datapoint {
@@ -63,7 +63,7 @@ func (m *Monitor) getCPUAcctMetrics(controllerPath string, pathFilter filter.Str
 			err := withOpenFile(file, func(fd *os.File) {
 				usage, err := parseFunc(fd)
 				if err != nil {
-					logrus.WithError(err).Errorf("Failed to parse %s", file)
+					m.logger.WithError(err).Errorf("Failed to parse %s", file)
 					return
 				}
 
@@ -74,7 +74,7 @@ func (m *Monitor) getCPUAcctMetrics(controllerPath string, pathFilter filter.Str
 				dps = append(dps, usageDPs...)
 			})
 			if err != nil {
-				logrus.WithError(err).Errorf("Could not process %s", file)
+				m.logger.WithError(err).Errorf("Could not process %s", file)
 			}
 		}
 	})

@@ -123,7 +123,6 @@ func DoesServiceMatchRule(si Endpoint, ruleText string, doValidation bool) bool 
 	exprVal, ok := ret.(bool)
 	if !ok {
 		log.WithFields(log.Fields{
-
 			"discoveryRule":   ruleText,
 			"serviceInstance": spew.Sdump(si),
 		}).Errorf("Discovery rule did not evaluate to a true/false value")
